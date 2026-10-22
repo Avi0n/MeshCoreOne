@@ -33,6 +33,7 @@ import com.meshcoreone.android.core.services.contacts.AdvertisementService
 import com.meshcoreone.android.core.services.contacts.ChannelService
 import com.meshcoreone.android.core.services.contacts.ContactCleanupCoordinator
 import com.meshcoreone.android.core.services.contacts.ContactService
+import com.meshcoreone.android.core.services.contacts.ResolvedFloodScope
 import com.meshcoreone.android.core.services.device.DeviceService
 import com.meshcoreone.android.core.services.device.DeviceSettingsServiceFactory
 import com.meshcoreone.android.core.services.device.DeviceSettingsServices
@@ -116,6 +117,13 @@ class RadioSessionContainer private constructor(
 
     internal fun toolEvents(): Flow<MeshEvent> = session.events()
 
+    internal suspend fun applyChannelFloodScope(scope: ResolvedFloodScope) {
+        when (scope) {
+            ResolvedFloodScope.Unscoped -> session.setFloodScopeUnscoped()
+            is ResolvedFloodScope.Scope -> session.setFloodScope(scope.scope)
+        }
+    }
+
     override val dataStore: PersistenceStoreProtocol = env.store
 
     // region Services (constructed in dependency order; every dependency exists before its consumer)
@@ -185,11 +193,12 @@ class RadioSessionContainer private constructor(
     val roomAdminService = RoomAdminService(remoteNodeService, adminStore)
     val roomServerService = RoomServerService(session, remoteNodeService, adminStore, radioId, scope)
     val chatSendQueueService = ChatSendQueueService(
-        token, dataStore, messageService, MessagingChannelQuery { index -> session.getChannel(index) },
+        token, dataStore, messageService, MessagingChannelQuery { index -> channelService.fetchChannel(index) },
         OutgoingChannelReactionIndexer { id, channelIndex, senderName, text, timestamp ->
             reactionService.indexMessage(id, channelIndex, senderName, text, timestamp)
         },
         inputs.connection.signals, scope,
+        reporter = env.messagingReporter,
     )
     override val notificationActionHandler = NotificationActionHandler(
         dataStore, NotificationMessageSender(messageService), notificationService,

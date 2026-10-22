@@ -54,6 +54,42 @@ SCOPED_TASKS = {
     "external-oracle": [":core:testing:testDebugUnitTest", "validateModuleGraph"],
 }
 
+# AndroidOnly: WP-501 Fixed observation identities may precede the bounded failed-command tail.
+WP501_OBSERVATION_METHODS = {
+    ("WP501_PATH_RECENCY", "com.meshcoreone.android.parity.AdvertisementPathRecencyOriginalPredicateTest"): (
+        "originalDirectPathResponseCommitsPhoneRecencyWithoutChangingTheRadioWatermark",
+        "originalPathUpdateCompletesBothRealDeltaRoundsWithoutStampingPhoneRecency",
+    ),
+    ("WP501_ADVERT_ROLLBACK", "com.meshcoreone.android.parity.AdvertisementRollbackOriginalPredicateTest"): (
+        "originalSuccessfulCommitRemovesTheRealResurrectedRowWithoutDiscoverOrNotification",
+        "originalReAdvertClearsTheDeleteAndKeepsTheReaddedRoomContactAndNewHistory",
+        "originalFailedCommitRollsBackItsRealEarlyWriteAndCannotRequeueTheDeletedKey",
+        "originalCancelledTeardownStillRollsBackTheRealCommitLandingAfterStop",
+    ),
+}
+WP501_PATH_RECENCY_PHASES = (
+    "room-open", "room-close", "room-seed", "room-contact-check", "room-final-check",
+    "session-start", "session-stop", "service-monitor-start", "service-initial-drain",
+    "body", "predicate", "service-monitor-stop", "owner-cancel-join",
+    "service-events-finish", "service-listener-join", "protocol-listener-join",
+)
+WP501_OBSERVATION_MARKERS = {
+    f"{tag}|TEST|{name}|{method}{suffix}|{ending}"
+    for (tag, name), methods in WP501_OBSERVATION_METHODS.items()
+    for method in methods for suffix in ("", "()", "[31]", "[31]()")
+    for ending in ("START", "END|SUCCESS", "END|FAILURE", "END|SKIPPED")
+} | {
+    f"WP501_PATH_RECENCY|TASK|:app:{task}|{ending}"
+    for task in ("compileDebugKotlin", "compileDebugUnitTestKotlin", "testDebugUnitTest")
+    for ending in ("START", "END")
+} | {
+    f"{tag}|PHASE|{name}|{method}{suffix}|{phase}|{ending}"
+    for (tag, name), methods in WP501_OBSERVATION_METHODS.items() if tag == "WP501_PATH_RECENCY"
+    for method in methods for suffix in ("", "()", "[31]", "[31]()")
+    for phase in WP501_PATH_RECENCY_PHASES for ending in ("START", "END")
+}
+WP501_OBSERVATION_LIMIT = 128
+
 
 def output_directory(value=None):
     path = value or os.environ.get("ANDROID_CI_WORK") or os.environ.get("ANDROID_CI_OUTPUT")
@@ -106,6 +142,8 @@ def execution_identity():
 def print_failed_command_log(log: Path):
     failure = re.compile(r"\S.*\s>\s.+\sFAILED\s*$|\b\d+ tests? completed,\s*\d+ failed\b")
     preceding = deque(maxlen=2)
+    observations = deque(maxlen=WP501_OBSERVATION_LIMIT)
+    observation_count = 0
     following, tail = 0, ""
     with log.open(encoding="utf-8", errors="replace") as stream:
         while line := stream.readline(65537):
@@ -120,6 +158,10 @@ def print_failed_command_log(log: Path):
                 preceding.clear()
                 following = 0
                 continue
+            marker = line.rstrip("\r\n")
+            if marker in WP501_OBSERVATION_MARKERS:
+                observations.append(marker)
+                observation_count += 1
             if failure.search(line):
                 if not following:
                     for context in preceding:
@@ -130,6 +172,14 @@ def print_failed_command_log(log: Path):
                 print(line[:2000].rstrip("\r\n"), file=sys.stderr)
                 following -= 1
             preceding.append(line)
+    if observations:
+        print(
+            f"WP501_OBSERVATION_REPLAY|retained={len(observations)}|seen={observation_count}|"
+            f"truncated={observation_count > len(observations)}|not-test-evidence",
+            file=sys.stderr,
+        )
+        for marker in observations:
+            print(marker, file=sys.stderr)
     print(tail, file=sys.stderr)
 
 
@@ -320,6 +370,8 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
     if "scaffold" in selected:
         report["suites"] = collect_suites(REPO / "android")
         report["module_unit_tests"] = check_module_tests(REPO)
+        execute([sys.executable, str(REPO / "android" / "parity-tests" / "semantic.py"),
+                 "--check", "--verify-execution"], environment, output / "parity-family-execution.log")
         report["unit_test_methods"] = module_method_inventory(REPO, report["module_unit_tests"])
         report["reports"] = collect_lint(REPO / "android")
         validate_graph_runtime(REPO / "android" / "build" / "reports" / "scaffold")
@@ -351,9 +403,14 @@ def python_checks(output: Path):
             None, output / "traceability.log")
     execute([sys.executable, str(REPO / "android" / "scaffold" / "sync_notices.py")],
             None, output / "pinned-notices.log")
+    execute([sys.executable, str(REPO / "android" / "parity-tests" / "audit.py"), "--check"],
+            None, output / "parity-accounting.log")
+    execute([sys.executable, str(REPO / "android" / "parity-tests" / "semantic.py"), "--check"],
+            None, output / "parity-semantic-proposals.log")
     results = {}
     for name, path, minimum in (
         ("scaffold", REPO / "android" / "scaffold", PYTHON_MINIMUMS["scaffold"]),
+        ("parity-accounting", REPO / "android" / "parity-tests", 1),
     ):
         suite = unittest.TestLoader().discover(str(path), pattern="test_*.py")
         text = io.StringIO()

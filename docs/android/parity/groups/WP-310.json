@@ -1,0 +1,4349 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-310",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MC1/Utilities/ChannelJoinFloodScopeApplier.swift",
+      "blob_sha": "7abf8ebd27427995cac4d3e64718e1e3b1afe744",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/deeplinks/ChannelJoinFloodScopeApplier.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/deeplinks/ChannelJoinFloodScopeApplier.kt",
+          "sha256": "5c5ec591a5d4e879029b17ac0e9ddbd407680ac793b8a43480d566e0610dc970",
+          "source_references": [
+            "MC1/Utilities/ChannelJoinFloodScopeApplier.swift"
+          ],
+          "methods": [
+            {
+              "name": "preferredFloodScope",
+              "line": 10,
+              "end_line": 11
+            },
+            {
+              "name": "applyIfNeeded",
+              "line": 13,
+              "end_line": 27
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/CreatePrivateChannelView.swift",
+      "blob_sha": "a33240edc62a5fbf93e2f2fb554acb9b2399a59f",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelContracts.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheets.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolder.kt",
+        "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolderTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelContracts.kt",
+          "sha256": "6fa76241bc6becdd6c01e26518a845aea3bfa78987448c4e5adaaef5ed244cc6",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/ChannelOptionsSheet.swift",
+            "MC1/Views/Chats/Sheets/JoinChannelConfirmationSheet.swift"
+          ],
+          "methods": [
+            {
+              "name": "setFloodScope",
+              "line": 14,
+              "end_line": 22
+            },
+            {
+              "name": "report",
+              "line": 24,
+              "end_line": 32
+            },
+            {
+              "name": "report",
+              "line": 25,
+              "end_line": 32
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheets.kt",
+          "sha256": "da9a5569c86d90efce359dbd3769c0088793f566baac3816a4ae6e098c665490",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/ChannelOptionsSheet.swift",
+            "MC1/Views/Chats/Sheets/JoinHashtagChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPublicChannelView.swift"
+          ],
+          "methods": [
+            {
+              "name": "ChannelOptionsSheet",
+              "line": 43,
+              "end_line": 128
+            },
+            {
+              "name": "JoinChannelConfirmationSheet",
+              "line": 132,
+              "end_line": 201
+            },
+            {
+              "name": "Options",
+              "line": 204,
+              "end_line": 230
+            },
+            {
+              "name": "OptionRow",
+              "line": 233,
+              "end_line": 240
+            },
+            {
+              "name": "ChannelNameAndSecretForm",
+              "line": 243,
+              "end_line": 273
+            },
+            {
+              "name": "SubmitButton",
+              "line": 276,
+              "end_line": 284
+            },
+            {
+              "name": "titleFor",
+              "line": 287,
+              "end_line": 297
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolder.kt",
+          "sha256": "caf31aa514cade9a98cfb23980ed599ad16f9b5787d057e3c1b1eba49e980980",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinHashtagChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPublicChannelView.swift"
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "line": 45,
+              "end_line": 70
+            },
+            {
+              "name": "open",
+              "line": 72,
+              "end_line": 81
+            },
+            {
+              "name": "back",
+              "line": 83,
+              "end_line": 85
+            },
+            {
+              "name": "updateName",
+              "line": 87,
+              "end_line": 87
+            },
+            {
+              "name": "updateHashtag",
+              "line": 89,
+              "end_line": 89
+            },
+            {
+              "name": "updateSecret",
+              "line": 91,
+              "end_line": 97
+            },
+            {
+              "name": "createPrivate",
+              "line": 99,
+              "end_line": 102
+            },
+            {
+              "name": "joinPrivate",
+              "line": 104,
+              "end_line": 107
+            },
+            {
+              "name": "joinPublic",
+              "line": 109,
+              "end_line": 113
+            },
+            {
+              "name": "joinHashtag",
+              "line": 115,
+              "end_line": 125
+            },
+            {
+              "name": "joinLink",
+              "line": 127,
+              "end_line": 139
+            },
+            {
+              "name": "clearFailure",
+              "line": 141,
+              "end_line": 141
+            },
+            {
+              "name": "writeWithSecret",
+              "line": 143,
+              "end_line": 162
+            },
+            {
+              "name": "submit",
+              "line": 164,
+              "end_line": 178
+            },
+            {
+              "name": "requireRadio",
+              "line": 180,
+              "end_line": 180
+            },
+            {
+              "name": "firstSlot",
+              "line": 181,
+              "end_line": 181
+            },
+            {
+              "name": "fail",
+              "line": 182,
+              "end_line": 185
+            },
+            {
+              "name": "parseSecret",
+              "line": 188,
+              "end_line": 196
+            },
+            {
+              "name": "sanitizeHashtag",
+              "line": 198,
+              "end_line": 199
+            },
+            {
+              "name": "isValidHashtag",
+              "line": 201,
+              "end_line": 202
+            },
+            {
+              "name": "utf8Prefix",
+              "line": 204,
+              "end_line": 216
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolderTest.kt",
+          "sha256": "11f8af61432f99adf15d97fffa67f89cbdf6f8318ac1969c600b3b7758892c02",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinChannelConfirmationSheet.swift"
+          ],
+          "methods": [
+            {
+              "name": "load calculates user slots and public occupancy",
+              "line": 26,
+              "end_line": 33
+            },
+            {
+              "name": "name truncation never splits a UTF-8 code point",
+              "line": 37,
+              "end_line": 40
+            },
+            {
+              "name": "private secret parser validates exact bytes",
+              "line": 44,
+              "end_line": 53
+            },
+            {
+              "name": "hashtag sanitization and validation match source",
+              "line": 57,
+              "end_line": 62
+            },
+            {
+              "name": "create uses a generated 16-byte secret and opens share page",
+              "line": 66,
+              "end_line": 78
+            },
+            {
+              "name": "private join validates then returns stored channel",
+              "line": 82,
+              "end_line": 92
+            },
+            {
+              "name": "public join returns slot zero",
+              "line": 96,
+              "end_line": 104
+            },
+            {
+              "name": "existing hashtag is reused case insensitively",
+              "line": 108,
+              "end_line": 116
+            },
+            {
+              "name": "new hashtag passes full prefixed name as passphrase",
+              "line": 120,
+              "end_line": 129
+            },
+            {
+              "name": "link join applies declared region and returns updated channel",
+              "line": 133,
+              "end_line": 143
+            },
+            {
+              "name": "region failure keeps successful channel join",
+              "line": 147,
+              "end_line": 158
+            },
+            {
+              "name": "no slots is a typed failure",
+              "line": 162,
+              "end_line": 171
+            },
+            {
+              "name": "write cancellation is never reported as ordinary failure",
+              "line": 175,
+              "end_line": 189
+            },
+            {
+              "name": "rig",
+              "line": 191,
+              "end_line": 201
+            },
+            {
+              "name": "channel",
+              "line": 203,
+              "end_line": 204
+            },
+            {
+              "name": "fetchChannels",
+              "line": 217,
+              "end_line": 217
+            },
+            {
+              "name": "fetchChannel",
+              "line": 218,
+              "end_line": 218
+            },
+            {
+              "name": "setFloodScope",
+              "line": 219,
+              "end_line": 225
+            },
+            {
+              "name": "setChannelWithSecret",
+              "line": 235,
+              "end_line": 239
+            },
+            {
+              "name": "setChannel",
+              "line": 240,
+              "end_line": 245
+            },
+            {
+              "name": "setupPublicChannel",
+              "line": 246,
+              "end_line": 250
+            },
+            {
+              "name": "exportChannelUri",
+              "line": 251,
+              "end_line": 251
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Room/RoomAuthenticationSheet.swift",
+      "blob_sha": "b990a1513eb2e1dcdcbb95548e138b3385da4f10",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomContracts.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationScreen.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomContracts.kt",
+          "sha256": "e9645496a3ea86396b6128372c554712759777cf0c8ccb8fd8aa353df8f85b68",
+          "source_references": [
+            "MC1/Views/Chats/Room/RoomAuthenticationSheet.swift",
+            "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift"
+          ],
+          "methods": [
+            {
+              "name": "markFailedSendsSeen",
+              "line": 16,
+              "end_line": 24
+            },
+            {
+              "name": "retry",
+              "line": 23,
+              "end_line": 43
+            },
+            {
+              "name": "report",
+              "line": 45,
+              "end_line": 57
+            },
+            {
+              "name": "report",
+              "line": 46,
+              "end_line": 57
+            },
+            {
+              "name": "removeDeliveredNotifications",
+              "line": 54,
+              "end_line": 54
+            },
+            {
+              "name": "updateBadgeCount",
+              "line": 55,
+              "end_line": 55
+            },
+            {
+              "name": "conversationsChanged",
+              "line": 56,
+              "end_line": 56
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationScreen.kt",
+          "sha256": "f8b8e4482e6a6c2e43b65c5aceb8c468a48e897c2e3d2fdd95f53e9a7f1ee31b",
+          "source_references": [
+            "MC1/Views/Chats/Room/RoomAuthenticationSheet.swift",
+            "MC1/Views/RemoteNodes/Rooms/RoomConversationView.swift"
+          ],
+          "methods": [
+            {
+              "name": "RoomConversationRoute",
+              "line": 47,
+              "end_line": 81
+            },
+            {
+              "name": "RoomConversationContent",
+              "line": 84,
+              "end_line": 160
+            },
+            {
+              "name": "RoomMessageRowContent",
+              "line": 163,
+              "end_line": 181
+            },
+            {
+              "name": "RoomAuthenticationSheet",
+              "line": 185,
+              "end_line": 231
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Room/RoomConversationRow.swift",
+      "blob_sha": "ecffa1bf6d97bea4e998329add9c4d98fa0d08e2",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Room/RoomInfoSheet.swift",
+      "blob_sha": "3d9768da5ebd32182b0028917f8dd1ffed08461b",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/ScanChannelQRView.swift",
+      "blob_sha": "b027482e6b9a731d5b806cdc7cbca854a20ec270",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/AddContactConfirmationSheet.swift",
+      "blob_sha": "2810161749bc79d4962a8c8cca22d522b053f0c2",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/ChannelInfoSheet.swift",
+      "blob_sha": "7b034869f4ac781c7fcbd69e50ede3d14bc5d3bc",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/ChannelOptionsSheet.swift",
+      "blob_sha": "350bcc50172b0824d2f23815fef22eebc761f561",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelContracts.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheets.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelContracts.kt",
+          "sha256": "6fa76241bc6becdd6c01e26518a845aea3bfa78987448c4e5adaaef5ed244cc6",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/ChannelOptionsSheet.swift",
+            "MC1/Views/Chats/Sheets/JoinChannelConfirmationSheet.swift"
+          ],
+          "methods": [
+            {
+              "name": "setFloodScope",
+              "line": 14,
+              "end_line": 22
+            },
+            {
+              "name": "report",
+              "line": 24,
+              "end_line": 32
+            },
+            {
+              "name": "report",
+              "line": 25,
+              "end_line": 32
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheets.kt",
+          "sha256": "da9a5569c86d90efce359dbd3769c0088793f566baac3816a4ae6e098c665490",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/ChannelOptionsSheet.swift",
+            "MC1/Views/Chats/Sheets/JoinHashtagChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPublicChannelView.swift"
+          ],
+          "methods": [
+            {
+              "name": "ChannelOptionsSheet",
+              "line": 43,
+              "end_line": 128
+            },
+            {
+              "name": "JoinChannelConfirmationSheet",
+              "line": 132,
+              "end_line": 201
+            },
+            {
+              "name": "Options",
+              "line": 204,
+              "end_line": 230
+            },
+            {
+              "name": "OptionRow",
+              "line": 233,
+              "end_line": 240
+            },
+            {
+              "name": "ChannelNameAndSecretForm",
+              "line": 243,
+              "end_line": 273
+            },
+            {
+              "name": "SubmitButton",
+              "line": 276,
+              "end_line": 284
+            },
+            {
+              "name": "titleFor",
+              "line": 287,
+              "end_line": 297
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/ChatsConversationSheets.swift",
+      "blob_sha": "d27da1e0181ab553b982c4d3d5bdf40107623158",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/JoinChannelConfirmationSheet.swift",
+      "blob_sha": "83d6d64b1fc9094767fb8c3d098cf218f8ad6163",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelContracts.kt",
+        "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolderTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelContracts.kt",
+          "sha256": "6fa76241bc6becdd6c01e26518a845aea3bfa78987448c4e5adaaef5ed244cc6",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/ChannelOptionsSheet.swift",
+            "MC1/Views/Chats/Sheets/JoinChannelConfirmationSheet.swift"
+          ],
+          "methods": [
+            {
+              "name": "setFloodScope",
+              "line": 14,
+              "end_line": 22
+            },
+            {
+              "name": "report",
+              "line": 24,
+              "end_line": 32
+            },
+            {
+              "name": "report",
+              "line": 25,
+              "end_line": 32
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolderTest.kt",
+          "sha256": "11f8af61432f99adf15d97fffa67f89cbdf6f8318ac1969c600b3b7758892c02",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinChannelConfirmationSheet.swift"
+          ],
+          "methods": [
+            {
+              "name": "load calculates user slots and public occupancy",
+              "line": 26,
+              "end_line": 33
+            },
+            {
+              "name": "name truncation never splits a UTF-8 code point",
+              "line": 37,
+              "end_line": 40
+            },
+            {
+              "name": "private secret parser validates exact bytes",
+              "line": 44,
+              "end_line": 53
+            },
+            {
+              "name": "hashtag sanitization and validation match source",
+              "line": 57,
+              "end_line": 62
+            },
+            {
+              "name": "create uses a generated 16-byte secret and opens share page",
+              "line": 66,
+              "end_line": 78
+            },
+            {
+              "name": "private join validates then returns stored channel",
+              "line": 82,
+              "end_line": 92
+            },
+            {
+              "name": "public join returns slot zero",
+              "line": 96,
+              "end_line": 104
+            },
+            {
+              "name": "existing hashtag is reused case insensitively",
+              "line": 108,
+              "end_line": 116
+            },
+            {
+              "name": "new hashtag passes full prefixed name as passphrase",
+              "line": 120,
+              "end_line": 129
+            },
+            {
+              "name": "link join applies declared region and returns updated channel",
+              "line": 133,
+              "end_line": 143
+            },
+            {
+              "name": "region failure keeps successful channel join",
+              "line": 147,
+              "end_line": 158
+            },
+            {
+              "name": "no slots is a typed failure",
+              "line": 162,
+              "end_line": 171
+            },
+            {
+              "name": "write cancellation is never reported as ordinary failure",
+              "line": 175,
+              "end_line": 189
+            },
+            {
+              "name": "rig",
+              "line": 191,
+              "end_line": 201
+            },
+            {
+              "name": "channel",
+              "line": 203,
+              "end_line": 204
+            },
+            {
+              "name": "fetchChannels",
+              "line": 217,
+              "end_line": 217
+            },
+            {
+              "name": "fetchChannel",
+              "line": 218,
+              "end_line": 218
+            },
+            {
+              "name": "setFloodScope",
+              "line": 219,
+              "end_line": 225
+            },
+            {
+              "name": "setChannelWithSecret",
+              "line": 235,
+              "end_line": 239
+            },
+            {
+              "name": "setChannel",
+              "line": 240,
+              "end_line": 245
+            },
+            {
+              "name": "setupPublicChannel",
+              "line": 246,
+              "end_line": 250
+            },
+            {
+              "name": "exportChannelUri",
+              "line": 251,
+              "end_line": 251
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/JoinHashtagChannelView.swift",
+      "blob_sha": "6b0b26a292a5c4855c78d91a17c279dfbe54ea23",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheets.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolder.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheets.kt",
+          "sha256": "da9a5569c86d90efce359dbd3769c0088793f566baac3816a4ae6e098c665490",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/ChannelOptionsSheet.swift",
+            "MC1/Views/Chats/Sheets/JoinHashtagChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPublicChannelView.swift"
+          ],
+          "methods": [
+            {
+              "name": "ChannelOptionsSheet",
+              "line": 43,
+              "end_line": 128
+            },
+            {
+              "name": "JoinChannelConfirmationSheet",
+              "line": 132,
+              "end_line": 201
+            },
+            {
+              "name": "Options",
+              "line": 204,
+              "end_line": 230
+            },
+            {
+              "name": "OptionRow",
+              "line": 233,
+              "end_line": 240
+            },
+            {
+              "name": "ChannelNameAndSecretForm",
+              "line": 243,
+              "end_line": 273
+            },
+            {
+              "name": "SubmitButton",
+              "line": 276,
+              "end_line": 284
+            },
+            {
+              "name": "titleFor",
+              "line": 287,
+              "end_line": 297
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolder.kt",
+          "sha256": "caf31aa514cade9a98cfb23980ed599ad16f9b5787d057e3c1b1eba49e980980",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinHashtagChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPublicChannelView.swift"
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "line": 45,
+              "end_line": 70
+            },
+            {
+              "name": "open",
+              "line": 72,
+              "end_line": 81
+            },
+            {
+              "name": "back",
+              "line": 83,
+              "end_line": 85
+            },
+            {
+              "name": "updateName",
+              "line": 87,
+              "end_line": 87
+            },
+            {
+              "name": "updateHashtag",
+              "line": 89,
+              "end_line": 89
+            },
+            {
+              "name": "updateSecret",
+              "line": 91,
+              "end_line": 97
+            },
+            {
+              "name": "createPrivate",
+              "line": 99,
+              "end_line": 102
+            },
+            {
+              "name": "joinPrivate",
+              "line": 104,
+              "end_line": 107
+            },
+            {
+              "name": "joinPublic",
+              "line": 109,
+              "end_line": 113
+            },
+            {
+              "name": "joinHashtag",
+              "line": 115,
+              "end_line": 125
+            },
+            {
+              "name": "joinLink",
+              "line": 127,
+              "end_line": 139
+            },
+            {
+              "name": "clearFailure",
+              "line": 141,
+              "end_line": 141
+            },
+            {
+              "name": "writeWithSecret",
+              "line": 143,
+              "end_line": 162
+            },
+            {
+              "name": "submit",
+              "line": 164,
+              "end_line": 178
+            },
+            {
+              "name": "requireRadio",
+              "line": 180,
+              "end_line": 180
+            },
+            {
+              "name": "firstSlot",
+              "line": 181,
+              "end_line": 181
+            },
+            {
+              "name": "fail",
+              "line": 182,
+              "end_line": 185
+            },
+            {
+              "name": "parseSecret",
+              "line": 188,
+              "end_line": 196
+            },
+            {
+              "name": "sanitizeHashtag",
+              "line": 198,
+              "end_line": 199
+            },
+            {
+              "name": "isValidHashtag",
+              "line": 201,
+              "end_line": 202
+            },
+            {
+              "name": "utf8Prefix",
+              "line": 204,
+              "end_line": 216
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/JoinHashtagFromMessageView.swift",
+      "blob_sha": "20315303285c510d38af2e06cc2c41505de0675b",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/JoinPrivateChannelView.swift",
+      "blob_sha": "5e2ca07d1be0e3db2f44cc81462a1611fdef98f8",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheets.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolder.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheets.kt",
+          "sha256": "da9a5569c86d90efce359dbd3769c0088793f566baac3816a4ae6e098c665490",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/ChannelOptionsSheet.swift",
+            "MC1/Views/Chats/Sheets/JoinHashtagChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPublicChannelView.swift"
+          ],
+          "methods": [
+            {
+              "name": "ChannelOptionsSheet",
+              "line": 43,
+              "end_line": 128
+            },
+            {
+              "name": "JoinChannelConfirmationSheet",
+              "line": 132,
+              "end_line": 201
+            },
+            {
+              "name": "Options",
+              "line": 204,
+              "end_line": 230
+            },
+            {
+              "name": "OptionRow",
+              "line": 233,
+              "end_line": 240
+            },
+            {
+              "name": "ChannelNameAndSecretForm",
+              "line": 243,
+              "end_line": 273
+            },
+            {
+              "name": "SubmitButton",
+              "line": 276,
+              "end_line": 284
+            },
+            {
+              "name": "titleFor",
+              "line": 287,
+              "end_line": 297
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolder.kt",
+          "sha256": "caf31aa514cade9a98cfb23980ed599ad16f9b5787d057e3c1b1eba49e980980",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinHashtagChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPublicChannelView.swift"
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "line": 45,
+              "end_line": 70
+            },
+            {
+              "name": "open",
+              "line": 72,
+              "end_line": 81
+            },
+            {
+              "name": "back",
+              "line": 83,
+              "end_line": 85
+            },
+            {
+              "name": "updateName",
+              "line": 87,
+              "end_line": 87
+            },
+            {
+              "name": "updateHashtag",
+              "line": 89,
+              "end_line": 89
+            },
+            {
+              "name": "updateSecret",
+              "line": 91,
+              "end_line": 97
+            },
+            {
+              "name": "createPrivate",
+              "line": 99,
+              "end_line": 102
+            },
+            {
+              "name": "joinPrivate",
+              "line": 104,
+              "end_line": 107
+            },
+            {
+              "name": "joinPublic",
+              "line": 109,
+              "end_line": 113
+            },
+            {
+              "name": "joinHashtag",
+              "line": 115,
+              "end_line": 125
+            },
+            {
+              "name": "joinLink",
+              "line": 127,
+              "end_line": 139
+            },
+            {
+              "name": "clearFailure",
+              "line": 141,
+              "end_line": 141
+            },
+            {
+              "name": "writeWithSecret",
+              "line": 143,
+              "end_line": 162
+            },
+            {
+              "name": "submit",
+              "line": 164,
+              "end_line": 178
+            },
+            {
+              "name": "requireRadio",
+              "line": 180,
+              "end_line": 180
+            },
+            {
+              "name": "firstSlot",
+              "line": 181,
+              "end_line": 181
+            },
+            {
+              "name": "fail",
+              "line": 182,
+              "end_line": 185
+            },
+            {
+              "name": "parseSecret",
+              "line": 188,
+              "end_line": 196
+            },
+            {
+              "name": "sanitizeHashtag",
+              "line": 198,
+              "end_line": 199
+            },
+            {
+              "name": "isValidHashtag",
+              "line": 201,
+              "end_line": 202
+            },
+            {
+              "name": "utf8Prefix",
+              "line": 204,
+              "end_line": 216
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/JoinPublicChannelView.swift",
+      "blob_sha": "4279bd26dfdecc6f4ebf64b6ebf8b4e5105f8128",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheets.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolder.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheets.kt",
+          "sha256": "da9a5569c86d90efce359dbd3769c0088793f566baac3816a4ae6e098c665490",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/ChannelOptionsSheet.swift",
+            "MC1/Views/Chats/Sheets/JoinHashtagChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPublicChannelView.swift"
+          ],
+          "methods": [
+            {
+              "name": "ChannelOptionsSheet",
+              "line": 43,
+              "end_line": 128
+            },
+            {
+              "name": "JoinChannelConfirmationSheet",
+              "line": 132,
+              "end_line": 201
+            },
+            {
+              "name": "Options",
+              "line": 204,
+              "end_line": 230
+            },
+            {
+              "name": "OptionRow",
+              "line": 233,
+              "end_line": 240
+            },
+            {
+              "name": "ChannelNameAndSecretForm",
+              "line": 243,
+              "end_line": 273
+            },
+            {
+              "name": "SubmitButton",
+              "line": 276,
+              "end_line": 284
+            },
+            {
+              "name": "titleFor",
+              "line": 287,
+              "end_line": 297
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/ChannelSheetsStateHolder.kt",
+          "sha256": "caf31aa514cade9a98cfb23980ed599ad16f9b5787d057e3c1b1eba49e980980",
+          "source_references": [
+            "MC1/Views/Chats/CreatePrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinHashtagChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPrivateChannelView.swift",
+            "MC1/Views/Chats/Sheets/JoinPublicChannelView.swift"
+          ],
+          "methods": [
+            {
+              "name": "load",
+              "line": 45,
+              "end_line": 70
+            },
+            {
+              "name": "open",
+              "line": 72,
+              "end_line": 81
+            },
+            {
+              "name": "back",
+              "line": 83,
+              "end_line": 85
+            },
+            {
+              "name": "updateName",
+              "line": 87,
+              "end_line": 87
+            },
+            {
+              "name": "updateHashtag",
+              "line": 89,
+              "end_line": 89
+            },
+            {
+              "name": "updateSecret",
+              "line": 91,
+              "end_line": 97
+            },
+            {
+              "name": "createPrivate",
+              "line": 99,
+              "end_line": 102
+            },
+            {
+              "name": "joinPrivate",
+              "line": 104,
+              "end_line": 107
+            },
+            {
+              "name": "joinPublic",
+              "line": 109,
+              "end_line": 113
+            },
+            {
+              "name": "joinHashtag",
+              "line": 115,
+              "end_line": 125
+            },
+            {
+              "name": "joinLink",
+              "line": 127,
+              "end_line": 139
+            },
+            {
+              "name": "clearFailure",
+              "line": 141,
+              "end_line": 141
+            },
+            {
+              "name": "writeWithSecret",
+              "line": 143,
+              "end_line": 162
+            },
+            {
+              "name": "submit",
+              "line": 164,
+              "end_line": 178
+            },
+            {
+              "name": "requireRadio",
+              "line": 180,
+              "end_line": 180
+            },
+            {
+              "name": "firstSlot",
+              "line": 181,
+              "end_line": 181
+            },
+            {
+              "name": "fail",
+              "line": 182,
+              "end_line": 185
+            },
+            {
+              "name": "parseSecret",
+              "line": 188,
+              "end_line": 196
+            },
+            {
+              "name": "sanitizeHashtag",
+              "line": 198,
+              "end_line": 199
+            },
+            {
+              "name": "isValidHashtag",
+              "line": 201,
+              "end_line": 202
+            },
+            {
+              "name": "utf8Prefix",
+              "line": 204,
+              "end_line": 216
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/SendDMSheet.swift",
+      "blob_sha": "9c75cc681ed1180b733d13dc9316a2c379380894",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Chats/Sheets/ShareContactPickerSheet.swift",
+      "blob_sha": "e8fd2a8416d3e896cc3f09c3eb87199db19e1980",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomConversationView.swift",
+      "blob_sha": "c31d2baa290dfc7d9a4668e73757746be943bec3",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationScreen.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationScreen.kt",
+          "sha256": "f8b8e4482e6a6c2e43b65c5aceb8c468a48e897c2e3d2fdd95f53e9a7f1ee31b",
+          "source_references": [
+            "MC1/Views/Chats/Room/RoomAuthenticationSheet.swift",
+            "MC1/Views/RemoteNodes/Rooms/RoomConversationView.swift"
+          ],
+          "methods": [
+            {
+              "name": "RoomConversationRoute",
+              "line": 47,
+              "end_line": 81
+            },
+            {
+              "name": "RoomConversationContent",
+              "line": 84,
+              "end_line": 160
+            },
+            {
+              "name": "RoomMessageRowContent",
+              "line": 163,
+              "end_line": 181
+            },
+            {
+              "name": "RoomAuthenticationSheet",
+              "line": 185,
+              "end_line": 231
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift",
+      "blob_sha": "ef974c471aefcb1d86f76c8a02d44eabcca100b4",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomContracts.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolder.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomContracts.kt",
+          "sha256": "e9645496a3ea86396b6128372c554712759777cf0c8ccb8fd8aa353df8f85b68",
+          "source_references": [
+            "MC1/Views/Chats/Room/RoomAuthenticationSheet.swift",
+            "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift"
+          ],
+          "methods": [
+            {
+              "name": "markFailedSendsSeen",
+              "line": 16,
+              "end_line": 24
+            },
+            {
+              "name": "retry",
+              "line": 23,
+              "end_line": 43
+            },
+            {
+              "name": "report",
+              "line": 45,
+              "end_line": 57
+            },
+            {
+              "name": "report",
+              "line": 46,
+              "end_line": 57
+            },
+            {
+              "name": "removeDeliveredNotifications",
+              "line": 54,
+              "end_line": 54
+            },
+            {
+              "name": "updateBadgeCount",
+              "line": 55,
+              "end_line": 55
+            },
+            {
+              "name": "conversationsChanged",
+              "line": 56,
+              "end_line": 56
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolder.kt",
+          "sha256": "2dba56b3e8476a24cc84a9de441cdbdf809331c0f3d52a5df1821446cefe1844",
+          "source_references": [
+            "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift",
+            "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "start",
+              "line": 55,
+              "end_line": 74
+            },
+            {
+              "name": "load",
+              "line": 76,
+              "end_line": 104
+            },
+            {
+              "name": "refreshSession",
+              "line": 106,
+              "end_line": 116
+            },
+            {
+              "name": "prepareAuthentication",
+              "line": 118,
+              "end_line": 129
+            },
+            {
+              "name": "authenticate",
+              "line": 131,
+              "end_line": 147
+            },
+            {
+              "name": "reconnect",
+              "line": 149,
+              "end_line": 162
+            },
+            {
+              "name": "updateDraft",
+              "line": 164,
+              "end_line": 164
+            },
+            {
+              "name": "send",
+              "line": 166,
+              "end_line": 183
+            },
+            {
+              "name": "retry",
+              "line": 185,
+              "end_line": 198
+            },
+            {
+              "name": "clearFailure",
+              "line": 200,
+              "end_line": 200
+            },
+            {
+              "name": "appendIfNew",
+              "line": 202,
+              "end_line": 210
+            },
+            {
+              "name": "scheduleReload",
+              "line": 212,
+              "end_line": 222
+            },
+            {
+              "name": "rows",
+              "line": 228,
+              "end_line": 240
+            },
+            {
+              "name": "incomingClusterContinues",
+              "line": 242,
+              "end_line": 243
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomMessageAction.swift",
+      "blob_sha": "7763db34f2b268d65419550312fa10d8dee3dd96",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomMessageActionAvailability.swift",
+      "blob_sha": "b03840fddd489730f42b38b770faa5ef6883cc1c",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomMessageActionsSheet.swift",
+      "blob_sha": "1cb1a9de7daf81e203bafc646880c131dbe45994",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomMessageBubble.swift",
+      "blob_sha": "f3429551950b47763df29565214dc52e8ef34ebb",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomMessageDTO+Status.swift",
+      "blob_sha": "2d5414acfe862b325d3db10be29b7068eb595740",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomTiledRow.swift",
+      "blob_sha": "2bd5d2447f51e93999d3eb9815163a6dfeaddf77",
+      "kind": "production",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "kind": "test",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolder.kt",
+        "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolderTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolder.kt",
+          "sha256": "2dba56b3e8476a24cc84a9de441cdbdf809331c0f3d52a5df1821446cefe1844",
+          "source_references": [
+            "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift",
+            "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "start",
+              "line": 55,
+              "end_line": 74
+            },
+            {
+              "name": "load",
+              "line": 76,
+              "end_line": 104
+            },
+            {
+              "name": "refreshSession",
+              "line": 106,
+              "end_line": 116
+            },
+            {
+              "name": "prepareAuthentication",
+              "line": 118,
+              "end_line": 129
+            },
+            {
+              "name": "authenticate",
+              "line": 131,
+              "end_line": 147
+            },
+            {
+              "name": "reconnect",
+              "line": 149,
+              "end_line": 162
+            },
+            {
+              "name": "updateDraft",
+              "line": 164,
+              "end_line": 164
+            },
+            {
+              "name": "send",
+              "line": 166,
+              "end_line": 183
+            },
+            {
+              "name": "retry",
+              "line": 185,
+              "end_line": 198
+            },
+            {
+              "name": "clearFailure",
+              "line": 200,
+              "end_line": 200
+            },
+            {
+              "name": "appendIfNew",
+              "line": 202,
+              "end_line": 210
+            },
+            {
+              "name": "scheduleReload",
+              "line": 212,
+              "end_line": 222
+            },
+            {
+              "name": "rows",
+              "line": 228,
+              "end_line": 240
+            },
+            {
+              "name": "incomingClusterContinues",
+              "line": 242,
+              "end_line": 243
+            }
+          ]
+        },
+        {
+          "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolderTest.kt",
+          "sha256": "9659152db3dac68eff51f32954ef2f160aeb725103e8f18e1c485bb162c1f032",
+          "source_references": [
+            "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+            "MC1Tests/Views/Chats/ChatReconnectPopulateTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "tearDown",
+              "line": 37,
+              "end_line": 37
+            },
+            {
+              "name": "live arrivals insert by server timestamp",
+              "line": 41,
+              "end_line": 49
+            },
+            {
+              "name": "equal timestamps preserve arrival order",
+              "line": 53,
+              "end_line": 63
+            },
+            {
+              "name": "duplicate event is ignored",
+              "line": 67,
+              "end_line": 76
+            },
+            {
+              "name": "room rows preserve 300 second grouping boundary",
+              "line": 80,
+              "end_line": 89
+            },
+            {
+              "name": "author prefix not display name defines clusters",
+              "line": 93,
+              "end_line": 99
+            },
+            {
+              "name": "self messages have no incoming chrome",
+              "line": 103,
+              "end_line": 108
+            },
+            {
+              "name": "load performs room read side effects after fetch",
+              "line": 112,
+              "end_line": 119
+            },
+            {
+              "name": "authentication resolves contact and joins with remember choice",
+              "line": 123,
+              "end_line": 132
+            },
+            {
+              "name": "reconnect uses existing session and reloads",
+              "line": 136,
+              "end_line": 144
+            },
+            {
+              "name": "accepted send appends and clears draft",
+              "line": 148,
+              "end_line": 156
+            },
+            {
+              "name": "failed send preserves draft and exposes typed failure",
+              "line": 160,
+              "end_line": 170
+            },
+            {
+              "name": "send cancellation is never converted to an error",
+              "line": 174,
+              "end_line": 186
+            },
+            {
+              "name": "retry replaces matching message only",
+              "line": 190,
+              "end_line": 200
+            },
+            {
+              "name": "rig",
+              "line": 202,
+              "end_line": 220
+            },
+            {
+              "name": "removeDeliveredNotifications",
+              "line": 215,
+              "end_line": 215
+            },
+            {
+              "name": "updateBadgeCount",
+              "line": 216,
+              "end_line": 216
+            },
+            {
+              "name": "conversationsChanged",
+              "line": 217,
+              "end_line": 217
+            },
+            {
+              "name": "message",
+              "line": 222,
+              "end_line": 237
+            },
+            {
+              "name": "fetchMessages",
+              "line": 253,
+              "end_line": 256
+            },
+            {
+              "name": "refreshSession",
+              "line": 257,
+              "end_line": 257
+            },
+            {
+              "name": "contactFor",
+              "line": 258,
+              "end_line": 259
+            },
+            {
+              "name": "markAsRead",
+              "line": 260,
+              "end_line": 260
+            },
+            {
+              "name": "markFailedSendsSeen",
+              "line": 261,
+              "end_line": 261
+            },
+            {
+              "name": "updateSession",
+              "line": 262,
+              "end_line": 262
+            },
+            {
+              "name": "join",
+              "line": 273,
+              "end_line": 276
+            },
+            {
+              "name": "reconnect",
+              "line": 277,
+              "end_line": 280
+            },
+            {
+              "name": "post",
+              "line": 281,
+              "end_line": 292
+            },
+            {
+              "name": "retry",
+              "line": 293,
+              "end_line": 294
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/Views/Chats/ChannelInfoRegionQueryTargetsTests.swift",
+      "blob_sha": "8900f8752732932dacda497bece6e613e806a480",
+      "kind": "test",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "kind": "test",
+      "owner": "WP-310",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::out-of-order live message inserts into the middle()",
+      "parameter_family": "single",
+      "line": 31,
+      "end_line": 38,
+      "declaration_sha256": "1687732d90aa7311b8c96c0a427707bc247e92a6d8234c6cec1516f208b1dcf5",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 37,
+          "expression": "#expect(viewModel.messages.map(\\.timestamp) == [100, 150, 200, 300])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`out-of-order live message inserts into the middle`",
+          "line": 31,
+          "expression": "`out-of-order live message inserts into the middle`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel",
+          "line": 32,
+          "expression": "RoomConversationViewModel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 33,
+          "expression": "message(ts: 100)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 33,
+          "expression": "message(ts: 200)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 33,
+          "expression": "message(ts: 300)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.appendMessageIfNew",
+          "line": 35,
+          "expression": "viewModel.appendMessageIfNew(message(ts: 150))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 35,
+          "expression": "message(ts: 150)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.messages.map",
+          "line": 37,
+          "expression": "viewModel.messages.map(\\.timestamp)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolderTest.kt",
+          "sha256": "9659152db3dac68eff51f32954ef2f160aeb725103e8f18e1c485bb162c1f032",
+          "class": "com.meshcoreone.android.feature.chats.rooms.RoomConversationStateHolderTest",
+          "method_or_family_name": "live arrivals insert by server timestamp",
+          "line": 41,
+          "end_line": 49,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "30f2b5ae5e3600eb3eefa165709f513cdb0ce9562e1b8fe0aa8a19d6150d271d",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 48,
+              "expression": "assertEquals(listOf(100u, 200u, 300u), rig.holder.state.value.messages.map { it.timestamp })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "rig",
+              "line": 42,
+              "expression": "rig(messages = listOf(message(100u), message(300u)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 42,
+              "expression": "listOf(message(100u), message(300u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 42,
+              "expression": "message(100u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 42,
+              "expression": "message(300u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rig.holder.start",
+              "line": 43,
+              "expression": "rig.holder.start()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rig.holder.load",
+              "line": 44,
+              "expression": "rig.holder.load()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "events.emit",
+              "line": 46,
+              "expression": "events.emit(RoomConversationEvent.MessageReceived(rig.session.id, message(200u)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RoomConversationEvent.MessageReceived",
+              "line": 46,
+              "expression": "RoomConversationEvent.MessageReceived(rig.session.id, message(200u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 46,
+              "expression": "message(200u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 48,
+              "expression": "listOf(100u, 200u, 300u)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+            "MC1Tests/Views/Chats/ChatReconnectPopulateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RoomConversationViewModelOrderingTests::out-of-order live message inserts into the middle()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::message older than all inserts at the front()",
+      "parameter_family": "single",
+      "line": 41,
+      "end_line": 48,
+      "declaration_sha256": "c10be51b52e4ea795313b44f016a938f9840553ceef04bcf139cc72ff9368fb2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 47,
+          "expression": "#expect(viewModel.messages.map(\\.timestamp) == [100, 200, 300])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`message older than all inserts at the front`",
+          "line": 41,
+          "expression": "`message older than all inserts at the front`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel",
+          "line": 42,
+          "expression": "RoomConversationViewModel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 43,
+          "expression": "message(ts: 200)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 43,
+          "expression": "message(ts: 300)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.appendMessageIfNew",
+          "line": 45,
+          "expression": "viewModel.appendMessageIfNew(message(ts: 100))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 45,
+          "expression": "message(ts: 100)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.messages.map",
+          "line": 47,
+          "expression": "viewModel.messages.map(\\.timestamp)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::newest message inserts at the tail()",
+      "parameter_family": "single",
+      "line": 51,
+      "end_line": 58,
+      "declaration_sha256": "374a2e3781030343f75e0ad063dc150f36fab698850007327ffe354148d5a24a",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 57,
+          "expression": "#expect(viewModel.messages.map(\\.timestamp) == [100, 200, 300])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`newest message inserts at the tail`",
+          "line": 51,
+          "expression": "`newest message inserts at the tail`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel",
+          "line": 52,
+          "expression": "RoomConversationViewModel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 53,
+          "expression": "message(ts: 100)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 53,
+          "expression": "message(ts: 200)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.appendMessageIfNew",
+          "line": 55,
+          "expression": "viewModel.appendMessageIfNew(message(ts: 300))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 55,
+          "expression": "message(ts: 300)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.messages.map",
+          "line": 57,
+          "expression": "viewModel.messages.map(\\.timestamp)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::equal-timestamp message inserts after existing same-timestamp messages()",
+      "parameter_family": "single",
+      "line": 64,
+      "end_line": 73,
+      "declaration_sha256": "9bc79a6bea9de13792dfa851d01ec50122c3d393060f5d6dc2e0908dde46b21c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 72,
+          "expression": "#expect(viewModel.messages.map(\\.id) == [viewModel.messages[0].id, first.id, second.id])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`equal-timestamp message inserts after existing same-timestamp messages`",
+          "line": 64,
+          "expression": "`equal-timestamp message inserts after existing same-timestamp messages`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel",
+          "line": 65,
+          "expression": "RoomConversationViewModel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 66,
+          "expression": "message(ts: 200, text: \"first\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 67,
+          "expression": "message(ts: 200, text: \"second\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 68,
+          "expression": "message(ts: 100)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.appendMessageIfNew",
+          "line": 70,
+          "expression": "viewModel.appendMessageIfNew(second)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.messages.map",
+          "line": 72,
+          "expression": "viewModel.messages.map(\\.id)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolderTest.kt",
+          "sha256": "9659152db3dac68eff51f32954ef2f160aeb725103e8f18e1c485bb162c1f032",
+          "class": "com.meshcoreone.android.feature.chats.rooms.RoomConversationStateHolderTest",
+          "method_or_family_name": "equal timestamps preserve arrival order",
+          "line": 53,
+          "end_line": 63,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "5af75c6ce7fe9329080adb17510c500473e420c8c5eeb2d54bdbbe125890422a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 62,
+              "expression": "assertEquals(listOf(first.id, second.id), rig.holder.state.value.messages.map { it.id })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "message",
+              "line": 54,
+              "expression": "message(200u, text = \"first\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rig",
+              "line": 55,
+              "expression": "rig(messages = listOf(first))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 55,
+              "expression": "listOf(first)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rig.holder.start",
+              "line": 56,
+              "expression": "rig.holder.start()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rig.holder.load",
+              "line": 57,
+              "expression": "rig.holder.load()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 58,
+              "expression": "message(200u, text = \"second\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "events.emit",
+              "line": 60,
+              "expression": "events.emit(RoomConversationEvent.MessageReceived(rig.session.id, second))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RoomConversationEvent.MessageReceived",
+              "line": 60,
+              "expression": "RoomConversationEvent.MessageReceived(rig.session.id, second)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 62,
+              "expression": "listOf(first.id, second.id)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+            "MC1Tests/Views/Chats/ChatReconnectPopulateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RoomConversationViewModelOrderingTests::equal-timestamp message inserts after existing same-timestamp messages()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::duplicate id is ignored()",
+      "parameter_family": "single",
+      "line": 76,
+      "end_line": 84,
+      "declaration_sha256": "b80a6ac0b82dfbca3134f171d962ff48f11fa87bbfc05cb87aff2682c86db3f1",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 83,
+          "expression": "#expect(viewModel.messages.map(\\.timestamp) == [100, 200])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`duplicate id is ignored`",
+          "line": 76,
+          "expression": "`duplicate id is ignored`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel",
+          "line": 77,
+          "expression": "RoomConversationViewModel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 78,
+          "expression": "message(ts: 200)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 79,
+          "expression": "message(ts: 100)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.appendMessageIfNew",
+          "line": 81,
+          "expression": "viewModel.appendMessageIfNew(message(id: existing.id, ts: 150))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "message",
+          "line": 81,
+          "expression": "message(id: existing.id, ts: 150)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.messages.map",
+          "line": 83,
+          "expression": "viewModel.messages.map(\\.timestamp)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolderTest.kt",
+          "sha256": "9659152db3dac68eff51f32954ef2f160aeb725103e8f18e1c485bb162c1f032",
+          "class": "com.meshcoreone.android.feature.chats.rooms.RoomConversationStateHolderTest",
+          "method_or_family_name": "duplicate event is ignored",
+          "line": 67,
+          "end_line": 76,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "dd1874a57d4dc158d7b0e003383fcb71d0c29cef7027a4148b4816d97fbd050a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 75,
+              "expression": "assertEquals(listOf(\"message\"), rig.holder.state.value.messages.map { it.text })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "message",
+              "line": 68,
+              "expression": "message(100u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rig",
+              "line": 69,
+              "expression": "rig(messages = listOf(existing))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 69,
+              "expression": "listOf(existing)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rig.holder.start",
+              "line": 70,
+              "expression": "rig.holder.start()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rig.holder.load",
+              "line": 71,
+              "expression": "rig.holder.load()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "events.emit",
+              "line": 73,
+              "expression": "events.emit(RoomConversationEvent.MessageReceived(rig.session.id, existing.copy(text = \"changed\")))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RoomConversationEvent.MessageReceived",
+              "line": 73,
+              "expression": "RoomConversationEvent.MessageReceived(rig.session.id, existing.copy(text = \"changed\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "existing.copy",
+              "line": 73,
+              "expression": "existing.copy(text = \"changed\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 75,
+              "expression": "listOf(\"message\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+            "MC1Tests/Views/Chats/ChatReconnectPopulateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RoomConversationViewModelOrderingTests::duplicate id is ignored()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::same-prefix burst books name on first and avatar on last()",
+      "parameter_family": "single",
+      "line": 87,
+      "end_line": 99,
+      "declaration_sha256": "f6a6865b578a6529792570c8164de08e6a1c159bb859bd50d2126248b43483a8",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 97,
+          "expression": "#expect(bookends.nameIDs == [messages[0].id])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 98,
+          "expression": "#expect(bookends.avatarIDs == [messages[2].id])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`same-prefix burst books name on first and avatar on last`",
+          "line": 87,
+          "expression": "`same-prefix burst books name on first and avatar on last`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 88,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 90,
+          "expression": "roomMessage(ts: 100, prefix: alice, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 91,
+          "expression": "roomMessage(ts: 160, prefix: alice, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 92,
+          "expression": "roomMessage(ts: 220, prefix: alice, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel.incomingBookends",
+          "line": 95,
+          "expression": "RoomConversationViewModel.incomingBookends(in: messages)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::different prefixes are two clusters even when display names match()",
+      "parameter_family": "single",
+      "line": 102,
+      "end_line": 112,
+      "declaration_sha256": "d5db24f7ee67a885c5a651bdf1651c6078f606171ec24f6ead875406f6dacd0d",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 110,
+          "expression": "#expect(bookends.nameIDs == [messages[0].id, messages[1].id])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 111,
+          "expression": "#expect(bookends.avatarIDs == [messages[0].id, messages[1].id])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`different prefixes are two clusters even when display names match`",
+          "line": 102,
+          "expression": "`different prefixes are two clusters even when display names match`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 104,
+          "expression": "roomMessage(ts: 100, prefix: Data([0xAA]), name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 104,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 105,
+          "expression": "roomMessage(ts: 160, prefix: Data([0xBB]), name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 105,
+          "expression": "Data([0xBB])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel.incomingBookends",
+          "line": 108,
+          "expression": "RoomConversationViewModel.incomingBookends(in: messages)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolderTest.kt",
+          "sha256": "9659152db3dac68eff51f32954ef2f160aeb725103e8f18e1c485bb162c1f032",
+          "class": "com.meshcoreone.android.feature.chats.rooms.RoomConversationStateHolderTest",
+          "method_or_family_name": "author prefix not display name defines clusters",
+          "line": 93,
+          "end_line": 99,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "cfea087bab8b973af6600818b67ca1958f36503ad34ac11911c764203b879faf",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 98,
+              "expression": "assertTrue(rows.all { it.showSenderName && it.showAvatar })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RoomConversationStateHolder.rows",
+              "line": 94,
+              "expression": "RoomConversationStateHolder.rows(\n            listOf(message(100u, prefix = 1), message(101u, prefix = 2)),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 95,
+              "expression": "listOf(message(100u, prefix = 1), message(101u, prefix = 2))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 95,
+              "expression": "message(100u, prefix = 1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 95,
+              "expression": "message(101u, prefix = 2)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+            "MC1Tests/Views/Chats/ChatReconnectPopulateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RoomConversationViewModelOrderingTests::different prefixes are two clusters even when display names match()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::self messages never show a name or avatar()",
+      "parameter_family": "single",
+      "line": 115,
+      "end_line": 125,
+      "declaration_sha256": "5211375383fa3475b00862cdff5adf7b679a72d68ee6a677c583b02ecddb87e2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 123,
+          "expression": "#expect(bookends.nameIDs.isEmpty)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 124,
+          "expression": "#expect(bookends.avatarIDs.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`self messages never show a name or avatar`",
+          "line": 115,
+          "expression": "`self messages never show a name or avatar`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 117,
+          "expression": "roomMessage(ts: 100, prefix: Data([0xAA]), name: \"Me\", isFromSelf: true)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 117,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 118,
+          "expression": "roomMessage(ts: 160, prefix: Data([0xAA]), name: \"Me\", isFromSelf: true)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 118,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel.incomingBookends",
+          "line": 121,
+          "expression": "RoomConversationViewModel.incomingBookends(in: messages)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolderTest.kt",
+          "sha256": "9659152db3dac68eff51f32954ef2f160aeb725103e8f18e1c485bb162c1f032",
+          "class": "com.meshcoreone.android.feature.chats.rooms.RoomConversationStateHolderTest",
+          "method_or_family_name": "self messages have no incoming chrome",
+          "line": 103,
+          "end_line": 108,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "5b93081378bc79a5a1759a80ec9a7665342c53b3f8d301a52baaad62bcabf981",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 106,
+              "expression": "assertFalse(rows.single().showSenderName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 107,
+              "expression": "assertFalse(rows.single().showAvatar)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RoomConversationStateHolder.rows",
+              "line": 104,
+              "expression": "RoomConversationStateHolder.rows(listOf(message(100u, self = true)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 104,
+              "expression": "listOf(message(100u, self = true))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 104,
+              "expression": "message(100u, self = true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rows.single",
+              "line": 106,
+              "expression": "rows.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rows.single",
+              "line": 107,
+              "expression": "rows.single()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+            "MC1Tests/Views/Chats/ChatReconnectPopulateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RoomConversationViewModelOrderingTests::self messages never show a name or avatar()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::follow-up flips previous row Hashable identity so the tiled cell reconfigures()",
+      "parameter_family": "single",
+      "line": 128,
+      "end_line": 142,
+      "declaration_sha256": "31a755fcdbc2014452a0a0e397117c62b4e801c3c8c79960f1573f19e8cb4f6e",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 136,
+          "expression": "#expect(before[0].id == first.id)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 137,
+          "expression": "#expect(before[0].showAvatar == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 138,
+          "expression": "#expect(after[0].id == first.id)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 139,
+          "expression": "#expect(after[0].showAvatar == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 140,
+          "expression": "#expect(after[1].showAvatar == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 141,
+          "expression": "#expect(before[0] != after[0])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`follow-up flips previous row Hashable identity so the tiled cell reconfigures`",
+          "line": 128,
+          "expression": "`follow-up flips previous row Hashable identity so the tiled cell reconfigures`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 129,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 130,
+          "expression": "roomMessage(ts: 100, prefix: prefix, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 131,
+          "expression": "roomMessage(ts: 160, prefix: prefix, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel.tiledRows",
+          "line": 133,
+          "expression": "RoomConversationViewModel.tiledRows(in: [first])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel.tiledRows",
+          "line": 134,
+          "expression": "RoomConversationViewModel.tiledRows(in: [first, second])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::mid-insert flips the next row timestamp flag()",
+      "parameter_family": "single",
+      "line": 145,
+      "end_line": 158,
+      "declaration_sha256": "35667005eefa4547aad5bbd87191b17451e7a71830a6968d5276ccd0aadf9bca",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 152,
+          "expression": "#expect(before[1].showTimestamp == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 155,
+          "expression": "#expect(after[2].id == later.id)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 156,
+          "expression": "#expect(after[2].showTimestamp == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 157,
+          "expression": "#expect(before[1] != after[2])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`mid-insert flips the next row timestamp flag`",
+          "line": 145,
+          "expression": "`mid-insert flips the next row timestamp flag`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 146,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 147,
+          "expression": "roomMessage(ts: 100, prefix: prefix, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 148,
+          "expression": "roomMessage(ts: 500, prefix: prefix, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 149,
+          "expression": "roomMessage(ts: 250, prefix: prefix, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel.tiledRows",
+          "line": 151,
+          "expression": "RoomConversationViewModel.tiledRows(in: [first, later])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel.tiledRows",
+          "line": 154,
+          "expression": "RoomConversationViewModel.tiledRows(in: [first, mid, later])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::300s same-prefix is one cluster; 301s is two()",
+      "parameter_family": "single",
+      "line": 161,
+      "end_line": 177,
+      "declaration_sha256": "b39684f5e23a8c7a90ec5543650f2ea59c789764c614bb326a644c66328eba5e",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 168,
+          "expression": "#expect(clustered[0].showSenderName == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 169,
+          "expression": "#expect(clustered[0].showAvatar == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 170,
+          "expression": "#expect(clustered[1].showSenderName == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 171,
+          "expression": "#expect(clustered[1].showAvatar == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 174,
+          "expression": "#expect(split[0].showAvatar == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 175,
+          "expression": "#expect(split[1].showSenderName == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 176,
+          "expression": "#expect(split[1].showAvatar == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`300s same-prefix is one cluster; 301s is two`",
+          "line": 161,
+          "expression": "`300s same-prefix is one cluster; 301s is two`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 162,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 163,
+          "expression": "roomMessage(ts: 1000, prefix: prefix, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 164,
+          "expression": "roomMessage(ts: 1300, prefix: prefix, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 165,
+          "expression": "roomMessage(ts: 1301, prefix: prefix, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel.tiledRows",
+          "line": 167,
+          "expression": "RoomConversationViewModel.tiledRows(in: [a, at300])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel.tiledRows",
+          "line": 173,
+          "expression": "RoomConversationViewModel.tiledRows(in: [a, at301])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolderTest.kt",
+          "sha256": "9659152db3dac68eff51f32954ef2f160aeb725103e8f18e1c485bb162c1f032",
+          "class": "com.meshcoreone.android.feature.chats.rooms.RoomConversationStateHolderTest",
+          "method_or_family_name": "room rows preserve 300 second grouping boundary",
+          "line": 80,
+          "end_line": 89,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "0135c899569ccdb18e01a9d711fd57222d64eadf37d930ff6b8347fba71a056b",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 84,
+              "expression": "assertFalse(atBoundary.first().showAvatar)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 85,
+              "expression": "assertFalse(atBoundary.last().showSenderName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 86,
+              "expression": "assertTrue(outside.first().showAvatar)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 87,
+              "expression": "assertTrue(outside.last().showSenderName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 88,
+              "expression": "assertTrue(outside.last().showTimestamp)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RoomConversationStateHolder.rows",
+              "line": 81,
+              "expression": "RoomConversationStateHolder.rows(listOf(message(1000u), message(1300u)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 81,
+              "expression": "listOf(message(1000u), message(1300u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 81,
+              "expression": "message(1000u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 81,
+              "expression": "message(1300u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RoomConversationStateHolder.rows",
+              "line": 82,
+              "expression": "RoomConversationStateHolder.rows(listOf(message(1000u), message(1301u)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 82,
+              "expression": "listOf(message(1000u), message(1301u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 82,
+              "expression": "message(1000u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message",
+              "line": 82,
+              "expression": "message(1301u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "atBoundary.first",
+              "line": 84,
+              "expression": "atBoundary.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "atBoundary.last",
+              "line": 85,
+              "expression": "atBoundary.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "outside.first",
+              "line": 86,
+              "expression": "outside.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "outside.last",
+              "line": 87,
+              "expression": "outside.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "outside.last",
+              "line": 88,
+              "expression": "outside.last()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+            "MC1Tests/Views/Chats/ChatReconnectPopulateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RoomConversationViewModelOrderingTests::300s same-prefix is one cluster; 301s is two()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift",
+      "source_blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f",
+      "case_id": "RoomConversationViewModelOrderingTests::self message breaks an incoming prefix cluster()",
+      "parameter_family": "single",
+      "line": 180,
+      "end_line": 193,
+      "declaration_sha256": "42e585112141c41fdec37d3a288f12546565be44e5eb86e713011cbaaede2516",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 187,
+          "expression": "#expect(rows[0].showSenderName == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 188,
+          "expression": "#expect(rows[0].showAvatar == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 189,
+          "expression": "#expect(rows[1].showSenderName == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 190,
+          "expression": "#expect(rows[1].showAvatar == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 191,
+          "expression": "#expect(rows[2].showSenderName == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 192,
+          "expression": "#expect(rows[2].showAvatar == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`self message breaks an incoming prefix cluster`",
+          "line": 180,
+          "expression": "`self message breaks an incoming prefix cluster`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 181,
+          "expression": "Data([0xAA])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 182,
+          "expression": "roomMessage(ts: 100, prefix: prefix, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 183,
+          "expression": "roomMessage(ts: 160, prefix: prefix, name: \"Alice\", isFromSelf: true)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "roomMessage",
+          "line": 184,
+          "expression": "roomMessage(ts: 220, prefix: prefix, name: \"Alice\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RoomConversationViewModel.tiledRows",
+          "line": 186,
+          "expression": "RoomConversationViewModel.tiledRows(in: [first, me, third])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/ChannelInfoRegionQueryTargetsTests.swift",
+      "source_blob_sha": "8900f8752732932dacda497bece6e613e806a480",
+      "case_id": "ChannelInfoRegionQueryTargetsTests::queries responders present only in the discovered-nodes table()",
+      "parameter_family": "single",
+      "line": 17,
+      "end_line": 28,
+      "declaration_sha256": "004449203e28fe85f73ee99f5b0749231f24d83a191063b0d9e1c97d0b02e5f0",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 26,
+          "expression": "#expect(targets.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 27,
+          "expression": "#expect(targets.first?.publicKey == Self.keyA)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`queries responders present only in the discovered-nodes table`",
+          "line": 17,
+          "expression": "`queries responders present only in the discovered-nodes table`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionDiscoveryService.buildRegionQueryTargets",
+          "line": 19,
+          "expression": "RegionDiscoveryService.buildRegionQueryTargets(\n      responders: responders,\n      contacts: [],\n      discoveredNodes: [Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater)],\n      supportsAdHocRequest: true\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDiscoveredNode",
+          "line": 22,
+          "expression": "Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/ChannelInfoRegionQueryTargetsTests.swift",
+      "source_blob_sha": "8900f8752732932dacda497bece6e613e806a480",
+      "case_id": "ChannelInfoRegionQueryTargetsTests::prefers contact record when both sources have the responder()",
+      "parameter_family": "single",
+      "line": 31,
+      "end_line": 42,
+      "declaration_sha256": "d3576b351537e460cd6ee9c4b0ce8585ac8765b31834e9b67df2a9bd873df1bd",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 40,
+          "expression": "#expect(targets.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 41,
+          "expression": "#expect(targets.first?.advertisedName == \"from-contact\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`prefers contact record when both sources have the responder`",
+          "line": 31,
+          "expression": "`prefers contact record when both sources have the responder`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionDiscoveryService.buildRegionQueryTargets",
+          "line": 33,
+          "expression": "RegionDiscoveryService.buildRegionQueryTargets(\n      responders: responders,\n      contacts: [Self.makeContact(publicKey: Self.keyA, type: .repeater, name: \"from-contact\")],\n      discoveredNodes: [Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater, name: \"from-discovery\")],\n      supportsAdHocRequest: true\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 35,
+          "expression": "Self.makeContact(publicKey: Self.keyA, type: .repeater, name: \"from-contact\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDiscoveredNode",
+          "line": 36,
+          "expression": "Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater, name: \"from-discovery\")",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/ChannelInfoRegionQueryTargetsTests.swift",
+      "source_blob_sha": "8900f8752732932dacda497bece6e613e806a480",
+      "case_id": "ChannelInfoRegionQueryTargetsTests::unions contacts and discovered nodes without duplication()",
+      "parameter_family": "single",
+      "line": 45,
+      "end_line": 60,
+      "declaration_sha256": "47cac5772b1765a0cdae04a03ead23098397eca7864f2cafc57e5de6f55bdb34",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 59,
+          "expression": "#expect(keys == responders)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`unions contacts and discovered nodes without duplication`",
+          "line": 45,
+          "expression": "`unions contacts and discovered nodes without duplication`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionDiscoveryService.buildRegionQueryTargets",
+          "line": 47,
+          "expression": "RegionDiscoveryService.buildRegionQueryTargets(\n      responders: responders,\n      contacts: [Self.makeContact(publicKey: Self.keyA, type: .repeater)],\n      discoveredNodes: [\n        Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater),\n        Self.makeDiscoveredNode(publicKey: Self.keyB, type: .repeater),\n        Self.makeDiscoveredNode(publicKey: Self.keyC, type: .repeater)\n      ],\n      supportsAdHocRequest: true\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 49,
+          "expression": "Self.makeContact(publicKey: Self.keyA, type: .repeater)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDiscoveredNode",
+          "line": 51,
+          "expression": "Self.makeDiscoveredNode(publicKey: Self.keyA, type: .repeater)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDiscoveredNode",
+          "line": 52,
+          "expression": "Self.makeDiscoveredNode(publicKey: Self.keyB, type: .repeater)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDiscoveredNode",
+          "line": 53,
+          "expression": "Self.makeDiscoveredNode(publicKey: Self.keyC, type: .repeater)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Set",
+          "line": 58,
+          "expression": "Set(targets.map(\\.publicKey))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "targets.map",
+          "line": 58,
+          "expression": "targets.map(\\.publicKey)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/ChannelInfoRegionQueryTargetsTests.swift",
+      "source_blob_sha": "8900f8752732932dacda497bece6e613e806a480",
+      "case_id": "ChannelInfoRegionQueryTargetsTests::excludes non-repeater types from both pools()",
+      "parameter_family": "single",
+      "line": 63,
+      "end_line": 80,
+      "declaration_sha256": "0aea807b42cbb31db968b54ef78797db44db2bb773a75654af43cda793f251d0",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 79,
+          "expression": "#expect(keys == [Self.keyB, Self.keyD])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`excludes non-repeater types from both pools`",
+          "line": 63,
+          "expression": "`excludes non-repeater types from both pools`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionDiscoveryService.buildRegionQueryTargets",
+          "line": 65,
+          "expression": "RegionDiscoveryService.buildRegionQueryTargets(\n      responders: responders,\n      contacts: [\n        Self.makeContact(publicKey: Self.keyA, type: .chat),\n        Self.makeContact(publicKey: Self.keyB, type: .repeater)\n      ],\n      discoveredNodes: [\n        Self.makeDiscoveredNode(publicKey: Self.keyC, type: .room),\n        Self.makeDiscoveredNode(publicKey: Self.keyD, type: .repeater)\n      ],\n      supportsAdHocRequest: true\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 68,
+          "expression": "Self.makeContact(publicKey: Self.keyA, type: .chat)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 69,
+          "expression": "Self.makeContact(publicKey: Self.keyB, type: .repeater)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDiscoveredNode",
+          "line": 72,
+          "expression": "Self.makeDiscoveredNode(publicKey: Self.keyC, type: .room)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDiscoveredNode",
+          "line": 73,
+          "expression": "Self.makeDiscoveredNode(publicKey: Self.keyD, type: .repeater)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Set",
+          "line": 78,
+          "expression": "Set(targets.map(\\.publicKey))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "targets.map",
+          "line": 78,
+          "expression": "targets.map(\\.publicKey)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/ChannelInfoRegionQueryTargetsTests.swift",
+      "source_blob_sha": "8900f8752732932dacda497bece6e613e806a480",
+      "case_id": "ChannelInfoRegionQueryTargetsTests::drops responders that are in neither pool()",
+      "parameter_family": "single",
+      "line": 83,
+      "end_line": 93,
+      "declaration_sha256": "178ab57d5b3668db8c6dde2da5224f7a49df14c61a6871181dc1fb05124e521e",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 92,
+          "expression": "#expect(targets.map(\\.publicKey) == [Self.keyA])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`drops responders that are in neither pool`",
+          "line": 83,
+          "expression": "`drops responders that are in neither pool`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionDiscoveryService.buildRegionQueryTargets",
+          "line": 85,
+          "expression": "RegionDiscoveryService.buildRegionQueryTargets(\n      responders: responders,\n      contacts: [Self.makeContact(publicKey: Self.keyA, type: .repeater)],\n      discoveredNodes: [],\n      supportsAdHocRequest: true\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 87,
+          "expression": "Self.makeContact(publicKey: Self.keyA, type: .repeater)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "targets.map",
+          "line": 92,
+          "expression": "targets.map(\\.publicKey)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/ChannelInfoRegionQueryTargetsTests.swift",
+      "source_blob_sha": "8900f8752732932dacda497bece6e613e806a480",
+      "case_id": "ChannelInfoRegionQueryTargetsTests::drops non-responders even if they are repeater contacts()",
+      "parameter_family": "single",
+      "line": 96,
+      "end_line": 109,
+      "declaration_sha256": "817edc0b19148dcdb0ad9f2e5d8283d6e871ffc01b9d461d3e7b8ca2e281b472",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 108,
+          "expression": "#expect(targets.map(\\.publicKey) == [Self.keyA])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`drops non-responders even if they are repeater contacts`",
+          "line": 96,
+          "expression": "`drops non-responders even if they are repeater contacts`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionDiscoveryService.buildRegionQueryTargets",
+          "line": 98,
+          "expression": "RegionDiscoveryService.buildRegionQueryTargets(\n      responders: responders,\n      contacts: [\n        Self.makeContact(publicKey: Self.keyA, type: .repeater),\n        Self.makeContact(publicKey: Self.keyB, type: .repeater)\n      ],\n      discoveredNodes: [],\n      supportsAdHocRequest: true\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 101,
+          "expression": "Self.makeContact(publicKey: Self.keyA, type: .repeater)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 102,
+          "expression": "Self.makeContact(publicKey: Self.keyB, type: .repeater)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "targets.map",
+          "line": 108,
+          "expression": "targets.map(\\.publicKey)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/ChannelInfoRegionQueryTargetsTests.swift",
+      "source_blob_sha": "8900f8752732932dacda497bece6e613e806a480",
+      "case_id": "ChannelInfoRegionQueryTargetsTests::forwards outPath bytes from contact source()",
+      "parameter_family": "single",
+      "line": 112,
+      "end_line": 131,
+      "declaration_sha256": "93a59592c2250264a98273401a2cbf3962ee460ec2555a6b09147eee737e8e6d",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 129,
+          "expression": "#expect(targets.first?.outPathLength == UInt8(contactPath.count))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 130,
+          "expression": "#expect(targets.first?.outPath == contactPath)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`forwards outPath bytes from contact source`",
+          "line": 112,
+          "expression": "`forwards outPath bytes from contact source`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 113,
+          "expression": "Data([0x11, 0x22, 0x33])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionDiscoveryService.buildRegionQueryTargets",
+          "line": 115,
+          "expression": "RegionDiscoveryService.buildRegionQueryTargets(\n      responders: responders,\n      contacts: [\n        Self.makeContact(\n          publicKey: Self.keyA,\n          type: .repeater,\n          outPathLength: UInt8(contactPath.count),\n          outPath: contactPath\n        )\n      ],\n      discoveredNodes: [],\n      supportsAdHocRequest: true\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 118,
+          "expression": "Self.makeContact(\n          publicKey: Self.keyA,\n          type: .repeater,\n          outPathLength: UInt8(contactPath.count),\n          outPath: contactPath\n        )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt8",
+          "line": 121,
+          "expression": "UInt8(contactPath.count)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt8",
+          "line": 129,
+          "expression": "UInt8(contactPath.count)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/ChannelInfoRegionQueryTargetsTests.swift",
+      "source_blob_sha": "8900f8752732932dacda497bece6e613e806a480",
+      "case_id": "ChannelInfoRegionQueryTargetsTests::forwards outPath bytes from discovered-node source()",
+      "parameter_family": "single",
+      "line": 134,
+      "end_line": 153,
+      "declaration_sha256": "9dd668a8fb5799a86cefd76fac94239442035477ed38da3a687d3a4ba6a5d214",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 151,
+          "expression": "#expect(targets.first?.outPathLength == UInt8(nodePath.count))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 152,
+          "expression": "#expect(targets.first?.outPath == nodePath)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`forwards outPath bytes from discovered-node source`",
+          "line": 134,
+          "expression": "`forwards outPath bytes from discovered-node source`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 135,
+          "expression": "Data([0xAA, 0xBB])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionDiscoveryService.buildRegionQueryTargets",
+          "line": 137,
+          "expression": "RegionDiscoveryService.buildRegionQueryTargets(\n      responders: responders,\n      contacts: [],\n      discoveredNodes: [\n        Self.makeDiscoveredNode(\n          publicKey: Self.keyA,\n          type: .repeater,\n          outPathLength: UInt8(nodePath.count),\n          outPath: nodePath\n        )\n      ],\n      supportsAdHocRequest: true\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDiscoveredNode",
+          "line": 141,
+          "expression": "Self.makeDiscoveredNode(\n          publicKey: Self.keyA,\n          type: .repeater,\n          outPathLength: UInt8(nodePath.count),\n          outPath: nodePath\n        )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt8",
+          "line": 144,
+          "expression": "UInt8(nodePath.count)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt8",
+          "line": 151,
+          "expression": "UInt8(nodePath.count)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/ChannelInfoRegionQueryTargetsTests.swift",
+      "source_blob_sha": "8900f8752732932dacda497bece6e613e806a480",
+      "case_id": "ChannelInfoRegionQueryTargetsTests::uses contact outPath when both sources have routing data()",
+      "parameter_family": "single",
+      "line": 156,
+      "end_line": 183,
+      "declaration_sha256": "2e581ff66b8e5ca53b2a8320b39be28528b3aa03a6cbcad4391be60c07f5355a",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 181,
+          "expression": "#expect(targets.first?.outPathLength == UInt8(contactPath.count))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 182,
+          "expression": "#expect(targets.first?.outPath == contactPath)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`uses contact outPath when both sources have routing data`",
+          "line": 156,
+          "expression": "`uses contact outPath when both sources have routing data`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 157,
+          "expression": "Data([0x11, 0x22, 0x33])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 158,
+          "expression": "Data([0xAA, 0xBB])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionDiscoveryService.buildRegionQueryTargets",
+          "line": 160,
+          "expression": "RegionDiscoveryService.buildRegionQueryTargets(\n      responders: responders,\n      contacts: [\n        Self.makeContact(\n          publicKey: Self.keyA,\n          type: .repeater,\n          outPathLength: UInt8(contactPath.count),\n          outPath: contactPath\n        )\n      ],\n      discoveredNodes: [\n        Self.makeDiscoveredNode(\n          publicKey: Self.keyA,\n          type: .repeater,\n          outPathLength: UInt8(nodePath.count),\n          outPath: nodePath\n        )\n      ],\n      supportsAdHocRequest: true\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 163,
+          "expression": "Self.makeContact(\n          publicKey: Self.keyA,\n          type: .repeater,\n          outPathLength: UInt8(contactPath.count),\n          outPath: contactPath\n        )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt8",
+          "line": 166,
+          "expression": "UInt8(contactPath.count)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDiscoveredNode",
+          "line": 171,
+          "expression": "Self.makeDiscoveredNode(\n          publicKey: Self.keyA,\n          type: .repeater,\n          outPathLength: UInt8(nodePath.count),\n          outPath: nodePath\n        )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt8",
+          "line": 174,
+          "expression": "UInt8(nodePath.count)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt8",
+          "line": 181,
+          "expression": "UInt8(contactPath.count)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::accepts standard region names(name : String)",
+      "parameter_family": "arguments-sha256:4e9dfae0f6257e5c29c27ff68b294f6dcbff6f681f402c82bdfa116c077ad4b2",
+      "line": 12,
+      "end_line": 14,
+      "declaration_sha256": "ada7e62d0d9facc86a1db6eb84baf16a2d53cbc17db2ba94865d13a561505101",
+      "inputs": {
+        "declaration": "@Test(arguments: [\n    \"Europe\", \"UK\", \"France\", \"sample-city\", \"region-1\"\n  ])",
+        "axes": [
+          {
+            "expression": "[ \"Europe\" , \"UK\" , \"France\" , \"sample-city\" , \"region-1\" ]",
+            "kind": "literal-collection",
+            "declared_rows": [
+              "\"Europe\"",
+              "\"UK\"",
+              "\"France\"",
+              "\"sample-city\"",
+              "\"region-1\""
+            ],
+            "declared_count": 5,
+            "definition": null
+          }
+        ],
+        "combination": "collection",
+        "declared_count": 5
+      },
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 13,
+          "expression": "#expect(RegionNameValidator.isValid(name, existingRegions: []))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`accepts standard region names`",
+          "line": 12,
+          "expression": "`accepts standard region names`(name: String)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.isValid",
+          "line": 13,
+          "expression": "RegionNameValidator.isValid(name, existingRegions: [])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::rejects empty name()",
+      "parameter_family": "single",
+      "line": 19,
+      "end_line": 21,
+      "declaration_sha256": "72fff769e698a1529f556a237c1ec05f29620480db496fbbdfb6826ee01b2dfd",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 20,
+          "expression": "#expect(RegionNameValidator.validate(\"\", existingRegions: []) == .empty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`rejects empty name`",
+          "line": 19,
+          "expression": "`rejects empty name`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.validate",
+          "line": 20,
+          "expression": "RegionNameValidator.validate(\"\", existingRegions: [])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::rejects whitespace-only name()",
+      "parameter_family": "single",
+      "line": 24,
+      "end_line": 26,
+      "declaration_sha256": "672c0a53f8a44952dab8a5a192c5f3f2c31afaeb714ca90a07d5432bd3e005cd",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 25,
+          "expression": "#expect(RegionNameValidator.validate(\"   \", existingRegions: []) == .empty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`rejects whitespace-only name`",
+          "line": 24,
+          "expression": "`rejects whitespace-only name`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.validate",
+          "line": 25,
+          "expression": "RegionNameValidator.validate(\"   \", existingRegions: [])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::rejects name with spaces()",
+      "parameter_family": "single",
+      "line": 29,
+      "end_line": 31,
+      "declaration_sha256": "f65103ea4a2015484d795311162e16bc9f55e8f97de2f43072f1a5836091af80",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 30,
+          "expression": "#expect(RegionNameValidator.validate(\"my region\", existingRegions: []) == .invalidCharacters)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`rejects name with spaces`",
+          "line": 29,
+          "expression": "`rejects name with spaces`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.validate",
+          "line": 30,
+          "expression": "RegionNameValidator.validate(\"my region\", existingRegions: [])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::rejects unicode characters()",
+      "parameter_family": "single",
+      "line": 34,
+      "end_line": 36,
+      "declaration_sha256": "1f08e1c53d759a4349464e36b28072b0684f882964093a2aea7565bd256aa5f5",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 35,
+          "expression": "#expect(RegionNameValidator.validate(\"\u00cele-de-France\", existingRegions: []) == .invalidCharacters)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`rejects unicode characters`",
+          "line": 34,
+          "expression": "`rejects unicode characters`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.validate",
+          "line": 35,
+          "expression": "RegionNameValidator.validate(\"\u00cele-de-France\", existingRegions: [])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::rejects special characters(name : String)",
+      "parameter_family": "arguments-sha256:161d1c1b30763466685dc684a35508a0355d7c3274c3f2e4546f43d238d9fc53",
+      "line": 39,
+      "end_line": 41,
+      "declaration_sha256": "12d29f3e091faddbe1b333362dc53f688d2e003ff15c659dbd2e33bb1f3cb730",
+      "inputs": {
+        "declaration": "@Test(arguments: [\"hello!\", \"foo@bar\", \"a&b\", \"test.region\", \"#Europe\", \"$secret\"])",
+        "axes": [
+          {
+            "expression": "[ \"hello!\" , \"foo@bar\" , \"a&b\" , \"test.region\" , \"#Europe\" , \"$secret\" ]",
+            "kind": "literal-collection",
+            "declared_rows": [
+              "\"hello!\"",
+              "\"foo@bar\"",
+              "\"a&b\"",
+              "\"test.region\"",
+              "\"#Europe\"",
+              "\"$secret\""
+            ],
+            "declared_count": 6,
+            "definition": null
+          }
+        ],
+        "combination": "collection",
+        "declared_count": 6
+      },
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 40,
+          "expression": "#expect(RegionNameValidator.validate(name, existingRegions: []) == .invalidCharacters)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`rejects special characters`",
+          "line": 39,
+          "expression": "`rejects special characters`(name: String)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.validate",
+          "line": 40,
+          "expression": "RegionNameValidator.validate(name, existingRegions: [])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::accepts names at the byte cap()",
+      "parameter_family": "single",
+      "line": 46,
+      "end_line": 51,
+      "declaration_sha256": "8ddf827eb70916f9d653727129d325653909ceb9e6d59cd4d18f6046258018f8",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 49,
+          "expression": "#expect(name.utf8.count == maxBytes)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 50,
+          "expression": "#expect(RegionNameValidator.isValid(name, existingRegions: []))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`accepts names at the byte cap`",
+          "line": 46,
+          "expression": "`accepts names at the byte cap`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "String",
+          "line": 48,
+          "expression": "String(repeating: \"a\", count: maxBytes)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.isValid",
+          "line": 50,
+          "expression": "RegionNameValidator.isValid(name, existingRegions: [])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::rejects names one byte over the cap()",
+      "parameter_family": "single",
+      "line": 54,
+      "end_line": 61,
+      "declaration_sha256": "6ac65ba7243694beb54a2941817e109d17746428b84f068aaf3eed2e8e0a8636",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 57,
+          "expression": "#expect(\n      RegionNameValidator.validate(name, existingRegions: [])\n        == .tooLong(maxBytes: maxBytes)\n    )",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`rejects names one byte over the cap`",
+          "line": 54,
+          "expression": "`rejects names one byte over the cap`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "String",
+          "line": 56,
+          "expression": "String(repeating: \"a\", count: maxBytes + 1)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.validate",
+          "line": 58,
+          "expression": "RegionNameValidator.validate(name, existingRegions: [])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "tooLong",
+          "line": 59,
+          "expression": "tooLong(maxBytes: maxBytes)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::rejects duplicate region name()",
+      "parameter_family": "single",
+      "line": 66,
+      "end_line": 68,
+      "declaration_sha256": "6bdfa9aa397449227b0f519d4c33149545873557af1c51c414c60bf8ecb26ea5",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 67,
+          "expression": "#expect(RegionNameValidator.validate(\"Europe\", existingRegions: [\"Europe\"]) == .duplicate)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`rejects duplicate region name`",
+          "line": 66,
+          "expression": "`rejects duplicate region name`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.validate",
+          "line": 67,
+          "expression": "RegionNameValidator.validate(\"Europe\", existingRegions: [\"Europe\"])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::duplicate check is case-sensitive()",
+      "parameter_family": "single",
+      "line": 71,
+      "end_line": 73,
+      "declaration_sha256": "8aa767d963437da02fc8b5b247c31a7ed8b9be12631b9e29e47a3a5667700c55",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 72,
+          "expression": "#expect(RegionNameValidator.isValid(\"europe\", existingRegions: [\"Europe\"]))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`duplicate check is case-sensitive`",
+          "line": 71,
+          "expression": "`duplicate check is case-sensitive`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.isValid",
+          "line": 72,
+          "expression": "RegionNameValidator.isValid(\"europe\", existingRegions: [\"Europe\"])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::isValid returns true for valid name()",
+      "parameter_family": "single",
+      "line": 78,
+      "end_line": 80,
+      "declaration_sha256": "31493eac1206ffc8f80c4ef58dd9ba861810ad2e4bb1cdb55ae974d633b26c94",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 79,
+          "expression": "#expect(RegionNameValidator.isValid(\"Europe\", existingRegions: []))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`isValid returns true for valid name`",
+          "line": 78,
+          "expression": "`isValid returns true for valid name`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.isValid",
+          "line": 79,
+          "expression": "RegionNameValidator.isValid(\"Europe\", existingRegions: [])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/Views/Chats/RegionNameValidatorTests.swift",
+      "source_blob_sha": "58eb443335400e5746832bb52c1839c214433693",
+      "case_id": "RegionNameValidatorTests::isValid returns false for invalid name()",
+      "parameter_family": "single",
+      "line": 83,
+      "end_line": 85,
+      "declaration_sha256": "8673b41b81126888ea32dbba809253e2cb66b38c086ea1255fce6e06490ed03b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 84,
+          "expression": "#expect(!RegionNameValidator.isValid(\"\", existingRegions: []))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`isValid returns false for invalid name`",
+          "line": 83,
+          "expression": "`isValid returns false for invalid name`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "RegionNameValidator.isValid",
+          "line": 84,
+          "expression": "RegionNameValidator.isValid(\"\", existingRegions: [])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    }
+  ]
+}

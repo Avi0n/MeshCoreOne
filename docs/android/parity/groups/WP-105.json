@@ -1,0 +1,3774 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-105",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+      "blob_sha": "003a46d4395e8c448fb13ef4eda4dc70aa591a87",
+      "kind": "production",
+      "owner": "WP-105",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPDecoder.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPEncoder.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPSensorType.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPValue.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPEdgeCaseTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPGoldenVectorTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPGoldenVectors.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPMalformedTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPSensorTypeTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPValueTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPDecoder.kt",
+          "sha256": "04c4a22fca3f3d5f73237f1fc9c327985365152bc4656a0b77734aaf9b0fdc8e",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "decode",
+              "line": 10,
+              "end_line": 31
+            },
+            {
+              "name": "decodeStrict",
+              "line": 33,
+              "end_line": 33
+            },
+            {
+              "name": "incomplete",
+              "line": 35,
+              "end_line": 42
+            },
+            {
+              "name": "readValue",
+              "line": 44,
+              "end_line": 71
+            },
+            {
+              "name": "readUnsignedBE",
+              "line": 73,
+              "end_line": 77
+            },
+            {
+              "name": "readSignedBE",
+              "line": 79,
+              "end_line": 82
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPEncoder.kt",
+          "sha256": "3ca776711487e6a58bcb273841bb5450c1f5e664bf433dd8f3546a5860ff633d",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+            "MeshCore/Sources/MeshCore/LPP/LPPEncoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "reset",
+              "line": 14,
+              "end_line": 16
+            },
+            {
+              "name": "encode",
+              "line": 18,
+              "end_line": 18
+            },
+            {
+              "name": "addDigitalInput",
+              "line": 20,
+              "end_line": 21
+            },
+            {
+              "name": "addDigitalOutput",
+              "line": 23,
+              "end_line": 24
+            },
+            {
+              "name": "addAnalogInput",
+              "line": 26,
+              "end_line": 27
+            },
+            {
+              "name": "addAnalogOutput",
+              "line": 29,
+              "end_line": 30
+            },
+            {
+              "name": "addTemperature",
+              "line": 32,
+              "end_line": 33
+            },
+            {
+              "name": "addHumidity",
+              "line": 35,
+              "end_line": 36
+            },
+            {
+              "name": "addBarometer",
+              "line": 38,
+              "end_line": 39
+            },
+            {
+              "name": "addIlluminance",
+              "line": 41,
+              "end_line": 42
+            },
+            {
+              "name": "addAccelerometer",
+              "line": 44,
+              "end_line": 45
+            },
+            {
+              "name": "addGyrometer",
+              "line": 47,
+              "end_line": 48
+            },
+            {
+              "name": "addGPS",
+              "line": 50,
+              "end_line": 51
+            },
+            {
+              "name": "addVoltage",
+              "line": 53,
+              "end_line": 54
+            },
+            {
+              "name": "addCurrent",
+              "line": 57,
+              "end_line": 61
+            },
+            {
+              "name": "addRaw",
+              "line": 63,
+              "end_line": 66
+            },
+            {
+              "name": "add",
+              "line": 68,
+              "end_line": 68
+            },
+            {
+              "name": "add",
+              "line": 70,
+              "end_line": 120
+            },
+            {
+              "name": "appendScalar",
+              "line": 122,
+              "end_line": 125
+            },
+            {
+              "name": "appendNumber",
+              "line": 127,
+              "end_line": 143
+            },
+            {
+              "name": "appendBE",
+              "line": 145,
+              "end_line": 147
+            },
+            {
+              "name": "unsignedMaximum",
+              "line": 149,
+              "end_line": 149
+            },
+            {
+              "name": "checkedInteger",
+              "line": 151,
+              "end_line": 154
+            },
+            {
+              "name": "requireType",
+              "line": 156,
+              "end_line": 157
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPSensorType.kt",
+          "sha256": "5bc4b4911b77ce1ca4b5181cc559f1ab8ab2f21db485279159ef107c4488e2b4",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "fromRawValue",
+              "line": 39,
+              "end_line": 39
+            },
+            {
+              "name": "fromName",
+              "line": 40,
+              "end_line": 40
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPValue.kt",
+          "sha256": "f91a402290f07c2965be995f3afcc2aed36c074f5626424402928d06be7e578a",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "equals",
+              "line": 12,
+              "end_line": 12
+            },
+            {
+              "name": "hashCode",
+              "line": 13,
+              "end_line": 13
+            },
+            {
+              "name": "equals",
+              "line": 17,
+              "end_line": 18
+            },
+            {
+              "name": "hashCode",
+              "line": 20,
+              "end_line": 20
+            },
+            {
+              "name": "equals",
+              "line": 24,
+              "end_line": 25
+            },
+            {
+              "name": "hashCode",
+              "line": 27,
+              "end_line": 28
+            },
+            {
+              "name": "swiftHashCode",
+              "line": 37,
+              "end_line": 37
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPEdgeCaseTest.kt",
+          "sha256": "35411c2b19701857b6f82c1f52fb76b8472796d517502a6eb588d6f8f7732d76",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+            "MeshCore/Sources/MeshCore/LPP/LPPEncoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "Scalar signed and unsigned extrema decode from independent raw frames",
+              "line": 56,
+              "end_line": 67
+            },
+            {
+              "name": "Scalar extrema encode without saturation or signed narrowing",
+              "line": 70,
+              "end_line": 79
+            },
+            {
+              "name": "Scalar overflow underflow and finite multiplication overflow reject atomically",
+              "line": 82,
+              "end_line": 105
+            },
+            {
+              "name": "All scalar nonfinite inputs have typed failures rather than zero or clamped values",
+              "line": 108,
+              "end_line": 123
+            },
+            {
+              "name": "Every sensor rejects the wrong associated value class atomically",
+              "line": 126,
+              "end_line": 141
+            },
+            {
+              "name": "Every raw sensor rejects short and overlong data without appending a header",
+              "line": 144,
+              "end_line": 161
+            },
+            {
+              "name": "Integer extrema and out of range Long values preserve unsigned wire semantics",
+              "line": 164,
+              "end_line": 189
+            },
+            {
+              "name": "Original analog output method preserves its own type and signed big endian values",
+              "line": 192,
+              "end_line": 201
+            },
+            {
+              "name": "The original unsigned current method retains the decoder signed high bit behavior",
+              "line": 204,
+              "end_line": 216
+            },
+            {
+              "name": "Every nonzero digital wire value is true for each boolean sensor",
+              "line": 219,
+              "end_line": 232
+            },
+            {
+              "name": "Original digital input and output methods normalize every unsigned byte exactly",
+              "line": 235,
+              "end_line": 243
+            },
+            {
+              "name": "Truncation is toward zero not rounding for every scaled value shape",
+              "line": 246,
+              "end_line": 270
+            },
+            {
+              "name": "GPS physical endpoints preserve big endian axes and zero altitude",
+              "line": 273,
+              "end_line": 284
+            },
+            {
+              "name": "GPS decoding sign extends each full 24-bit axis without geographic clamping",
+              "line": 287,
+              "end_line": 293
+            },
+            {
+              "name": "GPS encoding preserves IEEE truncation near the widest signed values",
+              "line": 296,
+              "end_line": 304
+            },
+            {
+              "name": "GPS overflow on each axis rejects instead of wrapping the 24-bit field",
+              "line": 307,
+              "end_line": 328
+            },
+            {
+              "name": "Nonfinite GPS axes each report their field and leave the buffer unchanged",
+              "line": 331,
+              "end_line": 348
+            },
+            {
+              "name": "Both motion sensors sign extend all axes and preserve their different scales",
+              "line": 351,
+              "end_line": 364
+            },
+            {
+              "name": "Motion errors on each axis remain atomic even after earlier valid axes",
+              "line": 367,
+              "end_line": 393
+            },
+            {
+              "name": "Colour uses unsigned red green blue bytes at both extrema",
+              "line": 396,
+              "end_line": 405
+            },
+            {
+              "name": "Unix timestamps keep the entire unsigned 32-bit seconds range",
+              "line": 408,
+              "end_line": 418
+            },
+            {
+              "name": "Unix timestamp overflow and unsupported fractional seconds reject atomically",
+              "line": 421,
+              "end_line": 440
+            },
+            {
+              "name": "Signed zeros encode canonical zero bits in every floating value shape",
+              "line": 443,
+              "end_line": 455
+            },
+            {
+              "name": "Seeded scalar properties supplement independent golden vectors",
+              "line": 458,
+              "end_line": 478
+            },
+            {
+              "name": "Seeded integer properties compare to an independent JDK big endian writer",
+              "line": 481,
+              "end_line": 495
+            },
+            {
+              "name": "prefixedEncoder",
+              "line": 497,
+              "end_line": 497
+            },
+            {
+              "name": "jdkBigEndian",
+              "line": 499,
+              "end_line": 502
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPGoldenVectorTest.kt",
+          "sha256": "9543528bcfa91e3b02c492b95caf4ff937740cb6d312314b9da6158252f0df5a",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+            "MeshCore/Sources/MeshCore/LPP/LPPEncoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "Every sensor encodes against independently specified bytes",
+              "line": 14,
+              "end_line": 22
+            },
+            {
+              "name": "Every sensor decodes independently of the candidate encoder",
+              "line": 25,
+              "end_line": 32
+            },
+            {
+              "name": "Raw records retain their exact bytes for every sensor",
+              "line": 35,
+              "end_line": 42
+            },
+            {
+              "name": "Independent vectors account for all sensors exactly once",
+              "line": 45,
+              "end_line": 53
+            },
+            {
+              "name": "Mixed records preserve insertion order duplicate channels and all widths",
+              "line": 56,
+              "end_line": 67
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPGoldenVectors.kt",
+          "sha256": "909b83a3d1b878c9a38a84d288a9d6c7327aa8865f5f2032064484bc167edb9a",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift"
+          ],
+          "methods": []
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPMalformedTest.kt",
+          "sha256": "94e408cc6a0fbfeba00d59a9d47de68e58a9ca642b47594a1e857dbb559914d0",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "Every truncated value retains only the complete prefix and diagnoses its exact width",
+              "line": 21,
+              "end_line": 43
+            },
+            {
+              "name": "An empty payload is complete but a lone channel is not a valid empty frame",
+              "line": 46,
+              "end_line": 58
+            },
+            {
+              "name": "A trailing channel reports the record start after the accepted prefix",
+              "line": 61,
+              "end_line": 70
+            },
+            {
+              "name": "Every unknown wire type stops parsing without dropping its suffix or resynchronizing",
+              "line": 73,
+              "end_line": 98
+            },
+            {
+              "name": "Unknown type wins over missing data rather than pretending to know its width",
+              "line": 101,
+              "end_line": 106
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPSensorTypeTest.kt",
+          "sha256": "3d8cb40f9bcb19d86c81ba81c40c1b1f81b3d3c1706e9f58d8c690b181769d95",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "Wire IDs widths display names and units match the source",
+              "line": 44,
+              "end_line": 54
+            },
+            {
+              "name": "All unknown raw IDs are absent without ordinal persistence",
+              "line": 57,
+              "end_line": 65
+            },
+            {
+              "name": "Name lookup is exact and does not add units aliases or localization",
+              "line": 68,
+              "end_line": 76
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPValueTest.kt",
+          "sha256": "c2cae075a50cc32637c8caf7e9968774ebf95abfc59a97fe991d000db2c503fd",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+            "MeshCore/Sources/MeshCore/LPP/LPPEncoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "All associated value cases and data points have content equality and hashing",
+              "line": 15,
+              "end_line": 30
+            },
+            {
+              "name": "Floating associated values retain Swift signed zero equality and hash compatibility",
+              "line": 33,
+              "end_line": 47
+            },
+            {
+              "name": "Encoder count reset and snapshots do not expose the mutable buffer",
+              "line": 50,
+              "end_line": 69
+            },
+            {
+              "name": "Decode results copy their collection and reject caller mutation",
+              "line": 72,
+              "end_line": 82
+            },
+            {
+              "name": "Raw input copies and later encoder mutations cannot change a prior snapshot",
+              "line": 85,
+              "end_line": 95
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/LPP/LPPEncoder.swift",
+      "blob_sha": "7ded40d1948b6b2e80d553b08f2731aec640f241",
+      "kind": "production",
+      "owner": "WP-105",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPEncoder.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPEdgeCaseTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPGoldenVectorTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPValueTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPEncoder.kt",
+          "sha256": "3ca776711487e6a58bcb273841bb5450c1f5e664bf433dd8f3546a5860ff633d",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+            "MeshCore/Sources/MeshCore/LPP/LPPEncoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "reset",
+              "line": 14,
+              "end_line": 16
+            },
+            {
+              "name": "encode",
+              "line": 18,
+              "end_line": 18
+            },
+            {
+              "name": "addDigitalInput",
+              "line": 20,
+              "end_line": 21
+            },
+            {
+              "name": "addDigitalOutput",
+              "line": 23,
+              "end_line": 24
+            },
+            {
+              "name": "addAnalogInput",
+              "line": 26,
+              "end_line": 27
+            },
+            {
+              "name": "addAnalogOutput",
+              "line": 29,
+              "end_line": 30
+            },
+            {
+              "name": "addTemperature",
+              "line": 32,
+              "end_line": 33
+            },
+            {
+              "name": "addHumidity",
+              "line": 35,
+              "end_line": 36
+            },
+            {
+              "name": "addBarometer",
+              "line": 38,
+              "end_line": 39
+            },
+            {
+              "name": "addIlluminance",
+              "line": 41,
+              "end_line": 42
+            },
+            {
+              "name": "addAccelerometer",
+              "line": 44,
+              "end_line": 45
+            },
+            {
+              "name": "addGyrometer",
+              "line": 47,
+              "end_line": 48
+            },
+            {
+              "name": "addGPS",
+              "line": 50,
+              "end_line": 51
+            },
+            {
+              "name": "addVoltage",
+              "line": 53,
+              "end_line": 54
+            },
+            {
+              "name": "addCurrent",
+              "line": 57,
+              "end_line": 61
+            },
+            {
+              "name": "addRaw",
+              "line": 63,
+              "end_line": 66
+            },
+            {
+              "name": "add",
+              "line": 68,
+              "end_line": 68
+            },
+            {
+              "name": "add",
+              "line": 70,
+              "end_line": 120
+            },
+            {
+              "name": "appendScalar",
+              "line": 122,
+              "end_line": 125
+            },
+            {
+              "name": "appendNumber",
+              "line": 127,
+              "end_line": 143
+            },
+            {
+              "name": "appendBE",
+              "line": 145,
+              "end_line": 147
+            },
+            {
+              "name": "unsignedMaximum",
+              "line": 149,
+              "end_line": 149
+            },
+            {
+              "name": "checkedInteger",
+              "line": 151,
+              "end_line": 154
+            },
+            {
+              "name": "requireType",
+              "line": 156,
+              "end_line": 157
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPEdgeCaseTest.kt",
+          "sha256": "35411c2b19701857b6f82c1f52fb76b8472796d517502a6eb588d6f8f7732d76",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+            "MeshCore/Sources/MeshCore/LPP/LPPEncoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "Scalar signed and unsigned extrema decode from independent raw frames",
+              "line": 56,
+              "end_line": 67
+            },
+            {
+              "name": "Scalar extrema encode without saturation or signed narrowing",
+              "line": 70,
+              "end_line": 79
+            },
+            {
+              "name": "Scalar overflow underflow and finite multiplication overflow reject atomically",
+              "line": 82,
+              "end_line": 105
+            },
+            {
+              "name": "All scalar nonfinite inputs have typed failures rather than zero or clamped values",
+              "line": 108,
+              "end_line": 123
+            },
+            {
+              "name": "Every sensor rejects the wrong associated value class atomically",
+              "line": 126,
+              "end_line": 141
+            },
+            {
+              "name": "Every raw sensor rejects short and overlong data without appending a header",
+              "line": 144,
+              "end_line": 161
+            },
+            {
+              "name": "Integer extrema and out of range Long values preserve unsigned wire semantics",
+              "line": 164,
+              "end_line": 189
+            },
+            {
+              "name": "Original analog output method preserves its own type and signed big endian values",
+              "line": 192,
+              "end_line": 201
+            },
+            {
+              "name": "The original unsigned current method retains the decoder signed high bit behavior",
+              "line": 204,
+              "end_line": 216
+            },
+            {
+              "name": "Every nonzero digital wire value is true for each boolean sensor",
+              "line": 219,
+              "end_line": 232
+            },
+            {
+              "name": "Original digital input and output methods normalize every unsigned byte exactly",
+              "line": 235,
+              "end_line": 243
+            },
+            {
+              "name": "Truncation is toward zero not rounding for every scaled value shape",
+              "line": 246,
+              "end_line": 270
+            },
+            {
+              "name": "GPS physical endpoints preserve big endian axes and zero altitude",
+              "line": 273,
+              "end_line": 284
+            },
+            {
+              "name": "GPS decoding sign extends each full 24-bit axis without geographic clamping",
+              "line": 287,
+              "end_line": 293
+            },
+            {
+              "name": "GPS encoding preserves IEEE truncation near the widest signed values",
+              "line": 296,
+              "end_line": 304
+            },
+            {
+              "name": "GPS overflow on each axis rejects instead of wrapping the 24-bit field",
+              "line": 307,
+              "end_line": 328
+            },
+            {
+              "name": "Nonfinite GPS axes each report their field and leave the buffer unchanged",
+              "line": 331,
+              "end_line": 348
+            },
+            {
+              "name": "Both motion sensors sign extend all axes and preserve their different scales",
+              "line": 351,
+              "end_line": 364
+            },
+            {
+              "name": "Motion errors on each axis remain atomic even after earlier valid axes",
+              "line": 367,
+              "end_line": 393
+            },
+            {
+              "name": "Colour uses unsigned red green blue bytes at both extrema",
+              "line": 396,
+              "end_line": 405
+            },
+            {
+              "name": "Unix timestamps keep the entire unsigned 32-bit seconds range",
+              "line": 408,
+              "end_line": 418
+            },
+            {
+              "name": "Unix timestamp overflow and unsupported fractional seconds reject atomically",
+              "line": 421,
+              "end_line": 440
+            },
+            {
+              "name": "Signed zeros encode canonical zero bits in every floating value shape",
+              "line": 443,
+              "end_line": 455
+            },
+            {
+              "name": "Seeded scalar properties supplement independent golden vectors",
+              "line": 458,
+              "end_line": 478
+            },
+            {
+              "name": "Seeded integer properties compare to an independent JDK big endian writer",
+              "line": 481,
+              "end_line": 495
+            },
+            {
+              "name": "prefixedEncoder",
+              "line": 497,
+              "end_line": 497
+            },
+            {
+              "name": "jdkBigEndian",
+              "line": 499,
+              "end_line": 502
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPGoldenVectorTest.kt",
+          "sha256": "9543528bcfa91e3b02c492b95caf4ff937740cb6d312314b9da6158252f0df5a",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+            "MeshCore/Sources/MeshCore/LPP/LPPEncoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "Every sensor encodes against independently specified bytes",
+              "line": 14,
+              "end_line": 22
+            },
+            {
+              "name": "Every sensor decodes independently of the candidate encoder",
+              "line": 25,
+              "end_line": 32
+            },
+            {
+              "name": "Raw records retain their exact bytes for every sensor",
+              "line": 35,
+              "end_line": 42
+            },
+            {
+              "name": "Independent vectors account for all sensors exactly once",
+              "line": 45,
+              "end_line": 53
+            },
+            {
+              "name": "Mixed records preserve insertion order duplicate channels and all widths",
+              "line": 56,
+              "end_line": 67
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPValueTest.kt",
+          "sha256": "c2cae075a50cc32637c8caf7e9968774ebf95abfc59a97fe991d000db2c503fd",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/LPP/LPPDecoder.swift",
+            "MeshCore/Sources/MeshCore/LPP/LPPEncoder.swift"
+          ],
+          "methods": [
+            {
+              "name": "All associated value cases and data points have content equality and hashing",
+              "line": 15,
+              "end_line": 30
+            },
+            {
+              "name": "Floating associated values retain Swift signed zero equality and hash compatibility",
+              "line": 33,
+              "end_line": 47
+            },
+            {
+              "name": "Encoder count reset and snapshots do not expose the mutable buffer",
+              "line": 50,
+              "end_line": 69
+            },
+            {
+              "name": "Decode results copy their collection and reject caller mutation",
+              "line": 72,
+              "end_line": 82
+            },
+            {
+              "name": "Raw input copies and later encoder mutations cannot change a prior snapshot",
+              "line": 85,
+              "end_line": 95
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "kind": "test",
+      "owner": "WP-105",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Temperature 25_5 matches Python",
+              "line": 16,
+              "end_line": 20
+            },
+            {
+              "name": "Temperature negative round trip",
+              "line": 23,
+              "end_line": 30
+            },
+            {
+              "name": "Humidity 65 matches Python",
+              "line": 33,
+              "end_line": 37
+            },
+            {
+              "name": "Analog input 3_3 matches Python",
+              "line": 40,
+              "end_line": 44
+            },
+            {
+              "name": "GPS SF matches Python",
+              "line": 47,
+              "end_line": 51
+            },
+            {
+              "name": "GPS decode round trip",
+              "line": 54,
+              "end_line": 65
+            },
+            {
+              "name": "Barometer 1013 matches Python",
+              "line": 68,
+              "end_line": 72
+            },
+            {
+              "name": "Accelerometer 1g matches Python",
+              "line": 75,
+              "end_line": 79
+            },
+            {
+              "name": "Accelerometer decode round trip",
+              "line": 82,
+              "end_line": 93
+            },
+            {
+              "name": "Multi-sensor payload",
+              "line": 96,
+              "end_line": 113
+            },
+            {
+              "name": "Voltage encoding",
+              "line": 116,
+              "end_line": 124
+            },
+            {
+              "name": "Illuminance encoding",
+              "line": 127,
+              "end_line": 134
+            },
+            {
+              "name": "Digital IO encoding",
+              "line": 137,
+              "end_line": 146
+            },
+            {
+              "name": "Gyrometer encoding",
+              "line": 149,
+              "end_line": 159
+            },
+            {
+              "name": "Load positive decodes as 3-byte signed divided by 1000",
+              "line": 162,
+              "end_line": 168
+            },
+            {
+              "name": "Load negative round trips through 24-bit sign extension",
+              "line": 171,
+              "end_line": 176
+            },
+            {
+              "name": "Load consumes three bytes so the next datum stays aligned",
+              "line": 179,
+              "end_line": 186
+            },
+            {
+              "name": "Generic sensor decodes high bit set as a large positive integer",
+              "line": 189,
+              "end_line": 194
+            },
+            {
+              "name": "Pinned Python frames decode without using the Kotlin encoder",
+              "line": 197,
+              "end_line": 211
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Temperature 25.5 matches Python()",
+      "parameter_family": "single",
+      "line": 17,
+      "end_line": 26,
+      "declaration_sha256": "56ffaede12d501f00b31bed288b80f27a70173ea4f75fafe52132eb9b547724b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 24,
+          "expression": "#expect(encoded == PythonReferenceBytes.lpp_temperature_25_5,\n            \"temperature mismatch - Swift: \\(encoded.hexString), Python: \\(PythonReferenceBytes.lpp_temperature_25_5.hexString)\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Temperature 25.5 matches Python`",
+          "line": 17,
+          "expression": "`Temperature 25.5 matches Python`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 21,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addTemperature",
+          "line": 22,
+          "expression": "encoder.addTemperature(channel: 1, celsius: 25.5)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 23,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Temperature negative round trip()",
+      "parameter_family": "single",
+      "line": 29,
+      "end_line": 47,
+      "declaration_sha256": "668c47e46f899105bdaec676699cb68da7122808ed642523fd8e91f8028a67f4",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 36,
+          "expression": "#expect(encoded == Data([0x01, 0x67, 0xFF, 0x97]),\n            \"negative temperature encoding mismatch\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 41,
+          "expression": "#expect(decoded.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 43,
+          "expression": "#expect(abs(value - -10.5) <= 0.1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 45,
+          "expression": "Issue.record(\"Expected float value\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Temperature negative round trip`",
+          "line": 29,
+          "expression": "`Temperature negative round trip`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 31,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addTemperature",
+          "line": 32,
+          "expression": "encoder.addTemperature(channel: 1, celsius: -10.5)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 33,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 36,
+          "expression": "Data([0x01, 0x67, 0xFF, 0x97])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 40,
+          "expression": "LPPDecoder.decode(encoded)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .float",
+          "line": 42,
+          "expression": "let .float(value)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 43,
+          "expression": "abs(value - -10.5)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Temperature negative round trip",
+          "line": 23,
+          "end_line": 30,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "d878b325f9780c7a56c2d5ed4ad48f3aa2f22471c7314bd78f9dc57b58902776",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 26,
+              "expression": "assertEquals(Bytes.of(0x01, 0x67, 0xff, 0x97), encoder.encode())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 28,
+              "expression": "assertEquals(1, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 29,
+              "expression": "assertEquals(-10.5, assertIs<LPPValue.Float>(decoded[0].value).value, 0.1)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 29,
+              "expression": "assertIs<LPPValue.Float>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 24,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addTemperature",
+              "line": 25,
+              "expression": "encoder.addTemperature(1u, -10.5)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 26,
+              "expression": "Bytes.of(0x01, 0x67, 0xff, 0x97)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 26,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 27,
+              "expression": "LPPDecoder.decodeStrict(encoder.encode())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 27,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Humidity 65 matches Python()",
+      "parameter_family": "single",
+      "line": 52,
+      "end_line": 61,
+      "declaration_sha256": "b7235e63b793ace45354d6c393f12613b9ccfa84e1ba3adc3f050812b6193596",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 59,
+          "expression": "#expect(encoded == PythonReferenceBytes.lpp_humidity_65,\n            \"humidity mismatch - Swift: \\(encoded.hexString), Python: \\(PythonReferenceBytes.lpp_humidity_65.hexString)\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Humidity 65 matches Python`",
+          "line": 52,
+          "expression": "`Humidity 65 matches Python`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 56,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addHumidity",
+          "line": 57,
+          "expression": "encoder.addHumidity(channel: 2, percent: 65.0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 58,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Humidity 65 matches Python",
+          "line": 33,
+          "end_line": 37,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "43a45640edc11f60c4e44ed907f7e28ec35d8d73d78f9d4daa85647c01ba7725",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 36,
+              "expression": "assertEquals(PythonLPPReferenceBytes.humidity65, encoder.encode())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 34,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addHumidity",
+              "line": 35,
+              "expression": "encoder.addHumidity(2u, 65.0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 36,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Analog input 3.3 matches Python()",
+      "parameter_family": "single",
+      "line": 66,
+      "end_line": 75,
+      "declaration_sha256": "ab63bd5a55d4cb3d44e5a707df4dac40c4b9b23a10a20e4f3fa923d4247445ab",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 73,
+          "expression": "#expect(encoded == PythonReferenceBytes.lpp_analog_3_3,\n            \"analogInput mismatch - Swift: \\(encoded.hexString), Python: \\(PythonReferenceBytes.lpp_analog_3_3.hexString)\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Analog input 3.3 matches Python`",
+          "line": 66,
+          "expression": "`Analog input 3.3 matches Python`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 70,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addAnalogInput",
+          "line": 71,
+          "expression": "encoder.addAnalogInput(channel: 3, value: 3.3)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 72,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::GPS SF matches Python()",
+      "parameter_family": "single",
+      "line": 80,
+      "end_line": 87,
+      "declaration_sha256": "a8e730b0d06767823a071427439f274c4f3fe89ec39530349e34cf248d21012b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 85,
+          "expression": "#expect(encoded == PythonReferenceBytes.lpp_gps_sf,\n            \"gps mismatch - Swift: \\(encoded.hexString), Python: \\(PythonReferenceBytes.lpp_gps_sf.hexString)\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`GPS SF matches Python`",
+          "line": 80,
+          "expression": "`GPS SF matches Python`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 82,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addGPS",
+          "line": 83,
+          "expression": "encoder.addGPS(channel: 4, latitude: 37.7749, longitude: -122.4194, altitude: 10.0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 84,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "GPS SF matches Python",
+          "line": 47,
+          "end_line": 51,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "9a5839f3144ea18dd17c1cfb406a1ef69c4e310a321414cef278c3f1411c9137",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 50,
+              "expression": "assertEquals(PythonLPPReferenceBytes.gpsSF, encoder.encode())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 48,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addGPS",
+              "line": 49,
+              "expression": "encoder.addGPS(4u, 37.7749, -122.4194, 10.0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 50,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::GPS decode round trip()",
+      "parameter_family": "single",
+      "line": 90,
+      "end_line": 108,
+      "declaration_sha256": "1aae2e19895aaee8b87e6a96af53de705c25b6d84b9c22090344aba671dab6c2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 97,
+          "expression": "#expect(decoded.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 98,
+          "expression": "#expect(decoded[0].channel == 4)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 99,
+          "expression": "#expect(decoded[0].type == .gps)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 102,
+          "expression": "#expect(abs(lat - 37.7749) <= 0.0001)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 103,
+          "expression": "#expect(abs(lon - -122.4194) <= 0.0001)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 104,
+          "expression": "#expect(abs(alt - 10.0) <= 0.01)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 106,
+          "expression": "Issue.record(\"Expected GPS value\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`GPS decode round trip`",
+          "line": 90,
+          "expression": "`GPS decode round trip`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 92,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addGPS",
+          "line": 93,
+          "expression": "encoder.addGPS(channel: 4, latitude: 37.7749, longitude: -122.4194, altitude: 10.0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 94,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 96,
+          "expression": "LPPDecoder.decode(encoded)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .gps",
+          "line": 101,
+          "expression": "let .gps(lat, lon, alt)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 102,
+          "expression": "abs(lat - 37.7749)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 103,
+          "expression": "abs(lon - -122.4194)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 104,
+          "expression": "abs(alt - 10.0)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "GPS decode round trip",
+          "line": 54,
+          "end_line": 65,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "df3bc4f1b4184ac04f8cd858d745a8aaff599eeea5ed6a2365bf57ea8dfc1095",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 58,
+              "expression": "assertEquals(1, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 59,
+              "expression": "assertEquals(4.toUByte(), decoded[0].channel)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 60,
+              "expression": "assertEquals(LPPSensorType.GPS, decoded[0].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 61,
+              "expression": "assertIs<LPPValue.Gps>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 62,
+              "expression": "assertEquals(37.7749, gps.latitude, 0.0001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 63,
+              "expression": "assertEquals(-122.4194, gps.longitude, 0.0001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 64,
+              "expression": "assertEquals(10.0, gps.altitude, 0.01)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 55,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addGPS",
+              "line": 56,
+              "expression": "encoder.addGPS(4u, 37.7749, -122.4194, 10.0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 57,
+              "expression": "LPPDecoder.decodeStrict(encoder.encode())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 57,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 59,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Barometer 1013 matches Python()",
+      "parameter_family": "single",
+      "line": 113,
+      "end_line": 119,
+      "declaration_sha256": "a1bd4fc07e34e16ce9b4faf09398f9020e336406b9164a8c3b958e31acc8b779",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 117,
+          "expression": "#expect(encoded == PythonReferenceBytes.lpp_barometer_1013,\n            \"barometer mismatch - Swift: \\(encoded.hexString), Python: \\(PythonReferenceBytes.lpp_barometer_1013.hexString)\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Barometer 1013 matches Python`",
+          "line": 113,
+          "expression": "`Barometer 1013 matches Python`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 114,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addBarometer",
+          "line": 115,
+          "expression": "encoder.addBarometer(channel: 5, hPa: 1013.2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 116,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Barometer 1013 matches Python",
+          "line": 68,
+          "end_line": 72,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "39186b5c23e5fba6fc85afd57d9037cbf51edddbead6a7bb88a5dab3d137853f",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 71,
+              "expression": "assertEquals(PythonLPPReferenceBytes.barometer1013, encoder.encode())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 69,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addBarometer",
+              "line": 70,
+              "expression": "encoder.addBarometer(5u, 1013.2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 71,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Accelerometer 1g matches Python()",
+      "parameter_family": "single",
+      "line": 124,
+      "end_line": 130,
+      "declaration_sha256": "15ab4721b4bb8a7d0ccbd33812d4efea8aa7fd95d5b289d38054491fd5b0e263",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 128,
+          "expression": "#expect(encoded == PythonReferenceBytes.lpp_accelerometer_1g,\n            \"accelerometer mismatch - Swift: \\(encoded.hexString), Python: \\(PythonReferenceBytes.lpp_accelerometer_1g.hexString)\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Accelerometer 1g matches Python`",
+          "line": 124,
+          "expression": "`Accelerometer 1g matches Python`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 125,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addAccelerometer",
+          "line": 126,
+          "expression": "encoder.addAccelerometer(channel: 6, x: 0.0, y: 0.0, z: 1.0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 127,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Accelerometer 1g matches Python",
+          "line": 75,
+          "end_line": 79,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "12f1e0aa5b04fe2f83b08a8146d8544be1c60ba7fba7c8b4faaeb3c42d4815a0",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 78,
+              "expression": "assertEquals(PythonLPPReferenceBytes.accelerometer1g, encoder.encode())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 76,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addAccelerometer",
+              "line": 77,
+              "expression": "encoder.addAccelerometer(6u, 0.0, 0.0, 1.0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 78,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Accelerometer decode round trip()",
+      "parameter_family": "single",
+      "line": 133,
+      "end_line": 151,
+      "declaration_sha256": "a17912969bdeac38fc40225c6254abefab51b0006552773365843b670ec99de1",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 140,
+          "expression": "#expect(decoded.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 141,
+          "expression": "#expect(decoded[0].channel == 6)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 142,
+          "expression": "#expect(decoded[0].type == .accelerometer)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 145,
+          "expression": "#expect(abs(x - 0.5) <= 0.001)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 146,
+          "expression": "#expect(abs(y - -0.5) <= 0.001)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 147,
+          "expression": "#expect(abs(z - 1.0) <= 0.001)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 149,
+          "expression": "Issue.record(\"Expected vector3 value\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Accelerometer decode round trip`",
+          "line": 133,
+          "expression": "`Accelerometer decode round trip`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 135,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addAccelerometer",
+          "line": 136,
+          "expression": "encoder.addAccelerometer(channel: 6, x: 0.5, y: -0.5, z: 1.0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 137,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 139,
+          "expression": "LPPDecoder.decode(encoded)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .vector3",
+          "line": 144,
+          "expression": "let .vector3(x, y, z)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 145,
+          "expression": "abs(x - 0.5)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 146,
+          "expression": "abs(y - -0.5)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 147,
+          "expression": "abs(z - 1.0)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Accelerometer decode round trip",
+          "line": 82,
+          "end_line": 93,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6428ba682955266c21c2a94572bebba9e11fb35030c404bc29a5749d304be265",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 86,
+              "expression": "assertEquals(1, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 87,
+              "expression": "assertEquals(6.toUByte(), decoded[0].channel)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 88,
+              "expression": "assertEquals(LPPSensorType.ACCELEROMETER, decoded[0].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 89,
+              "expression": "assertIs<LPPValue.Vector3>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 90,
+              "expression": "assertEquals(0.5, vector.x, 0.001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 91,
+              "expression": "assertEquals(-0.5, vector.y, 0.001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 92,
+              "expression": "assertEquals(1.0, vector.z, 0.001)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 83,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addAccelerometer",
+              "line": 84,
+              "expression": "encoder.addAccelerometer(6u, 0.5, -0.5, 1.0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 85,
+              "expression": "LPPDecoder.decodeStrict(encoder.encode())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 85,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 87,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Multi-sensor payload()",
+      "parameter_family": "single",
+      "line": 156,
+      "end_line": 188,
+      "declaration_sha256": "9a6f3dae96309e2f975959ab7aeaedeae75feb70207f94a1dbe2867ffe95374c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 166,
+          "expression": "#expect(decoded.count == 3)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 169,
+          "expression": "#expect(decoded[0].channel == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 170,
+          "expression": "#expect(decoded[0].type == .temperature)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 172,
+          "expression": "#expect(abs(temp - 25.5) <= 0.1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 176,
+          "expression": "#expect(decoded[1].channel == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 177,
+          "expression": "#expect(decoded[1].type == .humidity)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 179,
+          "expression": "#expect(abs(hum - 65.0) <= 0.5)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 183,
+          "expression": "#expect(decoded[2].channel == 3)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 184,
+          "expression": "#expect(decoded[2].type == .barometer)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 186,
+          "expression": "#expect(abs(pressure - 1013.2) <= 0.1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Multi-sensor payload`",
+          "line": 156,
+          "expression": "`Multi-sensor payload`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 158,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addTemperature",
+          "line": 159,
+          "expression": "encoder.addTemperature(channel: 1, celsius: 25.5)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addHumidity",
+          "line": 160,
+          "expression": "encoder.addHumidity(channel: 2, percent: 65.0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addBarometer",
+          "line": 161,
+          "expression": "encoder.addBarometer(channel: 3, hPa: 1013.2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 162,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 165,
+          "expression": "LPPDecoder.decode(encoded)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .float",
+          "line": 171,
+          "expression": "let .float(temp)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 172,
+          "expression": "abs(temp - 25.5)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .float",
+          "line": 178,
+          "expression": "let .float(hum)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 179,
+          "expression": "abs(hum - 65.0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .float",
+          "line": 185,
+          "expression": "let .float(pressure)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 186,
+          "expression": "abs(pressure - 1013.2)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Multi-sensor payload",
+          "line": 96,
+          "end_line": 113,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "006ab2487e4f2ac0b342c362922531c85a276dbd9d576eae7455e2e20cb68e67",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 101,
+              "expression": "assertEquals(Bytes.fromHex(\"016700ff02688203732794\"), encoder.encode())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 103,
+              "expression": "assertEquals(3, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 104,
+              "expression": "assertEquals(1.toUByte(), decoded[0].channel)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 105,
+              "expression": "assertEquals(LPPSensorType.TEMPERATURE, decoded[0].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 106,
+              "expression": "assertEquals(25.5, assertIs<LPPValue.Float>(decoded[0].value).value, 0.1)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 106,
+              "expression": "assertIs<LPPValue.Float>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 107,
+              "expression": "assertEquals(2.toUByte(), decoded[1].channel)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 108,
+              "expression": "assertEquals(LPPSensorType.HUMIDITY, decoded[1].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 109,
+              "expression": "assertEquals(65.0, assertIs<LPPValue.Float>(decoded[1].value).value, 0.5)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 109,
+              "expression": "assertIs<LPPValue.Float>(decoded[1].value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 110,
+              "expression": "assertEquals(3.toUByte(), decoded[2].channel)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 111,
+              "expression": "assertEquals(LPPSensorType.BAROMETER, decoded[2].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 112,
+              "expression": "assertEquals(1013.2, assertIs<LPPValue.Float>(decoded[2].value).value, 0.1)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 112,
+              "expression": "assertIs<LPPValue.Float>(decoded[2].value)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 97,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addTemperature",
+              "line": 98,
+              "expression": "encoder.addTemperature(1u, 25.5)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addHumidity",
+              "line": 99,
+              "expression": "encoder.addHumidity(2u, 65.0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addBarometer",
+              "line": 100,
+              "expression": "encoder.addBarometer(3u, 1013.2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 101,
+              "expression": "Bytes.fromHex(\"016700ff02688203732794\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 101,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 102,
+              "expression": "LPPDecoder.decodeStrict(encoder.encode())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 102,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 104,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 107,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 110,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Voltage encoding()",
+      "parameter_family": "single",
+      "line": 193,
+      "end_line": 211,
+      "declaration_sha256": "2e452e2843c76cabd7876c25e3e18cd3f64bad5818c34725ec5ca5fc18e2c7c4",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 201,
+          "expression": "#expect(encoded == Data([0x01, 0x74, 0x01, 0x7C]),\n            \"voltage encoding mismatch - Swift: \\(encoded.hexString)\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 206,
+          "expression": "#expect(decoded.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 207,
+          "expression": "#expect(decoded[0].type == .voltage)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 209,
+          "expression": "#expect(abs(volts - 3.8) <= 0.01)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Voltage encoding`",
+          "line": 193,
+          "expression": "`Voltage encoding`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 195,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addVoltage",
+          "line": 196,
+          "expression": "encoder.addVoltage(channel: 1, volts: 3.8)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 197,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 201,
+          "expression": "Data([0x01, 0x74, 0x01, 0x7C])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 205,
+          "expression": "LPPDecoder.decode(encoded)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .float",
+          "line": 208,
+          "expression": "let .float(volts)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 209,
+          "expression": "abs(volts - 3.8)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Voltage encoding",
+          "line": 116,
+          "end_line": 124,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "93d68342f5cbecf16af93eecb943273770496fb720ff4fccd3ebf3ab793df4f3",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 119,
+              "expression": "assertEquals(Bytes.of(0x01, 0x74, 0x01, 0x7c), encoder.encode())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 121,
+              "expression": "assertEquals(1, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 122,
+              "expression": "assertEquals(LPPSensorType.VOLTAGE, decoded[0].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 123,
+              "expression": "assertEquals(3.8, assertIs<LPPValue.Float>(decoded[0].value).value, 0.01)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 123,
+              "expression": "assertIs<LPPValue.Float>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 117,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addVoltage",
+              "line": 118,
+              "expression": "encoder.addVoltage(1u, 3.8)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 119,
+              "expression": "Bytes.of(0x01, 0x74, 0x01, 0x7c)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 119,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 120,
+              "expression": "LPPDecoder.decodeStrict(encoder.encode())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 120,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Illuminance encoding()",
+      "parameter_family": "single",
+      "line": 216,
+      "end_line": 232,
+      "declaration_sha256": "47966ee059ec8844f882ce8da0df059e1ea954dc4545dca1a3c391becc952374",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 223,
+          "expression": "#expect(encoded == Data([0x01, 0x65, 0x03, 0xE8]))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 226,
+          "expression": "#expect(decoded.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 228,
+          "expression": "#expect(lux == 1000)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 230,
+          "expression": "Issue.record(\"Expected integer value\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Illuminance encoding`",
+          "line": 216,
+          "expression": "`Illuminance encoding`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 217,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addIlluminance",
+          "line": 218,
+          "expression": "encoder.addIlluminance(channel: 1, lux: 1000)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 219,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 223,
+          "expression": "Data([0x01, 0x65, 0x03, 0xE8])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 225,
+          "expression": "LPPDecoder.decode(encoded)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .integer",
+          "line": 227,
+          "expression": "let .integer(lux)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Illuminance encoding",
+          "line": 127,
+          "end_line": 134,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "2a2e80f7240846805bdba16f9d2cd2b9478c4c174354c702fd576a9ac71036d2",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 130,
+              "expression": "assertEquals(Bytes.of(0x01, 0x65, 0x03, 0xe8), encoder.encode())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 132,
+              "expression": "assertEquals(1, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 133,
+              "expression": "assertEquals(1000L, assertIs<LPPValue.Integer>(decoded[0].value).value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 133,
+              "expression": "assertIs<LPPValue.Integer>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 128,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addIlluminance",
+              "line": 129,
+              "expression": "encoder.addIlluminance(1u, 1000u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 130,
+              "expression": "Bytes.of(0x01, 0x65, 0x03, 0xe8)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 130,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 131,
+              "expression": "LPPDecoder.decodeStrict(encoder.encode())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 131,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Digital IO encoding()",
+      "parameter_family": "single",
+      "line": 235,
+      "end_line": 258,
+      "declaration_sha256": "e04cca878a45b7ee041894c7408306cd3f35513c22a0eeeea611a925617ab11e",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 243,
+          "expression": "#expect(encoded == Data([0x01, 0x00, 0x01, 0x02, 0x01, 0x00]))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 246,
+          "expression": "#expect(decoded.count == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 249,
+          "expression": "#expect(din)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 251,
+          "expression": "Issue.record(\"Expected digital value for input\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 254,
+          "expression": "#expect(!dout)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 256,
+          "expression": "Issue.record(\"Expected digital value for output\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Digital IO encoding`",
+          "line": 235,
+          "expression": "`Digital IO encoding`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 236,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addDigitalInput",
+          "line": 237,
+          "expression": "encoder.addDigitalInput(channel: 1, value: 1)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addDigitalOutput",
+          "line": 238,
+          "expression": "encoder.addDigitalOutput(channel: 2, value: 0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 239,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 243,
+          "expression": "Data([0x01, 0x00, 0x01, 0x02, 0x01, 0x00])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 245,
+          "expression": "LPPDecoder.decode(encoded)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .digital",
+          "line": 248,
+          "expression": "let .digital(din)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .digital",
+          "line": 253,
+          "expression": "let .digital(dout)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Digital IO encoding",
+          "line": 137,
+          "end_line": 146,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "bcee664bfc3b76809c61bbb1d89bb62ad003f3aff2e996c0d5a7bc93365c264c",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 141,
+              "expression": "assertEquals(Bytes.of(0x01, 0x00, 0x01, 0x02, 0x01, 0x00), encoder.encode())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 143,
+              "expression": "assertEquals(2, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 144,
+              "expression": "assertTrue(assertIs<LPPValue.Digital>(decoded[0].value).value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 144,
+              "expression": "assertIs<LPPValue.Digital>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 145,
+              "expression": "assertFalse(assertIs<LPPValue.Digital>(decoded[1].value).value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 145,
+              "expression": "assertIs<LPPValue.Digital>(decoded[1].value)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 138,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addDigitalInput",
+              "line": 139,
+              "expression": "encoder.addDigitalInput(1u, 1u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addDigitalOutput",
+              "line": 140,
+              "expression": "encoder.addDigitalOutput(2u, 0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 141,
+              "expression": "Bytes.of(0x01, 0x00, 0x01, 0x02, 0x01, 0x00)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 141,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 142,
+              "expression": "LPPDecoder.decodeStrict(encoder.encode())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 142,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Gyrometer encoding()",
+      "parameter_family": "single",
+      "line": 261,
+      "end_line": 280,
+      "declaration_sha256": "e5cc2f8e82d090b9deb3ed6fdb2e3451c83396fea897df307d352cdd4582d996",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 269,
+          "expression": "#expect(encoded == Data([0x01, 0x86, 0x04, 0x1A, 0xFD, 0xF3, 0x00, 0x00]))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 272,
+          "expression": "#expect(decoded.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 274,
+          "expression": "#expect(abs(x - 10.5) <= 0.01)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 275,
+          "expression": "#expect(abs(y - -5.25) <= 0.01)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 276,
+          "expression": "#expect(abs(z - 0.0) <= 0.01)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 278,
+          "expression": "Issue.record(\"Expected vector3 value\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Gyrometer encoding`",
+          "line": 261,
+          "expression": "`Gyrometer encoding`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPEncoder",
+          "line": 262,
+          "expression": "LPPEncoder()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.addGyrometer",
+          "line": 263,
+          "expression": "encoder.addGyrometer(channel: 1, x: 10.5, y: -5.25, z: 0.0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encoder.encode",
+          "line": 264,
+          "expression": "encoder.encode()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 269,
+          "expression": "Data([0x01, 0x86, 0x04, 0x1A, 0xFD, 0xF3, 0x00, 0x00])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 271,
+          "expression": "LPPDecoder.decode(encoded)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .vector3",
+          "line": 273,
+          "expression": "let .vector3(x, y, z)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 274,
+          "expression": "abs(x - 10.5)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 275,
+          "expression": "abs(y - -5.25)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 276,
+          "expression": "abs(z - 0.0)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Gyrometer encoding",
+          "line": 149,
+          "end_line": 159,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "cf0bd31a7f3b008b2b337c6bfd945f6272f5cdb890ef42d7eb5f53e231569a80",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 152,
+              "expression": "assertEquals(Bytes.of(0x01, 0x86, 0x04, 0x1a, 0xfd, 0xf3, 0x00, 0x00), encoder.encode())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 154,
+              "expression": "assertEquals(1, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 155,
+              "expression": "assertIs<LPPValue.Vector3>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 156,
+              "expression": "assertEquals(10.5, vector.x, 0.01)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 157,
+              "expression": "assertEquals(-5.25, vector.y, 0.01)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 158,
+              "expression": "assertEquals(0.0, vector.z, 0.01)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPEncoder",
+              "line": 150,
+              "expression": "LPPEncoder()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.addGyrometer",
+              "line": 151,
+              "expression": "encoder.addGyrometer(1u, 10.5, -5.25, 0.0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 152,
+              "expression": "Bytes.of(0x01, 0x86, 0x04, 0x1a, 0xfd, 0xf3, 0x00, 0x00)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 152,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 153,
+              "expression": "LPPDecoder.decodeStrict(encoder.encode())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "encoder.encode",
+              "line": 153,
+              "expression": "encoder.encode()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Load positive decodes as 3-byte signed divided by 1000()",
+      "parameter_family": "single",
+      "line": 285,
+      "end_line": 299,
+      "declaration_sha256": "f20e54ec52335f7788710f8ebb4c3e2faa4976970c2e2474ac3f64f5d5690f79",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 291,
+          "expression": "#expect(decoded.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 292,
+          "expression": "#expect(decoded[0].channel == 0x07)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 293,
+          "expression": "#expect(decoded[0].type == .load)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 295,
+          "expression": "#expect(abs(value - 12.345) <= 0.001)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 297,
+          "expression": "Issue.record(\"Expected float value for load\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Load positive decodes as 3-byte signed divided by 1000`",
+          "line": 285,
+          "expression": "`Load positive decodes as 3-byte signed divided by 1000`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 289,
+          "expression": "Data([0x07, 0x7A, 0x00, 0x30, 0x39])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 290,
+          "expression": "LPPDecoder.decode(frame)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .float",
+          "line": 294,
+          "expression": "let .float(value)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 295,
+          "expression": "abs(value - 12.345)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Load positive decodes as 3-byte signed divided by 1000",
+          "line": 162,
+          "end_line": 168,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6adab8f7117508cf475421e7fac3e90a6fe87dce67eebdead960d6cabd937efd",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 164,
+              "expression": "assertEquals(1, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 165,
+              "expression": "assertEquals(7.toUByte(), decoded[0].channel)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 166,
+              "expression": "assertEquals(LPPSensorType.LOAD, decoded[0].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 167,
+              "expression": "assertEquals(12.345, assertIs<LPPValue.Float>(decoded[0].value).value, 0.001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 167,
+              "expression": "assertIs<LPPValue.Float>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 163,
+              "expression": "LPPDecoder.decodeStrict(Bytes.of(0x07, 0x7a, 0x00, 0x30, 0x39))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 163,
+              "expression": "Bytes.of(0x07, 0x7a, 0x00, 0x30, 0x39)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 165,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Load negative round trips through 24-bit sign extension()",
+      "parameter_family": "single",
+      "line": 302,
+      "end_line": 313,
+      "declaration_sha256": "40c4a58d1b30e19597e459e55b1a8d7088191b799bcc29401ca200382f2dcd59",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 306,
+          "expression": "#expect(decoded.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 307,
+          "expression": "#expect(decoded[0].type == .load)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 309,
+          "expression": "#expect(abs(value - -1.5) <= 0.001)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 311,
+          "expression": "Issue.record(\"Expected float value for load\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Load negative round trips through 24-bit sign extension`",
+          "line": 302,
+          "expression": "`Load negative round trips through 24-bit sign extension`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 304,
+          "expression": "Data([0x07, 0x7A, 0xFF, 0xFA, 0x24])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 305,
+          "expression": "LPPDecoder.decode(frame)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .float",
+          "line": 308,
+          "expression": "let .float(value)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 309,
+          "expression": "abs(value - -1.5)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Load negative round trips through 24-bit sign extension",
+          "line": 171,
+          "end_line": 176,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "b90511139d4d9999441dc92302f7aef2cc111b5e243b5941e5e837d57573b654",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 173,
+              "expression": "assertEquals(1, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 174,
+              "expression": "assertEquals(LPPSensorType.LOAD, decoded[0].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 175,
+              "expression": "assertEquals(-1.5, assertIs<LPPValue.Float>(decoded[0].value).value, 0.001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 175,
+              "expression": "assertIs<LPPValue.Float>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 172,
+              "expression": "LPPDecoder.decodeStrict(Bytes.of(0x07, 0x7a, 0xff, 0xfa, 0x24))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 172,
+              "expression": "Bytes.of(0x07, 0x7a, 0xff, 0xfa, 0x24)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Load consumes three bytes so the next datum stays aligned()",
+      "parameter_family": "single",
+      "line": 316,
+      "end_line": 336,
+      "declaration_sha256": "f99efe315d85583b2f653b26175a1399fc6cfa559098b655f6c177cd84877d86",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 323,
+          "expression": "#expect(decoded.count == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 324,
+          "expression": "#expect(decoded[0].type == .load)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 326,
+          "expression": "#expect(abs(load - 1.0) <= 0.001)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 328,
+          "expression": "Issue.record(\"Expected float value for load\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 330,
+          "expression": "#expect(decoded[1].type == .temperature)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 332,
+          "expression": "#expect(abs(temp - 25.5) <= 0.1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 334,
+          "expression": "Issue.record(\"Expected float value for temperature\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Load consumes three bytes so the next datum stays aligned`",
+          "line": 316,
+          "expression": "`Load consumes three bytes so the next datum stays aligned`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 321,
+          "expression": "Data([0x07, 0x7A, 0x00, 0x03, 0xE8, 0x01, 0x67, 0x00, 0xFF])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 322,
+          "expression": "LPPDecoder.decode(frame)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .float",
+          "line": 325,
+          "expression": "let .float(load)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 326,
+          "expression": "abs(load - 1.0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .float",
+          "line": 331,
+          "expression": "let .float(temp)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "abs",
+          "line": 332,
+          "expression": "abs(temp - 25.5)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Load consumes three bytes so the next datum stays aligned",
+          "line": 179,
+          "end_line": 186,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "a2818607bdecc864350c8695a2cd2adef93f335cae016438a426e100d56bff65",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 181,
+              "expression": "assertEquals(2, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 182,
+              "expression": "assertEquals(LPPSensorType.LOAD, decoded[0].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 183,
+              "expression": "assertEquals(1.0, assertIs<LPPValue.Float>(decoded[0].value).value, 0.001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 183,
+              "expression": "assertIs<LPPValue.Float>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 184,
+              "expression": "assertEquals(LPPSensorType.TEMPERATURE, decoded[1].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 185,
+              "expression": "assertEquals(25.5, assertIs<LPPValue.Float>(decoded[1].value).value, 0.1)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 185,
+              "expression": "assertIs<LPPValue.Float>(decoded[1].value)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 180,
+              "expression": "LPPDecoder.decodeStrict(Bytes.of(0x07, 0x7a, 0x00, 0x03, 0xe8, 0x01, 0x67, 0x00, 0xff))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 180,
+              "expression": "Bytes.of(0x07, 0x7a, 0x00, 0x03, 0xe8, 0x01, 0x67, 0x00, 0xff)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "source_blob_sha": "1e9b38e49b66ead6bb051d16c6d84468060d6341",
+      "case_id": "LPPPythonReferenceTests::Generic sensor decodes high bit set as a large positive integer()",
+      "parameter_family": "single",
+      "line": 341,
+      "end_line": 354,
+      "declaration_sha256": "7f1e6f8367f6d273c776ee291d7d1c0dfdfaca9b9f54979880e53859513bcb5f",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 347,
+          "expression": "#expect(decoded.count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 348,
+          "expression": "#expect(decoded[0].type == .genericSensor)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 350,
+          "expression": "#expect(value == 2_147_483_648)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 352,
+          "expression": "Issue.record(\"Expected integer value for generic sensor\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Generic sensor decodes high bit set as a large positive integer`",
+          "line": 341,
+          "expression": "`Generic sensor decodes high bit set as a large positive integer`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 345,
+          "expression": "Data([0x01, 0x64, 0x80, 0x00, 0x00, 0x00])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LPPDecoder.decode",
+          "line": 346,
+          "expression": "LPPDecoder.decode(frame)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .integer",
+          "line": 349,
+          "expression": "let .integer(value)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+          "sha256": "7ee0d916a619cf8bfbb58d2206b2a06d7f02cc7616a14a0bd46824438fc173e2",
+          "class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+          "method_or_family_name": "Generic sensor decodes high bit set as a large positive integer",
+          "line": 189,
+          "end_line": 194,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "1967a75937a541ea9633b27351cbf644f2dd16a43db86a5218935ce3bdc7cce3",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 191,
+              "expression": "assertEquals(1, decoded.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 192,
+              "expression": "assertEquals(LPPSensorType.GENERIC_SENSOR, decoded[0].type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 193,
+              "expression": "assertEquals(2_147_483_648L, assertIs<LPPValue.Integer>(decoded[0].value).value)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 193,
+              "expression": "assertIs<LPPValue.Integer>(decoded[0].value)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "LPPDecoder.decodeStrict",
+              "line": 190,
+              "expression": "LPPDecoder.decodeStrict(Bytes.of(0x01, 0x64, 0x80, 0x00, 0x00, 0x00))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 190,
+              "expression": "Bytes.of(0x01, 0x64, 0x80, 0x00, 0x00, 0x00)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Fixtures/PythonReferenceBytes.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    }
+  ]
+}

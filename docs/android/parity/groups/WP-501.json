@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-501",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "docs/User_Guide.md",
+      "blob_sha": "eebc47b14d7246cbffd0015bf5e39b1fb3f86973",
+      "kind": "reference",
+      "owner": "WP-501",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "docs/api/MC1.md",
+      "blob_sha": "e87fa93728d5f209e5386b51e85ea47e0a3f7c52",
+      "kind": "reference",
+      "owner": "WP-501",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "docs/api/MC1Services.md",
+      "blob_sha": "aeb949ab7549d21de330abf46e650ec37b62de1b",
+      "kind": "reference",
+      "owner": "WP-501",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": []
+}

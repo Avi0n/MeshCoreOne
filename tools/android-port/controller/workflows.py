@@ -116,6 +116,9 @@ def validate_candidate(value: dict, text: str):
         "python tools/android-port/controller/test_runner.py --include-tests tools/android-port/local "
         + event_arguments
     )
+    parity_runner_command = runner_command.replace(
+        " --candidate-event-name", " --include-tests android/parity-tests --candidate-event-name", 1,
+    )
     selector_command = (
         "python tools/android-port/controller/test_runner.py " + event_arguments + ' --scope-output "$GITHUB_OUTPUT"'
     )
@@ -131,7 +134,10 @@ def validate_candidate(value: dict, text: str):
     if (
         len(runners) != 1 or runners[0].get("if") != "${{ needs.scope.outputs.controller == 'true' }}"
         or runners[0].get("continue-on-error")
-        or runner_command not in runners[0].get("run", "").splitlines()
+        or [
+            line for line in runners[0].get("run", "").splitlines()
+            if "controller/test_runner.py" in line
+        ] not in ([runner_command], [parity_runner_command])
     ):
         raise PortError("Controller CI must discover the real native accessibility runner regressions once and fail closed")
     for name in ("build", "external-oracle", "backup-oracle"):

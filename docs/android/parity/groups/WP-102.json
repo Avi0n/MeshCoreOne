@@ -1,0 +1,3338 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-102",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MeshCore/Sources/MeshCore/Protocol/ChannelCrypto.swift",
+      "blob_sha": "0e53e6958a516369d073a43c0ce8b245282009ce",
+      "kind": "production",
+      "owner": "WP-102",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCrypto.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/WireCrypto.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCrypto.kt",
+          "sha256": "bf95624ee0f6c07bea38d6a0a77a2854ef3f99bf9cc85b032ab80cf394682197",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Protocol/ChannelCrypto.swift"
+          ],
+          "methods": [
+            {
+              "name": "toString",
+              "line": 15,
+              "end_line": 16
+            },
+            {
+              "name": "decrypt",
+              "line": 24,
+              "end_line": 40
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/WireCrypto.kt",
+          "sha256": "180f3e20d2df750f53a180bb41bbe16b41693e9af5571748db777b34122094e1",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Protocol/ChannelCrypto.swift",
+            "MeshCore/Sources/MeshCore/Protocol/DirectMessageCrypto.swift"
+          ],
+          "methods": [
+            {
+              "name": "hmacSha256",
+              "line": 20,
+              "end_line": 32
+            },
+            {
+              "name": "truncatedHmacSha256",
+              "line": 34,
+              "end_line": 34
+            },
+            {
+              "name": "authenticate",
+              "line": 36,
+              "end_line": 42
+            },
+            {
+              "name": "encryptAes128EcbZeroPadded",
+              "line": 44,
+              "end_line": 54
+            },
+            {
+              "name": "decryptAes128Ecb",
+              "line": 56,
+              "end_line": 60
+            },
+            {
+              "name": "requireSecret",
+              "line": 62,
+              "end_line": 64
+            },
+            {
+              "name": "transform",
+              "line": 66,
+              "end_line": 82
+            },
+            {
+              "name": "nullTerminatedUtf8",
+              "line": 85,
+              "end_line": 99
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Protocol/DirectMessageCrypto.swift",
+      "blob_sha": "049386cb73147a7715fe0ea96358445e253eb0dd",
+      "kind": "production",
+      "owner": "WP-102",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCrypto.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/WireCrypto.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/X25519Crypto.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCrypto.kt",
+          "sha256": "dd21cf7ec095cf5a1c0ca4106648c1a1092aa1290c2ecce192c9849344519cbb",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Protocol/DirectMessageCrypto.swift"
+          ],
+          "methods": [
+            {
+              "name": "toString",
+              "line": 16,
+              "end_line": 17
+            },
+            {
+              "name": "decrypt",
+              "line": 26,
+              "end_line": 47
+            },
+            {
+              "name": "extractTimestamp",
+              "line": 49,
+              "end_line": 53
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/WireCrypto.kt",
+          "sha256": "180f3e20d2df750f53a180bb41bbe16b41693e9af5571748db777b34122094e1",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Protocol/ChannelCrypto.swift",
+            "MeshCore/Sources/MeshCore/Protocol/DirectMessageCrypto.swift"
+          ],
+          "methods": [
+            {
+              "name": "hmacSha256",
+              "line": 20,
+              "end_line": 32
+            },
+            {
+              "name": "truncatedHmacSha256",
+              "line": 34,
+              "end_line": 34
+            },
+            {
+              "name": "authenticate",
+              "line": 36,
+              "end_line": 42
+            },
+            {
+              "name": "encryptAes128EcbZeroPadded",
+              "line": 44,
+              "end_line": 54
+            },
+            {
+              "name": "decryptAes128Ecb",
+              "line": 56,
+              "end_line": 60
+            },
+            {
+              "name": "requireSecret",
+              "line": 62,
+              "end_line": 64
+            },
+            {
+              "name": "transform",
+              "line": 66,
+              "end_line": 82
+            },
+            {
+              "name": "nullTerminatedUtf8",
+              "line": 85,
+              "end_line": 99
+            }
+          ]
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/X25519Crypto.kt",
+          "sha256": "84e0a196be8b01308e37ee41114bcd8e918d50d4cae4241eab01058078c289cd",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Protocol/DirectMessageCrypto.swift"
+          ],
+          "methods": [
+            {
+              "name": "publicKey",
+              "line": 8,
+              "end_line": 18
+            },
+            {
+              "name": "sharedSecret",
+              "line": 20,
+              "end_line": 34
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Sources/MeshCore/Protocol/Ed25519ToX25519.swift",
+      "blob_sha": "3730ebd17b7b691fad742d5ff6f57ba27a155644",
+      "kind": "production",
+      "owner": "WP-102",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/Ed25519ToX25519.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/crypto/Ed25519ToX25519.kt",
+          "sha256": "3a248f0c6f9d027e97ffe8fbc6a36da3cc45535714b5370eb26d2ad73681977e",
+          "source_references": [
+            "MeshCore/Sources/MeshCore/Protocol/Ed25519ToX25519.swift"
+          ],
+          "methods": [
+            {
+              "name": "convertPublicKey",
+              "line": 9,
+              "end_line": 31
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "kind": "test",
+      "owner": "WP-102",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Decrypt success",
+              "line": 10,
+              "end_line": 10
+            },
+            {
+              "name": "Decrypt wrong key",
+              "line": 13,
+              "end_line": 17
+            },
+            {
+              "name": "Decrypt corrupted MAC",
+              "line": 20,
+              "end_line": 26
+            },
+            {
+              "name": "Decrypt payload too short",
+              "line": 29,
+              "end_line": 33
+            },
+            {
+              "name": "Decrypt empty message",
+              "line": 36,
+              "end_line": 36
+            },
+            {
+              "name": "Decrypt long message",
+              "line": 39,
+              "end_line": 39
+            },
+            {
+              "name": "Decrypt unicode message",
+              "line": 42,
+              "end_line": 42
+            },
+            {
+              "name": "constants",
+              "line": 45,
+              "end_line": 51
+            },
+            {
+              "name": "Decrypt with different txtTypes",
+              "line": 54,
+              "end_line": 56
+            },
+            {
+              "name": "Decrypt with 32-byte secret uses first 16 bytes for AES",
+              "line": 59,
+              "end_line": 65
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "blob_sha": "324033b90084788747edde64071cf7fe70260da2",
+      "kind": "test",
+      "owner": "WP-102",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+          "sha256": "93c4037ad696c203b6a43969f7dc68bdc4e9587bb7187b740388d5c48c8cbef7",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Decrypt success",
+              "line": 10,
+              "end_line": 10
+            },
+            {
+              "name": "Decrypt wrong key",
+              "line": 13,
+              "end_line": 18
+            },
+            {
+              "name": "Decrypt corrupted MAC",
+              "line": 21,
+              "end_line": 29
+            },
+            {
+              "name": "Decrypt payload too short",
+              "line": 32,
+              "end_line": 37
+            },
+            {
+              "name": "Decrypt empty message",
+              "line": 40,
+              "end_line": 40
+            },
+            {
+              "name": "Decrypt unicode message",
+              "line": 43,
+              "end_line": 43
+            },
+            {
+              "name": "Extract timestamp",
+              "line": 46,
+              "end_line": 51
+            },
+            {
+              "name": "constants",
+              "line": 54,
+              "end_line": 61
+            },
+            {
+              "name": "Invalid key length",
+              "line": 64,
+              "end_line": 68
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MeshCore/Tests/MeshCoreTests/Ed25519ToX25519Tests.swift",
+      "blob_sha": "95e82357a2fbbe6cade2845b1384b4980af45adf",
+      "kind": "test",
+      "owner": "WP-102",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/Ed25519ToX25519Test.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/Ed25519ToX25519Test.kt",
+          "sha256": "8188f6af1df8f0e640f46e6ebc02b80bd58331b9a70b38220dee5731beebbe50",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Ed25519ToX25519Tests.swift"
+          ],
+          "methods": [
+            {
+              "name": "Public key conversion round-trip with independent RFC keys",
+              "line": 12,
+              "end_line": 27
+            },
+            {
+              "name": "DM decrypt with converted Ed25519 keys",
+              "line": 30,
+              "end_line": 40
+            },
+            {
+              "name": "Conversion rejects invalid inputs",
+              "line": 43,
+              "end_line": 51
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "source_blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "case_id": "ChannelCryptoTests::Decrypt success()",
+      "parameter_family": "single",
+      "line": 83,
+      "end_line": 112,
+      "declaration_sha256": "214f7a31f0eaaf32cc460af587b511510978b83c7542fcfa175ae80681b06d6d",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 94,
+          "expression": "Issue.record(\"Failed to create test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 102,
+          "expression": "#expect(ts == timestamp)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 103,
+          "expression": "#expect(tt == txtType)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 104,
+          "expression": "#expect(text == message)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 106,
+          "expression": "Issue.record(\"HMAC verification failed\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 108,
+          "expression": "Issue.record(\"Decryption failed\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 110,
+          "expression": "Issue.record(\"Payload too short\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt success`",
+          "line": 83,
+          "expression": "`Decrypt success`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 88,
+          "expression": "createEncryptedPayload(\n      timestamp: timestamp,\n      txtType: txtType,\n      message: message,\n      secret: testSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChannelCrypto.decrypt",
+          "line": 98,
+          "expression": "ChannelCrypto.decrypt(payload: payload, secret: testSecret)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .success",
+          "line": 101,
+          "expression": "let .success(ts, tt, text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+          "method_or_family_name": "Decrypt success",
+          "line": 10,
+          "end_line": 10,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "216b1152e61e304ad34d21ac2acf8b17ef893b872accbc2cd7733fa6a96b67cf",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "CryptoFixtures.assertChannel",
+              "line": 10,
+              "expression": "CryptoFixtures.assertChannel(CryptoFixtures.message(\"channel-normal\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 10,
+              "expression": "CryptoFixtures.message(\"channel-normal\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "source_blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "case_id": "ChannelCryptoTests::Decrypt wrong key()",
+      "parameter_family": "single",
+      "line": 115,
+      "end_line": 145,
+      "declaration_sha256": "b2fc301eaae32d226c3bb0ccb5fc4c1f7e90b4f4a10964ec9f99f8d748c27521",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 124,
+          "expression": "Issue.record(\"Failed to create test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 138,
+          "expression": "Issue.record(\"Should have failed with wrong key\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 143,
+          "expression": "Issue.record(\"Wrong failure type - expected hmacFailed\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt wrong key`",
+          "line": 115,
+          "expression": "`Decrypt wrong key`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 119,
+          "expression": "createEncryptedPayload(\n      timestamp: timestamp,\n      message: message,\n      secret: testSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 129,
+          "expression": "Data([\n      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n      0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF\n    ])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChannelCrypto.decrypt",
+          "line": 134,
+          "expression": "ChannelCrypto.decrypt(payload: payload, secret: wrongKey)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+          "method_or_family_name": "Decrypt wrong key",
+          "line": 13,
+          "end_line": 17,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "d74fb09881a0e3be97b8959ab951989d65535cd1c5cf11c80873a362bba7ec49",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 16,
+              "expression": "assertEquals(ChannelCrypto.DecryptResult.HmacFailed, ChannelCrypto.decrypt(vector.packet, wrongKey))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 14,
+              "expression": "CryptoFixtures.message(\"channel-wrong-key\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 15,
+              "expression": "Bytes.fromHex(\"00112233445566778899aabbccddeeff\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelCrypto.decrypt",
+              "line": 16,
+              "expression": "ChannelCrypto.decrypt(vector.packet, wrongKey)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "source_blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "case_id": "ChannelCryptoTests::Decrypt corrupted MAC()",
+      "parameter_family": "single",
+      "line": 148,
+      "end_line": 176,
+      "declaration_sha256": "371f51c42066c1a3745b40c29ec33fc08ab8cb3ffa5918e444e198b33a8f054f",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 157,
+          "expression": "Issue.record(\"Failed to create test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 169,
+          "expression": "Issue.record(\"Should have failed with corrupted MAC\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 174,
+          "expression": "Issue.record(\"Wrong failure type - expected hmacFailed\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt corrupted MAC`",
+          "line": 148,
+          "expression": "`Decrypt corrupted MAC`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 152,
+          "expression": "createEncryptedPayload(\n      timestamp: timestamp,\n      message: message,\n      secret: testSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChannelCrypto.decrypt",
+          "line": 165,
+          "expression": "ChannelCrypto.decrypt(payload: payload, secret: testSecret)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+          "method_or_family_name": "Decrypt corrupted MAC",
+          "line": 20,
+          "end_line": 26,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "1a8b39211f305e2d4213dd0ecaaa8a429e2ab1a72535d5a9aa3f3011c77a7175",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 25,
+              "expression": "assertEquals(ChannelCrypto.DecryptResult.HmacFailed, ChannelCrypto.decrypt(Bytes(payload), vector.secret))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 21,
+              "expression": "CryptoFixtures.message(\"channel-corrupted-mac\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "vector.packet.toByteArray",
+              "line": 22,
+              "expression": "vector.packet.toByteArray()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 23,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 23,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 24,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 24,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelCrypto.decrypt",
+              "line": 25,
+              "expression": "ChannelCrypto.decrypt(Bytes(payload), vector.secret)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 25,
+              "expression": "Bytes(payload)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "source_blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "case_id": "ChannelCryptoTests::Decrypt payload too short()",
+      "parameter_family": "single",
+      "line": 179,
+      "end_line": 192,
+      "declaration_sha256": "66f774447621c7b45c6b406569893efb235e369823c8cc3299b1f09d8b8903a3",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 190,
+          "expression": "Issue.record(\"Expected payloadTooShort\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt payload too short`",
+          "line": 179,
+          "expression": "`Decrypt payload too short`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 181,
+          "expression": "Data([0x00, 0x01, 0x02, 0x03])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChannelCrypto.decrypt",
+          "line": 183,
+          "expression": "ChannelCrypto.decrypt(payload: shortPayload, secret: testSecret)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+          "method_or_family_name": "Decrypt payload too short",
+          "line": 29,
+          "end_line": 33,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "5ae14d4ef8236fe623673a1016e8425caac128d6b14a0194387200a6577b0d4e",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(ChannelCrypto.DecryptResult.PayloadTooShort, ChannelCrypto.decrypt(\n            Bytes.of(0, 1, 2, 3), CryptoFixtures.message(\"channel-normal\").secret,\n        ))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "ChannelCrypto.decrypt",
+              "line": 30,
+              "expression": "ChannelCrypto.decrypt(\n            Bytes.of(0, 1, 2, 3), CryptoFixtures.message(\"channel-normal\").secret,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 31,
+              "expression": "Bytes.of(0, 1, 2, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CryptoFixtures.message",
+              "line": 31,
+              "expression": "CryptoFixtures.message(\"channel-normal\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "source_blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "case_id": "ChannelCryptoTests::Decrypt empty message()",
+      "parameter_family": "single",
+      "line": 195,
+      "end_line": 220,
+      "declaration_sha256": "93234b31840d684d1a5d5391205373c0a11062cbcc2634ee96dd8b0b6b5dcd71",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 206,
+          "expression": "Issue.record(\"Failed to create test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 214,
+          "expression": "#expect(ts == timestamp)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 215,
+          "expression": "#expect(tt == txtType)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 216,
+          "expression": "#expect(text == message)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 218,
+          "expression": "Issue.record(\"Expected success for empty message\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt empty message`",
+          "line": 195,
+          "expression": "`Decrypt empty message`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 200,
+          "expression": "createEncryptedPayload(\n      timestamp: timestamp,\n      txtType: txtType,\n      message: message,\n      secret: testSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChannelCrypto.decrypt",
+          "line": 210,
+          "expression": "ChannelCrypto.decrypt(payload: payload, secret: testSecret)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .success",
+          "line": 213,
+          "expression": "let .success(ts, tt, text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+          "method_or_family_name": "Decrypt empty message",
+          "line": 36,
+          "end_line": 36,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "e8153cbc7992e3c53b5181c05e9c45b880f4fb8559162e58489214095a0ea3aa",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "CryptoFixtures.assertChannel",
+              "line": 36,
+              "expression": "CryptoFixtures.assertChannel(CryptoFixtures.message(\"channel-empty\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 36,
+              "expression": "CryptoFixtures.message(\"channel-empty\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "source_blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "case_id": "ChannelCryptoTests::Decrypt long message()",
+      "parameter_family": "single",
+      "line": 223,
+      "end_line": 249,
+      "declaration_sha256": "85f060a2d8ecfdc42265d3e3c8526becf214c8259364aa5e790f0f085112a4b1",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 235,
+          "expression": "Issue.record(\"Failed to create test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 243,
+          "expression": "#expect(ts == timestamp)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 244,
+          "expression": "#expect(tt == txtType)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 245,
+          "expression": "#expect(text == message)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 247,
+          "expression": "Issue.record(\"Expected success for long message\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt long message`",
+          "line": 223,
+          "expression": "`Decrypt long message`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 229,
+          "expression": "createEncryptedPayload(\n      timestamp: timestamp,\n      txtType: txtType,\n      message: message,\n      secret: testSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChannelCrypto.decrypt",
+          "line": 239,
+          "expression": "ChannelCrypto.decrypt(payload: payload, secret: testSecret)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .success",
+          "line": 242,
+          "expression": "let .success(ts, tt, text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+          "method_or_family_name": "Decrypt long message",
+          "line": 39,
+          "end_line": 39,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "589bb55469bc3efbcdb0e7f32e5d4b2a29e8c449cbcb919eab93f2e9427fd05e",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "CryptoFixtures.assertChannel",
+              "line": 39,
+              "expression": "CryptoFixtures.assertChannel(CryptoFixtures.message(\"channel-long\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 39,
+              "expression": "CryptoFixtures.message(\"channel-long\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "source_blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "case_id": "ChannelCryptoTests::Decrypt unicode message()",
+      "parameter_family": "single",
+      "line": 252,
+      "end_line": 277,
+      "declaration_sha256": "e99bf9c5f3c16adfe7b1fea90a00d28430cc6e7aabcde20aec49bb9e96979540",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 263,
+          "expression": "Issue.record(\"Failed to create test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 271,
+          "expression": "#expect(ts == timestamp)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 272,
+          "expression": "#expect(tt == txtType)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 273,
+          "expression": "#expect(text == message)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 275,
+          "expression": "Issue.record(\"Expected success for unicode message\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt unicode message`",
+          "line": 252,
+          "expression": "`Decrypt unicode message`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 257,
+          "expression": "createEncryptedPayload(\n      timestamp: timestamp,\n      txtType: txtType,\n      message: message,\n      secret: testSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChannelCrypto.decrypt",
+          "line": 267,
+          "expression": "ChannelCrypto.decrypt(payload: payload, secret: testSecret)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .success",
+          "line": 270,
+          "expression": "let .success(ts, tt, text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+          "method_or_family_name": "Decrypt unicode message",
+          "line": 42,
+          "end_line": 42,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "14ea0346a0c41abd1e3eadc87c454791a6c33f8d624a204c33c402b82790ed3b",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "CryptoFixtures.assertChannel",
+              "line": 42,
+              "expression": "CryptoFixtures.assertChannel(CryptoFixtures.message(\"channel-unicode\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 42,
+              "expression": "CryptoFixtures.message(\"channel-unicode\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "source_blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "case_id": "ChannelCryptoTests::constants()",
+      "parameter_family": "single",
+      "line": 280,
+      "end_line": 286,
+      "declaration_sha256": "1b6c86c455bfb935f4b913d4bdd16b993ebb21104fe4a73972620e68e98df94e",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 281,
+          "expression": "#expect(ChannelCrypto.macSize == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 282,
+          "expression": "#expect(ChannelCrypto.keySize == 16)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 283,
+          "expression": "#expect(ChannelCrypto.timestampSize == 4)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 284,
+          "expression": "#expect(ChannelCrypto.txtTypeSize == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 285,
+          "expression": "#expect(ChannelCrypto.plaintextHeaderSize == 5)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "constants",
+          "line": 280,
+          "expression": "constants()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+          "method_or_family_name": "constants",
+          "line": 45,
+          "end_line": 51,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "b8f9e8d4e93825a32d42080743a7100d7bb70e754bfc48b3ef8d893d69669a1a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(2, ChannelCrypto.macSize)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 47,
+              "expression": "assertEquals(16, ChannelCrypto.keySize)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 48,
+              "expression": "assertEquals(4, ChannelCrypto.timestampSize)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 49,
+              "expression": "assertEquals(1, ChannelCrypto.txtTypeSize)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 50,
+              "expression": "assertEquals(5, ChannelCrypto.plaintextHeaderSize)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "source_blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "case_id": "ChannelCryptoTests::Decrypt with different txtTypes()",
+      "parameter_family": "single",
+      "line": 289,
+      "end_line": 316,
+      "declaration_sha256": "4ba6f634a30d3e7e53d1528d2805f81631017589e4dabee12dd4903698f8ee55",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 301,
+          "expression": "Issue.record(\"Failed to create test payload for txtType \\(txtType)\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 309,
+          "expression": "#expect(ts == timestamp)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 310,
+          "expression": "#expect(tt == txtType, \"txtType mismatch for value \\(txtType)\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 311,
+          "expression": "#expect(text == message)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 313,
+          "expression": "Issue.record(\"Expected success for txtType \\(txtType)\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt with different txtTypes`",
+          "line": 289,
+          "expression": "`Decrypt with different txtTypes`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 295,
+          "expression": "createEncryptedPayload(\n        timestamp: timestamp,\n        txtType: txtType,\n        message: message,\n        secret: testSecret\n      )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChannelCrypto.decrypt",
+          "line": 305,
+          "expression": "ChannelCrypto.decrypt(payload: payload, secret: testSecret)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .success",
+          "line": 308,
+          "expression": "let .success(ts, tt, text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+          "method_or_family_name": "Decrypt with different txtTypes",
+          "line": 54,
+          "end_line": 56,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "22b75998a942ac82ef8d48abbd0ce00aa59fd3b17bd0bebddab445ec0645e6a6",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "CryptoFixtures.assertChannel",
+              "line": 55,
+              "expression": "CryptoFixtures.assertChannel(CryptoFixtures.message(\"channel-type-$type\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "for",
+              "line": 55,
+              "expression": "for (type in 0..2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CryptoFixtures.message",
+              "line": 55,
+              "expression": "CryptoFixtures.message(\"channel-type-$type\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "source_blob_sha": "9e04884f23aca6685acd5f07a9f4d8ee0da8d11e",
+      "case_id": "ChannelCryptoTests::Decrypt with 32-byte secret uses first 16 bytes for AES()",
+      "parameter_family": "single",
+      "line": 319,
+      "end_line": 358,
+      "declaration_sha256": "f052a8017fd98a80a693e0871b4519fb9964921cac7e3a11a8a26a8d3d47ff3d",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 340,
+          "expression": "Issue.record(\"Failed to encrypt test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 352,
+          "expression": "#expect(resultTs == timestamp)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 353,
+          "expression": "#expect(resultType == txtType)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 354,
+          "expression": "#expect(text == message)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 356,
+          "expression": "Issue.record(\"Expected success for 32-byte secret\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt with 32-byte secret uses first 16 bytes for AES`",
+          "line": 319,
+          "expression": "`Decrypt with 32-byte secret uses first 16 bytes for AES`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 326,
+          "expression": "Data([\n      0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80,\n      0x90, 0xA0, 0xB0, 0xC0, 0xD0, 0xE0, 0xF0, 0x00\n    ])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 332,
+          "expression": "Data()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "plaintext.append",
+          "line": 334,
+          "expression": "plaintext.append(Data(bytes: &ts, count: 4))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 334,
+          "expression": "Data(bytes: &ts, count: 4)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "plaintext.append",
+          "line": 335,
+          "expression": "plaintext.append(txtType)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "plaintext.append",
+          "line": 336,
+          "expression": "plaintext.append(Data(message.utf8))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 336,
+          "expression": "Data(message.utf8)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "encryptAES128ECB",
+          "line": 339,
+          "expression": "encryptAES128ECB(plaintext: plaintext, key: testSecret)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "computeMAC",
+          "line": 345,
+          "expression": "computeMAC(data: ciphertext, key: secret32)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChannelCrypto.decrypt",
+          "line": 348,
+          "expression": "ChannelCrypto.decrypt(payload: payload, secret: secret32)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .success",
+          "line": 351,
+          "expression": "let .success(resultTs, resultType, text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+          "sha256": "5950071594b2bb87ac10e1439c6ebb054bb5515f342cb0d7f90d53e87fe2d1ca",
+          "class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+          "method_or_family_name": "Decrypt with 32-byte secret uses first 16 bytes for AES",
+          "line": 59,
+          "end_line": 65,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6f121635236eeea093c8bb3dd18ebbcd1093649d03be9563ca9d20f9fc132f12",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 61,
+              "expression": "assertEquals(32, vector.secret.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 62,
+              "expression": "assertEquals(CryptoFixtures.message(\"channel-normal\").secret, vector.secret.prefix(16))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "CryptoFixtures.assertChannel",
+              "line": 63,
+              "expression": "CryptoFixtures.assertChannel(vector)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 64,
+              "expression": "assertEquals(ChannelCrypto.DecryptResult.HmacFailed, ChannelCrypto.decrypt(vector.packet, vector.secret.prefix(16)))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 60,
+              "expression": "CryptoFixtures.message(\"channel-secret32\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CryptoFixtures.message",
+              "line": 62,
+              "expression": "CryptoFixtures.message(\"channel-normal\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "vector.secret.prefix",
+              "line": 62,
+              "expression": "vector.secret.prefix(16)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelCrypto.decrypt",
+              "line": 64,
+              "expression": "ChannelCrypto.decrypt(vector.packet, vector.secret.prefix(16))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "vector.secret.prefix",
+              "line": 64,
+              "expression": "vector.secret.prefix(16)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "source_blob_sha": "324033b90084788747edde64071cf7fe70260da2",
+      "case_id": "DirectMessageCryptoTests::Decrypt success()",
+      "parameter_family": "single",
+      "line": 114,
+      "end_line": 158,
+      "declaration_sha256": "2d799d793ccdb21907717692924d5283e53ccf03fbde19b7867914f0b84f0bef",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 123,
+          "expression": "#require(recipientPublicKey.rawRepresentation.first)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 124,
+          "expression": "#require(senderPublicKey.rawRepresentation.first)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 134,
+          "expression": "Issue.record(\"Failed to create test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 146,
+          "expression": "#expect(ts == timestamp)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 147,
+          "expression": "#expect(ta == typeAttempt)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 148,
+          "expression": "#expect(text == message)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 150,
+          "expression": "Issue.record(\"MAC verification failed\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 152,
+          "expression": "Issue.record(\"Decryption failed\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 154,
+          "expression": "Issue.record(\"Invalid payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 156,
+          "expression": "Issue.record(\"Key error\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt success`",
+          "line": 114,
+          "expression": "`Decrypt success`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "computeSharedSecret",
+          "line": 115,
+          "expression": "computeSharedSecret(\n      myPrivateKey: recipientPrivateKey,\n      theirPublicKey: senderPublicKey\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 126,
+          "expression": "createEncryptedPayload(\n      destHash: destHash,\n      srcHash: srcHash,\n      timestamp: timestamp,\n      typeAttempt: typeAttempt,\n      message: message,\n      sharedSecret: sharedSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DirectMessageCrypto.decrypt",
+          "line": 138,
+          "expression": "DirectMessageCrypto.decrypt(\n      payload: payload,\n      myPrivateKey: Data(recipientPrivateKey.rawRepresentation),\n      senderPublicKey: Data(senderPublicKey.rawRepresentation)\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 140,
+          "expression": "Data(recipientPrivateKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 141,
+          "expression": "Data(senderPublicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .success",
+          "line": 145,
+          "expression": "let .success(ts, ta, text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+          "sha256": "93c4037ad696c203b6a43969f7dc68bdc4e9587bb7187b740388d5c48c8cbef7",
+          "class": "com.meshcoreone.android.core.protocol.crypto.DirectMessageCryptoTest",
+          "method_or_family_name": "Decrypt success",
+          "line": 10,
+          "end_line": 10,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "fb942e9e82804460fbc392e4ded1344a241d17fd5a088cef936b1721212ac1fe",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "CryptoFixtures.assertDirect",
+              "line": 10,
+              "expression": "CryptoFixtures.assertDirect(CryptoFixtures.message(\"direct-normal\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 10,
+              "expression": "CryptoFixtures.message(\"direct-normal\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "source_blob_sha": "324033b90084788747edde64071cf7fe70260da2",
+      "case_id": "DirectMessageCryptoTests::Decrypt wrong key()",
+      "parameter_family": "single",
+      "line": 161,
+      "end_line": 194,
+      "declaration_sha256": "ef8ce811ba869a584bb03beeb86ab7b3dd215815b12c3302e9d8577fe4a97170",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 167,
+          "expression": "#require(createEncryptedPayload(\n      destHash: 0xAA,\n      srcHash: 0xBB,\n      timestamp: 1_703_123_456,\n      typeAttempt: 0,\n      message: \"Secret message\",\n      sharedSecret: sharedSecret\n    ))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 187,
+          "expression": "Issue.record(\"Should have failed with wrong key\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 192,
+          "expression": "Issue.record(\"Expected macMismatch\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt wrong key`",
+          "line": 161,
+          "expression": "`Decrypt wrong key`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "computeSharedSecret",
+          "line": 162,
+          "expression": "computeSharedSecret(\n      myPrivateKey: recipientPrivateKey,\n      theirPublicKey: senderPublicKey\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 167,
+          "expression": "createEncryptedPayload(\n      destHash: 0xAA,\n      srcHash: 0xBB,\n      timestamp: 1_703_123_456,\n      typeAttempt: 0,\n      message: \"Secret message\",\n      sharedSecret: sharedSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.KeyAgreement.PrivateKey",
+          "line": 177,
+          "expression": "Curve25519.KeyAgreement.PrivateKey()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DirectMessageCrypto.decrypt",
+          "line": 179,
+          "expression": "DirectMessageCrypto.decrypt(\n      payload: payload,\n      myPrivateKey: Data(wrongPrivateKey.rawRepresentation),\n      senderPublicKey: Data(senderPublicKey.rawRepresentation)\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 181,
+          "expression": "Data(wrongPrivateKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 182,
+          "expression": "Data(senderPublicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+          "sha256": "93c4037ad696c203b6a43969f7dc68bdc4e9587bb7187b740388d5c48c8cbef7",
+          "class": "com.meshcoreone.android.core.protocol.crypto.DirectMessageCryptoTest",
+          "method_or_family_name": "Decrypt wrong key",
+          "line": 13,
+          "end_line": 18,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "1e154b857184d7b0d97d82fe5148fee4d7e1bf412e27d1ec3927b9cfaacc3181",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 15,
+              "expression": "assertEquals(DirectMessageCrypto.DecryptResult.MacMismatch, DirectMessageCrypto.decrypt(\n            vector.packet, Bytes(ByteArray(32) { it.toByte() }), requireNotNull(vector.publicKey),\n        ))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 14,
+              "expression": "CryptoFixtures.message(\"direct-wrong-key\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DirectMessageCrypto.decrypt",
+              "line": 15,
+              "expression": "DirectMessageCrypto.decrypt(\n            vector.packet, Bytes(ByteArray(32) { it.toByte() }), requireNotNull(vector.publicKey),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 16,
+              "expression": "Bytes(ByteArray(32) { it.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 16,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "it.toByte",
+              "line": 16,
+              "expression": "it.toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 16,
+              "expression": "requireNotNull(vector.publicKey)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "source_blob_sha": "324033b90084788747edde64071cf7fe70260da2",
+      "case_id": "DirectMessageCryptoTests::Decrypt corrupted MAC()",
+      "parameter_family": "single",
+      "line": 197,
+      "end_line": 229,
+      "declaration_sha256": "59ec9f0f38bfb6e8bc249018e064e11f012bb8dfa6a1f585bbe550cfc687a53b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 203,
+          "expression": "#require(createEncryptedPayload(\n      destHash: 0xAA,\n      srcHash: 0xBB,\n      timestamp: 1_703_123_456,\n      typeAttempt: 0,\n      message: \"Test\",\n      sharedSecret: sharedSecret\n    ))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 227,
+          "expression": "Issue.record(\"Expected macMismatch\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt corrupted MAC`",
+          "line": 197,
+          "expression": "`Decrypt corrupted MAC`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "computeSharedSecret",
+          "line": 198,
+          "expression": "computeSharedSecret(\n      myPrivateKey: recipientPrivateKey,\n      theirPublicKey: senderPublicKey\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 203,
+          "expression": "createEncryptedPayload(\n      destHash: 0xAA,\n      srcHash: 0xBB,\n      timestamp: 1_703_123_456,\n      typeAttempt: 0,\n      message: \"Test\",\n      sharedSecret: sharedSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DirectMessageCrypto.decrypt",
+          "line": 216,
+          "expression": "DirectMessageCrypto.decrypt(\n      payload: payload,\n      myPrivateKey: Data(recipientPrivateKey.rawRepresentation),\n      senderPublicKey: Data(senderPublicKey.rawRepresentation)\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 218,
+          "expression": "Data(recipientPrivateKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 219,
+          "expression": "Data(senderPublicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+          "sha256": "93c4037ad696c203b6a43969f7dc68bdc4e9587bb7187b740388d5c48c8cbef7",
+          "class": "com.meshcoreone.android.core.protocol.crypto.DirectMessageCryptoTest",
+          "method_or_family_name": "Decrypt corrupted MAC",
+          "line": 21,
+          "end_line": 29,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "e1e5f4b560a4055f5be59b6c4caaf97037c9b83eedafa8ce112d1ec16ef8af98",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 26,
+              "expression": "assertEquals(DirectMessageCrypto.DecryptResult.MacMismatch, DirectMessageCrypto.decrypt(\n            Bytes(payload), requireNotNull(vector.privateKey), requireNotNull(vector.publicKey),\n        ))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 22,
+              "expression": "CryptoFixtures.message(\"direct-corrupted-mac\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "vector.packet.toByteArray",
+              "line": 23,
+              "expression": "vector.packet.toByteArray()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 24,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 24,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 25,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 25,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DirectMessageCrypto.decrypt",
+              "line": 26,
+              "expression": "DirectMessageCrypto.decrypt(\n            Bytes(payload), requireNotNull(vector.privateKey), requireNotNull(vector.publicKey),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 27,
+              "expression": "Bytes(payload)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 27,
+              "expression": "requireNotNull(vector.privateKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 27,
+              "expression": "requireNotNull(vector.publicKey)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "source_blob_sha": "324033b90084788747edde64071cf7fe70260da2",
+      "case_id": "DirectMessageCryptoTests::Decrypt payload too short()",
+      "parameter_family": "single",
+      "line": 232,
+      "end_line": 249,
+      "declaration_sha256": "181a737aeef77c80ce76c8fb183f5a48a310f262706fb7bbff570e0acf126b6f",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 247,
+          "expression": "Issue.record(\"Expected invalidPayload\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt payload too short`",
+          "line": 232,
+          "expression": "`Decrypt payload too short`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 234,
+          "expression": "Data([0x00, 0x01, 0x02, 0x03])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DirectMessageCrypto.decrypt",
+          "line": 236,
+          "expression": "DirectMessageCrypto.decrypt(\n      payload: shortPayload,\n      myPrivateKey: Data(recipientPrivateKey.rawRepresentation),\n      senderPublicKey: Data(senderPublicKey.rawRepresentation)\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 238,
+          "expression": "Data(recipientPrivateKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 239,
+          "expression": "Data(senderPublicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+          "sha256": "93c4037ad696c203b6a43969f7dc68bdc4e9587bb7187b740388d5c48c8cbef7",
+          "class": "com.meshcoreone.android.core.protocol.crypto.DirectMessageCryptoTest",
+          "method_or_family_name": "Decrypt payload too short",
+          "line": 32,
+          "end_line": 37,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "7d6fd28fee43e7873be345c1785356536277c3905de910b7481bcc66c66d9095",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(DirectMessageCrypto.DecryptResult.InvalidPayload, DirectMessageCrypto.decrypt(\n            Bytes.of(0, 1, 2, 3), requireNotNull(vector.privateKey), requireNotNull(vector.publicKey),\n        ))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 33,
+              "expression": "CryptoFixtures.message(\"direct-normal\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DirectMessageCrypto.decrypt",
+              "line": 34,
+              "expression": "DirectMessageCrypto.decrypt(\n            Bytes.of(0, 1, 2, 3), requireNotNull(vector.privateKey), requireNotNull(vector.publicKey),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 35,
+              "expression": "requireNotNull(vector.privateKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 35,
+              "expression": "requireNotNull(vector.publicKey)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "source_blob_sha": "324033b90084788747edde64071cf7fe70260da2",
+      "case_id": "DirectMessageCryptoTests::Decrypt empty message()",
+      "parameter_family": "single",
+      "line": 252,
+      "end_line": 284,
+      "declaration_sha256": "b0f01af91542704b333c23e57bbef2da5e60ec69a3f575173285b18ff59c97dc",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 266,
+          "expression": "Issue.record(\"Failed to create test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 278,
+          "expression": "#expect(ts == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 279,
+          "expression": "#expect(ta == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 280,
+          "expression": "#expect(text == \"\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 282,
+          "expression": "Issue.record(\"Expected success\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt empty message`",
+          "line": 252,
+          "expression": "`Decrypt empty message`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "computeSharedSecret",
+          "line": 253,
+          "expression": "computeSharedSecret(\n      myPrivateKey: recipientPrivateKey,\n      theirPublicKey: senderPublicKey\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 258,
+          "expression": "createEncryptedPayload(\n      destHash: 0xAA,\n      srcHash: 0xBB,\n      timestamp: 0,\n      typeAttempt: 0,\n      message: \"\",\n      sharedSecret: sharedSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DirectMessageCrypto.decrypt",
+          "line": 270,
+          "expression": "DirectMessageCrypto.decrypt(\n      payload: payload,\n      myPrivateKey: Data(recipientPrivateKey.rawRepresentation),\n      senderPublicKey: Data(senderPublicKey.rawRepresentation)\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 272,
+          "expression": "Data(recipientPrivateKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 273,
+          "expression": "Data(senderPublicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .success",
+          "line": 277,
+          "expression": "let .success(ts, ta, text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+          "sha256": "93c4037ad696c203b6a43969f7dc68bdc4e9587bb7187b740388d5c48c8cbef7",
+          "class": "com.meshcoreone.android.core.protocol.crypto.DirectMessageCryptoTest",
+          "method_or_family_name": "Decrypt empty message",
+          "line": 40,
+          "end_line": 40,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "09de55aaf0dc700b6747bd6608cbf438a321803fe0c1bd3a434095dbd8773d8c",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "CryptoFixtures.assertDirect",
+              "line": 40,
+              "expression": "CryptoFixtures.assertDirect(CryptoFixtures.message(\"direct-empty\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 40,
+              "expression": "CryptoFixtures.message(\"direct-empty\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "source_blob_sha": "324033b90084788747edde64071cf7fe70260da2",
+      "case_id": "DirectMessageCryptoTests::Decrypt unicode message()",
+      "parameter_family": "single",
+      "line": 287,
+      "end_line": 319,
+      "declaration_sha256": "eff170017d42d07e0db2679e676e70f284aac93e18bfd46e374694654202010b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 303,
+          "expression": "Issue.record(\"Failed to create test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 315,
+          "expression": "#expect(text == message)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 317,
+          "expression": "Issue.record(\"Expected success\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Decrypt unicode message`",
+          "line": 287,
+          "expression": "`Decrypt unicode message`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "computeSharedSecret",
+          "line": 288,
+          "expression": "computeSharedSecret(\n      myPrivateKey: recipientPrivateKey,\n      theirPublicKey: senderPublicKey\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 295,
+          "expression": "createEncryptedPayload(\n      destHash: 0xAA,\n      srcHash: 0xBB,\n      timestamp: 1_703_123_456,\n      typeAttempt: 0,\n      message: message,\n      sharedSecret: sharedSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DirectMessageCrypto.decrypt",
+          "line": 307,
+          "expression": "DirectMessageCrypto.decrypt(\n      payload: payload,\n      myPrivateKey: Data(recipientPrivateKey.rawRepresentation),\n      senderPublicKey: Data(senderPublicKey.rawRepresentation)\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 309,
+          "expression": "Data(recipientPrivateKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 310,
+          "expression": "Data(senderPublicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .success",
+          "line": 314,
+          "expression": "let .success(_, _, text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+          "sha256": "93c4037ad696c203b6a43969f7dc68bdc4e9587bb7187b740388d5c48c8cbef7",
+          "class": "com.meshcoreone.android.core.protocol.crypto.DirectMessageCryptoTest",
+          "method_or_family_name": "Decrypt unicode message",
+          "line": 43,
+          "end_line": 43,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ffa06861d467b75db1d5ceac5662674e7d1c02296c108e152a4e35f4c3d3f847",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "CryptoFixtures.assertDirect",
+              "line": 43,
+              "expression": "CryptoFixtures.assertDirect(CryptoFixtures.message(\"direct-unicode\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 43,
+              "expression": "CryptoFixtures.message(\"direct-unicode\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "source_blob_sha": "324033b90084788747edde64071cf7fe70260da2",
+      "case_id": "DirectMessageCryptoTests::Extract timestamp()",
+      "parameter_family": "single",
+      "line": 322,
+      "end_line": 349,
+      "declaration_sha256": "ff87a935a4a26f6c10068725a16c3f8febc134baba5d83f71b1e6d55d2fedca0",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 338,
+          "expression": "Issue.record(\"Failed to create test payload\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 348,
+          "expression": "#expect(timestamp == expectedTimestamp)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Extract timestamp`",
+          "line": 322,
+          "expression": "`Extract timestamp`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "computeSharedSecret",
+          "line": 323,
+          "expression": "computeSharedSecret(\n      myPrivateKey: recipientPrivateKey,\n      theirPublicKey: senderPublicKey\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "createEncryptedPayload",
+          "line": 330,
+          "expression": "createEncryptedPayload(\n      destHash: 0xAA,\n      srcHash: 0xBB,\n      timestamp: expectedTimestamp,\n      typeAttempt: 0,\n      message: \"Test\",\n      sharedSecret: sharedSecret\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DirectMessageCrypto.extractTimestamp",
+          "line": 342,
+          "expression": "DirectMessageCrypto.extractTimestamp(\n      payload: payload,\n      myPrivateKey: Data(recipientPrivateKey.rawRepresentation),\n      senderPublicKey: Data(senderPublicKey.rawRepresentation)\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 344,
+          "expression": "Data(recipientPrivateKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 345,
+          "expression": "Data(senderPublicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+          "sha256": "93c4037ad696c203b6a43969f7dc68bdc4e9587bb7187b740388d5c48c8cbef7",
+          "class": "com.meshcoreone.android.core.protocol.crypto.DirectMessageCryptoTest",
+          "method_or_family_name": "Extract timestamp",
+          "line": 46,
+          "end_line": 51,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "d6d325ea13ba05c9012a290bd20a5cd0c24671e7c8d2c3d546dc752daf3a87dd",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 48,
+              "expression": "assertEquals(vector.timestamp, DirectMessageCrypto.extractTimestamp(\n            vector.packet, requireNotNull(vector.privateKey), requireNotNull(vector.publicKey),\n        ))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 47,
+              "expression": "CryptoFixtures.message(\"direct-extract\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DirectMessageCrypto.extractTimestamp",
+              "line": 48,
+              "expression": "DirectMessageCrypto.extractTimestamp(\n            vector.packet, requireNotNull(vector.privateKey), requireNotNull(vector.publicKey),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 49,
+              "expression": "requireNotNull(vector.privateKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 49,
+              "expression": "requireNotNull(vector.publicKey)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "source_blob_sha": "324033b90084788747edde64071cf7fe70260da2",
+      "case_id": "DirectMessageCryptoTests::constants()",
+      "parameter_family": "single",
+      "line": 352,
+      "end_line": 359,
+      "declaration_sha256": "f15dc7f4be3d1dffadf87105939d1eef2968e6b1dc47d5c5d2447e53ee6eec2a",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 353,
+          "expression": "#expect(DirectMessageCrypto.macSize == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 354,
+          "expression": "#expect(DirectMessageCrypto.headerSize == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 355,
+          "expression": "#expect(DirectMessageCrypto.timestampSize == 4)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 356,
+          "expression": "#expect(DirectMessageCrypto.typeAttemptSize == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 357,
+          "expression": "#expect(DirectMessageCrypto.minCiphertextSize == 16)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 358,
+          "expression": "#expect(DirectMessageCrypto.minPacketSize == 20)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "constants",
+          "line": 352,
+          "expression": "constants()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+          "sha256": "93c4037ad696c203b6a43969f7dc68bdc4e9587bb7187b740388d5c48c8cbef7",
+          "class": "com.meshcoreone.android.core.protocol.crypto.DirectMessageCryptoTest",
+          "method_or_family_name": "constants",
+          "line": 54,
+          "end_line": 61,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "f0c5186d0c9f2fc1ec5be9ae32f00a91351fe06dfabbd1b9f2477663e50fd241",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 55,
+              "expression": "assertEquals(2, DirectMessageCrypto.macSize)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 56,
+              "expression": "assertEquals(2, DirectMessageCrypto.headerSize)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 57,
+              "expression": "assertEquals(4, DirectMessageCrypto.timestampSize)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 58,
+              "expression": "assertEquals(1, DirectMessageCrypto.typeAttemptSize)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 59,
+              "expression": "assertEquals(16, DirectMessageCrypto.minCiphertextSize)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 60,
+              "expression": "assertEquals(20, DirectMessageCrypto.minPacketSize)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "source_blob_sha": "324033b90084788747edde64071cf7fe70260da2",
+      "case_id": "DirectMessageCryptoTests::Invalid key length()",
+      "parameter_family": "single",
+      "line": 362,
+      "end_line": 378,
+      "declaration_sha256": "6a497fa0d708da2e33b6442e9969d3d4cb5b7d775fbc539a082998b1be937eaf",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "Issue.record",
+          "line": 376,
+          "expression": "Issue.record(\"Expected keyError\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Invalid key length`",
+          "line": 362,
+          "expression": "`Invalid key length`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 363,
+          "expression": "Data(repeating: 0, count: 24)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DirectMessageCrypto.decrypt",
+          "line": 365,
+          "expression": "DirectMessageCrypto.decrypt(\n      payload: payload,\n      myPrivateKey: Data([0x01, 0x02]), // Too short\n      senderPublicKey: Data(repeating: 0, count: 32)\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 367,
+          "expression": "Data([0x01, 0x02])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 368,
+          "expression": "Data(repeating: 0, count: 32)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+          "sha256": "93c4037ad696c203b6a43969f7dc68bdc4e9587bb7187b740388d5c48c8cbef7",
+          "class": "com.meshcoreone.android.core.protocol.crypto.DirectMessageCryptoTest",
+          "method_or_family_name": "Invalid key length",
+          "line": 64,
+          "end_line": 68,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "3c80966a343ddc0086254e9cd11e71973daf1527f369e0af7d3b7fc3398fe70a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 65,
+              "expression": "assertEquals(DirectMessageCrypto.DecryptResult.KeyError, DirectMessageCrypto.decrypt(\n            Bytes.EMPTY.paddedOrTruncated(24), Bytes.of(1, 2), Bytes.EMPTY.paddedOrTruncated(32),\n        ))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "DirectMessageCrypto.decrypt",
+              "line": 65,
+              "expression": "DirectMessageCrypto.decrypt(\n            Bytes.EMPTY.paddedOrTruncated(24), Bytes.of(1, 2), Bytes.EMPTY.paddedOrTruncated(32),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.paddedOrTruncated",
+              "line": 66,
+              "expression": "Bytes.EMPTY.paddedOrTruncated(24)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 66,
+              "expression": "Bytes.of(1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.paddedOrTruncated",
+              "line": 66,
+              "expression": "Bytes.EMPTY.paddedOrTruncated(32)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Ed25519ToX25519Tests.swift",
+      "source_blob_sha": "95e82357a2fbbe6cade2845b1384b4980af45adf",
+      "case_id": "Ed25519ToX25519Tests::Public key conversion round-trip with CryptoKit()",
+      "parameter_family": "single",
+      "line": 20,
+      "end_line": 45,
+      "declaration_sha256": "af45b15bddcb68b0b7888843ea8ffb30c838e82102c5a5eebfda42da18d6f660",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 29,
+          "expression": "#require(Ed25519ToX25519.convertPublicKey(Data(aliceSigning.publicKey.rawRepresentation)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 30,
+          "expression": "#require(Ed25519ToX25519.convertPublicKey(Data(bobSigning.publicKey.rawRepresentation)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 44,
+          "expression": "#expect(abBytes == baBytes)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Public key conversion round-trip with CryptoKit`",
+          "line": 20,
+          "expression": "`Public key conversion round-trip with CryptoKit`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.Signing.PrivateKey",
+          "line": 22,
+          "expression": "Curve25519.Signing.PrivateKey()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.Signing.PrivateKey",
+          "line": 23,
+          "expression": "Curve25519.Signing.PrivateKey()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "expandSeed",
+          "line": 25,
+          "expression": "expandSeed(aliceSigning.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "expandSeed",
+          "line": 26,
+          "expression": "expandSeed(bobSigning.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Ed25519ToX25519.convertPublicKey",
+          "line": 29,
+          "expression": "Ed25519ToX25519.convertPublicKey(Data(aliceSigning.publicKey.rawRepresentation))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 29,
+          "expression": "Data(aliceSigning.publicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Ed25519ToX25519.convertPublicKey",
+          "line": 30,
+          "expression": "Ed25519ToX25519.convertPublicKey(Data(bobSigning.publicKey.rawRepresentation))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 30,
+          "expression": "Data(bobSigning.publicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.KeyAgreement.PrivateKey",
+          "line": 33,
+          "expression": "Curve25519.KeyAgreement.PrivateKey(rawRepresentation: aliceScalar)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.KeyAgreement.PrivateKey",
+          "line": 34,
+          "expression": "Curve25519.KeyAgreement.PrivateKey(rawRepresentation: bobScalar)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.KeyAgreement.PublicKey",
+          "line": 36,
+          "expression": "Curve25519.KeyAgreement.PublicKey(rawRepresentation: bobX25519Public)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.KeyAgreement.PublicKey",
+          "line": 37,
+          "expression": "Curve25519.KeyAgreement.PublicKey(rawRepresentation: aliceX25519Public)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "aliceKA.sharedSecretFromKeyAgreement",
+          "line": 39,
+          "expression": "aliceKA.sharedSecretFromKeyAgreement(with: bobX25519PK)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "bobKA.sharedSecretFromKeyAgreement",
+          "line": 40,
+          "expression": "bobKA.sharedSecretFromKeyAgreement(with: aliceX25519PK)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 42,
+          "expression": "Data($0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 43,
+          "expression": "Data($0)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Ed25519ToX25519Tests.swift",
+      "source_blob_sha": "95e82357a2fbbe6cade2845b1384b4980af45adf",
+      "case_id": "Ed25519ToX25519Tests::DM decrypt with converted Ed25519 keys()",
+      "parameter_family": "single",
+      "line": 48,
+      "end_line": 122,
+      "declaration_sha256": "c2effac889d29fafdf60131875752bd83530afd023187d25536d0deb8ac7502a",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 55,
+          "expression": "#require(Ed25519ToX25519.convertPublicKey(Data(senderSigning.publicKey.rawRepresentation)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 56,
+          "expression": "#require(Ed25519ToX25519.convertPublicKey(Data(recipientSigning.publicKey.rawRepresentation)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 117,
+          "expression": "#expect(ts == timestamp)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 118,
+          "expression": "#expect(text == \"Hello\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 120,
+          "expression": "Issue.record(\"Expected success, got: \\(result)\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`DM decrypt with converted Ed25519 keys`",
+          "line": 48,
+          "expression": "`DM decrypt with converted Ed25519 keys`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.Signing.PrivateKey",
+          "line": 50,
+          "expression": "Curve25519.Signing.PrivateKey()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.Signing.PrivateKey",
+          "line": 51,
+          "expression": "Curve25519.Signing.PrivateKey()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "expandSeed",
+          "line": 53,
+          "expression": "expandSeed(senderSigning.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "expandSeed",
+          "line": 54,
+          "expression": "expandSeed(recipientSigning.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Ed25519ToX25519.convertPublicKey",
+          "line": 55,
+          "expression": "Ed25519ToX25519.convertPublicKey(Data(senderSigning.publicKey.rawRepresentation))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 55,
+          "expression": "Data(senderSigning.publicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Ed25519ToX25519.convertPublicKey",
+          "line": 56,
+          "expression": "Ed25519ToX25519.convertPublicKey(Data(recipientSigning.publicKey.rawRepresentation))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 56,
+          "expression": "Data(recipientSigning.publicKey.rawRepresentation)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.KeyAgreement.PrivateKey",
+          "line": 59,
+          "expression": "Curve25519.KeyAgreement.PrivateKey(rawRepresentation: senderScalar)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Curve25519.KeyAgreement.PublicKey",
+          "line": 60,
+          "expression": "Curve25519.KeyAgreement.PublicKey(rawRepresentation: recipientX25519Public)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "senderKA.sharedSecretFromKeyAgreement",
+          "line": 61,
+          "expression": "senderKA.sharedSecretFromKeyAgreement(with: recipientPK)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 62,
+          "expression": "Data($0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 66,
+          "expression": "Data()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "plaintext.append",
+          "line": 68,
+          "expression": "plaintext.append(Data(bytes: &ts, count: 4))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 68,
+          "expression": "Data(bytes: &ts, count: 4)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "plaintext.append",
+          "line": 69,
+          "expression": "plaintext.append(0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "plaintext.append",
+          "line": 70,
+          "expression": "plaintext.append(Data(\"Hello\".utf8))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 70,
+          "expression": "Data(\"Hello\".utf8)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "plaintext.append",
+          "line": 74,
+          "expression": "plaintext.append(0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 77,
+          "expression": "Data(count: paddedLen)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "secretData.prefix",
+          "line": 79,
+          "expression": "secretData.prefix(16)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "CCCrypt",
+          "line": 84,
+          "expression": "CCCrypt(\n            UInt32(kCCEncrypt),\n            UInt32(kCCAlgorithmAES),\n            UInt32(kCCOptionECBMode),\n            kPtr.baseAddress, 16,\n            nil,\n            pPtr.baseAddress, paddedLen,\n            cPtr.baseAddress, paddedLen,\n            &numBytes\n          )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt32",
+          "line": 85,
+          "expression": "UInt32(kCCEncrypt)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt32",
+          "line": 86,
+          "expression": "UInt32(kCCAlgorithmAES)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UInt32",
+          "line": 87,
+          "expression": "UInt32(kCCOptionECBMode)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 97,
+          "expression": "Data(ciphertext.prefix(numBytes))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ciphertext.prefix",
+          "line": 97,
+          "expression": "ciphertext.prefix(numBytes)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "SymmetricKey",
+          "line": 99,
+          "expression": "SymmetricKey(data: secretData)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 100,
+          "expression": "Data(HMAC<SHA256>.authenticationCode(for: ciphertext, using: symmetricKey).prefix(2))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "authenticationCode",
+          "line": 100,
+          "expression": "authenticationCode(for: ciphertext, using: symmetricKey)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "prefix",
+          "line": 100,
+          "expression": "prefix(2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 102,
+          "expression": "Data()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "packet.append",
+          "line": 103,
+          "expression": "packet.append(recipientX25519Public[0])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "packet.append",
+          "line": 104,
+          "expression": "packet.append(senderX25519Public[0])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "packet.append",
+          "line": 105,
+          "expression": "packet.append(mac)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "packet.append",
+          "line": 106,
+          "expression": "packet.append(ciphertext)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DirectMessageCrypto.decrypt",
+          "line": 109,
+          "expression": "DirectMessageCrypto.decrypt(\n      payload: packet,\n      myPrivateKey: recipientScalar,\n      senderPublicKey: senderX25519Public\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "let .success",
+          "line": 116,
+          "expression": "let .success(ts, _, text)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/Ed25519ToX25519Test.kt",
+          "sha256": "8188f6af1df8f0e640f46e6ebc02b80bd58331b9a70b38220dee5731beebbe50",
+          "class": "com.meshcoreone.android.core.protocol.crypto.Ed25519ToX25519Test",
+          "method_or_family_name": "DM decrypt with converted Ed25519 keys",
+          "line": 30,
+          "end_line": 40,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "74880fb7e86be1518014d1d15098ba0c0b7900b383c15274e8e5a7968096c134",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 36,
+              "expression": "assertEquals(vector.publicKey, senderPublic)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(vector.privateKey, recipientScalar)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 38,
+              "expression": "assertEquals(vector.secret, X25519Crypto.sharedSecret(sender.xPrivate, recipient.xPublic))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "CryptoFixtures.assertDirect",
+              "line": 39,
+              "expression": "CryptoFixtures.assertDirect(vector)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CryptoFixtures.message",
+              "line": 33,
+              "expression": "CryptoFixtures.message(\"ed-converted-direct\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Ed25519ToX25519.convertPublicKey",
+              "line": 34,
+              "expression": "Ed25519ToX25519.convertPublicKey(sender.edPublic)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Ed25519Crypto.x25519PrivateKeyFromExpanded",
+              "line": 35,
+              "expression": "Ed25519Crypto.x25519PrivateKeyFromExpanded(recipient.expanded)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "X25519Crypto.sharedSecret",
+              "line": 38,
+              "expression": "X25519Crypto.sharedSecret(sender.xPrivate, recipient.xPublic)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Ed25519ToX25519Tests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MeshCore/Tests/MeshCoreTests/Ed25519ToX25519Tests.swift",
+      "source_blob_sha": "95e82357a2fbbe6cade2845b1384b4980af45adf",
+      "case_id": "Ed25519ToX25519Tests::Conversion rejects invalid inputs()",
+      "parameter_family": "single",
+      "line": 125,
+      "end_line": 128,
+      "declaration_sha256": "91b28d8464d86d6c689d68663432e3dd65749f3db1e5567e297c005a2f6f5d74",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 126,
+          "expression": "#expect(Ed25519ToX25519.convertPublicKey(Data()) == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 127,
+          "expression": "#expect(Ed25519ToX25519.convertPublicKey(Data(repeating: 0, count: 16)) == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Conversion rejects invalid inputs`",
+          "line": 125,
+          "expression": "`Conversion rejects invalid inputs`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Ed25519ToX25519.convertPublicKey",
+          "line": 126,
+          "expression": "Ed25519ToX25519.convertPublicKey(Data())",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 126,
+          "expression": "Data()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Ed25519ToX25519.convertPublicKey",
+          "line": 127,
+          "expression": "Ed25519ToX25519.convertPublicKey(Data(repeating: 0, count: 16))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 127,
+          "expression": "Data(repeating: 0, count: 16)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/Ed25519ToX25519Test.kt",
+          "sha256": "8188f6af1df8f0e640f46e6ebc02b80bd58331b9a70b38220dee5731beebbe50",
+          "class": "com.meshcoreone.android.core.protocol.crypto.Ed25519ToX25519Test",
+          "method_or_family_name": "Conversion rejects invalid inputs",
+          "line": 43,
+          "end_line": 51,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "9212503c6cf34ed2181d70896394b05854ace8714ba31337d47e34ceee218338",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFailsWith",
+              "line": 45,
+              "expression": "assertFailsWith<CryptoException.InvalidKeyLength> {\n                Ed25519ToX25519.convertPublicKey(Bytes.EMPTY.paddedOrTruncated(length))\n            }",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 48,
+              "expression": "assertEquals(KeyFormat.ED25519_PUBLIC, error.format)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 49,
+              "expression": "assertEquals(length, error.actual)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "for",
+              "line": 44,
+              "expression": "for (length in listOf(0, 16))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 44,
+              "expression": "listOf(0, 16)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Ed25519ToX25519.convertPublicKey",
+              "line": 46,
+              "expression": "Ed25519ToX25519.convertPublicKey(Bytes.EMPTY.paddedOrTruncated(length))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.paddedOrTruncated",
+              "line": 46,
+              "expression": "Bytes.EMPTY.paddedOrTruncated(length)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Ed25519ToX25519Tests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    }
+  ]
+}

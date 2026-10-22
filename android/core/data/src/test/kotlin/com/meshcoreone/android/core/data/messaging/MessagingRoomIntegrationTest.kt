@@ -1,5 +1,6 @@
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceAttemptCountTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendDMBookkeepingTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // Native adaptation: WP-208 actual Room/process-store and real-session consumers on simulated SDK31, not HIL.
 package com.meshcoreone.android.core.data.messaging
 
@@ -12,6 +13,7 @@ import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException
 import com.meshcoreone.android.core.data.backup.backupEnvelope
 import com.meshcoreone.android.core.data.repository.RoomPersistenceStore
+import com.meshcoreone.android.core.data.repository.OriginalCase
 import com.meshcoreone.android.core.database.MeshCoreDatabase
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.ByteWriter
@@ -42,6 +44,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
@@ -120,12 +123,13 @@ class MessagingRoomIntegrationTest {
         persistence: PersistenceStoreProtocol = store,
         config: com.meshcoreone.android.core.services.messaging.MessageServiceConfig =
             com.meshcoreone.android.core.services.messaging.MessageServiceConfig(),
+        sessionTimeout: Double = 2.0,
     ) {
         val scope = CoroutineScope(SupervisorJob(process.coroutineContext[Job]) + StandardTestDispatcher(scheduler))
         val token = SessionToken(ProcessEpoch(UUID.fromString("CCCCCCCC-1111-2222-3333-444444444444")), Generation(number), radio)
         val signals = RoomSignals(token)
         val firmware = RoomFirmware()
-        val session = MeshCoreSession(firmware, SessionConfiguration(defaultTimeout = 2.0), clock, scope.coroutineContext)
+        val session = MeshCoreSession(firmware, SessionConfiguration(defaultTimeout = sessionTimeout), clock, scope.coroutineContext)
         val service = MessageService(token, self, session, persistence, signals, scope, config, clock)
         val queue = ChatSendQueueService(token, persistence, service, MessagingChannelQuery { null },
             OutgoingChannelReactionIndexer { _, _, _, _, _ -> }, signals, scope, clock = clock)
@@ -174,7 +178,8 @@ class MessagingRoomIntegrationTest {
     }
 
     @Test fun coldStoreReopenRecoversTheSameRadioMessageAndPendingSendWithoutRewritingSortDate() = runTest(scheduler) {
-        val name = "wp208-${UUID.randomUUID()}.db"
+        // Robolectric isolates each test directory; native Windows SQLite still limits path length.
+        val name = "cold.db"
         store.close(); db.close(); db = database(name); store = RoomPersistenceStore(db, process, clock.wallClock)
         seed()
         val sort = base.minusSeconds(86400)
@@ -657,6 +662,33 @@ class MessagingRoomIntegrationTest {
         assertEquals(1, g.firmware.sent().size); g.stop()
     }
 
+    @Test
+    @OriginalCase("MessageServiceSendDMBookkeepingTests::sendDirectMessage keeps ACK tracking and does not report failure when post-send bookkeeping fails()")
+    fun sourceAcceptedDMKeepsAckTrackingWhenItsSelectedRealRoomRowWasDeleted() = runTest(scheduler) {
+        contact = contact.copy(publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), name = "TestContact",
+            typeRawValue = 1u, lastHeardTimestamp = null)
+        seed()
+        val g = RadioGeneration(28, sessionTimeout = 10.0)
+        g.firmware.acknowledge = false
+        g.firmware.acceptedAck = Bytes.of(0xAB, 0xCD, 0xEF, 0x12)
+        g.firmware.suggestedTimeout = 5000u
+        g.firmware.acceptanceGate = CompletableDeferred()
+        g.start()
+        val events = g.service.statusEvents()
+        val sending = g.scope.async { g.service.sendDirectMessage("hi", contact) }
+        runCurrent()
+        assertEquals(1, g.firmware.sent().size)
+        val saved = store.fetchMessages(EntityKey(radio, contact.id), 10, 0).first()
+        store.deleteMessage(EntityKey(radio, saved.id))
+        assertNull(store.fetchMessage(EntityKey(radio, saved.id)))
+        g.firmware.acceptanceGate?.complete(Unit)
+        assertFailsWith<Exception> { sending.await() }
+        assertEquals(1, g.service.pendingAckCount)
+        g.service.finishStatusEvents()
+        assertFalse(events.events.toList().any { it.event is MessageStatusEvent.Failed })
+        g.stop()
+    }
+
     private suspend fun saveIncomingContact(wire: ContactMessage, resolved: ContactDTO?): MessageDTO {
         assertEquals(contact.id, resolved?.id)
         val message = MessageDTO(radioId = radio, contactID = contact.id, text = wire.text,
@@ -702,6 +734,8 @@ class MessagingRoomIntegrationTest {
         var acknowledge = true
         var ackBeforeAcceptance = false
         var acceptanceGate: CompletableDeferred<Unit>? = null
+        var acceptedAck: Bytes? = null
+        var suggestedTimeout: UInt = 10u
         var lastAck: Bytes? = null
         val incomingMessages = ArrayDeque<Bytes>()
         var afterNoMore: (suspend () -> Unit)? = null
@@ -723,12 +757,12 @@ class MessagingRoomIntegrationTest {
                     error?.let { mock.simulateError(it); return }
                     val input = ByteWriter().appendUInt32LE(data.readUInt32LE(3))
                         .appendUInt8((data[2].toInt() and 3).toUByte()).append(data.slice(13, data.size)).append(self).toBytes()
-                    val ack = Bytes(MessageDigest.getInstance("SHA-256").digest(input.toByteArray())).prefix(4)
+                    val ack = acceptedAck ?: Bytes(MessageDigest.getInstance("SHA-256").digest(input.toByteArray())).prefix(4)
                     lastAck = ack
                     if (acknowledge && ackBeforeAcceptance) pushAck(ack)
                     acceptanceGate?.await()
                     mock.simulateReceive(ByteWriter().appendUInt8(ResponseCode.MESSAGE_SENT.rawValue).appendUInt8(0u)
-                        .append(ack).appendUInt32LE(10u).toBytes())
+                        .append(ack).appendUInt32LE(suggestedTimeout).toBytes())
                     if (acknowledge && !ackBeforeAcceptance) pushAck(ack)
                 }
                 CommandCode.GET_CONTACT_BY_KEY -> mock.simulateError(2u)

@@ -1,0 +1,2778 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-305",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MC1/State/OnboardingState.swift",
+      "blob_sha": "7262982eccc2223286cf2113721121741c7f8263",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingState.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingState.kt",
+          "sha256": "77c59161842f300f947d93a86920d3ece13acfeaad1b8bd224e43bbc576a61d2",
+          "source_references": [
+            "MC1/State/OnboardingState.swift"
+          ],
+          "methods": [
+            {
+              "name": "getBoolean",
+              "line": 21,
+              "end_line": 21
+            },
+            {
+              "name": "setBoolean",
+              "line": 22,
+              "end_line": 22
+            },
+            {
+              "name": "append",
+              "line": 47,
+              "end_line": 47
+            },
+            {
+              "name": "replacePath",
+              "line": 48,
+              "end_line": 48
+            },
+            {
+              "name": "pop",
+              "line": 49,
+              "end_line": 53
+            },
+            {
+              "name": "completeOnboarding",
+              "line": 55,
+              "end_line": 55
+            },
+            {
+              "name": "resetOnboarding",
+              "line": 57,
+              "end_line": 60
+            },
+            {
+              "name": "suggestedStartingPath",
+              "line": 67,
+              "end_line": 80
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/DeviceScanView.swift",
+      "blob_sha": "2f42bc018bcb679d7dee737aa5d3ee401931c0f3",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/DeviceScanCoordinator.kt",
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/DeviceScanScreen.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/DeviceScanCoordinator.kt",
+          "sha256": "9f657e4d12192d63c659f863805d84b41f932fad76c16f369bbfa4db868f8266",
+          "source_references": [
+            "MC1/Views/Onboarding/DeviceScanView.swift"
+          ],
+          "methods": [
+            {
+              "name": "isBusy",
+              "line": 46,
+              "end_line": 46
+            },
+            {
+              "name": "primaryAction",
+              "line": 48,
+              "end_line": 52
+            },
+            {
+              "name": "showSheet",
+              "line": 54,
+              "end_line": 54
+            },
+            {
+              "name": "dismissSheet",
+              "line": 55,
+              "end_line": 55
+            },
+            {
+              "name": "dismissFailure",
+              "line": 56,
+              "end_line": 56
+            },
+            {
+              "name": "dismissDemoAlert",
+              "line": 57,
+              "end_line": 57
+            },
+            {
+              "name": "onTitleTap",
+              "line": 60,
+              "end_line": 66
+            },
+            {
+              "name": "blockerFor",
+              "line": 69,
+              "end_line": 74
+            },
+            {
+              "name": "startPairing",
+              "line": 80,
+              "end_line": 86
+            },
+            {
+              "name": "retryConnection",
+              "line": 88,
+              "end_line": 88
+            },
+            {
+              "name": "connectDemo",
+              "line": 89,
+              "end_line": 89
+            },
+            {
+              "name": "run",
+              "line": 91,
+              "end_line": 105
+            },
+            {
+              "name": "apply",
+              "line": 107,
+              "end_line": 123
+            },
+            {
+              "name": "continueConnected",
+              "line": 126,
+              "end_line": 126
+            }
+          ]
+        },
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/DeviceScanScreen.kt",
+          "sha256": "cd462ddf98bc637d3aa248814354438687f342cb0b248bd64c62d6cb5af9cbf0",
+          "source_references": [
+            "MC1/Views/Onboarding/DeviceScanView.swift"
+          ],
+          "methods": [
+            {
+              "name": "DeviceScanScreen",
+              "line": 50,
+              "end_line": 117
+            },
+            {
+              "name": "primaryLabel",
+              "line": 120,
+              "end_line": 126
+            },
+            {
+              "name": "BluetoothBlockerNotice",
+              "line": 130,
+              "end_line": 144
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/DeviceScannerSheet.swift",
+      "blob_sha": "d0931593465b872cc018c95f1c891f70829e5a1d",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/DeviceSheets.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/DeviceSheets.kt",
+          "sha256": "3acaed102b69fcf945cf1ab415a22aa88f53a8490829725a587cd01761cbee86",
+          "source_references": [
+            "MC1/Views/Onboarding/DeviceScannerSheet.swift",
+            "MC1/Views/Onboarding/NoDeviceSheet.swift",
+            "MC1/Views/Onboarding/TroubleshootingSheet.swift"
+          ],
+          "methods": [
+            {
+              "name": "NoDeviceSheetContent",
+              "line": 46,
+              "end_line": 56
+            },
+            {
+              "name": "TroubleshootingSheetContent",
+              "line": 59,
+              "end_line": 108
+            },
+            {
+              "name": "SectionHeader",
+              "line": 111,
+              "end_line": 113
+            },
+            {
+              "name": "DeviceScannerSheetContent",
+              "line": 117,
+              "end_line": 146
+            },
+            {
+              "name": "Remedy",
+              "line": 149,
+              "end_line": 155
+            },
+            {
+              "name": "ScannerRow",
+              "line": 158,
+              "end_line": 177
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/MeshAnimationView.swift",
+      "blob_sha": "3037fbeaae49e88c9e1ef9e8ea099c04faef4253",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/MeshAnimation.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/MeshAnimation.kt",
+          "sha256": "725cdceddc796b6fd4d2f86e3bab2c5aedba0af9839f6c825f7c8b8869236b5e",
+          "source_references": [
+            "MC1/Views/Onboarding/MeshAnimationView.swift",
+            "MC1/Views/Onboarding/PulsingAntenna.swift"
+          ],
+          "methods": [
+            {
+              "name": "edgeOpacity",
+              "line": 68,
+              "end_line": 69
+            },
+            {
+              "name": "nodeRadius",
+              "line": 71,
+              "end_line": 74
+            },
+            {
+              "name": "messagePosition",
+              "line": 77,
+              "end_line": 86
+            },
+            {
+              "name": "MeshAnimation",
+              "line": 90,
+              "end_line": 107
+            },
+            {
+              "name": "drawMesh",
+              "line": 109,
+              "end_line": 128
+            },
+            {
+              "name": "point",
+              "line": 111,
+              "end_line": 111
+            },
+            {
+              "name": "PulsingAntenna",
+              "line": 132,
+              "end_line": 146
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/NoDeviceSheet.swift",
+      "blob_sha": "497a00a4a8c161f69e762fcaa07ecf0e23ae8927",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/DeviceSheets.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/DeviceSheets.kt",
+          "sha256": "3acaed102b69fcf945cf1ab415a22aa88f53a8490829725a587cd01761cbee86",
+          "source_references": [
+            "MC1/Views/Onboarding/DeviceScannerSheet.swift",
+            "MC1/Views/Onboarding/NoDeviceSheet.swift",
+            "MC1/Views/Onboarding/TroubleshootingSheet.swift"
+          ],
+          "methods": [
+            {
+              "name": "NoDeviceSheetContent",
+              "line": 46,
+              "end_line": 56
+            },
+            {
+              "name": "TroubleshootingSheetContent",
+              "line": 59,
+              "end_line": 108
+            },
+            {
+              "name": "SectionHeader",
+              "line": 111,
+              "end_line": 113
+            },
+            {
+              "name": "DeviceScannerSheetContent",
+              "line": 117,
+              "end_line": 146
+            },
+            {
+              "name": "Remedy",
+              "line": 149,
+              "end_line": 155
+            },
+            {
+              "name": "ScannerRow",
+              "line": 158,
+              "end_line": 177
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/OnboardingMetrics.swift",
+      "blob_sha": "d42e5ac09487b4226c0211f34d04df7d430225de",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/OnboardingMetrics.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/OnboardingMetrics.kt",
+          "sha256": "e75fa04c9566fcf48efff59633e90a36ee24f3bb59ced9fe6b64fbb1f3eac9e5",
+          "source_references": [
+            "MC1/Views/Onboarding/OnboardingMetrics.swift"
+          ],
+          "methods": []
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/PermissionCard.swift",
+      "blob_sha": "3ea7b30e7fde0c75876be2c7af7ad7514f65d1b7",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PermissionsScreen.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PermissionsScreen.kt",
+          "sha256": "fff520238291890c02e661acc1b359f30ddc83e6bebdc1fd2a95b671057855f0",
+          "source_references": [
+            "MC1/Views/Onboarding/PermissionCard.swift",
+            "MC1/Views/Onboarding/PermissionsView.swift"
+          ],
+          "methods": [
+            {
+              "name": "PermissionsScreen",
+              "line": 36,
+              "end_line": 62
+            },
+            {
+              "name": "PermissionCard",
+              "line": 65,
+              "end_line": 99
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/PermissionsCoordinator.swift",
+      "blob_sha": "c0d74d08d5b1c1ebacf1fb0e27136f751676c388",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/PermissionsCoordinator.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/PermissionsCoordinator.kt",
+          "sha256": "90e85a3a9fc6ca43a71186b39664196e930a575c52137a6f87a90af41679ffce",
+          "source_references": [
+            "MC1/Views/Onboarding/PermissionsCoordinator.swift"
+          ],
+          "methods": [
+            {
+              "name": "permissionCardStatus",
+              "line": 8,
+              "end_line": 12
+            },
+            {
+              "name": "refresh",
+              "line": 23,
+              "end_line": 23
+            },
+            {
+              "name": "cardStatus",
+              "line": 25,
+              "end_line": 26
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/PermissionsView.swift",
+      "blob_sha": "44b8699e94f2b558ae15af6bfe17d2d5984764f6",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PermissionsScreen.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PermissionsScreen.kt",
+          "sha256": "fff520238291890c02e661acc1b359f30ddc83e6bebdc1fd2a95b671057855f0",
+          "source_references": [
+            "MC1/Views/Onboarding/PermissionCard.swift",
+            "MC1/Views/Onboarding/PermissionsView.swift"
+          ],
+          "methods": [
+            {
+              "name": "PermissionsScreen",
+              "line": 36,
+              "end_line": 62
+            },
+            {
+              "name": "PermissionCard",
+              "line": 65,
+              "end_line": 99
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/PresetStepView.swift",
+      "blob_sha": "0613b432da5862e2c8e417ce97f5725f21404204",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/PresetStepCoordinator.kt",
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/PresetStepCoordinator.kt",
+          "sha256": "76f1a0519463761e6fd2ed4fb2391d42941c15a97f4c77d68e6e0ade53f2d3c5",
+          "source_references": [
+            "MC1/Views/Onboarding/PresetStepView.swift"
+          ],
+          "methods": [
+            {
+              "name": "visiblePresets",
+              "line": 39,
+              "end_line": 39
+            },
+            {
+              "name": "select",
+              "line": 41,
+              "end_line": 41
+            },
+            {
+              "name": "dismissError",
+              "line": 42,
+              "end_line": 42
+            },
+            {
+              "name": "canApply",
+              "line": 44,
+              "end_line": 45
+            },
+            {
+              "name": "apply",
+              "line": 48,
+              "end_line": 63
+            },
+            {
+              "name": "finish",
+              "line": 65,
+              "end_line": 81
+            },
+            {
+              "name": "retry",
+              "line": 83,
+              "end_line": 87
+            },
+            {
+              "name": "dismissRetryAlert",
+              "line": 90,
+              "end_line": 99
+            }
+          ]
+        },
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/PresetStepScreen.kt",
+          "sha256": "3406e24b76f458e6532241c4969242272075208d74c96b098acbbeaa62de9d94",
+          "source_references": [
+            "MC1/Views/Onboarding/PresetStepView.swift"
+          ],
+          "methods": [
+            {
+              "name": "formatPresetFrequency",
+              "line": 50,
+              "end_line": 50
+            },
+            {
+              "name": "PresetStepScreen",
+              "line": 53,
+              "end_line": 102
+            },
+            {
+              "name": "PresetRow",
+              "line": 105,
+              "end_line": 122
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/PulsingAntenna.swift",
+      "blob_sha": "2cfba62352b896ad58365b71d735e981e84bc5a8",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/MeshAnimation.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/MeshAnimation.kt",
+          "sha256": "725cdceddc796b6fd4d2f86e3bab2c5aedba0af9839f6c825f7c8b8869236b5e",
+          "source_references": [
+            "MC1/Views/Onboarding/MeshAnimationView.swift",
+            "MC1/Views/Onboarding/PulsingAntenna.swift"
+          ],
+          "methods": [
+            {
+              "name": "edgeOpacity",
+              "line": 68,
+              "end_line": 69
+            },
+            {
+              "name": "nodeRadius",
+              "line": 71,
+              "end_line": 74
+            },
+            {
+              "name": "messagePosition",
+              "line": 77,
+              "end_line": 86
+            },
+            {
+              "name": "MeshAnimation",
+              "line": 90,
+              "end_line": 107
+            },
+            {
+              "name": "drawMesh",
+              "line": 109,
+              "end_line": 128
+            },
+            {
+              "name": "point",
+              "line": 111,
+              "end_line": 111
+            },
+            {
+              "name": "PulsingAntenna",
+              "line": 132,
+              "end_line": 146
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/RegionPickerRows.swift",
+      "blob_sha": "e8d544199a0cd1c0ff3dd571bdb5d063fcbe63f3",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/RegionStepScreen.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/RegionStepScreen.kt",
+          "sha256": "487a1d1a148b3e072bb8bc6c074adcd968b7e9f53ddf92807a349fec8243fbd8",
+          "source_references": [
+            "MC1/Views/Onboarding/RegionPickerRows.swift",
+            "MC1/Views/Onboarding/RegionPickerView.swift",
+            "MC1/Views/Onboarding/RegionStepView.swift"
+          ],
+          "methods": [
+            {
+              "name": "RegionStepScreen",
+              "line": 65,
+              "end_line": 91
+            },
+            {
+              "name": "ColumnHeader",
+              "line": 94,
+              "end_line": 94
+            },
+            {
+              "name": "DetectedRegion",
+              "line": 97,
+              "end_line": 113
+            },
+            {
+              "name": "ManualRegion",
+              "line": 116,
+              "end_line": 123
+            },
+            {
+              "name": "RegionPicker",
+              "line": 130,
+              "end_line": 163
+            },
+            {
+              "name": "areaTitle",
+              "line": 166,
+              "end_line": 167
+            },
+            {
+              "name": "PickerRow",
+              "line": 170,
+              "end_line": 179
+            },
+            {
+              "name": "SearchableList",
+              "line": 182,
+              "end_line": 203
+            },
+            {
+              "name": "filterRows",
+              "line": 206,
+              "end_line": 207
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/RegionPickerView.swift",
+      "blob_sha": "f8ec0b074e4a1ef8a4c82cbe5115b90deea47e8b",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/RegionStepScreen.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/RegionStepScreen.kt",
+          "sha256": "487a1d1a148b3e072bb8bc6c074adcd968b7e9f53ddf92807a349fec8243fbd8",
+          "source_references": [
+            "MC1/Views/Onboarding/RegionPickerRows.swift",
+            "MC1/Views/Onboarding/RegionPickerView.swift",
+            "MC1/Views/Onboarding/RegionStepView.swift"
+          ],
+          "methods": [
+            {
+              "name": "RegionStepScreen",
+              "line": 65,
+              "end_line": 91
+            },
+            {
+              "name": "ColumnHeader",
+              "line": 94,
+              "end_line": 94
+            },
+            {
+              "name": "DetectedRegion",
+              "line": 97,
+              "end_line": 113
+            },
+            {
+              "name": "ManualRegion",
+              "line": 116,
+              "end_line": 123
+            },
+            {
+              "name": "RegionPicker",
+              "line": 130,
+              "end_line": 163
+            },
+            {
+              "name": "areaTitle",
+              "line": 166,
+              "end_line": 167
+            },
+            {
+              "name": "PickerRow",
+              "line": 170,
+              "end_line": 179
+            },
+            {
+              "name": "SearchableList",
+              "line": 182,
+              "end_line": 203
+            },
+            {
+              "name": "filterRows",
+              "line": 206,
+              "end_line": 207
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/RegionStepView.swift",
+      "blob_sha": "6a500ed8fabd1fdc338357878843e94b14ec3b52",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/RegionStepCoordinator.kt",
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/RegionStepScreen.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/RegionStepCoordinator.kt",
+          "sha256": "55876bc10cf15a8cc095310a319a79d53fcfb910a1902038266a46a904ca6cff",
+          "source_references": [
+            "MC1/Views/Onboarding/RegionStepView.swift"
+          ],
+          "methods": [
+            {
+              "name": "mode",
+              "line": 26,
+              "end_line": 31
+            },
+            {
+              "name": "resolve",
+              "line": 46,
+              "end_line": 71
+            },
+            {
+              "name": "useMyLocation",
+              "line": 74,
+              "end_line": 78
+            },
+            {
+              "name": "chooseAnother",
+              "line": 80,
+              "end_line": 80
+            },
+            {
+              "name": "setManualSelection",
+              "line": 81,
+              "end_line": 81
+            },
+            {
+              "name": "dismissError",
+              "line": 82,
+              "end_line": 82
+            },
+            {
+              "name": "commitDetected",
+              "line": 84,
+              "end_line": 88
+            },
+            {
+              "name": "commitManual",
+              "line": 90,
+              "end_line": 94
+            }
+          ]
+        },
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/RegionStepScreen.kt",
+          "sha256": "487a1d1a148b3e072bb8bc6c074adcd968b7e9f53ddf92807a349fec8243fbd8",
+          "source_references": [
+            "MC1/Views/Onboarding/RegionPickerRows.swift",
+            "MC1/Views/Onboarding/RegionPickerView.swift",
+            "MC1/Views/Onboarding/RegionStepView.swift"
+          ],
+          "methods": [
+            {
+              "name": "RegionStepScreen",
+              "line": 65,
+              "end_line": 91
+            },
+            {
+              "name": "ColumnHeader",
+              "line": 94,
+              "end_line": 94
+            },
+            {
+              "name": "DetectedRegion",
+              "line": 97,
+              "end_line": 113
+            },
+            {
+              "name": "ManualRegion",
+              "line": 116,
+              "end_line": 123
+            },
+            {
+              "name": "RegionPicker",
+              "line": 130,
+              "end_line": 163
+            },
+            {
+              "name": "areaTitle",
+              "line": 166,
+              "end_line": 167
+            },
+            {
+              "name": "PickerRow",
+              "line": 170,
+              "end_line": 179
+            },
+            {
+              "name": "SearchableList",
+              "line": 182,
+              "end_line": 203
+            },
+            {
+              "name": "filterRows",
+              "line": 206,
+              "end_line": 207
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/TroubleshootingSheet.swift",
+      "blob_sha": "02efd0305cee75a63973305235c0cb1effcaca76",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/DeviceSheets.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/DeviceSheets.kt",
+          "sha256": "3acaed102b69fcf945cf1ab415a22aa88f53a8490829725a587cd01761cbee86",
+          "source_references": [
+            "MC1/Views/Onboarding/DeviceScannerSheet.swift",
+            "MC1/Views/Onboarding/NoDeviceSheet.swift",
+            "MC1/Views/Onboarding/TroubleshootingSheet.swift"
+          ],
+          "methods": [
+            {
+              "name": "NoDeviceSheetContent",
+              "line": 46,
+              "end_line": 56
+            },
+            {
+              "name": "TroubleshootingSheetContent",
+              "line": 59,
+              "end_line": 108
+            },
+            {
+              "name": "SectionHeader",
+              "line": 111,
+              "end_line": 113
+            },
+            {
+              "name": "DeviceScannerSheetContent",
+              "line": 117,
+              "end_line": 146
+            },
+            {
+              "name": "Remedy",
+              "line": 149,
+              "end_line": 155
+            },
+            {
+              "name": "ScannerRow",
+              "line": 158,
+              "end_line": 177
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/WelcomeView.swift",
+      "blob_sha": "a3217e1727050a1416faf203b95d7e2c375bf8d1",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/WelcomeScreen.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/WelcomeScreen.kt",
+          "sha256": "e28cfdeae28ca477b0dcdcc3f2d2245db1d97b8b8f17cfd93761b3760b95963b",
+          "source_references": [
+            "MC1/Views/Onboarding/WelcomeView.swift"
+          ],
+          "methods": [
+            {
+              "name": "WelcomeScreen",
+              "line": 21,
+              "end_line": 39
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Onboarding/WiFiConnectionSheet.swift",
+      "blob_sha": "9fb19ad3060ad8965543e3de28f68eafbd8cbf47",
+      "kind": "production",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/WiFiConnectionCoordinator.kt",
+        "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/WiFiConnectionSheet.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/WiFiConnectionCoordinator.kt",
+          "sha256": "28b52132109d0f48ed25f3ba400307fb8593e4b06b0eb5f2aaa5c1386dec62e5",
+          "source_references": [
+            "MC1/Views/Onboarding/WiFiConnectionSheet.swift"
+          ],
+          "methods": [
+            {
+              "name": "setAddress",
+              "line": 35,
+              "end_line": 35
+            },
+            {
+              "name": "setPort",
+              "line": 36,
+              "end_line": 36
+            },
+            {
+              "name": "reset",
+              "line": 39,
+              "end_line": 39
+            },
+            {
+              "name": "connect",
+              "line": 41,
+              "end_line": 68
+            }
+          ]
+        },
+        {
+          "path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/WiFiConnectionSheet.kt",
+          "sha256": "de6d1bd667cf9bbe15cfd3c52ad502b49dfbc7ac8048655ceae06142442bca05",
+          "source_references": [
+            "MC1/Views/Onboarding/WiFiConnectionSheet.swift"
+          ],
+          "methods": [
+            {
+              "name": "WiFiConnectionSheetContent",
+              "line": 34,
+              "end_line": 64
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "kind": "test",
+      "owner": "WP-305",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "store",
+              "line": 13,
+              "end_line": 13
+            },
+            {
+              "name": "completeSetsFlag",
+              "line": 16,
+              "end_line": 21
+            },
+            {
+              "name": "completePersists",
+              "line": 24,
+              "end_line": 30
+            },
+            {
+              "name": "resetClearsFlag",
+              "line": 33,
+              "end_line": 38
+            },
+            {
+              "name": "resetClearsPath",
+              "line": 41,
+              "end_line": 46
+            },
+            {
+              "name": "resetPersistsFalse",
+              "line": 49,
+              "end_line": 55
+            },
+            {
+              "name": "pathStartsEmpty",
+              "line": 58,
+              "end_line": 60
+            },
+            {
+              "name": "pathAppend",
+              "line": 63,
+              "end_line": 68
+            },
+            {
+              "name": "tipOn",
+              "line": 70,
+              "end_line": 73
+            },
+            {
+              "name": "donateOn",
+              "line": 75,
+              "end_line": 80
+            },
+            {
+              "name": "donateChats",
+              "line": 83,
+              "end_line": 83
+            },
+            {
+              "name": "donateContacts",
+              "line": 86,
+              "end_line": 86
+            },
+            {
+              "name": "donateMap",
+              "line": 89,
+              "end_line": 89
+            },
+            {
+              "name": "donateSettings",
+              "line": 92,
+              "end_line": 92
+            },
+            {
+              "name": "donateTools",
+              "line": 95,
+              "end_line": 95
+            },
+            {
+              "name": "flagSyncs",
+              "line": 98,
+              "end_line": 105
+            },
+            {
+              "name": "resumeEmptyWhenComplete",
+              "line": 111,
+              "end_line": 116
+            },
+            {
+              "name": "resumeEmptyWhenNoPairedDevice",
+              "line": 119,
+              "end_line": 123
+            },
+            {
+              "name": "resumeWithLastConnectedOnly",
+              "line": 126,
+              "end_line": 130
+            },
+            {
+              "name": "resumePastPermissionsGoesToRegionOrPreset",
+              "line": 133,
+              "end_line": 141
+            },
+            {
+              "name": "flagIsReadFromStoreAtConstruction",
+              "line": 143,
+              "end_line": 145
+            },
+            {
+              "name": "popRemovesLastStepAndReportsEmpty",
+              "line": 147,
+              "end_line": 153
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::completeOnboarding sets flag to true()",
+      "parameter_family": "single",
+      "line": 18,
+      "end_line": 25,
+      "declaration_sha256": "e58168fb1e26b6eb439bd19af5e81b4f65d904bfdbbbc5afb302e6bf53a39a15",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 24,
+          "expression": "#expect(onboarding.hasCompletedOnboarding == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`completeOnboarding sets flag to true`",
+          "line": 18,
+          "expression": "`completeOnboarding sets flag to true`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OnboardingState",
+          "line": 19,
+          "expression": "OnboardingState(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "onboarding.completeOnboarding",
+          "line": 22,
+          "expression": "onboarding.completeOnboarding()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "completeSetsFlag",
+          "line": 16,
+          "end_line": 21,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "85fc85499d41b3d068c712150cff2fb1f0ec0e83936c3588eefe10c73370fdb8",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 20,
+              "expression": "assertTrue(onboarding.hasCompletedOnboarding)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "OnboardingState",
+              "line": 17,
+              "expression": "OnboardingState(store())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store",
+              "line": 17,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.completeOnboarding",
+              "line": 19,
+              "expression": "onboarding.completeOnboarding()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::completeOnboarding sets flag to true()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::completeOnboarding persists to UserDefaults()",
+      "parameter_family": "single",
+      "line": 28,
+      "end_line": 35,
+      "declaration_sha256": "acee233719e89954ea9004ea3ff8acd60708b634aecfffd4d36721ac94345ab4",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 34,
+          "expression": "#expect(defaults.bool(forKey: \"hasCompletedOnboarding\") == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`completeOnboarding persists to UserDefaults`",
+          "line": 28,
+          "expression": "`completeOnboarding persists to UserDefaults`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OnboardingState",
+          "line": 29,
+          "expression": "OnboardingState(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "onboarding.completeOnboarding",
+          "line": 32,
+          "expression": "onboarding.completeOnboarding()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "defaults.bool",
+          "line": 34,
+          "expression": "defaults.bool(forKey: \"hasCompletedOnboarding\")",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "completePersists",
+          "line": 24,
+          "end_line": 30,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "44946a005e24578c98ed816dd09ba49467c12c771ecd538bbe8fc6b9386b4081",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 29,
+              "expression": "assertTrue(flags.getBoolean(key))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "store",
+              "line": 25,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "OnboardingState",
+              "line": 26,
+              "expression": "OnboardingState(flags)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.completeOnboarding",
+              "line": 28,
+              "expression": "onboarding.completeOnboarding()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "flags.getBoolean",
+              "line": 29,
+              "expression": "flags.getBoolean(key)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::completeOnboarding persists to UserDefaults()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::resetOnboarding clears flag()",
+      "parameter_family": "single",
+      "line": 40,
+      "end_line": 47,
+      "declaration_sha256": "9187a44a0af09922e2219bfe4504ff74b136aab64695b9e8a4400e4352246a80",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 46,
+          "expression": "#expect(onboarding.hasCompletedOnboarding == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`resetOnboarding clears flag`",
+          "line": 40,
+          "expression": "`resetOnboarding clears flag`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OnboardingState",
+          "line": 41,
+          "expression": "OnboardingState(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "onboarding.resetOnboarding",
+          "line": 44,
+          "expression": "onboarding.resetOnboarding()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "resetClearsFlag",
+          "line": 33,
+          "end_line": 38,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "5cce42134485546df2eb45a84ee86dc3e5270750783a231b131976eadc9a22ee",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 37,
+              "expression": "assertFalse(onboarding.hasCompletedOnboarding)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "OnboardingState",
+              "line": 34,
+              "expression": "OnboardingState(store())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store",
+              "line": 34,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.resetOnboarding",
+              "line": 36,
+              "expression": "onboarding.resetOnboarding()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::resetOnboarding clears flag()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::resetOnboarding clears onboarding path()",
+      "parameter_family": "single",
+      "line": 50,
+      "end_line": 57,
+      "declaration_sha256": "8970aba409d8bff9cc6466427f0ff6611da589e9b72a5733a94d0f01514eca3d",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 56,
+          "expression": "#expect(onboarding.onboardingPath.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`resetOnboarding clears onboarding path`",
+          "line": 50,
+          "expression": "`resetOnboarding clears onboarding path`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OnboardingState",
+          "line": 51,
+          "expression": "OnboardingState(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "onboarding.resetOnboarding",
+          "line": 54,
+          "expression": "onboarding.resetOnboarding()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "resetClearsPath",
+          "line": 41,
+          "end_line": 46,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "925fe48cfa9cfe8b6512e31619642944445720641dd04bf60d86e84ae4603eba",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 45,
+              "expression": "assertTrue(onboarding.onboardingPath.isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "OnboardingState",
+              "line": 42,
+              "expression": "OnboardingState(store())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store",
+              "line": 42,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.replacePath",
+              "line": 43,
+              "expression": "onboarding.replacePath(listOf(OnboardingStep.WELCOME, OnboardingStep.PERMISSIONS))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 43,
+              "expression": "listOf(OnboardingStep.WELCOME, OnboardingStep.PERMISSIONS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.resetOnboarding",
+              "line": 44,
+              "expression": "onboarding.resetOnboarding()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.onboardingPath.isEmpty",
+              "line": 45,
+              "expression": "onboarding.onboardingPath.isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::resetOnboarding clears onboarding path()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::resetOnboarding persists false to UserDefaults()",
+      "parameter_family": "single",
+      "line": 60,
+      "end_line": 66,
+      "declaration_sha256": "28662ec9d8c5ffaaba1abc296fd1d3bc2abcd915bd38303f2b484b27a61551b2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 65,
+          "expression": "#expect(defaults.bool(forKey: \"hasCompletedOnboarding\") == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`resetOnboarding persists false to UserDefaults`",
+          "line": 60,
+          "expression": "`resetOnboarding persists false to UserDefaults`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OnboardingState",
+          "line": 61,
+          "expression": "OnboardingState(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "onboarding.resetOnboarding",
+          "line": 63,
+          "expression": "onboarding.resetOnboarding()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "defaults.bool",
+          "line": 65,
+          "expression": "defaults.bool(forKey: \"hasCompletedOnboarding\")",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "resetPersistsFalse",
+          "line": 49,
+          "end_line": 55,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "cab5e7c17e158a1f60c2f0344468ef08ad0eda97852fbaa25d297915bc6673ba",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 54,
+              "expression": "assertFalse(flags.getBoolean(key))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "store",
+              "line": 50,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "OnboardingState",
+              "line": 51,
+              "expression": "OnboardingState(flags)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.resetOnboarding",
+              "line": 53,
+              "expression": "onboarding.resetOnboarding()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "flags.getBoolean",
+              "line": 54,
+              "expression": "flags.getBoolean(key)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::resetOnboarding persists false to UserDefaults()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::onboardingPath starts empty()",
+      "parameter_family": "single",
+      "line": 71,
+      "end_line": 74,
+      "declaration_sha256": "0f5707cf5eaab3b08d80f459095f74b2158527c85ac8746d619109237bdfe476",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 73,
+          "expression": "#expect(appState.onboarding.onboardingPath.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`onboardingPath starts empty`",
+          "line": 71,
+          "expression": "`onboardingPath starts empty`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 72,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "pathStartsEmpty",
+          "line": 58,
+          "end_line": 60,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "39cd7b3313cce6793fcf29384e3ea4a153e2a6476468be6df597c33d6d404ba0",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 59,
+              "expression": "assertTrue(OnboardingState(store()).onboardingPath.isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "OnboardingState",
+              "line": 59,
+              "expression": "OnboardingState(store())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store",
+              "line": 59,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboardingPath.isEmpty",
+              "line": 59,
+              "expression": "onboardingPath.isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::onboardingPath starts empty()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::onboardingPath can be appended to()",
+      "parameter_family": "single",
+      "line": 77,
+      "end_line": 84,
+      "declaration_sha256": "68746511d9b47cbda9f4d0a8e3eadafd39496a2b000f9570af37c80e04f12d1e",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 83,
+          "expression": "#expect(appState.onboarding.onboardingPath == [.welcome, .permissions])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`onboardingPath can be appended to`",
+          "line": 77,
+          "expression": "`onboardingPath can be appended to`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 78,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.onboarding.onboardingPath.append",
+          "line": 80,
+          "expression": "appState.onboarding.onboardingPath.append(.welcome)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.onboarding.onboardingPath.append",
+          "line": 81,
+          "expression": "appState.onboarding.onboardingPath.append(.permissions)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "pathAppend",
+          "line": 63,
+          "end_line": 68,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "0d95ec137ea20a18b2b9fc4879d128fb9062a47836de9c7bf4bc77249455f9bf",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 67,
+              "expression": "assertEquals(listOf(OnboardingStep.WELCOME, OnboardingStep.PERMISSIONS), onboarding.onboardingPath)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "OnboardingState",
+              "line": 64,
+              "expression": "OnboardingState(store())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store",
+              "line": 64,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.append",
+              "line": 65,
+              "expression": "onboarding.append(OnboardingStep.WELCOME)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.append",
+              "line": 66,
+              "expression": "onboarding.append(OnboardingStep.PERMISSIONS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 67,
+              "expression": "listOf(OnboardingStep.WELCOME, OnboardingStep.PERMISSIONS)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::onboardingPath can be appended to()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::donateDeviceMenuTipIfOnValidTab on Chats tab clears pending()",
+      "parameter_family": "single",
+      "line": 89,
+      "end_line": 97,
+      "declaration_sha256": "dd0d51927406e8366fcb2373bc354ad950f5ea4a8c5f568442a1c018b41a4d46",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 96,
+          "expression": "#expect(appState.navigation.pendingDeviceMenuTipDonation == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`donateDeviceMenuTipIfOnValidTab on Chats tab clears pending`",
+          "line": 89,
+          "expression": "`donateDeviceMenuTipIfOnValidTab on Chats tab clears pending`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 90,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.donateDeviceMenuTipIfOnValidTab",
+          "line": 94,
+          "expression": "appState.donateDeviceMenuTipIfOnValidTab()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "donateChats",
+          "line": 83,
+          "end_line": 83,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "5fce770168cd5e6908165c5f5225757e6a6b1a3847150da36d0db92ed44693b3",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 83,
+              "expression": "assertFalse(donateOn(AppTab.CHATS, true))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "donateOn",
+              "line": 83,
+              "expression": "donateOn(AppTab.CHATS, true)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::donateDeviceMenuTipIfOnValidTab on Chats tab clears pending()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::donateDeviceMenuTipIfOnValidTab on Contacts tab clears pending()",
+      "parameter_family": "single",
+      "line": 100,
+      "end_line": 108,
+      "declaration_sha256": "e16cc1e42f16a9f0964f2d86d3dce2236a10b29e3697841002a493ea0c463976",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 107,
+          "expression": "#expect(appState.navigation.pendingDeviceMenuTipDonation == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`donateDeviceMenuTipIfOnValidTab on Contacts tab clears pending`",
+          "line": 100,
+          "expression": "`donateDeviceMenuTipIfOnValidTab on Contacts tab clears pending`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 101,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.donateDeviceMenuTipIfOnValidTab",
+          "line": 105,
+          "expression": "appState.donateDeviceMenuTipIfOnValidTab()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "donateContacts",
+          "line": 86,
+          "end_line": 86,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "0ea29096451e2cf52255dbfe1a5c05d1df081a0babd1f59a11cf750d7ae9e49b",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 86,
+              "expression": "assertFalse(donateOn(AppTab.NODES, true))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "donateOn",
+              "line": 86,
+              "expression": "donateOn(AppTab.NODES, true)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::donateDeviceMenuTipIfOnValidTab on Contacts tab clears pending()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::donateDeviceMenuTipIfOnValidTab on Map tab clears pending()",
+      "parameter_family": "single",
+      "line": 111,
+      "end_line": 119,
+      "declaration_sha256": "511340a961df15a5cd5490885ef01a51f983004afded845f7a2ced7fb169d2d9",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 118,
+          "expression": "#expect(appState.navigation.pendingDeviceMenuTipDonation == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`donateDeviceMenuTipIfOnValidTab on Map tab clears pending`",
+          "line": 111,
+          "expression": "`donateDeviceMenuTipIfOnValidTab on Map tab clears pending`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 112,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.donateDeviceMenuTipIfOnValidTab",
+          "line": 116,
+          "expression": "appState.donateDeviceMenuTipIfOnValidTab()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "donateMap",
+          "line": 89,
+          "end_line": 89,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "00ad21a076bd97d28ef1c3879d1d88a6e34795b7a8bb7c4d02dbd8cc4eca3a81",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 89,
+              "expression": "assertFalse(donateOn(AppTab.MAP, true))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "donateOn",
+              "line": 89,
+              "expression": "donateOn(AppTab.MAP, true)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::donateDeviceMenuTipIfOnValidTab on Map tab clears pending()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::donateDeviceMenuTipIfOnValidTab on Settings tab sets pending()",
+      "parameter_family": "single",
+      "line": 122,
+      "end_line": 130,
+      "declaration_sha256": "fe78b227a4f93c1d148187c3f5a957778c741d3e4bbe04e81026cb4e3db877ff",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 129,
+          "expression": "#expect(appState.navigation.pendingDeviceMenuTipDonation == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`donateDeviceMenuTipIfOnValidTab on Settings tab sets pending`",
+          "line": 122,
+          "expression": "`donateDeviceMenuTipIfOnValidTab on Settings tab sets pending`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 123,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.donateDeviceMenuTipIfOnValidTab",
+          "line": 127,
+          "expression": "appState.donateDeviceMenuTipIfOnValidTab()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "donateSettings",
+          "line": 92,
+          "end_line": 92,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "51231b120497de0e06a961a695e99bf9360a731cb9d4a2602f9695b54b4c9618",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 92,
+              "expression": "assertTrue(donateOn(AppTab.SETTINGS, false))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "donateOn",
+              "line": 92,
+              "expression": "donateOn(AppTab.SETTINGS, false)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::donateDeviceMenuTipIfOnValidTab on Settings tab sets pending()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::donateDeviceMenuTipIfOnValidTab on Tools tab sets pending()",
+      "parameter_family": "single",
+      "line": 133,
+      "end_line": 141,
+      "declaration_sha256": "b679a3767149e61ad7991e701495d7865d69c83b8a81bbf31f9b3b3598682396",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 140,
+          "expression": "#expect(appState.navigation.pendingDeviceMenuTipDonation == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`donateDeviceMenuTipIfOnValidTab on Tools tab sets pending`",
+          "line": 133,
+          "expression": "`donateDeviceMenuTipIfOnValidTab on Tools tab sets pending`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 134,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.donateDeviceMenuTipIfOnValidTab",
+          "line": 138,
+          "expression": "appState.donateDeviceMenuTipIfOnValidTab()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "donateTools",
+          "line": 95,
+          "end_line": 95,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "5783600fe070cdafc041b7b57b251b46715841f9b908d272cbdd0b2caf101024",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 95,
+              "expression": "assertTrue(donateOn(AppTab.TOOLS, false))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "donateOn",
+              "line": 95,
+              "expression": "donateOn(AppTab.TOOLS, false)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::donateDeviceMenuTipIfOnValidTab on Tools tab sets pending()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests::hasCompletedOnboarding syncs to UserDefaults on set()",
+      "parameter_family": "single",
+      "line": 146,
+      "end_line": 154,
+      "declaration_sha256": "02407edcbaef5021deb2bbac2f34ad71adf39281f605540a7a6f2429e4ee6eb0",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 150,
+          "expression": "#expect(defaults.bool(forKey: \"hasCompletedOnboarding\") == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 153,
+          "expression": "#expect(defaults.bool(forKey: \"hasCompletedOnboarding\") == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`hasCompletedOnboarding syncs to UserDefaults on set`",
+          "line": 146,
+          "expression": "`hasCompletedOnboarding syncs to UserDefaults on set`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OnboardingState",
+          "line": 147,
+          "expression": "OnboardingState(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "defaults.bool",
+          "line": 150,
+          "expression": "defaults.bool(forKey: \"hasCompletedOnboarding\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "defaults.bool",
+          "line": 153,
+          "expression": "defaults.bool(forKey: \"hasCompletedOnboarding\")",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "flagSyncs",
+          "line": 98,
+          "end_line": 105,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "e18f21f50390a0a79ff2fdf101c15739305c935fa1c13e43db9fbb0d51279f59",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 102,
+              "expression": "assertTrue(flags.getBoolean(key))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 104,
+              "expression": "assertFalse(flags.getBoolean(key))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "store",
+              "line": 99,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "OnboardingState",
+              "line": 100,
+              "expression": "OnboardingState(flags)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "flags.getBoolean",
+              "line": 102,
+              "expression": "flags.getBoolean(key)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "flags.getBoolean",
+              "line": 104,
+              "expression": "flags.getBoolean(key)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests::hasCompletedOnboarding syncs to UserDefaults on set()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests.SuggestedStartingPathTests::Returns empty when onboarding is already complete()",
+      "parameter_family": "single",
+      "line": 162,
+      "end_line": 173,
+      "declaration_sha256": "62cd6564b27ce29e492795a353d5ae0a54c82e5b7345eee9798f6e4fddae7482",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 163,
+          "expression": "#require(UserDefaults(suiteName: \"test.\\(UUID().uuidString)\"))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 172,
+          "expression": "#expect(path.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Returns empty when onboarding is already complete`",
+          "line": 162,
+          "expression": "`Returns empty when onboarding is already complete`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UserDefaults",
+          "line": 163,
+          "expression": "UserDefaults(suiteName: \"test.\\(UUID().uuidString)\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OnboardingState",
+          "line": 164,
+          "expression": "OnboardingState(defaults: testDefaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 166,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "onboarding.suggestedStartingPath",
+          "line": 167,
+          "expression": "onboarding.suggestedStartingPath(\n        connectionManager: appState.connectionManager,\n        locationAuthorizationStatus: .notDetermined,\n        regionAlreadySet: false\n      )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "resumeEmptyWhenComplete",
+          "line": 111,
+          "end_line": 116,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "75371f12e1177e042a6927a800553110144a108f062fb2bd697d90195e6dadf1",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 115,
+              "expression": "assertTrue(path.isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "OnboardingState",
+              "line": 112,
+              "expression": "OnboardingState(store())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store",
+              "line": 112,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.suggestedStartingPath",
+              "line": 114,
+              "expression": "onboarding.suggestedStartingPath(OnboardingResumeFacts(1, true), undetermined, undetermined, false)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "OnboardingResumeFacts",
+              "line": 114,
+              "expression": "OnboardingResumeFacts(1, true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "path.isEmpty",
+              "line": 115,
+              "expression": "path.isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests.SuggestedStartingPathTests::Returns empty when onboarding is already complete()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests.SuggestedStartingPathTests::Returns empty when no paired device()",
+      "parameter_family": "single",
+      "line": 176,
+      "end_line": 199,
+      "declaration_sha256": "af463ca68809c7a9c34b243da69a5052a3b0fec7fec256ea506ab8fb9f26e35c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 177,
+          "expression": "#require(UserDefaults(suiteName: \"test.\\(UUID().uuidString)\"))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 190,
+          "expression": "#expect(connectionManager.pairedAccessoriesCount == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 191,
+          "expression": "#expect(connectionManager.lastConnectedDeviceID == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 198,
+          "expression": "#expect(path.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Returns empty when no paired device`",
+          "line": 176,
+          "expression": "`Returns empty when no paired device`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UserDefaults",
+          "line": 177,
+          "expression": "UserDefaults(suiteName: \"test.\\(UUID().uuidString)\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OnboardingState",
+          "line": 178,
+          "expression": "OnboardingState(defaults: testDefaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "PersistenceStore.createContainer",
+          "line": 184,
+          "expression": "PersistenceStore.createContainer(inMemory: true)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ConnectionManager",
+          "line": 185,
+          "expression": "ConnectionManager(\n        modelContainer: container,\n        defaults: testDefaults,\n        pairing: StubDevicePairingService()\n      )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "StubDevicePairingService",
+          "line": 188,
+          "expression": "StubDevicePairingService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "onboarding.suggestedStartingPath",
+          "line": 193,
+          "expression": "onboarding.suggestedStartingPath(\n        connectionManager: connectionManager,\n        locationAuthorizationStatus: .notDetermined,\n        regionAlreadySet: false\n      )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "resumeEmptyWhenNoPairedDevice",
+          "line": 119,
+          "end_line": 123,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6c70c8aa3677282b0ea2e26af8ff647f804f5a060346f596167f40f2a1e234e6",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 122,
+              "expression": "assertTrue(path.isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "OnboardingState",
+              "line": 120,
+              "expression": "OnboardingState(store())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store",
+              "line": 120,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.suggestedStartingPath",
+              "line": 121,
+              "expression": "onboarding.suggestedStartingPath(OnboardingResumeFacts(0, false), undetermined, undetermined, false)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "OnboardingResumeFacts",
+              "line": 121,
+              "expression": "OnboardingResumeFacts(0, false)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "path.isEmpty",
+              "line": 122,
+              "expression": "path.isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests.SuggestedStartingPathTests::Returns empty when no paired device()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/AppState/OnboardingStateTests.swift",
+      "source_blob_sha": "543c85b9c2cd89167972b9697a0891a717dcb30b",
+      "case_id": "OnboardingStateTests.SuggestedStartingPathTests::Resumes when a device was connected even with no system pairing registry (macOS)()",
+      "parameter_family": "single",
+      "line": 202,
+      "end_line": 226,
+      "declaration_sha256": "64fe41e76895273fa0324f648bd5f733ea1c17c038c9cfc7c2143387bd4afe1f",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 203,
+          "expression": "#require(UserDefaults(suiteName: \"test.\\(UUID().uuidString)\"))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 217,
+          "expression": "#expect(connectionManager.pairedAccessoriesCount == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 225,
+          "expression": "#expect(path == [.permissions])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Resumes when a device was connected even with no system pairing registry (macOS)`",
+          "line": 202,
+          "expression": "`Resumes when a device was connected even with no system pairing registry (macOS)`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UserDefaults",
+          "line": 203,
+          "expression": "UserDefaults(suiteName: \"test.\\(UUID().uuidString)\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "OnboardingState",
+          "line": 204,
+          "expression": "OnboardingState(defaults: testDefaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "PersistenceStore.createContainer",
+          "line": 210,
+          "expression": "PersistenceStore.createContainer(inMemory: true)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ConnectionManager",
+          "line": 211,
+          "expression": "ConnectionManager(\n        modelContainer: container,\n        defaults: testDefaults,\n        pairing: StubDevicePairingService()\n      )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "StubDevicePairingService",
+          "line": 214,
+          "expression": "StubDevicePairingService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 216,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "onboarding.suggestedStartingPath",
+          "line": 219,
+          "expression": "onboarding.suggestedStartingPath(\n        connectionManager: connectionManager,\n        locationAuthorizationStatus: .notDetermined,\n        regionAlreadySet: false\n      )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/feature/onboarding/src/test/kotlin/com/meshcoreone/android/feature/onboarding/OnboardingStateTests.kt",
+          "sha256": "ecc2158cb2d361721ef0a9df47278259b72cfec7ef99f8e2a51587407d9281c0",
+          "class": "com.meshcoreone.android.feature.onboarding.OnboardingStateTests",
+          "method_or_family_name": "resumeWithLastConnectedOnly",
+          "line": 126,
+          "end_line": 130,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "c922e9da98d9ac2461f32317219d3c6c40a8e0877af325dd130e55ae1dd83966",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 129,
+              "expression": "assertEquals(listOf(OnboardingStep.PERMISSIONS), path)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "OnboardingState",
+              "line": 127,
+              "expression": "OnboardingState(store())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store",
+              "line": 127,
+              "expression": "store()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "onboarding.suggestedStartingPath",
+              "line": 128,
+              "expression": "onboarding.suggestedStartingPath(OnboardingResumeFacts(0, true), undetermined, undetermined, false)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "OnboardingResumeFacts",
+              "line": 128,
+              "expression": "OnboardingResumeFacts(0, true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 129,
+              "expression": "listOf(OnboardingStep.PERMISSIONS)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/AppState/OnboardingStateTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "OnboardingStateTests.SuggestedStartingPathTests::Resumes when a device was connected even with no system pairing registry (macOS)()",
+            "adapted"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    }
+  ]
+}

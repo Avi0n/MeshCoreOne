@@ -7,6 +7,8 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.feature.chats.list.MeshCoreLinkParser
 import com.meshcoreone.android.feature.chats.list.support.OriginalCase
+import java.net.URI
+import kotlin.math.abs
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -21,7 +23,7 @@ class MessageTextTest {
     private fun fmt(text: String) = MessageTextFormatter.format(text)
     private fun token(name: String) = ContactShare.formatShare(key, ContactType.CHAT, name)
     private fun contactUrl(name: String) = ContactShare.exportContactUri(name, key, ContactType.CHAT)
-    private fun FormattedMessage.hasContactLink() = tokens.any { it.url?.startsWith("meshcore://contact/") == true }
+    private fun FormattedMessage.hasContactLink() = tokens.any { it.url?.let { url -> URI(url).host } == "contact" }
     private fun FormattedMessage.linkedText(url: String): String? =
         tokens.lastOrNull { it.url == url }?.let { text.substring(it.start, it.end) }
     private fun FormattedMessage.tokenFor(substring: String): LinkToken? {
@@ -70,7 +72,9 @@ class MessageTextTest {
     @Test
     @OriginalCase("MessageTextTests::A decimal coordinate pair is linkified as a meshcore map link()")
     fun `a decimal coordinate pair is a map link`() {
-        assertTrue(fmt("Meet at 37.334900, -122.009020 tonight").linkFor("37.334900, -122.009020")!!.startsWith("meshcore://map"))
+        val url = URI(fmt("Meet at 37.334900, -122.009020 tonight").linkFor("37.334900, -122.009020")!!)
+        assertEquals("meshcore", url.scheme)
+        assertEquals("map", url.host)
     }
 
     @Test
@@ -85,7 +89,7 @@ class MessageTextTest {
     @OriginalCase("MessageTextTests::A coordinate embedded in text linkifies only the coordinate substring()")
     fun `only the coordinate substring is linked`() {
         val formatted = fmt("here: 37.7749, -122.4194 ok")
-        assertTrue(formatted.linkFor("37.7749, -122.4194")!!.startsWith("meshcore://map"))
+        assertEquals("map", URI(formatted.linkFor("37.7749, -122.4194")!!).host)
         assertNull(formatted.linkFor("here"))
         assertNull(formatted.linkFor("ok"))
     }
@@ -94,8 +98,8 @@ class MessageTextTest {
     @OriginalCase("MessageTextTests::Multiple coordinates in one message each linkify()")
     fun `multiple coordinates each linkify`() {
         val formatted = fmt("A 10.0, 20.0 and B 30.0, 40.0")
-        assertTrue(formatted.linkFor("10.0, 20.0")!!.startsWith("meshcore://map"))
-        assertTrue(formatted.linkFor("30.0, 40.0")!!.startsWith("meshcore://map"))
+        assertEquals("map", URI(formatted.linkFor("10.0, 20.0")!!).host)
+        assertEquals("map", URI(formatted.linkFor("30.0, 40.0")!!).host)
     }
 
     @Test
@@ -118,8 +122,8 @@ class MessageTextTest {
     fun `a linkified coordinate round-trips through parseMapURL`() {
         val url = fmt("37.334900, -122.009020").linkFor("37.334900, -122.009020")!!
         val parsed = assertNotNull(MeshCoreLinkParser.parseMapURL(url))
-        assertEquals(37.3349, parsed.latitude, 0.000001)
-        assertEquals(-122.00902, parsed.longitude, 0.000001)
+        assertTrue(abs(parsed.latitude - 37.3349) < 0.000001)
+        assertTrue(abs(parsed.longitude - -122.00902) < 0.000001)
         assertTrue(url.contains("lat=37.334900") && url.contains("lon=-122.009020"))
     }
 
@@ -184,7 +188,7 @@ class MessageTextTest {
         val raw = "‮evil"
         val formatted = fmt("Add ${token(raw)}")
         assertEquals("evil", formatted.linkedText(contactUrl("evil")))
-        assertFalse(formatted.text.contains('‮'))
+        assertNoBidiControls(formatted.text)
         assertFalse(formatted.tokens.any { it.url == contactUrl(raw) }, "link must not carry the raw bidi-override name")
     }
 
@@ -194,7 +198,7 @@ class MessageTextTest {
         val raw = "B​a‌s‍e\u000A\u0009"
         val formatted = fmt("Add ${token(raw)}")
         assertEquals("Base", formatted.linkedText(contactUrl("Base")))
-        assertTrue(formatted.text.none { it == '​' || it == '‌' || it == '‍' || it == '\n' || it == '\t' })
+        assertNoInvisibleScalars(formatted.text)
     }
 
     @Test
@@ -223,7 +227,7 @@ class MessageTextTest {
     @OriginalCase("MessageTextContactShareTests::A meshcore URL inside a token name is not re-linked by the meshcore pass()")
     fun `a meshcore URL inside a token name is not re-linked`() {
         val formatted = fmt(token("join meshcore://channel/add?name=x&secret=00112233445566778899AABBCCDDEEFF"))
-        assertFalse(formatted.tokens.any { it.url?.startsWith("meshcore://channel") == true })
+        assertFalse(formatted.tokens.any { it.url?.let { url -> URI(url).host } == "channel" })
     }
 
     // ChatCoordinateDetectorTests
@@ -232,8 +236,8 @@ class MessageTextTest {
     @OriginalCase("ChatCoordinateDetectorTests::A valid decimal pair is detected()")
     fun `a valid decimal pair is detected`() {
         val coordinate = assertNotNull(ChatCoordinateDetector.firstCoordinate("Meet at 37.334900, -122.009020 tonight"))
-        assertEquals(37.3349, coordinate.latitude, 0.000001)
-        assertEquals(-122.00902, coordinate.longitude, 0.000001)
+        assertTrue(abs(coordinate.latitude - 37.3349) < 0.000001)
+        assertTrue(abs(coordinate.longitude - -122.00902) < 0.000001)
     }
 
     @Test
@@ -280,6 +284,35 @@ class MessageTextTest {
         val match = ChatCoordinateDetector.matches(text).single()
         assertEquals(37.7749, match.coordinate.latitude)
         assertEquals("37.7749, -122.4194", text.substring(match.start, match.end))
+    }
+
+    // Independent Unicode 17 UCD properties; provenance and notice: docs/android/parity/README.md.
+    private fun assertNoBidiControls(text: String) {
+        val bidi = Regex("[\\x{061C}\\x{200E}-\\x{200F}\\x{202A}-\\x{202E}\\x{2066}-\\x{2069}]")
+        for (scalar in listOf(0x061C, 0x200E, 0x200F, 0x202A, 0x202B, 0x202C, 0x202D, 0x202E, 0x2066, 0x2067, 0x2068, 0x2069)) {
+            assertTrue(bidi.containsMatchIn(String(Character.toChars(scalar))))
+        }
+        assertFalse(bidi.containsMatchIn(" \u00A0\u03A9\uD83D\uDE42"))
+        assertFalse(bidi.containsMatchIn(text), "Visible output must contain no Bidi_Control scalars")
+    }
+
+    private fun assertNoInvisibleScalars(text: String) {
+        val invisible = Regex(
+            "[\\x{00AD}\\x{034F}\\x{061C}\\x{115F}-\\x{1160}\\x{17B4}-\\x{17B5}" +
+                "\\x{180B}-\\x{180D}\\x{180E}\\x{180F}\\x{200B}-\\x{200F}\\x{202A}-\\x{202E}" +
+                "\\x{2060}-\\x{2064}\\x{2065}\\x{2066}-\\x{206F}\\x{3164}\\x{FE00}-\\x{FE0F}\\x{FEFF}" +
+                "\\x{FFA0}\\x{FFF0}-\\x{FFF8}\\x{1BCA0}-\\x{1BCA3}\\x{1D173}-\\x{1D17A}" +
+                "\\x{E0000}\\x{E0001}\\x{E0002}-\\x{E001F}\\x{E0020}-\\x{E007F}" +
+                "\\x{E0080}-\\x{E00FF}\\x{E0100}-\\x{E01EF}\\x{E01F0}-\\x{E0FFF}" +
+                "\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}" +
+                "\\x{0600}-\\x{0605}\\x{06DD}\\x{070F}\\x{0890}-\\x{0891}\\x{08E2}" +
+                "\\x{FFF9}-\\x{FFFB}\\x{110BD}\\x{110CD}\\x{13430}-\\x{1343F}]",
+        )
+        for (scalar in listOf(0x034F, 0x115F, 0x2065, 0x0600, 0x007F, 0xE0001, 0xE01EF, 0x13430)) {
+            assertTrue(invisible.containsMatchIn(String(Character.toChars(scalar))))
+        }
+        assertFalse(invisible.containsMatchIn(" \u00A0\u03A9\uD83D\uDE42"))
+        assertFalse(invisible.containsMatchIn(text), "Visible output must contain no Default_Ignorable_Code_Point, Cc or Cf scalars")
     }
 
     // Native: swiftc oracle probes (wp308_oracle.swift "coord")

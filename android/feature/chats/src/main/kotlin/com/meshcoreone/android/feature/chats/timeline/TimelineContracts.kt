@@ -8,6 +8,7 @@ import com.meshcoreone.android.core.model.ChatConversationID
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.MessageStatus
+import com.meshcoreone.android.core.contracts.domain.SessionToken
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 
@@ -69,10 +70,20 @@ fun interface TimelineDiagnostics {
     fun report(operation: String, failure: Throwable)
 }
 
+interface TimelineContent {
+    val enabled: Boolean
+    fun containsUrls(text: String): Boolean
+    suspend fun prefetch(text: String, isChannelMessage: Boolean)
+}
+
 interface ChatTimelineDependencies {
     val data: TimelineDataSource
     val retryService: TimelineRetryService
     val draftStore: TimelineDraftStore
     val events: Flow<TimelineEvent>
     val diagnostics: TimelineDiagnostics get() = TimelineDiagnostics { _, _ -> }
+    val content: TimelineContent? get() = null
+    fun admissionIdentity(): SessionToken? = null
+    fun isCurrentAdmission(identity: SessionToken?): Boolean = true
+    suspend fun syncChannelFloodScope(channel: ChannelDTO) = Unit
 }

@@ -4,6 +4,8 @@ package com.meshcoreone.android.feature.chats.composer
 
 import com.meshcoreone.android.feature.chats.list.MeshCoreLinkParser
 import com.meshcoreone.android.feature.chats.list.support.OriginalCase
+import java.net.URI
+import kotlin.math.abs
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -38,7 +40,7 @@ class MessageLinkTokenizerTest {
         val text = "see https://example.com here"
         val token = tokenize(text).covering("https://example.com", text)!!
         assertEquals(LinkKind.URL, token.kind)
-        assertTrue(token.url!!.startsWith("https"))
+        assertEquals("https", URI(token.url!!).scheme)
         assertTrue(token.underline)
         assertFalse(token.bold)
     }
@@ -60,7 +62,7 @@ class MessageLinkTokenizerTest {
         val text = "open meshcore://contact/add?name=Bob."
         val token = tokenize(text).covering("meshcore://contact", text)!!
         assertEquals(LinkKind.MESHCORE_LINK, token.kind)
-        assertTrue(token.url!!.startsWith("meshcore://contact"))
+        assertEquals("contact", URI(token.url!!).host)
         assertTrue(text.substring(token.start, token.end).last() != '.')
     }
 
@@ -74,7 +76,7 @@ class MessageLinkTokenizerTest {
         val text = "at 37.7749, -122.4194 now"
         val token = tokenize(text).covering("37.7749, -122.4194", text)!!
         assertEquals(LinkKind.COORDINATE, token.kind)
-        assertTrue(token.url!!.startsWith("meshcore://map"))
+        assertEquals("map", URI(token.url!!).host)
         assertTrue(token.underline)
     }
 
@@ -132,8 +134,8 @@ class MessageLinkTokenizerTest {
     @OriginalCase("MessageLinkTokenizerTests::mapCoordinate is the first surviving coordinate in document order()")
     fun `mapCoordinate is the first surviving coordinate`() {
         val coordinate = tokenize("first 37.7749, -122.4194 then 10.0, 20.0").mapCoordinate!!
-        assertEquals(37.7749, coordinate.latitude, 0.0001)
-        assertEquals(-122.4194, coordinate.longitude, 0.0001)
+        assertTrue(abs(coordinate.latitude - 37.7749) < 0.0001)
+        assertTrue(abs(coordinate.longitude - -122.4194) < 0.0001)
     }
 
     @Test
@@ -142,8 +144,8 @@ class MessageLinkTokenizerTest {
         val normalized = "Base 1.0, 2.0 then 3.5, 4.5"
         val chip = LinkToken(0, "Base 1.0, 2.0".length, LinkKind.CONTACT_SHARE, "meshcore://contact/add?name=Base")
         val coordinate = tokenize(normalized, listOf(chip)).mapCoordinate!!
-        assertEquals(3.5, coordinate.latitude, 0.0001)
-        assertEquals(4.5, coordinate.longitude, 0.0001)
+        assertTrue(abs(coordinate.latitude - 3.5) < 0.0001)
+        assertTrue(abs(coordinate.longitude - 4.5) < 0.0001)
     }
 
     @Test
@@ -156,8 +158,8 @@ class MessageLinkTokenizerTest {
         val text = "37.334900, -122.009020"
         val url = tokenize(text).covering(text, text)!!.url!!
         val coordinate = assertNotNull(MeshCoreLinkParser.parseMapURL(url))
-        assertEquals(37.3349, coordinate.latitude, 0.000001)
-        assertEquals(-122.00902, coordinate.longitude, 0.000001)
+        assertTrue(abs(coordinate.latitude - 37.3349) < 0.000001)
+        assertTrue(abs(coordinate.longitude - -122.00902) < 0.000001)
         assertTrue(url.contains("lat=37.334900") && url.contains("lon=-122.009020"))
     }
 
@@ -183,11 +185,11 @@ class MessageLinkTokenizerTest {
         assertEquals(4, actions.size)
         assertEquals("meshcoreone://mention/Bob", actions[0].url)
         assertEquals("Mention: Bob", actions[0].name)
-        assertTrue(actions[1].url.startsWith("https"))
+        assertEquals("https", URI(actions[1].url).scheme)
         assertEquals("Open Link: example.com", actions[1].name)
         assertEquals("meshcoreone://hashtag/ops", actions[2].url)
         assertEquals("Open #ops", actions[2].name)
-        assertTrue(actions[3].url.startsWith("meshcore://map"))
+        assertEquals("map", URI(actions[3].url).host)
         assertEquals("Open Map", actions[3].name)
     }
 

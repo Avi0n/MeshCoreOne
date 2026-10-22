@@ -21,8 +21,9 @@ class OriginalBugFixCasesTest {
     private fun push(battery: UShort = 1000u, noise: Short = -110, rssi: Short = -85, tail: Bytes = filled(size = 4)): Bytes =
         Bytes.of(0) + nodePrefix + ByteWriter().appendUInt16LE(battery).appendUInt16LE(5u)
             .appendInt16LE(noise).appendInt16LE(rssi).append(filled(size = 40)).append(tail).toBytes()
-    private fun binary(data: Bytes, layout: StatusResponse.Layout = StatusResponse.Layout.REPEATER) =
-        assertNotNull(Parsers.StatusResponse.parseFromBinaryResponse(data, nodePrefix, layout))
+    private fun binary(
+        data: Bytes, layout: StatusResponse.Layout = StatusResponse.Layout.REPEATER, prefix: Bytes = nodePrefix,
+    ) = assertNotNull(Parsers.StatusResponse.parseFromBinaryResponse(data, prefix, layout))
     private fun status(data: Bytes, layout: StatusResponse.Layout = StatusResponse.Layout.REPEATER) =
         assertIs<MeshEvent.StatusResponse>(Parsers.StatusResponse.parse(data, layout)).response
 
@@ -35,7 +36,10 @@ class OriginalBugFixCasesTest {
         source("appStart truncates long client ID") {
             val packet = PacketBuilder.appStart("LongClientName"); assertEquals(Bytes.utf8("LongC"), packet.slice(8, packet.size)); assertEquals(13, packet.size)
         },
-        source("appStart default client ID") { assertEquals(Bytes.utf8("MCore"), PacketBuilder.appStart().slice(8, 13)) },
+        source("appStart default client ID") {
+            val packet = PacketBuilder.appStart()
+            assertEquals(Bytes.utf8("MCore"), packet.slice(8, packet.size))
+        },
         source("statusResponse skips reserved byte") {
             val body = push(); assertEquals(59, body.size); val response = status(body)
             assertEquals(nodePrefix, response.publicKeyPrefix); assertEquals(1000L, response.battery)
@@ -55,12 +59,12 @@ class OriginalBugFixCasesTest {
         },
         source("statusResponse parseFromBinaryResponse rejects short payload") { assertNull(Parsers.StatusResponse.parseFromBinaryResponse(filled(size = 47), nodePrefix)) },
         source("statusResponse parseFromBinaryResponse handles minimal payload") {
-            val response = binary(hex("e803") + filled(size = 46))
+            val response = binary(hex("e803") + filled(size = 46), prefix = hex("112233445566"))
             assertEquals(1000L, response.battery); assertEquals(0u, response.rxAirtime); assertEquals(0u, response.receiveErrors)
         },
         source("battery response rejects partial extended payload") { expectFailure(PacketParser.parse(hex("0ce803010203")), reason = "partial extended payload") },
         source("statusResponse parseFromBinaryResponse 52 bytes parses rxAirtime") {
-            val response = binary(hex("e803") + filled(size = 46) + le(5000u))
+            val response = binary(hex("e803") + filled(size = 46) + le(5000u), prefix = hex("112233445566"))
             assertEquals(1000L, response.battery); assertEquals(5000u, response.rxAirtime); assertEquals(0u, response.receiveErrors)
         },
         source("statusResponse parseFromBinaryResponse room server 52 bytes parses room counters") {
@@ -68,13 +72,13 @@ class OriginalBugFixCasesTest {
                 3900u, 2u, -115, -87, listOf(120u, 45u, 3600u, 7200u, 12u, 8u, 14u, 10u),
                 3u, 24, 1u, 2u, hex("11000900"),
             )
-            val response = binary(body, StatusResponse.Layout.ROOM_SERVER)
+            val response = binary(body, StatusResponse.Layout.ROOM_SERVER, hex("112233445566"))
             assertEquals(StatusResponse.Layout.ROOM_SERVER, response.layout)
             assertEquals(17u.toUShort(), response.roomServerPostedCount); assertEquals(9u.toUShort(), response.roomServerPostPushCount)
             assertEquals(0u, response.rxAirtime); assertEquals(0u, response.receiveErrors)
         },
         source("statusResponse parseFromBinaryResponse 56 bytes parses receiveErrors") {
-            val response = binary(hex("e803") + filled(size = 46) + le(5000u) + le(42u))
+            val response = binary(hex("e803") + filled(size = 46) + le(5000u) + le(42u), prefix = hex("112233445566"))
             assertEquals(1000L, response.battery); assertEquals(5000u, response.rxAirtime); assertEquals(42u, response.receiveErrors)
         },
         source("statusResponse parseFromBinaryResponse accepts mid-length trailers") {
@@ -84,24 +88,30 @@ class OriginalBugFixCasesTest {
             for (size in listOf(0, 12, 47)) assertNull(Parsers.StatusResponse.parseFromBinaryResponse(filled(size = size), nodePrefix))
         },
         source("statusResponse parseFromBinaryResponse handles extra data") {
-            val response = binary(hex("e803") + filled(size = 50) + le(7u) + filled(size = 4))
+            val response = binary(hex("e803") + filled(size = 50) + le(7u) + filled(size = 4), prefix = hex("112233445566"))
             assertEquals(1000L, response.battery); assertEquals(7u, response.receiveErrors)
         },
         source("statusResponse parse legacy size defaults receiveErrors") {
-            val response = status(push()); assertEquals(1000L, response.battery); assertEquals(0u, response.receiveErrors)
+            val body = push()
+            assertEquals(59, body.size)
+            val response = status(body); assertEquals(1000L, response.battery); assertEquals(0u, response.receiveErrors)
         },
         source("statusResponse parse extended size parses receiveErrors") {
             val body = push() + le(99u); assertEquals(63, body.size)
             val response = status(body); assertEquals(1000L, response.battery); assertEquals(99u, response.receiveErrors)
         },
         source("statusResponse parse room server layout decodes post counters") {
-            val response = status(push(tail = hex("11000900")), StatusResponse.Layout.ROOM_SERVER)
+            val body = push(tail = hex("11000900"))
+            assertEquals(59, body.size)
+            val response = status(body, StatusResponse.Layout.ROOM_SERVER)
             assertEquals(StatusResponse.Layout.ROOM_SERVER, response.layout)
             assertEquals(17u.toUShort(), response.roomServerPostedCount); assertEquals(9u.toUShort(), response.roomServerPostPushCount)
             assertEquals(0u, response.rxAirtime); assertEquals(0u, response.receiveErrors); assertEquals(1000L, response.battery)
         },
         source("statusResponse parse defaults to repeater layout") {
-            val response = status(push(tail = hex("11000900")))
+            val body = push(tail = hex("11000900"))
+            assertEquals(59, body.size)
+            val response = status(body)
             assertEquals(StatusResponse.Layout.REPEATER, response.layout); assertEquals(0x00090011u, response.rxAirtime)
             assertNull(response.roomServerPostedCount); assertNull(response.roomServerPostPushCount)
         },

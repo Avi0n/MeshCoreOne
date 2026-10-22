@@ -1,0 +1,3293 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-217",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MC1/Services/DemoInlineImageSeeder.swift",
+      "blob_sha": "8e6978e235c729570d5863ae965269ddb6318285",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/DemoInlineImageSeeder.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/DemoInlineImageSeeder.kt",
+          "sha256": "848d0a761dcbd96b290a2899eebd3944c54fc9110382181fb292664ccfc717d0",
+          "source_references": [
+            "MC1/Services/DemoInlineImageSeeder.swift"
+          ],
+          "methods": [
+            {
+              "name": "seed",
+              "line": 31,
+              "end_line": 36
+            },
+            {
+              "name": "parseURL",
+              "line": 39,
+              "end_line": 44
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Utilities/DemoModeManager.swift",
+      "blob_sha": "255642810251583cf519cb71756baf4094ceb299",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManager.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManager.kt",
+          "sha256": "0bb7859cce1757b456f741a03cb74b9e84654fa93f85687ebe3633e07c5f7faf",
+          "source_references": [
+            "MC1/Utilities/DemoModeManager.swift"
+          ],
+          "methods": [
+            {
+              "name": "unlock",
+              "line": 50,
+              "end_line": 57
+            },
+            {
+              "name": "installStandardDefaults",
+              "line": 75,
+              "end_line": 81
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+ChannelMessages.swift",
+      "blob_sha": "0212865f4692632c5a2b02903b1f9e54489b007b",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderChannelMessages.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderChannelMessages.kt",
+          "sha256": "35bea28e77a7c6752c8617bc107b69e528b09bf6f8247cea5612a1f91117e998",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+ChannelMessages.swift"
+          ],
+          "methods": [
+            {
+              "name": "channelMessages",
+              "line": 47,
+              "end_line": 53
+            },
+            {
+              "name": "meshHQChannelMessages",
+              "line": 55,
+              "end_line": 86
+            },
+            {
+              "name": "meshHQMessageID",
+              "line": 89,
+              "end_line": 90
+            },
+            {
+              "name": "publicChannelMessages",
+              "line": 93,
+              "end_line": 138
+            },
+            {
+              "name": "bayAreaChannelMessages",
+              "line": 141,
+              "end_line": 160
+            },
+            {
+              "name": "trailCrewChannelMessages",
+              "line": 163,
+              "end_line": 181
+            },
+            {
+              "name": "channelIncoming",
+              "line": 185,
+              "end_line": 214
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+Channels.swift",
+      "blob_sha": "f13de58edde8318cb572cb57c2a8f57233f9cc9e",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderChannels.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderChannels.kt",
+          "sha256": "ee06c60b3459f8855396daeeda051ec77d4ce82ae0c468951c687230534aea93",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+Channels.swift"
+          ],
+          "methods": [
+            {
+              "name": "channels",
+              "line": 15,
+              "end_line": 68
+            },
+            {
+              "name": "channelSecret",
+              "line": 71,
+              "end_line": 71
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+Contacts.swift",
+      "blob_sha": "ec211212c137e99c63ee94c20adef1c1bc5d5272",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderContacts.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderContacts.kt",
+          "sha256": "0c5128f8106cefb196c69b5c4618909258c02c472cb1838ff95d3ff1056d95f2",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+Contacts.swift"
+          ],
+          "methods": [
+            {
+              "name": "contacts",
+              "line": 13,
+              "end_line": 81
+            },
+            {
+              "name": "mockContact",
+              "line": 84,
+              "end_line": 120
+            },
+            {
+              "name": "locatedRepeater",
+              "line": 123,
+              "end_line": 137
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+DMMessages.swift",
+      "blob_sha": "af8e20d4ebef79d91b4f2447bc0212ab186dc038",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderDMMessages.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderDMMessages.kt",
+          "sha256": "150f00908f8800dc09d4c0761d136b5f0cfbfe41c73ffc9ab0f23f22c72f7578",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+DMMessages.swift"
+          ],
+          "methods": [
+            {
+              "name": "messages",
+              "line": 33,
+              "end_line": 39
+            },
+            {
+              "name": "aliceMessages",
+              "line": 46,
+              "end_line": 154
+            },
+            {
+              "name": "bobMessages",
+              "line": 158,
+              "end_line": 227
+            },
+            {
+              "name": "frankMessages",
+              "line": 234,
+              "end_line": 303
+            },
+            {
+              "name": "hannahMessages",
+              "line": 306,
+              "end_line": 344
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+DemoImage.swift",
+      "blob_sha": "3ae0d8071cc5c6ad216c45d96fdb20c4be74ac2f",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderDemoImage.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderDemoImage.kt",
+          "sha256": "f7cf0c7209be19b699c8ce961e391b01376f9ae5780a2faa763d78f743b189a1",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+DemoImage.swift"
+          ],
+          "methods": []
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+IncomingPaths.swift",
+      "blob_sha": "34d115a8ab81a5a535cfd6ae6616251baa92e40f",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderIncomingPaths.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderIncomingPaths.kt",
+          "sha256": "2ed8c9103beffb2a37ae2cd13f8c9184a68ff144a1037481280fb5acc15fa0ca",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+IncomingPaths.swift"
+          ],
+          "methods": [
+            {
+              "name": "aliceMultiPathMessage",
+              "line": 24,
+              "end_line": 38
+            },
+            {
+              "name": "publicMultiPathMessage",
+              "line": 40,
+              "end_line": 54
+            },
+            {
+              "name": "incomingPathRepeats",
+              "line": 57,
+              "end_line": 73
+            },
+            {
+              "name": "incomingExtraRoutes",
+              "line": 83,
+              "end_line": 94
+            },
+            {
+              "name": "repeatIDs",
+              "line": 96,
+              "end_line": 108
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+NodeStatus.swift",
+      "blob_sha": "0af834f0b43bbaf32752a7db8c701bc49cfb7c8a",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderNodeStatus.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderNodeStatus.kt",
+          "sha256": "f3dd0e2ec2fcbe71a22f44adfbe8898d05f762fdc6074d021a28d0e702e20dc0",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+NodeStatus.swift"
+          ],
+          "methods": [
+            {
+              "name": "nodeStatusSnapshots",
+              "line": 75,
+              "end_line": 96
+            },
+            {
+              "name": "nodeStatusSnapshotID",
+              "line": 102,
+              "end_line": 103
+            },
+            {
+              "name": "toUShortExact",
+              "line": 106,
+              "end_line": 109
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+Reactions.swift",
+      "blob_sha": "f206994d4417938d0196c7e7d5383df6924a6ca6",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderReactions.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderReactions.kt",
+          "sha256": "d7e94d8d5f97fc4ed5253e0fd1488d54bd07bcc939c33d04e5fb097bfd6a9c33",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+Reactions.swift"
+          ],
+          "methods": [
+            {
+              "name": "reactions",
+              "line": 29,
+              "end_line": 43
+            },
+            {
+              "name": "reaction",
+              "line": 47,
+              "end_line": 66
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+Repeats.swift",
+      "blob_sha": "1020fc0ff8a52483c433be56fe032307eb30c8b2",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderRepeats.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderRepeats.kt",
+          "sha256": "bbb74de4494900538ef9595559b23315d739802c99e1ebdbed406781fbf3008f",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+Repeats.swift"
+          ],
+          "methods": [
+            {
+              "name": "messageRepeats",
+              "line": 19,
+              "end_line": 59
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+RxLog.swift",
+      "blob_sha": "d8e633b1470aa446ec136bf0d4ca40b3d83c2328",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderRxLog.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProviderRxLog.kt",
+          "sha256": "07c3e6247225ac8be8ce1d15fc2746dc11c0e11df9dc66b8c8b14956d3d0da36",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider+RxLog.swift"
+          ],
+          "methods": [
+            {
+              "name": "rxLogEntries",
+              "line": 19,
+              "end_line": 36
+            },
+            {
+              "name": "rxLogEntry",
+              "line": 41,
+              "end_line": 73
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockDataProvider.swift",
+      "blob_sha": "61b071989ba32c1f983311ddfd0b2118fc3f4d1f",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProvider.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockDataProvider.kt",
+          "sha256": "4e3e7923a1819e2d255e56170f9902595594734b52c0f6e79e18d2f882e3d9c8",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockDataProvider.swift"
+          ],
+          "methods": [
+            {
+              "name": "mockPublicKey",
+              "line": 91,
+              "end_line": 92
+            },
+            {
+              "name": "simulatorDevice",
+              "line": 120,
+              "end_line": 151
+            },
+            {
+              "name": "uuid",
+              "line": 153,
+              "end_line": 153
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/MockMessageFactory.swift",
+      "blob_sha": "103b925d95e9dcd8cadcbeb2f4edfd56cd993b17",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockMessageFactory.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/MockMessageFactory.kt",
+          "sha256": "039ec931fd8970e13a9de650743374d649c82f012f64ee2e1dc8494ca94a27a1",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/MockMessageFactory.swift"
+          ],
+          "methods": [
+            {
+              "name": "message",
+              "line": 21,
+              "end_line": 81
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/SimulatorConnectionMode.swift",
+      "blob_sha": "14fdf1834bd2791a4054f53ebe0e2b1b5e796b04",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorConnectionMode.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorConnectionMode.kt",
+          "sha256": "44cf5fef2efdb028d266c053c3bc8e53e726c6d5aec991982cf3de2364589463",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/SimulatorConnectionMode.swift"
+          ],
+          "methods": [
+            {
+              "name": "connect",
+              "line": 43,
+              "end_line": 48
+            },
+            {
+              "name": "disconnect",
+              "line": 51,
+              "end_line": 54
+            },
+            {
+              "name": "seedDataStore",
+              "line": 62,
+              "end_line": 64
+            },
+            {
+              "name": "seed",
+              "line": 66,
+              "end_line": 109
+            },
+            {
+              "name": "seedRxLogEntries",
+              "line": 112,
+              "end_line": 117
+            },
+            {
+              "name": "seedNodeStatusSnapshots",
+              "line": 124,
+              "end_line": 129
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Simulator/SimulatorMockTransport.swift",
+      "blob_sha": "385892b2731fe9c4dcb9aa87e59c3e4808c6bc7b",
+      "kind": "production",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorMockTransport.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorMockTransport.kt",
+          "sha256": "bbf83e99cf4af537bb96c70bf30d6c0e4052d1ceb6fc1a3ebab6e55fc2d4683f",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Simulator/SimulatorMockTransport.swift"
+          ],
+          "methods": [
+            {
+              "name": "isConnected",
+              "line": 28,
+              "end_line": 28
+            },
+            {
+              "name": "receivedData",
+              "line": 31,
+              "end_line": 31
+            },
+            {
+              "name": "connect",
+              "line": 33,
+              "end_line": 35
+            },
+            {
+              "name": "disconnect",
+              "line": 37,
+              "end_line": 42
+            },
+            {
+              "name": "send",
+              "line": 44,
+              "end_line": 49
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "kind": "test",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "seedLandsTests",
+              "line": 29,
+              "end_line": 129
+            },
+            {
+              "name": "reseedTests",
+              "line": 132,
+              "end_line": 165
+            },
+            {
+              "name": "case",
+              "line": 167,
+              "end_line": 167
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/Utilities/DemoModeManagerTests.swift",
+      "blob_sha": "9d246699f0cce10d860f6756644c2b9d72a5f075",
+      "kind": "test",
+      "owner": "WP-217",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManagerTest.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManagerTest.kt",
+          "sha256": "a098b61fdc75b5a5d3e3a950cf6b464e669674ce08a9f38e07abec7aef951d6f",
+          "source_references": [
+            "MC1Tests/Utilities/DemoModeManagerTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "demoModeManagerTests",
+              "line": 16,
+              "end_line": 80
+            },
+            {
+              "name": "case",
+              "line": 82,
+              "end_line": 82
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::link preview columns land()",
+      "parameter_family": "single",
+      "line": 20,
+      "end_line": 28,
+      "declaration_sha256": "b37ef9e4094be0a536cabbf3051977c0679153a53b6628be5ad4e7c4d8d5c2b1",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 23,
+          "expression": "#require(message)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 24,
+          "expression": "#expect(unwrapped.linkPreviewTitle == \"Skyline Ridge Trail Guide\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 25,
+          "expression": "#expect(unwrapped.linkPreviewFetched == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 26,
+          "expression": "#require(unwrapped.linkPreviewImageData)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 27,
+          "expression": "#expect(!imageData.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`link preview columns land`",
+          "line": 20,
+          "expression": "`link preview columns land`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seededStore",
+          "line": 21,
+          "expression": "seededStore()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessage",
+          "line": 22,
+          "expression": "store.fetchMessage(id: MockDataProvider.aliceLinkPreviewMessageID)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "link preview columns land",
+          "line": 30,
+          "end_line": 37,
+          "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "2cfde2007352ef0da8422548c329149ed5e7d6c488776ad53ec59454c014907b",
+          "registration": "case(\"link preview columns land\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 32,
+              "expression": "assertNotNull(store.fetchMessage(MockDataProvider.aliceLinkPreviewMessageID))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"Skyline Ridge Trail Guide\", message.linkPreviewTitle)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(true, message.linkPreviewFetched)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 35,
+              "expression": "assertNotNull(message.linkPreviewImageData)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 36,
+              "expression": "assertFalse(imageData.isEmpty)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "seededStore",
+              "line": 31,
+              "expression": "seededStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 32,
+              "expression": "store.fetchMessage(MockDataProvider.aliceLinkPreviewMessageID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::reaction summary and rows land()",
+      "parameter_family": "single",
+      "line": 31,
+      "end_line": 43,
+      "declaration_sha256": "f38ec92f3a4b75bb52e2581e6bb871196ed39f305d8b44533d907437ce1c0d91",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 34,
+          "expression": "#require(try await store.fetchMessage(id: MockDataProvider.aliceReactedMessageID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 35,
+          "expression": "#expect(dmMessage.reactionSummary == \"\ud83d\udc4d:2,\u2764\ufe0f:1\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 37,
+          "expression": "#expect(dmReactions.count == 3)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 39,
+          "expression": "#require(try await store.fetchMessage(id: MockDataProvider.bayAreaReactedMessageID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 40,
+          "expression": "#expect(channelMessage.reactionSummary == \"\ud83c\udf89:2\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 42,
+          "expression": "#expect(channelReactions.count == 2)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`reaction summary and rows land`",
+          "line": 31,
+          "expression": "`reaction summary and rows land`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seededStore",
+          "line": 32,
+          "expression": "seededStore()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessage",
+          "line": 34,
+          "expression": "store.fetchMessage(id: MockDataProvider.aliceReactedMessageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchReactions",
+          "line": 36,
+          "expression": "store.fetchReactions(for: MockDataProvider.aliceReactedMessageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessage",
+          "line": 39,
+          "expression": "store.fetchMessage(id: MockDataProvider.bayAreaReactedMessageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchReactions",
+          "line": 41,
+          "expression": "store.fetchReactions(for: MockDataProvider.bayAreaReactedMessageID)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "reaction summary and rows land",
+          "line": 38,
+          "end_line": 48,
+          "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "4921643f98e9d9ffde206876837197a8ed2edc3ec54f550dc00d485cffecca5b",
+          "registration": "case(\"reaction summary and rows land\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 41,
+              "expression": "assertNotNull(store.fetchMessage(MockDataProvider.aliceReactedMessageID))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 42,
+              "expression": "assertEquals(\"\ud83d\udc4d:2,\u2764\ufe0f:1\", dmMessage.reactionSummary)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 43,
+              "expression": "assertEquals(3, store.fetchReactions(MockDataProvider.aliceReactedMessageID).size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 45,
+              "expression": "assertNotNull(store.fetchMessage(MockDataProvider.bayAreaReactedMessageID))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(\"\ud83c\udf89:2\", channelMessage.reactionSummary)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 47,
+              "expression": "assertEquals(2, store.fetchReactions(MockDataProvider.bayAreaReactedMessageID).size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "seededStore",
+              "line": 39,
+              "expression": "seededStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 41,
+              "expression": "store.fetchMessage(MockDataProvider.aliceReactedMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchReactions",
+              "line": 43,
+              "expression": "store.fetchReactions(MockDataProvider.aliceReactedMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 45,
+              "expression": "store.fetchMessage(MockDataProvider.bayAreaReactedMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchReactions",
+              "line": 47,
+              "expression": "store.fetchReactions(MockDataProvider.bayAreaReactedMessageID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::channel notification state lands()",
+      "parameter_family": "single",
+      "line": 46,
+      "end_line": 55,
+      "declaration_sha256": "66065e55c00c45073d86a7a9180a70bb8a61ae719f3943bbff5fb5b255842ab5",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 50,
+          "expression": "#require(channels.first { $0.index == MockDataProvider.trailCrewChannelIndex })",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 51,
+          "expression": "#expect(muted.notificationLevel == .muted)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 53,
+          "expression": "#require(channels.first { $0.index == MockDataProvider.bayAreaChannelIndex })",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 54,
+          "expression": "#expect(favorite.isFavorite)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`channel notification state lands`",
+          "line": 46,
+          "expression": "`channel notification state lands`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seededStore",
+          "line": 47,
+          "expression": "seededStore()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchChannels",
+          "line": 48,
+          "expression": "store.fetchChannels(radioID: radioID)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "channel notification state lands",
+          "line": 49,
+          "end_line": 58,
+          "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "8b3461d08d4e10398e7ad356c60a8db003628d187b9c88df7b8e92eb9e717f27",
+          "registration": "case(\"channel notification state lands\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 53,
+              "expression": "assertNotNull(channels.firstOrNull { it.index == MockDataProvider.trailCrewChannelIndex })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 54,
+              "expression": "assertEquals(NotificationLevel.MUTED, muted.notificationLevel)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 56,
+              "expression": "assertNotNull(channels.firstOrNull { it.index == MockDataProvider.bayAreaChannelIndex })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 57,
+              "expression": "assertTrue(favorite.isFavorite)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "seededStore",
+              "line": 50,
+              "expression": "seededStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchChannels",
+              "line": 51,
+              "expression": "store.fetchChannels(radioID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::heard repeats land()",
+      "parameter_family": "single",
+      "line": 58,
+      "end_line": 62,
+      "declaration_sha256": "f3fc8ec7123de19ca917b046d11e3a694021b7cb96e265908462ac2ddfc89269",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 61,
+          "expression": "#expect(repeats.count == 3)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`heard repeats land`",
+          "line": 58,
+          "expression": "`heard repeats land`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seededStore",
+          "line": 59,
+          "expression": "seededStore()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessageRepeats",
+          "line": 60,
+          "expression": "store.fetchMessageRepeats(messageID: MockDataProvider.frankRepeatMessageID)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "heard repeats land",
+          "line": 59,
+          "end_line": 62,
+          "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "0307a0e26273fc45ccfe966e1e2506e27fce802f442e7a2b226bdf92618b5068",
+          "registration": "case(\"heard repeats land\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 61,
+              "expression": "assertEquals(3, store.fetchMessageRepeats(MockDataProvider.frankRepeatMessageID).size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "seededStore",
+              "line": 60,
+              "expression": "seededStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessageRepeats",
+              "line": 61,
+              "expression": "store.fetchMessageRepeats(MockDataProvider.frankRepeatMessageID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::incoming extra paths land on located repeater prefixes()",
+      "parameter_family": "single",
+      "line": 65,
+      "end_line": 96,
+      "declaration_sha256": "18a1114e25513c335c49a3d99233b7df6e4b36371c92bef51fc6de332f9b67cb",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 79,
+          "expression": "#expect(repeaterPrefixes.contains(Data([seed])))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 83,
+          "expression": "#require(try await store.fetchMessage(id: messageID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 84,
+          "expression": "#expect(message.isOutgoing == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 85,
+          "expression": "#expect(message.heardRepeats == MockDataProvider.incomingExtraPathCount)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 86,
+          "expression": "#expect(message.pathNodes == MockDataProvider.incomingFirstPath)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 87,
+          "expression": "#expect(message.hopCount == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 89,
+          "expression": "#expect(repeats.count == MockDataProvider.incomingExtraPathCount)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 90,
+          "expression": "#expect(Set(repeats.map(\\.hopCount)) == [1, 2, 3])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 93,
+          "expression": "#expect(repeaterPrefixes.contains(Data([byte])))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`incoming extra paths land on located repeater prefixes`",
+          "line": 65,
+          "expression": "`incoming extra paths land on located repeater prefixes`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seededStore",
+          "line": 66,
+          "expression": "seededStore()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchContacts",
+          "line": 67,
+          "expression": "store.fetchContacts(radioID: radioID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Set",
+          "line": 68,
+          "expression": "Set(\n      contacts\n        .filter { $0.type == .repeater && $0.hasLocation }\n        .map { Data($0.publicKey.prefix(1)) }\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 71,
+          "expression": "Data($0.publicKey.prefix(1))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "publicKey.prefix",
+          "line": 71,
+          "expression": "publicKey.prefix(1)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "repeaterPrefixes.contains",
+          "line": 79,
+          "expression": "repeaterPrefixes.contains(Data([seed]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 79,
+          "expression": "Data([seed])",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessage",
+          "line": 83,
+          "expression": "store.fetchMessage(id: messageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessageRepeats",
+          "line": 88,
+          "expression": "store.fetchMessageRepeats(messageID: messageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Set",
+          "line": 90,
+          "expression": "Set(repeats.map(\\.hopCount))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "repeats.map",
+          "line": 90,
+          "expression": "repeats.map(\\.hopCount)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "repeats.flatMap",
+          "line": 91,
+          "expression": "repeats.flatMap(\\.pathNodes)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "repeaterPrefixes.contains",
+          "line": 93,
+          "expression": "repeaterPrefixes.contains(Data([byte]))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 93,
+          "expression": "Data([byte])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "incoming extra paths land on located repeater prefixes",
+          "line": 63,
+          "end_line": 89,
+          "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "234b383d88bf2960cb6dd385e800b02fb73c008c42f75b722ebc7ab8d74de180",
+          "registration": "case(\"incoming extra paths land on located repeater prefixes\")",
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 74,
+              "expression": "assertTrue(Bytes.of(seed.toInt()) in repeaterPrefixes, \"missing repeater prefix $seed\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 77,
+              "expression": "assertNotNull(store.fetchMessage(messageID))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 78,
+              "expression": "assertFalse(message.isOutgoing)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 79,
+              "expression": "assertEquals(INCOMING_EXTRA_PATH_COUNT.toLong(), message.heardRepeats)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 80,
+              "expression": "assertEquals(MockDataProvider.incomingFirstPath, message.pathNodes)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 81,
+              "expression": "assertEquals(2L, message.hopCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 83,
+              "expression": "assertEquals(INCOMING_EXTRA_PATH_COUNT, repeats.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 84,
+              "expression": "assertEquals(setOf(1L, 2L, 3L), repeats.map { it.hopCount }.toSet())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 86,
+              "expression": "assertTrue(Bytes.of(byte.toInt()) in repeaterPrefixes, \"hop $byte is not a located repeater\")",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "seededStore",
+              "line": 64,
+              "expression": "seededStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContacts",
+              "line": 65,
+              "expression": "store.fetchContacts(radioID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "it.publicKey.prefix",
+              "line": 67,
+              "expression": "it.publicKey.prefix(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 68,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 69,
+              "expression": "listOf(\n                MockDataProvider.northRidgeRepeaterSeed,\n                MockDataProvider.twinPeaksRepeaterSeed,\n                MockDataProvider.oaklandRepeaterSeed,\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 74,
+              "expression": "for (seed in seeds)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 74,
+              "expression": "Bytes.of(seed.toInt())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "seed.toInt",
+              "line": 74,
+              "expression": "seed.toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 76,
+              "expression": "for (messageID in listOf(MockDataProvider.aliceMultiPathMessageID, MockDataProvider.publicMultiPathMessageID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 76,
+              "expression": "listOf(MockDataProvider.aliceMultiPathMessageID, MockDataProvider.publicMultiPathMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 77,
+              "expression": "store.fetchMessage(messageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "INCOMING_EXTRA_PATH_COUNT.toLong",
+              "line": 79,
+              "expression": "INCOMING_EXTRA_PATH_COUNT.toLong()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessageRepeats",
+              "line": 82,
+              "expression": "store.fetchMessageRepeats(messageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 84,
+              "expression": "setOf(1L, 2L, 3L)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 84,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 85,
+              "expression": "for (byte in repeats.flatMap { it.pathNodes })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 86,
+              "expression": "Bytes.of(byte.toInt())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byte.toInt",
+              "line": 86,
+              "expression": "byte.toInt()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::flood route fields round trip through save message()",
+      "parameter_family": "single",
+      "line": 99,
+      "end_line": 105,
+      "declaration_sha256": "9a59f56a17066bb8d61c2b052e03c69c8a767aa5928fb692b1908aa27d02c70f",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 101,
+          "expression": "#require(try await store.fetchMessage(id: MockDataProvider.frankFloodUniqueMessageID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 102,
+          "expression": "#expect(message.routeType == .tcFlood)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 103,
+          "expression": "#expect(message.regionScope == MockDataProvider.uniqueRegionName)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 104,
+          "expression": "#expect(message.regionScopeMatches == [MockDataProvider.uniqueRegionName])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`flood route fields round trip through save message`",
+          "line": 99,
+          "expression": "`flood route fields round trip through save message`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seededStore",
+          "line": 100,
+          "expression": "seededStore()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessage",
+          "line": 101,
+          "expression": "store.fetchMessage(id: MockDataProvider.frankFloodUniqueMessageID)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "flood route fields round trip through save message",
+          "line": 90,
+          "end_line": 96,
+          "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "de1808cb068ea488fefb6fbfac1afce0ddf9f0187749adb27453177858ee62ff",
+          "registration": "case(\"flood route fields round trip through save message\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 92,
+              "expression": "assertNotNull(store.fetchMessage(MockDataProvider.frankFloodUniqueMessageID))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 93,
+              "expression": "assertEquals(RouteType.TC_FLOOD, message.routeType)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 94,
+              "expression": "assertEquals(MockDataProvider.uniqueRegionName, message.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 95,
+              "expression": "assertEquals(listOf(MockDataProvider.uniqueRegionName), message.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "seededStore",
+              "line": 91,
+              "expression": "seededStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 92,
+              "expression": "store.fetchMessage(MockDataProvider.frankFloodUniqueMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 95,
+              "expression": "listOf(MockDataProvider.uniqueRegionName)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::ambiguous flood dual fields round trip()",
+      "parameter_family": "single",
+      "line": 108,
+      "end_line": 121,
+      "declaration_sha256": "7e7f58840cc5be469c381ce1c4b8980032c27639d1149a207a31c99dfe80eca8",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 111,
+          "expression": "#require(try await store.fetchMessage(id: MockDataProvider.frankFloodAmbiguousMessageID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 112,
+          "expression": "#expect(dm.routeType == .tcFlood)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 113,
+          "expression": "#expect(dm.regionScope == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 114,
+          "expression": "#expect(dm.regionScopeMatches == MockDataProvider.ambiguousRegionNames)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 116,
+          "expression": "#require(try await store.fetchMessage(id: MockDataProvider.publicAmbiguousRegionMessageID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 117,
+          "expression": "#expect(channel.routeType == .tcFlood)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 118,
+          "expression": "#expect(channel.regionScope == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 119,
+          "expression": "#expect(channel.regionScopeMatches == MockDataProvider.ambiguousRegionNames)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 120,
+          "expression": "#expect(channel.pathNodes == Data([0x10, 0x20]))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`ambiguous flood dual fields round trip`",
+          "line": 108,
+          "expression": "`ambiguous flood dual fields round trip`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seededStore",
+          "line": 109,
+          "expression": "seededStore()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessage",
+          "line": 111,
+          "expression": "store.fetchMessage(id: MockDataProvider.frankFloodAmbiguousMessageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessage",
+          "line": 116,
+          "expression": "store.fetchMessage(id: MockDataProvider.publicAmbiguousRegionMessageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 120,
+          "expression": "Data([0x10, 0x20])",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "ambiguous flood dual fields round trip",
+          "line": 97,
+          "end_line": 110,
+          "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "45c8c540287fe9d91a332fa82b9cbdf54f54f93b1dff4432b7b25403d39c8aa7",
+          "registration": "case(\"ambiguous flood dual fields round trip\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 100,
+              "expression": "assertNotNull(store.fetchMessage(MockDataProvider.frankFloodAmbiguousMessageID))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 101,
+              "expression": "assertEquals(RouteType.TC_FLOOD, dm.routeType)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 102,
+              "expression": "assertNull(dm.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 103,
+              "expression": "assertEquals(MockDataProvider.ambiguousRegionNames, dm.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 105,
+              "expression": "assertNotNull(store.fetchMessage(MockDataProvider.publicAmbiguousRegionMessageID))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 106,
+              "expression": "assertEquals(RouteType.TC_FLOOD, channel.routeType)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 107,
+              "expression": "assertNull(channel.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 108,
+              "expression": "assertEquals(MockDataProvider.ambiguousRegionNames, channel.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 109,
+              "expression": "assertEquals(Bytes.of(0x10, 0x20), channel.pathNodes)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "seededStore",
+              "line": 98,
+              "expression": "seededStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 100,
+              "expression": "store.fetchMessage(MockDataProvider.frankFloodAmbiguousMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 105,
+              "expression": "store.fetchMessage(MockDataProvider.publicAmbiguousRegionMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 109,
+              "expression": "Bytes.of(0x10, 0x20)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::rx log region rows land()",
+      "parameter_family": "single",
+      "line": 124,
+      "end_line": 135,
+      "declaration_sha256": "1a2ba05033977ae09396447b01d0e3456eaa6d8908a45b0635e6d69f51eed27b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 127,
+          "expression": "#require(entries.first { $0.id == MockDataProvider.uniqueRxLogEntryID })",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 128,
+          "expression": "#expect(unique.regionScope == MockDataProvider.uniqueRegionName)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 129,
+          "expression": "#expect(unique.regionScopeMatches == [MockDataProvider.uniqueRegionName])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 130,
+          "expression": "#expect(unique.transportCode?.isEmpty == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 132,
+          "expression": "#require(entries.first { $0.id == MockDataProvider.ambiguousRxLogEntryID })",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 133,
+          "expression": "#expect(ambiguous.regionScope == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 134,
+          "expression": "#expect(ambiguous.regionScopeMatches == MockDataProvider.ambiguousRegionNames)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`rx log region rows land`",
+          "line": 124,
+          "expression": "`rx log region rows land`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seededStore",
+          "line": 125,
+          "expression": "seededStore()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchRxLogEntries",
+          "line": 126,
+          "expression": "store.fetchRxLogEntries(radioID: radioID)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "rx log region rows land",
+          "line": 111,
+          "end_line": 122,
+          "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "3980e07d9bcf38a24460f71a2fb0028ae9e0659a9b968af79d285328d1d72b07",
+          "registration": "case(\"rx log region rows land\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 114,
+              "expression": "assertNotNull(entries.firstOrNull { it.id == MockDataProvider.uniqueRxLogEntryID })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 115,
+              "expression": "assertEquals(MockDataProvider.uniqueRegionName, unique.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 116,
+              "expression": "assertEquals(listOf(MockDataProvider.uniqueRegionName), unique.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 117,
+              "expression": "assertEquals(false, unique.transportCode?.isEmpty)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 119,
+              "expression": "assertNotNull(entries.firstOrNull { it.id == MockDataProvider.ambiguousRxLogEntryID })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 120,
+              "expression": "assertNull(ambiguous.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 121,
+              "expression": "assertEquals(MockDataProvider.ambiguousRegionNames, ambiguous.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "seededStore",
+              "line": 112,
+              "expression": "seededStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 113,
+              "expression": "store.fetchRxLogEntries(radioID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 116,
+              "expression": "listOf(MockDataProvider.uniqueRegionName)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::node status snapshots seed a GPS track for the location-history node()",
+      "parameter_family": "single",
+      "line": 138,
+      "end_line": 146,
+      "declaration_sha256": "7ca049bf9ede0fef485ee4795a2f940589195af1e3eaf1408d0965caf995386b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 144,
+          "expression": "#expect(snapshots.count == MockDataProvider.nodeStatusSnapshots.count)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 145,
+          "expression": "#expect(snapshots.contains { $0.latitude != nil && $0.longitude != nil })",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`node status snapshots seed a GPS track for the location-history node`",
+          "line": 138,
+          "expression": "`node status snapshots seed a GPS track for the location-history node`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "seededStore",
+          "line": 139,
+          "expression": "seededStore()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchNodeStatusSnapshots",
+          "line": 140,
+          "expression": "store.fetchNodeStatusSnapshots(\n      nodePublicKey: MockDataProvider.locationHistoryNodePublicKey,\n      since: nil\n    )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "node status snapshots seed a GPS track for the location-history node",
+          "line": 123,
+          "end_line": 128,
+          "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "404859185082480c404dace5222d8662a228a70b39b0b5ecaeea2c796a36ab24",
+          "registration": "case(\"node status snapshots seed a GPS track for the location-history node\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 126,
+              "expression": "assertEquals(MockDataProvider.nodeStatusSnapshots(SimulatorTestSupport.oracleNow).size, snapshots.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 127,
+              "expression": "assertTrue(snapshots.any { it.latitude != null && it.longitude != null })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "seededStore",
+              "line": 124,
+              "expression": "seededStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchNodeStatusSnapshots",
+              "line": 125,
+              "expression": "store.fetchNodeStatusSnapshots(MockDataProvider.locationHistoryNodePublicKey, since = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MockDataProvider.nodeStatusSnapshots",
+              "line": 126,
+              "expression": "MockDataProvider.nodeStatusSnapshots(SimulatorTestSupport.oracleNow)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::reseeding preserves a user-set avatarImageData()",
+      "parameter_family": "single",
+      "line": 149,
+      "end_line": 164,
+      "declaration_sha256": "48d9676638fb914caee0697c4164ec98bbe5416961d24fd1306dd97586f34bcc",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#require",
+          "line": 157,
+          "expression": "#require(try await store.fetchContact(id: aliceID))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 159,
+          "expression": "#expect(try await store.fetchContact(id: aliceID)?.avatarImageData == jpeg)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 163,
+          "expression": "#expect(try await store.fetchContact(id: aliceID)?.avatarImageData == jpeg)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`reseeding preserves a user-set avatarImageData`",
+          "line": 149,
+          "expression": "`reseeding preserves a user-set avatarImageData`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "PersistenceStore.createContainer",
+          "line": 150,
+          "expression": "PersistenceStore.createContainer(inMemory: true)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "PersistenceStore",
+          "line": 151,
+          "expression": "PersistenceStore(modelContainer: container)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "SimulatorConnectionMode",
+          "line": 152,
+          "expression": "SimulatorConnectionMode()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "mode.seedDataStore",
+          "line": 153,
+          "expression": "mode.seedDataStore(store)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 155,
+          "expression": "Data(repeating: 0xCD, count: 16)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchContact",
+          "line": 157,
+          "expression": "store.fetchContact(id: aliceID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.saveContact",
+          "line": 158,
+          "expression": "store.saveContact(existing.with(avatarImageData: jpeg))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "existing.with",
+          "line": 158,
+          "expression": "existing.with(avatarImageData: jpeg)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchContact",
+          "line": 159,
+          "expression": "store.fetchContact(id: aliceID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "mode.seedDataStore",
+          "line": 161,
+          "expression": "mode.seedDataStore(store)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchContact",
+          "line": 163,
+          "expression": "store.fetchContact(id: aliceID)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "reseeding preserves a user-set avatarImageData",
+          "line": 133,
+          "end_line": 149,
+          "factory_method": "reseedTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "c907dbaa60525ab75fccf7616473da0241a5f5ada7bceb83c38e3ce0f23f1891",
+          "registration": "case(\"reseeding preserves a user-set avatarImageData\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 141,
+              "expression": "assertNotNull(blocking { store.fetchContact(aliceKey) })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 143,
+              "expression": "assertEquals(jpeg, blocking { store.fetchContact(aliceKey) }?.avatarImageData)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 148,
+              "expression": "assertEquals(jpeg, blocking { store.fetchContact(aliceKey) }?.avatarImageData)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "SettableClock",
+              "line": 134,
+              "expression": "SettableClock(SimulatorTestSupport.oracleNow)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SimulatorInMemorySeedStore",
+              "line": 135,
+              "expression": "SimulatorInMemorySeedStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SimulatorTestSupport.mode",
+              "line": 136,
+              "expression": "SimulatorTestSupport.mode(clock)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "mode.seedDataStore",
+              "line": 137,
+              "expression": "mode.seedDataStore(store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 139,
+              "expression": "Bytes(ByteArray(16) { 0xCD.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 139,
+              "expression": "ByteArray(16)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 139,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 140,
+              "expression": "EntityKey(radioID, MockDataProvider.aliceChenID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContact",
+              "line": 141,
+              "expression": "store.fetchContact(aliceKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 142,
+              "expression": "store.saveContact(existing.withAvatar(jpeg))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "existing.withAvatar",
+              "line": 142,
+              "expression": "existing.withAvatar(jpeg)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContact",
+              "line": 143,
+              "expression": "store.fetchContact(aliceKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "clock.advance",
+              "line": 145,
+              "expression": "clock.advance(90)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "mode.seedDataStore",
+              "line": 146,
+              "expression": "mode.seedDataStore(store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContact",
+              "line": 148,
+              "expression": "store.fetchContact(aliceKey)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift",
+      "source_blob_sha": "4973b7bf4a6f1918b5c5404f270ca1a15fd083e6",
+      "case_id": "SimulatorSeedTests::reseeding is idempotent()",
+      "parameter_family": "single",
+      "line": 167,
+      "end_line": 185,
+      "declaration_sha256": "31ca3ae386bae53e2f0009dadb73233cc5cf38064cb46b3917075b7c6769c05b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 176,
+          "expression": "#expect(channels.count == 4)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 178,
+          "expression": "#expect(repeats.count == 3)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 180,
+          "expression": "#expect(incoming.count == MockDataProvider.incomingExtraPathCount)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 182,
+          "expression": "#expect(reactions.count == 3)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 184,
+          "expression": "#expect(rx.count == 2)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`reseeding is idempotent`",
+          "line": 167,
+          "expression": "`reseeding is idempotent`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "PersistenceStore.createContainer",
+          "line": 168,
+          "expression": "PersistenceStore.createContainer(inMemory: true)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "PersistenceStore",
+          "line": 169,
+          "expression": "PersistenceStore(modelContainer: container)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "SimulatorConnectionMode",
+          "line": 170,
+          "expression": "SimulatorConnectionMode()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "mode.seedDataStore",
+          "line": 171,
+          "expression": "mode.seedDataStore(store)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "mode.seedDataStore",
+          "line": 172,
+          "expression": "mode.seedDataStore(store)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchChannels",
+          "line": 175,
+          "expression": "store.fetchChannels(radioID: radioID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessageRepeats",
+          "line": 177,
+          "expression": "store.fetchMessageRepeats(messageID: MockDataProvider.frankRepeatMessageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchMessageRepeats",
+          "line": 179,
+          "expression": "store.fetchMessageRepeats(messageID: MockDataProvider.aliceMultiPathMessageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchReactions",
+          "line": 181,
+          "expression": "store.fetchReactions(for: MockDataProvider.aliceReactedMessageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "store.fetchRxLogEntries",
+          "line": 183,
+          "expression": "store.fetchRxLogEntries(radioID: radioID)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/SimulatorSeedTest.kt",
+          "sha256": "9e8fa654a260fcc690f149615fc6518b162442884980b9349005f5556ed696b4",
+          "class": "com.meshcoreone.android.core.services.simulator.SimulatorSeedTest",
+          "method_or_family_name": "reseeding is idempotent",
+          "line": 150,
+          "end_line": 164,
+          "factory_method": "reseedTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "ebef65b0e25ef98df388736c1a93d7f94f9937086e79a85643c84786e9dfb69f",
+          "registration": "case(\"reseeding is idempotent\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 159,
+              "expression": "assertEquals(4, store.fetchChannels(radioID).size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 160,
+              "expression": "assertEquals(3, store.fetchMessageRepeats(MockDataProvider.frankRepeatMessageID).size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 161,
+              "expression": "assertEquals(INCOMING_EXTRA_PATH_COUNT, store.fetchMessageRepeats(MockDataProvider.aliceMultiPathMessageID).size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 162,
+              "expression": "assertEquals(3, store.fetchReactions(MockDataProvider.aliceReactedMessageID).size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 163,
+              "expression": "assertEquals(2, blocking { store.fetchRxLogEntries(radioID) }.size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "SettableClock",
+              "line": 151,
+              "expression": "SettableClock(SimulatorTestSupport.oracleNow)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SimulatorInMemorySeedStore",
+              "line": 152,
+              "expression": "SimulatorInMemorySeedStore()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SimulatorTestSupport.mode",
+              "line": 153,
+              "expression": "SimulatorTestSupport.mode(clock)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "mode.seedDataStore",
+              "line": 154,
+              "expression": "mode.seedDataStore(store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "clock.advance",
+              "line": 155,
+              "expression": "clock.advance(90)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "mode.seedDataStore",
+              "line": 156,
+              "expression": "mode.seedDataStore(store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchChannels",
+              "line": 159,
+              "expression": "store.fetchChannels(radioID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessageRepeats",
+              "line": 160,
+              "expression": "store.fetchMessageRepeats(MockDataProvider.frankRepeatMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessageRepeats",
+              "line": 161,
+              "expression": "store.fetchMessageRepeats(MockDataProvider.aliceMultiPathMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchReactions",
+              "line": 162,
+              "expression": "store.fetchReactions(MockDataProvider.aliceReactedMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 163,
+              "expression": "store.fetchRxLogEntries(radioID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/SimulatorSeedTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/Utilities/DemoModeManagerTests.swift",
+      "source_blob_sha": "9d246699f0cce10d860f6756644c2b9d72a5f075",
+      "case_id": "DemoModeManagerTests::shared returns the same instance()",
+      "parameter_family": "single",
+      "line": 17,
+      "end_line": 21,
+      "declaration_sha256": "3fce184eb7a1fa3b8def2f74ff10069d684d522d02b5453b3067d520ec6582a8",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 20,
+          "expression": "#expect(instance1 === instance2)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`shared returns the same instance`",
+          "line": 17,
+          "expression": "`shared returns the same instance`()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManagerTest.kt",
+          "sha256": "a098b61fdc75b5a5d3e3a950cf6b464e669674ce08a9f38e07abec7aef951d6f",
+          "class": "com.meshcoreone.android.core.services.simulator.DemoModeManagerTest",
+          "method_or_family_name": "shared returns the same instance",
+          "line": 18,
+          "end_line": 23,
+          "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "a22470b5138996630b3b19b373e0c33053cdc2b974cd30ee3a66e214e7b5f8f8",
+          "registration": "case(\"shared returns the same instance\")",
+          "assertions": [
+            {
+              "name": "assertSame",
+              "line": 22,
+              "expression": "assertSame(instance1, instance2)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "SimulatorTestSupport.installStandardDefaults",
+              "line": 19,
+              "expression": "SimulatorTestSupport.installStandardDefaults()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Utilities/DemoModeManagerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/Utilities/DemoModeManagerTests.swift",
+      "source_blob_sha": "9d246699f0cce10d860f6756644c2b9d72a5f075",
+      "case_id": "DemoModeManagerTests::properties default to false for new instances()",
+      "parameter_family": "single",
+      "line": 26,
+      "end_line": 30,
+      "declaration_sha256": "f5370eba3124ced5058a0c3deb7ef4a9fe291c6ad567fb0fd6358ed55b5a3fbc",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 28,
+          "expression": "#expect(manager.isUnlocked == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 29,
+          "expression": "#expect(manager.isEnabled == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`properties default to false for new instances`",
+          "line": 26,
+          "expression": "`properties default to false for new instances`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DemoModeManager",
+          "line": 27,
+          "expression": "DemoModeManager(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManagerTest.kt",
+          "sha256": "a098b61fdc75b5a5d3e3a950cf6b464e669674ce08a9f38e07abec7aef951d6f",
+          "class": "com.meshcoreone.android.core.services.simulator.DemoModeManagerTest",
+          "method_or_family_name": "properties default to false for new instances",
+          "line": 26,
+          "end_line": 30,
+          "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "014a8521f2e37ba1b825cf1214032e7e46961eb5f3ea373cadb533c7854f742d",
+          "registration": "case(\"properties default to false for new instances\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 28,
+              "expression": "assertEquals(false, manager.isUnlocked)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 29,
+              "expression": "assertEquals(false, manager.isEnabled)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "DemoModeManager",
+              "line": 27,
+              "expression": "DemoModeManager(InMemoryDemoModeDefaults())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "InMemoryDemoModeDefaults",
+              "line": 27,
+              "expression": "InMemoryDemoModeDefaults()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Utilities/DemoModeManagerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/Utilities/DemoModeManagerTests.swift",
+      "source_blob_sha": "9d246699f0cce10d860f6756644c2b9d72a5f075",
+      "case_id": "DemoModeManagerTests::unlock sets both isUnlocked and isEnabled to true()",
+      "parameter_family": "single",
+      "line": 35,
+      "end_line": 45,
+      "declaration_sha256": "7520477cdfedf79594d097c0aada880ed5702eabbcbadcd9643ec2ef7731fa7c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 38,
+          "expression": "#expect(manager.isUnlocked == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 39,
+          "expression": "#expect(manager.isEnabled == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 43,
+          "expression": "#expect(manager.isUnlocked == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 44,
+          "expression": "#expect(manager.isEnabled == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`unlock sets both isUnlocked and isEnabled to true`",
+          "line": 35,
+          "expression": "`unlock sets both isUnlocked and isEnabled to true`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DemoModeManager",
+          "line": 36,
+          "expression": "DemoModeManager(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "manager.unlock",
+          "line": 41,
+          "expression": "manager.unlock()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManagerTest.kt",
+          "sha256": "a098b61fdc75b5a5d3e3a950cf6b464e669674ce08a9f38e07abec7aef951d6f",
+          "class": "com.meshcoreone.android.core.services.simulator.DemoModeManagerTest",
+          "method_or_family_name": "unlock sets both isUnlocked and isEnabled to true",
+          "line": 33,
+          "end_line": 43,
+          "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "45b7b33beafd5ba8b5cfbb6ce3e87d5faba5106dccd7dd74b5b5897299a9d189",
+          "registration": "case(\"unlock sets both isUnlocked and isEnabled to true\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 36,
+              "expression": "assertEquals(false, manager.isUnlocked)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(false, manager.isEnabled)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(true, manager.isUnlocked)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 42,
+              "expression": "assertEquals(true, manager.isEnabled)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "DemoModeManager",
+              "line": 34,
+              "expression": "DemoModeManager(InMemoryDemoModeDefaults())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "InMemoryDemoModeDefaults",
+              "line": 34,
+              "expression": "InMemoryDemoModeDefaults()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.unlock",
+              "line": 39,
+              "expression": "manager.unlock()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Utilities/DemoModeManagerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/Utilities/DemoModeManagerTests.swift",
+      "source_blob_sha": "9d246699f0cce10d860f6756644c2b9d72a5f075",
+      "case_id": "DemoModeManagerTests::UserDefaults persistence works for isUnlocked()",
+      "parameter_family": "single",
+      "line": 50,
+      "end_line": 57,
+      "declaration_sha256": "509b32d1e510fcac2dbeeab855916ac90c8831da90c157ff80d941d41b58305b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 56,
+          "expression": "#expect(persistedValue == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`UserDefaults persistence works for isUnlocked`",
+          "line": 50,
+          "expression": "`UserDefaults persistence works for isUnlocked`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DemoModeManager",
+          "line": 51,
+          "expression": "DemoModeManager(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "defaults.bool",
+          "line": 55,
+          "expression": "defaults.bool(forKey: \"isDemoModeUnlocked\")",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManagerTest.kt",
+          "sha256": "a098b61fdc75b5a5d3e3a950cf6b464e669674ce08a9f38e07abec7aef951d6f",
+          "class": "com.meshcoreone.android.core.services.simulator.DemoModeManagerTest",
+          "method_or_family_name": "UserDefaults persistence works for isUnlocked",
+          "line": 46,
+          "end_line": 53,
+          "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "8acd480bc81482e63fb34807ec1ede0c7155b955f85768b03adcd0a6bb393c77",
+          "registration": "case(\"UserDefaults persistence works for isUnlocked\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 52,
+              "expression": "assertEquals(true, defaults.bool(forKey = \"isDemoModeUnlocked\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "InMemoryDemoModeDefaults",
+              "line": 47,
+              "expression": "InMemoryDemoModeDefaults()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DemoModeManager",
+              "line": 48,
+              "expression": "DemoModeManager(defaults)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "defaults.bool",
+              "line": 52,
+              "expression": "defaults.bool(forKey = \"isDemoModeUnlocked\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Utilities/DemoModeManagerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/Utilities/DemoModeManagerTests.swift",
+      "source_blob_sha": "9d246699f0cce10d860f6756644c2b9d72a5f075",
+      "case_id": "DemoModeManagerTests::UserDefaults persistence works for isEnabled()",
+      "parameter_family": "single",
+      "line": 60,
+      "end_line": 67,
+      "declaration_sha256": "68de84ad8b8b1e521e24122d10feed40dc1cec4b092f3299d94afb20dea65e29",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 66,
+          "expression": "#expect(persistedValue == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`UserDefaults persistence works for isEnabled`",
+          "line": 60,
+          "expression": "`UserDefaults persistence works for isEnabled`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DemoModeManager",
+          "line": 61,
+          "expression": "DemoModeManager(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "defaults.bool",
+          "line": 65,
+          "expression": "defaults.bool(forKey: \"isDemoModeEnabled\")",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManagerTest.kt",
+          "sha256": "a098b61fdc75b5a5d3e3a950cf6b464e669674ce08a9f38e07abec7aef951d6f",
+          "class": "com.meshcoreone.android.core.services.simulator.DemoModeManagerTest",
+          "method_or_family_name": "UserDefaults persistence works for isEnabled",
+          "line": 54,
+          "end_line": 61,
+          "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "5bc85b72fd1c6a1fe28815dbc089df6dcbff387a1e8e2d4b7b46e255dc53b270",
+          "registration": "case(\"UserDefaults persistence works for isEnabled\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 60,
+              "expression": "assertEquals(true, defaults.bool(forKey = \"isDemoModeEnabled\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "InMemoryDemoModeDefaults",
+              "line": 55,
+              "expression": "InMemoryDemoModeDefaults()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DemoModeManager",
+              "line": 56,
+              "expression": "DemoModeManager(defaults)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "defaults.bool",
+              "line": 60,
+              "expression": "defaults.bool(forKey = \"isDemoModeEnabled\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Utilities/DemoModeManagerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/Utilities/DemoModeManagerTests.swift",
+      "source_blob_sha": "9d246699f0cce10d860f6756644c2b9d72a5f075",
+      "case_id": "DemoModeManagerTests::unlock persists both values to UserDefaults()",
+      "parameter_family": "single",
+      "line": 70,
+      "end_line": 80,
+      "declaration_sha256": "8935ff1421b50941e5756e14be9f5d07520c53fead2024585304f715551e98dd",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 78,
+          "expression": "#expect(unlockedValue == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 79,
+          "expression": "#expect(enabledValue == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`unlock persists both values to UserDefaults`",
+          "line": 70,
+          "expression": "`unlock persists both values to UserDefaults`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DemoModeManager",
+          "line": 71,
+          "expression": "DemoModeManager(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "manager.unlock",
+          "line": 73,
+          "expression": "manager.unlock()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "defaults.bool",
+          "line": 75,
+          "expression": "defaults.bool(forKey: \"isDemoModeUnlocked\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "defaults.bool",
+          "line": 76,
+          "expression": "defaults.bool(forKey: \"isDemoModeEnabled\")",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManagerTest.kt",
+          "sha256": "a098b61fdc75b5a5d3e3a950cf6b464e669674ce08a9f38e07abec7aef951d6f",
+          "class": "com.meshcoreone.android.core.services.simulator.DemoModeManagerTest",
+          "method_or_family_name": "unlock persists both values to UserDefaults",
+          "line": 62,
+          "end_line": 70,
+          "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "5bd4f111b17be3d1aba9dd087f07f7b2abe4dc2afdad700247f5413ebc4772ef",
+          "registration": "case(\"unlock persists both values to UserDefaults\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 68,
+              "expression": "assertEquals(true, defaults.bool(forKey = \"isDemoModeUnlocked\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 69,
+              "expression": "assertEquals(true, defaults.bool(forKey = \"isDemoModeEnabled\"))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "InMemoryDemoModeDefaults",
+              "line": 63,
+              "expression": "InMemoryDemoModeDefaults()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DemoModeManager",
+              "line": 64,
+              "expression": "DemoModeManager(defaults)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.unlock",
+              "line": 66,
+              "expression": "manager.unlock()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "defaults.bool",
+              "line": 68,
+              "expression": "defaults.bool(forKey = \"isDemoModeUnlocked\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "defaults.bool",
+              "line": 69,
+              "expression": "defaults.bool(forKey = \"isDemoModeEnabled\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Utilities/DemoModeManagerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    },
+    {
+      "source_path": "MC1Tests/Utilities/DemoModeManagerTests.swift",
+      "source_blob_sha": "9d246699f0cce10d860f6756644c2b9d72a5f075",
+      "case_id": "DemoModeManagerTests::values persist and can be read back()",
+      "parameter_family": "single",
+      "line": 83,
+      "end_line": 90,
+      "declaration_sha256": "c1b0742973a1b8e12eb8fbf4dfb2a3c916a851c449de9d5805c7f79ed3da8762",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 88,
+          "expression": "#expect(manager.isUnlocked == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 89,
+          "expression": "#expect(manager.isEnabled == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`values persist and can be read back`",
+          "line": 83,
+          "expression": "`values persist and can be read back`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "defaults.set",
+          "line": 84,
+          "expression": "defaults.set(true, forKey: \"isDemoModeUnlocked\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "defaults.set",
+          "line": 85,
+          "expression": "defaults.set(true, forKey: \"isDemoModeEnabled\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "DemoModeManager",
+          "line": 87,
+          "expression": "DemoModeManager(defaults: defaults)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/simulator/DemoModeManagerTest.kt",
+          "sha256": "a098b61fdc75b5a5d3e3a950cf6b464e669674ce08a9f38e07abec7aef951d6f",
+          "class": "com.meshcoreone.android.core.services.simulator.DemoModeManagerTest",
+          "method_or_family_name": "values persist and can be read back",
+          "line": 71,
+          "end_line": 79,
+          "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
+          "body_sha256": "9e51f122c7d72fc3e85a50b101c4d8f97662b257781dfa0667a70fbfc27e8c26",
+          "registration": "case(\"values persist and can be read back\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 77,
+              "expression": "assertEquals(true, manager.isUnlocked)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 78,
+              "expression": "assertEquals(true, manager.isEnabled)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "InMemoryDemoModeDefaults",
+              "line": 72,
+              "expression": "InMemoryDemoModeDefaults()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "defaults.set",
+              "line": 73,
+              "expression": "defaults.set(true, forKey = \"isDemoModeUnlocked\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "defaults.set",
+              "line": 74,
+              "expression": "defaults.set(true, forKey = \"isDemoModeEnabled\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DemoModeManager",
+              "line": 76,
+              "expression": "DemoModeManager(defaults)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Utilities/DemoModeManagerTests.swift"
+          ],
+          "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
+    }
+  ]
+}
