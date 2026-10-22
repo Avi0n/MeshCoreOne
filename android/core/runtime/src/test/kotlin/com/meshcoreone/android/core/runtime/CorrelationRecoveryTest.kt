@@ -242,7 +242,7 @@ class CorrelationRecoveryTest {
         },
         nativeCase("WiFi uncertainty physically renews immediately but retains the source reconnect cooldown") {
             withRecoveryFixture { recovery ->
-                connect(ConnectionTarget.WiFi("radio.test", 5000))
+                connect(ConnectionTarget.WiFi("radio.test", 5_000u))
                 unmatchedChannelQuery()
                 recovery.open(); runCurrent()
                 assertEquals(2, radios.size)
