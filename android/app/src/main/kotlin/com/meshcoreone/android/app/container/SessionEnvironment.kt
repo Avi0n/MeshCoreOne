@@ -14,6 +14,10 @@ import com.meshcoreone.android.core.protocol.session.SystemSessionClock
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
 import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueConfig
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
+import com.meshcoreone.android.core.services.messaging.ChannelQueryAccountingEvent
+import com.meshcoreone.android.core.services.messaging.MessageServiceConfig
 import com.meshcoreone.android.core.services.messaging.LoggingMessagingIssueReporter
 import com.meshcoreone.android.core.services.sync.SyncClock
 import com.meshcoreone.android.core.services.sync.SyncLogSink
@@ -51,6 +55,7 @@ class SessionEnvironment(
     val contactPreferences: ContactPreferenceFlags,
     val runtimeState: RuntimeSyncState,
     val resyncFailure: ResyncFailureSignal,
+    val chatSendQueueProgress: ChatSendQueueProgress,
     val syncClock: SyncClock = SyncClock.SYSTEM,
     val sessionClock: SessionClock = SystemSessionClock(),
     val logSink: SyncLogSink = SyncLogSink.NONE,
@@ -61,6 +66,9 @@ class SessionEnvironment(
      * restores this one when it tears down, so a stale graph never keeps the global pointing at itself.
      */
     val bootstrapDebugLog: DebugLogBuffer? = null,
+    val messageServiceConfig: MessageServiceConfig = MessageServiceConfig(),
+    val chatSendQueueConfig: ChatSendQueueConfig = ChatSendQueueConfig(),
+    val onChannelQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null,
 )
 
 /** Observes container creation and teardown so the process owner can prove no graph leaks. */

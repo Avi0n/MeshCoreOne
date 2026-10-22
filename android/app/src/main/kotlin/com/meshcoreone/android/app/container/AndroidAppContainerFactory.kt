@@ -37,6 +37,7 @@ import com.meshcoreone.android.app.container.onboarding.WriteBehindOnboardingFla
 import com.meshcoreone.android.app.container.onboarding.appSettingsOpener
 import com.meshcoreone.android.core.services.content.LocationService
 import com.meshcoreone.android.core.services.content.RegionResolver
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
 import com.meshcoreone.android.core.services.notifications.didReceive
 import com.meshcoreone.android.core.services.rendering.DraftStore
 import com.meshcoreone.android.core.services.simulator.DemoModeManager
@@ -44,8 +45,12 @@ import com.meshcoreone.android.platform.notifications.messaging.AndroidMessaging
 import com.meshcoreone.android.platform.notifications.messaging.AndroidNotificationStringProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.meshcoreone.android.core.maps.MapLibreOfflineBackend
@@ -85,8 +90,10 @@ object AndroidAppContainerFactory {
         DemoModeManager.installStandardDefaults(DataStoreDemoModeDefaults.load(storage.preferences, mainScope))
         val storeScope = CoroutineScope(SupervisorJob(mainScope.coroutineContext[kotlinx.coroutines.Job]) + Dispatchers.IO)
         cleanup.addFirst { storeScope.cancel() }
-        val database = MeshCoreDatabase.open(application)
-        val store = RoomPersistenceStore(database, storeScope)
+        val store = openRoomDatabaseOnIo(
+            openDatabase = { MeshCoreDatabase.open(application) },
+            transferOwnership = { RoomPersistenceStore(it, storeScope) },
+        )
         cleanup.addFirst { store.close() }
         val diagnostics = ConnectivityDiagnostics { operation, failure ->
             java.util.logging.Logger.getLogger("com.mc1.Connectivity").log(java.util.logging.Level.WARNING, operation, failure)
@@ -177,6 +184,7 @@ object AndroidAppContainerFactory {
             scans = scanCoordinator,
             openAppSettings = appSettingsOpener(application),
         )
+        val chatSendQueueProgress = ChatSendQueueProgress()
         val container = AppContainer(
             AppContainerDependencies(
                 store = store,
@@ -186,6 +194,7 @@ object AndroidAppContainerFactory {
                 linkProbe = probe,
                 scans = scanCoordinator,
                 linkFactory = linkFactory,
+                chatSendQueueProgress = chatSendQueueProgress,
                 hostingStarter = AndroidForegroundServiceStarter(application),
                 hostEnvironment = environment,
                 ensureBonded = { deviceId ->
@@ -270,6 +279,39 @@ object AndroidAppContainerFactory {
             try { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { closeResources() } }
             catch (closing: Exception) { failure.addSuppressed(closing) }
             throw failure
+        }
+    }
+}
+
+internal suspend fun <Owner> openRoomDatabaseOnIo(
+    openDatabase: () -> MeshCoreDatabase,
+    transferOwnership: (MeshCoreDatabase) -> Owner,
+): Owner {
+    var opened: MeshCoreDatabase? = null
+    var ownershipTransferred = false
+    var primaryFailure: Throwable? = null
+    try {
+        val database = withContext(Dispatchers.IO) {
+            openDatabase().also { opened = it }
+        }
+        currentCoroutineContext().ensureActive()
+        val owner = transferOwnership(database)
+        ownershipTransferred = true
+        return owner
+    } catch (failure: Throwable) {
+        primaryFailure = failure
+        throw failure
+    } finally {
+        if (!ownershipTransferred) {
+            try {
+                withContext(NonCancellable + Dispatchers.IO) {
+                    opened?.let { RoomPersistenceStore.closeUntransferredDatabase(it) }
+                }
+            } catch (cleanup: Throwable) {
+                val failure = primaryFailure
+                if (failure == null) throw cleanup
+                if (cleanup !== failure) failure.addSuppressed(cleanup)
+            }
         }
     }
 }

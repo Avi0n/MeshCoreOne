@@ -2,6 +2,7 @@
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
+import com.meshcoreone.android.core.database.MeshCoreDatabase
 import com.meshcoreone.android.core.model.DeviceDTO
 import com.meshcoreone.android.core.model.PersistenceKeys
 import com.meshcoreone.android.core.model.RadioId
@@ -9,14 +10,34 @@ import com.meshcoreone.android.core.model.canonicalString
 import com.meshcoreone.android.core.runtime.RuntimePreferenceValue
 import com.meshcoreone.android.core.ui.StatusPillState
 import java.util.UUID
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertNotSame
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Test
 
 class ProcessContainerTest : RoomProcessTest() {
@@ -149,5 +170,121 @@ class ProcessContainerTest : RoomProcessTest() {
         assertEquals(0, h.sessions.outstanding)
         assertEquals(0, live.liveJobCount)
         assertTrue(h.links.radios.all { it.closes == 1 && it.readers == 0 })
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun roomOpenKeepsMainResponsiveAndClosesDatabaseWhenCancellationPreventsOwnershipTransfer() = runTest {
+        val mainDispatcher = Executors.newSingleThreadExecutor { Thread(it, "wp303-room-open-main") }
+            .asCoroutineDispatcher()
+        val processJob = SupervisorJob()
+        val openStarted = CountDownLatch(1)
+        val openRelease = CountDownLatch(1)
+        val openThread = AtomicReference<Thread?>()
+        val transferThread = AtomicReference<Thread?>()
+        val openedDatabase = AtomicReference<MeshCoreDatabase?>()
+        val cancelledOpenStarted = CountDownLatch(1)
+        val cancelledOpenRelease = CountDownLatch(1)
+        val cancelledDatabase = AtomicReference<MeshCoreDatabase?>()
+        val failedTransferDatabase = AtomicReference<MeshCoreDatabase?>()
+        val cancellationTransferCalled = AtomicBoolean()
+        var openTask: Deferred<Thread>? = null
+        var cancelledOpen: Deferred<MeshCoreDatabase>? = null
+        try {
+            Dispatchers.setMain(mainDispatcher)
+            val processScope = CoroutineScope(processJob + Dispatchers.Main.immediate)
+            val mainThread = withContext(Dispatchers.Main.immediate) { Thread.currentThread() }
+            val opening = processScope.async {
+                val database = openRoomDatabaseOnIo(
+                    openDatabase = {
+                        openThread.set(Thread.currentThread())
+                        openMemoryDatabase().also {
+                            it.openHelper.writableDatabase
+                            openedDatabase.set(it)
+                            openStarted.countDown()
+                            check(openRelease.await(30, TimeUnit.SECONDS))
+                        }
+                    },
+                    transferOwnership = {
+                        transferThread.set(Thread.currentThread())
+                        it
+                    },
+                )
+                assertTrue(database.isOpen, "successful transfer leaves the process-owned database open")
+                val resumedThread = Thread.currentThread()
+                withContext(Dispatchers.IO) { database.close() }
+                resumedThread
+            }
+            openTask = opening
+            assertTrue(withContext(Dispatchers.IO) { openStarted.await(5, TimeUnit.SECONDS) },
+                "Room initialization reaches the blocking opener")
+            val heartbeat = CountDownLatch(1)
+            processScope.launch { heartbeat.countDown() }
+            assertTrue(withContext(Dispatchers.IO) { heartbeat.await(1, TimeUnit.SECONDS) },
+                "the main dispatcher remains responsive while Room initialization is blocked")
+            openRelease.countDown()
+            assertSame(mainThread, opening.await(), "factory continuation returns to its caller dispatcher")
+            assertNotSame(mainThread, openThread.get(), "Room initialization runs on Dispatchers.IO")
+
+            val cancellationTask = processScope.async {
+                openRoomDatabaseOnIo(
+                    openDatabase = {
+                        openMemoryDatabase().also {
+                            it.openHelper.writableDatabase
+                            cancelledDatabase.set(it)
+                            cancelledOpenStarted.countDown()
+                            check(cancelledOpenRelease.await(30, TimeUnit.SECONDS))
+                        }
+                    },
+                    transferOwnership = {
+                        cancellationTransferCalled.set(true)
+                        it
+                    },
+                )
+            }
+            cancelledOpen = cancellationTask
+            assertTrue(withContext(Dispatchers.IO) { cancelledOpenStarted.await(5, TimeUnit.SECONDS) },
+                "cancellable initialization reaches the database ownership boundary")
+            val untransferred = assertNotNull(cancelledDatabase.get())
+            assertTrue(untransferred.isOpen, "the cancellation case owns an open Room database before cancellation")
+            cancellationTask.cancel()
+            cancelledOpenRelease.countDown()
+            assertFailsWith<CancellationException> { cancellationTask.await() }
+            assertFalse(untransferred.isOpen,
+                "a database opened before cancellation is closed if ownership was not transferred")
+            assertFalse(cancellationTransferCalled.get(), "a cancelled open never reaches its owner constructor")
+
+            val constructionFailure = IllegalStateException("store construction failed")
+            val observedFailure = try {
+                openRoomDatabaseOnIo<Unit>(
+                    openDatabase = {
+                        openMemoryDatabase().also {
+                            it.openHelper.writableDatabase
+                            failedTransferDatabase.set(it)
+                        }
+                    },
+                    transferOwnership = { throw constructionFailure },
+                )
+                null
+            } catch (failure: IllegalStateException) {
+                failure
+            }
+            assertSame(constructionFailure, observedFailure)
+            assertFalse(assertNotNull(failedTransferDatabase.get()).isOpen,
+                "a database is closed if constructing its process owner fails")
+            assertSame(mainThread, transferThread.get(), "the process owner is constructed on the main caller")
+        } finally {
+            openRelease.countDown()
+            cancelledOpenRelease.countDown()
+            cancelledOpen?.cancelAndJoin()
+            openTask?.cancelAndJoin()
+            processJob.cancelAndJoin()
+            listOfNotNull(openedDatabase.get(), cancelledDatabase.get(), failedTransferDatabase.get())
+                .distinct().forEach { database ->
+                if (database.isOpen) withContext(Dispatchers.IO) { database.close() }
+            }
+            Dispatchers.resetMain()
+            mainDispatcher.close()
+        }
     }
 }

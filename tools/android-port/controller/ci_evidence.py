@@ -355,12 +355,13 @@ def lint_evidence(report: Path):
     issues = root.findall("issue")
     if any(issue.get("severity") in ("Error", "Fatal") for issue in issues):
         raise PortError("Android lint contains actual errors")
-    if any(
-        issue.get("severity") not in ("Warning", "Information")
-        or not issue.get("id") or not issue.get("message")
-        for issue in issues
-    ):
-        raise PortError("Unknown/missing lint severity")
+    for index, issue in enumerate(issues, start=1):
+        if issue.get("severity") not in ("Warning", "Information", "Hint"):
+            raise PortError(
+                f"Unknown/missing lint severity in {report}, issue {index}: {issue.get('severity')!r}"
+            )
+        if not issue.get("id") or not issue.get("message"):
+            raise PortError(f"Missing lint issue id/message in {report}, issue {index}")
     return {"sha256": file_sha256(report), "warnings": len(issues)}
 
 

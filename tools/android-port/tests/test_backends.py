@@ -395,8 +395,55 @@ class AuthorityTests(unittest.TestCase):
             authority.merged_terminal("WP-000", "session-1", wrong, BASE)
 
         api.routes[("GET", prefix + "/git/commits/" + MERGE)]["parents"][0]["sha"] = "4" * 40
+        api.routes[("GET", prefix + f"/compare/{BASE}...{'4' * 40}")] = {"status": "diverged"}
         with self.assertRaisesRegex(PortError, "exact predecessor base and head"):
             authority.merged_terminal("WP-000", "session-1", receipt, BASE)
+
+    def test_terminal_merge_accepts_advanced_landing_base_only_with_both_ancestries(self):
+        landing = "4" * 40
+        for invalid in (None, "diverged", "base", "merge-base", "behind", "missing-head",
+                        "wrong-parent", "landing-diverged", "malformed-base", "malformed-merge-base"):
+            with self.subTest(invalid=invalid):
+                authority, api, prefix, value = self.fixture()
+                receipt = {
+                    "repository": value.binding.repository, "session_id": "session-1", "pr_number": 123,
+                    "head_sha": HEAD, "merge_sha": MERGE, "paths": value.pr["changed_paths"],
+                }
+                api.routes[("GET", prefix + "/git/commits/" + MERGE)]["parents"][0]["sha"] = landing
+                for descendant in (landing, HEAD):
+                    api.routes[("GET", prefix + f"/compare/{BASE}...{descendant}")] = {
+                        "status": "ahead", "base_commit": {"sha": BASE},
+                        "merge_base_commit": {"sha": BASE}, "behind_by": 0,
+                    }
+                comparison = api.routes[("GET", prefix + f"/compare/{BASE}...{HEAD}")]
+                if invalid == "diverged":
+                    comparison["status"] = "diverged"
+                elif invalid == "base":
+                    comparison["base_commit"]["sha"] = landing
+                elif invalid == "merge-base":
+                    comparison["merge_base_commit"]["sha"] = landing
+                elif invalid == "behind":
+                    comparison["behind_by"] = 1
+                elif invalid == "missing-head":
+                    comparison.clear()
+                elif invalid == "wrong-parent":
+                    api.routes[("GET", prefix + "/git/commits/" + MERGE)]["parents"][1]["sha"] = landing
+                elif invalid == "landing-diverged":
+                    api.routes[("GET", prefix + f"/compare/{BASE}...{landing}")]["status"] = "diverged"
+                elif invalid == "malformed-base":
+                    comparison["base_commit"] = None
+                elif invalid == "malformed-merge-base":
+                    comparison["merge_base_commit"] = []
+                if invalid is not None:
+                    with self.assertRaises(PortError):
+                        authority.merged_terminal("WP-000", "session-1", receipt, BASE)
+                else:
+                    terminal = authority.merged_terminal("WP-000", "session-1", receipt, BASE)
+                    self.assertTrue(terminal.authoritative)
+                    self.assertEqual(terminal.base_sha, BASE)
+                    self.assertEqual(terminal.head_sha, HEAD)
+                    self.assertEqual(terminal.merge_sha, MERGE)
+                self.assertTrue(all(call[0] == "GET" for call in api.calls))
 
     def test_candidate_model_pass_missing_publisher_stale_run_or_fake_approval_is_not_authority(self):
         for kind in ("publisher", "summary", "run", "candidate-privilege", "approval", "stamp", "base"):

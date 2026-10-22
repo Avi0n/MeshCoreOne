@@ -39,6 +39,7 @@ import com.meshcoreone.android.core.contracts.notifications.NotificationDelivery
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.maps.OfflineMapController
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.config.SessionConfiguration
 import com.meshcoreone.android.core.runtime.ConnectionManager
 import com.meshcoreone.android.core.runtime.ConnectionObserver
 import com.meshcoreone.android.core.runtime.LastConnectionStore
@@ -51,7 +52,11 @@ import com.meshcoreone.android.core.runtime.SystemRuntimeClock
 import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.device.RadioPresets
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueConfig
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
+import com.meshcoreone.android.core.services.messaging.ChannelQueryAccountingEvent
 import com.meshcoreone.android.core.services.messaging.LoggingMessagingIssueReporter
+import com.meshcoreone.android.core.services.messaging.MessageServiceConfig
 import com.meshcoreone.android.core.services.rendering.ChatCoordinatorRegistry
 import com.meshcoreone.android.core.services.rendering.DraftStore
 import com.meshcoreone.android.core.services.sync.SyncClock
@@ -91,12 +96,16 @@ class AppContainerDependencies(
     val notificationPreferences: NotificationPreferencesPort,
     val contactPreferences: ContactPreferenceFlags,
     val draftStore: DraftStore,
+    val chatSendQueueProgress: ChatSendQueueProgress,
     /** The main-thread stand-in app state, UI timers and the chat coordinators run on. */
     val mainScope: CoroutineScope,
     val notificationStrings: NotificationStringProvider? = null,
     val foreground: ProcessForegroundState = ProcessForegroundState(),
     val runtimeClock: RuntimeClock = SystemRuntimeClock(),
     val runtimeContext: CoroutineContext = Dispatchers.Default,
+    val sessionConfiguration: SessionConfiguration = SessionConfiguration.DEFAULT,
+    val messageServiceConfig: MessageServiceConfig = MessageServiceConfig(),
+    val chatSendQueueConfig: ChatSendQueueConfig = ChatSendQueueConfig(),
     val knownEndpoints: KnownEndpointStore? = null,
     val bonds: BondInspector? = null,
     val ensureBonded: (suspend (java.util.UUID) -> Unit)? = null,
@@ -138,6 +147,8 @@ class AppContainerDependencies(
     internal val chatContent: AppChatContent? = null,
     val newBootstrapDebugLog: (CoroutineScope) -> DebugLogBuffer? = { null },
     val runtimeRecoveryDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    /** Passive pre-barrier persistence observer; must not block, throw or perform lifecycle work. */
+    val onChannelQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null,
     /** Releases process-owned resources (database, storage) once the runtime has closed. */
     val onClose: suspend () -> Unit = {},
 )
@@ -180,11 +191,15 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
         appState = dependencies.foreground,
         passwords = dependencies.passwords,
         contactPreferences = dependencies.contactPreferences,
+        chatSendQueueProgress = dependencies.chatSendQueueProgress,
         runtimeState = runtimeState,
         resyncFailure = resyncFailureHub,
         syncClock = dependencies.syncClock,
         logSink = dependencies.logSink,
         messagingReporter = dependencies.messagingReporter,
+        onChannelQueryAccounting = dependencies.onChannelQueryAccounting,
+        messageServiceConfig = dependencies.messageServiceConfig,
+        chatSendQueueConfig = dependencies.chatSendQueueConfig,
         onSessionLifecycle = dependencies.sessionLifecycle,
         bootstrapDebugLog = bootstrapDebugLog,
     )
@@ -206,6 +221,7 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
         reporter = dependencies.runtimeReporter,
         clock = dependencies.runtimeClock,
         context = dependencies.runtimeContext,
+        configuration = dependencies.sessionConfiguration,
         recoveryDispatcher = dependencies.runtimeRecoveryDispatcher,
     )
 

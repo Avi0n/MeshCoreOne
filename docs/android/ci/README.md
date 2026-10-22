@@ -165,6 +165,14 @@ no publication, main/policy/runtime landing or product consumption is authorized
 
 ### Source-only local/native execution interlock correction
 
+Feature publication does not require a bespoke publication wrapper or credential
+identity policy. The existing complete `local/check.py --pre-push` checker and
+supported immutable-main checker/operator composition remain unchanged, as do
+normal host authentication and nonforce Git publication. Use the full trusted
+checker, not candidate controller code, an empty hook or no-verify. Its actual
+execution admission and exact-candidate UNVERIFIED behavior remain separate from
+hosted CI, findings/freshness and merge acceptance.
+
 The source successor published as `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`
 closes the advisory/manual launcher gap; it does not deploy either candidate
 capability or alter the held native473 operation/runtime. Both independent
@@ -253,8 +261,29 @@ Controller regressions use real TEMPORARY Ledgers, concurrent two-party races,
 exact payload preservation, owner/stale/runtime boundaries, actual matching-runtime
 namespace drift, actual unavailable-tool/prelaunch refusal, retained-receipt
 borrowing, command construction and pending commit/tree assertions. Seven discovered process-fixture
-cases execute real isolated Linux launchers/children only on Linux; Windows
-instead proves unsupported-platform rejection without any WSL/native launch.
+cases execute real isolated Linux launchers/children only on Linux. The
+`advisory_test.load_tests` host partition selects all seven on Linux (including
+WSL's Linux-only temporary process fixtures), or one actual native Windows
+unsupported-platform rejection case without any WSL/native launch. Discovery
+prints the selected class and explicitly marks Linux process proof NOT SELECTED
+on Windows; that Windows result is not seven Linux passes. Unknown hosts fail
+discovery rather than silently selecting an empty suite. Pure regressions verify
+the complete Linux selection, Windows selection and unsupported-host rejection.
+The declared `fast.local_test_command` remains candidate-local discovery and
+uses this same partition; no separate hidden test command or host override exists.
+The strict hosted controller runner also uses `*test*.py` discovery, so the
+suffix-named `advisory_test.py` and `hook_test.py` are mandatory there rather than
+silently omitted by unittest's default `test*.py` pattern. Its existing zero-test,
+failure/error and skipped-case rejection remains unchanged.
+
+The disposable authority integration fixture has a separate WSL boundary: its
+real subprocess must reject canonical Windows-ledger emulation before reaching
+trusted-source checks, with its temporary historical lease, hard lock and legacy
+runtime bytes unchanged. It explicitly reports canonical lifecycle NOT SELECTED
+there. Native Windows and non-WSL Linux retain the complete trusted-code,
+scope-evolution and prepared/disposed fixture sequence. Pure negative cases also
+prove unsupported/WSL rejection precedes authority loading and process launch.
+No platform is mocked into executing another platform's lifecycle.
 Linux fixtures include first/next manual invocation, observed nonzero quiescence
 and persistent owned-child retention; they are not real Gradle cold builds.
 Source-local Windows results are not Linux/WSL/native proof. Original full/manual
