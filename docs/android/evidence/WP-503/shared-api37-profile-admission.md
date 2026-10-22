@@ -2327,3 +2327,58 @@ The actual integrated source passed
 workflow and portmap checks above, plus `git diff --check`, all passed.
 The advisory local Gradle fast check was not run; publication remains an
 explicit unverified candidate pending its own exact-head hosted verification.
+
+### Actual7949a1: assembly positive, packaging descendant guard failed
+
+The coupled candidate actually published normally to existing PR205 as
+`7949bd956601ea11a957aa8d218a92a5e2767d96`. Its own automatic candidate
+run39701515172 was in_progress at admission, not borrowed c9 CI proof.
+Fresh 2026-10-22T00:45:28.7318508Z admission observed 7044.12MiB commit headroom and
+5621MiB physical availability; actual source/main423/policy/pause/identity,
+published-head and reservation31 guards passed before the genuine new
+private factory. Exact source binding was Android tree55b2f08af240006d562455e5229b2b1bd19f91bb
+and digest04f0e921e633928ae37312937c485b9f780860ff98437ff54cd9ba991204360e.
+Actual owner was
+`1666502a-0420-46ef-930f-e78651ba8b9f:nodes:df3e77034bb54b1397b96d93f376b47f`;
+fresh retained root was private-avd-ywidu9bc, not an old guest.
+
+Actual declared App/Test assembly succeeded in 3m52s, 446 tasks
+(15 executed,431 up-to-date). But exiting the real packaging lane raised
+`PortError('Packaging descendants remain; retain Gradle and private guest ownership')`.
+No admitted pair receipt or emulator process.log exists. Therefore there
+was no emulator start, kernel observation, registration/boot observation,
+profile/install mutation, instrumentation or original Nodes case:0/7.
+Host instrumentation process exit remains UNKNOWN; CLI2 is not that exit.
+The new kernel flag was not exercised. This is a different, earlier failure
+than c9's genuine selected-transport120s timeout, not a diagnostic boot result.
+
+Independent finally disposal actually verified true without disposal error.
+Supported ledger readback found no remaining hard lock for this new owner
+and confirmed the protected66bd lock still retained. Main serialization was
+released only after that actual disposal signal. Old473/66bd were untouched.
+The same attempt's operations.json, packaging/debug-build.log, four owned
+command outputs and CLI traceback remain in the existing session artifacts;
+no credentials or hosted CI-result bundle are copied here.
+
+Bounded source inspection finds the packaging exit checks actual Windows
+Job active membership once, immediately after the normal yielded operations;
+run_build/capture wait for their individual root handles. The actual check
+observed positive membership, but no PID/count/quiescence-duration snapshot
+was retained before independent cleanup. Persistent descendant versus
+termination-accounting timing is unresolved; neither is manufactured as
+the cause. No guard was relaxed, producer-owned code duplicated, stale
+guest probed or unchanged native retry launched. Further native families
+remain blocked on this actual packaging postcondition, not on CPU/config,
+strict120s boot semantics or the original native assertions.
+
+An existing-reservation consumer-only regression now models this precise
+packaging descendant exception after normal packaging operations. It checks
+the same primary exception survives, only package/dispose events occur,
+instrumentation exit stays unknown, no pair/cohort/native mutations are
+credited, and independent disposal verifies. The full declared consumer
+suite actually passed 235/235 in16.591s, including that case explicitly ok.
+This is a downstream protocol model, not producer quiescence or native proof.
+The existing producer owner is separately repairing bounded natural owned
+quiescence with actual emptiness required; no producer-owned implementation,
+native retry or isolated publication is made by this consumer change.
+The same four declared source validators and `git diff --check` also passed.

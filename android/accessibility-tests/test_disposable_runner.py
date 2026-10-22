@@ -505,6 +505,30 @@ class DisposableConsumerTest(unittest.TestCase):
         with self.assertRaisesRegex(runner.PortError, "never raw subprocess"):
             device.command("shell", "am", "instrument")
 
+    def test_packaging_descendant_guard_preserves_primary_unknown_exit_and_independent_disposal(self):
+        failure = runner.PortError("Packaging descendants remain; retain Gradle and private guest ownership")
+
+        def fail(**kwargs):
+            self.packaging(**kwargs)
+            self.guest.phase = "uncertain"
+            raise failure
+
+        self.package.side_effect = fail
+        with self.assertRaises(runner.PortError) as caught:
+            self.execute()
+        self.assertIs(failure, caught.exception)
+        self.assertEqual(["package", "dispose"], self.ledger.events)
+        saved = self.operations()
+        self.assertEqual(repr(failure), saved["execution_error"])
+        self.assertIsNone(saved["host_instrumentation_process_exit"])
+        self.assertNotIn("packaging", saved)
+        self.assertNotIn("cohort", saved)
+        for field in ("boot_observations", "profile_setup_attempts", "mutation_attempts"):
+            self.assertEqual([], saved[field])
+        self.assertFalse(saved["acceptance"])
+        self.assertTrue(saved["disposal_verified"])
+        self.assert_disposed()
+
     def test_wrong_packaging_guest_or_source_stops_before_boot_and_always_disposes(self):
         original = self.packaging
 
