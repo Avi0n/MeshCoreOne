@@ -241,6 +241,7 @@ class PrivateGuest:
             record = {
                 "schema_version": 1, "owner": self.owner, "revision": self.revision,
                 "operation": operation, "stage": stage, "timeout_seconds": timeout,
+                "requested_cpu_cores": getattr(self, "requested_cpu_cores", None),
                 "backend": "windows-job" if self.job is not None else "linux-subprocess",
                 "host_utc": datetime.fromtimestamp(utc_ns // 1_000_000_000, timezone.utc).isoformat(),
                 "host_unix_nanoseconds": utc_ns, "host_monotonic_seconds": monotonic,
@@ -298,6 +299,7 @@ class PrivateGuest:
         report = {
             "schema_version": 1, "owner": self.owner, "revision": self.revision, "stage": stage,
             "backend": "windows-job" if self.job is not None else "linux-owned-roots",
+            "requested_cpu_cores": getattr(self, "requested_cpu_cores", None),
             "scope": "root handles only; not whole guest/descendant exit proof",
             "roots": [], "job_active_count": None, "job_pids": None,
             "job_membership": "unavailable", "errors": [],
@@ -351,11 +353,14 @@ class PrivateGuest:
                 error.add_note(f"Owned precleanup status (may be incomplete): {path}")
             raise BaseExceptionGroup("Owned status observation/retention failed", failures)
 
-    def start(self, ledger, *, emulator, adb, image, timeout=120):
+    def start(self, ledger, *, emulator, adb, image, timeout=120, cpu_cores=None):
         """Use installed tools/image only. Creates no key and never opens a pre-existing AVD."""
+        if cpu_cores is not None and (type(cpu_cores) is not int or cpu_cores != 4):
+            raise PortError("Private guest CPU selection must be None (emulator default) or integer4")
         self.assert_held(ledger, self.owner)
         if self.phase != "prepared" or type(timeout) not in (int, float) or not 0 < timeout <= 180:
             raise PortError("Private guest start requires a fresh prepared lease and bounded deadline")
+        self.requested_cpu_cores = cpu_cores
         self._prepare_supervisor()
         emulator, adb, image = Path(emulator), Path(adb), Path(image)
         if any(not p.is_absolute() or p.is_symlink() or p.resolve() != p for p in (emulator, adb, image)):
@@ -400,7 +405,8 @@ class PrivateGuest:
         (data / "config.ini").write_text(
             f"AvdId={self.token}\navd.ini.displayname={self.token}\nabi.type={abi}\n"
             f"hw.cpu.arch={'arm64' if abi == 'arm64-v8a' else 'x86_64'}\n"
-            f"image.sysdir.1={image}{os.sep}\nhw.gpu.enabled=yes\nhw.gpu.mode=swiftshader_indirect\n"
+            + (f"hw.cpu.ncore={cpu_cores}\n" if cpu_cores is not None else "")
+            + f"image.sysdir.1={image}{os.sep}\nhw.gpu.enabled=yes\nhw.gpu.mode=swiftshader_indirect\n"
             "disk.dataPartition.size=2048M\n", encoding="utf-8",
         )
         self.adb_tool = adb
