@@ -1,5 +1,64 @@
 # WP-501: persisted channel-drain originals and a blocked real-query boundary
 
+## Exact b686 published-source review: acceptance remains blocked
+
+The existing WP-303 producer has genuinely published
+`b6860ca876386fa0984c8572d58444501ef9d6df`, including lower WP-208
+`3fdc609a70e37161a1914c999ebc9d1bd82c5f79` and runtime WP-207
+`cdf9ebc8392c80ccbd94019d2a9deac0546e3f46`. Its actual positive method is
+`com.meshcoreone.android.app.container.SessionLifecycleTest.sameRadioChannelQueryFailureIsIsolatedToEachPendingEnvelopeInTheAppRoomGraph`.
+The old missing-selector blocker is superseded. The earlier local
+`ChannelQueueCounterAppOriginalPredicateTest` preparation is archived, not the
+current selector or an accepted result. PR281 comment6347740262 now explicitly
+says not to apply that archived patch; it omitted the factory lifecycle-wrapper
+configuration forwarding which the actual producer correctly supplies.
+
+The complete nine-path successor and frozen original372-463/harness606-745
+were reviewed. Original same-radio A7/resend/sequence1 and B2/non-resend/sequence2,
+cap2/pool2/base0.01/session0.2, ERROR2 parser stimulus20ms and queue-open50ms
+loops are present. Configuration reaches the actual services through the factory's
+`withLifecycle` environment copy without changing production defaults.
+SystemRuntimeClock/Default govern runtime/session timing; the harness UI scope
+remains the test scope. The Default-dispatched B delay is real three seconds.
+The explicit fake-Bluetooth adaptation adds a manager/physical recovery policy
+absent from the frozen SimulatorMockTransport harness. Its A30s deadline begins
+before connect, earlier than the original's post-hydration wait.
+
+[Exact-head COMMENTED review5619368518](https://github.com/cbattlegear/MeshCoreOne-Android/pull/281#pullrequestreview-5619368518)
+records two unresolved source findings, not an observed runtime failure:
+
+- At line246, cap2 needs two genuine A-query failures, but the first uncertainty
+  retires the physical generation after accounting. This fake Bluetooth link
+  supplies no spontaneous reconnect callback. The source-visible watchdog waits
+  30 seconds before its first action, after the already-running total30s deadline
+  has begun. Queue-open triggers do not reconnect the graph. The native fixture/
+  lifecycle adaptation therefore lacks a source-visible path to the second
+  required query within its budget; no production-counter defect is inferred.
+- At line269, B's row can survive without B reaching a genuine channel-query
+  failure. Queue admissions are sealed during recovery; ERROR2 is READY-only
+  and queue-open triggers cannot reconnect. Keeping the stimulus jobs alive is
+  not B-path proof. Actual typed query/cap-exhaustion provenance for A and genuine
+  B-query consumption remain necessary; preserve B's diagnostic-only status and
+  do not impose an exact final B attempt count.
+
+No deadline extension, shorter B observation, recovery gate, manual reconnect
+acceleration, WiFi substitution or invented null is proposed. Resolution belongs
+to the current producer/coordinator. This is source review only, not parity,
+merge approval, hardware evidence or a passing App result.
+
+The future declared full affected-class command is
+`:app:testDebugUnitTest --tests com.meshcoreone.android.app.container.SessionLifecycleTest`
+and remains NOT RUN here under the requested execution hold. Its eight method
+declarations are not eight discovered/passing cases. Automatic39834486621 is the
+exact candidate's hosted authority when terminal; no result is borrowed.
+
+A preliminary Python-only discovery-gate experiment, started before this actual
+selector arrived, ran528 controller fixtures:526 passed,2 errored because the
+experimental uncommitted `ci_evidence.py` differed from its immutable HEAD.
+Both uncommitted experiment files were removed and verified byte-identical to
+HEAD; no verifier weakening, old-selector gate or all-green rerun is claimed.
+This was not App/Gradle/native execution or original-case evidence.
+
 ## Bounded diagnostic correction after exact586 failure (2026-10-21)
 
 **LOCAL CORRECTION, NOT COMPILED/RUN/DISCOVERED.** Its direct parent is
