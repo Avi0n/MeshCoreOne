@@ -9,6 +9,7 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +44,7 @@ class RoomConversationStateHolder(
     session: RemoteNodeSessionDTO,
     private val dependencies: RoomConversationDependencies,
     private val scope: CoroutineScope,
+    private val awaitReloadDebounce: suspend () -> Unit = { delay(RELOAD_DEBOUNCE) },
 ) {
     private val mutableState = MutableStateFlow(RoomConversationState(session))
     val state: StateFlow<RoomConversationState> = mutableState
@@ -165,12 +167,26 @@ class RoomConversationStateHolder(
 
     suspend fun send(): Boolean {
         val current = mutableState.value
-        if (current.draft.isEmpty() || !current.session.canPost || !current.session.isConnected) return false
+        if (!current.session.canPost || !current.session.isConnected) return false
+        return post(current.draft, clearDraft = true)
+    }
+
+    suspend fun sendAgain(message: RoomMessageDTO): Boolean {
+        if (!message.isFromSelf || message.sessionID != mutableState.value.session.id) return false
+        return post(message.text, clearDraft = false)
+    }
+
+    private suspend fun post(text: String, clearDraft: Boolean): Boolean {
+        val current = mutableState.value
+        if (text.isEmpty() || current.isSending) return false
         mutableState.update { it.copy(isSending = true, failure = null) }
         return try {
-            val message = dependencies.service.post(current.session, current.draft)
+            val message = dependencies.service.post(current.session, text)
             appendIfNew(message)
-            mutableState.update { it.copy(draft = "", isSending = false) }
+            mutableState.update {
+                it.copy(draft = if (clearDraft && it.draft == text) "" else it.draft, isSending = false)
+            }
+            if (mutableState.value.isLoading) scheduleReload()
             true
         } catch (cancelled: CancellationException) {
             mutableState.update { it.copy(isSending = false) }
@@ -189,6 +205,7 @@ class RoomConversationStateHolder(
                 val messages = current.messages.map { if (it.id == messageId) updated else it }
                 current.copy(messages = messages, rows = rows(messages), failure = null)
             }
+            if (mutableState.value.isLoading) scheduleReload()
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
@@ -204,6 +221,11 @@ class RoomConversationStateHolder(
         dependencies.diagnostics.report("load room link contacts", failure)
     }
 
+    fun reportActionFailure(failure: Exception) {
+        mutableState.update { it.copy(failure = failure) }
+        dependencies.diagnostics.report("room message action", failure)
+    }
+
     private fun appendIfNew(message: RoomMessageDTO) {
         mutableState.update { current ->
             if (current.messages.any { it.id == message.id }) return@update current
@@ -215,15 +237,20 @@ class RoomConversationStateHolder(
     }
 
     private fun scheduleReload() {
-        if (reloadJob != null) return
-        reloadJob = scope.launch {
+        // Events invalidate snapshots already being fetched, even within a coalesced burst.
+        generation++
+        if (reloadJob?.isActive == true) return
+        val pending = scope.launch(start = CoroutineStart.LAZY) {
             try {
-                delay(RELOAD_DEBOUNCE)
+                awaitReloadDebounce()
+                reloadJob = null
                 load()
             } finally {
-                reloadJob = null
+                if (reloadJob === coroutineContext[Job]) reloadJob = null
             }
         }
+        reloadJob = pending
+        pending.start()
     }
 
     companion object {
