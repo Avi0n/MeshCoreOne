@@ -2810,3 +2810,47 @@ Official exact-job logs were read in memory only: no second CI-result bundle,
 dispatch, rerun, cancellation or deadline change. This terminal result removes
 only the prior preserve-running8f publication hold; it is not merge/native
 acceptance, does not transfer to the new source and grants no live admission.
+
+### Actual2249 admission abort: insufficient host capacity, no factory start
+
+Ordinary nonforce publication advanced the existing PR205 ref from8f to
+2249a66c6163f09828e8028710d0df73b72adc4b, directb6eb38a65, actualmain4c33.
+The seven-path coupled delta includes the actual merged producer, consumer
+CPU option/five regressions and retained LOCAL4096 actual8f chronology plus
+its terminal CI correction. Executable/tests/native/binding bytes equal
+reviewedb6; source review5608791279 is COMMENTED, not execution acceptance.
+Supported record_pending explicitly records the exact new candidate as local
+Gradle fast NOT RUN/UNVERIFIED; no historical build/CI result is transferred.
+Own automatic39714816975 initially has classifier119614291644 SUCCESS and
+controller119614360879 IN_PROGRESS, without an aggregate/native verdict.
+
+The coordinator granted main4c33 serialization for one freshly admitted
+four-CPU diagnostic, explicitly not reserved capacity. Actual fresh guards
+verified published2249/PR205 OPEN/ready/base4c33, trusted main and all four
+producer API objects, unchanged frozen Swift/manifest/policy with pausefalse,
+authenticated actorcbattlegear, actual canonical runningr31/current session,
+original seven Nodes identities, eligible installed tools/image/debug-home
+and absent global Gradle/disposable resource locks. Oldnative66bd stayed
+present and untouched.
+
+At2026-10-22T03:05:37.116318Z the real Windows GetPerformanceInfo observation
+was1833.96MiB commit headroom and3131.17MiB available physical memory, below
+the existing4096MiB admission minimum. The attempt failed closed with exact
+AssertionError: Insufficient actual commit/physical headroom; no factory/guest
+launch. Source-bound wp503-2249-4c33-native-admission.json retains admittedfalse,
+requested_cpu_cores4/observed_cpu_coresnull and factory_not_yet_calledtrue.
+There was no factory call, unique guest owner/allocation, build/pair, native
+start, original case/cohort or host instrumentation exit. Four requested
+cores are not an observed configuration. No CLI invocation/output was created.
+
+Independent supported hard_lock_records readback found only unchanged
+protectednative66bd, no disposable/globalGradle/new-owner locks; both intended
+wp503-2249a66-nodes37-fourcpu-disposable-a1 output and sibling CLI log were
+absent. Disposal is N/A because no guest was allocated, not a fabricated
+successful cleanup. Admission-abort/no-new-resource proof was sent promptly
+to the coordinator to release main4c33 serialization. No weaker capacity,
+RAM/profile/CPU/deadline/assertion guard, helper kill, producer wake, original
+guest action, repeated capacity/native probe or dispatch occurred. This
+observation stays LOCAL for a future ordinary coupling, not a doc-only push.
+The concrete blocker is actual host capacity; it establishes no historical
+CPU/transport cause, native repair or full-WP acceptance.
