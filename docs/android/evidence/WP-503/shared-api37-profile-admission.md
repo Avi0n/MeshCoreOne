@@ -2652,3 +2652,85 @@ Actual integrated declared consumer suite passed235/235 in34.263s with
 positive discovery; verification_config.py --check, validate.py, workflows.py,
 portmap.py and git diff --check passed. Local Gradle fast remains explicitly
 NOT RUN/UNVERIFIED; own exact-successor hosted verification is still required.
+
+### Actual8f/a1: owned roots remained unexited at registration timeout
+
+Ordinary nonforce publication advanced PR205 fromea599 to
+8f4838f0f5ba3beaeb3c321438c7785e974cab62, direct78eb6c586, actualmain295/
+reviewedEDB/disposable643200 and canonical reservation31. The six-path
+coupling preserves LOCALa353's actualea599 evidence and the235-case model;
+only two executable consumer producer/disposable literals advance.
+Android tree47fda632d67167d3d453a098453004f61d98bd00 has source digest
+1daed479e0dc4291124c91731be22c8e8b8c42337ee299f33492a75b2a7f35cd.
+Fresh02:27:07.796064Z admission observed5917.91MiB commit headroom/
+6053.75MiB physical availability, with current published source, actual
+main/policy/pause, actor, canonical identity/r31 and original7 guards positive.
+Genuine new owner was
+1666502a-0420-46ef-930f-e78651ba8b9f:nodes:046e4bb430ab4955ba438c1ffee2c18d,
+rootprivate-avd-p8wtxvo7. The fresh App/Test pair build succeeded3m3s/
+446tasks/5executed/441up-to-date. Unique quiescence report records empty/
+one count0/elapsed0.0/PIDsnull, not an attributed grace-interval repair.
+
+Retained emulator launch-before was02:30:47.0020989Z/mono130708.781;
+startup returned02:30:52.5205185Z/130714.296. Selected commandPID43412
+at127.0.0.1:57540/emulator-5558 recorded wait-begin02:30:52.5348005Z/
+130714.312, then TimeoutExpired120.0 at02:32:52.5434575Z/130834.328.
+The observed interval is120.008657s UTC/120.016s monotonic and includes
+failure observation/retention. Pre-call reference130834.312 is explicitly
+not the backend deadline; exact backend wait-call deadline remains UNKNOWN.
+Original Nodes0/7 reached no getprop/profile/install/instrumentation/cohort;
+host instrumentation exit remains UNKNOWN, separate from CLI2.
+
+The actual operation-failure snapshot at02:32:52.5424503Z/mono130834.328
+records serverPID28492, emulatorPID77308 and selectedPID43412 all not-exited/
+returncodenull; real owned Job count9, PIDsnull, errors[].
+Before-cleanup at02:32:52.5479569Z/130834.328 again records server/emulator
+not-exited, selected-command unavailable as designed, Job9/errors[].
+These are existing owned-handle observations, not whole-guest/descendant
+activity, successful transport, historical-state proof or a CPU/transport cause.
+Independent finally disposal verified true/noerror, and independent supported
+ledger readback found new-owner locksNONE while preserving protected66bd.
+Actual end/disposal was sent immediately; the coordinator independently read
+the retained receipt and released main295 serialization.
+
+The2630-line/262800-byte log reaches kernel117.157676 with system_server/
+WiFi initialization, but no Boot completed/sys.boot_completed/ranchu-adb-start
+message was observed. ranchu-adb-setup exited0 at16.140761; adbd-stopped
+action is19.130958. Guest auditUnix1792636370.392/kernel116.009699 is
+guest-clock data, not a verified host/per-line clock alignment. Absence of
+a boot marker is not proof the guest stopped. Filesystem bounds only:
+process.log creation02:30:46.939439Z/last-write02:32:52.312259Z; selected
+ADB output created/last-written02:30:52.526789Z/0bytes; operations final-write
+02:32:52.588052Z. Retained hardware-qemu.ini confirms2CPU/4096MiB and initial
+320x480/density160; intended360x900/font200 profile was never reached.
+
+Originals under this session's files: wp503-8f4838-nodes37-disposable-a1/
+operations.json and packaging/debug-packaging.json, debug-build.log,
+debug-invocation.json; sibling CLI log; private-avd-p8wtxvo7/process.log;
+transport-timing-4b8b13de00be419b9303f4d80ecedfb0.jsonl (startup),
+transport-timing-956ccb3687f24c5a85bc71061a8a22d4.jsonl (selected wait),
+owned-status-2d6e319f373e4debbd92559aa48ea656.json (operation failure),
+owned-status-51d8359610a44f0ba77b26aa6502765c.json (before cleanup),
+packaging-quiescence-ffb80ed5b81c41619781e3bdd90ef38f.json,
+adb-f272ad9269004bfa8b2b2cc61328f174.log and
+avds/e6af633fd4d34ae183473269f722dbbd.avd/emu-launch-params.txt.
+No key file was read/copied and emitted public-key lines are excluded from
+public summaries. There was no live/post-disposal ADB/guest probe, unchanged
+retry, CPU/config/deadline/assertion change or duplicate producer edit.
+
+Own automatic39711397373 controller119603537216 succeeded with official
+873/120.100s/OK and codec119604475880 succeeded; Linux119604475922 remains
+in_progress at the bounded read, without an overall/SwiftData/native verdict.
+Separately historicalea599 own39709184445 ended CANCELLED: controller869/
+codecSUCCESS, Linux119597343829 CANCELLED, SwiftData119603444535 CANCELLED,
+aggregate119603443438 FAILURE. No cancellation or assertion cause is inferred,
+no CI dispatch/rerun occurred and no hosted result bundle is retained.
+
+Cause and precise host/guest alignment remain UNKNOWN; no new producer
+source bug or CPU cause is established. The coordinator is taking a genuine
+execution-profile decision, possibly a reviewed4-vCPU diagnostic preserving
+the original deadlines/assertions, to the user. No CPU/config change, factory,
+retry or003/504 wake is authorized before that decision/admission. This actual
+failure chronology stays LOCAL for ordinary future coupling, without a
+doc-only publication. Original Nodes7/144/cached1of10/current514 and full-WP
+acceptance boundaries remain unchanged.
