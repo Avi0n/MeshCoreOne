@@ -73,8 +73,8 @@ internal class MemoryDraftDefaults : DraftDefaults {
 }
 
 internal class RecordingLifecycle : SessionLifecycleListener {
-    val created = mutableListOf<RadioSessionContainer>()
-    val tornDown = mutableListOf<RadioSessionContainer>()
+    val created = java.util.Collections.synchronizedList(mutableListOf<RadioSessionContainer>())
+    val tornDown = java.util.Collections.synchronizedList(mutableListOf<RadioSessionContainer>())
     override fun created(container: RadioSessionContainer) { created += container }
     override fun tornDown(container: RadioSessionContainer) { tornDown += container }
 }

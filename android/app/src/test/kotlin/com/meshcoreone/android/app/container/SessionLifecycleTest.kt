@@ -4,8 +4,10 @@ package com.meshcoreone.android.app.container
 import com.meshcoreone.android.core.contracts.domain.ConnectionTarget
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.contracts.domain.EntityKey
+import com.meshcoreone.android.core.contracts.domain.LifecycleStage
 import com.meshcoreone.android.core.contracts.domain.MessagingDiagnostic
 import com.meshcoreone.android.core.contracts.domain.SessionToken
+import com.meshcoreone.android.core.contracts.domain.TeardownReport
 import com.meshcoreone.android.core.model.ChannelDTO
 import com.meshcoreone.android.core.model.DeviceDTO
 import com.meshcoreone.android.core.model.MessageDTO
@@ -31,6 +33,7 @@ import com.meshcoreone.android.core.services.messaging.ChannelQueryAccountingOut
 import com.meshcoreone.android.core.services.messaging.MessageServiceConfig
 import com.meshcoreone.android.core.services.messaging.PoolBackoffConfig
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
@@ -166,6 +169,7 @@ class SessionLifecycleTest : RoomProcessTest() {
             },
         )
         val activeRadio = AtomicReference<FirmwareRadio?>()
+        val generationRadios = ConcurrentHashMap<SessionToken, FirmwareRadio>()
         val bootstrapChannelRequests = ConcurrentLinkedQueue<Pair<SessionToken, UByte>>()
         val queueChannelRequests = ConcurrentLinkedQueue<Pair<SessionToken, UByte>>()
         h.links.configureRadio = { radio ->
@@ -181,6 +185,7 @@ class SessionLifecycleTest : RoomProcessTest() {
                     31 -> {
                         val index = command[1]
                         val token = checkNotNull(h.manager.snapshot.value.token)
+                        generationRadios[token] = radio
                         if (sending.get() && h.manager.connectionState == DeviceConnectionState.READY) {
                             check(index == 0.toUByte())
                             queueChannelRequests += token to index
@@ -266,6 +271,9 @@ class SessionLifecycleTest : RoomProcessTest() {
         var errorDispatcher: Job? = null
         var transportOpenTrigger: Job? = null
         var queue: ChatSendQueueService? = null
+        var initialToken: SessionToken? = null
+        val provenReceipts = linkedMapOf<SessionToken, ChannelQueryAccountingEvent>()
+        val retiredTokens = linkedSetOf<SessionToken>()
         fun failures(phase: String, messageID: UUID): List<MessagingDiagnostic.Failure> =
             synchronized(h.messagingDiagnostics) {
                 h.messagingDiagnostics.filterIsInstance<MessagingDiagnostic.Failure>()
@@ -292,17 +300,38 @@ class SessionLifecycleTest : RoomProcessTest() {
             assertEquals(QUERY_FAILURE_CAP, receipt.failureCap)
             assertEquals(outcome, receipt.outcome)
             assertSame(query.cause, receipt.queryFailure)
+            provenReceipts[receipt.token]?.let { assertSame(it, receipt, "One receipt per physical generation") }
+            provenReceipts[receipt.token] = receipt
         }
 
-        fun assertNoAccountingOrTeardownFailure(description: String) {
+        fun assertExpectedTeardownIssues(report: TeardownReport, tokens: Set<SessionToken>, description: String) {
+            val expected = tokens.map { assertNotNull(provenReceipts[it]) }
+                .filter { it.outcome == ChannelQueryAccountingOutcome.PARKED }
+            val seen = mutableSetOf<SessionToken>()
+            for (issue in report.issues) {
+                assertEquals(LifecycleStage.STOP_SERVICES, issue.stage, "$description: unexpected teardown stage")
+                val receipt = expected.singleOrNull { it.queryFailure === issue.cause }
+                assertNotNull(receipt, "$description: teardown cause must be the exact persisted park cause of a proven generation")
+                assertTrue(seen.add(receipt.token), "$description: duplicate teardown issue for ${receipt.token}")
+            }
+        }
+
+        fun assertNoAccountingOrUnexpectedTeardown(description: String) {
             val runtime = synchronized(h.diagnostics) { h.diagnostics.toList() }
             val fallbacks = runtime.filterIsInstance<RuntimeDiagnostic.Failure>().filter {
                 it.operation == "session.channelQueryAccounting.cancelled" ||
                     it.operation == "session.channelQueryAccounting"
             }
             assertTrue(fallbacks.isEmpty(), "$description must not use accounting fallback: $fallbacks")
-            val teardown = runtime.filterIsInstance<RuntimeDiagnostic.Teardown>().filter { !it.report.isComplete }
-            assertTrue(teardown.isEmpty(), "$description must finish without teardown issues: $teardown")
+            val teardown = runtime.filterIsInstance<RuntimeDiagnostic.Teardown>()
+            teardown.forEach { assertExpectedTeardownIssues(it.report, retiredTokens, description) }
+            for (token in retiredTokens) {
+                val receipt = assertNotNull(provenReceipts[token])
+                if (receipt.outcome == ChannelQueryAccountingOutcome.PARKED) {
+                    assertTrue(teardown.any { report -> report.report.issues.any { it.cause === receipt.queryFailure } },
+                        "$description: the retired park generation must report its exact retained query cause: $token")
+                }
+            }
             val storage = synchronized(h.messagingDiagnostics) {
                 h.messagingDiagnostics.filterIsInstance<MessagingDiagnostic.Failure>().filter {
                     it.operation.startsWith("remap.") || it.operation.startsWith("terminalPersistence.")
@@ -360,12 +389,22 @@ class SessionLifecycleTest : RoomProcessTest() {
                         h.manager.connectionState == DeviceConnectionState.DISCONNECTED &&
                         h.manager.isReconnectionWatchdogRunning
                 }
+                val graph = synchronized(h.lifecycle.created) { h.lifecycle.created.single { it.token == token } }
+                assertTrue(graph.isTornDown, "$description: service graph must be torn down")
+                assertFalse(graph.isEventMonitoringActive, "$description: monitors must stop")
+                assertEquals(0, graph.liveJobCount, "$description: no service job may survive")
+                val radio = assertNotNull(generationRadios[token])
+                assertEquals(1, radio.closes, "$description: physical generation must close exactly once")
+                assertEquals(0, radio.readers, "$description: receive stream must be disposed")
+                assertFalse(radio.isConnected(), "$description: physical link must be disconnected")
+                retiredTokens += token
             }
 
             h.container.uiScope.async { h.manager.connect(h.target(deviceId)) }.await()
             h.assertReady()
             val live = assertNotNull(h.sessions.current)
             assertEquals(radioId, live.token.radioId)
+            initialToken = live.token
             queue = live.chatSendQueueService
             assertEquals((0 until 8).map { it.toUByte() }.toSet(),
                 bootstrapChannelRequests.filter { it.first == live.token }.map { it.second }.toSet(),
@@ -386,7 +425,7 @@ class SessionLifecycleTest : RoomProcessTest() {
                 "A's first query failure must retain its original durable pending identity",
             )
             awaitGenerationRetired(firstAQuery.token, "A's first quarantined generation must finish accounting before retirement")
-            assertNoAccountingOrTeardownFailure("A's first retired generation")
+            assertNoAccountingOrUnexpectedTeardown("A's first retired generation")
 
             awaitNativeRecovery("Envelope A must genuinely exhaust its query cap, be deleted and become FAILED") {
                 val pending = store.fetchPendingSends(radioId).any { it.messageID == messageAId }
@@ -407,7 +446,7 @@ class SessionLifecycleTest : RoomProcessTest() {
             assertPersistenceReceipt(aReceipts[1], aQueries[1], messageAId, pendingAId,
                 2L, ChannelQueryAccountingOutcome.TERMINAL_DELETED)
             awaitGenerationRetired(aQueries.last().token, "A's terminal query accounting must finish before its generation retires")
-            assertNoAccountingOrTeardownFailure("A's terminal retired generation")
+            assertNoAccountingOrUnexpectedTeardown("A's terminal retired generation")
             assertEquals(MessageStatus.FAILED, store.fetchMessage(EntityKey(radioId, messageAId))?.status)
             assertFalse(store.fetchPendingSends(radioId).any { it.messageID == messageAId })
 
@@ -429,7 +468,7 @@ class SessionLifecycleTest : RoomProcessTest() {
             assertTrue(foregroundCalls.isNotEmpty() && foregroundCalls.all { it },
                 "Initial foreground and its ordinary scheduled reconciliation remain enabled without background stimuli")
             awaitGenerationRetired(bQuery.token, "B's first query must finish park accounting before physical retirement")
-            assertNoAccountingOrTeardownFailure("B's first retired generation")
+            assertNoAccountingOrUnexpectedTeardown("B's first retired generation")
             val parkedB = assertNotNull(store.fetchPendingSends(radioId).firstOrNull { it.messageID == messageBId })
             assertEquals(pendingBId, parkedB.id)
 
@@ -448,8 +487,13 @@ class SessionLifecycleTest : RoomProcessTest() {
             transportOpenTrigger?.cancel()
             withContext(NonCancellable) {
                 val queueReport = try { queue?.shutdown() } finally { h.container.close() }
-                assertTrue(queueReport?.isComplete != false, "Queue cleanup must not hide teardown issues: $queueReport")
-                assertNoAccountingOrTeardownFailure("Final cleanup")
+                if (queueReport != null) {
+                    val token = assertNotNull(initialToken)
+                    assertEquals(ChannelQueryAccountingOutcome.PARKED, assertNotNull(provenReceipts[token]).outcome)
+                    assertEquals(1, queueReport.issues.size, "Initial queue must return its same single retained park issue")
+                    assertExpectedTeardownIssues(queueReport, setOf(token), "Repeated initial queue shutdown")
+                }
+                assertNoAccountingOrUnexpectedTeardown("Final cleanup")
             }
         }
     }
