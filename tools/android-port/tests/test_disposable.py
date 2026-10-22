@@ -1,7 +1,7 @@
 """AndroidOnly: WP-003 Private disposable guests; fixtures never start Android tools."""
 
 import copy
-from contextlib import closing
+from contextlib import closing, contextmanager
 import json
 import os
 from pathlib import Path
@@ -577,6 +577,499 @@ class DisposableGuestTests(unittest.TestCase):
             run.assert_not_called()
         self.assert_legacy()
 
+    def timing_records(self, guest):
+        paths = list(guest.root.glob("transport-timing-*.jsonl"))
+        self.assertEqual(len(paths), 1)
+        return [json.loads(line) for line in paths[0].read_text().splitlines()]
+
+    def test_selected_command_timing_retains_real_budgets_context_and_honest_pid_availability(self):
+        from unittest.mock import Mock
+
+        for windows in (False, True):
+            for outcome in ("success", "timeout", "failure", "cancelled"):
+                with self.subTest(windows=windows, outcome=outcome):
+                    guest = self.allocate()
+                    guest.acquire(self.ledger)
+                    before = self.rows()
+                    guest.phase = "running"
+                    guest.adb_tool, guest.port, guest.server_port = self.root / "adb", 5558, 41234
+                    guest.environment = {
+                        "ADB_SERVER_SOCKET": "tcp:127.0.0.1:41234", "ANDROID_ADB_SERVER_PORT": "41234",
+                        "DO_NOT_LOG": "fixture-secret",
+                    }
+                    command = [str(guest.adb_tool), "-s", "emulator-5558", "wait-for-device"]
+                    primary = {
+                        "success": None, "timeout": subprocess.TimeoutExpired(command, 120),
+                        "failure": subprocess.CalledProcessError(1, command), "cancelled": KeyboardInterrupt(),
+                    }[outcome]
+                    process, job = Mock(pid=12345), Mock()
+                    process.wait.side_effect = primary
+                    process.wait.return_value = 0
+
+                    def spawn(argv, environment, log):
+                        self.assertEqual(argv, command)
+                        self.assertIs(environment, guest.environment)
+                        log.write(b"retained raw adb bytes")
+                        return process
+
+                    job.spawn.side_effect = spawn
+                    if windows:
+                        guest.job = job
+                    with patch.object(guest, "verify_transport"), \
+                            patch("controller.disposable.subprocess.run",
+                                  return_value=subprocess.CompletedProcess(command, 0, stdout=b"raw", stderr=b""),
+                                  side_effect=primary) as run:
+                        if primary is None:
+                            guest.adb(self.ledger, ["wait-for-device"], timeout=120)
+                        else:
+                            with self.assertRaises(type(primary)) as raised:
+                                guest.adb(self.ledger, ["wait-for-device"], timeout=120)
+                            self.assertIs(raised.exception, primary)
+                    if windows:
+                        process.wait.assert_called_once_with(120)
+                        run.assert_not_called()
+                    else:
+                        self.assertEqual(run.call_args.kwargs["timeout"], 120)
+                        self.assertIs(run.call_args.kwargs["env"], guest.environment)
+                    records = self.timing_records(guest)
+                    stages = [r["stage"] for r in records]
+                    self.assertEqual(stages[-1], {
+                        "success": "returned", "timeout": "timeout", "failure": "failed", "cancelled": "cancelled",
+                    }[outcome])
+                    wait = next(r for r in records if r["stage"] == "wait-begin")
+                    self.assertEqual(wait["budget_reference_monotonic_seconds"],
+                                     wait["host_monotonic_seconds"] + 120)
+                    self.assertIsNone(wait["deadline_monotonic_seconds"])
+                    self.assertEqual(wait["pid"], 12345 if windows else None)
+                    self.assertEqual(wait["raw_log"], records[-1]["raw_log"])
+                    if windows:
+                        self.assertTrue(wait["raw_log"].startswith("adb-"))
+                    else:
+                        self.assertIsNone(wait["raw_log"])
+                    for record in records:
+                        self.assertEqual(record["timeout_seconds"], 120)
+                        self.assertEqual(record["private_endpoint"], "127.0.0.1:41234")
+                        self.assertEqual(record["selected_serial"], "emulator-5558")
+                        self.assertEqual(record["owner"], guest.owner)
+                        self.assertEqual(record["revision"], guest.revision)
+                        self.assertEqual(record["backend"], "windows-job" if windows else "linux-subprocess")
+                        self.assertTrue(record["host_utc"].endswith("+00:00"))
+                        self.assertGreater(record["host_unix_nanoseconds"], 0)
+                        self.assertEqual(record["clock_observation_order"], ["time.time_ns", "time.monotonic"])
+                    self.assertNotIn("fixture-secret", json.dumps(records))
+                    self.assertEqual(self.rows(), before)
+                    self.assertEqual(guest.phase, "running" if primary is None else "uncertain")
+                    if windows:
+                        raw = next(guest.root.glob("adb-*.log"))
+                        self.assertEqual(raw.read_bytes(), b"retained raw adb bytes")
+                    guest.job = None
+                    with patch.object(guest, "_cleanup"):
+                        guest.dispose(self.ledger)
+                    self.assertEqual(self.rows(), self.legacy)
+                    self.assertEqual(self.timing_records(guest), records)
+                    self.assert_legacy()
+
+    def test_startup_timing_preserves_launch_listener_deadline_and_raw_log_on_success_timeout_failure(self):
+        from unittest.mock import Mock
+
+        image = self.root / "image"
+        image.mkdir()
+        (image / "source.properties").write_text("AndroidVersion.ApiLevel=37.0\nSystemImage.Abi=x86_64\n")
+        (image / "userdata.img").write_bytes(b"original image")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        for windows in (False, True):
+            for outcome in ("success", "timeout", "failure"):
+                with self.subTest(windows=windows, outcome=outcome):
+                    guest = self.allocate()
+                    guest.acquire(self.ledger)
+                    before, clock = self.rows(), [10.0]
+                    if windows:
+                        guest.job = Mock()
+                    processes = [Mock(pid=2345), Mock(pid=3456)]
+                    for process in processes:
+                        process.poll.return_value = None
+                    primary = OSError("fixture launch failed")
+                    launched = []
+
+                    def spawn(command):
+                        launched.append(command)
+                        guest.log.write(b"retained raw kernel bytes\n")
+                        guest.log.flush()
+                        if outcome == "failure":
+                            raise primary
+                        return processes[len(launched) - 1]
+
+                    def sleep(seconds):
+                        self.assertEqual(seconds, 0.05)
+                        clock[0] += 120
+
+                    with patch.object(guest, "_prepare_supervisor"), \
+                            patch.object(guest, "_spawn", side_effect=spawn), \
+                            patch.object(guest, "_owns_listener", return_value=outcome != "timeout"), \
+                            patch.object(guest, "verify_transport"), \
+                            patch("controller.disposable.time.monotonic", side_effect=lambda: clock[0]), \
+                            patch("controller.disposable.time.sleep", side_effect=sleep):
+                        if outcome == "success":
+                            guest.start(self.ledger, emulator=emulator, adb=adb, image=image, timeout=120)
+                        elif outcome == "failure":
+                            with self.assertRaises(OSError) as raised:
+                                guest.start(self.ledger, emulator=emulator, adb=adb, image=image, timeout=120)
+                            self.assertIs(raised.exception, primary)
+                        else:
+                            with self.assertRaisesRegex(PortError, "startup failed/timed out"):
+                                guest.start(self.ledger, emulator=emulator, adb=adb, image=image, timeout=120)
+                    records = self.timing_records(guest)
+                    self.assertEqual(records[0]["operation"], "startup")
+                    self.assertTrue(all(r["raw_log"] == "process.log" for r in records))
+                    launch = next(r for r in records if r["stage"] == "server-launch-begin")
+                    self.assertEqual(launch["deadline_monotonic_seconds"], 130)
+                    self.assertIsNone(launch["pid"])
+                    self.assertEqual(records[-1]["stage"], "returned" if outcome == "success" else "failed")
+                    self.assertEqual(records[-1]["deadline_monotonic_seconds"], 130)
+                    if outcome == "timeout":
+                        self.assertEqual(records[-1]["host_monotonic_seconds"], 130)
+                        self.assertEqual(records[-1]["error_type"], "PortError")
+                    if outcome == "success":
+                        self.assertEqual(len(launched), 2)
+                        self.assertIn("-show-kernel", launched[1])
+                        self.assertNotIn("-no-boot-anim", launched[1])
+                        emu_launch = next(r for r in records if r["stage"] == "emulator-launch-begin")
+                        self.assertIsNone(emu_launch["pid"])
+                        self.assertEqual(records[-1]["pid"], 3456)
+                    self.assertEqual((guest.root / "process.log").read_bytes(), b"retained raw kernel bytes\n" *
+                                     (2 if outcome == "success" else 1))
+                    self.assertEqual(self.rows(), before)
+                    guest.job = None
+                    with patch.object(guest, "_cleanup"):
+                        guest.dispose(self.ledger)
+                    self.assertEqual(self.timing_records(guest), records)
+                    self.assert_legacy()
+
+    def test_transport_timing_invalid_or_failed_clocks_prevent_command_and_retain_ownership(self):
+        for clock, value in (
+            ("time_ns", 0), ("time_ns", float("nan")), ("time_ns", OSError("UTC unavailable")),
+            ("monotonic", float("nan")), ("monotonic", float("inf")),
+            ("monotonic", -1), ("monotonic", OSError("monotonic unavailable")),
+        ):
+            with self.subTest(clock=clock, value=value):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                guest.phase = "running"
+                guest.adb_tool, guest.port = self.root / "adb", 5558
+                guest.environment = {}
+                options = {"side_effect": value} if isinstance(value, BaseException) else {"return_value": value}
+                with patch.object(guest, "verify_transport"), \
+                        patch("controller.disposable.time." + clock, **options), \
+                        patch("controller.disposable.subprocess.run") as run:
+                    with self.assertRaises(BaseExceptionGroup):
+                        guest.adb(self.ledger, ["get-state"], timeout=17)
+                    run.assert_not_called()
+                self.assertEqual(guest.phase, "uncertain")
+                self.assertEqual(self.rows(), before)
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_transport_primary_and_independent_timing_retention_clock_or_close_errors_survive(self):
+        from unittest.mock import Mock
+
+        original_open = Path.open
+        for primary in (subprocess.TimeoutExpired(["fixture"], 19), KeyboardInterrupt("fixture cancellation")):
+            for failure in ("write", "flush", "clock", "close"):
+                with self.subTest(primary=type(primary).__name__, failure=failure):
+                    guest = self.allocate()
+                    guest.acquire(self.ledger)
+                    guest.phase = "running"
+                    guest.adb_tool, guest.port, guest.environment = self.root / "adb", 5558, {}
+                    before = self.rows()
+                    opened = []
+
+                    def open_path(path, *args, **kwargs):
+                        stream = original_open(path, *args, **kwargs)
+                        if not path.name.startswith("transport-timing-"):
+                            return stream
+                        wrapped = Mock(wraps=stream)
+                        if failure == "write":
+                            calls = [0]
+
+                            def write(data):
+                                calls[0] += 1
+                                if calls[0] == 3:
+                                    raise OSError("timing final write failed")
+                                return stream.write(data)
+
+                            wrapped.write.side_effect = write
+                        if failure == "flush":
+                            calls = [0]
+
+                            def flush():
+                                calls[0] += 1
+                                if calls[0] == 3:
+                                    raise OSError("timing final flush failed")
+                                return stream.flush()
+
+                            wrapped.flush.side_effect = flush
+                        if failure == "close":
+                            def close():
+                                stream.close()
+                                raise OSError("timing close failed")
+                            wrapped.close.side_effect = close
+                        opened.append(stream)
+                        return wrapped
+
+                    ticks = iter([10, 11, 9] if failure == "clock" else [10, 11, 12])
+                    try:
+                        with patch.object(guest, "verify_transport"), \
+                                patch.object(Path, "open", open_path), \
+                                patch("controller.disposable.time.monotonic", side_effect=lambda: next(ticks)), \
+                                patch("controller.disposable.subprocess.run", side_effect=primary) as run:
+                            with self.assertRaises(BaseExceptionGroup) as raised:
+                                guest.adb(self.ledger, ["shell", "DO_NOT_LOG_PAYLOAD"], timeout=19)
+                        self.assertIs(raised.exception.exceptions[0], primary)
+                        self.assertEqual(len(raised.exception.exceptions), 2)
+                        self.assertEqual(run.call_args.kwargs["timeout"], 19)
+                        self.assertEqual(guest.phase, "uncertain")
+                        self.assertEqual(self.rows(), before)
+                        self.assertNotIn("DO_NOT_LOG_PAYLOAD", json.dumps(self.timing_records(guest)))
+                        with patch.object(guest, "_cleanup", side_effect=PortError("independent disposal failed")):
+                            with self.assertRaisesRegex(PortError, "independent disposal"):
+                                guest.dispose(self.ledger)
+                        self.assertEqual(self.rows(), before)
+                    finally:
+                        for stream in opened:
+                            stream.close()
+                        with patch.object(guest, "_cleanup"):
+                            guest.dispose(self.ledger)
+                    self.assert_legacy()
+
+    def test_startup_timing_retention_failure_preserves_primary_cancellation_and_raw_log(self):
+        image = self.root / "image"
+        image.mkdir()
+        (image / "source.properties").write_text("AndroidVersion.ApiLevel=37.0\nSystemImage.Abi=x86_64\n")
+        (image / "userdata.img").write_bytes(b"source data")
+        emulator, adb = self.root / "emulator", self.root / "adb"
+        emulator.touch()
+        adb.touch()
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        before = self.rows()
+        primary = KeyboardInterrupt("owned launch cancelled")
+        original_dumps = json.dumps
+
+        def dumps(record, **kwargs):
+            if isinstance(record, dict) and record.get("stage") == "cancelled":
+                raise OSError("startup diagnostic retention failed")
+            return original_dumps(record, **kwargs)
+
+        def spawn(command):
+            guest.log.write(b"raw startup output")
+            guest.log.flush()
+            raise primary
+
+        with patch.object(guest, "_prepare_supervisor"), \
+                patch.object(guest, "_spawn", side_effect=spawn), \
+                patch("controller.disposable.json.dumps", side_effect=dumps):
+            with self.assertRaises(BaseExceptionGroup) as raised:
+                guest.start(self.ledger, emulator=emulator, adb=adb, image=image, timeout=120)
+        self.assertIs(raised.exception.exceptions[0], primary)
+        self.assertRegex(str(raised.exception.exceptions[1]), "startup diagnostic retention")
+        self.assertEqual(guest.phase, "uncertain")
+        self.assertEqual(self.rows(), before)
+        self.assertEqual((guest.root / "process.log").read_bytes(), b"raw startup output")
+        self.assertEqual((image / "userdata.img").read_bytes(), b"source data")
+        records = self.timing_records(guest)
+        self.assertEqual(records[-1]["stage"], "server-launch-begin")
+        self.assertIsNone(records[-1]["pid"])
+        with patch.object(guest, "_cleanup"):
+            guest.dispose(self.ledger)
+        self.assertEqual((guest.root / "process.log").read_bytes(), b"raw startup output")
+        self.assert_legacy()
+
+    def test_windows_returned_nonzero_exit_survives_wait_returned_diagnostic_failures(self):
+        from unittest.mock import Mock
+
+        original_open = Path.open
+        for failure in ("none", "write", "flush", "clock", "cancelled"):
+            with self.subTest(failure=failure):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                guest.phase = "running"
+                guest.adb_tool, guest.port, guest.environment = self.root / "adb", 5558, {}
+                guest.server_port = 41234
+                before = self.rows()
+                command = [str(guest.adb_tool), "-s", "emulator-5558", "wait-for-device"]
+                process, job = Mock(pid=7123), Mock()
+                process.wait.return_value = 7
+                guest.job = job
+                primary_diagnostic = KeyboardInterrupt("wait-returned cancelled") if failure == "cancelled" \
+                    else OSError("wait-returned diagnostic " + failure + " failed")
+                clock = [10.0]
+                returned = [False]
+                opened = []
+
+                def spawn(argv, environment, log):
+                    self.assertEqual(argv, command)
+                    self.assertIs(environment, guest.environment)
+                    log.write(b"actual-model exit7 raw bytes\n")
+                    return process
+
+                def wait(timeout):
+                    self.assertEqual(timeout, 120)
+                    returned[0] = True
+                    return 7
+
+                def monotonic():
+                    if failure == "clock" and returned[0]:
+                        returned[0] = False
+                        raise primary_diagnostic
+                    clock[0] += 0.01
+                    return clock[0]
+
+                def open_path(path, *args, **kwargs):
+                    stream = original_open(path, *args, **kwargs)
+                    if not path.name.startswith("transport-timing-"):
+                        return stream
+                    wrapped = Mock(wraps=stream)
+                    waiting_flush = [False]
+
+                    def write(data):
+                        record = json.loads(data)
+                        waiting_flush[0] = record["stage"] == "wait-returned"
+                        if waiting_flush[0] and failure in ("write", "cancelled"):
+                            raise primary_diagnostic
+                        return stream.write(data)
+
+                    def flush():
+                        if waiting_flush[0] and failure == "flush":
+                            waiting_flush[0] = False
+                            raise primary_diagnostic
+                        return stream.flush()
+
+                    wrapped.write.side_effect, wrapped.flush.side_effect = write, flush
+                    opened.append(stream)
+                    return wrapped
+
+                job.spawn.side_effect, process.wait.side_effect = spawn, wait
+                try:
+                    with patch.object(guest, "verify_transport"), \
+                            patch.object(Path, "open", open_path), \
+                            patch("controller.disposable.time.monotonic", side_effect=monotonic):
+                        with self.assertRaises(subprocess.CalledProcessError if failure == "none"
+                                               else BaseExceptionGroup) as raised:
+                            guest.adb(self.ledger, ["wait-for-device"], timeout=120)
+                    if failure == "none":
+                        primary = raised.exception
+                    else:
+                        self.assertEqual(len(raised.exception.exceptions), 2)
+                        primary = raised.exception.exceptions[0]
+                        self.assertIs(raised.exception.exceptions[1], primary_diagnostic)
+                    self.assertIsInstance(primary, subprocess.CalledProcessError)
+                    self.assertEqual(primary.returncode, 7)
+                    self.assertEqual(primary.cmd, command)
+                    self.assertEqual(primary.output, b"actual-model exit7 raw bytes\n")
+                    process.wait.assert_called_once_with(120)
+                    job.spawn.assert_called_once()
+                    self.assertEqual(guest.phase, "uncertain")
+                    self.assertEqual(self.rows(), before)
+                    raw = next(guest.root.glob("adb-*.log"))
+                    self.assertEqual(raw.read_bytes(), primary.output)
+                    with patch.object(guest, "_cleanup", side_effect=PortError("independent disposal failed")):
+                        with self.assertRaisesRegex(PortError, "independent disposal failed"):
+                            guest.dispose(self.ledger)
+                    self.assertEqual(self.rows(), before)
+                    job.cleanup.assert_not_called()
+                    self.assert_legacy()
+                finally:
+                    for stream in opened:
+                        stream.close()
+                    guest.job = None
+                    with patch.object(guest, "_cleanup"):
+                        guest.dispose(self.ledger)
+                self.assertEqual(raw.read_bytes(), b"actual-model exit7 raw bytes\n")
+
+    def test_timing_receipt_creation_failure_never_launches_or_accepts_selected_command(self):
+        original_open = Path.open
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        guest.phase = "running"
+        guest.adb_tool, guest.port, guest.environment = self.root / "adb", 5558, {}
+        before = self.rows()
+
+        def open_path(path, *args, **kwargs):
+            if path.name.startswith("transport-timing-"):
+                raise OSError("timing receipt creation failed")
+            return original_open(path, *args, **kwargs)
+
+        with patch.object(guest, "verify_transport"), \
+                patch.object(Path, "open", open_path), \
+                patch("controller.disposable.subprocess.run") as run:
+            with self.assertRaisesRegex(OSError, "timing receipt creation"):
+                guest.adb(self.ledger, ["get-state"], timeout=120)
+            run.assert_not_called()
+        self.assertEqual(guest.phase, "uncertain")
+        self.assertEqual(self.rows(), before)
+        with patch.object(guest, "_cleanup"):
+            guest.dispose(self.ledger)
+        self.assert_legacy()
+
+    def test_windows_returned_nonzero_and_raw_read_failure_preserve_all_independent_errors(self):
+        from unittest.mock import Mock
+
+        original_read = Path.read_bytes
+        for diagnostic_failed in (False, True):
+            with self.subTest(diagnostic_failed=diagnostic_failed):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                guest.phase = "running"
+                guest.adb_tool, guest.port, guest.environment = self.root / "adb", 5558, {}
+                guest.job = Mock()
+                process = Mock(pid=7123)
+                process.wait.return_value = 7
+                before = self.rows()
+                diagnostic, read_error = OSError("post-wait observation failed"), OSError("raw read failed")
+
+                def spawn(argv, environment, log):
+                    log.write(b"retained exit7 bytes")
+                    return process
+
+                def read(path):
+                    if path.name.startswith("adb-"):
+                        raise read_error
+                    return original_read(path)
+
+                original_timing = guest._timing
+
+                @contextmanager
+                def timing(*args, **kwargs):
+                    with original_timing(*args, **kwargs) as observe:
+                        def record(stage, **fields):
+                            if diagnostic_failed and stage == "wait-returned":
+                                raise diagnostic
+                            return observe(stage, **fields)
+                        yield record
+
+                guest.job.spawn.side_effect = spawn
+                with patch.object(guest, "verify_transport"), patch.object(guest, "_timing", timing), \
+                        patch.object(Path, "read_bytes", read):
+                    with self.assertRaises(ExceptionGroup) as raised:
+                        guest.adb(self.ledger, ["wait-for-device"], timeout=120)
+                failures = raised.exception.exceptions
+                self.assertIsInstance(failures[0], subprocess.CalledProcessError)
+                self.assertEqual(failures[0].returncode, 7)
+                self.assertIsNone(failures[0].output)
+                self.assertEqual(failures[1:], (diagnostic, read_error) if diagnostic_failed else (read_error,))
+                self.assertEqual(guest.phase, "uncertain")
+                self.assertEqual(self.rows(), before)
+                process.wait.assert_called_once_with(120)
+                self.assertEqual(next(guest.root.glob("adb-*.log")).read_bytes(), b"retained exit7 bytes")
+                guest.job = None
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+                self.assert_legacy()
+
     def test_exact_selected_wait_uses_private_endpoint_serial_and_finite_timeout_on_both_backends(self):
         from unittest.mock import Mock
 
@@ -788,7 +1281,9 @@ class DisposableGuestTests(unittest.TestCase):
                     self.assertEqual(output.read_bytes(), b"legacy initial image")
                 self.assertIn(f"image.sysdir.1={image}{os.sep}", (data / "config.ini").read_text())
                 self.assertEqual({p: p.read_bytes() for p in source_bytes}, source_bytes)
-                guest.dispose(self.ledger)
+                self.assertEqual(guest.phase, "uncertain")
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
                 self.assertEqual(guest.phase, "disposed")
                 self.assertEqual(self.rows(), self.legacy)
                 self.assert_legacy()
@@ -852,7 +1347,8 @@ class DisposableGuestTests(unittest.TestCase):
             raise RuntimeError("fixture stops before any process")
 
         with patch.object(guest, "_prepare_supervisor"), \
-                patch.object(guest, "_spawn", side_effect=inspect_launch) as spawn:
+                patch.object(guest, "_spawn", side_effect=inspect_launch) as spawn, \
+                patch.object(guest, "_cleanup"):
             try:
                 with self.assertRaisesRegex(RuntimeError, "fixture stops before any process"):
                     guest.start(self.ledger, emulator=emulator, adb=adb, image=image)
@@ -898,7 +1394,8 @@ class DisposableGuestTests(unittest.TestCase):
 
         with patch.object(guest, "_prepare_supervisor"), \
                 patch.object(guest, "_owns_listener", return_value=True) as owns, \
-                patch.object(guest, "_spawn", side_effect=launch) as spawn:
+                patch.object(guest, "_spawn", side_effect=launch) as spawn, \
+                patch.object(guest, "_cleanup"):
             try:
                 with self.assertRaisesRegex(RuntimeError, "fixture stops before emulator spawn"):
                     guest.start(self.ledger, emulator=emulator, adb=adb, image=image, timeout=120)
