@@ -2854,3 +2854,71 @@ guest action, repeated capacity/native probe or dispatch occurred. This
 observation stays LOCAL for a future ordinary coupling, not a doc-only push.
 The concrete blocker is actual host capacity; it establishes no historical
 CPU/transport cause, native repair or full-WP acceptance.
+
+### Actual2249 first four-CPU diagnostic: registration timeout, independent disposal
+
+After a concrete coordinator-owned finished-worker resource change, fresh
+main4c33 serialization was granted for the still-unstarted2249 diagnostic.
+The prior capacity abort created no guest and is not relabeled a native run.
+At2026-10-22T03:16:48.784583Z actual fresh admission verified exact public2249,
+OPEN/ready PR205, main4c33 and reviewed producer/API objects, pausefalse,
+manifest/policy, actorcbattlegear, canonical runningr31, original Nodes7,
+installed tools/image/debug identity and no disposable/globalGradle locks.
+Actual commit headroom4846.67MiB and physical5294.48MiB exceeded the unchanged
+4096MiB minimum. wp503-2249-4c33-native-admission-a2.json retains this distinct
+positive pre-factory boundary, not reserved capacity or observed guest CPU.
+
+The single actual command selected public2249/API37/family nodes with
+--execute --cpu-cores 4 and the original image/memory/GPU/boot120/
+instrument180/assertions. Same-worktree literal HEAD2249 was selected because
+the existing packaging source_identity requires exact HEAD, while the managed
+branch retained localafa2512e unchanged. The genuine factory allocated owner
+1666502a-0420-46ef-930f-e78651ba8b9f:nodes:5a05da9b4186470eab1b02136ccda847,
+root private-avd-rbls_3lv. Actual disposable/Gradle locks were independently
+read during live packaging. The exact-source App/Test build succeeded in
+2m2s,446 tasks/5 executed/441 up-to-date, with matching existing debug
+certificates. App SHA2561eb334ceb728f41cef002f526580c763eba8b3bd481dfaefbfcb9e8f2038e162
+and Test20f20334f3785fa48b31d23666917a0f14f3e3c8d403a0fc33b4e5f1cd029672
+are bound in the actual packaging receipt. No credential/key copying occurred.
+Pre-start packaging quiescence reports empty/count0/elapsed0.0/PIDsnull.
+
+Actual startup began03:19:14Z; private server31996 and emulator55256 listener
+waits returned, startup returned03:19:17Z. The selected original transport
+127.0.0.1:63781/emulator-5558 wait-for-device PID66068 then timed out at the
+unchanged120s bound,03:21:17Z. CLI exited2 with primary
+TimeoutExpired(['owned-process','66068'],120.0). No getprop/profile capture,
+profile mutation, install, instrumentation or cohort occurred: original
+Nodes0/7 started; host instrumentation exit remains unknown/null, not CLI2.
+The generated AVD config actually contains hw.cpu.ncore=4, and retained
+kernel output says "smp: Brought up 1 node, 4 CPUs". These actual config/kernel
+observations are distinct from the unreached measured-profile CPU guard.
+The last retained kernel-prefixed line is16.661165; no Boot completed,
+sys.boot_completed or ranchu-adb-start marker was found. This does not prove
+a CPU cause, transport cause, whole-guest state or guest/host clock alignment.
+
+Failure owned-status-2b731c52fcfe4292b9adaf36e4cce10c.json observes server,
+emulator and selected root handles not-exited, returncodenull, Job active8,
+errors[]. Before-cleanup owned-status-6ff794435dab4aefbc590c9df530e470.json
+observes server/emulator still not-exited, selected unavailable as designed,
+Job8/errors[]. These are minimal root-handle/accounting observations, not
+whole-guest/descendant activity or causal proof. Both existing timing files,
+status files, kernel log and original operations/CLI remain retained locally;
+no post-disposal guest probe or producer instrumentation was added.
+
+The primary timeout survived independent guest.dispose and verify_disposed;
+operations.json records disposal_verifiedtrue/no disposal_error. Independent
+supported hard_lock_records readback found no5a05 disposable/Gradle/new-owner
+locks and only unchanged protectednative66bd. Additional fresh CIM observation
+found all three retained root PIDs31996/55256/66068 absent. ActualEND/disposal/
+lock proof was sent to release main4c33 serialization. Only then was the
+managed branch restored at preservedafa, public2249 unchanged. This actual
+failed attempt stays LOCAL for ordinary future coupling; no doc-only push,
+retry, producer wake, old-guest action, weaker guard or CI dispatch occurred.
+
+At the subsequent bounded metadata read, own2249 automatic39714816975 remains
+IN_PROGRESS: classifier/controller/codecSUCCESS, Linux119615287800 IN_PROGRESS;
+no aggregate/native verdict. Independently reported controller880/117.175s/OK
+and five new CPU tests do not establish native acceptance. Historical8f
+terminalFAILURE, EA/114616 cancellations and all original native assertions
+remain distinct. Missing native acceptance is unresolved; no further attempt
+or speculative producer cycle is authorized by this negative diagnostic.
