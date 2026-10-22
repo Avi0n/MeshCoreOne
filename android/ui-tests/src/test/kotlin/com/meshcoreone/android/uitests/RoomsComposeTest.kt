@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
@@ -1068,7 +1069,7 @@ class RoomsComposeTest {
             assertTrue(fixture.reported.isEmpty())
         }
         val title = Chats.chatsMentionPickerTitle(host.get().resources, "Alice")
-        val aliceLabel = Chats.chatsMentionAccessibilityLabel(host.get().resources, "Alice")
+        val aliceLabel = alice1.displayName
         fun openPicker(): SemanticsNodeInteractionCollection {
             val parent = compose.onAllNodesWithContentDescription("Sender: @[Alice]")
                 .assertCountEquals(1)[0].assertIsDisplayed()
@@ -1086,7 +1087,16 @@ class RoomsComposeTest {
             compose.onAllNodesWithText("Alice", useUnmergedTree = true).assertCountEquals(2)
             val rows = compose.onAllNodesWithContentDescription(aliceLabel).assertCountEquals(2)
             val bounds = (0..1).map { index ->
+                val contact = listOf(alice1, alice2)[index]
+                val key = Chats.chatsContactMatchKey(
+                    host.get().resources, contact.publicKey.hexString.uppercase().chunked(2).joinToString(" "),
+                )
                 rows[index].assertIsDisplayed().assertHasClickAction().assertHeightIsAtLeast(48.dp)
+                    .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+                    .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Selected))
+                    .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ToggleableState))
+                    .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription))
+                    .assert(hasText(key))
                     .fetchSemanticsNode().boundsInRoot
             }
             assertTrue(bounds[0].bottom <= bounds[1].top)
