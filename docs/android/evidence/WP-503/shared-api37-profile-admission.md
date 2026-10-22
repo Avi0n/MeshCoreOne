@@ -3292,3 +3292,103 @@ is unchanged, retaining primary CLI2/parser exception, no cohort result and
 acceptancefalse. No source correction rewrites that actual execution outcome.
 Native inputs, original assertions,120/180 deadlines and existing guests remain
 unchanged. Further native execution requires a new explicit source handoff.
+
+### Genuine corrected-source728 original-seven execution and merged CI budget repair
+
+The coordinator authorized ONE fresh supported execution of published
+`7289785c115703316177714b9b3facd4b86473a8`, reviewed by source comment
+5616662441, against actual main
+`0a7a84e388393557e4b66ac7fd322248e28611fd`. This is a new native execution
+of the corrected parser, not retrospective adoption of325. Canonical reservation
+remained runningr32; actual lifecycle producer was
+`7c8e8b21a1e52a75a23ca54d063e42dd3839bd16`/disposable blob
+`dd40e5677bc7ba41832485595ee328a2aeb2e9ee`. Parser object was
+`a6317895cfb91ff2c1025ef1e40e82002d3c9e2f`; Android tree was
+`89723e5a2d63af44388ecd73e1aff25a65712e53`, source-tree SHA256
+`f0af6537279948d1e7fbf5e0a40ab6bef8e3035fcf299233d137be016c72927d`.
+Frozen Swift, original235+5 methods/seven selected Nodes cases/144/current514,
+native assertions, AppGradle and120s boot/180s case bounds were unchanged.
+
+Fresh supported admission at2026-10-22T15:49:58.571301Z verified exact public
+head/main/API objects/actor/pause/r32/ownership/tools/image/source bytes and
+actual commit4743.80078125MiB/physical14324.44140625MiB, both above4096.
+The one new guest owner was
+`1666502a-0420-46ef-930f-e78651ba8b9f:nodes:e43ad608a3a74da2a1eda90ee3385719`,
+private root `private-avd-nxgchx65`, token9099ba645d5549eeb13ac992f692040b.
+Actual allocation and owned locks were independently read before reporting START.
+Own source-bound App/Test build succeeded in2m5s/446tasks,5executed441uptodate;
+AppSHA2561eb334ceb728f41cef002f526580c763eba8b3bd481dfaefbfcb9e8f2038e162,
+TestSHA25620f20334f3785fa48b31d23666917a0f14f3e3c8d403a0fc33b4e5f1cd029672,
+publiccert000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7.
+
+Startup15:52:27Z/returned15:52:30Z. Selected wait35860 returnedexit0 at
+15:53:48Z after77.281s; fresh BOTH properties were1/stopped. No offline
+transition/reattach was exercised. Actual profile was API37/release17/user0/
+CPU4/font2.0/effective2.0/size360x900/density160/motion0/IME0. Real App/Test
+installations and installed digest checks completed before instrumentation.
+Instrumentation41708 ran15:54:27Z to15:55:19Z, hostexit0. The genuine
+current-source runner accepted seven original identities:
+**7discovered/7started/7matching/7PASS,0FAIL/ERROR/SKIP,43.002s,
+runner_completedtrue,terminal-1,CLI0**. Operations still has acceptancefalse:
+bounded cohort success is not whole-WP or merge acceptance.
+
+All retained paths below are under
+`C:\Users\camer\.copilot\session-state\b531305a-0513-4731-896f-2b470f8879cd\files`.
+Authoritative actual receipt is
+`wp503-728-nodes37-parser-fourcpu-a1\operations.json`;
+original transcript is the same folder's `device-nodes37.txt`,
+5689bytes/107CRLF/SHA256
+`1ecf023cd7bd0c33cfe8891f93c8b9b86989d0c3d1f6ef846fcccb828e767b76`;
+`device-nodes37-stderr.txt` is empty. Actual CLI output remains
+`wp503-728-nodes37-parser-fourcpu-a1-cli.txt`; command/timing evidence remains
+in `private-avd-nxgchx65`, including original raw
+`adb-3d0d41677427466580d2bbf5d7ef5758.log` and instrumentation timing
+`transport-timing-8f97a978d3004f668898975bf5b34c17.jsonl`.
+The executed command was
+`python -B android\accessibility-tests\disposable_runner.py --head 7289785c115703316177714b9b3facd4b86473a8 --api 37 --family nodes --execute --cpu-cores 4 --parent <session-files> --state <session-files>\wp503-current-local-inputs\environment.json --debug-home C:\Users\camer\.android --output <session-files>\wp503-728-nodes37-parser-fourcpu-a1 --emulator C:\Users\camer\AppData\Local\Android\Sdk\emulator\emulator.exe --adb C:\Users\camer\AppData\Local\Android\Sdk\platform-tools\adb.exe --image C:\Users\camer\AppData\Local\Android\Sdk\system-images\android-37.0\google_apis_playstore\x86_64`.
+Here `<session-files>` denotes the exact absolute root above.
+
+Independent owned disposal/verify_disposed succeeded with no execution/disposal
+error. New-owner locks were NONE; only protected historical66bd remained.
+Specific fresh post-cleanup CIM read found5872/26056/35860/41708 absent.
+Actual END and independent cleanup were reported before the main hold released.
+Existing5556/protected66bd were untouched. Original325 operations/raw hashes
+01f3702339469b1c3638f886e0847d071f3440c7fce74f2405ff36ad8ff70c75/
+adcff0fe61e35d8847505ba1d51102f3b7a4d39888d4f4ce795e8517464ba3f3
+and separately labelled PURE retrospective accounting remain unchanged.
+Original325 CLI2/cohortABSENT is not replaced by this genuine728 CLI0 result.
+
+Separately, exact728 hosted run39804153237 completedFAILURE. Controller,
+classification and Swift codec passed; Linux selected Gradle invocation timed
+out after1799.9999864240003seconds and aggregate119932376343 failed.
+The authoritative job119915092568 log reports that actual timeout; it does not
+isolate a test/assertion root cause. No old job dispatch/rerun/cancellation or
+duplicate CI-result bundle was created. Its failure is not erased by native728.
+
+The coordinator then authorized normal current-main integration of ACTUALLY
+merged PR275: main `f81d2f56d897b022b6f6c4cf38551448691eae02`, parents
+`0a7a84e388393557e4b66ac7fd322248e28611fd` and
+`e138ac0fe27c501604a98ba4c6dfadefc686d584`. Incoming five producer paths
+remain byte-identical to trusted main: selected scaffold/protocol Gradle bound
+3600s and Linux job75minutes, with unchanged default/benchmark1800, preflight60,
+native120/180, strict tasks/graph/exit/diagnostic gates and regression coverage.
+Existing merge-integration capability admitted this normal disjoint merge;
+same canonical reservation remainedr32 with identity/binding/history unchanged.
+No native source, assertion, fixture, lifecycle API, new native action or66bd
+state mutation accompanies integration. Native success stays bound to728/0a7,
+not the integration successor; its own hosted result must be checked separately.
+
+On this integrated source, declared
+`python -B -m unittest discover -s android\accessibility-tests -p test_*.py -q`
+passed248/248,0failures/errors/skips,in16.903s. With repository
+tools/android-port and tools/android-port/tests on PYTHONPATH,
+`python -B -m unittest test_ci test_workflows -q` passed40/40,0F/E/S,in6.312s,
+including the incoming bounded-batch/workflow regressions.
+`python -B tools\android-port\controller\verification_config.py --check`,
+`python -B tools\android-port\controller\validate.py`,
+`python -B tools\android-port\controller\workflows.py` and
+`python -B tools\android-port\portmap.py` each passed/exit0.
+`git diff --check` and `git diff --cached --check` passed.
+Full local Gradle remains explicitly UNVERIFIED; feature publication does not
+claim a hosted verdict. This integration executes no native attempt, old-cap
+CI rerun, device action or historical66bd transition.
