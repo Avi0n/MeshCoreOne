@@ -51,6 +51,7 @@ import com.meshcoreone.android.core.runtime.SystemRuntimeClock
 import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.device.RadioPresets
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
 import com.meshcoreone.android.core.services.messaging.LoggingMessagingIssueReporter
 import com.meshcoreone.android.core.services.rendering.ChatCoordinatorRegistry
 import com.meshcoreone.android.core.services.rendering.DraftStore
@@ -90,6 +91,7 @@ class AppContainerDependencies(
     val notificationPreferences: NotificationPreferencesPort,
     val contactPreferences: ContactPreferenceFlags,
     val draftStore: DraftStore,
+    val chatSendQueueProgress: ChatSendQueueProgress,
     /** The main-thread stand-in app state, UI timers and the chat coordinators run on. */
     val mainScope: CoroutineScope,
     val notificationStrings: NotificationStringProvider? = null,
@@ -178,6 +180,7 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
         appState = dependencies.foreground,
         passwords = dependencies.passwords,
         contactPreferences = dependencies.contactPreferences,
+        chatSendQueueProgress = dependencies.chatSendQueueProgress,
         runtimeState = runtimeState,
         resyncFailure = resyncFailureHub,
         syncClock = dependencies.syncClock,

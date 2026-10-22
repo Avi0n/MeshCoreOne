@@ -14,6 +14,7 @@ import com.meshcoreone.android.core.protocol.session.SystemSessionClock
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
 import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
 import com.meshcoreone.android.core.services.messaging.LoggingMessagingIssueReporter
 import com.meshcoreone.android.core.services.sync.SyncClock
 import com.meshcoreone.android.core.services.sync.SyncLogSink
@@ -51,6 +52,7 @@ class SessionEnvironment(
     val contactPreferences: ContactPreferenceFlags,
     val runtimeState: RuntimeSyncState,
     val resyncFailure: ResyncFailureSignal,
+    val chatSendQueueProgress: ChatSendQueueProgress,
     val syncClock: SyncClock = SyncClock.SYSTEM,
     val sessionClock: SessionClock = SystemSessionClock(),
     val logSink: SyncLogSink = SyncLogSink.NONE,

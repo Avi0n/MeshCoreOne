@@ -26,6 +26,7 @@ import com.meshcoreone.android.core.runtime.RuntimePreferenceSnapshot
 import com.meshcoreone.android.core.runtime.RuntimePreferenceValue
 import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
 import com.meshcoreone.android.core.services.rendering.DraftDefaults
 import com.meshcoreone.android.core.services.rendering.DraftStore
 import java.util.UUID
@@ -89,6 +90,7 @@ internal class ContainerHarness(
     val foregroundCalls = mutableListOf<Boolean>()
     val preferences = MemoryConnectionPreferences()
     val lifecycle = RecordingLifecycle()
+    val chatSendQueueProgress = ChatSendQueueProgress()
     val diagnostics = mutableListOf<RuntimeDiagnostic>()
     val messagingDiagnostics = java.util.Collections.synchronizedList(mutableListOf<com.meshcoreone.android.core.contracts.domain.MessagingDiagnostic>())
     val draftStore = DraftStore(MemoryDraftDefaults())
@@ -105,6 +107,7 @@ internal class ContainerHarness(
             notificationPreferences = FixedNotificationPreferences(),
             contactPreferences = MemoryFlags(),
             draftStore = draftStore,
+            chatSendQueueProgress = chatSendQueueProgress,
             mainScope = test.backgroundScope,
             runtimeClock = SchedulerClock { scheduler.currentTime },
             syncClock = syncClock,
