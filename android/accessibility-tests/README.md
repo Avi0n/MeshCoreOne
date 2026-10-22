@@ -400,9 +400,12 @@ Only the cached-chat resize/draft method is selected; separate IME, framework,
 motion, appearance, navigation and intentional cleanup-fault methods are not
 selected, replayed or counted.
 
-The complete chats production subtree is pinned to `4b6629ac`, including actual
-composer/timeline UI and state, reverse-layout pixel-offset capture, saved-anchor
-restoration, message body and ordinary draft handling. Producer timeline tests,
+The original complete chats input at `4b6629ac` remains historical. The current
+complete production subtree is pinned to merged `514c4516`, preserving the
+`32bb28c6` Rooms/message-actions work while incorporating the mounted
+scope/prefetch changes. It includes actual composer/timeline UI and state,
+reverse-layout pixel-offset capture, saved-anchor restoration, message body
+and ordinary draft handling. Producer timeline tests,
 the mounted `ChatTimelineRestorationTest`, navigation/screen/message consumers,
 the complete rendering/draft-helper subtree, shared assertions and device
 harness retain independently checked exact producer/current objects and ancestry.
@@ -411,11 +414,15 @@ to unchanged producer `cc360e7b`/blob `3dee4f40c...`; diagnostic snapshots never
 replace the original failed deadline with a successful native result.
 
 There is an explicit **current-input distinction**, not historical equality:
-the current merged `03306ff1` `AppChatsContent`/`AppChatsFeature` consumer/delegate
-and five-case `NotificationDraftRestorationTest` are pinned separately. The
+merged `03306ff1` introduced the `AppChatsContent`/`AppChatsFeature` consumer/delegate
+and five-case `NotificationDraftRestorationTest`, pinned separately. The
 retained `3f39a777` Content/Feature objects `2b5ccd083...`/`ac0301b1...` remain
-historical; current objects are `6e191c79d...`/`99ff02f5c...`, and regression
-`f076dceef...`. The current effect keys on composer plus notification-source
+historical; the `03306ff1` objects are `6e191c79d...`/`99ff02f5c...`, and regression
+`f076dceef...`. Content and that regression remain unchanged; the current
+Feature delegate is merged `514c4516`/`11d188156...`, and its message-content
+consumer is `dc2633bc2...` from the same actual merge. Only those changed
+production bindings advance; the original `e8fa6b29` fixture is not repinned.
+The current effect keys on composer plus notification-source
 identity; absent/wrong-radio service, stale identity or absent pending reply
 does not mutate the draft. These merged inputs are current software provenance,
 not a relabeling or revalidation of any old native proof. Both historical objects

@@ -2237,3 +2237,40 @@ deadline extension, post-timeout guest probe, assertion/layout change or
 invented configuration repair was performed. A narrowly scoped request for
 producer-owned startup diagnostics was routed to the existing coordinator;
 it does not claim a demonstrated new producer defect or authorize a new worker.
+
+### Merged514: current cached-chat production, original fixture unchanged
+
+After verifiedc9 disposal released the exact-main serialization, WP-501
+normally merged as `514c451653531da9e3cc47139a9e4e44fb9d6cf0`, with
+parents1be2 and reviewed `4f3889fb81c0dae33cc4e2ddaf6ad0edf9b317ba`.
+Supported capability admission evolved the same canonical reservation30 to31,
+retaining authorization context. Integration `ab31fd10013eb4311c0ebec81a37348988ccee33`
+preserved the entire accessibility source tree and the committedc9 failure
+record byte-for-byte. Its single textual App Gradle conflict was disjoint
+test-source registration: both the existing WP-503 test/androidTest/shared
+directories and incoming WP-501 test-only parity directory were retained.
+No production implementation, fixture, assertion or native deadline was edited
+to resolve it.
+
+Before updating owned source bindings, the actual declared Python suite ran234
+tests in15.798s and failed exactly three subtests on the changed current
+cached-chat production inputs. The merged complete chats tree is
+`49528b80d06929a403597b389fafb0e8a090d6e6`; current AppChatsFeature is
+`11d18815632db5298a0552636ac86a7c73a657d4` and AppMessageContent is
+`dc2633bc24ee95addc79c3a9869257934cf402a1`. Those three bindings now
+point to the actual514 merge, not PR165's standalone tree, which differs from
+the disjoint Rooms/message-actions composition. Other existing source pins
+remain unchanged. The provenance regression preserves its earlier4b/32bb and
+retained/033 checks and separately verifies the exact merged current inputs.
+The original fixture producer remains e8fa6b29/blob698d649b, with all ten
+original/control methods and exactly one selected cached-chat case. This
+source reconciliation creates no native execution credit.
+Corrected integrated source passed
+`python -B -m unittest discover -s android\accessibility-tests -p test_*.py -v`:
+234/234 in16.666s. Also PASS:
+`python -B tools\android-port\controller\verification_config.py --check`,
+`python -B tools\android-port\controller\validate.py`,
+`python -B tools\android-port\controller\workflows.py`,
+`python -B tools\android-port\portmap.py`, and `git diff --check`.
+Neither this integration nor its source models have a current-head Windows
+pair, guest boot or original native result yet.

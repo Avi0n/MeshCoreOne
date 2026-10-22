@@ -966,8 +966,11 @@ class LanguageBindingTest(unittest.TestCase):
         retained = "3f39a777376e322e2bc533f1d1caf92a87a44ed8"
         current_producer = "03306ff125655f977d88c5b517ad4cab26d9e771"
         chats_producer = "32bb28c6ea08f697ee69222f775237c190460883"
-        self.assertEqual("ea4fbdfcd7100b5c48b48b6a5b5e5bbcd795134e", spec.production_blob)
-        self.assertIn((spec.production, chats_producer, spec.production_blob), spec.source_pins)
+        merged_producer = "514c451653531da9e3cc47139a9e4e44fb9d6cf0"
+        self.assertEqual("49528b80d06929a403597b389fafb0e8a090d6e6", spec.production_blob)
+        self.assertIn((spec.production, merged_producer, spec.production_blob), spec.source_pins)
+        self.assertEqual("ea4fbdfcd7100b5c48b48b6a5b5e5bbcd795134e",
+                         binding.git("rev-parse", chats_producer + ":" + spec.production))
         self.assertEqual(
             "fbf18c35b67de68a6a1a19f6180ea7f2ea92fa06",
             binding.git("rev-parse", "4b6629ac2bf215577ec1522530a77de61ed577fe:" + spec.production),
@@ -977,6 +980,20 @@ class LanguageBindingTest(unittest.TestCase):
             spec.production + "/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationScreen.kt",
         ], binding.git("diff", "--name-only", "4b6629ac2bf215577ec1522530a77de61ed577fe",
                        chats_producer, "--", spec.production).splitlines())
+        self.assertEqual([
+            spec.production + "/kotlin/com/meshcoreone/android/feature/chats/timeline/ChatViewModel.kt",
+            spec.production + "/kotlin/com/meshcoreone/android/feature/chats/timeline/TimelineContracts.kt",
+        ], binding.git("diff", "--name-only", chats_producer,
+                       merged_producer, "--", spec.production).splitlines())
+        for path, producer, blob in (
+            ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatsContent.kt",
+             current_producer, "6e191c79de3a5cebf3f8e0603956e180f97bd014"),
+            ("android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt",
+             merged_producer, "11d18815632db5298a0552636ac86a7c73a657d4"),
+            ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageContent.kt",
+             merged_producer, "dc2633bc24ee95addc79c3a9869257934cf402a1"),
+        ):
+            self.assertIn((path, producer, blob), spec.source_pins)
         self.assertEqual("", binding.git("merge-base", "--is-ancestor", registration, spec.producer))
         initial = binding.git("show", registration + ":" + spec.fixture)
         self.assertIn(spec.methods[0], re.findall(r"@Test fun (\w+)\(", initial))
@@ -1014,7 +1031,7 @@ class LanguageBindingTest(unittest.TestCase):
         for path, old, current in historical:
             self.assertEqual(old, binding.git("rev-parse", retained + ":" + path))
             self.assertNotEqual(old, current)
-            self.assertIn((path, current_producer, current), spec.source_pins)
+            self.assertEqual(current, binding.git("rev-parse", current_producer + ":" + path))
             self.assertEqual(current, binding.git("rev-parse", "dbb37206db787cb5ec1dcef1b2ee3ceb34434e0c:" + path))
             def historical_as_current(*args):
                 if args == ("rev-parse", HEAD + ":" + path):
