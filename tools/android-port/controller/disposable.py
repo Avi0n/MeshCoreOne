@@ -212,13 +212,16 @@ class PrivateGuest:
         path = self.root / ("transport-timing-" + uuid.uuid4().hex + ".jsonl")
         stream, previous, failures = None, None, []
         pid, startup_deadline = None, None
+        selected_process = None
         raw_log = "process.log" if operation == "startup" else None
 
         def observe(stage, *, process=None, deadline=None, error_type=None, returncode=None, output=None):
-            nonlocal previous, pid, startup_deadline, raw_log
+            nonlocal previous, pid, startup_deadline, raw_log, selected_process
             if stage.endswith("launch-begin"):
                 pid = None
             if process is not None:
+                if operation.startswith("selected-"):
+                    selected_process = process
                 value = getattr(process, "pid", None)
                 pid = value if type(value) is int and value > 0 else None
             utc_ns, monotonic = time.time_ns(), time.monotonic()
@@ -261,6 +264,11 @@ class PrivateGuest:
             yield observe
         except BaseException as error:
             failures.append(error)
+        if failures:
+            try:
+                self._status_snapshot("operation-failure", selected_process=selected_process)
+            except BaseException as error:
+                failures.append(error)
         try:
             if stream is not None:
                 primary = failures[0] if failures else None
@@ -284,6 +292,64 @@ class PrivateGuest:
             if len(failures) == 1:
                 raise failures[0]
             raise BaseExceptionGroup("Owned operation and timing retention/observation failed", failures)
+
+    def _status_snapshot(self, stage, *, selected_process=None):
+        path = self.root / ("owned-status-" + uuid.uuid4().hex + ".json")
+        report = {
+            "schema_version": 1, "owner": self.owner, "revision": self.revision, "stage": stage,
+            "backend": "windows-job" if self.job is not None else "linux-owned-roots",
+            "scope": "root handles only; not whole guest/descendant exit proof",
+            "roots": [], "job_active_count": None, "job_pids": None,
+            "job_membership": "unavailable", "errors": [],
+        }
+        failures = []
+
+        def sample():
+            utc, mono = time.time_ns(), time.monotonic()
+            if type(utc) is not int or utc <= 0 or type(mono) not in (int, float) or not math.isfinite(mono) or mono < 0:
+                raise PortError("Invalid owned status clock observation")
+            return {"host_unix_nanoseconds": utc, "host_monotonic_seconds": mono,
+                    "clock_observation_order": ["time.time_ns", "time.monotonic"]}
+
+        roots = [("server", getattr(self, "server", None)), ("emulator", getattr(self, "emulator", None)),
+                 ("selected-command", selected_process)]
+        for role, process in roots:
+            entry = {"role": role, "pid": None, "status": "unavailable", "returncode": None}
+            report["roots"].append(entry)
+            try:
+                entry.update(sample())
+                if process is not None:
+                    pid = getattr(process, "pid", None)
+                    entry["pid"] = pid if type(pid) is int and pid > 0 else None
+                    code = process.poll()
+                    if code is not None and type(code) is not int:
+                        raise PortError("Invalid owned root returncode observation")
+                    entry.update(status="not-exited" if code is None else "exited", returncode=code)
+            except BaseException as error:
+                failures.append(error)
+                entry["error_type"] = type(error).__name__
+        try:
+            report["job_sample"] = sample()
+            if self.job is not None:
+                count = self.job.active()
+                if type(count) is not int or count < 0:
+                    raise PortError("Invalid owned Job active-count observation")
+                report["job_active_count"] = count
+                report["job_membership"] = "owned Job accounting count; may include selected command"
+        except BaseException as error:
+            failures.append(error)
+        report["errors"] = [type(error).__name__ for error in failures]
+        try:
+            with path.open("x", encoding="utf-8") as stream:
+                json.dump(report, stream, indent=2, allow_nan=False)
+                stream.write("\n")
+        except BaseException as error:
+            failures.append(error)
+        if failures:
+            self.phase = "uncertain"
+            for error in failures:
+                error.add_note(f"Owned precleanup status (may be incomplete): {path}")
+            raise BaseExceptionGroup("Owned status observation/retention failed", failures)
 
     def start(self, ledger, *, emulator, adb, image, timeout=120):
         """Use installed tools/image only. Creates no key and never opens a pre-existing AVD."""
@@ -554,7 +620,19 @@ class PrivateGuest:
         self.assert_held(ledger, self.owner, cleanup=True)
         if self.processes or self.job is not None or self.phase == "uncertain":
             self.phase = "uncertain"
-            self._cleanup()
+            failures = []
+            try:
+                self._status_snapshot("before-cleanup")
+            except BaseException as error:
+                failures.append(error)
+            try:
+                self._cleanup()
+            except BaseException as error:
+                failures.append(error)
+            if failures:
+                if len(failures) == 1:
+                    raise failures[0]
+                raise BaseExceptionGroup("Owned precleanup observation and independent cleanup failed", failures)
         for descriptor in self.descriptors:
             os.close(descriptor)
         self.descriptors.clear()
