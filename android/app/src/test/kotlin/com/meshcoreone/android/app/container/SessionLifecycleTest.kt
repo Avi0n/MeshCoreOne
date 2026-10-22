@@ -3,9 +3,29 @@ package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.contracts.domain.ConnectionTarget
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
+import com.meshcoreone.android.core.contracts.domain.EntityKey
+import com.meshcoreone.android.core.model.ChannelDTO
+import com.meshcoreone.android.core.model.DeviceDTO
+import com.meshcoreone.android.core.model.MessageDTO
+import com.meshcoreone.android.core.model.MessageDirection
+import com.meshcoreone.android.core.model.MessageStatus
+import com.meshcoreone.android.core.model.PendingSendDTO
+import com.meshcoreone.android.core.model.PendingSendKind
+import com.meshcoreone.android.core.model.RadioId
+import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.config.SessionConfiguration
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
+import com.meshcoreone.android.core.runtime.SystemRuntimeClock
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueConfig
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueService
+import com.meshcoreone.android.core.services.messaging.MessageServiceConfig
+import com.meshcoreone.android.core.services.messaging.PoolBackoffConfig
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
@@ -15,7 +35,14 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -95,6 +122,164 @@ class SessionLifecycleTest : RoomProcessTest() {
             assertSame(second.syncCoordinator, h.appState.syncCoordinator)
             assertEquals(second.token.radioId, h.appState.currentRadioId)
         } finally { h.container.close() }
+    }
+
+    @Test
+    fun sameRadioChannelQueryFailureIsIsolatedToEachPendingEnvelopeInTheAppRoomGraph() = runTest {
+        val radioId = RadioId(UUID.fromString("A0000000-0000-0000-0000-000000000001"))
+        val deviceId = UUID.fromString("A0000000-0000-0000-0000-000000000002")
+        val messageAId = UUID.fromString("A0000000-0000-0000-0000-000000000004")
+        val pendingAId = UUID.fromString("A0000000-0000-0000-0000-000000000005")
+        val messageBId = UUID.fromString("A0000000-0000-0000-0000-000000000006")
+        val pendingBId = UUID.fromString("A0000000-0000-0000-0000-000000000007")
+        val h = ContainerHarness(
+            this,
+            store,
+            runtimeClock = SystemRuntimeClock(),
+            runtimeContext = Dispatchers.Default,
+            sessionConfiguration = SessionConfiguration(defaultTimeout = 0.2),
+            messageServiceConfig = MessageServiceConfig(
+                poolBackoff = PoolBackoffConfig(attemptCap = 2, baseDelay = 0.01),
+            ),
+            chatSendQueueConfig = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 2),
+        )
+        val activeRadio = AtomicReference<FirmwareRadio?>()
+        val channelReply = Bytes.fromHex("120054657374" + "00".repeat(28) + "aa".repeat(16))
+        h.links.configureRadio = { radio ->
+            activeRadio.set(radio)
+            val sending = AtomicBoolean(false)
+            radio.respond = { command ->
+                when (command[0].toInt()) {
+                    3 -> {
+                        sending.set(true)
+                        emptyList()
+                    }
+                    31 -> if (sending.get()) emptyList() else listOf(channelReply)
+                    else -> null
+                }
+            }
+        }
+
+        val channel = ChannelDTO(
+            id = UUID.fromString("A0000000-0000-0000-0000-000000000003"),
+            radioId = radioId,
+            index = 0u,
+            name = "Test",
+            secret = Bytes.fromHex("aa".repeat(16)),
+        )
+        val messageA = MessageDTO(
+            id = messageAId,
+            radioId = radioId,
+            channelIndex = 0u,
+            text = "Hello channel",
+            timestamp = 1_704_067_200u,
+            createdAt = EPOCH,
+            sortDate = EPOCH,
+            direction = MessageDirection.OUTGOING,
+            status = MessageStatus.PENDING,
+        )
+        val messageB = messageA.copy(
+            id = messageBId,
+            text = "Second message",
+        )
+        store.saveDevice(DeviceDTO(
+            id = deviceId,
+            radioId = radioId,
+            publicKey = key(7),
+            nodeName = "Stored Node",
+            isActive = false,
+        ))
+        store.saveChannel(channel)
+        store.saveMessage(messageA)
+        store.saveMessage(messageB)
+        // A's first bump reaches 8, above the disambiguation threshold; B's reaches 3, exactly at it.
+        store.upsertPendingSend(PendingSendDTO(
+            id = pendingAId,
+            radioId = radioId,
+            messageID = messageAId,
+            kind = PendingSendKind.CHANNEL,
+            contactID = null,
+            channelIndex = 0u,
+            isResend = true,
+            messageText = messageA.text,
+            messageTimestamp = messageA.timestamp,
+            localNodeName = "Stored Node",
+            sequence = 1,
+            enqueuedAt = EPOCH,
+            attemptCount = 7,
+        ))
+        store.upsertPendingSend(PendingSendDTO(
+            id = pendingBId,
+            radioId = radioId,
+            messageID = messageBId,
+            kind = PendingSendKind.CHANNEL,
+            contactID = null,
+            channelIndex = 0u,
+            isResend = false,
+            messageText = messageB.text,
+            messageTimestamp = messageB.timestamp,
+            localNodeName = "Stored Node",
+            sequence = 2,
+            enqueuedAt = EPOCH,
+            attemptCount = 2,
+        ))
+
+        var errorDispatcher: Job? = null
+        var transportOpenTrigger: Job? = null
+        var queue: ChatSendQueueService? = null
+        try {
+            errorDispatcher = backgroundScope.launch(Dispatchers.Default) {
+                while (isActive) {
+                    if (h.manager.connectionState == DeviceConnectionState.READY) {
+                        activeRadio.get()?.push(Bytes.of(1, 2))
+                    }
+                    delay(20.milliseconds)
+                }
+            }
+            transportOpenTrigger = backgroundScope.launch(Dispatchers.Default) {
+                while (isActive) {
+                    h.sessions.current?.chatSendQueueService?.transportDidOpen()
+                    delay(50.milliseconds)
+                }
+            }
+
+            val deadline = System.nanoTime() + 30.seconds.inWholeNanoseconds
+            h.container.uiScope.async { h.manager.connect(h.target(deviceId)) }.await()
+            h.assertReady()
+            val live = assertNotNull(h.sessions.current)
+            assertEquals(radioId, live.token.radioId)
+            queue = live.chatSendQueueService
+
+            var aTerminalAndDeleted = false
+            while (System.nanoTime() < deadline) {
+                val pending = store.fetchPendingSends(radioId).any { it.messageID == messageAId }
+                val status = store.fetchMessage(EntityKey(radioId, messageAId))?.status
+                if (!pending && status == MessageStatus.FAILED) {
+                    aTerminalAndDeleted = true
+                    break
+                }
+                withContext(Dispatchers.Default) { delay(50.milliseconds) }
+            }
+            assertTrue(aTerminalAndDeleted, "Envelope A must be deleted and FAILED within the real 30-second deadline")
+            assertEquals(MessageStatus.FAILED, store.fetchMessage(EntityKey(radioId, messageAId))?.status)
+
+            withContext(Dispatchers.Default) { delay(3.seconds) }
+            val statusB = store.fetchMessage(EntityKey(radioId, messageBId))?.status
+            val pendingB = store.fetchPendingSends(radioId).firstOrNull { it.messageID == messageBId }
+            assertNotNull(
+                pendingB,
+                "Envelope B's same-radio PendingSend row must survive the literal three-second observation; status=$statusB",
+            )
+            assertEquals(radioId, pendingB.radioId)
+            assertEquals(messageBId, pendingB.messageID)
+        } finally {
+            errorDispatcher?.cancel()
+            transportOpenTrigger?.cancel()
+            withContext(NonCancellable) {
+                queue?.shutdown()
+                h.container.close()
+            }
+        }
     }
 
     @Test

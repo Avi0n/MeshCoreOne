@@ -165,6 +165,7 @@ class RadioSessionContainer private constructor(
     )
     override val messageService = MessageService(
         token, inputs.device.publicKey, session, dataStore, inputs.connection.signals, scope,
+        config = env.messageServiceConfig,
         reporter = env.messagingReporter,
     )
     override val channelService = ChannelService(session, dataStore, ChannelDecryptionAdapter(rxLogService))
@@ -200,6 +201,7 @@ class RadioSessionContainer private constructor(
             reactionService.indexMessage(id, channelIndex, senderName, text, timestamp)
         },
         inputs.connection.signals, scope,
+        config = env.chatSendQueueConfig,
         reporter = env.messagingReporter,
         progress = chatSendQueueProgress,
     )

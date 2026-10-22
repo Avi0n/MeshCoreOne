@@ -20,17 +20,22 @@ import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.data.repository.RoomPersistenceStore
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.config.SessionConfiguration
 import com.meshcoreone.android.core.runtime.ProcessConnectionPreferences
+import com.meshcoreone.android.core.runtime.RuntimeClock
 import com.meshcoreone.android.core.runtime.RuntimeDiagnostic
 import com.meshcoreone.android.core.runtime.RuntimeIssueReporter
 import com.meshcoreone.android.core.runtime.RuntimePreferenceSnapshot
 import com.meshcoreone.android.core.runtime.RuntimePreferenceValue
 import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueConfig
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
+import com.meshcoreone.android.core.services.messaging.MessageServiceConfig
 import com.meshcoreone.android.core.services.rendering.DraftDefaults
 import com.meshcoreone.android.core.services.rendering.DraftStore
 import java.util.UUID
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -84,6 +89,11 @@ internal class ContainerHarness(
     chatContent: AppChatContent? = null,
     syncClock: com.meshcoreone.android.core.services.sync.SyncClock = com.meshcoreone.android.core.services.sync.SyncClock.SYSTEM,
     recoveryDispatcher: kotlinx.coroutines.CoroutineDispatcher = kotlinx.coroutines.Dispatchers.Default,
+    runtimeClock: RuntimeClock = SchedulerClock { test.testScheduler.currentTime },
+    runtimeContext: CoroutineContext = test.backgroundScope.coroutineContext,
+    sessionConfiguration: SessionConfiguration = SessionConfiguration.DEFAULT,
+    messageServiceConfig: MessageServiceConfig = MessageServiceConfig(),
+    chatSendQueueConfig: ChatSendQueueConfig = ChatSendQueueConfig(),
 ) {
     val scheduler: TestCoroutineScheduler = test.testScheduler
     val links = HarnessLinks(identity)
@@ -111,9 +121,12 @@ internal class ContainerHarness(
             draftStore = draftStore,
             chatSendQueueProgress = chatSendQueueProgress,
             mainScope = test.backgroundScope,
-            runtimeClock = SchedulerClock { scheduler.currentTime },
+            runtimeClock = runtimeClock,
             syncClock = syncClock,
-            runtimeContext = test.backgroundScope.coroutineContext,
+            runtimeContext = runtimeContext,
+            sessionConfiguration = sessionConfiguration,
+            messageServiceConfig = messageServiceConfig,
+            chatSendQueueConfig = chatSendQueueConfig,
             runtimeRecoveryDispatcher = recoveryDispatcher,
             accessibility = SilentAnnouncements,
             sessionLifecycle = lifecycle,
