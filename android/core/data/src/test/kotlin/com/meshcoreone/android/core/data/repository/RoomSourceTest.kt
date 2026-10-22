@@ -16,10 +16,14 @@ class RoomSourceTest : RepositoryTest() {
         val untransferred = Room.inMemoryDatabaseBuilder(context, MeshCoreDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        untransferred.openHelper.writableDatabase
-        assertTrue(untransferred.isOpen)
-        RoomPersistenceStore.closeUntransferredDatabase(untransferred)
-        assertFalse(untransferred.isOpen)
+        try {
+            untransferred.openHelper.writableDatabase
+            assertTrue(untransferred.isOpen)
+            RoomPersistenceStore.closeUntransferredDatabase(untransferred)
+            assertFalse(untransferred.isOpen)
+        } finally {
+            if (untransferred.isOpen) RoomPersistenceStore.closeUntransferredDatabase(untransferred)
+        }
     }
 
     @Test @OriginalCase("PersistenceStoreTests::Save and fetch channels()")
