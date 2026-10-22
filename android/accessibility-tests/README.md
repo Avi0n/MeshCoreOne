@@ -133,7 +133,7 @@ Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
 
 `disposable_runner.py` is a separate consumer of the reviewed WP-003 private-guest
-interface, prepared against `93ae678595ee3efc874f5e9eb223a715563ac601`.
+interface, updated at `93ae678595ee3efc874f5e9eb223a715563ac601`.
 It does not remove the shared-device fence or adopt an existing guest. Before
 import/allocation it requires the reviewed producer bytes in actual trusted main
 and the actual checkout, and trusted capability/pause policy. The real factory
@@ -150,6 +150,9 @@ It changes no CPU/configuration, strict boot predicate, ownership rule or
 deadline. Prepared consumer pins do not make this runtime available: import
 and allocation remain blocked until actual trusted main and the checkout
 contain its exact reviewed inputs.
+Actual normal merge `423b29b568a096c00374d241b2d8d408ec1e27ee`
+contains this diagnostic producer; the consumer still rechecks the four
+actual inputs, current source/identity/policy and resources before live use.
 Actual source/runtime/claim/resource guards still run; merge is not guest readiness.
 The consumer accepts the installed base-image spelling `37.0` as API37
 (likewise integer base API plus `.0`), but rejects nonzero/ambiguous minor versions.

@@ -2295,3 +2295,35 @@ these prepared pins passed234/234 in44.820s. These source models and negative
 admission do not supply runtime availability or new native proof. Publication
 and the next changed diagnostic execution remain conditioned on actual trusted
 integration, current-source pairing and all existing live guards.
+
+### Actual423: reviewed kernel diagnostics integrated, not native proof
+
+PR266 actually normally merged as
+`423b29b568a096c00374d241b2d8d408ec1e27ee`, with independently verified
+parents514 and93 and matching live-main readback. Supported integration
+`3ddc38db350eb7faa24177146319b62d3f2d5f1b` remained31 to31 and
+preserved all five owned consumer/binding/test/README/evidence files byte-for-byte.
+Only the three actual producer paths arrived. Disposable is now actualb269;
+the other three immutable API inputs remain unchanged. The original strict
+120s registration/boot deadline, CPU configuration, Nodes7/144 assertions and
+independent disposal are unchanged.
+
+The source review and genuine trusted aggregate are distinct from an
+individual job-metadata discrepancy. Official aggregate119561646437 explicitly
+requires and records Actions-engine `CONTROLLER_RESULT=success`; official
+controller119560631499 log actually ran619/OK in110.870s with the new kernel
+retention regression positive. Its raw job/check-run metadata had still said
+in_progress. An additional individual-metadata-finality hold was inferred,
+not a configured requirement, and was retracted after reading the actual
+trusted aggregate contract. No check/status rewrite, rerun, dispatch or
+privileged bypass was performed. These identities reference the authoritative
+hosted result, not a retained second CI-result bundle or native evidence.
+
+Actual current-source pairing, fresh guarded guest execution and original
+native cases remain separate, unverified steps for this integrated candidate.
+The actual integrated source passed
+`python -B -m unittest discover -s android\accessibility-tests -p test_*.py -v`:
+234/234 in16.717s. The four declared verification-config, traceability,
+workflow and portmap checks above, plus `git diff --check`, all passed.
+The advisory local Gradle fast check was not run; publication remains an
+explicit unverified candidate pending its own exact-head hosted verification.
