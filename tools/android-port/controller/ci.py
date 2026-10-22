@@ -358,6 +358,7 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         return sorted(directories)
 
     execute(command, environment, output / f"gradle-{stage}.log",
+            timeout=3600 if stage in ("scaffold", "protocol") else 1800,
             failure_reports=report_directories if selected else None)
     graph = validate_candidate_task_graph(task_graph, tasks)
     if stage == "benchmark":
