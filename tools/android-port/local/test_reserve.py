@@ -344,6 +344,23 @@ class CapabilityAuthorityCliTests(unittest.TestCase):
                 self.assertIn("no trusted path+operation rule", errors)
                 self.assertEqual(self.snapshot(ledger), before)
 
+    def test_disposable_host_guards_reject_before_authority_or_process_launch(self):
+        from controller.disposable import trusted_guest
+        from controller.errors import PortError
+        for host, kernel, error in (
+            ("linux", "6.6.87.2-microsoft-standard-WSL2", "canonical Windows ledger from WSL"),
+            ("darwin", "", "native Windows Job or Linux pidfd ownership"),
+        ):
+            with self.subTest(host=host), patch.object(sys, "platform", host), \
+                    patch.object(Path, "read_text", return_value=kernel), \
+                    patch("importlib.import_module") as authority, \
+                    patch.object(subprocess, "Popen") as launch:
+                with self.assertRaisesRegex(PortError, error):
+                    trusted_guest(Path.cwd(), Path.cwd(), owner="fixture", revision="a" * 40,
+                                  session_id="fixture", attempt="fixture")
+                authority.assert_not_called()
+                launch.assert_not_called()
+
     def test_real_disposable_entry_requires_trusted_code_and_preserves_legacy_runtime_without_replacement(self):
         with authority_fixture() as (repo, ledger, git, cli):
             self.claim(cli, "WP-503")
@@ -392,6 +409,15 @@ print("fresh prepared fixture disposed; no emulator/adb/job/pidfd launched")
                 capture_output=True, encoding="utf-8", timeout=60,
             )
             self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            if sys.platform.startswith("linux") and "microsoft" in Path(
+                "/proc/sys/kernel/osrelease"
+            ).read_text().lower():
+                self.assertIn("cannot emulate the canonical Windows ledger from WSL", result.stdout)
+                self.assertEqual(self.snapshot(ledger), history)
+                self.assertEqual(ledger.hard_lock_records(), legacy)
+                self.assertEqual({p.name: p.read_bytes() for p in target.iterdir()}, installed)
+                print("Disposable WSL rejection proved; canonical Windows/Linux lifecycle NOT SELECTED", flush=True)
+                return
             self.assertIn("differs from immutable trusted default-base", result.stdout)
             self.assertEqual(self.snapshot(ledger), history)
             self.assertEqual(ledger.hard_lock_records(), legacy)
