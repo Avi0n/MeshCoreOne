@@ -193,11 +193,23 @@ by this investigation. App support remains serialized to the current WP-303
 consumer. Runtime acceptance remains unverified, not inferred from the gated
 supplement or an offline surviving row.
 
-The infrastructure owner subsequently identified the local preflight blocker
-more precisely: the installed runtime is valid legacy schema 1 with all 41
-hashes, whereas the current checker requires repository-bound schema 2/current
-runtime (four missing modules and 23 changed files). Safe atomic upgrade is
-blocked by the protected native-execution `66bd` lock. Absent process IDs do
-not authorize clearing it. The failed preflight was not repeatedly rerun, no
-alternate runner or lock bypass was used, and this session started no local
-Gradle/native execution.
+The infrastructure owner's pre-215 historical snapshot identified the local
+preflight blocker more precisely: the installed runtime was valid legacy
+schema 1 with all 41 hashes, whereas the checker required repository-bound
+schema 2/current runtime (four missing modules and 23 changed files at that
+snapshot). Those counts are not fresh current-state proof. Safe atomic upgrade
+was blocked by the protected native-execution `66bd` lock; no subsequent
+authorization to install or act on that lock is claimed here. Absent process
+IDs do not authorize clearing it. The failed preflight was not repeatedly
+rerun, no alternate runner or lock bypass was used, and this session started
+no local Gradle/native execution.
+
+The coordinator has since resolved the native test-scope decision without a
+runtime policy change. WP-303 will implement a policy-derived bounded App
+horizon for real A exhaustion, B's own genuine query failure/accounting, and
+then a literal three-second B-row observation. WP-501 reviews equivalence
+before publication or acceptance. This delegated coordinator decision is not
+attributed to a user product-policy choice and does not turn the failed
+original 30-second witness into a pass. No new runtime driver is authorized.
+These local documentation updates remain unpublished at the coordinator's
+direction; they do not trigger another standalone documentation CI candidate.
