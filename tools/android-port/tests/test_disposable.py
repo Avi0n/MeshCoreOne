@@ -627,7 +627,7 @@ class DisposableGuestTests(unittest.TestCase):
             self.assertEqual(command, [
                 str(emulator), "-avd", guest.token, "-datadir", str(data),
                 "-data", str(data / "userdata-qemu.img"), "-ports", f"{guest.port},{guest.port + 1}",
-                "-no-snapshot", "-no-window", "-no-audio", "-gpu", "swiftshader_indirect",
+                "-no-snapshot", "-no-window", "-no-audio", "-show-kernel", "-gpu", "swiftshader_indirect",
             ])
             config = (data / "config.ini").read_text()
             self.assertIn("hw.cpu.arch=x86_64\n", config)
@@ -648,6 +648,59 @@ class DisposableGuestTests(unittest.TestCase):
             finally:
                 guest.dispose(self.ledger)
         self.assert_legacy()
+
+    def test_kernel_console_uses_existing_owned_log_and_retains_it_on_uncertain_cleanup(self):
+        from unittest.mock import Mock
+
+        for windows in (False, True):
+            with self.subTest(windows=windows):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                path = guest.root / "process.log"
+                guest.log = path.open("xb")
+                guest.environment = {"fixture": "private"}
+                command = ["fixture-emulator", "-show-kernel"]
+                output = b"fixture kernel console bytes, not native boot evidence\n"
+                process, backend = Mock(), Mock()
+                process.pid = 123
+                if not windows:
+                    backend.pidfd_open.return_value = os.open(os.devnull, os.O_RDONLY)
+                job = Mock() if windows else None
+                guest.job = job
+
+                def launch(*args, **kwargs):
+                    if windows:
+                        self.assertEqual(args, (command, guest.environment, guest.log))
+                        self.assertEqual(kwargs, {})
+                    else:
+                        self.assertEqual(args, (command,))
+                        self.assertEqual(kwargs, {
+                            "env": guest.environment, "stdin": subprocess.DEVNULL,
+                            "stdout": guest.log, "stderr": subprocess.STDOUT, "start_new_session": True,
+                        })
+                    guest.log.write(output)
+                    guest.log.flush()
+                    return process
+
+                try:
+                    with patch("controller.disposable.supervisor", return_value=backend), \
+                            patch("controller.disposable.subprocess.Popen", side_effect=launch) as popen:
+                        if windows:
+                            job.spawn.side_effect = launch
+                        self.assertIs(guest._spawn(command), process)
+                        self.assertEqual(guest.phase, "uncertain")
+                        self.assertEqual(popen.call_count, 0 if windows else 1)
+                    with patch.object(guest, "_cleanup", side_effect=PortError("fixture unproven cleanup")):
+                        with self.assertRaisesRegex(PortError, "unproven cleanup"):
+                            guest.dispose(self.ledger)
+                    self.assertEqual(path.read_bytes(), output)
+                    self.assertEqual(self.rows(), before)
+                    self.assert_legacy()
+                finally:
+                    guest.log.close()
+                    with patch.object(guest, "_cleanup"):
+                        guest.dispose(self.ledger)
 
     def test_exited_private_windows_adb_never_launches_emulator_and_retains_uncertain_ownership(self):
         from unittest.mock import Mock
