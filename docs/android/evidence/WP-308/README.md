@@ -2,6 +2,22 @@
 
 ## Bounded mention-picker successor: unverified candidate
 
+### Actual hosted failure and bounded layout correction
+
+Initial head `e05535e818a9d81e9dfa810a3dfff9503abb64bc` failed authoritative
+run `39814923682`, Linux job `119950976620`: 1233 App tests, five failures.
+`gh run view 39814923682 --repo cbattlegear/MeshCoreOne-Android --job 119950976620 --log-failed`
+was read directly. Four failures were Done / localized Done not displayed in the
+two long-list methods on APIs 31/37; the fifth is the separate WP-502 Room label.
+This is actual negative UI evidence, superseding the earlier not-run statement for
+that head, not a timeout or a queued-runnable explanation.
+
+The successor production change sets `rememberModalBottomSheetState(skipPartiallyExpanded = true)`
+so the long sheet's footer cannot start below the visible partially-expanded viewport.
+All mounted tests/assertions remain unchanged. The stack 285 identity/order stays
+intact; upper WP-502 owner adopts the new lower head normally. No individual merge,
+CI dispatch/rerun or native execution is authorized by this correction.
+
 Repository `cbattlegear/MeshCoreOne-Android`; WP-308 / chats-ui-engineer.
 Base `0a7a84e388393557e4b66ac7fd322248e28611fd`; source remains
 `db14559b39d32322b06477c6ae676112f583db50`. Managed branch `cbattlegear-literate-waffle`;
