@@ -109,7 +109,11 @@ internal class TestRadio : MeshTransport {
     var key = publicKey
     var connectFailure: Exception? = null
     var closeFailure: Exception? = null
+    var pipelinedReads = false
     var beforeSend: suspend (Bytes) -> Unit = {}
+    var channelResponse: suspend (UByte) -> Bytes? = { index ->
+        Bytes.of(18, index.toInt()) + Bytes.utf8("TestChannel").paddedOrTruncated(32) + Bytes(ByteArray(16))
+    }
     var beforeConnect: suspend () -> Unit = {}
     var beforeClose: suspend () -> Unit = {}
     val frames = mutableListOf<Bytes>()
@@ -124,6 +128,7 @@ internal class TestRadio : MeshTransport {
         closeFailure?.let { throw it }
     }
     override suspend fun isConnected(): Boolean = connected
+    override suspend fun supportsPipelinedReads(): Boolean = pipelinedReads
     override suspend fun receivedData(): Flow<Bytes> {
         val stream = inbound
         return flow {
@@ -144,6 +149,7 @@ internal class TestRadio : MeshTransport {
             0x3b -> { assertEquals(Bytes.of(0x3b), data); receive(Bytes.of(0x19, 0, 0)) }
             0x05 -> { assertEquals(Bytes.of(5), data); receive(Bytes.of(9) + little32(epochTime.epochSecond)) }
             0x06 -> receive(Bytes.of(0))
+            0x1f -> channelResponse(data[1].toUByte())?.let { receive(it) }
             else -> throw AssertionError("Unexpected real-session command ${data.hexString}")
         }
     }
@@ -262,7 +268,10 @@ internal class TestServices(val inputs: RuntimeServiceInputs) : RuntimeServices 
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class RuntimeFixture(val test: TestScope, parent: Job? = null, dispatcher: CoroutineDispatcher? = null) {
+internal class RuntimeFixture(
+    val test: TestScope, parent: Job? = null, dispatcher: CoroutineDispatcher? = null,
+    recoveryDispatcher: CoroutineDispatcher = StandardTestDispatcher(test.testScheduler),
+) {
     val clock = TestClock(test.testScheduler)
     val preferences = TestPreferences()
     val last = LastConnectionStore(preferences, clock)
@@ -330,6 +339,7 @@ internal class RuntimeFixture(val test: TestScope, parent: Job? = null, dispatch
             (dispatcher ?: EmptyCoroutineContext),
         configuration = SessionConfiguration(defaultTimeout = 1.0, clientIdentifier = "MCore"),
         jitter = { 0.0 },
+        recoveryDispatcher = recoveryDispatcher,
     )
     suspend fun connect(target: ConnectionTarget = platform.target) {
         manager.connect(target)
