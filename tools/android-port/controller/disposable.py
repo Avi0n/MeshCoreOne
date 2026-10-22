@@ -4,6 +4,7 @@ import ctypes
 from contextlib import contextmanager
 import hashlib
 import json
+import math
 import os
 import signal
 from pathlib import Path
@@ -23,6 +24,7 @@ from .model import SHA
 RESOURCE = "disposable-native-execution"
 OPERATION = "execute-private-disposable-avd"
 ADAPTER = "tools/android-port/controller/disposable.py"
+PACKAGING_QUIESCENCE_SECONDS = 2
 
 
 def supervisor():
@@ -514,7 +516,74 @@ class PrivateGuest:
         return data
 
     def _active_children(self):
-        return self.job.active() if self.job is not None else bool(supervisor().descendants())
+        return self.job.active() if self.job is not None else supervisor().descendants()
+
+    def _wait_packaging_quiescence(self):
+        path = self.root / ("packaging-quiescence-" + uuid.uuid4().hex + ".json")
+        report = {
+            "schema_version": 1, "owner": self.owner, "revision": self.revision,
+            "backend": "windows-job-accounting" if self.job is not None else "linux-subreaper",
+            "budget_seconds": PACKAGING_QUIESCENCE_SECONDS, "samples": [],
+            "outcome": "uncertain", "elapsed_seconds": None,
+        }
+        failure, started = None, None
+        try:
+            started = time.monotonic()
+            if not math.isfinite(started):
+                raise PortError("Invalid packaging quiescence clock")
+            previous = 0
+            while True:
+                active = self._active_children()
+                elapsed = time.monotonic() - started
+                if not math.isfinite(elapsed) or elapsed < previous:
+                    raise PortError("Invalid packaging quiescence elapsed time")
+                report["elapsed_seconds"] = previous = elapsed
+                if self.job is not None:
+                    if type(active) is not int or active < 0:
+                        raise PortError("Invalid owned Windows Job active count")
+                    count, pids = active, None
+                else:
+                    if not isinstance(active, set) or any(type(pid) is not int or pid <= 0 for pid in active):
+                        raise PortError("Invalid owned Linux descendant observation")
+                    count, pids = len(active), sorted(active)
+                report["samples"].append({"elapsed_seconds": elapsed, "count": count, "pids": pids})
+                if elapsed >= PACKAGING_QUIESCENCE_SECONDS:
+                    report["outcome"] = "expired"
+                    raise PortError("Packaging descendants remain/unproven at quiescence deadline")
+                if count == 0:
+                    report["outcome"] = "empty"
+                    break
+                if self.job is None:
+                    supervisor().reap()
+                time.sleep(min(0.02, PACKAGING_QUIESCENCE_SECONDS - elapsed))
+        except BaseException as error:
+            failure = error
+            report["error"] = {"type": type(error).__name__, "message": str(error)}
+            try:
+                if started is None or not math.isfinite(started):
+                    raise PortError("Packaging quiescence start time was not observed")
+                elapsed = time.monotonic() - started
+                if not math.isfinite(elapsed) or elapsed < (report["elapsed_seconds"] or 0):
+                    raise PortError("Invalid final packaging quiescence elapsed time")
+                report["elapsed_seconds"] = elapsed
+            except BaseException as observation_error:
+                failure = BaseExceptionGroup("Packaging quiescence and elapsed observation failed", [
+                    error, observation_error,
+                ])
+                report["elapsed_error"] = {
+                    "type": type(observation_error).__name__, "message": str(observation_error),
+                }
+        try:
+            with path.open("x", encoding="utf-8") as stream:
+                json.dump(report, stream, indent=2, allow_nan=False)
+                stream.write("\n")
+        except (OSError, TypeError, ValueError) as error:
+            if failure is not None:
+                raise BaseExceptionGroup("Packaging quiescence and diagnostic retention failed", [failure, error])
+            raise
+        if failure is not None:
+            failure.add_note(f"Owned packaging quiescence observations: {path}")
+            raise failure
 
     @contextmanager
     def packaging_lane(self, ledger, owner):
@@ -527,9 +596,14 @@ class PrivateGuest:
         try:
             yield
         finally:
-            if self._active_children():
-                self.phase = "uncertain"
-                raise PortError("Packaging descendants remain; retain Gradle and private guest ownership")
+            primary = sys.exception()
+            self.phase = "uncertain"
+            try:
+                self._wait_packaging_quiescence()
+            except BaseException as error:
+                if primary is not None:
+                    raise BaseExceptionGroup("Packaging command and owned quiescence failed", [primary, error]) from None
+                raise
             self.phase = "prepared"
 
     def verify_disposed(self):

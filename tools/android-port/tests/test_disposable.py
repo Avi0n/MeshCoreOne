@@ -293,6 +293,266 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(self.rows(), before)
         self.assert_legacy()
 
+    def packaging_report(self, guest):
+        paths = list(guest.root.glob("packaging-quiescence-*.json"))
+        self.assertEqual(len(paths), 1)
+        return json.loads(paths[0].read_text())
+
+    def test_packaging_initially_empty_and_delayed_natural_empty_on_both_ownership_backends(self):
+        from unittest.mock import Mock
+        from controller.windows_guest import WindowsJob
+
+        for windows in (False, True):
+            for delayed in (False, True):
+                with self.subTest(windows=windows, delayed=delayed):
+                    guest = self.allocate()
+                    guest.acquire(self.ledger)
+                    before = self.rows()
+                    counts = iter([7, 2, 0] if delayed else [0])
+                    clock = [0.0]
+                    backend = Mock()
+                    backend.descendants.side_effect = lambda: set(range(100, 100 + next(counts)))
+                    if windows:
+                        guest.job = Mock()
+                        guest.job.active.side_effect = lambda: WindowsJob.active(guest.job)
+
+                        def query(_, kind, buffer, size, returned):
+                            self.assertEqual(kind, 1)
+                            buffer._obj.active = next(counts)
+                            return 1
+
+                        guest.job.kernel.QueryInformationJobObject.side_effect = query
+
+                    def sleep(seconds):
+                        self.assertGreater(seconds, 0)
+                        self.assertLessEqual(seconds, 0.02)
+                        clock[0] += seconds
+
+                    with patch.object(guest, "_prepare_supervisor"), \
+                            patch("controller.disposable.supervisor", return_value=backend), \
+                            patch("controller.disposable.time.monotonic", side_effect=lambda: clock[0]), \
+                            patch("controller.disposable.time.sleep", side_effect=sleep):
+                        with guest.packaging_lane(self.ledger, guest.owner):
+                            self.assertEqual(guest.phase, "packaging")
+                    report = self.packaging_report(guest)
+                    self.assertEqual(report["outcome"], "empty")
+                    self.assertEqual([s["count"] for s in report["samples"]], [7, 2, 0] if delayed else [0])
+                    self.assertEqual(report["elapsed_seconds"], 0.04 if delayed else 0)
+                    self.assertEqual(report["samples"][0]["pids"],
+                                     None if windows else list(range(100, 107)) if delayed else [])
+                    self.assertEqual(report["owner"], guest.owner)
+                    self.assertEqual(report["revision"], guest.revision)
+                    self.assertEqual(guest.phase, "prepared")
+                    self.assertEqual(self.rows(), before)
+                    if windows:
+                        guest.job.cleanup.assert_not_called()
+                        guest.job.kernel.TerminateJobObject.assert_not_called()
+                        guest.job.kernel.TerminateProcess.assert_not_called()
+                    else:
+                        self.assertEqual(backend.reap.call_count, 2 if delayed else 0)
+                        backend.signal_owned.assert_not_called()
+                    guest.job = None
+                    guest.dispose(self.ledger)
+                    self.assert_legacy()
+
+    def test_packaging_persistent_deadline_records_actual_counts_pids_elapsed_and_retains_receipts(self):
+        from unittest.mock import Mock
+
+        for windows in (False, True):
+            with self.subTest(windows=windows):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before, clock = self.rows(), [0.0]
+                backend = Mock()
+                backend.descendants.return_value = {101, 102, 103}
+                if windows:
+                    guest.job = Mock()
+                    guest.job.active.return_value = 3
+
+                def sleep(seconds):
+                    clock[0] += seconds
+
+                with patch.object(guest, "_prepare_supervisor"), \
+                        patch("controller.disposable.supervisor", return_value=backend), \
+                        patch("controller.disposable.time.monotonic", side_effect=lambda: clock[0]), \
+                        patch("controller.disposable.time.sleep", side_effect=sleep):
+                    with self.assertRaisesRegex(PortError, "quiescence deadline") as raised:
+                        with guest.packaging_lane(self.ledger, guest.owner):
+                            pass
+                report = self.packaging_report(guest)
+                self.assertEqual(report["outcome"], "expired")
+                self.assertEqual(report["elapsed_seconds"], report["budget_seconds"])
+                self.assertTrue(all(s["count"] == 3 for s in report["samples"]))
+                self.assertEqual(report["samples"][-1]["pids"], None if windows else [101, 102, 103])
+                self.assertIn("packaging-quiescence-", raised.exception.__notes__[0])
+                self.assertEqual(guest.phase, "uncertain")
+                self.assertEqual(self.rows(), before)
+                with patch.object(guest, "_cleanup", side_effect=PortError("independent cleanup failed")):
+                    with self.assertRaisesRegex(PortError, "independent cleanup"):
+                        guest.dispose(self.ledger)
+                self.assertEqual(self.rows(), before)
+                if windows:
+                    guest.job.cleanup.assert_not_called()
+                backend.signal_owned.assert_not_called()
+                guest.job = None
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_packaging_query_failure_and_primary_failure_both_survive_with_uncertainty(self):
+        from unittest.mock import Mock
+
+        for primary in (None, PortError("actual build failed"), KeyboardInterrupt("cancelled build")):
+            with self.subTest(primary=type(primary).__name__):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                backend = Mock()
+                query_error = OSError("owned descendant query unavailable")
+                backend.descendants.side_effect = query_error
+                with patch.object(guest, "_prepare_supervisor"), \
+                        patch("controller.disposable.supervisor", return_value=backend):
+                    with self.assertRaises(OSError if primary is None else BaseExceptionGroup) as raised:
+                        with guest.packaging_lane(self.ledger, guest.owner):
+                            if primary is not None:
+                                raise primary
+                if primary is None:
+                    self.assertIs(raised.exception, query_error)
+                else:
+                    self.assertEqual(raised.exception.exceptions, (primary, query_error))
+                report = self.packaging_report(guest)
+                self.assertEqual(report["outcome"], "uncertain")
+                self.assertEqual(report["samples"], [])
+                self.assertEqual(report["error"]["type"], "OSError")
+                self.assertGreaterEqual(report["elapsed_seconds"], 0)
+                self.assertEqual(guest.phase, "uncertain")
+                self.assertEqual(self.rows(), before)
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_packaging_invalid_windows_observations_and_failed_diagnostic_write_fail_closed(self):
+        from unittest.mock import Mock
+
+        for observation in (False, -1, "0", OSError("Job accounting query failed")):
+            with self.subTest(observation=observation):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                guest.job = Mock()
+                if isinstance(observation, OSError):
+                    guest.job.active.side_effect = observation
+                else:
+                    guest.job.active.return_value = observation
+                with patch.object(guest, "_prepare_supervisor"):
+                    with self.assertRaises((PortError, OSError)):
+                        with guest.packaging_lane(self.ledger, guest.owner):
+                            pass
+                self.assertEqual(self.packaging_report(guest)["outcome"], "uncertain")
+                self.assertEqual(guest.phase, "uncertain")
+                self.assertEqual(self.rows(), before)
+                guest.job.cleanup.assert_not_called()
+                guest.job = None
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        before = self.rows()
+        primary = PortError("actual capture failed")
+        original_open = Path.open
+
+        def open_path(path, *args, **kwargs):
+            if path.name.startswith("packaging-quiescence-"):
+                raise OSError("diagnostic retention failed")
+            return original_open(path, *args, **kwargs)
+
+        with patch.object(guest, "_prepare_supervisor"), \
+                patch.object(guest, "_active_children", return_value=set()), \
+                patch.object(Path, "open", open_path):
+            with self.assertRaises(BaseExceptionGroup) as raised:
+                with guest.packaging_lane(self.ledger, guest.owner):
+                    raise primary
+        self.assertIs(raised.exception.exceptions[0], primary)
+        self.assertRegex(str(raised.exception.exceptions[1]), "diagnostic retention failed")
+        self.assertEqual(guest.phase, "uncertain")
+        self.assertEqual(self.rows(), before)
+        with patch.object(guest, "_cleanup"):
+            guest.dispose(self.ledger)
+        self.assert_legacy()
+
+    def test_packaging_elapsed_observation_failure_never_accepts_even_empty_children(self):
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        before = self.rows()
+        with patch.object(guest, "_prepare_supervisor"), \
+                patch.object(guest, "_active_children", return_value=set()), \
+                patch("controller.disposable.time.monotonic", side_effect=[10, 9, 11]):
+            with self.assertRaisesRegex(PortError, "elapsed time"):
+                with guest.packaging_lane(self.ledger, guest.owner):
+                    pass
+        report = self.packaging_report(guest)
+        self.assertEqual(report["outcome"], "uncertain")
+        self.assertEqual(report["elapsed_seconds"], 1)
+        self.assertEqual(guest.phase, "uncertain")
+        self.assertEqual(self.rows(), before)
+        with patch.object(guest, "_cleanup"):
+            guest.dispose(self.ledger)
+        self.assert_legacy()
+
+    def test_packaging_late_empty_and_primary_command_failure_preserve_expiry(self):
+        for primary in (None, subprocess.CalledProcessError(1, ["fixture-build"])):
+            with self.subTest(primary=type(primary).__name__):
+                guest = self.allocate()
+                guest.acquire(self.ledger)
+                before = self.rows()
+                with patch.object(guest, "_prepare_supervisor"), \
+                        patch.object(guest, "_active_children", return_value=set()), \
+                        patch("controller.disposable.time.monotonic", side_effect=[0, 2, 2]):
+                    with self.assertRaises(PortError if primary is None else ExceptionGroup) as raised:
+                        with guest.packaging_lane(self.ledger, guest.owner):
+                            if primary is not None:
+                                raise primary
+                if primary is not None:
+                    self.assertIs(raised.exception.exceptions[0], primary)
+                    self.assertRegex(str(raised.exception.exceptions[1]), "quiescence deadline")
+                self.assertEqual(self.packaging_report(guest)["outcome"], "expired")
+                self.assertEqual(guest.phase, "uncertain")
+                self.assertEqual(self.rows(), before)
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_packaging_query_and_elapsed_and_retention_failures_are_not_lost(self):
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        before = self.rows()
+        primary, query = PortError("actual capture failed"), OSError("owned query failed")
+        original_open = Path.open
+
+        def open_path(path, *args, **kwargs):
+            if path.name.startswith("packaging-quiescence-"):
+                raise OSError("diagnostic write failed")
+            return original_open(path, *args, **kwargs)
+
+        with patch.object(guest, "_prepare_supervisor"), \
+                patch.object(guest, "_active_children", side_effect=query), \
+                patch("controller.disposable.time.monotonic", side_effect=[0, OSError("clock failed")]), \
+                patch.object(Path, "open", open_path):
+            with self.assertRaises(ExceptionGroup) as raised:
+                with guest.packaging_lane(self.ledger, guest.owner):
+                    raise primary
+        self.assertIs(raised.exception.exceptions[0], primary)
+        diagnostic = raised.exception.exceptions[1]
+        self.assertRegex(str(diagnostic.exceptions[1]), "diagnostic write failed")
+        self.assertIs(diagnostic.exceptions[0].exceptions[0], query)
+        self.assertRegex(str(diagnostic.exceptions[0].exceptions[1]), "clock failed")
+        self.assertEqual(guest.phase, "uncertain")
+        self.assertEqual(self.rows(), before)
+        with patch.object(guest, "_cleanup"):
+            guest.dispose(self.ledger)
+        self.assert_legacy()
+
     def test_failed_owned_job_handle_cleanup_retains_both_receipts_without_claiming_disposal(self):
         guest = self.allocate()
         guest.acquire(self.ledger)
