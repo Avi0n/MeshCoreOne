@@ -165,6 +165,35 @@ no publication, main/policy/runtime landing or product consumption is authorized
 
 ### Source-only local/native execution interlock correction
 
+The supported invocation-local feature publisher is
+`python -I tools/android-port/controller/source_push.py`. Use only its reviewed
+trusted-default-base version after landing; it refuses a candidate-modified
+entrypoint. After refreshing the trusted origin default ref, its explicit inputs
+are `--repo <worktree> --trusted-base <full-main-SHA> --head <full-HEAD-SHA>
+--remote <configured-name> --remote-url <exact-single-push-URL>`.
+It is source-only until reviewed and merged; do not run an unpublished successor
+as trusted controller code.
+
+The publisher stages the complete guard from immutable Git blobs into a private
+temporary directory and runs it as the actual nonempty pre-push hook for one
+normal nonforce feature update. It binds the source/candidate/tree/branch/remote
+and canonical Git-common location again at hook time, checks staged hashes and
+actual hook input, and refuses alternate-ledger or Git configuration/location
+overrides. It does not install a runtime, change configured hooks, use no-verify
+or run the candidate's controller code. When current execution admission refuses
+an old/mismatched installed runtime, the full trusted guard records exact
+UNVERIFIED before transport or Gradle; publication is not merge acceptance.
+The inherited invocation-only hooksPath is accepted only if exactly equal to
+the generated nonempty guarding-hook directory. No empty-hook path is accepted.
+Actual execution/cleanup remains governed by the existing complete pre-push
+guard when admission is available.
+The hook independently reconstructs the complete normalized file set and hashes
+from immutable base Git blobs; mutable request.json is not a hash authority.
+Omitted/extra/traversal entries, forged recomputed manifests, extra staged files
+and symlinks fail before the checker runs. Both outer and hook-time bindings also
+read the actual configured origin's symbolic HEAD/main with `ls-remote`; a fresh
+remote main with a stale local origin/main cache is rejected, not silently used.
+
 The source successor published as `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`
 closes the advisory/manual launcher gap; it does not deploy either candidate
 capability or alter the held native473 operation/runtime. Both independent
