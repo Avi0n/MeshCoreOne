@@ -25,6 +25,7 @@ class ChatSendQueueService(
     private val clock: SessionClock = SystemSessionClock(),
     reporter: MessagingIssueReporter = LoggingMessagingIssueReporter,
     private val newID: () -> UUID = UUID::randomUUID,
+    progress: ChatSendQueueProgress = ChatSendQueueProgress(),
 ) : ChatSendQueuePort {
     init { require(messageService.token == token) { "Queues must share their message service generation" } }
     private val ownership = MessagingOwnership(token, scope, signals, reporter)
@@ -35,7 +36,7 @@ class ChatSendQueueService(
     private val triggers = BLETransportOpenedSignal()
     private val queued = mutableSetOf<UUID>()
     private val failures = linkedMapOf<String, Throwable>()
-    private val channelFetchFailures = mutableMapOf<UUID, Long>()
+    private val channelProgress = progress.attach(token)
     private val completedDMs = mutableSetOf<UUID>()
     private val completedChannels = mutableMapOf<UUID, UInt>()
     private val indexedChannels = mutableSetOf<UUID>()
@@ -85,6 +86,7 @@ class ChatSendQueueService(
                     if (snapshot.token != null && snapshot.token != token) {
                         ownership.reporter.report(MessagingDiagnostic.StaleResult(token, "queueConnection"))
                         ownership.invalidate()
+                        channelProgress.retire()
                         triggers.finish()
                         dmQueue.cancelDrain()
                         channelQueue.cancelDrain()
@@ -151,6 +153,7 @@ class ChatSendQueueService(
             hydration ?: ownership.scope.async(start = CoroutineStart.LAZY) {
                 val rows = dataStore.fetchPendingSends(token.radioId)
                 checkQueueLifetime("hydrateSendQueue.read")
+                channelProgress.reconcile(rows)
                 var malformed: PersistenceStoreException? = null
                 for (row in rows) {
                     checkQueueLifetime("hydrateSendQueue.enqueue")
@@ -288,7 +291,6 @@ class ChatSendQueueService(
             dataStore.deletePendingSendsForMessage(key(id))
             ownership.check("channel.pendingDeleted")
             triggers.clear()
-            synchronized(lock) { channelFetchFailures.remove(id) }
             complete(id)
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (failure: PersistenceStoreException) { park(id, failure) }
@@ -300,27 +302,20 @@ class ChatSendQueueService(
         val id = envelope.messageID
         if (!isTransientChannelMessageError(failure)) throw failure
         if (isChannelMessageNotFound(failure) && attempt.postBumpCount >= config.disambiguateAfterAttempts) {
-            val exists = try {
-                val found = channelQuery.fetchChannel(envelope.channelIndex)
-                ownership.check("channel.disambiguated")
-                synchronized(lock) { channelFetchFailures.remove(id) }
-                found != null
-            } catch (cancelled: CancellationException) { throw cancelled }
+            val found = try { channelQuery.fetchChannel(envelope.channelIndex) }
+            catch (cancelled: CancellationException) { throw cancelled }
             catch (queryFailure: Exception) {
                 // The source query contract counts every thrown error; none becomes a nil channel.
-                val count = synchronized(lock) {
-                    Math.incrementExact(channelFetchFailures[id] ?: 0).also { channelFetchFailures[id] = it }
-                }
+                val count = channelProgress.increment(id, attempt.pendingID)
                 record("channelQuery.$id", queryFailure, retain = queryFailure is PersistenceStoreException)
-                if (count >= config.maxConsecutiveFetchChannelFailures) {
-                    synchronized(lock) { channelFetchFailures.remove(id) }
-                    throw queryFailure
-                }
+                if (count >= config.maxConsecutiveFetchChannelFailures) throw queryFailure
                 try { remapPending(id) }
                 catch (storage: PersistenceStoreException) { record("remap.$id", storage) }
                 park(id, queryFailure)
             }
-            if (!exists) throw failure
+            ownership.check("channel.disambiguated")
+            channelProgress.clear(id)
+            if (found == null) throw failure
         }
         try { remapPending(id) }
         catch (storage: PersistenceStoreException) { record("remap.$id", storage) }
@@ -331,6 +326,7 @@ class ChatSendQueueService(
     private suspend fun terminalChannel(failure: Exception, envelope: ChannelMessageEnvelope) = terminal(failure, envelope.messageID)
     private suspend fun terminal(failure: Exception, id: UUID) {
         record("terminal.$id", failure, retain = false)
+        var deleted = false
         try {
             ownership.check("terminalSend")
             dataStore.updateMessageStatusUnlessDelivered(key(id), MessageStatus.FAILED)
@@ -338,14 +334,15 @@ class ChatSendQueueService(
             messageService.notifyMessageFailed(id)
             dataStore.deletePendingSendsForMessage(key(id))
             ownership.check("terminalSend.deleted")
+            deleted = true
         } catch (storage: PersistenceStoreException) { record("terminalPersistence.$id", storage) }
-        complete(id)
-        synchronized(lock) { channelFetchFailures.remove(id) }
+        complete(id, clearProgress = deleted)
     }
     private suspend fun drained(failure: Exception?) {
         if (failure != null) ownership.failure("sendQueueDrain", failure)
     }
-    private fun complete(id: UUID) {
+    private fun complete(id: UUID, clearProgress: Boolean = true) {
+        if (clearProgress) channelProgress.clear(id)
         val claim = synchronized(lock) { directClaimIDs.remove(id) }
         claim?.let(messageService::releaseDirectClaim)
         synchronized(lock) {
@@ -366,6 +363,7 @@ class ChatSendQueueService(
             teardown?.let { it to false } ?: CompletableDeferred<TeardownReport>().also {
                 teardown = it
                 ownership.invalidate()
+                channelProgress.retire()
             }.let { it to true }
         }
         if (!claimed) return withContext(NonCancellable) { receipt.await() }

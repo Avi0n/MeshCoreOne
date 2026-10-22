@@ -228,6 +228,7 @@ internal class FirmwareTransport(private val senderPublicKey: Bytes = SELF) : Me
     var beforeReply: (suspend (Bytes) -> Unit)? = null
     var holdMessageReplies = false
     var holdGetReplies = false
+    var holdChannelReplies = false
     var acknowledge = false
     var ackBeforeAcceptance = false
     var acceptanceGate: CompletableDeferred<Unit>? = null
@@ -278,6 +279,7 @@ internal class FirmwareTransport(private val senderPublicKey: Bytes = SELF) : Me
             CommandCode.RESET_PATH -> mock.simulateOK()
             CommandCode.GET_CONTACT_BY_KEY -> mock.simulateError(2u)
             CommandCode.GET_CHANNEL -> {
+                if (holdChannelReplies) return
                 val channel = channelReplies[data[1]]
                 if (channel == null) mock.simulateError(2u)
                 else mock.simulateReceive(ByteWriter().appendUInt8(ResponseCode.CHANNEL_INFO.rawValue).appendUInt8(channel.index)
@@ -316,8 +318,9 @@ internal class Harness(
     val contact: ContactDTO = ContactDTO(CONTACT, RADIO, TARGET, "Peer", lastHeardTimestamp = 0u),
     val localPublicKey: Bytes = SELF,
     startupPacket: Bytes? = null,
+    radio: RadioId = RADIO,
 ) {
-    val token = token(generation = generation)
+    val token = token(radio, generation)
     private val fixtureJob = SupervisorJob(test.coroutineContext[Job])
     val scope = CoroutineScope(test.coroutineContext + fixtureJob)
     val signals = TestSignals(token)
@@ -381,8 +384,9 @@ internal class Harness(
         config: ChatSendQueueConfig = ChatSendQueueConfig(),
         query: MessagingChannelQuery = MessagingChannelQuery { null },
         indexer: OutgoingChannelReactionIndexer = OutgoingChannelReactionIndexer { _, _, _, _, _ -> },
+        progress: ChatSendQueueProgress = ChatSendQueueProgress(),
     ) = ChatSendQueueService(token, store, service, query, indexer, signals, scope, config, clock,
-        MessagingIssueReporter { diagnostics += it }).also { queues += it }
+        MessagingIssueReporter { diagnostics += it }, progress = progress).also { queues += it }
     fun poller(role: MeshCoreSessionProtocol = session) =
         MessagePollingService(token, role, store, signals, scope, clock, MessagingIssueReporter { diagnostics += it })
             .also { pollers += it }
