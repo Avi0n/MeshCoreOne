@@ -14,8 +14,9 @@ is not a second reproducible CI-result bundle or an acceptance receipt.
 
 The trusted reservation CLI acquired the real WP-207 advisory reservation,
 revision 1, with `wp-owned`/`modify` for runtime, its deviation and its evidence.
-No protocol, messaging, App, shared policy or build/dependency edits were admitted
-or made. The original prerequisite implementation merge commits for WP-107
+Initially no protocol, messaging, App, shared policy or build/dependency edits
+were admitted or made; the later App support admission is recorded below.
+The original prerequisite implementation merge commits for WP-107
 (`#19`), WP-202 (`#23`), WP-204 (`#21`) and WP-205 (`#18`) are ancestors of base.
 Diagnosis context is existing issue #261, not a claim to close its remaining
 cross-WP integration work.
@@ -81,4 +82,35 @@ performed. Merge remains serialized behind the coordinator's native END/cleanup.
 
 WP-208 owns persistent per-envelope channel-query failure progress across graph
 replacement; WP-303 owns its App wiring. Runtime requires no new producer signal
-or App lifetime contract for this repair.
+to request physical loss. The separately discovered accounting-completion
+contract is unresolved as described below.
+
+## Deferred-ordering support transfer; production ordering still blocked
+
+WP-501's PR discussion transferred the three-path App support change:
+https://github.com/cbattlegear/MeshCoreOne-Android/pull/277#issuecomment-6346049979
+and explicitly corrected its acceptance limits:
+https://github.com/cbattlegear/MeshCoreOne-Android/pull/277#issuecomment-6346079024 .
+Trusted `reserve.py admit` and same-owner `evolve` admitted AppContainer,
+ContainerHarness and QueueChannelConsumerIntegrationTest through
+`app-build-launcher` / `add-direct-support-wiring`; reservation revision 2 keeps
+the actual session, attempt, authorization context and initial bindings.
+
+The test gate delays only recovery scheduling, preserves every old assertion,
+and then asserts physical retirement. It is supplemental LATE-ordering coverage,
+not an ungated production repair or the missing A-terminal/B-survival witness.
+In particular, the original App failure is NOT established to be merely an
+obsolete assertion: actual ChannelService retry suspension and queue lease
+retirement expose a genuine unrecorded-failure ordering window.
+
+The runtime worker requested the exact producer completion seam on WP-208:
+https://github.com/cbattlegear/MeshCoreOne-Android/pull/278#issuecomment-6346190391 .
+No speculative lifecycle API, arbitrary grace delay or failure-on-cancellation
+accounting was added. Accounting must settle before retirement and, where
+threshold terminal cleanup requires current ownership, before token withdrawal.
+Manual stop, unrelated cancellation, stale/new generations and pending-row
+replacement must not manufacture or duplicate credit.
+
+Any successor hosted result is exact-head only. A green gated test alone leaves
+combined acceptance BLOCKED pending the producer fix and WP-501's ungated real
+App/Room A-terminal/B-literal-three-second-survival evidence.
