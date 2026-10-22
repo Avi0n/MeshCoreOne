@@ -315,6 +315,53 @@ class SourceDispositionTests(unittest.TestCase):
             self.assertEqual(result["protocol_suite"]["discovered"], 84)
             self.assertEqual(result["protocol_suite"]["passed"], 84)
 
+    def test_selected_gradle_batch_budget_reaches_executor_and_preserves_timeout_diagnostics(self):
+        real_execute = ci.execute
+        for outcome in ("success", "timeout"):
+            with self.subTest(outcome=outcome), self.candidate(PORTED) as (commands, printed, output, state):
+                graph_fixture = commands.side_effect
+                failure = ci.subprocess.TimeoutExpired(["fixture-gradle"], 3600)
+
+                def execute(command, environment, log, **kwargs):
+                    graph_fixture(command, environment, log, **kwargs)
+                    return real_execute(command, environment, log, **kwargs)
+
+                def run(command, **kwargs):
+                    if command[0].endswith("gradlew"):
+                        self.assertEqual(kwargs["timeout"], 3600)
+                        kwargs["stdout"].write("actual selected batch progress\n")
+                        if outcome == "timeout":
+                            raise failure
+                    else:
+                        self.assertEqual(kwargs["timeout"], 60)
+                    return ci.subprocess.CompletedProcess(command, 0)
+
+                commands.side_effect = execute
+                with patch.object(ci.subprocess, "run", side_effect=run), \
+                        contextlib.redirect_stderr(io.StringIO()) as diagnostics:
+                    if outcome == "timeout":
+                        with self.assertRaises(ci.subprocess.TimeoutExpired) as raised:
+                            ci.run_stage("scaffold", state, output, scopes=self.protocol_selection())
+                        self.assertIs(raised.exception, failure)
+                        self.assertIn("actual selected batch progress", diagnostics.getvalue())
+                        self.assertIn('"failed_command_report_totals"', diagnostics.getvalue())
+                        self.assertIn('"discovered": 84', diagnostics.getvalue())
+                        self.assertNotIn('"result": "success"', printed.getvalue())
+                    else:
+                        ci.run_stage("scaffold", state, output, scopes=self.protocol_selection())
+                        self.assertIn('"passed": 84', printed.getvalue())
+                self.assertEqual((output / "gradle-scaffold.log").read_text(), "actual selected batch progress\n")
+
+    def test_extended_batch_budget_keeps_task_graph_guard_and_benchmark_budget(self):
+        for stage in ("scaffold", "benchmark"):
+            with self.subTest(stage=stage), self.candidate(PORTED) as (commands, _, output, state):
+                with patch.object(ci, "validate_candidate_task_graph", side_effect=PortError("invalid actual graph")) as graph:
+                    with self.assertRaisesRegex(PortError, "invalid actual graph"):
+                        ci.run_stage(stage, state, output, scopes=self.protocol_selection())
+                self.assertEqual(commands.call_args.kwargs["timeout"], 3600 if stage == "scaffold" else 1800)
+                self.assertIn("--init-script", commands.call_args.args[0])
+                graph.assert_called_once()
+
     def test_pinned_provenance_is_enforced_for_protocol_only_scope(self):
         for headers in (PORTED.replace(PIN, "0" * 40), PORTED.replace("PacketParser.swift", "Unknown.swift")):
             with self.subTest(headers=headers), self.candidate(headers) as (commands, _, output, state):
