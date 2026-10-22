@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.TestFactory
 
-private class RecoveryDispatcher(private val delegate: CoroutineDispatcher) : CoroutineDispatcher() {
+internal class RecoveryDispatcher(private val delegate: CoroutineDispatcher) : CoroutineDispatcher() {
     private val queued = mutableListOf<Pair<CoroutineContext, Runnable>>()
     private var paused = true
     override fun dispatch(context: CoroutineContext, block: Runnable) {
@@ -30,7 +30,7 @@ private class RecoveryDispatcher(private val delegate: CoroutineDispatcher) : Co
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-private suspend fun TestScope.withRecoveryFixture(
+internal suspend fun TestScope.withRecoveryFixture(
     assertions: suspend RuntimeFixture.(RecoveryDispatcher) -> Unit,
 ) {
     val dispatcher = RecoveryDispatcher(StandardTestDispatcher(testScheduler))

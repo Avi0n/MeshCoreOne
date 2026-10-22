@@ -47,6 +47,11 @@ event and dispatch boundary are documented in deviation A-08.
 - `python .\tools\android-port\local\check.py --stages preflight`: blocked,
   exit 1, `Malformed installed reservation runtime manifest`, before Gradle
   execution. The runtime was not replaced and the native lock was not bypassed.
+- The normal `git push -u origin cbattlegear-psychic-invention` advisory hook
+  published the candidate explicitly UNVERIFIED. Its Python scaffold 15/15
+  and parity-accounting 108/108 passed; local-tool tests passed 42/43, with
+  the existing WSL/canonical-Windows-ledger diagnostic expectation failing
+  before Gradle. No native runtime replacement was performed.
 
 The declared relevant module command is `:core:runtime:test`. The candidate's
 normal hosted workflow supplies readiness, strict dependency verification and
