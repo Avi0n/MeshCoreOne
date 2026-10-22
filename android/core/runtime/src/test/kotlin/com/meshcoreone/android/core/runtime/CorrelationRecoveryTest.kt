@@ -135,7 +135,27 @@ class CorrelationRecoveryTest {
                 assertEquals(1, old.channelQueryAccountingCalls)
                 manager.connect(platform.target, forceFullSync = false, forceReconnect = true)
                 runCurrent()
+                assertFalse(observationCancelled.isCompleted)
+                assertEquals(1, services.size)
+                assertEquals(old.token, manager.snapshot.value.token)
+                assertEquals(0, old.teardowns)
+                assertEquals(0, radios.single().closes)
+
+                val successorSyncStarted = CompletableDeferred<Unit>()
+                onFactory = { successor, _ ->
+                    successor.beforeSync = {
+                        assertTrue(observationCancelled.isCompleted)
+                        assertEquals(1, old.teardowns)
+                        assertEquals(1, radios.first().closes)
+                        assertNotEquals(DeviceConnectionState.READY, manager.connectionState)
+                        successorSyncStarted.complete(Unit)
+                    }
+                }
+                manager.connect(target(), forceFullSync = false, forceReconnect = true)
+                runCurrent()
                 assertTrue(observationCancelled.isCompleted)
+                assertTrue(successorSyncStarted.isCompleted)
+                assertEquals(2, services.size)
                 assertEquals(DeviceConnectionState.READY, manager.connectionState)
                 assertEquals(services.last().token, manager.snapshot.value.token)
                 assertTrue(services.last().token.generation.value > old.token.generation.value)

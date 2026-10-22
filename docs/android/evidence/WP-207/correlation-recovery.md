@@ -213,3 +213,38 @@ attributed to a user product-policy choice and does not turn the failed
 original 30-second witness into a pass. No new runtime driver is authorized.
 These local documentation updates remain unpublished at the coordinator's
 direction; they do not trigger another standalone documentation CI candidate.
+
+## Coherent-candidate replacement regression repair
+
+The coordinator assigned the genuine runtime failure in coherent App candidate
+`a2975888815a309335ea1afed4a310256e455a94`, automatic run
+39865043655 / Linux job 120126212179. Runtime executed 277 cases, with
+276 passing and the replacement-accounting case failing. App executed 1,255
+passing cases; later services/UI tasks were not reached. The official log
+identifies the method but supplies no assertion stack, so no exact failing
+assertion is inferred from that log.
+
+Source inspection establishes that the test called forced `connect` for its
+already-operational device. `connectAttempt` deliberately returns before
+submission/owner detachment in that case. The accounting barrier intentionally
+keeps that original graph operational while pending, so this call did not
+request the replacement asserted by the test. Changing production's no-op
+rule would alter unrelated connection policy.
+
+The bounded repair preserves that call and explicitly asserts its no-op
+semantics, then switches to a distinct Bluetooth target through the existing
+normal submission path. The existing successor `beforeSync` hook asserts that
+old accounting cancellation, single service teardown and physical close have
+already completed before the new graph can become READY. All original final
+assertions remain, with explicit successor-sync and two-graph assertions.
+There is no arbitrary delay, relaxed assertion or production change.
+
+The authorized coherent dependencies were normally merged so actual producer
+and App bridge APIs are present; non-WP-207 product bytes are preserved.
+`python .\tools\android-port\local\check.py --stages preflight` remains blocked
+before Gradle with `Malformed installed reservation runtime manifest`.
+No native/runtime installation or protected-lock action was attempted.
+`validate.py`, `portmap.py` and `git diff --check` passed after integration;
+these are not Kotlin execution. The declared targeted `:core:runtime:test`
+cannot be executed locally without successful admission. Publication therefore
+remains explicitly UNVERIFIED pending the normal exact-candidate hosted run.
