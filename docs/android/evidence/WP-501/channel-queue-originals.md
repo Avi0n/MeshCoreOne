@@ -286,8 +286,11 @@ it does not inject a service exception or null. A 50ms transport-open loop
 uses the current real queue without resetting its generation or progress.
 
 The fixture uses Bluetooth, production Default recovery and real clocks.
-A row must be deleted and FAILED within the original monotonic30-second
-deadline; B's row must survive a literal three-second real delay afterward.
+A row must be observed deleted inside the original monotonic30-second
+wait, then its status must be FAILED; B's row must survive a literal
+three-second real delay afterward. Follow-up source
+`96b2b7a7a` checks the clock before each poll, matching the frozen helper:
+a post-deadline deletion cannot turn an expired wait into a pass.
 No stable Bstatus/final attempt count is required. Genuine typed query
 failures and B consumption additionally exclude cancellation or a disconnected,
 never-consumed B as counter-isolation proof. No recovery gate, manual reconnect
