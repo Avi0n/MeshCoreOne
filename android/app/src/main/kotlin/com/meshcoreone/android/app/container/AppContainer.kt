@@ -39,6 +39,7 @@ import com.meshcoreone.android.core.contracts.notifications.NotificationDelivery
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.maps.OfflineMapController
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.config.SessionConfiguration
 import com.meshcoreone.android.core.runtime.ConnectionManager
 import com.meshcoreone.android.core.runtime.ConnectionObserver
 import com.meshcoreone.android.core.runtime.LastConnectionStore
@@ -52,6 +53,8 @@ import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.device.RadioPresets
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
 import com.meshcoreone.android.core.services.messaging.LoggingMessagingIssueReporter
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueConfig
+import com.meshcoreone.android.core.services.messaging.MessageServiceConfig
 import com.meshcoreone.android.core.services.rendering.ChatCoordinatorRegistry
 import com.meshcoreone.android.core.services.rendering.DraftStore
 import com.meshcoreone.android.core.services.sync.SyncClock
@@ -135,6 +138,9 @@ class AppContainerDependencies(
     val themeService: com.meshcoreone.android.core.designsystem.ThemeService? = null,
     val backupEngine: com.meshcoreone.android.feature.settings.app.backup.BackupEngine? = null,
     internal val chatContent: AppChatContent? = null,
+    val runtimeSessionConfiguration: SessionConfiguration = SessionConfiguration.DEFAULT,
+    val messageServiceConfig: MessageServiceConfig = MessageServiceConfig(),
+    val chatSendQueueConfig: ChatSendQueueConfig = ChatSendQueueConfig(),
     val newBootstrapDebugLog: (CoroutineScope) -> DebugLogBuffer? = { null },
     /** Releases process-owned resources (database, storage) once the runtime has closed. */
     val onClose: suspend () -> Unit = {},
@@ -183,6 +189,8 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
         syncClock = dependencies.syncClock,
         logSink = dependencies.logSink,
         messagingReporter = dependencies.messagingReporter,
+        messageServiceConfig = dependencies.messageServiceConfig,
+        chatSendQueueConfig = dependencies.chatSendQueueConfig,
         onSessionLifecycle = dependencies.sessionLifecycle,
         bootstrapDebugLog = bootstrapDebugLog,
     )
@@ -203,6 +211,7 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
         observer = observerBridge.observer,
         reporter = dependencies.runtimeReporter,
         clock = dependencies.runtimeClock,
+        configuration = dependencies.runtimeSessionConfiguration,
         context = dependencies.runtimeContext,
     )
 
