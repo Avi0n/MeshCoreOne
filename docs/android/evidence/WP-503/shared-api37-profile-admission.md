@@ -2191,3 +2191,49 @@ against old trusted main before factory/allocation; merged source must still
 pass all actual live admission and fresh-capacity checks.
 The pin-only integrated successor passed the same declared234-test suite
 in16.679s, all four declared source validators, and `git diff --check`.
+
+### Actualc9: current-source pair succeeded, selected registration timed out
+
+Published `c9aa8bfc29aed3c81a74e883fc72b8d2db54d814`, direct
+`b37afd8ef35c4c7bc325d3c0e3cedfd4107ed745`, used the actually merged
+`1be2e311457fcbb0abc0e1fdf5426b207b63a962` authority and reviewed
+b67/5a85 producer inputs above. Immediately observed host commit headroom
+was4980.22MiB, above the actual SDK4096MiB minimum; this was an observation,
+not a capacity reservation or guarantee. Exact main authority was serialized
+against another pending merge for this attempt, then released after disposal.
+Runtime adoption did not occur and was not assumed; preserved old66bd and
+both old guests remained untouched.
+
+The genuinely new owner suffix `nodes:e8e3b8b40db9468fbf48e879a0612089`
+used root `private-avd-w7jsudfo` and exclusive output
+`wp503-c9aa-nodes37-disposable-a1`. Its own Windows build actually succeeded
+in2m6s with446 tasks,5 executed/441 up-to-date. Actual App/Test pairing,
+source/schema checks and matching public debug signer observations preceded
+startup; no parent build/native proof was transferred.
+
+Selected `wait-for-device` then raised
+`TimeoutExpired(['owned-process', '42848'], 120.0)` within the unchanged
+original boot deadline. There were zero framework boot observations,
+profile/install mutations or instrumentation starts; original Nodes cases
+started0/7, no cohort exists and host instrumentation exit remains unknown.
+CLI exit2 is not an instrumentation exit. Independent `guest.dispose` and
+`verify_disposed` actually verified true with no disposal error.
+
+The actual151-line host startup log records successful compatibility checks,
+WHPX operational and netsim startup, but no Android boot-completion line,
+explicit RAM failure or fatal error. Actual config remains two CPUs,
+4096MiB RAM and SDK-expanded6GiB data. Animation suppression is absent.
+The selected ADB log is empty. Retained crashpad metadata contains no crash
+dump, and the bounded matching Windows Application crash-event query found
+none; neither absence proves that the guest booted or identifies a cause.
+Without guest-kernel startup output, kernel progress and transport
+registration cannot be distinguished from these observations.
+
+Exact operations, current-source build/pairing and private host logs remain
+retained in the two named session artifact directories. This failure is
+separate from7b3's explicit RAM failure, its early non-waiting getprop failure,
+and81b's actual108371ms boot with suppressed animation. No unchanged retry,
+deadline extension, post-timeout guest probe, assertion/layout change or
+invented configuration repair was performed. A narrowly scoped request for
+producer-owned startup diagnostics was routed to the existing coordinator;
+it does not claim a demonstrated new producer defect or authorize a new worker.
