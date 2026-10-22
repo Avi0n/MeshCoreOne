@@ -383,10 +383,8 @@ internal class Harness(
         query: MessagingChannelQuery = MessagingChannelQuery { null },
         indexer: OutgoingChannelReactionIndexer = OutgoingChannelReactionIndexer { _, _, _, _, _ -> },
         progress: ChatSendQueueProgress = ChatSendQueueProgress(),
-        onQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null,
     ) = ChatSendQueueService(token, store, service, query, indexer, signals, scope, config, clock,
-        MessagingIssueReporter { diagnostics += it }, progress = progress, onQueryAccounting = onQueryAccounting)
-        .also { queues += it }
+        MessagingIssueReporter { diagnostics += it }, progress = progress).also { queues += it }
     fun poller(role: MeshCoreSessionProtocol = session) =
         MessagePollingService(token, role, store, signals, scope, clock, MessagingIssueReporter { diagnostics += it })
             .also { pollers += it }
