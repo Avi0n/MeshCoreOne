@@ -175,3 +175,29 @@ The mandatory runtime port intentionally requires the WP-303 concrete graph
 implementation before the combined App can compile. Its published signature
 and ordering request are the actual consumer prerequisite, not an absent
 WP-107 signal or a reason to install a success-shaped default.
+
+## Source-only timing-contract investigation
+
+Deviation A-11 records the frozen simulator's genuine query-timeout semantics
+and the additional native physical-recovery contract of the full-App witness.
+Existing foreground, companion-presence and BLE callback routes do not supply
+an automatic fast reconnect for that unchanged continuously-active fixture.
+The source-grounded findings and explicit reconciliation options are recorded
+on the existing PR:
+https://github.com/cbattlegear/MeshCoreOne-Android/pull/277#issuecomment-6349080065
+and the frozen ERROR 2 versus query-timeout clarification:
+https://github.com/cbattlegear/MeshCoreOne-Android/pull/277#issuecomment-6349306808 .
+
+No new production behavior or App/harness change is authorized or implemented
+by this investigation. App support remains serialized to the current WP-303
+consumer. Runtime acceptance remains unverified, not inferred from the gated
+supplement or an offline surviving row.
+
+The infrastructure owner subsequently identified the local preflight blocker
+more precisely: the installed runtime is valid legacy schema 1 with all 41
+hashes, whereas the current checker requires repository-bound schema 2/current
+runtime (four missing modules and 23 changed files). Safe atomic upgrade is
+blocked by the protected native-execution `66bd` lock. Absent process IDs do
+not authorize clearing it. The failed preflight was not repeatedly rerun, no
+alternate runner or lock bypass was used, and this session started no local
+Gradle/native execution.
