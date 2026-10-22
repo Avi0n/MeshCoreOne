@@ -3515,3 +3515,66 @@ history; it did not release/reacquire a reservation or touch the protected lease
 Full local Gradle/Kotlin compilation and changed-source native execution remain
 UNVERIFIED. The automatically triggered exact-successor hosted run, not any
 older producer/candidate verdict, controls reproducible candidate verification.
+
+### Genuine ee1104 LoS and conditional cached-chat API37 observations
+
+Source review5618359911 is COMMENTED for exact published
+ee1104b097899ab08f3f82227d8cde354bc92602/r33. Fresh supported admission used
+actual trusted main37629cdac0d1cd1ac06648346dfb92a5fbd7e5e7; the REST PR
+base metadata still reported401/refmain and was retained as observed, not aliased
+to376. The entire trusted controller/runtime tree and API, actor, pause, policy,
+manifest, canonical scope, request, owner, tool and image guards passed. No source
+integration, runtime install, old5556/66bd action or native guard bypass occurred.
+LoS admission17:41:20.745577Z had commit6489.3984375MiB/
+physical13430.75MiB; fresh cached-chat admission17:47:02.114649Z had
+commit10539.7421875MiB/physical14326.4140625MiB, all above4096MiB.
+
+Both source-bound Windows App/Test builds genuinely succeeded:
+LoS2m8s/446tasks9executed437up-to-date; cached-chat1m44s/
+446tasks5executed441up-to-date. App SHA256
+`1eb334ceb728f41cef002f526580c763eba8b3bd481dfaefbfcb9e8f2038e162`,
+new Test SHA256
+`b9d8f2aedcddbb9640e3f2329a14d57cf3070340147b80aef4949664b30dae30`,
+existing public certificate
+`000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7`.
+Actual installed digests matched each pair. This proves these assembly tasks,
+not the full local Gradle test suite or a transferred hosted verdict.
+
+| Original selected method | Actual native outcome | Actual END and independent cleanup |
+|---|---|---|
+| `NativeLineOfSightAccessibilityTest#savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200` |1 discovered/started/matching/PASS,0F/E/S,30.242s,CLI0/host0/terminal-1,runner_completed=true|END17:46:15.188922Z; independent17:46:33.241964Z disposalTRUE/newlocksNONE/PIDs19212/45356/56172absent|
+| `NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200` |1 discovered/started/matching/PASS,0F/E/S,40.361s,CLI0/host0/terminal-1,runner_completed=true|END17:51:50.437248Z; independent17:51:57.667704Z disposalTRUE/newlocksNONE/PIDs22384/53176/54264absent|
+
+Only after LoS PASS/END/independent disposal and fresh all-positive guards did
+the single cached-chat attempt start. Each uses its own exclusively owned guest;
+there is no prior-process or endpoint adoption. Both actual profiles are API37/
+release17/user0/CPU4/font2/effective2/360x900/density160/motion0/IME0.
+Fresh boot is1/stopped, no offline/reattach path was exercised, and native120s
+boot/180s instrumentation plus the original1000ms predicates are unchanged.
+
+LoS logcat records one native named ancestor action per saved endpoint and
+catalogReads=1 before selection. The original state/name/role/elevation/offscreen/
+48dp assertions complete. Cached-chat records12px then24px preparation and
+retains24px after900x900/navigation-rail and360x900/navigation-hidden actual
+recreation, with entry5, saved draft, loaded timeline and real store/graph.
+Its own seeded fixture is removed and original touch flags65554/enabledfalse
+are restored. No physical TalkBack, real radio/terrain or performance claim follows.
+
+The source-bound records, actual wrapper commands, exact raw/operations hashes,
+private retained paths, build pair and independent cleanup are indexed in
+`device-ee1104-los-cached-chat-api37.json`. Raw transcripts are960B and964B.
+Only bounded non-reproducible native evidence is retained: no APK/private key or
+reproducible CI-result bundle is copied. The actual operations/raw files remain
+unchanged. All new-owner locks are absent, only the protected historical66bd
+remains, and the parent independently verified cleanup and released serialization.
+
+The evidence/docs-only successor has the entire Android tree byte-identical to
+compiled ee1104; it does not execute or build a new native candidate, integrate
+advanced main or republish source. Same-owner documentation capability bookkeeping
+evolvesr33 tor34 without changing original executionr33, identity, authorization
+or history. Actual b8991FAIL/16.609s/CLI2, its unknown counter/cause,325/PURE and728
+records stay separate and immutable. The original27 missing-only API37 selection
+now has positive bounded observations across473/728/ee1104, not a single current-
+candidate27/27 run or whole-WP acceptance. Concrete remaining cold controls,
+state/context, physical TalkBack, theme/golden, old-state and review gates are in
+the current [execution matrix](../../accessibility/execution-matrix.md#current-source-bound-observations-and-remaining-acceptance).

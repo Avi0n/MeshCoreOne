@@ -1,5 +1,41 @@
 # WP-503 native execution matrix
 
+## Current source-bound observations and remaining acceptance
+
+At compiled source **ee1104b097899ab08f3f82227d8cde354bc92602/r33**,
+exactly one original LoS saved-endpoint method passes30.242s on API37.
+Only after its actual END and independently verified disposal does one original
+cached-chat draft/scroll/recreation method pass40.361s on a separately admitted
+fresh API37 guest. Each has1 discovery/start/matching/PASS,0F/E/S,
+CLI0/host0/terminal-1 and runner_completed=true. Both use CPU4/font2/effective2/
+360x900/mdpi/motion0/IME0 and unchanged120s boot/180s instrumentation bounds.
+Actual cached-chat900/360 window recreation retains the24px offset and draft.
+Both owned disposals are independently verified, with new-owner locksNONE and
+all known owned process PIDs absent. Main serialization is released.
+
+These are compiled-ee1104 observations, not executions of the later documentation
+head. The docs-only successor retains the entire Android tree and all source,
+tests, controller/runtime bytes. It does not integrate advanced main or replay a
+case. Actual b899 LoS1FAIL/16.609s/CLI2 remains immutable; its original counter
+value and cause are unknown. Original325 negative/PURE accounting,728 native
+Nodes7 and all older results retain their own source/APK/runtime bindings.
+[Exact two-case records and raw paths](../evidence/WP-503/device-ee1104-los-cached-chat-api37.json).
+
+| Concrete acceptance cell | Evidence now available / remaining boundary |
+|---|---|
+| Former missing-only API37 original27 | Comparator11, tr/az2 and diagnostics5 passed at473; Nodes7 passed at728; LoS1 and cached-chat1 now pass at ee1104. There is no longer an unstarted LoS/cached-chat cell in this selection. These are distinct compiled sources, not a single27/27 current-candidate invocation or automatic acceptance. |
+| Cold API37 activation/restoration controls | The zero-Activity `NativePlatformServiceControlTest#actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule` and `NativePlatformCallbackDeliveryTest#actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations` retain their source-bound failures. Process-ready LoS/cached-chat passes do not exercise or clear those cold controls. |
+| Compatible full-inventory/context reconciliation | Historical83/82/mixed10/context-bound Nodes/map/isolated QR failures remain historical. No compatible full current-source/API31+37 inventory reconciliation is produced by two scoped methods. Existing positive evidence needs exact source/state/provenance review, not successful-case replay or numerical addition across sources. |
+| Remaining feature/platform/window cells | Permission-dialog return focus, pairing/successful physical WiFi, sheet dismissal, populated map/marker-list/terrain and real-radio states remain unestablished by these two methods. The detailed flow/state contract below still controls; existing scoped positives cover only their recorded states and APIs. |
+| Physical TalkBack/device observation | Spoken order/repetition, tab-to-content and Back/resize/dialog focus return, link/retry and map-to-list traversal remain human/device observations. Automated touch-exploration service state and native actions are not physical TalkBack evidence. |
+| Theme/golden/state bindings | Older38-effective-frame painted contrast and flow positives remain separately source-bound. These two methods add no contrast-frame, approved screenshot-golden or full remaining-state coverage. No approved WP503 screenshot baseline/tolerance is manufactured; coordinate existing WP502 surfaces where bindings match. |
+| Protected historical66bd | Genuine original fixture/preferences/window restoration proof is still unavailable. Disposal of new guests neither restores nor releases that old lease. This is separate from the working independent disposable route. |
+| Candidate/review acceptance | Exact documentation-head hosted checks and independent evidence review remain separate gates. There is no full-WP, hardware, radio, signing or merge acceptance. The original b899 timeout's cause is not retrospectively inferred from the later pass. |
+
+The older status sections below are preserved execution/publication snapshots,
+not a statement that these two current API37 methods remain unstarted or that
+the old signing/producer-admission limitation still blocks the independent route.
+
 **Latest d977bce7 compatible83 inventory:31 82PASS/1FAIL;37 80PASS/3FAIL, zero errors/skips and83 distinct starts/outcomes per API across four fresh cohorts. Separate controlled primary/real-cleanup proof passes both; language238 and cold37 activation/restoration fail. Original237, context-bound Nodes/map and every earlier native/CI negative remain. No lowering counts/assertions. PR205 draft, WP incomplete; producer/protected gates remain.**
 
 ## Publication boundary
