@@ -231,11 +231,17 @@ internal class TestServices(val inputs: RuntimeServiceInputs) : RuntimeServices 
     var closeFailure: Exception? = null
     var beforeHydrate: suspend () -> Unit = {}
     var beforeTeardown: suspend () -> Unit = {}
+    var beforeChannelQueryAccounting: suspend () -> Unit = {}
+    var channelQueryAccountingCalls = 0
     private val events = EventBroadcaster<MeshEvent>()
     var subscription: ConnectionSubscription? = null
     var callbacksCleared = false
     var remoteSessions = emptySet<UUID>()
     var reauthenticated = emptySet<UUID>()
+    override suspend fun awaitChannelQueryAccounting() {
+        channelQueryAccountingCalls++
+        beforeChannelQueryAccounting()
+    }
     override suspend fun hydrate() { calls += "hydrate"; beforeHydrate() }
     override suspend fun startMonitoring(options: MonitoringOptions) {
         calls += "start"

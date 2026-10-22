@@ -61,6 +61,144 @@ private suspend fun RuntimeFixture.unmatchedChannelQuery() {
 class CorrelationRecoveryTest {
     @TestFactory
     fun recoveryCases() = listOf(
+        nativeCase("recovery coalesces before accounting and keeps the live token until persistence completes") {
+            withRecoveryFixture { recovery ->
+                connect()
+                val old = services.single()
+                val snapshot = manager.snapshot.value
+                val persisted = CompletableDeferred<Unit>()
+                old.beforeChannelQueryAccounting = {
+                    assertEquals(snapshot, manager.snapshot.value)
+                    persisted.await()
+                    assertEquals(snapshot.token, manager.snapshot.value.token)
+                    assertEquals(0, old.teardowns)
+                }
+                radios.single().pipelinedReads = true
+                radios.single().channelResponse = { null }
+                val query = backgroundScope.async { old.inputs.connection.session.getChannels(listOf(0u, 1u, 2u)) }
+                runCurrent(); advanceTimeBy(1_500); runCurrent()
+                assertEquals(listOf<UByte>(0u, 1u, 2u), query.await().missing)
+                recovery.open(); runCurrent()
+                assertEquals(1, old.channelQueryAccountingCalls)
+                assertEquals(snapshot, manager.snapshot.value)
+                assertEquals(0, old.teardowns)
+                assertEquals(0, radios.single().closes)
+                assertEquals(0, lossCount)
+                assertFalse(manager.isReconnectionWatchdogRunning)
+                persisted.complete(Unit); runCurrent()
+                assertNull(manager.snapshot.value.token)
+                assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
+                assertEquals(1, old.teardowns)
+                assertEquals(1, radios.single().closes)
+                assertEquals(1, lossCount)
+                advanceTimeBy(30_000); runCurrent()
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
+                assertTrue(services.last().token.generation.value > old.token.generation.value)
+            }
+        },
+        nativeCase("manual stop cancels the accounting observation without waiting for or reviving the query") {
+            withRecoveryFixture { recovery ->
+                connect()
+                val old = services.single()
+                val observationCancelled = CompletableDeferred<Unit>()
+                old.beforeChannelQueryAccounting = {
+                    try { awaitCancellation() }
+                    finally { observationCancelled.complete(Unit) }
+                }
+                unmatchedChannelQuery()
+                recovery.open(); runCurrent()
+                assertEquals(1, old.channelQueryAccountingCalls)
+                manager.disconnect()
+                runCurrent()
+                assertTrue(observationCancelled.isCompleted)
+                assertEquals(ConnectionIntent.UserDisconnected, manager.connectionIntent)
+                assertNull(manager.snapshot.value.token)
+                assertEquals(1, old.teardowns)
+                assertEquals(1, radios.single().closes)
+                assertEquals(0, lossCount)
+                advanceTimeBy(120_000); runCurrent()
+                assertEquals(1, radios.size)
+                assertFalse(manager.isReconnectionWatchdogRunning)
+            }
+        },
+        nativeCase("replacement cancels an old accounting observation before its successor becomes ready") {
+            withRecoveryFixture { recovery ->
+                connect()
+                val old = services.single()
+                val observationCancelled = CompletableDeferred<Unit>()
+                old.beforeChannelQueryAccounting = {
+                    try { awaitCancellation() }
+                    finally { observationCancelled.complete(Unit) }
+                }
+                unmatchedChannelQuery()
+                recovery.open(); runCurrent()
+                assertEquals(1, old.channelQueryAccountingCalls)
+                manager.connect(platform.target, forceReconnect = true)
+                runCurrent()
+                assertTrue(observationCancelled.isCompleted)
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
+                assertEquals(services.last().token, manager.snapshot.value.token)
+                assertTrue(services.last().token.generation.value > old.token.generation.value)
+                assertEquals(1, old.teardowns)
+                assertEquals(1, radios.first().closes)
+                assertEquals(0, radios.last().closes)
+                assertEquals(0, lossCount)
+            }
+        },
+        nativeCase("cancelled query accounting cannot strand an otherwise live quarantined physical generation") {
+            withRecoveryFixture { recovery ->
+                connect()
+                services.single().beforeChannelQueryAccounting = { throw CancellationException("admitted query cancelled") }
+                unmatchedChannelQuery()
+                recovery.open(); runCurrent()
+                assertEquals(1, diagnostics.filterIsInstance<RuntimeDiagnostic.Failure>()
+                    .count { it.operation == "session.channelQueryAccounting.cancelled" })
+                assertEquals(1, radios.single().closes)
+                assertNull(manager.snapshot.value.token)
+                assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
+                advanceTimeBy(30_000); runCurrent()
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
+            }
+        },
+        nativeCase("accounting failure is surfaced without leaving the quarantined physical generation alive") {
+            withRecoveryFixture { recovery ->
+                connect()
+                val failure = IllegalStateException("terminal persistence failed")
+                services.single().beforeChannelQueryAccounting = { throw failure }
+                unmatchedChannelQuery()
+                recovery.open(); runCurrent()
+                assertSame(failure, diagnostics.filterIsInstance<RuntimeDiagnostic.Failure>()
+                    .single { it.operation == "session.channelQueryAccounting" }.cause)
+                val issue = assertIs<ConnectionIssue.Protocol>(manager.snapshot.value.issue)
+                assertTrue(issue.error.suppressed.any { it === failure })
+                assertEquals(1, radios.single().closes)
+                assertNull(manager.snapshot.value.token)
+                assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
+            }
+        },
+        nativeCase("process shutdown cancels an accounting observation and closes its live graph exactly once") {
+            val parent = Job()
+            val fixture = RuntimeFixture(this, parent = parent)
+            try {
+                fixture.connect()
+                val observed = CompletableDeferred<Unit>()
+                val cancelled = CompletableDeferred<Unit>()
+                fixture.services.single().beforeChannelQueryAccounting = {
+                    observed.complete(Unit)
+                    try { awaitCancellation() }
+                    finally { cancelled.complete(Unit) }
+                }
+                fixture.unmatchedChannelQuery()
+                assertTrue(observed.isCompleted)
+                parent.cancel(); runCurrent()
+                fixture.manager.awaitShutdown()
+                assertTrue(cancelled.isCompleted)
+                assertEquals(1, fixture.radios.single().closes)
+                assertEquals(1, fixture.services.single().teardowns)
+                assertNull(fixture.manager.snapshot.value.token)
+                assertEquals(0, fixture.lossCount)
+            } finally { fixture.close(); parent.cancelAndJoin() }
+        },
         nativeCase("unmatched channel error keeps quarantine then physically renews at the BLE watchdog boundary") {
             withRecoveryFixture { recovery ->
                 connect()
@@ -192,7 +330,7 @@ class CorrelationRecoveryTest {
                 } finally { release.complete(Unit) }
             }
         },
-        nativeCase("cancelling a written channel query propagates cancellation but still recovers the uncertain link") {
+        nativeCase("written caller cancellation propagates while its reply owner times out before physical recovery") {
             withRecoveryFixture { recovery ->
                 connect()
                 radios.single().channelResponse = { null }
@@ -200,6 +338,12 @@ class CorrelationRecoveryTest {
                 runCurrent()
                 query.cancelAndJoin()
                 assertTrue(query.isCancelled)
+                runCurrent()
+                assertEquals(0, recovery.queuedCount)
+                assertEquals(0, radios.single().closes)
+                advanceTimeBy(999); runCurrent()
+                assertEquals(0, recovery.queuedCount)
+                advanceTimeBy(1); runCurrent()
                 assertEquals(1, recovery.queuedCount)
                 recovery.open(); runCurrent()
                 assertEquals(1, radios.single().closes)

@@ -114,3 +114,64 @@ replacement must not manufacture or duplicate credit.
 Any successor hosted result is exact-head only. A green gated test alone leaves
 combined acceptance BLOCKED pending the producer fix and WP-501's ungated real
 App/Room A-terminal/B-literal-three-second-survival evidence.
+
+## Producer completion contract
+
+WP-208 published the real queue observation
+`ChatSendQueueService.awaitChannelQueryAccounting()` at
+`34dc3d1a12009d32e06cd627cc2c03e7fc780dc3`. Runtime's corresponding mandatory
+`RuntimeServices.awaitChannelQueryAccounting()` port has no default
+implementation. WP-303 must delegate it to the actual queue; no concrete
+messaging dependency is introduced into runtime.
+
+Recovery coalesces a generation-owned observation before awaiting it, while
+keeping the original token and connection snapshot live. The observation
+finishes before token withdrawal, service retirement/cancellation or physical
+close. No protocol or runtime lock is held across that suspension. Detach,
+another connection loss, replacement and shutdown cancel the observation; the
+recovery rechecks its current owner after suspension. Cancelling an observation
+does not cancel the queue's query or create failure credit. A producer
+observation cancellation on an otherwise current runtime generation cannot
+strand its quarantined link: physical recovery still follows the original
+diagnostic, without counting cancellation as a query failure. Runtime caller
+cancellation itself continues to propagate.
+
+Six additional runtime cases cover blocked accounting with repeated real
+diagnostics, manual stop, replacement, process shutdown, producer cancellation,
+and surfaced accounting failure. They supplement, rather than replace, the ten
+original recovery cases and remain authored until exact-head execution.
+
+Reservation revision 3 admitted only the existing data and connectivity
+`RuntimeServices` test doubles through trusted `merge-integration` /
+`merge-disjoint-semantic-edits`. Those fixtures have no channel-query producer;
+their explicit implementations represent that empty fake graph. No production
+data, BLE or messaging path was edited. Existing assertions remain unchanged.
+The App graph delegation was requested from its current WP-303 producer:
+https://github.com/cbattlegear/MeshCoreOne-Android/pull/281#issuecomment-6347137708 .
+
+This resolves the runtime port/ordering requirement, not combined acceptance.
+The ungated App/Room witness and explicit reconciliation of the inherited
+30-second BLE watchdog with the original 30-second A deadline remain required.
+
+The exact `c48f98a1320bca0f6dc4382f16ddf8757866efb3` hosted run
+39820735424 / Linux job 119971154605 compiled runtime and executed 271 runtime
+cases, with two failures: the written-query cancellation regression and the
+existing cleared-authentication-latch case. The authoritative log identifies
+those methods but does not include assertion values; no JUnit artifact was
+retained. Source inspection established two coupled issues: a written request
+deliberately retains its response owner after caller cancellation until its
+actual deadline, and loss coalescing must not suppress a retained connection's
+explicit authentication re-alert after the latch is cleared.
+
+The cancellation case now asserts the unchanged 999/1000ms timeout boundary
+before expecting uncertainty; it does not change the protocol. Repeated
+authentication notifications may re-alert the same still-relevant retained
+owner, without repeating graph teardown or connection-loss notification. The
+original latch assertions remain, with additional single-teardown/loss checks.
+These successor corrections require fresh exact-head execution; the failed
+run remains failed and proves neither the new accounting port nor these fixes.
+
+The mandatory runtime port intentionally requires the WP-303 concrete graph
+implementation before the combined App can compile. Its published signature
+and ordering request are the actual consumer prerequisite, not an absent
+WP-107 signal or a reason to install a success-shaped default.

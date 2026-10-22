@@ -84,6 +84,7 @@ class ConnectionManager(
         var physicalEnding = false
         var restorationRoute = false
         var lossHandled = false
+        var correlationAccounting: Deferred<Unit>? = null
         val registrationReady = CompletableDeferred<Unit>()
     }
 
@@ -433,9 +434,9 @@ class ConnectionManager(
                     is SessionDiagnostic.CorrelationUncertain -> {
                         // The producer holds its protocol lock. Always enqueue recovery off that stack.
                         dispatch(owner, "session.correlationUncertain", recoveryDispatcher) {
-                            handleConnectionLoss(owner, MeshCoreException.ConnectionLost(
+                            recoverCorrelation(owner, MeshCoreException.ConnectionLost(
                                 SessionCorrelationException.UnresolvedReply(diagnostic.generation, diagnostic.responseFamily),
-                            ), disconnectPhysical = true)
+                            ))
                         }
                     }
                     else -> Unit
@@ -1016,6 +1017,7 @@ class ConnectionManager(
         publishDisconnected: Boolean = true,
     ): TeardownReport {
         synchronized(lock) {
+            owner.correlationAccounting?.cancel()
             if (primary != null && provenForeignAdmission(primary, owner)) {
                 owner.link?.let { PhysicalOwnership.release(it.transport, owner.physicalOwner) }
                 owner.ownsPhysical = false
@@ -1102,6 +1104,7 @@ class ConnectionManager(
 
     private fun detachOwnersLocked(state: DeviceConnectionState, intent: ConnectionIntent = values.value.intent): List<RadioGeneration> {
         val owners = listOfNotNull(active, retained).distinct()
+        owners.forEach { it.correlationAccounting?.cancel() }
         active = null
         retained = null
         deviceValue = null
@@ -1122,6 +1125,29 @@ class ConnectionManager(
             (hasCause<SessionCorrelationException.ConcurrentTransportOwner>(failure) ||
                 hasCause<SessionCorrelationException.RetainedTransport>(failure))
 
+    private suspend fun recoverCorrelation(owner: RadioGeneration, failure: Throwable) {
+        val accounting = synchronized(lock) {
+            if (!isCurrent(owner) || owner.lossHandled || owner.correlationAccounting != null) null
+            else owner.scope.async(start = CoroutineStart.LAZY) {
+                owner.services?.services?.awaitChannelQueryAccounting()
+                Unit
+            }.also { owner.correlationAccounting = it }
+        } ?: return
+        accounting.start()
+        try { accounting.await() }
+        catch (cancelled: CancellationException) {
+            currentCoroutineContext().ensureActive()
+            if (!isCurrent(owner)) return
+            reporter.report(RuntimeDiagnostic.Failure("session.channelQueryAccounting.cancelled", cancelled))
+        }
+        catch (accountingFailure: Exception) {
+            failure.addSuppressed(accountingFailure)
+            reporter.report(RuntimeDiagnostic.Failure("session.channelQueryAccounting", accountingFailure))
+        }
+        if (!isCurrent(owner)) return
+        handleConnectionLoss(owner, failure, disconnectPhysical = true)
+    }
+
     private suspend fun handleConnectionLoss(
         owner: RadioGeneration, failure: Throwable?, disconnectPhysical: Boolean = false,
     ) {
@@ -1130,6 +1156,7 @@ class ConnectionManager(
             else {
                 val before = values.value
                 owner.lossHandled = true
+                owner.correlationAccounting?.cancel()
                 if (disconnectPhysical) owner.physicalEnding = true
                 if (active === owner) active = null
                 retained = owner
@@ -1139,7 +1166,13 @@ class ConnectionManager(
                     failure?.let { issueFor(it, LifecycleStage.CONNECT) })
                 before
             }
-        } ?: run { reporter.report(RuntimeDiagnostic.StaleCallback("connectionLoss", owner.number)); return }
+        } ?: run {
+            if (!disconnectPhysical && failure != null && isRelevant(owner) &&
+                platform.classifyFailure(failure) is LinkFailure.AuthenticationFailed && isRelevant(owner)) {
+                (owner.target as? ConnectionTarget.Bluetooth)?.deviceId?.let(::surfaceAuthenticationFailure)
+            } else reporter.report(RuntimeDiagnostic.StaleCallback("connectionLoss", owner.number))
+            return
+        }
         reconnectionCoordinator.clearReconnectingDevice()
         val report = closeGeneration(owner, disconnectPhysical, failure)
         owner.operation?.cancel()
