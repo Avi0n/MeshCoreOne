@@ -16,7 +16,7 @@ CONTROLLER_MODULES = (
     "__init__", "apk_alignment", "authority", "backends", "capabilities", "ci", "ci_environment", "ci_evidence",
     "dispatch", "disposable", "engine", "errors", "gate_runtime", "gates", "historical", "ledger", "model", "module_junit",
     "native_review", "paths", "performance", "publication", "provision", "repair_acceptance", "render", "runtime_inputs", "schema", "scope_amendment", "settings",
-    "software_verification", "source_push", "staging", "test_runner", "validate", "verification_config", "windows_guest", "workflows",
+    "software_verification", "staging", "test_runner", "validate", "verification_config", "windows_guest", "workflows",
 )
 FIXED_INPUTS = (
     ".github/workflows/android-ci.yml", ".github/workflows/copilot-setup-steps.yml",
@@ -72,7 +72,6 @@ FIXED_INPUTS = (
     "tools/android-port/tests/test_disposable.py",
     "tools/android-port/tests/test_windows_guest.py",
     "tools/android-port/tests/test_runner.py",
-    "tools/android-port/tests/test_source_push.py",
 )
 
 

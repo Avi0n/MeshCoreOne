@@ -165,67 +165,13 @@ no publication, main/policy/runtime landing or product consumption is authorized
 
 ### Source-only local/native execution interlock correction
 
-The supported invocation-local feature publisher is
-`python -I tools/android-port/controller/source_push.py`. Use only its reviewed
-trusted-default-base version after landing; it refuses a candidate-modified
-entrypoint. After refreshing the trusted origin default ref, its explicit inputs
-are `--repo <worktree> --trusted-base <full-main-SHA> --head <full-HEAD-SHA>
---remote <configured-name> --remote-url <exact-single-push-URL>`.
-It is source-only until reviewed and merged; do not run an unpublished successor
-as trusted controller code.
-
-The publisher stages the complete guard from immutable Git blobs into a private
-temporary directory and runs it as the actual nonempty pre-push hook for one
-normal nonforce feature update. It binds the source/candidate/tree/branch/remote
-and canonical Git-common location again at hook time, checks staged hashes and
-actual hook input, and refuses alternate-ledger or unrecognized Git configuration/location
-overrides. It does not install a runtime, change configured hooks, use no-verify
-or run the candidate's controller code. When current execution admission refuses
-an old/mismatched installed runtime, the full trusted guard records exact
-UNVERIFIED before transport or Gradle; publication is not merge acceptance.
-The inherited invocation-only hooksPath is accepted only if exactly equal to
-the generated nonempty guarding-hook directory. No empty-hook path is accepted.
-Linked-worktree hooks may inherit Git's canonical `GIT_DIR`, `GIT_COMMON_DIR`,
-`GIT_WORK_TREE` and empty `GIT_PREFIX`. Independent local probes with caller Git
-overrides excluded discover the actual requested worktree root, private git-dir,
-common-dir and Git installation exec-path; inherited locations must match those
-probes, not mutable request values. These probes do not run transport or the guard.
-The original and hook-time bindings must match, including the exact repository,
-locations and nonsecret configuration/context digest. Git's automatic exec-path
-export is normalized against its independently discovered installation. Caller
-context is preserved for the actual guard, never silently stripped.
-
-The only admitted counted overrides are exact `safe.bareRepository=explicit`,
-`credential.interactive=never` and `core.fsmonitor=false`, without duplicates or
-orphan indexed entries. The observed first-party Windows CLI profile is also
-supported: exactly the GitHub-scoped helper reset followed by literal `copilot`,
-optionally followed by Git's exact generated hooksPath parameter. No other host,
-helper command, arguments, keys or ordering is admitted.
-
-For that profile, the publisher independently resolves Git's actual
-`git-credential-copilot.exe` dispatch and rejects candidate/temporary paths. A
-read-only system PowerShell probe must find the running `github.exe` App in its
-actual OS process ancestry, co-located with that helper. Both files must have
-valid GitHub Authenticode signatures from the same signing certificate. System
-modules are imported by absolute installation path with profiles disabled;
-neither helper nor candidate code executes in this probe. Both files are held
-read-only against replacement while signatures and hashes are measured. Their
-exact paths/hashes, signer and actual App PID/creation identity are bound in the
-outer/hook context digest. A changed executable, different App process, foreign
-installation or unavailable provenance fails closed. Caller auth context is
-preserved for Git and the complete checker, not stripped or replaced. This uses
-existing installed host/process provenance, not a policy registry, receipt or
-new user setup gate. Other platforms without this signed-host proof explicitly
-refuse the injected profile; ordinary authenticated hosts without injection
-continue to use the unchanged route.
-Actual execution/cleanup remains governed by the existing complete pre-push
-guard when admission is available.
-The hook independently reconstructs the complete normalized file set and hashes
-from immutable base Git blobs; mutable request.json is not a hash authority.
-Omitted/extra/traversal entries, forged recomputed manifests, extra staged files
-and symlinks fail before the checker runs. Both outer and hook-time bindings also
-read the actual configured origin's symbolic HEAD/main with `ls-remote`; a fresh
-remote main with a stale local origin/main cache is rejected, not silently used.
+Feature publication does not require a bespoke publication wrapper or credential
+identity policy. The existing complete `local/check.py --pre-push` checker and
+supported immutable-main checker/operator composition remain unchanged, as do
+normal host authentication and nonforce Git publication. Use the full trusted
+checker, not candidate controller code, an empty hook or no-verify. Its actual
+execution admission and exact-candidate UNVERIFIED behavior remain separate from
+hosted CI, findings/freshness and merge acceptance.
 
 The source successor published as `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`
 closes the advisory/manual launcher gap; it does not deploy either candidate
