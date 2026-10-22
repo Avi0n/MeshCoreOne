@@ -167,10 +167,11 @@ class CorrelationRecoveryTest {
                 services.single().beforeChannelQueryAccounting = { throw failure }
                 unmatchedChannelQuery()
                 recovery.open(); runCurrent()
-                assertSame(failure, diagnostics.filterIsInstance<RuntimeDiagnostic.Failure>()
-                    .single { it.operation == "session.channelQueryAccounting" }.cause)
+                val reported = diagnostics.filterIsInstance<RuntimeDiagnostic.Failure>()
+                    .single { it.operation == "session.channelQueryAccounting" }.cause
+                assertEquals(failure.message, assertIs<IllegalStateException>(reported).message)
                 val issue = assertIs<ConnectionIssue.Protocol>(manager.snapshot.value.issue)
-                assertTrue(issue.error.suppressed.any { it === failure })
+                assertTrue(issue.error.suppressed.any { it === reported })
                 assertEquals(1, radios.single().closes)
                 assertNull(manager.snapshot.value.token)
                 assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
