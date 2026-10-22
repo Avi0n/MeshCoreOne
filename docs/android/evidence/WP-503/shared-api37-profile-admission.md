@@ -2932,3 +2932,57 @@ This supersedes only the preceding pending observation. It establishes no
 particular assertion failure, CPU cause, completed SwiftData proof or native
 acceptance. Official logs were consumed in memory, without a second result
 bundle, dispatch, rerun, cancellation or changed deadline.
+
+### Authorized post-reboot2249 Nodes7 attempt: registered, then device offline
+
+The renewed user request authorized actual needed API37 tests. The existing
+running5556 shared route failed its genuine-original recovery guard before
+mutation; it was left untouched. The coordinator explicitly selected ONE
+supported disposable attempt with reviewed --cpu-cores 4 and held actual main
+8e05c754b6298e789886d3a8006b6275cd1d3146. At13:44:09.405064Z fresh admission
+verified exact public2249, OPEN/ready PR205, main/API objects/policy/pausefalse,
+actorcbattlegear, runningr31, original7, tools/image and no conflicting new
+locks. Actual commit8494.23MiB/physical11443.05MiB exceeded4096. The exclusive
+wp503-2249-8e05-postreboot-admission.json retains these actual observations.
+
+Literal HEAD2249 was temporarily checked out in the SAME worktree; managed
+branche1662011a remained preserved. Genuine factory owner
+1666502a-0420-46ef-930f-e78651ba8b9f:nodes:c509fefdd05b40a38784f2611f098706
+allocated private-avd-8vifityr and held actual disposable/globalGradle locks.
+The genuine source-bound App/Test build succeeded in1m54s,446 tasks/5 executed/
+441 up-to-date. Both APK hashes and matching public debug certificates equal
+the preceding exact2249 pair, verified by this attempt's packaging receipt.
+No image, memory, GPU, profile,120/180 deadlines or original assertions changed.
+
+Startup began13:46:28Z; private server5944/emulator6940 listeners returned.
+Selected wait-for-device PID4636 on127.0.0.1:53719/emulator-5554 actually
+SUCCEEDED at13:47:52Z, exit0 after80.39s. The first selected shell getprop
+sys.boot_completed returned1/exit0. The next getprop init.svc.bootanim PID36876
+failed exit1 with retained stderr "adb.exe: device offline". This is NOT the
+previous registration timeout. CLI exited2; no complete boot observation,
+captured initial profile, profile setup, install, instrumentation or cohort
+occurred. Original Nodes0/7 started; instrumentation host exitnull is not CLI2.
+No CPU/transport cause or native acceptance is established.
+
+The first property value is actual retained literal "1\n" in
+adb-3428c516121744868bea8a17fe2d5666.log, not inferred from exit0. Failure
+adb-e1892d29bec44e4ab9b07f1348ec8192.log retains literal
+"adb.exe: device offline\n". Failure snapshot f3949ec41f154895947870ab8614e011
+observes server/emulator roots not-exited, selected36876 exited1, Job7/errors[].
+Before-cleanup snapshot f35d2890df2f452a809755928a3c5c5c observes server/emulator
+not-exited, selected unavailable as designed, Job7/errors[]. Root snapshots
+are not whole-guest state or causal proof. Empty boot_observations is expected
+because wait_boot saves an observation only after BOTH property commands
+succeed; it does not mean the first command did not run.
+
+Independent dispose and verify_disposed succeeded, operations records
+disposal_verifiedtrue/no disposal_error. Supported ledger readback found
+c509 disposable/Gradle locksNONE and ONLY unchanged protectednative66bd.
+Fresh specific CIM read found server5944/emulator6940/selected4636/23548/36876
+absent. ActualEND/disposal/newlocks proof was sent to release main8e05 hold.
+Only then was the managed branche166 restored. Actual operations/packaging,
+timings/status and CLI remain under session files in
+wp503-2249-nodes37-postreboot-fourcpu-a1 and private-avd-8vifityr. Existing
+running5556/protected66bd were not adopted/probed/stopped. No second retry,
+publication, dispatch or new worker occurred. This chronology remains LOCAL;
+own2249 hostedFAILURE remains distinct from this negative native result.
