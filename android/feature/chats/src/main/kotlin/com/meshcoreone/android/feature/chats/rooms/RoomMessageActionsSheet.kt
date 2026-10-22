@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.meshcoreone.android.core.l10n.generated.AppChatsStrings as Chats
+import com.meshcoreone.android.core.l10n.R
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.MessageStatus
 import com.meshcoreone.android.core.model.RadioId
@@ -97,7 +98,7 @@ fun RoomMessageActionsSheet(
                 MessageStatus.RETRYING -> Chats.chatsMessageStatusRetrying
             }))
             if (message.isFromSelf) message.roundTripTime?.let {
-                Text(Chats.chatsMessageInfoRoundTrip(resources, it.toInt()))
+                Text(stringResource(R.string.l10n_app_chats_chats_message_info_roundtrip, it.toLong()))
             }
         }
     }

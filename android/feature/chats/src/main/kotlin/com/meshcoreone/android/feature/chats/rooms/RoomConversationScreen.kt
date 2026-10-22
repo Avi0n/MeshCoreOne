@@ -50,6 +50,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.AnnotatedString
@@ -336,14 +337,14 @@ private fun RoomMessageRowContent(
         )
         Column(Modifier.fillMaxWidth().then(actionsModifier).clearAndSetSemantics {
             contentDescription = label
+            if (onShowActions != null) {
+                onClick(label = actionsLabel) { onShowActions(message); true }
+            }
             customActions = buildList {
                 if (message.status == MessageStatus.FAILED) {
                     add(CustomAccessibilityAction(retryLabel) { onRetry(message.id); true })
                 }
                 addAll(linkActions.map { action -> CustomAccessibilityAction(action.name) { onLink(action.url) } })
-                if (onShowActions != null) {
-                    add(CustomAccessibilityAction(actionsLabel) { onShowActions(message); true })
-                }
             }
         }, horizontalAlignment = if (message.isFromSelf) Alignment.End else Alignment.Start) {
             if (!message.isFromSelf && row.showSenderName) {

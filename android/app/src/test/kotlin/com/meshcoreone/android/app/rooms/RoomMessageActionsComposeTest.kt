@@ -126,10 +126,10 @@ class RoomMessageActionsComposeTest {
         val label = if (holder.state.value.messages.first().isFromSelf) {
             "${original.text}, ${text(com.meshcoreone.android.core.l10n.generated.AppRemoteNodesStrings.remoteNodesRoomMessageStatusDeliveredLabel)}"
         } else "Alice: ${original.text}"
-        val details = text(Chats.chatsMessageActionDetails)
-        val action = compose.onNodeWithContentDescription(label).fetchSemanticsNode()
-            .config[SemanticsActions.CustomActions].single { it.label == details }
-        compose.runOnIdle { assertTrue(action.action()) }
+        val row = compose.onNodeWithContentDescription(label)
+        val action = row.fetchSemanticsNode().config[SemanticsActions.OnClick]
+        assertEquals(text(Chats.chatsMessageActionDetails), action.label)
+        row.performSemanticsAction(SemanticsActions.OnClick) { assertTrue(it()) }
         compose.waitForIdle()
     }
 

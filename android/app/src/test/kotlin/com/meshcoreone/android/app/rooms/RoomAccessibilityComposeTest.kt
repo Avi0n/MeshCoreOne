@@ -176,7 +176,7 @@ class RoomAccessibilityComposeTest {
         showRoute(fixture)
         val label = "hello, ${text(Rooms.remoteNodesRoomMessageStatusFailedLabel)}"
         assertSingleMessageLabel(label)
-        assertEquals(listOf(text(Chats.chatsMessageActionRetry), text(Chats.chatsMessageActionDetails)), actions(label).map { it.label })
+        assertEquals(listOf(text(Chats.chatsMessageActionRetry)), actions(label).map { it.label })
         invoke(label, text(Chats.chatsMessageActionRetry))
         assertEquals(listOf(session.id to failed.id), fixture.retries)
         assertEquals(MessageStatus.PENDING, fixture.holder.state.value.messages.single().status)
@@ -198,7 +198,7 @@ class RoomAccessibilityComposeTest {
         val label = "Alice: see https://example.com"
         val actionName = Chats.chatsMessageActionOpenWebLink(host.get().resources, "example.com")
         assertSingleMessageLabel(label)
-        assertEquals(listOf(actionName, text(Chats.chatsMessageActionDetails)), actions(label).map { it.label })
+        assertEquals(listOf(actionName), actions(label).map { it.label })
         invoke(label, actionName)
         assertEquals(listOf("https://example.com"), fixture.external)
         assertTrue(fixture.maps.isEmpty())
@@ -259,7 +259,7 @@ class RoomAccessibilityComposeTest {
             Chats.chatsMessageActionOpenHashtag(host.get().resources, "ops"),
             text(Chats.chatsMessageActionOpenMapLink),
         )
-        assertEquals(names + text(Chats.chatsMessageActionDetails), actions(label).map { it.label })
+        assertEquals(names, actions(label).map { it.label })
         names.forEach { invoke(label, it) }
         assertEquals(listOf(alice), fixture.navigatedContacts)
         assertEquals(listOf("#ops"), fixture.hashtags)
@@ -300,7 +300,7 @@ class RoomAccessibilityComposeTest {
         assertNotEquals("Open Link: example.com", name)
         val label = "https://example.com, $status"
         assertSingleMessageLabel(label)
-        assertEquals(listOf(name, text(Chats.chatsMessageActionDetails)), actions(label).map { it.label })
+        assertEquals(listOf(name), actions(label).map { it.label })
         invoke(label, name)
         assertEquals(listOf("https://example.com"), fixture.external)
     }

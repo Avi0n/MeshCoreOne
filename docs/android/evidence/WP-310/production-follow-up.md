@@ -36,8 +36,8 @@ App consumer and reactive preference contract are reused.
 New regressions are supplemental behavioral cases, not a claim that all original WP cases are ported:
 10 deterministic scheduler/send methods, one exhaustive availability parameter-family method,
 and 9 mounted room action methods configured for API 31/37, including Chinese resource coverage.
-These are authored cases, not discovered/passed counts. Existing accessibility assertions now include
-the additional Details action without changing Retry, link order/dedup/cap or original speech.
+These are authored cases, not discovered/passed counts. The standard localized Details click action
+leaves existing Retry/link custom-action lists, their order/dedup/cap and original speech unchanged.
 
 ## Admission and execution limitations
 
@@ -74,6 +74,17 @@ emulator, hardware, device, signing or release execution was attempted around th
   feature verification remains `configured: false`.
 - `python tools\android-port\l10n_convert.py --check`: passed; 63 generated files, 12 locales,
   no unsupported inputs. No localization/resource change.
+
+Publication of initial head `4e7eb81a49a63396cc9eb7005f3031596c5461fe` ran the already-installed
+automatic pre-push hook. Its source/scaffold/accounting checks passed (15 scaffold and 108 accounting
+Python methods). Its actual `python -m unittest discover -s tools/android-port/local -p '*test*.py' -v`
+ran 43 tooling methods: 42 passed, one failed, zero errors/skips. The disposable-entry test expected
+an immutable-base mismatch but received the WSL guard
+`Disposable lifecycle cannot emulate the canonical Windows ledger from WSL`.
+The hook stopped before Kotlin, reported **UNVERIFIED CANDIDATE**, and correctly allowed publication.
+This is a tooling dependency failure, not a Kotlin result or permission to replace the runtime.
+The successor also preserves the original exact Retry/link custom-action lists by exposing Details
+as the standard labelled click action rather than inserting into those lists.
 
 Required targeted commands below are **NOT RUN locally**, because supported readiness/admission is
 blocked. No discovered/passed/failed/skipped Kotlin count is claimed:
