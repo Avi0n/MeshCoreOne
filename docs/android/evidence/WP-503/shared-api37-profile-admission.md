@@ -3392,3 +3392,55 @@ including the incoming bounded-batch/workflow regressions.
 Full local Gradle remains explicitly UNVERIFIED; feature publication does not
 claim a hosted verdict. This integration executes no native attempt, old-cap
 CI rerun, device action or historical66bd transition.
+
+### Exact67ae LoS admission stopped before allocation; normal401 integration
+
+After source review5617847092 of exact
+`67ae680c24c36751db940c56de585cc07b4470ee`, the coordinator authorized at
+most one original LoS API37 observation, then only after positive END/cleanup
+one original cached-chat observation, with fresh guards and unchanged CPU4/
+120s boot/180s selected bounds. Actual main had advanced to
+`4013368b7f47fdd51e291059bf690ced0dc4c434`, the normal PR283 merge with
+parents `f81d2f56d897b022b6f6c4cf38551448691eae02` and
+`1c0219ee3a6c6d59f1931eca3cae29a758e931e5`.
+
+Read-only admission verified exact published67ae/OPENready/actorcbattlegear,
+canonical runningr32, immutable LoS original single identity, current policy/
+manifest/pause and the four reviewed lifecycle API objects. It then found a
+real additional producer source predicate: trusted_guest compares EVERY
+local.reserve.runtime_sources module against immutable trusted default-base
+before allocation. Only tools/android-port/controller/authority.py differed:
+candidate blob073876aef2ba15306998538c5973b7da6a07f87c versus trusted-main
+aec8ed9c6755b62fa445f578b7c4dacaedfabca1. That existing predicate would
+raise "Disposable worker code differs from immutable trusted default-base:
+tools/android-port/controller/authority.py". This was direct byte/predicate
+verification, not a claimed caught factory exception.
+
+Factory was NOT called: no guest, build, allocation, native START or new
+resource existed. LoS did not run; cached-chat was not attempted after the
+first admission failed. Memory/device readiness and native outcomes were
+not manufactured from source checks. NO START and the exact source prerequisite
+were reported; coordinator explicitly released main serialization. Existing
+5556/protected66bd, original325 negative receipt, PURE accounting and genuine728
+native receipt/transcript remained unchanged.
+
+Coordinator authorized normal current-main integration, not an exception to
+the all-runtime guard, runtime installation, changed historical reservation or
+an unchanged67ae CI/native rerun. Existing merge-integration capability admitted
+the three producer paths, retaining canonical runningr32 identity/binding/history;
+incoming authority.py, test_backends.py and WP003 deviation remain byte-identical
+to actual401. This inherited fix proves authenticated historical landing-base
+ancestry without relaxing worker terminality/receipt/identity/protected gates.
+All Android product/audit/binding/AppGradle/assertion/lifecycle API bytes remain
+equal to67ae/728. The containing merge successor needs its own source review and
+explicit fresh source handoff before native START. Neither this integration nor
+pending hosted67ae evidence turns the no-start into a native result.
+
+On the integrated source,
+`python -B -m unittest discover -s android\accessibility-tests -p test_*.py -q`
+passed248/248,0F/E/S,in15.411s. With tools/android-port and its tests on
+PYTHONPATH, `python -B -m unittest test_backends test_state test_capabilities -q`
+passed108/108,0F/E/S,in11.758s. The declared verification_config.py --check,
+validate.py, workflows.py and portmap.py commands each passed/exit0; unstaged
+and staged whitespace checks passed. Full local Gradle remains UNVERIFIED.
+No factory/device/host-process/native operation accompanied these source checks.
