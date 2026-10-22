@@ -20,7 +20,7 @@ from controller.disposable import ADAPTER, OPERATION, RESOURCE, PrivateGuest, tr
 from controller.errors import PortError
 from controller.ledger import Identity, Ledger
 from controller.schema import load_json
-from controller.scope_amendment import disposable_predecessor, parity_support_predecessor
+from controller.scope_amendment import disposable_predecessor, parity_support_predecessor, room_cleanup_predecessor
 from local import debug_packaging
 
 
@@ -2150,6 +2150,16 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(current, before)
         self.assertEqual(disposable_predecessor(previous), previous)
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp303-room-cleanup-companion",')
+        end = text.index('      {\n        "id": "traceability-validation",', start)
+        text = text[:start] + text[end:]
+        self.assertEqual(json.loads(text), room_cleanup_predecessor(current))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=text.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "a5dd0fc6c521d09d59d28ca75169e4bdbd56a6cd:docs/android/automation-policy.json",
+        ]).strip())
         start = text.index(',\n      {\n        "id": "repeat-row-fallback-affordance",')
         end = text.index("\n    ]", start)
         text = text[:start] + text[end:]
