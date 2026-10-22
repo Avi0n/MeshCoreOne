@@ -28,6 +28,10 @@ ADAPTER = "tools/android-port/controller/disposable.py"
 PACKAGING_QUIESCENCE_SECONDS = 2
 
 
+class BootReadinessOffline(subprocess.CalledProcessError):
+    """Exact owned boot-property offline failure; only scoped reattachment is permitted."""
+
+
 def supervisor():
     from importlib import import_module
 
@@ -140,7 +144,7 @@ class PrivateGuest:
             or self.receipt["owner"] != owner
             or str(ledger.path.resolve()) != self.ledger_path
             or row != self.receipt or self.phase not in (
-                ("disposed",) if disposed else ("prepared", "running", "packaging", "uncertain") if cleanup
+                ("disposed",) if disposed else ("prepared", "running", "packaging", "uncertain", "boot-offline") if cleanup
                 else ("prepared", "running", "packaging")
             )
         ):
@@ -291,6 +295,8 @@ class PrivateGuest:
             for error in failures:
                 error.add_note(f"Owned transport timing observations (may be incomplete): {path}")
             if len(failures) == 1:
+                if isinstance(failures[0], BootReadinessOffline):
+                    self.phase = "boot-offline"
                 raise failures[0]
             raise BaseExceptionGroup("Owned operation and timing retention/observation failed", failures)
 
@@ -477,6 +483,7 @@ class PrivateGuest:
             observe("emulator-listener-returned", process=self.emulator, deadline=deadline)
             self.phase = "running"
             self.verify_transport()
+            self.boot_readiness_available = True
         except (OSError, subprocess.SubprocessError, PortError):
             self.phase = "uncertain"
             raise
@@ -553,12 +560,22 @@ class PrivateGuest:
 
     def verify_transport(self):
         self.verify_private()
-        if self.phase != "running" or not self._owns_listener(self.emulator, self.port + 1):
+        if self.phase not in ("running", "boot-offline") or not self._owns_listener(self.emulator, self.port + 1):
             raise PortError("Private emulator transport is not owned/live")
         if not self._owns_listener(self.server, self.server_port):
             raise PortError("Private adb endpoint is not owned by the launched server")
 
     def adb(self, ledger, arguments, *, timeout=60):
+        if getattr(self, "boot_deadline", None) is not None:
+            timeout = self._boot_budget(timeout)
+            if arguments not in (
+                ["wait-for-device"], ["shell", "getprop", "sys.boot_completed"],
+                ["shell", "getprop", "init.svc.bootanim"],
+            ):
+                self.phase = "uncertain"
+                raise PortError("Boot readiness scope permits only selected wait and the two boot-property reads")
+        else:
+            self.boot_readiness_available = False
         self.assert_held(ledger, self.owner)
         self.verify_transport()
         if (
@@ -570,6 +587,69 @@ class PrivateGuest:
             raise PortError("Use a bounded selected-guest command, not adb server/global/device selection")
         with self._timing("selected-" + arguments[0], timeout) as observe:
             return self._adb(arguments, timeout=timeout, observe=observe)
+
+    def _boot_budget(self, timeout):
+        try:
+            now = time.monotonic()
+        except BaseException:
+            self.phase = "uncertain"
+            raise
+        deadline = getattr(self, "boot_deadline", None)
+        if (
+            type(now) not in (int, float) or not math.isfinite(now) or now < 0
+            or type(deadline) not in (int, float) or not math.isfinite(deadline)
+            or type(timeout) not in (int, float) or not math.isfinite(timeout)
+            or not 0 < timeout <= 180 or deadline <= now
+        ):
+            self.phase = "uncertain"
+            raise PortError("Boot readiness requires the unchanged finite remaining deadline budget")
+        return min(timeout, deadline - now)
+
+    @contextmanager
+    def boot_readiness(self, ledger, *, deadline):
+        """Opt-in once immediately after start; caller owns the original boot deadline."""
+        self.assert_held(ledger, self.owner)
+        self.verify_transport()
+        now = time.monotonic()
+        if (
+            self.phase != "running" or not getattr(self, "boot_readiness_available", False)
+            or getattr(self, "boot_deadline", None) is not None
+            or type(deadline) not in (int, float) or not math.isfinite(deadline)
+            or type(now) not in (int, float) or not math.isfinite(now) or now < 0
+            or not 0 < deadline - now <= 120
+        ):
+            raise PortError("Boot readiness requires a newly started owned guest and original at-most120s deadline")
+        self.boot_readiness_available = False
+        self.boot_deadline = deadline
+        self.boot_ledger = ledger
+        try:
+            yield
+            self._boot_budget(min(1, deadline - time.monotonic()))
+            if self.phase != "running":
+                raise PortError("Boot readiness ended without selected reattachment")
+        except BaseException:
+            self.phase = "uncertain"
+            raise
+        finally:
+            self.boot_deadline = None
+            self.boot_ledger = None
+
+    def reattach_boot(self, ledger, *, timeout):
+        """Only exact positively identified boot-offline state can reenter selected wait."""
+        try:
+            self.assert_held(ledger, self.owner, cleanup=True)
+            if self.phase != "boot-offline":
+                raise PortError("Selected boot reattachment requires an exact scoped offline interruption")
+            timeout = self._boot_budget(timeout)
+            self.verify_transport()
+            with self._timing("selected-boot-reattach", timeout) as observe:
+                result = self._adb(["wait-for-device"], timeout=timeout, observe=observe)
+                self._boot_budget(min(1, self.boot_deadline - time.monotonic()))
+                self.phase = "running"
+                return result
+        except BaseException:
+            self.phase = "uncertain"
+            raise
 
     def _adb(self, arguments, *, timeout, observe):
         try:
@@ -617,6 +697,34 @@ class PrivateGuest:
                 observe("wait-returned", returncode=result.returncode)
             self.verify_transport()
             return result
+        except subprocess.CalledProcessError as error:
+            expected = [str(self.adb_tool), "-s", f"emulator-{self.port}", *arguments]
+            diagnostic = b"adb.exe: device offline\n" if self.job is not None else b"adb: device offline\n"
+            offline = (
+                getattr(self, "boot_deadline", None) is not None
+                and arguments in (["shell", "getprop", "sys.boot_completed"],
+                                  ["shell", "getprop", "init.svc.bootanim"])
+                and error.cmd == expected and type(error.returncode) is int and error.returncode == 1
+                and (
+                    self.job is not None and type(error.output) is bytes
+                    and error.output == diagnostic and error.stderr is None
+                    or self.job is None and type(error.output) is bytes and type(error.stderr) is bytes
+                    and error.output == b"" and error.stderr == diagnostic
+                )
+            )
+            if offline:
+                try:
+                    self._boot_budget(min(1, self.boot_deadline - time.monotonic()))
+                    self.assert_held(self.boot_ledger, self.owner)
+                    self.verify_transport()
+                except BaseException as ownership_error:
+                    self.phase = "uncertain"
+                    raise BaseExceptionGroup("Boot property failure and reattachment ownership/deadline failure", [
+                        error, ownership_error,
+                    ])
+                raise BootReadinessOffline(error.returncode, error.cmd, output=error.output, stderr=error.stderr) from error
+            self.phase = "uncertain"
+            raise
         except (OSError, subprocess.SubprocessError, PortError):
             self.phase = "uncertain"
             raise
