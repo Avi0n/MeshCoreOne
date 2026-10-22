@@ -1,8 +1,8 @@
 // AndroidOnly: WP-208 Process-owned channel-query progress across connection graph replacement.
 package com.meshcoreone.android.core.services.messaging
 
-import com.meshcoreone.android.core.contracts.domain.SessionToken
 import com.meshcoreone.android.core.contracts.domain.EntityKey
+import com.meshcoreone.android.core.contracts.domain.SessionToken
 import com.meshcoreone.android.core.model.PendingSendDTO
 import com.meshcoreone.android.core.model.RadioId
 import java.util.UUID
@@ -39,9 +39,9 @@ class ChatSendQueueProgress {
 
         fun reconcile(rows: List<PendingSendDTO>) = synchronized(lock) {
             checkCurrent()
-            val pending = rows.associate { it.messageID to it.id }
+            val pending = rows.map { it.messageID to it.id }.toSet()
             failures.entries.removeAll { (key, value) ->
-                key.radioId == token.radioId && pending[key.id] != value.pendingID
+                key.radioId == token.radioId && (key.id to value.pendingID) !in pending
             }
         }
 

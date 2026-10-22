@@ -228,7 +228,6 @@ internal class FirmwareTransport(private val senderPublicKey: Bytes = SELF) : Me
     var beforeReply: (suspend (Bytes) -> Unit)? = null
     var holdMessageReplies = false
     var holdGetReplies = false
-    var holdChannelReplies = false
     var acknowledge = false
     var ackBeforeAcceptance = false
     var acceptanceGate: CompletableDeferred<Unit>? = null
@@ -279,7 +278,6 @@ internal class FirmwareTransport(private val senderPublicKey: Bytes = SELF) : Me
             CommandCode.RESET_PATH -> mock.simulateOK()
             CommandCode.GET_CONTACT_BY_KEY -> mock.simulateError(2u)
             CommandCode.GET_CHANNEL -> {
-                if (holdChannelReplies) return
                 val channel = channelReplies[data[1]]
                 if (channel == null) mock.simulateError(2u)
                 else mock.simulateReceive(ByteWriter().appendUInt8(ResponseCode.CHANNEL_INFO.rawValue).appendUInt8(channel.index)
