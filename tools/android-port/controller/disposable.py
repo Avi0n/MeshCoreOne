@@ -2,6 +2,7 @@
 
 import ctypes
 from contextlib import contextmanager
+from datetime import datetime, timezone
 import hashlib
 import json
 import math
@@ -206,6 +207,84 @@ class PrivateGuest:
         self.descriptors.append(advisory.pidfd_open(process.pid))
         return process
 
+    @contextmanager
+    def _timing(self, operation, timeout):
+        path = self.root / ("transport-timing-" + uuid.uuid4().hex + ".jsonl")
+        stream, previous, failures = None, None, []
+        pid, startup_deadline = None, None
+        raw_log = "process.log" if operation == "startup" else None
+
+        def observe(stage, *, process=None, deadline=None, error_type=None, returncode=None, output=None):
+            nonlocal previous, pid, startup_deadline, raw_log
+            if stage.endswith("launch-begin"):
+                pid = None
+            if process is not None:
+                value = getattr(process, "pid", None)
+                pid = value if type(value) is int and value > 0 else None
+            utc_ns, monotonic = time.time_ns(), time.monotonic()
+            if (
+                type(utc_ns) is not int or utc_ns <= 0
+                or type(monotonic) not in (int, float) or not math.isfinite(monotonic) or monotonic < 0
+                or previous is not None and monotonic < previous
+                or deadline is not None and (type(deadline) not in (int, float) or not math.isfinite(deadline))
+            ):
+                raise PortError("Invalid owned transport timing clock/deadline observation")
+            previous = monotonic
+            if deadline is not None:
+                startup_deadline = deadline
+            if output is not None:
+                raw_log = output.name
+            server_port, port = getattr(self, "server_port", None), getattr(self, "port", None)
+            record = {
+                "schema_version": 1, "owner": self.owner, "revision": self.revision,
+                "operation": operation, "stage": stage, "timeout_seconds": timeout,
+                "backend": "windows-job" if self.job is not None else "linux-subprocess",
+                "host_utc": datetime.fromtimestamp(utc_ns // 1_000_000_000, timezone.utc).isoformat(),
+                "host_unix_nanoseconds": utc_ns, "host_monotonic_seconds": monotonic,
+                "clock_observation_order": ["time.time_ns", "time.monotonic"],
+                "pid": pid, "deadline_monotonic_seconds": startup_deadline,
+                "deadline_kind": "startup-loop" if startup_deadline is not None else None,
+                "error_type": error_type,
+                "returncode": returncode if type(returncode) is int else None,
+                "raw_log": raw_log,
+                "budget_reference_monotonic_seconds": monotonic + timeout if stage == "wait-begin" else None,
+                "budget_reference_kind": "pre-call-observation-not-backend-deadline" if stage == "wait-begin" else None,
+                "private_endpoint": f"127.0.0.1:{server_port}" if type(server_port) is int else None,
+                "selected_serial": f"emulator-{port}" if type(port) is int else None,
+            }
+            stream.write(json.dumps(record, allow_nan=False) + "\n")
+            stream.flush()
+
+        try:
+            stream = path.open("x", encoding="utf-8")
+            observe("begin")
+            yield observe
+        except BaseException as error:
+            failures.append(error)
+        try:
+            if stream is not None:
+                primary = failures[0] if failures else None
+                outcome = (
+                    "timeout" if isinstance(primary, subprocess.TimeoutExpired)
+                    else "cancelled" if isinstance(primary, (KeyboardInterrupt, SystemExit))
+                    else "failed" if primary is not None else "returned"
+                )
+                observe(outcome, error_type=type(primary).__name__ if primary is not None else None)
+        except BaseException as error:
+            failures.append(error)
+        try:
+            if stream is not None:
+                stream.close()
+        except BaseException as error:
+            failures.append(error)
+        if failures:
+            self.phase = "uncertain"
+            for error in failures:
+                error.add_note(f"Owned transport timing observations (may be incomplete): {path}")
+            if len(failures) == 1:
+                raise failures[0]
+            raise BaseExceptionGroup("Owned operation and timing retention/observation failed", failures)
+
     def start(self, ledger, *, emulator, adb, image, timeout=120):
         """Use installed tools/image only. Creates no key and never opens a pre-existing AVD."""
         self.assert_held(ledger, self.owner)
@@ -280,11 +359,23 @@ class PrivateGuest:
         self.environment["ADB_SERVER_SOCKET"] = f"tcp:127.0.0.1:{self.server_port}"
         self.environment["ANDROID_ADB_SERVER_PORT"] = str(self.server_port)
         self.log = (self.root / "process.log").open("xb")
-        deadline = time.monotonic() + timeout
         try:
+            deadline = time.monotonic() + timeout
+        except BaseException as error:
+            self.phase = "uncertain"
+            error.add_note("Startup deadline clock failed before timing receipt creation; owned raw log retained")
+            raise
+        with self._timing("startup", timeout) as observe:
+            self._launch(emulator, adb, data, deadline, observe)
+
+    def _launch(self, emulator, adb, data, deadline, observe):
+        try:
+            observe("server-launch-begin", deadline=deadline)
             self.server = self._spawn([str(adb), "-L", f"tcp:{self.server_port}", "nodaemon", "server"])
+            observe("server-listener-wait-begin", process=self.server, deadline=deadline)
             while not self._owns_listener(self.server, self.server_port):
                 self._wait(deadline)
+            observe("server-listener-returned", process=self.server, deadline=deadline)
             # Hold both ports until launch. A collision during handoff fails identity checks, never selects another guest.
             for port in range(5554, 5682, 2):
                 guards = [socket.socket(), socket.socket()]
@@ -301,14 +392,17 @@ class PrivateGuest:
             else:
                 raise PortError("No isolated emulator port pair is available")
             self.port = port
+            observe("emulator-launch-begin", deadline=deadline)
             self.emulator = self._spawn([
                 str(emulator), "-avd", self.token, "-datadir", str(data),
                 "-data", str(data / "userdata-qemu.img"), "-ports", f"{port},{port + 1}",
                 "-no-snapshot", "-no-window", "-no-audio", "-show-kernel",
                 "-gpu", "swiftshader_indirect",
             ])
+            observe("emulator-listener-wait-begin", process=self.emulator, deadline=deadline)
             while not self._owns_listener(self.emulator, port + 1):
                 self._wait(deadline)
+            observe("emulator-listener-returned", process=self.emulator, deadline=deadline)
             self.phase = "running"
             self.verify_transport()
         except (OSError, subprocess.SubprocessError, PortError):
@@ -402,9 +496,14 @@ class PrivateGuest:
             or type(timeout) not in (int, float) or not 0 < timeout <= 180
         ):
             raise PortError("Use a bounded selected-guest command, not adb server/global/device selection")
+        with self._timing("selected-" + arguments[0], timeout) as observe:
+            return self._adb(arguments, timeout=timeout, observe=observe)
+
+    def _adb(self, arguments, *, timeout, observe):
         try:
             command = [str(self.adb_tool), "-s", f"emulator-{self.port}", *arguments]
             if self.job is None:
+                observe("wait-begin")
                 result = subprocess.run(
                     command, env=self.environment, stdin=subprocess.DEVNULL,
                     capture_output=True, timeout=timeout, check=True,
@@ -412,11 +511,16 @@ class PrivateGuest:
             else:
                 output = self.root / ("adb-" + uuid.uuid4().hex + ".log")
                 with output.open("xb") as log:
+                    observe("launch-begin", output=output)
                     process = self.job.spawn(command, self.environment, log)
+                    observe("wait-begin", process=process)
                     code = process.wait(timeout)
+                    observe("wait-returned", process=process, returncode=code)
                 if code:
                     raise subprocess.CalledProcessError(code, command, output=output.read_bytes())
                 result = subprocess.CompletedProcess(command, code, stdout=output.read_bytes(), stderr=b"")
+            if self.job is None:
+                observe("wait-returned", returncode=result.returncode)
             self.verify_transport()
             return result
         except (OSError, subprocess.SubprocessError, PortError):
