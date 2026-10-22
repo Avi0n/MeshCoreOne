@@ -422,8 +422,13 @@ Keep this successor local for review while the published candidate verifies.
 `NativeLineOfSightAccessibilityTest#savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200`.
 Read-only source preparation:
 `python android\accessibility-tests\language_binding.py --head CURRENT_HEAD --family los`.
-The actual registration at `e4c1aa7a` is an ancestor of the unchanged final
-fixture at `3f39a777`. That full fixture also contains the separate platform
+The actual registration at `e4c1aa7a` is an ancestor of the original
+fixture at `3f39a777`. The current fixture adds only a LoS-local mount/effect
+synchronization before its unchanged1000ms `catalogReads == 1` check, plus
+failure-only actual counters and a depth5/8192-character Compose tree.
+The exact original and current fixture objects are pinned separately; this
+source repair is not native evidence or proof of the prior timeout's cause.
+That full fixture also contains the separate platform
 button control `frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton`;
 it is retained and pinned but **not selected or counted** in LoS1.
 
@@ -431,7 +436,7 @@ it is retained and pinned but **not selected or counted** in LoS1.
 `methods` selects only the fixed original saved-endpoint identity. Default
 inventory behavior remains unchanged for all preceding families. Full source
 inventory/order and a nonempty distinct ordered selection are mandatory; no
-arbitrary subset/class/method argument is exposed. Original/current fixture,
+arbitrary subset/class/method argument is exposed. Separately pinned original/current fixture,
 complete LoS production subtree and producer saved-endpoint semantics test at
 `c6cdac39`, shared assertions at `f7474bb1` and device harness at `7f24b57c`
 must match their exact objects and ancestry.

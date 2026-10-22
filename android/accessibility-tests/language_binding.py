@@ -54,6 +54,7 @@ class FamilySpec:
     fixture_blob: str
     source_pins: tuple[tuple[str, str, str], ...] = ()
     fixture_methods: tuple[str, ...] = ()
+    original_fixture_blob: str | None = None
 
     @property
     def identities(self):
@@ -175,7 +176,7 @@ LOS = FamilySpec(
     "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los",
     "46d415e10269ea22e520cbf35f82467c778956a8",
     "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightAccessibilityTest.kt",
-    "f8c2cab5dc964548e938f1e023f72912874fc2a8",
+    "6032d1d18a977e0d2cac3e666a1fd45f39e24468",
     (
         ("android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los",
          "c6cdac39e89081647ea6475e6bcae800f2531109", "46d415e10269ea22e520cbf35f82467c778956a8"),
@@ -190,6 +191,7 @@ LOS = FamilySpec(
         "frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton",
         "savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200",
     ),
+    original_fixture_blob="f8c2cab5dc964548e938f1e023f72912874fc2a8",
 )
 CACHED_CHAT = FamilySpec(
     "cached-chat", (37,),
@@ -306,12 +308,14 @@ def prepare_binding(revision, claim, *, family="language"):
         or (family == "language" and git("rev-parse", PRODUCER + ":" + spec.production) != spec.production_blob)
         or git("rev-parse", revision + ":" + spec.fixture) != spec.fixture_blob
     ):
-        raise PortError("Exact producer repair or unchanged strict fixture binding drifted")
+        raise PortError("Exact producer repair or strict current fixture binding drifted")
     if family != "language":
-        pins = ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins)
+        pins = ((spec.fixture, spec.producer, spec.original_fixture_blob or spec.fixture_blob), *spec.source_pins)
         for path, producer, blob in pins:
             git("merge-base", "--is-ancestor", producer, revision)
-            if git("rev-parse", revision + ":" + path) != blob or git("rev-parse", producer + ":" + path) != blob:
+            current_blob = spec.fixture_blob if path == spec.fixture else blob
+            if (git("rev-parse", revision + ":" + path) != current_blob
+                    or git("rev-parse", producer + ":" + path) != blob):
                 raise PortError("Exact " + spec.name + " fixture/helper/production provenance drifted: " + path)
     methods = tuple(re.findall(r"@Test fun (\w+)\(", git("show", revision + ":" + spec.fixture)))
     if (

@@ -62,9 +62,11 @@ class LanguageBindingTest(unittest.TestCase):
         if arguments[0] == "show":
             return "\n".join("@Test fun " + method + "() {}" for method in (spec.fixture_methods or spec.methods))
         if arguments[0] == "rev-parse":
-            path = arguments[1].partition(":")[2]
+            revision, _, path = arguments[1].partition(":")
             if path == "android":
                 return "a" * 40
+            if path == spec.fixture and revision == spec.producer and spec.original_fixture_blob:
+                return spec.original_fixture_blob
             pins = {spec.fixture: spec.fixture_blob, **{path: blob for path, _, blob in spec.source_pins}}
             return pins[path]
         self.fail(arguments)
@@ -810,16 +812,19 @@ class LanguageBindingTest(unittest.TestCase):
             with self.assertRaises(binding.PortError):
                 binding.LanguageRequest(bound, 37, binding.CANONICAL + ":" + family + ":" + "a" * 32)
 
-    def test_los_original_current_git_objects_fixed_inputs_dependencies_and_full_inventory_are_unchanged(self):
+    def test_los_original_and_current_fixture_pins_preserve_inputs_dependencies_and_full_inventory(self):
         spec = binding.LOS
         registration = "e4c1aa7aa3b2c759524f198f5cfa09024143c062"
         self.assertEqual("", binding.git("merge-base", "--is-ancestor", registration, spec.producer))
         initial = binding.git("show", registration + ":" + spec.fixture)
         self.assertIn(spec.methods[0], re.findall(r"@Test fun (\w+)\(", initial))
-        for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+        self.assertEqual("f8c2cab5dc964548e938f1e023f72912874fc2a8", spec.original_fixture_blob)
+        self.assertNotEqual(spec.original_fixture_blob, spec.fixture_blob)
+        for path, producer, blob in ((spec.fixture, spec.producer, spec.original_fixture_blob), *spec.source_pins):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
-                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                current_blob = spec.fixture_blob if path == spec.fixture else blob
+                self.assertEqual(current_blob, binding.git("rev-parse", "HEAD:" + path))
                 self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
         for revision in (spec.producer, "HEAD"):
             body = binding.git("show", revision + ":" + spec.fixture)
@@ -832,9 +837,41 @@ class LanguageBindingTest(unittest.TestCase):
         retained = json.loads(binding.git(
             "show", "HEAD:docs/android/evidence/WP-503/device-losendpoints-traversal-integration.json",
         ))
-        self.assertEqual(spec.fixture_blob, retained["audit_fixture_blobs"][spec.fixture])
+        self.assertEqual(spec.original_fixture_blob, retained["audit_fixture_blobs"][spec.fixture])
         for item in retained["source_import"]["exact_producer_files"]:
-            self.assertEqual(item["producer_blob"], binding.git("rev-parse", "HEAD:" + item["path"]))
+            if item["path"] == spec.fixture:
+                self.assertEqual(spec.original_fixture_blob, item["producer_blob"])
+            else:
+                self.assertEqual(item["producer_blob"], binding.git("rev-parse", "HEAD:" + item["path"]))
+
+    def test_los_current_fixture_synchronizes_only_its_mount_before_unchanged_count_window_and_assertions(self):
+        spec = binding.LOS
+        original = binding.git("show", spec.producer + ":" + spec.fixture)
+        current = binding.git("show", "HEAD:" + spec.fixture)
+        mount = 'LineOfSightEntry(dependencies, modifier = Modifier.testTag("los-current-fixture"))'
+        synchronization = ('compose.onNode(hasTestTag("los-current-fixture")).assertExists()\n'
+                           '        fixtureMounted = true\n'
+                           '        compose.waitForIdle()\n'
+                           '        compose.waitUntil { catalogReads == 1 }')
+        self.assertIn(mount, current)
+        self.assertIn(synchronization, current)
+        count = "        compose.waitUntil { catalogReads == 1 }"
+        self.assertEqual(original[original.index(count):], current[current.index(count):])
+        dependencies = "        val dependencies = LineOfSightFeatureDependencies("
+        content = "        content { MeshCoreTheme(motionScale = 0f) { AuditSurface {"
+        self.assertEqual(original[original.index(dependencies):original.index(content)],
+                         current[current.index(dependencies):current.index(content)])
+        control = "@Test fun " + spec.fixture_methods[0]
+        selected = "@Test fun " + spec.methods[0]
+        self.assertEqual(original[original.index(control):original.index(selected)],
+                         current[current.index(control):current.index(selected)])
+        for forbidden in ("Thread.sleep", "delay(", "timeoutMillis =", "waitUntil(timeout"):
+            self.assertNotIn(forbidden, current)
+        self.assertIn("override fun failed(error: Throwable, description: Description)", current)
+        self.assertIn('description.methodName != "' + spec.methods[0] + '"', current)
+        self.assertIn("WP503_LOS_FAILURE_COUNTERS|catalogReads=$catalogReads|elevationReads=$elevationReads", current)
+        self.assertIn("currentFixtureSemanticsObserved=$fixtureMounted", current)
+        self.assertIn(".printToString(maxDepth = 5).take(8192)", current)
 
     def test_los_all_original_current_pins_ancestors_and_full_two_method_inventory_fail_on_drift(self):
         spec = binding.LOS

@@ -6,6 +6,8 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.Role
@@ -16,7 +18,9 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.printToString
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -36,11 +40,30 @@ import java.util.UUID
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
+    private var catalogReads = 0
+    private var elevationReads = 0
+    private var fixtureMounted = false
+
+    @get:Rule(order = 1) val fixtureFailureContext = object : TestWatcher() {
+        override fun failed(error: Throwable, description: Description) {
+            if (description.methodName != "savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200") return
+            compose.runOnUiThread {
+                println("WP503_LOS_FAILURE_COUNTERS|catalogReads=$catalogReads|elevationReads=$elevationReads" +
+                    "|currentFixtureSemanticsObserved=$fixtureMounted")
+            }
+            println("WP503_LOS_FAILURE_TREE|${compose.onAllNodes(isRoot(), useUnmergedTree = true)
+                .printToString(maxDepth = 5).take(8192)}")
+        }
+    }
+
     @Test fun frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton() {
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         var clicks = 0
@@ -71,8 +94,6 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
             publicKey = Bytes(ByteArray(32) { 0x66 }), name = "\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c",
             typeRawValue = ContactType.REPEATER.rawValue, lastHeardTimestamp = null,
             latitude = 37.7, longitude = -122.3)
-        var catalogReads = 0
-        var elevationReads = 0
         val dependencies = LineOfSightFeatureDependencies(
             elevationSource = object : LineOfSightElevationSource {
                 override suspend fun fetchElevation(coordinate: Coordinate): Double {
@@ -111,7 +132,12 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
                 throw AssertionError("Unexpected LOS failure: $operation", failure)
             },
         )
-        content { MeshCoreTheme(motionScale = 0f) { AuditSurface { LineOfSightEntry(dependencies) } } }
+        content { MeshCoreTheme(motionScale = 0f) { AuditSurface {
+            LineOfSightEntry(dependencies, modifier = Modifier.testTag("los-current-fixture"))
+        } } }
+        compose.onNode(hasTestTag("los-current-fixture")).assertExists()
+        fixtureMounted = true
+        compose.waitForIdle()
         compose.waitUntil { catalogReads == 1 }
         onView(withContentDescription(activity.getString(T.toolsLineOfSight))).check(matches(isDisplayed()))
         assertScrollableFont200Unclipped(compose.onNode(hasText(activity.getString(T.toolsLineOfSight)) and

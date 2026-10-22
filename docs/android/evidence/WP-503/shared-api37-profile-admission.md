@@ -3444,3 +3444,51 @@ passed108/108,0F/E/S,in11.758s. The declared verification_config.py --check,
 validate.py, workflows.py and portmap.py commands each passed/exit0; unstaged
 and staged whitespace checks passed. Full local Gradle remains UNVERIFIED.
 No factory/device/host-process/native operation accompanied these source checks.
+
+### Actual b899 LoS negative and bounded fixture-readiness source repair
+
+The reviewed b8994aa75c055e31b0436bc6ee22d7a6e67cfe37/main401 handoff admitted
+exactly the original saved-repeater LoS method on one fresh API37 guest. Fresh
+commit headroom4306.30859375MiB and physical availability7318.48046875MiB
+both exceeded4096MiB; all-runtime source, API, actor, pause, policy, manifest,
+canonicalr32, tool and image checks passed. The profile was CPU4/font2/effective2/
+360x900/density160/motion0/IME0, with fresh boot1/stopped and no offline recovery.
+The source-bound installed App/Test digests and public certificate matched the
+retained pair; native boot120s and selected instrumentation180s were unchanged.
+
+The actual method was discovered, started and completed once:0PASS/1FAIL/0E/S,
+16.609s, host exit0, terminal-1, runner_completed=true, CLI2, acceptance=false.
+The raw failure was `ComposeTimeoutException` at the then-current fixture
+line115, `compose.waitUntil { catalogReads == 1 }`, within its default1000ms.
+The actual counter value was not captured, so neither zero nor duplicate reads
+is inferred. This happened before native-tree, endpoint-selection or elevation
+assertions; none of those downstream checks is claimed to have failed or passed.
+
+ActualEND was2026-10-22T17:17:42.384276Z. Owned disposal was verified, and the
+independent17:19:27.540628Z read found new-owner locksNONE and exact server,
+emulator and instrumentation PIDs56056/47128/32868 absent. The sole protected
+historical66bd lock remained unchanged. Main serialization was released.
+Cached-chat was NOT STARTED under the first-execution-failure stop rule.
+There was no retry. Original325 and728 evidence remains unchanged.
+
+The unchanged operations, raw3250B transcript, logcat and independent cleanup
+remain in session files `wp503-b899-los37-fourcpu-a1`. Exact paths, hashes,
+source, ownership and observed counts are recorded in
+`los-fixture-readiness.json`; it is negative native evidence, not a new CI bundle.
+
+The bounded follow-up changes only this LoS fixture's readiness boundary:
+its actual current `LineOfSightEntry` receives a test tag, Compose semantics
+must observe that mounted tag, and `waitForIdle` synchronizes composition/effects
+before the original unchanged1000ms/count==1 predicate. A LoS-only JUnit failure
+watcher records actual catalog/elevation counters and whether current fixture
+semantics were observed, plus a depth5/8192-character Compose tree.
+All original identities, dependencies, counter/elevation/native-action/selection/
+offscreen/48dp assertions and helper implementations are retained. Neither the
+global harness nor production code, native deadlines, CPU count or profiles change.
+The binding retains the original fixture object separately from the exact repaired
+current object; all original producer/helper/subtree pins and ancestry remain strict.
+
+This repairs an unsynchronized fixture boundary. It does not establish the
+observed timeout's cause or show that the repaired case passes. No native
+execution of this changed fixture is authorized or claimed by this source update;
+the exact published successor requires review and a separate fresh handoff.
