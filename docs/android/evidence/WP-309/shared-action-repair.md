@@ -1,7 +1,8 @@
 # WP-309 shared-action repair candidate
 
 Repository: `cbattlegear/MeshCoreOne-Android`; owner: `chats-ui-engineer`.
-Base/trusted main: `0a7a84e388393557e4b66ac7fd322248e28611fd`.
+Original repair base: `0a7a84e388393557e4b66ac7fd322248e28611fd`.
+Integrated trusted main: `f81d2f56d897b022b6f6c4cf38551448691eae02` (WP-003 PR #275).
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Candidate head is the commit containing this file (reported exactly in the successor PR).
 Manifest SHA-256: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`.
@@ -28,9 +29,9 @@ managed branch: `cbattlegear-laughing-barnacle`. Existing tracking issue: #117.
 
 Acceptance touched: `WP-309-behavior`, `WP-309-boundaries`, `WP-309-source-test-parity`.
 These additions are supplemental regressions, not seven new original Swift cases or whole-WP acceptance.
-See [native adaptations and the picker blocker](../../deviations/WP-309.md).
+See [native adaptations and separate picker producer](../../deviations/WP-309.md).
 
-## Reservation and unresolved support ownership
+## Reservation and historical support admission
 
 The actual trusted reservation CLI acquired `wp-owned` revision 1 for this branch/worktree/session.
 Same-owner evolution to revision 2 admitted only
@@ -44,11 +45,12 @@ Actual command:
 python tools\android-port\local\reserve.py admit --wp WP-309 --path android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ui/MentionSuggestions.kt --operation repair-shared-mention-picker
 ```
 
-Result: **BLOCKED**, no trusted WP-309 path+operation rule. Primary source ownership is WP-308;
+Historical result: **BLOCKED**, no trusted WP-309 path+operation rule. Primary source ownership is WP-308;
 the shared repair capability admits only WP-502. Picker source and all Rooms/channel paths remain
-untouched. Required coordinator action: serialize/transfer this requested repair to the admitted producer,
-or land a trusted rule for this producer. No cross-session messaging tool is available in this session;
-this document and the final handoff are the coordinator notification.
+untouched. The repair is now assigned to the actual WP-308 producer in
+[#280](https://github.com/cbattlegear/MeshCoreOne-Android/pull/280),
+head `e05535e818a9d81e9dfa810a3dfff9503abb64bc`, with WP-502 assigned the dependent consumer assertion.
+No new WP-309 authorization is needed or requested; no cross-owner edits or acceptance claims are made.
 
 ## Actual verification and limits
 
@@ -63,12 +65,34 @@ this document and the final handoff are the coordinator notification.
 Kotlin/JVM and mounted Compose tests are **not executed locally**: 0 discovered/run for this candidate,
 not passing or zero-test success. The declared smallest relevant tasks are
 `:feature:chats:testDebugUnitTest` and the existing App `:app:testDebugUnitTest` with the new mounted
-class plus incumbent `ReactionDetailsComposeTest` selected. The native receipt still prevents another
-owner's Gradle execution; supported exact-commit advisory admission is recorded in the PR after commit.
+class plus incumbent `ReactionDetailsComposeTest` selected. The observed native ownership was historical;
+the coordinator subsequently reported genuine WP-503 cleanup, not authority to adopt another native lane.
+Supported exact-commit local admission and automatic push-hook outcomes are recorded in the PR.
 No full repository, emulator/device, hardware, iOS, TalkBack, screenshot/golden, signing, release,
 performance or license verification is claimed.
 
 Publication is an **explicitly unverified candidate**, not a merge or completion receipt. Hosted
 exact-head job/log remains authoritative; no second CI bundle is retained. WP-003 CI timeout repair is
-outside this change. Merge/whole-request completion remains blocked on actual checks and the picker
-ownership resolution.
+outside this change. Merge acceptance remains pending actual exact-candidate checks and review;
+the separate picker producer is not a missing WP-309 authorization blocker.
+
+## Integrated CI-budget repair successor
+
+The authoritative prior candidate run
+[39810035170](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39810035170)
+for head `dd67ad3dc0a024f40a821684c41e653d58fb7aea` failed. Its actual Linux job
+[119933702439](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39810035170/job/119933702439)
+records the selected Gradle command timing out after **1799.999986816 seconds**.
+This is not verified Kotlin/Compose results or evidence that zero tests executed on the hosted runner.
+No duplicate log/result bundle is retained.
+
+Actual inspection command:
+`gh run view 39810035170 --job 119933702439 --log-failed`.
+Result: command succeeded; official failure log reports the timeout above.
+
+`git merge --no-edit origin/main` integrated actual trusted main
+`f81d2f56d897b022b6f6c4cf38551448691eae02` without conflicts. The imported WP-003 change provides
+the bounded one-hour selected-command budget; its implementation/tests remain attributed to WP-003.
+WP-309 product and test bytes remain unchanged from `dd67ad3dc0a024f40a821684c41e653d58fb7aea`.
+This is a changed integration candidate, not an unchanged rerun or a claim the timeout repair passed
+this feature's tests. Next exact-head hosted results remain pending publication.
