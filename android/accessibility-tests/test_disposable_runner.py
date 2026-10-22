@@ -982,7 +982,7 @@ class DisposableConsumerTest(unittest.TestCase):
         self.assertEqual([{"sys.boot_completed": "1", "init.svc.bootanim": "stopped"}], observed)
 
     def test_scoped_offline_retains_actual_streams_and_requires_fresh_both_properties(self):
-        for output, stderr in ((b"adb.exe: device offline\n", None), (b"", b"error: device offline\n")):
+        for output, stderr in ((b"adb.exe: device offline\n", None), (b"", b"adb: device offline\n")):
             with self.subTest(output=output, stderr=stderr):
                 guest, ledger, observed = Mock(), object(), []
                 guest.boot_readiness.return_value = nullcontext()
