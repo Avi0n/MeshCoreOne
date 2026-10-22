@@ -120,11 +120,15 @@ class ChannelQueueCounterAppOriginalPredicateTest : RoomProcessTest() {
                     delay(50)
                 }
             }
-            while (store.fetchPendingSends(radio).any { it.messageID == a.id } &&
-                System.nanoTime() < aDeadline) {
+            var aDeleted = false
+            while (System.nanoTime() < aDeadline) {
+                if (store.fetchPendingSends(radio).none { it.messageID == a.id }) {
+                    aDeleted = true
+                    break
+                }
                 delay(50)
             }
-            assertTrue(store.fetchPendingSends(radio).none { it.messageID == a.id },
+            assertTrue(aDeleted,
                 "A must be deleted within the original real 30-second deadline; " +
                     "state=${container.connectionManager.connectionState}, " +
                     "queryFailures=${failures("channelQuery", a.id)}, rows=${store.fetchPendingSends(radio)}")
