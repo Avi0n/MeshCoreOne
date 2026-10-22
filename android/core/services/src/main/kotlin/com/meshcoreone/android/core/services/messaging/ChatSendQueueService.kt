@@ -26,6 +26,7 @@ class ChatSendQueueService(
     reporter: MessagingIssueReporter = LoggingMessagingIssueReporter,
     private val newID: () -> UUID = UUID::randomUUID,
     progress: ChatSendQueueProgress = ChatSendQueueProgress(),
+    private val onQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null,
 ) : ChatSendQueuePort {
     init { require(messageService.token == token) { "Queues must share their message service generation" } }
     private val ownership = MessagingOwnership(token, scope, signals, reporter)
@@ -37,7 +38,15 @@ class ChatSendQueueService(
     private val queued = mutableSetOf<UUID>()
     private val failures = linkedMapOf<String, Throwable>()
     private val channelProgress = progress.attach(token)
-    private data class QueryAccounting(val messageID: UUID, val attempt: Attempt, val completion: CompletableDeferred<Unit>)
+    private data class QueryAccounting(
+        val messageID: UUID,
+        val attempt: Attempt,
+        val completion: CompletableDeferred<Unit>,
+        var failure: QueryFailure? = null,
+        var parkPersisted: Boolean = false,
+        var reported: Boolean = false,
+    )
+    private data class QueryFailure(val count: Long, val cause: Throwable)
     private var queryAccounting: QueryAccounting? = null
     private var recoveryPrepared = false
     private val completedDMs = mutableSetOf<UUID>()
@@ -205,6 +214,7 @@ class ChatSendQueueService(
     private suspend fun park(id: UUID, failure: Throwable): Nothing {
         record("park.$id", failure, retain = failure is PersistenceStoreException ||
             !isTransientDirectMessageError(failure) && !isTransientChannelMessageError(failure))
+        reportQueryAccounting(id, ChannelQueryAccountingOutcome.PARKED)
         finishQueryAccounting(id)
         clock.messagingDeadline(config.transportWaitTimeout) { triggers.wait() }
         ownership.checkLifetime("park.woke")
@@ -329,9 +339,13 @@ class ChatSendQueueService(
             catch (queryFailure: Exception) {
                 // The source query contract counts every thrown error; none becomes a nil channel.
                 val count = channelProgress.increment(id, accounting.attempt.pendingID)
+                synchronized(lock) { accounting.failure = QueryFailure(count, queryFailure) }
                 record("channelQuery.$id", queryFailure, retain = queryFailure is PersistenceStoreException)
                 if (count >= config.maxConsecutiveFetchChannelFailures) throw queryFailure
-                try { remapPending(id) }
+                try {
+                    remapPending(id)
+                    synchronized(lock) { accounting.parkPersisted = true }
+                }
                 catch (storage: PersistenceStoreException) { record("remap.$id", storage) }
                 park(id, queryFailure)
             }
@@ -390,6 +404,21 @@ class ChatSendQueueService(
         pending.completion.cancel(CancellationException("Channel-query generation retired"))
     }
 
+    private fun reportQueryAccounting(id: UUID, outcome: ChannelQueryAccountingOutcome) {
+        val observer = onQueryAccounting ?: return
+        val event = synchronized(lock) {
+            val pending = queryAccounting?.takeIf { it.messageID == id && !it.reported } ?: return
+            val failure = pending.failure ?: return
+            if (outcome == ChannelQueryAccountingOutcome.PARKED && !pending.parkPersisted) return
+            if (!ownership.isCurrent) return
+            pending.reported = true
+            ChannelQueryAccountingEvent(token, id, pending.attempt.pendingID, failure.count,
+                config.maxConsecutiveFetchChannelFailures, outcome, failure.cause)
+        }
+        // Like MessagingIssueReporter, this synchronous observer must not throw or perform lifecycle work.
+        observer(event)
+    }
+
     private suspend fun terminal(failure: Exception, id: UUID) {
         record("terminal.$id", failure, retain = false)
         var deleted = false
@@ -403,6 +432,7 @@ class ChatSendQueueService(
             deleted = true
         } catch (storage: PersistenceStoreException) { record("terminalPersistence.$id", storage) }
         complete(id, clearProgress = deleted)
+        if (deleted) reportQueryAccounting(id, ChannelQueryAccountingOutcome.TERMINAL_DELETED)
     }
     private suspend fun drained(failure: Exception?) {
         if (failure != null) ownership.failure("sendQueueDrain", failure)

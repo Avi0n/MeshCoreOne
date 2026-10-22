@@ -37,6 +37,8 @@ class ChannelQueryAccountingTest {
                     sibling = it
                     store.upsertPendingSend(h.pending(it, 2).copy(sequence = 2))
                 }
+                val pendingID = store.fetchPendingSendsForMessage(EntityKey(RADIO, a.id)).single().id
+                val accounting = mutableListOf<ChannelQueryAccountingEvent>()
                 val deletion = CompletableDeferred<Unit>()
                 val releaseDeletion = CompletableDeferred<Unit>()
                 var retry: Duration? = null
@@ -53,6 +55,7 @@ class ChannelQueryAccountingTest {
                         retry = duration
                         recovery = backgroundScope.async(start = CoroutineStart.UNDISPATCHED) {
                             queue.awaitChannelQueryAccounting()
+                            assertEquals(1, accounting.size, "The causal event must precede recovery completion")
                             assertEquals(h.token, h.signals.snapshot.value.token)
                             if (index == 0) {
                                 assertEquals(MessageStatus.PENDING, h.stored(a.id).status)
@@ -67,11 +70,21 @@ class ChannelQueryAccountingTest {
                         delay(duration)
                     }, Random(0))
                     queue = h.queue(query = MessagingChannelQuery(channels::fetchChannel), progress = progress,
-                        config = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 2))
+                        config = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 2),
+                        onQueryAccounting = { event ->
+                            assertEquals(h.token, h.signals.snapshot.value.token)
+                            assertEquals(if (index == 0) MessageStatus.PENDING else MessageStatus.FAILED, h.stored(a.id).status)
+                            assertEquals(index == 0, store.pending.values.any { it.messageID == a.id })
+                            assertTrue(h.diagnostics.filterIsInstance<MessagingDiagnostic.Failure>().any {
+                                it.operation == if (index == 0) "park.${a.id}" else "terminal.${a.id}"
+                            })
+                            accounting += event
+                        })
                     start(h, queue)
                     advanceTimeBy(1_999); runCurrent()
                     assertNull(retry)
                     assertTrue(queryFailures(h, a.id).isEmpty())
+                    assertTrue(accounting.isEmpty())
                     advanceTimeBy(1); runCurrent()
                     val retryDelay = assertNotNull(retry).inWholeMilliseconds
                     assertTrue(retryDelay in 400L..600L)
@@ -95,9 +108,19 @@ class ChannelQueryAccountingTest {
                         assertFalse(assertNotNull(recovery).isCompleted)
                         assertEquals(h.token, h.signals.snapshot.value.token)
                         assertTrue(store.hasPendingSend(EntityKey(RADIO, a.id)))
+                        assertTrue(accounting.isEmpty(), "Deletion still blocked is not terminal completion")
                         releaseDeletion.complete(Unit); runCurrent()
                     }
                     assertNotNull(recovery).await()
+                    val event = accounting.single()
+                    assertEquals(h.token, event.token)
+                    assertEquals(a.id, event.messageID)
+                    assertEquals(pendingID, event.pendingID)
+                    assertEquals(index + 1L, event.failureCount)
+                    assertEquals(2L, event.failureCap)
+                    assertEquals(if (index == 0) ChannelQueryAccountingOutcome.PARKED
+                        else ChannelQueryAccountingOutcome.TERMINAL_DELETED, event.outcome)
+                    assertSame(failure, event.queryFailure)
                     assertTrue(store.hasPendingSend(EntityKey(RADIO, b.id)))
                     assertEquals(MessageStatus.PENDING, h.stored(b.id).status)
                     assertEquals(2L, store.fetchPendingSendsForMessage(EntityKey(RADIO, b.id)).single().attemptCount)
@@ -113,14 +136,16 @@ class ChannelQueryAccountingTest {
             val progress = ChatSendQueueProgress()
             val first = connection()
             val m = first.message(MessageStatus.PENDING, 0u); first.pending(m, 2)
+            val accounting = mutableListOf<ChannelQueryAccountingEvent>()
             val queue = first.queue(query = MessagingChannelQuery { first.session.getChannel(it) }, progress = progress,
-                config = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 1))
+                config = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 1), onQueryAccounting = accounting::add)
             start(first, queue)
             val observer = backgroundScope.async(start = CoroutineStart.UNDISPATCHED) { queue.awaitChannelQueryAccounting() }
             assertFalse(observer.isCompleted)
             queue.shutdown(); runCurrent()
             assertFailsWith<CancellationException> { observer.await() }
             assertTrue(queryFailures(first, m.id).isEmpty())
+            assertTrue(accounting.isEmpty())
             first.close()
             val second = connection(first.store, 2)
             val next = second.queue(query = MessagingChannelQuery { second.session.getChannel(it) }, progress = progress,
@@ -148,35 +173,43 @@ class ChannelQueryAccountingTest {
             val progress = ChatSendQueueProgress()
             val first = connection()
             val m = first.message(MessageStatus.PENDING, 0u); first.pending(m, 2)
+            val accounting = mutableListOf<ChannelQueryAccountingEvent>()
             val query = MessagingChannelQuery { first.session.getChannel(it) }
             val queue = first.queue(query = query, progress = progress,
-                config = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 1))
+                config = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 1), onQueryAccounting = accounting::add)
             first.store.faults["deletePendingSendsForMessage"] = storageFailure()
             start(first, queue)
             val observer = backgroundScope.async(start = CoroutineStart.UNDISPATCHED) { queue.awaitChannelQueryAccounting() }
             advanceTimeBy(2_000); runCurrent()
             observer.await()
             assertTrue(first.store.hasPendingSend(EntityKey(RADIO, m.id)))
+            assertTrue(accounting.isEmpty(), "Failed deletion must never emit terminal success")
             assertTrue(first.diagnostics.filterIsInstance<MessagingDiagnostic.Failure>().any {
                 it.operation == "terminalPersistence.${m.id}" && it.cause is PersistenceStoreException
             })
             first.close(); first.store.faults.clear()
             val second = connection(first.store, 2)
             val next = second.queue(query = MessagingChannelQuery { second.session.getChannel(it) }, progress = progress,
-                config = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 2))
+                config = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 2), onQueryAccounting = accounting::add)
             start(second, next)
             advanceTimeBy(2_000); runCurrent()
             assertFalse(second.store.hasPendingSend(EntityKey(RADIO, m.id)))
+            val event = accounting.single()
+            assertEquals(second.token, event.token)
+            assertEquals(2L, event.failureCount)
+            assertEquals(2L, event.failureCap)
+            assertEquals(ChannelQueryAccountingOutcome.TERMINAL_DELETED, event.outcome)
         },
         native("real unconfigured query holds accounting until its terminal deletion completes") {
             val h = connection()
             val m = h.message(MessageStatus.PENDING, 0u); h.pending(m, 2)
             h.transport.channelReplies[0u] = ChannelInfo(0u, "", Bytes(ByteArray(16)))
             val release = CompletableDeferred<Unit>()
+            val accounting = mutableListOf<ChannelQueryAccountingEvent>()
             h.store.before = { operation -> if (operation == "deletePendingSendsForMessage") release.await() }
             try {
                 val channels = ChannelService(h.session, h.store, null)
-                val queue = h.queue(query = MessagingChannelQuery(channels::fetchChannel))
+                val queue = h.queue(query = MessagingChannelQuery(channels::fetchChannel), onQueryAccounting = accounting::add)
                 start(h, queue)
                 val observer = backgroundScope.async(start = CoroutineStart.UNDISPATCHED) {
                     queue.awaitChannelQueryAccounting()
@@ -187,16 +220,18 @@ class ChannelQueryAccountingTest {
                 observer.await()
                 assertFalse(h.store.hasPendingSend(EntityKey(RADIO, m.id)))
                 assertTrue(queryFailures(h, m.id).isEmpty())
+                assertTrue(accounting.isEmpty(), "Real null is not a thrown-query accounting event")
             } finally { release.complete(Unit); h.store.before = null }
         },
         native("replacement cancels an old accounting waiter before a non-cooperative late result") {
             val h = connection()
             val m = h.message(MessageStatus.PENDING, 0u); h.pending(m, 2)
             val release = CompletableDeferred<Unit>()
+            val accounting = mutableListOf<ChannelQueryAccountingEvent>()
             try {
                 val queue = h.queue(query = MessagingChannelQuery {
                     withContext(NonCancellable) { release.await(); throw MeshCoreException.Timeout() }
-                })
+                }, onQueryAccounting = accounting::add)
                 start(h, queue)
                 val observer = backgroundScope.async(start = CoroutineStart.UNDISPATCHED) {
                     queue.awaitChannelQueryAccounting()
@@ -206,6 +241,7 @@ class ChannelQueryAccountingTest {
                 assertFailsWith<CancellationException> { observer.await() }
                 release.complete(Unit); runCurrent()
                 assertTrue(queryFailures(h, m.id).isEmpty())
+                assertTrue(accounting.isEmpty())
             } finally { release.complete(Unit) }
         },
         native("no active query is immediately observable only on the live generation") {
@@ -263,6 +299,39 @@ class ChannelQueryAccountingTest {
                 assertEquals(3L, h.store.fetchPendingSendsForMessage(EntityKey(RADIO, m.id)).single().attemptCount)
                 assertEquals(MessageStatus.PENDING, h.stored(m.id).status)
             } finally { release.complete(Unit); h.store.before = null }
+        },
+        native("failed pending remap retains typed failure without emitting a completed park") {
+            val h = connection()
+            val m = h.message(MessageStatus.PENDING, 0u); h.pending(m, 2)
+            val accounting = mutableListOf<ChannelQueryAccountingEvent>()
+            val queue = h.queue(query = MessagingChannelQuery { h.session.getChannel(it) },
+                config = ChatSendQueueConfig(maxConsecutiveFetchChannelFailures = 2), onQueryAccounting = accounting::add)
+            start(h, queue)
+            h.store.faults["updateMessageStatusUnlessDelivered"] = storageFailure()
+            val observer = backgroundScope.async(start = CoroutineStart.UNDISPATCHED) { queue.awaitChannelQueryAccounting() }
+            advanceTimeBy(2_000); runCurrent()
+            observer.await()
+            assertEquals(1, queryFailures(h, m.id).size)
+            assertTrue(accounting.isEmpty())
+            assertTrue(h.store.hasPendingSend(EntityKey(RADIO, m.id)))
+            assertTrue(h.diagnostics.filterIsInstance<MessagingDiagnostic.Failure>().any {
+                it.operation == "remap.${m.id}" && it.cause is PersistenceStoreException
+            })
+            h.store.faults.clear()
+        },
+        native("successful configured channel query is not reported as a thrown-query completion") {
+            val h = connection()
+            val m = h.message(MessageStatus.PENDING, 0u); h.pending(m, 2)
+            val accounting = mutableListOf<ChannelQueryAccountingEvent>()
+            h.transport.channelReplies[0u] = ChannelInfo(0u, "configured", Bytes(ByteArray(16) { 1 }))
+            val channels = ChannelService(h.session, h.store, null)
+            val queue = h.queue(query = MessagingChannelQuery(channels::fetchChannel), onQueryAccounting = accounting::add)
+            start(h, queue)
+            queue.awaitChannelQueryAccounting()
+            assertEquals(1, h.sends(CommandCode.GET_CHANNEL).size)
+            assertTrue(queryFailures(h, m.id).isEmpty())
+            assertTrue(accounting.isEmpty())
+            assertEquals(MessageStatus.PENDING, h.stored(m.id).status)
         },
     )
 

@@ -126,6 +126,62 @@ guards, add scheduler sleeps, or claim its real-session service tests prove
 that combined boundary. Coordinator source review identified this prerequisite;
 it is not hidden by a lower-level test pass or a guessed App adaptation.
 
+### Causal accounting observations for the native-adapted App witness
+
+WP-303 requested an actual producer observation distinguishing A's genuine cap
+exhaustion from another terminal error, and B's own successful failure accounting
+and park from merely surviving as an untouched pending row. The additive public
+API in `com.meshcoreone.android.core.services.messaging` is:
+
+```kotlin
+data class ChannelQueryAccountingEvent(
+    val token: SessionToken,
+    val messageID: UUID,
+    val pendingID: UUID,
+    val failureCount: Long,
+    val failureCap: Long,
+    val outcome: ChannelQueryAccountingOutcome,
+    val queryFailure: Throwable,
+)
+enum class ChannelQueryAccountingOutcome { PARKED, TERMINAL_DELETED }
+```
+
+The final optional queue constructor parameter is
+`onQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null`.
+The actual token includes radio, process epoch and connection generation; the
+pending-row UUID is the admitted preflight identity, not a reconstructed lookup.
+Counts/cap come from the real progress increment and current queue config,
+never from send attempts, diagnostics, cancellation or reconnect counts.
+
+There is at most one observation per genuine thrown query flight. PARKED is
+emitted only after successful pending-status remap and the existing park
+diagnostic; TERMINAL_DELETED only after the actual terminal persistence and
+pending deletion succeeded. Both occur before releasing the recovery observer.
+Remap/deletion storage failures retain existing typed diagnostics and produce
+no successful-completion observation. Cancellation, stale/late results, an idle
+flight, real successful configured/null queries and ordinary sends produce none.
+
+The synchronous callback runs outside queue/progress locks. As with the existing
+issue reporter, it must not throw or perform lifecycle work: App should only
+record the immutable event thread-safely. WP-303 forwards it into every actual
+queue generation and asserts the real Room/status outcomes independently.
+No event history, fake replay, flow conflation or default-success hook is added.
+The optional observer does not affect query/retry/recovery policy. No contracts
+path changes are needed: the existing sealed MessagingDiagnostic models failures
+and cannot honestly carry a successful persistence completion. It remains
+unchanged rather than putting success-shaped data inside Failure.
+
+ChannelQueryAccountingTest now has eleven cases. Its existing real ChannelService
+early-recovery case asserts the exact pending-row/token/count/cap/cause and
+PARKED then TERMINAL_DELETED observations, with no terminal event while deletion
+is blocked and exactly one before recovery resumes. Existing storage/cancel/null/
+late-result cases assert no false event. Two added cases cover failed remap
+with retained typed storage error and a real configured-query success with no
+failure event. These changed bytes await their own hosted execution; the prior
+3fdc candidate's green result is not evidence for this successor. Targeted local
+Gradle remains blocked by the confirmed legacy-runtime/protected-upgrade
+interlock; no repeated failed readiness check or native action is performed.
+
 ## Authorship and coverage
 
 Acceptance: `WP-208-behavior`, `WP-208-boundaries`, supplemental native evidence
