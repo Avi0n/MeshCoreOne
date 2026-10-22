@@ -164,7 +164,7 @@ class RoomReloadSchedulerTest {
         events.emit(RoomConversationEvent.MessageChanged(session.id, original.id))
         debounce.send(Unit)
         assertSame(failure, holder.state.value.failure)
-        assertEquals(listOf(failure), failures)
+        assertEquals(listOf<Throwable>(failure), failures)
 
         events.emit(RoomConversationEvent.MessageChanged(session.id, original.id))
         debounce.send(Unit)
