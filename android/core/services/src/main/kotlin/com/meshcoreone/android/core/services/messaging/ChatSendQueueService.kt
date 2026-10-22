@@ -39,6 +39,7 @@ class ChatSendQueueService(
     private val channelProgress = progress.attach(token)
     private data class QueryAccounting(val messageID: UUID, val attempt: Attempt, val completion: CompletableDeferred<Unit>)
     private var queryAccounting: QueryAccounting? = null
+    private var recoveryPrepared = false
     private val completedDMs = mutableSetOf<UUID>()
     private val completedChannels = mutableMapOf<UUID, UInt>()
     private val indexedChannels = mutableSetOf<UUID>()
@@ -224,6 +225,7 @@ class ChatSendQueueService(
     private suspend fun sendDM(envelope: DirectMessageEnvelope) {
         val id = envelope.messageID
         awaitReady()
+        checkSendAdmission()
         val contact = try {
             dataStore.fetchContact(key(envelope.contactID)).also { ownership.check("dm.contact") }
         } catch (failure: PersistenceStoreException) { park(id, failure) }
@@ -239,6 +241,7 @@ class ChatSendQueueService(
             preflightAndBump(dataStore, key(id)).also { ownership.check("dm.bump") }
         } catch (failure: PersistenceStoreException) { parkBeforeSend(id, failure) }
         if (attempt == null) { complete(id); return }
+        checkSendAdmission()
         synchronized(lock) { directClaimIDs[id] = attempt.pendingID }
         try {
             if (!synchronized(lock) { id in completedDMs }) {
@@ -277,10 +280,12 @@ class ChatSendQueueService(
     private suspend fun sendChannelAttempt(envelope: ChannelMessageEnvelope) {
         val id = envelope.messageID
         awaitReady()
+        checkSendAdmission()
         val attempt = try {
             preflightAndBump(dataStore, key(id)).also { ownership.check("channel.bump") }
         } catch (failure: PersistenceStoreException) { parkBeforeSend(id, failure) }
         if (attempt == null) { complete(id); return }
+        checkSendAdmission()
         try {
             val stamp = synchronized(lock) { completedChannels[id] } ?: run {
                 val sent = if (envelope.isResend) messageService.resendChannelMessage(id, attempt.preserveTimestamp)
@@ -315,7 +320,7 @@ class ChatSendQueueService(
         if (!isTransientChannelMessageError(failure)) throw failure
         if (isChannelMessageNotFound(failure) && attempt.postBumpCount >= config.disambiguateAfterAttempts) {
             val accounting = synchronized(lock) {
-                if (!ownership.isCurrent) throw CancellationException("Retired channel-query generation")
+                if (!ownership.isCurrent || recoveryPrepared) throw CancellationException("Channel-query admission closed")
                 check(queryAccounting == null) { "Channel queries must be serialized" }
                 QueryAccounting(id, attempt, CompletableDeferred()).also { queryAccounting = it }
             }
@@ -352,15 +357,25 @@ class ChatSendQueueService(
     }
 
     /**
-     * Observe the current disambiguation query through accounting and park or terminal persistence.
+     * Seal new sends/queries, then observe the admitted query through park or terminal persistence.
      * Recovery must await this before withdrawing this token or cancelling/retiring its services.
      * Cancelling an observer does not cancel the query; manual teardown invalidates the observation.
+     * Admission stays sealed for this generation even if an observer is cancelled.
      */
     suspend fun awaitChannelQueryAccounting() {
         ownership.check("awaitChannelQueryAccounting")
-        val pending = synchronized(lock) { queryAccounting }
+        val pending = synchronized(lock) {
+            recoveryPrepared = true
+            queryAccounting
+        }
+        dmQueue.stopAfterCurrent()
+        channelQueue.stopAfterCurrent()
         pending?.completion?.await()
         ownership.check("awaitChannelQueryAccounting.completed")
+    }
+
+    private fun checkSendAdmission(): Unit = synchronized(lock) {
+        if (recoveryPrepared || !ownership.isCurrent) throw CancellationException("Send admission closed")
     }
 
     private fun finishQueryAccounting(id: UUID, cancelled: CancellationException? = null) {
