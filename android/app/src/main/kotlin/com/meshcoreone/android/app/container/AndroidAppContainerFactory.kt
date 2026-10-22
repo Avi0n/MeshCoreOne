@@ -37,7 +37,6 @@ import com.meshcoreone.android.app.container.onboarding.WriteBehindOnboardingFla
 import com.meshcoreone.android.app.container.onboarding.appSettingsOpener
 import com.meshcoreone.android.core.services.content.LocationService
 import com.meshcoreone.android.core.services.content.RegionResolver
-import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
 import com.meshcoreone.android.core.services.notifications.didReceive
 import com.meshcoreone.android.core.services.rendering.DraftStore
 import com.meshcoreone.android.core.services.simulator.DemoModeManager
@@ -178,7 +177,6 @@ object AndroidAppContainerFactory {
             scans = scanCoordinator,
             openAppSettings = appSettingsOpener(application),
         )
-        val chatSendQueueProgress = ChatSendQueueProgress()
         val container = AppContainer(
             AppContainerDependencies(
                 store = store,
@@ -188,7 +186,6 @@ object AndroidAppContainerFactory {
                 linkProbe = probe,
                 scans = scanCoordinator,
                 linkFactory = linkFactory,
-                chatSendQueueProgress = chatSendQueueProgress,
                 hostingStarter = AndroidForegroundServiceStarter(application),
                 hostEnvironment = environment,
                 ensureBonded = { deviceId ->

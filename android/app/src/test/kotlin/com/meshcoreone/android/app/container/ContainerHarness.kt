@@ -1,6 +1,5 @@
 // AndroidOnly: WP-303 Test harness: the production AppContainer over a Room store, a fake radio and fake platform roles.
 // AndroidOnly: WP-501 Fixed, class-scoped Room lifecycle diagnostic markers.
-// AndroidOnly: WP-207 Forward recovery scheduling through the real App graph.
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.database.MeshCoreDatabase
@@ -27,7 +26,6 @@ import com.meshcoreone.android.core.runtime.RuntimePreferenceSnapshot
 import com.meshcoreone.android.core.runtime.RuntimePreferenceValue
 import com.meshcoreone.android.core.services.contacts.ContactPreferenceFlags
 import com.meshcoreone.android.core.services.diagnostics.DebugLogBuffer
-import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
 import com.meshcoreone.android.core.services.rendering.DraftDefaults
 import com.meshcoreone.android.core.services.rendering.DraftStore
 import java.util.UUID
@@ -83,7 +81,6 @@ internal class ContainerHarness(
     primerFactory: com.meshcoreone.android.app.state.ChatPrimerFactory = com.meshcoreone.android.app.state.ChatPrimerFactory { null },
     chatContent: AppChatContent? = null,
     syncClock: com.meshcoreone.android.core.services.sync.SyncClock = com.meshcoreone.android.core.services.sync.SyncClock.SYSTEM,
-    recoveryDispatcher: kotlinx.coroutines.CoroutineDispatcher = kotlinx.coroutines.Dispatchers.Default,
 ) {
     val scheduler: TestCoroutineScheduler = test.testScheduler
     val links = HarnessLinks(identity)
@@ -92,7 +89,6 @@ internal class ContainerHarness(
     val foregroundCalls = mutableListOf<Boolean>()
     val preferences = MemoryConnectionPreferences()
     val lifecycle = RecordingLifecycle()
-    val chatSendQueueProgress = ChatSendQueueProgress()
     val diagnostics = mutableListOf<RuntimeDiagnostic>()
     val messagingDiagnostics = java.util.Collections.synchronizedList(mutableListOf<com.meshcoreone.android.core.contracts.domain.MessagingDiagnostic>())
     val draftStore = DraftStore(MemoryDraftDefaults())
@@ -109,12 +105,10 @@ internal class ContainerHarness(
             notificationPreferences = FixedNotificationPreferences(),
             contactPreferences = MemoryFlags(),
             draftStore = draftStore,
-            chatSendQueueProgress = chatSendQueueProgress,
             mainScope = test.backgroundScope,
             runtimeClock = SchedulerClock { scheduler.currentTime },
             syncClock = syncClock,
             runtimeContext = test.backgroundScope.coroutineContext,
-            runtimeRecoveryDispatcher = recoveryDispatcher,
             accessibility = SilentAnnouncements,
             sessionLifecycle = lifecycle,
             runtimeReporter = RuntimeIssueReporter { diagnostics += it },

@@ -42,8 +42,6 @@ class SessionLifecycleTest : RoomProcessTest() {
             repeat(3) {
                 h.connect()
                 val live = assertNotNull(h.sessions.current)
-                assertSame(h.chatSendQueueProgress, live.chatSendQueueProgress,
-                    "every replacement graph receives the process-owned send progress")
                 seen += live
                 dispatcherJobs += h.appState.messageEventDispatcher.activeJobCount
                 sessionJobs += h.appState.activeSessionJobCount
@@ -85,9 +83,6 @@ class SessionLifecycleTest : RoomProcessTest() {
             val second = assertNotNull(h.sessions.current)
             assertNotSame(first, second)
             assertNotEquals(firstRadio, second.token.radioId, "the second radio is a different identity")
-            assertSame(h.chatSendQueueProgress, first.chatSendQueueProgress)
-            assertSame(first.chatSendQueueProgress, second.chatSendQueueProgress,
-                "radio isolation is keyed within one process-owned progress tracker")
             assertTrue(first.isTornDown)
             assertEquals(0, first.liveJobCount)
             assertEquals(1, h.sessions.outstanding)

@@ -82,8 +82,6 @@ data class RuntimeServiceInputs(
 
 /** Implemented by real WPs 208-218 at WP-303; no concrete or no-op graph is constructed here. */
 interface RuntimeServices : SessionServices {
-    /** Finish the admitted channel query's accounting/persistence while this generation's token is still live. */
-    suspend fun awaitChannelQueryAccounting()
     suspend fun hydrate()
     suspend fun initialSync(forceFullSync: Boolean): RuntimeSyncResult
     suspend fun remoteDisconnected(): Set<UUID>

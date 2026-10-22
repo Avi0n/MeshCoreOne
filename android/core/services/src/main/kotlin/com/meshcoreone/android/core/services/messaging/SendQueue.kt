@@ -13,7 +13,6 @@ class SendQueue<Envelope : Any>(
     private val pending = ArrayDeque<Envelope>()
     private var task: Deferred<Unit>? = null
     private var halted = false
-    private var stopping = false
     private var closed = false
     private var callbackFailure: Exception? = null
     val count: Int get() = synchronized(lock) { pending.size }
@@ -29,7 +28,7 @@ class SendQueue<Envelope : Any>(
     }
 
     private fun ensureDraining() {
-        if (task != null || halted || stopping || closed || pending.isEmpty()) return
+        if (task != null || halted || closed || pending.isEmpty()) return
         val work = scope.async(start = CoroutineStart.LAZY) { drain() }
         task = work
         work.invokeOnCompletion { cause ->
@@ -49,7 +48,7 @@ class SendQueue<Envelope : Any>(
             while (true) {
                 currentCoroutineContext().ensureActive()
                 val envelope = synchronized(lock) {
-                    if (stopping || pending.isEmpty()) null else pending.removeFirst()
+                    if (pending.isEmpty()) null else pending.removeFirst()
                 } ?: break
                 try { send(envelope) }
                 catch (cancelled: CancellationException) {
@@ -66,10 +65,8 @@ class SendQueue<Envelope : Any>(
                 }
             }
             onDrain(lastError)
-        } while (synchronized(lock) { !stopping && pending.isNotEmpty() })
+        } while (synchronized(lock) { pending.isNotEmpty() })
     }
-
-    internal fun stopAfterCurrent() { synchronized(lock) { stopping = true } }
 
     fun cancelDrain() {
         synchronized(lock) {

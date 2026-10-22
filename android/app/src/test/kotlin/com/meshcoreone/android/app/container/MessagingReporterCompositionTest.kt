@@ -7,7 +7,6 @@ import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueService
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
-import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
 import com.meshcoreone.android.core.services.messaging.LoggingMessagingIssueReporter
 import com.meshcoreone.android.core.services.rendering.DraftStore
 import java.time.Instant
@@ -69,7 +68,6 @@ class MessagingReporterCompositionTest : RoomProcessTest() {
                 override fun requestDisconnect(reason: RuntimeDisconnectReason) = error("No runtime in this default-constructor test")
             },
             ResyncFailureSignal { error("No resync in this default-constructor test") },
-            dependencies.chatSendQueueProgress,
         )
         assertSame(LoggingMessagingIssueReporter, environment.messagingReporter)
         assertSame(dependencies.messagingReporter, environment.messagingReporter)
@@ -100,7 +98,6 @@ class MessagingReporterCompositionTest : RoomProcessTest() {
         notificationPreferences = FixedNotificationPreferences(),
         contactPreferences = MemoryFlags(),
         draftStore = DraftStore(MemoryDraftDefaults()),
-        chatSendQueueProgress = ChatSendQueueProgress(),
         mainScope = test.backgroundScope,
         runtimeClock = SchedulerClock { test.testScheduler.currentTime },
         runtimeContext = test.backgroundScope.coroutineContext,

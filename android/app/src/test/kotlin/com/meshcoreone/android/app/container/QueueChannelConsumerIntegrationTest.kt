@@ -1,5 +1,4 @@
 // AndroidOnly: WP-501 Actual App/runtime/factory queue channel-query composition, not another frozen queue original.
-// AndroidOnly: WP-207 Supplemental deferred-recovery ordering, not ungated production acceptance.
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.contracts.domain.*
@@ -10,15 +9,12 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.config.MeshCoreException
 import com.meshcoreone.android.core.protocol.session.SessionCorrelationException
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
-import com.meshcoreone.android.core.runtime.RuntimeDiagnostic
 import com.meshcoreone.android.core.services.contacts.ChannelServiceError
 import java.util.UUID
-import kotlin.coroutines.CoroutineContext
 import kotlin.test.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -80,9 +76,6 @@ class QueueChannelConsumerIntegrationTest : RoomProcessTest() {
             val report = f.live.chatSendQueueService.shutdown()
             assertEquals(listOf(LifecycleStage.STOP_SERVICES), report.issues.map { it.stage })
             assertSame(query, report.issues.single().cause)
-            f.awaitPhysicalRecovery(query)
-            f.assertWire()
-            f.assertStored(MessageStatus.PENDING, pending = true)
             f.disconnect(query)
             f.assertStored(MessageStatus.PENDING, pending = true)
             f.assertStatusEvents(emptyList())
@@ -127,10 +120,7 @@ class QueueChannelConsumerIntegrationTest : RoomProcessTest() {
             primary = failure
             throw failure
         } finally {
-            try {
-                f.releaseRecovery()
-                withContext(NonCancellable) { f.harness.container.close() }
-            }
+            try { withContext(NonCancellable) { f.harness.container.close() } }
             catch (cleanup: Throwable) {
                 val failure = primary
                 if (failure == null) throw cleanup
@@ -145,30 +135,8 @@ class QueueChannelConsumerIntegrationTest : RoomProcessTest() {
         assertEquals(2.toUByte(), assertIs<MeshCoreException.DeviceError>(session.underlying).code)
     }
 
-    private class RecoveryGate(private val delegate: CoroutineDispatcher) : CoroutineDispatcher() {
-        private val lock = Any()
-        private var held = true
-        private val queued = mutableListOf<Pair<CoroutineContext, Runnable>>()
-        val queuedCount: Int get() = synchronized(lock) { queued.size }
-        override fun dispatch(context: CoroutineContext, block: Runnable) {
-            val dispatchNow = synchronized(lock) {
-                if (held) { queued += context to block; false } else true
-            }
-            if (dispatchNow) delegate.dispatch(context, block)
-        }
-        fun release() {
-            val work = synchronized(lock) {
-                held = false
-                queued.toList().also { queued.clear() }
-            }
-            work.forEach { (context, block) -> delegate.dispatch(context, block) }
-        }
-    }
-
     private inner class Fixture(test: TestScope, reply: QueryReply) {
-        private val recovery = RecoveryGate(StandardTestDispatcher(test.testScheduler))
-        val harness = ContainerHarness(test, store,
-            recoveryDispatcher = if (reply == QueryReply.RAW_NOT_FOUND) recovery else Dispatchers.Default)
+        val harness = ContainerHarness(test, store)
         val radioId = RadioId(UUID.fromString("A0000000-0000-0000-0000-000000000001"))
         private val foreignRadioId = RadioId(UUID.fromString("B0000000-0000-0000-0000-000000000001"))
         private val deviceID = UUID.fromString("A0000000-0000-0000-0000-000000000002")
@@ -296,41 +264,6 @@ class QueueChannelConsumerIntegrationTest : RoomProcessTest() {
             assertEquals(1, harness.sessions.created)
             assertEquals(1, firmware.connects)
             assertFalse(live.isTornDown)
-        }
-
-        fun releaseRecovery() = recovery.release()
-
-        suspend fun awaitPhysicalRecovery(query: Throwable) {
-            assertEquals(1, recovery.queuedCount, "The real unmatched query must schedule physical recovery")
-            releaseRecovery()
-            harness.eventually("physical retirement after the real unmatched channel query",
-                virtualBudgetMillis = 0) {
-                live.isTornDown && live.liveJobCount == 0 && firmware.closes == 1 &&
-                    firmware.readers == 0 && harness.sessions.current == null &&
-                    harness.manager.isReconnectionWatchdogRunning
-            }
-            assertEquals(DeviceConnectionState.DISCONNECTED, harness.manager.connectionState)
-            assertNull(harness.manager.snapshot.value.token)
-            assertNull(harness.manager.connectedDevice)
-            assertNull(harness.links.links.single().live)
-            assertEquals(1, harness.sessions.created)
-            assertEquals(0, harness.sessions.outstanding)
-            assertFalse(live.chatSendQueueService.isObservingConnection)
-            assertEquals(1, firmware.connects)
-            assertEquals(1, firmware.closes)
-            assertEquals(listOf(live), harness.lifecycle.tornDown)
-            val issue = assertIs<ConnectionIssue.Protocol>(harness.manager.snapshot.value.issue)
-            val lost = assertIs<MeshCoreException.ConnectionLost>(issue.error)
-            val chain = generateSequence<Throwable>(lost) { it.cause }.take(16).toList()
-            val unresolved = assertIs<SessionCorrelationException.UnresolvedReply>(
-                chain.dropWhile { it is MeshCoreException.ConnectionLost }.firstOrNull())
-            assertEquals(live.token.generation.value, unresolved.generation)
-            assertEquals("channel:0", unresolved.responseFamily)
-            val report = harness.diagnostics.filterIsInstance<RuntimeDiagnostic.Teardown>().single().report
-            assertEquals(listOf(LifecycleStage.STOP_SERVICES), report.issues.map { it.stage })
-            assertSame(query, report.issues.single().cause)
-            assertTrue(failures("terminal").isEmpty())
-            assertTrue(harness.manager.connectionIntent.wantsConnection)
         }
 
         suspend fun disconnect(expectedIssue: Throwable? = null) {

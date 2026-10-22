@@ -173,7 +173,6 @@ internal class FakeServices(val inputs: RuntimeServiceInputs) : RuntimeServices 
     var ensureListenersCalls = 0
     var teardowns = 0
     private val jobs = mutableListOf<Job>()
-    override suspend fun awaitChannelQueryAccounting() = Unit
     override suspend fun hydrate() = Unit
     override suspend fun startMonitoring(options: MonitoringOptions) {
         jobs += inputs.connection.scope.launch { awaitCancellation() }

@@ -35,8 +35,6 @@ class RuntimeSeamTest {
                 manager.clearSurfacedAuthenticationFailure()
                 callbacks.onDisconnected(LinkFailure.AuthenticationFailed()); runCurrent()
                 assertEquals(listOf(id, id), authFailures)
-                assertEquals(1, services.single().teardowns)
-                assertEquals(1, lossCount)
             }
         },
         // C-03: Swift updateDevice(with:) and the guarded connected-device edits.

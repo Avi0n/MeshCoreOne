@@ -29,7 +29,7 @@ class RadioSessionContainerFactory(
         val downstream = onSessionLifecycle
         return SessionEnvironment(
             store, processScope, notificationDelivery, notificationPreferences, notificationStrings, appState, passwords,
-            contactPreferences, runtimeState, resyncFailure, chatSendQueueProgress, syncClock, sessionClock, logSink, messagingReporter,
+            contactPreferences, runtimeState, resyncFailure, syncClock, sessionClock, logSink, messagingReporter,
             object : SessionLifecycleListener {
                 override fun created(container: RadioSessionContainer) = downstream.created(container)
                 override fun tornDown(container: RadioSessionContainer) {

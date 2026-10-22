@@ -179,7 +179,6 @@ class ConnectionRuntimeRoomIntegrationTest : RepositoryTest() {
                 val service = object : RuntimeServices {
                     override val token = inputs.connection.token
                     private var monitor: Job? = null
-                    override suspend fun awaitChannelQueryAccounting() = Unit
                     override suspend fun hydrate() { hydrated += store.fetchPendingSends(token.radioId) }
                     override suspend fun startMonitoring(options: MonitoringOptions) {
                         check(monitor == null)

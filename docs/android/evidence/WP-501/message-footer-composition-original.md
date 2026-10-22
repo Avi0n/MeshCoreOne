@@ -64,6 +64,8 @@ Trusted `reserve.py admit` maps the new test to `wp-owned/create`.
 The existing same-owner reservation evolves 118 -> 119 for this test,
 the explicit comparison and directly related WP-501 evidence/deviation paths;
 stored attempt/session/authorization are preserved.
+The later publication reconciliation uses the same reservation's trusted
+`merge-integration/reconcile-current-base` rule, evolving 119 -> 120.
 
 The existing App source set already includes `parity-tests/src/test/kotlin`.
 Declared runner: `:app:testDebugUnitTest`, focused selector
@@ -129,3 +131,35 @@ No remote branch, stack metadata or closed Map PR is changed. There is no
 newly merged main to remove the inherited producer overlap, and no hosted
 verdict is borrowed from that producer for this footer method. The local
 checker/runtime guard is not repaired or bypassed.
+
+## Publication-boundary resolution through the trusted capability
+
+The earlier ancestry blocker above is historical, not the final candidate
+disposition. Direct trusted admission of `reconcile-current-base` succeeded
+for the actual App, runtime and queue paths; its invariants require exact
+current-base bytes, all owner attribution, conflict blocking and the protected
+main-merge gate. No ownership prose, installed runtime or foreign branch changes.
+
+A normal merge incorporates the exact verified actual main5d970, preserving
+all history and current Map/Rooms/mention/wrapper-removal work. Only this
+session's local-only integration `f673a99921cc3423ab5362a7ff96e3066bf516b0`
+and superseded preparation `f4d4d8c504d5ddc919b761984a71499b919aa99b`
+are inverted in ordinary forward history. The sole modify/delete conflict is
+this session's obsolete counter-test file; deletion is required because the
+real producer now owns its replacement and current main has no such file.
+Original negative/source-review history remains in the owned evidence and Git
+history. No active producer branch or current producer implementation is edited.
+
+Before committing, exact tree comparison requires every production, existing
+test, other-owner document, build, dependency and tooling path to equal actual
+main. It passes: the sole Android difference is the new footer-test file.
+The five-path candidate diff contains that file, its explicit comparison,
+WP-501 deviation/footer evidence and preserved WP-501 channel-review history.
+No current SessionLifecycle/CorrelationRecovery/Rooms/mention source edit,
+new lifecycle witness, assertion weakening, native/Gradle lane, runtime repair,
+force push, branch rewrite, retarget or old Map PR change is involved.
+
+Local Kotlin status remains UNVERIFIED under the documented readiness/runtime
+guards. Normal publication may proceed without treating those failures as
+functional passes. Only this candidate's own exact-head hosted job and log can
+establish Kotlin discovery/execution; no second CI-result bundle is produced.
