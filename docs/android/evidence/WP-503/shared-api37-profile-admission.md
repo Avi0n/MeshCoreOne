@@ -2535,3 +2535,85 @@ workflows.py, portmap.py and git diff --check passed. Advisory local Gradle
 fast verification remains NOT RUN/UNVERIFIED; automatic hosted verification
 must bind to the actual published successor, independently of114616 and
 the producer's selected result.
+
+### Actualea599a1: structured selected-registration timeout
+
+Ordinary nonforce publication advanced actualPR205 from114616 to
+ea59915eb0f3c3747439f00e4dbce4d0f05c702f, direct integration6d7f5cd93,
+actualmain2764/reviewed96642cf/disposable9e3aec and reservation31.
+The six-path coupled delta preserves the original native source/tests/
+AppGradle and Nodes7/144/cached selected1/ten/current514 bindings.
+New Android tree7d06a2e708190469c9c4ed45d3920d5a02f1183b has source digest
+5e64a1483dd43796e0ee36092b4eb519defca99d3acf30a63fe3aa6da578df86.
+Immediate02:04:22.371823Z admission observed6375.58MiB commit headroom/
+5651.51MiB physical availability and passed current published head, actual
+main/policy/pause, actor, source, canonical identity/r31 and original7 guards.
+The genuine factory allocated owner
+1666502a-0420-46ef-930f-e78651ba8b9f:nodes:d07dc4a97cdd4caeb16e489ca4de5385,
+rootprivate-avd-xfhr9nt9. Fresh App/Test assembly succeeded2m18s,
+446tasks/5executed/441up-to-date, with the actual pair receipt.
+The unique packaging-quiescence-0b585058ca7144049aab309f8d91bcdf.json
+records empty/one Windows count0/elapsed0.0/PIDsnull, not a positive-to-zero
+transition or proof that the earlier grace interval fixed a native cause.
+
+Startup retained8 structured observations. Emulator launch-before was
+hostUTC02:07:04.3554538Z/monotonic129286.140; startup returned at
+02:07:07.3300668Z/129289.109 with emulatorPID14764/serverPID77808 and
+selected127.0.0.1:63762/emulator-5558. The selected wait retained4 records:
+wait-begin02:07:07.3431087Z/129289.125, then TimeoutExpired for ownedPID75784
+at02:09:07.3511941Z/129409.140. Actual observed elapsed time was120.0080854s
+UTC and120.015s monotonic, with configured120.0s timeout. The pre-call
+budget reference129409.125 is explicitly NOT the backend deadline; the exact
+backend wait-call deadline remains UNKNOWN. No deadline or CPU change occurred.
+
+The original Nodes0/7 never reached getprop/profile/install/instrumentation
+or a cohort; host instrumentation exit remains UNKNOWN, separate from CLI2.
+Independent disposal verified true/noerror. Independent supported ledger
+readback found no new-owner hard lock and retained protected66bd. The
+coordinator was sent actual end/disposal and main2764 hold release immediately.
+No old guest, post-disposal ADB/guest probe or unchanged retry was performed.
+
+Unlike114616, this2390-line/221262-byte process.log contains no observed
+Boot completed/sys.boot_completed/ranchu-adb-start message. Last retained
+kernel output is17.899915; that is not proof the guest stopped there.
+ranchu-adb-setup exited0 atkernel12.945240; adbd-stopped action is15.912468.
+One guest audit timestamp1792634846.540 appears with kernel17.221814:
+this is guest clock data, not verified host/per-line clock alignment.
+Filesystem bounds only: process.log creation02:07:04.291817Z and
+last-write02:07:27.950098Z; selected ADB output creation/last-write
+02:07:07.336610Z and0bytes; operations final-write02:09:07.395252Z.
+Cause, precise guest/host alignment and natural emulator/server terminal
+state at timeout remain UNKNOWN. Actual OwnedProcess.poll() is available,
+but no pre-disposal owned-root liveness/exit snapshot is retained; Windows
+cleanup terminates the owned job before its final polls. This concrete
+observability boundary was routed to the coordinator before any source edit,
+not presented as a transport fix or a reason to weaken the budget.
+
+Exact originals remain under this session's files directory:
+wp503-ea59915-nodes37-disposable-a1/operations.json and packaging/
+debug-packaging.json, debug-build.log, debug-invocation.json; sibling CLI log;
+private-avd-xfhr9nt9/process.log and unique quiescence report;
+transport-timing-3301439bc8aa45dc8a6e93e50fca27fd.jsonl (startup),
+transport-timing-48e496e645ef4c87920227bc67f8107b.jsonl (selected wait),
+adb-e86b6e292ee6429488843f5d96c63474.log; and
+avds/6e2d9c0cbe484b49b1492da1564caf39.avd/emu-launch-params.txt.
+No key files were read/copied; emitted public-key lines are omitted from
+public summaries. No hosted CI-result bundle was retained.
+
+Own new automatic39709184445 controller119596372380 succeeded with
+official869/117.408s/OK; codec119597343836 succeeded. Linux119597343829
+remained in_progress at the bounded read, with no overall/SwiftData/native
+verdict inferred. Separately, actual historical114616 own39705770892 ended
+CANCELLED: controller/Linux/codec SUCCESS, SwiftData119595362308 CANCELLED
+and aggregate119596279680 FAILURE, consuming BACKUP_RESULT=cancelled.
+Historical Linux's20 module summaries passed6462/6462 with zero errors/
+failures/skips; backup429+45 are subsets, not extra tests. Neither the
+SwiftData cancellation cause nor an assertion failure is invented.
+This actualea599 failure chronology is LOCAL until a future ordinary
+coupled publication, not a doc-only source push or new native acceptance.
+Coordinator independent retained-artifact read and negative review5608483724
+are COMMENTED, not approval or acceptance; actual main2764 hold is released.
+Retained hardware-qemu.ini independently confirms2CPU/4096MiB and initial
+320x480/density160. The intended360x900/font200 profile was never reached.
+The coordinator routed the concrete pre-cleanup root-state diagnostic gap
+to the same existing producer; no consumer producer edit or worker wake occurred.
