@@ -15,6 +15,7 @@ from controller.scope_amendment import (
     REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY,
     parity_support_predecessor,
     RECEIVE_PREFETCH_ADMISSION_CAPABILITY, receive_prefetch_predecessor,
+    ROOM_CLEANUP_CAPABILITY, room_cleanup_predecessor,
 )
 from portmap import capability_support_admitted
 
@@ -59,6 +60,46 @@ class CapabilityReservationTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="meshcore-capability-tests-")
         self.addCleanup(self.temporary.cleanup)
         self.ledger = Ledger(Path(self.temporary.name) / "ledger.sqlite", self.rules["repository"])
+
+    def test_wp303_room_cleanup_is_exact_two_paths_modify_only_and_reversible(self):
+        rule = ROOM_CLEANUP_CAPABILITY
+        self.assertEqual(next(r for r in self.rules["reservation_policy"]["capabilities"]
+                              if r["id"] == rule["id"]), rule)
+        manifest = test_manifest("WP-303")
+        self.assertEqual(len(rule["path_rules"]), 2)
+        for path in rule["path_rules"]:
+            self.assertEqual(self.engine.admit(
+                "WP-303", manifest.wp("WP-303")["write_paths"], path, "modify",
+            ).capability_id, rule["id"])
+            for wp in ("WP-003", "WP-208", "WP-501", "WP-502"):
+                with self.subTest(wp=wp, path=path), self.assertRaises(PortError):
+                    self.engine.admit(wp, [], path, "modify")
+            for operation in ("create", "delete", "update-build-or-manifest", "unknown"):
+                with self.subTest(operation=operation), self.assertRaises(PortError):
+                    self.engine.admit("WP-303", [], path, operation)
+            for sibling in (path + ".backup", path.rsplit("/", 1)[0],
+                            path.rsplit("/", 1)[0] + "/Other.kt",
+                            path.replace("/src/test/", "/src/androidTest/")):
+                if sibling == path:
+                    continue
+                with self.subTest(path=sibling), self.assertRaises(PortError):
+                    self.engine.admit("WP-303", [], sibling, "modify")
+            with self.assertRaises(PortError):
+                CapabilityEngine(room_cleanup_predecessor(self.rules)).admit("WP-303", [], path, "modify")
+        original = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "a5dd0fc6c521d09d59d28ca75169e4bdbd56a6cd:docs/android/automation-policy.json",
+        ], encoding="utf-8"))
+        actual = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        self.assertEqual(room_cleanup_predecessor(actual), original)
+        for field, value in (("work_packages", ["WP-303", "WP-501"]),
+                             ("operations", ["modify", "delete"]),
+                             ("path_rules", ["android/core/data/**"])):
+            altered = copy.deepcopy(self.rules)
+            selected = next(r for r in altered["reservation_policy"]["capabilities"] if r["id"] == rule["id"])
+            selected[field] = value
+            with self.subTest(field=field), self.assertRaises(PortError):
+                room_cleanup_predecessor(altered)
 
     def test_receive_prefetch_exact_four_paths_only_assigned_wp_and_named_operation(self):
         rule = RECEIVE_PREFETCH_ADMISSION_CAPABILITY

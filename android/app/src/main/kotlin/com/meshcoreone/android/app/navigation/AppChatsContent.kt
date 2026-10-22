@@ -157,7 +157,13 @@ private fun AppChatConversation(
                     },
                 )
             }
-            RoomConversationRoute(holder, links, failureText = { com.meshcoreone.android.core.ui.uiString(UiErrorMapper().message(it)) })
+            val preferences = feature.content?.rendering?.collectAsState()?.value
+            RoomConversationRoute(
+                holder, links,
+                failureText = { com.meshcoreone.android.core.ui.uiString(UiErrorMapper().message(it)) },
+                replyWithQuote = preferences?.get(com.meshcoreone.android.core.datastore.AppStorageKey.replyWithQuote) == true,
+                onSendDirectMessage = coordinator::navigateToChat,
+            )
             return
         }
         val conversation = when (selected) {
