@@ -308,6 +308,12 @@ still held. It is not bypassed or released by this WP. The four-path source
 transfer is in PR281 comment6347740262; source execution must bind to a candidate
 that actually contains the new test, not borrow the incumbent producer's CI.
 
+The coordinator subsequently assigned faithful ungated regression implementation
+and reconciliation to the existing WP-303 producer on PR281. WP-501 transferred
+the prepared patch in comment6348026374 and awaits that producer's published
+source for independent review. This local candidate is not a competing PR or
+an accepted result; no new session, closed PR272 edit or native action follows.
+
 ## Explicit native fixture substitutions
 
 The source channel helper connects transport but does NOT install
