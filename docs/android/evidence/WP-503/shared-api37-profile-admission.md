@@ -2734,3 +2734,65 @@ retry or003/504 wake is authorized before that decision/admission. This actual
 failure chronology stays LOCAL for ordinary future coupling, without a
 doc-only publication. Original Nodes7/144/cached1of10/current514 and full-WP
 acceptance boundaries remain unchanged.
+
+### Merged270 coupling: explicit four-core diagnostic prepared, not launched
+
+Actual trusted main4c33f4fe8f2b115ecec7aa74491b6cede94af0ec is the normal
+merge of295ebf37de8db1e6b295e6e74dae3efafe71c178 and reviewed producer
+c9af5bf041ac84fc470c1ab75e309b5a89cc4f0d. Independent actual-parent/delta
+inspection found exactly three incoming paths/+128/-2: disposable.py,
+its existing tests and WP003 deviations. The disposable object is now
+c1fbc9356d7576cc714c4757cc8ac91f45c53a46; windows_guest621612bb,
+ledger6048cf50 and debug_packaging7f8e5e97 remain unchanged.
+Source review5608715986/execution5608730533 are COMMENTED, not acceptance.
+Producer own39713661690/official640/70.183s/OK/selected aggregate SUCCESS
+are producer software evidence only, not consumer or native proof.
+
+Supported same-owner/r31 capability admission used trusted merge-integration
+operations reconcile-current-base/merge-disjoint-semantic-edits and the
+stored canonical session/branch/worktree owner context. Evolution remained
+31-to31; identity, binding, immutable authorization context and audit history
+were preserved. Local integration5d3ca3d1f3399c110e33bea100b04e79b78853f1
+preserved all1023 tracked WP503-owned path bytes, including LOCAL4096d11ad's
+actual8f failure chronology. Generated source receipt is
+wp503-4c33-main-integration.json under the current session files.
+This is not a second hosted CI-result bundle or live native admission.
+
+The consumer advances only the producer/disposable bindings and wires the
+reviewed optional CPU request. Default None preserves original emulator
+configuration; explicit --cpu-cores 4 maps to start(...,cpu_cores=4).
+All other values fail before factory allocation. Operations retain
+requested_cpu_cores separately from actual initial_private_profile.cpus;
+an actual mismatch fails before profile mutation/install/instrumentation,
+retaining unknown instrumentation exit and independently verified disposal.
+The producer's existing timing/status requested_cpu_cores field records a
+request, not an observed CPU count. No image, memory, GPU, strict boot
+predicate, original120/180 budgets, original family/7-of144 Nodes fixture,
+cached1-of10/current514 provenance, native source/AppGradle, or old66bd fence
+is changed. The fixed consumer models remain models, not backend execution.
+
+Declared focused verification on this integrated source:
+python -B -m unittest discover -s android\accessibility-tests -p test_*.py -v
+discovered/ran/passed240 tests in17.723s, with zero failures/errors/skips.
+All235 incumbent tests and five new methods pass: optional/strict CLI CPU
+parsing, invalid direct requests before allocation, unchanged default with
+observed2CPU, explicit4 forwarded with original seven identities, and actual
+2-versus-requested4 rejection before mutations with independent disposal.
+python -B tools\android-port\controller\verification_config.py --check,
+python -B tools\android-port\controller\validate.py,
+python -B tools\android-port\controller\workflows.py,
+python -B tools\android-port\portmap.py and git diff --check all PASS.
+Local Gradle fast verification remains NOT RUN/UNVERIFIED for this new
+source; no prior hosted/build/native result is transferred.
+
+The coordinator explicitly superseded only its earlier execution-profile
+hold for ONE reviewed four-vCPU diagnostic under renewed autonomous work.
+This was a coordinator decision, not a user-selected answer or CPU-fix
+finding, and supersedes no real capability/protected gate. Native execution
+still requires actual current source/policy/owner/capacity/factory admission
+and coordinator main serialization. No factory, guest probe, native launch,
+producer edit/wake, old-guest action, source publication, CI dispatch or
+rerun occurred in this preparation. Public8f/ordinary39711397373 remains
+untouched while its genuine run finishes; no successor publication before
+that actual terminal outcome. Full-WP and original native acceptance remain
+incomplete; this is not an unchanged8f retry or a transport/CPU fix claim.

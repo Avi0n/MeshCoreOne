@@ -1,6 +1,6 @@
 """AndroidOnly: WP-503 Consumer-only protocol doubles; no producer/backend/native verification."""
 
-from contextlib import ExitStack, contextmanager, redirect_stderr
+from contextlib import ExitStack, contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import replace
 import io
 import json
@@ -55,15 +55,17 @@ class GuestModel:
         self.instrumentation_error = self.dispose_error = self.install_error = None
         self.current_user = "0"
         self.boot = "1"
+        self.cpus = "4"
 
     def assert_held(self, ledger, owner):
         if ledger is not self.ledger or owner != self.owner or not self.held or self.resources != [
                 "disposable-native-execution", "gradle-execution"]:
             raise runner.PortError("Model receipt identity/held resources changed")
 
-    def start(self, ledger, *, emulator, adb, image):
+    def start(self, ledger, *, emulator, adb, image, cpu_cores=None):
         self.assert_held(ledger, self.owner)
         assert self.phase == "prepared" and "package" in ledger.events
+        self.requested_cpu_cores = cpu_cores
         ledger.events.append("start")
         self.server_port, self.port = 5011, 5590
         self.phase = "running"
@@ -121,7 +123,7 @@ class GuestModel:
                 }
                 output = values[command.removeprefix("getprop ")].encode()
             elif command == "getconf _NPROCESSORS_ONLN":
-                output = b"4"
+                output = self.cpus.encode()
             elif command.startswith("settings --user 0 "):
                 words = command.removeprefix("settings --user 0 ").split()
                 key = tuple(words[1:3])
@@ -412,6 +414,75 @@ class DisposableConsumerTest(unittest.TestCase):
                 self.assertEqual(2, raised.exception.code)
                 binding.assert_not_called()
         self.factory.assert_not_called()
+
+    def test_command_line_cpu_request_is_optional_and_only_accepts_four(self):
+        args = ["--head", "0" * 40, "--api", "37", "--family", "nodes", "--execute"]
+        for key in ("parent", "state", "debug_home", "output", "emulator", "adb", "image"):
+            args += ["--" + key.replace("_", "-"), str(getattr(self.config, key))]
+        for options, expected in (([], None), (["--cpu-cores", "4"], 4)):
+            with self.subTest(options=options), redirect_stdout(io.StringIO()), \
+                    patch.object(runner, "current_binding", return_value=self.request.binding), \
+                    patch.object(runner, "request_for", return_value=self.request), \
+                    patch.object(runner, "execute_disposable", return_value={"acceptance": False}) as execute:
+                self.assertEqual(0, runner.main([*args, *options]))
+                self.assertEqual(expected, execute.call_args.args[1].cpu_cores)
+        for value in ("0", "2", "3", "5", "4.0", "true", "None"):
+            with self.subTest(value=value), redirect_stderr(io.StringIO()), \
+                    patch.object(runner, "current_binding") as binding:
+                with self.assertRaises(SystemExit) as raised:
+                    runner.main([*args, "--cpu-cores", value])
+                self.assertEqual(2, raised.exception.code)
+                binding.assert_not_called()
+        self.factory.assert_not_called()
+
+    def test_invalid_cpu_request_fails_before_factory_or_packaging(self):
+        for value in (True, False, 0, 2, 3, 5, 4.0, "4", [], {}, float("nan"), float("inf")):
+            with self.subTest(value=value):
+                self.config = replace(self.config, cpu_cores=value)
+                with self.assertRaisesRegex(runner.PortError, "CPU selection"):
+                    self.execute()
+        self.factory.assert_not_called()
+        self.package.assert_not_called()
+        self.assertFalse(self.config.output.exists())
+
+    def test_default_cpu_preserves_producer_default_and_actual_two_cpu_observation(self):
+        self.alter_guest = lambda guest: setattr(guest, "cpus", "2")
+        result = self.execute()
+        self.assertIsNone(self.guest.requested_cpu_cores)
+        self.assertIsNone(result["requested_cpu_cores"])
+        self.assertEqual("2", result["initial_private_profile"]["cpus"])
+        self.assertEqual("2", result["profile_before"]["cpus"])
+        self.assertEqual(7, result["cohort"]["passed"])
+        self.assert_disposed()
+
+    def test_explicit_four_cpu_request_reaches_start_without_changing_original_nodes_selection(self):
+        self.config = replace(self.config, cpu_cores=4)
+        result = self.execute()
+        self.assertEqual(4, self.guest.requested_cpu_cores)
+        self.assertEqual(4, result["requested_cpu_cores"])
+        self.assertEqual("4", result["initial_private_profile"]["cpus"])
+        self.assertEqual("4", result["profile_before"]["cpus"])
+        self.assertEqual(self.request.identities, result["original_identities"])
+        self.assertEqual(7, result["cohort"]["passed"])
+        self.assertFalse(result["acceptance"])
+        self.assertEqual(180, runner.INSTRUMENTATION_TIMEOUT)
+        self.assert_disposed()
+
+    def test_requested_four_rejects_actual_two_before_profile_mutation_install_or_instrumentation(self):
+        self.config = replace(self.config, cpu_cores=4)
+        self.alter_guest = lambda guest: setattr(guest, "cpus", "2")
+        with self.assertRaisesRegex(RuntimeError, "CPU count differs"):
+            self.execute()
+        result = self.operations()
+        self.assertEqual(4, result["requested_cpu_cores"])
+        self.assertEqual("2", result["initial_private_profile"]["cpus"])
+        self.assertEqual([], result["profile_setup_attempts"])
+        self.assertEqual([], result["mutation_attempts"])
+        self.assertNotIn("cohort", result)
+        self.assertIsNone(result["host_instrumentation_process_exit"])
+        self.assertFalse(result["acceptance"])
+        self.assertTrue(result["disposal_verified"])
+        self.assert_disposed()
 
     def test_wrong_concrete_guest_or_ledger_cannot_reach_build_start_or_dispose(self):
         forged = Mock(spec=GuestModel)

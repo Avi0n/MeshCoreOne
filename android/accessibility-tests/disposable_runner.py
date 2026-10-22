@@ -28,9 +28,9 @@ from controller.schema import load_json
 from controller.staging import object_bytes
 from local.reserve import shared_ledger
 
-PRODUCER = "edb9d14a93e37d27de7fae431437b5d03b291206"
+PRODUCER = "c9af5bf041ac84fc470c1ab75e309b5a89cc4f0d"
 PRODUCER_INPUTS = MappingProxyType({
-    "tools/android-port/controller/disposable.py": "643200e7b389c62f5bdd2aec4e9ea00c75356091",
+    "tools/android-port/controller/disposable.py": "c1fbc9356d7576cc714c4757cc8ac91f45c53a46",
     "tools/android-port/controller/windows_guest.py": "621612bb67e16432692e07a5a1b1056426747777",
     "tools/android-port/controller/ledger.py": "6048cf50b275b85c9028781fd80a473ef06ca6f2",
     "tools/android-port/local/debug_packaging.py": "7f8e5e9769c0f8d70a42678738280bf7209c17e9",
@@ -80,9 +80,12 @@ class DisposableConfig:
     emulator: Path
     adb: Path
     image: Path
+    cpu_cores: int | None = None
 
     def validate(self, api):
-        for value in asdict(self).values():
+        if self.cpu_cores is not None and (type(self.cpu_cores) is not int or self.cpu_cores != 4):
+            raise PortError("Private guest CPU selection must be None (emulator default) or integer4")
+        for value in (self.parent, self.state, self.debug_home, self.output, self.emulator, self.adb, self.image):
             if not isinstance(value, Path) or not value.is_absolute() or any(p.is_symlink() for p in (value, *value.parents)):
                 raise PortError("Disposable inputs require explicit absolute nonsymlink paths")
         state = load_json(self.state)
@@ -279,6 +282,7 @@ def execute_disposable(request, config):
         "original_identities": request.identities, "reviewed_producer": PRODUCER, "trusted_revision": authority,
         "preservation_mode": "fresh-private-guest-disposal-not-shared-state-restoration",
         "host_instrumentation_process_exit": None, "disposal_verified": False, "acceptance": False,
+        "requested_cpu_cores": config.cpu_cores,
         "mutation_attempts": [], "profile_setup_attempts": [], "boot_observations": [],
     }
     operations = config.output / "operations.json"
@@ -313,7 +317,7 @@ def execute_disposable(request, config):
         result["packaging"] = packaging
         save()
         verify_current_request(request)
-        guest.start(ledger, emulator=config.emulator, adb=config.adb, image=config.image)
+        guest.start(ledger, emulator=config.emulator, adb=config.adb, image=config.image, cpu_cores=config.cpu_cores)
         wait_boot(guest, ledger, lambda value: record("boot_observations", value))
         device = PrivateDevice(guest, ledger, request, config.parent)
         result["endpoint"] = f"127.0.0.1:{guest.server_port}/emulator-{guest.port}"
@@ -322,6 +326,8 @@ def execute_disposable(request, config):
         device.confirm_original_absence(TEST)
         initial_profile = device.capture_profile()
         result["initial_private_profile"] = initial_profile
+        if config.cpu_cores is not None:
+            require(initial_profile["cpus"] == str(config.cpu_cores), "Actual private CPU count differs from the request")
         device.prepare_profile(initial_profile, lambda value: record("profile_setup_attempts", value))
         verify_current_request(request)
         install_pair(device, paths, lambda package: record("mutation_attempts", package))
@@ -364,12 +370,14 @@ def main(argv=None):
     parser.add_argument("--api", required=True, type=int, choices=(31, 37))
     parser.add_argument("--family", choices=tuple(FAMILIES), required=True)
     parser.add_argument("--execute", action="store_true", required=True)
+    parser.add_argument("--cpu-cores", type=int, choices=(4,), help="Explicit reviewed diagnostic; omitted keeps emulator default")
     for name in ("parent", "state", "debug-home", "output", "emulator", "adb", "image"):
         parser.add_argument("--" + name, type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         request = request_for(current_binding(args.head, family=args.family), args.api)
-        config = DisposableConfig(args.parent, args.state, args.debug_home, args.output, args.emulator, args.adb, args.image)
+        config = DisposableConfig(
+            args.parent, args.state, args.debug_home, args.output, args.emulator, args.adb, args.image, args.cpu_cores)
         print(json.dumps(execute_disposable(request, config), indent=2))
         return 0
     except (PortError, OSError, RuntimeError, ValueError, KeyError, TypeError, subprocess.SubprocessError, ExceptionGroup) as failure:

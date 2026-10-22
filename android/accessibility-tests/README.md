@@ -133,7 +133,7 @@ Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
 
 `disposable_runner.py` is a separate consumer of the reviewed WP-003 private-guest
-interface, updated at `edb9d14a93e37d27de7fae431437b5d03b291206`.
+interface, updated at `c9af5bf041ac84fc470c1ab75e309b5a89cc4f0d`.
 It does not remove the shared-device fence or adopt an existing guest. Before
 import/allocation it requires the reviewed producer bytes in actual trusted main
 and the actual checkout, and trusted capability/pause policy. The real factory
@@ -179,6 +179,16 @@ These are root-handle observations, not whole-guest/descendant exit proof.
 Observation/retention failures preserve the primary failure and do not prevent
 independent cleanup; no additional guest command, retry or transport fix is implied.
 Actual source/runtime/claim/resource guards still run; merge is not guest readiness.
+Normal merge `4c33f4fe8f2b115ecec7aa74491b6cede94af0ec` adds the reviewed
+optional `start(..., cpu_cores=4)` diagnostic. The consumer's `--cpu-cores 4`
+requests exactly four cores; omission preserves the emulator default.
+Other values fail before factory allocation. The request is retained separately
+from actual CPU observations: after boot the inherited profile capture must
+observe four cores before profile mutation, installation or instrumentation.
+Existing timing/status receipts label requested cores, not measured guest CPUs.
+This option changes no image, memory, GPU, isolation, original case/assertion,
+strict boot predicate or120/180-second deadline. Source preparation and models
+do not authorize a launch or establish CPU as the cause of historical failures.
 The consumer accepts the installed base-image spelling `37.0` as API37
 (likewise integer base API plus `.0`), but rejects nonzero/ambiguous minor versions.
 The merged producer accepts base37.0 and the installed package's explicit
