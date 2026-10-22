@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
@@ -40,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -69,10 +72,14 @@ import com.meshcoreone.android.core.model.Coordinate
 import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.MessageRepeatDTO
 import com.meshcoreone.android.core.ui.sharedTouchTarget
+import com.meshcoreone.android.core.ui.TimestampFormatting
+import java.time.Clock
+import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.UUID
+import kotlinx.coroutines.delay
 
 @Composable
 fun MessageActionsRoute(
@@ -83,6 +90,7 @@ fun MessageActionsRoute(
     recentEmojis: List<String>,
     onAction: (MessageAction) -> Unit,
     modifier: Modifier = Modifier,
+    clock: Clock = Clock.systemDefaultZone(),
 ) {
     val state by holder.state.collectAsStateWithLifecycle()
     LaunchedEffect(holder, message.id) { holder.loadDetails(message) }
@@ -98,6 +106,7 @@ fun MessageActionsRoute(
         holder::blockSender,
         holder::setMuted,
         modifier,
+        clock,
     )
 }
 
@@ -114,12 +123,17 @@ fun MessageActionsContent(
     onBlockSender: (MessageDTO, Set<UUID>) -> Unit,
     onSetMuted: (ContactDTO, Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    clock: Clock = Clock.systemDefaultZone(),
 ) {
     val availability = remember(message) { MessageActionAvailability.forMessage(message) }
     var selectedArrivalId by rememberSaveable(message.id) { mutableStateOf<UUID?>(null) }
     var showMap by rememberSaveable(message.id) { mutableStateOf(false) }
-    var showReactionDetails by rememberSaveable { mutableStateOf(false) }
+    var showReactionDetails by rememberSaveable(message.id) { mutableStateOf(false) }
+    var preferredReaction by rememberSaveable(message.id) { mutableStateOf<String?>(null) }
     var showBlockConfirmation by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(message.id, showReactionDetails) {
+        if (showReactionDetails) onLoadReactions(message.id, preferredReaction)
+    }
     val arrivals = remember(message, state.repeats) {
         MessagePathArrivals.assemble(message, state.repeats.orEmpty())
     }
@@ -140,7 +154,7 @@ fun MessageActionsContent(
                 ReactionBadges(
                     summary = message.reactionSummary,
                     onSelect = { emoji ->
-                        onLoadReactions(message.id, emoji)
+                        preferredReaction = emoji
                         showReactionDetails = true
                     },
                 )
@@ -221,6 +235,8 @@ fun MessageActionsContent(
             state,
             onSelectReaction,
             onDismiss = { showReactionDetails = false },
+            onRetry = { onLoadReactions(message.id, preferredReaction) },
+            clock = clock,
         )
     }
     if (showBlockConfirmation) {
@@ -292,7 +308,6 @@ private fun ActionButtons(availability: MessageActionAvailability, onAction: (Me
             }
         }
         MessageActionButton(stringResource(AppChatsStrings.chatsMessageActionCopy)) { onAction(MessageAction.Copy) }
-        MessageActionButton(stringResource(AppChatsStrings.chatsMessageActionTranslate)) { onAction(MessageAction.Translate) }
         if (availability.canSendAgain) {
             MessageActionButton(stringResource(AppChatsStrings.chatsMessageActionSendAgain)) {
                 onAction(MessageAction.SendAgain)
@@ -586,33 +601,65 @@ private fun ReactionDetailsDialog(
     state: MessageActionsState,
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit,
+    onRetry: () -> Unit,
+    clock: Clock,
 ) {
+    val resources = LocalResources.current
+    val now by produceState(clock.instant(), clock) {
+        while (true) {
+            delay(60_000L - Math.floorMod(clock.instant().toEpochMilli(), 60_000L))
+            value = clock.instant()
+        }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(AppChatsStrings.reactionsTitle)) },
         text = {
             Column(Modifier.heightIn(max = 480.dp)) {
-                Row(Modifier.horizontalScroll(rememberScrollState())) {
-                    state.reactionGroups.forEach { group ->
-                        val selected = state.selectedEmoji == group.emoji
-                        Text(
-                            "${group.emoji} ${group.count}",
-                            modifier = Modifier
-                                .selectable(selected, role = Role.Tab) { onSelect(group.emoji) }
-                                .sharedTouchTarget()
-                                .padding(horizontal = 12.dp)
-                                .semantics { this.selected = selected },
-                        )
+                if (state.isLoadingReactions) {
+                    CircularProgressIndicator(Modifier.size(48.dp))
+                } else if (state.reactionFailure != null || state.isReactionLoadCancelled) {
+                    if (state.reactionFailure != null) {
+                        Text(stringResource(AppLocalizableStrings.commonErrorFailedToLoad))
                     }
-                }
-                HorizontalDivider()
-                val selected = state.reactionGroups.firstOrNull { it.emoji == state.selectedEmoji }
-                if (selected == null) {
-                    Text(stringResource(AppChatsStrings.reactionsEmptyStateDescription), Modifier.padding(16.dp))
+                    TextButton(onClick = onRetry, modifier = Modifier.sharedTouchTarget()) {
+                        Text(stringResource(AppLocalizableStrings.commonTryAgain))
+                    }
+                } else if (state.reactionGroups.isEmpty()) {
+                    Text(
+                        stringResource(AppChatsStrings.reactionsEmptyStateTitle),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    Text(stringResource(AppChatsStrings.reactionsEmptyStateDescription), Modifier.padding(vertical = 16.dp))
                 } else {
-                    Column(Modifier.verticalScroll(rememberScrollState())) {
-                        selected.reactions.forEach { reaction ->
-                            Text(reaction.senderName, Modifier.fillMaxWidth().padding(vertical = 12.dp))
+                    Row(Modifier.horizontalScroll(rememberScrollState())) {
+                        state.reactionGroups.forEach { group ->
+                            val selected = state.selectedEmoji == group.emoji
+                            Text(
+                                "${group.emoji} ${group.count}",
+                                modifier = Modifier
+                                    .selectable(selected, role = Role.Tab) { onSelect(group.emoji) }
+                                    .sharedTouchTarget()
+                                    .padding(horizontal = 12.dp)
+                                    .semantics { this.selected = selected },
+                            )
+                        }
+                    }
+                    HorizontalDivider()
+                    val selected = state.reactionGroups.firstOrNull { it.emoji == state.selectedEmoji }
+                    if (selected != null) {
+                        LazyColumn {
+                            items(selected.reactions, key = { it.id }) { reaction ->
+                                Column(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+                                    Text(reaction.senderName)
+                                    Text(
+                                        reactionRelativeTime(reaction.receivedAt, now, resources.configuration.locales[0], clock.zone),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -624,6 +671,15 @@ private fun ReactionDetailsDialog(
             }
         },
     )
+}
+
+internal fun reactionRelativeTime(date: Instant, now: Instant, locale: java.util.Locale, zone: ZoneId): String {
+    val component = TimestampFormatting(locale, zone).relativeComponent(date, now)
+    return android.icu.text.RelativeDateTimeFormatter.getInstance(
+        android.icu.util.ULocale.forLocale(locale), null,
+        android.icu.text.RelativeDateTimeFormatter.Style.LONG,
+        android.icu.text.DisplayContext.CAPITALIZATION_NONE,
+    ).format(component.amount.toDouble(), component.unit)
 }
 
 @Composable
