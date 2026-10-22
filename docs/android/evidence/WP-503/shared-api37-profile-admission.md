@@ -2922,3 +2922,13 @@ and five new CPU tests do not establish native acceptance. Historical8f
 terminalFAILURE, EA/114616 cancellations and all original native assertions
 remain distinct. Missing native acceptance is unresolved; no further attempt
 or speculative producer cycle is authorized by this negative diagnostic.
+
+Own2249 automatic39714816975 subsequently reached terminal FAILURE. A fresh
+official metadata/log read on2026-10-22 confirms Linux119615287800's entire
+declared Gradle invocation timed out after1799.99998936s at
+2026-10-22T03:38:56.6817674Z, followed by exit1. Aggregate119624640717 failed;
+SwiftData119624642129 was skipped; classifier/controller/codec succeeded.
+This supersedes only the preceding pending observation. It establishes no
+particular assertion failure, CPU cause, completed SwiftData proof or native
+acceptance. Official logs were consumed in memory, without a second result
+bundle, dispatch, rerun, cancellation or changed deadline.
