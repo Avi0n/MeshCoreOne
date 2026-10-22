@@ -66,6 +66,288 @@ class DisposableGuestTests(unittest.TestCase):
     def status_reports(self, guest):
         return [json.loads(path.read_text()) for path in sorted(guest.root.glob("owned-status-*.json"))]
 
+    def boot_fixture(self, windows):
+        from unittest.mock import Mock
+
+        guest = self.allocate()
+        guest.acquire(self.ledger)
+        guest.phase, guest.boot_readiness_available = "running", True
+        guest.adb_tool, guest.port, guest.server_port = self.root / "adb", 5558, 41234
+        guest.environment = {"ADB_SERVER_SOCKET": "tcp:127.0.0.1:41234", "ANDROID_ADB_SERVER_PORT": "41234"}
+        guest.server, guest.emulator = Mock(pid=801), Mock(pid=802)
+        guest.server.poll.return_value = guest.emulator.poll.return_value = None
+        if windows:
+            guest.job = Mock()
+            guest.job.active.return_value = 3
+        return guest
+
+    def test_scoped_exact_boot_offline_reattaches_only_selected_serial_and_rereads_both_properties(self):
+        from unittest.mock import Mock
+        from controller.disposable import BootReadinessOffline
+
+        self.status_boundary.stop()
+        for windows in (False, True):
+            with self.subTest(windows=windows):
+                guest = self.boot_fixture(windows)
+                before, commands, budgets = self.rows(), [], []
+                property_commands = [["shell", "getprop", name] for name in ("sys.boot_completed", "init.svc.bootanim")]
+                responses = iter([b"1\n", b"offline", b"", b"0\n", b"running\n", b"1\n", b"stopped\n"])
+
+                def invoke(command, timeout, log=None):
+                    commands.append(command)
+                    budgets.append(timeout)
+                    data = next(responses)
+                    if windows:
+                        process = Mock(pid=803)
+                        process.poll.return_value = 1 if data == b"offline" else 0
+                        process.wait.return_value = 1 if data == b"offline" else 0
+                        log.write(b"adb.exe: device offline\n" if data == b"offline" else data)
+                        process.wait.side_effect = lambda passed: self.assertEqual(passed, timeout) or process.wait.return_value
+                        return process
+                    if data == b"offline":
+                        raise subprocess.CalledProcessError(1, command, output=b"", stderr=b"adb: device offline\n")
+                    return subprocess.CompletedProcess(command, 0, stdout=data, stderr=b"")
+
+                def spawn(command, environment, log):
+                    return invoke(command, 17, log)
+
+                with patch.object(guest, "_owns_listener", return_value=True), \
+                        patch("controller.disposable.time.monotonic", return_value=10), \
+                        patch("controller.disposable.subprocess.run",
+                              side_effect=lambda command, **kwargs: invoke(command, kwargs["timeout"])):
+                    if windows:
+                        guest.job.spawn.side_effect = spawn
+                    with guest.boot_readiness(self.ledger, deadline=130):
+                        self.assertEqual(guest.adb(self.ledger, property_commands[0], timeout=17).stdout, b"1\n")
+                        with self.assertRaises(BootReadinessOffline) as raised:
+                            guest.adb(self.ledger, property_commands[1], timeout=17)
+                        self.assertEqual(guest.phase, "boot-offline")
+                        self.assertEqual(raised.exception.returncode, 1)
+                        with self.assertRaises(PortError):
+                            guest.adb(self.ledger, property_commands[0], timeout=17)
+                        guest.reattach_boot(self.ledger, timeout=17)
+                        self.assertEqual(guest.phase, "running")
+                        # Consumer discards pre-offline boot1; both fresh values may still be unready.
+                        self.assertEqual([guest.adb(self.ledger, c, timeout=17).stdout for c in property_commands],
+                                         [b"0\n", b"running\n"])
+                        self.assertEqual([guest.adb(self.ledger, c, timeout=17).stdout for c in property_commands],
+                                         [b"1\n", b"stopped\n"])
+                self.assertEqual([c[3:] for c in commands],
+                                 [*property_commands, ["wait-for-device"], *property_commands, *property_commands])
+                self.assertTrue(all(c[:3] == [str(guest.adb_tool), "-s", "emulator-5558"] for c in commands))
+                self.assertEqual(budgets, [17] * 7)
+                self.assertEqual(self.rows(), before)
+                self.assertEqual(guest.phase, "running")
+                self.assertIsNone(guest.boot_deadline)
+                guest.job = None
+                guest.phase = "uncertain"
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_boot_offline_classification_rejects_other_diagnostics_commands_and_default_calls(self):
+        from unittest.mock import Mock
+
+        for windows in (False, True):
+            for case in ("default", "default-mutation", "extra", "wrong-stream", "wrong-code",
+                         "mutation", "timeout", "ownership"):
+                with self.subTest(windows=windows, case=case):
+                    guest = self.boot_fixture(windows)
+                    before = self.rows()
+                    arguments = ["shell", "getprop", "sys.boot_completed"]
+                    if case == "default-mutation":
+                        arguments = ["install", "fixture.apk"]
+                    command = [str(guest.adb_tool), "-s", "emulator-5558", *arguments]
+                    diagnostic = b"adb.exe: device offline\n" if windows else b"adb: device offline\n"
+                    if case == "extra":
+                        diagnostic += b"unknown context"
+                    code = 7 if case == "wrong-code" else 1
+                    output, stderr = (diagnostic, None) if windows else (b"", diagnostic)
+                    if case == "wrong-stream":
+                        output, stderr = (b"", diagnostic) if windows else (diagnostic, b"")
+                    primary = subprocess.CalledProcessError(code, command, output=output, stderr=stderr)
+                    if case == "timeout":
+                        primary = subprocess.TimeoutExpired(command, 17)
+                    process = Mock(pid=803)
+                    process.wait.side_effect = primary if case == "timeout" else None
+                    process.wait.return_value = code
+
+                    def spawn(argv, environment, log):
+                        log.write(output)
+                        return process
+
+                    if windows:
+                        guest.job.spawn.side_effect = spawn
+                    listeners = [True] * 20
+                    if case == "ownership":
+                        listeners = [True, True, True, True, False]
+                    with patch.object(guest, "_owns_listener", side_effect=listeners), \
+                            patch("controller.disposable.time.monotonic", return_value=10), \
+                            patch("controller.disposable.subprocess.run", side_effect=primary):
+                        if case in ("default", "default-mutation"):
+                            with self.assertRaises(subprocess.CalledProcessError):
+                                guest.adb(self.ledger, arguments, timeout=17)
+                        else:
+                            with self.assertRaises(BaseException) as raised:
+                                with guest.boot_readiness(self.ledger, deadline=130):
+                                    if case == "mutation":
+                                        arguments = ["install", "fixture.apk"]
+                                    guest.adb(self.ledger, arguments, timeout=17)
+                            if case == "ownership":
+                                self.assertIsInstance(raised.exception, BaseExceptionGroup)
+                                self.assertIsInstance(raised.exception.exceptions[0], subprocess.CalledProcessError)
+                                self.assertEqual(raised.exception.exceptions[0].returncode, 1)
+                                self.assertEqual(raised.exception.exceptions[0].output, output)
+                    self.assertEqual(guest.phase, "uncertain")
+                    with self.assertRaises(PortError):
+                        guest.reattach_boot(self.ledger, timeout=17)
+                    self.assertEqual(self.rows(), before)
+                    guest.job = None
+                    with patch.object(guest, "_cleanup"):
+                        guest.dispose(self.ledger)
+                    self.assert_legacy()
+
+    def test_boot_scope_requires_new_start_exact_lease_and_finite_original_deadline(self):
+        for case in ("not-new", "expired", "too-long", "nan", "foreign"):
+            with self.subTest(case=case):
+                guest = self.boot_fixture(False)
+                before = self.rows()
+                if case == "not-new":
+                    guest.boot_readiness_available = False
+                if case == "foreign":
+                    guest.receipt = {**guest.receipt, "owner": "foreign"}
+                deadline = {"expired": 10, "too-long": 131, "nan": float("nan")}.get(case, 130)
+                with patch.object(guest, "_owns_listener", return_value=True), \
+                        patch("controller.disposable.time.monotonic", return_value=10):
+                    with self.assertRaises(PortError):
+                        with guest.boot_readiness(self.ledger, deadline=deadline):
+                            self.fail("Invalid readiness scope entered")
+                self.assertEqual(self.rows(), before)
+                if case == "foreign":
+                    guest.receipt["owner"] = guest.owner
+                guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_boot_offline_primary_survives_independent_snapshot_retention_clock_and_cancellation(self):
+        from unittest.mock import Mock
+        from controller.disposable import BootReadinessOffline
+
+        original_open = Path.open
+        for failure in ("snapshot", "write", "close", "clock", "cancelled"):
+            with self.subTest(failure=failure):
+                guest = self.boot_fixture(False)
+                before = self.rows()
+                arguments = ["shell", "getprop", "sys.boot_completed"]
+                command = [str(guest.adb_tool), "-s", "emulator-5558", *arguments]
+                primary = subprocess.CalledProcessError(1, command, output=b"", stderr=b"adb: device offline\n")
+                independent = KeyboardInterrupt("diagnostic cancellation") if failure == "cancelled" else OSError(failure)
+                clock, opened = [10], []
+
+                def open_path(path, *args, **kwargs):
+                    stream = original_open(path, *args, **kwargs)
+                    if not path.name.startswith("transport-timing-"):
+                        return stream
+                    opened.append(stream)
+                    wrapped = Mock(wraps=stream)
+
+                    def write(data):
+                        if json.loads(data)["stage"] == "failed" and failure in ("write", "cancelled"):
+                            raise independent
+                        return stream.write(data)
+
+                    def close():
+                        stream.close()
+                        if failure == "close":
+                            raise independent
+
+                    wrapped.write.side_effect, wrapped.close.side_effect = write, close
+                    return wrapped
+
+                def snapshot(*args, **kwargs):
+                    if failure == "snapshot":
+                        raise independent
+                    if failure == "clock":
+                        clock[0] = float("nan")
+
+                try:
+                    with patch.object(guest, "_owns_listener", return_value=True), \
+                            patch.object(guest, "_status_snapshot", side_effect=snapshot), \
+                            patch("controller.disposable.time.monotonic", side_effect=lambda: clock[0]), \
+                            patch.object(Path, "open", open_path), \
+                            patch("controller.disposable.subprocess.run", side_effect=primary):
+                        with self.assertRaises(BaseExceptionGroup) as raised:
+                            with guest.boot_readiness(self.ledger, deadline=130):
+                                guest.adb(self.ledger, arguments, timeout=17)
+                    first = raised.exception.exceptions[0]
+                    self.assertIsInstance(first, BootReadinessOffline)
+                    self.assertIs(first.__cause__, primary)
+                    self.assertEqual((first.returncode, first.output, first.stderr), (1, b"", b"adb: device offline\n"))
+                    self.assertEqual(len(raised.exception.exceptions), 2)
+                    if failure != "clock":
+                        self.assertIs(raised.exception.exceptions[1], independent)
+                    self.assertEqual(guest.phase, "uncertain")
+                    self.assertEqual(self.rows(), before)
+                    with patch.object(guest, "_cleanup", side_effect=PortError("independent disposal")):
+                        with self.assertRaisesRegex(PortError, "independent disposal"):
+                            guest.dispose(self.ledger)
+                    self.assertEqual(self.rows(), before)
+                finally:
+                    for stream in opened:
+                        stream.close()
+                    with patch.object(guest, "_cleanup"):
+                        guest.dispose(self.ledger)
+                self.assert_legacy()
+
+    def test_repeated_offline_recovery_never_extends_deadline_and_failed_reattach_is_uncertain(self):
+        from controller.disposable import BootReadinessOffline
+
+        for failure in ("expired", "timeout", "unrelated", "stale", "listener"):
+            with self.subTest(failure=failure):
+                guest = self.boot_fixture(False)
+                original_receipt = dict(guest.receipt)
+                before, clock, calls = self.rows(), [10.0], []
+                args = ["shell", "getprop", "init.svc.bootanim"]
+
+                def run(command, **kwargs):
+                    calls.append((command[3:], kwargs["timeout"]))
+                    if command[3:] == args:
+                        raise subprocess.CalledProcessError(1, command, output=b"", stderr=b"adb: device offline\n")
+                    if len(calls) <= 2:
+                        return subprocess.CompletedProcess(command, 0, stdout=b"", stderr=b"")
+                    if failure == "timeout":
+                        raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+                    raise subprocess.CalledProcessError(1, command, output=b"", stderr=b"other error")
+
+                with patch.object(guest, "_owns_listener", return_value=True), \
+                        patch("controller.disposable.time.monotonic", side_effect=lambda: clock[0]), \
+                        patch("controller.disposable.subprocess.run", side_effect=run):
+                    with self.assertRaises((PortError, subprocess.SubprocessError)):
+                        with guest.boot_readiness(self.ledger, deadline=130):
+                            for round_number in range(2):
+                                with self.assertRaises(BootReadinessOffline):
+                                    guest.adb(self.ledger, args, timeout=17)
+                                if round_number:
+                                    clock[0] = 130 if failure == "expired" else 129
+                                    if failure == "stale":
+                                        guest.receipt = {**guest.receipt, "owner": "foreign"}
+                                    if failure == "listener":
+                                        guest.emulator.poll.return_value = 7
+                                if failure == "listener" and round_number:
+                                    with patch.object(guest, "_owns_listener", return_value=False):
+                                        guest.reattach_boot(self.ledger, timeout=17)
+                                else:
+                                    guest.reattach_boot(self.ledger, timeout=17)
+                self.assertEqual(guest.phase, "uncertain")
+                if failure in ("timeout", "unrelated"):
+                    self.assertEqual(calls[-1], (["wait-for-device"], 1))
+                else:
+                    self.assertEqual(len(calls), 3)
+                self.assertEqual(self.rows(), before)
+                guest.receipt = original_receipt
+                with patch.object(guest, "_cleanup"):
+                    guest.dispose(self.ledger)
+                self.assert_legacy()
+
     def test_cpu_selection_rejects_invalid_values_before_ownership_supervisor_files_or_processes(self):
         for value in (True, False, 0, -1, 1, 2, 3, 5, 8, 4.0, "4", "", [], {}, float("nan"), float("inf")):
             with self.subTest(value=value):
