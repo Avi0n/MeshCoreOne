@@ -299,11 +299,66 @@ RECEIVE_PREFETCH_ADMISSION_CAPABILITY = {
 }
 
 
+ROOM_CLEANUP_CAPABILITY = {
+    "id": "wp303-room-cleanup-companion",
+    "work_packages": ["WP-303"],
+    "path_rules": [
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
+    ],
+    "operations": ["modify"],
+    "invariants": [
+        "WP-202-primary-provenance-and-original-cases-unchanged",
+        "WP-303-AppContainer-cleanup-only-through-core-data-owned-Room-companion",
+        "no-App-main-Room-dependency-or-build-graph-widening",
+        "real-Room-close-and-process-store-lifetime-no-fake-success",
+        "preserve-original-errors-cancellation-persistence-and-connection-lifetimes",
+        "no-unrelated-core-data-schema-migration-query-or-product-scope",
+        "semantic-collisions-serialize-or-transfer-current-producer",
+        "immutable-stored-session-branch-worktree-authorization-no-impersonation",
+        "trusted-main-admission-before-consumption",
+        "retained-native-history-unchanged-no-runtime-install-or-lock-release",
+    ],
+    "validation": [
+        "real Room cleanup companion regression in RoomSourceTest plus affected AppContainer cleanup assertions",
+        "affected declared module verification and original-case accounting; source tests do not claim Room execution",
+        "exact two-path WP-303 modify admission and wrong-WP-path-operation rejection",
+        "exact-head-current-base protected review and genuine owner identity reconciliation",
+    ],
+}
+
+
+def room_cleanup_predecessor(policy):
+    if not isinstance(policy, dict):
+        raise PortError("Room cleanup amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    reservation = result.get("reservation_policy")
+    if reservation is None:
+        return result
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Room cleanup amendment requires the canonical capability catalog")
+    selected = [i for i, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == ROOM_CLEANUP_CAPABILITY["id"]]
+    if not selected:
+        return result
+    if (
+        len(selected) != 1 or rules[selected[0]] != ROOM_CLEANUP_CAPABILITY
+        or selected[0] == 0 or not isinstance(rules[selected[0] - 1], dict)
+        or rules[selected[0] - 1].get("id") != "app-build-launcher"
+        or selected[0] + 1 >= len(rules) or not isinstance(rules[selected[0] + 1], dict)
+        or rules[selected[0] + 1].get("id") != "traceability-validation"
+    ):
+        raise PortError("Room cleanup capability changed outside the exact two-path amendment")
+    rules.pop(selected[0])
+    return result
+
+
 def receive_prefetch_predecessor(policy):
     """Remove only the exact appended receive-admission rule, restoring the whole b677 policy object."""
     if not isinstance(policy, dict):
         raise PortError("Receive prefetch amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = room_cleanup_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     reservation = result.get("reservation_policy")
