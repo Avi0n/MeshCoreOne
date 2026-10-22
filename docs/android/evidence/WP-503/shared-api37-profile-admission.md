@@ -2420,3 +2420,74 @@ packaging exception preservation case; the same four declared source checks
 and whitespace check passed. Advisory local Gradle fast verification remains
 NOT RUN/UNVERIFIED. The successor needs its own exact-head hosted result and
 fresh source-bound App/Test pair/native attempt, not inherited7949/c9 proof.
+
+### Actual114616a1: real kernel boot progress, selected registration timeout
+
+Actual normal public candidate114616d1e38480062447d06c3187906579b46a2d,
+direct7c3166b0f89d457253d83e15b39b3cd6b78b96ce, bound actualmainD708/
+reviewed06bf/disposable8a538d and reservation31. The exact Android tree was
+b58ae6043f3c2c7d079fcb09f39430c7a8f62188, source digest
+7e0276aac6469923e44cbaeaab1fc688c4962df8a97e43f788b8bbe372177282.
+Fresh 2026-10-22T01:28:02.2392568Z admission observed7384.02MiB commit
+headroom/5909MiB physical availability; current published source, trusted
+main/policy/pause, actor and original seven-case binding guards passed.
+Real new owner was
+1666502a-0420-46ef-930f-e78651ba8b9f:nodes:dc0dd4e88b87405b84c5ce432c33e29b,
+rootprivate-avd-qlml8d6n. No003/504 wake or old-guest action occurred.
+
+The actual source-bound App/Test build succeeded in1m56s/446 tasks
+(5 executed/441 up-to-date), and the matching pair receipt exists.
+Unique packaging-quiescence-12a4a79fedf84974afd16ee45973dd30.json actually
+reports windows-job-accounting/empty, one count0 sample, PIDsnull,
+elapsed0.0. It does not establish that the grace interval repaired7949:
+there was no positive-to-zero transition in this attempt.
+
+The new emulator genuinely launched with kernel output. Exact selected
+wait-for-device ownedPID51280 raised TimeoutExpired120.0 before any getprop,
+profile, install, instrumentation or cohort: original Nodes0/7 and unknown
+host instrumentation exit. CLI2 is not instrumentation exit.
+Independent finally disposal verified true/no disposal_error; supported
+ledger readback found no lock for this owner and retained protected66bd.
+Only then was the mainD708 serialization hold released.
+
+Unlike earlier source-bound failures, the retained2795-line process.log
+actually shows sys.boot_completed=1 at kernel115.799974, ranchu-adb-start
+at116.687624/status0, and emulator "Boot completed in122434 ms".
+It also shows ranchu-adb-setup13.154096/status0 and adbd stopped at
+kernel16.035216 and115.746246. These are concrete boot-progress/completion
+messages, not strict getprop/profile acceptance or a no-boot claim.
+The selected adb-af8641ff5a894c5684adcd60cf997ff5.log is0 bytes.
+Actual source already sets both private-server environment variables and
+the explicit selected endpoint; no missing-environment repair is established.
+
+Retained filesystem UTC bounds (not monotonic command/per-line timestamps):
+process.log created01:30:28.963888Z/last-write01:32:32.041673Z;
+selected ADB file created/last-written01:30:32.310399Z;
+operations final write01:32:32.371605Z; quiescence created01:30:25.633246Z;
+pair receipt created01:30:25.655839Z. No structured host UTC/monotonic
+startup/command/deadline/timeout receipt or per-line host timestamp exists.
+Therefore alignment of guest/kernel/SDK/host clocks and the transport cause
+remain UNKNOWN; filesystem metadata is not substituted for those clocks.
+
+All originals remain under this session's files directory:
+wp503-114616-nodes37-disposable-a1/operations.json and packaging/
+debug-invocation.json, debug-build.log, debug-packaging.json; sibling
+wp503-114616-nodes37-disposable-a1-cli.txt; private-avd-qlml8d6n/
+process.log, selected ADB output and unique quiescence report. Its retained
+avds/fb065c2b00534f8580889c8bdea13cf7.avd/emu-launch-params.txt is the actual
+emulator command artifact. hardware-qemu.ini records2CPU/4096MiB and
+initial320x480/density160, not proof of the unreached target profile.
+Exact absolute paths were handed to the coordinator for independent read.
+No key file, CI-result bundle, live ADB/guest probe, unchanged retry,
+CPU/config/deadline/assertion change or duplicated producer edit was made.
+The demonstrated observability gap was routed to the existing producer;
+it is not a claim that timing or transport caused the failure.
+
+Own automatic39705770892 is separate from the native attempt. Actual
+controller119585391709 succeeded with861 tests/97.572s/OK and codec
+119586187628 succeeded; Linux119586187654 was still in_progress at the
+bounded read. No overall/SwiftData/native result is inferred.
+The exact compact PR body draft preserves245 historical/template rows and
+changes only9 current rows; native CAS submission was transferred back
+to the coordinator because the available updater takes a full literal body,
+not a file path. No shell/REST edit or false submission claim was made.
