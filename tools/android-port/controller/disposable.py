@@ -699,7 +699,6 @@ class PrivateGuest:
             return result
         except subprocess.CalledProcessError as error:
             expected = [str(self.adb_tool), "-s", f"emulator-{self.port}", *arguments]
-            diagnostic = b"adb.exe: device offline\n" if self.job is not None else b"adb: device offline\n"
             offline = (
                 getattr(self, "boot_deadline", None) is not None
                 and arguments in (["shell", "getprop", "sys.boot_completed"],
@@ -707,9 +706,10 @@ class PrivateGuest:
                 and error.cmd == expected and type(error.returncode) is int and error.returncode == 1
                 and (
                     self.job is not None and type(error.output) is bytes
-                    and error.output == diagnostic and error.stderr is None
+                    and error.output in (b"adb.exe: device offline\n", b"adb.exe: device offline\r\n")
+                    and error.stderr is None
                     or self.job is None and type(error.output) is bytes and type(error.stderr) is bytes
-                    and error.output == b"" and error.stderr == diagnostic
+                    and error.output == b"" and error.stderr == b"adb: device offline\n"
                 )
             )
             if offline:
