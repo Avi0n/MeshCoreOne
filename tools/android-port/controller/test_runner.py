@@ -88,7 +88,7 @@ def discover_suites(directories):
         seen.add(directory)
         if not directory.is_dir():
             raise ValueError("missing controller test directory")
-        discovered = unittest.TestLoader().discover(str(directory))
+        discovered = unittest.TestLoader().discover(str(directory), pattern="*test*.py")
         if discovered.countTestCases() == 0:
             raise ValueError("zero discovered tests in controller test directory")
         suite.addTests(discovered)

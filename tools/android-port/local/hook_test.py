@@ -62,6 +62,31 @@ class LocalCheckTests(unittest.TestCase):
         self.assertEqual(command[command.index("-p") + 1], "*test*.py")
         self.assertNotIn(str(Path(fast.__file__).resolve().parent), command)
 
+    def test_advisory_host_selection_preserves_all_linux_cases_and_windows_guard(self):
+        import advisory_test
+        for host, expected in (
+            ("linux", advisory_test.AdvisoryLauncherTests),
+            ("linux2", advisory_test.AdvisoryLauncherTests),
+            ("win32", advisory_test.WindowsAdvisoryGuardTests),
+        ):
+            with self.subTest(host=host), patch.object(sys, "platform", host), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                suite = advisory_test.load_tests(unittest.TestLoader(), None, None)
+                self.assertEqual(advisory_test.fixture_class(host), expected)
+                expected_names = unittest.TestLoader().getTestCaseNames(expected)
+                self.assertEqual([test._testMethodName for test in suite], expected_names)
+                self.assertEqual(len(expected_names), 7 if host.startswith("linux") else 1)
+        for host in ("darwin", "", "windows", "freebsd"):
+            with self.subTest(host=host), self.assertRaisesRegex(ValueError, "Linux or native Windows"):
+                advisory_test.fixture_class(host)
+
+    def test_windows_guard_is_not_substituted_for_linux_execution(self):
+        import advisory_test
+        with patch.object(sys, "platform", "linux"), self.assertRaisesRegex(ValueError, "actual Windows"):
+            advisory_test.WindowsAdvisoryGuardTests(
+                "test_actual_windows_rejects_linux_supervision_before_any_launch"
+            ).test_actual_windows_rejects_linux_supervision_before_any_launch()
+
 
     def test_runner_imports_bundle_head_and_namespaced_refs(self):
         runner = Path(check.__file__).resolve().with_name("run.sh").read_text(encoding="utf-8")
