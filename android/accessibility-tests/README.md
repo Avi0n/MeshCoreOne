@@ -133,7 +133,7 @@ Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
 
 `disposable_runner.py` is a separate consumer of the reviewed WP-003 private-guest
-interface, updated at `c9af5bf041ac84fc470c1ab75e309b5a89cc4f0d`.
+interface, updated at `d93813cb393780ed4de15f80c5688c1afba4077e`.
 It does not remove the shared-device fence or adopt an existing guest. Before
 import/allocation it requires the reviewed producer bytes in actual trusted main
 and the actual checkout, and trusted capability/pause policy. The real factory
@@ -212,8 +212,9 @@ property, exit, available output/stderr and partial pair are first retained in
 selected reattachment BOTH properties are freshly read, with no reuse of a
 previous boot1 or budget reset. Arbitrary failures and failed reattachment
 propagate; no profile/install/instrumentation begins without fresh1/stopped.
-This source preparation requires the reviewed producer interface from PR273
-to be actually merged and pinned before publication or native execution.
+The reviewed PR273 interface is actually merged into main
+`2836839744f3e20743aeeea80824ec7e1f5165d2` and pinned by exact API object.
+Source coupling does not authorize a native run or establish device readiness.
 The pinned producer must preserve the normal boot-animation lifecycle:
 both boot and inherited profile guards still require its observed `stopped`
 state. A suppressed/empty service is not substituted for that observation.

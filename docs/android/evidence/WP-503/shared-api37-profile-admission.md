@@ -3024,3 +3024,34 @@ The four declared verification_config --check/validate/workflows/portmap
 commands and whitespace check pass. Native result remains0/7; no new factory,
 guest, build, install, instrumentation, publication or dispatch accompanies
 this local preparation.
+
+### Actual merged PR273 coupling and ordinary successor preparation
+
+PR273 is now actually merged: independently fetched main
+2836839744f3e20743aeeea80824ec7e1f5165d2 has parents8e05c754b6298e789886d3a8006b6275cd1d3146
+and d93813cb393780ed4de15f80c5688c1afba4077e. The consumer pins that actual
+producer and disposable API object b3d42756e679bfcd285f48eca5529ebb64b79b0e.
+The other three API inputs remain exactly windows_guest621612bb67e16432692e07a5a1b1056426747777,
+ledger6048cf50b275b85c9028781fd80a473ef06ca6f2 and
+debug_packaging7f8e5e9769c0f8d70a42678738280bf7209c17e9.
+
+Trusted capability admission independently confirms every incoming path and
+both merge-integration operations already exist in canonical runningr31.
+No reservation evolution or identity/context rewrite is needed. The preserved
+original branch/worktree audit context is not replaced with this worker's
+context. The normal same-branch merge integrates the actual producer,
+producer tests/deviation and disjoint Rooms test/deviation bytes. Original
+native src, language_binding/test_language_binding and AppGradle compare
+byte-identically with published2249; original7/144/current514 remain unchanged.
+Locald6b7 actual native evidence and bf7130 exact Linux diagnostic correction
+remain honest ancestry, not a new native result.
+
+Integrated declared discovery passes246/246,0 failures/errors/skips,14.974s.
+Each actual verification_config --check, validate, workflows and portmap
+command exits0; staged/unstaged whitespace and original-native/binding
+byte comparisons pass. These are local consumer/source checks only. The
+producer's actual scoped39792206068/controller645 result belongs to its own
+source; it is not this successor's CI/native verdict. Local full fastGradle is
+explicitly NOT RUN/UNVERIFIED. Ordinary publication targets only existing
+PR205's historical head ref, with no force, rerun, dispatch or new PR.
+No native hold/admission/attempt is created by this source integration.

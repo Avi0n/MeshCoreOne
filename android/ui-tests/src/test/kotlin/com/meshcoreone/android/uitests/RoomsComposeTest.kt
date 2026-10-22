@@ -2077,6 +2077,159 @@ class RoomsComposeTest {
         assertRoomLoadStageFailure("changed")
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test fun mixedRoomEventsShareTheFirstSyncDeadlineAndRefreshOnlyKnownRowsInThisSession() {
+        val pending = RoomMessageDTO(
+            id = UUID(0, 4), sessionID = session.id, authorKeyPrefix = Bytes.of(0x42), authorName = "Me",
+            text = body, timestamp = 220u, createdAt = Instant.ofEpochSecond(220),
+            isFromSelf = true, statusRawValue = MessageStatus.PENDING.rawValue,
+        )
+        val sent = pending.copy(statusRawValue = MessageStatus.SENT.rawValue)
+        val delivered = sent.copy(
+            statusRawValue = MessageStatus.DELIVERED.rawValue, ackCode = 0x04030201u, roundTripTime = 700u,
+        )
+        val history = liveMessage(1, 100u, "history", Bytes.of(0xaa), "Alice")
+        val later = liveMessage(2, 160u, "later", Bytes.of(0xaa), "Alice")
+        val foreignSession = UUID(0, 503)
+        val foreign = liveMessage(3, 80u, "foreign").copy(sessionID = foreignSession)
+        val fixture = Fixture().apply { stored = listOf(pending) }
+        val clock = TestCoroutineScheduler()
+        val holderScope = CoroutineScope(scope.coroutineContext + StandardTestDispatcher(clock))
+        val holder = RoomConversationStateHolder(session, fixture, holderScope)
+        mount {
+            RoomConversationRoute(
+                holder, fixture.links, failureText = { uiString(UiErrorMapper().message(it)) },
+            )
+        }
+        compose.runOnIdle { clock.runCurrent() }
+        compose.waitUntil { holder.state.value.hasLoadedOnce && fixture.events.subscriptionCount.value == 1 }
+        compose.onNode(hasSetTextAction()).performTextReplacement(body)
+        val effects = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
+        fun emit(event: RoomConversationEvent) {
+            assertTrue(fixture.events.tryEmit(event))
+            clock.runCurrent()
+        }
+        fun assertRendered(expected: List<RoomMessageDTO>, spokenStatus: Int, visibleStatus: Int) {
+            assertEquals(expected, holder.state.value.messages)
+            assertEquals(expected, holder.state.value.rows.map { it.message })
+            val tops = expected.map { message ->
+                val label = if (message.isFromSelf) "$body, ${text(spokenStatus)}"
+                    else "${message.authorDisplayName}: ${message.text}"
+                compose.onAllNodesWithContentDescription(label).assertCountEquals(1)[0]
+                    .assertIsDisplayed().fetchSemanticsNode().boundsInRoot.top
+            }
+            assertTrue(tops.zipWithNext().all { (a, b) -> a < b })
+            compose.onNodeWithText(text(visibleStatus), useUnmergedTree = true).assertIsDisplayed()
+            compose.onNodeWithContentDescription("Author: foreign").assertDoesNotExist()
+            compose.onNode(hasSetTextAction()).assertTextContains(body)
+            compose.onNodeWithText(text(Rooms.remoteNodesRoomNoMessagesYet)).assertDoesNotExist()
+            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo)).assertDoesNotExist()
+        }
+        assertEquals(effects, fixture.loads)
+        compose.runOnIdle {
+            emit(RoomConversationEvent.MessageReceived(foreignSession, foreign))
+            emit(RoomConversationEvent.MessageChanged(foreignSession, pending.id))
+            emit(RoomConversationEvent.MessageChanged(session.id, UUID(0, 999)))
+            clock.advanceTimeBy(100)
+            clock.runCurrent()
+        }
+        assertEquals(effects, fixture.loads)
+        assertRendered(listOf(pending), Rooms.remoteNodesRoomMessageStatusSendingLabel, Chats.chatsMessageStatusSending)
+        compose.runOnIdle {
+            emit(RoomConversationEvent.MessageReceived(session.id, history))
+            clock.advanceTimeBy(49)
+            clock.runCurrent()
+        }
+        assertEquals(effects, fixture.loads)
+        assertFalse(holder.state.value.isLoading)
+        assertRendered(
+            listOf(history, pending), Rooms.remoteNodesRoomMessageStatusSendingLabel, Chats.chatsMessageStatusSending,
+        )
+        val read = CompletableDeferred<Unit>()
+        compose.runOnIdle {
+            fixture.fetchGate = read
+            fixture.stored = listOf(history, later, sent)
+            emit(RoomConversationEvent.MessageChanged(session.id, pending.id))
+            emit(RoomConversationEvent.MessageReceived(session.id, history))
+            emit(RoomConversationEvent.MessageReceived(session.id, later))
+        }
+        assertEquals(effects, fixture.loads)
+        assertRendered(
+            listOf(history, later, pending), Rooms.remoteNodesRoomMessageStatusSendingLabel, Chats.chatsMessageStatusSending,
+        )
+        compose.runOnIdle {
+            clock.advanceTimeBy(1)
+            clock.runCurrent()
+        }
+        assertEquals(effects + "fetch", fixture.loads)
+        assertTrue(holder.state.value.isLoading)
+        assertTrue(holder.state.value.hasLoadedOnce)
+        assertRendered(
+            listOf(history, later, pending), Rooms.remoteNodesRoomMessageStatusSendingLabel, Chats.chatsMessageStatusSending,
+        )
+        compose.runOnIdle {
+            assertTrue(read.complete(Unit))
+            clock.runCurrent()
+        }
+        compose.waitUntil { !holder.state.value.isLoading }
+        assertEquals(effects + effects, fixture.loads)
+        assertRendered(listOf(history, later, sent), Rooms.remoteNodesRoomMessageStatusDeliveredLabel, Chats.chatsMessageStatusSent)
+        compose.onNodeWithContentDescription("$body, ${text(Rooms.remoteNodesRoomMessageStatusSendingLabel)}")
+            .assertDoesNotExist()
+        compose.runOnIdle {
+            clock.advanceTimeBy(100)
+            clock.runCurrent()
+        }
+        assertEquals(effects + effects, fixture.loads)
+        val secondRead = CompletableDeferred<Unit>()
+        compose.runOnIdle {
+            fixture.fetchGate = secondRead
+            fixture.stored = listOf(history, later, delivered)
+            emit(RoomConversationEvent.MessageChanged(session.id, pending.id))
+            clock.advanceTimeBy(49)
+            clock.runCurrent()
+        }
+        assertEquals(effects + effects, fixture.loads)
+        assertFalse(holder.state.value.isLoading)
+        assertRendered(listOf(history, later, sent), Rooms.remoteNodesRoomMessageStatusDeliveredLabel, Chats.chatsMessageStatusSent)
+        compose.runOnIdle {
+            clock.advanceTimeBy(1)
+            clock.runCurrent()
+        }
+        assertEquals(effects + effects + "fetch", fixture.loads)
+        assertTrue(holder.state.value.isLoading)
+        compose.runOnIdle {
+            assertTrue(secondRead.complete(Unit))
+            clock.runCurrent()
+        }
+        compose.waitUntil { !holder.state.value.isLoading }
+        assertRendered(
+            listOf(history, later, delivered), Rooms.remoteNodesRoomMessageStatusDeliveredLabel, Chats.chatsMessageStatusDelivered,
+        )
+        assertSame(history, holder.state.value.messages[0])
+        assertSame(later, holder.state.value.messages[1])
+        compose.runOnIdle {
+            clock.advanceTimeBy(100)
+            clock.runCurrent()
+        }
+        assertEquals(effects + effects + effects, fixture.loads)
+        assertEquals(session, holder.state.value.session)
+        assertEquals(body, holder.state.value.draft)
+        assertEquals(1, fixture.events.subscriptionCount.value)
+        assertNull(holder.state.value.failure)
+        assertFalse(holder.state.value.isSending)
+        assertFalse(holder.state.value.isAuthenticating)
+        assertTrue(fixture.posts.isEmpty())
+        assertTrue(fixture.joins.isEmpty())
+        assertTrue(fixture.retries.isEmpty())
+        assertTrue(fixture.reported.isEmpty())
+        compose.runOnIdle {
+            holderScope.cancel()
+            clock.runCurrent()
+        }
+        assertEquals(0, fixture.events.subscriptionCount.value)
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private fun assertRoomLoadStageFailure(failingStage: String) {
         val stages = listOf("fetch", "read", "failed-seen", "notifications", "badge", "changed")
         assertTrue(failingStage in stages)
