@@ -36,6 +36,11 @@ def binding(repo, base, head, remote, url):
     default = git(repo, "symbolic-ref", "refs/remotes/origin/HEAD")
     if default != "refs/remotes/origin/main" or git(repo, "rev-parse", default) != base:
         raise ValueError("Trusted default-base changed")
+    live = git(repo, "ls-remote", "--symref", "--exit-code", "origin", "HEAD", "refs/heads/main").splitlines()
+    if sorted(live) != sorted([
+        "ref: refs/heads/main\tHEAD", base + "\tHEAD", base + "\trefs/heads/main",
+    ]):
+        raise ValueError("Live trusted default-base changed or is ambiguous")
     policy = json.loads(blob(repo, base, "docs/android/automation-policy.json"))
     if policy["paused"] or policy["repository"] != "cbattlegear/MeshCoreOne-Android":
         raise ValueError("Publication paused or repository identity differs")
@@ -53,11 +58,11 @@ def binding(repo, base, head, remote, url):
     }
 
 
-def stage(repo, base, root):
+def trusted_files(repo, base):
     paths = git(repo, "ls-tree", "-r", "--name-only", base, "--", "tools/android-port").splitlines()
     if not paths or len(paths) > 2000:
         raise ValueError("Missing or oversized trusted guard tree")
-    hashes, size = {}, 0
+    files, size = {}, 0
     for path in paths:
         parts = Path(path).parts
         if Path(path).is_absolute() or ".." in parts or "\\" in path:
@@ -66,11 +71,17 @@ def stage(repo, base, root):
         size += len(data)
         if size > 32 * 1024 * 1024:
             raise ValueError("Trusted guard tree exceeds staging bound")
+        files[path] = data.replace(b"\r\n", b"\n")
+    return files
+
+
+def stage(repo, base, root):
+    files = trusted_files(repo, base)
+    for path, data in files.items():
         target = root / path
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(data.replace(b"\r\n", b"\n"))
-        hashes[path] = hashlib.sha256(target.read_bytes()).hexdigest()
-    return hashes
+        target.write_bytes(data)
+    return {path: hashlib.sha256(data).hexdigest() for path, data in files.items()}
 
 
 def hook(repo, root, request):
@@ -80,10 +91,31 @@ def hook(repo, root, request):
             raise ValueError("Hook inherited unexpected Git configuration")
         del os.environ["GIT_CONFIG_PARAMETERS"]
     expected = json.loads(request.read_text(encoding="utf-8"))
+    if not isinstance(expected, dict) or set(expected) != {
+        "base", "head", "tree", "branch", "remote", "url", "common", "files",
+    }:
+        raise ValueError("Malformed publication request")
     actual = binding(repo, expected["base"], expected["head"], expected["remote"], expected["url"])
     if any(actual[key] != expected[key] for key in actual):
         raise ValueError("Publication binding changed before hook")
-    for path, digest in expected["files"].items():
+    immutable = trusted_files(repo, actual["base"])
+    hashes = {path: hashlib.sha256(data).hexdigest() for path, data in immutable.items()}
+    if expected["files"] != hashes:
+        raise ValueError("Requested guard manifest differs from complete immutable base")
+    staged = root / "tools"
+    actual_paths = set()
+    if staged.is_symlink():
+        raise ValueError("Unsafe staged guard tree")
+    for target in staged.rglob("*"):
+        if target.is_symlink():
+            raise ValueError("Unsafe staged guard tree")
+        if target.is_file():
+            actual_paths.add(target.relative_to(root).as_posix())
+        elif not target.is_dir():
+            raise ValueError("Nonregular staged guard tree")
+    if actual_paths != set(hashes):
+        raise ValueError("Staged guard file set differs from complete immutable base")
+    for path, digest in hashes.items():
         target = root / path
         if target.is_symlink() or hashlib.sha256(target.read_bytes()).hexdigest() != digest:
             raise ValueError("Staged trusted guard changed")

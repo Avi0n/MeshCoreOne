@@ -187,6 +187,12 @@ The inherited invocation-only hooksPath is accepted only if exactly equal to
 the generated nonempty guarding-hook directory. No empty-hook path is accepted.
 Actual execution/cleanup remains governed by the existing complete pre-push
 guard when admission is available.
+The hook independently reconstructs the complete normalized file set and hashes
+from immutable base Git blobs; mutable request.json is not a hash authority.
+Omitted/extra/traversal entries, forged recomputed manifests, extra staged files
+and symlinks fail before the checker runs. Both outer and hook-time bindings also
+read the actual configured origin's symbolic HEAD/main with `ls-remote`; a fresh
+remote main with a stale local origin/main cache is rejected, not silently used.
 
 The source successor published as `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`
 closes the advisory/manual launcher gap; it does not deploy either candidate
