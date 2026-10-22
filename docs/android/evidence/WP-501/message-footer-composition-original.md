@@ -88,6 +88,10 @@ Source-only results for the four-path implementation:
   partial-source join resolves one actual native assertion body and runner
   identity. 1480 candidate-compared families is not an accepted-family count.
 - `git diff --check`: PASS.
+- `python tools\android-port\controller\test_runner.py --tests android\parity-tests --quiet`:
+  PASS, 108 discovered/run/passed, zero failures/errors/skips. These are the
+  existing accounting/semantic-binding/acceptance controller fixtures, not
+  execution of the new Kotlin method or evidence of seven native passes.
 - Direct read-only frozen/native tuple comparison: exactly seven equal rows,
   preserving original order, flags, route, nullable scope/path and expectation.
   This is source inspection, not Kotlin execution or seven discovered tests.
@@ -117,3 +121,11 @@ Actual three-dot PR-diff inspection against the stated current main identifies
 19 inherited App/runtime/queue consumer paths, including `AppContainer.kt`,
 `ConnectionManager.kt` and `ChatSendQueueService.kt`, outside this new four-path
 commit. The working tree is clean after implementation commit 404f37773.
+
+Read-only publication follow-up confirms actual remote main remains exactly
+5d970c8e95a184a1e299220a189f5e0f622cef42. The active App producer is existing
+PR281 at published `014b7f45186942482a428d0075b1f4e663c1ce99`, not PR282.
+No remote branch, stack metadata or closed Map PR is changed. There is no
+newly merged main to remove the inherited producer overlap, and no hosted
+verdict is borrowed from that producer for this footer method. The local
+checker/runtime guard is not repaired or bypassed.
