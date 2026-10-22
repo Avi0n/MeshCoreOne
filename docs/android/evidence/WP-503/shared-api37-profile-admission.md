@@ -3717,3 +3717,62 @@ unknown original counter/cause,325/728/PURE and protected66bd uncertainty remain
 unchanged. No fresh native action, timeout increase, warmup or retry is authorized.
 Cold activation, compatible state/context, physical TalkBack, theme/golden,
 old-state and exact candidate/review acceptance remain unresolved.
+
+### Selective landed215 parser adoption after historical6be closeout
+
+Actual main e5182b71a91dd440d50f3d233d656970ca16c4ef has exact parents
+1ec4c1dc36b9f65cb969f95295f414878d274423 and
+215bcc4e1710c228e301b70c1c616177b7c4c4f3, normally merged PR286.
+Its own39835709934 controller-only SUCCESS is producer-scope evidence, not a
+new WP503 or Gradle/native verdict. Parent clears the unlanded-parser hold but
+requires one coherent local source successor for review before any push.
+The published PR205 head remains7c4ffaa5; local6be evidence is not pushed alone.
+
+Trusted actual-main `merge-integration` admits the exact three incoming paths
+under `transfer-current-producer`, `reconcile-current-base` and
+`merge-disjoint-semantic-edits`; owned chronology uses existing wp-owned rules.
+Supported same-owner scope evolution is idempotentr35-to35. Transfer receipts
+retain WP003's actual canonical/execution identities and WP503's replacement
+attribution; all non-scope identity/binding/authorization/history fields remain
+unchanged. Before application each local preimage equals215's actual parent,
+and each incoming blob equals both215 and landed e518. No semantic collision,
+invented adoption operation, raw ledger edit or new authorization prose is used.
+
+`git cherry-pick -x --no-commit 215bcc4e1710c228e301b70c1c616177b7c4c4f3`
+selectively stages the producer patch without integrating unrelated1ec Android
+product changes or claiming full-main ancestry. One combined successor retains
+the originating215 commit/session and only necessary WP503 chronology.
+
+| Incoming producer path | Exact215/landed-main blob |
+|---|---|
+| `tools/android-port/controller/ci_evidence.py` | `019a60ca909ae17b216da11166870f08ad036cad` |
+| `tools/android-port/tests/test_ci_evidence.py` | `ee3a73d564bd07c0ccf7238bb202177ae2a5416d` |
+| `docs/android/deviations/WP-003.md` | `8ed83e323d51d4102af2d8a88ae775dbe4acf49d` |
+
+The producer's pinned lint32.4.1 informational serialization uses exact `Hint`.
+The inherited parser now accepts it alongside Warning/Information, preserving
+Error/Fatal, unknown/missing severity, missing/empty id/message and malformed
+report rejection. Failure diagnostics identify path/issue ordinal/value without
+dumping message content; the successful warnings/hash shape is unchanged.
+The exact offending XML for PR279 is unavailable: this source-schema correction
+does not establish that hosted failure's cause or convert it into acceptance.
+
+With PYTHONPATH set to this checkout's `tools\android-port` and
+`tools\android-port\tests`, the producer's actual declared
+`python -B -m unittest test_ci_evidence test_ci -q` runs
+**29/29PASS,0F/E/S,0.908s** on the adopted source. These are pure parser/report
+and CI-consumer models, not a Gradle build or native execution.
+The four existing verification-config/controller/workflow/portmap validators
+and whitespace checks apply separately to the coherent successor.
+
+The entire Android tree remains7fd127ec18719bdebab43b31134ae17b5564a7eb,
+byte-identical compiled7c, including every original fixture, App/build, binding
+and harness. Historical6be's unchanged Android/tools proof remains true for6be;
+the latest source successor explicitly changes the two incoming controller
+paths instead. Actual7c cold1FAIL4.086s/1FAIL4.632s, flags/restoration/zeroActivity,
+raw/operations/logcat and both independent cleanup records remain unchanged.
+Older ee1104/b899/325/PURE/728 and protected66bd also retain their own bindings.
+No source result, case pass, cause, hardware or whole-WP acceptance is inferred.
+No Gradle/native/runtime-install/old-state action, push, dispatch/rerun or body
+mutation occurs; live bodyCAS82962ee9ea24/254lines/247protected remains intact
+pending the next head decision and local parent review.
