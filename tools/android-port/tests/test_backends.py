@@ -401,7 +401,8 @@ class AuthorityTests(unittest.TestCase):
 
     def test_terminal_merge_accepts_advanced_landing_base_only_with_both_ancestries(self):
         landing = "4" * 40
-        for invalid in (None, "diverged", "base", "merge-base", "behind", "missing-head", "wrong-parent"):
+        for invalid in (None, "diverged", "base", "merge-base", "behind", "missing-head",
+                        "wrong-parent", "landing-diverged", "malformed-base", "malformed-merge-base"):
             with self.subTest(invalid=invalid):
                 authority, api, prefix, value = self.fixture()
                 receipt = {
@@ -427,6 +428,12 @@ class AuthorityTests(unittest.TestCase):
                     comparison.clear()
                 elif invalid == "wrong-parent":
                     api.routes[("GET", prefix + "/git/commits/" + MERGE)]["parents"][1]["sha"] = landing
+                elif invalid == "landing-diverged":
+                    api.routes[("GET", prefix + f"/compare/{BASE}...{landing}")]["status"] = "diverged"
+                elif invalid == "malformed-base":
+                    comparison["base_commit"] = None
+                elif invalid == "malformed-merge-base":
+                    comparison["merge_base_commit"] = []
                 if invalid is not None:
                     with self.assertRaises(PortError):
                         authority.merged_terminal("WP-000", "session-1", receipt, BASE)
