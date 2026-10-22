@@ -27,6 +27,18 @@ class WorkflowTests(unittest.TestCase):
     def test_actual_workflows_parse_and_have_the_real_trust_boundaries(self):
         self.assertEqual(validate_workflows(REPO)["result"], "valid")
 
+    def test_selected_android_job_allows_finite_batch_and_report_margin_without_weakening_gate(self):
+        workflow, text = self.read("android-ci.yml")
+        build = workflow["jobs"]["build"]
+        self.assertEqual(build["timeout-minutes"], "75")
+        self.assertEqual(build["needs"], ["scope", "controller"])
+        selected = [step for step in build["steps"] if "ci.py run --stage scaffold" in step.get("run", "")]
+        self.assertEqual(len(selected), 1)
+        self.assertNotIn("continue-on-error", selected[0])
+        self.assertIn("exit $LASTEXITCODE", selected[0]["run"])
+        self.assertEqual(workflow["jobs"]["android-ci"]["if"], "${{ always() }}")
+        validate_candidate(workflow, text)
+
     def test_consolidated_controller_installs_hash_pinned_yaml_runtime_before_tests(self):
         workflow, text = self.read("android-ci.yml")
         steps = workflow["jobs"]["controller"]["steps"]

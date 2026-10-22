@@ -69,5 +69,28 @@ hosted checks; local source checks are not a substitute.
 Exact committed check outcomes and hosted job identities belong in the PR,
 not in a second copied CI-result bundle.
 
+## Current-base CI-budget integration
+
+A normal merge integrates actual main `4013368b7f47fdd51e291059bf690ced0dc4c434`
+into the existing PR272 history after `3e77315521e4ae73b815fcd18dcb7422591c0bad`.
+The same owner's reservation evolves114->115 for the nine disjoint upstream
+paths; their bytes and producer attribution remain unchanged. The map test
+and all its original assertions remain byte-identical.
+
+This includes the reviewed WP-003 budget change from merged PR275:
+scaffold/protocol Gradle commands receive3600seconds rather than the previous
+1800seconds, and the enclosing Linux job receives75minutes rather than55.
+Other stage limits, commands, task selection, positive-discovery requirements
+and assertions are unchanged. No additional budget or coverage change is made here.
+
+Historical exact61f92 run39715207253 succeeded and officially discovered the
+map method. Exactb6f953 run39787518031 and exact3e773 run39794586046 failed
+at the old1800second command limit. Available progress did not identify an
+active blocking task or establish an assertion/resource cause. The inherited
+budget change makes this a changed candidate, not an unchanged rerun or proof
+that the timeout is repaired. No historical verdict transfers to the successor.
+Its own automatic exact-head CI remains required; local preflight still lacks
+explicit CI state, and no local Gradle, native or device lane is used.
+
 Issue #261 remains separately blocked; no correlation, runtime, queue,
 Rooms502, completed persistence135 or scope/prefetch165 work is replayed.
