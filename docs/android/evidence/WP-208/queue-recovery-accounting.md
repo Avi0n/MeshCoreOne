@@ -126,29 +126,71 @@ guards, add scheduler sleeps, or claim its real-session service tests prove
 that combined boundary. Coordinator source review identified this prerequisite;
 it is not hidden by a lower-level test pass or a guessed App adaptation.
 
-### Existing diagnostics suffice for the native-adapted App witness
+### Passive persistence receipts for the native-adapted App witness
 
-WP-303 initially requested an additional causal accounting event. The optional
-ChannelQueryAccountingEvent/onQueryAccounting API was published in
-`7c10498286507958dfc80796a0ffd5a4c770b746` before its subsequent correction:
-the actual existing `channelQuery.<messageID>`, `park.<messageID>` and
-`terminal.<messageID>` typed diagnostics already carry the runtime token/cause.
-The consumer can correlate seeded durable pending-row identities, count A's
-genuine typed query failures against cap two across distinct tokens, and await
-actual runtime generation retirement after accounting before B's literal
-three-second persistence observation. Actual Room/status assertions remain
-necessary; a diagnostic alone does not prove successful deletion or remapping.
+The API published in `7c10498286507958dfc80796a0ffd5a4c770b746` is retained:
+`com.meshcoreone.android.core.services.messaging.ChannelQueryAccountingEvent`
+and the optional final queue constructor parameter
+`onQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null`.
+The immutable event carries actual `token: SessionToken` (including radio),
+`messageID: UUID`, `pendingID: UUID`, `failureCount: Long`,
+`failureCap: Long`, `outcome: ChannelQueryAccountingOutcome`, and
+`queryFailure: Throwable`. The outcomes are `PARKED` and `TERMINAL_DELETED`.
+Counts come from the actual retained progress increment, the cap from this
+queue's config and the cause from the actual thrown query, not a send failure
+or recovery diagnostic. The observer is synchronous, passive, non-blocking and
+non-throwing; it must not perform lifecycle work.
 
-The consumer explicitly requested no new producer API for this candidate.
-That unused optional event API and its event-only assertions/cases are removed;
-the original nine accounting and sixteen progress regressions remain unchanged
-from hosted-verified `3fdc609a70e37161a1914c999ebc9d1bd82c5f79`.
-No contracts, reporter, barrier, counter, cancellation, retry or recovery
-semantics change. No App callback wiring is required. The prior event proposal
-is historical audit context, not the current contract.
+The consumer's intervening no-new-API decision produced local removal commit
+`0aa9ed05eee49e3687504f2d724d128fdc6a3051`; that commit was never pushed.
+The coordinator's subsequent independent WP-501 review superseded that decision:
+existing Failure diagnostics plus retirement cannot prove successful accounting.
+Park/terminal diagnostics occur before completion, remapping can fail, and
+runtime retirement can follow a cancelled/failed accounting wait.
+The API is therefore retained in this coherent successor, not replaced with a
+new runtime success callback or an accounting-barrier restructure.
+
+Exact emission order, unchanged from published7c:
+
+- `PARKED`: actual query throw and counter increment, typed query diagnostic,
+  successful PENDING status write and persistence-completion ownership check,
+  recorded park diagnostic, receipt callback, then `finishQueryAccounting`.
+- `TERMINAL_DELETED`: actual query throw at the configured cap, terminal
+  diagnostic, successful FAILED status write, current-token check, failure
+  notification, pending-row deletion, current-token check and queue/progress
+  cleanup, receipt callback, then `terminalChannel`'s finally completes accounting.
+
+Each registered flight can report once. Failed remap/deletion, cancelled/retired
+flights and real null/configured successful queries emit no success receipt.
+This successor additionally respects the existing status-write Boolean: a
+no-op caused by a missing/delivered message must not certify a committed
+PENDING/FAILED transition. The original persistence operations, cancellation,
+failure retention, send/query counts, thresholds and recovery wait are unchanged.
+The returned Boolean is used only to qualify the receipt.
+
+These are **post-persistence receipts, not notifications of an already-completed
+barrier**. Emission remains before waking recovery to avoid racing token
+withdrawal on Default. A manual cancellation can still follow a receipt.
+The actual App witness must capture the live token at callback arrival, observe
+A1/PARKED then A2/TERMINAL_DELETED and B1/PARKED with their seeded durable
+identities, assert actual Room states, and await finished retirement. It must
+explicitly reject both `session.channelQueryAccounting.cancelled` and
+`session.channelQueryAccounting` failure fallbacks, remap/terminalPersistence
+failures and teardown issues. Receipt arrival alone is not full acceptance.
+No new test-driven await, gate, synthetic failure/outcome or retry override is
+introduced. App wiring remains WP-303's owned work.
+
+The original nine accounting plus sixteen retention cases are preserved.
+Eight additional accounting cases (seventeen total) and strengthened assertions
+exercise passive success without a recovery waiter, exact persistence/identity/
+typed-cause observation before recovery, failed remap followed by later shutdown
+remapping, failed terminal status/deletion, cancellation during non-cancellable remap
+and terminal deletion, delivered-row no-op writes at caps one/two, real null/
+configured success, stale replies and observer-only cancellation. These are
+authored cases, not locally executed evidence; RecordingStore is not Room.
 
 Trusted main `a5dd0fc6c521d09d59d28ca75169e4bdbd56a6cd` was adopted locally
-as directed and is included with this coherent removal, not published alone to
+as directed and is included with this coherent API-retaining successor, not published alone to
 restart CI. It includes the reviewed host-test partition/suffix discovery and
 lint Hint parsing. Its intervening reviewed App action/map changes are normal
 main integration, not authored WP-208 edits. Source pin/manifest are unchanged.
@@ -156,6 +198,23 @@ This integrated candidate requires its own exact-head hosted result; prior
 3fdc green or the superseded event-candidate job does not verify its full bytes.
 Targeted local Gradle remains blocked by the confirmed legacy-runtime/protected
 upgrade interlock. No repeated failed readiness or native action is performed.
+The coordinator additionally holds all new pushes pending review and a supported
+processor-neutral publication route from WP-003. The installed legacy hook lacks
+`execution_runtime`/`run_owned` and its runner's shared admission requirement,
+so after the host-test repair it can reach scaffold Gradle without the current
+guard. No push, hook bypass/rewrite, installer or lock mutation is attempted.
+Native stack282 remains ordered [278,281]; neither member is merged individually.
+
+Successor source checks: `python tools\android-port\controller\validate.py --repo .`
+passed (64 WPs, 178 edges, unchanged manifest SHA above);
+`python tools\android-port\portmap.py --repo .` passed, exit zero;
+`git diff --check` passed. An initial command used the nonexistent
+`tools\android-port\controller\portmap.py` path and did not run validation; the
+correct existing command above then passed. Git comparisons confirm unchanged
+progress production/test and SendQueue bytes versus3fd, and all nine original
+accounting case names remain. These are source/traceability checks, not execution
+of the thirty-three authored Kotlin cases. Local Kotlin discovery/execution
+remains zero for this unpublished successor.
 
 ## Authorship and coverage
 
