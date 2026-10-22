@@ -37,6 +37,8 @@ class ChatSendQueueService(
     private val queued = mutableSetOf<UUID>()
     private val failures = linkedMapOf<String, Throwable>()
     private val channelProgress = progress.attach(token)
+    private data class QueryAccounting(val messageID: UUID, val attempt: Attempt, val completion: CompletableDeferred<Unit>)
+    private var queryAccounting: QueryAccounting? = null
     private val completedDMs = mutableSetOf<UUID>()
     private val completedChannels = mutableMapOf<UUID, UInt>()
     private val indexedChannels = mutableSetOf<UUID>()
@@ -87,6 +89,7 @@ class ChatSendQueueService(
                         ownership.reporter.report(MessagingDiagnostic.StaleResult(token, "queueConnection"))
                         ownership.invalidate()
                         channelProgress.retire()
+                        cancelQueryAccounting()
                         triggers.finish()
                         dmQueue.cancelDrain()
                         channelQueue.cancelDrain()
@@ -201,6 +204,7 @@ class ChatSendQueueService(
     private suspend fun park(id: UUID, failure: Throwable): Nothing {
         record("park.$id", failure, retain = failure is PersistenceStoreException ||
             !isTransientDirectMessageError(failure) && !isTransientChannelMessageError(failure))
+        finishQueryAccounting(id)
         clock.messagingDeadline(config.transportWaitTimeout) { triggers.wait() }
         ownership.checkLifetime("park.woke")
         throw CancellationException("Parked send envelope")
@@ -263,6 +267,14 @@ class ChatSendQueueService(
     }
 
     private suspend fun sendChannel(envelope: ChannelMessageEnvelope) {
+        try { sendChannelAttempt(envelope) }
+        catch (cancelled: CancellationException) {
+            finishQueryAccounting(envelope.messageID, cancelled)
+            throw cancelled
+        }
+    }
+
+    private suspend fun sendChannelAttempt(envelope: ChannelMessageEnvelope) {
         val id = envelope.messageID
         awaitReady()
         val attempt = try {
@@ -302,11 +314,16 @@ class ChatSendQueueService(
         val id = envelope.messageID
         if (!isTransientChannelMessageError(failure)) throw failure
         if (isChannelMessageNotFound(failure) && attempt.postBumpCount >= config.disambiguateAfterAttempts) {
+            val accounting = synchronized(lock) {
+                if (!ownership.isCurrent) throw CancellationException("Retired channel-query generation")
+                check(queryAccounting == null) { "Channel queries must be serialized" }
+                QueryAccounting(id, attempt, CompletableDeferred()).also { queryAccounting = it }
+            }
             val found = try { channelQuery.fetchChannel(envelope.channelIndex) }
             catch (cancelled: CancellationException) { throw cancelled }
             catch (queryFailure: Exception) {
                 // The source query contract counts every thrown error; none becomes a nil channel.
-                val count = channelProgress.increment(id, attempt.pendingID)
+                val count = channelProgress.increment(id, accounting.attempt.pendingID)
                 record("channelQuery.$id", queryFailure, retain = queryFailure is PersistenceStoreException)
                 if (count >= config.maxConsecutiveFetchChannelFailures) throw queryFailure
                 try { remapPending(id) }
@@ -323,7 +340,41 @@ class ChatSendQueueService(
     }
 
     private suspend fun terminalDM(failure: Exception, envelope: DirectMessageEnvelope) = terminal(failure, envelope.messageID)
-    private suspend fun terminalChannel(failure: Exception, envelope: ChannelMessageEnvelope) = terminal(failure, envelope.messageID)
+    private suspend fun terminalChannel(failure: Exception, envelope: ChannelMessageEnvelope) {
+        var completed = false
+        try {
+            terminal(failure, envelope.messageID)
+            completed = true
+        } finally {
+            finishQueryAccounting(envelope.messageID,
+                if (completed) null else CancellationException("Channel-query terminal completion interrupted"))
+        }
+    }
+
+    /**
+     * Observe the current disambiguation query through accounting and park or terminal persistence.
+     * Recovery must await this before withdrawing this token or cancelling/retiring its services.
+     * Cancelling an observer does not cancel the query; manual teardown invalidates the observation.
+     */
+    suspend fun awaitChannelQueryAccounting() {
+        ownership.check("awaitChannelQueryAccounting")
+        val pending = synchronized(lock) { queryAccounting }
+        pending?.completion?.await()
+        ownership.check("awaitChannelQueryAccounting.completed")
+    }
+
+    private fun finishQueryAccounting(id: UUID, cancelled: CancellationException? = null) {
+        val pending = synchronized(lock) {
+            queryAccounting?.takeIf { it.messageID == id }?.also { queryAccounting = null }
+        } ?: return
+        if (cancelled == null) pending.completion.complete(Unit) else pending.completion.cancel(cancelled)
+    }
+
+    private fun cancelQueryAccounting() {
+        val pending = synchronized(lock) { queryAccounting.also { queryAccounting = null } } ?: return
+        pending.completion.cancel(CancellationException("Channel-query generation retired"))
+    }
+
     private suspend fun terminal(failure: Exception, id: UUID) {
         record("terminal.$id", failure, retain = false)
         var deleted = false
@@ -367,6 +418,7 @@ class ChatSendQueueService(
             }.let { it to true }
         }
         if (!claimed) return withContext(NonCancellable) { receipt.await() }
+        cancelQueryAccounting()
         return withContext(NonCancellable) {
             val accepted = synchronized(lock) { persistenceSubmissions.toList() }
             for (work in accepted) {

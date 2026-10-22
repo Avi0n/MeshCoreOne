@@ -8,6 +8,9 @@ Base: `0a7a84e388393557e4b66ac7fd322248e28611fd`.
 Necessary current-main integration:
 `f81d2f56d897b022b6f6c4cf38551448691eae02` (the already approved WP-003
 bounded CI budget update; no CI/tooling edits authored by this WP).
+Subsequent trusted-main integration:
+`4013368b7f47fdd51e291059bf690ced0dc4c434` (approved WP-003 historical
+reservation ancestry repair; source pin, manifest and product scope unchanged).
 Frozen source: `db14559b39d32322b06477c6ae676112f583db50`.
 Trusted manifest SHA-256:
 `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`.
@@ -48,7 +51,50 @@ sixteen, direct/flood retry policy and protocol correlation fences are unchanged
 WP-501's existing real App edge regression must run after actual producer and
 consumer adoption. No whole-bug completion claim is made here.
 
-### Combined runtime ordering remains unverified
+### Real-query accounting completion before recovery
+
+The queue now exposes the concrete public method
+`suspend fun awaitChannelQueryAccounting(): Unit`. It observes the actual
+currently in-flight disambiguation query of this queue generation. The flight
+is registered with its message UUID and preflight pending-row UUID before
+calling the real query. No active query means there is nothing to await; a
+retired/not-current queue is rejected, not reported as completed.
+
+An observer waits through the query's actual return/throw and either pending
+status remapping plus recorded park, or the terminal persistence/deletion
+attempt at exhaustion. It does not await the parked drain or erase retained
+storage failures. Failed deletion still retains the exhausted budget.
+Cancelling an observer leaves the query running. Manual shutdown, replacement
+and query cancellation invalidate the flight without adding failure credit.
+Deferred completion runs outside the queue lock.
+
+WP-207 must await this real producer completion, via WP-303's actual graph
+delegation, BEFORE withdrawing the token, publishing DISCONNECTED, cancelling
+the connection scope, retiring the lease or tearing down services. Its wait
+must run outside protocol/lifecycle locks, remain cancellable by manual stop,
+replacement and shutdown, and recheck generation/intent after suspension.
+Postponing physical close after token withdrawal is insufficient: terminal
+persistence checks require the current token. No default-success graph hook,
+arbitrary grace delay or non-cancellable whole query is an acceptable adapter.
+The process-owned progress injection and its no-close lifetime are unchanged.
+
+Seven additional ChannelQueryAccountingTest cases exercise the completion
+contract. The early-recovery case uses the actual ChannelService over the real
+MeshCoreSession and raw firmware ERROR2. Recovery starts during the real first
+timeout retry sleep, BEFORE the queue catch, and is held by the producer
+barrier, not by a test-only recovery gate. The original 1,999/2,000ms timeout
+window is retained. The actual 400..600ms source retry delay is observed and
+checked at its last millisecond; the retry then encounters the unchanged
+ConnectionLost/UnresolvedReply(channel:0) fence. Two replacement generations
+spend two genuine query outcomes, failing/deleting A while preserving B.
+A blocked real terminal-deletion operation proves the token stays current
+until cleanup completes. Other cases cover manual cancellation without credit,
+observer-only cancellation, failed terminal storage with retained exhaustion,
+a real unconfigured-channel result, non-cooperative late replacement and an
+actually empty in-flight set. These cases are authored pending exact-candidate
+execution; the authoritative PR check/log supplies results, not a second bundle.
+
+### Combined App/runtime ordering still requires actual consumer adoption
 
 The lower-level cases intentionally do not include ConnectionManager.
 SessionCore emits CorrelationUncertain in the query's finally block, before its
@@ -60,9 +106,9 @@ used to manufacture a failure count.
 
 WP-501/WP-207 must establish the actual combined ordering with the real App
 graph, fresh generations and the original A/B outcome after WP-303 injection.
-If the race is confirmed, the owner of the failure/recovery handoff must provide
-an exact outcome-ordering contract; retaining memory alone cannot supply a
-missing outcome. This producer does not relax cancellation or stale-result
+The completion method above supplies the messaging side of that handoff;
+retaining memory alone cannot supply a missing outcome. Runtime and App must
+actually call it with the stated pre-withdrawal ordering. This producer does not relax cancellation or stale-result
 guards, add scheduler sleeps, or claim its real-session service tests prove
 that combined boundary. Coordinator source review identified this prerequisite;
 it is not hidden by a lower-level test pass or a guessed App adaptation.
@@ -109,6 +155,8 @@ run locally: WP-503 holds the actual disposable/native and gradle-execution
 guards. No new emulator, native/hardware lane, tool installation, resource-lock
 bypass, signing, privileged CI dispatch or merge was attempted. Publication
 remains an explicitly unverified candidate until actual hosted execution.
+ChannelQueryAccountingTest uses the same declared services runner. The
+prior exact candidate's successful execution does not verify these new bytes.
 
 Actual initial publication:
 `git push --set-upstream origin cbattlegear-friendly-garbanzo` **succeeded** at
