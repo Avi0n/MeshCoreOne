@@ -2491,3 +2491,47 @@ The exact compact PR body draft preserves245 historical/template rows and
 changes only9 current rows; native CAS submission was transferred back
 to the coordinator because the available updater takes a full literal body,
 not a file path. No shell/REST edit or false submission claim was made.
+
+### Actual2764: merged owned transport timing diagnostics
+
+Actual normal PR268 merge2764cdae80e8ed1eeb6fb9b9900cc04ba78821c9
+has independently read parentsD708 and reviewed96642cf3c90effe4f2c90ef4202ca9d5d7764075.
+Its disposable input is9e3aec3a58ca9f2246d09b0744346d020a6d1a9f;
+the Windows, ledger and debug-packaging inputs remain unchanged.
+Supported same-owner typed integration6d7f5cd9335d4f9c4f5233448c8a23369211e120
+retained canonical reservation31/31 and immutable identity/authorization context.
+All1020 tracked owned consumer/evidence files were byte-identical across
+the three-path producer merge, including LOCAL81e08's actual114616 failure.
+The consumer advances only the two reviewed producer/disposable literals;
+original Nodes7/fixture144, cached selected1/ten and current514 bindings,
+native source/tests/AppGradle, deadlines, CPU/configuration and assertions
+remain unchanged.
+
+The new source retains unique startup/selected-command timing JSONL with
+host UTC/nanoseconds and monotonic observations, actual startup deadline
+where available, configured timeout and pre-call budget references explicitly
+not backend deadlines, private endpoint/selected serial and observed PID/null.
+The reviewed correction also preserves actual returned nonzero failures
+alongside independent post-wait timing/raw-output retention failures.
+Raw kernel lines still lack per-line host timestamps: a transport repair or
+precise guest/kernel clock alignment is not inferred from this source change.
+Coordinator source5608380341/execution5608397363 are COMMENTED, not acceptance;
+producer own39708280030 selected SUCCESS and official634/112.330s/OK are
+producer software evidence only, not a consumer/native result or copied bundle.
+
+The exact65367-byte current114616 PR body was subsequently submitted by the
+coordinator through native CAS55f8d2bea469 to f53d9bc25318. Independent live
+readback matched the unchanged prepared artifact exactly, preserving245
+historical/template rows and open/ready114616 identity. This does not publish
+LOCAL81e08 or prove the next candidate, whose own CI/native states start
+unverified. Publication and the new original Nodes7 attempt require fresh
+actual main/source/policy/pause/identity/capacity/resource guards and a
+genuinely new source-bound App/Test pair, with independent disposal.
+
+Actual integrated declared consumer suite passed235/235 in15.673s with
+positive discovery, including the retained packaging-failure/unknown-exit/
+independent-disposal regression. verification_config.py --check, validate.py,
+workflows.py, portmap.py and git diff --check passed. Advisory local Gradle
+fast verification remains NOT RUN/UNVERIFIED; automatic hosted verification
+must bind to the actual published successor, independently of114616 and
+the producer's selected result.

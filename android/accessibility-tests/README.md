@@ -133,7 +133,7 @@ Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
 
 `disposable_runner.py` is a separate consumer of the reviewed WP-003 private-guest
-interface, updated at `06bf598d7a2eabbd8eebcfd31f0e3df3eaff36d2`.
+interface, updated at `96642cf3c90effe4f2c90ef4202ca9d5d7764075`.
 It does not remove the shared-device fence or adopt an existing guest. Before
 import/allocation it requires the reviewed producer bytes in actual trusted main
 and the actual checkout, and trusted capability/pause policy. The real factory
@@ -162,6 +162,15 @@ pass, weaken ownership or change the original boot/instrumentation deadlines.
 The consumer preserves packaging failures with unknown instrumentation exit
 and independent disposal. Neither the model regression nor producer merge
 diagnoses the prior failure or proves a native startup.
+Normal merge `2764cdae80e8ed1eeb6fb9b9900cc04ba78821c9` additionally
+contains reviewed966's unique retained startup/selected-command timing JSONL:
+host UTC/nanoseconds and monotonic observations, configured timeout, startup
+deadline where available, private endpoint/selected serial, and actual observed
+PID or explicit null. Pre-call budget references are not backend deadlines;
+raw kernel lines are not individually host-timestamped. Returned nonzero
+commands and independent observation/retention failures remain visible together.
+These diagnostics establish no transport fix or host/kernel clock alignment,
+and change no original CPU/configuration, strict boot or120/180-second budgets.
 Actual source/runtime/claim/resource guards still run; merge is not guest readiness.
 The consumer accepts the installed base-image spelling `37.0` as API37
 (likewise integer base API plus `.0`), but rejects nonzero/ambiguous minor versions.
