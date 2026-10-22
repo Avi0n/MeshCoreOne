@@ -103,6 +103,33 @@
         "validation": ["affected compile and tests", "manifest and navigation checks"]
       },
       {
+        "id": "wp303-room-cleanup-companion",
+        "work_packages": ["WP-303"],
+        "path_rules": [
+          "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+          "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt"
+        ],
+        "operations": ["modify"],
+        "invariants": [
+          "WP-202-primary-provenance-and-original-cases-unchanged",
+          "WP-303-AppContainer-cleanup-only-through-core-data-owned-Room-companion",
+          "no-App-main-Room-dependency-or-build-graph-widening",
+          "real-Room-close-and-process-store-lifetime-no-fake-success",
+          "preserve-original-errors-cancellation-persistence-and-connection-lifetimes",
+          "no-unrelated-core-data-schema-migration-query-or-product-scope",
+          "semantic-collisions-serialize-or-transfer-current-producer",
+          "immutable-stored-session-branch-worktree-authorization-no-impersonation",
+          "trusted-main-admission-before-consumption",
+          "retained-native-history-unchanged-no-runtime-install-or-lock-release"
+        ],
+        "validation": [
+          "real Room cleanup companion regression in RoomSourceTest plus affected AppContainer cleanup assertions",
+          "affected declared module verification and original-case accounting; source tests do not claim Room execution",
+          "exact two-path WP-303 modify admission and wrong-WP-path-operation rejection",
+          "exact-head-current-base protected review and genuine owner identity reconciliation"
+        ]
+      },
+      {
         "id": "traceability-validation",
         "path_rules": ["tools/android-port/**", "docs/android/evidence/**", "docs/android/deviations/**", "docs/android/**/*manifest*.json", "docs/android/**/*test-cases*.json", "docs/android/**/*mapping*.json"],
         "operations": ["add-or-update-mapping", "add-or-update-validator-rule", "add-regression-fixture-or-test", "record-validation-evidence", "refresh-derived-digest"],
