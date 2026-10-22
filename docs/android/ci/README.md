@@ -178,13 +178,35 @@ The publisher stages the complete guard from immutable Git blobs into a private
 temporary directory and runs it as the actual nonempty pre-push hook for one
 normal nonforce feature update. It binds the source/candidate/tree/branch/remote
 and canonical Git-common location again at hook time, checks staged hashes and
-actual hook input, and refuses alternate-ledger or Git configuration/location
+actual hook input, and refuses alternate-ledger or unrecognized Git configuration/location
 overrides. It does not install a runtime, change configured hooks, use no-verify
 or run the candidate's controller code. When current execution admission refuses
 an old/mismatched installed runtime, the full trusted guard records exact
 UNVERIFIED before transport or Gradle; publication is not merge acceptance.
 The inherited invocation-only hooksPath is accepted only if exactly equal to
 the generated nonempty guarding-hook directory. No empty-hook path is accepted.
+Linked-worktree hooks may inherit Git's canonical `GIT_DIR`, `GIT_COMMON_DIR`,
+`GIT_WORK_TREE` and empty `GIT_PREFIX`. Independent local probes with caller Git
+overrides excluded discover the actual requested worktree root, private git-dir,
+common-dir and Git installation exec-path; inherited locations must match those
+probes, not mutable request values. These probes do not run transport or the guard.
+The original and hook-time bindings must match, including the exact repository,
+locations and nonsecret configuration/context digest. Git's automatic exec-path
+export is normalized against its independently discovered installation. Caller
+context is preserved for the actual guard, never silently stripped.
+
+The only admitted counted overrides are exact `safe.bareRepository=explicit`,
+`credential.interactive=never` and `core.fsmonitor=false`, without duplicates or
+orphan indexed entries. Scoped credential helper injection is still refused:
+the observed first-party CLI profile resets the GitHub helper then names
+`copilot` on PATH. A valid GitHub Authenticode signature was observed on this
+host's resolved helper, but neither a signed publisher nor a PATH name binds
+the exact intended executable to trusted repository policy. No helper contents,
+arguments or secrets were exposed. Admission needs a supported trusted executable
+identity anchor; this change does not invent one or permit arbitrary helper
+executables/candidate paths. An already-authenticated host without injected
+helper configuration avoids that blocker; do not strip a caller's auth context
+or retry a publication without separate exact-candidate authorization.
 Actual execution/cleanup remains governed by the existing complete pre-push
 guard when admission is available.
 The hook independently reconstructs the complete normalized file set and hashes

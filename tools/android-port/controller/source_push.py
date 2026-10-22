@@ -24,15 +24,83 @@ def blob(repo, revision, path):
     return subprocess.check_output(["git", "-C", str(repo), "show", name], timeout=30)
 
 
-def binding(repo, base, head, remote, url):
+SAFETY_CONFIG = {
+    "safe.bareRepository": "explicit",
+    "credential.interactive": "never",
+    "core.fsmonitor": "false",
+}
+LOCATIONS = {"GIT_DIR", "GIT_COMMON_DIR", "GIT_WORK_TREE", "GIT_PREFIX"}
+HOST_CONTEXT = {"GIT_ASKPASS", "GIT_EXEC_PATH", "GIT_OPTIONAL_LOCKS", "GIT_TERMINAL_PROMPT"}
+
+
+def configuration(hook_root=None):
+    count = os.environ.get("GIT_CONFIG_COUNT", "0")
+    if not count.isdecimal() or int(count) > len(SAFETY_CONFIG):
+        raise ValueError("Publication refuses malformed Git configuration overrides")
+    allowed = {"GIT_CONFIG_COUNT", "GIT_CONFIG_PARAMETERS"}
+    values = {}
+    for index in range(int(count)):
+        key_name, value_name = f"GIT_CONFIG_KEY_{index}", f"GIT_CONFIG_VALUE_{index}"
+        allowed.update((key_name, value_name))
+        key, value = os.environ.get(key_name), os.environ.get(value_name)
+        if key not in SAFETY_CONFIG or value != SAFETY_CONFIG[key] or key in values:
+            raise ValueError("Publication refuses unknown or unsafe Git configuration overrides")
+        values[key] = value
+    if any(key.startswith("GIT_CONFIG") and key not in allowed for key in os.environ):
+        raise ValueError("Publication refuses undeclared Git configuration overrides")
+    parameters = os.environ.get("GIT_CONFIG_PARAMETERS")
+    if parameters is not None:
+        tokens = shlex.split(parameters)
+        if hook_root is None or tokens != ["core.hooksPath=" + str(hook_root / "hooks")]:
+            if any(token.startswith("credential.") for token in tokens):
+                raise ValueError("Scoped credential helper lacks a trusted executable identity; use an authenticated host without injected helper configuration")
+            raise ValueError("Hook inherited unexpected Git configuration")
+    context = {key: os.environ[key] for key in HOST_CONTEXT - {"GIT_EXEC_PATH"} if key in os.environ}
+    return hashlib.sha256(json.dumps([values, context], sort_keys=True).encode()).hexdigest()
+
+
+def repository_context(repo):
+    # These local probes must not discover identity through caller-directed Git locations.
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("GIT_") and key != "ANDROID_PORT_LEDGER"}
+    def probe(*args):
+        return subprocess.check_output(["git", "-C", str(repo), *args],
+                                       env=env, encoding="utf-8", timeout=30).strip()
+    root = Path(probe("rev-parse", "--show-toplevel")).resolve()
+    if root != repo.resolve():
+        raise ValueError("Publication repository is not the exact worktree root")
+    return {
+        "repo": str(root),
+        "git_dir": str(Path(probe("rev-parse", "--absolute-git-dir")).resolve()),
+        "common": str(Path(probe("rev-parse", "--path-format=absolute", "--git-common-dir")).resolve()),
+        "git_exec_path": str(Path(probe("--exec-path")).resolve()),
+    }
+
+
+def binding(repo, base, head, remote, url, *, hook_root=None):
     if any(re.fullmatch(r"[0-9a-f]{40}", value) is None for value in (base, head)):
         raise ValueError("Publication requires immutable trusted base and candidate")
     if re.fullmatch(r"[A-Za-z0-9_.-]+", remote) is None or remote.startswith("-"):
         raise ValueError("Publication requires a configured remote name")
-    if any(key.startswith("GIT_CONFIG") or key in {
-        "GIT_DIR", "GIT_COMMON_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "ANDROID_PORT_LEDGER",
-    } for key in os.environ):
+    config = configuration(hook_root)
+    allowed = LOCATIONS | HOST_CONTEXT
+    if "ANDROID_PORT_LEDGER" in os.environ or any(
+        key.startswith("GIT_") and not key.startswith("GIT_CONFIG") and key not in allowed
+        for key in os.environ
+    ) or (hook_root is None and any(key in os.environ for key in LOCATIONS)):
         raise ValueError("Publication refuses Git configuration/location or alternate-ledger overrides")
+    context = repository_context(repo)
+    for key, target in (("GIT_DIR", "git_dir"), ("GIT_COMMON_DIR", "common"), ("GIT_WORK_TREE", "repo")):
+        if key in os.environ and (
+            not os.environ[key] or Path(os.environ[key]).resolve() != Path(context[target])
+        ):
+            raise ValueError("Hook Git location differs from independently discovered repository")
+    if os.environ.get("GIT_PREFIX", ""):
+        raise ValueError("Hook must execute at the exact worktree root")
+    if "GIT_EXEC_PATH" in os.environ and (
+        not os.environ["GIT_EXEC_PATH"] or Path(os.environ["GIT_EXEC_PATH"]).resolve() != Path(context["git_exec_path"])
+    ):
+        raise ValueError("Git executable search location differs from independent installation")
     default = git(repo, "symbolic-ref", "refs/remotes/origin/HEAD")
     if default != "refs/remotes/origin/main" or git(repo, "rev-parse", default) != base:
         raise ValueError("Trusted default-base changed")
@@ -54,7 +122,7 @@ def binding(repo, base, head, remote, url):
     return {
         "base": base, "head": head, "tree": git(repo, "rev-parse", head + "^{tree}"),
         "branch": branch, "remote": remote, "url": url,
-        "common": git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"),
+        **context, "configuration": config,
     }
 
 
@@ -85,19 +153,17 @@ def stage(repo, base, root):
 
 
 def hook(repo, root, request):
-    inherited = os.environ.get("GIT_CONFIG_PARAMETERS")
-    if inherited is not None:
-        if shlex.split(inherited) != ["core.hooksPath=" + str(root / "hooks")]:
-            raise ValueError("Hook inherited unexpected Git configuration")
-        del os.environ["GIT_CONFIG_PARAMETERS"]
+    configuration(root)
     expected = json.loads(request.read_text(encoding="utf-8"))
     if not isinstance(expected, dict) or set(expected) != {
-        "base", "head", "tree", "branch", "remote", "url", "common", "files",
+        "base", "head", "tree", "branch", "remote", "url", "common", "repo",
+        "git_dir", "git_exec_path", "configuration", "files",
     }:
         raise ValueError("Malformed publication request")
-    actual = binding(repo, expected["base"], expected["head"], expected["remote"], expected["url"])
-    if any(actual[key] != expected[key] for key in actual):
-        raise ValueError("Publication binding changed before hook")
+    actual = binding(repo, expected["base"], expected["head"], expected["remote"], expected["url"], hook_root=root)
+    changed = sorted(key for key in actual if actual[key] != expected[key])
+    if changed:
+        raise ValueError("Publication binding changed before hook: " + ", ".join(changed))
     immutable = trusted_files(repo, actual["base"])
     hashes = {path: hashlib.sha256(data).hexdigest() for path, data in immutable.items()}
     if expected["files"] != hashes:
