@@ -361,7 +361,8 @@ class SessionLifecycleTest : RoomProcessTest() {
             val parkedB = assertNotNull(store.fetchPendingSends(radioId).firstOrNull { it.messageID == messageBId })
             assertEquals(pendingBId, parkedB.id)
             assertTrue(h.container.foreground.isForeground)
-            assertEquals(listOf(true), h.foregroundCalls, "Only the initial ordinary foreground state may stimulate lifecycle")
+            assertEquals(listOf(true), h.foregroundCalls,
+                "Only the initial foreground hook is invoked; its scheduled automatic reconciliation remains enabled")
             awaitGenerationRetired(bQuery.token, "B's first query must finish park accounting before physical retirement")
 
             withContext(Dispatchers.Default) { delay(3.seconds) }
