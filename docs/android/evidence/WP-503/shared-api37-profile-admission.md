@@ -3055,3 +3055,64 @@ source; it is not this successor's CI/native verdict. Local full fastGradle is
 explicitly NOT RUN/UNVERIFIED. Ordinary publication targets only existing
 PR205's historical head ref, with no force, rerun, dispatch or new PR.
 No native hold/admission/attempt is created by this source integration.
+
+### Actual876 source-repaired attempt: raw Windows CRLF classification boundary
+
+After exact876 source review5615748738 and main283 serialization, ONE new
+supported attempt was admitted at2026-10-22T14:26:39.834380Z. Fresh guards bound
+public876/main283, actual d938/b3d producer and unchanged other3API objects,
+actorcbattlegear/pausefalse/runningr31/original7/tools/image. Actual commit
+8600.94MiB/physical16258.76MiB exceeded the unchanged4096 minimum. Admission
+wp503-876-283-scoped-boot-admission.json is a distinct actual observation,
+not reuse of the preceding2249 admission.
+
+The genuine factory allocated canonical owner
+1666502a-0420-46ef-930f-e78651ba8b9f:nodes:069491aaf1734a9ca278a987061f11a1
+and root private-avd-73gsr96j. Held disposable/Gradle receipts were independently
+read during responsive packaging. This attempt's genuine876-bound App/Test
+build succeeded in1m50s,446 tasks/5 executed/441 up-to-date. The verified App/
+Test SHA256/public certificate equal the preceding pair, without borrowing its
+source identity or native result. Requested CPU4/image/memory/GPU/original
+assertions and120/180 deadlines were unchanged.
+
+Startup began14:28:51Z and returned14:28:54Z. Selected wait-for-device50380
+returned0 at14:30:10Z after76.141 monotonic seconds. FIRST sys.boot_completed
+query19944 then exited1; no property value was obtained. The actual raw
+adb-8c45b33ee6d2478ab255d1b63e797b2a.log bytes are
+b'adb.exe: device offline\r\n'. CLI2 retained primary CalledProcessError,
+not BootReadinessOffline: no boot observation/reattachment/profile capture/
+profile mutation/install/instrumentation/cohort occurred. Original Nodes0/7
+started; host instrumentation exitnull remains distinct from CLI2.
+
+The exact source boundary is producer disposable.py694 raising the actual
+returned_failure, then the narrow typed-offline predicate requiring Windows
+diagnostic b'adb.exe: device offline\n'. Raw CRLF differs, so the producer
+retains ordinary uncertain failure and the consumer correctly does not catch/
+reattach an arbitrary CalledProcessError. This is an evidenced classification
+defect in the producer-owned boundary, not an emulator/offline cause. There
+is no BaseExceptionGroup or secondary timing/retention error in the traceback.
+The failure status observes rootsserver11280/emulator47280 not-exited and
+selected19944 exited1, Job7/errors[]; before-cleanup roots remain not-exited,
+selected unavailable as designed, Job7/errors[]. These root observations do
+not prove whole-guest state or transport cause.
+
+Correction to earlier normalized-text quotations: read_bytes on original2249
+adb-e1892d29bec44e4ab9b07f1348ec8192.log ALSO yields
+b'adb.exe: device offline\r\n', and original successful property log
+adb-3428c516121744868bea8a17fe2d5666.log yields b'1\r\n'.
+The earlier read_text values quoted LF after universal-newline conversion;
+they are text observations, not raw LF-only evidence. Both original files
+remain intact. No broad strip/matching relaxation, phase rewrite or raw ADB
+bypass was made. The concrete predicate/byte correction was reported to the
+coordinator and existing producer owner; this worker does not duplicate that
+producer repair.
+
+Independent dispose/verify_disposed succeeded: disposal_verifiedtrue and no
+disposal_error. Supported ledger readback found0694 newlocksNONE and ONLY
+unchanged protectednative66bd. Fresh specific CIM read found11280/47280/50380/
+19944 absent. ActualEND/disposal/newlocks proof released main283 serialization.
+Existing5556/protected66bd remained untouched. Operations/packaging/CLI/
+timings/status/raw command results remain under session files
+wp503-876-nodes37-scoped-boot-fourcpu-a1 and private-avd-73gsr96j. No unchanged
+retry, doc-only publication, dispatch or new worker occurred. This actual
+negative chronology stays LOCAL; whole-WP/native acceptance remains incomplete.
