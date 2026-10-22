@@ -1,5 +1,6 @@
 // AndroidOnly: WP-303 Test harness: the production AppContainer over a Room store, a fake radio and fake platform roles.
 // AndroidOnly: WP-501 Fixed, class-scoped Room lifecycle diagnostic markers.
+// AndroidOnly: WP-207 Forward recovery scheduling through the real App graph.
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.database.MeshCoreDatabase
@@ -82,6 +83,7 @@ internal class ContainerHarness(
     primerFactory: com.meshcoreone.android.app.state.ChatPrimerFactory = com.meshcoreone.android.app.state.ChatPrimerFactory { null },
     chatContent: AppChatContent? = null,
     syncClock: com.meshcoreone.android.core.services.sync.SyncClock = com.meshcoreone.android.core.services.sync.SyncClock.SYSTEM,
+    recoveryDispatcher: kotlinx.coroutines.CoroutineDispatcher = kotlinx.coroutines.Dispatchers.Default,
 ) {
     val scheduler: TestCoroutineScheduler = test.testScheduler
     val links = HarnessLinks(identity)
@@ -112,6 +114,7 @@ internal class ContainerHarness(
             runtimeClock = SchedulerClock { scheduler.currentTime },
             syncClock = syncClock,
             runtimeContext = test.backgroundScope.coroutineContext,
+            runtimeRecoveryDispatcher = recoveryDispatcher,
             accessibility = SilentAnnouncements,
             sessionLifecycle = lifecycle,
             runtimeReporter = RuntimeIssueReporter { diagnostics += it },

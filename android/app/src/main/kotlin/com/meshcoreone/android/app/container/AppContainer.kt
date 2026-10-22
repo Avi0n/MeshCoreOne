@@ -62,6 +62,7 @@ import com.meshcoreone.android.feature.nodes.deps.StringListPreferences
 import com.meshcoreone.android.feature.nodes.deps.UserFacingMessages
 import java.time.Instant
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -138,6 +139,7 @@ class AppContainerDependencies(
     val backupEngine: com.meshcoreone.android.feature.settings.app.backup.BackupEngine? = null,
     internal val chatContent: AppChatContent? = null,
     val newBootstrapDebugLog: (CoroutineScope) -> DebugLogBuffer? = { null },
+    val runtimeRecoveryDispatcher: CoroutineDispatcher = Dispatchers.Default,
     /** Releases process-owned resources (database, storage) once the runtime has closed. */
     val onClose: suspend () -> Unit = {},
 )
@@ -207,6 +209,7 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
         reporter = dependencies.runtimeReporter,
         clock = dependencies.runtimeClock,
         context = dependencies.runtimeContext,
+        recoveryDispatcher = dependencies.runtimeRecoveryDispatcher,
     )
 
     val pairing: PairingCoordinator = PairingCoordinator(
