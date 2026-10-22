@@ -131,6 +131,13 @@ Output under the new private directory retains operations, original/public APKs,
 packaging log/binding and exact two-method transcripts/recovery receipts.
 Synthetic unit transports/processes are not native evidence. Transcript-only
 accounting and the runner both leave whole-WP `acceptance=false`.
+Instrumentation accounting normalizes only exact CRLF record delimiters to LF
+before terminal and identity/count parsing. It retains all existing completion,
+discovery, duplicate, identity, failure/error/skip and host-exit checks; bare CR
+and unrelated Unicode record separators are not accepted. The retained325
+seven-case Windows transcript is an exact-byte regression input, not a new
+native execution. Retrospective parsing never rewrites its original CLI2,
+cohortnull or `acceptance=false` receipt.
 
 `disposable_runner.py` is a separate consumer of the reviewed WP-003 private-guest
 interface, updated at `7c8e8b21a1e52a75a23ca54d063e42dd3839bd16`.

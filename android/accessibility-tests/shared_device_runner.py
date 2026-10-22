@@ -87,6 +87,7 @@ def selected_methods(cohort):
 
 
 def parse_outcomes(text, expected):
+    text = text.replace("\r\n", "\n")
     require(not re.search(r"INSTRUMENTATION_(?:FAILED|ABORTED)|INSTRUMENTATION_RESULT: (?:shortMsg|longMsg)="
                           r"|INSTRUMENTATION_STATUS: Error=|Process crashed", text),
             "Instrumentation runner failed or crashed after/before method outcomes")

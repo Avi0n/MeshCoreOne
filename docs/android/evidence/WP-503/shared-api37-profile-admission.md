@@ -3169,3 +3169,126 @@ No complete local fast Android/Gradle verification is claimed for this source
 successor. Its own exact-candidate hosted result remains authoritative;876 CI
 or the separately reviewed producer CI is not transferred to this candidate.
 No dispatch, rerun, cancellation or duplicate CI-result bundle is authorized.
+
+### Actual325 original-seven execution and raw CRLF outcome-parser boundary
+
+Published325138b4ecc8436437c0914ab9fd488d72eb005c normally integrates
+main0a7a84e388393557e4b66ac7fd322248e28611fd and preserves local9167.
+Parent exact-source review5616297183 was COMMENTED, not acceptance. Parent
+held exact main0a7 for ONE fresh original-seven attempt, then released it after
+actualEND and independent disposal/new-lock readback. The preceding ownCI
+queued observation was not a native or merge verdict.
+
+Fresh admission2026-10-22T15:06:33.656673Z verified publishedhead/main,
+actual7c8e/dd40 and all four API objects, canonical runningr31, actorcbattlegear,
+pausefalse, frozen source/manifest/policy, original seven identities, installed
+SDK/image inputs and commit8471.2421875MiB/physical16519.74609375MiB.
+Both exceeded the unchanged4096MiB guard. New genuine owner was
+1666502a-0420-46ef-930f-e78651ba8b9f:nodes:ee7375d31a464bec888af65ddf131fc9,
+rootprivate-avd-yh2khgcp/token9c0b09adcd2846b3b7a8362fc07bdb69.
+Independent read during the responsive own build verified disposable+Gradle
+receipts for that owner; only other lock was protectednative66bd.
+
+Own exact-source App/Test build SUCCESS1m52s,446tasks(5executed441up-to-date).
+Existing certificate000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7
+verified for App1eb334ceb728f41cef002f526580c763eba8b3bd481dfaefbfcb9e8f2038e162
+and Test20f20334f3785fa48b31d23666917a0f14f3e3c8d403a0fc33b4e5f1cd029672.
+Source binding Androidtree60ffc81d8b12690804d2aa2a31d99af1c17d40d2 /
+digest80cf462cde1c20f89f01f3a6e9d397c1ca5ef823d25b7c53d0700f4b279d320b
+belongs to325; equal APK bytes do not transfer older native results.
+
+Startup15:08:48Z/returned15:08:51Z; private endpoint127.0.0.1:65460/
+emulator-5554, server37084/emulator15424. Selectedwait44112 completedexit0
+15:10:08Z after76.157s from wait-begin. First BOTH boot property reads exit0:
+rawbytes b'1\r\n' and b'stopped\r\n', retained respectively in
+adb-8951a004ffe2453bb4d668b52c1a6c05.log and
+adb-be1e969b78024093bddb7884104358e0.log. Actual boot_observations has the
+fresh pair1/stopped; no offline transition/reattach was exercised. CPU4,
+font2.0/effective2.0, size override360x900/density160/motion0/IME0 and API37/
+release17 were verified. Real target/test installs and installed digest checks
+completed in the new guest, not an existing shared device.
+
+Instrumentation19596 launched15:10:41Z under unchanged180s bound and returned
+hostexit0 at15:11:34Z. Actual original transcript reports numtests7, seven
+unique original starts and seven matching status0 outcomes, Time43.83 and
+OK(7tests), with terminal INSTRUMENTATION_CODE:-1. A retained-only manual
+line-record tally checked exact original identity-set equality; it is not a
+rewritten operation receipt or official parser acceptance.
+
+Actual CLI nevertheless exited2: RuntimeError('Missing or unsuccessful terminal
+instrumentation completion') at shared_device_runner.py93. Strictdecoded raw
+transcript is5688bytes with107CRLF/0bareLF; terminal bytes are exactly
+b'INSTRUMENTATION_CODE: -1\r\n'. The existing anchored regex
+^INSTRUMENTATION_CODE: (-?\d+)$ returns[] rather than['-1'] on this actual
+input, BEFORE method-field extraction (which likewise retains trailing CR).
+Original device-nodes37.txt is byte-identical to producer command log
+adb-1ceb6eb2d5734fd5bc1ff4b3eefa42cd.log; retained stderr is empty.
+Operations correctly preserves actualhostexit0/no cohort result/acceptancefalse,
+distinct from all seven genuinely executed/reporting success. No silent
+normalization, receipt rewrite, native retry or acceptance claim occurred.
+
+Independent disposal/verify_disposed succeeded/no disposal_error; new-owner
+locksNONE, only unchanged66bd remains. Specific fresh CIM read found37084/
+15424/44112/19596 absent. Before-cleanup root snapshot had server/emulator
+not-exited, selectedunavailable, Job7/errors[]; this was not whole-guest proof.
+Existing5556/protected66bd were untouched. Actual operations/CLI/packaging/
+transcripts remain under sessionfiles/wp503-325-nodes37-crlf-fourcpu-a1,
+with original timing/raw/process evidence in private-avd-yh2khgcp.
+
+Trusted ownership read corrected a provisional broad parser-owner inference:
+THIS parse_outcomes is in WP503-owned android/accessibility-tests/
+shared_device_runner.py and explicitly reserved at runningr31; trusted modify
+admission is wp-owned. WP003's current reservation does not include that target,
+and its trusted modify admission rejects the path. No ownership transfer or
+parser edit was performed pending coordinator routing. This actual chronology
+is retained locally without a doc-only push; native/whole-WP acceptance remains
+incomplete despite the seven successful original case reports.
+
+### Minimal owned CRLF record-boundary correction and pure retrospective accounting
+
+Coordinator routed THIS parser correction to the existing WP503 worker after
+the trusted ownership read, without changing ownership or authorization prose.
+The existing wp-owned path/operation rule admitted the regression fixture
+android/accessibility-tests/fixtures/nodes37-325-instrumentation.json; supported
+same-owner scope evolution31-to32 preserved canonical identity/binding/context/
+branch/worktree and running state. Original actual execution remains bound to
+r31, not retroactively rewritten to32.
+
+Production delta is ONLY `text = text.replace("\r\n", "\n")` at parse_outcomes
+entry, before terminal AND class/test/count field parsing. No strip/splitlines,
+new terminal fallback, identity/count bypass or producer/runtime change was
+introduced. Existing LF, unique terminal-1, exact discovery/identity/status,
+no duplicate/zero/unknown, failure/error/skip and actual host-exit checks remain.
+Bare CR, doubled CR and unrelated Unicode separators are explicitly rejected.
+
+The fixture stores the original raw stdout as JSON-escaped UTF8, not a lossy
+text-mode read. Its decoded bytes are exactly5688 and SHA256
+adcff0fe61e35d8847505ba1d51102f3b7a4d39888d4f4ce795e8517464ba3f3,
+equal to original device-nodes37.txt and producer raw log. The existing test
+module adds two methods for actual original-seven CRLF/LF identical accounting
+and rejection of unrelated separators. Existing negative methods now exercise
+BOTH LF/CRLF for missing/duplicate/wrong/unknown outcomes, wrong discovered
+count, failed/error/skipped statuses, crash/abort/missing or duplicate terminal,
+wrong terminal code and wrong JUnit count. All incumbent methods are retained.
+
+Declared actual negative witness before the production correction:
+`python -B -m unittest discover -s android\accessibility-tests -p test_*.py -q`
+ran248 methods/15.842s, FAILED(errors5): four CRLF failure/error/skip subtests
+and the actual original raw CRLF positive were rejected by the old terminal
+predicate. The unchanged LF positive remained successful. After the one-line
+correction the SAME command ran248/248PASS,0F/E/S,14.842s. Four declared
+validators (`verification_config.py --check`, `validate.py`, `workflows.py`,
+`portmap.py` under tools/android-port/controller except portmap at parent)
+all exited0; `git diff --check` passed. No local full Gradle/native replay ran.
+
+Corrected PURE account_outcomes on unchanged original325 raw bytes and its
+actual r31 binding/owner/hostexit0 produced7discovered/started/matching/PASS,
+0failed/errors/skipped,43.83s/terminal-1 and acceptancefalse. Parser object is
+a6317895cfb91ff2c1025ef1e40e82002d3c9e2f; separately labelled retrospective
+accounting binds that parser object and its successor commit to original325,
+not a new native execution. Actual original operations SHA256
+01f3702339469b1c3638f886e0847d071f3440c7fce74f2405ff36ad8ff70c75
+is unchanged, retaining primary CLI2/parser exception, no cohort result and
+acceptancefalse. No source correction rewrites that actual execution outcome.
+Native inputs, original assertions,120/180 deadlines and existing guests remain
+unchanged. Further native execution requires a new explicit source handoff.

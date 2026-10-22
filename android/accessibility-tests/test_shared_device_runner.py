@@ -1,5 +1,6 @@
 """AndroidOnly: WP-503 Fail-closed discovery for the missing-only shared-device adapter."""
 from pathlib import Path, PurePosixPath, PureWindowsPath
+import hashlib
 import json
 import runpy
 import subprocess
@@ -152,21 +153,58 @@ class SharedDeviceDiscoveryTest(unittest.TestCase):
                          ("discovered", "started", "passed", "failed", "errors", "skipped")))
         self.assertTrue(result["runner_completed"])
 
+    def test_retained_nodes37_crlf_and_lf_preserve_exact_seven_outcomes(self):
+        from language_binding import family_spec
+        fixture = json.loads((Path(__file__).parent / "fixtures" / "nodes37-325-instrumentation.json").read_text(
+            encoding="utf-8"))
+        raw = fixture["stdout_utf8"].encode("utf-8")
+        self.assertEqual("325138b4ecc8436437c0914ab9fd488d72eb005c", fixture["execution_revision"])
+        self.assertEqual(5688, fixture["stdout_bytes"])
+        self.assertEqual(fixture["stdout_bytes"], len(raw))
+        self.assertEqual("adcff0fe61e35d8847505ba1d51102f3b7a4d39888d4f4ce795e8517464ba3f3",
+                         fixture["stdout_sha256"])
+        self.assertEqual(fixture["stdout_sha256"], hashlib.sha256(raw).hexdigest())
+        self.assertEqual((0, ""), (fixture["host_exit"], fixture["stderr_utf8"]))
+        expected = family_spec("nodes").identities
+        reference = parse_outcomes(fixture["stdout_utf8"].replace("\r\n", "\n"), expected)
+        for text in (raw.decode("utf-8", errors="strict"), fixture["stdout_utf8"].replace("\r\n", "\n")):
+            with self.subTest(crlf="\r\n" in text):
+                result = parse_outcomes(text, expected)
+                self.assertEqual((7, 7, 7, 7, 0, 0, 0), tuple(result[k] for k in
+                                 ("discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+                self.assertEqual(set(expected), {identity for identity, _ in result["outcomes"]})
+                self.assertEqual(["43.83"], result["seconds"])
+                self.assertTrue(result["runner_completed"])
+                self.assertEqual(-1, result["terminal_instrumentation_code"])
+                self.assertEqual(reference, result)
+
+    def test_only_crlf_record_delimiters_are_normalized(self):
+        identity = "example.Test#original"
+        text = completed(record(identity, 1) + record(identity, 0))
+        for delimiter in ("\r", "\r\r\n", "\v", "\f", "\x85", "\u2028", "\u2029"):
+            with self.subTest(delimiter=repr(delimiter)), self.assertRaises(RuntimeError):
+                parse_outcomes(text.replace("\n", delimiter), [identity])
+
     def test_zero_duplicate_wrong_missing_and_unknown_outcomes_fail(self):
         identity = "example.Test#original"
         cases = ("", record(identity, 1), record(identity, 1) * 2 + record(identity, 0),
                  record(identity, 1) + record("example.Test#other", 0),
-                 record(identity, 1) + record(identity, 99))
+                 record(identity, 1) + record(identity, 99),
+                 record(identity, 1, count=2) + record(identity, 0, count=2))
         for text in cases:
-            with self.subTest(text=text), self.assertRaises(RuntimeError):
-                parse_outcomes(completed(text), [identity])
+            for delimiter in ("\n", "\r\n"):
+                with self.subTest(text=text, delimiter=repr(delimiter)), self.assertRaises(RuntimeError):
+                    parse_outcomes(completed(text).replace("\n", delimiter), [identity])
 
     def test_failure_error_and_skip_are_not_passes(self):
         for code, field in ((-2, "failed"), (-1, "errors"), (-3, "skipped"), (-4, "skipped")):
             identity = "example.Test#original"
-            result = parse_outcomes(completed(record(identity, 1) + record(identity, code)), [identity])
-            self.assertEqual(0, result["passed"])
-            self.assertEqual(1, result[field])
+            for delimiter in ("\n", "\r\n"):
+                with self.subTest(code=code, delimiter=repr(delimiter)):
+                    result = parse_outcomes(
+                        completed(record(identity, 1) + record(identity, code)).replace("\n", delimiter), [identity])
+                    self.assertEqual(0, result["passed"])
+                    self.assertEqual(1, result[field])
 
     def test_complete_method_statuses_do_not_hide_runner_failure_or_missing_completion(self):
         identity = "example.Test#original"
@@ -180,8 +218,9 @@ class SharedDeviceDiscoveryTest(unittest.TestCase):
             completed(statuses) + "INSTRUMENTATION_CODE: -1\n",
         )
         for text in cases:
-            with self.subTest(text=text), self.assertRaises(RuntimeError):
-                parse_outcomes(text, [identity])
+            for delimiter in ("\n", "\r\n"):
+                with self.subTest(text=text, delimiter=repr(delimiter)), self.assertRaises(RuntimeError):
+                    parse_outcomes(text.replace("\n", delimiter), [identity])
 
     def test_successful_app_mutation_then_timeout_or_rejected_output_is_restored(self):
         for failure in (subprocess.TimeoutExpired("install", 120),
