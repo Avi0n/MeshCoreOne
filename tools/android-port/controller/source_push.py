@@ -1,12 +1,14 @@
 """AndroidOnly: WP-003 Invocation-local immutable trusted pre-push guard; never a gate publisher."""
 
 import argparse
+import ctypes
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -31,9 +33,99 @@ SAFETY_CONFIG = {
 }
 LOCATIONS = {"GIT_DIR", "GIT_COMMON_DIR", "GIT_WORK_TREE", "GIT_PREFIX"}
 HOST_CONTEXT = {"GIT_ASKPASS", "GIT_EXEC_PATH", "GIT_OPTIONAL_LOCKS", "GIT_TERMINAL_PROMPT"}
+COPILOT_PROFILE = [
+    "credential.https://github.com.helper=",
+    "credential.https://github.com.helper=copilot",
+]
 
 
-def configuration(hook_root=None):
+def copilot_credential_context(repo, hook_root=None):
+    if sys.platform != "win32":
+        raise ValueError("First-party helper provenance requires the actual Windows signed App host")
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    exec_path = subprocess.check_output(["git", "--exec-path"], env=env, encoding="utf-8", timeout=30).strip()
+    dispatch = shutil.which("git-credential-copilot", path=exec_path + os.pathsep + os.environ.get("PATH", ""))
+    if not dispatch:
+        raise ValueError("First-party credential helper dispatch is unavailable")
+    dispatch_path = Path(dispatch).absolute()
+    helper = dispatch_path.resolve()
+    excluded = [repo.resolve(), Path(tempfile.gettempdir()).resolve()]
+    if hook_root is not None:
+        excluded.append(hook_root.resolve())
+    if helper.name.lower() != "git-credential-copilot.exe" or any(
+        candidate.is_relative_to(path) for candidate in (dispatch_path, helper) for path in excluded
+    ):
+        raise ValueError("First-party helper resolves to a candidate/temporary or unexpected executable")
+    system = ctypes.create_unicode_buffer(32768)
+    length = ctypes.windll.kernel32.GetSystemDirectoryW(system, len(system))
+    if not 0 < length < len(system):
+        raise ValueError("Windows system provenance tools are unavailable")
+    powershell = Path(system.value) / "WindowsPowerShell" / "v1.0" / "powershell.exe"
+    script = r"""
+$ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
+$stage = 'system-provenance-tools'
+$streams = @()
+try {
+    foreach ($module in @('CimCmdlets', 'Microsoft.PowerShell.Security', 'Microsoft.PowerShell.Utility')) {
+        Import-Module "$PSHOME\Modules\$module\$module.psd1" -ErrorAction Stop
+    }
+    $helper = '__HELPER__'
+    $next = __PID__
+    $seen = @{}
+    $app = $null
+    $stage = 'same-installation-app-ancestor'
+    for ($i = 0; $i -lt 32 -and $next -gt 0 -and !$seen.ContainsKey($next); $i++) {
+        $seen[$next] = $true
+        $p = CimCmdlets\Get-CimInstance Win32_Process -Filter "ProcessId=$next"
+        if (!$p) { break }
+        if ($p.Name -ieq 'github.exe' -and
+            [IO.Path]::GetDirectoryName($p.ExecutablePath) -ieq [IO.Path]::GetDirectoryName($helper)) {
+            $app = $p
+            break
+        }
+        $next = $p.ParentProcessId
+    }
+    if (!$app) { throw 'No same-installation App ancestor' }
+    $identity = @{}
+    $certificate = $null
+    foreach ($entry in @(@('helper', $helper), @('app', $app.ExecutablePath))) {
+        $stage = 'signed-first-party-' + $entry[0]
+        $stream = [IO.File]::Open($entry[1], [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+        $streams += $stream
+        $signature = Microsoft.PowerShell.Security\Get-AuthenticodeSignature -LiteralPath $entry[1]
+        if ($signature.Status -ne 'Valid' -or !$signature.SignerCertificate -or
+            $signature.SignerCertificate.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName, $false) -cne 'GitHub, Inc.') {
+            throw 'Not a valid signed first-party executable'
+        }
+        if ($certificate -and $certificate -ne $signature.SignerCertificate.Thumbprint) { throw 'Different package signer' }
+        $certificate = $signature.SignerCertificate.Thumbprint
+        $hash = [Security.Cryptography.SHA256]::Create()
+        try { $digest = [BitConverter]::ToString($hash.ComputeHash($stream)).Replace('-', '').ToLowerInvariant() }
+        finally { $hash.Dispose() }
+        $identity[$entry[0]] = @($entry[1], $digest)
+    }
+    $identity['process'] = @([string]$app.ProcessId, $app.CreationDate.ToUniversalTime().ToString('o'))
+    $identity['signer'] = $certificate
+    Microsoft.PowerShell.Utility\ConvertTo-Json -InputObject $identity -Compress
+} catch {
+    Microsoft.PowerShell.Utility\ConvertTo-Json -InputObject @{error=$stage} -Compress
+    exit 1
+} finally {
+    foreach ($stream in $streams) { $stream.Dispose() }
+}
+""".replace("__HELPER__", str(helper).replace("'", "''")).replace("__PID__", str(os.getpid()))
+    result = subprocess.run(
+        [str(powershell), "-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script],
+        capture_output=True, encoding="utf-8", timeout=60,
+    )
+    if result.returncode:
+        raise ValueError("First-party signed App/helper provenance unavailable: " +
+                         json.loads(result.stdout or '{"error":"system-provenance-tools"}')["error"])
+    return json.loads(result.stdout)
+
+
+def configuration_profile(hook_root=None):
     count = os.environ.get("GIT_CONFIG_COUNT", "0")
     if not count.isdecimal() or int(count) > len(SAFETY_CONFIG):
         raise ValueError("Publication refuses malformed Git configuration overrides")
@@ -49,14 +141,30 @@ def configuration(hook_root=None):
     if any(key.startswith("GIT_CONFIG") and key not in allowed for key in os.environ):
         raise ValueError("Publication refuses undeclared Git configuration overrides")
     parameters = os.environ.get("GIT_CONFIG_PARAMETERS")
+    credential = False
     if parameters is not None:
         tokens = shlex.split(parameters)
-        if hook_root is None or tokens != ["core.hooksPath=" + str(hook_root / "hooks")]:
-            if any(token.startswith("credential.") for token in tokens):
-                raise ValueError("Scoped credential helper lacks a trusted executable identity; use an authenticated host without injected helper configuration")
+        own_hook = False
+        if hook_root is not None and tokens[-1:] == ["core.hooksPath=" + str(hook_root / "hooks")]:
+            tokens = tokens[:-1]
+            own_hook = True
+        if tokens:
+            if tokens != COPILOT_PROFILE:
+                raise ValueError("Hook inherited unexpected Git configuration")
+            credential = True
+        elif not own_hook:
             raise ValueError("Hook inherited unexpected Git configuration")
+    return values, credential
+
+
+def configuration(hook_root=None, *, repo=None):
+    values, credential = configuration_profile(hook_root)
+    if credential:
+        if repo is None:
+            raise ValueError("First-party helper provenance requires the exact repository")
+        credential = copilot_credential_context(repo, hook_root)
     context = {key: os.environ[key] for key in HOST_CONTEXT - {"GIT_EXEC_PATH"} if key in os.environ}
-    return hashlib.sha256(json.dumps([values, context], sort_keys=True).encode()).hexdigest()
+    return hashlib.sha256(json.dumps([values, context, credential], sort_keys=True).encode()).hexdigest()
 
 
 def repository_context(repo):
@@ -82,7 +190,7 @@ def binding(repo, base, head, remote, url, *, hook_root=None):
         raise ValueError("Publication requires immutable trusted base and candidate")
     if re.fullmatch(r"[A-Za-z0-9_.-]+", remote) is None or remote.startswith("-"):
         raise ValueError("Publication requires a configured remote name")
-    config = configuration(hook_root)
+    config = configuration(hook_root, repo=repo)
     allowed = LOCATIONS | HOST_CONTEXT
     if "ANDROID_PORT_LEDGER" in os.environ or any(
         key.startswith("GIT_") and not key.startswith("GIT_CONFIG") and key not in allowed
@@ -153,7 +261,7 @@ def stage(repo, base, root):
 
 
 def hook(repo, root, request):
-    configuration(root)
+    configuration_profile(root)
     expected = json.loads(request.read_text(encoding="utf-8"))
     if not isinstance(expected, dict) or set(expected) != {
         "base", "head", "tree", "branch", "remote", "url", "common", "repo",

@@ -197,16 +197,27 @@ context is preserved for the actual guard, never silently stripped.
 
 The only admitted counted overrides are exact `safe.bareRepository=explicit`,
 `credential.interactive=never` and `core.fsmonitor=false`, without duplicates or
-orphan indexed entries. Scoped credential helper injection is still refused:
-the observed first-party CLI profile resets the GitHub helper then names
-`copilot` on PATH. A valid GitHub Authenticode signature was observed on this
-host's resolved helper, but neither a signed publisher nor a PATH name binds
-the exact intended executable to trusted repository policy. No helper contents,
-arguments or secrets were exposed. Admission needs a supported trusted executable
-identity anchor; this change does not invent one or permit arbitrary helper
-executables/candidate paths. An already-authenticated host without injected
-helper configuration avoids that blocker; do not strip a caller's auth context
-or retry a publication without separate exact-candidate authorization.
+orphan indexed entries. The observed first-party Windows CLI profile is also
+supported: exactly the GitHub-scoped helper reset followed by literal `copilot`,
+optionally followed by Git's exact generated hooksPath parameter. No other host,
+helper command, arguments, keys or ordering is admitted.
+
+For that profile, the publisher independently resolves Git's actual
+`git-credential-copilot.exe` dispatch and rejects candidate/temporary paths. A
+read-only system PowerShell probe must find the running `github.exe` App in its
+actual OS process ancestry, co-located with that helper. Both files must have
+valid GitHub Authenticode signatures from the same signing certificate. System
+modules are imported by absolute installation path with profiles disabled;
+neither helper nor candidate code executes in this probe. Both files are held
+read-only against replacement while signatures and hashes are measured. Their
+exact paths/hashes, signer and actual App PID/creation identity are bound in the
+outer/hook context digest. A changed executable, different App process, foreign
+installation or unavailable provenance fails closed. Caller auth context is
+preserved for Git and the complete checker, not stripped or replaced. This uses
+existing installed host/process provenance, not a policy registry, receipt or
+new user setup gate. Other platforms without this signed-host proof explicitly
+refuse the injected profile; ordinary authenticated hosts without injection
+continue to use the unchanged route.
 Actual execution/cleanup remains governed by the existing complete pre-push
 guard when admission is available.
 The hook independently reconstructs the complete normalized file set and hashes

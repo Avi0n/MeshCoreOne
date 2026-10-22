@@ -33,7 +33,20 @@ class SourcePushTests(unittest.TestCase):
     def test_real_linked_worktree_guard_preserves_canonical_ledger_and_pending(self):
         self.real_publication(linked=True)
 
-    def real_publication(self, *, linked):
+    def test_real_linked_worktree_first_party_auth_profile_or_unsupported_host_refusal(self):
+        if sys.platform != "win32":
+            with patch.dict(os.environ, {"GIT_CONFIG_PARAMETERS": self.copilot_profile()}):
+                with self.assertRaisesRegex(ValueError, "actual Windows signed App host"):
+                    source_push.configuration(repo=REPO)
+            print("Signed Windows App/helper provenance NOT SELECTED on this host; actual unsupported-host refusal verified.")
+            return
+        self.real_publication(linked=True, authenticated_profile=True)
+
+    @staticmethod
+    def copilot_profile():
+        return "'credential.https://github.com.helper'='' 'credential.https://github.com.helper'='copilot'"
+
+    def real_publication(self, *, linked, authenticated_profile=False):
         with tempfile.TemporaryDirectory(prefix="trusted-push-fixture-") as directory:
             root = Path(directory)
             repo, remote = root / "repo", root / "remote.git"
@@ -91,6 +104,8 @@ class SourcePushTests(unittest.TestCase):
                 for index, (key, value) in enumerate(source_push.SAFETY_CONFIG.items()):
                     env[f"GIT_CONFIG_KEY_{index}"] = key
                     env[f"GIT_CONFIG_VALUE_{index}"] = value
+            if authenticated_profile:
+                env["GIT_CONFIG_PARAMETERS"] = self.copilot_profile()
             result = subprocess.run([
                 sys.executable, "-I", str(tool), "--repo", str(repo), "--trusted-base", base,
                 "--head", head, "--remote", "fixture-target", "--remote-url", str(remote),
@@ -158,9 +173,12 @@ class SourcePushTests(unittest.TestCase):
                     extra.unlink()
             foreign = root / "foreign.git"
             subprocess.run(["git", "init", "--quiet", "--bare", str(foreign)], check=True)
-            for mode in ("git-dir", "common", "worktree", "prefix", "index", "objects",
-                         "ledger", "unknown-config", "helper", "exec-path", "auth-context",
-                         "configuration-drift"):
+            modes = ["git-dir", "common", "worktree", "prefix", "index", "objects",
+                     "ledger", "unknown-config", "helper", "exec-path", "auth-context",
+                     "configuration-drift"]
+            if authenticated_profile:
+                modes.append("helper-dispatch")
+            for mode in modes:
                 hostile = dict(env)
                 forged = {**original_request, "files": immutable_hashes}
                 if mode in ("git-dir", "common", "worktree"):
@@ -173,6 +191,11 @@ class SourcePushTests(unittest.TestCase):
                     hostile = {key: value for key, value in hostile.items() if not key.startswith("GIT_CONFIG")}
                     hostile.update({"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "core.fsmonitor",
                                     "GIT_CONFIG_VALUE_0": "false"})
+                elif mode == "helper-dispatch":
+                    candidate_bin = root / "candidate-bin"
+                    candidate_bin.mkdir()
+                    (candidate_bin / "git-credential-copilot.exe").write_bytes(payload)
+                    hostile["PATH"] = str(candidate_bin) + os.pathsep + hostile["PATH"]
                 else:
                     key, value = {
                         "prefix": ("GIT_PREFIX", "subdir/"),
@@ -229,7 +252,10 @@ class SourcePushTests(unittest.TestCase):
              "GIT_CONFIG_KEY_1": "core.fsmonitor", "GIT_CONFIG_VALUE_1": "false"},
             {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "core.fsmonitor", "GIT_CONFIG_VALUE_0": "malicious"},
             {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "credential.helper", "GIT_CONFIG_VALUE_0": "copilot"},
-            {"GIT_CONFIG_PARAMETERS": "'credential.https://github.com.helper=' 'credential.https://github.com.helper=copilot'"},
+            {"GIT_CONFIG_PARAMETERS": "'credential.https://github.com.helper=copilot'"},
+            {"GIT_CONFIG_PARAMETERS": "'credential.https://github.com.helper=copilot' 'credential.https://github.com.helper='"},
+            {"GIT_CONFIG_PARAMETERS": "'credential.https://gitlab.com.helper=' 'credential.https://gitlab.com.helper=copilot'"},
+            {"GIT_CONFIG_PARAMETERS": "'credential.https://github.com.helper=' 'credential.https://github.com.helper=copilot --extra'"},
             {"GIT_CONFIG_PARAMETERS": "'credential.https://github.com.helper=!candidate/payload'"},
             {"GIT_CONFIG_PARAMETERS": "'credential.https://github.com.helper=/candidate/helper.exe'"},
         ):
@@ -238,6 +264,27 @@ class SourcePushTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     source_push.binding(REPO, "a" * 40, "b" * 40, "origin", "remote")
                 git.assert_not_called()
+
+    def test_exact_auth_profile_binds_signed_executable_process_and_preserves_context(self):
+        root = Path(tempfile.gettempdir()) / "guard-fixture"
+        identity = {"helper": ["installed-helper", "a" * 64],
+                    "app": ["installed-app", "b" * 64], "process": ["123", "creation"], "signer": "certificate"}
+        with patch.dict(os.environ, {"GIT_CONFIG_PARAMETERS": self.copilot_profile()}), \
+                patch.object(source_push, "copilot_credential_context", return_value=identity) as provenance:
+            before = dict(os.environ)
+            digest = source_push.configuration(repo=REPO)
+            provenance.assert_called_with(REPO, None)
+            with patch.dict(os.environ, {"GIT_CONFIG_PARAMETERS": self.copilot_profile() +
+                                        " '" + "core.hooksPath=" + str(root / "hooks") + "'"}):
+                self.assertEqual(source_push.configuration(root, repo=REPO), digest)
+                provenance.assert_called_with(REPO, root)
+            self.assertEqual(dict(os.environ), before)
+            for key in ("helper", "app", "process", "signer"):
+                provenance.return_value = {**identity, key: ["changed"]}
+                self.assertNotEqual(source_push.configuration(repo=REPO), digest)
+            provenance.side_effect = ValueError("First-party signed App/helper provenance unavailable: signed-first-party-helper")
+            with self.assertRaisesRegex(ValueError, "signed-first-party-helper"):
+                source_push.configuration(repo=REPO)
 
     def test_invalid_binding_and_environment_fail_before_git_or_launch(self):
         for key in ("ANDROID_PORT_LEDGER", "GIT_DIR", "GIT_CONFIG_COUNT"):
