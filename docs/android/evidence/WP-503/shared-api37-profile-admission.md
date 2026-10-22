@@ -3640,3 +3640,80 @@ new cold readiness, historical failure clearance or native/whole-WP acceptance.
 All ff087166/ee1104 LoS/cached positives, b899 negative/unknown cause,325/PURE/
 728 and protected66bd evidence remain unchanged. A new exact-source parent
 review and explicit fresh handoff remain prerequisites to any native attempt.
+
+### Original cold API37 controls: actual7c negative outcomes and independent END
+
+After the full five-path COMMENTED5618953075 source review, parent explicitly
+hands off published7c4ffaa5aebb0da51c5655f537c2dcbdbc147106/r34 at actual main
+1ec4c1dc36b9f65cb969f95295f414878d274423: at most one service control followed,
+after normal END/independent cleanup/fresh guards, by one independent callback
+diagnostic. A normal negative first result is expressly allowed; a forced,
+missing or uncertain first outcome is not. Both actual cases run once, separately,
+using the supported immutable family CLI and two new owned private roots.
+No earlier LoS/Nodes/cache/API31 cohort is replayed.
+
+All actual source/publication/main/all-runtime/API/actor/pause/policy/manifest/
+canonical request/owner/tool/image guards pass before each allocation. No other
+Gradle/disposable lock is held; the unrelated protected66bd native lock remains
+unchanged. Commit/physical available headroom is6814.1875/12808.3515625MiB for
+service and10437.7890625/13786.64453125MiB for callback, each above4096MiB.
+Both observe API37/release17/user0/CPU4/font2/effective2/360x900/density160/
+motion0/IME0/boot1/stopped and retain original120s boot/180s instrumentation.
+Actual App/Test assembly and installed digests bind7c; App1eb334ce/Testb9d8f2ae/
+public cert000be798 match each recorded package. No APK/private key is copied
+into this bounded evidence; no runtime install or shared5556/old66bd action occurs.
+
+| Original fixed family | Actual native outcome | Original activation/restoration observations |
+|---|---|---|
+| `platform-service-control` | 1 discovery/start/matching outcome,0PASS/1FAIL/0E/S4.086s; CLI2/host0/terminal-1/runner_completed=true | originalflags65554/enabledfalse; activationfalse/75checks/1001ms; restorationfalse/1check/0ms; initialActivity0/endEvents0 |
+| `platform-callback-control` | 1 discovery/start/matching outcome,0PASS/1FAIL/0E/S4.632s; CLI2/host0/terminal-1/runner_completed=true | originalflags65554/enabledfalse; activationfalse/83checks/1001ms; restorationfalse/1check/1ms; initialActivity0/endEvents0; callbacks0/activation+restoration heartbeats0 |
+
+The original1000ms/zero-Activity/noCompose/noTestDispatcher/noContainerAwait/
+noWarmup fixtures, flags/restoration and diagnostics remain byte-identical.
+Service's instrumentation runs18:33:58-18:34:11Z and CLI ends18:34:12.541920Z;
+independent18:34:18.354464Z cleanup verifies normal unforced host completion,
+owned disposal, new-owner locksNONE and PIDs26860/55648/57100 absent.
+Only then does callback receive fresh guards/allocation; it instruments
+18:39:24-18:39:40Z and CLI ends18:39:41.430556Z, also with normal unforced
+return and producer-verified disposal.
+
+Callback's initial independent numeric-PID probe at18:39:48.564684Z fails:
+PID44844 exists, while41856/51168 and all new-owner locks are absent.
+That exact initial probe remains unchanged. Actual CIM creation18:39:47.431Z
+is after instrumentPID44844's real wait-return0 at18:39:40Z and after actual
+END18:39:41Z; the subsequent observed process is conhost.exe, not the old ADB.
+Separate `independent-cleanup-reconciliation.json` at18:41:15.168424Z retains
+the initial probe hash, terminal timing and fresh41856/44844/51168 NONE query,
+proving original process identities absent with no kill/adoption/guest command.
+The read-only helper initially encounters Windows PowerShell's `/Date(ms)/`
+serialization; exact Unix-millisecond decoding corrects only that helper, not
+any retained observation or native result. Main serialization release is
+requested only after this final independent proof.
+
+The callback's actual pending main sample starts104ms/finishes214ms, with
+heartbeat still pending, RUNNABLE Room required-type-converter/database
+initialization inside AndroidAppContainerFactory. After the deadline the
+observed stack is RoomPersistenceStore construction in the same factory.
+Queued heartbeat and zero callback/heartbeat observations support investigation
+of startup/main-looper contention; no root cause, production repair or causal
+clearance is claimed. The restoration observations are not a native case pass.
+
+[Bounded non-reproducible index](device-7c4ffaa5-cold-controls-api37.json)
+contains exact original methods, source/profile/pair/owner, times/counts,
+raw/operations/logcat hashes and absolute retained artifact paths, including both
+callback cleanup records. Actual executionr34 remains immutable; ordinary
+same-owner four-path evidence bookkeeping evolvesr34 tor35. A receipt-helper
+postcondition names nonexistent repair_count only after the supported transition
+has succeeded; independent comparison against the retained actualr34 claim proves
+all non-scope fields unchanged, without another transition or raw ledger edit.
+
+The evidence-only successor keeps the entire compiled7c Android tree
+7fd127ec18719bdebab43b31134ae17b5564a7eb and all source/test/controller/runtime
+unchanged. Earlier source258/258 pure regressions and the exact own hosted job
+remain separate from these two genuine native negatives; no CI-result bundle
+or borrowed verdict is created. Actual build tasks are App/Test assembly, not
+the full local Gradle test suite. Historicalee1104 positives, b899 negative and
+unknown original counter/cause,325/728/PURE and protected66bd uncertainty remain
+unchanged. No fresh native action, timeout increase, warmup or retry is authorized.
+Cold activation, compatible state/context, physical TalkBack, theme/golden,
+old-state and exact candidate/review acceptance remain unresolved.
