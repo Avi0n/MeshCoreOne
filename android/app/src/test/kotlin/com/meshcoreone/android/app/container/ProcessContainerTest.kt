@@ -2,6 +2,7 @@
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
+import com.meshcoreone.android.core.data.repository.RoomPersistenceStore
 import com.meshcoreone.android.core.database.MeshCoreDatabase
 import com.meshcoreone.android.core.model.DeviceDTO
 import com.meshcoreone.android.core.model.PersistenceKeys
@@ -14,6 +15,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -29,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -209,6 +212,7 @@ class ProcessContainerTest : RoomProcessTest() {
                         transferThread.set(Thread.currentThread())
                         it
                     },
+                    closeUntransferredOwner = {},
                 )
                 assertTrue(database.isOpen, "successful transfer leaves the process-owned database open")
                 val resumedThread = Thread.currentThread()
@@ -240,6 +244,7 @@ class ProcessContainerTest : RoomProcessTest() {
                         cancellationTransferCalled.set(true)
                         it
                     },
+                    closeUntransferredOwner = {},
                 )
             }
             cancelledOpen = cancellationTask
@@ -264,15 +269,16 @@ class ProcessContainerTest : RoomProcessTest() {
                         }
                     },
                     transferOwnership = { throw constructionFailure },
+                    closeUntransferredOwner = {},
                 )
                 null
             } catch (failure: IllegalStateException) {
                 failure
             }
-            assertSame(constructionFailure, observedFailure)
+            assertCoroutineFailureIdentity(constructionFailure, assertNotNull(observedFailure))
             assertFalse(assertNotNull(failedTransferDatabase.get()).isOpen,
                 "a database is closed if constructing its process owner fails")
-            assertSame(mainThread, transferThread.get(), "the process owner is constructed on the main caller")
+            assertNotSame(mainThread, transferThread.get(), "the process owner is constructed off the main caller")
         } finally {
             openRelease.countDown()
             cancelledOpenRelease.countDown()
@@ -285,6 +291,209 @@ class ProcessContainerTest : RoomProcessTest() {
             }
             Dispatchers.resetMain()
             mainDispatcher.close()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun roomOwnerConstructionKeepsMainResponsiveAndRetainsProcessLifetime() = runTest {
+        val mainDispatcher = Executors.newSingleThreadExecutor { Thread(it, "wp303-room-owner-main") }
+            .asCoroutineDispatcher()
+        val processJob = SupervisorJob()
+        val storeJob = SupervisorJob(processJob)
+        val storeScope = CoroutineScope(storeJob + Dispatchers.IO)
+        val constructed = CountDownLatch(1)
+        val constructionRelease = CountDownLatch(1)
+        val openedDatabase = AtomicReference<MeshCoreDatabase?>()
+        val constructedStore = AtomicReference<RoomPersistenceStore?>()
+        val ownerThread = AtomicReference<Thread?>()
+        val cleanupCalls = AtomicInteger()
+        var opening: Deferred<RoomPersistenceStore>? = null
+        var primaryFailure: Throwable? = null
+        try {
+            Dispatchers.setMain(mainDispatcher)
+            val mainThread = withContext(Dispatchers.Main.immediate) { Thread.currentThread() }
+            val task = CoroutineScope(processJob + Dispatchers.Main.immediate).async {
+                val owner = openRoomDatabaseOnIo(
+                    openDatabase = {
+                        openMemoryDatabase().also {
+                            it.openHelper.writableDatabase
+                            openedDatabase.set(it)
+                        }
+                    },
+                    transferOwnership = {
+                        ownerThread.set(Thread.currentThread())
+                        RoomPersistenceStore(it, storeScope).also { owner ->
+                            constructedStore.set(owner)
+                            constructed.countDown()
+                            check(constructionRelease.await(30, TimeUnit.SECONDS))
+                        }
+                    },
+                    closeUntransferredOwner = {
+                        cleanupCalls.incrementAndGet()
+                        it.close()
+                    },
+                )
+                assertSame(mainThread, Thread.currentThread(), "only publication returns to Main")
+                owner
+            }
+            opening = task
+            assertTrue(withContext(Dispatchers.IO) { constructed.await(5, TimeUnit.SECONDS) },
+                "the boundary constructs the production RoomPersistenceStore, not just its database")
+            val heartbeat = CountDownLatch(1)
+            CoroutineScope(processJob + Dispatchers.Main.immediate).launch { heartbeat.countDown() }
+            assertTrue(withContext(Dispatchers.IO) { heartbeat.await(1, TimeUnit.SECONDS) },
+                "Main remains responsive throughout owner construction")
+            assertNotSame(mainThread, ownerThread.get(), "the real repository constructor runs on IO")
+            constructionRelease.countDown()
+            val owner = task.await()
+            assertSame(constructedStore.get(), owner)
+            assertTrue(storeJob.isActive)
+            assertTrue(storeJob.children.any { it.isActive },
+                "repository lifetime belongs to the process, not the completed IO initialization")
+            owner.warmUp()
+            assertTrue(assertNotNull(openedDatabase.get()).isOpen)
+            assertEquals(0, cleanupCalls.get(), "successful publication does not dispose its process owner")
+            owner.close()
+            assertTrue(storeJob.children.none { it.isActive }, "closing the store releases its repository owner")
+            assertTrue(assertNotNull(openedDatabase.get()).isOpen,
+                "normal process-store close still does not close the process-owned database")
+        } catch (failure: Throwable) {
+            primaryFailure = failure
+            throw failure
+        } finally {
+            constructionRelease.countDown()
+            cleanUpRoomOwnerTest(
+                primaryFailure,
+                { opening?.cancelAndJoin() },
+                { withContext(Dispatchers.IO) { constructedStore.get()?.close() } },
+                { withContext(Dispatchers.IO) { openedDatabase.get()?.let { if (it.isOpen) it.close() } } },
+                { processJob.cancelAndJoin() },
+                { Dispatchers.resetMain(); mainDispatcher.close() },
+            )
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun cancellationAfterRoomOwnerConstructionDisposesItOnceAndPreservesCleanupFailures() = runTest {
+        val mainDispatcher = Executors.newSingleThreadExecutor { Thread(it, "wp303-room-cancel-main") }
+            .asCoroutineDispatcher()
+        var primaryFailure: Throwable? = null
+        try {
+            Dispatchers.setMain(mainDispatcher)
+            val mainThread = withContext(Dispatchers.Main.immediate) { Thread.currentThread() }
+            for (failCleanup in listOf(false, true)) {
+                val processJob = SupervisorJob()
+                val storeJob = SupervisorJob(processJob)
+                val storeScope = CoroutineScope(storeJob + Dispatchers.IO)
+                val constructed = CountDownLatch(1)
+                val constructionRelease = CountDownLatch(1)
+                val openedDatabase = AtomicReference<MeshCoreDatabase?>()
+                val constructedStore = AtomicReference<RoomPersistenceStore?>()
+                val cleanupCalls = AtomicInteger()
+                val cleanupFailure = IllegalStateException("owner cleanup failed")
+                val cancellation = CancellationException("cancel after the real owner was constructed")
+                val propagatedFailure = AtomicReference<CancellationException?>()
+                var opening: Deferred<RoomPersistenceStore>? = null
+                var caseFailure: Throwable? = null
+                try {
+                    val task = CoroutineScope(processJob + Dispatchers.Main.immediate).async {
+                        try {
+                            openRoomDatabaseOnIo(
+                                openDatabase = {
+                                    openMemoryDatabase().also {
+                                        it.openHelper.writableDatabase
+                                        openedDatabase.set(it)
+                                    }
+                                },
+                                transferOwnership = {
+                                    assertNotSame(mainThread, Thread.currentThread())
+                                    RoomPersistenceStore(it, storeScope).also { owner ->
+                                        constructedStore.set(owner)
+                                        constructed.countDown()
+                                        check(constructionRelease.await(30, TimeUnit.SECONDS))
+                                    }
+                                },
+                                closeUntransferredOwner = {
+                                    assertNotSame(mainThread, Thread.currentThread(), "cleanup also runs on IO")
+                                    assertEquals(1, cleanupCalls.incrementAndGet())
+                                    assertTrue(assertNotNull(openedDatabase.get()).isOpen,
+                                        "the untransferred store closes before its database")
+                                    it.close()
+                                    if (failCleanup) throw cleanupFailure
+                                },
+                            )
+                        } catch (failure: CancellationException) {
+                            propagatedFailure.set(failure)
+                            throw failure
+                        }
+                    }
+                    opening = task
+                    assertTrue(withContext(Dispatchers.IO) { constructed.await(5, TimeUnit.SECONDS) },
+                        "real owner construction reached its gate within 5s (failCleanup=$failCleanup)")
+                    task.cancel(cancellation)
+                    constructionRelease.countDown()
+                    assertFailsWith<CancellationException> { task.await() }
+                    val observed = assertNotNull(propagatedFailure.get())
+                    assertCoroutineFailureIdentity(cancellation, observed)
+                    if (failCleanup) assertCoroutineFailureIdentity(cleanupFailure, observed.suppressed.single())
+                    else assertTrue(observed.suppressed.isEmpty(),
+                        "non-failing owner cleanup must add no suppressed errors: " +
+                            observed.suppressed.joinToString { failure ->
+                                "${failure.javaClass.name}: ${failure.message}; " +
+                                    "isExpectedCleanup=${failure === cleanupFailure}; " +
+                                    "directCauseIsExpectedCleanup=${failure.cause === cleanupFailure}"
+                            })
+                    assertEquals(1, cleanupCalls.get(), "a constructed but unpublished store is disposed exactly once")
+                    assertFalse(assertNotNull(openedDatabase.get()).isOpen,
+                        "database disposal still happens when owner cleanup fails")
+                    assertTrue(storeJob.isActive, "initialization cancellation does not own the process scope")
+                    assertTrue(storeJob.children.none { it.isActive }, "the rejected owner leaves no repository job")
+                    assertFailsWith<CancellationException> { task.await() }
+                    assertEquals(1, cleanupCalls.get(), "observing cancellation again cannot replay disposal")
+                } catch (failure: Throwable) {
+                    caseFailure = failure
+                    throw failure
+                } finally {
+                    constructionRelease.countDown()
+                    cleanUpRoomOwnerTest(
+                        caseFailure,
+                        { opening?.cancelAndJoin() },
+                        { withContext(Dispatchers.IO) { if (cleanupCalls.get() == 0) constructedStore.get()?.close() } },
+                        { withContext(Dispatchers.IO) { openedDatabase.get()?.let { if (it.isOpen) it.close() } } },
+                        { processJob.cancelAndJoin() },
+                    )
+                }
+            }
+        } catch (failure: Throwable) {
+            primaryFailure = failure
+            throw failure
+        } finally {
+            cleanUpRoomOwnerTest(primaryFailure, { Dispatchers.resetMain(); mainDispatcher.close() })
+        }
+    }
+
+    private fun assertCoroutineFailureIdentity(expected: Throwable, actual: Throwable) {
+        assertEquals(expected.javaClass, actual.javaClass)
+        assertEquals(expected.message, actual.message)
+        // Coroutine debug stack recovery may copy an exception at withContext; its direct cause is the original.
+        assertSame(expected, if (actual === expected) actual else actual.cause,
+            "only the original failure or its direct coroutine recovery copy is accepted")
+    }
+
+    private suspend fun cleanUpRoomOwnerTest(primary: Throwable?, vararg operations: suspend () -> Unit) {
+        withContext(NonCancellable) {
+            var failure = primary
+            for (operation in operations) {
+                try { operation() }
+                catch (cleanup: Throwable) {
+                    val previous = failure
+                    if (previous == null) failure = cleanup
+                    else if (previous !== cleanup) previous.addSuppressed(cleanup)
+                }
+            }
+            if (primary == null) failure?.let { throw it }
         }
     }
 }
