@@ -47,8 +47,11 @@ class IncomingReactionSyncTest : RoomProcessTest() {
     private suspend fun assertMountedReaction(
         test: TestScope, direct: Boolean, wireText: String, expectedHash: String, pending: Boolean,
     ) {
+        // Offset an empty scheduler beyond the v3 lookup window without advancing wire-arrival time.
+        test.testScheduler.advanceTimeBy(301_000)
+        var receiveTime = EPOCH
         val syncClock = object : SyncClock {
-            override fun now() = EPOCH.plusMillis(test.testScheduler.currentTime)
+            override fun now() = receiveTime
             override fun elapsed() = test.testScheduler.currentTime.milliseconds
             override suspend fun sleep(duration: Duration) = delay(duration)
         }
@@ -63,6 +66,8 @@ class IncomingReactionSyncTest : RoomProcessTest() {
         }
         try {
             assertEquals(EPOCH.epochSecond.toUInt(), timestamp)
+            assertTrue(test.testScheduler.currentTime >= 301_000)
+            assertEquals(EPOCH, syncClock.now(), "Scheduler epoch must not determine wire-arrival wall time")
             harness.manager.connect(harness.target())
             harness.eventually("mounted reaction session ready") {
                 harness.manager.connectionState == DeviceConnectionState.READY
@@ -91,6 +96,7 @@ class IncomingReactionSyncTest : RoomProcessTest() {
                 assertTrue(!saved.timestampCorrected)
             }
             suspend fun reaction() {
+                receiveTime = EPOCH.plusSeconds(1)
                 poll(harness, live, direct, if (direct) wireText else "Bob: $wireText", timestamp + 1u)
             }
             if (pending) {
@@ -101,6 +107,7 @@ class IncomingReactionSyncTest : RoomProcessTest() {
                 target()
                 reaction()
             }
+            assertEquals(EPOCH.plusSeconds(1), syncClock.now())
             val targets = messages()
             assertEquals(1, targets.size,
                 "stored target after reaction polling (direct=$direct, pending=$pending, hash=$expectedHash)")
@@ -109,6 +116,8 @@ class IncomingReactionSyncTest : RoomProcessTest() {
             val reactions = store.fetchReactions(message)
             assertEquals(1, reactions.size,
                 "stored reaction (direct=$direct, pending=$pending, hash=$expectedHash, " +
+                    "wall=${syncClock.now()}, schedulerMillis=${test.testScheduler.currentTime}, " +
+                    "targetTimestamp=${savedTarget.reactionTimestamp}, " +
                     "gaps=${live.reportedGaps}, diagnostics=${harness.messagingDiagnostics})")
             val savedReaction = reactions.single()
             assertEquals(savedTarget.id, savedReaction.messageID)
