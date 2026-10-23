@@ -5,6 +5,45 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "message-region-original-three-ambiguity-consumers",
+      "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBubbleAccessibilityAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.MessageBubbleAccessibilityAcceptanceTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "footer bakes multi-match chip label and ambiguous flag",
+        "footer bakes legacy scope-only as unique without ambiguous flag",
+        "accessibilityMessageLabel lists all candidates when ambiguous"
+      ],
+      "comparison": "Three separate frozen standalone originals retained as three annotated JUnit methods. FLOOD incoming DM with sticky Germany and ordered input [de-hh,de-by] must bake literal chip de-by / de-hh, ambiguous true and exact ordered names [de-by,de-hh]. FLOOD Germany with explicitly empty matches must bake Germany, ambiguous false and exact singleton [Germany]. FLOOD nil sticky with ordered [de-hh,de-by] must produce an ambiguous footer containing both literal names, and its real App label must contain each name. Coremodel semantics, generic alpha/beta channel footer checks and NORTH/SOUTH supplemental labels do not cover these original consumer/default/precedence predicates; no annotation-only replay or presumed product defect.",
+      "inputs": "Complete frozen makeMessage/messageItem defaults retained: fresh message/radio UUIDs, nil contact/channel, Test/timestamp0, incoming/delivered/plain/read, pathLength2/A37F, nil sender/key/ack/SNR/reply/RTT, heard0/retry0/max0/sendCount1 and remaining DTO defaults. Only irrelevant ambient Date becomes Instant.EPOCH. Existing predicateIncomingDm minimally accepts nullable scope and an immutable SnapshotList matches parameter defaulting empty; prior DIRECT/FLOOD callers and all other helper inputs remain unchanged. sourceItem remains byte-identical: actual production makeItem, idle/nil previews/URL/images/format/path, incoming base color, Unknown/unresolved sender, sender-groupingtrue/other flagsfalse, previewsEnabledtrue/currentUserNameMe and source-equivalent environment defaults; only region is enabled. Removed translation offers false.",
+      "adaptations": "Swift MainActor/UIKit pure construction becomes three synchronous JUnit4 methods in the existing App API31/en-US Robolectric host. Actual footer fields use native String/Boolean/SnapshotList equivalents; expected strings/lists are independent source literals, never candidate coalesce/sort/formatter output. The label case preserves source directMessage showSenderName=false, not helper groupingtrue; contactName Alice is unused on that path and is not fabricated as sender resolution. Both source label-name containment assertions remain without imposing a new full-label/locale-join contract. No new mount, TalkBack, native/device, radio/resource scenario, framework, product/build/runner change or generated accounting. Clean identical-tree FF bf0d9->actualb8c adds no incoming paths; same-owner receipt132->133 admits exactly four owned modifications before edits, retaining immutable identity/binding/authorization and prior attribution.",
+      "helpers": [
+        "MC1Tests/Views/Chats/Components/MessageBubbleTestData.swift",
+        "MC1/Views/Chats/Components/UnifiedMessageBubble.swift",
+        "MC1/Views/Chats/Components/MessageBubbleConfiguration.swift",
+        "MC1/Views/Chats/Components/BubbleFooterRow.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageFragmentBuilder.swift",
+        "MC1Services/Sources/MC1Services/Models/Message.swift",
+        "MC1Services/Sources/MC1Services/Models/RegionScopeSemantics.swift",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBubbleAccessibilityAcceptanceTest.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageBubbleAccessibility.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageFragmentBuilder.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageFooter.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageBuildInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/EnvInputs.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RegionValues.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/Snapshots.kt"
+      ],
+      "consumer": "Read actual builder-produced regionToShow/regionIsAmbiguous/regionMatchNames; the third real item also flows through messageBubbleAccessibilityLabel(message,item,false,resources), the App consumer used by live conversation bubble semantics. Source ListFormatter/localization maps to the existing Android ICU/resource production implementation; these originals assert both literal candidate names rather than a candidate-generated expected join. Required identities: multiMatchOriginalFooterOverridesStickyScopeAndBakesCanonicalNames, legacyScopeOriginalFooterIsUniqueWithoutMatches, ambiguousOriginalIncomingDmLabelListsEveryCandidate. All ten incumbent class methods, sourceItem and other helpers remain unchanged; only predicateIncomingDm gains equivalent-default optional matches. Prior proposal groups and delivered PR308/310 assertions are retained without extra credit.",
+      "unresolved": [
+        "Local-only implementation held for independent coordinator source review before publication. Candidate Kotlin compilation, actual three-method discovery/execution and independent source review remain UNVERIFIED until exact-candidate evidence. Declared preflight and non-native validation outcomes are recorded in docs/android/evidence/WP-501/message-region-ambiguity-originals.md. No historical successful logs reread, result bundle, CI dispatch/rerun, native/device/resource/allowance action or whole-WP acceptance; historical implementation-time notes remain history, not reopened gaps."
+      ]
+    },
+    {
       "id": "message-region-original-incoming-dm-label-consumers",
       "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
       "partial_source_file": true,

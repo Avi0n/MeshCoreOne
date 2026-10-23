@@ -125,6 +125,40 @@ class MessageBubbleAccessibilityAcceptanceTest : RoomProcessTest() {
         assertTrue(label.contains(regionFragment))
     }
 
+    @OriginalCase("MessageBubblePredicateTests::footer bakes multi-match chip label and ambiguous flag()")
+    @Test fun multiMatchOriginalFooterOverridesStickyScopeAndBakesCanonicalNames() {
+        val message = predicateIncomingDm(RouteType.FLOOD, "Germany", SnapshotList.of("de-hh", "de-by"))
+        val footer = sourceItem(message, region = true).footer
+
+        assertEquals("de-by / de-hh", footer.regionToShow)
+        assertTrue(footer.regionIsAmbiguous)
+        assertEquals(listOf("de-by", "de-hh"), footer.regionMatchNames)
+    }
+
+    @OriginalCase("MessageBubblePredicateTests::footer bakes legacy scope-only as unique without ambiguous flag()")
+    @Test fun legacyScopeOriginalFooterIsUniqueWithoutMatches() {
+        val message = predicateIncomingDm(RouteType.FLOOD, "Germany", SnapshotList.empty())
+        val footer = sourceItem(message, region = true).footer
+
+        assertEquals("Germany", footer.regionToShow)
+        assertFalse(footer.regionIsAmbiguous)
+        assertEquals(listOf("Germany"), footer.regionMatchNames)
+    }
+
+    @OriginalCase("MessageBubblePredicateTests::accessibilityMessageLabel lists all candidates when ambiguous()")
+    @Test fun ambiguousOriginalIncomingDmLabelListsEveryCandidate() {
+        val message = predicateIncomingDm(RouteType.FLOOD, null, SnapshotList.of("de-hh", "de-by"))
+        val item = sourceItem(message, region = true)
+        val footer = item.footer
+        val label = messageBubbleAccessibilityLabel(message, item, false, resources)
+
+        assertTrue(footer.regionIsAmbiguous)
+        assertTrue(footer.regionMatchNames.contains("de-by"))
+        assertTrue(footer.regionMatchNames.contains("de-hh"))
+        assertTrue(label.contains("de-by"))
+        assertTrue(label.contains("de-hh"))
+    }
+
     @Test fun supplementalStatusAndRegionLabelsKeepWideCountersAndEveryAmbiguousCandidate() {
         val retry = outgoing("original", MessageStatus.RETRYING).copy(
             retryAttempt = 2_147_483_648, maxRetryAttempts = 2_147_483_650,
@@ -369,12 +403,16 @@ class MessageBubbleAccessibilityAcceptanceTest : RoomProcessTest() {
         }
     }
 
-    private fun predicateIncomingDm(routeType: RouteType, regionScope: String) = MessageDTO(
+    private fun predicateIncomingDm(
+        routeType: RouteType,
+        regionScope: String?,
+        regionScopeMatches: SnapshotList<String> = SnapshotList.empty(),
+    ) = MessageDTO(
         id = UUID.randomUUID(), radioId = RadioId(UUID.randomUUID()),
         contactID = null, channelIndex = null, text = "Test", timestamp = 0u, createdAt = Instant.EPOCH,
         direction = MessageDirection.INCOMING, status = MessageStatus.DELIVERED,
         pathLength = 2u, pathNodes = Bytes.of(0xA3, 0x7F), isRead = true,
-        routeType = routeType, regionScope = regionScope,
+        routeType = routeType, regionScope = regionScope, regionScopeMatches = regionScopeMatches,
     )
 
     private fun incoming(text: String) = MessageDTO(
