@@ -201,6 +201,7 @@ private fun AppChatConversation(
         val environment = remember(feature, target, scope) { feature.environment(target, scope, location) }
         val mentionContacts by environment.mentionContacts.collectAsStateWithLifecycle()
         val composerDevice by environment.device.collectAsStateWithLifecycle()
+        val bubbleLabels = rememberMessageBubbleLabels(feature.content, mentionContacts, composerDevice?.nodeName)
         val timeline = remember(feature, conversation) {
             ChatViewModel(conversation, feature.timeline(conversation), scope)
         }
@@ -272,6 +273,7 @@ private fun AppChatConversation(
         AppChatConversationScreen(
             timeline, composer, stringResource(AppChatsStrings.chatsInputPlaceholderDirectMessage), links,
             currentUserName = composerDevice?.nodeName,
+            messageAccessibilityLabel = bubbleLabels,
             onPickContact = { pickContact = true },
             scrollTo = state.pendingScrollToMessageID,
             onScrollConsumed = { requested ->

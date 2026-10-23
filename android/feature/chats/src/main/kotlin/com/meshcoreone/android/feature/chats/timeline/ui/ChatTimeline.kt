@@ -63,6 +63,7 @@ import kotlinx.coroutines.launch
 fun ChatTimelineRoute(
     viewModel: ChatViewModel,
     modifier: Modifier = Modifier,
+    messageAccessibilityLabel: ((MessageDTO) -> String)? = null,
     messageBody: @Composable (MessageDTO, Boolean) -> Unit = DefaultMessageBody,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -81,7 +82,7 @@ fun ChatTimelineRoute(
         viewModel.start()
         viewModel.open()
     }
-    ChatTimeline(state, callbacks, modifier, messageBody = messageBody)
+    ChatTimeline(state, callbacks, modifier, messageAccessibilityLabel = messageAccessibilityLabel, messageBody = messageBody)
 }
 
 /** Plain-text body; WP-308 supplies the linkified/mention/preview body through the `messageBody` slot. */
@@ -104,6 +105,7 @@ fun ChatTimeline(
     callbacks: ChatTimelineCallbacks,
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
+    messageAccessibilityLabel: ((MessageDTO) -> String)? = null,
     messageBody: @Composable (MessageDTO, Boolean) -> Unit = DefaultMessageBody,
 ) {
     val visualRows = state.rows.asReversed()
@@ -218,6 +220,7 @@ fun ChatTimeline(
                         retrying = row.message.id in state.retryingMessageIds,
                         onRetry = { callbacks.onRetry(row.message) },
                         messageBody = messageBody,
+                        messageAccessibilityLabel = messageAccessibilityLabel,
                     )
                 }
             }
@@ -302,10 +305,11 @@ private fun MessageBubble(
     retrying: Boolean,
     onRetry: () -> Unit,
     messageBody: @Composable (MessageDTO, Boolean) -> Unit,
+    messageAccessibilityLabel: ((MessageDTO) -> String)?,
 ) {
     val outgoing = row.message.direction == MessageDirection.OUTGOING
     val status = if (outgoing) statusText(row.message) else null
-    val accessibilityLabel = buildString {
+    val accessibilityLabel = messageAccessibilityLabel?.invoke(row.message) ?: buildString {
         if (!outgoing && row.message.isChannelMessage && !row.message.senderNodeName.isNullOrBlank()) {
             append(row.message.senderNodeName)
             append(". ")

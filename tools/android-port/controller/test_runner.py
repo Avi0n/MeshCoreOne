@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -13,16 +14,28 @@ NATIVE_INPUTS = (NATIVE_SUITE + "/", "docs/android/accessibility/", "docs/androi
 
 def candidate_suite(repo, event_name, event):
     from controller.errors import PortError
-    from controller.model import git, tree
+    from controller.model import SHA, git, tree
     from oracle.workflow_scope import changed_paths, endpoints
 
     pair = endpoints(event_name, event)
     if pair is None:
-        raise PortError("Native suite selection requires immutable base/head endpoints")
-    base, head = pair
+        if (
+            not isinstance(event, dict) or not isinstance(event.get("ref"), str)
+            or not event["ref"].strip()
+            or any(key in event for key in ("pull_request", "merge_group", "before", "after"))
+        ):
+            raise PortError("Malformed manual workflow event; no PR endpoints may be substituted")
+        head = os.environ.get("GITHUB_SHA", "")
+        if SHA.fullmatch(head) is None:
+            raise PortError("Manual suite selection requires immutable GITHUB_SHA commit provenance")
+        base = None
+    else:
+        base, head = pair
     if git(repo, "rev-parse", "HEAD").decode().strip() != head:
         raise PortError("Native suite selection head differs from the actual checkout")
-    before, after = tree(repo, base), tree(repo, head)
+    if base is None and git(repo, "cat-file", "-t", head).decode().strip() != "commit":
+        raise PortError("Manual suite selection requires a commit object")
+    before, after = (tree(repo, base) if base is not None else {}), tree(repo, head)
     def family(path):
         return path == NATIVE_SUITE or path.startswith(NATIVE_SUITE + "/")
 
@@ -30,7 +43,7 @@ def candidate_suite(repo, event_name, event):
     relevant = any(
         family(path) or path == "docs/android/deviations/WP-503.md"
         or path.startswith(NATIVE_INPUTS)
-        for path in changed_paths(repo, base, head)
+        for path in (changed_paths(repo, base, head) if base is not None else ())
     )
     selected = bool(committed) or any(family(path) for path in before) or relevant
     root = repo.resolve() / NATIVE_SUITE
@@ -58,7 +71,11 @@ def candidate_suite(repo, event_name, event):
     return {
         "suite": NATIVE_SUITE, "selected": selected, "base": base, "head": head,
         "result": "SELECTED" if selected else "NOT SELECTED",
-        "reason": "present-in-base-or-head-or-relevant-change" if selected else "absent-at-both-endpoints-and-no-family-change",
+        "reason": (
+            "present-in-manual-commit" if selected else "absent-from-manual-commit"
+        ) if base is None else (
+            "present-in-base-or-head-or-relevant-change" if selected else "absent-at-both-endpoints-and-no-family-change"
+        ),
         "committed_files": len(committed),
     }
 
