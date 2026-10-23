@@ -110,6 +110,18 @@ No state or readiness is invented. Local functional status is **UNVERIFIED**.
 Normal guarded publication and its own exact-candidate hosted result are required;
 no result bundle is retained, rehashed or revalidated.
 
+Ordinary `git push -u origin HEAD` at source
+`17023217fee0044d95c00f18fe057a187e0961d6` independently acquired the normal
+shared software lane. Its existing Python stage passed scaffold15,
+parity-accounting108 and local-tool46 cases; environment preflight passed.
+The declared scaffold reached App compilation and reported the missing
+`com.meshcoreone.android.core.model.uppercaseHexString` extension import.
+The hook then reached its unchanged180s advisory deadline, reported owned-work
+cleanup and published that source explicitly **UNVERIFIED**. This successor
+adds that actual existing import; the negative is not erased or called a pass.
+No direct Gradle/native launch, runtime repair, hook change or lock bypass was
+used. Own hosted results, not this advisory attempt, remain necessary.
+
 Source-only verification after implementation:
 
 - `python tools\android-port\controller\validate.py`: PASS, frozen pin,

@@ -22,6 +22,7 @@ import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.MessageStatus
 import com.meshcoreone.android.core.model.snapshot
+import com.meshcoreone.android.core.model.uppercaseHexString
 import com.meshcoreone.android.core.services.rendering.*
 import com.meshcoreone.android.core.ui.UiFormatArgument
 import com.meshcoreone.android.core.ui.UiText
