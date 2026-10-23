@@ -250,16 +250,16 @@ class NativeMessagingFlowAccessibilityTest : DeviceAccessibilityHarness() {
                     assertEquals(originalActiveDevice, store.fetchActiveDevice())
                 }
             }
+        }
+    }
 
-            private fun nativeMessageDescendants(node: AccessibilityNodeInfo): Sequence<AccessibilityNodeInfo> = sequence {
-                assertTrue("Refresh actual message bridge data", node.refresh())
-                yield(node)
-                for (index in 0 until node.childCount) {
-                    yieldAll(nativeMessageDescendants(requireNotNull(node.getChild(index)) {
-                        "A declared native message child became unavailable"
-                    }))
-                }
-            }
+    private fun nativeMessageDescendants(node: AccessibilityNodeInfo): Sequence<AccessibilityNodeInfo> = sequence {
+        assertTrue("Refresh actual message bridge data", node.refresh())
+        yield(node)
+        for (index in 0 until node.childCount) {
+            yieldAll(nativeMessageDescendants(requireNotNull(node.getChild(index)) {
+                "A declared native message child became unavailable"
+            }))
         }
     }
 }
