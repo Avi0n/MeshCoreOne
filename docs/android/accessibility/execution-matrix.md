@@ -2,6 +2,31 @@
 
 ## Current source-bound observations and remaining acceptance
 
+At compiled **df792734310b6a8af5004dd17ca393f48037225b/r36**, with exact
+actual315 App-main, both unchanged original API37 cold controls still fail:
+service1FAIL5.341s, callback1FAIL6.069s. Each has1 discovery/start/matching
+outcome,0PASS/ERROR/SKIP, CLI2/host0/terminal-1/runner_completed=true.
+Service activation remainsfalse74checks/1020ms; restoration returnsfalse0ms.
+Callback activation instead reachestrue6checks/56ms with an actual main
+heartbeat45ms, but restoration remainstrue84checks/1001ms and heartbeat0.
+Both callbacks eventually occur; the restoration callback is after its original
+deadline. This is not the historical7c callback0/activation-failure outcome.
+The after-deadline main stack records RoomPersistenceStore constructors via
+AndroidAppContainerFactory/openRoomDatabaseOnIo; this remains investigatory,
+not proof of the failure's cause or a reason to extend the original1000ms.
+
+Both use separate newly allocated roots and the unchanged CPU4/font2/effective2/
+360x900/mdpi/motion0/IME0,120s boot/180s instrumentation profile. Original zero
+Activity/events, noCompose/noTestDispatcher/noWarmup and flags are retained.
+Both instrumentation commands return normally; independent CIM checks establish
+all exact owned PIDs absent, disposal verified and new-owner locksNONE. The
+entire original66bd lock record and installed runtime/hooks remain unchanged.
+Both bounded attempts are exhausted; no replay/other cohort or source fix is
+authorized by these negative results.
+[Exact df native observations and raw receipts](../evidence/WP-503/device-df792734-cold-controls-api37.json).
+
+**Historical7c observations, preserved separately:**
+
 At compiled **7c4ffaa5aebb0da51c5655f537c2dcbdbc147106/r34**, two separately
 admitted original API37 cold controls each finish normally with1 discovery/
 start/matching outcome and **1FAIL/0PASS/0ERROR/0SKIP**: service4.086s and
@@ -51,7 +76,7 @@ Nodes7 and all older results retain their own source/APK/runtime bindings.
 | Concrete acceptance cell | Evidence now available / remaining boundary |
 |---|---|
 | Former missing-only API37 original27 | Comparator11, tr/az2 and diagnostics5 passed at473; Nodes7 passed at728; LoS1 and cached-chat1 now pass at ee1104. There is no longer an unstarted LoS/cached-chat cell in this selection. These are distinct compiled sources, not a single27/27 current-candidate invocation or automatic acceptance. |
-| Cold API37 activation/restoration controls | Both exact original zero-Activity controls now have fresh compiled7c negatives: service1FAIL4.086s and callback1FAIL4.632s, activationfalse at1001ms, with real restoration and independent cleanup. Historical failures remain separate; Room/main-loop observations are not causal proof. Process-ready LoS/cached-chat passes do not clear this unresolved cold activation cell. |
+| Cold API37 activation/restoration controls | Latest compileddf/315 graph still has service1FAIL5.341s at activation and callback1FAIL6.069s at restoration, despite callback activation56ms/heartbeat45ms. Historical7c4.086s/4.632s negatives remain separate. Both new disposals/owned-PID absence are independently verified; Room/main-loop observations are not causal proof. Process-ready LoS/cached-chat passes do not clear this unresolved cell. |
 | Compatible full-inventory/context reconciliation | Historical83/82/mixed10/context-bound Nodes/map/isolated QR failures remain historical. No compatible full current-source/API31+37 inventory reconciliation is produced by two scoped methods. Existing positive evidence needs exact source/state/provenance review, not successful-case replay or numerical addition across sources. |
 | Remaining feature/platform/window cells | Permission-dialog return focus, pairing/successful physical WiFi, sheet dismissal, populated map/marker-list/terrain and real-radio states remain unestablished by these two methods. The detailed flow/state contract below still controls; existing scoped positives cover only their recorded states and APIs. |
 | Physical TalkBack/device observation | Spoken order/repetition, tab-to-content and Back/resize/dialog focus return, link/retry and map-to-list traversal remain human/device observations. Automated touch-exploration service state and native actions are not physical TalkBack evidence. |

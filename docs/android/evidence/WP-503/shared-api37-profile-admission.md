@@ -3823,3 +3823,52 @@ two genuine315 producer inputs while retaining original historical tree/blob
 checks and complete fixture/identity/pixel-offset assertions. The cold-family
 preservation regression admits only those exact provenance substitutions.
 No cached-chat selection or native result is claimed.
+
+### Actual df/315 original two-control execution and independent END
+
+Parent independent source review clears the exact df/c1/315 ancestry and
+original fixture assertions; main315 is serialized for only these two controls.
+Ordinary feature publication advances existing PR205 ba-to-df without force.
+The unchanged installed advisory hook exceeds its180s bound and reports owned
+cleanup/UNVERIFIED; this is not a merge-verification pass. Own automatic
+39876885424 is exactdf software CI, separate from native results and older
+ba/315 runs; no run is dispatched/retried and no result bundle is retained.
+
+First admission00:14:36.523961Z has commit9819.25390625MiB/physical10417.6640625.
+The actual service command starts00:20:24Z and returns normally00:20:43Z;
+CLIEND00:20:44.271655Z. Exactly one original method is discovered/started/
+matched:0PASS/1FAIL/0ERROR/SKIP,5.341s, CLI2/host0/terminal-1,
+runner_completed=true. Original activation remainsfalse74checks/1020ms under
+the unchanged1000ms deadline; restoration returnsfalse1check/0ms.
+Independent cleanup00:20:55.441173Z proves disposaltrue, exact owned
+PIDs38340/59188/62424 absent and new-owner locksNONE.
+
+Only then fresh all-source/runtime/main/API/actor/pause/manifest/policy/request/
+image/tool/owner/memory guards admit the independent second original at
+00:21:18.790831Z, commit12207.9765625MiB/physical12337.046875.
+Its command starts00:25:36Z, normally returns00:25:55Z, CLIEND00:25:57.834202Z.
+One original discovery/start/match produces0PASS/1FAIL/0ERROR/SKIP,6.069s,
+CLI2/host0/terminal-1/runner_completed=true. Activation is READYtrue6checks/56ms,
+with actual main heartbeat45ms. Restoration remainstrue84checks/1001ms,
+restoration heartbeat0; actual callbacks count2, including eventualfalse after
+the original restoration deadline. Activity count/events remain0.
+Independent cleanup00:26:03.690655Z proves disposaltrue, exact owned
+PIDs13012/58304/58308 absent and new-owner locksNONE.
+
+Both use distinct exclusively allocated roots, CPU4/font2/effective2/360x900/
+density160/motion0/IME0 and unchanged120/180 bounds; actual source App/Test
+6168b18b/ef7c6fba and existing public certificate/digests are verified.
+The callback's after-deadline main stack records RoomPersistenceStore
+constructors18/38/33 via factory95/openRoomDatabaseOnIo298. This observation
+supports further producer investigation, NOT causal proof or a case pass.
+The native index records full source/profile/build-pair/raw/ops/logcat/
+independent-cleanup hashes and retained paths; no APK/key/CI bundle is copied.
+
+Complete actual original66bd records compare equal to both preadmission
+snapshots after both ENDs. No old endpoint/guest is adopted, probed, restored,
+released or restarted, and runtime/hooks are not installed or changed.
+Both authorized attempts are exhausted; main serialization release is requested
+after the independent cleanup report. Historical7c/b899/325/728/ee and ba CI
+retain their own bindings. Evidence-only scope36-to37 preserves all non-scope
+identity/authorization/history and the entire compileddf Android/tools tree.
+No body CAS or further native/production action is implied by this closeout.
