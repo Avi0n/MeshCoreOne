@@ -5,6 +5,41 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "unified-bubble-original-labels-and-live-app-consumer",
+      "source_path": "MC1Tests/Views/Chats/Components/UnifiedMessageBubbleA11yLabelTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBubbleAccessibilityAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.MessageBubbleAccessibilityAcceptanceTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "incoming message label includes sender, text, and footer fragments",
+        "outgoing message label includes status text",
+        "fallback sender label includes possible-match disclosure",
+        "label composition is stable across repeated reads"
+      ],
+      "comparison": "All four frozen originals, retaining exact incoming label equality and punctuation with each localized footer fragment; outgoing pending contains sending; fallback starts Alice colon-space and contains possible-match disclosure; and equal repeated reads containing stable. Four explicit OriginalCase methods consume actual MessageFragmentBuilder items and the same production label composer reached by the live App. Three separate mounted real App/Room regressions exercise actual contact/nickname and ambiguous-prefix resolution, persistent preference updates, same-ID content/semantics retention, actual Details/Copy, rich external-link dispatch, locally decoded image/fullscreen actions and one real failed-send retry through the production queue/fake firmware. One supplementary method covers wide Long status counters and ambiguous region candidates, without assigning additional original-family credit.",
+      "inputs": "Original helper stable radio/contact/incoming/outgoing UUIDs, Unix1700000000, incoming delivered/plain/read channel1 senderAlice six-byteABCDEF012345/pathLength3/zero counters, nil pathNodes plus NORTHWEST and supplied A to B to C for the first case; pending ok and sent stable DMs with sendCount1; nil sender and supplied Alice/FALLBACK for third. Builder helper preview/grouping/Me/default environment inputs preserved. Original label cases do not invoke the production path formatter to manufacture their expected strings. Mounted cases instead use actual Room rows, actual current-radio contacts with unique or colliding nicknames, a genuinely ambiguous one-byte key prefix, persisted path/hop/region settings and actual production MessagePathFormatter output. Supplemental native-only graph/HTTP/clipboard setup is not purported original input or independent iOS evidence.",
+      "adaptations": "Swift MainActor/UIKit construction becomes API31 Robolectric/JUnit4 using existing App source-set and RoomProcessTest/ContainerHarness/Compose fixtures. Original four methods are deterministic label-function assertions, not screen-reader execution; three additional methods mount the actual AppChatsContent -> AppChatConversationScreen -> ChatTimeline private MessageBubble with a real AppChatContent preference source. The App composes an envelope/footer projection through existing MessageFragmentBuilder; unused content-fragment/media-reference fields do not replace or drive the incumbent rich-body/media renderer. No fallback DTO, footer, contact, MessageItem or EnvInputs.DEFAULT is invented in production. An intentionally unbound standalone graph keeps its previous basic label via the optional presentation slot. No canonical coordinator, core producer, build dependency, queue/runtime policy, translation, native scenario or fixture machinery is changed.",
+      "helpers": [
+        "MC1Tests/Views/Chats/Components/MessageBubbleTestData.swift",
+        "MC1/Views/Chats/Components/UnifiedMessageBubble.swift",
+        "MC1/Views/Chats/Components/MessageBubbleConfiguration.swift",
+        "MC1/Views/Chats/Components/BubbleFooterRow.swift",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageBubbleAccessibility.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatsContent.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatConversationScreen.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageFragmentBuilder.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/EnvInputs.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/actions/MessagePathModels.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt"
+      ],
+      "consumer": "Live App selects current-radio environment contacts/device and existing process AppChatContent.rendering snapshots. Unique nonempty nicknames retain the raw sender plus unverified disclosure; prefix resolution reuses PathNodeResolver and maps typed match kinds, not a name-only success substitute. Real preferences/environment/path feed the existing builder; returned envelope/footer feed localized label/status/ICU region-list formatting; the label callback reaches the actual mounted private MessageBubble. Existing body, media, links, retry, Details and stable-key list code remain authoritative. Whole-bubble clear semantics is deliberately not used: one configured content-description entry is asserted in merged/unmerged trees while preserving actionable descendants. JVM semantics are not proof of TalkBack speech, traversal or device behavior. WP307/213 source ownership and all previously credited originals remain unchanged.",
+      "unresolved": [
+        "Candidate Kotlin compilation, actual eight-method discovery/execution and independent source review are not yet established. Declared preflight requires absent explicit --state/ANDROID_CI_STATE; no local native or Gradle work, guard/runtime repair or lane bypass is authorized. Positive exact-candidate hosted discovery is required. No API37, native TalkBack, physical device, screenshot or whole-WP acceptance is claimed."
+      ]
+    },
+    {
       "id": "message-footer-original-seven-row-contribution-algebra",
       "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
       "partial_source_file": true,

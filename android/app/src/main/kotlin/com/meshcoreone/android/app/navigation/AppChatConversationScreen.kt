@@ -31,6 +31,7 @@ internal fun AppChatConversationScreen(
     onScrollConsumed: (UUID) -> Unit,
     report: (String, Throwable?) -> Unit,
     attachments: @Composable (MessageDTO, Boolean) -> Unit,
+    messageAccessibilityLabel: ((MessageDTO) -> String)? = null,
     emojiPicker: EmojiPickerStateHolder? = null,
     emojiStatus: @Composable () -> Unit = {},
 ) {
@@ -88,7 +89,7 @@ internal fun AppChatConversationScreen(
     )
     Column(Modifier.fillMaxSize().navigationBarsPadding().imePadding()) {
         Box(Modifier.weight(1f)) {
-            ChatTimeline(presented, callbacks, messageBody = { message, outgoing ->
+            ChatTimeline(presented, callbacks, messageAccessibilityLabel = messageAccessibilityLabel, messageBody = { message, outgoing ->
                 Column {
                     MessageBody(message.text, outgoing, currentUserName, onLink = { dispatcher.dispatch(it) })
                     attachments(message, outgoing)
