@@ -2,6 +2,8 @@
 // PortedFrom: MC1/Views/Chats/Reactions/ReactionBadgesView.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Reactions/ReactionDetailsSheet.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Components/MessagePathContent.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/Components/PathHopRowView.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/Components/MessagePathDetailBlock.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Components/MessagePathMapView.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Components/RepeatRowView.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Components/FallbackMatchIndicatorView.swift@db14559b39d32322b06477c6ae676112f583db50
@@ -91,6 +93,7 @@ fun MessageActionsRoute(
     onAction: (MessageAction) -> Unit,
     modifier: Modifier = Modifier,
     clock: Clock = Clock.systemDefaultZone(),
+    localDeviceName: String? = localDevice?.name,
 ) {
     val state by holder.state.collectAsStateWithLifecycle()
     LaunchedEffect(holder, message.id) { holder.loadDetails(message) }
@@ -107,6 +110,7 @@ fun MessageActionsRoute(
         holder::setMuted,
         modifier,
         clock,
+        localDeviceName,
     )
 }
 
@@ -124,6 +128,7 @@ fun MessageActionsContent(
     onSetMuted: (ContactDTO, Boolean) -> Unit,
     modifier: Modifier = Modifier,
     clock: Clock = Clock.systemDefaultZone(),
+    localDeviceName: String? = localDevice?.name,
 ) {
     val availability = remember(message) { MessageActionAvailability.forMessage(message) }
     var selectedArrivalId by rememberSaveable(message.id) { mutableStateOf<UUID?>(null) }
@@ -173,6 +178,7 @@ fun MessageActionsContent(
                         userLocation,
                         showMap,
                         { showMap = it },
+                        localDeviceName,
                     )
                 }
                 MessageMetadata(message, arrivals.size)
@@ -337,6 +343,7 @@ private fun PathDetails(
     userLocation: Coordinate?,
     showMap: Boolean,
     onShowMap: (Boolean) -> Unit,
+    localDeviceName: String?,
 ) {
     Text(
         stringResource(AppChatsStrings.chatsMessageActionPathDetails),
@@ -378,7 +385,7 @@ private fun PathDetails(
             PathMap(message, arrivals, selectedArrivalId, state.directory, localDevice, userLocation)
         }
     } else if (selected != null) {
-        PathHopList(selected, state.directory, userLocation)
+        PathHopList(message, selected, state.directory, userLocation, localDeviceName)
     }
     if (state.repeats != null && state.repeats.isNotEmpty()) {
         Text(
@@ -392,9 +399,11 @@ private fun PathDetails(
 
 @Composable
 private fun PathHopList(
+    message: MessageDTO,
     arrival: MessagePathArrival,
     directory: MessagePathDirectory,
     userLocation: Coordinate?,
+    localDeviceName: String?,
 ) {
     if (arrival.isPathUnavailable) {
         Text(stringResource(AppChatsStrings.chatsPathUnavailableDescription))
@@ -402,8 +411,15 @@ private fun PathHopList(
     }
     if (arrival.isZeroHop) {
         Text(stringResource(AppChatsStrings.chatsMessagePathFlood))
-        return
     }
+    val receiverName = localDeviceName ?: stringResource(AppChatsStrings.chatsPathReceiverYou)
+    PathEndpointRow(
+        label = stringResource(AppChatsStrings.chatsPathHopSender),
+        resolution = directory.senderResolution(
+            message, receiverName, stringResource(AppChatsStrings.chatsPathHopUnknown),
+        ),
+        nodeId = directory.senderNodeId(message),
+    )
     arrival.pathHops.forEachIndexed { index, hop ->
         val resolution = PathNodeResolver.repeatResolution(
             hop.data,
@@ -420,6 +436,70 @@ private fun PathHopList(
             Text(resolution.displayName, style = MaterialTheme.typography.bodyMedium)
             if (resolution.isFallback) {
                 Text(stringResource(AppChatsStrings.chatsPathHopPossibleMatch), style = MaterialTheme.typography.labelSmall)
+            }
+        }
+    }
+    PathEndpointRow(
+        label = stringResource(AppChatsStrings.chatsPathReceiverLabel),
+        resolution = NodeNameResolution(receiverName, NodeNameMatchKind.EXACT),
+        snr = arrival.snr,
+    )
+}
+
+@Composable
+private fun PathEndpointRow(
+    label: String,
+    resolution: NodeNameResolution,
+    nodeId: String? = null,
+    snr: Double? = null,
+) {
+    val resources = LocalResources.current
+    Column(
+        Modifier.fillMaxWidth().padding(vertical = 8.dp).semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text(resolution.displayName, style = MaterialTheme.typography.bodyMedium)
+        nodeId?.let {
+            Text(AppChatsStrings.chatsPathHopNodeId(resources, it), style = MaterialTheme.typography.bodySmall)
+        }
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        snr?.let {
+            val quality = stringResource(
+                when (MessageSignalQuality.of(it)) {
+                    MessageSignalQuality.EXCELLENT -> AppChatsStrings.chatsSignalExcellent
+                    MessageSignalQuality.GOOD -> AppChatsStrings.chatsSignalGood
+                    MessageSignalQuality.FAIR -> AppChatsStrings.chatsSignalFair
+                    MessageSignalQuality.POOR -> AppChatsStrings.chatsSignalPoor
+                    MessageSignalQuality.UNKNOWN -> AppChatsStrings.chatsPathHopSignalUnknown
+                },
+            )
+            val formatted = String.format(resources.configuration.locales[0], "%.1f", it)
+            Text(
+                AppChatsStrings.chatsPathHopSignalQuality(resources, quality, formatted),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (resolution.isFallback) {
+            var showExplanation by rememberSaveable(resolution) { mutableStateOf(false) }
+            val explanation = stringResource(AppChatsStrings.chatsPathHopPossibleMatchExplanation)
+            TextButton(
+                onClick = { showExplanation = true },
+                modifier = Modifier.sharedTouchTarget().semantics { stateDescription = explanation },
+            ) {
+                Text(stringResource(AppChatsStrings.chatsPathHopPossibleMatch))
+            }
+            if (showExplanation) {
+                AlertDialog(
+                    onDismissRequest = { showExplanation = false },
+                    title = { Text(stringResource(AppChatsStrings.chatsPathHopPossibleMatchTitle)) },
+                    text = { Text(explanation, Modifier.verticalScroll(rememberScrollState())) },
+                    confirmButton = {
+                        TextButton(onClick = { showExplanation = false }, modifier = Modifier.sharedTouchTarget()) {
+                            Text(stringResource(AppLocalizableStrings.commonDone))
+                        }
+                    },
+                )
             }
         }
     }
