@@ -103,3 +103,33 @@ otherwise value-less failure without attributing it to a production or fixture c
 No looper shortcut, renderer fake, source filter, golden/expectation relaxation or foreign edit.
 Both component SDK variants and all six incumbent methods are preserved.
 The already integrated current-main3f0 bytes and incoming WP501 entries remain unchanged.
+
+## Measured simple-text semantics correction
+
+The coordinator centrally consumed official68dc/run39922198423 attempt1 Linux120311887033 once.
+Reported Kotlin main/test compilation succeeded; App1374 discovered/1372 passed/2 failed/0 errors/skips.
+Only original12400m component SDK31 and33 failed, at width predicate. Both reported resource en-AU,
+ambient en_US, formatted `12 km`, parsed12.0, size72x30, max constraints328x984, paragraph328x30,
+one line, fontScale2.0. Magnitude/resource/font checks passed for that first row; later locale/null
+transitions were not reached. No unlocated-path failure was listed. No complete selected-suite pass
+or suppressed-runnable root cause is claimed; this worker did not reread the official log.
+
+Read exact pinned `androidx.compose.foundation:foundation:1.10.6` sources from Google's Maven source
+archive: `TextStringSimpleNode.applySemantics` calls `ParagraphLayoutCache.slowCreateTextLayoutResultOrNull`.
+That cache constructs a new MultiParagraph using `prevConstraints.copyMaxDimensions()` but supplies the
+old wrap-content `layoutSize` as TextLayoutResult.size. Thus `didOverflowWidth` compares available
+paragraph width328 against measured node72, not painted glyph extent. It is invalid as this simple
+start-aligned LTR label's no-clipping test. Existing repository ContactMatchRow/NewChatSheet and
+MountedTextAssertions tests similarly inspect glyph/line, full node and clipped viewport geometry.
+No shared helper or frozen source was changed.
+
+Replace only that misleading width predicate with equally strict direct geometry assertions for each
+original locale on both SDKs: verify raw text, LTR/start alignment, 200% and retained vertical overflow;
+measured layout equals actual node size; full positive node bounds fit its clipped visible bounds and
+every semantic ancestor including root; every line is non-ellipsized, last line reaches full text;
+all line edges and every character's actual GetTextLayoutResult bounding box, translated from actual
+node origin, fit both full node and visible ancestor bounds. Assert the LTR/start precondition rather
+than treating reconstructed centered/RTL coordinates as paint. No TextMeasurer reconstruction,
+onTextLayout surrogate, full-width production change, source filter, looper shortcut or weaker golden.
+The original four locales,12400m magnitude/units, null/incomplete states, SDK31/33,200% and six incumbents
+are preserved. Production files are unchanged.

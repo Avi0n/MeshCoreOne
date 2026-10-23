@@ -16,14 +16,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.generated.AppChatsStrings
@@ -404,8 +407,44 @@ class MessageActionsRepairComposeTest {
                         "paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height}, " +
                         "lines=${layout.lineCount}, fontScale=${layout.layoutInput.density.fontScale}"
                     assertEquals("$measured: expected 200% font", 2f, layout.layoutInput.density.fontScale, 0f)
-                    assertFalse("$measured: distance must not overflow width", layout.didOverflowWidth)
                     assertFalse("$measured: distance must not overflow height", layout.didOverflowHeight)
+                    // Simple-string semantics recreates a max-width paragraph but keeps wrap-content size.
+                    // These fixtures are start-aligned LTR: line/glyph coordinates are the paint coordinates.
+                    assertEquals(measured, formatted, layout.layoutInput.text.text)
+                    assertEquals(measured, LayoutDirection.Ltr, layout.layoutInput.layoutDirection)
+                    assertTrue("$measured: start-aligned text required for direct glyph bounds",
+                        layout.layoutInput.style.textAlign in listOf(TextAlign.Start, TextAlign.Unspecified))
+                    val semantics = distanceNode.fetchSemanticsNode()
+                    val origin = semantics.positionInRoot
+                    val full = Rect(origin.x, origin.y,
+                        origin.x + semantics.size.width, origin.y + semantics.size.height)
+                    val ancestors = generateSequence(semantics) { it.parent }.toList()
+                    val visibleBounds = ancestors.map { it.boundsInRoot }
+                    fun contains(outer: Rect, inner: Rect) =
+                        inner.left >= outer.left && inner.top >= outer.top &&
+                            inner.right <= outer.right && inner.bottom <= outer.bottom
+                    val boundsMessage = "$measured: full=$full, visible/ancestors=$visibleBounds"
+                    assertTrue("$boundsMessage: full node must fit all visible ancestor bounds",
+                        full.width > 0f && full.height > 0f && visibleBounds.all { contains(it, full) })
+                    assertEquals(boundsMessage, semantics.size.width, layout.size.width)
+                    assertEquals(boundsMessage, semantics.size.height, layout.size.height)
+                    assertTrue("$boundsMessage: nonempty complete line layout required", layout.lineCount > 0)
+                    assertEquals("$boundsMessage: last line must include the entire distance",
+                        formatted.length, layout.getLineEnd(layout.lineCount - 1))
+                    for (line in 0 until layout.lineCount) {
+                        assertFalse("$boundsMessage: line $line must not ellipsize", layout.isLineEllipsized(line))
+                        val paintedLine = Rect(
+                            origin.x + layout.getLineLeft(line), origin.y + layout.getLineTop(line),
+                            origin.x + layout.getLineRight(line), origin.y + layout.getLineBottom(line),
+                        )
+                        assertTrue("$boundsMessage: painted line $line=$paintedLine must not clip",
+                            contains(full, paintedLine) && visibleBounds.all { contains(it, paintedLine) })
+                    }
+                    for (offset in formatted.indices) {
+                        val glyph = layout.getBoundingBox(offset).translate(origin)
+                        assertTrue("$boundsMessage: glyph $offset=$glyph must not clip",
+                            contains(full, glyph) && visibleBounds.all { contains(it, glyph) })
+                    }
                     // Only distance and localized incomplete label: the source preview excludes hop count.
                     assertEquals(2, compose.onAllNodes(
                         SemanticsMatcher.keyIsDefined(SemanticsProperties.Text),
