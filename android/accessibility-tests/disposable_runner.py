@@ -300,6 +300,7 @@ def execute_disposable(request, config):
     result = {
         "binding": asdict(request.binding), "api": request.api, "family": request.binding.family,
         "original_identities": request.identities, "reviewed_producer": PRODUCER, "trusted_revision": authority,
+        "publication_ref": FAMILIES[request.binding.family].publication_ref,
         "preservation_mode": "fresh-private-guest-disposal-not-shared-state-restoration",
         "host_instrumentation_process_exit": None, "disposal_verified": False, "acceptance": False,
         "requested_cpu_cores": config.cpu_cores,
