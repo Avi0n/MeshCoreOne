@@ -60,7 +60,7 @@ increase the 12-case original denominator.
 
 `com.meshcoreone.android.app.navigation.ChannelAvatarConsumerTest` mounts production
 `AppChatsContent` over the existing real AppContainer/fake-radio/Room harness, not a preview
-or test-only configuration adapter. Its six methods cover:
+or test-only configuration adapter. Its nine methods cover:
 
 - Actual cluster-end avatar and reserved leading alignment at 200% font: 56 dp diameter and
   6 dp gap; decorative semantics and unchanged stored messages.
@@ -72,13 +72,26 @@ or test-only configuration adapter. Its six methods cover:
 - Direct and outgoing rows omitting both avatar and reserved spacer.
 - A real App message event moving the cluster bookend while preserving the prior bubble,
   alignment, stored identity/text and zero sends.
+- Nil-name rows each retaining an avatar while empty and canonically equivalent nonnil
+  names continue their respective clusters.
+- Same-sender messages across midnight continuing their avatar cluster while both real
+  day dividers remain mounted.
+- The inclusive 300-second boundary and a 301-second gap splitting the next avatar cluster.
+
+Read-only source review of initial head `837666e3553c87d76dc990962e70116538c9b2f1`
+identified that general `endsGroup` was not equivalent to the frozen incoming-avatar
+predicate. The correction computes avatar cluster ends from chronological message neighbors
+without changing general grouping, calendar dividers, paging or stable keys. The three
+additional methods are bounded native regressions against the frozen
+`IncomingAvatarClusterTests.swift` semantics, not a claim that its entire 19-case family
+or full WP acceptance is complete.
 
 Photos are deterministic, valid in-memory PNGs decoded by the production bounded native
 cache. Initials assertions require visible nonuniform glyph rendering, not a blank avatar
 box. Each flow asserts no message sends and no HTTP requests.
 
-Both new classes select Robolectric SDK 31 and 37: 15 configuration methods plus six
-consumer methods declare 42 SDK-specific executions. This is an expected inventory only;
+Both new classes select Robolectric SDK 31 and 37: 15 configuration methods plus nine
+consumer methods declare 48 SDK-specific executions. This is an expected inventory only;
 the candidate's actual selected hosted lane must prove nonzero complete discovery and
 results, including the existing mandatory `:app:compileDebugAndroidTestKotlin`.
 

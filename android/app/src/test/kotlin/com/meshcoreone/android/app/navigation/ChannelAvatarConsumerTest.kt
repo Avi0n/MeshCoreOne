@@ -1,5 +1,6 @@
 // PortedFrom: MC1/Views/Chats/Components/IncomingAvatarGutter.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1Tests/ViewModels/IncomingAvatarClusterTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // Native adaptation: mounted App table/photo/grouping regressions, not additional original-case credit.
 package com.meshcoreone.android.app.navigation
 
@@ -29,6 +30,10 @@ import com.meshcoreone.android.core.services.content.BoundedHttpFetching
 import com.meshcoreone.android.core.services.content.HttpFetchAttempt
 import java.io.ByteArrayOutputStream
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.UUID
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
@@ -186,6 +191,66 @@ class ChannelAvatarConsumerTest : RoomProcessTest() {
             )
             assertEquals(first, store.fetchMessage(EntityKey(f.radio, first.id)))
             assertEquals(second, store.fetchMessage(EntityKey(f.radio, second.id)))
+            f.assertNoSendsOrHttp()
+        }
+    }
+
+    @Test fun nilNamesBreakAvatarClustersButEmptyAndCanonicalNamesContinue() = runTest {
+        withApp(this) { f ->
+            val names = listOf(null, null, "", "", "\u00c9", "E\u0301")
+            val messages = names.mapIndexed { index, name ->
+                f.message("Identity $index", index * 60).copy(senderNodeName = name)
+            }
+            messages.forEach { store.saveMessage(it) }
+            f.mount()
+            for (index in listOf(0, 1, 3, 5)) f.awaitAvatar(messages[index])
+            for (index in listOf(2, 4)) {
+                compose.onNodeWithTag(avatarTag(messages[index]), useUnmergedTree = true).assertDoesNotExist()
+                compose.onNodeWithTag(spacerTag(messages[index]), useUnmergedTree = true).assertExists()
+            }
+            for (message in messages) assertEquals(message, store.fetchMessage(EntityKey(f.radio, message.id)))
+            f.assertNoSendsOrHttp()
+        }
+    }
+
+    @Test fun incomingAvatarClusterCrossesMidnightWithoutRemovingTheDayDivider() = runTest {
+        withApp(this) { f ->
+            val date = LocalDate.of(2024, 5, 1)
+            val time = date.atTime(23, 58).atZone(ZoneId.systemDefault()).toInstant()
+            val first = f.message("Before midnight", 0).copy(
+                timestamp = time.epochSecond.toUInt(), createdAt = time, sortDate = time,
+            )
+            val later = time.plusSeconds(180)
+            val second = f.message("After midnight", 1).copy(
+                timestamp = later.epochSecond.toUInt(), createdAt = later, sortDate = later,
+            )
+            store.saveContact(f.contact("Alice", 1).copy(avatarImageData = png(Color.RED)))
+            store.saveMessage(first)
+            store.saveMessage(second)
+            f.mount()
+            f.awaitColor(second, Color.RED)
+            compose.onNodeWithTag(avatarTag(first), useUnmergedTree = true).assertDoesNotExist()
+            compose.onNodeWithTag(spacerTag(first), useUnmergedTree = true).assertExists()
+            val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+            compose.onNodeWithText(formatter.format(date)).assertExists()
+            compose.onNodeWithText(formatter.format(date.plusDays(1))).assertExists()
+            assertEquals(first, store.fetchMessage(EntityKey(f.radio, first.id)))
+            assertEquals(second, store.fetchMessage(EntityKey(f.radio, second.id)))
+            f.assertNoSendsOrHttp()
+        }
+    }
+
+    @Test fun incomingAvatarClusterIncludes300SecondsButBreaksAt301() = runTest {
+        withApp(this) { f ->
+            val first = f.message("First", 0)
+            val boundary = f.message("At 300 seconds", 300)
+            val separate = f.message("Another 301 seconds later", 601)
+            listOf(first, boundary, separate).forEach { store.saveMessage(it) }
+            f.mount()
+            f.awaitAvatar(boundary)
+            f.awaitAvatar(separate)
+            compose.onNodeWithTag(avatarTag(first), useUnmergedTree = true).assertDoesNotExist()
+            compose.onNodeWithTag(spacerTag(first), useUnmergedTree = true).assertExists()
             f.assertNoSendsOrHttp()
         }
     }
