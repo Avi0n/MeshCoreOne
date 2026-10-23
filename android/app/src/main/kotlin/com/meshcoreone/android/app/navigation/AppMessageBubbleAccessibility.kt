@@ -28,7 +28,6 @@ import com.meshcoreone.android.core.ui.UiFormatArgument
 import com.meshcoreone.android.core.ui.UiText
 import com.meshcoreone.android.feature.chats.actions.MessagePathFormatter
 import com.meshcoreone.android.feature.chats.actions.PathNodeResolver
-import java.util.Locale
 
 @Composable
 internal fun rememberMessageBubbleLabels(
@@ -62,9 +61,7 @@ internal fun rememberMessageBubbleLabels(
         translationOffersEnabled = false,
     )
     val nicknames = remember(contacts) {
-        contacts.groupBy { it.name.lowercase(Locale.ROOT) }.mapNotNull { (name, matches) ->
-            matches.singleOrNull()?.nickname?.takeIf { it.isNotEmpty() }?.let { name to it }
-        }.toMap()
+        MessageBubbleConfiguration.buildNicknameLookup(contacts)
     }
     return { message ->
         val resolution = bubbleSenderResolution(message, contacts, nicknames, resources)
@@ -82,7 +79,7 @@ internal fun bubbleSenderResolution(
     val unknown = resources.getString(AppChatsStrings.chatsMessageSenderUnknown)
     if (!message.isChannelMessage) return NodeNameResolution(unknown, NodeNameMatchKind.UNRESOLVED)
     message.senderNodeName?.takeIf { it.isNotEmpty() }?.let { name ->
-        return NodeNameResolution(name, NodeNameMatchKind.EXACT, nicknames[name.lowercase(Locale.ROOT)])
+        return NodeNameResolution(name, NodeNameMatchKind.EXACT, nicknames[MessageBubbleConfiguration.loweredName(name)])
     }
     val prefix = message.senderKeyPrefix
     val unresolved = prefix?.takeIf { it.size >= 2 }?.prefix(2)?.uppercaseHexString() ?: unknown

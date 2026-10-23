@@ -202,6 +202,11 @@ private fun AppChatConversation(
         val mentionContacts by environment.mentionContacts.collectAsStateWithLifecycle()
         val composerDevice by environment.device.collectAsStateWithLifecycle()
         val bubbleLabels = rememberMessageBubbleLabels(feature.content, mentionContacts, composerDevice?.nodeName)
+        val avatarTable = rememberChannelAvatars(
+            if (conversation is TimelineConversation.Channel) mentionContacts else emptyList(),
+        )
+        val avatarCache = remember(feature) { com.meshcoreone.android.core.ui.AvatarImageCache() }
+        DisposableEffect(avatarCache) { onDispose { avatarCache.clear() } }
         val timeline = remember(feature, conversation) {
             ChatViewModel(conversation, feature.timeline(conversation), scope)
         }
@@ -274,6 +279,7 @@ private fun AppChatConversation(
             timeline, composer, stringResource(AppChatsStrings.chatsInputPlaceholderDirectMessage), links,
             currentUserName = composerDevice?.nodeName,
             messageAccessibilityLabel = bubbleLabels,
+            incomingAvatar = { message -> AppChannelAvatar(message, avatarTable, mentionContacts, avatarCache) },
             onPickContact = { pickContact = true },
             scrollTo = state.pendingScrollToMessageID,
             onScrollConsumed = { requested ->

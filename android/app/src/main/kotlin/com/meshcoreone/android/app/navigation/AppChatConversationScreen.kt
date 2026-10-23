@@ -34,7 +34,9 @@ internal fun AppChatConversationScreen(
     messageAccessibilityLabel: ((MessageDTO) -> String)? = null,
     emojiPicker: EmojiPickerStateHolder? = null,
     emojiStatus: @Composable () -> Unit = {},
+    incomingAvatar: @Composable (MessageDTO) -> Unit = DefaultIncomingAvatar,
 ) {
+    val configuration = MessageBubbleConfiguration.forConversation(timeline.conversation)
     val state by timeline.state.collectAsState()
     val draft by composer.state.collectAsState()
     val scope = rememberCoroutineScope()
@@ -89,12 +91,19 @@ internal fun AppChatConversationScreen(
     )
     Column(Modifier.fillMaxSize().navigationBarsPadding().imePadding()) {
         Box(Modifier.weight(1f)) {
-            ChatTimeline(presented, callbacks, messageAccessibilityLabel = messageAccessibilityLabel, messageBody = { message, outgoing ->
-                Column {
-                    MessageBody(message.text, outgoing, currentUserName, onLink = { dispatcher.dispatch(it) })
-                    attachments(message, outgoing)
-                }
-            })
+            ChatTimeline(
+                presented, callbacks,
+                showSenderName = configuration.showSenderName,
+                showsIncomingAvatars = configuration.showsIncomingAvatars,
+                incomingAvatar = incomingAvatar,
+                messageAccessibilityLabel = messageAccessibilityLabel,
+                messageBody = { message, outgoing ->
+                    Column {
+                        MessageBody(message.text, outgoing, currentUserName, onLink = { dispatcher.dispatch(it) })
+                        attachments(message, outgoing)
+                    }
+                },
+            )
             MentionSuggestionList(draft.mentionSuggestions, composer::selectMention,
                 Modifier.align(Alignment.BottomCenter).padding(horizontal = 12.dp, vertical = 8.dp))
         }
