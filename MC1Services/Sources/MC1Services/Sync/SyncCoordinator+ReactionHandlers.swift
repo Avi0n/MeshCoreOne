@@ -247,15 +247,16 @@ extension SyncCoordinator {
     return true
   }
 
-  /// Computes a symmetric timestamp window around the given time for reaction matching.
+  /// Computes a bounded timestamp window around the given time for reaction matching.
   private func reactionTimestampWindow(at time: Date = Date()) -> ClosedRange<UInt32> {
     reactionTimestampWindow(anchor: UInt32(time.timeIntervalSince1970))
   }
 
-  /// Computes a symmetric timestamp window around a specific anchor timestamp.
+  /// Computes a timestamp window around the anchor, bounded to the UInt32 range.
   private func reactionTimestampWindow(anchor: UInt32) -> ClosedRange<UInt32> {
     let start = anchor > reactionTimestampWindowSeconds ? anchor - reactionTimestampWindowSeconds : 0
-    return start...(anchor + reactionTimestampWindowSeconds)
+    let end = anchor > UInt32.max - reactionTimestampWindowSeconds ? UInt32.max : anchor + reactionTimestampWindowSeconds
+    return start...end
   }
 
   // MARK: - meshcore-open Reaction Handlers

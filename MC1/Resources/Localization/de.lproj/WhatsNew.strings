@@ -30,3 +30,38 @@
 "whatsNew.fasterChatLoading.title" = "Schnelleres Laden von Chats";
 /* What's New v1.5 - Faster chat loading, description */
 "whatsNew.fasterChatLoading.description" = "Das Öffnen eines Chats ist bis zu 90%% schneller.";
+
+/* What's New v1.6 - Pinned chats, title */
+"whatsNew.pinnedChats.title" = "Angeheftete Chats";
+/* What's New v1.6 - Pinned chats, description */
+"whatsNew.pinnedChats.description" = "Angeheftete Chats sind jetzt von Favoriten getrennt. Angeheftete Chats erscheinen im Bereich „Angeheftet“, und Kontakte, die du bereits als Favoriten markiert hattest, werden angeheftet, wenn du die App zum ersten Mal öffnest.";
+
+/* What's New v1.6 - Read and unread, title */
+"whatsNew.readAndUnread.title" = "Gelesen und ungelesen";
+/* What's New v1.6 - Read and unread, description */
+"whatsNew.readAndUnread.description" = "Halte einen Chat gedrückt, um ihn als gelesen oder ungelesen zu markieren.";
+
+/* What's New v1.6 - iPhone Duo, title */
+"whatsNew.iPhoneDuo.title" = "iPhone Duo";
+/* What's New v1.6 - iPhone Duo, description */
+"whatsNew.iPhoneDuo.description" = "MC1 ist für iPhone Duo mit Layouts bereit, deren Größe sich ändern lässt.";
+
+/* What's New v1.6 - iPad tab bar, title */
+"whatsNew.iPadTabBar.title" = "iPad-Tab-Leiste";
+/* What's New v1.6 - iPad tab bar, description */
+"whatsNew.iPadTabBar.description" = "iPad verschiebt die Tab-Symbole von links nach oben. Das hilft uns, alle Geräte einschließlich des iPhone Duo besser zu unterstützen.";
+
+/* What's New v1.6 - Advanced map filters, title */
+"whatsNew.advancedMapFilters.title" = "Erweiterte Kartenfilter";
+/* What's New v1.6 - Advanced map filters, description */
+"whatsNew.advancedMapFilters.description" = "Filtere die Karte nach „Zuletzt gehört“ und „Hops“. Du kannst eine Voreinstellung wählen oder einen eigenen Bereich mit Minimum und Maximum festlegen. Einen Filter entfernst du dort, wo er angezeigt wird.";
+
+/* What's New v1.6 - Bluetooth and Wi-Fi, title */
+"whatsNew.bluetoothAndWiFi.title" = "Bluetooth und WLAN";
+/* What's New v1.6 - Bluetooth and Wi-Fi, description */
+"whatsNew.bluetoothAndWiFi.description" = "Wenn ein Funkgerät mit Firmware 1.18 oder neuer sowohl über Bluetooth als auch über WLAN gekoppelt ist, kannst du in „Gerät verbinden“ und in Einstellungen > Verbindung zwischen beiden wechseln.";
+
+/* What's New v1.6 - More changes, title */
+"whatsNew.moreChanges.title" = "Weitere Änderungen";
+/* What's New v1.6 - More changes, description */
+"whatsNew.moreChanges.description" = "Tippe unten auf \"Alle neuen Änderungen anzeigen\", um die vollständige Liste der behobenen Fehler und der anderen Funktionen zu sehen.";

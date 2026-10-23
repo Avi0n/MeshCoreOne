@@ -16,6 +16,10 @@ public actor RequestResponseSerializer {
   private var isRequestInFlight = false
   private var waiters: [CheckedContinuation<Void, Never>] = []
 
+  var waiterCountForTest: Int {
+    waiters.count
+  }
+
   /// Acquires the serializer, waiting if another request/response exchange is active.
   public func acquire() async {
     if !isRequestInFlight {

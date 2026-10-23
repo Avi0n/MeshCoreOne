@@ -252,6 +252,9 @@
 /* Location: RepeaterSettingsView.swift - Behavior section footer */
 "remoteNodes.settings.behaviorFooter" = "Интервалы объявлений, переходы рассылки и режим ретранслятора.";
 
+/* Location: RepeaterSettingsView.swift - Behavior section footer when both advert intervals are 0 */
+"remoteNodes.settings.hiddenFromDiscoverFooter" = "Если оба интервала объявлений равны 0, этот ретранслятор не ответит на пинг обнаружения.";
+
 /* Location: RepeaterSettingsView.swift - Device actions section header */
 "remoteNodes.settings.deviceActions" = "Действия с устройством";
 
@@ -865,6 +868,15 @@
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
 "remoteNodes.nodeCli.rebootSent" = "Команда перезагрузки отправлена";
+
+/* Location: NodeCliViewModel.swift - Toast after poweroff or shutdown is treated as sent */
+"remoteNodes.nodeCli.powerOffSent" = "Команда выключения отправлена";
+
+/* Location: NodeCliViewModel.swift - Banner for commands sent to a contact's radio - %@ is the contact name */
+"remoteNodes.nodeCli.radioBanner" = "Команды идут на радио %@. Без доступа к удалённому CLI ты не получишь ответа, и этот человек получит каждую команду как сообщение.";
+
+/* Location: NodeCliViewModel.swift - Shown when a contact's radio does not reply - %@ is the contact name */
+"remoteNodes.nodeCli.radioNoReply" = "Нет ответа от %@. Возможно, этот человек не дал тебе доступ к удалённому CLI, или его узел был недоступен.";
 
 /* Location: NodeCliViewModel.swift - Toast after command is cancelled */
 "remoteNodes.nodeCli.cancelled" = "Команда отменена";

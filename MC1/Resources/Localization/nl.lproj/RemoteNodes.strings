@@ -255,6 +255,9 @@
 /* Location: RepeaterSettingsView.swift - Behavior section footer */
 "remoteNodes.settings.behaviorFooter" = "Advertentie-intervallen, flood-sprongen en repeatermodus.";
 
+/* Location: RepeaterSettingsView.swift - Behavior section footer when both advert intervals are 0 */
+"remoteNodes.settings.hiddenFromDiscoverFooter" = "Als beide advertentie-intervallen op 0 staan, reageert deze repeater niet op de ontdekkingsping.";
+
 /* Location: RepeaterSettingsView.swift - Device actions section header */
 "remoteNodes.settings.deviceActions" = "Apparaatacties";
 
@@ -868,6 +871,15 @@
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
 "remoteNodes.nodeCli.rebootSent" = "Herstartcommando verzonden";
+
+/* Location: NodeCliViewModel.swift - Toast after poweroff or shutdown is treated as sent */
+"remoteNodes.nodeCli.powerOffSent" = "Uitschakelcommando verzonden";
+
+/* Location: NodeCliViewModel.swift - Banner for commands sent to a contact's radio - %@ is the contact name */
+"remoteNodes.nodeCli.radioBanner" = "Opdrachten gaan naar de radio van %@. Zonder Remote CLI-toegang krijg je geen antwoord, en die persoon ontvangt elke opdracht als een bericht.";
+
+/* Location: NodeCliViewModel.swift - Shown when a contact's radio does not reply - %@ is the contact name */
+"remoteNodes.nodeCli.radioNoReply" = "Geen antwoord van %@. Die persoon heeft je misschien geen Remote CLI toegestaan, of het knooppunt was onbereikbaar.";
 
 /* Location: NodeCliViewModel.swift - Toast after command is cancelled */
 "remoteNodes.nodeCli.cancelled" = "Commando geannuleerd";

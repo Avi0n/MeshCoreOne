@@ -255,6 +255,9 @@
 /* Location: RepeaterSettingsView.swift - Behavior section footer */
 "remoteNodes.settings.behaviorFooter" = "广播间隔、泛洪跳数和转发节点模式。";
 
+/* Location: RepeaterSettingsView.swift - Behavior section footer when both advert intervals are 0 */
+"remoteNodes.settings.hiddenFromDiscoverFooter" = "两个广播间隔都设为 0 时，此转发节点不会响应发现探测。";
+
 /* Location: RepeaterSettingsView.swift - Device actions section header */
 "remoteNodes.settings.deviceActions" = "设备操作";
 
@@ -868,6 +871,15 @@
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
 "remoteNodes.nodeCli.rebootSent" = "重启命令已发送";
+
+/* Location: NodeCliViewModel.swift - Toast after poweroff or shutdown is treated as sent */
+"remoteNodes.nodeCli.powerOffSent" = "关机命令已发送";
+
+/* Location: NodeCliViewModel.swift - Banner for commands sent to a contact's radio - %@ is the contact name */
+"remoteNodes.nodeCli.radioBanner" = "命令会发送到 %@ 的无线电。如果没有远程 CLI 权限，您不会收到回复，对方会把每条命令作为一条消息收到。";
+
+/* Location: NodeCliViewModel.swift - Shown when a contact's radio does not reply - %@ is the contact name */
+"remoteNodes.nodeCli.radioNoReply" = "未收到 %@ 的回复。对方可能没有允许您使用远程 CLI，或者对方的节点无法到达。";
 
 /* Location: NodeCliViewModel.swift - Toast after command is cancelled */
 "remoteNodes.nodeCli.cancelled" = "命令已取消";

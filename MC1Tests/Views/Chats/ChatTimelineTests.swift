@@ -153,6 +153,33 @@ struct ChatTimelineTests {
   // MARK: - Paging
 
   @Test
+  func `removing an unbaked message adjusts the raw offset only once`() throws {
+    let dataStore = try makeStore()
+    let radioID = UUID()
+    let contact = makeContact(radioID: radioID)
+    let message = makeDirectMessage(radioID: radioID, contactID: contact.id, timestamp: 1000, text: "Loaded")
+    let timeline = makeBoundTimeline(
+      dataStore: dataStore,
+      conversationID: .dm(radioID: radioID, contactID: contact.id)
+    )
+    let writer = try #require(timeline.writer)
+    let rawRowCount = 3
+    writer.replaceAll([message])
+    writer.updateRenderState { $0.with(totalFetchedCount: rawRowCount) }
+    try #require(timeline.items.isEmpty)
+
+    timeline.removeMessage(message.id)
+
+    #expect(timeline.messages.isEmpty)
+    #expect(timeline.renderState.totalFetchedCount == rawRowCount - 1)
+
+    timeline.removeMessage(message.id)
+    timeline.removeMessage(UUID())
+
+    #expect(timeline.renderState.totalFetchedCount == rawRowCount - 1)
+  }
+
+  @Test
   func `loadOlder prepends the older page in order and ends history on a short page`() async throws {
     let dataStore = try makeStore()
     let radioID = UUID()
@@ -206,6 +233,96 @@ struct ChatTimelineTests {
     await timeline.coordinator?.buildItemsTask?.value
     #expect(timeline.items.count == total)
     #expect(timeline.items.first?.id == timeline.messages.first?.id)
+  }
+
+  private enum HeadSaveTiming: Sendable, CaseIterable {
+    case beforeFetch
+    case afterFetchReturns
+  }
+
+  private enum HeadAdmitTiming: Sendable, CaseIterable {
+    case beforeApply
+    case afterLoadOlderReturns
+  }
+
+  @Test(arguments: HeadSaveTiming.allCases, HeadAdmitTiming.allCases)
+  private func `a head saved around an older page is loaded when history ends`(
+    saveTiming: HeadSaveTiming,
+    admitTiming: HeadAdmitTiming
+  ) async throws {
+    let dataStore = try makeStore()
+    let radioID = UUID()
+    let contact = makeContact(radioID: radioID)
+    let seededCount = ChatCoordinator.pageSize * 2
+    var seeded: [MessageDTO] = []
+    for offset in 0..<seededCount {
+      let message = makeDirectMessage(
+        radioID: radioID, contactID: contact.id,
+        timestamp: UInt32(1000 + offset), text: "m\(offset)"
+      )
+      seeded.append(message)
+      try await dataStore.saveMessage(message)
+    }
+
+    let timeline = makeBoundTimeline(
+      dataStore: dataStore,
+      conversationID: .dm(radioID: radioID, contactID: contact.id)
+    )
+    let outcome = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
+    guard case .loaded = outcome else {
+      Issue.record("expected .loaded, got \(outcome)")
+      return
+    }
+    #expect(timeline.messages.count == ChatCoordinator.pageSize)
+    #expect(timeline.renderState.hasMoreMessages)
+
+    let head = makeDirectMessage(
+      radioID: radioID, contactID: contact.id,
+      timestamp: UInt32(1000 + seededCount), text: "head"
+    )
+    if saveTiming == .beforeFetch {
+      try await dataStore.saveMessage(head)
+    }
+
+    var didInterleave = false
+    timeline.loadOlderInterleaveHook = {
+      guard !didInterleave else { return }
+      didInterleave = true
+      if saveTiming == .afterFetchReturns {
+        do {
+          try await dataStore.saveMessage(head)
+        } catch {
+          Issue.record("Failed to save the head: \(error)")
+        }
+      }
+      if admitTiming == .beforeApply {
+        self.admitHeadWithoutMovingOffset(timeline, head)
+      }
+    }
+    defer { timeline.loadOlderInterleaveHook = nil }
+
+    var admittedAfterReturn = false
+    while timeline.renderState.hasMoreMessages {
+      _ = try await timeline.loadOlder()
+      if admitTiming == .afterLoadOlderReturns, !admittedAfterReturn {
+        admitHeadWithoutMovingOffset(timeline, head)
+        admittedAfterReturn = true
+      }
+    }
+
+    let tail = try await timeline.loadOlder()
+    let expectedIDs = Set(seeded.map(\.id)).union([head.id])
+    #expect(tail.isEmpty)
+    #expect(!timeline.renderState.hasMoreMessages)
+    #expect(timeline.messages.count == expectedIDs.count)
+    #expect(Set(timeline.messages.map(\.id)) == expectedIDs)
+  }
+
+  private func admitHeadWithoutMovingOffset(_ timeline: ChatTimeline, _ head: MessageDTO) {
+    let count = timeline.renderState.totalFetchedCount
+    #expect(timeline.admit(head).inserted)
+    #expect(timeline.admit(head).inserted == false)
+    #expect(timeline.renderState.totalFetchedCount == count)
   }
 
   @Test

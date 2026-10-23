@@ -106,9 +106,9 @@
 "deviceScan.demoModeAlert.message" = "이제 기기 없이 계속할 수 있습니다. 데모 모드는 언제든지 설정에서 켜거나 끌 수 있습니다.";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "이 무선 기기와의 저장된 페어링이 더 이상 작동하지 않습니다. 제거 후 다시 시도를 탭하여 앱에서 다시 페어링하십시오. 무선 기기에 새 페어링 코드가 표시될 수 있습니다.";
+"deviceScan.error.authenticationFailed" = "이 무선 기기와의 저장된 페어링이 더 이상 작동하지 않습니다. 제거 후 다시 시도를 탭하여 앱에서 다시 페어링하십시오. 무선 기기에 새 페어링 코드가 표시될 수 있습니다. 이 문제가 계속되면 컴퓨터에서 https://flasher.meshcore.io 에 접속하여 무선 기기를 완전히 지우고 펌웨어를 다시 설치하십시오. 무선 기기의 플래시 메모리가 손상되어 발생할 수 있습니다.";
 /* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
-"deviceScan.error.authenticationFailedMac" = "이 무선 기기와의 저장된 페어링이 더 이상 작동하지 않습니다. 시스템 설정의 Bluetooth에서 이 무선 기기를 지운 다음 제거 후 다시 시도를 탭하십시오.";
+"deviceScan.error.authenticationFailedMac" = "이 무선 기기와의 저장된 페어링이 더 이상 작동하지 않습니다. 시스템 설정의 Bluetooth에서 이 무선 기기를 지운 다음 제거 후 다시 시도를 탭하십시오. 이 문제가 계속되면 컴퓨터에서 https://flasher.meshcore.io 에 접속하여 무선 기기를 완전히 지우고 펌웨어를 다시 설치하십시오. 무선 기기의 플래시 메모리가 손상되어 발생할 수 있습니다.";
 "deviceScan.error.pinRejected" = "PIN이 승인되지 않았습니다. 기기에 표시된 PIN을 확인한 후 다시 시도하십시오. iOS에서 먼저 실패한 페어링을 제거할지 확인하라는 메시지가 표시됩니다.";
 /* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
 "deviceScan.error.pinRejectedMac" = "PIN이 승인되지 않았습니다. 시스템 설정의 Bluetooth에서 이 무선 기기를 지운 다음 다시 시도하십시오.";
@@ -193,6 +193,12 @@
 
 /* Location: NoDeviceSheet.swift - Secondary CTA */
 "noDevice.sheet.cancel" = "취소";
+
+
+// MARK: - Region and Preset
+
+/* Location: RegionStepView.swift and PresetStepView.swift - Finishes onboarding without saving a place or writing the radio */
+"skipForNow" = "지금은 건너뛰기";
 
 
 // MARK: - Preset Step View

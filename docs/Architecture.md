@@ -347,7 +347,7 @@ The service-layer packages use `nonisolated(unsafe)` only where Swift's isolatio
 - **Technology**: SwiftData
 - **Isolation**: Each MeshCore radio has its own isolated data store using `radioID: UUID` (an opaque partition key minted once on first pair) as the namespace, ensuring privacy and preventing data mixing.
 - **Models**:
-  - `Device`: Metadata, radio parameters, and capabilities. The `id` field is the live-connection handle (BLE peripheral identifier, or a derived UUID for WiFi-bridged radios) and is volatile; `publicKey` and `radioID` survive re-pair and backup round-trips.
+  - `Device`: Metadata, radio parameters, and capabilities. The `id` field is the live-connection handle. A Bluetooth connect saves the peripheral UUID. A WiFi connect keeps the existing row's id, using the Bluetooth peripheral UUID when the row has one. A transport switch does not change it. It is volatile on re-pair. `publicKey` and `radioID` survive re-pair and backup round-trips.
   - `Contact`: Public keys, names, types (Chat, Repeater, Room), and location data. Contains `radioID` for isolation.
   - `Message`: Content, timestamps, delivery status, and mesh metadata (SNR, Path). Contains `radioID` for isolation.
   - `Channel`: Slot-based configuration for group messaging. Contains `radioID` for isolation.

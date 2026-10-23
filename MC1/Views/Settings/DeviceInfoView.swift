@@ -7,6 +7,8 @@ private let deviceInfoLogger = Logger(subsystem: "com.mc1", category: "DeviceInf
 
 /// Detailed device information screen
 struct DeviceInfoView: View {
+  var requestNameEdit: SettingsEditorPresentation.NameRequest?
+
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.dismiss) private var dismiss
@@ -35,8 +37,15 @@ struct DeviceInfoView: View {
             TintedLabel(L10n.Settings.Node.name, systemImage: "person.text.rectangle")
             Spacer()
             Button(device.nodeName) {
-              nodeName = device.nodeName
-              isEditingName = true
+              if let requestNameEdit {
+                requestNameEdit(device.nodeName) { name in
+                  nodeName = name
+                  saveNodeName()
+                }
+              } else {
+                nodeName = device.nodeName
+                isEditingName = true
+              }
             }
             .foregroundStyle(.secondary)
           }

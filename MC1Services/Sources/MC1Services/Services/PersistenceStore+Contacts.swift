@@ -4,6 +4,25 @@ import SwiftData
 public extension PersistenceStore {
   // MARK: - Contact Operations
 
+  /// Contact ids for one radio. Callers that only need membership skip name sorting and DTO construction.
+  func fetchContactIDs(radioID: UUID) throws -> Set<UUID> {
+    #if DEBUG
+      try fetchContactIDsFaultInjection?()
+    #endif
+    let targetRadioID = radioID
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID
+    }
+    let contacts = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    return Set(contacts.map(\.id))
+  }
+
+  #if DEBUG
+    func setFetchContactIDsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      fetchContactIDsFaultInjection = hook
+    }
+  #endif
+
   /// Fetch all contacts for a device
   func fetchContacts(radioID: UUID) throws -> [ContactDTO] {
     let targetRadioID = radioID
@@ -18,8 +37,14 @@ public extension PersistenceStore {
     return contacts.map { ContactDTO(from: $0) }
   }
 
-  /// Fetch contacts with recent messages (for chat list)
+  /// Fetch contacts with recent messages (for chat list).
+  /// Runs the favorite-to-pin copy first. Chats can load before `activate()`.
   func fetchConversations(radioID: UUID) throws -> [ContactDTO] {
+    try fetchConversations(radioID: radioID, defaults: .standard)
+  }
+
+  func fetchConversations(radioID: UUID, defaults: UserDefaults) throws -> [ContactDTO] {
+    try performChatPinMigration(defaults: defaults)
     let targetRadioID = radioID
     let predicate = #Predicate<Contact> { contact in
       contact.radioID == targetRadioID && contact.lastMessageDate != nil
@@ -111,14 +136,13 @@ public extension PersistenceStore {
     return (id: contact.id, isNew: isNew)
   }
 
-  /// Upserts contacts from frames in a single transaction, matching local rows by
-  /// `(radioID, publicKey)`. Commits once for the whole batch instead of once per contact,
-  /// which is the dominant cost of a full contact sync over BLE. Returns the number of
-  /// frames persisted.
+  /// Upserts synced contacts in one transaction and returns the number of frames persisted.
+  /// Plausible synced adverts advance Last Heard without changing Discover reception.
   @discardableResult
   func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) throws -> Int {
     guard !frames.isEmpty else { return 0 }
 
+    let referenceDate = Date()
     let targetRadioID = radioID
     let predicate = #Predicate<Contact> { contact in
       contact.radioID == targetRadioID
@@ -127,12 +151,17 @@ public extension PersistenceStore {
     var byKey = Dictionary(existing.map { ($0.publicKey, $0) }, uniquingKeysWith: { current, _ in current })
 
     for frame in frames {
+      let contact: Contact
       if let row = byKey[frame.publicKey] {
         row.update(from: frame)
+        contact = row
       } else {
-        let contact = Contact(radioID: radioID, from: frame)
+        contact = Contact(radioID: radioID, from: frame)
         modelContext.insert(contact)
         byKey[frame.publicKey] = contact
+      }
+      if AdvertTimestamp.isPlausible(frame.lastAdvertTimestamp, relativeTo: referenceDate) {
+        contact.lastHeardTimestamp = max(contact.lastHeardTimestamp, frame.lastAdvertTimestamp)
       }
     }
 
@@ -155,6 +184,21 @@ public extension PersistenceStore {
       modelContext.insert(Contact(dto: dto))
     }
 
+    try modelContext.save()
+  }
+
+  /// Sets the local chat pin. Does not change the radio favorite flag.
+  func setContactPinned(_ contactID: UUID, isPinned: Bool) throws {
+    let targetID = contactID
+    let predicate = #Predicate<Contact> { $0.id == targetID }
+    var descriptor = FetchDescriptor<Contact>(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    guard let contact = try modelContext.fetch(descriptor).first else {
+      throw PersistenceStoreError.contactNotFound
+    }
+
+    contact.isPinned = isPinned
     try modelContext.save()
   }
 

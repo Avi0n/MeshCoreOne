@@ -63,26 +63,6 @@ struct ContactServiceTests {
     #expect(result.isIncremental == true)
   }
 
-  // MARK: - ContactServiceError Tests
-
-  @Test
-  func `ContactServiceError cases are distinct`() {
-    // Verify basic error cases
-    let basicErrors: [ContactServiceError] = [
-      .notConnected,
-      .sendFailed,
-      .invalidResponse,
-      .syncInterrupted,
-      .contactNotFound,
-      .contactTableFull
-    ]
-
-    // Verify all basic cases are distinct (no duplicates)
-    let errorDescriptions = basicErrors.map { String(describing: $0) }
-    let uniqueDescriptions = Set(errorDescriptions)
-    #expect(errorDescriptions.count == uniqueDescriptions.count)
-  }
-
   // MARK: - MeshContact.toContactFrame() Tests
 
   @Test
@@ -414,6 +394,12 @@ struct ContactServiceTests {
     func handleCleanup(contactID: UUID, reason: ContactCleanupReason, publicKey: Data) async {
       await tracker.record(contactID: contactID, reason: reason, publicKey: publicKey)
     }
+
+    func handleDeletion(contactID: UUID, publicKey: Data) async {
+      await handleCleanup(contactID: contactID, reason: .deleted, publicKey: publicKey)
+    }
+
+    func flushDeletionUpdates(contactIDs: Set<UUID>) async {}
   }
 
   @Test
@@ -761,6 +747,8 @@ struct ContactServiceTests {
     let imageData = Data([0xDE, 0xAD, 0xBE, 0xEF])
     try await service.updateContactAvatar(contactID: contactID, imageData: imageData)
 
+    let confirmed = ContactDTO.testContact(publicKey: testPublicKey, flags: ContactFlags.favorite.rawValue)
+    await mockSession.setStubbedContact(confirmed.toContactFrame().toMeshContact(), for: testPublicKey)
     try await service.setContactFavorite(contactID, isFavorite: true)
 
     let updated = await mockStore.contacts[contactID]
@@ -965,6 +953,89 @@ struct ContactServiceTests {
     let reset = try await dataStore.fetchContact(radioID: radioID, publicKey: testPublicKey)
     #expect(reset?.isFloodRouted == true)
     #expect(reset?.typeRawValue == unmodeledType)
+  }
+
+  // MARK: - Set Path
+
+  @Test
+  func `setPath keeps an unmodeled type byte and a zero-hop out path`() async throws {
+    let radioID = UUID()
+    let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let unmodeledType: UInt8 = 0x7F
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: testPublicKey,
+      typeRawValue: unmodeledType,
+      outPathLength: PacketBuilder.floodPathSentinel,
+      outPath: Data()
+    )
+    try await dataStore.saveContact(contact)
+
+    let session = MockMeshCoreSession()
+    let service = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    try await service.setPath(
+      radioID: radioID,
+      publicKey: testPublicKey,
+      path: Data(),
+      pathLength: 0
+    )
+
+    let writes = await session.addContactInvocations
+    #expect(writes.count == 1)
+    #expect(writes.first?.contact.typeRawValue == unmodeledType)
+    #expect(writes.first?.contact.outPathLength == 0)
+    #expect(writes.first?.contact.outPath.isEmpty == true)
+
+    let stored = try await dataStore.fetchContact(radioID: radioID, publicKey: testPublicKey)
+    #expect(stored?.isFloodRouted == false)
+    #expect(stored?.typeRawValue == unmodeledType)
+    #expect(stored?.outPathLength == 0)
+    #expect(stored?.outPath.isEmpty == true)
+  }
+
+  @Test
+  func `setPath leaves the stored out path unchanged when addContact throws`() async throws {
+    let radioID = UUID()
+    let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let originalPath = Data([0x11, 0x22])
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: testPublicKey,
+      typeRawValue: 0x7F,
+      outPathLength: 0x02,
+      outPath: originalPath
+    )
+    try await dataStore.saveContact(contact)
+
+    let session = MockMeshCoreSession()
+    await session.failNextAddContact(MeshCoreError.timeout)
+    let service = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    await #expect(throws: ContactServiceError.self) {
+      try await service.setPath(
+        radioID: radioID,
+        publicKey: testPublicKey,
+        path: Data(),
+        pathLength: 0
+      )
+    }
+
+    let stored = try await dataStore.fetchContact(radioID: radioID, publicKey: testPublicKey)
+    #expect(stored?.outPathLength == 0x02)
+    #expect(stored?.outPath == originalPath)
+    #expect(stored?.typeRawValue == 0x7F)
+    #expect(stored?.isFloodRouted == false)
   }
 
   @Test

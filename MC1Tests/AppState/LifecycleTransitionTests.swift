@@ -3,18 +3,23 @@ import Foundation
 @testable import MC1Services
 import Testing
 
-@Suite("AppState Lifecycle Transition Tests")
+@Suite("AppState Lifecycle Transition Tests", .timeLimit(.minutes(1)))
 @MainActor
 struct LifecycleTransitionTests {
   @Test
-  func `BLE foreground waits for queued background transition`() async {
+  func `BLE foreground waits for queued background transition`() async throws {
     let appState = AppState()
     let recorder = TransitionRecorder()
+    let backgroundGate = TransitionGate()
+    defer {
+      backgroundGate.release()
+      appState.shutdown()
+    }
 
     appState.setBLELifecycleOverridesForTesting(
       enterBackground: {
         await recorder.record("background-start")
-        try? await Task.sleep(for: .milliseconds(150))
+        await backgroundGate.wait()
         await recorder.record("background-end")
       },
       becomeActive: {
@@ -24,7 +29,18 @@ struct LifecycleTransitionTests {
     )
 
     appState.handleEnterBackground()
-    await appState.handleReturnToForeground()
+    let background = try #require(appState.bleLifecycleTransitionTask)
+    try await waitUntil("background transition should reach its gate") { backgroundGate.entered }
+    let foreground = Task { await appState.handleReturnToForeground() }
+    defer { foreground.cancel() }
+    try await waitUntil("foreground transition should be queued") {
+      appState.bleLifecycleTransitionTask != background
+    }
+    #expect(await recorder.events == ["background-start"])
+
+    backgroundGate.release()
+    await background.value
+    await foreground.value
 
     let events = await recorder.events
     #expect(events == [
@@ -52,13 +68,23 @@ struct LifecycleTransitionTests {
   }
 
   @Test
-  func `rapid background-active bounces keep BLE transitions ordered`() async {
+  func `rapid background-active bounces keep BLE transitions ordered`() async throws {
     let appState = AppState()
     let recorder = TransitionRecorder()
+    let backgroundGates = (0..<5).map { _ in TransitionGate() }
+    var backgroundCalls = 0
+    defer {
+      for gate in backgroundGates {
+        gate.release()
+      }
+      appState.shutdown()
+    }
 
     appState.setBLELifecycleOverridesForTesting(
       enterBackground: {
-        try? await Task.sleep(for: .milliseconds(20))
+        let gate = backgroundGates[backgroundCalls]
+        backgroundCalls += 1
+        await gate.wait()
         await recorder.record("background")
       },
       becomeActive: {
@@ -66,9 +92,19 @@ struct LifecycleTransitionTests {
       }
     )
 
-    for _ in 0..<5 {
+    for (index, gate) in backgroundGates.enumerated() {
       appState.handleEnterBackground()
-      await appState.handleReturnToForeground()
+      let background = try #require(appState.bleLifecycleTransitionTask)
+      try await waitUntil("background transition should reach its gate") { gate.entered }
+      let foreground = Task { await appState.handleReturnToForeground() }
+      defer { foreground.cancel() }
+      try await waitUntil("foreground transition should be queued") {
+        appState.bleLifecycleTransitionTask != background
+      }
+      #expect(await recorder.events.count == index * 2)
+      gate.release()
+      await background.value
+      await foreground.value
     }
 
     let events = await recorder.events
@@ -133,6 +169,26 @@ struct LifecycleTransitionTests {
       ocvPreset: nil,
       customOCVArrayString: nil
     )
+  }
+
+  @MainActor
+  private final class TransitionGate {
+    private(set) var entered = false
+    private var released = false
+    private var continuation: CheckedContinuation<Void, Never>?
+
+    func wait() async {
+      entered = true
+      guard !released else { return }
+      await withCheckedContinuation { continuation = $0 }
+    }
+
+    func release() {
+      guard !released else { return }
+      released = true
+      continuation?.resume()
+      continuation = nil
+    }
   }
 }
 

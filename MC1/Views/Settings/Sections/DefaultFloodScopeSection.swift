@@ -11,13 +11,10 @@ struct DefaultFloodScopeSection: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.dismiss) private var dismiss
+  @Environment(RegionDiscoveryState.self) private var discovery
   @State private var isApplying = false
   @State private var errorMessage: String?
   @State private var retryAlert = RetryAlertState()
-  @State private var isDiscovering = false
-  @State private var discoveryMessage: String?
-  @State private var discoveryTask: Task<Void, Never>?
-  @State private var showingRegionManagement = false
 
   var body: some View {
     Section {
@@ -39,17 +36,6 @@ struct DefaultFloodScopeSection: View {
     .radioDisabled(for: appState.connectionState, or: isApplying)
     .errorAlert($errorMessage)
     .retryAlert(retryAlert)
-    .onDisappear { discoveryTask?.cancel() }
-    .navigationDestination(isPresented: $showingRegionManagement) {
-      RegionManagementView(
-        knownRegions: appState.connectedDevice?.knownRegions ?? [],
-        isDiscovering: $isDiscovering,
-        discoveryMessage: $discoveryMessage,
-        onRemoveRegion: { region in appState.connectionManager.removeKnownRegion(region) },
-        onAddRegion: { region in appState.connectionManager.addKnownRegion(region) },
-        onDiscoverTapped: runDiscovery
-      )
-    }
   }
 
   // MARK: - Rows
@@ -74,13 +60,13 @@ struct DefaultFloodScopeSection: View {
 
   @ViewBuilder
   private var discoveryStatusRow: some View {
-    if isDiscovering {
+    if discovery.isDiscovering {
       HStack {
         ProgressView()
         Text(L10n.Chats.Chats.ChannelInfo.Region.discovering)
           .foregroundStyle(.secondary)
       }
-    } else if let discoveryMessage {
+    } else if let discoveryMessage = discovery.discoveryMessage {
       Text(discoveryMessage)
         .font(.caption)
         .foregroundStyle(.secondary)
@@ -91,14 +77,14 @@ struct DefaultFloodScopeSection: View {
     Button(
       L10n.Chats.Chats.ChannelInfo.Region.discover,
       systemImage: "antenna.radiowaves.left.and.right",
-      action: runDiscovery
+      action: { discovery.start() }
     )
-    .disabled(isDiscovering)
+    .disabled(discovery.isDiscovering)
   }
 
   private var manageRegionsButton: some View {
-    Button(L10n.Chats.Chats.ChannelInfo.Region.manageRegions, systemImage: "list.bullet") {
-      showingRegionManagement = true
+    NavigationLink(value: SettingsSubpage.manageRegions) {
+      Label(L10n.Chats.Chats.ChannelInfo.Region.manageRegions, systemImage: "list.bullet")
     }
   }
 
@@ -122,7 +108,7 @@ struct DefaultFloodScopeSection: View {
   }
 
   private var sortedKnownRegions: [String] {
-    (appState.connectedDevice?.knownRegions ?? [])
+    discovery.knownRegions
       .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
   }
 
@@ -147,51 +133,6 @@ struct DefaultFloodScopeSection: View {
         errorMessage = error.userFacingMessage
       }
       isApplying = false
-    }
-  }
-
-  private func runDiscovery() {
-    discoveryTask?.cancel()
-    discoveryTask = Task {
-      isDiscovering = true
-      discoveryMessage = nil
-      defer { isDiscovering = false }
-
-      guard let session = appState.services?.session,
-            let contactService = appState.services?.contactService,
-            let radioID = appState.connectedDevice?.radioID else {
-        return
-      }
-
-      let outcome = await RegionDiscoveryService.discover(
-        session: session,
-        contactService: contactService,
-        dataStore: appState.offlineDataStore,
-        radioID: radioID,
-        knownRegions: appState.connectedDevice?.knownRegions ?? [],
-        supportsAdHocRequest: appState.connectedDevice?.supportsAdHocRepeaterRequest ?? false
-      )
-
-      guard !Task.isCancelled else { return }
-
-      switch outcome {
-      case .sendFailed:
-        break
-      case .noRepeatersResponded:
-        discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.noRepeatersResponded
-      case .errorLoadingRepeaters:
-        discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.errLoadingRepeaters
-      case let .completed(newRegions, allRepeatersTableFull):
-        if newRegions.isEmpty, allRepeatersTableFull {
-          discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.errRadioContactsFull
-        } else if newRegions.isEmpty {
-          discoveryMessage = L10n.Chats.Chats.ChannelInfo.Region.noNewRegions
-        } else {
-          for region in newRegions {
-            appState.connectionManager.addKnownRegion(region)
-          }
-        }
-      }
     }
   }
 }

@@ -51,6 +51,18 @@ enum Conversation: Identifiable, Hashable {
     }
   }
 
+  /// Contacts and channels are unread when either count is positive. Rooms have no mention count.
+  var isUnread: Bool {
+    switch self {
+    case let .direct(contact):
+      contact.unreadCount > 0 || contact.unreadMentionCount > 0
+    case let .channel(channel):
+      channel.unreadCount > 0 || channel.unreadMentionCount > 0
+    case let .room(session):
+      session.unreadCount > 0
+    }
+  }
+
   var notificationLevel: NotificationLevel {
     switch self {
     case let .direct(contact):
@@ -66,14 +78,14 @@ enum Conversation: Identifiable, Hashable {
     notificationLevel == .muted
   }
 
-  var isFavorite: Bool {
+  var isPinned: Bool {
     switch self {
     case let .direct(contact):
-      contact.isFavorite
+      contact.isPinned
     case let .channel(channel):
-      channel.isFavorite
+      channel.isPinned
     case let .room(session):
-      session.isFavorite
+      session.isPinned
     }
   }
 }

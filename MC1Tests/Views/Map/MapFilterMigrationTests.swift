@@ -249,4 +249,25 @@ struct MapFilterMigrationTests {
     let rewritten = MapFilterState(storageString: suite.string(forKey: AppStorageKey.mapFilterMainMap.rawValue) ?? "")
     #expect(rewritten?.showChat == true)
   }
+
+  @Test
+  func `row written before advanced filters is kept verbatim`() throws {
+    let suiteName = "mapFilter.preAdvanced.\(UUID().uuidString)"
+    let suite = try #require(UserDefaults(suiteName: suiteName))
+    defer { suite.removePersistentDomain(forName: suiteName) }
+
+    let legacy = #"{"favoritesOnly":false,"showDiscovered":true,"showChat":true,"showRepeater":true,"showRoom":false}"#
+    suite.set(legacy, forKey: AppStorageKey.mapFilterMainMap.rawValue)
+
+    let outcome = MapFilterPreferences.resolveMigrating(host: .mainMap, from: suite)
+    #expect(!outcome.didWrite)
+    #expect(outcome.state.showDiscovered)
+    #expect(!outcome.state.showRoom)
+    #expect(!outcome.state.hasActiveAdvancedFilters(for: .mainMap))
+
+    var raw = legacy
+    MapFilterPreferences.ensureMigrated(raw: &raw, host: .mainMap, defaults: suite)
+    #expect(raw == legacy)
+    #expect(suite.string(forKey: AppStorageKey.mapFilterMainMap.rawValue) == legacy)
+  }
 }

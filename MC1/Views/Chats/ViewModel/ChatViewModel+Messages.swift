@@ -64,25 +64,32 @@ extension ChatViewModel {
   /// run only when that load succeeded.
   /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
   func loadMessages(for contact: ContactDTO, populateMode: ChatPopulateMode) async {
+    guard !Task.isCancelled else { return }
+    let dataStore = dataStore
+    let capturedCoordinator = syncCoordinator
     // Track active conversation for notification suppression
     notificationService?.setActiveConversation(contactID: contact.id)
 
-    guard await primeInitialMessages(for: contact, populateMode: populateMode) else { return }
+    guard await primeInitialMessages(for: contact, populateMode: populateMode), !Task.isCancelled else { return }
 
     // Clear unread count and mention badge, then notify UI to refresh chat list.
     // The messages already rendered, so a bookkeeping failure here is logged
     // rather than surfaced as a load error.
     do {
       try await dataStore?.clearUnreadCount(contactID: contact.id)
+      guard !Task.isCancelled else { return }
       try await dataStore?.clearUnreadMentionCount(contactID: contact.id)
+      guard !Task.isCancelled else { return }
       try await dataStore?.markFailedSendsSeen(contactID: contact.id)
     } catch {
       logger.warning("loadMessages: failed to clear unread counts - \(error.localizedDescription)")
     }
-    syncCoordinator?.notifyConversationsChanged()
-
-    // Update app badge
-    await notificationService?.updateBadgeCount()
+    if currentRadioIDProvider() == contact.radioID, syncCoordinator === capturedCoordinator {
+      capturedCoordinator?.notifyConversationsChanged()
+    }
+    if let dataStore {
+      await refreshReadStateBadge(dataStore: dataStore, radioID: contact.radioID)
+    }
   }
 
   /// Populates the bound coordinator for `contact` and builds its render
@@ -140,53 +147,17 @@ extension ChatViewModel {
     return didLoad
   }
 
-  // MARK: - Drafts
-
-  /// Load any saved draft for the current contact
-  /// Drafts are consumed (removed) after loading to prevent re-display
-  /// If no draft exists, this method does nothing
-  func loadDraftIfExists() {
-    guard let contact = currentContact,
-          let notificationService,
-          let draft = notificationService.consumeDraft(for: contact.id) else {
-      return
-    }
-    composingText = draft
-  }
-
-  /// Restores the composer for `id` on conversation entry, applying restore sources in a
-  /// fixed priority order so the precedence can't be reversed by reordering at the call site:
-  /// a pending notification quick-reply draft (assigned unconditionally) wins over an older
-  /// persisted disk draft (applied only when the field is still empty).
-  func restoreComposerDraft(from store: DraftStore, id: ChatConversationID) {
-    loadDraftIfExists()
-    loadDraft(from: store, id: id)
-  }
-
-  /// Restores the persisted composer draft for `id`, but only when the field is empty — so a
-  /// reconnect-driven reload can't clobber in-progress text and a quick-reply draft applied
-  /// first keeps precedence. The store is passed in from the view's environment, never a
-  /// stored dependency, so a stale configure can't silently skip the restore.
-  func loadDraft(from store: DraftStore, id: ChatConversationID) {
-    if let restored = store.draftToApply(over: composingText, for: id) {
-      composingText = restored
-    }
-  }
-
-  /// Persists the current composer text as the draft for `id`, or removes it when empty.
-  func saveDraft(to store: DraftStore, id: ChatConversationID) {
-    store.setDraft(composingText, for: id)
-  }
-
   // MARK: - Sending
 
-  /// Send a message to the current contact
-  /// This is non-blocking - message is created and shown immediately, sent in background
-  func sendMessage(text: String) async {
+  /// Creates a pending DM for the service-owned send queue.
+  /// Missing connection context returns false so the composer can restore the Draft.
+  @discardableResult
+  func sendMessage(text: String) async -> Bool {
+    guard !text.isEmpty else { return true }
     guard let contact = currentContact,
-          let messageService,
-          !text.isEmpty else {
-      return
+          let messageService else {
+      sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+      return false
     }
 
     errorMessage = nil
@@ -195,11 +166,11 @@ extension ChatViewModel {
     do {
       message = try await messageService.createPendingMessage(text: text, to: contact)
       appendMessageIfNew(message)
-      schedulePrefetchForOutgoingMessage(message, isChannelMessage: false)
+      schedulePrefetchForMessage(message, isChannelMessage: false)
       syncCoordinator?.notifyConversationsChanged()
     } catch {
       errorMessage = error.userFacingMessage
-      return
+      return true
     }
 
     let envelope = DirectMessageEnvelope(messageID: message.id, contactID: contact.id)
@@ -208,6 +179,7 @@ extension ChatViewModel {
     } catch {
       await recordLocalEnqueueFailure(messageID: message.id, error: error)
     }
+    return true
   }
 }
 

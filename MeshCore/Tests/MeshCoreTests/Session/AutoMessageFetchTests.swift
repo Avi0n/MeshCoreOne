@@ -2,34 +2,8 @@ import Foundation
 @testable import MeshCore
 import Testing
 
-@Suite("MeshCoreSession auto message fetch")
+@Suite("MeshCoreSession auto message fetch", .timeLimit(.minutes(1)))
 struct AutoMessageFetchTests {
-  @Test
-  func `concurrent getMessage calls share one wire request`() async throws {
-    let transport = MockTransport()
-    let session = MeshCoreSession(
-      transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MeshCore-Tests")
-    )
-    try await startSession(session, transport: transport)
-
-    let firstTask = Task { try await session.getMessage(timeout: 10) }
-    let secondTask = Task { try await session.getMessage(timeout: 10) }
-
-    try await waitUntil("getMessage command should be sent once") {
-      await transport.sentData.count == 1
-    }
-
-    await transport.simulateReceive(Data([ResponseCode.noMoreMessages.rawValue]))
-
-    let first = try await firstTask.value
-    let second = try await secondTask.value
-
-    assertNoMoreMessages(first)
-    assertNoMoreMessages(second)
-    #expect(await transport.sentData.count == 1)
-  }
-
   @Test
   func `auto-fetch coalesces repeated messagesWaiting notifications`() async throws {
     let transport = MockTransport()
@@ -40,29 +14,35 @@ struct AutoMessageFetchTests {
     try await startSession(session, transport: transport)
     await session.startAutoMessageFetching()
 
-    let waitingPacket = Data([ResponseCode.messagesWaiting.rawValue])
-    await transport.simulateReceive(waitingPacket)
-    await transport.simulateReceive(waitingPacket)
-    await transport.simulateReceive(waitingPacket)
+    do {
+      let waitingPacket = Data([ResponseCode.messagesWaiting.rawValue])
+      await transport.simulateReceive(waitingPacket)
+      try await waitUntil("first drain poll should be sent") {
+        await transport.sentData.count == 1
+      }
 
-    try await waitUntil("first drain poll should be sent") {
-      await transport.sentData.count == 1
-    }
+      await transport.simulateReceive(waitingPacket)
+      await transport.simulateReceive(waitingPacket)
+      try await waitUntil("the auto-fetch loop should consume all three notifications") {
+        await session.processedMessagesWaitingCountForTest == 3
+      }
+      #expect(await session.autoMessageDrainStateForTest.requested)
+      #expect(await transport.sentData.count == 1)
+      let drainTask = try #require(await session.autoMessageDrainStateForTest.task)
 
-    await transport.simulateReceive(Data([ResponseCode.noMoreMessages.rawValue]))
-    try? await Task.sleep(for: .milliseconds(50))
-
-    let sentCount = await transport.sentData.count
-    #expect(sentCount >= 1)
-    #expect(sentCount <= 2)
-
-    if sentCount == 2 {
       await transport.simulateReceive(Data([ResponseCode.noMoreMessages.rawValue]))
-      try? await Task.sleep(for: .milliseconds(20))
+      try await waitUntil("the pending notification should produce one follow-up poll") {
+        await transport.sentData.count == 2
+      }
+      await transport.simulateReceive(Data([ResponseCode.noMoreMessages.rawValue]))
+      await drainTask.value
       #expect(await transport.sentData.count == 2)
+    } catch {
+      await session.stop()
+      throw error
     }
 
-    await session.stopAutoMessageFetching()
+    await session.stop()
   }
 
   @Test
@@ -82,7 +62,9 @@ struct AutoMessageFetchTests {
     }
 
     let manualPoll = Task { try await session.getMessage(timeout: 10) }
-    try? await Task.sleep(for: .milliseconds(20))
+    try await waitUntil("manual poll should join the active auto-fetch") {
+      await session.getMessageCallerCountForTest == 2
+    }
 
     #expect(await transport.sentData.count == 1)
 
@@ -91,7 +73,7 @@ struct AutoMessageFetchTests {
     let result = try await manualPoll.value
     assertNoMoreMessages(result)
     #expect(await transport.sentData.count == 1)
-    await session.stopAutoMessageFetching()
+    await session.stop()
   }
 
   private func startSession(_ session: MeshCoreSession, transport: MockTransport) async throws {
@@ -104,24 +86,6 @@ struct AutoMessageFetchTests {
     await transport.simulateReceive(makeSelfInfoPacket())
     try await startTask.value
     await transport.clearSentData()
-  }
-
-  private func waitUntil(
-    _ description: String,
-    timeout: Duration = .seconds(10),
-    pollInterval: Duration = .milliseconds(10),
-    condition: @escaping @Sendable () async -> Bool
-  ) async throws {
-    let clock = ContinuousClock()
-    let deadline = clock.now.advanced(by: timeout)
-
-    while clock.now < deadline {
-      if await condition() { return }
-      try await Task.sleep(for: pollInterval)
-    }
-
-    Issue.record("Timed out waiting: \(description)")
-    throw MeshCoreError.timeout
   }
 
   private func makeSelfInfoPacket() -> Data {

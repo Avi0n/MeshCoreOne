@@ -475,7 +475,9 @@ struct CLIToolViewModelLocalCommandsTests {
         settingsService: { settings },
         dataStore: { nil },
         radioID: { UUID() },
-        connectedDevice: { nil }
+        connectedDevice: { nil },
+        powerOffRadio: {},
+        powerOffCancelAvailable: { true }
       ),
       localDeviceName: "TestDevice",
       sendSelfAdvert: { _ in }
@@ -492,7 +494,9 @@ struct CLIToolViewModelLocalCommandsTests {
         settingsService: { nil },
         dataStore: { nil },
         radioID: { nil },
-        connectedDevice: { nil }
+        connectedDevice: { nil },
+        powerOffRadio: {},
+        powerOffCancelAvailable: { true }
       ),
       localDeviceName: "TestDevice",
       sendSelfAdvert: { _ in }
@@ -505,7 +509,7 @@ struct CLIToolViewModelLocalCommandsTests {
   func `get custom on a remote session does not touch the settings service`() async {
     let mock = MockConfigurationSession(customVars: ["gps": "0"])
     let viewModel = makeViewModel(mock: mock)
-    viewModel.activeSession = .remote(id: UUID(), name: "Repeater", pathLength: 1)
+    viewModel.activeSession = .remote(id: UUID(), name: "Repeater", pathLength: 1, remoteTarget: .repeater)
 
     await run(viewModel, "get custom")
 
@@ -527,7 +531,9 @@ struct CLIToolViewModelLocalCommandsTests {
         settingsService: { nil },
         dataStore: { nil },
         radioID: { nil },
-        connectedDevice: { nil }
+        connectedDevice: { nil },
+        powerOffRadio: {},
+        powerOffCancelAvailable: { true }
       ),
       localDeviceName: "TestDevice",
       sendSelfAdvert: { _ in }
@@ -549,7 +555,7 @@ struct CLIToolViewModelLocalCommandsTests {
   func `local get on a remote session does not touch the settings service`() async {
     let mock = MockConfigurationSession(name: "FieldNode")
     let viewModel = makeViewModel(mock: mock)
-    viewModel.activeSession = .remote(id: UUID(), name: "Repeater", pathLength: 1)
+    viewModel.activeSession = .remote(id: UUID(), name: "Repeater", pathLength: 1, remoteTarget: .repeater)
 
     await run(viewModel, "get name")
 
@@ -571,12 +577,280 @@ struct CLIToolViewModelLocalCommandsTests {
     #expect(viewModel.ghostText == "")
   }
 
+  @Test
+  func `v14 get cad goes to runCliCommand not custom vars`() async {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+    await run(viewModel, "get cad")
+    #expect(await mock.runCliCommandCalls == ["get cad"])
+    #expect(await mock.setCustomVarCalls.isEmpty)
+  }
+
+  @Test
+  func `v13 get cad does not call runCliCommand`() async {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 13))
+    await run(viewModel, "get cad")
+    #expect(await mock.runCliCommandCalls.isEmpty)
+  }
+
+  @Test
+  func `v14 poweroff prompts and yes powers off once`() async {
+    let probe = PowerOffProbe()
+    let viewModel = makeViewModel(
+      mock: MockConfigurationSession(),
+      device: makeDevice(firmwareVersion: 14),
+      powerOff: { probe.record() }
+    )
+
+    await run(viewModel, "poweroff")
+    #expect(viewModel.pendingConfirmation == .powerOff)
+    #expect(probe.count == 0)
+
+    await run(viewModel, "yes")
+    #expect(probe.count == 1)
+    #expect(lastResponse(viewModel) == LocalCommandOutput.okPoweringOff)
+    #expect(viewModel.pendingConfirmation == nil)
+  }
+
+  @Test
+  func `v14 poweroff prints the unsupported message and not the ok line`() async {
+    let viewModel = makeViewModel(
+      mock: MockConfigurationSession(),
+      device: makeDevice(firmwareVersion: 14),
+      powerOff: { throw SettingsServiceError.powerOffUnsupported }
+    )
+
+    await run(viewModel, "poweroff")
+    await run(viewModel, "yes")
+
+    let texts = viewModel.outputLines.map(\.text)
+    #expect(texts.contains(L10n.Localizable.Error.Settings.powerOffUnsupported))
+    #expect(!texts.contains(LocalCommandOutput.okPoweringOff))
+  }
+
+  @Test
+  func `cancel before power-off submission prints cancelled once`() async throws {
+    let hold = PowerOffHold()
+    let viewModel = makeViewModel(
+      mock: MockConfigurationSession(),
+      device: makeDevice(firmwareVersion: 14),
+      powerOff: { try await hold.park() },
+      powerOffCancelAvailable: { true }
+    )
+
+    await run(viewModel, "poweroff")
+    viewModel.executeCommand("yes")
+    try await waitUntil("power-off should be waiting") { hold.started }
+    viewModel.cancelCurrentCommand()
+    hold.resume(throwing: CancellationError())
+    try await waitUntil("power-off should finish") { !viewModel.isWaitingForResponse }
+
+    let texts = viewModel.outputLines.map(\.text)
+    #expect(texts.filter { $0 == L10n.Tools.Tools.Cli.cancelled }.count == 1)
+    #expect(!texts.contains(LocalCommandOutput.okPoweringOff))
+  }
+
+  @Test
+  func `cancel after power-off submission does not claim the command was cancelled`() async throws {
+    let hold = PowerOffHold()
+    let canCancel = CancelAvailability()
+    let viewModel = makeViewModel(
+      mock: MockConfigurationSession(),
+      device: makeDevice(firmwareVersion: 14),
+      powerOff: {
+        canCancel.value = false
+        try await hold.park()
+      },
+      powerOffCancelAvailable: { canCancel.value }
+    )
+
+    await run(viewModel, "poweroff")
+    viewModel.executeCommand("yes")
+    try await waitUntil("submission should block cancel") { hold.started && !canCancel.value }
+    #expect(
+      CLICommandCancel.allows(
+        isWaiting: viewModel.isWaitingForResponse,
+        powerOffActive: viewModel.powerOffCommandActive,
+        powerOffCanStillPreventSend: canCancel.value
+      ) == false
+    )
+    viewModel.cancelCurrentCommand()
+    #expect(viewModel.isWaitingForResponse)
+    hold.resume()
+    try await waitUntil("power-off should finish") { !viewModel.isWaitingForResponse }
+
+    let texts = viewModel.outputLines.map(\.text)
+    #expect(texts.filter { $0 == LocalCommandOutput.okPoweringOff }.count == 1)
+    #expect(!texts.contains(L10n.Tools.Tools.Cli.cancelled))
+  }
+
+  @Test
+  func `ordinary command cancellation stays available`() {
+    #expect(CLICommandCancel.allows(isWaiting: true, powerOffActive: false, powerOffCanStillPreventSend: false))
+    #expect(CLICommandCancel.allows(isWaiting: true, powerOffActive: true, powerOffCanStillPreventSend: true))
+    #expect(!CLICommandCancel.allows(isWaiting: true, powerOffActive: true, powerOffCanStillPreventSend: false))
+    #expect(!CLICommandCancel.allows(isWaiting: false, powerOffActive: false, powerOffCanStillPreventSend: true))
+  }
+
+  @Test
+  func `v13 poweroff is an unknown command`() async {
+    let probe = PowerOffProbe()
+    let viewModel = makeViewModel(
+      mock: MockConfigurationSession(),
+      device: makeDevice(firmwareVersion: 13),
+      powerOff: { probe.record() }
+    )
+
+    await run(viewModel, "poweroff")
+
+    #expect(viewModel.pendingConfirmation == nil)
+    #expect(probe.count == 0)
+    #expect(viewModel.outputLines.contains { $0.text == "\(L10n.Tools.Tools.Cli.unknownCommand) poweroff" })
+  }
+
+  @Test
+  func `a completed radio cli command submits without an added argument`() async {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+    viewModel.currentInput = "get wifi.ss"
+
+    viewModel.tabComplete()
+    await run(viewModel, viewModel.currentInput)
+
+    #expect(await mock.runCliCommandCalls == ["get wifi.ssid"])
+    #expect(viewModel.commandHistory.last == "get wifi.ssid")
+  }
+
+  @Test
+  func `a selected radio cli completion submits without an added argument`() async throws {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+    viewModel.currentInput = "get wifi."
+    let suggestions = try #require(viewModel.tabComplete())
+    viewModel.tabSelectionIndex = try #require(suggestions.firstIndex(of: "wifi.ssid"))
+
+    #expect(viewModel.applySelectedSuggestion())
+    await run(viewModel, viewModel.currentInput)
+
+    #expect(await mock.runCliCommandCalls == ["get wifi.ssid"])
+  }
+
+  @Test
+  func `completing a radio cli setter preserves the entered value`() async {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+    viewModel.currentInput = "set wifi.ss"
+
+    viewModel.tabComplete()
+    viewModel.currentInput += " my net  "
+    await run(viewModel, viewModel.currentInput)
+
+    #expect(await mock.runCliCommandCalls == ["set wifi.ssid  my net  "])
+  }
+
+  @Test(arguments: [
+    "set wifi.pwd ",
+    "set wifi.pwd secret  ",
+    "set wifi.ssid  my net  ",
+    "set wifi.ssid café"
+  ])
+  func `radio cli sends echoes and recalls the submitted line`(_ line: String) async {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+
+    await run(viewModel, line)
+    let echoed = viewModel.outputLines.last { $0.type == .command }
+    #expect(echoed.map { viewModel.getResponseBlock(containing: $0) } == line)
+    #expect(viewModel.commandHistory.last == line)
+
+    viewModel.historyUp()
+    #expect(viewModel.currentInput == line)
+    await run(viewModel, viewModel.currentInput)
+
+    #expect(await mock.runCliCommandCalls == [line, line])
+  }
+
+  @Test
+  func `whitespace and spaced app commands stay local`() async {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+
+    await run(viewModel, "   ")
+    await run(viewModel, "  help  ")
+    await run(viewModel, "reboot")
+    await run(viewModel, "  yes  ")
+
+    #expect(await mock.runCliCommandCalls.isEmpty)
+    #expect(viewModel.commandHistory == ["help", "reboot"])
+    #expect(viewModel.outputLines.contains { $0.text == L10n.Tools.Tools.Cli.helpHeader })
+    #expect(lastResponse(viewModel) == LocalCommandOutput.okRebooting)
+  }
+
+  @Test
+  func `a pending login masks the password and leaves it out of history`() async {
+    let viewModel = makeViewModel(mock: MockConfigurationSession(), device: makeDevice(firmwareVersion: 14))
+    viewModel.pendingLoginContact = ContactDTO(
+      id: UUID(),
+      radioID: UUID(),
+      publicKey: Data(repeating: 0x11, count: 32),
+      name: "Peer",
+      typeRawValue: ContactType.repeater.rawValue,
+      flags: 0,
+      outPathLength: 0xFF,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      lastHeardTimestamp: nil,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+
+    await run(viewModel, "  secret  ")
+
+    let echoed = viewModel.outputLines.last { $0.type == .command }
+    #expect(echoed?.text == "\(L10n.Tools.Tools.Cli.passwordPrompt) ****")
+    #expect(!viewModel.commandHistory.contains { $0.contains("secret") })
+    #expect(!viewModel.outputLines.contains { $0.text.contains("secret") })
+  }
+
+  @Test
+  func `a remote session still forwards the trimmed line`() async {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+    viewModel.activeSession = .remote(id: UUID(), name: "Repeater", pathLength: 1, remoteTarget: .repeater)
+
+    await run(viewModel, "set wifi.pwd ")
+    await run(viewModel, "  reboot now  ")
+
+    #expect(await mock.runCliCommandCalls.isEmpty)
+    #expect(viewModel.commandHistory == ["set wifi.pwd", "reboot now"])
+    let echoed = viewModel.outputLines.filter { $0.type == .command }.map { viewModel.getResponseBlock(containing: $0) }
+    #expect(echoed == ["set wifi.pwd", "reboot now"])
+  }
+
+  @Test
+  func `v14 logout does not call runCliCommand`() async {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+    await run(viewModel, "logout")
+    #expect(await mock.runCliCommandCalls.isEmpty)
+  }
+
   // MARK: - Helpers
 
   private func makeViewModel(
     mock: MockConfigurationSession,
     device: DeviceDTO? = nil,
-    floods: FloodRecorder? = nil
+    floods: FloodRecorder? = nil,
+    powerOff: @escaping @MainActor () async throws -> Void = {},
+    powerOffCancelAvailable: @escaping @MainActor () -> Bool = { true }
   ) -> CLIToolViewModel {
     let service = SettingsService(session: mock)
     let viewModel = CLIToolViewModel()
@@ -587,7 +861,9 @@ struct CLIToolViewModelLocalCommandsTests {
         settingsService: { service },
         dataStore: { nil },
         radioID: { UUID() },
-        connectedDevice: { device }
+        connectedDevice: { device },
+        powerOffRadio: powerOff,
+        powerOffCancelAvailable: powerOffCancelAvailable
       ),
       localDeviceName: "TestDevice",
       sendSelfAdvert: { flood in floods?.record(flood) }
@@ -607,8 +883,9 @@ struct CLIToolViewModelLocalCommandsTests {
 
   private func run(_ viewModel: CLIToolViewModel, _ line: String) async {
     viewModel.executeCommand(line)
-    for _ in 0..<200 where viewModel.isWaitingForResponse {
-      await Task.yield()
+    let deadline = ContinuousClock.now + .seconds(1)
+    while viewModel.isWaitingForResponse, ContinuousClock.now < deadline {
+      try? await Task.sleep(for: .milliseconds(1))
     }
   }
 
@@ -616,13 +893,17 @@ struct CLIToolViewModelLocalCommandsTests {
     viewModel.outputLines.last { $0.type == .response }?.text
   }
 
-  private func makeDevice(manualAddContacts: Bool, multiAcks: UInt8) -> DeviceDTO {
+  private func makeDevice(
+    firmwareVersion: UInt8 = 9,
+    manualAddContacts: Bool = false,
+    multiAcks: UInt8 = 0
+  ) -> DeviceDTO {
     DeviceDTO(
       id: UUID(),
       radioID: UUID(),
       publicKey: Data(repeating: 0x01, count: 32),
       nodeName: "TestDevice",
-      firmwareVersion: 9,
+      firmwareVersion: firmwareVersion,
       firmwareVersionString: "1.13.0",
       manufacturerName: "Test",
       buildDate: "",
@@ -655,6 +936,43 @@ struct CLIToolViewModelLocalCommandsTests {
       connectionMethods: []
     )
   }
+}
+
+// MARK: - Power Off Probe
+
+@MainActor
+final class PowerOffProbe {
+  private(set) var count = 0
+
+  func record() {
+    count += 1
+  }
+}
+
+@MainActor
+final class PowerOffHold {
+  private(set) var started = false
+  private var continuation: CheckedContinuation<Void, Error>?
+
+  func park() async throws {
+    started = true
+    try await withCheckedThrowingContinuation { continuation = $0 }
+  }
+
+  func resume(throwing error: Error? = nil) {
+    let continuation = continuation
+    self.continuation = nil
+    if let error {
+      continuation?.resume(throwing: error)
+    } else {
+      continuation?.resume()
+    }
+  }
+}
+
+@MainActor
+final class CancelAvailability {
+  var value = true
 }
 
 // MARK: - Flood Recorder

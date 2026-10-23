@@ -34,14 +34,15 @@ struct AppearanceView: View {
       themesSection
       if Self.shouldShowBrowseMore(available: availableThemes) {
         Section {
-          NavigationLink(L10n.Settings.Appearance.MoreThemes.link) {
-            SupportDevelopmentView()
+          NavigationLink(value: SettingsSubpage.support) {
+            Text(L10n.Settings.Appearance.MoreThemes.link)
           }
         }
         .themedRowBackground(activeTheme)
       }
     }
     .themedCanvas(activeTheme)
+    .settingsSubpageDestinations()
     .navigationTitle(L10n.Settings.Appearance.title)
     .navigationBarTitleDisplayMode(.inline)
     .sensoryFeedback(.selection, trigger: schemeTrigger)

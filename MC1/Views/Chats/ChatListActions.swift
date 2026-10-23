@@ -4,11 +4,7 @@ import SwiftUI
 
 private let chatListActionsLogger = Logger(subsystem: "com.mc1", category: "ChatListActions")
 
-/// Layout-independent chat-list actions shared by the compact `ChatsView` (stack) and the iPad
-/// `ChatsContentColumn` (split). Both run identical delete, pending-navigation, and offline-announce
-/// sequences; only `navigate` and `clearNavigationIfActive` differ between the stack and split
-/// paths, so those are injected. Built fresh per body evaluation; the bindings point
-/// at each view's own `@State`, so the captured state stays live.
+/// Shared chat-list delete sequences and disconnected-room authentication.
 @MainActor
 struct ChatListActions {
   let viewModel: ChatViewModel
@@ -18,7 +14,6 @@ struct ChatListActions {
   let channelDeleteFailure: Binding<ChatConversationActions.Failure?>
   let showChannelDeleteFailed: Binding<Bool>
   let roomToAuthenticate: Binding<RemoteNodeSessionDTO?>
-  let navigate: (ChatRoute) -> Void
   let clearNavigationIfActive: (ChatRoute) -> Void
 
   func handleDeleteConversation(_ conversation: Conversation) {
@@ -98,24 +93,6 @@ struct ChatListActions {
       viewModel.errorMessage = error.userFacingMessage
     }
     viewModel.requestConversationReload()
-  }
-
-  func handlePendingNavigation() {
-    guard let contact = appState.navigation.pendingChatContact else { return }
-    navigate(.direct(contact))
-    appState.navigation.clearPendingNavigation()
-  }
-
-  func handlePendingChannelNavigation() {
-    guard let channel = appState.navigation.pendingChannel else { return }
-    navigate(.channel(channel))
-    appState.navigation.clearPendingChannelNavigation()
-  }
-
-  func handlePendingRoomNavigation() {
-    guard let session = appState.navigation.pendingRoomSession else { return }
-    navigate(.room(session))
-    appState.navigation.clearPendingRoomNavigation()
   }
 
   /// Presents the room auth sheet for a disconnected room a notification tap

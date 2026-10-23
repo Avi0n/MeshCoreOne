@@ -37,7 +37,8 @@ extension ConnectionManager {
   // MARK: - Initial Sync
 
   /// Performs initial sync with automatic resync loop on failure.
-  /// Returns `true` if sync completed successfully, `false` if it failed and a resync loop was started.
+  /// Returns the completed result, or nil when the sync throws. A non-usable result
+  /// still starts the resync loop. Readiness stays `isConnectionUsable`.
   /// - Parameters:
   ///   - radioID: The radio ID for data scoping
   ///   - services: The service container
@@ -50,7 +51,7 @@ extension ConnectionManager {
     transportType: TransportType = .bluetooth,
     context: String = "",
     forceFullSync: Bool = false
-  ) async -> Bool {
+  ) async -> FullSyncResult? {
     let channelSyncConfig = currentChannelSyncConfig(for: radioID, transportType: transportType)
     do {
       let result = try await services.syncCoordinator.onConnectionEstablished(
@@ -69,22 +70,19 @@ extension ConnectionManager {
         )
       }
 
-      if result.isConnectionUsable {
-        return true
+      if !result.isConnectionUsable, connectionIntent.wantsConnection {
+        let prefix = context.isEmpty ? "" : "\(context): "
+        logger.warning("\(prefix)Initial sync did not produce usable contacts, starting resync loop")
+        startResyncLoop(radioID: radioID, services: services, transportType: transportType, forceFullSync: forceFullSync)
       }
-
-      guard connectionIntent.wantsConnection else { return false }
-      let prefix = context.isEmpty ? "" : "\(context): "
-      logger.warning("\(prefix)Initial sync did not produce usable contacts, starting resync loop")
-      startResyncLoop(radioID: radioID, services: services, transportType: transportType, forceFullSync: forceFullSync)
-      return false
+      return result
     } catch {
       // Don't start resync if user disconnected while sync was in progress
-      guard connectionIntent.wantsConnection else { return false }
+      guard connectionIntent.wantsConnection else { return nil }
       let prefix = context.isEmpty ? "" : "\(context): "
       logger.warning("\(prefix)Initial sync failed, starting resync loop: \(error.localizedDescription)")
       startResyncLoop(radioID: radioID, services: services, transportType: transportType, forceFullSync: forceFullSync)
-      return false
+      return nil
     }
   }
 
@@ -101,6 +99,7 @@ extension ConnectionManager {
     transportType: TransportType = .bluetooth,
     forceFullSync: Bool = false
   ) {
+    guard self.services === services else { return }
     resyncTask?.cancel()
     resyncAttemptCount = 0
 
@@ -130,7 +129,7 @@ extension ConnectionManager {
         logger.info("Resync attempt \(resyncAttemptCount)/\(Self.maxResyncAttempts)")
 
         let channelSyncConfig = self.currentChannelSyncConfig(for: radioID, transportType: transportType)
-        let success = await services.syncCoordinator.performResync(
+        let result = await services.syncCoordinator.performResync(
           radioID: radioID,
           dependencies: services.syncDependencies,
           forceFullSync: forceFullSync,
@@ -138,7 +137,7 @@ extension ConnectionManager {
           platformName: "\(self.detectedPlatform)"
         )
 
-        if success {
+        if let result, result.isConnectionUsable {
           logger.info("Resync succeeded")
           resyncAttemptCount = 0
 
@@ -184,7 +183,7 @@ extension ConnectionManager {
           // Any IDs appended during the await (via teardownSessionForReconnect) survive.
           sessionsAwaitingReauth.subtract(sessionIDs)
 
-          await onDeviceSynced?()
+          await onDeviceSynced?(result.hasCleanRecipientData)
 
           break
         }
@@ -221,6 +220,7 @@ extension ConnectionManager {
     services: ServiceContainer,
     indices: [UInt8]
   ) {
+    guard self.services === services else { return }
     let initialIndices = Array(Set(indices)).sorted()
     guard !initialIndices.isEmpty else { return }
 

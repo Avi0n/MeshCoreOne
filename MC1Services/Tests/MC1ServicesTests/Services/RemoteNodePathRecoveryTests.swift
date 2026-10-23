@@ -3,9 +3,8 @@ import Foundation
 import MeshCore
 import Testing
 
-/// Binary admin (status / telemetry / owner) does not reset the contact path on
-/// mesh timeout; those waits use `performBinaryExchange`. CLI still uses
-/// `performWithDirectPathFloodRecovery`.
+/// Binary admin waits use `performBinaryExchange` and do not reset the contact path on timeout.
+/// No-reply CLI skips recovery. Other CLI still uses `performWithDirectPathFloodRecovery`.
 @Suite("RemoteNodeService binary admin path policy")
 struct RemoteNodePathRecoveryTests {
   private static let publicKey = Data(repeating: 0xCD, count: 32)
@@ -152,6 +151,46 @@ struct RemoteNodePathRecoveryTests {
       _ = try await harness.service.requestTelemetry(sessionID: harness.sessionID, timeout: .seconds(5))
     }
     #expect(await harness.session.resetPathPublicKeys.isEmpty)
+  }
+
+  @Test(arguments: ["reboot", "clkreboot", "poweroff", "shutdown"])
+  func `a no-reply command that times out is sent once and keeps the path`(command: String) async throws {
+    let harness = try await makeHarness(outPathLength: 3, outPath: Self.directPath)
+
+    let error = await #expect(throws: RemoteNodeError.self) {
+      _ = try await harness.service.sendRawCLICommand(
+        sessionID: harness.sessionID,
+        command: command,
+        timeout: .milliseconds(1)
+      )
+    }
+    guard case .timeout? = error else {
+      Issue.record("Expected RemoteNodeError.timeout, got \(String(describing: error))")
+      return
+    }
+    #expect(await harness.session.sendCommandInvocations.count == 1)
+    #expect(await harness.session.resetPathPublicKeys.isEmpty)
+
+    let contact = try await harness.dataStore.fetchContact(
+      radioID: harness.radioID,
+      publicKey: Self.publicKey
+    )
+    #expect(contact?.isFloodRouted == false)
+  }
+
+  @Test
+  func `a normal command that times out resets the path and resends once`() async throws {
+    let harness = try await makeHarness(outPathLength: 3, outPath: Self.directPath)
+
+    await #expect(throws: RemoteNodeError.self) {
+      _ = try await harness.service.sendRawCLICommand(
+        sessionID: harness.sessionID,
+        command: "get name",
+        timeout: .milliseconds(1)
+      )
+    }
+    #expect(await harness.session.sendCommandInvocations.count == 2)
+    #expect(await harness.session.resetPathPublicKeys == [Self.publicKey])
   }
 
   @Test

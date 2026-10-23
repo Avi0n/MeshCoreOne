@@ -1,10 +1,14 @@
 import Foundation
 
-/// Re-validates every HTTP redirect hop of `LinkPreviewService`'s scrape
-/// session against the SSRF allow-list. A default `URLSession` follows 3xx
-/// redirects automatically, so without this a URL that passes the initial
-/// `isSafe` check could redirect to a private host and be fetched anyway.
+/// Re-validates redirect destinations so link and image requests cannot
+/// follow an initially safe URL to a private host.
 final class RedirectSafetyDelegate: NSObject, URLSessionTaskDelegate {
+  private let upgradeToHTTPS: Bool
+
+  init(upgradeToHTTPS: Bool = true) {
+    self.upgradeToHTTPS = upgradeToHTTPS
+  }
+
   func urlSession(
     _ session: URLSession,
     task: URLSessionTask,
@@ -12,13 +16,25 @@ final class RedirectSafetyDelegate: NSObject, URLSessionTaskDelegate {
     newRequest request: URLRequest,
     completionHandler: @escaping @Sendable (URLRequest?) -> Void
   ) {
-    guard let url = request.url else {
+    guard let hop = request.url else {
+      completionHandler(nil)
+      return
+    }
+    let destination = upgradeToHTTPS ? LinkPreviewService.httpsScrapeURL(for: hop) : hop
+    // Following the URL that just responded would repeat the response.
+    if let responded = response.url?.absoluteString, destination.absoluteString == responded {
       completionHandler(nil)
       return
     }
     Task {
-      let isSafe = await URLSafetyChecker.isSafe(url)
-      completionHandler(isSafe ? request : nil)
+      let isSafe = await URLSafetyChecker.isSafe(destination)
+      guard isSafe else {
+        completionHandler(nil)
+        return
+      }
+      var followed = request
+      followed.url = destination
+      completionHandler(followed)
     }
   }
 }

@@ -45,7 +45,8 @@ struct RepeaterStatusView: View {
           }
         }
       }
-      .task {
+      .task(id: appState.servicesVersion) {
+        viewModel = appState.remoteAdminWorkspaces.repeater(for: session).status
         viewModel.configure(
           repeaterAdminService: { appState.services?.repeaterAdminService },
           contactService: { appState.services?.contactService },
@@ -69,8 +70,7 @@ struct RepeaterStatusView: View {
       }
     }
     .onDisappear {
-      viewModel.stopDiscovery()
-      Task { await viewModel.cleanup() }
+      viewModel.pauseDiscoveryPolls()
     }
     .presentationDetents([.large])
   }

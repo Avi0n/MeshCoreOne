@@ -45,7 +45,6 @@ The central state management object for the application. Navigation and onboardi
 | `navigateToDiscovery()` | Triggers navigation to contact discovery screen |
 | `navigateToRoom(with:)` | Triggers navigation to a room server session |
 | `navigateToContacts()` | Switches to Contacts tab |
-| `clearPendingNavigation()` | Clears pending navigation state |
 
 ### Lifecycle Methods
 
@@ -120,7 +119,6 @@ Manages state for both the conversation list and a single chat conversation. Per
 | `channels` | `[ChannelDTO]` | Current channels with messages |
 | `roomSessions` | `[RemoteNodeSessionDTO]` | Current room sessions |
 | `isLoading` | `Bool` | Loading state |
-| `composingText` | `String` | Message text being composed |
 | `errorMessage` | `String?` | Modal load/fetch error |
 | `sendErrorMessage` | `String?` | Modal send-only failure ("Unable to Send") |
 | `errorBannerMessage` | `String?` | Non-modal passive-failure banner |
@@ -217,6 +215,8 @@ Manages state and calculations for RF line of sight analysis, including optional
 
 | Method | Description |
 |--------|-------------|
+| `configure(dataStore:radioID:deviceFrequencyKHz:)` | Rebinds live store/radio providers; device frequency is a one-shot seed |
+| `applyInitialRepeaterCameraFitIfNeeded()` | Fits repeater camera once; skips if the user already moved the camera |
 | `analyze()` | Fetches elevation and performs the A-to-B clearance analysis |
 | `analyzeWithRepeater()` | Performs two-segment relay analysis via the repeater |
 | `loadRepeaters() async` | Loads repeater contacts with locations |
@@ -240,7 +240,7 @@ Manages manual path construction, single and batch path tracing, and saved-path 
 | `activeSavedPath` | `SavedTracePathDTO?` | The saved path currently bound (runs are appended to it) |
 | `isRunning` | `Bool` | Trace in progress |
 | `batchEnabled` | `Bool` | Whether batch (repeated) trace mode is on |
-| `errorMessage` | `String?` | Error message (auto-clears after a delay) |
+| `errorMessage` | `String?` | Error message. A failure stored while Trace Path is visible auto-clears after 4 seconds. A failure stored while it is hidden stays until OK |
 
 **Key Methods:**
 
@@ -251,7 +251,7 @@ Manages manual path construction, single and batch path tracing, and saved-path 
 | `runTrace() async` | Sends a single trace and awaits the response |
 | `runBatchTrace() async` | Runs `batchSize` sequential traces and aggregates results |
 | `savePath(name:) async` | Saves the current traced path with the given name |
-| `startListening()` / `stopListening()` | Subscribe to / cancel trace-response events |
+| `startListening()` / `stopListening()` | Attach or detach trace-response events. The listener stays attached while a run is waiting or the workspace is visible |
 
 **Note**: The Trace Path tool uses manual path construction where users select and order repeaters. Automatic path discovery (e.g., breadth-first search) is not currently implemented.
 
@@ -422,7 +422,7 @@ The main entry point. Initializes `AppState` with a SwiftData `ModelContainer` a
 
 **File:** `MC1/ContentView.swift`
 
-Root view that switches between `OnboardingView()` and the connected UI based on `appState.onboarding.hasCompletedOnboarding`. The connected UI is `MainSidebarView()` on a regular horizontal size class (iPad) and `MainTabView()` on compact. Manages the overall app navigation structure and coordinates with `AppState` for navigation events.
+Root view that switches between `OnboardingView()` and `MainTabView()` based on `appState.onboarding.hasCompletedOnboarding`. Connection alerts, pairing sheets, and What's New stay on this host.
 
 ---
 

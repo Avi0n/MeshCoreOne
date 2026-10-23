@@ -45,7 +45,8 @@ extension View {
   @ViewBuilder
   func liquidGlassInteractive(in shape: some Shape = .circle) -> some View {
     if #available(iOS 26.0, *) {
-      glassEffect(.regular.interactive(), in: shape)
+      // Mouse-wheel events on Mac can lack the unaccelerated deltas that glass interaction requires.
+      glassEffect(.regular.interactive(!ProcessInfo.processInfo.isiOSAppOnMac), in: shape)
     } else {
       background(.thinMaterial, in: shape)
     }

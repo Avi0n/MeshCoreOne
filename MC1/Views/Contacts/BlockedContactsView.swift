@@ -1,20 +1,41 @@
-import MC1Services
 import SwiftUI
 
-/// View showing only blocked contacts for management
 struct BlockedContactsView: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
+  @State private var ownedState: BlockedContactsState
+  private let suppliedState: BlockedContactsState?
+  private let rendererRevision: Int
 
-  @State private var contacts: [ContactDTO] = []
-  @State private var isLoading = false
-  @State private var errorMessage: String?
+  init() {
+    _ownedState = State(initialValue: BlockedContactsState())
+    suppliedState = nil
+    rendererRevision = 0
+  }
+
+  init(state: BlockedContactsState, rendererRevision: Int = 0) {
+    _ownedState = State(initialValue: state)
+    suppliedState = state
+    self.rendererRevision = rendererRevision
+  }
+
+  private var state: BlockedContactsState {
+    suppliedState ?? ownedState
+  }
 
   var body: some View {
+    if suppliedState == nil {
+      content.modifier(BlockedContactsPresenter(state: state))
+    } else {
+      content
+    }
+  }
+
+  private var content: some View {
     Group {
-      if isLoading {
+      if state.isLoading {
         ProgressView(L10n.Contacts.Contacts.Blocked.loading)
-      } else if contacts.isEmpty {
+      } else if state.contacts.isEmpty {
         ContentUnavailableView(
           L10n.Contacts.Contacts.Blocked.Empty.title,
           systemImage: "hand.raised.slash",
@@ -26,18 +47,8 @@ struct BlockedContactsView: View {
     }
     .themedCanvas(theme)
     .navigationTitle(L10n.Contacts.Contacts.Blocked.title)
-    .errorAlert($errorMessage)
-    .task {
-      await loadBlockedContacts()
-    }
-    .onChange(of: appState.contactsVersion) { _, _ in
-      Task {
-        await loadBlockedContacts()
-      }
-    }
   }
 
-  /// Leading inset for the inter-row divider, aligning it under the row text past the avatar.
   private static let rowSeparatorLeadingInset: CGFloat = 72
   private static let rowHorizontalPadding: CGFloat = 16
   private static let rowVerticalPadding: CGFloat = 6
@@ -45,36 +56,34 @@ struct BlockedContactsView: View {
   private var blockedList: some View {
     ScrollView {
       LazyVStack(spacing: 0) {
-        ForEach(Array(contacts.enumerated()), id: \.element.id) { index, contact in
-          NavigationLink(value: ContactRoute.detail(contact)) {
-            ContactRowView(contact: contact)
-              .padding(.horizontal, Self.rowHorizontalPadding)
-              .padding(.vertical, Self.rowVerticalPadding)
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .contentShape(.rect)
+        ForEach(Array(state.contacts.enumerated()), id: \.element.id) { index, contact in
+          let isSelected = appState.navigation.selectedContact?.id == contact.id
+          VStack(spacing: 0) {
+            Button {
+              appState.navigation.navigateToContactDetail(contact)
+            } label: {
+              ContactRowView(contact: contact, timestamp: contact.recencyTimestamp)
+                .padding(.horizontal, Self.rowHorizontalPadding)
+                .padding(.vertical, Self.rowVerticalPadding)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .selectedRowHighlight(isSelected: isSelected)
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
+            if index < state.contacts.count - 1 {
+              Divider().padding(.leading, Self.rowSeparatorLeadingInset)
+            }
           }
-          .buttonStyle(.plain)
+          .id(contact.id)
           .transition(.opacity)
-          if index < contacts.count - 1 {
-            Divider().padding(.leading, Self.rowSeparatorLeadingInset)
-          }
         }
       }
+      .scrollTargetLayout()
     }
-  }
-
-  private func loadBlockedContacts() async {
-    guard let services = appState.services,
-          let radioID = appState.connectedDevice?.radioID else { return }
-    isLoading = true
-    defer { isLoading = false }
-
-    do {
-      contacts = try await services.dataStore.fetchBlockedContacts(
-        radioID: radioID
-      )
-    } catch {
-      errorMessage = error.userFacingMessage
-    }
+    .scrollPosition(id: Binding(
+      get: { state.scrollPositionID },
+      set: { state.updateScrollPosition($0, rendererRevision: rendererRevision) }
+    ), anchor: .top)
   }
 }

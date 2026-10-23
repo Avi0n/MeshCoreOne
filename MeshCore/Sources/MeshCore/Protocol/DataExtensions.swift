@@ -22,11 +22,13 @@ public extension Data {
   /// - Parameter hexString: The hex string to parse.
   /// - Returns: A `Data` object if the string is valid hex; otherwise, `nil`.
   init?(hexString: String) {
-    let len = hexString.count / 2
+    let charactersPerByte = 2
+    guard hexString.count.isMultiple(of: charactersPerByte) else { return nil }
+    let len = hexString.count / charactersPerByte
     var data = Data(capacity: len)
     var index = hexString.startIndex
     for _ in 0..<len {
-      let nextIndex = hexString.index(index, offsetBy: 2)
+      let nextIndex = hexString.index(index, offsetBy: charactersPerByte)
       guard let byte = UInt8(hexString[index..<nextIndex], radix: 16) else { return nil }
       data.append(byte)
       index = nextIndex

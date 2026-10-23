@@ -30,3 +30,38 @@
 "whatsNew.fasterChatLoading.title" = "Более быстрая загрузка чатов";
 /* What's New v1.5 - Faster chat loading, description */
 "whatsNew.fasterChatLoading.description" = "Открытие чата стало до 90%% быстрее.";
+
+/* What's New v1.6 - Pinned chats, title */
+"whatsNew.pinnedChats.title" = "Закреплённые чаты";
+/* What's New v1.6 - Pinned chats, description */
+"whatsNew.pinnedChats.description" = "Закреплённые чаты теперь отделены от избранного. Закреплённые чаты появляются в разделе «Закреплено», а контакты, которые вы уже добавили в избранное, закрепляются при первом открытии приложения.";
+
+/* What's New v1.6 - Read and unread, title */
+"whatsNew.readAndUnread.title" = "Прочитанное и непрочитанное";
+/* What's New v1.6 - Read and unread, description */
+"whatsNew.readAndUnread.description" = "Нажмите и удерживайте чат, чтобы отметить разговор как прочитанное или непрочитанное.";
+
+/* What's New v1.6 - iPhone Duo, title */
+"whatsNew.iPhoneDuo.title" = "iPhone Duo";
+/* What's New v1.6 - iPhone Duo, description */
+"whatsNew.iPhoneDuo.description" = "MC1 поддерживает iPhone Duo с макетами изменяемого размера.";
+
+/* What's New v1.6 - iPad tab bar, title */
+"whatsNew.iPadTabBar.title" = "Панель вкладок iPad";
+/* What's New v1.6 - iPad tab bar, description */
+"whatsNew.iPadTabBar.description" = "На iPad значки вкладок перемещаются слева наверх. Это помогает нам лучше поддерживать все устройства, включая iPhone Duo.";
+
+/* What's New v1.6 - Advanced map filters, title */
+"whatsNew.advancedMapFilters.title" = "Расширенные фильтры карты";
+/* What's New v1.6 - Advanced map filters, description */
+"whatsNew.advancedMapFilters.description" = "Фильтруйте карту по времени последнего приёма и числу переходов. Можно выбрать предустановку или задать свой диапазон, а также удалить фильтр.";
+
+/* What's New v1.6 - Bluetooth and Wi-Fi, title */
+"whatsNew.bluetoothAndWiFi.title" = "Bluetooth и WiFi";
+/* What's New v1.6 - Bluetooth and Wi-Fi, description */
+"whatsNew.bluetoothAndWiFi.description" = "Если радио с прошивкой 1.18 или новее сопряжено и по Bluetooth, и по WiFi, между ними можно переключаться в «Подключить устройство» и в «Настройки» > «Подключение».";
+
+/* What's New v1.6 - More changes, title */
+"whatsNew.moreChanges.title" = "Другие изменения";
+/* What's New v1.6 - More changes, description */
+"whatsNew.moreChanges.description" = "Нажмите \"Смотреть все новые изменения\" ниже, чтобы увидеть полный список исправлений ошибок и других функций.";

@@ -231,6 +231,12 @@
 /* Fallback connection type description */
 "deviceSelection.bluetooth" = "Bluetooth";
 
+/* Accessibility label for the connection menu on a radio with Bluetooth and Wi-Fi */
+"deviceSelection.changeConnection" = "Change connection";
+
+/* Menu title for the saved Wi-Fi link */
+"deviceSelection.wifi" = "Wi-Fi";
+
 // MARK: - Location Picker View
 
 /* Navigation title for location picker */
@@ -274,6 +280,47 @@
 
 /* Apply button label */
 "trustedContacts.apply" = "Apply";
+
+// MARK: - Remote CLI
+
+/* Section header for remote CLI permission */
+"remoteCLI.header" = "Remote CLI";
+
+/* Navigation row to manage contacts allowed to send remote CLI */
+"remoteCLI.manage" = "Allowed contacts";
+
+/* Footer explaining remote CLI permission */
+"remoteCLI.footer" = "Allowed contacts can control this radio over the mesh. The app will not alert you when they do.";
+
+/* Navigation title for remote CLI contacts picker */
+"remoteCLIContacts.title" = "Remote CLI";
+
+/* Title for empty state when no contacts exist */
+"remoteCLIContacts.noContacts" = "No Contacts";
+
+/* Description for empty state */
+"remoteCLIContacts.noContactsDescription" = "Add contacts to allow remote CLI";
+
+/* Title for empty state when search returns no results */
+"remoteCLIContacts.noResults" = "No Results";
+
+/* Description for empty state when search returns no results */
+"remoteCLIContacts.noResultsDescription" = "No contacts match \"%@\"";
+
+/* Title for empty state when Favorites Only has no matches */
+"remoteCLIContacts.noFavorites" = "No Favorites";
+
+/* Description for empty state when Favorites Only has no matches */
+"remoteCLIContacts.noFavoritesDescription" = "No favorite contacts to show";
+
+/* Search prompt for remote CLI contacts list */
+"remoteCLIContacts.searchPrompt" = "Search Contacts";
+
+/* Toggle label for showing only favorite contacts */
+"remoteCLIContacts.favoritesOnly" = "Favorites Only";
+
+/* Apply button label */
+"remoteCLIContacts.apply" = "Apply";
 
 // MARK: - About Section
 
@@ -584,6 +631,18 @@
 
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "The device will restart and temporarily disconnect.";
+
+/* Button to turn the device off */
+"deviceActions.powerOff" = "Power Off Device";
+
+/* Alert title for power off confirmation */
+"deviceActions.alert.powerOff.title" = "Power Off Device?";
+
+/* Button to confirm power off */
+"deviceActions.alert.powerOff.confirm" = "Power Off";
+
+/* Alert message for power off confirmation */
+"deviceActions.alert.powerOff.message" = "The device will turn off and disconnect. Turn it on with its power button, then reconnect.";
 
 // MARK: - Danger Zone Section
 
@@ -914,10 +973,122 @@
 /* Footer explaining telemetry */
 "telemetry.footer" = "When enabled, other nodes can request your device's telemetry data.";
 
-// MARK: - WiFi Section
+// MARK: - Radio WiFi
 
-/* Section header for WiFi settings */
-"wifi.header" = "WiFi";
+/* Footer for the radio WiFi section */
+"radioWiFi.footer" = "The radio joins this network after a reboot.";
+
+/* Label for the radio WiFi status */
+"radioWiFi.status" = "Status";
+
+/* Radio WiFi status when associated */
+"radioWiFi.status.connected" = "Connected";
+
+/* Radio WiFi status when not associated */
+"radioWiFi.status.notConnected" = "Not Connected";
+
+/* Label for the radio's IP address */
+"radioWiFi.ipAddress" = "IP Address";
+
+/* Label for the radio's WiFi network */
+"radioWiFi.network" = "Network";
+
+/* Shown when the radio has no saved network name */
+"radioWiFi.network.notSet" = "None";
+
+/* Toggle for the radio's WiFi radio */
+"radioWiFi.enabled" = "WiFi";
+
+/* Field label for the network name */
+"radioWiFi.networkName" = "Network Name";
+
+/* Field label for the WiFi password */
+"radioWiFi.password" = "Password";
+
+/* Accessibility label that reveals the WiFi password */
+"radioWiFi.showPassword" = "Show Password";
+
+/* Accessibility label that hides the WiFi password */
+"radioWiFi.hidePassword" = "Hide Password";
+
+/* Editor footer when the name and password are within the limits */
+"radioWiFi.editor.footer" = "The radio uses this network after it reboots. A network name can be up to 32 bytes, and a password up to 63 bytes. Leave the password blank to store no password.";
+
+/* Editor footer when the network name is empty */
+"radioWiFi.editor.emptyName" = "Enter a network name.";
+
+/* Editor footer when the network name is too long */
+"radioWiFi.editor.nameLength" = "A network name can be up to 32 bytes.";
+
+/* Editor footer when the password is too long */
+"radioWiFi.editor.passwordLength" = "A password can be up to 63 bytes.";
+
+/* Button that clears the radio's saved WiFi settings */
+"radioWiFi.clear" = "Clear WiFi Settings";
+
+/* Title for the clear WiFi confirmation */
+"radioWiFi.alert.clear.title" = "Clear WiFi Settings?";
+
+/* Clear confirmation when the phone is connected over Bluetooth */
+"radioWiFi.alert.clear.message" = "The radio forgets the saved network name and password after it reboots. If its firmware has a built-in network, it joins that network instead.";
+
+/* Clear confirmation when the phone is connected over WiFi */
+"radioWiFi.alert.clear.wifiMessage" = "The radio forgets the saved network name and password after it reboots. It may not be reachable at this address. If that happens, connect over Bluetooth. If its firmware has a built-in network, it joins that network instead.";
+
+/* Button that reboots to apply WiFi changes */
+"radioWiFi.rebootToApply" = "Reboot to Apply";
+
+/* Title before saving a network while connected over WiFi */
+"radioWiFi.alert.save.title" = "Save this network?";
+
+/* Title before turning WiFi off while connected over WiFi */
+"radioWiFi.alert.turnOff.title" = "Turn off WiFi?";
+
+/* Confirm button before turning WiFi off */
+"radioWiFi.alert.turnOff.confirm" = "Turn Off";
+
+/* Warning before a WiFi change while connected over WiFi */
+"radioWiFi.alert.wifiTransport.message" = "After the radio reboots, it may not be reachable at this address. If that happens, connect over Bluetooth.";
+
+/* Title for the radio WiFi reboot confirmation */
+"radioWiFi.alert.reboot.title" = "Reboot the radio?";
+
+/* Reboot confirmation when a network name is stored. %@ is the network name. */
+"radioWiFi.alert.reboot.join" = "The radio will restart and then join %@. The phone disconnects until the radio is back.";
+
+/* Reboot confirmation when no network name is stored */
+"radioWiFi.alert.reboot.restart" = "The radio will restart. The phone disconnects until the radio is back.";
+
+/* Reboot confirmation when WiFi is turned off */
+"radioWiFi.alert.reboot.disabled" = "The radio will restart with WiFi turned off. It will no longer accept WiFi connections.";
+
+// MARK: - Connection
+
+/* Settings row, page title, and phone address header */
+"connection.header" = "Connection";
+
+/* Spoken name of the Wi-Fi link and the Wi-Fi page title */
+"connection.link.wifi" = "Wi-Fi";
+
+/* Header for the radio Wi-Fi group on the Wi-Fi page */
+"connection.link.radioWiFi" = "Radio Wi-Fi";
+
+/* VoiceOver value for the link that is in use */
+"connection.link.inUse" = "In use";
+
+/* VoiceOver value while a switch to that link is in progress */
+"connection.link.switching" = "Switching";
+
+/* VoiceOver hint for switching to the other link */
+"connection.link.switchHint" = "Switches the link to the radio";
+
+/* VoiceOver label for the Bluetooth info button */
+"connection.link.bluetoothInfo" = "Bluetooth info";
+
+/* VoiceOver label for the Wi-Fi info button */
+"connection.link.wifiInfo" = "Wi-Fi info";
+
+// MARK: - WiFi Section
 
 /* Label for IP address */
 "wifi.address" = "Address";
@@ -927,9 +1098,6 @@
 
 /* Button to edit WiFi connection */
 "wifi.editConnection" = "Edit Connection";
-
-/* Footer explaining WiFi address */
-"wifi.footer" = "Your device's local network address";
 
 // MARK: - WiFi Edit Sheet
 
@@ -1510,6 +1678,45 @@
 /* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
 "region.subdivision.AU-VIC" = "Victoria";
 
+/* Location: RegionalAreas.subdivisionDisplayName - Alberta (CA-AB) province name */
+"region.subdivision.CA-AB" = "Alberta";
+
+/* Location: RegionalAreas.subdivisionDisplayName - British Columbia (CA-BC) province name */
+"region.subdivision.CA-BC" = "British Columbia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Manitoba (CA-MB) province name */
+"region.subdivision.CA-MB" = "Manitoba";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Brunswick (CA-NB) province name */
+"region.subdivision.CA-NB" = "New Brunswick";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Newfoundland and Labrador (CA-NL) province name */
+"region.subdivision.CA-NL" = "Newfoundland and Labrador";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nova Scotia (CA-NS) province name */
+"region.subdivision.CA-NS" = "Nova Scotia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northwest Territories (CA-NT) province name */
+"region.subdivision.CA-NT" = "Northwest Territories";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nunavut (CA-NU) province name */
+"region.subdivision.CA-NU" = "Nunavut";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ontario (CA-ON) province name */
+"region.subdivision.CA-ON" = "Ontario";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Prince Edward Island (CA-PE) province name */
+"region.subdivision.CA-PE" = "Prince Edward Island";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Quebec (CA-QC) province name */
+"region.subdivision.CA-QC" = "Quebec";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Saskatchewan (CA-SK) province name */
+"region.subdivision.CA-SK" = "Saskatchewan";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Yukon (CA-YT) province name */
+"region.subdivision.CA-YT" = "Yukon";
+
 
 // MARK: - Live Activity
 
@@ -1796,7 +2003,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Remote Node Sessions";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Only new data is added; existing records aren't overwritten. Contacts you deleted after this backup was made will reappear, and any block, mute, or favorite flags from the backup will be re-applied.";
+"settings.backup.import.preview.info" = "Only new data is added; existing records aren't overwritten. Contacts you deleted after this backup was made will reappear, and any block, mute, or favorite flags from the backup will be re-applied. A pin in the backup is turned on if that chat is not pinned. A pin that is off in the backup does not unpin a chat.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Import Data";

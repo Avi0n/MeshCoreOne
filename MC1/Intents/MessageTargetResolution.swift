@@ -74,3 +74,9 @@ func buildMessageTargets(contacts: [ContactDTO], channels: [ChannelDTO]) -> [Mes
     .sorted(by: byDisplayName)
   return contactEntities + channelEntities
 }
+
+/// Ids the live picker offers: chat contacts, and channels whose secret is unique.
+/// A repeater, a room, and a duplicate channel secret are absent. An empty result is a real set.
+func offeredRecipientIDs(contacts: [ContactDTO], channels: [ChannelDTO]) -> Set<String> {
+  Set(buildMessageTargets(contacts: chatContacts(contacts), channels: channels).map(\.id))
+}

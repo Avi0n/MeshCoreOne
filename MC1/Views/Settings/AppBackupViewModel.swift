@@ -33,6 +33,7 @@ final class AppBackupViewModel {
 
   /// Snapshot of an in-flight export waiting for the system save picker to return.
   struct PendingExport {
+    let id = UUID()
     let data: Data
     let manifest: BackupManifest
   }

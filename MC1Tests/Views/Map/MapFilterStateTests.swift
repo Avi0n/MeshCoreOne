@@ -174,4 +174,84 @@ struct MapFilterStateTests {
     s.setFavoritesOnly(true)
     #expect(s.allowsContactType(.chat))
   }
+
+  // MARK: - Advanced Filters
+
+  @Test
+  func `legacy json without advanced keys decodes with defaults`() throws {
+    let legacy = #"{"favoritesOnly":false,"showDiscovered":true,"showChat":true,"showRepeater":false,"showRoom":true}"#
+    let decoded = try #require(MapFilterState(storageString: legacy))
+    #expect(decoded.showDiscovered)
+    #expect(!decoded.showRepeater)
+    #expect(decoded.lastHeard == .any)
+    #expect(decoded.hops == .any)
+  }
+
+  @Test
+  func `json missing every key decodes to struct defaults`() throws {
+    let decoded = try #require(MapFilterState(storageString: "{}"))
+    #expect(decoded == MapFilterState())
+  }
+
+  @Test
+  func `invalid nested advanced values fall back to any without losing toggles`() throws {
+    let raw = #"{"favoritesOnly":true,"lastHeard":"bogus","hops":{"min":"x"}}"#
+    let decoded = try #require(MapFilterState(storageString: raw))
+    #expect(decoded.favoritesOnly)
+    #expect(decoded.lastHeard == .any)
+    #expect(decoded.hops == .any)
+  }
+
+  @Test
+  func `advanced json round trip`() throws {
+    let original = MapFilterState(
+      showDiscovered: true,
+      lastHeard: MapLastHeardRange(minAge: MapDuration(30, .minutes), maxAge: MapDuration(2, .days)),
+      hops: MapHopRange(min: 6, max: 10)
+    )
+    let decoded = try #require(MapFilterState(storageString: original.storageString))
+    #expect(decoded == original)
+  }
+
+  @Test
+  func `advanced filters mark main map as differing from seed`() {
+    var s = MapFilterState.seed(for: .mainMap)
+    s.setLastHeard(.within(MapDuration(2, .hours)))
+    #expect(s.differsFromSeed(for: .mainMap))
+    #expect(s.activeAdvancedDimensions(for: .mainMap) == [.lastHeard])
+    s.setHops(.direct)
+    #expect(s.activeAdvancedDimensions(for: .mainMap) == [.lastHeard, .hops])
+  }
+
+  @Test
+  func `clear removes one dimension and reset removes all`() {
+    var s = MapFilterState(lastHeard: .within(MapDuration(1, .hours)), hops: .direct)
+    s.clear(.lastHeard)
+    #expect(s.lastHeard == .any)
+    #expect(s.hops == .direct)
+    s.setLastHeard(.within(MapDuration(1, .hours)))
+    s.resetAdvanced()
+    #expect(!s.hasActiveAdvancedFilters(for: .mainMap))
+    #expect(!s.differsFromSeed(for: .mainMap))
+  }
+
+  @Test(arguments: [MapFilterHost.tracePath, .neighborSNR])
+  func `hosts without advanced capability strip stored ranges`(host: MapFilterHost) {
+    var s = MapFilterState.seed(for: host)
+    s.setLastHeard(.within(MapDuration(1, .hours)))
+    s.setHops(.direct)
+    #expect(s.activeAdvancedDimensions(for: host).isEmpty)
+    let sanitized = s.sanitized(for: host)
+    #expect(sanitized.lastHeard == .any)
+    #expect(sanitized.hops == .any)
+    #expect(!sanitized.differsFromSeed(for: host))
+  }
+
+  @Test
+  func `main map keeps advanced ranges through sanitize`() {
+    let s = MapFilterState(lastHeard: .within(MapDuration(6, .hours)), hops: MapHopRange(max: 2))
+    let sanitized = s.sanitized(for: .mainMap)
+    #expect(sanitized.lastHeard == s.lastHeard)
+    #expect(sanitized.hops == s.hops)
+  }
 }

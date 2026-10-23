@@ -309,7 +309,7 @@ public enum LPPDecoder {
       return .float(Double(raw) / 100.0)
 
     case .current:
-      let raw = readInt16BE(data)
+      let raw = readUInt16BE(data)
       return .float(Double(raw) / 1000.0)
 
     case .illuminance:

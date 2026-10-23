@@ -982,20 +982,6 @@ struct PacketBuilderEncoderTests {
     #expect(int32LE(data, at: 140) == 180_000_000)
   }
 
-  /// `addContact` now encodes via `PacketBuilder.updateContact`. Pin the frame length so a
-  /// silent layout drift can't change the wire size firmware validates against.
-  @Test
-  func `updateContact emits a 147-byte frame`() {
-    let contact = MeshContact(
-      id: "len", publicKey: Data(repeating: 1, count: 32),
-      type: .chat, flags: [], outPathLength: 0xFF, outPath: Data(),
-      advertisedName: "Len",
-      lastAdvertisement: Date(timeIntervalSince1970: 1_700_000_000),
-      latitude: 0, longitude: 0, lastModified: .now
-    )
-    #expect(PacketBuilder.updateContact(contact).count == 147)
-  }
-
   /// Modeled types must encode their raw byte at the type offset unchanged, and an unmodeled
   /// byte must pass through verbatim — the type byte sits at packet offset 33 (cmd + 32-byte key).
   @Test

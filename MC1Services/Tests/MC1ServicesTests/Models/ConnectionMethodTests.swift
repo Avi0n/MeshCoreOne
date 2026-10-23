@@ -14,7 +14,7 @@ struct ConnectionMethodTests {
       Issue.record("expected .wifi, got \(wifi)"); return
     }
     #expect(host == "192.168.1.50")
-    #expect(port == 5000)
+    #expect(port == ConnectionMethod.defaultWiFiPort)
     #expect(displayName == "Field Radio")
 
     let bleJSON = #"{"bluetooth":{"displayName":null,"peripheralUUID":"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"}}"#

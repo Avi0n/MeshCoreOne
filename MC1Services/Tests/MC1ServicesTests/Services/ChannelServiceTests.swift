@@ -201,18 +201,15 @@ struct ChannelServiceTests {
   func `ChannelService aborts early when transport send timeouts cascade`() async throws {
     let radioID = UUID()
     let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 6)
-    let transport = SendTimeoutTransport()
-    let session = MeshCoreSession(
-      transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.01, clientIdentifier: "MCTst")
-    )
+    let session = MockMeshCoreSession()
+    await session.setGetChannelError(WiFiTransportError.sendTimeout)
     let service = ChannelService(session: session, dataStore: dataStore, rxLogService: nil)
 
     let result = try await service.syncChannels(radioID: radioID, maxChannels: 6)
 
     #expect(result.sendTimeoutCount == 3)
     #expect(result.circuitBreakerAborted)
-    #expect(await transport.sendCount == 3)
+    #expect(await session.getChannelIndices == [0, 1, 2])
   }
 
   @Test
@@ -319,28 +316,5 @@ private actor SlotHandlerCapture {
 
   func record(_ indices: Set<UInt8>) {
     received.append(indices)
-  }
-}
-
-private actor SendTimeoutTransport: MeshTransport {
-  private(set) var sendCount = 0
-
-  var receivedData: AsyncStream<Data> {
-    AsyncStream { continuation in
-      continuation.finish()
-    }
-  }
-
-  var isConnected: Bool {
-    true
-  }
-
-  func connect() async throws {}
-
-  func disconnect() async {}
-
-  func send(_ data: Data) async throws {
-    sendCount += 1
-    throw WiFiTransportError.sendTimeout
   }
 }

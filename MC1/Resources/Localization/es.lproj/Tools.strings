@@ -133,6 +133,9 @@
 /* Location: RxLogView.swift - Unresolved region value */
 "tools.rxLog.regionUnresolved" = "Desconocido";
 
+/* Location: RxLogView.swift - Unscoped region value */
+"tools.rxLog.regionUnscoped" = "Sin región";
+
 /* Location: RxLogView.swift - Text label */
 "tools.rxLog.textLabel" = "Texto:";
 
@@ -275,6 +278,9 @@
 
 /* Location: NodeDiscoveryView.swift - No results empty state description */
 "tools.nodeDiscovery.noResultsDescription" = "Ningún %@ respondió al ping de descubrimiento. Inténtalo de nuevo o acércate a la red mesh.";
+
+/* Location: NodeDiscoveryView.swift - Empty state when the repeater filter hides zero-interval nodes */
+"tools.nodeDiscovery.hiddenRepeatersNote" = "Los repetidores con ambos intervalos de anuncio establecidos en 0 no responden al ping de descubrimiento.";
 
 /* Location: NodeDiscoveryView.swift - Scan button label (idle) */
 "tools.nodeDiscovery.scanButton" = "Buscar %@";
@@ -721,6 +727,9 @@
 
 /* Location: CLIToolViewModel.swift - Reboot command confirmation */
 "tools.cli.rebootSent" = "Comando de reinicio enviado";
+
+/* Location: CLIToolViewModel+Sessions.swift - Power off command confirmation */
+"tools.cli.powerOffSent" = "Comando de apagado enviado";
 
 /* Accessibility label for completion suggestions container */
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */

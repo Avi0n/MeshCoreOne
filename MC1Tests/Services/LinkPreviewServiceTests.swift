@@ -1,5 +1,6 @@
 import Foundation
 @testable import MC1
+import os
 import Testing
 import UIKit
 
@@ -322,6 +323,63 @@ struct LinkPreviewServiceTests {
     #expect(data == nil)
   }
 
+  @Test(arguments: [
+    ("http://meshpic.org/image/SVc", "https://meshpic.org/image/SVc"),
+    ("http://meshpic.org:80/image/SVc?x=1", "https://meshpic.org/image/SVc?x=1"),
+    ("http://meshpic.org:8080/a.jpg", "https://meshpic.org:8080/a.jpg"),
+    ("HTTP://meshpic.org/image/SVc", "https://meshpic.org/image/SVc")
+  ])
+  func `loadImageData fetches the HTTPS form of an image URL`(input: String, requestURL: String) async throws {
+    let stub: UpgradedJPEGURLProtocol.Type
+    switch requestURL {
+    case MeshpicImageHTTPSProtocol.acceptedAbsoluteString:
+      stub = MeshpicImageHTTPSProtocol.self
+    case MeshpicQueryHTTPSProtocol.acceptedAbsoluteString:
+      stub = MeshpicQueryHTTPSProtocol.self
+    case MeshpicPort8080HTTPSProtocol.acceptedAbsoluteString:
+      stub = MeshpicPort8080HTTPSProtocol.self
+    default:
+      Issue.record("No JPEG stub for \(requestURL)")
+      return
+    }
+
+    let config = URLSessionConfiguration.ephemeral
+    config.protocolClasses = [stub]
+    let session = URLSession(configuration: config)
+    let service = LinkPreviewService(scrapeSession: session)
+
+    let url = try #require(URL(string: input))
+    let data = await service.loadImageData(from: url)
+    let image = try #require(data.flatMap(UIImage.init(data:)))
+    #expect(image.size.width > 0)
+  }
+
+  @Test
+  func `loadImageData follows a cleartext redirect as HTTPS`() async throws {
+    let config = URLSessionConfiguration.ephemeral
+    config.protocolClasses = [RedirectToPublicIPURLProtocol.self]
+    let session = URLSession(configuration: config, delegate: RedirectSafetyDelegate(), delegateQueue: nil)
+    let service = LinkPreviewService(scrapeSession: session)
+
+    let url = try #require(URL(string: RedirectToPublicIPURLProtocol.pageURL))
+    let data = await service.loadImageData(from: url)
+    let image = try #require(data.flatMap(UIImage.init(data:)))
+    #expect(image.size.width > 0)
+  }
+
+  @Test
+  func `loadImageData cancels a redirect to the cleartext form of the responded URL`() async throws {
+    RedirectToCleartextSameURLProtocol.hits.withLock { $0 = 0 }
+    let config = URLSessionConfiguration.ephemeral
+    config.protocolClasses = [RedirectToCleartextSameURLProtocol.self]
+    let session = URLSession(configuration: config, delegate: RedirectSafetyDelegate(), delegateQueue: nil)
+    let service = LinkPreviewService(scrapeSession: session)
+
+    let url = try #require(URL(string: RedirectToCleartextSameURLProtocol.pageURL))
+    let data = await service.loadImageData(from: url)
+    #expect(data == nil)
+  }
+
   @Test
   func `loadImageData rejects an oversized expected content length`() async throws {
     let config = URLSessionConfiguration.ephemeral
@@ -551,6 +609,163 @@ private final class NonImageMimeURLProtocol: URLProtocol {
     )!
     client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
     client?.urlProtocol(self, didLoad: Data("nope".utf8))
+    client?.urlProtocolDidFinishLoading(self)
+  }
+
+  override func stopLoading() {}
+}
+
+/// Separate subclasses so a parallel case cannot accept another case's URL.
+private class UpgradedJPEGURLProtocol: URLProtocol {
+  class var acceptedAbsoluteString: String {
+    ""
+  }
+
+  override class func canInit(with request: URLRequest) -> Bool {
+    true
+  }
+
+  override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    request
+  }
+
+  override func startLoading() {
+    guard let url = request.url, url.absoluteString == Self.acceptedAbsoluteString else {
+      client?.urlProtocol(self, didFailWithError: URLError(.unsupportedURL))
+      return
+    }
+    let response = HTTPURLResponse(
+      url: url,
+      statusCode: 200,
+      httpVersion: "HTTP/1.1",
+      headerFields: ["Content-Type": "image/jpeg"]
+    )!
+    client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+    client?.urlProtocol(self, didLoad: jpegFixture)
+    client?.urlProtocolDidFinishLoading(self)
+  }
+
+  override func stopLoading() {}
+}
+
+private final class MeshpicImageHTTPSProtocol: UpgradedJPEGURLProtocol {
+  // swiftlint:disable:next static_over_final_class
+  override class var acceptedAbsoluteString: String {
+    "https://meshpic.org/image/SVc"
+  }
+}
+
+private final class MeshpicQueryHTTPSProtocol: UpgradedJPEGURLProtocol {
+  // swiftlint:disable:next static_over_final_class
+  override class var acceptedAbsoluteString: String {
+    "https://meshpic.org/image/SVc?x=1"
+  }
+}
+
+private final class MeshpicPort8080HTTPSProtocol: UpgradedJPEGURLProtocol {
+  // swiftlint:disable:next static_over_final_class
+  override class var acceptedAbsoluteString: String {
+    "https://meshpic.org:8080/a.jpg"
+  }
+}
+
+private final class RedirectToPublicIPURLProtocol: URLProtocol {
+  static let pageURL = "https://example.com/photo.jpg"
+  static let location = "http://9.9.9.9:80/photo.jpg"
+  static let followedURL = "https://9.9.9.9/photo.jpg"
+
+  // swiftlint:disable:next static_over_final_class
+  override class func canInit(with request: URLRequest) -> Bool {
+    true
+  }
+
+  // swiftlint:disable:next static_over_final_class
+  override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    request
+  }
+
+  override func startLoading() {
+    guard let url = request.url else { return }
+
+    if url.absoluteString == Self.followedURL {
+      let response = HTTPURLResponse(
+        url: url,
+        statusCode: 200,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "image/jpeg"]
+      )!
+      client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+      client?.urlProtocol(self, didLoad: jpegFixture)
+      client?.urlProtocolDidFinishLoading(self)
+      return
+    }
+
+    guard url.absoluteString == Self.pageURL, let locationURL = URL(string: Self.location) else {
+      client?.urlProtocol(self, didFailWithError: URLError(.unsupportedURL))
+      return
+    }
+
+    let redirectRequest = URLRequest(url: locationURL)
+    let redirectResponse = HTTPURLResponse(
+      url: url,
+      statusCode: 302,
+      httpVersion: "HTTP/1.1",
+      headerFields: ["Location": Self.location]
+    )!
+    // Finishing this 302 would complete the task before `isSafe` accepts the hop.
+    client?.urlProtocol(self, wasRedirectedTo: redirectRequest, redirectResponse: redirectResponse)
+  }
+
+  override func stopLoading() {}
+}
+
+/// A second request returns a JPEG so a followed hop fails the nil expectation.
+/// The 302 is finished because a declined hop otherwise waits out the timeout.
+private final class RedirectToCleartextSameURLProtocol: URLProtocol {
+  static let pageURL = "https://example.com/photo.jpg"
+  static let location = "http://example.com/photo.jpg"
+  static let hits = OSAllocatedUnfairLock(initialState: 0)
+
+  // swiftlint:disable:next static_over_final_class
+  override class func canInit(with request: URLRequest) -> Bool {
+    true
+  }
+
+  // swiftlint:disable:next static_over_final_class
+  override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    request
+  }
+
+  override func startLoading() {
+    guard let url = request.url else { return }
+
+    let hit = Self.hits.withLock { state -> Int in
+      state += 1
+      return state
+    }
+    if hit > 1 {
+      let response = HTTPURLResponse(
+        url: url,
+        statusCode: 200,
+        httpVersion: "HTTP/1.1",
+        headerFields: ["Content-Type": "image/jpeg"]
+      )!
+      client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+      client?.urlProtocol(self, didLoad: jpegFixture)
+      client?.urlProtocolDidFinishLoading(self)
+      return
+    }
+
+    guard let locationURL = URL(string: Self.location) else { return }
+    let redirectRequest = URLRequest(url: locationURL)
+    let redirectResponse = HTTPURLResponse(
+      url: url,
+      statusCode: 302,
+      httpVersion: "HTTP/1.1",
+      headerFields: ["Location": Self.location]
+    )!
+    client?.urlProtocol(self, wasRedirectedTo: redirectRequest, redirectResponse: redirectResponse)
+    client?.urlProtocol(self, didReceive: redirectResponse, cacheStoragePolicy: .notAllowed)
     client?.urlProtocolDidFinishLoading(self)
   }
 

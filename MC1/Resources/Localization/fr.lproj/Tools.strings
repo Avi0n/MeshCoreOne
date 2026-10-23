@@ -133,6 +133,9 @@
 /* Location: RxLogView.swift - Unresolved region value */
 "tools.rxLog.regionUnresolved" = "Inconnue";
 
+/* Location: RxLogView.swift - Unscoped region value */
+"tools.rxLog.regionUnscoped" = "Portée non assignée";
+
 /* Location: RxLogView.swift - Text label */
 "tools.rxLog.textLabel" = "Texte :";
 
@@ -275,6 +278,9 @@
 
 /* Location: NodeDiscoveryView.swift - No results empty state description */
 "tools.nodeDiscovery.noResultsDescription" = "Aucun %@ n'a répondu au ping de découverte. Réessayez ou rapprochez-vous du réseau mesh.";
+
+/* Location: NodeDiscoveryView.swift - Empty state when the repeater filter hides zero-interval nodes */
+"tools.nodeDiscovery.hiddenRepeatersNote" = "Les répéteurs dont les deux intervalles d'annonce sont réglés à 0 ne répondent pas au ping de découverte.";
 
 /* Location: NodeDiscoveryView.swift - Scan button label (idle) */
 "tools.nodeDiscovery.scanButton" = "Rechercher des %@";
@@ -721,6 +727,9 @@
 
 /* Location: CLIToolViewModel.swift - Reboot command confirmation */
 "tools.cli.rebootSent" = "Commande de redémarrage envoyée";
+
+/* Location: CLIToolViewModel+Sessions.swift - Power off command confirmation */
+"tools.cli.powerOffSent" = "Commande d'extinction envoyée";
 
 /* Accessibility label for completion suggestions container */
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */

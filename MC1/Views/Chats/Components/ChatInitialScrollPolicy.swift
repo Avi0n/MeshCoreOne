@@ -15,14 +15,8 @@ enum ChatInitialScrollPolicy {
     case present(target: UUID?)
   }
 
-  /// Decides the first snapshot for a conversation open. The divider target
-  /// comes from the per-session bake, never from state a shared coordinator
-  /// carries over from a previous open, and presents only once the item baked
-  /// with the divider row is among the items currently on screen — a stale warm
-  /// page therefore withholds. `dividerRowOnScreen` is that readiness fact,
-  /// computed by the caller from the current items. `initialLoadSettled` is the
-  /// escape hatch: a populate that finished (any outcome) without a divider
-  /// target has nothing to wait for.
+  /// Withholds a new unread open until its baked divider is in the current items.
+  /// A terminal populate without a divider presents at the bottom.
   static func firstSnapshotDecision(
     hasConsumed: Bool,
     unreadCount: Int,

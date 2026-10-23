@@ -5,7 +5,6 @@ import UIKit
 struct CLIToolView: View {
   @Environment(\.appState) private var appState
 
-  @State private var isKeyboardFocused = false
   @State private var scrollPosition = ScrollPosition(edge: .bottom)
   @State private var cursorPosition: Int = 0
 
@@ -27,7 +26,6 @@ struct CLIToolView: View {
       CLIToolContent(
         viewModel: viewModel,
         appState: appState,
-        isKeyboardFocused: $isKeyboardFocused,
         scrollPosition: $scrollPosition,
         cursorPosition: $cursorPosition
       )
@@ -40,7 +38,6 @@ struct CLIToolView: View {
 private struct CLIToolContent: View {
   @Bindable var viewModel: CLIToolViewModel
   let appState: AppState
-  @Binding var isKeyboardFocused: Bool
   @Binding var scrollPosition: ScrollPosition
   @Binding var cursorPosition: Int
 
@@ -63,7 +60,13 @@ private struct CLIToolContent: View {
           settingsService: { [appState] in appState.services?.settingsService },
           dataStore: { [appState] in appState.services?.dataStore },
           radioID: { [appState] in appState.connectedDevice?.radioID },
-          connectedDevice: { [appState] in appState.connectedDevice }
+          connectedDevice: { [appState] in appState.connectedDevice },
+          powerOffRadio: { [appState] in
+            try await appState.powerOffRadio()
+          },
+          powerOffCancelAvailable: { [appState] in
+            appState.connectionManager.powerOffCancelAvailable
+          }
         ),
         localDeviceName: appState.connectedDevice?.nodeName ?? L10n.Tools.Tools.Cli.defaultDevice,
         sendSelfAdvert: { [appState] flood in
@@ -93,9 +96,13 @@ private struct CLIToolContent: View {
       tabSuggestions: viewModel.tabSuggestions,
       tabSelectionIndex: viewModel.tabSelectionIndex,
       isWaitingForResponse: viewModel.isWaitingForResponse,
+      canCancelCommand: CLICommandCancel.allows(
+        isWaiting: viewModel.isWaitingForResponse,
+        powerOffActive: viewModel.powerOffCommandActive,
+        powerOffCanStillPreventSend: appState.connectionManager.powerOffCancelAvailable
+      ),
       showSessionsButton: true,
       currentInput: $viewModel.currentInput,
-      isKeyboardFocused: $isKeyboardFocused,
       scrollPosition: $scrollPosition,
       cursorPosition: $cursorPosition,
       onSubmit: {
@@ -143,7 +150,6 @@ private struct CLIToolContent: View {
       },
       onSessions: { viewModel.executeCommand("session list") },
       onCancel: { viewModel.cancelCurrentCommand() },
-      onDismiss: { isKeyboardFocused = false },
       onClear: { viewModel.executeCommand("clear") },
       onUpdateGhostText: { cursorAtEnd in viewModel.updateGhostText(cursorAtEnd: cursorAtEnd) },
       onClearTabState: { viewModel.clearTabState() },

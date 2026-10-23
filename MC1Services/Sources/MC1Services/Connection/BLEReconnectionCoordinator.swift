@@ -1,13 +1,7 @@
-// BLEReconnectionCoordinator.swift
-
 import Foundation
 import OSLog
 
-/// Coordinates the iOS auto-reconnect lifecycle, managing timeout state and
-/// orchestrating teardown/rebuild via its delegate.
-///
-/// Extracted from ConnectionManager to isolate the reconnect timeout/state machine
-/// from session rebuild logic.
+/// Owns reconnect cycles and UI timeouts while its delegate rebuilds sessions.
 @MainActor
 final class BLEReconnectionCoordinator {
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "BLEReconnectionCoordinator")
@@ -31,6 +25,10 @@ final class BLEReconnectionCoordinator {
   private var activeCycle: ReconnectCycle?
 
   private var timeoutTask: Task<Void, Never>?
+
+  var uiTimeoutTaskForTest: Task<Void, Never>? {
+    timeoutTask
+  }
 
   /// Generation of an in-flight `rebuildSession` (including first-fail retry), or
   /// nil when none. Rejects a second completion only for the same generation so
@@ -71,35 +69,36 @@ final class BLEReconnectionCoordinator {
 
   /// Handles the device entering iOS auto-reconnect phase.
   /// Tears down session layer and starts a UI timeout.
-  func handleEnteringAutoReconnect(deviceID: UUID) async {
-    guard let delegate else { return }
+  @discardableResult
+  func handleEnteringAutoReconnect(deviceID: UUID) async -> Int? {
+    guard let delegate else { return nil }
     logger.info("[BLE] handleEnteringAutoReconnect: device=\(deviceID.uuidString.prefix(8)), connectionState=\(String(describing: delegate.connectionState))")
 
     guard delegate.connectionIntent.wantsConnection else {
       logger.info("Ignoring auto-reconnect: user disconnected")
       await delegate.disconnectTransport()
-      return
+      return nil
     }
 
-    // C3 fix: set connecting state BEFORE awaiting teardown so that
-    // handleReconnectionComplete() sees .connecting even if it runs
-    // during the teardown await.
+    // Publish .connecting before suspending so handleReconnectionComplete
+    // can accept a completion during teardown.
     delegate.setConnectionState(.connecting)
     reconnectGeneration += 1
-    activeCycle = ReconnectCycle(deviceID: deviceID, generation: reconnectGeneration, uiTimedOut: false)
+    let generation = reconnectGeneration
+    activeCycle = ReconnectCycle(deviceID: deviceID, generation: generation, uiTimedOut: false)
     reconnectUIWindowStart = Date()
 
-    // Reflect the drop before teardown so the Live Activity write runs at the
-    // front of the bounded disconnect wake window, not behind session teardown.
-    // The reconnect cycle is already claimed, so this can't strand a completion.
+    // Notify after claiming the cycle and before teardown so the Live Activity
+    // updates within CoreBluetooth's disconnect wake window.
     await delegate.notifyAutoReconnectStarted()
+    guard reconnectGeneration == generation else { return generation }
 
-    // Tear down session layer (it's invalid now)
     await delegate.teardownSessionForReconnect()
+    guard reconnectGeneration == generation else { return generation }
 
-    // Start UI timeout
     logger.info("[BLE] Arming UI timeout: \(uiTimeoutDuration)s for device \(deviceID.uuidString.prefix(8))")
-    armTimeout(deviceID: deviceID, generation: reconnectGeneration)
+    armTimeout(deviceID: deviceID, generation: generation)
+    return generation
   }
 
   /// Handles iOS auto-reconnect completion. Cancels the UI timeout

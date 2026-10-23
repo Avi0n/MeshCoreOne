@@ -196,7 +196,9 @@ struct ConnectionManagerResyncLoopTests {
     let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
 
     // Override performResync to succeed
-    await services.syncCoordinator.setPerformResyncOverride { _, _ in true }
+    await services.syncCoordinator.setPerformResyncOverride { _, _ in
+      FullSyncResult(contacts: .clean, channels: .clean, messages: .clean)
+    }
 
     let succeededValues = ValueTracker<Bool>()
     await services.syncCoordinator.setSyncActivityCallbacks(
@@ -222,10 +224,12 @@ struct ConnectionManagerResyncLoopTests {
     let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
 
     // Override performResync to succeed
-    await services.syncCoordinator.setPerformResyncOverride { _, _ in true }
+    await services.syncCoordinator.setPerformResyncOverride { _, _ in
+      FullSyncResult(contacts: .clean, channels: .clean, messages: .clean)
+    }
 
     let onDeviceSyncedTracker = CallTracker()
-    manager.onDeviceSynced = { onDeviceSyncedTracker.markCalled() }
+    manager.onDeviceSynced = { _ in onDeviceSyncedTracker.markCalled() }
 
     let succeededValues = ValueTracker<Bool>()
     await services.syncCoordinator.setSyncActivityCallbacks(
@@ -241,6 +245,61 @@ struct ConnectionManagerResyncLoopTests {
     }
 
     #expect(onDeviceSyncedTracker.wasCalled)
+  }
+
+  @Test(
+    .timeLimit(.minutes(1))
+  )
+  func `Resync forwards recipient eligibility from the completed result`() async throws {
+    let partial = FullSyncResult(contacts: .clean, channels: .partial, messages: .clean)
+    let cleanDespiteMessages = FullSyncResult(
+      contacts: .clean,
+      channels: .clean,
+      messages: .failed("catch-up")
+    )
+
+    for (result, expected) in [(partial, false), (cleanDespiteMessages, true)] {
+      let deviceID = UUID()
+      let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+      let delivered = result
+      await services.syncCoordinator.setPerformResyncOverride { _, _ in delivered }
+
+      var eligibility: [Bool] = []
+      manager.onDeviceSynced = { eligibility.append($0) }
+
+      manager.startResyncLoop(radioID: deviceID, services: services)
+      try await waitUntil(timeout: .seconds(10), "onDeviceSynced should fire with the result flag") {
+        eligibility.count == 1
+      }
+
+      #expect(manager.connectionState == .ready)
+      #expect(eligibility == [expected])
+      manager.cancelResyncLoop()
+    }
+  }
+
+  @Test(
+    .timeLimit(.minutes(1))
+  )
+  func `A thrown resync stays ineligible and retries`() async throws {
+    let deviceID = UUID()
+    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let attempts = CallTracker()
+    await services.syncCoordinator.setPerformResyncOverride { _, _ in
+      attempts.markCalled()
+      return nil
+    }
+    var published = false
+    manager.onDeviceSynced = { _ in published = true }
+
+    manager.startResyncLoop(radioID: deviceID, services: services)
+    try await waitUntil(timeout: .seconds(8), "a thrown resync should be retried") {
+      attempts.callCount >= 2
+    }
+
+    #expect(!published)
+    #expect(manager.connectionState != .ready)
+    manager.cancelResyncLoop()
   }
 
   // MARK: - Disconnect During Syncing
@@ -294,7 +353,7 @@ struct ConnectionManagerResyncLoopTests {
     let staleResyncCalls = CallTracker()
     await staleServices.syncCoordinator.setPerformResyncOverride { _, _ in
       staleResyncCalls.markCalled()
-      return false
+      return nil
     }
 
     let onResyncFailedTracker = CallTracker()
@@ -342,7 +401,7 @@ struct ConnectionManagerResyncLoopTests {
     let resyncCalls = CallTracker()
     await services.syncCoordinator.setPerformResyncOverride { _, _ in
       resyncCalls.markCalled()
-      return false
+      return nil
     }
 
     manager.startResyncLoop(radioID: deviceID, services: services)

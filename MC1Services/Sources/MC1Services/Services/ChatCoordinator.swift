@@ -123,6 +123,17 @@ public final class ChatCoordinator {
   @ObservationIgnored
   public internal(set) var hardResetTask: Task<Void, Never>?
 
+  /// One reaction-scroll wait. Resumed when a render-state write can honor
+  /// or retire that message. A later register replaces it.
+  struct ScrollRenderWaiter {
+    let messageID: UUID
+    let token: UUID
+    let resume: @MainActor () -> Void
+  }
+
+  @ObservationIgnored
+  var scrollRenderWaiter: ScrollRenderWaiter?
+
   /// Completion marker for the latest window operation. `performWindowOperation`
   /// chains on it so populate, loadOlder, and hardReset never interleave.
   @ObservationIgnored
@@ -276,5 +287,8 @@ public final class ChatCoordinator {
 
     /// Awaited in `hardReset` after the window fetch so a test can cancel before `replaceAll`.
     public var hardResetAfterFetchHook: (@MainActor () async -> Void)?
+
+    /// Fired on a later turn after a scroll waiter is stored.
+    public var scrollRenderWaitInstalledHook: (@MainActor () -> Void)?
   #endif
 }

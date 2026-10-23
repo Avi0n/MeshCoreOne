@@ -29,8 +29,9 @@ public actor MockTransport: MeshTransport {
   /// Stores the history of all data packets sent through this transport.
   public var sentData: [Data] = []
 
-  private let dataStream: AsyncStream<Data>
-  private let dataContinuation: AsyncStream<Data>.Continuation
+  private var dataStream: AsyncStream<Data>
+  private var dataContinuation: AsyncStream<Data>.Continuation
+  private var receiveStreamNeedsReset = false
 
   /// An asynchronous stream of raw data injected via simulation.
   public var receivedData: AsyncStream<Data> {
@@ -57,10 +58,42 @@ public actor MockTransport: MeshTransport {
   /// 1-based index of the first send that should fail, simulating a mid-burst transport drop.
   private var failSendsFromIndex: Int?
 
+  /// Parks the next `send` until `releaseHeldSend()`.
+  private var parkNextSend = false
+  private var heldSendShouldFail = false
+  private var heldSendContinuation: CheckedContinuation<Void, Error>?
+
+  /// True while a send is parked in `holdNextSend`.
+  public private(set) var sendIsWaiting = false
+
   /// Makes the `index`-th (1-based) and all later sends throw, simulating a disconnect that
   /// strikes after some commands have already gone out.
   public func failSends(fromSendIndex index: Int) {
     failSendsFromIndex = index
+  }
+
+  /// Parks the next send so a test can inject a reply or a loss before the write returns.
+  public func holdNextSend() {
+    parkNextSend = true
+  }
+
+  /// The parked send throws `MeshTransportError.sendFailed` when released.
+  public func failHeldSend() {
+    heldSendShouldFail = true
+  }
+
+  /// Resumes the parked send. A no-op when nothing is parked.
+  public func releaseHeldSend() {
+    parkNextSend = false
+    let continuation = heldSendContinuation
+    heldSendContinuation = nil
+    sendIsWaiting = false
+    if heldSendShouldFail {
+      heldSendShouldFail = false
+      continuation?.resume(throwing: MeshTransportError.sendFailed("simulated send failure"))
+    } else {
+      continuation?.resume()
+    }
   }
 
   /// Initializes a new mock transport in a disconnected state.
@@ -72,6 +105,10 @@ public actor MockTransport: MeshTransport {
 
   /// Sets the transport state to connected.
   public func connect() async throws {
+    if receiveStreamNeedsReset {
+      (dataStream, dataContinuation) = AsyncStream.makeStream(of: Data.self)
+      receiveStreamNeedsReset = false
+    }
     isConnected = true
   }
 
@@ -79,6 +116,7 @@ public actor MockTransport: MeshTransport {
   public func disconnect() async {
     isConnected = false
     dataContinuation.finish()
+    receiveStreamNeedsReset = true
   }
 
   /// Records the sent data and ensures the transport is connected.
@@ -93,6 +131,12 @@ public actor MockTransport: MeshTransport {
       throw MeshTransportError.sendFailed("simulated send failure")
     }
     sentData.append(data)
+    if parkNextSend {
+      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        heldSendContinuation = continuation
+        sendIsWaiting = true
+      }
+    }
   }
 
   /// Injects raw data into the `receivedData` stream to simulate a device response.

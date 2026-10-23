@@ -3,20 +3,21 @@ import Foundation
 @testable import MC1Services
 import Testing
 
-@Suite("MessageEventStream")
+@Suite("MessageEventStream", .timeLimit(.minutes(1)))
 @MainActor
 struct MessageEventStreamTests {
   @Test
   func `Single consumer receives an event sent via send(_:)`() async {
     let stream = MessageEventStream()
     let event = MessageEvent.messageStatusResolved(messageID: UUID(), status: .sent)
+    let events = stream.events()
 
     let received = Task { @MainActor () -> MessageEvent? in
-      var iterator = stream.events().makeAsyncIterator()
+      var iterator = events.makeAsyncIterator()
       return await iterator.next()
     }
+    defer { received.cancel() }
 
-    await Task.yield()
     stream.send(event)
 
     #expect(await received.value == event)
@@ -26,18 +27,20 @@ struct MessageEventStreamTests {
   func `Multiple consumers each receive the same event`() async {
     let stream = MessageEventStream()
     let event = MessageEvent.heardRepeatRecorded(messageID: UUID(), count: 3)
+    let firstEvents = stream.events()
+    let secondEvents = stream.events()
 
     let firstReceived = Task { @MainActor () -> MessageEvent? in
-      var iterator = stream.events().makeAsyncIterator()
+      var iterator = firstEvents.makeAsyncIterator()
       return await iterator.next()
     }
+    defer { firstReceived.cancel() }
     let secondReceived = Task { @MainActor () -> MessageEvent? in
-      var iterator = stream.events().makeAsyncIterator()
+      var iterator = secondEvents.makeAsyncIterator()
       return await iterator.next()
     }
+    defer { secondReceived.cancel() }
 
-    await Task.yield()
-    await Task.yield()
     #expect(stream.subscriberCount() == 2)
 
     stream.send(event)
@@ -63,15 +66,16 @@ struct MessageEventStreamTests {
       }
     }
     let received = Collector()
+    let events = stream.events()
 
     let consumer = Task { @MainActor in
-      for await event in stream.events() {
+      for await event in events {
         await received.append(event)
         if await received.snapshot().count == 2 { return }
       }
     }
+    defer { consumer.cancel() }
 
-    await Task.yield()
     stream.send(event1)
     stream.send(event2)
 
@@ -87,16 +91,18 @@ struct MessageEventStreamTests {
     let stream = MessageEventStream()
     #expect(stream.subscriberCount() == 0)
 
+    let firstEvents = stream.events()
     let firstTask = Task { @MainActor in
-      for await _ in stream.events() { /* hold subscription */ }
+      for await _ in firstEvents { /* hold subscription */ }
     }
-    await Task.yield()
+    defer { firstTask.cancel() }
     #expect(stream.subscriberCount() == 1)
 
+    let secondEvents = stream.events()
     let secondTask = Task { @MainActor in
-      for await _ in stream.events() { /* hold subscription */ }
+      for await _ in secondEvents { /* hold subscription */ }
     }
-    await Task.yield()
+    defer { secondTask.cancel() }
     #expect(stream.subscriberCount() == 2)
 
     firstTask.cancel()

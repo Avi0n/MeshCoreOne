@@ -243,6 +243,12 @@
 /* Fallback connection type description */
 "deviceSelection.bluetooth" = "蓝牙";
 
+/* Accessibility label for the connection menu on a radio with Bluetooth and Wi-Fi */
+"deviceSelection.changeConnection" = "更改连接";
+
+/* Menu title for the saved Wi-Fi link */
+"deviceSelection.wifi" = "WiFi";
+
 // MARK: - Location Picker View
 
 /* Navigation title for location picker */
@@ -286,6 +292,45 @@
 
 /* Apply button label */
 "trustedContacts.apply" = "应用";
+
+// MARK: - Remote CLI
+
+/* Section header for remote CLI permission */
+"remoteCLI.header" = "远程 CLI";
+
+/* Navigation row to manage contacts allowed to send remote CLI */
+"remoteCLI.manage" = "允许的联系人";
+
+/* Footer explaining remote CLI permission */
+"remoteCLI.footer" = "允许的联系人可以通过 mesh 网络控制此无线电。应用不会在他们这样做时提醒您。";
+
+/* Navigation title for remote CLI contacts picker */
+"remoteCLIContacts.title" = "远程 CLI";
+
+/* Title for empty state when no contacts exist */
+"remoteCLIContacts.noContacts" = "无联系人";
+
+/* Description for empty state */
+"remoteCLIContacts.noContactsDescription" = "添加联系人以允许远程 CLI";
+
+/* Title for empty state when search returns no results */
+"remoteCLIContacts.noResults" = "无结果";
+
+/* Description for empty state when search returns no results */
+"remoteCLIContacts.noResultsDescription" = "没有联系人匹配\"%@\"";
+
+"remoteCLIContacts.noFavorites" = "无收藏";
+
+"remoteCLIContacts.noFavoritesDescription" = "没有可显示的收藏联系人";
+
+/* Search prompt for remote CLI contacts list */
+"remoteCLIContacts.searchPrompt" = "搜索联系人";
+
+/* Toggle label for showing only favorite contacts */
+"remoteCLIContacts.favoritesOnly" = "仅收藏";
+
+/* Apply button label */
+"remoteCLIContacts.apply" = "应用";
 
 // MARK: - About Section
 
@@ -597,6 +642,18 @@
 
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "设备将重新启动并暂时断开连接。";
+
+/* Button to turn the device off */
+"deviceActions.powerOff" = "关闭设备";
+
+/* Alert title for power off confirmation */
+"deviceActions.alert.powerOff.title" = "关闭设备？";
+
+/* Button to confirm power off */
+"deviceActions.alert.powerOff.confirm" = "关闭";
+
+/* Alert message for power off confirmation */
+"deviceActions.alert.powerOff.message" = "设备将关闭并断开连接。请用电源按钮开机，然后重新连接。";
 
 // MARK: - Danger Zone Section
 
@@ -911,10 +968,122 @@
 /* Footer explaining telemetry */
 "telemetry.footer" = "启用后，其他节点可以请求您的设备遥测数据。";
 
-// MARK: - WiFi Section
+// MARK: - Radio WiFi
 
-/* Section header for WiFi settings */
-"wifi.header" = "WiFi";
+/* Footer for the radio WiFi section */
+"radioWiFi.footer" = "无线电重启后会加入此网络。";
+
+/* Label for the radio WiFi status */
+"radioWiFi.status" = "状态";
+
+/* Radio WiFi status when associated */
+"radioWiFi.status.connected" = "已连接";
+
+/* Radio WiFi status when not associated */
+"radioWiFi.status.notConnected" = "未连接";
+
+/* Label for the radio's IP address */
+"radioWiFi.ipAddress" = "IP 地址";
+
+/* Label for the radio's WiFi network */
+"radioWiFi.network" = "网络";
+
+/* Shown when the radio has no saved network name */
+"radioWiFi.network.notSet" = "无";
+
+/* Toggle for the radio's WiFi radio */
+"radioWiFi.enabled" = "WiFi";
+
+/* Field label for the network name */
+"radioWiFi.networkName" = "网络名称";
+
+/* Field label for the WiFi password */
+"radioWiFi.password" = "密码";
+
+/* Accessibility label that reveals the WiFi password */
+"radioWiFi.showPassword" = "显示密码";
+
+/* Accessibility label that hides the WiFi password */
+"radioWiFi.hidePassword" = "隐藏密码";
+
+/* Editor footer when the name and password are within the limits */
+"radioWiFi.editor.footer" = "无线电重启后会使用此网络。网络名称最多为 32 字节，密码最多为 63 字节。密码留空则不保存密码。";
+
+/* Editor footer when the network name is empty */
+"radioWiFi.editor.emptyName" = "请输入网络名称。";
+
+/* Editor footer when the network name is too long */
+"radioWiFi.editor.nameLength" = "网络名称最多为 32 字节。";
+
+/* Editor footer when the password is too long */
+"radioWiFi.editor.passwordLength" = "密码最多为 63 字节。";
+
+/* Button that clears the radio's saved WiFi settings */
+"radioWiFi.clear" = "清除 WiFi 设置";
+
+/* Title for the clear WiFi confirmation */
+"radioWiFi.alert.clear.title" = "清除 WiFi 设置？";
+
+/* Clear confirmation when the phone is connected over Bluetooth */
+"radioWiFi.alert.clear.message" = "无线电重启后会忘记已保存的网络名称和密码。如果固件内置了网络，则会加入该网络。";
+
+/* Clear confirmation when the phone is connected over WiFi */
+"radioWiFi.alert.clear.wifiMessage" = "无线电重启后会忘记已保存的网络名称和密码。无线电可能无法通过此地址访问。如果发生这种情况，请通过蓝牙连接。如果固件内置了网络，则会加入该网络。";
+
+/* Button that reboots to apply WiFi changes */
+"radioWiFi.rebootToApply" = "重启以应用";
+
+/* Warning before a WiFi change while connected over WiFi */
+"radioWiFi.alert.wifiTransport.message" = "无线电重启后，可能无法通过此地址访问。如果发生这种情况，请通过蓝牙连接。";
+
+/* Title before saving a network while connected over WiFi */
+"radioWiFi.alert.save.title" = "保存此网络？";
+
+/* Title before turning WiFi off while connected over WiFi */
+"radioWiFi.alert.turnOff.title" = "关闭 WiFi？";
+
+/* Confirm button before turning WiFi off */
+"radioWiFi.alert.turnOff.confirm" = "关闭";
+
+/* Title for the radio WiFi reboot confirmation */
+"radioWiFi.alert.reboot.title" = "重启无线电？";
+
+/* Reboot confirmation when a network name is stored. %@ is the network name. */
+"radioWiFi.alert.reboot.join" = "无线电将重启，然后加入 %@。手机将断开连接，直到无线电重新可用。";
+
+/* Reboot confirmation when no network name is stored */
+"radioWiFi.alert.reboot.restart" = "无线电将重启。手机将断开连接，直到无线电重新可用。";
+
+/* Reboot confirmation when WiFi is turned off */
+"radioWiFi.alert.reboot.disabled" = "无线电将重启，并关闭 WiFi。无线电将不再接受 WiFi 连接。";
+
+// MARK: - Connection
+
+/* Settings row, page title, and phone address header */
+"connection.header" = "连接";
+
+/* Spoken name of the Wi-Fi link and the Wi-Fi page title */
+"connection.link.wifi" = "WiFi";
+
+/* Header for the radio Wi-Fi group on the Wi-Fi page */
+"connection.link.radioWiFi" = "无线电 WiFi";
+
+/* VoiceOver value for the link that is in use */
+"connection.link.inUse" = "使用中";
+
+/* VoiceOver value while a switch to that link is in progress */
+"connection.link.switching" = "正在切换";
+
+/* VoiceOver hint for switching to the other link */
+"connection.link.switchHint" = "将连接切换到无线电";
+
+/* VoiceOver label for the Bluetooth info button */
+"connection.link.bluetoothInfo" = "蓝牙信息";
+
+/* VoiceOver label for the Wi-Fi info button */
+"connection.link.wifiInfo" = "WiFi 信息";
+
+// MARK: - WiFi Section
 
 /* Label for IP address */
 "wifi.address" = "地址";
@@ -924,9 +1093,6 @@
 
 /* Button to edit WiFi connection */
 "wifi.editConnection" = "编辑连接";
-
-/* Footer explaining WiFi address */
-"wifi.footer" = "您设备的本地网络地址";
 
 // MARK: - WiFi Edit Sheet
 
@@ -1507,6 +1673,45 @@
 /* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
 "region.subdivision.AU-VIC" = "维多利亚州";
 
+/* Location: RegionalAreas.subdivisionDisplayName - Alberta (CA-AB) province name */
+"region.subdivision.CA-AB" = "艾伯塔省";
+
+/* Location: RegionalAreas.subdivisionDisplayName - British Columbia (CA-BC) province name */
+"region.subdivision.CA-BC" = "不列颠哥伦比亚省";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Manitoba (CA-MB) province name */
+"region.subdivision.CA-MB" = "曼尼托巴省";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Brunswick (CA-NB) province name */
+"region.subdivision.CA-NB" = "新不伦瑞克省";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Newfoundland and Labrador (CA-NL) province name */
+"region.subdivision.CA-NL" = "纽芬兰与拉布拉多省";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nova Scotia (CA-NS) province name */
+"region.subdivision.CA-NS" = "新斯科舍省";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northwest Territories (CA-NT) province name */
+"region.subdivision.CA-NT" = "西北地区";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nunavut (CA-NU) province name */
+"region.subdivision.CA-NU" = "努纳武特地区";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ontario (CA-ON) province name */
+"region.subdivision.CA-ON" = "安大略省";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Prince Edward Island (CA-PE) province name */
+"region.subdivision.CA-PE" = "爱德华王子岛省";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Quebec (CA-QC) province name */
+"region.subdivision.CA-QC" = "魁北克省";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Saskatchewan (CA-SK) province name */
+"region.subdivision.CA-SK" = "萨斯喀彻温省";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Yukon (CA-YT) province name */
+"region.subdivision.CA-YT" = "育空地区";
+
 
 // MARK: - Live Activity
 
@@ -1793,7 +1998,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "远程节点会话";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "只添加新数据，不会覆盖已有记录。在创建此备份之后删除的联系人会重新出现，备份中设置的屏蔽、静音或收藏标记会再次应用。";
+"settings.backup.import.preview.info" = "只添加新数据，不会覆盖已有记录。在创建此备份之后删除的联系人会重新出现，备份中设置的屏蔽、静音或收藏标记会再次应用。若该聊天尚未置顶，备份中的置顶会开启。备份中关闭的置顶不会取消该聊天的置顶。";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "导入数据";

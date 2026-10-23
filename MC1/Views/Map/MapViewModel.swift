@@ -14,6 +14,9 @@ final class MapViewModel {
   /// Unfiltered plottable discovered (valid fix, not already contacts).
   private(set) var allLocatedDiscovered: [DiscoveredNodeDTO] = []
 
+  /// Inbound advert hop counts by public key, used as the hop fallback for flood-routed contacts.
+  private(set) var inboundHopByKey: [Data: Int] = [:]
+
   /// Filter-visible contacts shown as pins (callout lookup + Center All).
   private(set) var visibleContacts: [ContactDTO] = []
 
@@ -80,7 +83,12 @@ final class MapViewModel {
   /// Span for "exactly here" framing (about 1 km across).
   private static let focusSpan = 0.01
 
-  init() {}
+  /// Clock for rolling last-heard ranges; injectable so tests can age pins deterministically.
+  private let now: @MainActor () -> Date
+
+  init(now: @escaping @MainActor () -> Date = { Date() }) {
+    self.now = now
+  }
 
   /// Configure with the data store and radio this view model uses; a provider returning nil mirrors a disconnected state.
   func configure(
@@ -135,9 +143,14 @@ final class MapViewModel {
         node.coordinate.isValidFix && !contactKeys.contains(node.publicKey)
       }
 
+      let inboundHops: [Data: Int] = allDiscovered.reduce(into: [:]) { map, node in
+        if let inbound = node.inboundHopCount { map[node.publicKey] = inbound }
+      }
+
       guard generation == loadGeneration else { return }
       allLocatedContacts = locatedContacts
       allLocatedDiscovered = locatedDiscovered
+      inboundHopByKey = inboundHops
       hasCompletedInitialLoad = true
       currentFilter = pendingFilter
       rebuildDisplayPins()
@@ -157,6 +170,12 @@ final class MapViewModel {
     let sanitized = filter.sanitized(for: .mainMap)
     pendingFilter = sanitized
     currentFilter = sanitized
+    rebuildDisplayPins()
+  }
+
+  /// Re-evaluate rolling last-heard ranges against the current clock without a fetch.
+  func refreshTimeWindow() {
+    guard currentFilter.lastHeard.isActive else { return }
     rebuildDisplayPins()
   }
 
@@ -200,6 +219,7 @@ final class MapViewModel {
   private func clearMapPinData() {
     allLocatedContacts = []
     allLocatedDiscovered = []
+    inboundHopByKey = [:]
     visibleContacts = []
     visibleDiscovered = []
     hasCompletedInitialLoad = false
@@ -209,23 +229,47 @@ final class MapViewModel {
   // MARK: - Display pin algebra
 
   private func rebuildDisplayPins() {
-    let filter = currentFilter
+    let result = Self.visiblePins(
+      contacts: allLocatedContacts,
+      discovered: allLocatedDiscovered,
+      inboundHopByKey: inboundHopByKey,
+      filter: currentFilter,
+      now: now()
+    )
+    visibleContacts = result.contacts
+    visibleDiscovered = result.discovered
+    rebuildMapPoints()
+  }
 
-    let contacts: [ContactDTO] = if filter.favoritesOnly {
-      allLocatedContacts.filter(\.isFavorite)
-    } else {
-      allLocatedContacts.filter { filter.allowsContactType($0.type) }
+  /// Pure pin algebra: "who" (favorites / discovered / type) AND every active advanced dimension.
+  /// Recency and hop semantics match the Nodes list "Last heard" and "Hops" sorts.
+  static func visiblePins(
+    contacts: [ContactDTO],
+    discovered: [DiscoveredNodeDTO],
+    inboundHopByKey: [Data: Int],
+    filter: MapFilterState,
+    now: Date
+  ) -> (contacts: [ContactDTO], discovered: [DiscoveredNodeDTO]) {
+    let visibleContacts = contacts.filter { contact in
+      let allowedByWho = filter.favoritesOnly ? contact.isFavorite : filter.allowsContactType(contact.type)
+      guard allowedByWho else { return false }
+      return filter.allowsAdvanced(
+        heardAt: contact.recencyTimestamp > 0 ? contact.recencyDate : nil,
+        hops: contact.displayedHopCount(inboundHopCount: inboundHopByKey[contact.publicKey]),
+        now: now
+      )
     }
 
-    let discovered: [DiscoveredNodeDTO] = if filter.effectiveShowDiscovered {
-      allLocatedDiscovered.filter { filter.allowsContactType($0.nodeType) }
+    let visibleDiscovered: [DiscoveredNodeDTO] = if filter.effectiveShowDiscovered {
+      discovered.filter { node in
+        filter.allowsContactType(node.nodeType)
+          && filter.allowsAdvanced(heardAt: node.lastHeard, hops: node.displayedHopCount, now: now)
+      }
     } else {
       []
     }
 
-    visibleContacts = contacts
-    visibleDiscovered = discovered
-    rebuildMapPoints()
+    return (visibleContacts, visibleDiscovered)
   }
 
   // MARK: - Map Points

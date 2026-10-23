@@ -134,43 +134,146 @@ struct DeviceSelectionFilterTests {
     #expect(presentation.accessibilityHint != L10n.Settings.DeviceSelection.Accessibility.selectHint)
     #expect(presentation.accessibilityHint != L10n.Settings.DeviceSelection.Accessibility.outOfRangeHint)
   }
+}
 
-  private func makeDevice(
-    id: UUID = UUID(),
-    connectionMethods: [ConnectionMethod]
-  ) -> DeviceDTO {
-    DeviceDTO(
-      id: id,
-      radioID: id,
-      publicKey: Data(repeating: 0x01, count: 32),
-      nodeName: "TestDevice",
-      firmwareVersion: 9,
-      firmwareVersionString: "v1.13.0",
-      manufacturerName: "TestMfg",
-      buildDate: "01 Jan 2025",
-      maxContacts: 100,
-      maxChannels: 8,
-      frequency: 915_000,
-      bandwidth: 250_000,
-      spreadingFactor: 10,
-      codingRate: 5,
-      txPower: 20,
-      maxTxPower: 20,
-      latitude: 0,
-      longitude: 0,
-      blePin: 0,
-      manualAddContacts: false,
-      multiAcks: 2,
-      telemetryModeBase: 2,
-      telemetryModeLoc: 0,
-      telemetryModeEnv: 0,
-      advertLocationPolicy: 0,
-      lastConnected: Date(),
-      lastContactSync: 0,
-      isActive: false,
-      ocvPreset: nil,
-      customOCVArrayString: nil,
-      connectionMethods: connectionMethods
+private func makeDevice(
+  id: UUID = UUID(),
+  connectionMethods: [ConnectionMethod]
+) -> DeviceDTO {
+  DeviceDTO(
+    id: id,
+    radioID: id,
+    publicKey: Data(repeating: 0x01, count: 32),
+    nodeName: "TestDevice",
+    firmwareVersion: 9,
+    firmwareVersionString: "v1.13.0",
+    manufacturerName: "TestMfg",
+    buildDate: "01 Jan 2025",
+    maxContacts: 100,
+    maxChannels: 8,
+    frequency: 915_000,
+    bandwidth: 250_000,
+    spreadingFactor: 10,
+    codingRate: 5,
+    txPower: 20,
+    maxTxPower: 20,
+    latitude: 0,
+    longitude: 0,
+    blePin: 0,
+    manualAddContacts: false,
+    multiAcks: 2,
+    telemetryModeBase: 2,
+    telemetryModeLoc: 0,
+    telemetryModeEnv: 0,
+    advertLocationPolicy: 0,
+    lastConnected: Date(),
+    lastContactSync: 0,
+    isActive: false,
+    ocvPreset: nil,
+    customOCVArrayString: nil,
+    connectionMethods: connectionMethods
+  )
+}
+
+@Suite("Device connection choice")
+struct DeviceConnectionChoiceTests {
+  @Test
+  func `a radio with one link has no menu`() {
+    let peripheralID = UUID()
+    let bluetoothOnly = makeDevice(connectionMethods: [
+      .bluetooth(peripheralUUID: peripheralID, displayName: nil)
+    ])
+    let wifiOnly = makeDevice(connectionMethods: [
+      .wifi(host: "10.0.0.8", port: 5000, displayName: nil)
+    ])
+    let empty = makeDevice(connectionMethods: [])
+
+    #expect(DeviceConnectionChoice.make(
+      device: bluetoothOnly,
+      bluetoothAdvertising: true,
+      selected: bluetoothOnly.savedDeviceConnectTarget
+    ) == .unavailable)
+    #expect(DeviceConnectionChoice.make(
+      device: wifiOnly,
+      bluetoothAdvertising: true,
+      selected: wifiOnly.savedDeviceConnectTarget
+    ) == .unavailable)
+    #expect(DeviceConnectionChoice.make(
+      device: empty,
+      bluetoothAdvertising: false,
+      selected: empty.savedDeviceConnectTarget
+    ) == .unavailable)
+  }
+
+  @Test
+  func `the check follows the last used link and bluetooth uses the peripheral id`() {
+    let deviceID = UUID()
+    let peripheralID = UUID()
+    let wifi = ConnectionMethod.wifi(host: "10.0.0.8", port: 5000, displayName: nil)
+    let bluetooth = ConnectionMethod.bluetooth(peripheralUUID: peripheralID, displayName: nil)
+
+    let bluetoothDevice = makeDevice(id: deviceID, connectionMethods: [wifi, bluetooth])
+    let bluetoothLast = DeviceConnectionChoice.make(
+      device: bluetoothDevice,
+      bluetoothAdvertising: true,
+      selected: bluetoothDevice.savedDeviceConnectTarget
     )
+
+    guard case let .available(bluetoothLink, wifiLink) = bluetoothLast else {
+      Issue.record("Expected a menu")
+      return
+    }
+    #expect(bluetoothLink.target == .bluetooth(peripheralID: peripheralID))
+    #expect(bluetoothLink.target != .bluetooth(peripheralID: deviceID))
+    #expect(bluetoothLink.isCurrent)
+    #expect(bluetoothLink.isEnabled)
+    #expect(wifiLink.target == .wifi(host: "10.0.0.8", port: 5000))
+    #expect(!wifiLink.isCurrent)
+    #expect(wifiLink.isEnabled)
+  }
+
+  @Test
+  func `wifi last checks wifi and disables bluetooth when it is not advertising`() {
+    let peripheralID = UUID()
+    let wifi = ConnectionMethod.wifi(host: "10.0.0.8", port: 4321, displayName: nil)
+    let bluetooth = ConnectionMethod.bluetooth(peripheralUUID: peripheralID, displayName: nil)
+    let device = makeDevice(connectionMethods: [bluetooth, wifi])
+    let choice = DeviceConnectionChoice.make(
+      device: device,
+      bluetoothAdvertising: false,
+      selected: device.savedDeviceConnectTarget
+    )
+
+    guard case let .available(bluetoothLink, wifiLink) = choice else {
+      Issue.record("Expected a menu")
+      return
+    }
+    #expect(wifiLink.isCurrent)
+    #expect(wifiLink.isEnabled)
+    #expect(wifiLink.target == .wifi(host: "10.0.0.8", port: 4321))
+    #expect(!bluetoothLink.isCurrent)
+    #expect(!bluetoothLink.isEnabled)
+  }
+
+  @Test
+  func `out of range bluetooth stays checked and wifi stays enabled`() {
+    let peripheralID = UUID()
+    let wifi = ConnectionMethod.wifi(host: "10.0.0.8", port: 5000, displayName: nil)
+    let bluetooth = ConnectionMethod.bluetooth(peripheralUUID: peripheralID, displayName: nil)
+    let device = makeDevice(connectionMethods: [wifi, bluetooth])
+    let choice = DeviceConnectionChoice.make(
+      device: device,
+      bluetoothAdvertising: false,
+      selected: device.savedDeviceConnectTarget
+    )
+
+    guard case let .available(bluetoothLink, wifiLink) = choice else {
+      Issue.record("Expected a menu")
+      return
+    }
+    #expect(bluetoothLink.isCurrent)
+    #expect(!bluetoothLink.isEnabled)
+    #expect(!wifiLink.isCurrent)
+    #expect(wifiLink.isEnabled)
   }
 }

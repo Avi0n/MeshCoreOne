@@ -50,8 +50,8 @@ struct SimulatorSeedTests {
     let muted = try #require(channels.first { $0.index == MockDataProvider.trailCrewChannelIndex })
     #expect(muted.notificationLevel == .muted)
 
-    let favorite = try #require(channels.first { $0.index == MockDataProvider.bayAreaChannelIndex })
-    #expect(favorite.isFavorite)
+    let pinned = try #require(channels.first { $0.index == MockDataProvider.bayAreaChannelIndex })
+    #expect(pinned.isPinned)
   }
 
   @Test

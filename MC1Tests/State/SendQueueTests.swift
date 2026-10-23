@@ -43,6 +43,7 @@ struct SendQueueTests {
 
     var iterator = drainSignal.stream.makeAsyncIterator()
     _ = await iterator.next()
+    await queue.awaitDrainCompletion()
 
     let observed = await collector.snapshot()
     let count = await queue.count
@@ -149,6 +150,7 @@ struct SendQueueTests {
 
     var iterator = drainSignal.stream.makeAsyncIterator()
     _ = await iterator.next()
+    await queue.awaitDrainCompletion()
 
     let sent = await collector.sentSnapshot()
     let errored = await collector.errorSnapshot()
@@ -272,6 +274,7 @@ struct SendQueueTests {
 
     var iterator = drainSignal.stream.makeAsyncIterator()
     _ = await iterator.next()
+    await queue.awaitDrainCompletion()
 
     let recorded = await box.snapshot()
     // Last-error-wins: the third envelope's Boom should reach onDrain.

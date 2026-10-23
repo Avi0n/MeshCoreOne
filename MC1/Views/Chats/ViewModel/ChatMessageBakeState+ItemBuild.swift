@@ -167,7 +167,7 @@ extension ChatMessageBakeState {
       let request = MapSnapshotRequest(
         latitude: coordinate.latitude,
         longitude: coordinate.longitude,
-        isDark: envInputs.isDark,
+        isDark: envInputs.mapBasemapIsDark,
         isOffline: envInputs.isOffline
       )
       mapPreviewRequestIndex[request, default: []].insert(message.id)

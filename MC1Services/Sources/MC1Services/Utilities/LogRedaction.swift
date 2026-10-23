@@ -32,8 +32,21 @@ enum LogRedaction {
         return parts.dropLast().joined(separator: " ") + " [REDACTED]"
       }
     }
+    if let redacted = redactPrefixedValue(command, prefix: "set wifi.pwd ") {
+      return redacted
+    }
+    if let redacted = redactPrefixedValue(command, prefix: "set pin ") {
+      return redacted
+    }
     // Truncate long commands
     return command.count <= 40 ? command : String(command.prefix(40)) + "..."
+  }
+
+  private static func redactPrefixedValue(_ command: String, prefix: String) -> String? {
+    let needle = prefix.lowercased()
+    guard command.lowercased().hasPrefix(needle) else { return nil }
+    let end = command.index(command.startIndex, offsetBy: needle.count)
+    return String(command[..<end]) + passwordPlaceholder
   }
 
   /// Placeholder for password values that should never be logged.

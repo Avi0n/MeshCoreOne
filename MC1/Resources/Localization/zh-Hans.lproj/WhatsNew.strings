@@ -30,3 +30,38 @@
 "whatsNew.fasterChatLoading.title" = "聊天加载更快";
 /* What's New v1.5 - Faster chat loading, description */
 "whatsNew.fasterChatLoading.description" = "打开聊天速度最高可提升 90%%。";
+
+/* What's New v1.6 - Pinned chats, title */
+"whatsNew.pinnedChats.title" = "已置顶聊天";
+/* What's New v1.6 - Pinned chats, description */
+"whatsNew.pinnedChats.description" = "已置顶聊天现已与收藏分开。已置顶聊天会显示在“已置顶”部分，之前已收藏的联系人会在首次打开应用时被置顶。";
+
+/* What's New v1.6 - Read and unread, title */
+"whatsNew.readAndUnread.title" = "已读和未读";
+/* What's New v1.6 - Read and unread, description */
+"whatsNew.readAndUnread.description" = "长按聊天可将对话标为已读或标为未读。";
+
+/* What's New v1.6 - iPhone Duo, title */
+"whatsNew.iPhoneDuo.title" = "iPhone Duo";
+/* What's New v1.6 - iPhone Duo, description */
+"whatsNew.iPhoneDuo.description" = "MC1 已为 iPhone Duo 准备好可调整大小的布局。";
+
+/* What's New v1.6 - iPad tab bar, title */
+"whatsNew.iPadTabBar.title" = "iPad 标签栏";
+/* What's New v1.6 - iPad tab bar, description */
+"whatsNew.iPadTabBar.description" = "iPad 会将标签图标从左侧移到顶部。这有助于我们更好地支持包括 iPhone Duo 在内的所有设备。";
+
+/* What's New v1.6 - Advanced map filters, title */
+"whatsNew.advancedMapFilters.title" = "高级地图筛选";
+/* What's New v1.6 - Advanced map filters, description */
+"whatsNew.advancedMapFilters.description" = "可按最后收到和跳数筛选地图。可以选择预设或设置自定义范围，并移除筛选。";
+
+/* What's New v1.6 - Bluetooth and Wi-Fi, title */
+"whatsNew.bluetoothAndWiFi.title" = "蓝牙和 WiFi";
+/* What's New v1.6 - Bluetooth and Wi-Fi, description */
+"whatsNew.bluetoothAndWiFi.description" = "如果电台的固件为 1.18 或更高版本，且已同时通过蓝牙和 WiFi 配对，可以在连接设备和设置 > 连接中在两者之间切换。";
+
+/* What's New v1.6 - More changes, title */
+"whatsNew.moreChanges.title" = "更多变化";
+/* What's New v1.6 - More changes, description */
+"whatsNew.moreChanges.description" = "点击下方的\"查看全部新变化\"可查看错误修复和其他功能的完整列表。";

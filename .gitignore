@@ -19,6 +19,7 @@ thoughts/
 plans/
 specs/
 tmp/
+.derivedData/
 .mobilebuildmcp/
 .codegraph
 .asc
@@ -26,6 +27,12 @@ tmp/
 *lock.json
 
 scripts/
+!/scripts/
+/scripts/*
+!/scripts/test-app-ci.py
+!/scripts/tests/
+/scripts/tests/*
+!/scripts/tests/test_app_ci.py
 
 ## User settings
 xcuserdata/

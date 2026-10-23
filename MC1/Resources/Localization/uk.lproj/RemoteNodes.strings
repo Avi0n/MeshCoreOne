@@ -252,6 +252,9 @@
 /* Location: RepeaterSettingsView.swift - Behavior section footer */
 "remoteNodes.settings.behaviorFooter" = "Інтервали оголошень, переходи розсилки та режим ретранслятора.";
 
+/* Location: RepeaterSettingsView.swift - Behavior section footer when both advert intervals are 0 */
+"remoteNodes.settings.hiddenFromDiscoverFooter" = "Якщо обидва інтервали оголошень встановлено на 0, цей ретранслятор не відповість на пінг виявлення.";
+
 /* Location: RepeaterSettingsView.swift - Device actions section header */
 "remoteNodes.settings.deviceActions" = "Дії з пристроєм";
 
@@ -865,6 +868,15 @@
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
 "remoteNodes.nodeCli.rebootSent" = "Команду перезавантаження надіслано";
+
+/* Location: NodeCliViewModel.swift - Toast after poweroff or shutdown is treated as sent */
+"remoteNodes.nodeCli.powerOffSent" = "Команду вимкнення надіслано";
+
+/* Location: NodeCliViewModel.swift - Banner for commands sent to a contact's radio - %@ is the contact name */
+"remoteNodes.nodeCli.radioBanner" = "Команди надсилаються на радіо %@. Без дозволу на віддалений CLI ти не отримаєш відповіді, і ця людина отримає кожну команду як повідомлення у чаті.";
+
+/* Location: NodeCliViewModel.swift - Shown when a contact's radio does not reply - %@ is the contact name */
+"remoteNodes.nodeCli.radioNoReply" = "Немає відповіді від %@. Можливо, тобі не дозволили віддалений CLI, або їхній вузол був недосяжний.";
 
 /* Location: NodeCliViewModel.swift - Toast after command is cancelled */
 "remoteNodes.nodeCli.cancelled" = "Команду скасовано";

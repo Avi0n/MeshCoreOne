@@ -3,32 +3,6 @@ import Foundation
 import MeshCore
 import Testing
 
-/// A transport whose `send` succeeds but that never yields session bytes, so any
-/// command awaiting a device response stays parked. Models a radio that accepted
-/// the write but went silent, which is the state `stopAllKeepAlives` must unwind.
-private actor SilentTransport: MeshTransport {
-  private let dataStream: AsyncStream<Data>
-  private let dataContinuation: AsyncStream<Data>.Continuation
-
-  init() {
-    var continuation: AsyncStream<Data>.Continuation!
-    dataStream = AsyncStream { continuation = $0 }
-    dataContinuation = continuation
-  }
-
-  var receivedData: AsyncStream<Data> {
-    dataStream
-  }
-
-  var isConnected: Bool {
-    true
-  }
-
-  func connect() async throws {}
-  func disconnect() async {}
-  func send(_ data: Data) async throws {}
-}
-
 @Suite("RemoteNodeService teardown")
 struct RemoteNodeTeardownTests {
   @Test
@@ -36,12 +10,12 @@ struct RemoteNodeTeardownTests {
     let radioID = UUID()
     let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
 
-    // Long timeout keeps `sendLogin` blocked on the silent transport, so the
-    // login continuation stays parked in `pendingLogins` for the duration.
-    let session = MeshCoreSession(
-      transport: SilentTransport(),
-      configuration: SessionConfiguration(defaultTimeout: 30.0, clientIdentifier: "MCTst")
-    )
+    let session = MockMeshCoreSession()
+    await session.setSendLoginResults([.success(MessageSentInfo(
+      route: 0,
+      expectedAck: Data([1, 2, 3, 4]),
+      suggestedTimeoutMs: 30000
+    ))])
 
     let remoteSession = RemoteNodeSessionDTO.testSession(radioID: radioID)
     try await dataStore.saveRemoteNodeSessionDTO(remoteSession)
@@ -58,13 +32,18 @@ struct RemoteNodeTeardownTests {
 
     // Wait until the continuation is registered before tearing down.
     try await waitUntil("login continuation was never parked") {
-      await service.pendingLoginCount == 1
+      let sent = await session.sendLoginInvocations.count == 1
+      let pending = await service.pendingLoginCount
+      return sent && pending == 1
     }
 
     await service.stopAllKeepAlives()
 
-    await #expect(throws: RemoteNodeError.self) {
+    await #expect {
       _ = try await loginTask.value
+    } throws: { error in
+      guard let error = error as? RemoteNodeError, case .cancelled = error else { return false }
+      return true
     }
     #expect(await service.pendingLoginCount == 0)
   }
@@ -73,10 +52,7 @@ struct RemoteNodeTeardownTests {
   func `keep-alive loop does not retain the service after the last strong reference is dropped`() async throws {
     let radioID = UUID()
     let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
-    let session = MeshCoreSession(
-      transport: SilentTransport(),
-      configuration: SessionConfiguration(defaultTimeout: 30.0, clientIdentifier: "MCTst")
-    )
+    let session = MockMeshCoreSession()
 
     let remoteSession = RemoteNodeSessionDTO.testSession(radioID: radioID)
     try await dataStore.saveRemoteNodeSessionDTO(remoteSession)

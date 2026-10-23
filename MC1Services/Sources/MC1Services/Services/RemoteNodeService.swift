@@ -46,6 +46,7 @@ public actor RemoteNodeService {
     let wirePrefix: String
     let acceptsAnyResponse: Bool
     let continuation: CheckedContinuation<String, Error>
+    var workerTask: Task<Void, Never>?
   }
 
   /// The single in-flight CLI request per node, keyed by 6-byte public key
@@ -209,7 +210,7 @@ public actor RemoteNodeService {
     let prefix = Data(message.senderPublicKeyPrefix.prefix(6))
 
     guard let pending = pendingCLIRequests[prefix] else {
-      logger.debug("Unmatched CLI response (no pending request): \(message.text.prefix(50))")
+      logger.debug("Unmatched CLI response (no pending request), length \(message.text.count)")
       return
     }
 
@@ -227,14 +228,14 @@ public actor RemoteNodeService {
       guard pending.acceptsAnyResponse
         || CLIResponse.isPlausibleResponse(message.text, forQuery: pending.command) else {
         logger.warning(
-          "Dropping CLI response that doesn't match pending '\(pending.command)': \(message.text.prefix(50))"
+          "Dropping CLI response that doesn't match pending command, length \(message.text.count)"
         )
         return
       }
       responseText = message.text
     }
 
-    pendingCLIRequests[prefix] = nil
+    _ = takePendingCLIRequest(for: prefix, requestID: pending.id)
     pending.continuation.resume(returning: responseText)
   }
 
@@ -286,6 +287,7 @@ public actor RemoteNodeService {
       lastNoiseFloor: existing?.lastNoiseFloor,
       unreadCount: existing?.unreadCount ?? 0,
       notificationLevel: existing?.notificationLevel ?? .all,
+      isPinned: existing?.isPinned ?? false,
       lastRxAirtimeSeconds: existing?.lastRxAirtimeSeconds,
       neighborCount: existing?.neighborCount ?? 0,
       lastSyncTimestamp: existing?.lastSyncTimestamp ?? 0,

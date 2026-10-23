@@ -103,20 +103,10 @@ public extension MeshCoreSession {
         logger.info("Retry sending message: attempt \(attempts + 1)/\(maxAttempts)")
       }
 
-      let sentInfo = try await sendMessage(to: destination.prefix(6), text: text, timestamp: timestamp, attempt: UInt8(attempts))
-
-      let ackTimeout = timeout ?? (
-        Double(sentInfo.suggestedTimeoutMs) / SessionConfiguration.millisecondsPerSecond
-          * SessionConfiguration.retryAckTimeoutMultiplier
-      )
-      let ackEvent = await waitForEvent(matching: { event in
-        if case let .acknowledgement(code, _) = event {
-          return code == sentInfo.expectedAck
-        }
-        return false
-      }, timeout: ackTimeout)
-
-      if ackEvent != nil {
+      if let sentInfo = try await sendMessageAndAwaitAck(
+        to: destination.prefix(6), text: text, timestamp: timestamp,
+        attempt: UInt8(attempts), timeout: timeout
+      ) {
         logger.info("Message acknowledged on attempt \(attempts + 1)")
         return sentInfo
       }
@@ -129,6 +119,46 @@ public extension MeshCoreSession {
 
     logger.warning("Message delivery failed after \(attempts) attempts")
     return nil
+  }
+
+  private func sendMessageAndAwaitAck(
+    to destination: Data,
+    text: String,
+    timestamp: Date,
+    attempt: UInt8,
+    timeout: TimeInterval?
+  ) async throws -> MessageSentInfo? {
+    let (subscriptionID, events) = await dispatcher.subscribeTracked(filter: EventFilter.anyAcknowledgement.matches)
+    do {
+      let info = try await sendMessage(to: destination, text: text, timestamp: timestamp, attempt: attempt)
+      let ackTimeout = timeout ?? (
+        Double(info.suggestedTimeoutMs) / SessionConfiguration.millisecondsPerSecond
+          * SessionConfiguration.retryAckTimeoutMultiplier
+      )
+      let acknowledged = await withTaskGroup(of: Bool.self) { group in
+        group.addTask {
+          for await event in events {
+            if case let .acknowledgement(code, _) = event, code == info.expectedAck {
+              return true
+            }
+          }
+          return false
+        }
+        group.addTask { [clock] in
+          try? await clock.sleep(for: .seconds(ackTimeout))
+          return false
+        }
+        let result = await group.next() ?? false
+        group.cancelAll()
+        await dispatcher.finishSubscription(id: subscriptionID)
+        return result
+      }
+      try Task.checkCancellation()
+      return acknowledged ? info : nil
+    } catch {
+      await dispatcher.finishSubscription(id: subscriptionID)
+      throw error
+    }
   }
 
   /// Sends an advertisement broadcast.
@@ -152,6 +182,9 @@ public extension MeshCoreSession {
   ///            channel datagram (firmware v11+), or ``MessageResult/noMoreMessages``.
   /// - Throws: ``MeshCoreError`` if the fetch fails.
   func getMessage(timeout: TimeInterval? = nil) async throws -> MessageResult {
+    getMessageCallerCountForTest += 1
+    defer { getMessageCallerCountForTest -= 1 }
+
     // Calls arriving while a fetch is in flight coalesce onto the same task and
     // share its outcome, so every coalesced caller's wait is bounded by the
     // leader's timeout and released on every completion path. The exchange runs
@@ -187,7 +220,7 @@ public extension MeshCoreSession {
       }
 
       let data = PacketBuilder.getMessage()
-      try await transport.send(data)
+      try await sendSessionData(data)
 
       return try await withThrowingTaskGroup(of: MessageResult.self) { group in
         group.addTask {
@@ -212,11 +245,17 @@ public extension MeshCoreSession {
             }
           }
 
+          if await !self.sessionIsRunning {
+            throw CancellationError()
+          }
           throw MeshCoreError.timeout
         }
 
         group.addTask { [clock = self.clock] in
           try await clock.sleep(for: .seconds(timeoutSeconds))
+          if await !self.sessionIsRunning {
+            throw CancellationError()
+          }
           throw MeshCoreError.timeout
         }
 
@@ -238,16 +277,23 @@ public extension MeshCoreSession {
   /// - Parameters:
   ///   - destination: The destination public key (6+ bytes, uses first 6 as prefix).
   ///   - command: The command string to send.
+  ///   - textType: `.cliData` for a repeater or room, or `.cliCommand` for a contact's radio.
   ///   - timestamp: Message timestamp. Defaults to current time.
   /// - Returns: Information about the sent message, including the expected ACK code.
   /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
   func sendCommand(
     to destination: Data,
     command: String,
+    textType: TextType,
     timestamp: Date = Date()
   ) async throws -> MessageSentInfo {
     try await sendAndWaitWithError(
-      PacketBuilder.sendCommand(to: destination, command: command, timestamp: timestamp),
+      PacketBuilder.sendCommand(
+        to: destination,
+        command: command,
+        textType: textType,
+        timestamp: timestamp
+      ),
       matching: { event in
         if case let .messageSent(info) = event { return info }
         return nil
@@ -281,13 +327,14 @@ public extension MeshCoreSession {
   ///   - channelIndex: Channel slot index.
   ///   - dataType: Application data-type namespace. `0x0000` is reserved and rejected by
   ///     firmware; `0xFFFF` is the developer namespace.
-  ///   - payload: Binary payload (clamped to 163 bytes by ``PacketBuilder/sendChannelData(channelIndex:dataType:payload:pathLength:pathBytes:)``).
+  ///   - payload: Binary payload, at most 165 bytes and within the remaining 176-byte host-frame budget after the header and path.
   ///   - pathLength: Encoded `path_len` byte. Defaults to ``PacketBuilder/floodPathSentinel``
   ///     (`0xFF` = flood). Non-flood values must satisfy firmware's `Packet::isValidPathLen`;
   ///     callers working from a ``MeshContact`` can pass `contact.outPathLength` directly.
   ///   - pathBytes: Path bytes written verbatim. Ignored when `pathLength == 0xFF`. Callers
   ///     working from a ``MeshContact`` can pass `contact.outPath` directly.
-  /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
+  /// - Throws: ``MeshCoreError/invalidInput(_:)`` for an oversized payload;
+  ///   ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
   func sendChannelData(
     channelIndex: UInt8,
     dataType: UInt16,

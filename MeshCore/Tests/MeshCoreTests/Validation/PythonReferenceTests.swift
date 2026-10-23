@@ -135,10 +135,28 @@ struct PythonReferenceTests {
     let packet = PacketBuilder.sendCommand(
       to: dst,
       command: "status",
+      textType: .cliData,
       timestamp: timestamp
     )
+    #expect(packet[1] == 0x01)
     #expect(packet == PythonReferenceBytes.sendCommand_status,
             "sendCommand mismatch - Swift: \(packet.hexString), Python: \(PythonReferenceBytes.sendCommand_status.hexString)")
+  }
+
+  @Test
+  func `sendCommand writes cliCommand text type`() {
+    let dst = Data([0x01, 0x23, 0x45, 0x67, 0x89, 0xAB])
+    let timestamp = Date(timeIntervalSince1970: 1_704_067_200)
+    let packet = PacketBuilder.sendCommand(
+      to: dst,
+      command: "status",
+      textType: .cliCommand,
+      timestamp: timestamp
+    )
+    var expected = PythonReferenceBytes.sendCommand_status
+    expected[1] = 0x03
+    #expect(packet[1] == 0x03)
+    #expect(packet == expected)
   }
 
   @Test

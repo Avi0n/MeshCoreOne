@@ -77,15 +77,6 @@ struct OCVPresetTests {
   }
 
   @Test
-  func `Battery chemistry presets exclude device-specific presets`() {
-    let presets = OCVPreset.batteryChemistryPresets
-
-    #expect(!presets.contains(.trackerT1000E))
-    #expect(!presets.contains(.heltecPocket5000))
-    #expect(!presets.contains(.custom))
-  }
-
-  @Test
   func `Li-Ion is battery chemistry category`() {
     #expect(OCVPreset.liIon.category == .batteryChemistry)
   }

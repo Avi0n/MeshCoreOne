@@ -163,6 +163,9 @@ extension PacketParser {
     case .defaultFloodScope:
       return Parsers.DefaultFloodScope.parse(payload)
 
+    case .cliReply:
+      return .cliReply(String(data: payload, encoding: .utf8) ?? "")
+
     default:
       return .parseFailure(data: payload, reason: "Unexpected code in device response: \(code)")
     }

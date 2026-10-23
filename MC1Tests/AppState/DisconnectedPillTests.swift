@@ -46,79 +46,96 @@ struct DisconnectedPillTests {
   // MARK: - updateDisconnectedPillState Tests (pass values directly)
 
   @Test
-  func `disconnected pill not shown when user explicitly disconnected`() async throws {
-    let appState = AppState()
+  func `disconnected pill not shown when user explicitly disconnected`() {
+    let clock = TestClock()
+    let state = ConnectionUIState(clock: clock)
 
-    appState.connectionUI.updateDisconnectedPillState(
+    state.updateDisconnectedPillState(
       connectionState: .disconnected,
       lastConnectedDeviceID: UUID(),
       shouldSuppressDisconnectedPill: true
     )
 
-    try await Task.sleep(for: .seconds(1.2))
-    #expect(appState.connectionUI.disconnectedPillVisible == false)
+    #expect(state.disconnectedPillVisible == false)
+    #expect(clock.sleeperCount == 0)
+    #expect(state.disconnectedPillTaskForTesting == nil)
   }
 
   @Test
   func `disconnected pill shown after unexpected disconnect`() async throws {
-    let appState = AppState()
+    let clock = TestClock()
+    let state = ConnectionUIState(clock: clock)
 
-    appState.connectionUI.updateDisconnectedPillState(
+    state.updateDisconnectedPillState(
       connectionState: .disconnected,
       lastConnectedDeviceID: UUID(),
       shouldSuppressDisconnectedPill: false
     )
 
-    try await Task.sleep(for: .seconds(1.2))
-    #expect(appState.connectionUI.disconnectedPillVisible == true)
+    try await waitUntil("pill delay should park") { clock.sleeperCount == 1 }
+    clock.advance(by: .milliseconds(999))
+    try #require(clock.sleeperCount == 1)
+    #expect(state.disconnectedPillVisible == false)
+    clock.advance(by: .milliseconds(1))
+    try #require(clock.sleeperCount == 0)
+    try await waitUntil("pill should show at the deadline") { state.disconnectedPillVisible }
   }
 
   @Test
-  func `disconnected pill not shown when no last connected device`() async throws {
-    let appState = AppState()
+  func `disconnected pill not shown when no last connected device`() {
+    let clock = TestClock()
+    let state = ConnectionUIState(clock: clock)
 
-    appState.connectionUI.updateDisconnectedPillState(
+    state.updateDisconnectedPillState(
       connectionState: .disconnected,
       lastConnectedDeviceID: nil,
       shouldSuppressDisconnectedPill: false
     )
 
-    try await Task.sleep(for: .seconds(1.2))
-    #expect(appState.connectionUI.disconnectedPillVisible == false)
+    #expect(state.disconnectedPillVisible == false)
+    #expect(clock.sleeperCount == 0)
+    #expect(state.disconnectedPillTaskForTesting == nil)
   }
 
   @Test
   func `disconnected pill hidden when connection starts`() async throws {
-    let appState = AppState()
+    let clock = TestClock()
+    let state = ConnectionUIState(clock: clock)
 
-    appState.connectionUI.updateDisconnectedPillState(
+    state.updateDisconnectedPillState(
       connectionState: .disconnected,
       lastConnectedDeviceID: UUID(),
       shouldSuppressDisconnectedPill: false
     )
-    try await Task.sleep(for: .seconds(1.2))
-    #expect(appState.connectionUI.disconnectedPillVisible == true)
+    try await waitUntil("pill delay should park") { clock.sleeperCount == 1 }
+    clock.advance(by: .seconds(1))
+    try await waitUntil("pill should show after the delay") { state.disconnectedPillVisible }
 
-    appState.connectionUI.hideDisconnectedPill()
-    #expect(appState.connectionUI.disconnectedPillVisible == false)
+    state.hideDisconnectedPill()
+    #expect(state.disconnectedPillVisible == false)
   }
 
   @Test
   func `disconnected pill delay prevents flash during brief reconnects`() async throws {
-    let appState = AppState()
+    let clock = TestClock()
+    let state = ConnectionUIState(clock: clock)
 
-    appState.connectionUI.updateDisconnectedPillState(
+    state.updateDisconnectedPillState(
       connectionState: .disconnected,
       lastConnectedDeviceID: UUID(),
       shouldSuppressDisconnectedPill: false
     )
+    try await waitUntil("pill delay should park") { clock.sleeperCount == 1 }
+    let pendingDelay = try #require(state.disconnectedPillTaskForTesting)
+    #expect(state.disconnectedPillVisible == false)
 
-    #expect(appState.connectionUI.disconnectedPillVisible == false)
+    clock.advance(by: .milliseconds(500))
+    try #require(clock.sleeperCount == 1)
+    state.hideDisconnectedPill()
+    try #require(clock.sleeperCount == 0)
+    await pendingDelay.value
 
-    try await Task.sleep(for: .seconds(0.5))
-    appState.connectionUI.hideDisconnectedPill()
-
-    try await Task.sleep(for: .seconds(1.0))
-    #expect(appState.connectionUI.disconnectedPillVisible == false)
+    clock.advance(by: .seconds(1))
+    #expect(state.disconnectedPillVisible == false)
   }
 }

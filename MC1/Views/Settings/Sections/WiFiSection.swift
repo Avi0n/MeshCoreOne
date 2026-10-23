@@ -8,7 +8,7 @@ struct WiFiSection: View {
   @Binding var showingEditSheet: Bool
 
   private var currentConnection: ConnectionMethod? {
-    appState.connectedDevice?.connectionMethods.first { $0.isWiFi }
+    appState.connectedDevice?.wifiConnectionMethod
   }
 
   var body: some View {
@@ -21,10 +21,6 @@ struct WiFiSection: View {
       Button(L10n.Settings.Wifi.editConnection) {
         showingEditSheet = true
       }
-    } header: {
-      Text(L10n.Settings.Wifi.header)
-    } footer: {
-      Text(L10n.Settings.Wifi.footer)
     }
     .themedRowBackground(theme)
   }

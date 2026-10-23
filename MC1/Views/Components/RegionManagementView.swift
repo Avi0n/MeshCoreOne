@@ -9,6 +9,7 @@ struct RegionManagementView: View {
   let onRemoveRegion: (String) -> Void
   let onAddRegion: (String) -> Void
   let onDiscoverTapped: () -> Void
+  var requestAddRegion: (() -> Void)?
 
   @Environment(\.appTheme) private var theme
   @State private var searchText = ""
@@ -38,8 +39,12 @@ struct RegionManagementView: View {
         discoveryMessage: discoveryMessage,
         onDiscoverTapped: onDiscoverTapped,
         onAddTapped: {
-          newRegionName = ""
-          showingAddAlert = true
+          if let requestAddRegion {
+            requestAddRegion()
+          } else {
+            newRegionName = ""
+            showingAddAlert = true
+          }
         }
       )
     }

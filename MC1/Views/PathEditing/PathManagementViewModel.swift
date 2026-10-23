@@ -248,12 +248,15 @@ final class PathManagementViewModel {
 
     do {
       let contacts = try await dataStore.fetchContacts(radioID: radioID)
+      guard !Task.isCancelled else { return }
       allContacts = contacts
       availableRepeaters = contacts.filter { $0.type == .repeater }
       availableRooms = contacts.filter { $0.type == .room }
       let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
+      guard !Task.isCancelled else { return }
       discoveredNodes = nodes
     } catch {
+      guard !Task.isCancelled else { return }
       allContacts = []
       availableRepeaters = []
       availableRooms = []
@@ -466,6 +469,7 @@ final class PathManagementViewModel {
           publicKey: contact.publicKey
         )
 
+        guard !Task.isCancelled else { return }
         let timeoutSeconds = FirmwareSuggestedTimeout.pathDiscoverySeconds(
           suggestedTimeoutMs: sentResponse.suggestedTimeoutMs
         )
@@ -503,6 +507,7 @@ final class PathManagementViewModel {
         // Cancel, success path, or a fresh `discoverPath` already owns state.
         return
       } catch {
+        guard !Task.isCancelled else { return }
         discoveryResult = .failed(error.userFacingMessage)
         showDiscoveryResult = true
       }
@@ -625,6 +630,18 @@ final class PathManagementViewModel {
     showDiscoveryResult = true
 
     onContactNeedsRefresh?()
+  }
+
+  /// A failure after timeout or cancel leaves the alert already on screen unchanged.
+  func handleDiscoveryWriteFailure(_ error: ContactServiceError) {
+    guard isDiscovering else { return }
+
+    discoveryTask?.cancel()
+    isDiscovering = false
+    cleanupCountdownState()
+
+    discoveryResult = .failed(error.userFacingMessage)
+    showDiscoveryResult = true
   }
 
   /// Reset the path for a contact (force flood routing)

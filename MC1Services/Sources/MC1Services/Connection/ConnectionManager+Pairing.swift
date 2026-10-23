@@ -105,7 +105,7 @@ public extension ConnectionManager {
   }
 
   /// Pairing leftover-GATT wait. `.syncing` already has a session
-  /// (`promoteToReady(syncSucceeded: false)`); `.connected` is still rebuilding.
+  /// (`promoteToReady` with a non-usable result); `.connected` is still rebuilding.
   func waitForPairingAdoptionToSettle() async throws {
     #if DEBUG
       if let strategy = pairingAdoptionSettleStrategyOverride {
@@ -191,11 +191,35 @@ public extension ConnectionManager {
       logger.warning("Failed to remove from pairing registry: \(error.localizedDescription)")
     }
 
+    if await retainedWiFiRowAfterBluetoothRemoval(peripheralID: deviceID) != nil {
+      return
+    }
+
     let dataStore = persistenceStore
     try? await dataStore.demoteDeviceToGhost(id: deviceID)
 
     // Always clear this device's bond verification; store keys are holder-matched.
     await clearPersistedConnection(for: deviceID)
+  }
+
+  /// Clears bond verification, then strips Bluetooth when the row also has WiFi.
+  /// Nil means the caller should ghost or delete and clear the last-connection slot.
+  private func retainedWiFiRowAfterBluetoothRemoval(peripheralID: UUID) async -> DeviceDTO? {
+    await clearBondVerification(for: peripheralID)
+    do {
+      guard let kept = try await persistenceStore.removeBluetoothMethod(peripheralID: peripheralID) else {
+        return nil
+      }
+      if connectedDevice?.id == kept.id {
+        connectedDevice = kept
+      }
+      return kept
+    } catch {
+      logger.warning(
+        "Failed to remove Bluetooth method for \(peripheralID.uuidString.prefix(8)): \(error.localizedDescription)"
+      )
+      return nil
+    }
   }
 
   // MARK: - Other-App Detection
@@ -353,10 +377,14 @@ public extension ConnectionManager {
       throw ConnectionError.notConnected
     }
 
+    let selfPublicKey = connectedDevice?.publicKey
     let dataStore = persistenceStore
     let allContacts = try await dataStore.fetchContacts(radioID: radioID)
+    try Task.checkCancellation()
+    guard self.services === services, connectedDevice?.radioID == radioID else {
+      throw ConnectionError.notConnected
+    }
     // Never bulk-remove the ZephCore V-contact: CMD_REMOVE turns firmware v.contact off.
-    let selfPublicKey = connectedDevice?.publicKey
     let targets = allContacts.filter { contact in
       guard predicate(contact) else { return false }
       if let selfPublicKey,
@@ -371,39 +399,63 @@ public extension ConnectionManager {
     }
 
     var removedCount = 0
+    var totalCount = targets.count
+    var deletedIDs: Set<UUID> = []
 
-    for contact in targets {
-      try Task.checkCancellation()
-
-      do {
-        try await services.contactService.removeContact(
-          radioID: radioID,
-          publicKey: contact.publicKey
-        )
-        removedCount += 1
-        onRemove?(contact)
-      } catch ContactServiceError.contactNotFound {
-        do {
-          try await services.contactService.removeLocalContact(
-            contactID: contact.id,
-            publicKey: contact.publicKey
-          )
-          removedCount += 1
-          logger.info("Contact not found on device, cleaned up locally: \(contact.name)")
-        } catch is CancellationError {
-          throw CancellationError()
-        } catch {
-          logger.warning("Failed to clean up local data for \(contact.name): \(error.localizedDescription)")
+    do {
+      for target in targets {
+        try Task.checkCancellation()
+        guard self.services === services, connectedDevice?.radioID == radioID else {
+          break
         }
-      } catch is CancellationError {
-        throw CancellationError()
-      } catch {
-        logger.warning("Failed to remove contact \(contact.name): \(error.localizedDescription)")
-        return RemoveUnfavoritedResult(removed: removedCount, total: targets.count)
-      }
-    }
+        guard let contact = try await dataStore.fetchContact(id: target.id), predicate(contact) else {
+          totalCount -= 1
+          continue
+        }
+        try Task.checkCancellation()
+        guard self.services === services, connectedDevice?.radioID == radioID else {
+          break
+        }
 
-    return RemoveUnfavoritedResult(removed: removedCount, total: targets.count)
+        do {
+          if let id = try await services.contactService.removeContact(
+            radioID: radioID, publicKey: contact.publicKey, deferDeletionUpdates: true
+          ) {
+            deletedIDs.insert(id)
+          }
+          removedCount += 1
+          onRemove?(contact)
+        } catch ContactServiceError.contactNotFound {
+          do {
+            if let id = try await services.contactService.removeLocalContact(
+              contactID: contact.id, publicKey: contact.publicKey, deferDeletionUpdates: true
+            ) {
+              deletedIDs.insert(id)
+            }
+            removedCount += 1
+            logger.info("Contact not found on device, cleaned up locally: \(contact.name)")
+          } catch is CancellationError {
+            try Task.checkCancellation()
+            break
+          } catch {
+            logger.warning("Failed to clean up local data for \(contact.name): \(error.localizedDescription)")
+          }
+        } catch is CancellationError {
+          try Task.checkCancellation()
+          break
+        } catch {
+          logger.warning("Failed to remove contact \(contact.name): \(error.localizedDescription)")
+          break
+        }
+        await services.contactService.flushDeletionUpdatesIfNeeded(contactIDs: &deletedIDs, force: false)
+      }
+    } catch {
+      await services.contactService.flushDeletionUpdatesIfNeeded(contactIDs: &deletedIDs, force: true)
+      throw error
+    }
+    await services.contactService.flushDeletionUpdatesIfNeeded(contactIDs: &deletedIDs, force: true)
+    try Task.checkCancellation()
+    return RemoveUnfavoritedResult(removed: removedCount, total: totalCount)
   }
 
   // MARK: - Stale Pairings
@@ -659,22 +711,31 @@ extension ConnectionManager: DevicePairingDelegate {
     // callback signature. Ordered first in the Task so it runs before reconnect-
     // adjacent work; residual race with concurrent classify is accepted here.
     Task {
-      await clearPersistedConnection(for: bluetoothID)
-
-      if connectedDevice?.id == bluetoothID {
-        await disconnect(reason: .deviceRemovedFromSettings)
-      }
+      let disconnectBluetoothSession = connectedDevice?.id == bluetoothID && wifiTransport == nil
 
       // iOS can fire accessoryRemoved while session.accessories still lists the
       // id. Ghosting then turns a still-authorized radio into a Set Up leftover
       // that blocks Scan. Keep the Device row so Connect still works.
       if pairing.isDeviceConnectable(bluetoothID) {
+        await clearPersistedConnection(for: bluetoothID)
+        if disconnectBluetoothSession {
+          await disconnect(reason: .deviceRemovedFromSettings)
+        }
         logger.info(
           "ASK still lists \(bluetoothID.uuidString.prefix(8)) after removal; keeping Device row"
         )
         return
       }
 
+      let keptWiFi = await retainedWiFiRowAfterBluetoothRemoval(peripheralID: bluetoothID) != nil
+      if disconnectBluetoothSession {
+        await disconnect(reason: .deviceRemovedFromSettings)
+      }
+      if keptWiFi {
+        return
+      }
+
+      await clearPersistedConnection(for: bluetoothID)
       let dataStore = persistenceStore
       do {
         try await dataStore.demoteDeviceToGhost(id: bluetoothID)
@@ -694,11 +755,16 @@ extension ConnectionManager: DevicePairingDelegate {
 
     // DevicePairingDelegate is non-async; bond clear is ordered first in the Task.
     Task {
-      await clearPersistedConnection(for: bluetoothID)
-
-      if connectedDevice?.id == bluetoothID {
+      let disconnectBluetoothSession = connectedDevice?.id == bluetoothID && wifiTransport == nil
+      let keptWiFi = await retainedWiFiRowAfterBluetoothRemoval(peripheralID: bluetoothID) != nil
+      if disconnectBluetoothSession {
         await disconnect(reason: .pairingFailed)
       }
+      if keptWiFi {
+        return
+      }
+
+      await clearPersistedConnection(for: bluetoothID)
 
       // Delete device record only — no data exists for a failed pairing
       let dataStore = persistenceStore

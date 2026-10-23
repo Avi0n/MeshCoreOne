@@ -44,40 +44,6 @@ struct ConnectionIntentTests {
   func `wantsConnection with different forceFullSync are not equal`() {
     #expect(ConnectionIntent.wantsConnection(forceFullSync: true) != ConnectionIntent.wantsConnection(forceFullSync: false))
   }
-
-  // MARK: - Migration Equivalence
-
-  @Test
-  func `wantsConnection replaces shouldBeConnected = true`() {
-    let intent = ConnectionIntent.wantsConnection()
-    #expect(intent.wantsConnection == true)
-    #expect(intent.isUserDisconnected == false)
-  }
-
-  @Test
-  func `userDisconnected replaces setUserDisconnected + shouldBeConnected = false`() {
-    let intent = ConnectionIntent.userDisconnected
-    #expect(intent.wantsConnection == false)
-    #expect(intent.isUserDisconnected == true)
-  }
-
-  @Test
-  func `forceFullSync can be consumed and reset`() {
-    var intent = ConnectionIntent.wantsConnection(forceFullSync: true)
-
-    // Consume
-    if case let .wantsConnection(force) = intent {
-      #expect(force == true)
-      intent = .wantsConnection()
-    }
-
-    // Verify reset
-    if case let .wantsConnection(force) = intent {
-      #expect(force == false)
-    } else {
-      Issue.record("Expected .wantsConnection after reset")
-    }
-  }
 }
 
 // MARK: - Persistence Tests

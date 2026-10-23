@@ -7,4 +7,17 @@ struct WhatsNewItem: Identifiable {
   let symbol: String
   let title: String
   let description: String
+  let flipsSymbolVertically: Bool
+
+  init(
+    symbol: String,
+    title: String,
+    description: String,
+    flipsSymbolVertically: Bool = false
+  ) {
+    self.symbol = symbol
+    self.title = title
+    self.description = description
+    self.flipsSymbolVertically = flipsSymbolVertically
+  }
 }

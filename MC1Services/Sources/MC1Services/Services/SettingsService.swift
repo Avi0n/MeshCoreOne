@@ -19,6 +19,10 @@ public actor SettingsService {
     self.session = session
   }
 
+  /// True after this connection accepts a `set wifi.` line.
+  /// A new service starts false, and nothing here clears the flag.
+  public private(set) var radioWiFiRebootPending = false
+
   /// Stream of settings change events.
   /// Only one active subscriber is supported. Subsequent calls replace the previous subscriber.
   public func events() -> AsyncStream<SettingsEvent> {
@@ -236,6 +240,22 @@ public actor SettingsService {
       try await session.reboot()
     } catch let error as MeshCoreError {
       throw SettingsServiceError.sessionError(error)
+    }
+  }
+
+  /// Asks the paired radio to cut power.
+  /// A CLI reply means the board stayed on. Only silence after a submitted frame counts as powered off.
+  public func powerOff() async throws {
+    let poweredOff: Bool
+    do {
+      poweredOff = try await session.powerOff()
+    } catch is CancellationError {
+      throw CancellationError()
+    } catch let error as MeshCoreError {
+      throw SettingsServiceError.sessionError(error)
+    }
+    guard poweredOff else {
+      throw SettingsServiceError.powerOffUnsupported
     }
   }
 
@@ -460,6 +480,68 @@ public actor SettingsService {
       return try await session.getCustomVars()
     } catch let error as MeshCoreError {
       throw SettingsServiceError.sessionError(error)
+    }
+  }
+
+  public func runCliCommand(_ command: String) async throws -> String {
+    let reply = try await sendRadioCLI(command)
+    noteWiFiRebootPending(command: command, reply: reply)
+    return reply
+  }
+
+  /// Read one Radio CLI key. `nil` means this build has no such key.
+  public func getRadioCLIValue(_ key: String) async throws -> String? {
+    let reply = try await sendRadioCLI("get \(key)")
+    switch RadioCLIReply(text: reply) {
+    case let .value(value):
+      return value
+    case .unknownCommand:
+      return nil
+    case let .error(text):
+      throw SettingsServiceError.radioCLIRejected(text)
+    case .ok, .other:
+      throw SettingsServiceError.invalidResponse
+    }
+  }
+
+  /// Write one Radio CLI key. A nil value sends `set <key>` with no argument.
+  /// An empty string sends a trailing space, because the value is verbatim.
+  public func setRadioCLIValue(_ key: String, to value: String?) async throws {
+    let command = if let value {
+      "set \(key) \(value)"
+    } else {
+      "set \(key)"
+    }
+    let reply = try await sendRadioCLI(command)
+    noteWiFiRebootPending(command: command, reply: reply)
+    switch RadioCLIReply(text: reply) {
+    case .ok, .value:
+      return
+    case let .error(text):
+      throw SettingsServiceError.radioCLIRejected(text)
+    case .unknownCommand:
+      throw SettingsServiceError.radioCLIRejected("Unknown command")
+    case .other:
+      throw SettingsServiceError.invalidResponse
+    }
+  }
+
+  private func sendRadioCLI(_ command: String) async throws -> String {
+    do {
+      return try await session.runCliCommand(command)
+    } catch let error as MeshCoreError {
+      throw SettingsServiceError.sessionError(error)
+    }
+  }
+
+  private func noteWiFiRebootPending(command: String, reply: String) {
+    let line = command.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard line.hasPrefix("set wifi.") else { return }
+    switch RadioCLIReply(text: reply) {
+    case .ok, .value:
+      radioWiFiRebootPending = true
+    case .error, .unknownCommand, .other:
+      break
     }
   }
 

@@ -1,6 +1,8 @@
 import Foundation
 
 public extension MeshCoreSession {
+  private static let signingTimeoutMultiplier: TimeInterval = 3
+
   // MARK: - Signing Commands
 
   /// Begins a signing operation.
@@ -36,7 +38,7 @@ public extension MeshCoreSession {
   /// - Returns: The cryptographic signature (typically 64 bytes).
   /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
   func signFinish(timeout: TimeInterval? = nil) async throws -> Data {
-    let effectiveTimeout = timeout ?? (configuration.defaultTimeout * 3)
+    let effectiveTimeout = timeout ?? (configuration.defaultTimeout * Self.signingTimeoutMultiplier)
     return try await sendAndWait(PacketBuilder.signFinish(), matching: { event in
       if case let .signature(sig) = event { return sig }
       return nil
@@ -55,21 +57,35 @@ public extension MeshCoreSession {
   /// - Throws: ``MeshCoreError/dataTooLarge`` if data exceeds device limits.
   ///           ``MeshCoreError/timeout`` if any step times out.
   func sign(_ data: Data, chunkSize: Int = 120, timeout: TimeInterval? = nil) async throws -> Data {
-    let maxLength = try await signStart()
+    try await requestResponseSerializer.withSerialization { [self] in
+      let maxLength: Int = try await sendAndMatchHoldingSerialization(PacketBuilder.signStart()) { event in
+        if case let .signStart(maxLength) = event { return .success(maxLength) }
+        return .ignore
+      }
 
-    guard data.count <= maxLength else {
-      throw MeshCoreError.dataTooLarge(maxSize: maxLength, actualSize: data.count)
+      guard data.count <= maxLength else {
+        throw MeshCoreError.dataTooLarge(maxSize: maxLength, actualSize: data.count)
+      }
+
+      var offset = 0
+      while offset < data.count {
+        let end = min(offset + chunkSize, data.count)
+        let chunk = Data(data[offset..<end])
+        let _: Bool = try await sendAndMatchHoldingSerialization(PacketBuilder.signData(chunk)) { event in
+          if let error = Self.deviceErrorMatcher(event) { return .failure(error) }
+          if case .ok(value: nil) = event { return .success(true) }
+          return .ignore
+        }
+        offset = end
+      }
+
+      return try await sendAndMatchHoldingSerialization(
+        PacketBuilder.signFinish(), timeout: timeout ?? (configuration.defaultTimeout * Self.signingTimeoutMultiplier)
+      ) { event in
+        if case let .signature(signature) = event { return .success(signature) }
+        return .ignore
+      }
     }
-
-    var offset = 0
-    while offset < data.count {
-      let end = min(offset + chunkSize, data.count)
-      let chunk = data[offset..<end]
-      try await signData(Data(chunk))
-      offset = end
-    }
-
-    return try await signFinish(timeout: timeout)
   }
 
   // MARK: - Control Data Commands

@@ -106,9 +106,9 @@
 "deviceScan.demoModeAlert.message" = "Vous pouvez maintenant continuer sans appareil. Activez ou désactivez le mode démo dans les Réglages à tout moment.";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "Le jumelage enregistré avec cette radio ne fonctionne plus. Touchez « Supprimer et réessayer » pour la jumeler à nouveau dans l'app ; la radio peut afficher un nouveau code de jumelage.";
+"deviceScan.error.authenticationFailed" = "Le jumelage enregistré avec cette radio ne fonctionne plus. Touchez « Supprimer et réessayer » pour la jumeler à nouveau dans l'app ; la radio peut afficher un nouveau code de jumelage. Si cela continue, effectuez un effacement complet et reflashez le firmware sur un ordinateur à l'adresse https://flasher.meshcore.io. Une mémoire flash corrompue sur la radio peut en être la cause.";
 /* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
-"deviceScan.error.authenticationFailedMac" = "Le jumelage enregistré avec cette radio ne fonctionne plus. Dans les Réglages système, oubliez cette radio dans Bluetooth, puis touchez « Supprimer et réessayer ».";
+"deviceScan.error.authenticationFailedMac" = "Le jumelage enregistré avec cette radio ne fonctionne plus. Dans les Réglages système, oubliez cette radio dans Bluetooth, puis touchez « Supprimer et réessayer ». Si cela continue, effectuez un effacement complet et reflashez le firmware sur un ordinateur à l'adresse https://flasher.meshcore.io. Une mémoire flash corrompue sur la radio peut en être la cause.";
 "deviceScan.error.pinRejected" = "Le code PIN n'a pas été accepté. Vérifiez le code PIN affiché sur votre appareil, puis réessayez. iOS vous demandera d'abord de confirmer la suppression du jumelage échoué.";
 /* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
 "deviceScan.error.pinRejectedMac" = "Le code PIN n'a pas été accepté. Dans les Réglages système, oubliez cette radio dans Bluetooth, puis réessayez.";
@@ -191,6 +191,12 @@
 
 /* Location: NoDeviceSheet.swift - Secondary CTA */
 "noDevice.sheet.cancel" = "Annuler";
+
+
+// MARK: - Region and Preset
+
+/* Location: RegionStepView.swift and PresetStepView.swift - Finishes onboarding without saving a place or writing the radio */
+"skipForNow" = "Ignorer pour le moment";
 
 
 // MARK: - Preset Step View

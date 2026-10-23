@@ -243,6 +243,12 @@
 /* Fallback connection type description */
 "deviceSelection.bluetooth" = "Bluetooth";
 
+/* Accessibility label for the connection menu on a radio with Bluetooth and Wi-Fi */
+"deviceSelection.changeConnection" = "Verbinding wijzigen";
+
+/* Menu title for the saved Wi-Fi link */
+"deviceSelection.wifi" = "Wifi";
+
 // MARK: - Location Picker View
 
 /* Navigation title for location picker */
@@ -286,6 +292,45 @@
 
 /* Apply button label */
 "trustedContacts.apply" = "Toepassen";
+
+// MARK: - Remote CLI
+
+/* Section header for remote CLI permission */
+"remoteCLI.header" = "Remote CLI";
+
+/* Navigation row to manage contacts allowed to send remote CLI */
+"remoteCLI.manage" = "Toegestane contacten";
+
+/* Footer explaining remote CLI permission */
+"remoteCLI.footer" = "Toegestane contacten kunnen deze radio via het mesh bedienen. De app waarschuwt je niet wanneer ze dat doen.";
+
+/* Navigation title for remote CLI contacts picker */
+"remoteCLIContacts.title" = "Remote CLI";
+
+/* Title for empty state when no contacts exist */
+"remoteCLIContacts.noContacts" = "Geen contacten";
+
+/* Description for empty state */
+"remoteCLIContacts.noContactsDescription" = "Voeg contacten toe om Remote CLI toe te staan";
+
+/* Title for empty state when search returns no results */
+"remoteCLIContacts.noResults" = "Geen resultaten";
+
+/* Description for empty state when search returns no results */
+"remoteCLIContacts.noResultsDescription" = "Geen contacten komen overeen met \"%@\"";
+
+"remoteCLIContacts.noFavorites" = "Geen favorieten";
+
+"remoteCLIContacts.noFavoritesDescription" = "Geen favoriete contacten om te tonen";
+
+/* Search prompt for remote CLI contacts list */
+"remoteCLIContacts.searchPrompt" = "Zoek contacten";
+
+/* Toggle label for showing only favorite contacts */
+"remoteCLIContacts.favoritesOnly" = "Alleen favorieten";
+
+/* Apply button label */
+"remoteCLIContacts.apply" = "Toepassen";
 
 // MARK: - About Section
 
@@ -598,6 +643,18 @@
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "Het apparaat wordt herstart en tijdelijk losgekoppeld.";
 
+/* Button to turn the device off */
+"deviceActions.powerOff" = "Apparaat uitschakelen";
+
+/* Alert title for power off confirmation */
+"deviceActions.alert.powerOff.title" = "Apparaat uitschakelen?";
+
+/* Button to confirm power off */
+"deviceActions.alert.powerOff.confirm" = "Uitschakelen";
+
+/* Alert message for power off confirmation */
+"deviceActions.alert.powerOff.message" = "Het apparaat wordt uitgeschakeld en losgekoppeld. Zet het aan met de aan/uit-knop en maak daarna opnieuw verbinding.";
+
 // MARK: - Danger Zone Section
 
 /* Section header for danger zone */
@@ -876,10 +933,122 @@
 /* Footer explaining telemetry */
 "telemetry.footer" = "Wanneer ingeschakeld kunnen andere knooppunten de telemetriegegevens van je apparaat opvragen.";
 
-// MARK: - WiFi Section
+// MARK: - Radio WiFi
 
-/* Section header for WiFi settings */
-"wifi.header" = "Wifi";
+/* Footer for the radio WiFi section */
+"radioWiFi.footer" = "De radio maakt na een herstart verbinding met dit netwerk.";
+
+/* Label for the radio WiFi status */
+"radioWiFi.status" = "Status";
+
+/* Radio WiFi status when associated */
+"radioWiFi.status.connected" = "Verbonden";
+
+/* Radio WiFi status when not associated */
+"radioWiFi.status.notConnected" = "Niet verbonden";
+
+/* Label for the radio's IP address */
+"radioWiFi.ipAddress" = "IP-adres";
+
+/* Label for the radio's WiFi network */
+"radioWiFi.network" = "Netwerk";
+
+/* Shown when the radio has no saved network name */
+"radioWiFi.network.notSet" = "Geen";
+
+/* Toggle for the radio's WiFi radio */
+"radioWiFi.enabled" = "Wifi";
+
+/* Field label for the network name */
+"radioWiFi.networkName" = "Netwerknaam";
+
+/* Field label for the WiFi password */
+"radioWiFi.password" = "Wachtwoord";
+
+/* Accessibility label that reveals the WiFi password */
+"radioWiFi.showPassword" = "Wachtwoord tonen";
+
+/* Accessibility label that hides the WiFi password */
+"radioWiFi.hidePassword" = "Wachtwoord verbergen";
+
+/* Editor footer when the name and password are within the limits */
+"radioWiFi.editor.footer" = "De radio gebruikt dit netwerk na een herstart. Een netwerknaam kan maximaal 32 bytes zijn en een wachtwoord maximaal 63 bytes. Laat het wachtwoord leeg om geen wachtwoord op te slaan.";
+
+/* Editor footer when the network name is empty */
+"radioWiFi.editor.emptyName" = "Voer een netwerknaam in.";
+
+/* Editor footer when the network name is too long */
+"radioWiFi.editor.nameLength" = "Een netwerknaam kan maximaal 32 bytes zijn.";
+
+/* Editor footer when the password is too long */
+"radioWiFi.editor.passwordLength" = "Een wachtwoord kan maximaal 63 bytes zijn.";
+
+/* Button that clears the radio's saved WiFi settings */
+"radioWiFi.clear" = "Wifi-instellingen wissen";
+
+/* Title for the clear WiFi confirmation */
+"radioWiFi.alert.clear.title" = "Wifi-instellingen wissen?";
+
+/* Clear confirmation when the phone is connected over Bluetooth */
+"radioWiFi.alert.clear.message" = "De radio vergeet de opgeslagen netwerknaam en het wachtwoord na een herstart. Als de firmware een ingebouwd netwerk heeft, maakt de radio in plaats daarvan verbinding met dat netwerk.";
+
+/* Clear confirmation when the phone is connected over WiFi */
+"radioWiFi.alert.clear.wifiMessage" = "De radio vergeet de opgeslagen netwerknaam en het wachtwoord na een herstart. Daarna is de radio misschien niet bereikbaar op dit adres. Verbind dan via Bluetooth. Als de firmware een ingebouwd netwerk heeft, maakt de radio in plaats daarvan verbinding met dat netwerk.";
+
+/* Button that reboots to apply WiFi changes */
+"radioWiFi.rebootToApply" = "Herstarten om toe te passen";
+
+/* Title before saving a network while connected over WiFi */
+"radioWiFi.alert.save.title" = "Dit netwerk opslaan?";
+
+/* Title before turning WiFi off while connected over WiFi */
+"radioWiFi.alert.turnOff.title" = "Wifi uitschakelen?";
+
+/* Confirm button before turning WiFi off */
+"radioWiFi.alert.turnOff.confirm" = "Uitschakelen";
+
+/* Warning before a WiFi change while connected over WiFi */
+"radioWiFi.alert.wifiTransport.message" = "Na de herstart is de radio misschien niet bereikbaar op dit adres. Verbind dan via Bluetooth.";
+
+/* Title for the radio WiFi reboot confirmation */
+"radioWiFi.alert.reboot.title" = "Radio herstarten?";
+
+/* Reboot confirmation when a network name is stored. %@ is the network name. */
+"radioWiFi.alert.reboot.join" = "De radio wordt herstart en maakt daarna verbinding met %@. Je telefoon wordt losgekoppeld totdat de radio terug is.";
+
+/* Reboot confirmation when no network name is stored */
+"radioWiFi.alert.reboot.restart" = "De radio wordt herstart. Je telefoon wordt losgekoppeld totdat de radio terug is.";
+
+/* Reboot confirmation when WiFi is turned off */
+"radioWiFi.alert.reboot.disabled" = "De radio wordt herstart met Wifi uitgeschakeld. Daarna accepteert de radio geen Wifi-verbindingen meer.";
+
+// MARK: - Connection
+
+/* Settings row, page title, and phone address header */
+"connection.header" = "Verbinding";
+
+/* Spoken name of the Wi-Fi link and the Wi-Fi page title */
+"connection.link.wifi" = "Wifi";
+
+/* Header for the radio Wi-Fi group on the Wi-Fi page */
+"connection.link.radioWiFi" = "Wifi van de radio";
+
+/* VoiceOver value for the link that is in use */
+"connection.link.inUse" = "In gebruik";
+
+/* VoiceOver value while a switch to that link is in progress */
+"connection.link.switching" = "Bezig met overschakelen";
+
+/* VoiceOver hint for switching to the other link */
+"connection.link.switchHint" = "Schakelt over naar de verbinding met de radio";
+
+/* VoiceOver label for the Bluetooth info button */
+"connection.link.bluetoothInfo" = "Bluetooth-info";
+
+/* VoiceOver label for the Wi-Fi info button */
+"connection.link.wifiInfo" = "Wifi-info";
+
+// MARK: - WiFi Section
 
 /* Label for IP address */
 "wifi.address" = "Adres";
@@ -889,9 +1058,6 @@
 
 /* Button to edit WiFi connection */
 "wifi.editConnection" = "Verbinding bewerken";
-
-/* Footer explaining WiFi address */
-"wifi.footer" = "Het lokale netwerkadres van je apparaat";
 
 // MARK: - WiFi Edit Sheet
 
@@ -1507,6 +1673,45 @@
 /* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
 "region.subdivision.AU-VIC" = "Victoria";
 
+/* Location: RegionalAreas.subdivisionDisplayName - Alberta (CA-AB) province name */
+"region.subdivision.CA-AB" = "Alberta";
+
+/* Location: RegionalAreas.subdivisionDisplayName - British Columbia (CA-BC) province name */
+"region.subdivision.CA-BC" = "Brits-Columbia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Manitoba (CA-MB) province name */
+"region.subdivision.CA-MB" = "Manitoba";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Brunswick (CA-NB) province name */
+"region.subdivision.CA-NB" = "New Brunswick";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Newfoundland and Labrador (CA-NL) province name */
+"region.subdivision.CA-NL" = "Newfoundland en Labrador";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nova Scotia (CA-NS) province name */
+"region.subdivision.CA-NS" = "Nova Scotia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northwest Territories (CA-NT) province name */
+"region.subdivision.CA-NT" = "Northwest Territories";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nunavut (CA-NU) province name */
+"region.subdivision.CA-NU" = "Nunavut";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ontario (CA-ON) province name */
+"region.subdivision.CA-ON" = "Ontario";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Prince Edward Island (CA-PE) province name */
+"region.subdivision.CA-PE" = "Prins Edwardeiland";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Quebec (CA-QC) province name */
+"region.subdivision.CA-QC" = "Québec";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Saskatchewan (CA-SK) province name */
+"region.subdivision.CA-SK" = "Saskatchewan";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Yukon (CA-YT) province name */
+"region.subdivision.CA-YT" = "Yukon";
+
 
 // MARK: - Live Activity
 
@@ -1793,7 +1998,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Externe knoopsessies";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Alleen nieuwe gegevens worden toegevoegd; bestaande records worden niet overschreven. Contacten die je na het maken van deze back-up hebt verwijderd, verschijnen opnieuw, en blokkeer-, demp- of favorietmarkeringen uit de back-up worden opnieuw toegepast.";
+"settings.backup.import.preview.info" = "Alleen nieuwe gegevens worden toegevoegd; bestaande records worden niet overschreven. Contacten die je na het maken van deze back-up hebt verwijderd, verschijnen opnieuw, en blokkeer-, demp- of favorietmarkeringen uit de back-up worden opnieuw toegepast. Het vastzetten in de back-up wordt aangezet als die chat niet is vastgezet. Het vastzetten dat in de back-up uitstaat, haalt een chat niet los.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Gegevens importeren";

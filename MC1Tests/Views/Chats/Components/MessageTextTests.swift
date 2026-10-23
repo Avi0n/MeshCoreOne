@@ -12,8 +12,7 @@ struct MessageTextTests {
   @Test
   func `URL-like text in mention should carry the mention link, not a parsed URL`() {
     let text = "Hey @[Ferret PocketMesh WCMesh.com], check this out!"
-    let messageText = MessageText(text)
-    let formatted = messageText.testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText(text)
 
     let content = String(formatted.characters)
     guard let wcMeshRange = content.range(of: "WCMesh.com"),
@@ -35,8 +34,7 @@ struct MessageTextTests {
   @Test
   func `URL-like text in mention with IP address should carry the mention link, not a parsed URL`() {
     let text = "Message from @[Node 192.168.1.100]"
-    let messageText = MessageText(text)
-    let formatted = messageText.testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText(text)
 
     let content = String(formatted.characters)
     guard let ipRange = content.range(of: "192.168.1.100"),
@@ -55,8 +53,7 @@ struct MessageTextTests {
   @Test
   func `Regular URL outside mention should still be parsed as link`() {
     let text = "Check https://example.com for details"
-    let messageText = MessageText(text)
-    let formatted = messageText.testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText(text)
 
     let content = String(formatted.characters)
     guard let urlRange = content.range(of: "https://example.com") else {
@@ -78,8 +75,7 @@ struct MessageTextTests {
   @Test
   func `Message with both mention containing URL-like text and real URL`() {
     let text = "@[Server node.example.com] says check https://docs.example.com"
-    let messageText = MessageText(text)
-    let formatted = messageText.testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText(text)
 
     let content = String(formatted.characters)
 
@@ -105,7 +101,7 @@ struct MessageTextTests {
   @Test
   func `A simple mention carries a meshcoreone://mention/<percent-encoded-name> link`() {
     let text = "Hey @[Alice Smith], how are you?"
-    let formatted = MessageText(text).testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText(text)
 
     let content = String(formatted.characters)
     guard let mentionRange = content.range(of: "@Alice Smith"),
@@ -133,7 +129,7 @@ struct MessageTextTests {
 
   @Test
   func `A decimal coordinate pair is linkified as a meshcore map link`() {
-    let formatted = MessageText("Meet at 37.334900, -122.009020 tonight").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("Meet at 37.334900, -122.009020 tonight")
     let url = link(for: "37.334900, -122.009020", in: formatted)
     #expect(url?.scheme == "meshcore")
     #expect(url?.host() == "map")
@@ -141,19 +137,19 @@ struct MessageTextTests {
 
   @Test
   func `An integer pair is not linkified`() {
-    let formatted = MessageText("ratio is 3, 4 today").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("ratio is 3, 4 today")
     #expect(link(for: "3, 4", in: formatted) == nil)
   }
 
   @Test
   func `An out-of-range pair is not linkified`() {
-    let formatted = MessageText("bad 200.0, 400.0 coord").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("bad 200.0, 400.0 coord")
     #expect(link(for: "200.0, 400.0", in: formatted) == nil)
   }
 
   @Test
   func `A coordinate embedded in text linkifies only the coordinate substring`() {
-    let formatted = MessageText("here: 37.7749, -122.4194 ok").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("here: 37.7749, -122.4194 ok")
     #expect(link(for: "37.7749, -122.4194", in: formatted)?.host() == "map")
     #expect(link(for: "here", in: formatted) == nil)
     #expect(link(for: "ok", in: formatted) == nil)
@@ -161,20 +157,20 @@ struct MessageTextTests {
 
   @Test
   func `Multiple coordinates in one message each linkify`() {
-    let formatted = MessageText("A 10.0, 20.0 and B 30.0, 40.0").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("A 10.0, 20.0 and B 30.0, 40.0")
     #expect(link(for: "10.0, 20.0", in: formatted)?.host() == "map")
     #expect(link(for: "30.0, 40.0", in: formatted)?.host() == "map")
   }
 
   @Test
   func `A three-number decimal list is treated as a list, not a coordinate`() {
-    let formatted = MessageText("values 1.0, 2.0, 3.0 here").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("values 1.0, 2.0, 3.0 here")
     #expect(link(for: "1.0, 2.0", in: formatted) == nil)
   }
 
   @Test
   func `A version-like string is not linkified`() {
-    let formatted = MessageText("v1.2, 3.4 release").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("v1.2, 3.4 release")
     #expect(link(for: "1.2, 3.4", in: formatted) == nil)
   }
 
@@ -185,7 +181,7 @@ struct MessageTextTests {
       return
     }
     let token = ContactShareUtilities.formatShare(publicKey: key, type: .chat, name: "Base 37.7749, -122.4194")
-    let formatted = MessageText("Add \(token)").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("Add \(token)")
     // The coordinate substring sits inside the contact chip's link, so it must keep
     // the contact host, not be re-linked as a map link.
     #expect(link(for: "37.7749, -122.4194", in: formatted)?.host() == "contact")
@@ -193,7 +189,7 @@ struct MessageTextTests {
 
   @Test
   func `A linkified coordinate round-trips through parseMapURL with dot-decimal values`() throws {
-    let formatted = MessageText("37.334900, -122.009020").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("37.334900, -122.009020")
     let url = try #require(link(for: "37.334900, -122.009020", in: formatted))
     let coordinate = try #require(MeshCoreURLParser.parseMapURL(url.absoluteString))
     #expect(abs(coordinate.latitude - 37.3349) < 0.000001)
@@ -205,13 +201,13 @@ struct MessageTextTests {
 
   @Test
   func `A coordinate ending a sentence is linkified, with the period left as plain text`() {
-    let formatted = MessageText("Meet at 37.7749, -122.4194.").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("Meet at 37.7749, -122.4194.")
     #expect(link(for: "37.7749, -122.4194", in: formatted)?.host() == "map")
   }
 
   @Test
   func `A coordinate followed by other trailing punctuation is linkified`() {
-    let formatted = MessageText("Here: 37.7749, -122.4194!").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("Here: 37.7749, -122.4194!")
     #expect(link(for: "37.7749, -122.4194", in: formatted)?.host() == "map")
   }
 }

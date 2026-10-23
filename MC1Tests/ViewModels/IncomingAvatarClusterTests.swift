@@ -293,7 +293,7 @@ struct IncomingAvatarClusterTests {
       unreadCount: 0,
       unreadMentionCount: 0,
       notificationLevel: .all,
-      isFavorite: false
+      isPinned: false
     )
     let alice = ContactDTO(
       id: UUID(),

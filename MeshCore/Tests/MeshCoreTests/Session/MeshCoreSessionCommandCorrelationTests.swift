@@ -4,6 +4,60 @@ import Testing
 
 @Suite("MeshCoreSession command correlation")
 struct MeshCoreSessionCommandCorrelationTests {
+  @Test(arguments: [false, true])
+  func `stopped session cannot reboot or pipeline channels over a surviving shared transport`(pipeline: Bool) async throws {
+    let transport = MockTransport()
+    await transport.setSupportsWriteWithoutResponse(true)
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "MCTst",
+        channelPipelineIdleTimeout: 0.05,
+        channelPipelineHardTimeout: 0.1,
+        channelPipelinePostDrainGrace: 0
+      )
+    )
+    try await startSession(session, transport: transport)
+    await session.stop(disconnectTransport: false)
+    let sentBefore = await transport.sentData
+
+    await #expect(throws: CancellationError.self) {
+      if pipeline {
+        _ = try await session.getChannels(indices: [0, 1])
+      } else {
+        try await session.reboot()
+      }
+    }
+    #expect(await transport.sentData == sentBefore)
+    #expect(await transport.isConnected)
+    await transport.disconnect()
+  }
+
+  @Test
+  func `stopped session cannot fetch contacts over a surviving shared transport`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "MCTst",
+        contactStreamInactivityTimeout: 0.05,
+        contactStreamHardTimeout: 0.1
+      )
+    )
+    try await startSession(session, transport: transport)
+    await session.stop(disconnectTransport: false)
+    let sentBefore = await transport.sentData
+
+    await #expect(throws: CancellationError.self) {
+      _ = try await session.getContacts()
+    }
+    #expect(await transport.sentData == sentBefore)
+    #expect(await transport.isConnected)
+    await transport.disconnect()
+  }
+
   @Test
   func `simple commands serialize concurrent OK/ERROR waits`() async throws {
     let transport = MockTransport()
@@ -25,7 +79,9 @@ struct MeshCoreSessionCommandCorrelationTests {
       await transport.sentData.count == 2
     }
 
-    try? await Task.sleep(for: .milliseconds(50))
+    try await waitUntil("the next command should wait on the serializer") {
+      await session.requestResponseSerializer.waiterCountForTest == 1
+    }
     #expect(await transport.sentData.count == 2)
 
     await transport.simulateOK()
@@ -365,7 +421,6 @@ struct MeshCoreSessionCommandCorrelationTests {
     }
 
     await transport.simulateReceive(makeContactsStartPacket(count: 1))
-    try await Task.sleep(for: .milliseconds(140))
 
     let error = await #expect(throws: MeshCoreError.self) {
       try await contactsTask.value
@@ -711,8 +766,37 @@ struct MeshCoreSessionCommandCorrelationTests {
     await session.stop()
   }
 
+  @Test(arguments: ["", "  KD7ABC\nch 31\n"], [Data(), Data(repeating: 0, count: 8)])
+  func `owner info stops at the null terminator and preserves text`(ownerInfo: String, padding: Data) async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
+    )
+    try await startSession(session, transport: transport)
+
+    let tag = Data([0x11, 0x22, 0x33, 0x44])
+    let request = Task { try await session.requestOwnerInfo(from: Data(repeating: 0x31, count: 32)) }
+    try await waitUntil("owner info request should be sent") {
+      await transport.sentData.count == 2
+    }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: tag))
+
+    var response = Data([ResponseCode.binaryResponse.rawValue, 0x00])
+    response.append(tag)
+    response.append(contentsOf: "v1.18.0\nRepeater AB\n\(ownerInfo)".utf8)
+    response.append(padding)
+    await transport.simulateReceive(response)
+
+    let info = try await request.value
+    #expect(info.firmwareVersion == "v1.18.0")
+    #expect(info.nodeName == "Repeater AB")
+    #expect(info.ownerInfo == ownerInfo)
+    await session.stop()
+  }
+
   @Test
-  func `binary response matches only the latest retransmit tag`() async throws {
+  func `binary response matches any retransmit tag from the same exchange`() async throws {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
@@ -729,6 +813,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     let target = Data(repeating: 0x31, count: 32)
     let firstTag = Data([0x11, 0x22, 0x33, 0x44])
     let secondTag = Data([0x55, 0x66, 0x77, 0x88])
+    let firstPayload = Data([0xA1])
 
     let telemetryTask = Task {
       try await session.requestTelemetry(from: target)
@@ -744,15 +829,83 @@ struct MeshCoreSessionCommandCorrelationTests {
     }
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: secondTag, timeoutMs: 500))
 
-    // Stale first-tag reply after retransmit must not complete the wait.
-    await transport.simulateReceive(makeBinaryTelemetryResponsePacket(tag: firstTag))
-    try? await Task.sleep(for: .milliseconds(80))
-    #expect(!telemetryTask.isCancelled)
-
-    await transport.simulateReceive(makeBinaryTelemetryResponsePacket(tag: secondTag))
+    await transport.simulateReceive(makeBinaryTelemetryResponsePacket(tag: firstTag, lppPayload: firstPayload))
 
     let telemetry = try await telemetryTask.value
-    #expect(telemetry.dataPoints.isEmpty)
+    #expect(telemetry.rawData == firstPayload)
+    await session.stop()
+  }
+
+  @Test
+  func `binary response with a tag this exchange never sent is ignored`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "MCTst",
+        binaryRequestOverallTimeout: 2.0,
+        binaryRequestRetransmitInterval: nil
+      )
+    )
+
+    try await startSession(session, transport: transport)
+
+    let target = Data(repeating: 0x31, count: 32)
+    let sentTag = Data([0x11, 0x22, 0x33, 0x44])
+    let foreignTag = Data([0x99, 0x88, 0x77, 0x66])
+    let acceptedPayload = Data([0xA1])
+
+    let telemetryTask = Task {
+      try await session.requestTelemetry(from: target)
+    }
+
+    try await waitUntil("telemetry request should be sent") {
+      await transport.sentData.count == 2
+    }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: sentTag, timeoutMs: 500))
+    await transport.simulateReceive(makeBinaryTelemetryResponsePacket(tag: foreignTag, lppPayload: Data([0xBB])))
+
+    await transport.simulateReceive(makeBinaryTelemetryResponsePacket(tag: sentTag, lppPayload: acceptedPayload))
+
+    let telemetry = try await telemetryTask.value
+    #expect(telemetry.rawData == acceptedPayload)
+    await session.stop()
+  }
+
+  @Test
+  func `binary response before any messageSent is ignored`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "MCTst",
+        binaryRequestOverallTimeout: 2.0,
+        binaryRequestRetransmitInterval: nil
+      )
+    )
+
+    try await startSession(session, transport: transport)
+
+    let target = Data(repeating: 0x31, count: 32)
+    let tag = Data([0x11, 0x22, 0x33, 0x44])
+    let acceptedPayload = Data([0xA1])
+
+    let telemetryTask = Task {
+      try await session.requestTelemetry(from: target)
+    }
+
+    try await waitUntil("telemetry request should be sent") {
+      await transport.sentData.count == 2
+    }
+    await transport.simulateReceive(makeBinaryTelemetryResponsePacket(tag: tag, lppPayload: Data([0xBB])))
+
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: tag, timeoutMs: 500))
+    await transport.simulateReceive(makeBinaryTelemetryResponsePacket(tag: tag, lppPayload: acceptedPayload))
+
+    let telemetry = try await telemetryTask.value
+    #expect(telemetry.rawData == acceptedPayload)
     await session.stop()
   }
 
@@ -960,7 +1113,9 @@ struct MeshCoreSessionCommandCorrelationTests {
       try await session.requestStatus(from: target)
     }
 
-    try? await Task.sleep(for: .milliseconds(50))
+    try await waitUntil("the next command should wait on the serializer") {
+      await session.requestResponseSerializer.waiterCountForTest == 1
+    }
     #expect(await transport.sentData.count == 2, "binary request must not send while a text command is in flight")
 
     // The error belongs to the in-flight text command only.
@@ -1019,15 +1174,18 @@ struct MeshCoreSessionCommandCorrelationTests {
     let statusTask = Task {
       try await session.requestStatus(from: firstTarget)
     }
+    try await waitUntil("first binary request should be sent") {
+      await transport.sentData.count == 2
+    }
+    #expect(await transport.sentData.last == PacketBuilder.sendStatusRequest(to: firstTarget))
+
     let telemetryTask = Task {
       try await session.requestTelemetry(from: secondTarget)
     }
 
-    try await waitUntil("first binary request should be sent") {
-      await transport.sentData.count == 2
+    try await waitUntil("the next command should wait on the serializer") {
+      await session.requestResponseSerializer.waiterCountForTest == 1
     }
-
-    try? await Task.sleep(for: .milliseconds(50))
     #expect(await transport.sentData.count == 2)
 
     await transport.simulateError(code: 12)
@@ -1045,6 +1203,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     try await waitUntil("second binary request should send after the first one fails") {
       await transport.sentData.count == 3
     }
+    #expect(await transport.sentData.last == PacketBuilder.getSelfTelemetry(destination: secondTarget))
 
     await transport.simulateError(code: 13)
 
@@ -1087,8 +1246,10 @@ struct MeshCoreSessionCommandCorrelationTests {
     // Command #2 issued after the cancellation.
     let secondBattery = Task { try await session.getBattery() }
 
-    // Give the next command time to subscribe before the orphan lands.
-    try? await Task.sleep(for: .milliseconds(50))
+    // Confirm the next command is queued before the orphan lands.
+    try await waitUntil("the next command should wait on the serializer") {
+      await session.requestResponseSerializer.waiterCountForTest == 1
+    }
 
     // The radio's late response to the cancelled command #1.
     await transport.simulateReceive(makeBatteryPacket(level: orphanedLevel))
@@ -1129,8 +1290,10 @@ struct MeshCoreSessionCommandCorrelationTests {
     // Unicast send issued while the binary request is outstanding.
     let messageTask = Task { try await session.sendMessage(to: messageTarget, text: "hi") }
 
-    // Give a non-serialized sender time to also subscribe before any messageSent lands.
-    try? await Task.sleep(for: .milliseconds(50))
+    // Confirm the sender is queued before any messageSent lands.
+    try await waitUntil("the next command should wait on the serializer") {
+      await session.requestResponseSerializer.waiterCountForTest == 1
+    }
 
     // The status request's own messageSent + dedicated STATUS_RESPONSE.
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: statusAck))
@@ -1176,7 +1339,9 @@ struct MeshCoreSessionCommandCorrelationTests {
 
     // Command #2 parks in acquire() behind command #1.
     let second = Task { try await session.sendAdvertisement(flood: true) }
-    try? await Task.sleep(for: .milliseconds(50))
+    try await waitUntil("the next command should wait on the serializer") {
+      await session.requestResponseSerializer.waiterCountForTest == 1
+    }
     #expect(await transport.sentData.count == 2, "second command must wait behind the first")
 
     // Cancel #2 while it is still parked, then let #1 finish so #2 acquires.

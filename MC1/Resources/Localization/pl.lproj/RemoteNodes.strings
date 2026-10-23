@@ -252,6 +252,9 @@
 /* Location: RepeaterSettingsView.swift - Behavior section footer */
 "remoteNodes.settings.behaviorFooter" = "Interwały ogłoszeń, skoki zalewania i tryb przekaźnika.";
 
+/* Location: RepeaterSettingsView.swift - Behavior section footer when both advert intervals are 0 */
+"remoteNodes.settings.hiddenFromDiscoverFooter" = "Gdy oba interwały ogłoszeń są ustawione na 0, ten przekaźnik nie odpowiada na ping wykrywania.";
+
 /* Location: RepeaterSettingsView.swift - Device actions section header */
 "remoteNodes.settings.deviceActions" = "Akcje urządzenia";
 
@@ -865,6 +868,15 @@
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
 "remoteNodes.nodeCli.rebootSent" = "Wysłano polecenie restartu";
+
+/* Location: NodeCliViewModel.swift - Toast after poweroff or shutdown is treated as sent */
+"remoteNodes.nodeCli.powerOffSent" = "Wysłano polecenie wyłączenia";
+
+/* Location: NodeCliViewModel.swift - Banner for commands sent to a contact's radio - %@ is the contact name */
+"remoteNodes.nodeCli.radioBanner" = "Polecenia trafiają do radia kontaktu %@. Bez dostępu do zdalnego CLI nie otrzymasz odpowiedzi, a ta osoba otrzyma każde polecenie jako wiadomość.";
+
+/* Location: NodeCliViewModel.swift - Shown when a contact's radio does not reply - %@ is the contact name */
+"remoteNodes.nodeCli.radioNoReply" = "Brak odpowiedzi od %@. Ta osoba mogła nie przyznać Ci dostępu do zdalnego CLI lub jej węzeł był nieosiągalny.";
 
 /* Location: NodeCliViewModel.swift - Toast after command is cancelled */
 "remoteNodes.nodeCli.cancelled" = "Anulowano polecenie";

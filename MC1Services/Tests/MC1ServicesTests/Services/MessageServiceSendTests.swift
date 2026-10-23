@@ -424,9 +424,16 @@ struct MessageServiceSendTests {
 
     let resendTask = Task { try await service.resendChannelMessage(messageID: messageID) }
 
-    try await waitUntil("resend should send CMD_SEND_CHANNEL_MSG") {
+    try await waitUntil("resend should set the channel flood scope") {
       await transport.sentData.count == 2
     }
+    let scopeCommand = await transport.sentData.last
+    #expect(scopeCommand == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
+    await transport.simulateOK()
+    try await waitUntil("resend should send CMD_SEND_CHANNEL_MSG") {
+      await transport.sentData.count == 3
+    }
+    #expect(await transport.sentData.last?.first == CommandCode.sendChannelMessage.rawValue)
     await transport.simulateOK()
 
     _ = try await resendTask.value
@@ -636,57 +643,32 @@ struct MessageServiceSendTests {
 
   @Test
   func `sendDirectMessage tracks pending ACK before session.sendMessage so the listener cannot race`() async throws {
-    let (service, _) = try await MessageService.createForTesting(defaultTimeout: 10, connectTransport: true)
-
-    // Seed selfInfo so the precompute step can read currentSelfInfo.publicKey
-    // without simulating an APP_START round-trip.
-    await service.installSelfInfoForTest(publicKey: Data(repeating: 0xFE, count: 32))
-
-    let contact = ContactDTO.testContact()
-
-    // The mock transport never emits a messageSent event, so sendDirectMessage
-    // suspends inside session.sendMessage for the full defaultTimeout, holding
-    // the speculative pending-ack entry that trackPendingAck adds *before* the
-    // send. Poll for that entry with a generous ceiling: a correct ordering
-    // surfaces it near-instantly, while a regression that tracked after
-    // session.sendMessage would be blocked behind the send's timeout and never
-    // surface it before the task is cancelled — so this still catches reorders.
-    let sendTask = Task {
-      try? await service.sendDirectMessage(text: "hi", to: contact)
+    let (service, session) = try await makeAckOrderingService()
+    await #expect(throws: MessageServiceError.self) {
+      _ = try await service.sendDirectMessage(text: "hi", to: ContactDTO.testContact())
     }
-
-    try await waitUntil(
-      timeout: .seconds(8),
-      "trackPendingAck must run before session.sendMessage so a listener ACK cannot race the tracker"
-    ) {
-      await service.pendingAckCount > 0
-    }
-
-    sendTask.cancel()
-    _ = await sendTask.value
+    #expect(await session.sendMessageInvocations.count == 1)
   }
 
   @Test
   func `sendMessageWithRetry tracks pending ACK before session.sendMessage`() async throws {
-    let (service, _) = try await MessageService.createForTesting(defaultTimeout: 10, connectTransport: true)
-
-    await service.installSelfInfoForTest(publicKey: Data(repeating: 0xFE, count: 32))
-
-    let contact = ContactDTO.testContact()
-
-    let sendTask = Task {
-      try? await service.sendMessageWithRetry(text: "hi", to: contact)
+    let (service, session) = try await makeAckOrderingService()
+    await #expect(throws: MessageServiceError.self) {
+      _ = try await service.sendMessageWithRetry(text: "hi", to: ContactDTO.testContact())
     }
+    #expect(await session.sendMessageInvocations.count == 1)
+  }
 
-    try await waitUntil(
-      timeout: .seconds(8),
-      "retry-loop precompute must track before session.sendMessage on every attempt"
-    ) {
-      await service.pendingAckCount > 0
+  private func makeAckOrderingService() async throws -> (MessageService, MockMeshCoreSession) {
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let session = MockMeshCoreSession()
+    await session.setCurrentSelfInfo(.testSelfInfo())
+    await session.setSendMessageResult(.failure(MeshCoreError.deviceError(code: 1)))
+    let service = MessageService(session: session, dataStore: store, contactService: nil)
+    await session.setSendMessageObserver { [weak service] in
+      #expect(await service?.pendingAckCount == 1)
     }
-
-    sendTask.cancel()
-    _ = await sendTask.value
+    return (service, session)
   }
 
   @Test

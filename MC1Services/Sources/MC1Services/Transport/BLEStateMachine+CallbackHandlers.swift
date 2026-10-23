@@ -368,12 +368,12 @@ extension BLEStateMachine {
         // the powered-on handler and watchdog defer to it. Treat it as a
         // full disconnect instead.
         logger.warning("[BLE] isReconnecting disconnect in \(phase.name); treating as full disconnect")
-        handleFullDisconnect(deviceID: deviceID, error: error)
+        handleFullDisconnect(deviceID: deviceID, error: error, eventTime: timestamp)
       default:
-        handleAutoReconnectDisconnect(peripheral: peripheral, error: error)
+        handleAutoReconnectDisconnect(peripheral: peripheral, error: error, eventTime: timestamp)
       }
     } else {
-      handleFullDisconnect(deviceID: deviceID, error: error)
+      handleFullDisconnect(deviceID: deviceID, error: error, eventTime: timestamp)
     }
   }
 
@@ -381,7 +381,7 @@ extension BLEStateMachine {
   /// Setup-phase continuations route through makeConnectionError so a CBATT
   /// auth/encryption code arriving before the bond is established still maps
   /// to the typed BLEError.authenticationFailed.
-  private func handleAutoReconnectDisconnect(peripheral: CBPeripheral, error: Error?) {
+  private func handleAutoReconnectDisconnect(peripheral: CBPeripheral, error: Error?, eventTime: CFAbsoluteTime) {
     let deviceID = peripheral.identifier
     var errorInfo = "none"
     if let nsError = error as NSError? {
@@ -394,9 +394,10 @@ extension BLEStateMachine {
     // settles in .idle, rather than forking into .autoReconnecting while
     // connect() separately fails on the vanished .discoveryComplete phase.
     if case .discoveryComplete = phase {
-      handleFullDisconnect(deviceID: deviceID, error: error)
+      handleFullDisconnect(deviceID: deviceID, error: error, eventTime: eventTime)
       return
     }
+    onRemoteLinkLost?(deviceID, eventTime)
 
     logger.info("[BLE] iOS auto-reconnect started: \(deviceID.uuidString.prefix(8)), will attempt automatic reconnection")
 
@@ -438,7 +439,7 @@ extension BLEStateMachine {
   }
 
   /// Handles a full (non-reconnecting) disconnection.
-  private func handleFullDisconnect(deviceID: UUID, error: Error?) {
+  private func handleFullDisconnect(deviceID: UUID, error: Error?, eventTime: CFAbsoluteTime) {
     switch phase {
     case .disconnecting:
       // Expected disconnection, transition handled by disconnect()
@@ -449,6 +450,7 @@ extension BLEStateMachine {
       // sibling onDisconnection sites so bond invalidation arriving here still
       // surfaces as the typed BLEError.authenticationFailed; nil stays nil to
       // keep a clean disconnect distinguishable from a failure.
+      onRemoteLinkLost?(deviceID, eventTime)
       cancelCurrentOperation(with: BLEError.notConnected)
       onDisconnection?(deviceID, error.map { ReconnectPolicy.makeConnectionError($0) })
 

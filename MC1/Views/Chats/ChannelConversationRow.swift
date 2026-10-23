@@ -21,13 +21,6 @@ struct ChannelConversationRow: View {
 
           NotificationLevelIndicator(level: channel.notificationLevel)
 
-          if channel.isFavorite {
-            Image(systemName: "star.fill")
-              .foregroundStyle(.yellow)
-              .font(.caption)
-              .accessibilityLabel(Strings.favorite)
-          }
-
           if let date = channel.lastMessageDate {
             ConversationTimestamp(date: date, referenceDate: referenceDate)
           }

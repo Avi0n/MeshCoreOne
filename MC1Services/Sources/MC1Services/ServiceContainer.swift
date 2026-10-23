@@ -277,6 +277,7 @@ public final class ServiceContainer {
     advertisementService = AdvertisementService(
       session: session,
       dataStore: dataStore,
+      contactService: contactService,
       appStateProvider: appStateProvider
     )
     messagePollingService = MessagePollingService(session: session, dataStore: dataStore)

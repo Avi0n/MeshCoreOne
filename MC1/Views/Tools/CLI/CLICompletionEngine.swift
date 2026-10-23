@@ -1,4 +1,5 @@
 import Foundation
+import MC1Services
 
 @Observable
 @MainActor
@@ -19,11 +20,21 @@ final class CLICompletionEngine {
     "login", "nodes", "channels"
   ]
 
-  /// Local-session radio commands interpreted app-side. `availableCommands`
-  /// offers these only on local sessions and the repeater set only on remote
-  /// sessions, so neither vocabulary leaks into the other session type.
+  /// Local-session radio commands interpreted app-side. Remote repeater and
+  /// room sessions use `repeaterCommands`. A chat contact's radio uses `radioCommands`.
   private static let localRadioCommands = [
     "advert", "advert.zerohop", "board", "clock", "floodadv", "get", "reboot", "set", "ver"
+  ]
+
+  /// Verbs a chat contact's radio accepts over Remote CLI.
+  private static let radioCommands = [
+    "get", "set", "reboot", "poweroff", "shutdown", "board", "ver"
+  ]
+
+  /// Keys that are opcode-mapped on the paired radio and CLI on a remote radio.
+  /// `freq` is get-only and is added at the call site.
+  private static let remoteRadioKeys: Set<String> = [
+    "name", "radio", "tx", "path.hash.mode", "multi.acks"
   ]
 
   private static let localGetKeys = CLILocalKey.allCases.map(\.rawValue)
@@ -41,7 +52,7 @@ final class CLICompletionEngine {
   private static let repeaterCommands = [
     "ver", "board", "clock", "clkreboot",
     "neighbors", "get", "set", "sensor", "password",
-    "log", "reboot", "room.post", "advert", "advert.zerohop", "setperm", "tempradio", "neighbor.remove",
+    "log", "reboot", "power", "room.post", "advert", "advert.zerohop", "setperm", "tempradio", "neighbor.remove",
     "region", "gps", "powersaving", "clear", "discover.neighbors",
     "start"
   ]
@@ -62,7 +73,7 @@ final class CLICompletionEngine {
   ]
 
   /// Per MeshCore CLI Reference - gps subcommands
-  private static let gpsSubcommands = ["on", "off", "sync", "setloc", "advert"]
+  private static let gpsSubcommands = ["on", "off", "sync", "setloc", "advert", "diag"]
 
   private static let gpsAdvertValues = ["none", "share", "prefs"]
 
@@ -88,7 +99,7 @@ final class CLICompletionEngine {
     "bridge.baud", "bridge.secret", "bridge.type",
     "adc.multiplier", "public.key", "prv.key", "role", "freq",
     "path.hash.mode", "loop.detect", "bootloader.ver",
-    "owner.info", "radio.rxgain", "radio.fem.rxgain", "cad", "extra.sf", "bridge.channel",
+    "owner.info", "radio.rxgain", "radio.fem.rxgain", "radio.fem.txgain", "cad", "extra.sf", "bridge.channel",
     "pwrmgt.support", "pwrmgt.source", "pwrmgt.bootreason", "pwrmgt.bootmv"
   ]
 
@@ -118,14 +129,54 @@ final class CLICompletionEngine {
     customVarKeys = keys
   }
 
+  /// When true, local get/set completions include Radio CLI keys.
+  var radioCLIEnabled = false
+
   // MARK: - Completion Logic
 
-  func completions(for input: String, isLocal: Bool, includeSessionCommands: Bool = true) -> [String] {
+  func applying(
+    _ suggestion: String,
+    to input: String,
+    isLocal: Bool,
+    remoteTarget: CLIRemoteTarget?
+  ) -> String {
+    var parts = input.split(separator: " ", omittingEmptySubsequences: false).dropLast().map(String.init)
+    parts.append(suggestion)
+    let completed = parts.joined(separator: " ")
+    let words = completed.split(separator: " ")
+    let command = words.first.map { $0.lowercased() } ?? ""
+    let isAppCommand = Self.builtInCommands.contains(command) || Self.sessionCommands.contains(command)
+    let isRadioCLI = (remoteTarget == .radio && !isAppCommand)
+      || (isLocal && radioCLIEnabled && RadioCLIPassthrough.shouldSend(completed))
+    guard isRadioCLI else { return completed + " " }
+
+    // Completed firmware commands must match exactly; a setter's separator is part of its value syntax.
+    let needsArgument: Bool = switch command {
+    case "get":
+      words.count == 1
+    case "set":
+      words.count == 1 || (words.count == 2 && String(words[1]) != RadioCLIKey.wifiClear)
+    default:
+      false
+    }
+    return completed + (needsArgument ? " " : "")
+  }
+
+  func completions(
+    for input: String,
+    isLocal: Bool,
+    remoteTarget: CLIRemoteTarget? = nil,
+    includeSessionCommands: Bool = true
+  ) -> [String] {
     let trimmed = input.trimmingCharacters(in: .whitespaces)
 
     // Empty or just spaces - return all applicable commands
     if trimmed.isEmpty {
-      return availableCommands(isLocal: isLocal, includeSessionCommands: includeSessionCommands).sorted()
+      return availableCommands(
+        isLocal: isLocal,
+        remoteTarget: remoteTarget,
+        includeSessionCommands: includeSessionCommands
+      ).sorted()
     }
 
     let parts = trimmed.split(separator: " ", omittingEmptySubsequences: false).map(String.init)
@@ -133,15 +184,26 @@ final class CLICompletionEngine {
 
     // Single word - complete command name
     if parts.count == 1 && !input.hasSuffix(" ") {
-      return availableCommands(isLocal: isLocal, includeSessionCommands: includeSessionCommands)
-        .filter { $0.hasPrefix(command) }
-        .sorted()
+      return availableCommands(
+        isLocal: isLocal,
+        remoteTarget: remoteTarget,
+        includeSessionCommands: includeSessionCommands
+      )
+      .filter { $0.hasPrefix(command) }
+      .sorted()
     }
 
     // Command with space - complete arguments
     let argPrefix = parts.count > 1 ? parts[1].lowercased() : ""
     let endsWithSpace = input.hasSuffix(" ")
-    return completeArguments(for: command, parts: parts, prefix: argPrefix, endsWithSpace: endsWithSpace, isLocal: isLocal)
+    return completeArguments(
+      for: command,
+      parts: parts,
+      prefix: argPrefix,
+      endsWithSpace: endsWithSpace,
+      isLocal: isLocal,
+      remoteTarget: remoteTarget
+    )
   }
 
   private func completeArguments(
@@ -149,7 +211,8 @@ final class CLICompletionEngine {
     parts: [String],
     prefix: String,
     endsWithSpace: Bool,
-    isLocal: Bool
+    isLocal: Bool,
+    remoteTarget: CLIRemoteTarget?
   ) -> [String] {
     // parts.count includes the command, so parts.count - 1 is how many args have been started.
     // A trailing space starts the next argument (position = parts.count); otherwise we are still typing the current one.
@@ -164,22 +227,34 @@ final class CLICompletionEngine {
     case "get":
       if argPosition == 1 {
         if isLocal {
-          return localKeyCompletions(typed: Self.localGetKeys + [Self.customVarDumpKey], parts: parts)
+          var typed = Self.localGetKeys + [Self.customVarDumpKey]
+          if radioCLIEnabled {
+            typed.append(contentsOf: RadioCLIPassthrough.getSetKeys)
+            typed.append(contentsOf: RadioCLIPassthrough.getOnlyKeys)
+          }
+          return localKeyCompletions(typed: typed, parts: parts)
         }
-        return Self.getSetParams
-          .filter { !Self.serialOnlyGetParams.contains($0) }
-          .filter { $0.hasPrefix(prefix) }.sorted()
+        if remoteTarget == .radio {
+          return radioCLIKeys(isGet: true, prefix: prefix)
+        }
+        return remoteGetSetKeys(excluding: Self.serialOnlyGetParams, remoteTarget: remoteTarget, prefix: prefix)
       }
       return []
 
     case "set":
       if argPosition == 1 {
         if isLocal {
-          return localKeyCompletions(typed: Self.localSetKeys, parts: parts)
+          var typed = Self.localSetKeys
+          if radioCLIEnabled {
+            typed.append(contentsOf: RadioCLIPassthrough.getSetKeys)
+            typed.append(contentsOf: RadioCLIPassthrough.setOnlyKeys)
+          }
+          return localKeyCompletions(typed: typed, parts: parts)
         }
-        return Self.getSetParams
-          .filter { !Self.serialOnlySetParams.contains($0) }
-          .filter { $0.hasPrefix(prefix) }.sorted()
+        if remoteTarget == .radio {
+          return radioCLIKeys(isGet: false, prefix: prefix)
+        }
+        return remoteGetSetKeys(excluding: Self.serialOnlySetParams, remoteTarget: remoteTarget, prefix: prefix)
       }
       if argPosition == 2, parts.count >= 2 {
         return completeSetValue(param: parts[1].lowercased(), prefix: parts.count > 2 ? parts[2].lowercased() : "")
@@ -225,7 +300,11 @@ final class CLICompletionEngine {
     }
   }
 
-  private func availableCommands(isLocal: Bool, includeSessionCommands: Bool) -> [String] {
+  private func availableCommands(
+    isLocal: Bool,
+    remoteTarget: CLIRemoteTarget?,
+    includeSessionCommands: Bool
+  ) -> [String] {
     var commands = Self.builtInCommands
 
     if includeSessionCommands {
@@ -235,11 +314,42 @@ final class CLICompletionEngine {
     if isLocal {
       commands.append(contentsOf: Self.localOnlyCommands)
       commands.append(contentsOf: Self.localRadioCommands)
+    } else if remoteTarget == .radio {
+      commands.append(contentsOf: Self.radioCommands)
     } else {
-      commands.append(contentsOf: Self.repeaterCommands)
+      var remote = Self.repeaterCommands
+      if remoteTarget == .repeater {
+        remote.removeAll { $0 == "room.post" }
+      }
+      commands.append(contentsOf: remote)
     }
 
     return commands
+  }
+
+  /// Remote get/set keys for a chat contact's radio. `freq` is get-only.
+  private func radioCLIKeys(isGet: Bool, prefix: String) -> [String] {
+    var keys = RadioCLIPassthrough.getSetKeys.union(Self.remoteRadioKeys)
+    if isGet {
+      keys.formUnion(RadioCLIPassthrough.getOnlyKeys)
+      keys.insert("freq")
+    } else {
+      keys.formUnion(RadioCLIPassthrough.setOnlyKeys)
+    }
+    return keys.filter { $0.hasPrefix(prefix) }.sorted()
+  }
+
+  /// Remote get/set keys. A room never offers `repeat`. `nil` keeps the union.
+  private func remoteGetSetKeys(
+    excluding serialOnly: Set<String>,
+    remoteTarget: CLIRemoteTarget?,
+    prefix: String
+  ) -> [String] {
+    Self.getSetParams
+      .filter { !serialOnly.contains($0) }
+      .filter { remoteTarget != .room || $0 != "repeat" }
+      .filter { $0.hasPrefix(prefix) }
+      .sorted()
   }
 
   private func completeSessionArgs(prefix: String) -> [String] {
@@ -270,7 +380,7 @@ final class CLICompletionEngine {
     case "loop.detect":
       Self.loopDetectValues.filter { $0.hasPrefix(prefix) }.sorted()
     case "repeat", "allow.read.only", "bridge.enabled",
-         "radio.rxgain", "radio.fem.rxgain", "cad":
+         "radio.rxgain", "radio.fem.rxgain", "radio.fem.txgain", "cad":
       Self.onOffValues.filter { $0.hasPrefix(prefix) }.sorted()
     case "multi.acks":
       Self.multiAcksValues.filter { $0.hasPrefix(prefix) }.sorted()

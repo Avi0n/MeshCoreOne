@@ -42,7 +42,7 @@ public actor WiFiTransport: MeshTransport {
   private var connectContinuation: CheckedContinuation<Void, Error>?
 
   /// Disconnection notification
-  private var disconnectionHandler: (@Sendable (Error?) -> Void)?
+  private var disconnectionHandler: (@Sendable (Error?, CFAbsoluteTime) -> Void)?
 
   // MARK: - Configuration
 
@@ -84,7 +84,7 @@ public actor WiFiTransport: MeshTransport {
   }
 
   /// Sets a handler to be called when the connection is unexpectedly lost.
-  public func setDisconnectionHandler(_ handler: @escaping @Sendable (Error?) -> Void) {
+  public func setDisconnectionHandler(_ handler: @escaping @Sendable (Error?, CFAbsoluteTime) -> Void) {
     disconnectionHandler = handler
   }
 
@@ -277,24 +277,17 @@ public actor WiFiTransport: MeshTransport {
 
     case let .failed(error):
       logger.error("Connection failed: \(error.localizedDescription)")
-      _isConnected = false
-      // Safe one-time resume: consume and nil the continuation
       if let continuation = connectContinuation {
+        _isConnected = false
         connectContinuation = nil
         continuation.resume(throwing: WiFiTransportError.connectionFailed(error.localizedDescription))
       } else {
-        // Connection was established then lost - notify handler
-        disconnectionHandler?(error)
+        handleReceiveTermination(error)
       }
 
     case .cancelled:
       logger.info("Connection cancelled")
-      let wasConnected = _isConnected
-      _isConnected = false
-      // Only report if this wasn't during initial connection and wasn't user-initiated
-      if wasConnected, connectContinuation == nil {
-        disconnectionHandler?(nil)
-      }
+      handleReceiveTermination(nil)
 
     case let .waiting(error):
       logger.warning("Connection waiting: \(error.localizedDescription)")
@@ -340,11 +333,8 @@ public actor WiFiTransport: MeshTransport {
     }
   }
 
-  /// Tears down the connection when the receive loop observes the peer closing the
-  /// stream or a receive error, mirroring the `.failed` state transition: the data
-  /// stream finishes so the session's receive loop ends, and the disconnection
-  /// handler fires. Guarded on `_isConnected` so a `.failed` state change and a
-  /// receive error for the same loss notify exactly once.
+  /// Finishes the stream on connection loss. The connected guard makes state and
+  /// receive callbacks share one teardown and one disconnection notification.
   private func handleReceiveTermination(_ error: Error?) {
     guard _isConnected else { return }
     _isConnected = false
@@ -353,7 +343,7 @@ public actor WiFiTransport: MeshTransport {
     connection = nil
     frameDecoder.reset()
     dataContinuation.finish()
-    disconnectionHandler?(error)
+    disconnectionHandler?(error, CFAbsoluteTimeGetCurrent())
   }
 
   private func processReceivedData(_ data: Data) {

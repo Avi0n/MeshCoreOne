@@ -133,6 +133,9 @@
 /* Location: RxLogView.swift - Unresolved region value */
 "tools.rxLog.regionUnresolved" = "未知";
 
+/* Location: RxLogView.swift - Unscoped region value */
+"tools.rxLog.regionUnscoped" = "无范围";
+
 /* Location: RxLogView.swift - Text label */
 "tools.rxLog.textLabel" = "文本：";
 
@@ -275,6 +278,9 @@
 
 /* Location: NodeDiscoveryView.swift - No results empty state description */
 "tools.nodeDiscovery.noResultsDescription" = "没有%@响应发现探测。请重试或靠近网格节点。";
+
+/* Location: NodeDiscoveryView.swift - Empty state when the repeater filter hides zero-interval nodes */
+"tools.nodeDiscovery.hiddenRepeatersNote" = "两个广播间隔都设为 0 的转发节点不会响应发现探测。";
 
 /* Location: NodeDiscoveryView.swift - Scan button label (idle) */
 "tools.nodeDiscovery.scanButton" = "扫描%@";
@@ -721,6 +727,9 @@
 
 /* Location: CLIToolViewModel.swift - Reboot command confirmation */
 "tools.cli.rebootSent" = "已发送重启命令";
+
+/* Location: CLIToolViewModel+Sessions.swift - Power off command confirmation */
+"tools.cli.powerOffSent" = "已发送关机命令";
 
 /* Accessibility label for completion suggestions container */
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */

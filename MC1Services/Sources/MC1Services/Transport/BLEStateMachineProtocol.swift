@@ -55,6 +55,10 @@ public protocol BLEStateMachineProtocol: Actor {
   ///   - errorInfo: Best-effort error summary from CoreBluetooth.
   func setAutoReconnectingHandler(_ handler: @escaping @Sendable (UUID, String) -> Void)
 
+  /// Peripheral link loss with the CoreBluetooth event time.
+  /// Not fired for local shutdown or the phone's own Bluetooth power-off.
+  func setRemoteLinkLostHandler(_ handler: @escaping @Sendable (UUID, CFAbsoluteTime) -> Void)
+
   /// Sets a handler called when Bluetooth powers on
   func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void)
 

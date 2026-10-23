@@ -91,18 +91,13 @@ public struct ChatRenderState: Sendable, Equatable {
     return with(items: newItems, itemIndexByID: newItems.indexByID())
   }
 
-  /// Append a single item and update `itemIndexByID`. Caller is responsible
-  /// for ensuring the ID is not already present (typically via an upstream
-  /// `itemIndexByID[id] == nil` guard at the append site).
+  /// Appends an item the caller knows is absent, without advancing the fetch
+  /// offset. A row admitted between pages is counted when the next page overlaps it.
   public func appendingItem(_ item: MessageItem) -> ChatRenderState {
     var newItems = items
     newItems.append(item)
     var newIndex = itemIndexByID
     newIndex[item.id] = newItems.count - 1
-    return with(
-      items: newItems,
-      itemIndexByID: newIndex,
-      totalFetchedCount: totalFetchedCount + 1
-    )
+    return with(items: newItems, itemIndexByID: newIndex)
   }
 }

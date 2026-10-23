@@ -101,6 +101,22 @@ public enum RegionalAreas {
     au("WA", "Western Australia"),
   ]
 
+  public static let caSubdivisions: [Subdivision] = [
+    ca("AB", "Alberta"),
+    ca("BC", "British Columbia"),
+    ca("MB", "Manitoba"),
+    ca("NB", "New Brunswick"),
+    ca("NL", "Newfoundland and Labrador", extra: ["newfoundland"]),
+    ca("NS", "Nova Scotia"),
+    ca("NT", "Northwest Territories", extra: ["nwt"]),
+    ca("NU", "Nunavut"),
+    ca("ON", "Ontario"),
+    ca("PE", "Prince Edward Island", extra: ["pei"]),
+    ca("QC", "Quebec"),
+    ca("SK", "Saskatchewan"),
+    ca("YT", "Yukon", extra: ["yukon territory"]),
+  ]
+
   /// ISO α-2 → `RadioRegion` mapping. Mexico (MX) and Africa are intentionally
   /// absent — those countries fall through `recommended(for:)` to the
   /// empty-region fallback. South America is CL and BR; CR is North America (US-band).
@@ -131,7 +147,7 @@ public enum RegionalAreas {
 
   public static let countries: [Country] = [
     Country(id: "US", subdivisions: usSubdivisions),
-    Country(id: "CA", subdivisions: nil),
+    Country(id: "CA", subdivisions: caSubdivisions),
     Country(id: "CR", subdivisions: nil),
     Country(id: "CL", subdivisions: nil),
     Country(id: "BR", subdivisions: nil),
@@ -242,7 +258,9 @@ public enum RegionalAreas {
 
   /// English values used as the `value:` fallback in `bundle.localizedString` and as the source
   /// of truth for `Settings.strings` `region.subdivision.*` entries.
-  private static let englishSubdivisionFallbacks: [String: String] = Dictionary(uniqueKeysWithValues: (usSubdivisions + auSubdivisions).map { ($0.id, $0.englishName) })
+  private static let englishSubdivisionFallbacks: [String: String] = Dictionary(
+    uniqueKeysWithValues: (usSubdivisions + auSubdivisions + caSubdivisions).map { ($0.id, $0.englishName) }
+  )
 
   private static func us(_ code: String, _ name: String, extra: [String] = []) -> Subdivision {
     subdivision(country: "US", code: code, name: name, extra: extra)
@@ -250,6 +268,10 @@ public enum RegionalAreas {
 
   private static func au(_ code: String, _ name: String, extra: [String] = []) -> Subdivision {
     subdivision(country: "AU", code: code, name: name, extra: extra)
+  }
+
+  private static func ca(_ code: String, _ name: String, extra: [String] = []) -> Subdivision {
+    subdivision(country: "CA", code: code, name: name, extra: extra)
   }
 
   private static func subdivision(

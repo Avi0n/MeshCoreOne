@@ -149,9 +149,9 @@ public extension MeshCoreSession {
   /// Send `request` and resolve the first matching `.binaryResponse` or
   /// `matchRoutedEvent` hit. Retransmits the same frame until a reply arrives or
   /// `binaryRequestOverallTimeout` elapses (`nil` retransmit interval disables
-  /// resends). Companion firmware keeps one pending tag per request class and
-  /// replaces it on every send, so only the latest `messageSent` tag matches
-  /// `.binaryResponse`. Routed pubkey matchers (status) ignore tags. Spacing is
+  /// resends). From firmware v14 (1.18.0) a reply to a replaced tag still arrives
+  /// as `.binaryResponse`, so the waiter accepts any tag from its own `messageSent`
+  /// events. Routed pubkey matchers (status) ignore tags. Spacing is
   /// `max(floor, suggestedTimeoutMs × binaryRetransmitRTTHeadroom)`.
   ///
   /// - Parameters:
@@ -183,12 +183,12 @@ public extension MeshCoreSession {
     // Subscribe before sending to avoid the race where the response arrives
     // before the consumer is listening.
     let events = await dispatcher.subscribe()
-    try await transport.send(request)
+    try await sendSessionData(request)
 
     return try await withThrowingTaskGroup(of: BinaryExchangeSignal<Response>.self) { group in
-      group.addTask { [logger] in
-        // Firmware replaces the single pending tag on each send; track only latest.
-        var expectedTag: Data?
+      group.addTask { [self, logger] in
+        // From firmware v14 a reply to a replaced tag still arrives, so keep every tag this exchange sent.
+        var sentTags: Set<Data> = []
         var acceptedMessageSent = false
         var sendCount = 1
 
@@ -197,7 +197,7 @@ public extension MeshCoreSession {
 
           switch event {
           case let .messageSent(info):
-            expectedTag = info.expectedAck
+            sentTags.insert(info.expectedAck)
             acceptedMessageSent = true
             await cadence.applySuggestedTimeoutMs(info.suggestedTimeoutMs)
             let tagHex = info.expectedAck.map { String(format: "%02x", $0) }.joined()
@@ -218,7 +218,7 @@ public extension MeshCoreSession {
             continue
 
           case let .binaryResponse(tag, responseData):
-            guard tag == expectedTag else { continue }
+            guard sentTags.contains(tag) else { continue }
 
             guard let response = try parseResponse(responseData, tag) else {
               let preview = responseData.prefix(32).hexString
@@ -242,18 +242,24 @@ public extension MeshCoreSession {
             continue
           }
         }
+        if await !self.sessionIsRunning {
+          return .stopped
+        }
         return .idle
       }
 
-      group.addTask { [logger, clock = self.clock] in
+      group.addTask { [self, logger, clock = self.clock] in
         try await clock.sleep(for: .seconds(overallTimeout))
+        if await !self.sessionIsRunning {
+          return .stopped
+        }
         let elapsed = ContinuousClock.now - startTime
         logger.warning("\(operation) request to \(prefixHex): timed out after \(elapsed)")
         return .timedOut
       }
 
       if retransmitFloor != nil {
-        group.addTask { [logger, clock = self.clock, transport] in
+        group.addTask { [self, logger, clock = self.clock] in
           var attempt = 1
           while !Task.isCancelled {
             let delay = await cadence.waitForInterval()
@@ -263,13 +269,14 @@ public extension MeshCoreSession {
               return .idle
             }
             guard !Task.isCancelled else { break }
+            guard await self.sessionIsRunning else { return .stopped }
             attempt += 1
             let interval = await cadence.currentSeconds()
             logger.info(
               "\(operation) request to \(prefixHex): retransmit #\(attempt) (interval=\(String(format: "%.1f", interval))s)"
             )
             do {
-              try await transport.send(request)
+              try await self.sendSessionData(request)
             } catch is CancellationError {
               return .idle
             } catch {
@@ -293,6 +300,9 @@ public extension MeshCoreSession {
           case .timedOut:
             group.cancelAll()
             throw MeshCoreError.timeout
+          case .stopped:
+            group.cancelAll()
+            throw CancellationError()
           case .idle:
             continue
           }
@@ -300,6 +310,9 @@ public extension MeshCoreSession {
       } catch {
         group.cancelAll()
         throw error
+      }
+      if !sessionIsRunning {
+        throw CancellationError()
       }
       throw MeshCoreError.timeout
     }
@@ -356,8 +369,9 @@ public extension MeshCoreSession {
       to: publicKey,
       operation: "Owner info"
     ) { payload, _ in
-      // Response is UTF-8: "<firmware_ver>\n<node_name>\n<owner_info>"
-      let text = String(data: payload, encoding: .utf8) ?? ""
+      // Response is UTF-8: "<firmware_ver>\n<node_name>\n<owner_info>".
+      // Stop at the first NUL so encryption padding stays out of the text.
+      let text = String(data: payload.prefix { $0 != 0 }, encoding: .utf8) ?? ""
       let components = text.split(separator: "\n", maxSplits: 2, omittingEmptySubsequences: false)
       return OwnerInfoResponse(
         firmwareVersion: components.count >= 1 ? String(components[0]) : "",
@@ -373,8 +387,9 @@ public extension MeshCoreSession {
   ///
   /// - Parameters:
   ///   - publicKey: The full 32-byte public key of the remote node.
-  ///   - start: Start of the time range.
-  ///   - end: End of the time range.
+  ///   - start: Exclusive start of the time range.
+  ///   - end: Inclusive end of the time range. Bounds use whole seconds ago,
+  ///          truncated toward zero; future dates are clamped to zero.
   /// - Returns: MMA response containing aggregated statistics.
   /// - Throws: ``MeshCoreError/timeout`` if no response within timeout period.
   ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
@@ -387,12 +402,19 @@ public extension MeshCoreSession {
 
   /// Internal implementation of MMA request, called within serialization.
   private func performMMARequest(from publicKey: Data, start: Date, end: Date) async throws -> MMAResponse {
-    // Build payload
+    let now = Date()
+    func secondsAgo(_ date: Date) -> UInt32 {
+      let seconds = now.timeIntervalSince(date)
+      guard seconds.isFinite, seconds > 0 else { return 0 }
+      guard seconds < Double(UInt32.max) else { return UInt32.max }
+      return UInt32(seconds)
+    }
+
     var payload = Data()
-    let startTimestamp = PacketBuilder.epochSeconds32(start)
-    let endTimestamp = PacketBuilder.epochSeconds32(end)
-    payload.append(contentsOf: withUnsafeBytes(of: startTimestamp.littleEndian) { Array($0) })
-    payload.append(contentsOf: withUnsafeBytes(of: endTimestamp.littleEndian) { Array($0) })
+    let startSecondsAgo = secondsAgo(start)
+    let endSecondsAgo = secondsAgo(end)
+    payload.append(contentsOf: withUnsafeBytes(of: startSecondsAgo.littleEndian) { Array($0) })
+    payload.append(contentsOf: withUnsafeBytes(of: endSecondsAgo.littleEndian) { Array($0) })
     payload.append(contentsOf: [0, 0])
 
     let publicKeyPrefix = Data(publicKey.prefix(6))
@@ -401,7 +423,9 @@ public extension MeshCoreSession {
       to: publicKey,
       operation: "MMA"
     ) { payload, tag in
-      MMAResponse(publicKeyPrefix: publicKeyPrefix, tag: tag, data: MMAParser.parse(payload))
+      let serverClockSize = MemoryLayout<UInt32>.size
+      guard payload.count >= serverClockSize else { return nil }
+      return MMAResponse(publicKeyPrefix: publicKeyPrefix, tag: tag, data: MMAParser.parse(Data(payload.dropFirst(serverClockSize))))
     }
   }
 
@@ -532,6 +556,8 @@ public extension MeshCoreSession {
 private enum BinaryExchangeSignal<Response: Sendable>: Sendable {
   case response(Response)
   case timedOut
+  /// `session.stop` ended the exchange. Callers must not publish a timeout.
+  case stopped
   /// Cancelled retransmit loop or ended event stream; not a terminal result.
   case idle
 }

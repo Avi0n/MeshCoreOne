@@ -1,8 +1,7 @@
 import SwiftUI
 
-/// The set of diagnostic tools. Shared by the compact `ToolsView` (which pushes each as a
-/// `NavigationLink`) and the iPad split columns (`ToolsContentColumn` list selection +
-/// `ToolsDetailColumn` detail), and persisted as the active selection on `NavigationCoordinator`.
+/// Diagnostic tools. `ToolsView` pushes each as a `NavigationLink`; the
+/// selected case lives on `NavigationCoordinator` so it survives tab switches.
 enum ToolSelection: Hashable, CaseIterable {
   case tracePath
   case lineOfSight
@@ -36,13 +35,5 @@ enum ToolSelection: Hashable, CaseIterable {
   /// Line of Sight runs its analysis offline; every other tool needs a connected radio.
   var requiresRadio: Bool {
     self != .lineOfSight
-  }
-
-  /// Tools that collapse the iPad section's sidebar when open, reclaiming its width. Line of Sight
-  /// swaps the content column for its analysis panel beside the detail map; Trace Path keeps the tool
-  /// list in the content column and gives its own list/map view the freed width in the detail column.
-  /// Other tools keep the sidebar's normal width-driven behavior.
-  var prefersCollapsedSidebar: Bool {
-    self == .lineOfSight || self == .tracePath
   }
 }

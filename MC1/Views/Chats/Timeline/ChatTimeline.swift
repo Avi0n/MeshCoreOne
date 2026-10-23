@@ -60,10 +60,8 @@ final class ChatTimeline {
   /// Whether the view has consumed the one-shot open positioning.
   private(set) var anchorConsumed = false
 
-  /// Latches once the initial populate has finished (any outcome), so a
-  /// load that produced no divider target (already read, failed fetch)
-  /// presents the timeline instead of withholding it forever. Set only by
-  /// `stageOpen` and `open`.
+  /// Set after a terminal populate so opens without a divider can present.
+  /// Cancellation leaves the latch unchanged until a retry finishes.
   var initialLoadSettled = false
 
   #if DEBUG

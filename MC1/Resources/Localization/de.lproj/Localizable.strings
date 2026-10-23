@@ -53,6 +53,9 @@
 /* Location: SyncingPillView.swift - Status shown when syncing data */
 "common.status.syncing" = "Synchronisieren";
 
+/* Status shown during initial message catch-up */
+"common.status.syncingMessages" = "Nachrichten synchronisieren";
+
 /* Location: SyncingPillView.swift - Status shown when connecting to device */
 "common.status.connecting" = "Verbinden";
 
@@ -587,6 +590,12 @@
 
 /* Location: SettingsServiceError+UserFacingMessage.swift - Malformed device response to a settings command */
 "error.settings.invalidResponse" = "Ungültige Antwort vom Gerät";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - Radio CLI command was rejected */
+"error.settings.radioCLIRejected" = "Das Funkgerät hat einen Fehler gemeldet: %@";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - The radio cannot turn itself off */
+"error.settings.powerOffUnsupported" = "Dieses Funkgerät kann sich nicht selbst ausschalten. Es bleibt eingeschaltet, und das iPhone bleibt verbunden.";
 
 /* Location: SettingsServiceError+UserFacingMessage.swift - Setting write-back mismatch - %1$@ is the expected value, %2$@ is the value the device reports */
 "error.settings.verificationFailed" = "Einstellung wurde nicht gespeichert. Erwartet wurde '%1$@', aber das Gerät meldet '%2$@'.";

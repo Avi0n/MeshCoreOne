@@ -2,6 +2,8 @@ import Foundation
 import MeshCore
 
 extension RemoteNodeService {
+  private static let cliIgnoredSpace: UInt8 = 0x20
+
   // MARK: - CLI Commands
 
   /// Send a CLI command to a remote node and wait for its response (admin only).
@@ -70,23 +72,29 @@ extension RemoteNodeService {
     let command = RemoteCLICommandRewriter.rewrite(command)
 
     // Log CLI command (with password redaction)
-    await auditLogger.logCLICommand(publicKey: remoteSession.publicKey, command: command)
+    await auditLogger.logCLICommand(
+      publicKey: remoteSession.publicKey,
+      command: command,
+      target: .repeater
+    )
 
     let destinationPrefix = Data(remoteSession.publicKey.prefix(6))
     let requestID = UUID()
 
     try await acquireCLISlot(for: destinationPrefix, waiterID: requestID)
     defer { releaseCLISlot(for: destinationPrefix) }
+    try Task.checkCancellation()
 
-    // Reboot has no reply; path-reset+resend would fire a second reboot.
-    if Self.isFireAndForgetCLI(command) {
+    // A no-reply command is sent once. Path reset and resend would repeat it.
+    if RemoteCLINoReplyCommand(command) != nil {
       return try await performCLIExchange(
         publicKey: remoteSession.publicKey,
         destinationPrefix: destinationPrefix,
         command: command,
         acceptsAnyResponse: acceptsAnyResponse,
         timeout: timeout,
-        requestID: requestID
+        requestID: requestID,
+        textType: .cliData
       )
     }
 
@@ -101,15 +109,36 @@ extension RemoteNodeService {
         command: command,
         acceptsAnyResponse: acceptsAnyResponse,
         timeout: timeout,
-        requestID: requestID
+        requestID: requestID,
+        textType: .cliData
       )
     }
   }
 
-  /// Commands that intentionally get no reply (or treat timeout as success).
-  private static func isFireAndForgetCLI(_ command: String) -> Bool {
-    let lower = command.lowercased().trimmingCharacters(in: .whitespaces)
-    return lower == "reboot" || lower.hasPrefix("reboot ")
+  /// Sends a Radio CLI command to a chat contact. The contact runs it only after granting this radio Remote CLI.
+  /// A missing reply is a timeout, not a reason to reset the contact's direct path.
+  public func sendRadioCLICommand(
+    to publicKey: Data,
+    command: String,
+    timeout: Duration
+  ) async throws -> String {
+    let destinationPrefix = Data(publicKey.prefix(6))
+    let requestID = UUID()
+    await auditLogger.logCLICommand(publicKey: publicKey, command: command, target: .contact)
+
+    try await acquireCLISlot(for: destinationPrefix, waiterID: requestID)
+    defer { releaseCLISlot(for: destinationPrefix) }
+    try Task.checkCancellation()
+
+    return try await performCLIExchange(
+      publicKey: publicKey,
+      destinationPrefix: destinationPrefix,
+      command: command,
+      acceptsAnyResponse: false,
+      timeout: timeout,
+      requestID: requestID,
+      textType: .cliCommand
+    )
   }
 
   /// Register the pending request, send the command, and poll the device for
@@ -120,11 +149,17 @@ extension RemoteNodeService {
     command: String,
     acceptsAnyResponse: Bool,
     timeout: Duration,
-    requestID: UUID
+    requestID: UUID,
+    textType: MeshCore.TextType
   ) async throws -> String {
+    let command = String(decoding: command.utf8.drop(while: { $0 == Self.cliIgnoredSpace }), as: UTF8.self)
     let wirePrefix = makeCLIWirePrefix()
     return try await withTaskCancellationHandler {
       try await withCheckedThrowingContinuation { continuation in
+        guard !Task.isCancelled else {
+          continuation.resume(throwing: CancellationError())
+          return
+        }
         pendingCLIRequests[destinationPrefix] = PendingCLIRequest(
           id: requestID,
           command: command,
@@ -133,10 +168,20 @@ extension RemoteNodeService {
           continuation: continuation
         )
 
-        Task { [self] in
+        pendingCLIRequests[destinationPrefix]?.workerTask = Task { [self] in
           let sentInfo: MessageSentInfo
           do {
-            sentInfo = try await session.sendCommand(to: publicKey, command: wirePrefix + command)
+            try Task.checkCancellation()
+            sentInfo = try await session.sendCommand(
+              to: publicKey,
+              command: wirePrefix + command,
+              textType: textType
+            )
+          } catch is CancellationError {
+            if let failed = takePendingCLIRequest(for: destinationPrefix, requestID: requestID) {
+              failed.continuation.resume(throwing: CancellationError())
+            }
+            return
           } catch {
             if let failed = takePendingCLIRequest(for: destinationPrefix, requestID: requestID) {
               let meshError = error as? MeshCoreError ?? MeshCoreError.connectionLost(underlying: error)
@@ -154,7 +199,16 @@ extension RemoteNodeService {
 
             let remaining = deadline - .now
             let pollDuration = min(RemoteOperationTimeoutPolicy.pollInterval, remaining)
-            _ = try? await session.getMessage(timeout: max(0.1, timeInterval(for: pollDuration)))
+            do {
+              _ = try await session.getMessage(timeout: max(0.1, timeInterval(for: pollDuration)))
+            } catch is CancellationError {
+              if let stopped = takePendingCLIRequest(for: destinationPrefix, requestID: requestID) {
+                stopped.continuation.resume(throwing: CancellationError())
+              }
+              return
+            } catch {
+              // A single poll can miss the reply. The deadline is the timeout.
+            }
           }
 
           if let timedOut = takePendingCLIRequest(for: destinationPrefix, requestID: requestID) {
@@ -173,6 +227,8 @@ extension RemoteNodeService {
   func takePendingCLIRequest(for prefix: Data, requestID: UUID) -> PendingCLIRequest? {
     guard let pending = pendingCLIRequests[prefix], pending.id == requestID else { return nil }
     pendingCLIRequests[prefix] = nil
+    // Taken first, so the worker's cancellation path does not resume this continuation.
+    pending.workerTask?.cancel()
     return pending
   }
 
@@ -181,6 +237,7 @@ extension RemoteNodeService {
   /// Wait for the node's CLI slot (FIFO). Throws `CancellationError` if the
   /// calling task is cancelled while waiting.
   private func acquireCLISlot(for prefix: Data, waiterID: UUID) async throws {
+    try Task.checkCancellation()
     guard cliSlotBusy.contains(prefix) else {
       cliSlotBusy.insert(prefix)
       return
@@ -188,6 +245,10 @@ extension RemoteNodeService {
 
     try await withTaskCancellationHandler {
       try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        guard !Task.isCancelled else {
+          continuation.resume(throwing: CancellationError())
+          return
+        }
         cliSlotWaiters[prefix, default: []].append(CLISlotWaiter(id: waiterID, continuation: continuation))
       }
     } onCancel: { [weak self] in

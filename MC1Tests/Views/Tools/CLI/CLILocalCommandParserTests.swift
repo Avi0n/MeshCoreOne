@@ -16,6 +16,8 @@ struct CLILocalCommandParserTests {
     ("advert.zerohop", .advert(flood: false)),
     ("floodadv", .advert(flood: true)),
     ("reboot", .reboot),
+    ("poweroff", .powerOff),
+    ("shutdown", .powerOff),
     ("get name", .getKey(.name)),
     ("get bat", .getKey(.bat)),
     ("get public.key", .getKey(.publicKey)),
@@ -54,6 +56,8 @@ struct CLILocalCommandParserTests {
   @Test
   func `dangerous commands require confirmation`() {
     #expect(CLILocalCommand.reboot.requiresConfirmation)
+    #expect(CLILocalCommand.powerOff.requiresConfirmation)
+    #expect(CLILocalCommand.powerOff.displayName == "poweroff")
     #expect(CLILocalCommand.setFrequency(869.5).requiresConfirmation)
     #expect(CLILocalCommand.setRadio(frequencyMHz: 869.5, bandwidthKHz: 250, spreadingFactor: 11, codingRate: 5).requiresConfirmation)
     #expect(!CLILocalCommand.setTxPower(22).requiresConfirmation)

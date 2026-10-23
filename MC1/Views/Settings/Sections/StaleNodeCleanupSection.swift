@@ -56,8 +56,8 @@ struct StaleNodeCleanupSection: View {
         threshold = 0
       }
     }
-    .onChange(of: threshold) { _, newThreshold in
-      guard newThreshold > 0, appState.connectionState == .ready else { return }
+    .onChange(of: threshold) { _, _ in
+      guard appState.connectionState == .ready else { return }
       appState.performStaleNodeCleanup(force: true)
     }
   }

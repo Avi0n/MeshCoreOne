@@ -11,11 +11,10 @@ public struct EnvInputs: Sendable, Hashable {
   public let showIncomingSendTime: Bool
   public let previewsEnabled: Bool
   public let isHighContrast: Bool
-  /// Light/dark appearance, sourced from `@Environment(\.colorScheme)` in
-  /// `ChatConversationView`. Threaded into `MapPreviewFragmentState` so the map
-  /// thumbnail renders against the matching style. Like `isHighContrast`, a
-  /// change forces a full `buildItems()` rebuild (rare, OS-driven).
+  /// App chrome darkness. Identity colors bake from this.
   public let isDark: Bool
+  /// Map thumbnail darkness. Independent of `isDark`.
+  public let mapBasemapIsDark: Bool
   /// User-controlled privacy gate. When false, `MessageFragmentBuilder` skips
   /// the map-preview fragment entirely so `MapPreviewFragmentView.onAppear`
   /// never fires the third-party tile request — the coordinate text in the
@@ -56,6 +55,7 @@ public struct EnvInputs: Sendable, Hashable {
     previewsEnabled: Bool,
     isHighContrast: Bool,
     isDark: Bool,
+    mapBasemapIsDark: Bool,
     showMapPreviews: Bool,
     isOffline: Bool,
     currentUserName: String,
@@ -73,6 +73,7 @@ public struct EnvInputs: Sendable, Hashable {
     self.previewsEnabled = previewsEnabled
     self.isHighContrast = isHighContrast
     self.isDark = isDark
+    self.mapBasemapIsDark = mapBasemapIsDark
     self.showMapPreviews = showMapPreviews
     self.isOffline = isOffline
     self.currentUserName = currentUserName
@@ -109,6 +110,7 @@ public struct EnvInputs: Sendable, Hashable {
     previewsEnabled: AppStorageKey.defaultLinkPreviewsEnabled,
     isHighContrast: false,
     isDark: false,
+    mapBasemapIsDark: false,
     showMapPreviews: AppStorageKey.defaultShowMapPreviewThumbnails,
     isOffline: false,
     currentUserName: "",

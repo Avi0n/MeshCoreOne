@@ -36,6 +36,7 @@ public enum TextType: UInt8, Sendable, Codable {
   case plain = 0x00
   case cliData = 0x01
   case signedPlain = 0x02
+  case cliCommand = 0x03
 }
 
 // MARK: - Remote Node Types

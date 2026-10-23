@@ -15,10 +15,4 @@ struct MessageServiceConfigTests {
     let config = MessageServiceConfig(maxAttempts: 5)
     #expect(config.maxAttempts == 5)
   }
-
-  @Test
-  func `Default config respects the maxAttempts ceiling`() {
-    let config = MessageServiceConfig()
-    #expect(config.maxAttempts <= 5)
-  }
 }

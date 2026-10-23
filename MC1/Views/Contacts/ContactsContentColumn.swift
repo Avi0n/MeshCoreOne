@@ -1,68 +1,78 @@
 import MC1Services
 import SwiftUI
 
-/// The iPad sidebar's Nodes content column. It mirrors the regular-width (split) path of
-/// `ContactsListView`, hosting `ContactsSidebarContent` with the same toolbar, searchable,
-/// sheets, and handlers. The compact (stack) path stays solely in `ContactsListView`.
-///
-/// Selection is driven through `appState.navigation.selectedContact` rather than view-local
-/// state so the detail column can read it. `ContactsSidebarContent`'s
-/// `pendingContactDetail` bridge writes through that binding; its `initial: true` resolves a
-/// deep link (e.g. a notification tap) the first time Nodes is entered, and this view is
-/// instantiated whenever Nodes is selected.
+/// Renders the Nodes list from the sidebar state retained by ContactsListView.
 struct ContactsContentColumn: View {
   @Environment(\.appState) private var appState
+  @State private var ownedState: ContactsSidebarState
+  private let suppliedState: ContactsSidebarState?
+  private let blockedContactsRoute: NodesRoute?
+  private let rendererRevision: Int
 
-  @State private var viewModel = ContactsViewModel()
-  @State private var searchText = ""
-  @State private var selectedSegment: NodeSegment = .contacts
   @AppStorage(AppStorageKey.nodesSortOrder.rawValue) private var sortOrder: NodeSortOrder = .lastHeard
-  @State private var syncSuccessTrigger = false
-  @State private var showShareMyContact = false
-  @State private var showAddContact = false
-  @State private var showLocationDeniedAlert = false
-  @State private var showOfflineRefreshAlert = false
+
+  init(viewModel: ContactsViewModel) {
+    _ownedState = State(initialValue: ContactsSidebarState(viewModel: viewModel))
+    suppliedState = nil
+    blockedContactsRoute = nil
+    rendererRevision = 0
+  }
+
+  init(state: ContactsSidebarState, blockedContactsRoute: NodesRoute?, rendererRevision: Int) {
+    _ownedState = State(initialValue: state)
+    suppliedState = state
+    self.blockedContactsRoute = blockedContactsRoute
+    self.rendererRevision = rendererRevision
+  }
+
+  private var state: ContactsSidebarState {
+    suppliedState ?? ownedState
+  }
 
   private var actions: ContactListActions {
-    ContactListActions(viewModel: viewModel, appState: appState, syncSuccessTrigger: $syncSuccessTrigger)
+    ContactListActions(
+      viewModel: state.viewModel,
+      appState: appState,
+      syncSuccessTrigger: Binding(
+        get: { state.syncSuccessTrigger },
+        set: { state.syncSuccessTrigger = $0 }
+      )
+    )
   }
 
   var body: some View {
-    @Bindable var navigation = appState.navigation
-
-    ContactsSidebarContent(
-      viewModel: viewModel,
-      filteredContacts: actions.filteredContacts(searchText: searchText, segment: selectedSegment, sortOrder: sortOrder),
-      isSearching: !searchText.isEmpty,
-      searchPrompt: actions.searchPrompt,
-      shouldUseSplitView: true,
-      selectedSegment: $selectedSegment,
-      selectedContact: $navigation.selectedContact,
-      searchText: $searchText,
-      sortOrder: $sortOrder,
-      showDiscovery: $navigation.nodesShowingDiscovery,
-      syncSuccessTrigger: $syncSuccessTrigger,
-      showShareMyContact: $showShareMyContact,
-      showAddContact: $showAddContact,
-      showLocationDeniedAlert: $showLocationDeniedAlert,
-      showOfflineRefreshAlert: $showOfflineRefreshAlert,
-      // Compact-only navigation, unused on the split path which drives selection via selectedContact.
-      navigationPath: .constant(NavigationPath()),
-      onLoadContacts: actions.loadContacts,
-      onSyncContacts: actions.syncContacts,
-      onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
+    let list = actions.filteredContacts(
+      searchText: state.searchText,
+      segment: state.selectedSegment,
+      sortOrder: sortOrder
     )
-    .onChange(of: appState.navigation.selectedContact) { _, newContact in
-      if newContact != nil {
-        appState.navigation.nodesShowingDiscovery = false
-      }
+    let content = ContactsSidebarContent(
+      state: state,
+      filteredContacts: list.contacts,
+      timestampsByID: list.timestampsByID,
+      searchPrompt: actions.searchPrompt,
+      selectedContact: appState.navigation.selectedContact,
+      sortOrder: $sortOrder,
+      blockedContactsRoute: blockedContactsRoute,
+      rendererRevision: rendererRevision,
+      onSelect: selectContact
+    )
+    if suppliedState == nil {
+      content.modifier(ContactsSidebarPresenter(state: state))
+    } else {
+      content
     }
+  }
+
+  private func selectContact(_ contact: ContactDTO) {
+    appState.navigation.selectedContact = contact
+    appState.navigation.nodesShowingDiscovery = false
   }
 }
 
 #Preview {
   NavigationStack {
-    ContactsContentColumn()
+    ContactsContentColumn(viewModel: ContactsViewModel())
   }
   .environment(\.appState, AppState())
 }

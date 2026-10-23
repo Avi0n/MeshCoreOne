@@ -5,6 +5,8 @@ import SwiftUI
 struct MapFilterControl {
   let host: MapFilterHost
   var state: Binding<MapFilterState>
+  /// Opens the host's Advanced Filters sheet; the menu item appears only when set and the host supports advanced dimensions.
+  var onShowAdvancedFilters: (() -> Void)?
 }
 
 /// Shared liquid-glass toolbar hosting the controls every interactive map uses
@@ -40,7 +42,7 @@ struct MapControlsToolbar<AdditionalActions: View>: View {
       if let filter {
         Divider()
           .frame(width: MapToolbarLayout.dividerWidth)
-        filterMenu(state: filter.state, host: filter.host)
+        filterMenu(state: filter.state, host: filter.host, onShowAdvanced: filter.onShowAdvancedFilters)
       }
 
       CustomContentStack {
@@ -73,7 +75,8 @@ struct MapControlsToolbar<AdditionalActions: View>: View {
   @ViewBuilder
   private func filterMenu(
     state: Binding<MapFilterState>,
-    host: MapFilterHost
+    host: MapFilterHost,
+    onShowAdvanced: (() -> Void)?
   ) -> some View {
     let capabilities = host.capabilities
     let active = state.wrappedValue.differsFromSeed(for: host)
@@ -109,6 +112,10 @@ struct MapControlsToolbar<AdditionalActions: View>: View {
           Text(L10n.Contacts.Contacts.Segment.rooms)
         }
         .disabled(state.wrappedValue.favoritesOnly)
+      }
+      if capabilities.includesAdvanced, let onShowAdvanced {
+        Divider()
+        Button(L10n.Map.Map.Controls.moreFilters, systemImage: "slider.horizontal.3", action: onShowAdvanced)
       }
     } label: {
       Label(

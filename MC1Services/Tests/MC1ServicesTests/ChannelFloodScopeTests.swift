@@ -133,10 +133,10 @@ struct ChannelFloodScopeTests {
   }
 
   @Test
-  func `Legacy envelope omitting isFavorite key decodes as false`() throws {
-    let json = try legacyJSONOmitting("isFavorite")
+  func `Legacy envelope omitting isPinned and isFavorite decodes as false`() throws {
+    let json = try legacyJSONOmitting("isPinned")
     let decoded = try JSONDecoder().decode(ChannelDTO.self, from: json)
-    #expect(decoded.isFavorite == false)
+    #expect(decoded.isPinned == false)
   }
 
   @Test
@@ -200,7 +200,7 @@ struct ChannelFloodScopeTests {
       radioID: UUID(),
       unreadMentionCount: 5,
       notificationLevel: .muted,
-      isFavorite: true
+      isPinned: true
     )
     let encoded = try JSONEncoder().encode(dto)
     guard var object = try JSONSerialization.jsonObject(with: encoded) as? [String: Any] else {

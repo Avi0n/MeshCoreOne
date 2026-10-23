@@ -2,13 +2,19 @@ import Foundation
 @testable import MC1
 @testable import MC1Services
 import Testing
+import TipKit
 
 @Suite("Onboarding State Tests")
 @MainActor
 struct OnboardingStateTests {
+  private static let tipKitConfiguration: Result<Void, any Error> = Result {
+    try Tips.configure([.displayFrequency(.immediate)])
+  }
+
   private let defaults: UserDefaults
 
-  init() {
+  init() throws {
+    try Self.tipKitConfiguration.get()
     defaults = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
   }
 
@@ -71,16 +77,6 @@ struct OnboardingStateTests {
   func `onboardingPath starts empty`() {
     let appState = AppState()
     #expect(appState.onboarding.onboardingPath.isEmpty)
-  }
-
-  @Test
-  func `onboardingPath can be appended to`() {
-    let appState = AppState()
-
-    appState.onboarding.onboardingPath.append(.welcome)
-    appState.onboarding.onboardingPath.append(.permissions)
-
-    #expect(appState.onboarding.onboardingPath == [.welcome, .permissions])
   }
 
   // MARK: - donateDeviceMenuTipIfOnValidTab

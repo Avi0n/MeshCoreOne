@@ -7,9 +7,8 @@ struct ChatConversationInputBar: View {
   @Binding var composingText: String
   @Binding var focusRequest: Int
   let nodeNameByteCount: Int
-  let onSend: (String) async -> Void
+  let onSend: (String) async -> Bool
   let onWillSend: () -> Void
-  let onFocus: () -> Void
 
   var body: some View {
     switch conversationType {
@@ -21,11 +20,8 @@ struct ChatConversationInputBar: View {
         maxBytes: ProtocolLimits.maxDirectMessageLength,
         isEncrypted: true,
         leading: { ChatShareMenu(onInsert: insertShared) },
-        onFocus: onFocus
-      ) { text in
-        onWillSend()
-        Task { await onSend(text) }
-      }
+        onSend: send
+      )
 
     case let .channel(channel):
       let maxBytes = ProtocolLimits.maxChannelMessageLength(
@@ -40,18 +36,22 @@ struct ChatConversationInputBar: View {
         maxBytes: maxBytes,
         isEncrypted: channel.isEncryptedChannel,
         leading: { ChatShareMenu(onInsert: insertShared) },
-        onFocus: onFocus
-      ) { text in
-        onWillSend()
-        Task { await onSend(text) }
-      }
+        onSend: send
+      )
     }
   }
 
-  /// Appends a shared token to the compose field and focuses it, matching the
-  /// reply and mention insertion flow. A single space separates the token from
-  /// existing text only when the field is non-empty and does not already end in
-  /// whitespace.
+  private func send(_ text: String) {
+    let draft = $composingText
+    onWillSend()
+    Task {
+      guard await !onSend(text) else { return }
+      let newerText = draft.wrappedValue
+      draft.wrappedValue = newerText.isEmpty ? text : text + "\n" + newerText
+    }
+  }
+
+  /// Insert shared text with a separating space when needed, then request composer focus.
   private func insertShared(_ shared: String) {
     if !composingText.isEmpty, let last = composingText.last, !last.isWhitespace {
       composingText.append(" ")

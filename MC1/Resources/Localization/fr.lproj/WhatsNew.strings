@@ -30,3 +30,38 @@
 "whatsNew.fasterChatLoading.title" = "Chargement plus rapide des messages";
 /* What's New v1.5 - Faster chat loading, description */
 "whatsNew.fasterChatLoading.description" = "L'ouverture d'une conversation est jusqu'à 90%% plus rapide.";
+
+/* What's New v1.6 - Pinned chats, title */
+"whatsNew.pinnedChats.title" = "Messages épinglés";
+/* What's New v1.6 - Pinned chats, description */
+"whatsNew.pinnedChats.description" = "Les messages épinglés sont maintenant séparés des favoris. Ils apparaissent dans la section Épinglé, et les contacts que vous aviez déjà ajoutés à vos favoris sont épinglés la première fois que vous ouvrez l'app.";
+
+/* What's New v1.6 - Read and unread, title */
+"whatsNew.readAndUnread.title" = "Lu et non lu";
+/* What's New v1.6 - Read and unread, description */
+"whatsNew.readAndUnread.description" = "Appuyez longuement sur une conversation pour la marquer comme lue ou non lue.";
+
+/* What's New v1.6 - iPhone Duo, title */
+"whatsNew.iPhoneDuo.title" = "iPhone Duo";
+/* What's New v1.6 - iPhone Duo, description */
+"whatsNew.iPhoneDuo.description" = "MC1 est prêt pour l'iPhone Duo avec des dispositions redimensionnables.";
+
+/* What's New v1.6 - iPad tab bar, title */
+"whatsNew.iPadTabBar.title" = "Barre d'onglets de l'iPad";
+/* What's New v1.6 - iPad tab bar, description */
+"whatsNew.iPadTabBar.description" = "Sur iPad, les icônes d'onglets passent de la gauche vers le haut. Cela nous permet de mieux prendre en charge tous les appareils, y compris l'iPhone Duo.";
+
+/* What's New v1.6 - Advanced map filters, title */
+"whatsNew.advancedMapFilters.title" = "Filtres avancés de la carte";
+/* What's New v1.6 - Advanced map filters, description */
+"whatsNew.advancedMapFilters.description" = "Filtrez la carte selon la dernière écoute et le nombre de sauts. Vous pouvez choisir un préréglage ou définir une plage personnalisée, et supprimer un filtre.";
+
+/* What's New v1.6 - Bluetooth and Wi-Fi, title */
+"whatsNew.bluetoothAndWiFi.title" = "Bluetooth et WiFi";
+/* What's New v1.6 - Bluetooth and Wi-Fi, description */
+"whatsNew.bluetoothAndWiFi.description" = "Si une radio utilise le firmware 1.18 ou ultérieur et est appairée à la fois via Bluetooth et via WiFi, vous pouvez passer de l'un à l'autre dans Connecter un appareil et dans Réglages > Connexion.";
+
+/* What's New v1.6 - More changes, title */
+"whatsNew.moreChanges.title" = "Plus de changements";
+/* What's New v1.6 - More changes, description */
+"whatsNew.moreChanges.description" = "Appuyez sur \"Voir tous les nouveaux changements\" ci-dessous pour voir la liste complète des corrections de bogues et d'autres fonctionnalités.";

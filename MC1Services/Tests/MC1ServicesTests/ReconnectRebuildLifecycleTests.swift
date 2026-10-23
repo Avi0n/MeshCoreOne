@@ -12,6 +12,52 @@ import Testing
 @Suite("Reconnect Rebuild Lifecycle")
 @MainActor
 struct ReconnectRebuildLifecycleTests {
+  @Test
+  func `restored session advances past handshake when startup adoption is superseded`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let suiteName = "test.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+    let stateMachine = MockBLEStateMachine()
+    let transport = RevendingHandshakeTransport()
+    let manager = ConnectionManager(
+      modelContainer: container, defaults: defaults, stateMachine: stateMachine, transport: transport
+    )
+    let deviceID = UUID()
+    manager.testLastConnectedDeviceID = deviceID
+    manager.setTestState(connectionState: .disconnected, connectionIntent: .wantsConnection())
+    await stateMachine.setStubbedIsDeviceConnectedToSystem(true)
+    let (releaseStream, release) = AsyncStream<Void>.makeStream()
+    await transport.setBeforeNextAppStartReply {
+      for await _ in releaseStream {
+        break
+      }
+    }
+    var rebuildTask: Task<Void, any Error>?
+    manager.onAutoReconnectStarted = {
+      manager.onAutoReconnectStarted = nil
+      await manager.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+      rebuildTask = Task { try await manager.rebuildSession(deviceID: deviceID) }
+      try? await waitUntil(timeout: .seconds(2), "restored session should start its handshake") {
+        await transport.appStartReplyCount == 1
+      }
+    }
+
+    let handled = await manager.startAdoptingLastSystemConnectedPeripheralIfAvailable(
+      deviceID: deviceID, context: "test"
+    )
+    release.yield(())
+    release.finish()
+    let task = try #require(rebuildTask)
+    _ = await task.result
+
+    #expect(handled)
+    #expect(await transport.appStartReplyCount == 1)
+    #expect(await transport.deviceQueryCount == 1)
+    manager.reconnectionCoordinator.cancelTimeout()
+    await manager.session?.stop(disconnectTransport: false)
+  }
+
   // MARK: - Presentation state during rebuild + sync
 
   /// Fresh connect shows `.connected` (link up, sync running) so the syncing pill
@@ -104,7 +150,7 @@ struct ReconnectRebuildLifecycleTests {
       connectionIntent: .wantsConnection()
     )
     let promoted = await manager.promoteToReady(
-      syncSucceeded: true,
+      syncResult: FullSyncResult(contacts: .clean, channels: .clean, messages: .clean),
       expectedServices: services,
       transportType: .bluetooth
     )
@@ -148,10 +194,8 @@ struct ReconnectRebuildLifecycleTests {
   /// or its appStart handshake iterates a dead stream and times out. Pins the
   /// `refreshDataStream` call in `rebuildSession`.
   ///
-  /// Intent is `.none` so rebuild returns after handshake (no query/sync). On that
-  /// path abandon clears the session, so success is a non-throwing rebuild plus
-  /// transport evidence that refresh and a post-refresh handshake occurred — not
-  /// residual `manager.session` state.
+  /// Intent is revoked during the handshake, so rebuild returns before query and sync.
+  /// Abandon then clears the session; success is the refreshed handshake, not `manager.session`.
   @Test
   func `rebuild after a stopped predecessor completes its handshake over a refreshed stream`() async throws {
     let container = try PersistenceStore.createContainer(inMemory: true)
@@ -174,15 +218,15 @@ struct ReconnectRebuildLifecycleTests {
     #expect(await transport.appStartReplyCount == 1)
     #expect(await transport.refreshCount == 0)
 
-    // Intent does not want a connection (.none, not .userDisconnected, whose
-    // invariant requires .disconnected state), so the rebuild returns right
-    // after its handshake instead of driving device query and sync.
     manager.setTestState(
       connectionState: .connected,
       session: predecessor,
       currentTransportType: .bluetooth,
-      connectionIntent: ConnectionIntent.none
+      connectionIntent: .wantsConnection()
     )
+    await transport.setBeforeNextAppStartReply { [weak manager] in
+      manager?.setTestState(connectionIntent: ConnectionIntent.none)
+    }
 
     // Non-throwing return means session.start completed (dead stream would time out).
     try await manager.rebuildSession(deviceID: UUID())
@@ -322,18 +366,20 @@ private actor PinnedHandshakeTransport: iOSMeshTransport {
   func refreshDataStream() {}
 }
 
-/// Single-slot transport with an appStart responder. Models the production
-/// slot shape (the vended stream dies with its consumer and is rewritten
-/// only on fresh connect or refresh) while letting a session complete a real
-/// handshake. Hosts the rebuild regression gate; neither existing double can:
-/// `PinnedHandshakeTransport` is structurally unable to complete a handshake,
-/// and `MockMeshTransport`'s contract is that it never yields session bytes.
+/// Completes appStart over a single-slot stream so rebuilds must renew
+/// a stream terminated by the previous session's receive loop.
 private actor RevendingHandshakeTransport: iOSMeshTransport {
   private var slot: AsyncStream<Data>?
   private var slotContinuation: AsyncStream<Data>.Continuation?
   private var connected = false
   private(set) var refreshCount = 0
   private(set) var appStartReplyCount = 0
+  private(set) var deviceQueryCount = 0
+  private var beforeNextAppStartReply: (@MainActor @Sendable () async -> Void)?
+
+  func setBeforeNextAppStartReply(_ handler: @escaping @MainActor @Sendable () async -> Void) {
+    beforeNextAppStartReply = handler
+  }
 
   var receivedData: AsyncStream<Data> {
     slot ?? AsyncStream { $0.finish() }
@@ -358,11 +404,17 @@ private actor RevendingHandshakeTransport: iOSMeshTransport {
   }
 
   func send(_ data: Data) async throws {
-    // Answer the handshake only: the rebuild gate asserts appStart completion,
-    // and an unanswered later command surfaces as its own timeout.
+    // Complete the handshake, then fail deviceQuery so rebuild tests stop
+    // before service setup and sync.
     if data.first == CommandCode.appStart.rawValue {
       appStartReplyCount += 1
+      let beforeReply = beforeNextAppStartReply
+      beforeNextAppStartReply = nil
+      await beforeReply?()
       slotContinuation?.yield(Self.selfInfoPacket())
+    } else if data.first == CommandCode.deviceQuery.rawValue {
+      deviceQueryCount += 1
+      throw MeshTransportError.notConnected
     }
   }
 

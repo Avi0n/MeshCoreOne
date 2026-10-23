@@ -92,6 +92,10 @@ struct ContactManager {
     contacts[contact.id] = contact
   }
 
+  mutating func replaceCache(_ newContacts: [MeshContact]) {
+    contacts = newContacts.reduce(into: [:]) { $0[$1.id] = $1 }
+  }
+
   /// Updates the contact cache with new contacts and a modification date.
   ///
   /// - Parameters:
@@ -116,6 +120,11 @@ struct ContactManager {
 
   /// Marks the cache as needing a refresh from the device.
   mutating func markDirty() {
+    isDirty = true
+  }
+
+  mutating func requireFullRefresh() {
+    lastModified = nil
     isDirty = true
   }
 

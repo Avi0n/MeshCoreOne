@@ -3,10 +3,33 @@ import SwiftUI
 
 struct NodeDiscoveryView: View {
   @Environment(\.appState) private var appState
-  @State private var viewModel = NodeDiscoveryViewModel()
+
+  var body: some View {
+    Group {
+      if let viewModel = appState.nodeDiscoveryViewModel {
+        NodeDiscoveryWorkspace(viewModel: viewModel)
+      } else {
+        Color.clear
+          .onAppear {
+            if appState.nodeDiscoveryViewModel == nil {
+              appState.nodeDiscoveryViewModel = NodeDiscoveryViewModel()
+            }
+          }
+      }
+    }
+  }
+}
+
+private struct NodeDiscoveryWorkspace: View {
+  @Bindable var viewModel: NodeDiscoveryViewModel
+  @Environment(\.appState) private var appState
 
   private var isConnected: Bool {
     appState.services?.session != nil
+  }
+
+  private var isWorkspaceActive: Bool {
+    appState.navigation.isToolWorkspaceActive(.nodeDiscovery)
   }
 
   var body: some View {
@@ -24,6 +47,7 @@ struct NodeDiscoveryView: View {
         ScanButtonBar(viewModel: viewModel)
       }
     }
+    .navigationTitle(L10n.Tools.Tools.nodeDiscovery)
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         SortMenu(viewModel: viewModel)
@@ -43,9 +67,10 @@ struct NodeDiscoveryView: View {
         contactService: { [appState] in appState.services?.contactService },
         maxContacts: { [appState] in appState.connectedDevice?.maxContacts }
       ))
+      viewModel.setWorkspaceVisible(isWorkspaceActive)
     }
-    .onDisappear {
-      viewModel.stopScan()
+    .onChange(of: isWorkspaceActive) { _, isActive in
+      viewModel.setWorkspaceVisible(isActive)
     }
     .onChange(of: viewModel.filter) { _, _ in
       viewModel.stopScan()
@@ -55,7 +80,7 @@ struct NodeDiscoveryView: View {
 
 // MARK: - States
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private var disconnectedState: some View {
     ContentUnavailableView {
       Label(L10n.Tools.Tools.RxLog.notConnected, systemImage: "antenna.radiowaves.left.and.right.slash")
@@ -73,7 +98,7 @@ extension NodeDiscoveryView {
       ContentUnavailableView {
         Label(L10n.Tools.Tools.NodeDiscovery.scanPrompt(viewModel.filter.localizedTitle), systemImage: "magnifyingglass")
       } description: {
-        Text(L10n.Tools.Tools.NodeDiscovery.scanPromptDescription(viewModel.filter.localizedTitle))
+        Text(viewModel.filter.scanPromptDescription)
       }
 
       Spacer()
@@ -83,7 +108,7 @@ extension NodeDiscoveryView {
 
 // MARK: - Results List
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private struct ResultsList: View {
     @Bindable var viewModel: NodeDiscoveryViewModel
     @Environment(\.appTheme) private var theme
@@ -126,7 +151,7 @@ extension NodeDiscoveryView {
 
 // MARK: - Scan Button
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private struct ScanButtonBar: View {
     let viewModel: NodeDiscoveryViewModel
 
@@ -157,7 +182,7 @@ extension NodeDiscoveryView {
 
 // MARK: - Sort Menu
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private struct SortMenu: View {
     let viewModel: NodeDiscoveryViewModel
 

@@ -150,7 +150,9 @@ private extension View {
     case .glass:
       if #available(iOS 26.0, *) {
         glassEffect(
-          selected ? .regular.tint(Color.accentColor).interactive() : .regular.interactive(),
+          selected
+            ? .regular.tint(Color.accentColor).interactive(!ProcessInfo.processInfo.isiOSAppOnMac)
+            : .regular.interactive(!ProcessInfo.processInfo.isiOSAppOnMac),
           in: .capsule
         )
         .glassEffectID(id, in: glassNamespace)

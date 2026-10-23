@@ -1,5 +1,6 @@
 import Foundation
 @testable import MC1Services
+import MeshCoreTestSupport
 import Testing
 
 @Suite("BLEReconnectionCoordinator Tests")
@@ -94,6 +95,25 @@ struct BLEReconnectionCoordinatorTests {
   }
 
   // MARK: - handleReconnectionComplete Tests
+
+  @Test
+  func `completion during reconnect notification prevents stale session teardown`() async {
+    let (coordinator, delegate) = createCoordinator()
+    let deviceID = UUID()
+    delegate.connectionIntent = .wantsConnection()
+    delegate.onNotifyAutoReconnectStarted = {
+      await coordinator.handleReconnectionComplete(deviceID: deviceID)
+    }
+
+    let generation = await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+
+    #expect(generation == 1)
+    #expect(coordinator.reconnectGeneration == 2)
+    #expect(delegate.rebuildSessionCalls == [deviceID])
+    #expect(delegate.teardownSessionCallCount == 0)
+    #expect(coordinator.reconnectingDeviceID == nil)
+    coordinator.cancelTimeout()
+  }
 
   //
   // The coordinator only accepts a completion for a cycle it explicitly claimed
@@ -211,9 +231,10 @@ struct BLEReconnectionCoordinatorTests {
   }
 
   @Test
-  func `cycle claim is held across first-fail retry gap until failure returns`() async {
+  func `cycle claim is held across first-fail retry gap until failure returns`() async throws {
     let deviceID = UUID()
-    let (coordinator, delegate) = createCoordinator()
+    let clock = TestClock()
+    let (coordinator, delegate) = createCoordinator(clock: clock)
     delegate.connectionIntent = .wantsConnection()
     delegate.connectionState = .ready
     // First rebuild fails, second (retry) also fails → handleReconnectionFailure.
@@ -227,11 +248,12 @@ struct BLEReconnectionCoordinatorTests {
     await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
     // After first throw, claim must still be held (would be nil if clear ran early).
     async let completion: Void = coordinator.handleReconnectionComplete(deviceID: deviceID)
-    // Yield so first rebuild starts and fails into the 2s sleep.
-    await Task.yield()
-    try? await Task.sleep(for: .milliseconds(50))
+    try await waitUntil("failed rebuild should park before retrying") {
+      clock.sleeperCount == 1
+    }
     #expect(coordinator.reconnectingDeviceID == deviceID)
 
+    clock.advance(by: .seconds(2))
     await completion
 
     #expect(delegate.handleReconnectionFailureCallCount == 1)
@@ -240,37 +262,42 @@ struct BLEReconnectionCoordinatorTests {
   }
 
   @Test
-  func `overlapping completions for the same device start only one rebuild`() async {
+  func `overlapping completions for the same device start only one rebuild`() async throws {
     let deviceID = UUID()
     let (coordinator, delegate) = createCoordinator()
     delegate.connectionIntent = .wantsConnection()
     delegate.connectionState = .ready
     delegate.rebuildSessionHold = true
+    delegate.onRebuildSession = { [weak delegate] in
+      // A duplicate rebuild must finish so the count assertion can report it.
+      if let delegate, delegate.rebuildSessionCalls.count > 1 {
+        delegate.rebuildSessionHold = false
+      }
+    }
 
     await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
 
     async let first: Void = coordinator.handleReconnectionComplete(deviceID: deviceID)
     // Wait until first rebuild is parked inside the hold.
-    for _ in 0..<100 where delegate.rebuildSessionHoldContinuation == nil {
-      await Task.yield()
+    try await waitUntil("first rebuild should be held") {
+      delegate.rebuildSessionHoldContinuation != nil
     }
-    #expect(delegate.rebuildSessionHoldContinuation != nil)
-    async let second: Void = coordinator.handleReconnectionComplete(deviceID: deviceID)
+    await coordinator.handleReconnectionComplete(deviceID: deviceID)
     // Release the held rebuild.
     delegate.rebuildSessionHold = false
     delegate.rebuildSessionHoldContinuation?.resume()
     await first
-    await second
 
     #expect(delegate.rebuildSessionCalls.count == 1)
   }
 
   @Test
-  func `already-connected completion during rebuild does not drop cycle claim`() async {
+  func `already-connected completion during rebuild does not drop cycle claim`() async throws {
     // Production rebuildSession sets .connected early. A second completion in
     // that window must not clearActiveCycle or health single-flight is lost.
     let deviceID = UUID()
-    let (coordinator, delegate) = createCoordinator()
+    let clock = TestClock()
+    let (coordinator, delegate) = createCoordinator(clock: clock)
     delegate.connectionIntent = .wantsConnection()
     delegate.connectionState = .ready
     delegate.rebuildSessionThrowCount = 2
@@ -286,14 +313,15 @@ struct BLEReconnectionCoordinatorTests {
 
     await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
     async let first: Void = coordinator.handleReconnectionComplete(deviceID: deviceID)
-    for _ in 0..<50 where delegate.rebuildSessionCalls.isEmpty {
-      await Task.yield()
+    try await waitUntil("failed connected rebuild should park before retrying") {
+      clock.sleeperCount == 1
     }
     // Second completion while first is in flight and state is .connected.
     await coordinator.handleReconnectionComplete(deviceID: deviceID)
     #expect(coordinator.reconnectingDeviceID == deviceID)
     #expect(delegate.rebuildSessionCalls.count == 1)
 
+    clock.advance(by: .seconds(2))
     await first
     #expect(claimDuringFailure == deviceID)
     #expect(delegate.handleReconnectionFailureCallCount == 1)
@@ -370,18 +398,19 @@ struct BLEReconnectionCoordinatorTests {
   @Test
   func `UI timeout is cancelled when reconnection completes`() async throws {
     let deviceID = UUID()
-    let (coordinator, delegate) = createCoordinator(uiTimeoutDuration: 0.1)
+    let (coordinator, delegate) = createCoordinator()
     delegate.connectionIntent = .wantsConnection()
     delegate.connectionState = .ready
 
     await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+    let timeoutTask = try #require(coordinator.uiTimeoutTaskForTest)
     #expect(delegate.connectionState == .connecting)
 
     // Complete reconnection before timeout (same device)
     await coordinator.handleReconnectionComplete(deviceID: deviceID)
 
-    // Fixed sleep: negative assertion — confirm timeout did NOT fire
-    try await Task.sleep(for: .milliseconds(250))
+    await timeoutTask.value
+    #expect(timeoutTask.isCancelled)
 
     // Should be .connecting from reconnection complete, not .disconnected from timeout
     #expect(delegate.connectionState == .connecting)
@@ -554,35 +583,25 @@ struct BLEReconnectionCoordinatorTests {
     delegate.connectionIntent = .wantsConnection()
     delegate.connectionState = .ready
     delegate.stubbedBLEPhaseIsAutoReconnecting = true
+    var transportQueryCount = 0
+    delegate.onIsTransportAutoReconnecting = {
+      transportQueryCount += 1
+    }
 
     let deviceID = UUID()
     await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
-
-    // Fixed sleep: negative assertion — confirm re-arm keeps state as .connecting
-    try await Task.sleep(for: .milliseconds(200))
+    let firstTimeout = try #require(coordinator.uiTimeoutTaskForTest)
+    await firstTimeout.value
+    let rearmedTimeout = try #require(coordinator.uiTimeoutTaskForTest)
+    #expect(transportQueryCount >= 1)
+    #expect(rearmedTimeout != firstTimeout)
+    #expect(!rearmedTimeout.isCancelled)
 
     // Should still be .connecting because BLE is auto-reconnecting
     #expect(delegate.connectionState == .connecting)
     #expect(delegate.notifyConnectionLostCallCount == 0)
-  }
-
-  @Test
-  func `UI timeout eventually disconnects when max window exceeded`() async throws {
-    // Use a very short maxConnectingUIWindow via a coordinator with short timeout
-    let (coordinator, delegate) = createCoordinator(uiTimeoutDuration: 0.05)
-    delegate.connectionIntent = .wantsConnection()
-    delegate.connectionState = .ready
-    delegate.stubbedBLEPhaseIsAutoReconnecting = true
-
-    await coordinator.handleEnteringAutoReconnect(deviceID: UUID())
-
-    // Fixed sleep: negative assertion — within the 60s max window, re-arm
-    // should keep the state as .connecting. We can't wait 60s in a test, so
-    // verify the re-arm mechanism works within a short window.
-    try await Task.sleep(for: .milliseconds(200))
-
-    // Within the 60s window, should still be .connecting
-    #expect(delegate.connectionState == .connecting)
+    coordinator.cancelTimeout()
+    await rearmedTimeout.value
   }
 
   @Test
@@ -611,6 +630,7 @@ struct BLEReconnectionCoordinatorTests {
     delegate.stubbedBLEPhaseIsAutoReconnecting = false
 
     await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+    let timeoutTask = try #require(coordinator.uiTimeoutTaskForTest)
 
     // Run handleReconnectionComplete while the timeout body is suspended on
     // isTransportAutoReconnecting(), the reentrancy window where a stale
@@ -620,13 +640,8 @@ struct BLEReconnectionCoordinatorTests {
       await coordinator?.handleReconnectionComplete(deviceID: deviceID)
     }
 
-    try await waitUntil("completion should run during the timeout suspension") {
-      delegate.rebuildSessionCalls == [deviceID]
-    }
-
-    // Fixed sleep: negative assertion: give the resumed timeout body a
-    // chance to (incorrectly) force disconnected state.
-    try await Task.sleep(for: .milliseconds(150))
+    await timeoutTask.value
+    #expect(delegate.rebuildSessionCalls == [deviceID])
 
     #expect(delegate.connectionState == .connecting, "Stale timeout must not clobber the completed reconnection")
     #expect(delegate.notifyConnectionLostCallCount == 0)
@@ -635,15 +650,15 @@ struct BLEReconnectionCoordinatorTests {
 
   @Test
   func `cancelTimeout prevents timeout from firing`() async throws {
-    let (coordinator, delegate) = createCoordinator(uiTimeoutDuration: 0.1)
+    let (coordinator, delegate) = createCoordinator()
     delegate.connectionIntent = .wantsConnection()
     delegate.connectionState = .ready
 
     await coordinator.handleEnteringAutoReconnect(deviceID: UUID())
+    let timeoutTask = try #require(coordinator.uiTimeoutTaskForTest)
     coordinator.cancelTimeout()
-
-    // Fixed sleep: negative assertion — confirm timeout was cancelled
-    try await Task.sleep(for: .milliseconds(250))
+    await timeoutTask.value
+    #expect(timeoutTask.isCancelled)
 
     // State should remain .connecting (timeout was cancelled)
     #expect(delegate.connectionState == .connecting)
@@ -680,6 +695,7 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
   var onIsTransportAutoReconnecting: (@MainActor () async -> Void)?
   var onHandleReconnectionFailure: (@MainActor () async -> Void)?
   var onRebuildSession: (@MainActor () async -> Void)?
+  var onNotifyAutoReconnectStarted: (@MainActor () async -> Void)?
 
   func setConnectionState(_ state: DeviceConnectionState) {
     connectionState = state
@@ -699,6 +715,7 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
   func notifyAutoReconnectStarted() async {
     notifyAutoReconnectStartedCallCount += 1
     callOrder.append("notifyAutoReconnectStarted")
+    await onNotifyAutoReconnectStarted?()
   }
 
   func rebuildSession(deviceID: UUID) async throws {

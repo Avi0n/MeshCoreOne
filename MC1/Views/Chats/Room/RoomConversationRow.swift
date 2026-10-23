@@ -21,13 +21,6 @@ struct RoomConversationRow: View {
 
           NotificationLevelIndicator(level: session.notificationLevel)
 
-          if session.isFavorite {
-            Image(systemName: "star.fill")
-              .foregroundStyle(.yellow)
-              .font(.caption)
-              .accessibilityLabel(L10n.Chats.Chats.Row.favorite)
-          }
-
           if let date = session.lastMessageDate {
             ConversationTimestamp(date: date, referenceDate: referenceDate)
           }

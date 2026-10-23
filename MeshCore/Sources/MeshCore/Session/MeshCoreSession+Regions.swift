@@ -17,43 +17,37 @@ extension MeshCoreSession {
   public func requestRegions(from contact: MeshContact) async throws -> [String] {
     let isFloodRouted = contact.outPathLength == 0xFF
 
-    // Firmware requires isRouteDirect() for region requests. For flood-routed
-    // contacts, temporarily set the contact to zero-hop direct on the firmware,
-    // matching the Python reference (base.py:269-273). The zero-hop write, the
-    // region exchange, and the restore are each their own serialized exchange so
-    // none nests inside the request/response serializer the others acquire.
-    if isFloodRouted {
-      // Route through PacketBuilder.updateContact so the raw type byte survives instead of
-      // being coerced to .chat by the typed overload; the restore below only touches
-      // out_path_len, so any coercion here would be permanent.
-      let directContact = MeshContact(
-        id: contact.id,
-        publicKey: contact.publicKey,
-        type: contact.type,
-        typeRawValue: contact.typeRawValue,
-        flags: contact.flags,
-        outPathLength: 0,
-        outPath: Data(),
-        advertisedName: contact.advertisedName,
-        lastAdvertisement: contact.lastAdvertisement,
-        latitude: contact.latitude,
-        longitude: contact.longitude,
-        lastModified: contact.lastModified
-      )
-      try await sendSimpleCommand(PacketBuilder.updateContact(directContact))
-    }
-
+    // Region requests need a direct out path. Restore flood routing after the
+    // submitted exchange drains, even when the caller cancels during the write.
     do {
+      if isFloodRouted {
+        // Preserve the raw type because resetting the out path does not restore the type.
+        let directContact = MeshContact(
+          id: contact.id,
+          publicKey: contact.publicKey,
+          type: contact.type,
+          typeRawValue: contact.typeRawValue,
+          flags: contact.flags,
+          outPathLength: 0,
+          outPath: Data(),
+          advertisedName: contact.advertisedName,
+          lastAdvertisement: contact.lastAdvertisement,
+          latitude: contact.latitude,
+          longitude: contact.longitude,
+          lastModified: contact.lastModified
+        )
+        try await sendSimpleCommand(PacketBuilder.updateContact(directContact))
+      }
       let result = try await requestResponseSerializer.withSerialization { [self] in
         try await performRegionsRequest(from: contact)
       }
       if isFloodRouted {
-        try? await resetPath(publicKey: contact.publicKey)
+        await Task { try? await resetPath(publicKey: contact.publicKey) }.value
       }
       return result
     } catch {
       if isFloodRouted {
-        try? await resetPath(publicKey: contact.publicKey)
+        await Task { try? await resetPath(publicKey: contact.publicKey) }.value
       }
       throw error
     }

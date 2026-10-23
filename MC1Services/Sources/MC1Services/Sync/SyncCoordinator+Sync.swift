@@ -186,14 +186,11 @@ extension SyncCoordinator {
         usePipelinedRead: channelSyncConfig.usePipelinedChannelRead
       )
 
-      // End sync activity before messages phase (pill should hide).
-      // During resync, the outer bracket (beginResyncActivity) holds syncActivityCount >= 1,
-      // so this inner succeeded=true decrement cannot reach zero and prematurely trigger
-      // the "Ready" toast. During initial sync there is no outer bracket, and reaching
-      // zero here is the correct "sync complete" signal.
+      // End the contacts/channels activity bracket before polling. Message catch-up
+      // is reported by phase; ConnectionManager owns the app's readiness transition.
       await endSyncActivityOnce(succeeded: true)
 
-      // Phase 3: Messages (no pill for this phase)
+      // Phase 3: Messages
       logger.info("[Sync] State → .syncing(.messages)")
       await setState(.syncing(progress: SyncProgress(phase: .messages, current: 0, total: 0)))
       let messageStart = ContinuousClock.now
@@ -261,14 +258,14 @@ extension SyncCoordinator {
   ///   - forceFullSync: When true, forces a full contact sync instead of incremental.
   ///   - channelSyncConfig: Channel sync skip configuration.
   ///   - platformName: Platform name for instrumentation logging.
-  /// - Returns: `true` if sync succeeded, `false` if it failed
+  /// - Returns: The completed sync result, or nil when the sync throws.
   func performResync(
     radioID: UUID,
     dependencies: SyncDependencies,
     forceFullSync: Bool = false,
     channelSyncConfig: ChannelSyncConfig = .none,
     platformName: String = "unknown"
-  ) async -> Bool {
+  ) async -> FullSyncResult? {
     #if DEBUG
       if let override = performResyncOverride {
         return await override(radioID, dependencies)
@@ -311,11 +308,10 @@ extension SyncCoordinator {
 
       if result.isConnectionUsable {
         logger.info("Resync succeeded")
-        return true
+      } else {
+        logger.warning("Resync completed without usable contacts")
       }
-
-      logger.warning("Resync completed without usable contacts")
-      return false
+      return result
     } catch {
       await drainHandlersAndResumeNotifications(
         notificationService: dependencies.notificationService,
@@ -326,7 +322,7 @@ extension SyncCoordinator {
 
       logger.warning("Resync failed: \(error.localizedDescription)")
       await setState(.failed(.syncFailed(error.localizedDescription)))
-      return false
+      return nil
     }
   }
 

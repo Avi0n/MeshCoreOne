@@ -93,7 +93,7 @@ private struct FailedSendIndicatorPreviewList: View {
       unreadCount: 4,
       unreadMentionCount: 1,
       notificationLevel: .all,
-      isFavorite: false
+      isPinned: false
     )
     let room = RemoteNodeSessionDTO(
       id: UUID(),

@@ -53,7 +53,7 @@ extension AppState {
   }
 
   /// Builds the `EnvInputs` snapshot the chat view model bakes into `MessageItem`s.
-  /// Reads the user-preference toggles from `UserDefaults.standard` (matching the
+  /// Reads the user-preference toggles from the app's defaults (matching the
   /// `@AppStorage` reads at render time) and takes the four true-environment values
   /// that only exist inside a SwiftUI view. Shared by `ChatConversationView` and the
   /// navigation-time prefetch so a prefetched timeline bakes identical items and the
@@ -73,13 +73,19 @@ extension AppState {
       contentSizeCategory: contentSizeCategory
     )
 
-    let defaults = UserDefaults.standard
     func bool(_ key: AppStorageKey, _ fallback: Bool) -> Bool {
       defaults.object(forKey: key.rawValue) as? Bool ?? fallback
     }
 
     let showMapPreviews = bool(.showMapPreviewThumbnails, AppStorageKey.defaultShowMapPreviewThumbnails)
       && !(conversation?.suppressesMapPreviews ?? false)
+    let mapPreference = mapColorSchemePreference(
+      from: defaults.string(forKey: AppStorageKey.mapColorSchemePreference.rawValue)
+    )
+    let mapBasemapIsDark = resolvedMapIsDark(
+      preference: mapPreference,
+      colorScheme: isDark ? .dark : .light
+    )
     let translationTarget = defaults.string(forKey: AppStorageKey.translationTargetLanguage.rawValue)
       ?? AppStorageKey.defaultTranslationTargetLanguage
 
@@ -93,6 +99,7 @@ extension AppState {
       previewsEnabled: bool(.linkPreviewsEnabled, AppStorageKey.defaultLinkPreviewsEnabled),
       isHighContrast: isHighContrast,
       isDark: isDark,
+      mapBasemapIsDark: mapBasemapIsDark,
       showMapPreviews: showMapPreviews,
       isOffline: !offlineMapService.isNetworkAvailable,
       currentUserName: localNodeName,

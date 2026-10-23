@@ -80,7 +80,7 @@ struct WiFiTransportTests {
     let transport = WiFiTransport()
     let callTracker = CallTracker()
 
-    await transport.setDisconnectionHandler { _ in
+    await transport.setDisconnectionHandler { _, _ in
       callTracker.markCalled()
     }
 
@@ -98,7 +98,7 @@ struct WiFiTransportTests {
     let transport = WiFiTransport()
     let callTracker = CallTracker()
 
-    await transport.setDisconnectionHandler { _ in
+    await transport.setDisconnectionHandler { _, _ in
       callTracker.markCalled()
     }
 
@@ -182,8 +182,8 @@ struct WiFiTransportTests {
     listener.cancel()
   }
 
-  @Test
-  func `Peer close finishes the stream and fires the disconnection handler`() async throws {
+  @Test(arguments: [false, true])
+  func `Peer close finishes the stream and fires the disconnection handler`(reset: Bool) async throws {
     let acceptedConnections = OSAllocatedUnfairLock<[NWConnection]>(initialState: [])
     let listener = try await startLocalListener { conn in
       acceptedConnections.withLock { $0.append(conn) }
@@ -204,7 +204,7 @@ struct WiFiTransportTests {
 
     let transport = WiFiTransport()
     let disconnectionTracker = CallTracker()
-    await transport.setDisconnectionHandler { _ in
+    await transport.setDisconnectionHandler { _, _ in
       disconnectionTracker.markCalled()
     }
     await transport.setConnectionInfo(host: "127.0.0.1", port: port)
@@ -215,19 +215,23 @@ struct WiFiTransportTests {
       for await _ in await transport.receivedData {}
       streamEnded.markCalled()
     }
+    defer { consumeTask.cancel() }
 
     try await waitUntil(timeout: .seconds(2), "Server should accept the connection") {
       acceptedConnections.withLock { !$0.isEmpty }
     }
 
-    // The radio closes the TCP stream cleanly (FIN).
     let serverSide = acceptedConnections.withLock { $0.first }
-    serverSide?.send(
-      content: nil,
-      contentContext: .finalMessage,
-      isComplete: true,
-      completion: .contentProcessed { _ in }
-    )
+    if reset {
+      serverSide?.forceCancel()
+    } else {
+      serverSide?.send(
+        content: nil,
+        contentContext: .finalMessage,
+        isComplete: true,
+        completion: .contentProcessed { _ in }
+      )
+    }
 
     try await waitUntil(timeout: .seconds(2), "Peer close should fire the disconnection handler") {
       disconnectionTracker.wasCalled
@@ -236,8 +240,8 @@ struct WiFiTransportTests {
       streamEnded.wasCalled
     }
     #expect(await transport.isConnected == false, "Peer close should mark the transport disconnected")
+    #expect(disconnectionTracker.callCount == 1)
 
-    consumeTask.cancel()
     await transport.disconnect()
   }
 

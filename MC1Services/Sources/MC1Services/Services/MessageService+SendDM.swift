@@ -395,6 +395,12 @@ extension MessageService {
 
       return message
     } catch {
+      if error is CancellationError || Task.isCancelled {
+        // ChatSendQueueService replays a cancelled send, so this must not mark the message failed.
+        // Drop the tracked ACK so checkExpiredAcks cannot fail the row after the wait ends.
+        pendingAcks.removeValue(forKey: messageID)
+        throw CancellationError()
+      }
       try await failMessageAndRethrow(error, messageID: messageID)
     }
   }

@@ -28,9 +28,22 @@ final class NodeCLIViewModel {
   // MARK: - Dependencies
 
   private var sessionName: String = ""
+  private var remoteTarget: CLIRemoteTarget?
   private var sendRawCommand: (@MainActor (_ command: String, _ timeout: Duration) async throws -> String)?
   private var currentCommandTask: Task<Void, Never>?
   private var hasConfigured = false
+  private var commandEpoch = Epoch()
+
+  func reset() {
+    commandEpoch.bump()
+    currentCommandTask?.cancel()
+    currentCommandTask = nil
+    outputLines.removeAll()
+    commandHistory.removeAll()
+    currentInput = ""
+    isWaitingForResponse = false
+    hasConfigured = false
+  }
 
   // MARK: - Prompt
 
@@ -46,13 +59,18 @@ final class NodeCLIViewModel {
   /// so toggling the Settings/CLI segment does not re-banner.
   func configure(
     sessionName: String,
+    remoteTarget: CLIRemoteTarget,
     sendRawCommand: @escaping @MainActor (_ command: String, _ timeout: Duration) async throws -> String
   ) {
     self.sessionName = sessionName
+    self.remoteTarget = remoteTarget
     self.sendRawCommand = sendRawCommand
     guard !hasConfigured else { return }
     hasConfigured = true
-    appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.bannerConnected(sessionName), type: .response)
+    let banner = remoteTarget == .radio
+      ? L10n.RemoteNodes.RemoteNodes.NodeCli.radioBanner(sessionName)
+      : L10n.RemoteNodes.RemoteNodes.NodeCli.bannerConnected(sessionName)
+    appendOutput(banner, type: .response)
     appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.bannerHint, type: .response)
     appendOutput("", type: .response)
   }
@@ -60,33 +78,62 @@ final class NodeCLIViewModel {
   // MARK: - Command Execution
 
   func executeCommand(_ command: String) {
-    let trimmed = command.trimmingCharacters(in: .whitespacesAndNewlines)
+    let normalized = command.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !isWaitingForResponse else { return }
     let promptPrefix = promptText.trimmingCharacters(in: .whitespaces)
 
-    guard !trimmed.isEmpty else {
+    guard !normalized.isEmpty else {
       appendOutput(promptPrefix, type: .command)
       return
     }
 
-    addToHistory(trimmed)
-    appendOutput("\(promptPrefix) \(trimmed)", type: .command)
+    let transmitted = transmittedLine(original: command, normalized: normalized)
+    addToHistory(transmitted)
+    appendOutput("\(promptPrefix) \(transmitted)", type: .command)
 
-    let parts = trimmed.split(separator: " ", maxSplits: 1).map(String.init)
+    let parts = normalized.split(separator: " ", maxSplits: 1).map(String.init)
     let cmd = parts[0].lowercased()
     let args = parts.count > 1 ? parts[1] : ""
 
-    currentCommandTask = Task { await handleCommand(cmd, args: args, raw: trimmed) }
+    isWaitingForResponse = true
+    // Compared with `currentCommandTask` so a newer command stays waiting.
+    var task: Task<Void, Never>!
+    task = Task {
+      defer { clearWaitingIfCurrent(task) }
+      guard !Task.isCancelled else { return }
+      await handleCommand(cmd, args: args, raw: transmitted)
+    }
+    currentCommandTask = task
     currentInput = ""
   }
 
+  /// Radio CLI sends the submitted line. Help, clear, and the other targets keep the trimmed line.
+  private func transmittedLine(original: String, normalized: String) -> String {
+    guard remoteTarget == .radio else { return normalized }
+    let parts = normalized.split(separator: " ", maxSplits: 1).map(String.init)
+    let verb = parts[0].lowercased()
+    let args = parts.count > 1 ? parts[1] : ""
+    if verb == "help" || (verb == "clear" && args.isEmpty) {
+      return normalized
+    }
+    return original
+  }
+
   func cancelCurrentCommand() {
+    // A reply already in hand must not print after cancel.
+    commandEpoch.bump()
     currentCommandTask?.cancel()
     currentCommandTask = nil
     if isWaitingForResponse {
       isWaitingForResponse = false
       appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.cancelled, type: .error)
     }
+  }
+
+  private func clearWaitingIfCurrent(_ task: Task<Void, Never>) {
+    guard currentCommandTask == task else { return }
+    currentCommandTask = nil
+    isWaitingForResponse = false
   }
 
   private func handleCommand(_ cmd: String, args: String, raw: String) async {
@@ -99,33 +146,67 @@ final class NodeCLIViewModel {
 
   private func sendCommand(_ command: String) async {
     guard let sendRawCommand else { return }
+    let ticket = commandEpoch.ticket()
 
-    // Reboot does not reply; treat both success and timeout as success.
-    let normalized = command.lowercased()
-    if normalized == "reboot" || normalized == "reboot now" {
-      isWaitingForResponse = true
-      defer { isWaitingForResponse = false }
+    // These verbs often get no reply. A real reply is still shown.
+    if let sentLine = noReplySentLine(for: command) {
       do {
-        _ = try await sendRawCommand(command, Self.rebootTimeout)
-        appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.rebootSent, type: .success)
+        let response = try await sendRawCommand(command, Self.rebootTimeout)
+        guard ticket.isCurrent(in: commandEpoch) else { return }
+        if response.isEmpty {
+          appendOutput(sentLine, type: .success)
+        } else {
+          appendOutput(response, type: .response)
+        }
       } catch RemoteNodeError.timeout {
-        appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.rebootSent, type: .success)
+        guard ticket.isCurrent(in: commandEpoch) else { return }
+        appendOutput(sentLine, type: .success)
       } catch is CancellationError {
       } catch {
+        guard ticket.isCurrent(in: commandEpoch) else { return }
         appendOutput(error.localizedDescription, type: .error)
       }
       return
     }
 
-    isWaitingForResponse = true
-    defer { isWaitingForResponse = false }
     do {
       let response = try await sendRawCommand(command, Self.defaultCommandTimeout)
-      guard !Task.isCancelled else { return }
+      guard ticket.isCurrent(in: commandEpoch), !Task.isCancelled else { return }
       appendOutput(response, type: .response)
     } catch is CancellationError {
+    } catch RemoteNodeError.timeout where remoteTarget == .radio {
+      guard ticket.isCurrent(in: commandEpoch) else { return }
+      appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.radioNoReply(sessionName), type: .error)
     } catch {
+      guard ticket.isCurrent(in: commandEpoch) else { return }
       appendOutput(error.localizedDescription, type: .error)
+    }
+  }
+
+  /// Repeater and room commands with no reply share `RemoteCLINoReplyCommand`.
+  /// A radio matches the whole command, including case.
+  private func noReplySentLine(for command: String) -> String? {
+    switch remoteTarget {
+    case .repeater, .room:
+      switch RemoteCLINoReplyCommand(command) {
+      case .reboot:
+        L10n.RemoteNodes.RemoteNodes.NodeCli.rebootSent
+      case .powerOff:
+        L10n.RemoteNodes.RemoteNodes.NodeCli.powerOffSent
+      case nil:
+        nil
+      }
+    case .radio:
+      switch command {
+      case "reboot":
+        L10n.RemoteNodes.RemoteNodes.NodeCli.rebootSent
+      case "poweroff", "shutdown":
+        L10n.RemoteNodes.RemoteNodes.NodeCli.powerOffSent
+      default:
+        nil
+      }
+    case nil:
+      nil
     }
   }
 
@@ -220,7 +301,12 @@ extension NodeCLIViewModel {
   /// session-management commands the node firmware can't handle.
   func updateGhostText(cursorAtEnd: Bool) {
     guard !currentInput.isEmpty, cursorAtEnd else { ghostText = ""; return }
-    let suggestions = completionEngine.completions(for: currentInput, isLocal: false, includeSessionCommands: false)
+    let suggestions = completionEngine.completions(
+      for: currentInput,
+      isLocal: false,
+      remoteTarget: remoteTarget,
+      includeSessionCommands: false
+    )
     guard let first = suggestions.first else { ghostText = ""; return }
     let parts = currentInput.split(separator: " ", omittingEmptySubsequences: false)
     let lastPart = parts.last.map(String.init) ?? ""
@@ -245,7 +331,12 @@ extension NodeCLIViewModel {
       }
       return suggestions
     }
-    let suggestions = completionEngine.completions(for: currentInput, isLocal: false, includeSessionCommands: false)
+    let suggestions = completionEngine.completions(
+      for: currentInput,
+      isLocal: false,
+      remoteTarget: remoteTarget,
+      includeSessionCommands: false
+    )
     guard !suggestions.isEmpty else {
       tabSuggestions = nil
       tabSelectionIndex = nil
@@ -277,14 +368,12 @@ extension NodeCLIViewModel {
   }
 
   private func applyCompletion(_ suggestion: String) {
-    let parts = currentInput.split(separator: " ", omittingEmptySubsequences: false)
-    if parts.count <= 1 {
-      currentInput = suggestion + " "
-    } else {
-      var newParts = parts.dropLast().map(String.init)
-      newParts.append(suggestion)
-      currentInput = newParts.joined(separator: " ") + " "
-    }
+    currentInput = completionEngine.applying(
+      suggestion,
+      to: currentInput,
+      isLocal: false,
+      remoteTarget: remoteTarget
+    )
     ghostText = ""
   }
 }

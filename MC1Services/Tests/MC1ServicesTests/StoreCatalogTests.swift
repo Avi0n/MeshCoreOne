@@ -31,20 +31,3 @@ struct StoreCatalogTests {
     }
   }
 }
-
-@Suite("Store value types")
-struct StoreValueTypeTests {
-  @Test
-  func `StoreLoadState is Equatable across its cases`() {
-    #expect(StoreLoadState.idle == .idle)
-    #expect(StoreLoadState.loading != .loaded)
-    #expect(StoreLoadState.failed != .idle)
-  }
-
-  @Test
-  func `StorePurchaseOutcome distinguishes its three cases`() {
-    #expect(StorePurchaseOutcome.purchased == .purchased)
-    #expect(StorePurchaseOutcome.pending != .purchased)
-    #expect(StorePurchaseOutcome.userCancelled != .pending)
-  }
-}

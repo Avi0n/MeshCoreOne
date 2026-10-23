@@ -20,6 +20,7 @@ PROJECT := MC1.xcodeproj
 
 # The full app suite runs on the project-standard iOS 27 simulator. Override SIM to retarget.
 SIM ?= platform=iOS Simulator,name=iPhone 17e,OS=27.0
+XCODEBUILD_TEST_ARGS ?=
 
 # StoreKit (SKTestSession) suites must run on an iOS 18.x simulator. Under `xcodebuild
 # test`, iOS 26.x simulators deliver 0 products to storekitd (Apple regression
@@ -112,6 +113,7 @@ test-app: generate ## Run the full app suite on iOS 27
 	@dest='$(SIM)'; $(SIM_LOCK); \
 		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
 		-destination "$$dest" \
+		-parallel-testing-enabled NO $(XCODEBUILD_TEST_ARGS) \
 		-collect-test-diagnostics never \
 		2>&1 | $(XCSIFT_WITH_HEARTBEAT)
 
@@ -119,5 +121,6 @@ test-store: generate ## Run every StoreKit/IAP SKTestSession suite on iOS 18.x
 	@dest='$(STORE_SIM)'; $(SIM_LOCK); \
 		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
 		-destination "$$dest" $(STORE_SUITES) \
+		-parallel-testing-enabled NO $(XCODEBUILD_TEST_ARGS) \
 		-collect-test-diagnostics never \
 		2>&1 | $(XCSIFT_WITH_HEARTBEAT)

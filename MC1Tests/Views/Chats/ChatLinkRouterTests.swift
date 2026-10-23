@@ -130,8 +130,10 @@ struct ChatLinkRouterTests {
     try await Task.sleep(for: .milliseconds(80))
 
     #expect(appState.navigation.pendingChannelLink == nil)
-    #expect(appState.navigation.pendingChannel?.id == existing.id)
-    #expect(appState.navigation.pendingChannel?.floodScope == .region("Germany"))
+    #expect(appState.navigation.chatsSelectedRoute == .channel(existing))
+    if case let .channel(opened) = appState.navigation.chatsSelectedRoute {
+      #expect(opened.floodScope == .region("Germany"))
+    }
 
     let fetched = try await store.fetchChannel(id: existing.id)
     #expect(fetched?.floodScope == .region("Germany"))

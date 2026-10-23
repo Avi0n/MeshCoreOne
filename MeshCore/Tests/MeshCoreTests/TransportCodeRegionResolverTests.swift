@@ -55,6 +55,14 @@ struct TransportCodeRegionResolverTests {
   // MARK: - Reserved-boundary rewrites
 
   @Test
+  func `isUnscoped is true only for a leading zero UInt16`() {
+    #expect(TransportCodeRegionResolver.isUnscoped(Data([0x00, 0x00, 0x12, 0x34])))
+    #expect(!TransportCodeRegionResolver.isUnscoped(Data([0x01, 0x00, 0x12, 0x34])))
+    #expect(!TransportCodeRegionResolver.isUnscoped(Data([0x00])))
+    #expect(!TransportCodeRegionResolver.isUnscoped(Data()))
+  }
+
+  @Test
   func `rewriteReservedCode maps 0 to 1`() {
     #expect(TransportCodeRegionResolver.rewriteReservedCode(0) == 1)
   }

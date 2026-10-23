@@ -12,15 +12,19 @@ struct ChatsSplitDetailContent: View {
   var body: some View {
     switch route {
     case let .direct(contact):
+      let conversation = ChatConversationType.dm(contact)
       ChatConversationView(
-        conversationType: .dm(contact),
+        conversationType: conversation,
+        draftEditor: appState.chatDraftEditor(for: conversation.draftConversationID),
         parentViewModel: viewModel,
         coordinatorRegistry: appState.ensureChatCoordinatorRegistry()
       )
       .id(contact.id)
     case let .channel(channel):
+      let conversation = ChatConversationType.channel(channel)
       ChatConversationView(
-        conversationType: .channel(channel),
+        conversationType: conversation,
+        draftEditor: appState.chatDraftEditor(for: conversation.draftConversationID),
         parentViewModel: viewModel,
         coordinatorRegistry: appState.ensureChatCoordinatorRegistry()
       )

@@ -30,9 +30,7 @@ struct MapsSettingsView: View {
       .themedRowBackground(theme)
 
       Section {
-        NavigationLink {
-          OfflineMapSettingsView()
-        } label: {
+        NavigationLink(value: SettingsSubpage.offlineMaps) {
           TintedLabel(L10n.Settings.OfflineMaps.title, systemImage: "arrow.down.circle")
         }
       } header: {
@@ -41,6 +39,7 @@ struct MapsSettingsView: View {
       .themedRowBackground(theme)
     }
     .themedCanvas(theme)
+    .settingsSubpageDestinations()
     .navigationTitle(L10n.Settings.Maps.title)
   }
 }

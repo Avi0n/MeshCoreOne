@@ -179,26 +179,6 @@ struct RxLogParserTests {
   }
 
   @Test
-  func `MeshEvent.rxLogData holds ParsedRxLogData`() {
-    let parsed = ParsedRxLogData(
-      snr: 5.0, rssi: -80, rawPayload: Data([0x15, 0x00, 0xAA]),
-      routeType: .flood, payloadType: .groupText, payloadVersion: 0,
-      payloadTypeBits: 5,
-      transportCode: nil, pathLength: 0, pathNodes: [],
-      packetPayload: Data([0xAA])
-    )
-
-    let event = MeshEvent.rxLogData(parsed)
-
-    if case let .rxLogData(data) = event {
-      #expect(data.routeType == .flood)
-      #expect(data.packetHash.count == 16)
-    } else {
-      Issue.record("Expected rxLogData event")
-    }
-  }
-
-  @Test
   func `Parse rejects reserved (mode 3) path length encoding`() {
     // Header: routeType=2 (DIRECT), payloadType=2 (TEXT_MSG), version=0 -> 0x0A
     // pathLen: bits 7-6 = 0b11 (mode 3, reserved), hopCount=1 -> 0b11_000001 = 0xC1

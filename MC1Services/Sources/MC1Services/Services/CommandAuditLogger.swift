@@ -11,10 +11,11 @@ actor CommandAuditLogger {
     case `in` = "<-"
   }
 
-  /// Target type (repeater or room)
+  /// Target type (repeater, room, or a chat contact's radio)
   enum Target: String {
     case repeater = "REPEATER"
     case room = "ROOM"
+    case contact = "CONTACT"
   }
 
   // MARK: - Properties
@@ -83,10 +84,10 @@ actor CommandAuditLogger {
   // MARK: - CLI Commands (Repeater)
 
   /// Log a CLI command being sent (with password redaction)
-  func logCLICommand(publicKey: Data, command: String) {
+  func logCLICommand(publicKey: Data, command: String, target: Target) {
     let keyHex = LogRedaction.publicKeyHex(publicKey)
     let redactedCmd = LogRedaction.cliCommand(command)
-    logger.info("\(prefix) \(Direction.out.rawValue) REPEATER CLI to=\(keyHex) cmd=\"\(redactedCmd)\"")
+    logger.info("\(prefix) \(Direction.out.rawValue) \(target.rawValue) CLI to=\(keyHex) cmd=\"\(redactedCmd)\"")
   }
 
   /// Log a CLI response received (full content logged)

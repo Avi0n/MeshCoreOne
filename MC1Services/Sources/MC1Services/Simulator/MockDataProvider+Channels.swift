@@ -1,9 +1,9 @@
 import Foundation
 
 extension MockDataProvider {
-  /// Seeded channels with varied notification levels and a favorite, so the
-  /// channel list exercises all/favorite/muted states. Saved via the DTO-based
-  /// `saveChannel(_:)` (the wire `ChannelInfo` carries no notification/favorite state).
+  /// Seeded channels with varied notification levels and a pin, so the
+  /// channel list exercises all/pinned/muted states. Saved via the DTO-based
+  /// `saveChannel(_:)` (the wire `ChannelInfo` carries no notification/pin state).
   public static var channels: [ChannelDTO] {
     let now = Date()
     return [
@@ -17,7 +17,7 @@ extension MockDataProvider {
         lastMessageDate: now.addingTimeInterval(-20),
         unreadCount: 2,
         notificationLevel: .all,
-        isFavorite: false
+        isPinned: false
       ),
       ChannelDTO(
         id: bayAreaChannelID,
@@ -30,7 +30,7 @@ extension MockDataProvider {
         unreadCount: 1,
         unreadMentionCount: 1,
         notificationLevel: .all,
-        isFavorite: true
+        isPinned: true
       ),
       ChannelDTO(
         id: trailCrewChannelID,
@@ -42,7 +42,7 @@ extension MockDataProvider {
         lastMessageDate: now.addingTimeInterval(-7200),
         unreadCount: 0,
         notificationLevel: .muted,
-        isFavorite: false
+        isPinned: false
       ),
       // Long backlog whose unread count exceeds one page (pageSize is 50), so the
       // first-unread message — where the "New Messages" divider belongs — only
@@ -58,7 +58,7 @@ extension MockDataProvider {
         lastMessageDate: now.addingTimeInterval(-90),
         unreadCount: meshHQUnreadCount,
         notificationLevel: .all,
-        isFavorite: false
+        isPinned: false
       )
     ]
   }

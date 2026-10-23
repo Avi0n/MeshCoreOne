@@ -83,21 +83,37 @@ struct PresetStepView: View {
 
       Spacer()
 
-      Button {
-        if let id = selectedID {
-          apply(id: id)
+      VStack(spacing: OnboardingMetrics.mediumSpacing) {
+        Button {
+          if let id = selectedID {
+            apply(id: id)
+          }
+        } label: {
+          Text(applyCTAText)
+            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .padding()
         }
-      } label: {
-        Text(applyCTAText)
-          .font(.headline)
-          .frame(maxWidth: .infinity)
-          .padding()
+        .liquidGlassProminentButtonStyle()
+        .disabled(isApplying || selectedID == nil || !canApply)
+
+        skipForNowButton
+          .disabled(isApplying)
       }
-      .liquidGlassProminentButtonStyle()
-      .disabled(isApplying || selectedID == nil || !canApply)
       .padding(.horizontal)
       .padding(.bottom)
     }
+  }
+
+  /// Finishes onboarding. Leaves `regionSelection` and the radio unchanged.
+  private var skipForNowButton: some View {
+    Button(L10n.Onboarding.skipForNow) {
+      commitTrigger.toggle()
+      appState.completeOnboarding()
+    }
+    .buttonStyle(.bordered)
+    .tint(.secondary)
+    .frame(minHeight: OnboardingMetrics.minHitTarget)
   }
 
   private var applyCTAText: String {

@@ -3,16 +3,19 @@ import Foundation
 @testable import MeshCore
 import Testing
 
-/// Service-level coverage for `ContactService.syncContacts` after it was restructured to
-/// batch-persist in a single transaction. Uses the real in-memory `PersistenceStore` so the
-/// optimized `batchSaveContacts` override (not the protocol default) is exercised end to end.
+/// Uses a real PersistenceStore so contact sync exercises production batch persistence.
 @Suite("ContactService Sync Tests")
 struct ContactServiceSyncTests {
   private func publicKey(_ byte: UInt8) -> Data {
     Data(repeating: byte, count: ProtocolLimits.publicKeySize)
   }
 
-  private func meshContact(_ keyByte: UInt8, name: String, lastModified: Date = Date(timeIntervalSince1970: 0)) -> MeshContact {
+  private func meshContact(
+    _ keyByte: UInt8,
+    name: String,
+    lastAdvertisement: Date = Date(timeIntervalSince1970: 0),
+    lastModified: Date = Date(timeIntervalSince1970: 0)
+  ) -> MeshContact {
     let key = publicKey(keyByte)
     return MeshContact(
       id: key.uppercaseHexString(),
@@ -22,11 +25,39 @@ struct ContactServiceSyncTests {
       outPathLength: 0,
       outPath: Data(),
       advertisedName: name,
-      lastAdvertisement: Date(timeIntervalSince1970: 0),
+      lastAdvertisement: lastAdvertisement,
       latitude: 0,
       longitude: 0,
       lastModified: lastModified
     )
+  }
+
+  @Test
+  func `sync advances heard evidence from adverts for existing and new contacts`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let advert: UInt32 = 1_700_000_000
+    try await store.saveContact(ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: publicKey(0xAA),
+      lastAdvertTimestamp: advert,
+      lastHeardTimestamp: advert - 1
+    ))
+    let session = MockMeshCoreSession()
+    let advertDate = Date(timeIntervalSince1970: TimeInterval(advert))
+    await session.setStubbedContacts([
+      meshContact(0xAA, name: "Existing", lastAdvertisement: advertDate),
+      meshContact(0xBB, name: "New", lastAdvertisement: advertDate)
+    ])
+    let service = ContactService(session: session, dataStore: store, syncCoordinator: nil, cleanupCoordinator: nil)
+
+    let result = try await service.syncContacts(radioID: radioID)
+
+    let contacts = try await store.fetchContacts(radioID: radioID)
+    #expect(contacts.count == 2)
+    #expect(contacts.allSatisfy { $0.lastHeardTimestamp == advert })
+    #expect(result.lastSyncTimestamp == 0)
+    #expect(try await store.fetchDiscoveredNodes(radioID: radioID).isEmpty)
   }
 
   private func contactFrame(_ keyByte: UInt8, name: String) -> ContactFrame {

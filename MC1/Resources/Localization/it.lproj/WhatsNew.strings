@@ -30,3 +30,38 @@
 "whatsNew.fasterChatLoading.title" = "Caricamento chat più veloce";
 /* What's New v1.5 - Faster chat loading, description */
 "whatsNew.fasterChatLoading.description" = "Aprire una chat è fino al 90%% più veloce.";
+
+/* What's New v1.6 - Pinned chats, title */
+"whatsNew.pinnedChats.title" = "Chat fissate";
+/* What's New v1.6 - Pinned chats, description */
+"whatsNew.pinnedChats.description" = "Le chat fissate sono ora separate dai preferiti. Le chat fissate compaiono nella sezione Fissato e i contatti che avevi già aggiunto ai preferiti vengono fissati la prima volta che apri l'app.";
+
+/* What's New v1.6 - Read and unread, title */
+"whatsNew.readAndUnread.title" = "Letti e non letti";
+/* What's New v1.6 - Read and unread, description */
+"whatsNew.readAndUnread.description" = "Tieni premuto sulla chat per segnare la conversazione come letta o non letta.";
+
+/* What's New v1.6 - iPhone Duo, title */
+"whatsNew.iPhoneDuo.title" = "iPhone Duo";
+/* What's New v1.6 - iPhone Duo, description */
+"whatsNew.iPhoneDuo.description" = "MC1 è pronto per iPhone Duo con layout ridimensionabili.";
+
+/* What's New v1.6 - iPad tab bar, title */
+"whatsNew.iPadTabBar.title" = "Barra dei pannelli su iPad";
+/* What's New v1.6 - iPad tab bar, description */
+"whatsNew.iPadTabBar.description" = "iPad sposta le icone dei pannelli dal lato sinistro alla parte superiore. Questo ci aiuta a supportare meglio tutti i dispositivi, incluso iPhone Duo.";
+
+/* What's New v1.6 - Advanced map filters, title */
+"whatsNew.advancedMapFilters.title" = "Filtri avanzati della mappa";
+/* What's New v1.6 - Advanced map filters, description */
+"whatsNew.advancedMapFilters.description" = "Filtra la mappa per Ultimo ascolto e numero di salti. Puoi scegliere un preset o impostare un intervallo personalizzato, e rimuovere un filtro.";
+
+/* What's New v1.6 - Bluetooth and Wi-Fi, title */
+"whatsNew.bluetoothAndWiFi.title" = "Bluetooth e Wi‑Fi";
+/* What's New v1.6 - Bluetooth and Wi-Fi, description */
+"whatsNew.bluetoothAndWiFi.description" = "Se una radio ha il firmware 1.18 o successivo ed è associata sia tramite Bluetooth sia tramite Wi‑Fi, puoi passare dall'uno all'altro in Connetti dispositivo e in Impostazioni > Connessione.";
+
+/* What's New v1.6 - More changes, title */
+"whatsNew.moreChanges.title" = "Altre modifiche";
+/* What's New v1.6 - More changes, description */
+"whatsNew.moreChanges.description" = "Tocca \"Vedi tutte le nuove modifiche\" qui sotto per vedere l'elenco completo delle correzioni di bug e delle altre funzionalità.";

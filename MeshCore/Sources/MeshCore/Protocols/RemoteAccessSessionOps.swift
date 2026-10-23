@@ -23,10 +23,16 @@ public protocol RemoteAccessSessionOps: Actor {
   /// - Parameters:
   ///   - destination: The destination public key (6+ bytes, uses first 6 as prefix).
   ///   - command: The command string to send.
+  ///   - textType: `.cliData` for a repeater or room, or `.cliCommand` for a contact's radio.
   ///   - timestamp: Message timestamp.
   /// - Returns: Information about the sent message, including the expected ACK code.
   /// - Throws: `MeshCoreError` if the device doesn't respond.
-  func sendCommand(to destination: Data, command: String, timestamp: Date) async throws -> MessageSentInfo
+  func sendCommand(
+    to destination: Data,
+    command: String,
+    textType: TextType,
+    timestamp: Date
+  ) async throws -> MessageSentInfo
 
   /// Sends a keep-alive request to a room server with the client's sync watermark.
   ///
@@ -122,8 +128,12 @@ public protocol RemoteAccessSessionOps: Actor {
 
 public extension RemoteAccessSessionOps {
   /// Sends a command message stamped with the current time.
-  func sendCommand(to destination: Data, command: String) async throws -> MessageSentInfo {
-    try await sendCommand(to: destination, command: command, timestamp: Date())
+  func sendCommand(
+    to destination: Data,
+    command: String,
+    textType: TextType
+  ) async throws -> MessageSentInfo {
+    try await sendCommand(to: destination, command: command, textType: textType, timestamp: Date())
   }
 
   /// Sends a message with retry using the firmware-suggested acknowledgment timeout.

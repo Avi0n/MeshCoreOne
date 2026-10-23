@@ -5,6 +5,7 @@ enum StatusPillState: Hashable {
   case hidden
   case connecting
   case syncing
+  case syncingMessages
   case ready
   case disconnected
   case failed(message: String)
@@ -13,6 +14,7 @@ enum StatusPillState: Hashable {
     switch self {
     case let .failed(message): message
     case .syncing: L10n.Localizable.Common.Status.syncing
+    case .syncingMessages: L10n.Localizable.Common.Status.syncingMessages
     case .connecting: L10n.Localizable.Common.Status.connecting
     case .ready: L10n.Localizable.Common.Status.ready
     case .disconnected: L10n.Localizable.Common.Status.disconnected
@@ -25,7 +27,7 @@ enum StatusPillState: Hashable {
     case .failed: "exclamationmark.triangle.fill"
     case .disconnected: "exclamationmark.triangle"
     case .ready: "checkmark.circle"
-    case .connecting, .syncing: "arrow.trianglehead.2.clockwise"
+    case .connecting, .syncing, .syncingMessages: "arrow.trianglehead.2.clockwise"
     case .hidden: ""
     }
   }

@@ -2,8 +2,8 @@ import Foundation
 @testable import MC1Services
 import Testing
 
-/// Covers `DraftStore` persistence and the `draftToApply` restore guard, plus the
-/// pinned `ChatConversationID.draftStorageKey` encoding the store keys on.
+/// Covers `DraftStore` persistence and the pinned `ChatConversationID.draftStorageKey`
+/// encoding the store keys on.
 @Suite("DraftStore Tests")
 @MainActor
 struct DraftStoreTests {
@@ -73,34 +73,6 @@ struct DraftStoreTests {
 
     store.setDraft("hi\n", for: id)
     #expect(store.draft(for: id) == "hi\n")
-  }
-
-  // MARK: - draftToApply restore guard
-
-  @Test
-  func `draftToApply returns the saved draft when the field is empty`() {
-    let store = DraftStore(defaults: makeDefaults())
-    let id = dm(radioID, contactID)
-    store.setDraft("saved", for: id)
-
-    #expect(store.draftToApply(over: "", for: id) == "saved")
-  }
-
-  @Test
-  func `draftToApply returns nil when the field already has text`() {
-    let store = DraftStore(defaults: makeDefaults())
-    let id = dm(radioID, contactID)
-    store.setDraft("saved", for: id)
-
-    #expect(store.draftToApply(over: "typing", for: id) == nil)
-  }
-
-  @Test
-  func `draftToApply returns nil when no draft exists`() {
-    let store = DraftStore(defaults: makeDefaults())
-    let id = dm(radioID, contactID)
-
-    #expect(store.draftToApply(over: "", for: id) == nil)
   }
 
   // MARK: - Key isolation

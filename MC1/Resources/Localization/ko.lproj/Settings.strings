@@ -231,6 +231,12 @@
 /* Fallback connection type description */
 "deviceSelection.bluetooth" = "Bluetooth";
 
+/* Accessibility label for the connection menu on a radio with Bluetooth and Wi-Fi */
+"deviceSelection.changeConnection" = "연결 변경";
+
+/* Menu title for the saved Wi-Fi link */
+"deviceSelection.wifi" = "Wi-Fi";
+
 // MARK: - Location Picker View
 
 /* Navigation title for location picker */
@@ -274,6 +280,47 @@
 
 /* Apply button label */
 "trustedContacts.apply" = "적용";
+
+// MARK: - Remote CLI
+
+/* Section header for remote CLI permission */
+"remoteCLI.header" = "원격 CLI";
+
+/* Navigation row to manage contacts allowed to send remote CLI */
+"remoteCLI.manage" = "허용된 연락처";
+
+/* Footer explaining remote CLI permission */
+"remoteCLI.footer" = "허용된 연락처는 메시를 통해 이 무선 기기를 제어할 수 있습니다. 앱은 그때 알려 드리지 않습니다.";
+
+/* Navigation title for remote CLI contacts picker */
+"remoteCLIContacts.title" = "원격 CLI";
+
+/* Title for empty state when no contacts exist */
+"remoteCLIContacts.noContacts" = "연락처 없음";
+
+/* Description for empty state */
+"remoteCLIContacts.noContactsDescription" = "원격 CLI를 허용하려면 연락처를 추가하십시오";
+
+/* Title for empty state when search returns no results */
+"remoteCLIContacts.noResults" = "결과 없음";
+
+/* Description for empty state when search returns no results */
+"remoteCLIContacts.noResultsDescription" = "\"%@\"와(과) 일치하는 연락처 없음";
+
+/* Title for empty state when Favorites Only has no matches */
+"remoteCLIContacts.noFavorites" = "즐겨찾기 없음";
+
+/* Description for empty state when Favorites Only has no matches */
+"remoteCLIContacts.noFavoritesDescription" = "표시할 즐겨찾기 연락처가 없습니다";
+
+/* Search prompt for remote CLI contacts list */
+"remoteCLIContacts.searchPrompt" = "연락처 검색";
+
+/* Toggle label for showing only favorite contacts */
+"remoteCLIContacts.favoritesOnly" = "즐겨찾기만";
+
+/* Apply button label */
+"remoteCLIContacts.apply" = "적용";
 
 // MARK: - About Section
 
@@ -584,6 +631,18 @@
 
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "기기가 다시 시작되며 일시적으로 연결이 끊어집니다.";
+
+/* Button to turn the device off */
+"deviceActions.powerOff" = "기기 전원 끄기";
+
+/* Alert title for power off confirmation */
+"deviceActions.alert.powerOff.title" = "기기의 전원을 끄겠습니까?";
+
+/* Button to confirm power off */
+"deviceActions.alert.powerOff.confirm" = "전원 끄기";
+
+/* Alert message for power off confirmation */
+"deviceActions.alert.powerOff.message" = "기기가 꺼지며 연결이 끊어집니다. 전원 버튼으로 기기를 켠 다음 다시 연결하십시오.";
 
 // MARK: - Danger Zone Section
 
@@ -914,10 +973,122 @@
 /* Footer explaining telemetry */
 "telemetry.footer" = "활성화하면 다른 노드가 내 기기의 텔레메트리 데이터를 요청할 수 있습니다.";
 
-// MARK: - WiFi Section
+// MARK: - Radio WiFi
 
-/* Section header for WiFi settings */
-"wifi.header" = "Wi-Fi";
+/* Footer for the radio WiFi section */
+"radioWiFi.footer" = "재시동 후 무선 기기가 이 네트워크에 연결됩니다.";
+
+/* Label for the radio WiFi status */
+"radioWiFi.status" = "상태";
+
+/* Radio WiFi status when associated */
+"radioWiFi.status.connected" = "연결됨";
+
+/* Radio WiFi status when not associated */
+"radioWiFi.status.notConnected" = "연결 안 됨";
+
+/* Label for the radio's IP address */
+"radioWiFi.ipAddress" = "IP 주소";
+
+/* Label for the radio's WiFi network */
+"radioWiFi.network" = "네트워크";
+
+/* Shown when the radio has no saved network name */
+"radioWiFi.network.notSet" = "없음";
+
+/* Toggle for the radio's WiFi radio */
+"radioWiFi.enabled" = "Wi-Fi";
+
+/* Field label for the network name */
+"radioWiFi.networkName" = "네트워크 이름";
+
+/* Field label for the WiFi password */
+"radioWiFi.password" = "암호";
+
+/* Accessibility label that reveals the WiFi password */
+"radioWiFi.showPassword" = "암호 보기";
+
+/* Accessibility label that hides the WiFi password */
+"radioWiFi.hidePassword" = "암호 가리기";
+
+/* Editor footer when the name and password are within the limits */
+"radioWiFi.editor.footer" = "무선 기기는 재시동 후 이 네트워크를 사용합니다. 네트워크 이름은 최대 32바이트, 암호는 최대 63바이트입니다. 암호를 비워 두면 암호가 저장되지 않습니다.";
+
+/* Editor footer when the network name is empty */
+"radioWiFi.editor.emptyName" = "네트워크 이름을 입력하십시오.";
+
+/* Editor footer when the network name is too long */
+"radioWiFi.editor.nameLength" = "네트워크 이름은 최대 32바이트입니다.";
+
+/* Editor footer when the password is too long */
+"radioWiFi.editor.passwordLength" = "암호는 최대 63바이트입니다.";
+
+/* Button that clears the radio's saved WiFi settings */
+"radioWiFi.clear" = "Wi-Fi 설정 지우기";
+
+/* Title for the clear WiFi confirmation */
+"radioWiFi.alert.clear.title" = "Wi-Fi 설정을 지우겠습니까?";
+
+/* Clear confirmation when the phone is connected over Bluetooth */
+"radioWiFi.alert.clear.message" = "재시동 후 무선 기기는 저장된 네트워크 이름과 암호를 지웁니다. 펌웨어에 내장된 네트워크가 있으면 대신 그 네트워크에 연결됩니다.";
+
+/* Clear confirmation when the phone is connected over WiFi */
+"radioWiFi.alert.clear.wifiMessage" = "재시동 후 무선 기기는 저장된 네트워크 이름과 암호를 지웁니다. 이 주소로는 무선 기기에 연결하지 못할 수 있습니다. 그러면 Bluetooth로 연결하십시오. 펌웨어에 내장된 네트워크가 있으면 대신 그 네트워크에 연결됩니다.";
+
+/* Button that reboots to apply WiFi changes */
+"radioWiFi.rebootToApply" = "적용하려면 재시동";
+
+/* Title before saving a network while connected over WiFi */
+"radioWiFi.alert.save.title" = "이 네트워크를 저장하겠습니까?";
+
+/* Title before turning WiFi off while connected over WiFi */
+"radioWiFi.alert.turnOff.title" = "Wi-Fi를 끄겠습니까?";
+
+/* Confirm button before turning WiFi off */
+"radioWiFi.alert.turnOff.confirm" = "끄기";
+
+/* Warning before a WiFi change while connected over WiFi */
+"radioWiFi.alert.wifiTransport.message" = "재시동 후 이 주소로는 무선 기기에 연결하지 못할 수 있습니다. 그러면 Bluetooth로 연결하십시오.";
+
+/* Title for the radio WiFi reboot confirmation */
+"radioWiFi.alert.reboot.title" = "무선 기기를 재시동하겠습니까?";
+
+/* Reboot confirmation when a network name is stored. %@ is the network name. */
+"radioWiFi.alert.reboot.join" = "무선 기기가 다시 시작되고 %@에 연결됩니다. 무선 기기가 다시 준비될 때까지 iPhone의 연결이 끊어집니다.";
+
+/* Reboot confirmation when no network name is stored */
+"radioWiFi.alert.reboot.restart" = "무선 기기가 다시 시작됩니다. 무선 기기가 다시 준비될 때까지 iPhone의 연결이 끊어집니다.";
+
+/* Reboot confirmation when WiFi is turned off */
+"radioWiFi.alert.reboot.disabled" = "무선 기기가 Wi-Fi가 꺼진 상태로 다시 시작됩니다. 무선 기기는 더 이상 Wi-Fi 연결을 수락하지 않습니다.";
+
+// MARK: - Connection
+
+/* Settings row, page title, and phone address header */
+"connection.header" = "연결";
+
+/* Spoken name of the Wi-Fi link and the Wi-Fi page title */
+"connection.link.wifi" = "Wi-Fi";
+
+/* Header for the radio Wi-Fi group on the Wi-Fi page */
+"connection.link.radioWiFi" = "무선 기기의 Wi-Fi";
+
+/* VoiceOver value for the link that is in use */
+"connection.link.inUse" = "사용 중";
+
+/* VoiceOver value while a switch to that link is in progress */
+"connection.link.switching" = "전환 중";
+
+/* VoiceOver hint for switching to the other link */
+"connection.link.switchHint" = "무선 기기로 연결을 전환합니다";
+
+/* VoiceOver label for the Bluetooth info button */
+"connection.link.bluetoothInfo" = "Bluetooth 정보";
+
+/* VoiceOver label for the Wi-Fi info button */
+"connection.link.wifiInfo" = "Wi-Fi 정보";
+
+// MARK: - WiFi Section
 
 /* Label for IP address */
 "wifi.address" = "주소";
@@ -927,9 +1098,6 @@
 
 /* Button to edit WiFi connection */
 "wifi.editConnection" = "연결 편집";
-
-/* Footer explaining WiFi address */
-"wifi.footer" = "기기의 로컬 네트워크 주소";
 
 // MARK: - WiFi Edit Sheet
 
@@ -1510,6 +1678,45 @@
 /* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
 "region.subdivision.AU-VIC" = "빅토리아";
 
+/* Location: RegionalAreas.subdivisionDisplayName - Alberta (CA-AB) province name */
+"region.subdivision.CA-AB" = "앨버타";
+
+/* Location: RegionalAreas.subdivisionDisplayName - British Columbia (CA-BC) province name */
+"region.subdivision.CA-BC" = "브리티시컬럼비아";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Manitoba (CA-MB) province name */
+"region.subdivision.CA-MB" = "매니토바";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Brunswick (CA-NB) province name */
+"region.subdivision.CA-NB" = "뉴브런즈윅";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Newfoundland and Labrador (CA-NL) province name */
+"region.subdivision.CA-NL" = "뉴펀들랜드 래브라도";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nova Scotia (CA-NS) province name */
+"region.subdivision.CA-NS" = "노바스코샤";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northwest Territories (CA-NT) province name */
+"region.subdivision.CA-NT" = "노스웨스트 준주";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nunavut (CA-NU) province name */
+"region.subdivision.CA-NU" = "누나부트 준주";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ontario (CA-ON) province name */
+"region.subdivision.CA-ON" = "온타리오";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Prince Edward Island (CA-PE) province name */
+"region.subdivision.CA-PE" = "프린스에드워드아일랜드";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Quebec (CA-QC) province name */
+"region.subdivision.CA-QC" = "퀘벡";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Saskatchewan (CA-SK) province name */
+"region.subdivision.CA-SK" = "서스캐처원";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Yukon (CA-YT) province name */
+"region.subdivision.CA-YT" = "유콘 준주";
+
 
 // MARK: - Live Activity
 
@@ -1796,7 +2003,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "원격 노드 세션";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "새 데이터만 추가되며 기존 기록은 덮어쓰지 않습니다. 이 백업 이후에 삭제한 연락처는 다시 나타나고, 백업에 있는 차단, 알림 끔 또는 즐겨찾기 표시가 다시 적용됩니다.";
+"settings.backup.import.preview.info" = "새 데이터만 추가되며 기존 기록은 덮어쓰지 않습니다. 이 백업 이후에 삭제한 연락처는 다시 나타나고, 백업에 있는 차단, 알림 끔 또는 즐겨찾기 표시가 다시 적용됩니다. 백업에 있는 고정은 해당 대화가 고정되어 있지 않으면 켜집니다. 백업에서 꺼져 있는 고정은 대화를 고정 해제하지 않습니다.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "데이터 가져오기";

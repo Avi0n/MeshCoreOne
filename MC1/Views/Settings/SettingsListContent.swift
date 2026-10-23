@@ -2,9 +2,8 @@ import MC1Services
 import SwiftUI
 import TipKit
 
-/// The settings list itself, shared by the compact `SettingsView` (stack) and the iPad
-/// `MainSidebarView` content column (split). `isSidebar` switches the iPad-only selection binding
-/// and themed-row treatment; the compact stack pushes via value-based `NavigationLink` instead.
+/// Settings list for `SettingsView`. Selection is always `selectedSetting`.
+/// `isSidebar` only changes list style and row flattening.
 struct SettingsListContent: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
@@ -16,9 +15,6 @@ struct SettingsListContent: View {
   let isSidebar: Bool
   private let liveActivityTip = LiveActivityTip()
 
-  /// Drives the iPad split's selected settings page. The compact stack leaves it nil — inside a
-  /// `NavigationStack` a value-based `NavigationLink` drives the stack path (via `SettingsView`'s
-  /// `navigationDestination`), not the list selection — so persistent selection stays iPad-only.
   private var settingSelection: Binding<SettingsDetail?> {
     Binding(
       get: { appState.navigation.selectedSetting },
@@ -42,16 +38,13 @@ struct SettingsListContent: View {
       }
   }
 
-  /// Only the iPad sidebar column carries a selection binding, where it drives the detail pane. The
-  /// compact stack must omit it: a `List(selection:)` turns a row tap into a selection instead of
-  /// letting the value-based `NavigationLink` push, which would break compact navigation.
   @ViewBuilder
   private var settingsList: some View {
     if isSidebar {
       List(selection: settingSelection) { sections }
         .listStyle(.sidebar)
     } else {
-      List { sections }
+      List(selection: settingSelection) { sections }
     }
   }
 
@@ -59,6 +52,8 @@ struct SettingsListContent: View {
   private var sections: some View {
     if let device = appState.connectedDevice {
       MyDeviceSection(device: device, isSidebar: isSidebar)
+    } else if appState.connectionLinkSwitch != nil {
+      HeldConnectionSection(isSidebar: isSidebar)
     } else {
       NoDeviceSection(showingDeviceSelection: $showingDeviceSelection, isSidebar: isSidebar)
     }
@@ -184,13 +179,7 @@ private struct MyDeviceSection: View {
       }
       .accessibilityValue(locationDetailText)
 
-      SettingsDetailRow(detail: .connection) {
-        let isWiFi = appState.connectionManager.currentTransportType == .wifi
-        TintedLabel(
-          isWiFi ? L10n.Settings.Wifi.header : L10n.Settings.Bluetooth.header,
-          systemImage: isWiFi ? "wifi" : "wave.3.right"
-        )
-      }
+      ConnectionSettingsLinkRow()
 
       SettingsDetailRow(detail: .advanced) {
         TintedLabel(L10n.Settings.AdvancedSettings.title, systemImage: "gearshape.2")
@@ -219,6 +208,70 @@ private struct MyDeviceSection: View {
     device.sharesLocationPublicly
       ? L10n.Settings.Location.sharingPublicly
       : L10n.Settings.Location.notSharing
+  }
+}
+
+// MARK: - Held connection
+
+/// The Connection row alone, so a failed switch can still be opened while the radio is down.
+private struct HeldConnectionSection: View {
+  let isSidebar: Bool
+  @Environment(\.appTheme) private var theme
+
+  var body: some View {
+    Section {
+      ConnectionSettingsLinkRow()
+    } header: {
+      Text(L10n.Settings.MyDevice.header)
+    }
+    .themedRowBackground(theme, flatten: isSidebar)
+  }
+}
+
+// MARK: - Connection row
+
+private struct ConnectionSettingsLinkRow: View {
+  @Environment(\.appState) private var appState
+
+  var body: some View {
+    let detail = detailText
+    SettingsDetailRow(detail: .connection) {
+      SettingsRow(
+        L10n.Settings.Connection.header,
+        systemImage: presentation.checked == .wifi ? "wifi" : "wave.3.right",
+        detail: detail
+      )
+    }
+    .accessibilityValue(detail)
+  }
+
+  private var presentation: ConnectionLinkRows.Snapshot {
+    let device = appState.connectedDevice
+    let live = appState.connectionManager.currentTransportType
+    let wifiDial: ConnectionLinkWiFiDial? = if live == .wifi, case let .wifi(host, port, _) = device?.wifiConnectionMethod {
+      ConnectionLinkWiFiDial(host: host, port: port)
+    } else {
+      nil
+    }
+    return ConnectionLinkRows.make(
+      liveTransport: live,
+      savedPeripheralID: device?.bluetoothPeripheralID,
+      wifiSupport: .unknown,
+      wifiAssociated: false,
+      wifiDial: wifiDial,
+      activeSwitch: appState.connectionLinkSwitch
+    )
+  }
+
+  private var detailText: String {
+    switch presentation.settingsDetail {
+    case .bluetooth:
+      L10n.Settings.Bluetooth.header
+    case .wifi:
+      L10n.Settings.Connection.Link.wifi
+    case let .host(host):
+      host
+    }
   }
 }
 

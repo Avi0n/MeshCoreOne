@@ -243,6 +243,12 @@
 /* Fallback connection type description */
 "deviceSelection.bluetooth" = "Bluetooth";
 
+/* Accessibility label for the connection menu on a radio with Bluetooth and Wi-Fi */
+"deviceSelection.changeConnection" = "Cambia connessione";
+
+/* Menu title for the saved Wi-Fi link */
+"deviceSelection.wifi" = "Wi‑Fi";
+
 // MARK: - Location Picker View
 
 /* Navigation title for location picker */
@@ -287,6 +293,45 @@
 /* Apply button label */
 "trustedContacts.apply" = "Applica";
 
+// MARK: - Remote CLI
+
+/* Section header for remote CLI permission */
+"remoteCLI.header" = "CLI remota";
+
+/* Navigation row to manage contacts allowed to send remote CLI */
+"remoteCLI.manage" = "Contatti consentiti";
+
+/* Footer explaining remote CLI permission */
+"remoteCLI.footer" = "I contatti consentiti possono controllare questa radio sulla mesh. L’app non ti avvisa quando lo fanno.";
+
+/* Navigation title for remote CLI contacts picker */
+"remoteCLIContacts.title" = "CLI remota";
+
+/* Title for empty state when no contacts exist */
+"remoteCLIContacts.noContacts" = "Nessun contatto";
+
+/* Description for empty state */
+"remoteCLIContacts.noContactsDescription" = "Aggiungi contatti per consentire la CLI remota";
+
+/* Title for empty state when search returns no results */
+"remoteCLIContacts.noResults" = "Nessun risultato";
+
+/* Description for empty state when search returns no results */
+"remoteCLIContacts.noResultsDescription" = "Nessun contatto corrisponde a “%@”";
+
+"remoteCLIContacts.noFavorites" = "Nessun preferito";
+
+"remoteCLIContacts.noFavoritesDescription" = "Nessun contatto preferito da mostrare";
+
+/* Search prompt for remote CLI contacts list */
+"remoteCLIContacts.searchPrompt" = "Cerca contatti";
+
+/* Toggle label for showing only favorite contacts */
+"remoteCLIContacts.favoritesOnly" = "Solo preferiti";
+
+/* Apply button label */
+"remoteCLIContacts.apply" = "Applica";
+
 // MARK: - About Section
 
 /* Section header for about links */
@@ -319,10 +364,10 @@
 "advancedRadio.bandwidth" = "Larghezza di banda (kHz)";
 
 /* Label for spreading factor picker */
-"advancedRadio.spreadingFactor" = "Spreading Factor";
+"advancedRadio.spreadingFactor" = "Fattore di diffusione (SF)";
 
 /* Label for coding rate picker */
-"advancedRadio.codingRate" = "Coding Rate";
+"advancedRadio.codingRate" = "Tasso di codifica (CR)";
 
 /* Label for TX power input */
 "advancedRadio.txPower" = "Potenza TX (dBm)";
@@ -334,10 +379,10 @@
 "advancedRadio.accessibility.bandwidthLabel" = "%@ kilohertz";
 
 /* Accessibility label for spreading factor picker options - %d is the factor value */
-"advancedRadio.accessibility.spreadingFactorLabel" = "Spreading factor %d";
+"advancedRadio.accessibility.spreadingFactorLabel" = "Fattore di diffusione %d";
 
 /* Accessibility label for coding rate picker options - %d is the rate value */
-"advancedRadio.accessibility.codingRateLabel" = "Coding rate %d";
+"advancedRadio.accessibility.codingRateLabel" = "Tasso di codifica %d";
 
 /* Accessibility hint for bandwidth picker */
 "advancedRadio.accessibility.bandwidthHint" = "Valori più bassi aumentano la portata ma riducono la velocità";
@@ -596,6 +641,18 @@
 
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "Il dispositivo si riavvierà e si disconnetterà temporaneamente.";
+
+/* Button to turn the device off */
+"deviceActions.powerOff" = "Spegni dispositivo";
+
+/* Alert title for power off confirmation */
+"deviceActions.alert.powerOff.title" = "Spegnere il dispositivo?";
+
+/* Button to confirm power off */
+"deviceActions.alert.powerOff.confirm" = "Spegni";
+
+/* Alert message for power off confirmation */
+"deviceActions.alert.powerOff.message" = "Il dispositivo si spegnerà e si disconnetterà. Riaccendilo con il pulsante di accensione, poi riconnettiti.";
 
 // MARK: - Danger Zone Section
 
@@ -926,10 +983,122 @@
 /* Footer explaining telemetry */
 "telemetry.footer" = "Se attiva, altri nodi possono richiedere i dati di telemetria del tuo dispositivo.";
 
-// MARK: - WiFi Section
+// MARK: - Radio WiFi
 
-/* Section header for WiFi settings */
-"wifi.header" = "Wi‑Fi";
+/* Footer for the radio WiFi section */
+"radioWiFi.footer" = "La radio si collega a questa rete dopo il riavvio.";
+
+/* Label for the radio WiFi status */
+"radioWiFi.status" = "Stato";
+
+/* Radio WiFi status when associated */
+"radioWiFi.status.connected" = "Connessa";
+
+/* Radio WiFi status when not associated */
+"radioWiFi.status.notConnected" = "Non connessa";
+
+/* Label for the radio's IP address */
+"radioWiFi.ipAddress" = "Indirizzo IP";
+
+/* Label for the radio's WiFi network */
+"radioWiFi.network" = "Rete";
+
+/* Shown when the radio has no saved network name */
+"radioWiFi.network.notSet" = "Nessuno";
+
+/* Toggle for the radio's WiFi radio */
+"radioWiFi.enabled" = "Wi‑Fi";
+
+/* Field label for the network name */
+"radioWiFi.networkName" = "Nome rete";
+
+/* Field label for the WiFi password */
+"radioWiFi.password" = "Password";
+
+/* Accessibility label that reveals the WiFi password */
+"radioWiFi.showPassword" = "Mostra password";
+
+/* Accessibility label that hides the WiFi password */
+"radioWiFi.hidePassword" = "Nascondi password";
+
+/* Editor footer when the name and password are within the limits */
+"radioWiFi.editor.footer" = "La radio usa questa rete dopo il riavvio. Il nome della rete può avere al massimo 32 byte e la password al massimo 63 byte. Lascia la password vuota per non salvarne nessuna.";
+
+/* Editor footer when the network name is empty */
+"radioWiFi.editor.emptyName" = "Inserisci un nome di rete.";
+
+/* Editor footer when the network name is too long */
+"radioWiFi.editor.nameLength" = "Il nome della rete può avere al massimo 32 byte.";
+
+/* Editor footer when the password is too long */
+"radioWiFi.editor.passwordLength" = "La password può avere al massimo 63 byte.";
+
+/* Button that clears the radio's saved WiFi settings */
+"radioWiFi.clear" = "Cancella impostazioni Wi‑Fi";
+
+/* Title for the clear WiFi confirmation */
+"radioWiFi.alert.clear.title" = "Cancellare le impostazioni Wi‑Fi?";
+
+/* Clear confirmation when the phone is connected over Bluetooth */
+"radioWiFi.alert.clear.message" = "Dopo il riavvio la radio dimentica il nome della rete e la password salvati. Se il firmware ha una rete integrata, si collega a quella.";
+
+/* Clear confirmation when the phone is connected over WiFi */
+"radioWiFi.alert.clear.wifiMessage" = "Dopo il riavvio la radio dimentica il nome della rete e la password salvati. La radio potrebbe non essere raggiungibile a questo indirizzo. In quel caso, connettiti tramite Bluetooth. Se il firmware ha una rete integrata, si collega a quella.";
+
+/* Button that reboots to apply WiFi changes */
+"radioWiFi.rebootToApply" = "Riavvia per applicare";
+
+/* Warning before a WiFi change while connected over WiFi */
+"radioWiFi.alert.wifiTransport.message" = "Dopo il riavvio la radio potrebbe non essere raggiungibile a questo indirizzo. In quel caso, connettiti tramite Bluetooth.";
+
+/* Title before saving a network while connected over WiFi */
+"radioWiFi.alert.save.title" = "Salvare questa rete?";
+
+/* Title before turning WiFi off while connected over WiFi */
+"radioWiFi.alert.turnOff.title" = "Disattivare il Wi‑Fi?";
+
+/* Confirm button before turning WiFi off */
+"radioWiFi.alert.turnOff.confirm" = "Disattiva";
+
+/* Title for the radio WiFi reboot confirmation */
+"radioWiFi.alert.reboot.title" = "Riavviare la radio?";
+
+/* Reboot confirmation when a network name is stored. %@ is the network name. */
+"radioWiFi.alert.reboot.join" = "La radio si riavvierà e poi si collegherà a %@. Il telefono si disconnetterà finché la radio non sarà di nuovo disponibile.";
+
+/* Reboot confirmation when no network name is stored */
+"radioWiFi.alert.reboot.restart" = "La radio si riavvierà. Il telefono si disconnetterà finché la radio non sarà di nuovo disponibile.";
+
+/* Reboot confirmation when WiFi is turned off */
+"radioWiFi.alert.reboot.disabled" = "La radio si riavvierà con il Wi‑Fi disattivato. Non accetterà più connessioni Wi‑Fi.";
+
+// MARK: - Connection
+
+/* Settings row, page title, and phone address header */
+"connection.header" = "Connessione";
+
+/* Spoken name of the Wi-Fi link and the Wi-Fi page title */
+"connection.link.wifi" = "Wi‑Fi";
+
+/* Header for the radio Wi-Fi group on the Wi-Fi page */
+"connection.link.radioWiFi" = "Wi‑Fi della radio";
+
+/* VoiceOver value for the link that is in use */
+"connection.link.inUse" = "In uso";
+
+/* VoiceOver value while a switch to that link is in progress */
+"connection.link.switching" = "Cambio in corso";
+
+/* VoiceOver hint for switching to the other link */
+"connection.link.switchHint" = "Cambia la connessione alla radio";
+
+/* VoiceOver label for the Bluetooth info button */
+"connection.link.bluetoothInfo" = "Info Bluetooth";
+
+/* VoiceOver label for the Wi-Fi info button */
+"connection.link.wifiInfo" = "Info Wi‑Fi";
+
+// MARK: - WiFi Section
 
 /* Label for IP address */
 "wifi.address" = "Indirizzo";
@@ -939,9 +1108,6 @@
 
 /* Button to edit WiFi connection */
 "wifi.editConnection" = "Modifica connessione";
-
-/* Footer explaining WiFi address */
-"wifi.footer" = "Indirizzo di rete locale del tuo dispositivo";
 
 // MARK: - WiFi Edit Sheet
 
@@ -1222,10 +1388,10 @@
 "configImport.field.bandwidth" = "Larghezza di banda";
 
 /* Validation field label: spreading factor */
-"configImport.field.spreadingFactor" = "Spreading factor";
+"configImport.field.spreadingFactor" = "Fattore di diffusione";
 
 /* Validation field label: coding rate */
-"configImport.field.codingRate" = "Coding rate";
+"configImport.field.codingRate" = "Tasso di codifica";
 
 /* Validation field label: TX power */
 "configImport.field.txPower" = "Potenza TX";
@@ -1504,6 +1670,45 @@
 
 /* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
 "region.subdivision.AU-VIC" = "Victoria";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alberta (CA-AB) province name */
+"region.subdivision.CA-AB" = "Alberta";
+
+/* Location: RegionalAreas.subdivisionDisplayName - British Columbia (CA-BC) province name */
+"region.subdivision.CA-BC" = "Columbia Britannica";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Manitoba (CA-MB) province name */
+"region.subdivision.CA-MB" = "Manitoba";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Brunswick (CA-NB) province name */
+"region.subdivision.CA-NB" = "Nuovo Brunswick";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Newfoundland and Labrador (CA-NL) province name */
+"region.subdivision.CA-NL" = "Terranova e Labrador";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nova Scotia (CA-NS) province name */
+"region.subdivision.CA-NS" = "Nuova Scozia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northwest Territories (CA-NT) province name */
+"region.subdivision.CA-NT" = "Territori del Nord-Ovest";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nunavut (CA-NU) province name */
+"region.subdivision.CA-NU" = "Nunavut";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ontario (CA-ON) province name */
+"region.subdivision.CA-ON" = "Ontario";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Prince Edward Island (CA-PE) province name */
+"region.subdivision.CA-PE" = "Isola del Principe Edoardo";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Quebec (CA-QC) province name */
+"region.subdivision.CA-QC" = "Québec";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Saskatchewan (CA-SK) province name */
+"region.subdivision.CA-SK" = "Saskatchewan";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Yukon (CA-YT) province name */
+"region.subdivision.CA-YT" = "Yukon";
 
 
 // MARK: - Live Activity
@@ -1791,7 +1996,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Sessioni di nodi remoti";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Vengono aggiunti solo i dati nuovi; i record esistenti non vengono sovrascritti. I contatti eliminati dopo la creazione di questo backup riappariranno e gli indicatori di blocco, silenzio o preferito del backup verranno riapplicati.";
+"settings.backup.import.preview.info" = "Vengono aggiunti solo i dati nuovi; i record esistenti non vengono sovrascritti. I contatti eliminati dopo la creazione di questo backup riappariranno e gli indicatori di blocco, silenzio o preferito del backup verranno riapplicati. Una chat che non è fissata viene fissata se nel backup lo è. Una chat già fissata resta fissata anche se nel backup non lo è.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Importa dati";

@@ -106,6 +106,18 @@ struct RadioPresetRecommendationTests {
   }
 
   @Test
+  func `British Columbia → ca-bc`() {
+    let region = RegionSelection(countryCode: "CA", administrativeAreaCode: "CA-BC", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "ca-bc")
+  }
+
+  @Test
+  func `Ontario → ca`() {
+    let region = RegionSelection(countryCode: "CA", administrativeAreaCode: "CA-ON", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "ca")
+  }
+
+  @Test
   func `Canada preset carries the expected radio parameters`() throws {
     let preset = try #require(RadioPresets.all.first(where: { $0.id == "ca" }))
     #expect(preset.name == "Canada")
@@ -114,6 +126,18 @@ struct RadioPresetRecommendationTests {
     #expect(preset.spreadingFactor == 7)
     #expect(preset.codingRate == 5)
     #expect(preset.pathHashSize == 3)
+    #expect(preset.region == .northAmerica)
+  }
+
+  @Test
+  func `British Columbia preset carries the expected radio parameters`() throws {
+    let preset = try #require(RadioPresets.all.first(where: { $0.id == "ca-bc" }))
+    #expect(preset.name == "Canada: BC")
+    #expect(preset.frequencyMHz == 909.000)
+    #expect(preset.bandwidthKHz == 62.5)
+    #expect(preset.spreadingFactor == 7)
+    #expect(preset.codingRate == 5)
+    #expect(preset.pathHashSize == nil)
     #expect(preset.region == .northAmerica)
   }
 
@@ -175,6 +199,7 @@ struct RadioPresetRecommendationTests {
     }
     #expect(try size("hu") == 2)
     #expect(try size("sk") == 2)
+    #expect(try size("cz-narrow") == 2)
     #expect(try size("nz-lr") == 1)
     #expect(try size("nz-narrow") == 2)
     #expect(try size("phillymesh") == 2)
@@ -294,6 +319,7 @@ struct RadioPresetRecommendationTests {
     let region = RegionSelection(countryCode: "CA", source: .location)
     let ids = RadioPresets.presets(for: region).map(\.id)
     #expect(ids.contains("ca"))
+    #expect(ids.contains("ca-bc"))
     #expect(!ids.contains("us-ca"))
     #expect(!ids.contains("wcmesh"))
     #expect(!ids.contains("phillymesh"))
@@ -356,6 +382,7 @@ struct RadioPresetSelectabilityTests {
     #expect(!RadioPresets.isSelectable(preset("lvmesh"), in: nil))
     #expect(!RadioPresets.isSelectable(preset("au-qld"), in: nil))
     #expect(!RadioPresets.isSelectable(preset("au-sa-wa"), in: nil))
+    #expect(!RadioPresets.isSelectable(preset("ca-bc"), in: nil))
     #expect(RadioPresets.isSelectable(preset("us-ca"), in: nil))
     #expect(RadioPresets.isSelectable(preset("eu-narrow"), in: nil))
   }
@@ -412,6 +439,21 @@ struct RadioPresetSelectabilityTests {
     #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: nil))
     #expect(!RadioPresets.isSelectable(preset("lvmesh"), in: nil))
     #expect(RadioPresets.isSelectable(preset("us-ca"), in: nil))
+  }
+
+  @Test
+  func `British Columbia → ca-bc selectable, Canada preset still selectable`() {
+    let region = RegionSelection(countryCode: "CA", administrativeAreaCode: "CA-BC", source: .location)
+    #expect(RadioPresets.isSelectable(preset("ca-bc"), in: region))
+    #expect(RadioPresets.isSelectable(preset("ca"), in: region))
+  }
+
+  @Test
+  func `Outside British Columbia → ca-bc hidden`() {
+    let ontario = RegionSelection(countryCode: "CA", administrativeAreaCode: "CA-ON", source: .location)
+    let noProvince = RegionSelection(countryCode: "CA", source: .manual)
+    #expect(!RadioPresets.isSelectable(preset("ca-bc"), in: ontario))
+    #expect(!RadioPresets.isSelectable(preset("ca-bc"), in: noProvince))
   }
 
   @Test

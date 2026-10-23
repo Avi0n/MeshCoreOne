@@ -132,7 +132,7 @@ struct ConversationListScrollPerfHarnessTests {
         text: "row \(index)"
       )
     }
-    viewModel.conversationSnapshot = ConversationSnapshot(favorites: [], others: others)
+    viewModel.conversationSnapshot = ConversationSnapshot(pinned: [], others: others)
 
     let harness = HostedConversationList(
       viewModel: viewModel,
@@ -193,13 +193,14 @@ private struct HostedConversationList: View {
   var body: some View {
     ConversationListContent(
       viewModel: viewModel,
-      favoriteConversations: viewModel.favoriteConversations,
-      otherConversations: viewModel.nonFavoriteConversations,
+      pinnedConversations: viewModel.pinnedConversations,
+      otherConversations: viewModel.unpinnedConversations,
       selectedFilter: $selectedFilter,
+      searchText: "",
       hasLoadedOnce: true,
       emptyStateMessage: ("None", "None", "message"),
-      onNavigate: { _ in },
-      onRequestRoomAuth: { _ in },
+      selectedRoute: nil,
+      onSelect: { _ in },
       onDeleteConversation: { _ in }
     )
     .environment(\.appState, appState)

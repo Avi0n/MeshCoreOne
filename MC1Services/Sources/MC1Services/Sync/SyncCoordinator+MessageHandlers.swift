@@ -622,7 +622,7 @@ extension SyncCoordinator {
 
       if contact.type == .room {
         await dependencies.roomAdminService.invokeCLIHandler(routed, fromContact: contact)
-      } else {
+      } else if contact.type == .repeater {
         await dependencies.repeaterAdminService.invokeCLIHandler(routed, fromContact: contact)
       }
     } else {
@@ -683,8 +683,8 @@ extension SyncCoordinator {
           }
           await dependencies.notificationService.updateBadgeCount()
         case .contactUpdated, .conversationsChanged, .nodeStorageFullChanged,
-             .contactDeletedCleanup, .pathDiscoveryResponse, .traceResponse,
-             .traceSnrObserved:
+             .contactDeletedCleanup, .pathDiscoveryResponse, .pathDiscoveryWriteFailed,
+             .traceResponse, .traceSnrObserved:
           break
         }
       }

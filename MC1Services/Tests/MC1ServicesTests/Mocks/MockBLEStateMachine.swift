@@ -93,6 +93,8 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     autoReconnectingHandler = handler
   }
 
+  public func setRemoteLinkLostHandler(_ handler: @escaping @Sendable (UUID, CFAbsoluteTime) -> Void) {}
+
   public func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void) {
     bluetoothPoweredOnHandler = handler
   }

@@ -5,28 +5,7 @@ import Testing
 @Suite("UpdateContact")
 struct UpdateContactTests {
   @Test
-  func `updateContact produces 147 bytes`() {
-    let contact = MeshContact(
-      id: "test",
-      publicKey: Data(repeating: 0xAA, count: 32),
-      type: .chat,
-      flags: ContactFlags(rawValue: 0x02),
-      outPathLength: 3,
-      outPath: Data([0x11, 0x22, 0x33]),
-      advertisedName: "TestNode",
-      lastAdvertisement: Date(timeIntervalSince1970: 1_704_067_200), // 2024-01-01
-      latitude: 37.7749,
-      longitude: -122.4194,
-      lastModified: Date()
-    )
-
-    let packet = PacketBuilder.updateContact(contact)
-
-    #expect(packet.count == 147, "Full contact update should be 147 bytes")
-  }
-
-  @Test
-  func `updateContact correct layout`() {
+  func `updateContact correct layout`() throws {
     let pubkey = Data(repeating: 0xAA, count: 32)
     let outPath = Data([0x11, 0x22, 0x33])
     let contact = MeshContact(
@@ -44,6 +23,7 @@ struct UpdateContactTests {
     )
 
     let packet = PacketBuilder.updateContact(contact)
+    try #require(packet.count == 144)
 
     // Verify layout
     #expect(packet[0] == 0x09, "Byte 0: command code")

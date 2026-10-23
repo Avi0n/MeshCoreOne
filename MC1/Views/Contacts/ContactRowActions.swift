@@ -26,21 +26,28 @@ struct ContactRowActions: View {
   }
 
   var body: some View {
-    if edge == .all, contact.type == .chat, !contact.isBlocked {
-      sendMessageButton
-    }
-
-    if edge != .leading {
+    switch edge {
+    case .all:
+      if contact.type == .chat, !contact.isBlocked {
+        sendMessageButton
+      }
+      if contact.type == .chat {
+        blockButton
+      }
+      favoriteButton
+      if !isVContact {
+        Divider()
+        deleteButton
+      }
+    case .leading:
+      favoriteButton
+    case .trailing:
       if !isVContact {
         deleteButton
       }
       if contact.type == .chat {
         blockButton
       }
-    }
-
-    if edge != .trailing {
-      favoriteButton
     }
   }
 

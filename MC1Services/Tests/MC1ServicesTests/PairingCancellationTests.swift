@@ -1,3 +1,6 @@
+#if canImport(UIKit)
+  import AccessorySetupKit
+#endif
 import Foundation
 @testable import MC1Services
 import Testing

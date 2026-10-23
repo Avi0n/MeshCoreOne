@@ -416,4 +416,214 @@ struct PairingStrandedAssociationTests {
       return false
     }
   }
+
+  private func dualDevice(id: UUID, peripheralID: UUID, radioID: UUID) -> DeviceDTO {
+    DeviceDTO.testDevice(id: id, radioID: radioID).copy {
+      $0.connectionMethods = [
+        .bluetooth(peripheralUUID: peripheralID, displayName: nil),
+        .wifi(host: "10.0.0.4", port: 5000, displayName: nil)
+      ]
+    }
+  }
+
+  @Test
+  func `settings removal during a wifi session keeps the row and the session`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    let env = try ConnectionManager.createForPairingTesting(defaults: defaults)
+    defer { env.cleanup() }
+    let manager = env.manager
+    let peripheralID = UUID()
+    let radioID = UUID()
+    let device = dualDevice(id: peripheralID, peripheralID: peripheralID, radioID: radioID)
+
+    try await manager.persistenceStore.saveDevice(device)
+    manager.persistConnection(deviceID: peripheralID, radioID: radioID, deviceName: device.nodeName)
+    await manager.recordBondVerification(deviceID: peripheralID)
+    var clearedLastConnection = false
+    manager.onLastConnectedDeviceCleared = { clearedLastConnection = true }
+    manager.wifiTransport = WiFiTransport()
+    manager.setTestState(
+      connectionState: .ready,
+      connectedDevice: device,
+      currentTransportType: .wifi,
+      connectionIntent: .wantsConnection()
+    )
+
+    manager.devicePairing(manager.pairing, didRemoveDeviceWithID: peripheralID)
+    try await waitUntil("settings removal should strip Bluetooth and keep WiFi") {
+      let row = try? await manager.persistenceStore.fetchDevice(id: peripheralID)
+      return row?.connectionMethods == [.wifi(host: "10.0.0.4", port: 5000, displayName: nil)]
+    }
+
+    #expect(manager.connectionState == .ready)
+    #expect(manager.wifiTransport != nil)
+    #expect(manager.lastConnectedDeviceID == peripheralID)
+    #expect(clearedLastConnection == false)
+    #expect(manager.connectedDevice?.bluetoothPeripheralID == nil)
+    #expect(manager.connectedDevice?.id == peripheralID)
+    #expect(LastConnectionStore(defaults: defaults).bondVerificationDate(for: peripheralID) == nil)
+    #expect(await env.stateMachine.recordedBondVerifications[peripheralID] == nil)
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [peripheralID])
+    #expect(rows.first?.radioID == radioID)
+  }
+
+  @Test
+  func `settings removal during a bluetooth session disconnects and keeps wifi`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let manager = env.manager
+    let peripheralID = UUID()
+    let radioID = UUID()
+    let device = dualDevice(id: peripheralID, peripheralID: peripheralID, radioID: radioID)
+
+    try await manager.persistenceStore.saveDevice(device)
+    manager.persistConnection(deviceID: peripheralID, radioID: radioID, deviceName: device.nodeName)
+    manager.setTestState(
+      connectionState: .connected,
+      connectedDevice: device,
+      currentTransportType: .bluetooth,
+      connectionIntent: .wantsConnection()
+    )
+    let disconnectsBefore = await env.transport.disconnectInvocations
+
+    manager.devicePairing(manager.pairing, didRemoveDeviceWithID: peripheralID)
+    try await waitUntil("settings removal should disconnect the Bluetooth session") {
+      manager.connectionState == .disconnected
+        && manager.connectedDevice == nil
+        && manager.currentTransportType == nil
+    }
+
+    let row = try await manager.persistenceStore.fetchDevice(id: peripheralID)
+    #expect(row?.connectionMethods == [.wifi(host: "10.0.0.4", port: 5000, displayName: nil)])
+    #expect(row?.radioID == radioID)
+    #expect(manager.lastConnectedDeviceID == peripheralID)
+    #expect(await env.transport.disconnectInvocations > disconnectsBefore)
+  }
+
+  @Test
+  func `settings removal after a wifi give-up disconnects the bluetooth transport`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let manager = env.manager
+    let peripheralID = UUID()
+    let radioID = UUID()
+    let device = dualDevice(id: peripheralID, peripheralID: peripheralID, radioID: radioID)
+    try await manager.persistenceStore.saveDevice(device)
+
+    manager.testWiFiMaxReconnectDuration = .seconds(-1)
+    manager.setTestState(
+      connectionState: .ready,
+      currentTransportType: .wifi,
+      connectionIntent: .wantsConnection()
+    )
+    manager.wifiTransport = WiFiTransport()
+    await manager.checkWiFiConnectionHealth()
+    try await waitUntil("WiFi reconnect timeout should release the transport") {
+      manager.wifiTransport == nil && manager.currentTransportType == nil
+    }
+
+    let session = MeshCoreSession(transport: SimulatorMockTransport())
+    let services = try await ServiceContainer.forTesting(session: session, radioID: radioID)
+    manager.setTestState(
+      connectionState: .connected,
+      services: services,
+      session: session,
+      connectedDevice: device,
+      connectionIntent: .wantsConnection()
+    )
+    let promoted = await manager.promoteToReady(
+      syncResult: FullSyncResult(contacts: .clean, channels: .clean, messages: .clean),
+      expectedServices: services,
+      transportType: .bluetooth
+    )
+    #expect(promoted)
+    #expect(manager.connectionState == .ready)
+    #expect(manager.wifiTransport == nil)
+
+    let disconnectsBefore = await env.transport.disconnectInvocations
+    manager.devicePairing(manager.pairing, didRemoveDeviceWithID: peripheralID)
+    try await waitUntil("settings removal should disconnect Bluetooth") {
+      manager.connectionState == .disconnected
+        && manager.currentTransportType == nil
+    }
+
+    #expect(await env.transport.disconnectInvocations > disconnectsBefore)
+    #expect(manager.wifiTransport == nil)
+  }
+
+  @Test
+  func `settings removal of a legacy derived id keeps that id and wifi`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let manager = env.manager
+    let peripheralID = UUID()
+    let derivedID = UUID()
+    let radioID = UUID()
+    let device = dualDevice(id: derivedID, peripheralID: peripheralID, radioID: radioID)
+    try await manager.persistenceStore.saveDevice(device)
+
+    manager.devicePairing(manager.pairing, didRemoveDeviceWithID: peripheralID)
+    try await waitUntil("settings removal should strip Bluetooth from the derived-id row") {
+      let row = try? await manager.persistenceStore.fetchDevice(id: derivedID)
+      return row?.bluetoothPeripheralID == nil && row?.wifiConnectionMethod != nil
+    }
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [derivedID])
+    #expect(rows.first?.radioID == radioID)
+    #expect(rows.first?.connectionMethods.allSatisfy(\.isWiFi) == true)
+  }
+
+  @Test
+  func `pairing failure keeps a dual row and deletes a bluetooth-only row`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let manager = env.manager
+    let dualPeripheral = UUID()
+    let dualRadioID = UUID()
+    let bluetoothOnlyID = UUID()
+    try await manager.persistenceStore.saveDevice(
+      dualDevice(id: dualPeripheral, peripheralID: dualPeripheral, radioID: dualRadioID)
+    )
+    try await manager.persistenceStore.saveDevice(
+      DeviceDTO.testDevice(id: bluetoothOnlyID).copy {
+        $0.connectionMethods = [.bluetooth(peripheralUUID: bluetoothOnlyID, displayName: nil)]
+      }
+    )
+
+    manager.devicePairing(manager.pairing, didFailPairingForDeviceWithID: dualPeripheral)
+    try await waitUntil("pairing failure should strip Bluetooth from the dual row") {
+      let row = try? await manager.persistenceStore.fetchDevice(id: dualPeripheral)
+      return row?.bluetoothPeripheralID == nil
+    }
+    let dual = try await manager.persistenceStore.fetchDevice(id: dualPeripheral)
+    #expect(dual?.radioID == dualRadioID)
+    #expect(dual?.connectionMethods.allSatisfy(\.isWiFi) == true)
+
+    manager.devicePairing(manager.pairing, didFailPairingForDeviceWithID: bluetoothOnlyID)
+    try await waitUntil("pairing failure should delete the Bluetooth-only row") {
+      let row = try? await manager.persistenceStore.fetchDevice(id: bluetoothOnlyID)
+      return row == nil
+    }
+  }
+
+  @Test
+  func `an accessory saved under the wifi id rule is not a missing device record`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let manager = env.manager
+    let peripheralID = UUID()
+    let device = dualDevice(id: peripheralID, peripheralID: peripheralID, radioID: UUID())
+    try await manager.persistenceStore.saveDevice(device)
+    env.accessorySetupKit.setPairedAccessories([
+      ASAccessory(bluetoothIdentifier: peripheralID, displayName: "Radio")
+    ])
+
+    let pending = try await manager.systemAccessoriesMissingDeviceRecord()
+
+    #expect(pending.isEmpty)
+  }
 }

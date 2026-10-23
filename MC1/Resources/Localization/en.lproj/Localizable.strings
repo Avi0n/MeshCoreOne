@@ -55,6 +55,9 @@
 /* Location: SyncingPillView.swift - Status shown when syncing data */
 "common.status.syncing" = "Syncing";
 
+/* Status shown during initial message catch-up */
+"common.status.syncingMessages" = "Syncing messages";
+
 /* Location: SyncingPillView.swift - Status shown when connecting to device */
 "common.status.connecting" = "Connecting";
 
@@ -198,7 +201,7 @@
 // MARK: - Status Pill
 
 /* Status pill message when sync has failed */
-"statusPill.syncFailed" = "Sync Failed";
+"statusPill.syncFailed" = "Sync failed";
 
 // MARK: - Error Messages
 
@@ -594,6 +597,12 @@
 
 /* Location: SettingsServiceError+UserFacingMessage.swift - Malformed device response to a settings command */
 "error.settings.invalidResponse" = "Invalid response from device";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - Radio CLI command was rejected */
+"error.settings.radioCLIRejected" = "The radio returned an error: %@";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - The radio cannot turn itself off */
+"error.settings.powerOffUnsupported" = "This radio can't turn itself off. It is still on and connected.";
 
 /* Location: SettingsServiceError+UserFacingMessage.swift - Setting write-back mismatch - %1$@ is the expected value, %2$@ is the value the device reports */
 "error.settings.verificationFailed" = "Setting was not saved. Expected '%1$@' but device reports '%2$@'.";

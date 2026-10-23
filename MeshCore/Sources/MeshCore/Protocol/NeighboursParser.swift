@@ -34,6 +34,14 @@ public enum NeighboursParser {
 
     let totalCount = Int(data.readInt16LE(at: 0))
     let resultsCount = Int(data.readInt16LE(at: 2))
+    guard totalCount >= 0, resultsCount >= 0 else {
+      return NeighboursResponse(
+        publicKeyPrefix: publicKeyPrefix,
+        tag: tag,
+        totalCount: 0,
+        neighbours: []
+      )
+    }
 
     var neighbours: [Neighbour] = []
     let entrySize = prefixLength + 4 + 1 // pubkey + secs_ago + snr

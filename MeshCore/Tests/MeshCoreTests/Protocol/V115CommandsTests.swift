@@ -7,9 +7,9 @@ struct V115CommandsTests {
   // MARK: - sendChannelData
 
   @Test
-  func `sendChannelData flood (default pathLength) format`() {
+  func `sendChannelData flood (default pathLength) format`() throws {
     let payload = Data([0xAA, 0xBB, 0xCC])
-    let packet = PacketBuilder.sendChannelData(
+    let packet = try PacketBuilder.sendChannelData(
       channelIndex: 2,
       dataType: 0xFFFF,
       payload: payload
@@ -25,11 +25,11 @@ struct V115CommandsTests {
   }
 
   @Test
-  func `sendChannelData flood ignores pathBytes when pathLength == 0xFF`() {
+  func `sendChannelData flood ignores pathBytes when pathLength == 0xFF`() throws {
     // If a caller supplies pathBytes but leaves pathLength at flood sentinel,
     // the path bytes must NOT be written on the wire — firmware expects
     // no path when path_len == 0xFF.
-    let packet = PacketBuilder.sendChannelData(
+    let packet = try PacketBuilder.sendChannelData(
       channelIndex: 0,
       dataType: 0xFFFF,
       payload: Data([0xAA]),
@@ -41,12 +41,12 @@ struct V115CommandsTests {
   }
 
   @Test
-  func `sendChannelData direct-path format (1-byte hashes)`() {
+  func `sendChannelData direct-path format (1-byte hashes)`() throws {
     // pathLength 0x03: upper 2 bits = 0b00 -> hash_size = 1; lower 6 bits = 3 -> hash_count = 3.
     // Firmware's writePath consumes hash_count * hash_size = 3 bytes.
     let pathBytes = Data([0x11, 0x22, 0x33])
     let payload = Data([0x01, 0x02])
-    let packet = PacketBuilder.sendChannelData(
+    let packet = try PacketBuilder.sendChannelData(
       channelIndex: 0,
       dataType: 0x1234,
       payload: payload,
@@ -65,11 +65,11 @@ struct V115CommandsTests {
   }
 
   @Test
-  func `sendChannelData direct-path format (2-byte hashes)`() {
+  func `sendChannelData direct-path format (2-byte hashes)`() throws {
     // pathLength 0x42: upper 2 bits = 0b01 -> hash_size = 2; lower 6 bits = 2 -> hash_count = 2.
     // Firmware's writePath consumes 2 * 2 = 4 bytes.
     let pathBytes = Data([0x11, 0x22, 0x33, 0x44])
-    let packet = PacketBuilder.sendChannelData(
+    let packet = try PacketBuilder.sendChannelData(
       channelIndex: 1,
       dataType: 0xFFFF,
       payload: Data([0xAA]),
@@ -84,10 +84,10 @@ struct V115CommandsTests {
   }
 
   @Test
-  func `sendChannelData passes caller-supplied pathBytes verbatim`() {
+  func `sendChannelData passes caller-supplied pathBytes verbatim`() throws {
     // Builder is a dumb packer. If the caller lies about pathLength, firmware rejects;
     // we don't second-guess on our side. This test locks in that contract.
-    let packet = PacketBuilder.sendChannelData(
+    let packet = try PacketBuilder.sendChannelData(
       channelIndex: 0,
       dataType: 0xFFFF,
       payload: Data([0x00]),
@@ -98,19 +98,34 @@ struct V115CommandsTests {
     #expect(Data(packet[3..<5]) == Data([0x01, 0x02]))
   }
 
-  @Test
-  func `sendChannelData clamps payload to 163 bytes`() {
-    let payload = Data(repeating: 0x55, count: 200)
-    let packet = PacketBuilder.sendChannelData(
+  @Test(arguments: [(UInt8(0xFF), 0, 165), (0, 0, 165), (7, 7, 164), (0x44, 8, 163), (0x83, 9, 162)])
+  func `sendChannelData enforces payload and host frame budgets`(pathLength: UInt8, pathCount: Int, payloadCount: Int) throws {
+    let path = Data(repeating: 0x11, count: pathCount)
+    let payload = Data(repeating: 0x55, count: payloadCount)
+    let packet = try PacketBuilder.sendChannelData(
       channelIndex: 1,
       dataType: 0x00FF,
-      payload: payload
+      payload: payload,
+      pathLength: pathLength,
+      pathBytes: path
     )
 
-    #expect(packet.count == 5 + PacketBuilder.channelDataMaxPayloadBytes,
-            "Header (5 bytes, flood) + clamped payload")
-    #expect(Data(packet[5...]) == Data(repeating: 0x55,
-                                       count: PacketBuilder.channelDataMaxPayloadBytes))
+    #expect(packet.count == 5 + pathCount + payloadCount)
+    #expect(packet.count <= 176)
+    #expect(Data(packet.suffix(payloadCount)) == payload)
+    let error = #expect(throws: MeshCoreError.self) {
+      try PacketBuilder.sendChannelData(
+        channelIndex: 1,
+        dataType: 0x00FF,
+        payload: payload + Data([0x55]),
+        pathLength: pathLength,
+        pathBytes: path
+      )
+    }
+    guard case .invalidInput? = error else {
+      Issue.record("Expected invalidInput")
+      return
+    }
   }
 
   // MARK: - setDefaultFloodScope

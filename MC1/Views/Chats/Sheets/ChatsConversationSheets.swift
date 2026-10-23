@@ -1,10 +1,8 @@
 import MC1Services
 import SwiftUI
 
-/// The deep-link sheets, conversation sheets, and destructive-action alerts shared by the compact
-/// `ChatsView` (stack) and the iPad `ChatsContentColumn` (split). Both attach an identical surface;
-/// only the navigation glue (`navigate` and the delete handlers) differs between
-/// the stack and split paths, so those are injected as closures.
+/// Chats-list sheets for links, compose, room auth, and deletes. Injected
+/// `navigate` writes the same route a list row tap writes.
 struct ChatsConversationSheets: ViewModifier {
   @Environment(\.appState) private var appState
 
@@ -17,8 +15,8 @@ struct ChatsConversationSheets: ViewModifier {
   @Binding var showRoomDeleteAlert: Bool
   @Binding var channelDeleteFailure: ChatConversationActions.Failure?
   @Binding var showChannelDeleteFailed: Bool
-  @Binding var pendingChatContact: ContactDTO?
-  @Binding var pendingChannel: ChannelDTO?
+  @Binding var newChatContact: ContactDTO?
+  @Binding var newChannel: ChannelDTO?
 
   let navigate: (ChatRoute) -> Void
   let deleteChannelConversation: (ChannelDTO) -> Void
@@ -68,30 +66,35 @@ struct ChatsConversationSheets: ViewModifier {
         .presentationDetents([.medium, .large])
       }
       .sheet(isPresented: $showingNewChat, onDismiss: {
-        if let contact = pendingChatContact {
-          pendingChatContact = nil
+        if let contact = newChatContact {
+          newChatContact = nil
           navigate(.direct(contact))
         }
       }) {
         NewChatView { contact in
-          pendingChatContact = contact
+          newChatContact = contact
           showingNewChat = false
         }
       }
       .sheet(isPresented: $showingChannelOptions, onDismiss: {
         viewModel.requestConversationReload()
-        if let channel = pendingChannel {
-          pendingChannel = nil
+        if let channel = newChannel {
+          newChannel = nil
           navigate(.channel(channel))
         }
       }) {
         ChannelOptionsSheet { channel in
-          pendingChannel = channel
+          newChannel = channel
         }
       }
       .sheet(item: $roomToAuthenticate) { session in
         RoomAuthenticationSheet(session: session) { authenticatedSession in
           roomToAuthenticate = nil
+          guard ChatsRadioScopedSheets.shouldKeepRoomAuth(
+            sessionRadioID: authenticatedSession.radioID,
+            currentRadioID: appState.currentRadioID,
+            hasConnectedDevice: appState.connectedDevice != nil
+          ) else { return }
           navigate(.room(authenticatedSession))
         }
         .presentationSizing(.page)

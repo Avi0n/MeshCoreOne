@@ -38,13 +38,19 @@ public enum PacketBuilder: Sendable {
   static let publicKeySize = 32
   /// Size of an expanded private key in bytes (firmware `PRV_KEY_SIZE`).
   static let privateKeySize = 64
-  static let rawDataMaxPathBytes = 64
-  static let rawDataMaxPayloadBytes = 184
   /// Flood sentinel for `path_len` fields: firmware treats `0xFF` as "route via flood".
   public static let floodPathSentinel: UInt8 = 0xFF
-  /// Command payload clamp that still fits a 172-byte companion frame.
-  /// A 176-byte frame would allow 167; this stays 163.
-  static let channelDataMaxPayloadBytes = 163
+  /// RF payload limit for `CMD_SEND_CHANNEL_DATA`, matching firmware `MAX_GROUP_DATA_LENGTH` (165).
+  static let channelDataMaxPayloadBytes = 165
+  static let channelNameFieldBytes = 32
+  static let channelMaxNameBytes = channelNameFieldBytes - 1
+  /// Host-frame cap (`MAX_FRAME_SIZE` in firmware).
+  static let maxFrameSize = 176
+  /// UTF-8 bytes after ``CommandCode/runCliCommand`` that still fit `maxFrameSize`.
+  static let runCliCommandMaxUTF8Bytes = maxFrameSize - 1
+  /// Firmware takes CMD 66 only when the host frame is at least 3 bytes
+  /// (opcode plus two UTF-8 bytes); shorter frames fall through to unsupported.
+  static let runCliCommandMinUTF8Bytes = 2
   /// Default-scope name-field width on the wire (31 bytes, zero-padded).
   static let defaultScopeNameField = 31
   /// Default-scope name maximum UTF-8 length (30 bytes; byte 31 is the null terminator
@@ -401,11 +407,8 @@ public enum PacketBuilder: Sendable {
   ///   - attempt: Retry attempt number (for duplicate detection).
   /// - Returns: The command packet data.
   ///
-  /// The message type byte is fixed to `0x00` (PLAIN). For a direct message
-  /// the firmware accepts only PLAIN or CLI_DATA: SIGNED_PLAIN is rejected,
-  /// and CLI_DATA sets `expected_ack = 0`, which would defeat the end-to-end
-  /// ACK correlation this send path depends on. PLAIN is the only type that
-  /// preserves the ACK design, so it is not exposed as a parameter.
+  /// The message type byte is fixed to PLAIN. CLI_DATA clears the end-to-end ACK this path needs, and SIGNED_PLAIN is rejected.
+  /// Firmware v14 also accepts TXT_TYPE_CLI_COMMAND, which this direct-message path does not send.
   ///
   /// ### Binary Format
   /// - Offset 0 (1 byte): Command code `0x02` (sendMessage)
@@ -433,12 +436,13 @@ public enum PacketBuilder: Sendable {
   /// - Parameters:
   ///   - destination: Destination public key prefix (6 bytes).
   ///   - command: Command string to execute.
+  ///   - textType: `.cliData` for a repeater or room, or `.cliCommand` for a contact's radio.
   ///   - timestamp: Command timestamp.
   /// - Returns: The command packet data.
   ///
   /// ### Binary Format
   /// - Offset 0 (1 byte): Command code `0x02` (sendMessage)
-  /// - Offset 1 (1 byte): Message type `0x01` (structured command)
+  /// - Offset 1 (1 byte): Message type (`textType`)
   /// - Offset 2 (1 byte): Reserved `0x00`
   /// - Offset 3 (4 bytes): Unix timestamp, Little-endian UInt32
   /// - Offset 7 (6 bytes): Destination prefix
@@ -446,9 +450,10 @@ public enum PacketBuilder: Sendable {
   public static func sendCommand(
     to destination: Data,
     command: String,
+    textType: TextType,
     timestamp: Date = Date()
   ) -> Data {
-    var data = Data([CommandCode.sendMessage.rawValue, 0x01, 0x00])
+    var data = Data([CommandCode.sendMessage.rawValue, textType.rawValue, 0x00])
     let ts = epochSeconds32(timestamp)
     data.append(contentsOf: withUnsafeBytes(of: ts.littleEndian) { Array($0) })
     data.append(destination.prefix(6))
@@ -563,7 +568,7 @@ public enum PacketBuilder: Sendable {
   ///
   /// - Parameters:
   ///   - index: The 0-based index of the channel to configure.
-  ///   - name: The name of the channel (max 32 bytes).
+  ///   - name: The name of the channel (max 31 UTF-8 bytes, truncated at a character boundary).
   ///   - secret: The 16-byte PSK (Pre-Shared Key) for the channel.
   /// - Returns: The command packet data.
   ///
@@ -579,8 +584,7 @@ public enum PacketBuilder: Sendable {
   ) -> Data {
     var data = Data([CommandCode.setChannel.rawValue, index])
 
-    // Pad name to 32 bytes (UTF-8-safe truncation)
-    data.append(name.utf8PaddedOrTruncated(to: 32))
+    data.append(name.utf8Prefix(maxBytes: channelMaxNameBytes).utf8PaddedOrTruncated(to: channelNameFieldBytes))
 
     // Secret must be 16 bytes
     data.append(secret.prefix(16))
@@ -612,13 +616,13 @@ public enum PacketBuilder: Sendable {
 
   // MARK: - Additional Commands (from Python reference)
 
-  /// Builds an updateContact command to sync a full contact record to firmware.
+  /// Builds a contact update command with coordinates and no modification timestamp.
   ///
   /// - Parameter contact: The contact to update.
-  /// - Returns: The command packet data (147 bytes).
+  /// - Returns: The command packet data (144 bytes).
   ///
   /// ### Binary Format
-  /// (Per firmware MyMesh.cpp updateContactFromFrame and Python meshcore_py)
+  ///
   /// - Offset 0 (1 byte): Command code `0x09`
   /// - Offset 1 (32 bytes): Public key
   /// - Offset 33 (1 byte): Type
@@ -629,32 +633,25 @@ public enum PacketBuilder: Sendable {
   /// - Offset 132 (4 bytes): Last advert timestamp (UInt32 LE)
   /// - Offset 136 (4 bytes): Latitude (Int32 LE, scaled by 1,000,000)
   /// - Offset 140 (4 bytes): Longitude (Int32 LE, scaled by 1,000,000)
-  /// - Offset 144 (3 bytes): Reserved/padding (zeros)
-  ///
-  /// Total: 147 bytes
   public static func updateContact(_ contact: MeshContact) -> Data {
-    var data = Data([CommandCode.updateContact.rawValue]) // 1 byte
-    data.append(contact.publicKey.paddedOrTruncated(to: 32)) // 32 bytes
-    data.append(contact.typeRawValue) // 1 byte
-    data.append(contact.flags.rawValue) // 1 byte
-    data.append(contact.outPathLength) // 1 byte
-    data.append(contact.outPath.paddedOrTruncated(to: 64)) // 64 bytes
-    data.append(contact.advertisedName.utf8PaddedOrTruncated(to: 32)) // 32 bytes
+    var data = Data([CommandCode.updateContact.rawValue])
+    data.append(contact.publicKey.paddedOrTruncated(to: 32))
+    data.append(contact.typeRawValue)
+    data.append(contact.flags.rawValue)
+    data.append(contact.outPathLength)
+    data.append(contact.outPath.paddedOrTruncated(to: 64))
+    data.append(contact.advertisedName.utf8PaddedOrTruncated(to: 32))
 
     let timestamp = epochSeconds32(contact.lastAdvertisement)
-    data.appendLittleEndian(timestamp) // 4 bytes
+    data.appendLittleEndian(timestamp)
 
     let lat = scaledCoordinate(contact.latitude, in: latitudeRange)
-    data.appendLittleEndian(lat) // 4 bytes
+    data.appendLittleEndian(lat)
 
     let lon = scaledCoordinate(contact.longitude, in: longitudeRange)
-    data.appendLittleEndian(lon) // 4 bytes
+    data.appendLittleEndian(lon)
 
-    // Subtotal so far: 1 + 32 + 1 + 1 + 1 + 64 + 32 + 4 + 4 + 4 = 144 bytes.
-    // Firmware expects a 147-byte frame, so pad with 3 reserved bytes.
-    data.append(contentsOf: [0x00, 0x00, 0x00]) // 3 bytes
-
-    return data // 144 + 3 = 147 bytes
+    return data
   }
 
   /// Builds a setTuning command to adjust low-level radio timing.
@@ -885,7 +882,7 @@ public enum PacketBuilder: Sendable {
   /// - Offset 2 (1 byte): Encoded `pathLength` byte (`0xFF` = flood)
   /// - Offset 3 (pathBytes.count bytes, absent if flood): Path bytes, caller-supplied verbatim
   /// - Next (2 bytes): `dataType` (little-endian `UInt16`)
-  /// - Remaining: Payload bytes (clamped to 163 bytes)
+  /// - Remaining: Payload bytes (at most `MAX_GROUP_DATA_LENGTH`, 165, and within the 176-byte host frame)
   ///
   /// `pathLength` is the **encoded** path-length byte used by firmware's packet format
   /// (see `Packet::isValidPathLen` at `mc-ref/MeshCore/src/Packet.cpp:13-18`):
@@ -909,20 +906,21 @@ public enum PacketBuilder: Sendable {
   ///     `0x0001–0x00FF` are reserved by convention in `number_allocations.md` but are
   ///     not enforced by firmware; `0xFF00–0xFFFF` is the developer/testing namespace.
   ///     Custom apps should request an allocation in `0x0100–0xFEFF`.
-  ///   - payload: Binary payload, clamped to ``channelDataMaxPayloadBytes`` (163).
+  ///   - payload: Binary payload, limited to 165 bytes and the remaining host-frame space after the header and path.
   ///   - pathLength: Encoded `path_len` byte. Defaults to ``floodPathSentinel`` (`0xFF`).
   ///     When set to a non-flood value it must satisfy `Packet::isValidPathLen`.
   ///   - pathBytes: Path bytes, written verbatim after `pathLength`. Pass `Data()` (the
   ///     default) for flood; firmware ignores any bytes when `pathLength == 0xFF` so the
   ///     builder omits them.
   /// - Returns: The command packet bytes.
+  /// - Throws: ``MeshCoreError/invalidInput(_:)`` if the payload exceeds either limit.
   public static func sendChannelData(
     channelIndex: UInt8,
     dataType: UInt16,
     payload: Data,
     pathLength: UInt8 = floodPathSentinel,
     pathBytes: Data = Data()
-  ) -> Data {
+  ) throws -> Data {
     var data = Data([CommandCode.sendChannelData.rawValue, channelIndex, pathLength])
 
     if pathLength != floodPathSentinel {
@@ -930,7 +928,11 @@ public enum PacketBuilder: Sendable {
     }
 
     data.append(contentsOf: withUnsafeBytes(of: dataType.littleEndian) { Array($0) })
-    data.append(payload.prefix(channelDataMaxPayloadBytes))
+    let maxPayloadBytes = min(channelDataMaxPayloadBytes, maxFrameSize - data.count)
+    guard payload.count <= maxPayloadBytes else {
+      throw MeshCoreError.invalidInput("payload is \(payload.count) bytes; command permits \(maxPayloadBytes)")
+    }
+    data.append(payload)
     return data
   }
 
@@ -996,6 +998,19 @@ public enum PacketBuilder: Sendable {
     Data([CommandCode.getDefaultFloodScope.rawValue])
   }
 
+  /// CLI verb that asks the board to cut its own power.
+  public static let powerOffCommand = "poweroff"
+
+  /// Builds a `runCliCommand` packet: opcode plus UTF-8 command bytes.
+  ///
+  /// Firmware v14+ (`CMD_RUN_CLI_COMMAND`). The radio null-terminates the
+  /// buffer; this builder does not append a terminator or `xx|` prefix.
+  public static func runCliCommand(_ command: String) -> Data {
+    var data = Data([CommandCode.runCliCommand.rawValue])
+    data.append(contentsOf: Data(command.utf8))
+    return data
+  }
+
   /// Builds a command to send an anonymous request to a remote node.
   ///
   /// ### Binary Format
@@ -1003,13 +1018,13 @@ public enum PacketBuilder: Sendable {
   /// - Offset 1–32 (32 bytes): Destination public key
   /// - Offset 33 (1 byte): Anonymous request type
   /// - Offset 34 (1 byte): Encoded path length (bits 7-6 = hash_size-1, bits 5-0 = hop count)
-  /// - Offset 35+ (variable): Out-path bytes, reversed to form the return route
+  /// - Offset 35+ (variable): Out-path hops in reverse order, preserving each hop's bytes
   ///
   /// - Parameters:
   ///   - publicKey: The 32-byte public key of the destination node.
   ///   - type: The anonymous request type.
   ///   - pathLength: The encoded path length byte.
-  ///   - path: The raw out-path bytes for the destination. Reversed to form the return route.
+  ///   - path: The raw out-path bytes. Hop order is reversed to form the return route.
   /// - Returns: The command data to send to the companion radio.
   public static func sendAnonReq(
     to publicKey: Data,
@@ -1021,7 +1036,13 @@ public enum PacketBuilder: Sendable {
     data.append(publicKey.prefix(publicKeySize))
     data.append(type.rawValue)
     data.append(pathLength)
-    data.append(Data(path.reversed()))
+    if let pathInfo = decodePathLen(pathLength), pathInfo.byteLength == path.count {
+      for offset in stride(from: 0, to: path.count, by: pathInfo.hashSize).reversed() {
+        data.append(path.dropFirst(offset).prefix(pathInfo.hashSize))
+      }
+    } else {
+      data.append(Data(path.reversed()))
+    }
     return data
   }
 
@@ -1095,24 +1116,25 @@ public enum PacketBuilder: Sendable {
 
   // MARK: - Raw Data and Query Commands
 
-  /// Builds a sendRawData command to send raw data through the mesh.
-  ///
-  /// - Parameters:
-  ///   - path: The routing path data.
-  ///   - payload: The raw payload to send.
-  /// - Returns: The command packet data.
-  ///
-  /// ### Binary Format
-  /// - Offset 0 (1 byte): Command code `0x19`
-  /// - Offset 1 (1 byte): Path length
-  /// - Offset 2 (N bytes): Path data
-  /// - Offset 2+N (M bytes): Payload
-  public static func sendRawData(path: Data, payload: Data) -> Data {
-    var data = Data([CommandCode.sendRawData.rawValue])
-    let clampedPath = path.prefix(rawDataMaxPathBytes)
-    data.append(UInt8(clampedPath.count))
-    data.append(clampedPath)
-    data.append(payload.prefix(rawDataMaxPayloadBytes))
+  /// Writes `pathLength` verbatim, then exactly `decodePathLen` path bytes. A shorter path throws
+  /// because firmware copies that length from the frame, so missing bytes would come from the payload.
+  /// Mode 3 writes no path bytes. Firmware rejects that frame and paths longer than `PathEncoding.maxPathBytes`.
+  /// Throws ``MeshCoreError/invalidInput(_:)`` if the payload cannot fit the 176-byte host frame.
+  public static func sendRawData(pathLength: UInt8, path: Data, payload: Data) throws -> Data {
+    var data = Data([CommandCode.sendRawData.rawValue, pathLength])
+    if let decoded = decodePathLen(pathLength) {
+      guard path.count >= decoded.byteLength else {
+        throw MeshCoreError.invalidInput(
+          "path is \(path.count) bytes; encoded length needs \(decoded.byteLength)"
+        )
+      }
+      data.append(path.prefix(decoded.byteLength))
+    }
+    let maxPayloadBytes = maxFrameSize - data.count
+    guard payload.count <= maxPayloadBytes else {
+      throw MeshCoreError.invalidInput("payload is \(payload.count) bytes; command permits \(maxPayloadBytes)")
+    }
+    data.append(payload)
     return data
   }
 

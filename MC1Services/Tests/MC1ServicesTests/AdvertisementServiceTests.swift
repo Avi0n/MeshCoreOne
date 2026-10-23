@@ -1,6 +1,7 @@
 import Foundation
 @testable import MC1Services
 import MeshCore
+import MeshCoreTestSupport
 import Testing
 
 // MARK: - Helpers
@@ -47,14 +48,16 @@ private func makeContactFrame(
   latitude: Double = 0,
   longitude: Double = 0,
   lastAdvertTimestamp: UInt32 = 1_700_000_000,
-  lastModified: UInt32 = 1_700_000_100
+  lastModified: UInt32 = 1_700_000_100,
+  outPathLength: UInt8 = 0,
+  outPath: Data = Data()
 ) -> ContactFrame {
   ContactFrame(
     publicKey: publicKey,
     type: type,
     flags: 0,
-    outPathLength: 0,
-    outPath: Data(),
+    outPathLength: outPathLength,
+    outPath: outPath,
     name: name,
     lastAdvertTimestamp: lastAdvertTimestamp,
     latitude: latitude,
@@ -78,8 +81,37 @@ private func waitUntil(
   return await predicate()
 }
 
+/// First path-discovery advertisement event, or nil when `timeout` elapses.
+private func firstPathDiscoveryEvent(
+  _ events: AsyncStream<AdvertisementEvent>,
+  timeout: Duration = .seconds(2)
+) async -> AdvertisementEvent? {
+  await withTaskGroup(of: AdvertisementEvent?.self) { group in
+    group.addTask {
+      for await event in events {
+        switch event {
+        case .pathDiscoveryResponse, .pathDiscoveryWriteFailed:
+          return event
+        default:
+          break
+        }
+      }
+      return nil
+    }
+    group.addTask {
+      try? await Task.sleep(for: timeout)
+      return nil
+    }
+    let first = await group.next() ?? nil
+    group.cancelAll()
+    return first
+  }
+}
+
 private actor HandlerRecorder {
   private(set) var calls: [Bool] = []
+  private(set) var callTimes: [ContinuousClock.Instant] = []
+  private var roundTasks: [Task<Void, Never>?] = []
   private var results: [AdvertContactSyncOutcome] = []
   private var persistFrames: [ContactFrame] = []
   private let store: any PersistenceStoreProtocol
@@ -98,8 +130,14 @@ private actor HandlerRecorder {
     persistFrames.append(frame)
   }
 
-  func handle(fullRefetch: Bool) async -> AdvertContactSyncOutcome {
+  func handle(
+    fullRefetch: Bool,
+    roundTask: Task<Void, Never>?,
+    calledAt: ContinuousClock.Instant
+  ) async -> AdvertContactSyncOutcome {
     calls.append(fullRefetch)
+    callTimes.append(calledAt)
+    roundTasks.append(roundTask)
     let outcome = results.isEmpty ? AdvertContactSyncOutcome.synced : results.removeFirst()
     // Only persist on success so a failed call cannot leave a row that
     // masks a missing re-merge of pending keys.
@@ -117,6 +155,11 @@ private actor HandlerRecorder {
   var fullRefetchFlags: [Bool] {
     calls
   }
+
+  func taskForCall(_ number: Int) -> Task<Void, Never>? {
+    guard roundTasks.indices.contains(number - 1) else { return nil }
+    return roundTasks[number - 1]
+  }
 }
 
 private actor EventCounter {
@@ -127,6 +170,13 @@ private actor EventCounter {
   private(set) var contactDeletedCleanupCount = 0
   private(set) var contactDeletedCleanupIDs: [UUID] = []
   private(set) var nodeStorageFullChangedCount = 0
+  private(set) var processedTraceTags: Set<UInt32> = []
+  private var nextMarkerTag = UInt32.max
+
+  func reserveMarkerTag() -> UInt32 {
+    nextMarkerTag &-= 1
+    return nextMarkerTag
+  }
 
   func note(_ event: AdvertisementEvent) {
     switch event {
@@ -143,6 +193,8 @@ private actor EventCounter {
       contactDeletedCleanupIDs.append(contentsOf: contactIDs)
     case .nodeStorageFullChanged:
       nodeStorageFullChangedCount += 1
+    case let .traceResponse(info, _):
+      processedTraceTags.insert(info.tag)
     default:
       break
     }
@@ -204,9 +256,16 @@ struct AdvertisementServiceTests {
     advertSyncBusyBackoff: Duration = .zero,
     appStateProvider: AppStateProvider? = nil
   ) -> AdvertisementService {
-    AdvertisementService(
+    let contactService = ContactService(
       session: session,
       dataStore: store,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+    return AdvertisementService(
+      session: session,
+      dataStore: store,
+      contactService: contactService,
       advertSyncDebounce: advertSyncDebounce,
       advertSyncMinInterval: advertSyncMinInterval,
       advertSyncBusyBackoff: advertSyncBusyBackoff,
@@ -226,9 +285,50 @@ struct AdvertisementServiceTests {
     _ service: AdvertisementService,
     recorder: HandlerRecorder
   ) async {
-    await service.setDeltaSyncHandler { fullRefetch in
-      await recorder.handle(fullRefetch: fullRefetch)
+    await service.setDeltaSyncHandler { [weak service] fullRefetch in
+      let calledAt = ContinuousClock.now
+      let roundTask = await service?.deltaSyncTask
+      return await recorder.handle(fullRefetch: fullRefetch, roundTask: roundTask, calledAt: calledAt)
     }
+  }
+
+  private func waitForRoundCompletion(_ number: Int, recorder: HandlerRecorder) async throws {
+    let started = await waitUntil { await recorder.callCount >= number }
+    try #require(started, "Expected delta-sync round \(number)")
+    let task = try #require(await recorder.taskForCall(number))
+    await task.value
+  }
+
+  private func waitForCurrentRound(_ service: isolated AdvertisementService) async {
+    await service.deltaSyncTask?.value
+  }
+
+  private func waitForEventProcessing(
+    _ service: AdvertisementService,
+    session: MockMeshCoreSession,
+    counter: EventCounter? = nil
+  ) async -> Bool {
+    let markerTag = await counter?.reserveMarkerTag() ?? UInt32.max
+    let processed = CallTracker()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        if case let .traceResponse(traceInfo, _) = event, traceInfo.tag == markerTag {
+          processed.markCalled()
+          return
+        }
+      }
+    }
+    // The monitor handles events in order, so the trace follows every earlier handler.
+    await session.yieldEvent(.traceData(TraceInfo(tag: markerTag, authCode: 0, flags: 0, pathLength: 0, path: [])))
+    let completed = await waitUntil {
+      guard processed.wasCalled else { return false }
+      if let counter { return await counter.processedTraceTags.contains(markerTag) }
+      return true
+    }
+    listener.cancel()
+    await listener.value
+    return completed
   }
 
   // MARK: - Rollback cascade safety
@@ -263,11 +363,11 @@ struct AdvertisementServiceTests {
 
     // 0x8F while commit is held: no local row yet, so only the rollback key is set.
     await session.yieldEvent(.contactDeleted(publicKey: key))
-    try? await Task.sleep(for: .milliseconds(40))
+    #expect(await waitForEventProcessing(service, session: session))
+    #expect(await service.contactsDeletedDuringSync.contains(key))
+    let round = try #require(await service.deltaSyncTask)
     await hold.release()
-
-    let roundDone = await waitUntil { await service.deltaSyncTask == nil }
-    #expect(roundDone)
+    await round.value
 
     let contact = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
     let messages = try await store.fetchMessages(contactID: contact.id, limit: 50, offset: 0)
@@ -288,9 +388,11 @@ struct AdvertisementServiceTests {
     // Hold the first handler call so later adverts accumulate in pendingAdvertKeys
     // instead of each completing a separate drain under .zero durations.
     let hold = HandlerHold()
-    await service.setDeltaSyncHandler { fullRefetch in
+    await service.setDeltaSyncHandler { [weak service] fullRefetch in
+      let calledAt = ContinuousClock.now
+      let roundTask = await service?.deltaSyncTask
       let isFirst = await recorder.callCount == 0
-      let result = await recorder.handle(fullRefetch: fullRefetch)
+      let result = await recorder.handle(fullRefetch: fullRefetch, roundTask: roundTask, calledAt: calledAt)
       if isFirst {
         await hold.waitUntilReleased()
       }
@@ -312,15 +414,20 @@ struct AdvertisementServiceTests {
     for key in keys.dropFirst() {
       await session.yieldEvent(.advertisement(publicKey: key))
     }
-    // Let the event loop record the remaining keys while the first drain is held.
-    try? await Task.sleep(for: .milliseconds(40))
+    let queued = await waitUntil {
+      await service.pendingAdvertKeys == Set(keys.dropFirst())
+    }
+    #expect(queued, "all mid-hold adverts must be recorded before the handler returns")
     #expect(await recorder.callCount == 1, "mid-hold adverts must not start a parallel handler")
     await hold.release()
 
     // Mid-hold keys schedule exactly one follow-up pass after release.
-    let secondPass = await waitUntil { await recorder.callCount == 2 }
+    let secondPass = await waitUntil {
+      let calls = await recorder.callCount
+      let idle = await service.deltaSyncTask == nil
+      return calls >= 2 && idle
+    }
     #expect(secondPass, "keys recorded mid-hold should schedule one second pass")
-    try? await Task.sleep(for: .milliseconds(40))
     await service.stopEventMonitoring()
 
     #expect(await recorder.callCount == 2)
@@ -402,7 +509,7 @@ struct AdvertisementServiceTests {
     await session.yieldEvent(.advertisement(publicKey: key))
     let secondHandler = await waitUntil { await recorder.callCount >= 2 }
     #expect(secondHandler)
-    try? await Task.sleep(for: .milliseconds(50))
+    try await waitForRoundCompletion(2, recorder: recorder)
 
     await service.stopEventMonitoring()
     service.finishEvents()
@@ -449,7 +556,7 @@ struct AdvertisementServiceTests {
     // 0x8A yielded the first .contactUpdated; the second one lands after reconcile.
     let reconciled = await waitUntil { await counter.contactUpdatedCount >= 2 }
     #expect(reconciled)
-    try? await Task.sleep(for: .milliseconds(30))
+    try await waitForRoundCompletion(1, recorder: recorder)
 
     await service.stopEventMonitoring()
     service.finishEvents()
@@ -623,8 +730,8 @@ struct AdvertisementServiceTests {
 
     let ran = await waitUntil { await recorder.callCount >= 1 }
     #expect(ran)
-    // Allow a second round if one were incorrectly scheduled.
-    try? await Task.sleep(for: .milliseconds(80))
+    try await waitForRoundCompletion(1, recorder: recorder)
+    #expect(await service.deltaSyncTask == nil)
     #expect(await recorder.callCount == 1, "successful path delivery must not escalate")
     #expect(await recorder.fullRefetchFlags == [false])
     #expect(await !service.escalateToFullRefetch)
@@ -698,7 +805,8 @@ struct AdvertisementServiceTests {
     await startMonitoring(service, session: session)
     await session.yieldEvent(.advertisement(publicKey: key))
 
-    try? await Task.sleep(for: .milliseconds(50))
+    try #require(await waitForEventProcessing(service, session: session))
+    await waitForCurrentRound(service)
     #expect(await recorder.callCount == 0)
 
     await service.setSyncingContacts(false)
@@ -792,6 +900,8 @@ struct AdvertisementServiceTests {
     await session.yieldEvent(.advertisement(publicKey: key))
 
     let threeCalls = await waitUntil { await recorder.callCount >= 3 }
+    try await waitForRoundCompletion(3, recorder: recorder)
+    #expect(await service.deltaSyncTask == nil)
     await service.stopEventMonitoring()
     #expect(threeCalls)
 
@@ -801,7 +911,6 @@ struct AdvertisementServiceTests {
     #expect(flags[1] == true, "escalated full refetch")
     #expect(flags[2] == true, "failed full refetch must restore escalate flag")
     // Still-missing key is dropped after escalated success — no fourth call.
-    try? await Task.sleep(for: .milliseconds(50))
     #expect(await recorder.callCount == 3)
   }
 
@@ -822,8 +931,10 @@ struct AdvertisementServiceTests {
     // No handler yet — schedule runs, finds nil, leaves keys pending.
     await startMonitoring(service, session: session)
     await session.yieldEvent(.advertisement(publicKey: key))
-    try? await Task.sleep(for: .milliseconds(40))
+    try #require(await waitForEventProcessing(service, session: session))
+    await waitForCurrentRound(service)
     #expect(await recorder.callCount == 0)
+    #expect(await service.pendingAdvertKeys.contains(key))
 
     await installHandler(service, recorder: recorder)
     let ran = await waitUntil { await recorder.callCount >= 1 }
@@ -837,11 +948,12 @@ struct AdvertisementServiceTests {
   func `min interval delays second delta sync after success`() async throws {
     let store = try await makeStore()
     let session = MockMeshCoreSession()
+    let minInterval: Duration = .milliseconds(150)
     let service = makeService(
       session: session,
       store: store,
       advertSyncDebounce: .zero,
-      advertSyncMinInterval: .milliseconds(150)
+      advertSyncMinInterval: minInterval
     )
     let recorder = HandlerRecorder(store: store, radioID: radioID)
     await installHandler(service, recorder: recorder)
@@ -859,16 +971,15 @@ struct AdvertisementServiceTests {
     await session.yieldEvent(.advertisement(publicKey: keyA))
     let first = await waitUntil { await recorder.callCount >= 1 }
     #expect(first)
+    try await waitForRoundCompletion(1, recorder: recorder)
+    let firstRoundEnd = try #require(await service.lastDeltaSyncEnd)
 
     await session.yieldEvent(.advertisement(publicKey: keyB))
-    try? await Task.sleep(for: .milliseconds(40))
-    #expect(await recorder.callCount == 1, "second pass must wait for min interval")
-
-    let second = await waitUntil(timeout: .seconds(2)) {
-      await recorder.callCount >= 2
-    }
+    try await waitForRoundCompletion(2, recorder: recorder)
+    let callTimes = await recorder.callTimes
+    #expect(callTimes[1] >= firstRoundEnd + minInterval,
+            "second pass must wait for min interval")
     await service.stopEventMonitoring()
-    #expect(second)
   }
 
   // MARK: - 0x8F drops pending key
@@ -919,7 +1030,8 @@ struct AdvertisementServiceTests {
     await service.setSyncingContacts(false)
 
     // Pending key was removed → setSyncingContacts(false) does not re-arm.
-    try? await Task.sleep(for: .milliseconds(50))
+    try #require(await waitForEventProcessing(service, session: session, counter: counter))
+    await waitForCurrentRound(service)
     #expect(await recorder.callCount == 0)
     #expect(await counter.newContactCount == 0)
 
@@ -956,11 +1068,14 @@ struct AdvertisementServiceTests {
 
     // Contact never persisted; 0x8F during handler; reconcile sees nil row.
     await session.yieldEvent(.contactDeleted(publicKey: key))
+    #expect(await waitForEventProcessing(service, session: session))
+    #expect(await service.contactsDeletedDuringSync.contains(key))
+    let round = try #require(await service.deltaSyncTask)
     await hold.release()
+    await round.value
 
     let updated = await waitUntil { await counter.contactUpdatedCount >= 1 }
     #expect(updated)
-    try? await Task.sleep(for: .milliseconds(40))
     #expect(await counter.newContactCount == 0)
 
     await service.stopEventMonitoring()
@@ -999,13 +1114,14 @@ struct AdvertisementServiceTests {
     #expect(waiting)
 
     await session.yieldEvent(.contactDeleted(publicKey: key))
-    // Let the 0x8F handler record the key before the commit returns.
-    try? await Task.sleep(for: .milliseconds(40))
+    #expect(await waitForEventProcessing(service, session: session))
+    #expect(await service.contactsDeletedDuringSync.contains(key))
+    let round = try #require(await service.deltaSyncTask)
     await hold.release()
+    await round.value
 
     let synced = await waitUntil { await counter.contactUpdatedCount >= 1 }
     #expect(synced)
-    try? await Task.sleep(for: .milliseconds(60))
 
     let contact = try await store.fetchContact(radioID: radioID, publicKey: key)
     #expect(contact == nil, "a row re-saved after the radio deleted it must be rolled back")
@@ -1070,7 +1186,6 @@ struct AdvertisementServiceTests {
     await hold.release()
     let roundDone = await waitUntil { await service.deltaSyncTask == nil }
     #expect(roundDone)
-    try? await Task.sleep(for: .milliseconds(40))
 
     let contact = try await store.fetchContact(radioID: radioID, publicKey: deletedKey)
     #expect(contact != nil, "a contact the radio re-added mid-round must survive rollback")
@@ -1106,12 +1221,11 @@ struct AdvertisementServiceTests {
     #expect(waiting)
 
     await session.yieldEvent(.contactDeleted(publicKey: key))
-    // Let the 0x8F handler record the key before the commit returns.
-    try? await Task.sleep(for: .milliseconds(40))
+    #expect(await waitForEventProcessing(service, session: session))
+    #expect(await service.contactsDeletedDuringSync.contains(key))
+    let round = try #require(await service.deltaSyncTask)
     await hold.release()
-
-    let roundDone = await waitUntil { await service.deltaSyncTask == nil }
-    #expect(roundDone)
+    await round.value
 
     let contact = try await store.fetchContact(radioID: radioID, publicKey: key)
     #expect(contact == nil, "a row committed by a failed sync must still be rolled back")
@@ -1234,12 +1348,11 @@ struct AdvertisementServiceTests {
 
     let nodes = try await store.fetchDiscoveredNodes(radioID: radioID)
     #expect(nodes.isEmpty, "a deleted key must not gain a Discover row")
-    try? await Task.sleep(for: .milliseconds(30))
-    #expect(await counter.newContactCount == 0, "a deleted key must not be announced")
 
     await service.stopEventMonitoring()
     service.finishEvents()
     _ = await listener.result
+    #expect(await counter.newContactCount == 0, "a deleted key must not be announced")
   }
 
   @Test
@@ -1251,9 +1364,11 @@ struct AdvertisementServiceTests {
 
     let key = makePublicKey(seed: 0x52)
     let hold = HandlerHold()
-    await service.setDeltaSyncHandler { fullRefetch in
+    await service.setDeltaSyncHandler { [weak service] fullRefetch in
+      let calledAt = ContinuousClock.now
+      let roundTask = await service?.deltaSyncTask
       let isFirst = await recorder.callCount == 0
-      let result = await recorder.handle(fullRefetch: fullRefetch)
+      let result = await recorder.handle(fullRefetch: fullRefetch, roundTask: roundTask, calledAt: calledAt)
       if isFirst {
         await hold.waitUntilReleased()
         _ = try? await store.saveContact(
@@ -1275,9 +1390,8 @@ struct AdvertisementServiceTests {
     #expect(tracked)
     await hold.release()
 
-    let roundDone = await waitUntil { await service.deltaSyncTask == nil }
-    #expect(roundDone)
-    try? await Task.sleep(for: .milliseconds(80))
+    try await waitForRoundCompletion(1, recorder: recorder)
+    #expect(await service.deltaSyncTask == nil)
     await service.stopEventMonitoring()
 
     #expect(await recorder.fullRefetchFlags == [false], "a rolled-back key must not refetch")
@@ -1308,13 +1422,14 @@ struct AdvertisementServiceTests {
 
     let ran = await waitUntil { await recorder.callCount >= 1 }
     #expect(ran)
-    try? await Task.sleep(for: .milliseconds(80))
-    await service.stopEventMonitoring()
+    try await waitForRoundCompletion(1, recorder: recorder)
+    #expect(await service.deltaSyncTask == nil)
 
     #expect(await service.pendingAdvertKeys.isEmpty, "notReady must drop drained advert keys")
     #expect(await recorder.callCount == 1, "notReady must not schedule another round")
     #expect(await service.consecutiveDeltaSyncFailures == 0)
     #expect(await service.lastDeltaSyncEnd == nil, "notReady must not stamp lastDeltaSyncEnd")
+    await service.stopEventMonitoring()
   }
 
   // MARK: - Failure cap
@@ -1391,11 +1506,12 @@ struct AdvertisementServiceTests {
 
     let capped = await waitUntil { await recorder.callCount >= cap }
     #expect(capped)
-    try? await Task.sleep(for: .milliseconds(120))
-    await service.stopEventMonitoring()
+    try await waitForRoundCompletion(cap, recorder: recorder)
+    #expect(await service.deltaSyncTask == nil)
 
     #expect(await recorder.callCount == cap, "retries must stop at the failure cap")
     #expect(await service.pendingAdvertKeys.isEmpty, "the capped round drops its drained keys")
+    await service.stopEventMonitoring()
   }
 
   @Test
@@ -1450,7 +1566,8 @@ struct AdvertisementServiceTests {
     await startMonitoring(service, session: session)
     await session.yieldEvent(.pathUpdate(publicKey: makePublicKey(seed: 0x63)))
 
-    try? await Task.sleep(for: .milliseconds(50))
+    try #require(await waitForEventProcessing(service, session: session))
+    await waitForCurrentRound(service)
     #expect(await recorder.callCount == 0)
 
     await service.setSyncingContacts(false)
@@ -1490,7 +1607,7 @@ struct AdvertisementServiceTests {
 
     let discovered = await waitUntil { await counter.newContactCount >= 1 }
     #expect(discovered, "a re-created Contact row must notify even when its Discover row survived")
-    try? await Task.sleep(for: .milliseconds(40))
+    try await waitForRoundCompletion(1, recorder: recorder)
 
     await service.stopEventMonitoring()
     service.finishEvents()
@@ -1504,7 +1621,7 @@ struct AdvertisementServiceTests {
   // MARK: - Store errors
 
   @Test
-  func `advert retries touch once then drops key when both fail`() async {
+  func `advert retries touch once then drops key when both fail`() async throws {
     // Empty-round guard drops rounds with no recorded keys. A failed touch
     // cannot invent known/unknown, so record nothing and retry once; the
     // tradeoff is a permanently-failing store drops the advert until the next
@@ -1521,7 +1638,8 @@ struct AdvertisementServiceTests {
 
     let retried = await waitUntil { await store.touchContactHeardCalls.count >= 2 }
     #expect(retried, "touch must be retried once before giving up")
-    try? await Task.sleep(for: .milliseconds(80))
+    try #require(await waitForEventProcessing(service, session: session))
+    await waitForCurrentRound(service)
     await service.stopEventMonitoring()
     #expect(await recorder.callCount == 0, "empty-round guard must skip when no key was recorded")
     #expect(await store.touchContactHeardCalls.count == 2)
@@ -1552,7 +1670,8 @@ struct AdvertisementServiceTests {
 
     let capped = await waitUntil { await recorder.callCount >= cap }
     #expect(capped)
-    try? await Task.sleep(for: .milliseconds(80))
+    try await waitForRoundCompletion(cap, recorder: recorder)
+    #expect(await service.deltaSyncTask == nil)
     // Cap drops drained keys but must restore pathSyncPending so a path update
     // is not silently lost. The next advert or path event re-arms.
     #expect(await service.pathSyncPending)
@@ -1585,7 +1704,9 @@ struct AdvertisementServiceTests {
       await recorder.callCount >= 1 + cap
     }
     #expect(capped)
-    try? await Task.sleep(for: .milliseconds(80))
+    try await waitForRoundCompletion(1 + cap, recorder: recorder)
+    #expect(await service.deltaSyncTask == nil)
+    #expect(await recorder.callCount == 1 + cap)
     #expect(
       await service.escalateToFullRefetch,
       "cap must restore escalateToFullRefetch when the drained round was a full refetch"
@@ -1749,30 +1870,6 @@ struct AdvertisementServiceTests {
   }
 
   @Test
-  func `setDeltaSyncHandler nil then reinstall still syncs pending keys`() async throws {
-    let store = try await makeStore()
-    let session = MockMeshCoreSession()
-    let service = makeService(session: session, store: store)
-    let recorder = HandlerRecorder(store: store, radioID: radioID)
-
-    let key = makePublicKey(seed: 0x8A)
-    _ = try await store.saveContact(
-      radioID: radioID, from: makeContactFrame(publicKey: key, name: "Reinstall")
-    )
-    await startMonitoring(service, session: session)
-    await service.setDeltaSyncHandler(nil)
-    await session.yieldEvent(.advertisement(publicKey: key))
-    try? await Task.sleep(for: .milliseconds(40))
-    #expect(await recorder.callCount == 0)
-    #expect(await service.pendingAdvertKeys.contains(key))
-
-    await installHandler(service, recorder: recorder)
-    let ran = await waitUntil { await recorder.callCount >= 1 }
-    #expect(ran, "reinstalling a handler must re-arm for already-pending keys")
-    await service.stopEventMonitoring()
-  }
-
-  @Test
   func `snapshot fetch failure does not invent new-contact notifications`() async throws {
     let store = MockPersistenceStore()
     let session = MockMeshCoreSession()
@@ -1802,7 +1899,7 @@ struct AdvertisementServiceTests {
 
     let ran = await waitUntil { await recorder.callCount >= 1 }
     #expect(ran)
-    try? await Task.sleep(for: .milliseconds(80))
+    try await waitForRoundCompletion(1, recorder: recorder)
 
     await service.stopEventMonitoring()
     service.finishEvents()
@@ -2045,8 +2142,7 @@ struct AdvertisementServiceTests {
     #expect(ran)
     let updated = await waitUntil { await counter.contactUpdatedCount >= 1 }
     #expect(updated)
-    // Yield to the event loop so a wrongly unconditional emit would be observed.
-    try? await Task.sleep(for: .milliseconds(80))
+    try await waitForRoundCompletion(1, recorder: recorder)
 
     await service.stopEventMonitoring()
     service.finishEvents()
@@ -2144,7 +2240,7 @@ struct AdvertisementServiceTests {
     await startMonitoring(service, session: session)
     // Schedule without any pending keys/path: empty-round guard must no-op.
     await service.scheduleDeltaSync()
-    try? await Task.sleep(for: .milliseconds(80))
+    await waitForCurrentRound(service)
     #expect(await recorder.callCount == 0)
     await service.stopEventMonitoring()
   }
@@ -2210,7 +2306,8 @@ struct AdvertisementServiceTests {
 
     let retried = await waitUntil { await store.touchContactHeardCalls.count >= 2 }
     #expect(retried)
-    try? await Task.sleep(for: .milliseconds(60))
+    try #require(await waitForEventProcessing(service, session: session))
+    await waitForCurrentRound(service)
 
     await service.stopEventMonitoring()
     service.finishEvents()
@@ -2224,7 +2321,7 @@ struct AdvertisementServiceTests {
   }
 
   @Test
-  func `contact lookup failure does not escalate to full refetch`() async {
+  func `contact lookup failure does not escalate to full refetch`() async throws {
     let store = MockPersistenceStore()
     await store.setStubbedFetchContactError(AdvertisementServiceTestError.storeUnavailable)
     let session = MockMeshCoreSession()
@@ -2237,7 +2334,8 @@ struct AdvertisementServiceTests {
 
     let ran = await waitUntil { await recorder.callCount >= 1 }
     #expect(ran)
-    try? await Task.sleep(for: .milliseconds(80))
+    try await waitForRoundCompletion(1, recorder: recorder)
+    #expect(await service.deltaSyncTask == nil)
     await service.stopEventMonitoring()
 
     #expect(await recorder.callCount == 1, "a local read failure must not trigger a radio refetch")
@@ -2354,48 +2452,189 @@ struct AdvertisementServiceTests {
     #expect(!favorite.matchesStaleNodePrune(cutoff: cutoff))
   }
 
-  // MARK: - Path discovery response lastHeard
+  // MARK: - Path discovery response
 
   @Test
-  func `pathResponse stamps lastHeard and preserves radio lastModified`() async throws {
+  func `pathResponse writes a routed out path to the radio and stamps lastHeard`() async throws {
     let store = try await makeStore()
     let session = MockMeshCoreSession()
     let service = makeService(session: session, store: store)
 
     let key = makePublicKey(seed: 0xA5)
-    let radioLastMod: UInt32 = 1_700_000_100
+    let storedPath = Data([0xAB, 0xCD])
     _ = try await store.saveContact(
       radioID: radioID,
       from: makeContactFrame(
         publicKey: key,
         name: "PathPeer",
-        lastModified: radioLastMod
+        type: .repeater,
+        lastModified: 1_700_000_100,
+        outPathLength: PacketBuilder.floodPathSentinel,
+        outPath: storedPath
       )
     )
 
     await startMonitoring(service, session: session)
+    let events = service.events()
+    let discovered = Data([0x11, 0x22])
+    let pathLength = encodePathLen(hashSize: 1, hopCount: 2)
+    await session.yieldEvent(.pathResponse(PathInfo(
+      publicKeyPrefix: Data(key.prefix(6)),
+      outPathLength: pathLength,
+      outPath: discovered,
+      inPathLength: 0,
+      inPath: Data()
+    )))
 
-    let pathInfo = PathInfo(
+    let event = await firstPathDiscoveryEvent(events)
+    guard case .pathDiscoveryResponse = event else {
+      Issue.record("expected a path discovery response after the radio accepted the path")
+      return
+    }
+
+    let writes = await session.addContactInvocations
+    #expect(writes.count == 1)
+    #expect(writes.first?.contact.outPathLength == pathLength)
+    #expect(writes.first?.contact.outPath == discovered)
+    #expect(writes.first?.contact.type == .repeater)
+
+    let updated = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
+    #expect(updated.outPathLength == pathLength)
+    #expect(updated.outPath == discovered)
+    #expect(updated.type == .repeater)
+    #expect(updated.isFloodRouted == false)
+    #expect((updated.lastHeardTimestamp ?? 0) > 0)
+
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `pathResponse writes a zero-hop path as direct`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let service = makeService(session: session, store: store)
+    let key = makePublicKey(seed: 0xA7)
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: makeContactFrame(
+        publicKey: key,
+        name: "DirectPeer",
+        outPathLength: PacketBuilder.floodPathSentinel,
+        outPath: Data([0xAB])
+      )
+    )
+
+    await startMonitoring(service, session: session)
+    let events = service.events()
+    await session.yieldEvent(.pathResponse(PathInfo(
       publicKeyPrefix: Data(key.prefix(6)),
       outPathLength: 0,
       outPath: Data(),
       inPathLength: 0,
       inPath: Data()
-    )
-    await session.yieldEvent(.pathResponse(pathInfo))
+    )))
 
-    let stamped = await waitUntil {
-      guard let contact = try? await store.fetchContact(radioID: radioID, publicKey: key) else {
-        return false
-      }
-      return (contact.lastHeardTimestamp ?? 0) > 0
+    let event = await firstPathDiscoveryEvent(events)
+    guard case .pathDiscoveryResponse = event else {
+      Issue.record("expected a path discovery response for a direct path")
+      return
     }
-    #expect(stamped)
 
-    let updated = try #require(
-      await store.fetchContact(radioID: radioID, publicKey: key)
+    let writes = await session.addContactInvocations
+    #expect(writes.count == 1)
+    #expect(writes.first?.contact.outPathLength == 0)
+    #expect(writes.first?.contact.outPath.isEmpty == true)
+
+    let updated = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
+    #expect(updated.outPathLength == 0)
+    #expect(updated.outPath.isEmpty == true)
+    #expect(updated.isFloodRouted == false)
+
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `pathResponse does not write a reserved length byte`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let service = makeService(session: session, store: store)
+    let key = makePublicKey(seed: 0xA8)
+    let storedPath = Data([0xAB, 0xCD])
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: makeContactFrame(
+        publicKey: key,
+        name: "ReservedPeer",
+        outPathLength: PacketBuilder.floodPathSentinel,
+        outPath: storedPath
+      )
     )
-    #expect(updated.lastModified == radioLastMod)
+
+    await startMonitoring(service, session: session)
+    let events = service.events()
+    await session.yieldEvent(.pathResponse(PathInfo(
+      publicKeyPrefix: Data(key.prefix(6)),
+      outPathLength: 0xC0,
+      outPath: Data(),
+      inPathLength: 0,
+      inPath: Data()
+    )))
+
+    let event = await firstPathDiscoveryEvent(events)
+    guard case .pathDiscoveryResponse = event else {
+      Issue.record("expected the response without a radio write")
+      return
+    }
+    #expect(await session.addContactInvocations.isEmpty)
+
+    let updated = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
+    #expect(updated.outPathLength == PacketBuilder.floodPathSentinel)
+    #expect(updated.outPath == storedPath)
+
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `pathResponse leaves the stored path when the radio rejects the write`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let service = makeService(session: session, store: store)
+    let key = makePublicKey(seed: 0xA9)
+    let storedPath = Data([0xAB, 0xCD])
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: makeContactFrame(
+        publicKey: key,
+        name: "RejectedPeer",
+        outPathLength: PacketBuilder.floodPathSentinel,
+        outPath: storedPath
+      )
+    )
+    await session.failNextAddContact(MeshCoreError.timeout)
+
+    await startMonitoring(service, session: session)
+    let events = service.events()
+    await session.yieldEvent(.pathResponse(PathInfo(
+      publicKeyPrefix: Data(key.prefix(6)),
+      outPathLength: encodePathLen(hashSize: 1, hopCount: 2),
+      outPath: Data([0x11, 0x22]),
+      inPathLength: 0,
+      inPath: Data()
+    )))
+
+    let event = await firstPathDiscoveryEvent(events)
+    guard case let .pathDiscoveryWriteFailed(_, error) = event else {
+      Issue.record("expected a radio-write failure instead of a success response")
+      return
+    }
+    guard case .sessionError = error else {
+      Issue.record("expected the radio failure to surface as a session error")
+      return
+    }
+
+    let updated = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
+    #expect(updated.outPathLength == PacketBuilder.floodPathSentinel)
+    #expect(updated.outPath == storedPath)
     #expect((updated.lastHeardTimestamp ?? 0) > 0)
 
     await service.stopEventMonitoring()
@@ -2464,7 +2703,8 @@ struct AdvertisementServiceTests {
 
     let pending = await waitUntil { await service.pendingAdvertKeys.contains(key) }
     #expect(pending)
-    try? await Task.sleep(for: .milliseconds(80))
+    try #require(await waitForEventProcessing(service, session: session, counter: counter))
+    await waitForCurrentRound(service)
     #expect(await recorder.callCount == 0)
     #expect(await counter.contactUpdatedCount == 0)
     let heardAfter = try #require(
@@ -2514,7 +2754,8 @@ struct AdvertisementServiceTests {
     await session.yieldEvent(.pathUpdate(publicKey: key))
     let pending = await waitUntil { await service.pendingPathKeys.contains(key) }
     #expect(pending)
-    try? await Task.sleep(for: .milliseconds(80))
+    try #require(await waitForEventProcessing(service, session: session))
+    await waitForCurrentRound(service)
     await service.stopEventMonitoring()
     #expect(await recorder.callCount == 0)
   }
@@ -2595,9 +2836,10 @@ struct AdvertisementServiceTests {
     let key = makePublicKey(seed: 0xB6)
     await startMonitoring(service, session: session)
     await session.yieldEvent(.advertisement(publicKey: key))
+    try #require(await waitForEventProcessing(service, session: session))
     await service.setSyncingContacts(true)
     await service.setSyncingContacts(false)
-    try? await Task.sleep(for: .milliseconds(80))
+    await waitForCurrentRound(service)
     #expect(await recorder.callCount == 0)
     #expect(await service.pendingAdvertKeys.contains(key))
     await service.stopEventMonitoring()
@@ -2633,7 +2875,7 @@ struct AdvertisementServiceTests {
     #expect(await !service.pendingAdvertKeys.contains(key))
     #expect(await service.contactsDeletedDuringSync.contains(key))
     #expect(try await store.fetchContact(radioID: radioID, publicKey: key)?.id == saved.id)
-    try? await Task.sleep(for: .milliseconds(50))
+    try #require(await waitForEventProcessing(service, session: session, counter: counter))
     #expect(await counter.contactDeletedCleanupCount == 0)
     #expect(await counter.contactUpdatedCount == 0)
 
@@ -2717,9 +2959,10 @@ struct AdvertisementServiceTests {
     #expect(await service.pendingAdvertKeys.contains(key))
     #expect(try await store.fetchContact(radioID: radioID, publicKey: key) != nil)
 
+    try #require(await waitForEventProcessing(service, session: session))
     await scene.setIsInForeground(true)
     await service.handleReturnToForeground()
-    try? await Task.sleep(for: .milliseconds(80))
+    await waitForCurrentRound(service)
     #expect(try await store.fetchContact(radioID: radioID, publicKey: key) != nil)
     await service.stopEventMonitoring()
   }
@@ -3090,8 +3333,9 @@ struct AdvertisementServiceTests {
       service.finishEvents()
       await stopped.markCommitted()
     }
-    let finishedWhileHeld = await waitUntil(timeout: .milliseconds(100)) { await stopped.committed }
-    #expect(!finishedWhileHeld, "stop must await the flush including cleanup emission and error handling")
+    let joined = await waitUntil { await service.testDeletionFlushWaiters == 1 }
+    #expect(joined, "stop must join the active deletion flush")
+    #expect(await !stopped.committed, "stop must await the flush including cleanup emission and error handling")
     await store.releaseDeleteContacts()
     await flushed
     await stopping.value

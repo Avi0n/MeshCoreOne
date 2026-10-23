@@ -191,7 +191,7 @@ extension PersistenceStore {
       contact.nickname = backupNickname
       changed = true
     }
-    // Safety: never un-block, un-mute, or un-favorite via import
+    // Safety: never un-block, un-mute, un-favorite, or unpin via import
     if dto.isBlocked, !contact.isBlocked {
       contact.isBlocked = true
       changed = true
@@ -202,6 +202,10 @@ extension PersistenceStore {
     }
     if dto.isFavorite, !contact.isFavorite {
       contact.isFavorite = true
+      changed = true
+    }
+    if dto.isPinned, !contact.isPinned {
+      contact.isPinned = true
       changed = true
     }
     if let backupDate = dto.lastMessageDate {
@@ -280,8 +284,8 @@ extension PersistenceStore {
       channel.notificationLevel = dto.notificationLevel
       changed = true
     }
-    if dto.isFavorite, !channel.isFavorite {
-      channel.isFavorite = true
+    if dto.isPinned, !channel.isPinned {
+      channel.isPinned = true
       changed = true
     }
     if channel.floodScope == .inherit, dto.floodScope != .inherit {
@@ -303,8 +307,8 @@ extension PersistenceStore {
       session.notificationLevel = dto.notificationLevel
       changed = true
     }
-    if dto.isFavorite, !session.isFavorite {
-      session.isFavorite = true
+    if dto.isPinned, !session.isPinned {
+      session.isPinned = true
       changed = true
     }
     let mergedSyncTimestamp = max(session.lastSyncTimestamp, dto.lastSyncTimestamp)

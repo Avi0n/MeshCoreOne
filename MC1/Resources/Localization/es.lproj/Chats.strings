@@ -243,6 +243,13 @@
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "No se pudieron cargar las conversaciones.";
 
+/* Location: ChatViewModel - Error when saving a chat pin fails */
+"chats.error.pinSaveFailed" = "No se pudo guardar la fijación. Inténtalo de nuevo.";
+
+/* Error when saving a conversation's read state fails */
+/* AI-translated - please verify with native speakers. */
+"chats.error.readStateSaveFailed" = "No se pudo guardar el estado de lectura. Inténtalo de nuevo.";
+
 // MARK: - Channel Options Sheet
 
 /* Location: ChannelOptionsSheet.swift - Loading indicator text */
@@ -316,8 +323,8 @@
 /* Location: NewChatView.swift - Contact type label for rooms */
 // MARK: - Conversation Row
 
-/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator */
-"chats.row.favorite" = "Favorito";
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
+"chats.row.pin" = "Fijado";
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "Sin mensajes aún";
@@ -339,11 +346,15 @@
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
 "chats.action.mute" = "Silenciar";
 
-/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
-"chats.action.unfavorite" = "Quitar de favoritos";
+/* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
+"chats.action.pin" = "Fijar";
 
-/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
-"chats.action.favorite" = "Favorito";
+/* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
+"chats.action.unpin" = "Desfijar";
+
+/* Context-menu action to mark a conversation as unread */
+/* AI-translated - please verify with native speakers. */
+"chats.action.markAsUnread" = "No leído";
 
 // MARK: - Room Conversation Row
 
@@ -513,10 +524,10 @@
 "chats.joinFromMessage.error.loadFailed" = "Canal creado pero no se pudo cargar.";
 
 /* Location: JoinChannelConfirmationSheet.swift - Region scope shown before join - %@ is region name */
-"chats.joinFromMessage.regionScope" = "Region: %@";
+"chats.joinFromMessage.regionScope" = "Región: %@";
 
 /* Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret */
-"chats.joinFromMessage.hashtagSecretMismatch" = "This secret does not match the public hashtag key. You will join a private channel that uses this name.";
+"chats.joinFromMessage.hashtagSecretMismatch" = "Esta clave secreta no coincide con la de los canales hashtag. Te unirás a un canal privado con este nombre.";
 
 // MARK: - Scan Channel QR View
 
@@ -1135,6 +1146,9 @@
 
 /* Location: ConversationRow.swift - Purpose: Mentions only indicator */
 "chats.row.mentionsOnly" = "Solo menciones";
+
+/* TODO: translate - Accessibility label for the row actions menu */
+"chats.row.actionsMenu.accessibilityLabel" = "Conversation actions";
 
 // MARK: - Reactions
 

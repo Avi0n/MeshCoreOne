@@ -82,14 +82,6 @@ public final class DraftStore {
     }
   }
 
-  /// Pure restore decision: returns the saved draft only when the composer is
-  /// empty, otherwise `nil`. Keeps a reconnect-driven re-restore (or a double
-  /// initial load) from clobbering text the user is already typing, and isolates
-  /// that guard so it is unit-testable independent of the view.
-  public func draftToApply(over currentText: String, for id: ChatConversationID) -> String? {
-    currentText.isEmpty ? draft(for: id) : nil
-  }
-
   private func persist() {
     defaults.set(cache, forKey: Self.storageKey)
   }

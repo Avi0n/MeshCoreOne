@@ -1011,8 +1011,8 @@ struct NodeConfigImportOtherParamsLiveTests {
     let beforeImport = await transport.sentData.count // == 1 (the start handshake's appStart)
     let importTask = Task { try await service.importOtherParams(imported) }
 
-    // importOtherParams first calls getSelfInfo() -> sendAppStart() (a second appStart round-trip),
-    // then writes setOtherParams. Pump the self-info reply, then ack the setOtherParams OK.
+    // Import reads selfInfo before committing other params; the setter then refreshes
+    // the session cache with another appStart exchange.
     try await waitUntil("importOtherParams should send getSelfInfo appStart") {
       await transport.sentData.count == beforeImport + 1
     }
@@ -1021,7 +1021,13 @@ struct NodeConfigImportOtherParamsLiveTests {
       await transport.sentData.count == beforeImport + 2
     }
     await transport.simulateOK()
+    try await waitUntil("setOtherParams should refresh selfInfo after its acknowledgement") {
+      await transport.sentData.count == beforeImport + 3
+    }
+    #expect(await transport.sentData.last?.first == CommandCode.appStart.rawValue)
+    await transport.simulateReceive(makeSelfInfoPacket(advertLocationPolicy: unmodeledAdvertPolicyByte))
     try await importTask.value
+    #expect(await session.currentSelfInfo?.advertisementLocationPolicy == unmodeledAdvertPolicyByte)
 
     let advertLocationPolicyByteIndex = 3 // [0]=cmd,[1]=manualAdd,[2]=telemetry,[3]=policy,[4]=multiAcks
     let sent = await transport.sentData
@@ -1070,7 +1076,7 @@ struct NodeConfigImportOtherParamsLiveTests {
     await session.stop()
   }
 
-  private func makeSelfInfoPacket() -> Data {
+  private func makeSelfInfoPacket(advertLocationPolicy: UInt8 = 0) -> Data {
     var payload = Data()
     payload.append(1)
     payload.append(22)
@@ -1079,6 +1085,7 @@ struct NodeConfigImportOtherParamsLiveTests {
     payload.append(withUnsafeBytes(of: Int32(0).littleEndian) { Data($0) })
     payload.append(withUnsafeBytes(of: Int32(0).littleEndian) { Data($0) })
     payload.append(0)
+    payload.append(advertLocationPolicy)
     payload.append(0)
     payload.append(0)
     payload.append(withUnsafeBytes(of: UInt32(915_000).littleEndian) { Data($0) })

@@ -51,11 +51,15 @@ public actor AdvertisementService {
 
   let session: any AdvertisingSessionOps & SessionEventStreaming
   let dataStore: any PersistenceStoreProtocol
+  let contactService: ContactService
 
   private var eventMonitorTask: Task<Void, Never>?
   /// In-flight `flushPendingDeletedKeys`. Callers wait through
   /// `.contactDeletedCleanup`, not only `deleteContacts`.
   private var deletionFlushTask: Task<Void, Never>?
+  #if DEBUG
+    var testDeletionFlushWaiters = 0
+  #endif
   var currentRadioID: UUID?
 
   /// When true, advert delta sync is deferred (full or manual contact sync).
@@ -130,6 +134,7 @@ public actor AdvertisementService {
   public init(
     session: any AdvertisingSessionOps & SessionEventStreaming,
     dataStore: any PersistenceStoreProtocol,
+    contactService: ContactService,
     advertSyncDebounce: Duration = .seconds(5),
     advertSyncMinInterval: Duration = .seconds(30),
     advertSyncBusyBackoff: Duration = .seconds(5),
@@ -137,6 +142,7 @@ public actor AdvertisementService {
   ) {
     self.session = session
     self.dataStore = dataStore
+    self.contactService = contactService
     self.advertSyncDebounce = advertSyncDebounce
     self.advertSyncMinInterval = advertSyncMinInterval
     self.advertSyncBusyBackoff = advertSyncBusyBackoff
@@ -244,6 +250,10 @@ public actor AdvertisementService {
 
   func flushPendingDeletedKeys() async {
     if let deletionFlushTask {
+      #if DEBUG
+        testDeletionFlushWaiters += 1
+        defer { testDeletionFlushWaiters -= 1 }
+      #endif
       await deletionFlushTask.value
       return
     }
@@ -589,8 +599,8 @@ public actor AdvertisementService {
     }
   }
 
-  /// Path discovery response: update out-path and stamp phone-clock lastHeard.
-  /// Leaves radio lastModified unchanged — it is a radio watermark, not phone time.
+  /// A decodable out path is written with `setPath` before success is reported.
+  /// The phone row changes only after the radio accepts, and a reserved length byte is not written.
   private func handlePathDiscoveryResponse(result: PathInfo, radioID: UUID) async {
     // Chunk debug output using the hash size each direction declares on
     // the wire so mode-skew between firmware and the cached device record
@@ -610,22 +620,6 @@ public actor AdvertisementService {
 
     do {
       if let contact = try await dataStore.fetchContact(radioID: radioID, publicKeyPrefix: result.publicKeyPrefix) {
-        // Prefer the response's self-describing length byte over the device's
-        // cached hashSize — the wire encoding is authoritative for this path.
-        let frame = ContactFrame(
-          publicKey: contact.publicKey,
-          type: contact.type,
-          flags: contact.flags,
-          outPathLength: result.outPathLength,
-          outPath: result.outPath,
-          name: contact.name,
-          lastAdvertTimestamp: contact.lastAdvertTimestamp,
-          latitude: contact.latitude,
-          longitude: contact.longitude,
-          lastModified: contact.lastModified
-        )
-        _ = try await dataStore.saveContact(radioID: radioID, from: frame)
-
         do {
           _ = try await dataStore.touchContactHeard(
             radioID: radioID,
@@ -637,6 +631,25 @@ public actor AdvertisementService {
             "Path response lastHeard stamp failed: \(error.localizedDescription)"
           )
         }
+
+        if result.outHopCount != nil {
+          do {
+            try await contactService.setPath(
+              radioID: radioID,
+              publicKey: contact.publicKey,
+              path: result.outPath,
+              pathLength: result.outPathLength
+            )
+          } catch {
+            logger.error("Path discovery radio write failed: \(error.localizedDescription)")
+            let serviceError = error as? ContactServiceError ?? .sendFailed
+            eventBroadcaster.yield(.pathDiscoveryWriteFailed(result, serviceError))
+            return
+          }
+        }
+      } else if result.outHopCount != nil {
+        eventBroadcaster.yield(.pathDiscoveryWriteFailed(result, .contactNotFound))
+        return
       }
 
       eventBroadcaster.yield(.pathDiscoveryResponse(result))

@@ -3,7 +3,7 @@ import SwiftUI
 /// Glass filter bar for the Chats tab.
 struct ChatFilterPicker: View {
   @Binding var selection: ChatFilter
-  @Environment(\.isSearching) private var isSearching
+  let isSearching: Bool
 
   var body: some View {
     GlassFilterBar(

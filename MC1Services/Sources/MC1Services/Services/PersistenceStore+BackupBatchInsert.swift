@@ -119,6 +119,8 @@ extension PersistenceStore {
         continue
       }
       let contact = Contact(dto: dto)
+      // A shareable backup must not grant remote CLI on a newly inserted contact.
+      contact.flags = contact.flags & ~ContactFlags.remoteCLIAllowed.rawValue
       // Same future-clock clamp as mergeBackupMetadata so an insert-only
       // future stamp cannot pin sort/prune under max-wins.
       contact.lastHeardTimestamp = clampedBackupLastHeardTimestamp(dto.lastHeardTimestamp)

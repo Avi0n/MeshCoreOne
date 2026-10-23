@@ -7,7 +7,8 @@ import SwiftData
 /// Each device has its own isolated data store for contacts, messages, and channels.
 @Model
 public final class Device {
-  /// Unique identifier for the device (derived from BLE peripheral identifier)
+  /// Live-connection handle. Equals the Bluetooth peripheral UUID when the row has one.
+  /// A transport switch keeps it. A WiFi-only row keeps the id it was first saved under.
   @Attribute(.unique)
   public var id: UUID
 
@@ -389,6 +390,40 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
   public var appliedRadioPresetID: String?
   public var customOCVArrayString: String?
   public var connectionMethods: [ConnectionMethod]
+
+  /// The method from the most recent connect. Duplicate rows for the same transport are ignored.
+  public var lastUsedConnectionMethod: ConnectionMethod? {
+    ConnectionMethod.canonicalized(connectionMethods).last
+  }
+
+  /// Peripheral UUID stored on the Bluetooth method.
+  public var bluetoothPeripheralID: UUID? {
+    for method in connectionMethods {
+      if case let .bluetooth(peripheralUUID, _) = method {
+        return peripheralUUID
+      }
+    }
+    return nil
+  }
+
+  /// The first saved WiFi method. Later WiFi rows are duplicates.
+  public var wifiConnectionMethod: ConnectionMethod? {
+    for method in connectionMethods where method.isWiFi {
+      return method
+    }
+    return nil
+  }
+
+  /// Where a saved-device connect dials. With no methods, Bluetooth uses `id`.
+  public var savedDeviceConnectTarget: SavedDeviceConnectTarget {
+    switch lastUsedConnectionMethod {
+    case let .wifi(host, port, _):
+      .wifi(host: host, port: port)
+    case .bluetooth, nil:
+      .bluetooth(peripheralID: bluetoothPeripheralID ?? id)
+    }
+  }
+
   public var knownRegions: [String]
 
   /// Computed auto-add mode based on manualAddContacts and autoAddConfig
@@ -463,6 +498,11 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
   /// FIRMWARE_VER_CODE 13; the version string covers a fork that leaves it unbumped.
   public var supportsAdHocRepeaterRequest: Bool {
     firmwareVersion >= 13 || firmwareVersionString.isAtLeast(major: 1, minor: 16)
+  }
+
+  /// Whether the paired radio accepts `CMD_RUN_CLI_COMMAND` (66). Firmware v14+ (v1.18.0).
+  public var supportsRadioCLI: Bool {
+    firmwareVersion >= 14
   }
 
   /// Advertisement location policy interpreted from raw value.
@@ -708,20 +748,15 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
   /// Returns a copy with radio configuration fields reset to safe defaults,
   /// the surrogate `id` reset to a fresh UUID, and any Bluetooth connection
   /// methods removed. Used during backup export to avoid exposing BLE PIN,
-  /// frequency, or the source phone's `CBPeripheral.identifier` (the BLE
-  /// `Device.id`) in the .mc1backup file — peripheral UUIDs are only
-  /// meaningful on the phone that paired the radio and are not portable
-  /// across installs. WiFi connection methods are intentionally retained
+  /// frequency, or the source phone's peripheral UUID. `Device.id` is reset for
+  /// every row, including a WiFi-only row, so that id never travels in the backup.
+  /// Peripheral UUIDs are only meaningful on the phone that paired the radio and
+  /// are not portable across installs. WiFi connection methods are intentionally retained
   /// (restore-then-reconnect reads them) and are disclosed in the pre-export
   /// Security Notice. `publicKey`/`radioID` are preserved as the
   /// reconciliation/partition keys; import re-mints `id` again on insert.
   public func redactedForBackup() -> DeviceDTO {
     copy {
-      // Reset the surrogate id so the source phone's CBPeripheral UUID (Device.id for BLE
-      // radios) never travels in a shareable backup. publicKey/radioID are preserved as the
-      // reconciliation/partition keys; import re-mints id again on insert. For WiFi radios
-      // Device.id is DeviceIdentity.deriveUUID(from: publicKey), re-derivable from the
-      // retained publicKey, so the reset is doc-honesty plus BLE-identifier removal.
       $0.id = UUID()
       $0.frequency = Device.Defaults.frequency
       $0.bandwidth = Device.Defaults.bandwidth

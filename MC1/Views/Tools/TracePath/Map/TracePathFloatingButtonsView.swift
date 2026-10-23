@@ -37,9 +37,7 @@ struct TracePathFloatingButtonsView: View {
 
             // Run Trace button
             Button {
-              Task {
-                await mapViewModel.runTrace()
-              }
+              mapViewModel.startTrace()
             } label: {
               if mapViewModel.isRunning {
                 HStack {

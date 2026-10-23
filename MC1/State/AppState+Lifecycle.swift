@@ -53,6 +53,7 @@ extension AppState {
 
   /// Called when app enters background
   func handleEnterBackground() {
+    flushChatDrafts()
     logToolbarResumeProbe(source: "enterBackground")
     activeRecoveryFallbackTask?.cancel()
     activeRecoveryFallbackTask = nil
@@ -96,6 +97,8 @@ extension AppState {
     if let advertisementService = services?.advertisementService {
       await advertisementService.handleReturnToForeground()
     }
+    tracePathViewModel?.expireWaitingRunIfDeadlinePassed()
+    nodeDiscoveryViewModel?.expireScanIfDeadlinePassed()
 
     liveActivityManager.handleReturnToForeground()
     await liveActivityManager.validateActivityState()
@@ -143,7 +146,6 @@ extension AppState {
     }
     parts.append(contentsOf: [
       "tab=\(tab)",
-      "tabBar=\(navigation.tabBarVisibility)",
       "chatRoute=\(chatRoute)",
       "nodesDetail=\(nodesDetail)",
       "tool=\(navigation.selectedTool.map { String(describing: $0) } ?? "none")",

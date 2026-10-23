@@ -10,10 +10,8 @@ protocol InlineImageDimensionProbing: AnyObject, Sendable {
 
 extension InlineImageCache: InlineImageDimensionProbing {}
 
-/// Drives receive-time prefetching of inline image dimensions and link
-/// preview metadata for every URL in a new message body. Fans the work out
-/// in parallel; callers wrap the call in a `Task` and time it out (3s) so
-/// a slow probe never blocks message admission.
+/// Resolves image dimensions and link metadata in parallel after message insertion.
+/// Callers run this in a background task so fetching never delays admission.
 @MainActor
 final class InlineImagePrefetcher {
   private let imageCache: any InlineImageDimensionProbing

@@ -243,6 +243,12 @@
 /* Fallback connection type description */
 "deviceSelection.bluetooth" = "Bluetooth";
 
+/* Accessibility label for the connection menu on a radio with Bluetooth and Wi-Fi */
+"deviceSelection.changeConnection" = "Змінити підключення";
+
+/* Menu title for the saved Wi-Fi link */
+"deviceSelection.wifi" = "WiFi";
+
 // MARK: - Location Picker View
 
 /* Navigation title for location picker */
@@ -286,6 +292,45 @@
 
 /* Apply button label */
 "trustedContacts.apply" = "Застосувати";
+
+// MARK: - Remote CLI
+
+/* Section header for remote CLI permission */
+"remoteCLI.header" = "Віддалений CLI";
+
+/* Navigation row to manage contacts allowed to send remote CLI */
+"remoteCLI.manage" = "Дозволені контакти";
+
+/* Footer explaining remote CLI permission */
+"remoteCLI.footer" = "Дозволені контакти можуть керувати цим радіо через мережу mesh. Застосунок не попередить вас, коли вони це зроблять.";
+
+/* Navigation title for remote CLI contacts picker */
+"remoteCLIContacts.title" = "Віддалений CLI";
+
+/* Title for empty state when no contacts exist */
+"remoteCLIContacts.noContacts" = "Немає контактів";
+
+/* Description for empty state */
+"remoteCLIContacts.noContactsDescription" = "Додайте контакти, щоб дозволити віддалений CLI";
+
+/* Title for empty state when search returns no results */
+"remoteCLIContacts.noResults" = "Немає результатів";
+
+/* Description for empty state when search returns no results */
+"remoteCLIContacts.noResultsDescription" = "Жоден контакт не відповідає \"%@\"";
+
+"remoteCLIContacts.noFavorites" = "Немає обраних";
+
+"remoteCLIContacts.noFavoritesDescription" = "Немає обраних контактів, які можна показати";
+
+/* Search prompt for remote CLI contacts list */
+"remoteCLIContacts.searchPrompt" = "Пошук контактів";
+
+/* Toggle label for showing only favorite contacts */
+"remoteCLIContacts.favoritesOnly" = "Лише обрані";
+
+/* Apply button label */
+"remoteCLIContacts.apply" = "Застосувати";
 
 // MARK: - About Section
 
@@ -598,6 +643,18 @@
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "Пристрій перезавантажиться і тимчасово відключиться.";
 
+/* Button to turn the device off */
+"deviceActions.powerOff" = "Вимкнути пристрій";
+
+/* Alert title for power off confirmation */
+"deviceActions.alert.powerOff.title" = "Вимкнути пристрій?";
+
+/* Button to confirm power off */
+"deviceActions.alert.powerOff.confirm" = "Вимкнути";
+
+/* Alert message for power off confirmation */
+"deviceActions.alert.powerOff.message" = "Пристрій вимкнеться і відключиться. Увімкни його кнопкою живлення, а потім підключися знову.";
+
 // MARK: - Danger Zone Section
 
 /* Section header for danger zone */
@@ -876,10 +933,122 @@
 /* Footer explaining telemetry */
 "telemetry.footer" = "Коли увімкнено, інші вузли можуть запитувати дані телеметрії вашого пристрою.";
 
-// MARK: - WiFi Section
+// MARK: - Radio WiFi
 
-/* Section header for WiFi settings */
-"wifi.header" = "WiFi";
+/* Footer for the radio WiFi section */
+"radioWiFi.footer" = "Радіо підключиться до цієї мережі після перезавантаження.";
+
+/* Label for the radio WiFi status */
+"radioWiFi.status" = "Статус";
+
+/* Radio WiFi status when associated */
+"radioWiFi.status.connected" = "Підключено";
+
+/* Radio WiFi status when not associated */
+"radioWiFi.status.notConnected" = "Не підключено";
+
+/* Label for the radio's IP address */
+"radioWiFi.ipAddress" = "IP-адреса";
+
+/* Label for the radio's WiFi network */
+"radioWiFi.network" = "Мережа";
+
+/* Shown when the radio has no saved network name */
+"radioWiFi.network.notSet" = "Немає";
+
+/* Toggle for the radio's WiFi radio */
+"radioWiFi.enabled" = "WiFi";
+
+/* Field label for the network name */
+"radioWiFi.networkName" = "Назва мережі";
+
+/* Field label for the WiFi password */
+"radioWiFi.password" = "Пароль";
+
+/* Accessibility label that reveals the WiFi password */
+"radioWiFi.showPassword" = "Показати пароль";
+
+/* Accessibility label that hides the WiFi password */
+"radioWiFi.hidePassword" = "Сховати пароль";
+
+/* Editor footer when the name and password are within the limits */
+"radioWiFi.editor.footer" = "Радіо використовуватиме цю мережу після перезавантаження. Назва мережі може містити до 32 байт, а пароль до 63 байт. Залиш пароль порожнім, щоб пароль не зберігався.";
+
+/* Editor footer when the network name is empty */
+"radioWiFi.editor.emptyName" = "Введи назву мережі.";
+
+/* Editor footer when the network name is too long */
+"radioWiFi.editor.nameLength" = "Назва мережі може містити до 32 байт.";
+
+/* Editor footer when the password is too long */
+"radioWiFi.editor.passwordLength" = "Пароль може містити до 63 байт.";
+
+/* Button that clears the radio's saved WiFi settings */
+"radioWiFi.clear" = "Очистити налаштування WiFi";
+
+/* Title for the clear WiFi confirmation */
+"radioWiFi.alert.clear.title" = "Очистити налаштування WiFi?";
+
+/* Clear confirmation when the phone is connected over Bluetooth */
+"radioWiFi.alert.clear.message" = "Після перезавантаження радіо забуде збережену назву мережі та пароль. Якщо в прошивці є вбудована мережа, радіо підключиться до неї.";
+
+/* Clear confirmation when the phone is connected over WiFi */
+"radioWiFi.alert.clear.wifiMessage" = "Після перезавантаження радіо забуде збережену назву мережі та пароль. За цією адресою воно може бути недоступним. Якщо так станеться, підключися через Bluetooth. Якщо в прошивці є вбудована мережа, радіо підключиться до неї.";
+
+/* Button that reboots to apply WiFi changes */
+"radioWiFi.rebootToApply" = "Перезавантажити для застосування";
+
+/* Title before saving a network while connected over WiFi */
+"radioWiFi.alert.save.title" = "Зберегти цю мережу?";
+
+/* Title before turning WiFi off while connected over WiFi */
+"radioWiFi.alert.turnOff.title" = "Вимкнути WiFi?";
+
+/* Confirm button before turning WiFi off */
+"radioWiFi.alert.turnOff.confirm" = "Вимкнути";
+
+/* Warning before a WiFi change while connected over WiFi */
+"radioWiFi.alert.wifiTransport.message" = "Після перезавантаження радіо може бути недоступним за цією адресою. Якщо так станеться, підключися через Bluetooth.";
+
+/* Title for the radio WiFi reboot confirmation */
+"radioWiFi.alert.reboot.title" = "Перезавантажити радіо?";
+
+/* Reboot confirmation when a network name is stored. %@ is the network name. */
+"radioWiFi.alert.reboot.join" = "Радіо перезапуститься, а потім підключиться до %@. iPhone відключиться, доки радіо не повернеться.";
+
+/* Reboot confirmation when no network name is stored */
+"radioWiFi.alert.reboot.restart" = "Радіо перезапуститься. iPhone відключиться, доки радіо не повернеться.";
+
+/* Reboot confirmation when WiFi is turned off */
+"radioWiFi.alert.reboot.disabled" = "Радіо перезапуститься з вимкненим WiFi. Воно більше не прийматиме підключення WiFi.";
+
+// MARK: - Connection
+
+/* Settings row, page title, and phone address header */
+"connection.header" = "Підключення";
+
+/* Spoken name of the Wi-Fi link and the Wi-Fi page title */
+"connection.link.wifi" = "WiFi";
+
+/* Header for the radio Wi-Fi group on the Wi-Fi page */
+"connection.link.radioWiFi" = "Радіо WiFi";
+
+/* VoiceOver value for the link that is in use */
+"connection.link.inUse" = "Використовується";
+
+/* VoiceOver value while a switch to that link is in progress */
+"connection.link.switching" = "Перемикається";
+
+/* VoiceOver hint for switching to the other link */
+"connection.link.switchHint" = "Перемикає підключення до радіо";
+
+/* VoiceOver label for the Bluetooth info button */
+"connection.link.bluetoothInfo" = "Інформація про Bluetooth";
+
+/* VoiceOver label for the Wi-Fi info button */
+"connection.link.wifiInfo" = "Інформація про WiFi";
+
+// MARK: - WiFi Section
 
 /* Label for IP address */
 "wifi.address" = "Адреса";
@@ -889,9 +1058,6 @@
 
 /* Button to edit WiFi connection */
 "wifi.editConnection" = "Редагувати підключення";
-
-/* Footer explaining WiFi address */
-"wifi.footer" = "Адреса вашого пристрою в локальній мережі";
 
 // MARK: - WiFi Edit Sheet
 
@@ -1507,6 +1673,45 @@
 /* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
 "region.subdivision.AU-VIC" = "Вікторія";
 
+/* Location: RegionalAreas.subdivisionDisplayName - Alberta (CA-AB) province name */
+"region.subdivision.CA-AB" = "Альберта";
+
+/* Location: RegionalAreas.subdivisionDisplayName - British Columbia (CA-BC) province name */
+"region.subdivision.CA-BC" = "Британська Колумбія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Manitoba (CA-MB) province name */
+"region.subdivision.CA-MB" = "Манітоба";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Brunswick (CA-NB) province name */
+"region.subdivision.CA-NB" = "Нью-Брансвік";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Newfoundland and Labrador (CA-NL) province name */
+"region.subdivision.CA-NL" = "Ньюфаундленд і Лабрадор";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nova Scotia (CA-NS) province name */
+"region.subdivision.CA-NS" = "Нова Шотландія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northwest Territories (CA-NT) province name */
+"region.subdivision.CA-NT" = "Північно-Західні території";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nunavut (CA-NU) province name */
+"region.subdivision.CA-NU" = "Нунавут";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ontario (CA-ON) province name */
+"region.subdivision.CA-ON" = "Онтаріо";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Prince Edward Island (CA-PE) province name */
+"region.subdivision.CA-PE" = "Острів Принца Едварда";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Quebec (CA-QC) province name */
+"region.subdivision.CA-QC" = "Квебек";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Saskatchewan (CA-SK) province name */
+"region.subdivision.CA-SK" = "Саскачеван";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Yukon (CA-YT) province name */
+"region.subdivision.CA-YT" = "Юкон";
+
 
 // MARK: - Live Activity
 
@@ -1793,7 +1998,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Сеанси віддалених вузлів";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Додаються лише нові дані; наявні записи не перезаписуються. Контакти, видалені після створення цієї резервної копії, з'являться знову, а позначки блокування, приглушення або обраного з копії будуть застосовані повторно.";
+"settings.backup.import.preview.info" = "Додаються лише нові дані; наявні записи не перезаписуються. Контакти, видалені після створення цієї резервної копії, з'являться знову, а позначки блокування, приглушення або обраного з копії будуть застосовані повторно. Закріплення в копії вмикається, якщо цей чат не закріплений. Закріплення, вимкнене в копії, не знімає закріплення чату.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Імпортувати дані";

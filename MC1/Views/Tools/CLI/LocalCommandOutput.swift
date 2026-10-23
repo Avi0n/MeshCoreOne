@@ -8,6 +8,7 @@ import MC1Services
 enum LocalCommandOutput {
   static let ok = "OK"
   static let okRebooting = "OK - rebooting"
+  static let okPoweringOff = "OK - powering off"
   static let zeroHopAdvert = "OK - zero-hop advert sent"
   static let floodAdvert = "OK - flood advert sent"
 

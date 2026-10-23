@@ -5,6 +5,7 @@ import SwiftUI
 struct ContactRowView: View {
   @Environment(\.appState) private var appState
   let contact: ContactDTO
+  let timestamp: UInt32?
   let showTypeLabel: Bool
   let userLocation: CLLocation?
   let isTogglingFavorite: Bool
@@ -12,12 +13,14 @@ struct ContactRowView: View {
 
   init(
     contact: ContactDTO,
+    timestamp: UInt32?,
     showTypeLabel: Bool = false,
     userLocation: CLLocation? = nil,
     isTogglingFavorite: Bool = false,
     inboundHopCount: Int? = nil
   ) {
     self.contact = contact
+    self.timestamp = timestamp
     self.showTypeLabel = showTypeLabel
     self.userLocation = userLocation
     self.isTogglingFavorite = isTogglingFavorite
@@ -57,7 +60,9 @@ struct ContactRowView: View {
               .accessibilityLabel(L10n.Contacts.Contacts.Row.favorite)
           }
 
-          RelativeTimestampText(timestamp: contact.recencyTimestamp)
+          if let timestamp {
+            RelativeTimestampText(timestamp: timestamp)
+          }
         }
 
         HStack(spacing: 8) {

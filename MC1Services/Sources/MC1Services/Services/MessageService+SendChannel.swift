@@ -57,9 +57,10 @@ public extension MessageService {
 
     do {
       try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
-        try await session.sendChannelMessage(
-          channel: channelIndex,
+        try await sendChannelMessageWithScope(
           text: text,
+          channelIndex: channelIndex,
+          radioID: radioID,
           timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp))
         )
       }
@@ -157,9 +158,10 @@ public extension MessageService {
       channelIndex = idx
 
       try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
-        try await session.sendChannelMessage(
-          channel: channelIndex,
+        try await sendChannelMessageWithScope(
           text: message.text,
+          channelIndex: channelIndex,
+          radioID: radioID,
           timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp))
         )
       }
@@ -237,9 +239,10 @@ public extension MessageService {
         try await dataStore.updateMessageTimestamp(id: messageID, timestamp: wireTimestamp)
       }
       try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
-        try await session.sendChannelMessage(
-          channel: channelIndex,
+        try await sendChannelMessageWithScope(
           text: message.text,
+          channelIndex: channelIndex,
+          radioID: message.radioID,
           timestamp: wireDate
         )
       }

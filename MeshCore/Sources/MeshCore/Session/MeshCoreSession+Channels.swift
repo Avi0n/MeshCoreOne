@@ -64,7 +64,6 @@ public extension MeshCoreSession {
     let hardTimeout = configuration.channelPipelineHardTimeout
     let graceTimeout = configuration.channelPipelinePostDrainGrace
     let sessionClock = clock
-    let sessionTransport = transport
     let sessionDispatcher = dispatcher
 
     let (subscriptionID, events) = await dispatcher.subscribeTracked()
@@ -82,7 +81,7 @@ public extension MeshCoreSession {
       // disconnect fallback.
       let primeCount = min(window, requested.count)
       for index in requested.prefix(primeCount) {
-        try await sessionTransport.sendWithoutResponse(PacketBuilder.getChannel(index: index))
+        try await sendSessionDataWithoutResponse(PacketBuilder.getChannel(index: index))
       }
 
       let progressTracker = StreamProgressTracker()
@@ -93,7 +92,7 @@ public extension MeshCoreSession {
         // Consumer: records matching responses, refills the window, returns as soon as
         // every requested index is in (so completion is not delayed by the idle sleep)
         // or when the watchdog finishes the subscription.
-        group.addTask {
+        group.addTask { [self] in
           var collected: [UInt8: ChannelInfo] = [:]
           var nextToSend = primeCount
           for await event in events {
@@ -109,7 +108,7 @@ public extension MeshCoreSession {
               nextToSend += 1
               // A refill failure (disconnect mid-drain) just stops sending; the
               // watchdog's idle timeout then returns the partial set.
-              try? await sessionTransport.sendWithoutResponse(
+              try? await self.sendSessionDataWithoutResponse(
                 PacketBuilder.getChannel(index: nextIndex)
               )
             }

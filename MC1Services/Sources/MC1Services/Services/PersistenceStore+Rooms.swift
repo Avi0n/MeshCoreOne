@@ -397,8 +397,8 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
-  /// Sets the favorite state for a remote node session
-  func setSessionFavorite(_ sessionID: UUID, isFavorite: Bool) throws {
+  /// Sets the local pin for a room server session.
+  func setSessionPinned(_ sessionID: UUID, isPinned: Bool) throws {
     let targetID = sessionID
     let predicate = #Predicate<RemoteNodeSession> { $0.id == targetID }
     var descriptor = FetchDescriptor<RemoteNodeSession>(predicate: predicate)
@@ -408,7 +408,7 @@ public extension PersistenceStore {
       throw PersistenceStoreError.remoteNodeSessionNotFound
     }
 
-    session.isFavorite = isFavorite
+    session.isPinned = isPinned
     try modelContext.save()
   }
 

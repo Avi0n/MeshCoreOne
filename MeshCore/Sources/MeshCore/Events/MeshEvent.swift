@@ -116,6 +116,9 @@ public enum MeshEvent: Sendable {
   /// Emitted in response to ``MeshCoreSession/getDefaultFloodScope()``.
   case defaultFloodScope(DefaultFloodScope?)
 
+  /// UTF-8 reply to ``MeshCoreSession/runCliCommand(_:)``. Firmware v14+.
+  case cliReply(String)
+
   /// Indicates that allowed repeat frequency ranges were received.
   ///
   /// Emitted in response to ``MeshCoreSession/getRepeatFreq()`` (v9+ firmware).

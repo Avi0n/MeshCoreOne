@@ -176,7 +176,9 @@ send once, then retransmit the same frame until a matching reply arrives or
 `max(floor, suggestedTimeoutMs × binaryRetransmitRTTHeadroom)` (headroom 2)
 because companion `est_timeout` is outbound airtime×path, not a full return RTT.
 Companion firmware keeps one pending tag per request class and replaces it on
-each send, so only the latest `messageSent` tag matches `.binaryResponse`.
+each send. From firmware v14 (1.18.0) a reply to a replaced tag still arrives
+as `.binaryResponse`, so the waiter accepts any tag from its own `messageSent`
+events.
 Typed status pushes still match by public-key prefix.
 
 ```swift

@@ -1,6 +1,7 @@
 # Excluded paths
 excluded:
   - .build
+  - .derivedData
   - .worktrees
   - build
   - tmp

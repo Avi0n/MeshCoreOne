@@ -1,82 +1,87 @@
 import MC1Services
-import OSLog
 import SwiftUI
 
-private let sidebarLogger = Logger(subsystem: "com.mc1", category: "NodesListView")
-
 struct ContactsSidebarContent: View {
-  private struct LoadID: Equatable {
-    let servicesVersion: Int
-    let contactsVersion: Int
-  }
-
   @Environment(\.appState) private var appState
+  @Bindable var state: ContactsSidebarState
+  @FocusState private var isSearchFocused: Bool
+  @State private var isMounted = false
 
-  @Bindable var viewModel: ContactsViewModel
   let filteredContacts: [ContactDTO]
-  let isSearching: Bool
+  let timestampsByID: [UUID: UInt32]
   let searchPrompt: String
-  let shouldUseSplitView: Bool
-
-  @Binding var selectedSegment: NodeSegment
-  @Binding var selectedContact: ContactDTO?
-  @Binding var searchText: String
+  let selectedContact: ContactDTO?
   @Binding var sortOrder: NodeSortOrder
-  @Binding var showDiscovery: Bool
-  @Binding var syncSuccessTrigger: Bool
-  @Binding var showShareMyContact: Bool
-  @Binding var showAddContact: Bool
-  @Binding var showLocationDeniedAlert: Bool
-  @Binding var showOfflineRefreshAlert: Bool
-  @Binding var navigationPath: NavigationPath
-
-  let onLoadContacts: () async -> Void
-  let onSyncContacts: () async -> Void
-  let onAnnounceOfflineStateIfNeeded: () -> Void
+  let blockedContactsRoute: NodesRoute?
+  let rendererRevision: Int
+  let onSelect: (ContactDTO) -> Void
 
   var body: some View {
     ContactsListContent(
-      mode: shouldUseSplitView ? .selection($selectedContact) : .navigation,
-      selectedSegment: $selectedSegment,
-      isSearching: isSearching,
-      searchText: searchText,
+      selectedContact: selectedContact,
+      onSelect: onSelect,
+      selectedSegment: $state.selectedSegment,
+      isSearching: !state.searchText.isEmpty,
+      searchText: state.searchText,
       filteredContacts: filteredContacts,
-      hasLoadedOnce: viewModel.hasLoadedOnce,
-      viewModel: viewModel,
-      onRefresh: refreshNodes
+      timestampsByID: timestampsByID,
+      hasLoadedOnce: state.viewModel.hasLoadedOnce,
+      viewModel: state.viewModel,
+      scrollPositionID: Binding(
+        get: { state.scrollPositionID },
+        set: { state.updateScrollPosition($0, rendererRevision: rendererRevision) }
+      ),
+      onRefresh: {
+        await state.synchronize(appState: appState)
+        state.scrollPositionID = nil
+      }
     )
+    .onScrollGeometryChange(for: Bool.self) { geometry in
+      geometry.contentOffset.y <= -geometry.contentInsets.top
+    } action: { wasAtTop, isAtTop in
+      guard !wasAtTop, isAtTop, isMounted else { return }
+      state.clearScrollPosition(rendererRevision: rendererRevision)
+    }
     .navigationTitle(L10n.Contacts.Contacts.List.title)
     .navigationDestination(for: ContactRoute.self) { route in
       switch route {
-      case let .detail(contact):
-        // Prefer the freshest row from the loaded list; fall back to the carried
-        // payload for pushes that precede a load (e.g. a notification deep link).
-        ContactDetailView(contact: viewModel.contacts.first { $0.id == contact.id } ?? contact)
-          .id(contact.id)
       case .blockedContacts:
         BlockedContactsView()
       }
     }
-    // Always-visible drawer keeps search below the large title. Default toolbar
-    // placement on iOS 26 draws both in the same slot.
     .searchable(
-      text: $searchText,
+      text: Binding(
+        get: { state.searchText },
+        set: { state.updateSearchText($0, rendererRevision: rendererRevision) }
+      ),
       placement: .navigationBarDrawer(displayMode: .always),
       prompt: searchPrompt
     )
+    .searchFocused($isSearchFocused)
+    .task {
+      guard state.rendererRevision == rendererRevision else { return }
+      isMounted = true
+      isSearchFocused = state.isSearchFocused
+    }
+    .onDisappear { isMounted = false }
+    .onChange(of: isSearchFocused) { _, focused in
+      guard isMounted else { return }
+      state.updateSearchFocus(focused, rendererRevision: rendererRevision)
+    }
     .toolbar {
       bleStatusToolbarItem()
 
       ToolbarItem(placement: .automatic) {
         Menu {
           ForEach(NodeSortOrder.allCases, id: \.self) { order in
+            let title = order == .lastHeard ? L10n.Contacts.Contacts.Detail.lastAdvert : order.localizedTitle
             Button {
               sortOrder = order
             } label: {
               if sortOrder == order {
-                Label(order.localizedTitle, systemImage: "checkmark")
+                Label(title, systemImage: "checkmark")
               } else {
-                Text(order.localizedTitle)
+                Text(title)
               }
             }
           }
@@ -87,20 +92,18 @@ struct ContactsSidebarContent: View {
 
       ToolbarItem(placement: .automatic) {
         Menu {
-          NavigationLink(value: ContactRoute.blockedContacts) {
-            Label(L10n.Contacts.Contacts.List.blockedContacts, systemImage: "hand.raised.fill")
-          }
+          blockedContactsLink
 
           Divider()
 
           Button {
-            showShareMyContact = true
+            state.showShareMyContact = true
           } label: {
             Label(L10n.Contacts.Contacts.List.shareMyContact, systemImage: "square.and.arrow.up")
           }
 
           Button {
-            showAddContact = true
+            state.showAddContact = true
           } label: {
             Label(L10n.Contacts.Contacts.List.addContact, systemImage: "plus")
           }
@@ -108,10 +111,7 @@ struct ContactsSidebarContent: View {
           Divider()
 
           Button {
-            if shouldUseSplitView {
-              selectedContact = nil
-            }
-            showDiscovery = true
+            appState.navigation.navigateToDiscovery()
           } label: {
             Label(L10n.Contacts.Contacts.List.discover, systemImage: "antenna.radiowaves.left.and.right")
           }
@@ -119,132 +119,28 @@ struct ContactsSidebarContent: View {
           Divider()
 
           Button {
-            Task {
-              if appState.connectionState != .ready {
-                showOfflineRefreshAlert = true
-              } else {
-                await onSyncContacts()
-              }
-            }
+            Task { await state.synchronize(appState: appState) }
           } label: {
             Label(L10n.Contacts.Contacts.List.syncNodes, systemImage: "arrow.triangle.2.circlepath")
           }
-          .disabled(viewModel.isSyncing)
+          .disabled(state.viewModel.isSyncing)
         } label: {
           Label(L10n.Contacts.Contacts.List.options, systemImage: "ellipsis.circle")
         }
       }
     }
-    .alert(L10n.Contacts.Contacts.List.cannotRefresh, isPresented: $showOfflineRefreshAlert) {
-      Button(L10n.Contacts.Contacts.Common.ok, role: .cancel) {}
-    } message: {
-      Text(L10n.Contacts.Contacts.List.connectToSync)
-    }
-    .sensoryFeedback(.success, trigger: syncSuccessTrigger)
-    .task {
-      sidebarLogger.info("NodesListView: task started, services=\(appState.services != nil)")
-      viewModel.configure(
-        dataStore: { [appState] in appState.offlineDataStore },
-        contactService: { [appState] in appState.services?.contactService },
-        advertisementService: { [appState] in appState.services?.advertisementService }
-      )
-      onAnnounceOfflineStateIfNeeded()
-
-      // Request location for distance display (only if already authorized)
-      if appState.locationService.isAuthorized {
-        appState.locationService.requestLocation()
-      }
-    }
-    .task(id: LoadID(
-      servicesVersion: appState.servicesVersion,
-      contactsVersion: appState.contactsVersion
-    )) {
-      await onLoadContacts()
-      sidebarLogger.info("NodesListView: loaded, contacts=\(viewModel.contacts.count)")
-    }
-    .task(id: sortOrder) {
-      if sortOrder == .distance {
-        if appState.locationService.isAuthorized {
-          appState.locationService.requestLocation()
-        } else if appState.locationService.isLocationDenied {
-          showLocationDeniedAlert = true
-        } else {
-          appState.locationService.requestPermissionIfNeeded()
-        }
-      }
-    }
-    .onChange(of: viewModel.hasLoadedOnce) { _, loaded in
-      // On the first successful load, land on Favorites when any exist. Guarded on the default
-      // segment so a user who switched during loading isn't overridden, and keyed off the
-      // false->true transition so returning to the tab doesn't yank an existing selection.
-      if loaded, selectedSegment == .contacts, viewModel.hasFavorites {
-        selectedSegment = .favorites
-      }
-    }
-    .onChange(of: appState.navigation.pendingDiscoveryNavigation, initial: true) { _, shouldNavigate in
-      if shouldNavigate {
-        showDiscovery = true
-        appState.navigation.clearPendingDiscoveryNavigation()
-      }
-    }
-    .onChange(of: appState.navigation.pendingContactDetail, initial: true) { _, contact in
-      guard let contact else { return }
-
-      viewModel.upsert(contact)
-
-      if shouldUseSplitView {
-        selectedContact = contact
-      } else {
-        navigationPath.removeLast(navigationPath.count)
-        navigationPath.append(ContactRoute.detail(contact))
-      }
-
-      appState.navigation.clearPendingContactDetailNavigation()
-    }
-    .onChange(of: appState.locationService.authorizationStatus) { _, status in
-      if sortOrder == .distance {
-        switch status {
-        case .authorizedWhenInUse, .authorizedAlways:
-          appState.locationService.requestLocation()
-        case .denied, .restricted:
-          showLocationDeniedAlert = true
-        default:
-          break
-        }
-      }
-    }
-    .sheet(isPresented: $showShareMyContact) {
-      if let device = appState.connectedDevice {
-        ContactQRShareSheet(
-          contactName: device.nodeName,
-          publicKey: device.publicKey,
-          contactType: .chat
-        )
-      }
-    }
-    .sheet(isPresented: $showAddContact) {
-      AddContactSheet()
-    }
-    .alert(L10n.Contacts.Contacts.List.locationUnavailable, isPresented: $showLocationDeniedAlert) {
-      Button(L10n.Contacts.Contacts.List.openSettings) {
-        if let url = URL(string: UIApplication.openSettingsURLString) {
-          UIApplication.shared.open(url)
-        }
-      }
-      Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
-    } message: {
-      Text(L10n.Contacts.Contacts.List.distanceRequiresLocation)
-    }
-    .errorAlert($viewModel.errorMessage, title: L10n.Contacts.Contacts.Common.error)
   }
 
-  /// SwiftUI cancels a ScrollView's `.refreshable` task when observed state mutates
-  /// mid-refresh (`isSyncing`). The detached task shields the sync from that cancellation.
-  private func refreshNodes() async {
-    if appState.connectionState != .ready {
-      showOfflineRefreshAlert = true
+  @ViewBuilder
+  private var blockedContactsLink: some View {
+    if let blockedContactsRoute {
+      NavigationLink(value: blockedContactsRoute) { blockedContactsLabel }
     } else {
-      await Task { await onSyncContacts() }.value
+      NavigationLink(value: ContactRoute.blockedContacts) { blockedContactsLabel }
     }
+  }
+
+  private var blockedContactsLabel: some View {
+    Label(L10n.Contacts.Contacts.List.blockedContacts, systemImage: "hand.raised.fill")
   }
 }

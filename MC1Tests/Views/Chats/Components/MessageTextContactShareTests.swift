@@ -36,7 +36,7 @@ struct MessageTextContactShareTests {
       type: .chat,
       name: Self.contactName
     )
-    let formatted = MessageText("Add \(token) now").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("Add \(token) now")
 
     let content = String(formatted.characters)
     #expect(content.contains(Self.contactName), "Visible text should contain the contact name")
@@ -57,7 +57,7 @@ struct MessageTextContactShareTests {
   func `Out-of-range contact type leaves the literal token untouched with no contact link`() {
     // Matches the share-token regex (`\d+`) but the type 300 exceeds a UInt8, so parseShare rejects it.
     let literal = "<\(Self.validPublicKeyHex):300:x>"
-    let formatted = MessageText(literal).testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText(literal)
 
     let content = String(formatted.characters)
     #expect(content.contains(literal), "Malformed token text should remain unchanged")
@@ -68,7 +68,7 @@ struct MessageTextContactShareTests {
 
   @Test
   func `Stray opening bracket is a no-op and does not crash`() {
-    let formatted = MessageText("a < b").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("a < b")
 
     let content = String(formatted.characters)
     #expect(content == "a < b", "Non-token text should be unchanged")
@@ -86,7 +86,7 @@ struct MessageTextContactShareTests {
       type: .chat,
       name: Self.contactName
     )
-    let formatted = MessageText("\(token) https://example.com").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("\(token) https://example.com")
 
     let expectedURL = expectedContactURL(name: Self.contactName)
     let hasContactLink = formatted.runs.contains { $0.link == expectedURL }
@@ -106,7 +106,7 @@ struct MessageTextContactShareTests {
     // The hashtag pass styles ranges from the snapshot captured inside the URL pass. If the
     // replacing pass ran after that snapshot, the shorter replacement would shift the hashtag
     // range and this link would map to stale offsets, dropping or mis-styling it.
-    let formatted = MessageText("\(token) #general").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("\(token) #general")
 
     let expectedURL = expectedContactURL(name: Self.contactName)
     let hasContactLink = formatted.runs.contains { $0.link == expectedURL }
@@ -128,7 +128,7 @@ struct MessageTextContactShareTests {
       type: .chat,
       name: rawName
     )
-    let formatted = MessageText("Add \(token)").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("Add \(token)")
 
     let expectedURL = expectedContactURL(name: strippedName)
     var linkedText: String?
@@ -158,7 +158,7 @@ struct MessageTextContactShareTests {
       type: .chat,
       name: rawName
     )
-    let formatted = MessageText("Add \(token)").testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText("Add \(token)")
 
     let expectedURL = expectedContactURL(name: visible)
     var linkedText: String?
@@ -183,7 +183,7 @@ struct MessageTextContactShareTests {
       type: .chat,
       name: rawName
     )
-    let formatted = MessageText(token).testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText(token)
 
     // With an empty sanitized name the pass must skip the token rather than delete it
     // (an empty replacement would silently drop the token from the message).
@@ -204,7 +204,7 @@ struct MessageTextContactShareTests {
       type: .chat,
       name: name
     )
-    let formatted = MessageText(token).testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText(token)
 
     let expectedURL = expectedContactURL(name: name)
     var linkedText: String?
@@ -221,7 +221,7 @@ struct MessageTextContactShareTests {
       type: .chat,
       name: "Base #general"
     )
-    let formatted = MessageText(token).testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText(token)
 
     let hashtagURL = URL(string: "meshcoreone://hashtag/general")
     let hasHashtagLink = formatted.runs.contains { $0.link == hashtagURL }
@@ -235,7 +235,7 @@ struct MessageTextContactShareTests {
       type: .chat,
       name: "join meshcore://channel/add?name=x&secret=00112233445566778899AABBCCDDEEFF"
     )
-    let formatted = MessageText(token).testableFormattedText
+    let formatted = MessageTextTestSupport.formattedText(token)
 
     let hasChannelLink = formatted.runs.contains { $0.link?.host() == "channel" }
     #expect(!hasChannelLink, "A meshcore channel URL inside a contact chip must not be re-linked")

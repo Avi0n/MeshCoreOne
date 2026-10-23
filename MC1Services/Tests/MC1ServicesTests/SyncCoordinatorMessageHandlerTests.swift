@@ -276,6 +276,85 @@ struct SyncCoordinatorMessageHandlerTests {
   }
 
   @Test
+  func `inbound cliCommand textType is persisted not clamped to plain`() async throws {
+    let radioID = UUID()
+    let dataStore = try await createTestDataStore(radioID: radioID)
+    let publicKey = Data(repeating: 0xAB, count: 32)
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Peer"
+    )
+    try await dataStore.saveContact(contact)
+
+    let mockPolling = MockMessagePollingService()
+    let (_, services) = try await createTestServices()
+    let dependencies = services.syncDependencies
+      .with(dataStore: dataStore, messagePollingService: mockPolling)
+
+    let coordinator = SyncCoordinator()
+    await coordinator.wireMessageHandlers(dependencies: dependencies, radioID: radioID)
+
+    let message = ContactMessage(
+      senderPublicKeyPrefix: Data(publicKey.prefix(6)),
+      pathLength: 0,
+      textType: 0x03,
+      senderTimestamp: Date(),
+      signature: nil,
+      text: "get cad",
+      snr: nil
+    )
+    await mockPolling.capturedContactMessageHandler?(message, contact, .live)
+
+    let saved = try await dataStore.fetchMessages(contactID: contact.id)
+    #expect(saved.count == 1)
+    #expect(saved[0].textType == .cliCommand)
+  }
+
+  @Test
+  func `cli data from a chat contact does not reach admin handlers`() async throws {
+    let radioID = UUID()
+    let mockPolling = MockMessagePollingService()
+    let (_, services) = try await createTestServices()
+    let hits = CLIHandlerHits()
+    await services.repeaterAdminService.setCLIHandler { _, _ in
+      await hits.recordRepeater()
+    }
+    await services.roomAdminService.setCLIHandler { _, _ in
+      await hits.recordRoom()
+    }
+
+    let dataStore = try await createTestDataStore(radioID: radioID)
+    let dependencies = services.syncDependencies
+      .with(dataStore: dataStore, messagePollingService: mockPolling)
+    let coordinator = SyncCoordinator()
+    await coordinator.wireMessageHandlers(dependencies: dependencies, radioID: radioID)
+
+    let message = ContactMessage(
+      senderPublicKeyPrefix: Data(repeating: 0xAB, count: 6),
+      pathLength: 0,
+      textType: 0x01,
+      senderTimestamp: Date(),
+      signature: nil,
+      text: "ok",
+      snr: nil
+    )
+    let chat = ContactDTO.testContact(radioID: radioID, name: "Peer")
+    await mockPolling.capturedCLIMessageHandler?(message, chat)
+    #expect(await hits.repeater == 0)
+    #expect(await hits.room == 0)
+
+    let repeater = ContactDTO.testContact(
+      radioID: radioID,
+      name: "Relay",
+      typeRawValue: ContactType.repeater.rawValue
+    )
+    await mockPolling.capturedCLIMessageHandler?(message, repeater)
+    #expect(await hits.repeater == 1)
+    #expect(await hits.room == 0)
+  }
+
+  @Test
   func `inbound channel message does not stamp lastHeard on a contact`() async throws {
     let radioID = UUID()
     let dataStore = try await createTestDataStore(radioID: radioID)
@@ -604,6 +683,19 @@ struct SyncCoordinatorMessageHandlerTests {
       decryptStatus: .success,
       senderTimestamp: senderTimestamp
     )
+  }
+}
+
+private actor CLIHandlerHits {
+  var repeater = 0
+  var room = 0
+
+  func recordRepeater() {
+    repeater += 1
+  }
+
+  func recordRoom() {
+    room += 1
   }
 }
 

@@ -104,9 +104,9 @@
 "deviceScan.demoModeAlert.message" = "您现在可以无需设备继续。随时在设置中切换演示模式。";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "与此电台保存的配对已失效。点按“移除并重试”在应用内重新配对；电台可能会显示新的配对码。";
+"deviceScan.error.authenticationFailed" = "与此电台保存的配对已失效。点按“移除并重试”在应用内重新配对；电台可能会显示新的配对码。如果此问题持续出现，请在电脑上通过 https://flasher.meshcore.io 完全擦除并重新刷写固件。电台上的闪存损坏可能导致此问题。";
 /* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
-"deviceScan.error.authenticationFailedMac" = "与此电台保存的配对已失效。在系统设置的蓝牙中忘记此电台，然后点按“移除并重试”。";
+"deviceScan.error.authenticationFailedMac" = "与此电台保存的配对已失效。在系统设置的蓝牙中忘记此电台，然后点按“移除并重试”。如果此问题持续出现，请在电脑上通过 https://flasher.meshcore.io 完全擦除并重新刷写固件。电台上的闪存损坏可能导致此问题。";
 "deviceScan.error.pinRejected" = "PIN 码未被接受。请检查设备上显示的 PIN 码，然后重试。iOS 会先要求你确认移除失败的配对。";
 /* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
 "deviceScan.error.pinRejectedMac" = "PIN 码未被接受。在系统设置的蓝牙中忘记此电台，然后重试。";
@@ -188,6 +188,12 @@
 
 /* Location: NoDeviceSheet.swift - Secondary CTA */
 "noDevice.sheet.cancel" = "取消";
+
+
+// MARK: - Region and Preset
+
+/* Location: RegionStepView.swift and PresetStepView.swift - Finishes onboarding without saving a place or writing the radio */
+"skipForNow" = "暂时跳过";
 
 
 // MARK: - Preset Step View

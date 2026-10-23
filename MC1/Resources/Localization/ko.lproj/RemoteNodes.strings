@@ -255,6 +255,9 @@
 /* Location: RepeaterSettingsView.swift - Behavior section footer */
 "remoteNodes.settings.behaviorFooter" = "애드버트 간격, 플러드 홉 및 리피터 모드.";
 
+/* Location: RepeaterSettingsView.swift - Behavior section footer when both advert intervals are 0 */
+"remoteNodes.settings.hiddenFromDiscoverFooter" = "두 애드버트 간격을 모두 0으로 설정하면 이 리피터는 탐색 핑에 응답하지 않습니다.";
+
 /* Location: RepeaterSettingsView.swift - Device actions section header */
 "remoteNodes.settings.deviceActions" = "기기 작업";
 
@@ -907,6 +910,15 @@
 
 /* Location: NodeCliViewModel.swift - Toast after reboot command succeeds */
 "remoteNodes.nodeCli.rebootSent" = "재시동 명령을 보냄";
+
+/* Location: NodeCliViewModel.swift - Toast after poweroff or shutdown is treated as sent */
+"remoteNodes.nodeCli.powerOffSent" = "전원 끄기 명령을 보냄";
+
+/* Location: NodeCliViewModel.swift - Banner for commands sent to a contact's radio - %@ is the contact name */
+"remoteNodes.nodeCli.radioBanner" = "명령은 %@의 무선 기기로 전달됩니다. 원격 CLI 접근이 없으면 응답이 없으며, 상대방은 각 명령을 메시지로 받습니다.";
+
+/* Location: NodeCliViewModel.swift - Shown when a contact's radio does not reply - %@ is the contact name */
+"remoteNodes.nodeCli.radioNoReply" = "%@에게서 응답이 없습니다. 원격 CLI 접근을 허용하지 않았거나 노드에 도달하지 못했을 수 있습니다.";
 
 /* Location: NodeCliViewModel.swift - Toast after command is cancelled */
 "remoteNodes.nodeCli.cancelled" = "명령 취소됨";

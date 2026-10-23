@@ -5,6 +5,7 @@ import SwiftUI
 /// Map view displaying contacts and optionally discovered nodes with their locations
 struct MapView: View {
   @Environment(\.appState) private var appState
+  @Environment(\.scenePhase) private var scenePhase
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
   @AppStorage(AppStorageKey.mapClusteringEnabled.rawValue)
@@ -20,6 +21,10 @@ struct MapView: View {
   @State private var selectedDiscoveredForDetail: DiscoveredNodeDTO?
   @State private var addingDiscoveredNodeID: UUID?
   @State private var isStyleLoaded = false
+  @State private var showsAdvancedFilters = false
+
+  /// Rolling last-heard windows re-evaluate on this cadence so pins age out without new traffic.
+  private static let timeWindowRefreshInterval: Duration = .seconds(60)
 
   private var isAddingDiscovered: Bool {
     addingDiscoveredNodeID != nil
@@ -45,7 +50,11 @@ struct MapView: View {
         selectedPointScreenPosition: $selectedPointScreenPosition,
         isStyleLoaded: $isStyleLoaded,
         isAddingDiscovered: isAddingDiscovered,
-        filter: MapFilterControl(host: .mainMap, state: mapFilterBinding),
+        filter: MapFilterControl(
+          host: .mainMap,
+          state: mapFilterBinding,
+          onShowAdvancedFilters: { showsAdvancedFilters = true }
+        ),
         onShowContactDetail: { showContactDetail($0) },
         onNavigateToChat: { navigateToChat(with: $0) },
         onShowDiscoveredDetail: { showDiscoveredDetail($0) },
@@ -92,6 +101,19 @@ struct MapView: View {
         selectedDiscoveredForDetail = nil
         viewModel.scheduleFilterChange(mapFilter)
       }
+      .task(id: mapFilter.lastHeard) {
+        guard mapFilter.lastHeard.isActive else { return }
+        while !Task.isCancelled {
+          try? await Task.sleep(for: Self.timeWindowRefreshInterval)
+          guard !Task.isCancelled else { return }
+          viewModel.refreshTimeWindow()
+        }
+      }
+      .onChange(of: scenePhase) { _, newPhase in
+        if newPhase == .active {
+          viewModel.refreshTimeWindow()
+        }
+      }
       .onChange(of: appState.contactsVersion) { _, _ in
         // contactsVersion also bumps after backup import; re-migrate while the tab is mounted.
         MapFilterPreferences.ensureMigrated(raw: &mapFilterRaw, host: .mainMap)
@@ -128,6 +150,10 @@ struct MapView: View {
           onAdd: { addDiscoveredNode(node) }
         )
         .presentationDetents([.medium, .large])
+      }
+      .sheet(isPresented: $showsAdvancedFilters) {
+        MapAdvancedFiltersSheet(host: .mainMap, state: mapFilterBinding)
+          .presentationDetents([.medium, .large])
       }
       .errorAlert($viewModel.errorMessage)
       .liquidGlassToolbarBackground()

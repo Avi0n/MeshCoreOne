@@ -119,6 +119,29 @@ struct RegionalAreasTests {
   }
 
   @Test
+  func `caSubdivisions lists every province and territory`() {
+    let ids = Set(RegionalAreas.caSubdivisions.map(\.id))
+    #expect(ids == Set([
+      "CA-AB", "CA-BC", "CA-MB", "CA-NB", "CA-NL", "CA-NS", "CA-NT",
+      "CA-NU", "CA-ON", "CA-PE", "CA-QC", "CA-SK", "CA-YT",
+    ]))
+  }
+
+  @Test
+  func `matchSubdivision accepts common Canada geocoder aliases`() {
+    #expect(RegionalAreas.matchSubdivision(country: "CA", normalized: "pei") == "CA-PE")
+    #expect(RegionalAreas.matchSubdivision(country: "CA", normalized: "nwt") == "CA-NT")
+    #expect(RegionalAreas.matchSubdivision(country: "CA", normalized: "newfoundland") == "CA-NL")
+    #expect(RegionalAreas.matchSubdivision(country: "CA", normalized: "yukon territory") == "CA-YT")
+  }
+
+  @Test
+  func `displayName uses short form for British Columbia`() {
+    let region = RegionSelection(countryCode: "CA", administrativeAreaCode: "CA-BC", source: .manual)
+    #expect(RegionalAreas.displayName(for: region) == "British Columbia")
+  }
+
+  @Test
   func `administrativeAreaKind is state for US and AU, province for Canada`() {
     #expect(RegionalAreas.administrativeAreaKind(for: "US") == .state)
     #expect(RegionalAreas.administrativeAreaKind(for: "AU") == .state)
@@ -185,11 +208,11 @@ struct RegionalAreasTests {
   }
 
   @Test
-  func `showsSubdivisionPicker is true for US and AU, false for PT and nil`() {
+  func `showsSubdivisionPicker is true for US, AU, and CA, false for PT and nil`() {
     #expect(RegionalAreas.showsSubdivisionPicker(for: "US"))
     #expect(RegionalAreas.showsSubdivisionPicker(for: "AU"))
+    #expect(RegionalAreas.showsSubdivisionPicker(for: "CA"))
     #expect(!RegionalAreas.showsSubdivisionPicker(for: "PT"))
-    #expect(!RegionalAreas.showsSubdivisionPicker(for: "CA"))
     #expect(!RegionalAreas.showsSubdivisionPicker(for: nil))
   }
 }

@@ -29,7 +29,7 @@ struct RadioSettingsView: View {
     }
     .themedCanvas(theme)
     .environment(session)
-    .settingsSubpageDestinations(presetLocationSession: session)
+    .settingsSubpageDestinations(presetLocation: session)
     // Stays mounted across the authorization flip and a Location push. Children must not bind the same alerts.
     .presetLocationSessionAlerts(session, openURL: openURL)
     .regionPickerSheet(

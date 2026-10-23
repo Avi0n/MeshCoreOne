@@ -434,6 +434,52 @@ struct PersistenceStoreTests {
   }
 
   @Test
+  func `removeBluetoothMethod keeps id and radioID on a dual row`() async throws {
+    let peripheralID = UUID()
+    let wifi = ConnectionMethod.wifi(host: "10.0.0.4", port: 5000, displayName: nil)
+    let bluetooth = ConnectionMethod.bluetooth(peripheralUUID: peripheralID, displayName: nil)
+    for id in [peripheralID, UUID()] {
+      let store = try await createTestStore()
+      let radioID = UUID()
+      let original = createTestDevice(id: id).copy {
+        $0.radioID = radioID
+        $0.connectionMethods = [bluetooth, wifi]
+      }
+      try await store.saveDevice(original)
+
+      let updated = try await store.removeBluetoothMethod(peripheralID: peripheralID)
+
+      #expect(updated?.id == id)
+      #expect(updated?.radioID == radioID)
+      #expect(updated?.connectionMethods == [wifi])
+      let fetched = try await store.fetchDevice(id: id)
+      #expect(fetched?.connectionMethods == [wifi])
+      #expect(fetched?.radioID == radioID)
+    }
+  }
+
+  @Test
+  func `removeBluetoothMethod changes nothing without wifi or without a match`() async throws {
+    let store = try await createTestStore()
+    let peripheralID = UUID()
+    let bluetoothOnly = createTestDevice(id: peripheralID).copy {
+      $0.connectionMethods = [.bluetooth(peripheralUUID: peripheralID, displayName: nil)]
+    }
+    let emptyMethods = createTestDevice()
+    try await store.saveDevice(bluetoothOnly)
+    try await store.saveDevice(emptyMethods)
+
+    #expect(try await store.removeBluetoothMethod(peripheralID: peripheralID) == nil)
+    #expect(try await store.removeBluetoothMethod(peripheralID: emptyMethods.id) == nil)
+    #expect(try await store.removeBluetoothMethod(peripheralID: UUID()) == nil)
+
+    let bluetoothFetched = try await store.fetchDevice(id: peripheralID)
+    #expect(bluetoothFetched?.connectionMethods == bluetoothOnly.connectionMethods)
+    let emptyFetched = try await store.fetchDevice(id: emptyMethods.id)
+    #expect(emptyFetched?.connectionMethods.isEmpty == true)
+  }
+
+  @Test
   func `Demote device with unknown id is a no-op`() async throws {
     let store = try await createTestStore()
     try await store.demoteDeviceToGhost(id: UUID())
@@ -892,9 +938,10 @@ struct PersistenceStoreTests {
     // One drain anchor shared by the whole block (block-at-reconnect).
     let anchor = Date(timeIntervalSince1970: 1_700_000_000)
 
-    /// Three different senders so reorderSameSenderClusters leaves them alone,
-    /// isolating the fetch's sort keys. createdAt (drain order) runs opposite to
-    /// send time, proving the secondary sort key is timestamp, not createdAt.
+    // Three different senders so reorderSameSenderClusters leaves them alone,
+    // isolating the fetch's sort keys. createdAt (drain order) runs opposite to
+    // send time, proving the secondary sort key is timestamp, not createdAt.
+
     func backlogMessage(sender: String, sendTime: UInt32, drainOffset: TimeInterval) -> MessageDTO {
       MessageDTO(from: Message(
         radioID: device.id,
@@ -3926,6 +3973,121 @@ struct PersistenceStoreTests {
 
     let ghostLookup = try await store.fetchDevice(id: ghost.id)
     #expect(ghostLookup == nil)
+  }
+
+  @Test
+  func `reconcileGhostIdentity keeps the local last connection method`() async throws {
+    let store = try await createTestStore()
+    let restoredPublicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+    let backupWiFi = ConnectionMethod.wifi(host: "10.0.0.7", port: 5000, displayName: nil)
+    let ghost = createTestDevice().copy {
+      $0.publicKey = restoredPublicKey
+      $0.isActive = false
+      $0.connectionMethods = [backupWiFi]
+    }
+    try await store.saveDevice(ghost)
+
+    let currentBLE = ConnectionMethod.bluetooth(peripheralUUID: UUID(), displayName: nil)
+    let current = createTestDevice().copy {
+      $0.isActive = true
+      $0.connectionMethods = [currentBLE]
+    }
+    try await store.saveDevice(current)
+
+    _ = try await store.reconcileGhostIdentity(currentDeviceID: current.id, newPublicKey: restoredPublicKey)
+
+    let updated = try #require(await store.fetchDevice(id: current.id))
+    #expect(updated.connectionMethods.first == backupWiFi)
+    #expect(updated.lastUsedConnectionMethod == currentBLE)
+  }
+
+  @Test
+  func `reconcileGhostIdentity keeps the current WiFi method over the ghost's`() async throws {
+    let store = try await createTestStore()
+    let restoredPublicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+    let ghostWiFi = ConnectionMethod.wifi(host: "10.0.0.7", port: 5000, displayName: nil)
+    let ghost = createTestDevice().copy {
+      $0.publicKey = restoredPublicKey
+      $0.isActive = false
+      $0.connectionMethods = [ghostWiFi]
+    }
+    try await store.saveDevice(ghost)
+
+    let currentWiFi = ConnectionMethod.wifi(host: "10.0.0.8", port: 5000, displayName: nil)
+    let currentBLE = ConnectionMethod.bluetooth(peripheralUUID: UUID(), displayName: nil)
+    let current = createTestDevice().copy {
+      $0.isActive = true
+      $0.connectionMethods = [currentWiFi, currentBLE]
+    }
+    try await store.saveDevice(current)
+
+    _ = try await store.reconcileGhostIdentity(currentDeviceID: current.id, newPublicKey: restoredPublicKey)
+
+    let updated = try #require(await store.fetchDevice(id: current.id))
+    #expect(updated.connectionMethods == [currentWiFi, currentBLE])
+    #expect(updated.wifiConnectionMethod == currentWiFi)
+    #expect(updated.lastUsedConnectionMethod == currentBLE)
+  }
+
+  @Test
+  func `reconcileGhostIdentity leaves an empty method list empty`() async throws {
+    let store = try await createTestStore()
+    let restoredPublicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+    let ghost = createTestDevice().copy {
+      $0.publicKey = restoredPublicKey
+      $0.isActive = false
+      $0.connectionMethods = [.wifi(host: "10.0.0.7", port: 5000, displayName: nil)]
+    }
+    try await store.saveDevice(ghost)
+
+    let current = createTestDevice().copy {
+      $0.isActive = true
+      $0.connectionMethods = []
+    }
+    try await store.saveDevice(current)
+
+    _ = try await store.reconcileGhostIdentity(currentDeviceID: current.id, newPublicKey: restoredPublicKey)
+
+    let updated = try #require(await store.fetchDevice(id: current.id))
+    #expect(updated.connectionMethods.isEmpty)
+  }
+
+  @Test(arguments: [false, true])
+  @MainActor
+  func `reconcileGhostIdentity canonicalizes legacy methods while preserving the local WiFi`(
+    currentHadWiFi: Bool
+  ) async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let context = ModelContext(container)
+    let wifi = ConnectionMethod.wifi(host: "10.0.0.4", port: 5000, displayName: nil)
+    let ghostWiFi = ConnectionMethod.wifi(host: "10.0.0.7", port: 5000, displayName: nil)
+    let staleWiFi = ConnectionMethod.wifi(host: "10.0.0.99", port: 5000, displayName: nil)
+    let ghost = createTestDevice().copy {
+      $0.publicKey = Data(repeating: 0xAB, count: 32)
+      $0.isActive = false
+      $0.connectionMethods = [ghostWiFi, staleWiFi]
+    }
+    let peripheralID = UUID()
+    let bluetooth = ConnectionMethod.bluetooth(peripheralUUID: peripheralID, displayName: nil)
+    let current = createTestDevice().copy {
+      $0.publicKey = Data(repeating: 0xCD, count: 32)
+      $0.connectionMethods = currentHadWiFi ? [wifi, bluetooth, staleWiFi] : [bluetooth]
+    }
+    context.insert(Device(dto: ghost))
+    context.insert(Device(dto: current))
+    try context.save()
+    let store = PersistenceStore(modelContainer: container)
+
+    let radioID = try await store.reconcileGhostIdentity(currentDeviceID: current.id, newPublicKey: ghost.publicKey)
+
+    let updated = try #require(await store.fetchDevice(id: current.id))
+    #expect(radioID == ghost.radioID)
+    #expect(updated.id == current.id)
+    #expect(updated.radioID == ghost.radioID)
+    #expect(updated.publicKey == ghost.publicKey)
+    #expect(updated.connectionMethods == [currentHadWiFi ? wifi : ghostWiFi, bluetooth])
+    #expect(updated.savedDeviceConnectTarget == .bluetooth(peripheralID: peripheralID))
+    #expect(try await store.fetchDevice(id: ghost.id) == nil)
   }
 
   // MARK: - Terminal-State Guards (DM ACK machine)

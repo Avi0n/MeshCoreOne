@@ -2,59 +2,51 @@ import CoreLocation
 import MC1Services
 import SwiftUI
 
-/// Shows contacts discovered via advertisement that haven't been added to the device
+/// Shows contacts heard in adverts that have not been added to the radio.
 struct DiscoveryView: View {
-  @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
-  @State private var viewModel = DiscoveryViewModel()
-  @State private var searchText = ""
-  @State private var selectedSegment: DiscoverSegment = .all
+  @State private var ownedState: DiscoveryState
+  private let suppliedState: DiscoveryState?
+  private let rendererRevision: Int
+  @FocusState private var isSearchFocused: Bool
+  @State private var isMounted = false
   @AppStorage(AppStorageKey.discoverySortOrder.rawValue) private var sortOrder: NodeSortOrder = .lastHeard
-  @State private var addingNodeID: UUID?
-  @State private var showClearConfirmation = false
+
+  init() {
+    _ownedState = State(initialValue: DiscoveryState())
+    suppliedState = nil
+    rendererRevision = 0
+  }
+
+  init(state: DiscoveryState, rendererRevision: Int = 0) {
+    _ownedState = State(initialValue: state)
+    suppliedState = state
+    self.rendererRevision = rendererRevision
+  }
+
+  private var state: DiscoveryState {
+    suppliedState ?? ownedState
+  }
+
+  private var viewModel: DiscoveryViewModel {
+    state.viewModel
+  }
 
   private var isSearching: Bool {
-    !searchText.isEmpty
-  }
-
-  /// Sort orders that recompute when the user location sample changes.
-  private var consumesLocation: Bool {
-    switch sortOrder {
-    case .distance, .hops: true
-    case .lastHeard, .name: false
-    }
-  }
-
-  /// Value-typed projection of `bestAvailableLocation` so `onChange` compares
-  /// coordinates, not `CLLocation` identity (radio-GPS fallback allocates fresh).
-  private var locationSample: LocationSample? {
-    guard let location = appState.bestAvailableLocation else { return nil }
-    return LocationSample(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-  }
-
-  private var effectiveSortOrder: NodeSortOrder {
-    (sortOrder == .distance && appState.bestAvailableLocation == nil) ? .lastHeard : sortOrder
-  }
-
-  private var filterHeader: some View {
-    DiscoverSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
-      .frame(maxWidth: .infinity)
-      .pinnedFilterHeaderBackground(theme)
-  }
-
-  private var emptyState: some View {
-    Group {
-      if isSearching {
-        DiscoverySearchEmptyView(searchText: searchText)
-      } else {
-        DiscoveryEmptyView()
-      }
-    }
-    .containerRelativeFrame([.horizontal, .vertical])
+    !state.searchText.isEmpty
   }
 
   var body: some View {
-    Group {
+    if suppliedState == nil {
+      content.modifier(DiscoveryPresenter(state: state))
+    } else {
+      content
+    }
+  }
+
+  private var content: some View {
+    @Bindable var state = state
+    return Group {
       if !viewModel.hasLoadedOnce {
         loadingBody
       } else {
@@ -67,66 +59,52 @@ struct DiscoveryView: View {
       ToolbarItem(placement: .automatic) {
         DiscoverySortMenu(sortOrder: $sortOrder)
       }
-
       ToolbarItem(placement: .automatic) {
         DiscoveryMoreMenu(
           isEmpty: viewModel.discoveredNodes.isEmpty,
-          showClearConfirmation: $showClearConfirmation
+          showClearConfirmation: $state.showClearConfirmation
         )
       }
     }
     .searchable(
-      text: $searchText,
+      text: Binding(
+        get: { state.searchText },
+        set: { state.updateSearchText($0, rendererRevision: rendererRevision) }
+      ),
       placement: .navigationBarDrawer(displayMode: .always),
       prompt: L10n.Contacts.Contacts.Discovery.searchPrompt
     )
-    .onChange(of: searchText) { oldValue, newValue in
-      if oldValue.isEmpty, !newValue.isEmpty {
-        AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.searchingAllTypes).post()
-      }
-      refreshVisibleNodes()
-    }
-    .onChange(of: selectedSegment) { _, _ in
-      refreshVisibleNodes()
-    }
-    .onChange(of: sortOrder) { _, _ in
-      refreshVisibleNodes()
-    }
-    .onChange(of: locationSample) { _, _ in
-      guard consumesLocation else { return }
-      refreshVisibleNodes()
-    }
+    .searchFocused($isSearchFocused)
     .task {
-      configureViewModel()
-      await viewModel.loadDiscoveredNodes()
-      // Seed filter inputs with the view's restored @AppStorage sort synchronously
-      // after load so the first painted frame uses the correct order.
-      refreshVisibleNodes()
+      guard state.rendererRevision == rendererRevision else { return }
+      isMounted = true
+      isSearchFocused = state.isSearchFocused
     }
-    .onChange(of: appState.servicesVersion) { _, _ in
-      configureViewModel()
-      viewModel.scheduleCoalescedReload()
-    }
-    .onChange(of: appState.contactsVersion) { _, _ in
-      viewModel.scheduleCoalescedReload()
-    }
-    .errorAlert($viewModel.errorMessage, title: L10n.Contacts.Contacts.Common.error)
-    .confirmationDialog(
-      L10n.Contacts.Contacts.Discovery.Clear.title,
-      isPresented: $showClearConfirmation,
-      titleVisibility: .visible
-    ) {
-      Button(L10n.Contacts.Contacts.Discovery.Clear.confirm, role: .destructive) {
-        Task {
-          await clearAllDiscoveredNodes()
-        }
-      }
-    } message: {
-      Text(L10n.Contacts.Contacts.Discovery.Clear.message)
+    .onDisappear { isMounted = false }
+    .onChange(of: isSearchFocused) { _, focused in
+      guard isMounted else { return }
+      state.updateSearchFocus(focused, rendererRevision: rendererRevision)
     }
   }
 
-  /// Leading inset for the inter-row divider, aligning it under the row text past the avatar.
+  private var filterHeader: some View {
+    @Bindable var state = state
+    return DiscoverSegmentPicker(selection: $state.selectedSegment, isSearching: isSearching)
+      .frame(maxWidth: .infinity)
+      .pinnedFilterHeaderBackground(theme)
+  }
+
+  private var emptyState: some View {
+    Group {
+      if isSearching {
+        DiscoverySearchEmptyView(searchText: state.searchText)
+      } else {
+        DiscoveryEmptyView()
+      }
+    }
+    .containerRelativeFrame([.horizontal, .vertical])
+  }
+
   private static let rowSeparatorLeadingInset: CGFloat = 72
 
   private var loadingBody: some View {
@@ -134,6 +112,7 @@ struct DiscoveryView: View {
       LazyVStack(spacing: 0) {
         Section {} header: { filterHeader }
       }
+      .scrollTargetLayout()
     }
     .overlay { ProgressView() }
   }
@@ -151,83 +130,33 @@ struct DiscoveryView: View {
           filterHeader
         }
       }
+      .scrollTargetLayout()
     }
+    .scrollPosition(id: Binding(
+      get: { state.scrollPositionID },
+      set: { state.updateScrollPosition($0, rendererRevision: rendererRevision) }
+    ), anchor: .top)
   }
 
   private var rows: some View {
     let nodes = viewModel.visibleNodes
     return ForEach(Array(nodes.enumerated()), id: \.element.id) { index, node in
-      DiscoveryNodeRow(
-        node: node,
-        isAdded: viewModel.isAdded(node),
-        isAdding: addingNodeID == node.id,
-        onAdd: { addNode(node) },
-        onDelete: {
-          Task {
-            await viewModel.deleteDiscoveredNode(node)
-          }
-        }
-      )
-      .transition(.opacity)
-      if index < nodes.count - 1 {
-        Divider().padding(.leading, Self.rowSeparatorLeadingInset)
-      }
-    }
-  }
-
-  private func configureViewModel() {
-    viewModel.configure(
-      dataStore: { [appState] in appState.offlineDataStore },
-      radioID: { [appState] in appState.connectedDevice?.radioID }
-    )
-  }
-
-  private func refreshVisibleNodes() {
-    viewModel.updateVisibleNodes(
-      searchText: searchText,
-      segment: selectedSegment,
-      sortOrder: effectiveSortOrder,
-      userLocation: appState.bestAvailableLocation
-    )
-  }
-
-  private func addNode(_ node: DiscoveredNodeDTO) {
-    guard let contactService = appState.services?.contactService else { return }
-
-    addingNodeID = node.id
-    Task {
-      do {
-        try await contactService.addOrUpdateContact(
-          radioID: node.radioID,
-          contact: node.makeContactFrame()
+      VStack(spacing: 0) {
+        DiscoveryNodeRow(
+          node: node,
+          isAdded: viewModel.isAdded(node),
+          isAdding: state.addingNodeID == node.id,
+          onAdd: { state.add(node) },
+          onDelete: { state.delete(node) }
         )
-        await viewModel.loadDiscoveredNodes()
-      } catch ContactServiceError.contactTableFull {
-        let maxContacts = appState.connectedDevice?.maxContacts
-        if let maxContacts {
-          viewModel.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFull(Int(maxContacts))
-        } else {
-          viewModel.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFullSimple
+        if index < nodes.count - 1 {
+          Divider().padding(.leading, Self.rowSeparatorLeadingInset)
         }
-      } catch {
-        viewModel.errorMessage = error.userFacingMessage
       }
-      addingNodeID = nil
+      .id(node.id)
+      .transition(.opacity)
     }
   }
-
-  private func clearAllDiscoveredNodes() async {
-    await viewModel.clearAllDiscoveredNodes()
-
-    AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.clearedAllNodes).post()
-  }
-}
-
-/// Equatable projection of a location for `onChange` without `CLLocation` identity comparison.
-/// Raw doubles are fine: `LocationService` is one-shot `requestLocation()`, not continuous GPS.
-private struct LocationSample: Equatable {
-  let latitude: Double
-  let longitude: Double
 }
 
 // MARK: - Empty View

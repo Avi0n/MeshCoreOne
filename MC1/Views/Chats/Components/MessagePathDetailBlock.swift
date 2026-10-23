@@ -11,6 +11,7 @@ struct MessagePathDetailBlock: View {
   @Environment(\.appState) private var appState
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.mapColorSchemePreference) private var mapColorSchemePreference
 
   let message: MessageDTO
   let arrivals: [MessagePathArrival]
@@ -20,6 +21,10 @@ struct MessagePathDetailBlock: View {
   @State private var selectedID: UUID?
   @State private var showFullMap = false
   @State private var containerWidth: CGFloat = 0
+
+  private var mapBasemapIsDark: Bool {
+    resolvedMapIsDark(preference: mapColorSchemePreference, colorScheme: colorScheme)
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -45,7 +50,7 @@ struct MessagePathDetailBlock: View {
         selectedID: selectedID,
         connectedDevice: appState.connectedDevice,
         userLocation: appState.bestAvailableLocation,
-        isDark: colorScheme == .dark,
+        isDark: mapBasemapIsDark,
         isOffline: isOffline,
         containerWidth: containerWidth
       )
@@ -160,7 +165,7 @@ struct MessagePathDetailBlock: View {
     guard let arrivalID = selectedArrival?.id else { return nil }
     return MessagePathPreviewSnapshot.key(
       arrivalID: arrivalID,
-      isDark: colorScheme == .dark,
+      isDark: mapBasemapIsDark,
       isOffline: isOffline,
       containerWidth: containerWidth
     )
@@ -170,7 +175,7 @@ struct MessagePathDetailBlock: View {
     PrefetchID(
       arrivalIDs: arrivals.map(\.id),
       isLoading: pathViewModel.isLoading,
-      isDark: colorScheme == .dark,
+      isDark: mapBasemapIsDark,
       isOffline: isOffline,
       widthBucket: MessagePathPreviewSnapshot.bucketedWidth(
         max(0, containerWidth - 2 * MessagePathPreviewSnapshot.expandedHorizontalPadding)
@@ -216,7 +221,7 @@ struct MessagePathDetailBlock: View {
         arrivals: arrivals,
         connectedDevice: appState.connectedDevice,
         userLocation: appState.bestAvailableLocation,
-        isDark: colorScheme == .dark,
+        isDark: mapBasemapIsDark,
         isOffline: isOffline,
         containerWidth: containerWidth
       )

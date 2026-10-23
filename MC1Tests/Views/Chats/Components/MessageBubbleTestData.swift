@@ -165,6 +165,7 @@ enum MessageBubbleTestData {
       previewsEnabled: previewsEnabled,
       isHighContrast: false,
       isDark: false,
+      mapBasemapIsDark: false,
       showMapPreviews: true,
       isOffline: false,
       currentUserName: currentUserName,

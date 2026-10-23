@@ -8,23 +8,19 @@ extension ChatViewModel {
   /// `ChatConversationView`. The exhaustive switch is deliberate — a new
   /// `MessageEvent` case becomes a compile error rather than a silent skip.
   ///
-  /// The function is `async` so the incoming-message admission path can
-  /// await its prefetch race inline. The event stream is the canonical
-  /// ordering source for received messages; admitting incoming bubbles
-  /// via a detached `Task { ... }` would let a fast plain-text message
-  /// overtake a slow URL-bearing one and reorder the timeline.
+  /// Incoming messages are inserted in event order before their previews load.
   func handle(_ event: MessageEvent) async {
     switch event {
     case let .directMessageReceived(message, contact):
       guard let current = currentContact, current.id == contact.id else { return }
-      await admitIncomingMessage(message, isChannelMessage: false)
+      admitIncomingMessage(message, isChannelMessage: false)
       recordIncomingMentionIfNeeded(message)
 
     case let .channelMessageReceived(message, channelIndex):
       guard let channel = currentChannel,
             channel.index == channelIndex,
             message.radioID == channel.radioID else { return }
-      await admitIncomingMessage(message, isChannelMessage: true)
+      admitIncomingMessage(message, isChannelMessage: true)
       recordIncomingMentionIfNeeded(message)
 
     case let .messageStatusResolved(messageID, status, roundTripTime):

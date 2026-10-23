@@ -11,4 +11,8 @@ protocol ContactCleanupHandling: Sendable {
   ///   - publicKey: The contact's public key, used to locate any associated
   ///     remote node session.
   func handleCleanup(contactID: UUID, reason: ContactCleanupReason, publicKey: Data) async
+
+  func handleDeletion(contactID: UUID, publicKey: Data) async
+
+  func flushDeletionUpdates(contactIDs: Set<UUID>) async
 }

@@ -123,8 +123,10 @@ extension SyncCoordinator {
     hasSelfMention: Bool,
     dependencies: SyncDependencies
   ) async throws {
-    // Only increment unread if user is NOT currently viewing this contact's chat
-    let isViewingContact = await dependencies.notificationService.activeContactID == contactID
+    // A mounted conversation does not mean its messages are visible in the background.
+    let isInForeground = await dependencies.appStateProvider?.isInForeground ?? true
+    let activeContactID = await dependencies.notificationService.activeContactID
+    let isViewingContact = isInForeground && activeContactID == contactID
     if !isViewingContact {
       try await dependencies.dataStore.incrementUnreadCount(contactID: contactID)
 
@@ -157,10 +159,11 @@ extension SyncCoordinator {
     dependencies: SyncDependencies
   ) async throws {
     if let channelID = channel?.id {
-      // Only increment unread if user is NOT currently viewing this channel
+      // A mounted conversation does not mean its messages are visible in the background.
+      let isInForeground = await dependencies.appStateProvider?.isInForeground ?? true
       let activeIndex = await dependencies.notificationService.activeChannelIndex
       let activeRadioID = await dependencies.notificationService.activeChannelRadioID
-      let isViewingChannel = activeIndex == channel?.index && activeRadioID == channel?.radioID
+      let isViewingChannel = isInForeground && activeIndex == channel?.index && activeRadioID == channel?.radioID
       if !isViewingChannel {
         try await dependencies.dataStore.incrementChannelUnreadCount(channelID: channelID)
 

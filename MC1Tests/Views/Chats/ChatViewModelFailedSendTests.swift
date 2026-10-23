@@ -54,7 +54,7 @@ struct ChatViewModelFailedSendTests {
       unreadCount: 0,
       unreadMentionCount: 0,
       notificationLevel: .all,
-      isFavorite: false
+      isPinned: false
     )
   }
 
@@ -69,7 +69,7 @@ struct ChatViewModelFailedSendTests {
       name: "Room",
       role: .roomServer,
       isConnected: true,
-      isFavorite: false,
+      isPinned: false,
       lastMessageDate: Date()
     )
   }

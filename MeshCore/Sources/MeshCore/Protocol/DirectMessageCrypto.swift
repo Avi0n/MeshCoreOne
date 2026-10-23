@@ -8,7 +8,7 @@ import Foundation
 /// and HMAC-SHA256 authentication in an Encrypt-then-MAC pattern.
 ///
 /// Packet format: [destHash:1][srcHash:1][MAC:2][ciphertext:N]
-/// Decrypted payload: [timestamp:4][typeAttempt:1][text:N]
+/// Decrypted payload: [timestamp:4][typeAttempt:1][authorPrefix:4 for signed text][text:N]
 public enum DirectMessageCrypto {
   /// Size of the truncated HMAC (2 bytes).
   public static let macSize = 2
@@ -21,6 +21,9 @@ public enum DirectMessageCrypto {
 
   /// Size of the typeAttempt field (1 byte).
   public static let typeAttemptSize = 1
+
+  private static let attemptBitCount = 2
+  private static let signedAuthorPrefixSize = 4
 
   /// Minimum ciphertext size (one AES block).
   public static let minCiphertextSize = 16
@@ -86,7 +89,6 @@ public enum DirectMessageCrypto {
       return .decryptionFailed
     }
 
-    // Parse decrypted payload: [timestamp:4][typeAttempt:1][text:rest]
     guard plaintext.count >= timestampSize + typeAttemptSize else {
       return .decryptionFailed
     }
@@ -96,9 +98,10 @@ public enum DirectMessageCrypto {
     }
 
     let typeAttempt = plaintext[timestampSize]
+    let authorPrefixSize = typeAttempt >> attemptBitCount == TextType.signed.rawValue ? signedAuthorPrefixSize : 0
 
     // Extract message text, trimming null padding
-    let messageData = plaintext.dropFirst(timestampSize + typeAttemptSize)
+    let messageData = plaintext.dropFirst(timestampSize + typeAttemptSize + authorPrefixSize)
     let trimmedData = messageData.prefix(while: { $0 != 0 })
 
     let text: String? = if trimmedData.isEmpty {

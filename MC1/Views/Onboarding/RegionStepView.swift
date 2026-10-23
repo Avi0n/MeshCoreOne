@@ -66,6 +66,9 @@ struct RegionStepView: View {
         .font(.body)
         .foregroundStyle(.secondary)
       Spacer()
+      skipForNowButton
+        .padding(.horizontal)
+        .padding(.bottom)
     }
   }
 
@@ -113,17 +116,21 @@ struct RegionStepView: View {
 
       Spacer()
 
-      Button {
-        appState.regionSelection = region
-        commitTrigger.toggle()
-        appState.onboarding.onboardingPath.append(.preset)
-      } label: {
-        Text(L10n.Onboarding.Region.useThisRegion)
-          .font(.headline)
-          .frame(maxWidth: .infinity)
-          .padding()
+      VStack(spacing: OnboardingMetrics.mediumSpacing) {
+        Button {
+          appState.regionSelection = region
+          commitTrigger.toggle()
+          appState.onboarding.onboardingPath.append(.preset)
+        } label: {
+          Text(L10n.Onboarding.Region.useThisRegion)
+            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .padding()
+        }
+        .liquidGlassProminentButtonStyle()
+
+        skipForNowButton
       }
-      .liquidGlassProminentButtonStyle()
       .padding(.horizontal)
       .padding(.bottom)
     }
@@ -160,22 +167,37 @@ struct RegionStepView: View {
         .frame(minHeight: OnboardingMetrics.minHitTarget)
       }
 
-      Button {
-        guard let manualSelection else { return }
-        appState.regionSelection = manualSelection
-        commitTrigger.toggle()
-        appState.onboarding.onboardingPath.append(.preset)
-      } label: {
-        Text(L10n.Onboarding.Region.continue)
-          .font(.headline)
-          .frame(maxWidth: .infinity)
-          .padding()
+      VStack(spacing: OnboardingMetrics.mediumSpacing) {
+        Button {
+          guard let manualSelection else { return }
+          appState.regionSelection = manualSelection
+          commitTrigger.toggle()
+          appState.onboarding.onboardingPath.append(.preset)
+        } label: {
+          Text(L10n.Onboarding.Region.continue)
+            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .padding()
+        }
+        .liquidGlassProminentButtonStyle()
+        .disabled(manualSelection == nil)
+
+        skipForNowButton
       }
-      .liquidGlassProminentButtonStyle()
-      .disabled(manualSelection == nil)
       .padding(.horizontal)
       .padding(.bottom)
     }
+  }
+
+  /// Finishes onboarding. Leaves `regionSelection` and the radio unchanged.
+  private var skipForNowButton: some View {
+    Button(L10n.Onboarding.skipForNow) {
+      commitTrigger.toggle()
+      appState.completeOnboarding()
+    }
+    .buttonStyle(.bordered)
+    .tint(.secondary)
+    .frame(minHeight: OnboardingMetrics.minHitTarget)
   }
 }
 

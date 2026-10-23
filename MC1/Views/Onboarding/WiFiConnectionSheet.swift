@@ -75,7 +75,7 @@ struct WiFiConnectionSheet: View {
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   @State private var ipAddress = ""
-  @State private var port = "5000"
+  @State private var port = String(ConnectionMethod.defaultWiFiPort)
   @State private var isConnecting = false
   @State private var errorMessage: String?
 

@@ -1,80 +1,55 @@
-import CoreLocation
-import MapKit
-import MapLibre
 import MC1Services
 import SwiftUI
 
-/// Full-screen map of a node's location: a single pin for the live fix, or a
-/// decimated pin set plus a polyline for the historical path. Content is a pure
-/// function of the points/line passed in, so it holds only camera `@State`.
-///
-/// Pushed onto the host's navigation stack, never presented modally: the node
-/// status/telemetry surfaces that reach it are themselves sheets, and stacking a
-/// sheet or cover on them collapses both, matching `NeighborSNRMapView`.
+/// Renders retained map state so viewport and report selection survive remounting.
 struct NodeLocationMapView: View {
-  /// Span used when the path resolves to a single fix, with no box to fit.
-  private static let singleFixSpanDelta: CLLocationDegrees = 0.05
-  /// A small breathing margin around the multi-fix bounding box. Unlike
-  /// `MessagePathMapView` (which inflates the span 2.5x and passes no edge padding),
-  /// this map passes `cameraBottomSheetFraction: 0`, so `setVisibleCoordinateBounds`
-  /// already insets the fit by the safe-area padding that clears the nav bar and
-  /// controls. A large multiplier on top of that padding double-margins the fit and
-  /// leaves the path filling a fraction of the screen, so keep this just above 1.
-  private static let pathBoundingPaddingMultiplier: Double = 1.3
-
   @Environment(\.appState) private var appState
-  @Environment(\.colorScheme) private var colorScheme
+  @State private var state: NodeLocationMapState
+  @State private var rendererID = UUID()
+  private let rendererRevision: Int
 
-  let points: [MapPoint]
-  let lines: [MapLine]
-  /// Pin id → its report, driving the tap callout.
-  let reports: [UUID: LocationPathMapBuilder.LocationReport]
-  let title: String
-  /// The source snapshot id to auto-select once the map fits, or nil when opened
-  /// from the preview's expand button (which selects nothing).
-  let initialSelectionID: UUID?
+  init(
+    points: [MapPoint], lines: [MapLine],
+    reports: [UUID: LocationPathMapBuilder.LocationReport], title: String,
+    initialSelectionID: UUID? = nil
+  ) {
+    _state = State(initialValue: NodeLocationMapState(
+      points: points, lines: lines, reports: reports, title: title,
+      initialSelectedReportID: initialSelectionID
+    ))
+    rendererRevision = 0
+  }
+
+  init(snapshots: [NodeStatusSnapshotDTO], initialSelectionID: UUID?) {
+    _state = State(initialValue: NodeLocationMapState(
+      snapshots: snapshots, initialSelectedReportID: initialSelectionID
+    ))
+    rendererRevision = 0
+  }
+
+  init(state: NodeLocationMapState, rendererRevision: Int = 0) {
+    _state = State(initialValue: state)
+    self.rendererRevision = rendererRevision
+  }
 
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
   @AppStorage(AppStorageKey.mapClusteringEnabled.rawValue)
   private var clusteringEnabled = AppStorageKey.defaultMapClusteringEnabled
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
-  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
-  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
 
-  @State private var cameraRegion: MKCoordinateRegion?
-
-  private var mapIsDark: Bool {
-    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
-    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
-  }
-
-  @State private var cameraRegionVersion = 0
-  @State private var isCenteredOnUser = false
   @State private var isStyleLoaded = false
-  @State private var hasInitiallyFit = false
-  // Snapshotted exactly once per appearance lifecycle so re-renders of the
-  // enclosing screen (e.g. a telemetry refresh behind this pushed map) can't
-  // re-mint MapPoint identities and churn MapLibre annotations, mirroring
-  // MessagePathMapView.locatedNodes. A dedicated flag rather than an empty-array
-  // check so a genuinely empty snapshot still counts as taken.
-  @State private var hasSnapshotted = false
-  @State private var displayPoints: [MapPoint] = []
-  @State private var displayLines: [MapLine] = []
   @State private var selectedReport: SelectedReport?
   @State private var selectedPointScreenPosition: CGPoint?
-  // Programmatic selection routed to the map coordinator: the resolved point id plus
-  // a version bumped once, after the first fit, to fire the auto-select.
-  @State private var pendingSelectionPointID: UUID?
   @State private var selectionRequestVersion = 0
 
   var body: some View {
+    @Bindable var state = state
     ZStack(alignment: .bottom) {
       MC1MapView(
-        points: displayPoints,
-        lines: displayLines,
+        points: state.points,
+        lines: state.lines,
         mapStyle: mapStyleSelection,
-        isDarkMode: mapIsDark,
         isOffline: !appState.offlineMapService.isNetworkAvailable,
         showLabels: showLabels,
         clusteringEnabled: clusteringEnabled,
@@ -82,23 +57,37 @@ struct NodeLocationMapView: View {
         isInteractive: true,
         showsScale: true,
         isNorthLocked: isNorthLocked,
-        cameraRegion: $cameraRegion,
-        cameraRegionVersion: cameraRegionVersion,
+        cameraRegion: $state.cameraRegion,
+        cameraRegionVersion: state.cameraRegionVersion,
         cameraBottomSheetFraction: 0,
-        selectionRequestID: pendingSelectionPointID,
+        selectionRequestID: state.selectedPointID,
         selectionRequestVersion: selectionRequestVersion,
+        viewportSnapshotProvider: { state.viewport },
+        onViewportReady: {
+          guard isCurrentRenderer else { return }
+          state.viewportReady(renderer: rendererID)
+        },
+        onViewportCapture: { state.captureViewport($0, renderer: rendererID) },
         onPointTap: { point, screenPosition in
-          guard let report = reports[point.id] else { return }
+          guard isCurrentRenderer, let report = state.reports[point.id] else { return }
+          state.selectReport(pointID: point.id, renderer: rendererID)
+          selectedReport = SelectedReport(id: point.id, report: report)
+          selectedPointScreenPosition = screenPosition
+        },
+        onSelectionProjection: { point, screenPosition in
+          guard isCurrentRenderer, state.selectedPointID == point.id,
+                let report = state.reports[point.id] else { return }
           selectedReport = SelectedReport(id: point.id, report: report)
           selectedPointScreenPosition = screenPosition
         },
         onMapTap: { _ in clearCallout() },
         onCameraRegionChange: { region in
-          cameraRegion = region
-          if selectedReport != nil { clearCallout() }
+          guard isCurrentRenderer else { return }
+          state.cameraRegion = region
+          if state.selectedReportID != nil { clearCallout() }
         },
         isStyleLoaded: $isStyleLoaded,
-        isCenteredOnUser: $isCenteredOnUser
+        isCenteredOnUser: centeredOnUserBinding
       )
       // Popover attached before ignoresSafeArea, matching the main map (MapCanvasView
       // applies ignoresSafeArea outside MapContentView's popover). When ignoresSafeArea
@@ -106,7 +95,7 @@ struct NodeLocationMapView: View {
       // inset space while the coordinator reports full-screen coordinates, and the top
       // inset shoves the anchor down and the callout flips below the pin.
       .popover(
-        item: $selectedReport,
+        item: calloutBinding,
         attachmentAnchor: .rect(.rect(CGRect(
           origin: selectedPointScreenPosition ?? .zero,
           size: CGSize(width: 1, height: 1)
@@ -120,29 +109,53 @@ struct NodeLocationMapView: View {
 
       toolbarOverlay
     }
-    .navigationTitle(title)
+    .navigationTitle(state.title)
     .navigationBarTitleDisplayMode(.inline)
     .onAppear {
-      guard !hasSnapshotted else { return }
-      hasSnapshotted = true
-      displayPoints = points
-      displayLines = lines
-    }
-    // The map gates camera moves until its style loads, so fit once on that signal,
-    // matching MessagePathMapView, rather than issuing a fit the map would drop.
-    .onChange(of: isStyleLoaded) { _, loaded in
-      guard loaded, !hasInitiallyFit else { return }
-      hasInitiallyFit = true
-      fitCameraToContent()
-      // Auto-select the report the row tap targeted. Resolve its snapshot id to the
-      // plotted point id and bump the request version so the map projects and pops
-      // the callout once the fit above has been applied.
-      if let initialSelectionID,
-         let pointID = reports.first(where: { $0.value.id == initialSelectionID })?.key {
-        pendingSelectionPointID = pointID
+      state.prepareRenderer(rendererID, revision: rendererRevision)
+      guard isCurrentRenderer else { return }
+      if isStyleLoaded {
+        state.fitInitially()
         selectionRequestVersion += 1
       }
     }
+    .onDisappear { state.invalidateRenderer(rendererID, revision: rendererRevision) }
+    .onChange(of: isStyleLoaded) { _, loaded in
+      guard loaded, isCurrentRenderer else { return }
+      state.fitInitially()
+      selectionRequestVersion += 1
+    }
+    .onGeometryChange(for: CGSize.self) { $0.size } action: { _ in
+      guard isCurrentRenderer else { return }
+      selectionRequestVersion += 1
+    }
+  }
+
+  private var isCurrentRenderer: Bool {
+    state.rendererRevision == rendererRevision && state.rendererIsCurrent(rendererID)
+  }
+
+  private var centeredOnUserBinding: Binding<Bool> {
+    Binding(
+      get: { state.isCenteredOnUser },
+      set: { value in
+        guard isCurrentRenderer else { return }
+        state.isCenteredOnUser = value
+      }
+    )
+  }
+
+  private var calloutBinding: Binding<SelectedReport?> {
+    Binding(
+      get: { selectedReport },
+      set: { value in
+        selectedReport = value
+        if value == nil, isCurrentRenderer {
+          state.selectReport(pointID: nil, renderer: rendererID)
+          selectedPointScreenPosition = nil
+        }
+      }
+    )
   }
 
   /// Fixed bottom-right map controls.
@@ -151,12 +164,12 @@ struct NodeLocationMapView: View {
       Spacer()
       MapControlsToolbar(
         onLocationTap: centerOnMyLocation,
-        isCenteredOnUser: isCenteredOnUser,
+        isCenteredOnUser: state.isCenteredOnUser,
         isNorthLocked: $isNorthLocked,
         showLabels: $showLabels,
         clusteringEnabled: $clusteringEnabled,
         mapStyleSelection: $mapStyleSelection,
-        viewportBounds: cameraRegion?.toMLNCoordinateBounds()
+        viewportBounds: state.cameraRegion?.toMLNCoordinateBounds()
       ) {
         centerAllButton
       }
@@ -166,39 +179,26 @@ struct NodeLocationMapView: View {
   /// Re-fits the camera to the displayed pin(s). Disabled when nothing is plottable.
   private var centerAllButton: some View {
     Button(L10n.Map.Map.Controls.centerAll, systemImage: "arrow.up.left.and.arrow.down.right") {
-      isCenteredOnUser = false
-      fitCameraToContent()
+      guard isCurrentRenderer else { return }
+      state.isCenteredOnUser = false
+      state.fitCameraToContent()
     }
-    .mapControlButton(tint: displayPoints.isEmpty ? .secondary : .primary)
-    .disabled(displayPoints.isEmpty)
-  }
-
-  private func fitCameraToContent() {
-    let coords = displayPoints.map(\.coordinate)
-    if coords.count == 1 {
-      cameraRegion = MKCoordinateRegion(
-        center: coords[0],
-        span: MKCoordinateSpan(
-          latitudeDelta: Self.singleFixSpanDelta,
-          longitudeDelta: Self.singleFixSpanDelta
-        )
-      )
-    } else if let region = coords.boundingRegion(paddingMultiplier: Self.pathBoundingPaddingMultiplier) {
-      cameraRegion = region
-    } else {
-      return
-    }
-    cameraRegionVersion += 1
+    .mapControlButton(tint: state.points.isEmpty ? .secondary : .primary)
+    .disabled(state.points.isEmpty)
   }
 
   private func centerOnMyLocation() {
-    isCenteredOnUser = appState.centerOnUserLocation { region in
-      cameraRegion = region
-      cameraRegionVersion += 1
+    guard isCurrentRenderer else { return }
+    state.isCenteredOnUser = appState.centerOnUserLocation { region in
+      guard isCurrentRenderer else { return }
+      state.cameraRegion = region
+      state.cameraRegionVersion += 1
     }
   }
 
   private func clearCallout() {
+    guard isCurrentRenderer else { return }
+    state.selectReport(pointID: nil, renderer: rendererID)
     selectedReport = nil
     selectedPointScreenPosition = nil
   }

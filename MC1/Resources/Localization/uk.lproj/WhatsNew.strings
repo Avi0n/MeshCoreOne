@@ -30,3 +30,38 @@
 "whatsNew.fasterChatLoading.title" = "Швидше завантаження чатів";
 /* What's New v1.5 - Faster chat loading, description */
 "whatsNew.fasterChatLoading.description" = "Відкриття чату тепер до 90%% швидше.";
+
+/* What's New v1.6 - Pinned chats, title */
+"whatsNew.pinnedChats.title" = "Закріплені чати";
+/* What's New v1.6 - Pinned chats, description */
+"whatsNew.pinnedChats.description" = "Закріплені чати тепер окремо від обраних. Закріплені чати з'являються в розділі «Закріплено», а контакти, які ви вже додали до обраних, закріплюються під час першого відкриття застосунку.";
+
+/* What's New v1.6 - Read and unread, title */
+"whatsNew.readAndUnread.title" = "Прочитане та непрочитане";
+/* What's New v1.6 - Read and unread, description */
+"whatsNew.readAndUnread.description" = "Натисніть і утримуйте чат, щоб позначити розмову як прочитану або непрочитану.";
+
+/* What's New v1.6 - iPhone Duo, title */
+"whatsNew.iPhoneDuo.title" = "iPhone Duo";
+/* What's New v1.6 - iPhone Duo, description */
+"whatsNew.iPhoneDuo.description" = "MC1 готовий до iPhone Duo з макетами змінного розміру.";
+
+/* What's New v1.6 - iPad tab bar, title */
+"whatsNew.iPadTabBar.title" = "Панель вкладок iPad";
+/* What's New v1.6 - iPad tab bar, description */
+"whatsNew.iPadTabBar.description" = "На iPad піктограми вкладок переносяться зліва наверх. Це допомагає нам краще підтримувати всі пристрої, зокрема iPhone Duo.";
+
+/* What's New v1.6 - Advanced map filters, title */
+"whatsNew.advancedMapFilters.title" = "Розширені фільтри карти";
+/* What's New v1.6 - Advanced map filters, description */
+"whatsNew.advancedMapFilters.description" = "Фільтруйте карту за часом останнього отримання та кількістю переходів. Ви можете вибрати шаблон або задати власний діапазон і вилучити фільтр з його позначки.";
+
+/* What's New v1.6 - Bluetooth and Wi-Fi, title */
+"whatsNew.bluetoothAndWiFi.title" = "Bluetooth і WiFi";
+/* What's New v1.6 - Bluetooth and Wi-Fi, description */
+"whatsNew.bluetoothAndWiFi.description" = "Якщо радіо з прошивкою 1.18 або новішою сполучене і через Bluetooth, і через WiFi, ви можете перемикатися між ними в «Підключити пристрій» і в Налаштування > Підключення.";
+
+/* What's New v1.6 - More changes, title */
+"whatsNew.moreChanges.title" = "Більше змін";
+/* What's New v1.6 - More changes, description */
+"whatsNew.moreChanges.description" = "Натисніть \"Переглянути всі нові зміни\" нижче, щоб побачити повний список виправлень помилок та інших функцій.";

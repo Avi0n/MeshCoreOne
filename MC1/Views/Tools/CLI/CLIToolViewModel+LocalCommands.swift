@@ -15,6 +15,7 @@ extension CLIToolViewModel {
     case .board: await runBoard()
     case let .advert(flood): await runAdvert(flood: flood)
     case .reboot: await runReboot()
+    case .powerOff: await runPowerOff()
     case let .getKey(key): await runGet(key)
     case let .setName(name): await runSetName(name)
     case let .setLatitude(latitude): await runSetLatitude(latitude)
@@ -29,6 +30,15 @@ extension CLIToolViewModel {
     case let .getCustomVar(key): await runGetCustomVars(key: key)
     case let .setCustomVar(key, value): await runSetCustomVar(key: key, value: value)
     }
+  }
+
+  /// Sends an unmapped local line via Radio CLI and prints the UTF-8 reply.
+  func runRadioCLI(_ raw: String) async {
+    guard let settingsService else { return notConnected() }
+    do {
+      let reply = try await settingsService.runCliCommand(raw)
+      output(reply)
+    } catch { renderError(error) }
   }
 
   /// Renders a parser error as a usage or error output line.
@@ -227,6 +237,20 @@ extension CLIToolViewModel {
       try await settingsService.reboot()
       output(LocalCommandOutput.okRebooting)
     } catch { renderError(error) }
+  }
+
+  private func runPowerOff() async {
+    powerOffCommandActive = true
+    defer { powerOffCommandActive = false }
+    do {
+      try await powerOffRadio()
+      output(LocalCommandOutput.okPoweringOff)
+    } catch is PowerOffSuperseded {
+      return
+    } catch {
+      guard !Task.isCancelled else { return }
+      appendOutput(error.userFacingMessage, type: .error)
+    }
   }
 
   // MARK: - Output helpers

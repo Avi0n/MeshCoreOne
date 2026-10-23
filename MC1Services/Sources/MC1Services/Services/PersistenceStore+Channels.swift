@@ -434,8 +434,8 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
-  /// Sets the favorite state for a channel
-  func setChannelFavorite(_ channelID: UUID, isFavorite: Bool) throws {
+  /// Sets the local pin for a channel.
+  func setChannelPinned(_ channelID: UUID, isPinned: Bool) throws {
     let targetID = channelID
     let predicate = #Predicate<Channel> { $0.id == targetID }
     var descriptor = FetchDescriptor<Channel>(predicate: predicate)
@@ -445,7 +445,7 @@ public extension PersistenceStore {
       throw PersistenceStoreError.channelNotFound
     }
 
-    channel.isFavorite = isFavorite
+    channel.isPinned = isPinned
     try modelContext.save()
   }
 

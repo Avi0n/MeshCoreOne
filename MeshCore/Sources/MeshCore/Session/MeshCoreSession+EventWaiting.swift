@@ -161,55 +161,68 @@ extension MeshCoreSession {
     matching matcher: @escaping @Sendable (MeshEvent) -> ResponseDisposition<T>
   ) async throws -> T {
     try await requestResponseSerializer.withSerialization { [self] in
-      let effectiveTimeout = timeout ?? configuration.defaultTimeout
+      try await sendAndMatchHoldingSerialization(data, timeout: timeout, matching: matcher)
+    }
+  }
 
-      // Subscribe before sending to avoid race condition, then ignore all
-      // non-matching events until this request sees its own response.
-      let (subscriptionID, events) = await dispatcher.subscribeTracked()
+  /// The caller holds requestResponseSerializer for this entire exchange.
+  func sendAndMatchHoldingSerialization<T: Sendable>(
+    _ data: Data,
+    timeout: TimeInterval? = nil,
+    beforeSend: @escaping @Sendable () throws -> Void = {},
+    matching matcher: @escaping @Sendable (MeshEvent) -> ResponseDisposition<T>
+  ) async throws -> T {
+    let effectiveTimeout = timeout ?? configuration.defaultTimeout
 
-      do {
-        // Send after subscribing
-        try await transport.send(data)
+    // Subscribe before sending to avoid race condition, then ignore all
+    // non-matching events until this request sees its own response.
+    let (subscriptionID, events) = await dispatcher.subscribeTracked()
 
-        return try await withThrowingTaskGroup(of: T?.self) { group in
-          group.addTask {
-            for await event in events {
-              switch matcher(event) {
-              case let .success(result):
-                return result
-              case let .failure(error):
-                throw error
-              case .ignore:
-                continue
-              }
-            }
-            return nil
-          }
+    do {
+      try await sendSessionData(data, beforeSend: beforeSend)
 
-          group.addTask { [clock = self.clock] in
-            try await clock.sleep(for: .seconds(effectiveTimeout))
-            return nil
-          }
-
-          do {
-            if let result = try await group.next() ?? nil {
-              group.cancelAll()
-              await dispatcher.finishSubscription(id: subscriptionID)
+      return try await withThrowingTaskGroup(of: T?.self) { group in
+        group.addTask {
+          for await event in events {
+            switch matcher(event) {
+            case let .success(result):
               return result
+            case let .failure(error):
+              throw error
+            case .ignore:
+              continue
             }
-            group.cancelAll()
-            await dispatcher.finishSubscription(id: subscriptionID)
-            throw MeshCoreError.timeout
-          } catch {
-            group.cancelAll()
-            await dispatcher.finishSubscription(id: subscriptionID)
-            throw error
           }
+          return nil
         }
-      } catch {
-        await dispatcher.finishSubscription(id: subscriptionID)
-        throw error
+
+        group.addTask { [clock = self.clock] in
+          try await clock.sleep(for: .seconds(effectiveTimeout))
+          return nil
+        }
+
+        do {
+          if let result = try await group.next() ?? nil {
+            group.cancelAll()
+            await dispatcher.finishSubscription(id: subscriptionID)
+            return result
+          }
+          group.cancelAll()
+          await dispatcher.finishSubscription(id: subscriptionID)
+          // stop() finishes the subscription. That is not a radio timeout.
+          if !sessionIsRunning {
+            throw CancellationError()
+          }
+          throw MeshCoreError.timeout
+        } catch {
+          group.cancelAll()
+          await dispatcher.finishSubscription(id: subscriptionID)
+          throw error
+        }
       }
+    } catch {
+      await dispatcher.finishSubscription(id: subscriptionID)
+      throw error
     }
   }
 

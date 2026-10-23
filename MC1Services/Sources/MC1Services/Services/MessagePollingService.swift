@@ -317,6 +317,9 @@ actor MessagePollingService {
     case MeshTextType.signedPlain.rawValue:
       // Signed messages from room servers (textType = 0x02)
       await signedMessageHandler?(message, contact)
+    case MeshTextType.cliCommand.rawValue:
+      // Queued, not executed. Same path as plain so it is not treated as a CLI reply.
+      await contactMessageHandler?(message, contact, context)
     default:
       // Regular contact messages (textType = 0x00 or unknown)
       await contactMessageHandler?(message, contact, context)
@@ -351,4 +354,5 @@ enum MeshTextType: UInt8 {
   case plain = 0x00
   case cliData = 0x01
   case signedPlain = 0x02
+  case cliCommand = 0x03
 }

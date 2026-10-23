@@ -53,6 +53,11 @@ struct PresetLocationPolicyTests {
         RegionSelection(countryCode: "AU", source: .manual)
       )
     )
+    #expect(
+      PresetLocationPolicy.isIncomplete(
+        RegionSelection(countryCode: "CA", source: .manual)
+      )
+    )
     #expect(!PresetLocationPolicy.isIncomplete(makePortugal(source: .manual)))
   }
 

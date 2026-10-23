@@ -6,7 +6,6 @@ import UIKit
 struct NodeCLIView: View {
   @Bindable var viewModel: NodeCLIViewModel
 
-  @State private var isKeyboardFocused = false
   @State private var scrollPosition = ScrollPosition(edge: .bottom)
   @State private var cursorPosition: Int = 0
 
@@ -18,9 +17,13 @@ struct NodeCLIView: View {
       tabSuggestions: viewModel.tabSuggestions,
       tabSelectionIndex: viewModel.tabSelectionIndex,
       isWaitingForResponse: viewModel.isWaitingForResponse,
+      canCancelCommand: CLICommandCancel.allows(
+        isWaiting: viewModel.isWaitingForResponse,
+        powerOffActive: false,
+        powerOffCanStillPreventSend: true
+      ),
       showSessionsButton: false,
       currentInput: $viewModel.currentInput,
-      isKeyboardFocused: $isKeyboardFocused,
       scrollPosition: $scrollPosition,
       cursorPosition: $cursorPosition,
       onSubmit: {
@@ -68,7 +71,6 @@ struct NodeCLIView: View {
       },
       onSessions: {},
       onCancel: { viewModel.cancelCurrentCommand() },
-      onDismiss: { isKeyboardFocused = false },
       onClear: { viewModel.executeCommand("clear") },
       onUpdateGhostText: { cursorAtEnd in viewModel.updateGhostText(cursorAtEnd: cursorAtEnd) },
       onClearTabState: { viewModel.clearTabState() },

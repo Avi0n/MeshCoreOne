@@ -2,7 +2,7 @@ import Foundation
 @testable import MC1Services
 import Testing
 
-@Suite("BLETransportOpenedSignal")
+@Suite("BLETransportOpenedSignal", .timeLimit(.minutes(1)))
 struct BLETransportOpenedSignalTests {
   @Test
   func `wait returns immediately when signal already armed`() async throws {
@@ -17,20 +17,27 @@ struct BLETransportOpenedSignalTests {
     let waiting = Task {
       try await triggers.wait()
     }
-    try? await Task.sleep(for: .milliseconds(50))
+    defer { waiting.cancel() }
+    try await waitUntil("waiter should be registered before fire") {
+      await triggers.waiterCountForTest == 1
+    }
     await triggers.fire()
     try await waiting.value
+    #expect(await triggers.waiterCountForTest == 0)
   }
 
   /// A `wait` whose calling task is cancelled before fire lands must
   /// throw `CancellationError` rather than leaking the continuation.
   @Test
-  func `wait throws CancellationError when calling task is cancelled`() async {
+  func `wait throws CancellationError when calling task is cancelled`() async throws {
     let triggers = BLETransportOpenedSignal()
     let task = Task {
       try await triggers.wait()
     }
-    try? await Task.sleep(for: .milliseconds(50))
+    defer { task.cancel() }
+    try await waitUntil("waiter should be registered before cancellation") {
+      await triggers.waiterCountForTest == 1
+    }
     task.cancel()
 
     do {
@@ -41,6 +48,7 @@ struct BLETransportOpenedSignalTests {
     } catch {
       Issue.record("wait threw unexpected error: \(error)")
     }
+    #expect(await triggers.waiterCountForTest == 0)
   }
 
   /// Regression: after a cancellation removes a waiter, a subsequent
@@ -54,9 +62,13 @@ struct BLETransportOpenedSignalTests {
     let task = Task {
       try await triggers.wait()
     }
-    try? await Task.sleep(for: .milliseconds(50))
+    defer { task.cancel() }
+    try await waitUntil("waiter should be registered before cancellation") {
+      await triggers.waiterCountForTest == 1
+    }
     task.cancel()
     _ = try? await task.value
+    #expect(await triggers.waiterCountForTest == 0)
 
     // If `fire` tried to resume the already-cancelled continuation,
     // `withCheckedThrowingContinuation` would trap (precondition: resume

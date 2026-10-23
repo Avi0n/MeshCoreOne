@@ -51,6 +51,9 @@
 /* Location: SyncingPillView.swift - Status shown when syncing data */
 "common.status.syncing" = "Synchronisation";
 
+/* Status shown during initial message catch-up */
+"common.status.syncingMessages" = "Synchronisation des messages";
+
 /* Location: SyncingPillView.swift - Status shown when connecting to device */
 "common.status.connecting" = "Connexion";
 
@@ -597,6 +600,12 @@
 
 /* Location: SettingsServiceError+UserFacingMessage.swift - Malformed device response to a settings command */
 "error.settings.invalidResponse" = "Réponse non valide de l'appareil";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - Radio CLI command was rejected */
+"error.settings.radioCLIRejected" = "La radio a renvoyé une erreur : %@";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - The radio cannot turn itself off */
+"error.settings.powerOffUnsupported" = "Cette radio ne peut pas s'éteindre d'elle-même. Elle reste allumée et connectée.";
 
 /* Location: SettingsServiceError+UserFacingMessage.swift - Setting write-back mismatch - %1$@ is the expected value, %2$@ is the value the device reports */
 "error.settings.verificationFailed" = "Le réglage n'a pas été enregistré. Valeur attendue : '%1$@', mais l'appareil indique '%2$@'.";

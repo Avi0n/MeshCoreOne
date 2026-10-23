@@ -54,13 +54,17 @@ struct RepeaterSettingsView: View {
           .pinnedFilterHeaderBackground(theme)
       }
     }
-    .task {
+    .task(id: appState.servicesVersion) {
+      let models = appState.remoteAdminWorkspaces.repeater(for: session)
+      viewModel = models.settings
+      statusViewModel = models.status
+      cliViewModel = models.cli
       await viewModel.configure(
         repeaterAdminService: { appState.services?.repeaterAdminService },
         session: session
       )
       if let send = viewModel.makeNodeCLISendClosure(session: session) {
-        cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
+        cliViewModel.configure(sessionName: session.name, remoteTarget: .repeater, sendRawCommand: send)
       }
       // Loaded up front (not just on Telemetry reveal) so the Settings-tab route section can
       // resolve hop hashes to repeater names.
@@ -96,11 +100,7 @@ struct RepeaterSettingsView: View {
       }
     }
     .onDisappear {
-      statusViewModel.stopDiscovery()
-      Task {
-        await statusViewModel.clearStatusHandlers()
-        await viewModel.cleanup()
-      }
+      statusViewModel.pauseDiscoveryPolls()
     }
     .alert(L10n.RemoteNodes.RemoteNodes.Settings.success, isPresented: $viewModel.helper.showSuccessAlert) {
       Button(L10n.RemoteNodes.RemoteNodes.Settings.ok, role: .cancel) {}
@@ -222,8 +222,15 @@ struct RepeaterSettingsView: View {
 // MARK: - Behavior Section
 
 private struct BehaviorSection: View {
+  @Environment(\.appState) private var appState
   @Bindable var viewModel: RepeaterSettingsViewModel
   var focusedField: FocusState<NodeSettingsField?>.Binding
+
+  private var behaviorFooter: String {
+    let base = L10n.RemoteNodes.RemoteNodes.Settings.behaviorFooter
+    guard viewModel.isHiddenFromDiscover else { return base }
+    return base + "\n\n" + L10n.RemoteNodes.RemoteNodes.Settings.hiddenFromDiscoverFooter
+  }
 
   var body: some View {
     ExpandableSettingsSection(
@@ -234,7 +241,7 @@ private struct BehaviorSection: View {
       isLoading: $viewModel.isLoadingBehavior,
       hasError: $viewModel.behaviorError,
       onLoad: { await viewModel.fetchBehaviorSettings() },
-      footer: L10n.RemoteNodes.RemoteNodes.Settings.behaviorFooter
+      footer: behaviorFooter
     ) {
       Toggle(L10n.RemoteNodes.RemoteNodes.Settings.repeaterMode, isOn: Binding(
         get: { viewModel.repeaterEnabled ?? false },
@@ -338,7 +345,10 @@ private struct BehaviorSection: View {
             .transition(.opacity)
         }
       }
-      .disabled(viewModel.helper.isApplying || viewModel.behaviorApplySuccess || !viewModel.behaviorSettingsModified)
+      .radioDisabled(
+        for: appState.connectionState,
+        or: viewModel.helper.isApplying || viewModel.behaviorApplySuccess || !viewModel.behaviorSettingsModified
+      )
     }
   }
 }
@@ -346,6 +356,7 @@ private struct BehaviorSection: View {
 // MARK: - Regions Section
 
 private struct RegionsSection: View {
+  @Environment(\.appState) private var appState
   @Bindable var viewModel: RepeaterSettingsViewModel
   @Binding var addRegionParent: RepeaterRegionEntry.Parent?
   @State private var blockedDeleteName: String?
@@ -380,7 +391,7 @@ private struct RegionsSection: View {
   }
 
   private var regionMutationsDisabled: Bool {
-    !viewModel.regionsLoaded || viewModel.isLoadingRegions || viewModel.helper.isApplying
+    appState.connectionState != .ready || !viewModel.regionsLoaded || viewModel.isLoadingRegions || viewModel.helper.isApplying
   }
 
   var body: some View {
@@ -509,7 +520,10 @@ private struct RegionsSection: View {
               .transition(.opacity)
           }
         }
-        .disabled(viewModel.helper.isApplying || viewModel.regionsSaveSuccess || !viewModel.hasUnsavedRegionChanges)
+        .radioDisabled(
+          for: appState.connectionState,
+          or: viewModel.helper.isApplying || viewModel.regionsSaveSuccess || !viewModel.hasUnsavedRegionChanges
+        )
       }
 
       if let error = viewModel.helper.errorMessage {

@@ -44,7 +44,7 @@
 - ``sendMessageWithRetry(to:text:timestamp:maxAttempts:floodAfter:maxFloodAttempts:timeout:)``
 - ``sendChannelMessage(channel:text:timestamp:)``
 - ``sendChannelData(channelIndex:dataType:payload:pathLength:pathBytes:)``
-- ``sendCommand(to:command:timestamp:)``
+- ``sendCommand(to:command:textType:timestamp:)``
 - ``getMessage()``
 - ``startAutoMessageFetching()``
 - ``stopAutoMessageFetching()``

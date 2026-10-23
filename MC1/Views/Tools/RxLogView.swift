@@ -12,6 +12,10 @@ struct RxLogView: View {
   @State private var expandedHashes: Set<String> = []
   @State private var groupDuplicates = false
 
+  private var isWorkspaceActive: Bool {
+    appState.navigation.isToolWorkspaceActive(.rxLog)
+  }
+
   var body: some View {
     Group {
       if appState.services?.rxLogService == nil {
@@ -27,6 +31,7 @@ struct RxLogView: View {
       toolbarContent
     }
     .task(id: appState.servicesVersion) {
+      guard isWorkspaceActive else { return }
       viewModel.configure(
         rxLogService: { [appState] in appState.services?.rxLogService },
         dataStore: { [appState] in appState.services?.dataStore },
@@ -38,8 +43,12 @@ struct RxLogView: View {
     .onChange(of: appState.contactsVersion) {
       Task { await viewModel.loadNodeNames() }
     }
-    .onDisappear {
-      viewModel.unsubscribe()
+    .onChange(of: isWorkspaceActive) { _, isActive in
+      if isActive {
+        Task { await viewModel.subscribe() }
+      } else {
+        viewModel.unsubscribe()
+      }
     }
   }
 
@@ -449,16 +458,20 @@ struct RxLogRowView: View {
           DetailRow(label: L10n.Tools.Tools.RxLog.channelNameLabel, value: channelName)
         }
         if let transportCode = entry.transportCode, !transportCode.isEmpty {
-          let regionValue: String = switch RegionScopeSemantics.coalesce(
-            scope: entry.regionScope,
-            matches: entry.regionScopeMatches
-          ) {
-          case .none:
-            L10n.Tools.Tools.RxLog.regionUnresolved
-          case let .unique(name):
-            name
-          case let .ambiguous(names):
-            ListFormatter.localizedString(byJoining: names)
+          let regionValue: String = if TransportCodeRegionResolver.isUnscoped(transportCode) {
+            L10n.Tools.Tools.RxLog.regionUnscoped
+          } else {
+            switch RegionScopeSemantics.coalesce(
+              scope: entry.regionScope,
+              matches: entry.regionScopeMatches
+            ) {
+            case .none:
+              L10n.Tools.Tools.RxLog.regionUnresolved
+            case let .unique(name):
+              name
+            case let .ambiguous(names):
+              ListFormatter.localizedString(byJoining: names)
+            }
           }
           DetailRow(
             label: L10n.Tools.Tools.RxLog.regionLabel,

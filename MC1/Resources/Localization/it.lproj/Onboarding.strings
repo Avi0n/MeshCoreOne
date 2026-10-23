@@ -106,9 +106,9 @@
 "deviceScan.demoModeAlert.message" = "Ora puoi continuare senza un dispositivo. Attiva o disattiva la modalità demo in Impostazioni in qualsiasi momento.";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "L'associazione salvata con questa radio non funziona più. Tocca Rimuovi e riprova per riassociarla nell'app; la radio potrebbe mostrare un nuovo codice di associazione.";
+"deviceScan.error.authenticationFailed" = "L'associazione salvata con questa radio non funziona più. Tocca Rimuovi e riprova per riassociarla nell'app; la radio potrebbe mostrare un nuovo codice di associazione. Se continua a succedere, esegui una cancellazione completa e riflasha il firmware da un computer su https://flasher.meshcore.io. Una memoria flash danneggiata sulla radio può causarlo.";
 /* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
-"deviceScan.error.authenticationFailedMac" = "L'associazione salvata con questa radio non funziona più. Nelle Impostazioni di sistema, dimentica questa radio in Bluetooth, poi tocca Rimuovi e riprova.";
+"deviceScan.error.authenticationFailedMac" = "L'associazione salvata con questa radio non funziona più. Nelle Impostazioni di sistema, dimentica questa radio in Bluetooth, poi tocca Rimuovi e riprova. Se continua a succedere, esegui una cancellazione completa e riflasha il firmware da un computer su https://flasher.meshcore.io. Una memoria flash danneggiata sulla radio può causarlo.";
 "deviceScan.error.pinRejected" = "Il PIN non è stato accettato. Controlla il PIN mostrato sul dispositivo, poi riprova. iOS ti chiederà prima di confermare la rimozione dell'associazione non riuscita.";
 /* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
 "deviceScan.error.pinRejectedMac" = "Il PIN non è stato accettato. Nelle Impostazioni di sistema, dimentica questa radio in Bluetooth, poi riprova.";
@@ -193,6 +193,12 @@
 
 /* Location: NoDeviceSheet.swift - Secondary CTA */
 "noDevice.sheet.cancel" = "Annulla";
+
+
+// MARK: - Region and Preset
+
+/* Location: RegionStepView.swift and PresetStepView.swift - Finishes onboarding without saving a place or writing the radio */
+"skipForNow" = "Salta per ora";
 
 
 // MARK: - Preset Step View

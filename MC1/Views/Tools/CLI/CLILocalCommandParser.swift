@@ -79,6 +79,8 @@ enum CLILocalCommandParser {
       return .command(.advert(flood: true))
     case "reboot":
       return .command(.reboot)
+    case "poweroff", "shutdown":
+      return .command(.powerOff)
     case "get":
       return parseGet(rest)
     case "set":

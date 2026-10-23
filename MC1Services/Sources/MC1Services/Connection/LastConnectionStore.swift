@@ -55,11 +55,21 @@ struct LastConnectionStore: @unchecked Sendable {
   /// shield when forgetting a non-holder (for example after a WiFi connection
   /// overwrote the connection slot without touching the bond slot).
   func clear(for deviceID: UUID) {
+    clearLastConnection(for: deviceID)
+    clearBondVerification(for: deviceID)
+  }
+
+  /// Removes the last-connection slot when `deviceID` holds it.
+  func clearLastConnection(for deviceID: UUID) {
     if self.deviceID == deviceID {
       defaults.removeObject(forKey: PersistenceKeys.lastConnectedDeviceID)
       defaults.removeObject(forKey: PersistenceKeys.lastConnectedRadioID)
       defaults.removeObject(forKey: PersistenceKeys.lastConnectedDeviceName)
     }
+  }
+
+  /// Removes the bond slot when `deviceID` holds it.
+  func clearBondVerification(for deviceID: UUID) {
     if bondVerifiedDeviceID == deviceID {
       defaults.removeObject(forKey: PersistenceKeys.lastBondVerifiedDeviceID)
       defaults.removeObject(forKey: PersistenceKeys.lastBondVerifiedDate)

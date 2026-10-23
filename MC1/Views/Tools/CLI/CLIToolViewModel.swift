@@ -18,6 +18,9 @@ final class CLIToolViewModel {
   var activeSession: CLISession?
   var remoteSessions: [CLISession] = []
   var isWaitingForResponse = false
+  /// True only while the local power-off command is in flight, so cancel can
+  /// hide once the frame can no longer be stopped.
+  var powerOffCommandActive = false
   private var hasShownWelcome = false
 
   var currentInput: String = ""
@@ -62,6 +65,8 @@ final class CLIToolViewModel {
     let dataStore: @MainActor () -> PersistenceStoreProtocol?
     let radioID: @MainActor () -> UUID?
     let connectedDevice: @MainActor () -> DeviceDTO?
+    let powerOffRadio: @MainActor () async throws -> Void
+    let powerOffCancelAvailable: @MainActor () -> Bool
   }
 
   private var repeaterAdminServiceProvider: @MainActor () -> RepeaterAdminService? = { nil }
@@ -71,6 +76,8 @@ final class CLIToolViewModel {
   private var radioIDProvider: @MainActor () -> UUID? = { nil }
   private var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
   private var sendSelfAdvertAction: @MainActor (_ flood: Bool) async throws -> Void = { _ in }
+  private var powerOffRadioAction: @MainActor () async throws -> Void = {}
+  private var powerOffCancelAvailableProvider: @MainActor () -> Bool = { true }
 
   /// Both old and new providers read the same live state, so change detection
   /// needs the instance seen at the previous configure. Weak, so a torn-down
@@ -103,6 +110,10 @@ final class CLIToolViewModel {
 
   func sendSelfAdvert(_ flood: Bool) async throws {
     try await sendSelfAdvertAction(flood)
+  }
+
+  func powerOffRadio() async throws {
+    try await powerOffRadioAction()
   }
 
   var localDeviceName: String = ""
@@ -151,6 +162,8 @@ final class CLIToolViewModel {
     radioIDProvider = dependencies.radioID
     connectedDeviceProvider = dependencies.connectedDevice
     sendSelfAdvertAction = sendSelfAdvert
+    powerOffRadioAction = dependencies.powerOffRadio
+    powerOffCancelAvailableProvider = dependencies.powerOffCancelAvailable
 
     let incomingService = dependencies.repeaterAdminService()
     repeaterAdminServiceProvider = dependencies.repeaterAdminService
@@ -174,6 +187,7 @@ final class CLIToolViewModel {
       }
     }
     lastConfiguredAdminService = incomingService
+    completionEngine.radioCLIEnabled = connectedDevice?.supportsRadioCLI == true
 
     // Update node names for completion
     nodeNamesTask?.cancel()
@@ -298,8 +312,9 @@ final class CLIToolViewModel {
       return
     }
 
-    addToHistory(trimmed)
-    appendOutput("\(promptPrefix) \(trimmed)", type: .command)
+    let recorded = radioCLILine(original: command, normalized: trimmed)
+    addToHistory(recorded)
+    appendOutput("\(promptPrefix) \(recorded)", type: .command)
 
     // Parse and execute
     let parts = trimmed.split(separator: " ", maxSplits: 1).map(String.init)
@@ -312,7 +327,7 @@ final class CLIToolViewModel {
     var task: Task<Void, Never>!
     task = Task {
       defer { clearWaitingIfCurrent(task) }
-      await handleCommand(cmd, args: args, raw: trimmed)
+      await handleCommand(cmd, args: args, raw: recorded)
     }
     currentCommandTask = task
 
@@ -320,6 +335,9 @@ final class CLIToolViewModel {
   }
 
   func cancelCurrentCommand() {
+    if powerOffCommandActive, !powerOffCancelAvailableProvider() {
+      return
+    }
     currentCommandTask?.cancel()
     currentCommandTask = nil
     // A pending confirmation has no running task and leaves isWaitingForResponse
@@ -343,6 +361,16 @@ final class CLIToolViewModel {
     isWaitingForResponse = false
   }
 
+  /// Radio CLI passthrough keeps the submitted line. App commands keep the trimmed line.
+  private func radioCLILine(original: String, normalized: String) -> String {
+    guard activeSession?.isLocal == true,
+          connectedDevice?.supportsRadioCLI == true,
+          RadioCLIPassthrough.shouldSend(normalized) else {
+      return normalized
+    }
+    return original
+  }
+
   private func addToHistory(_ command: String) {
     commandHistory.append(command)
     if commandHistory.count > Self.maxHistoryEntries {
@@ -360,9 +388,20 @@ final class CLIToolViewModel {
 
     // Local radio commands are interpreted app-side; the same words keep passing
     // through to repeaters on remote sessions.
+    if activeSession?.isLocal == true,
+       connectedDevice?.supportsRadioCLI == true,
+       RadioCLIPassthrough.shouldSend(raw) {
+      await runRadioCLI(raw)
+      return
+    }
+
     if activeSession?.isLocal == true {
       switch CLILocalCommandParser.parse(raw) {
       case let .command(command):
+        if case .powerOff = command, connectedDevice?.supportsRadioCLI != true {
+          appendOutput("\(L10n.Tools.Tools.Cli.unknownCommand) \(cmd)", type: .error)
+          return
+        }
         if command.requiresConfirmation {
           pendingConfirmation = command
         } else {

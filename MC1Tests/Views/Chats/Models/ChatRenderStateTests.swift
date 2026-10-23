@@ -186,15 +186,15 @@ struct ChatRenderStateTests {
   }
 
   @Test
-  func `appendingItem appends and updates totalFetchedCount`() {
-    let initial = ChatRenderState.empty
+  func `appendingItem leaves totalFetchedCount unchanged`() {
+    let initial = ChatRenderState.empty.with(totalFetchedCount: 50)
     let item = makeFakeMessageItem(id: UUID(), senderName: "sender")
     let after = initial.appendingItem(item)
 
     #expect(after.items.count == 1)
     #expect(after.items[0].id == item.id)
     #expect(after.itemIndexByID[item.id] == 0)
-    #expect(after.totalFetchedCount == initial.totalFetchedCount + 1)
+    #expect(after.totalFetchedCount == initial.totalFetchedCount)
   }
 }
 

@@ -2,37 +2,33 @@ import MC1Services
 import SwiftUI
 
 struct ChatsSplitSidebarContent: View {
-  @Environment(\.appState) private var appState
-
   let viewModel: ChatViewModel
-  let filteredFavorites: [Conversation]
+  let filteredPinned: [Conversation]
   let filteredOthers: [Conversation]
   let emptyStateMessage: (title: String, description: String, systemImage: String)
   let hasLoadedOnce: Bool
+  let selectedRoute: ChatRoute?
 
-  @Binding var selectedRoute: ChatRoute?
   @Binding var selectedFilter: ChatFilter
   @Binding var searchText: String
   @Binding var showingNewChat: Bool
   @Binding var showingChannelOptions: Bool
-  @Binding var roomToAuthenticate: RemoteNodeSessionDTO?
-  @Binding var lastSelectedRoomIsConnected: Bool?
 
+  let onSelect: (ChatRoute) -> Void
   let onDeleteConversation: (Conversation) -> Void
-  let onHandlePendingNavigation: () -> Void
-  let onHandlePendingChannelNavigation: () -> Void
-  let onHandlePendingRoomNavigation: () -> Void
   let onAnnounceOfflineStateIfNeeded: () -> Void
 
   var body: some View {
     ConversationListContent(
       viewModel: viewModel,
-      favoriteConversations: filteredFavorites,
+      pinnedConversations: filteredPinned,
       otherConversations: filteredOthers,
       selectedFilter: $selectedFilter,
+      searchText: searchText,
       hasLoadedOnce: hasLoadedOnce,
       emptyStateMessage: emptyStateMessage,
-      selection: $selectedRoute,
+      selectedRoute: selectedRoute,
+      onSelect: onSelect,
       onDeleteConversation: onDeleteConversation
     )
     .modifier(ChatsListModifiers(
@@ -40,33 +36,12 @@ struct ChatsSplitSidebarContent: View {
       searchText: $searchText,
       showingNewChat: $showingNewChat,
       showingChannelOptions: $showingChannelOptions,
-      onAnnounceOfflineStateIfNeeded: onAnnounceOfflineStateIfNeeded,
-      onHandlePendingNavigation: onHandlePendingNavigation,
-      onHandlePendingChannelNavigation: onHandlePendingChannelNavigation,
-      onHandlePendingRoomNavigation: onHandlePendingRoomNavigation
+      onAnnounceOfflineStateIfNeeded: onAnnounceOfflineStateIfNeeded
     ))
-    .onChange(of: selectedRoute) { oldValue, newValue in
-      // Reload when navigating away from a selection. The funnel and pendingRemovalIDs
-      // keep a delete that cleared the selection from resurrecting the row through this reload.
+    .onChange(of: selectedRoute) { oldValue, _ in
       if oldValue != nil {
         viewModel.requestConversationReload()
       }
-
-      if case let .room(session) = newValue, !session.isConnected {
-        roomToAuthenticate = session
-        selectedRoute = nil
-        appState.navigation.chatsSelectedRoute = nil
-        lastSelectedRoomIsConnected = nil
-        return
-      }
-
-      lastSelectedRoomIsConnected = newValue?.roomIsConnected
-
-      // Mirror the sidebar selection to AppState so the detail pane tracks it. Assigned
-      // unconditionally, including nil: the disconnected-room reload path clears the local
-      // selection without writing `chatsSelectedRoute`, so mirroring nil here is what dismisses
-      // the now-stale detail pane.
-      appState.navigation.chatsSelectedRoute = newValue
     }
   }
 }

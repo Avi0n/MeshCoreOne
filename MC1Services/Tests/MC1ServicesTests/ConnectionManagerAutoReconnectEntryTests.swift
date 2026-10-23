@@ -28,7 +28,7 @@ struct ConnectionManagerAutoReconnectEntryTests {
       await env.stateMachine.hasAutoReconnectingHandler
     }
 
-    await env.stateMachine.simulateAutoReconnecting(deviceID: deviceID)
+    try await simulateEntry(env, deviceID: deviceID)
 
     try await waitUntil("entry should claim the reconnect cycle") {
       env.manager.reconnectionCoordinator.reconnectingDeviceID == deviceID
@@ -59,12 +59,7 @@ struct ConnectionManagerAutoReconnectEntryTests {
       await env.stateMachine.hasAutoReconnectingHandler
     }
 
-    await env.stateMachine.simulateAutoReconnecting(deviceID: droppedDeviceID)
-
-    // The handler runs on a spawned main-actor task; give it time to land
-    // before asserting nothing changed.
-    await Task.yield()
-    try await Task.sleep(for: .milliseconds(50))
+    try await simulateEntry(env, deviceID: droppedDeviceID)
 
     #expect(env.manager.reconnectionCoordinator.reconnectingDeviceID == nil)
     #expect(env.manager.connectingDeviceID == manualDeviceID)
@@ -91,18 +86,11 @@ struct ConnectionManagerAutoReconnectEntryTests {
       await env.stateMachine.hasAutoReconnectingHandler
     }
 
-    await env.stateMachine.simulateAutoReconnecting(deviceID: deviceID)
+    try await simulateEntry(env, deviceID: deviceID)
 
     try await waitUntil("entry should claim the reconnect cycle") {
       env.manager.reconnectionCoordinator.reconnectingDeviceID == deviceID
     }
-    try await waitUntil("entry should notify the loss") {
-      counter.count == 1
-    }
-
-    // Give any spurious extra invocation time to land before asserting exactly one.
-    await Task.yield()
-    try await Task.sleep(for: .milliseconds(50))
     #expect(counter.count == 1)
   }
 
@@ -118,7 +106,7 @@ struct ConnectionManagerAutoReconnectEntryTests {
     env.manager.setTestState(
       connectionState: .connecting,
       currentTransportType: .bluetooth,
-      connectionIntent: .none,
+      connectionIntent: ConnectionIntent.none,
       connectingDeviceID: UUID?.none
     )
 
@@ -126,12 +114,7 @@ struct ConnectionManagerAutoReconnectEntryTests {
       await env.stateMachine.hasAutoReconnectingHandler
     }
 
-    await env.stateMachine.simulateAutoReconnecting(deviceID: deviceID)
-
-    // The handler runs on a spawned main-actor task; give it time to land
-    // before asserting it never notified.
-    await Task.yield()
-    try await Task.sleep(for: .milliseconds(50))
+    try await simulateEntry(env, deviceID: deviceID)
 
     #expect(counter.count == 0)
   }
@@ -157,10 +140,7 @@ struct ConnectionManagerAutoReconnectEntryTests {
       await env.stateMachine.hasAutoReconnectingHandler
     }
 
-    await env.stateMachine.simulateAutoReconnecting(deviceID: droppedDeviceID)
-
-    await Task.yield()
-    try await Task.sleep(for: .milliseconds(50))
+    try await simulateEntry(env, deviceID: droppedDeviceID)
 
     #expect(env.manager.reconnectionCoordinator.reconnectingDeviceID == nil)
     #expect(counter.count == 0)
@@ -187,7 +167,7 @@ struct ConnectionManagerAutoReconnectEntryTests {
       await env.stateMachine.hasAutoReconnectingHandler
     }
 
-    await env.stateMachine.simulateAutoReconnecting(deviceID: deviceID)
+    try await simulateEntry(env, deviceID: deviceID)
     try await waitUntil("entry should claim the reconnect cycle") {
       env.manager.reconnectionCoordinator.reconnectingDeviceID == deviceID
     }
@@ -197,6 +177,14 @@ struct ConnectionManagerAutoReconnectEntryTests {
     #expect(env.manager.reconnectionCoordinator.reconnectingDeviceID == nil)
     #expect(env.manager.connectionState == .disconnected)
     #expect(env.manager.isReconnectionWatchdogRunning)
+  }
+
+  private func simulateEntry(_ env: PairingTestEnvironment, deviceID: UUID) async throws {
+    let completions = env.manager.testAutoReconnectEntryCompletions
+    await env.stateMachine.simulateAutoReconnecting(deviceID: deviceID)
+    try await waitUntil("auto-reconnect entry should finish") {
+      env.manager.testAutoReconnectEntryCompletions == completions + 1
+    }
   }
 }
 

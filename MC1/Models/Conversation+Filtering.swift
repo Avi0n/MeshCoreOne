@@ -18,7 +18,7 @@ extension [Conversation] {
     case .all:
       return self
     case .unread:
-      return self.filter { $0.unreadCount > 0 && !$0.isMuted }
+      return self.filter { $0.isUnread && !$0.isMuted }
     case .directMessages:
       return self.filter {
         if case .direct = $0 { return true }

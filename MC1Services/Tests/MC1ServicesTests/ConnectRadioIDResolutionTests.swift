@@ -151,4 +151,297 @@ struct ConnectRadioIDResolutionTests {
     let rows = try await firstConnect.services.dataStore.fetchPendingSends(radioID: secondConnect.radioID)
     #expect(rows.contains { $0.messageID == pendingMessageID })
   }
+
+  private let wifiMethod = ConnectionMethod.wifi(host: "10.0.0.4", port: 5000, displayName: nil)
+
+  private func save(
+    manager: ConnectionManager,
+    deviceID: UUID,
+    publicKey: Data,
+    methods: [ConnectionMethod]
+  ) async throws -> UUID {
+    let connected = try await manager.buildServicesAndSaveDevice(
+      deviceID: deviceID,
+      session: makeOfflineSession(),
+      selfInfo: Self.makeSelfInfo(publicKey: publicKey),
+      capabilities: Self.testCapabilities,
+      connectionMethods: methods
+    )
+    return connected.radioID
+  }
+
+  @Test
+  func `wifi save keeps a bluetooth row id and radioID`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0x11, count: 32)
+    let peripheralID = UUID()
+    let radioID = try await save(
+      manager: manager,
+      deviceID: peripheralID,
+      publicKey: publicKey,
+      methods: [.bluetooth(peripheralUUID: peripheralID, displayName: nil)]
+    )
+
+    let wifiID = await manager.wifiDeviceID(publicKey: publicKey)
+    #expect(wifiID == peripheralID)
+    let savedRadioID = try await save(
+      manager: manager,
+      deviceID: wifiID,
+      publicKey: publicKey,
+      methods: [wifiMethod]
+    )
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [peripheralID])
+    #expect(savedRadioID == radioID)
+    #expect(rows.first?.radioID == radioID)
+    #expect(rows.first?.connectionMethods == [
+      .bluetooth(peripheralUUID: peripheralID, displayName: nil),
+      wifiMethod
+    ])
+    #expect(try await manager.persistenceStore.fetchDevice(id: DeviceIdentity.deriveUUID(from: publicKey)) == nil)
+  }
+
+  @Test
+  func `bluetooth save then wifi reconnect save keeps one row at the peripheral id`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0x22, count: 32)
+    let peripheralID = UUID()
+    _ = try await save(
+      manager: manager,
+      deviceID: peripheralID,
+      publicKey: publicKey,
+      methods: [.bluetooth(peripheralUUID: peripheralID, displayName: nil)]
+    )
+
+    let wifiID = await manager.wifiDeviceID(publicKey: publicKey)
+    _ = try await save(manager: manager, deviceID: wifiID, publicKey: publicKey, methods: [])
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [peripheralID])
+    #expect(try await manager.persistenceStore.fetchDevice(id: peripheralID) != nil)
+  }
+
+  @Test
+  func `wifi reconnect save then bluetooth save keeps one row at the peripheral id`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0x33, count: 32)
+    let derivedID = await manager.wifiDeviceID(publicKey: publicKey)
+    #expect(derivedID == DeviceIdentity.deriveUUID(from: publicKey))
+    let radioID = try await save(manager: manager, deviceID: derivedID, publicKey: publicKey, methods: [])
+
+    let peripheralID = UUID()
+    let savedRadioID = try await save(
+      manager: manager,
+      deviceID: peripheralID,
+      publicKey: publicKey,
+      methods: [.bluetooth(peripheralUUID: peripheralID, displayName: nil)]
+    )
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [peripheralID])
+    #expect(savedRadioID == radioID)
+  }
+
+  @Test
+  func `wifi save with no row uses the derived id`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0x44, count: 32)
+    let derivedID = DeviceIdentity.deriveUUID(from: publicKey)
+    #expect(await manager.wifiDeviceID(publicKey: publicKey) == derivedID)
+
+    _ = try await save(manager: manager, deviceID: derivedID, publicKey: publicKey, methods: [wifiMethod])
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [derivedID])
+  }
+
+  @Test
+  func `wifi save keeps a wifi-only row id`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0x55, count: 32)
+    let derivedID = DeviceIdentity.deriveUUID(from: publicKey)
+    let radioID = try await save(
+      manager: manager,
+      deviceID: derivedID,
+      publicKey: publicKey,
+      methods: [wifiMethod]
+    )
+
+    let wifiID = await manager.wifiDeviceID(publicKey: publicKey)
+    #expect(wifiID == derivedID)
+    let savedRadioID = try await save(
+      manager: manager,
+      deviceID: wifiID,
+      publicKey: publicKey,
+      methods: [wifiMethod]
+    )
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [derivedID])
+    #expect(savedRadioID == radioID)
+  }
+
+  @Test
+  func `wifi save after bluetooth removal keeps the peripheral id`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0x66, count: 32)
+    let peripheralID = UUID()
+    let radioID = try await save(
+      manager: manager,
+      deviceID: peripheralID,
+      publicKey: publicKey,
+      methods: [
+        .bluetooth(peripheralUUID: peripheralID, displayName: nil),
+        wifiMethod
+      ]
+    )
+    let stripped = try await manager.persistenceStore.removeBluetoothMethod(peripheralID: peripheralID)
+    #expect(stripped?.id == peripheralID)
+
+    let wifiID = await manager.wifiDeviceID(publicKey: publicKey)
+    #expect(wifiID == peripheralID)
+    let savedRadioID = try await save(
+      manager: manager,
+      deviceID: wifiID,
+      publicKey: publicKey,
+      methods: [wifiMethod]
+    )
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [peripheralID])
+    #expect(savedRadioID == radioID)
+    #expect(try await manager.persistenceStore.fetchDevice(id: DeviceIdentity.deriveUUID(from: publicKey)) == nil)
+  }
+
+  @Test
+  func `wifi save re-keys a legacy derived row that still has bluetooth`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0x77, count: 32)
+    let peripheralID = UUID()
+    let derivedID = UUID()
+    #expect(derivedID != peripheralID)
+    let legacy = DeviceDTO.testDevice(id: derivedID, publicKey: publicKey).copy {
+      $0.connectionMethods = [
+        .bluetooth(peripheralUUID: peripheralID, displayName: nil),
+        wifiMethod
+      ]
+    }
+    try await manager.persistenceStore.saveDevice(legacy)
+
+    let wifiID = await manager.wifiDeviceID(publicKey: publicKey)
+    #expect(wifiID == peripheralID)
+    let savedRadioID = try await save(
+      manager: manager,
+      deviceID: wifiID,
+      publicKey: publicKey,
+      methods: [wifiMethod]
+    )
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [peripheralID])
+    #expect(savedRadioID == legacy.radioID)
+    #expect(try await manager.persistenceStore.fetchDevice(id: derivedID) == nil)
+  }
+
+  @Test
+  func `wifi save keeps a backup shadow id`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0x88, count: 32)
+    let shadowID = UUID()
+    let shadow = DeviceDTO.testDevice(id: shadowID, publicKey: publicKey).copy {
+      $0.connectionMethods = [wifiMethod]
+    }
+    try await manager.persistenceStore.saveDevice(shadow)
+
+    let wifiID = await manager.wifiDeviceID(publicKey: publicKey)
+    #expect(wifiID == shadowID)
+    let savedRadioID = try await save(
+      manager: manager,
+      deviceID: wifiID,
+      publicKey: publicKey,
+      methods: [wifiMethod]
+    )
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [shadowID])
+    #expect(savedRadioID == shadow.radioID)
+  }
+
+  @Test
+  func `wifi save keeps a ghost id`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0x99, count: 32)
+    let ghostID = UUID()
+    let ghost = DeviceDTO.testDevice(id: ghostID, publicKey: publicKey, isActive: false)
+    try await manager.persistenceStore.saveDevice(ghost)
+
+    let wifiID = await manager.wifiDeviceID(publicKey: publicKey)
+    #expect(wifiID == ghostID)
+    let savedRadioID = try await save(
+      manager: manager,
+      deviceID: wifiID,
+      publicKey: publicKey,
+      methods: [wifiMethod]
+    )
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [ghostID])
+    #expect(savedRadioID == ghost.radioID)
+  }
+
+  @Test
+  func `bluetooth save after a wifi-only row re-keys to the peripheral`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0xAA, count: 32)
+    let derivedID = DeviceIdentity.deriveUUID(from: publicKey)
+    let radioID = try await save(
+      manager: manager,
+      deviceID: derivedID,
+      publicKey: publicKey,
+      methods: [wifiMethod]
+    )
+
+    let peripheralID = UUID()
+    let savedRadioID = try await save(
+      manager: manager,
+      deviceID: peripheralID,
+      publicKey: publicKey,
+      methods: [.bluetooth(peripheralUUID: peripheralID, displayName: nil)]
+    )
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.count == 1)
+    #expect(rows.first?.id == peripheralID)
+    #expect(savedRadioID == radioID)
+    #expect(rows.first?.connectionMethods == [
+      wifiMethod,
+      .bluetooth(peripheralUUID: peripheralID, displayName: nil)
+    ])
+  }
+
+  @Test
+  func `wifiDeviceID prefers a bluetooth row over a newer ghost with the same key`() async throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let publicKey = Data(repeating: 0xBB, count: 32)
+    let peripheralID = UUID()
+    let ghost = DeviceDTO.testDevice(
+      id: UUID(),
+      publicKey: publicKey,
+      lastConnected: Date(),
+      isActive: false
+    )
+    let bluetooth = DeviceDTO.testDevice(
+      id: peripheralID,
+      publicKey: publicKey,
+      lastConnected: Date().addingTimeInterval(-3600),
+      isActive: false
+    ).copy {
+      $0.connectionMethods = [.bluetooth(peripheralUUID: peripheralID, displayName: nil)]
+    }
+    try await manager.persistenceStore.saveDevice(ghost)
+    try await manager.persistenceStore.saveDevice(bluetooth)
+
+    #expect(await manager.wifiDeviceID(publicKey: publicKey) == peripheralID)
+  }
 }

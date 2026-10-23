@@ -5,6 +5,8 @@ import OSLog
 // MARK: - Session and Login Management
 
 extension CLIToolViewModel {
+  private static let firstRemoteSessionNumber = 2
+
   func handleSessionCommand(_ args: String) {
     let subcommand = args.trimmingCharacters(in: .whitespaces).lowercased()
 
@@ -25,7 +27,7 @@ extension CLIToolViewModel {
 
     for (index, session) in remoteSessions.enumerated() {
       let marker = (activeSession?.id == session.id) ? "*" : " "
-      appendOutput("  \(marker) \(index + 2). @\(session.name)", type: .response)
+      appendOutput("  \(marker) \(index + Self.firstRemoteSessionNumber). @\(session.name)", type: .response)
     }
   }
 
@@ -43,12 +45,14 @@ extension CLIToolViewModel {
         switchToLocal()
         return
       }
-      let remoteIndex = number - 2
-      if remoteIndex >= 0, remoteIndex < remoteSessions.count {
-        let session = remoteSessions[remoteIndex]
-        activeSession = session
-        appendOutput("\(L10n.Tools.Tools.Cli.sessionSwitched) @\(session.name)", type: .success)
-        return
+      if number >= Self.firstRemoteSessionNumber {
+        let remoteIndex = number - Self.firstRemoteSessionNumber
+        if remoteIndex < remoteSessions.count {
+          let session = remoteSessions[remoteIndex]
+          activeSession = session
+          appendOutput("\(L10n.Tools.Tools.Cli.sessionSwitched) @\(session.name)", type: .success)
+          return
+        }
       }
       appendOutput("\(L10n.Tools.Tools.Cli.sessionNotFound) \(name)", type: .error)
       return
@@ -169,10 +173,15 @@ extension CLIToolViewModel {
       try? await remoteNodeService.storePassword(password, forNodeKey: contact.publicKey)
 
       // Success - create CLI session
+      guard let remoteTarget = CLIRemoteTarget(contactType: contact.type) else {
+        appendOutput("\(L10n.Tools.Tools.Cli.nodeNotFound) \(contact.name)", type: .error)
+        return
+      }
       let cliSession = CLISession.remote(
         id: remoteSession.id,
         name: contact.name,
-        pathLength: contact.outPathLength
+        pathLength: contact.outPathLength,
+        remoteTarget: remoteTarget
       )
       remoteSessions.append(cliSession)
       activeSession = cliSession
@@ -224,17 +233,24 @@ extension CLIToolViewModel {
       return
     }
 
-    // Reboot won't return a response - treat timeout as success
-    if command.lowercased().hasPrefix("reboot") {
+    if let kind = RemoteCLINoReplyCommand(command) {
+      let sentLine = switch kind {
+      case .reboot: L10n.Tools.Tools.Cli.rebootSent
+      case .powerOff: L10n.Tools.Tools.Cli.powerOffSent
+      }
       do {
-        _ = try await service.sendRawCommand(
+        let response = try await service.sendRawCommand(
           sessionID: session.id,
           command: command,
           timeout: RemoteOperationTimeoutPolicy.fireAndForgetCLI
         )
-        appendOutput(L10n.Tools.Tools.Cli.rebootSent, type: .success)
+        if response.isEmpty {
+          appendOutput(sentLine, type: .success)
+        } else {
+          appendOutput(response, type: .response)
+        }
       } catch RemoteNodeError.timeout {
-        appendOutput(L10n.Tools.Tools.Cli.rebootSent, type: .success)
+        appendOutput(sentLine, type: .success)
       } catch {
         appendOutput(error.localizedDescription, type: .error)
       }

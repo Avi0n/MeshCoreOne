@@ -44,25 +44,34 @@ struct FloodScopeRegionTests {
 
 @Suite("PacketBuilder.sendAnonReq wire format")
 struct SendAnonReqTests {
-  @Test
-  func `regions request with path`() {
+  private static let replyPaths: [(pathLength: UInt8, path: [UInt8], replyPath: [UInt8])] = [
+    (0x02, [0x11, 0x22], [0x22, 0x11]),
+    (0x41, [0x11, 0x22], [0x11, 0x22]),
+    (0x42, [0x11, 0x22, 0x33, 0x44], [0x33, 0x44, 0x11, 0x22]),
+    (0x81, [0x11, 0x22, 0x33], [0x11, 0x22, 0x33]),
+    (0x82, [0x11, 0x22, 0x33, 0x44, 0x55, 0x66], [0x44, 0x55, 0x66, 0x11, 0x22, 0x33])
+  ]
+
+  @Test(arguments: replyPaths)
+  func `regions request reverses hop order while preserving each hash`(
+    testCase: (pathLength: UInt8, path: [UInt8], replyPath: [UInt8])
+  ) {
+    let (pathLength, path, replyPath) = testCase
     let pubkey = Data(repeating: 0xAA, count: 32)
-    let path = Data([0x11, 0x22])
-    let pathLength: UInt8 = 0x41 // 2-byte hashes, 1 hop
 
     let packet = PacketBuilder.sendAnonReq(
       to: pubkey,
       type: .regions,
       pathLength: pathLength,
-      path: path
+      path: Data(path)
     )
 
     #expect(packet[0] == 0x39, "Command code")
     #expect(Data(packet[1..<33]) == pubkey, "Public key")
     #expect(packet[33] == 0x01, "Request type (regions)")
-    #expect(packet[34] == 0x41, "Path length byte")
-    #expect(Data(packet[35..<37]) == Data([0x22, 0x11]), "Reversed path")
-    #expect(packet.count == 37, "Total packet size")
+    #expect(packet[34] == pathLength, "Path length byte")
+    #expect(Data(packet.dropFirst(35)) == Data(replyPath), "Reply path preserves each hop hash")
+    #expect(packet.count == 35 + path.count, "Total packet size")
   }
 
   @Test
@@ -268,6 +277,58 @@ struct RequestRegionsIntegrationTests {
       longitude: 0,
       lastModified: Date()
     )
+  }
+
+  @Test(arguments: [true, false])
+  func `cancellation restores flood routing after the submitted exchange drains`(duringTemporaryWrite: Bool) async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(transport: transport)
+    try await startSession(session, transport: transport)
+    let regions = Task { try await session.requestRegions(from: makeTestContact()) }
+    try await waitUntil { await transport.sentData.count == 1 }
+    if !duringTemporaryWrite {
+      await transport.simulateOK()
+      try await waitUntil { await transport.sentData.count == 2 }
+    }
+
+    regions.cancel()
+    let ack = Data([1, 2, 3, 4])
+    if duringTemporaryWrite {
+      await transport.simulateOK()
+    } else {
+      await transport.simulateReceive(makeMessageSentPacket(expectedAck: ack))
+      await transport.simulateReceive(makeBinaryResponsePacket(tag: ack, regionString: "Europe"))
+    }
+    do {
+      try await waitUntil(timeout: .seconds(1), "cancelled discovery must restore flood routing") {
+        await transport.sentData.last?.first == CommandCode.resetPath.rawValue
+      }
+    } catch {
+      await session.stop()
+      throw error
+    }
+    await transport.simulateOK()
+    await #expect(throws: CancellationError.self) { _ = try await regions.value }
+    let frames = await transport.sentData
+    #expect(frames[0][35] == 0)
+    let restore = try #require(frames.last)
+    #expect(Data(restore.dropFirst()) == makeTestContact().publicKey)
+    await session.stop()
+  }
+
+  @Test
+  func `stopping cancelled discovery prevents restoration writes`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(transport: transport)
+    try await startSession(session, transport: transport)
+    let regions = Task { try await session.requestRegions(from: makeTestContact()) }
+    try await acknowledgeNextCommand(transport, sentCountBefore: 0)
+    try await waitUntil { await transport.sentData.count == 2 }
+    regions.cancel()
+    await session.stop(disconnectTransport: false)
+    await #expect(throws: CancellationError.self) { _ = try await regions.value }
+    #expect(await transport.sentData.count == 2)
+    await transport.disconnect()
   }
 
   @Test

@@ -83,6 +83,20 @@ struct DeviceDTOClientRepeatTests {
     #expect(device.supportsClientRepeat == true)
   }
 
+  @Test
+  func `supportsRadioCLI is false for v13 even when the version string is v1_17_1`() {
+    let v13 = DeviceDTO.testDevice(
+      firmwareVersion: 13,
+      firmwareVersionString: "v1.17.1"
+    )
+    let v14 = DeviceDTO.testDevice(
+      firmwareVersion: 14,
+      firmwareVersionString: "v1.17.1"
+    )
+    #expect(v13.supportsRadioCLI == false)
+    #expect(v14.supportsRadioCLI == true)
+  }
+
   // MARK: - advert location policy
 
   @Test

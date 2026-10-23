@@ -6,10 +6,6 @@ import UIKit // UIPasteboard for .copy action
 
 private let logger = Logger(subsystem: "com.mc1", category: "ChatConversationView")
 
-/// Quiet period after the last keystroke before the composer draft is persisted,
-/// so rapid typing coalesces into a single write.
-private let draftSaveDebounce: Duration = .milliseconds(500)
-
 /// Unified chat conversation view supporting both DMs and Channels.
 struct ChatConversationView: View {
   @Environment(\.appState) private var appState
@@ -19,6 +15,7 @@ struct ChatConversationView: View {
   @Environment(\.scenePhase) private var scenePhase
 
   @State private var conversationType: ChatConversationType
+  let draftEditor: ChatDraftEditor
   let parentViewModel: ChatViewModel?
 
   @State private var chatViewModel: ChatViewModel
@@ -28,19 +25,16 @@ struct ChatConversationView: View {
   @State private var isAtBottom = true
   @State private var unreadCount = 0
   @State private var scrollToBottomRequest = 0
-  /// Bumped to jump the list to `scrollToTargetID` (deeplink target or the
-  /// new-messages divider). The library scrolls by item id; no on-screen bubble
-  /// tracking is involved.
+  /// Request an item-ID scroll to scrollToTargetID for a deeplink or new-messages divider.
   @State private var scrollToTargetRequest = 0
   @State private var scrollToTargetID: UUID?
-
-  /// Pending debounced draft persist; cancelled and restarted on each keystroke,
-  /// cancelled-then-flushed synchronously on view teardown and app suspension.
-  @State private var draftSaveTask: Task<Void, Never>?
 
   /// `AppState.channelSlotGenerations` value for this channel slot when the view
   /// appeared; a higher value later means a different channel now owns the slot.
   @State private var slotGenerationOnAppear: Int?
+  /// False until the first load finishes so a reaction-scroll request stays
+  /// pending until the timeline can honor it.
+  @State private var didCompleteInitialLoad = false
 
   // MARK: - Sheet State
 
@@ -84,17 +78,13 @@ struct ChatConversationView: View {
 
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.mapColorSchemePreference) private var mapColorSchemePreference
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @Environment(\.appTheme) private var theme
   @Environment(\.locale) private var locale
 
-  /// Snapshot of env-derived inputs the view model needs to construct
-  /// MessageItems at write time. Recomputed on every render — Equatable
-  /// drives `.onChange(of: envInputs)` in ChatConversationMessagesContent.
-  /// Constructed from the observed `@AppStorage` toggles and `@Environment`
-  /// values so a settings change while the chat is open re-renders the view and
-  /// drives `ChatConversationMessagesContent.onChange(of: envInputs)`. The
-  /// navigation-time prefetch reads the same toggles once via `AppState.chatEnvInputs(...)`.
+  /// Capture observed settings and environment values for constructing MessageItems.
+  /// Equatable changes trigger ChatConversationMessagesContent to rebuild items while the chat is open.
   private var currentEnvInputs: EnvInputs {
     EnvInputs(
       autoPlayGIFs: autoPlayGIFs,
@@ -106,6 +96,10 @@ struct ChatConversationView: View {
       previewsEnabled: previewsEnabled,
       isHighContrast: colorSchemeContrast == .increased,
       isDark: colorScheme == .dark,
+      mapBasemapIsDark: resolvedMapIsDark(
+        preference: mapColorSchemePreference,
+        colorScheme: colorScheme
+      ),
       showMapPreviews: showMapPreviewThumbnails && !conversationType.suppressesMapPreviews,
       isOffline: !appState.offlineMapService.isNetworkAvailable,
       currentUserName: appState.localNodeName,
@@ -121,26 +115,30 @@ struct ChatConversationView: View {
 
   init(
     conversationType: ChatConversationType,
+    draftEditor: ChatDraftEditor,
     parentViewModel: ChatViewModel? = nil,
     coordinatorRegistry: ChatCoordinatorRegistry? = nil
   ) {
     _conversationType = State(initialValue: conversationType)
+    self.draftEditor = draftEditor
     self.parentViewModel = parentViewModel
 
-    // Seed the view model with the shared coordinator up front so a warm
-    // (prefetched or previously opened) conversation renders its messages on the
-    // first frame, with no empty flash before the load task binds it. Only the
-    // reference is attached here; the load task's `configure` installs the
-    // rebuild hooks on this persistent instance.
+    // Attach the shared coordinator before the first render so warm opens immediately show their messages.
+    // configure installs the rebuild hooks when the load task binds the coordinator.
     let viewModel = ChatViewModel()
     if let coordinatorRegistry {
       viewModel.attachCoordinator(coordinatorRegistry.coordinator(for: conversationType.coordinatorID))
     }
-    // Stage before the first body evaluation: the anchor decision keys on
-    // this open's unread count, and a warm coordinator's items are already
-    // on screen in that first frame.
+    // Stage the anchor before rendering because warm coordinator items can appear in the first frame.
     viewModel.timeline.stageOpen(conversationType)
     _chatViewModel = State(initialValue: viewModel)
+  }
+
+  private var composingText: Binding<String> {
+    Binding(
+      get: { draftEditor.text },
+      set: { draftEditor.setText($0) }
+    )
   }
 
   // MARK: - Body
@@ -179,14 +177,18 @@ struct ChatConversationView: View {
       radioID: conversationType.radioID,
       shouldSuppressOpen: { selectedMessageForActions != nil }
     )
-    // Banner is applied innermost so its safe-area inset stacks above the
-    // input bar inset that follows, placing the strip between content and
-    // the input bar (and lifting it with the keyboard).
+    // The banner stays above the input bar inside the shared native viewport.
     .chatErrorBanner(chatViewModel: chatViewModel)
-    .safeAreaInset(edge: .bottom, spacing: 0) {
+    .overlay(alignment: .bottom) {
+      ChatConversationMentionOverlay(
+        suggestions: mentionSuggestions,
+        onSelectMention: { insertMention(for: $0) }
+      )
+    }
+    .chatBottomChrome(canvas: theme.surfaces?.canvas ?? Color(.systemBackground)) {
       ChatConversationInputBar(
         conversationType: conversationType,
-        composingText: $chatViewModel.composingText,
+        composingText: composingText,
         focusRequest: $inputFocusRequest,
         nodeNameByteCount: appState.connectedDevice?.nodeName.utf8.count ?? 0,
         onSend: { text in
@@ -197,23 +199,9 @@ struct ChatConversationView: View {
             await chatViewModel.sendChannelMessage(text: text)
           }
         },
-        onWillSend: { scrollToBottomRequest += 1 },
-        onFocus: { scrollToBottomRequest += 1 }
-      )
-      .chatKeyboardLiftPadding()
-      .chatComposeBarFade(canvas: theme.surfaces?.canvas ?? Color(.systemBackground))
-    }
-    // Overlay before `chatKeyboardOwnedLift`: environment does not reach overlays
-    // applied after the modifier that publishes `chatKeyboardLift`.
-    .overlay(alignment: .bottom) {
-      ChatConversationMentionOverlay(
-        suggestions: mentionSuggestions,
-        onSelectMention: { insertMention(for: $0) }
+        onWillSend: { scrollToBottomRequest += 1 }
       )
     }
-    // Owned lift: residual system keyboard safe area can park the compose bar
-    // mid-screen after an interrupted hide (app switch, notification activation).
-    .chatKeyboardOwnedLift()
     .navigationHeader(
       title: conversationType.navigationTitle,
       subtitle: conversationType.navigationSubtitle(
@@ -255,9 +243,6 @@ struct ChatConversationView: View {
           parentViewModel?.requestConversationReload()
         },
         onDeleteChannel: {
-          // Clear the composer so the teardown flush doesn't re-persist a draft for the
-          // freed slot — a channel later reusing that slot would otherwise surface it.
-          chatViewModel.composingText = ""
           dismiss()
         }
       )
@@ -295,8 +280,13 @@ struct ChatConversationView: View {
     .fullScreenCover(item: $imageViewerData) { data in
       FullScreenImageViewer(data: data)
     }
-    .task(id: appState.servicesVersion) {
+    // A nil task id while the scene is inactive keeps this task from loading or clearing unreads.
+    .task(id: scenePhase == .active ? appState.servicesVersion : nil) {
+      guard scenePhase == .active else { return }
       await performInitialLoad()
+    }
+    .task(id: didCompleteInitialLoad ? appState.navigation.pendingScrollTarget?.requestID : nil) {
+      await deliverPendingScrollIfNeeded()
     }
     .conversationTranslationSession(
       configuration: $translationConfiguration,
@@ -321,15 +311,10 @@ struct ChatConversationView: View {
         )
     }
     .onDisappear {
-      // Load-bearing on iPad: MainSidebarView pins the Chats detail stack with
-      // `.id(chatsSelectedRoute.conversationID)`, so a detail swap tears down this view's
-      // @State (including draftSaveTask) before the debounce fires — flush here.
-      flushDraft()
+      // Disappearance can beat the debounce, so persist the latest dirty text now.
+      draftEditor.flush()
       chatViewModel.cancelPendingTranslation()
       performCleanup()
-    }
-    .onChange(of: chatViewModel.composingText) { _, _ in
-      scheduleDraftSave()
     }
     .onAppear {
       if slotGenerationOnAppear == nil {
@@ -340,16 +325,14 @@ struct ChatConversationView: View {
       leaveIfSlotReassigned()
     }
     .onChange(of: scenePhase) { _, newPhase in
-      // Notifications usually arrive while the app is backgrounded with this
-      // chat already on screen, so re-clear the tray when we return to the
-      // foreground — the open hook alone never re-fires in that case.
       switch newPhase {
       case .active:
-        Task { await clearDeliveredNotifications() }
+        // Becoming active changes the load task id, which reloads and clears delivered notifications.
+        break
       case .background, .inactive:
         // The OS can suspend the process before the debounce fires, so flush
         // the draft synchronously here.
-        flushDraft()
+        draftEditor.flush()
       @unknown default:
         break
       }
@@ -379,13 +362,8 @@ struct ChatConversationView: View {
       Task { await chatViewModel.loadAllContacts(radioID: conversationType.radioID) }
     }
     .chatErrorAlerts(chatViewModel: chatViewModel)
-    // Chrome theming comes from the stack-level themedChrome on the TabView. Re-declaring it
-    // on this pushed destination makes the nav bar appearance re-install after the push, which
-    // reflows the message list's top rows.
-    // Always paint an opaque surface — the default theme has no `canvas`, so
-    // without the `.systemBackground` fallback the empty loading area is
-    // transparent and the white window shows through on a cold first open
-    // before messages land. Matches the `chatComposeBarFade` canvas fallback.
+    // Inherit themedChrome from the stack to avoid navigation appearance changes reflowing the timeline.
+    // Paint the canvas fallback so loading content remains opaque before messages arrive.
     .background {
       (theme.surfaces?.canvas ?? Color(.systemBackground)).ignoresSafeArea()
     }
@@ -394,10 +372,11 @@ struct ChatConversationView: View {
   // MARK: - Initial Load (.task)
 
   private func performInitialLoad() async {
-    // Capture pending scroll target before loading
-    let pendingTarget = appState.navigation.pendingScrollToMessageID
-    if pendingTarget != nil {
-      appState.navigation.clearPendingScrollToMessage()
+    didCompleteInitialLoad = false
+    scrollToTargetID = nil
+
+    if case let .dm(contact) = conversationType {
+      appState.applyPendingDirectReply(contactID: contact.id, to: draftEditor)
     }
 
     chatViewModel.configure(
@@ -412,37 +391,50 @@ struct ChatConversationView: View {
     switch conversationType {
     case let .dm(contact):
       await chatViewModel.loadMessages(for: contact, populateMode: .refreshWindow)
+      guard !Task.isCancelled else { return }
       await chatViewModel.loadConversations(radioID: contact.radioID)
+      guard !Task.isCancelled else { return }
       await chatViewModel.loadAllContacts(radioID: contact.radioID)
-      chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
 
     case let .channel(channel):
       // Load contacts first so contactNameSet is populated before buildChannelSenders runs
       await chatViewModel.loadAllContacts(radioID: channel.radioID)
+      guard !Task.isCancelled else { return }
       await chatViewModel.loadChannelMessages(for: channel, populateMode: .refreshWindow)
+      guard !Task.isCancelled else { return }
       await chatViewModel.loadConversations(radioID: channel.radioID)
-      chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
     }
 
+    guard !Task.isCancelled else { return }
     // Opening the conversation counts as seeing its mentions. Without on-screen
     // bubble tracking, mark them all seen here so chat-list mention badges clear.
     await markConversationMentionsSeen()
 
-    // Trigger scroll to target message if pending (notification deeplink)
-    if let targetID = pendingTarget {
+    guard !Task.isCancelled else { return }
+    didCompleteInitialLoad = true
+
+    // Clear delivered notifications after loading resets the unread count, keeping the badge current.
+    await clearDeliveredNotifications()
+  }
+
+  private func deliverPendingScrollIfNeeded() async {
+    if let targetID = await ChatScrollRequestDelivery.takeIfHonorable(
+      from: appState.navigation,
+      kind: conversationType.chatRouteKind,
+      conversationID: conversationType.conversationID,
+      canHonor: didCompleteInitialLoad,
+      timeline: chatViewModel.timeline,
+      loadOlder: { await chatViewModel.loadOlderMessages() }
+    ) {
       scrollToTargetID = targetID
       scrollToTargetRequest += 1
     }
-
-    // Clear any notifications for this conversation still sitting in the tray
-    // (delivered while the app was backgrounded). The load above already
-    // cleared the unread count, so the recomputed badge stays correct.
-    await clearDeliveredNotifications()
   }
 
   /// Removes delivered lock-screen / Notification Center notifications for the
   /// conversation the user just opened, then recomputes the app badge.
   private func clearDeliveredNotifications() async {
+    guard scenePhase == .active, !Task.isCancelled else { return }
     guard let notificationService = appState.services?.notificationService else { return }
     switch conversationType {
     case let .dm(contact):
@@ -454,35 +446,6 @@ struct ChatConversationView: View {
       )
     }
     await notificationService.updateBadgeCount()
-  }
-
-  // MARK: - Draft Persistence
-
-  /// Restarts the debounced draft persist. The post-sleep cancellation guard is
-  /// required: `Task.cancel()` only sets a flag and `try?` swallows
-  /// `Task.sleep`'s `CancellationError`, so without it a synchronous flush that
-  /// already saved could be overwritten by the resuming task re-saving stale text.
-  private func scheduleDraftSave() {
-    draftSaveTask?.cancel()
-    let id = conversationType.draftConversationID
-    draftSaveTask = Task {
-      try? await Task.sleep(for: draftSaveDebounce)
-      guard !Task.isCancelled else { return }
-      chatViewModel.saveDraft(to: appState.draftStore, id: id)
-    }
-  }
-
-  /// Cancels any pending debounce and persists the current draft synchronously, reading the
-  /// store from the view's non-optional `@Environment(\.appState)` (matching `performCleanup`).
-  private func flushDraft() {
-    draftSaveTask?.cancel()
-    draftSaveTask = nil
-    // The slot's draft was already cleared for the next occupant; persisting the old
-    // composer here would hand it to the new channel.
-    if slotWasReassigned {
-      chatViewModel.composingText = ""
-    }
-    chatViewModel.saveDraft(to: appState.draftStore, id: conversationType.draftConversationID)
   }
 
   // MARK: - Slot Reassignment
@@ -497,13 +460,12 @@ struct ChatConversationView: View {
     return current > seen
   }
 
-  /// Closes the chat when another channel took over its slot. Drop the composer
-  /// first so `flushDraft` cannot restore the old text; `AppState` cannot pop this view-owned stack.
+  /// Closes the chat when another channel took over its slot. The occupant change
+  /// already retired this editor, so this view's later flush cannot restore the old text.
   private func leaveIfSlotReassigned() {
     guard slotWasReassigned, case let .channel(channel) = conversationType else { return }
-    chatViewModel.composingText = ""
     if case let .channel(selected) = appState.navigation.chatsSelectedRoute, selected.id == channel.id {
-      appState.navigation.chatsSelectedRoute = nil
+      appState.navigation.setChatsRoute(nil)
     }
     dismiss()
   }
@@ -511,9 +473,7 @@ struct ChatConversationView: View {
   // MARK: - Cleanup (.onDisappear)
 
   private func performCleanup() {
-    // Clear notification suppression only if this conversation still owns the
-    // active slot; a newer conversation's open may have already claimed it
-    // before this view tears down.
+    // Clear suppression only while this conversation owns it; another open may have claimed it during teardown.
     let service = appState.services?.notificationService
     switch conversationType {
     case let .dm(contact):
@@ -537,10 +497,8 @@ struct ChatConversationView: View {
   }
 
   private func handleIncomingMentionIfNeeded(_ messageID: UUID) {
-    // Self-mention gating happens upstream in
-    // `ChatViewModel.recordIncomingMentionIfNeeded`, which only assigns
-    // `lastIncomingMention` when `containsSelfMention` is true. The conversation
-    // is open, so the mention counts as seen regardless of scroll position.
+    guard scenePhase == .active else { return }
+    // ChatViewModel.recordIncomingMentionIfNeeded gates self-mentions; an open conversation counts them as seen.
     Task { await markNewArrivalMentionSeen(messageID: messageID) }
   }
 
@@ -566,18 +524,19 @@ struct ChatConversationView: View {
 
   // MARK: - Mention Tracking
 
-  /// Marks every unseen mention in this conversation seen and clears its unread
-  /// mention count. Called on open: without on-screen bubble tracking, opening
-  /// the conversation is what marks mentions seen, keeping chat-list badges correct.
+  /// Mark unseen mentions as seen on open because chat-list badges track conversation reads, not visible bubbles.
   private func markConversationMentionsSeen() async {
+    guard scenePhase == .active, !Task.isCancelled else { return }
     guard let dataStore = appState.services?.dataStore else { return }
     do {
       switch conversationType {
       case let .dm(contact):
         let ids = try await dataStore.fetchUnseenMentionIDs(contactID: contact.id)
         for id in ids {
+          guard scenePhase == .active, !Task.isCancelled else { return }
           try await dataStore.markMentionSeen(messageID: id)
         }
+        guard scenePhase == .active, !Task.isCancelled else { return }
         try await dataStore.clearUnreadMentionCount(contactID: contact.id)
 
       case let .channel(channel):
@@ -586,8 +545,10 @@ struct ChatConversationView: View {
           channelIndex: channel.index
         )
         for id in ids {
+          guard scenePhase == .active, !Task.isCancelled else { return }
           try await dataStore.markMentionSeen(messageID: id)
         }
+        guard scenePhase == .active, !Task.isCancelled else { return }
         try await dataStore.clearChannelUnreadMentionCount(channelID: channel.id)
       }
       parentViewModel?.requestConversationReload()
@@ -601,9 +562,11 @@ struct ChatConversationView: View {
   }
 
   private func persistMentionSeen(messageID: UUID) async -> Bool {
+    guard scenePhase == .active, !Task.isCancelled else { return false }
     guard let dataStore = appState.services?.dataStore else { return false }
     do {
       try await dataStore.markMentionSeen(messageID: messageID)
+      guard scenePhase == .active, !Task.isCancelled else { return false }
       switch conversationType {
       case let .dm(contact):
         try await dataStore.decrementUnreadMentionCount(contactID: contact.id)
@@ -622,7 +585,7 @@ struct ChatConversationView: View {
   // MARK: - Mention Suggestions
 
   private var activeMentionQuery: String? {
-    MentionUtilities.detectActiveMention(in: chatViewModel.composingText)
+    MentionUtilities.detectActiveMention(in: draftEditor.text)
   }
 
   private var mentionSuggestions: [ContactDTO] {
@@ -638,21 +601,20 @@ struct ChatConversationView: View {
   }
 
   private func insertMention(for contact: ContactDTO) {
-    guard let query = MentionUtilities.detectActiveMention(in: chatViewModel.composingText) else { return }
+    guard let query = MentionUtilities.detectActiveMention(in: draftEditor.text) else { return }
 
     let searchPattern = "@" + query
-    if let range = chatViewModel.composingText.range(of: searchPattern, options: .backwards) {
+    if let range = draftEditor.text.range(of: searchPattern, options: .backwards) {
       let mention = MentionUtilities.createMention(for: contact.name)
-      chatViewModel.composingText.replaceSubrange(range, with: mention + " ")
+      var updated = draftEditor.text
+      updated.replaceSubrange(range, with: mention + " ")
+      draftEditor.setText(updated)
     }
   }
 
   // MARK: - Message Actions Sheet
 
-  /// Builds the drift-proof message actions sheet for a captured message value.
-  /// Presented via `.sheet(item:)`, which binds to the value rather than a cell,
-  /// so incoming messages reorder the table behind the modal without re-anchoring
-  /// it to a different bubble.
+  /// Present actions for a captured message value so incoming messages cannot retarget the sheet.
   private func messageActionsSheet(for message: MessageDTO) -> MessageActionsSheet {
     let resolution = senderResolution(for: message)
     return MessageActionsSheet(
@@ -683,11 +645,6 @@ struct ChatConversationView: View {
 
   // MARK: - Message Action Handling
 
-  /// Dispatches a MessageAction by routing to the appropriate handler. The
-  /// `switch action` body preserves compile-time exhaustiveness — adding a new
-  /// MessageAction case forces this method to handle it. Each case calls an
-  /// extracted private method that captures the view-local context it needs
-  /// (focus state, AppStorage flags, sheet-presentation contexts).
   private func dispatch(_ action: MessageAction, for message: MessageDTO) {
     switch action {
     case let .react(emoji):
@@ -722,12 +679,12 @@ struct ChatConversationView: View {
       message.senderNodeName ?? L10n.Chats.Chats.Message.Sender.unknown
     }
     if replyWithQuote {
-      chatViewModel.composingText = MentionUtilities.buildReplyText(mentionName: mentionName, messageText: message.text)
+      draftEditor.setText(MentionUtilities.buildReplyText(mentionName: mentionName, messageText: message.text))
     } else {
-      chatViewModel.composingText = MentionUtilities.appendMention(
+      draftEditor.setText(MentionUtilities.appendMention(
         for: mentionName,
-        to: chatViewModel.composingText
-      )
+        to: draftEditor.text
+      ))
     }
     // Raise the keyboard only after the actions sheet has finished dismissing;
     // a focus request issued while the sheet is still animating away is lost.
@@ -851,22 +808,15 @@ struct ChatConversationView: View {
 // MARK: - Error Alerts
 
 private extension View {
-  /// Applies the chat modal-alert surfaces in one modifier so the conversation
-  /// view body stays within the type-checker's expression budget. Two modal
-  /// alerts: generic "Error" for open-conversation load failures (so a
-  /// re-open failure cannot be missed), and "Unable to Send" for queue drain
-  /// failures. The passive banner for pagination failures is mounted
-  /// separately via `chatErrorBanner` so it can sit above the input bar.
+  /// Group modal chat errors to keep the view body within the type-checker expression budget.
+  /// Pagination failures use chatErrorBanner so they remain passive.
   func chatErrorAlerts(chatViewModel: ChatViewModel) -> some View {
     @Bindable var vm = chatViewModel
     return errorAlert($vm.errorMessage)
       .errorAlert($vm.sendErrorMessage, title: L10n.Chats.Chats.Alert.UnableToSend.title)
   }
 
-  /// Mounts the passive error banner used for background failures (e.g.
-  /// older-message pagination). Applied before the input-bar safe-area inset
-  /// so the banner appears between the message list and the input bar, and
-  /// rises with the keyboard alongside the input bar.
+  /// Keep background failure banners above the input bar in the shared native viewport.
   func chatErrorBanner(chatViewModel: ChatViewModel) -> some View {
     @Bindable var vm = chatViewModel
     return errorBanner($vm.errorBannerMessage)
@@ -876,28 +826,36 @@ private extension View {
 // MARK: - Previews
 
 #Preview("DM") {
+  let appState = AppState()
+  let contact = ContactDTO(from: Contact(
+    radioID: UUID(),
+    publicKey: Data(repeating: 0x42, count: 32),
+    name: "Alice",
+    lastHeardTimestamp: 0
+  ))
   NavigationStack {
     ChatConversationView(
-      conversationType: .dm(ContactDTO(from: Contact(
-        radioID: UUID(),
-        publicKey: Data(repeating: 0x42, count: 32),
-        name: "Alice",
-        lastHeardTimestamp: 0
-      )))
+      conversationType: .dm(contact),
+      draftEditor: appState.chatDraftEditor(for: .dm(radioID: contact.radioID, contactID: contact.id))
     )
   }
-  .environment(\.appState, AppState())
+  .environment(\.appState, appState)
 }
 
 #Preview("Channel") {
+  let appState = AppState()
+  let channel = ChannelDTO(from: Channel(
+    radioID: UUID(),
+    index: 1,
+    name: "General"
+  ))
   NavigationStack {
     ChatConversationView(
-      conversationType: .channel(ChannelDTO(from: Channel(
-        radioID: UUID(),
-        index: 1,
-        name: "General"
-      )))
+      conversationType: .channel(channel),
+      draftEditor: appState.chatDraftEditor(
+        for: .channel(radioID: channel.radioID, channelIndex: channel.index)
+      )
     )
   }
-  .environment(\.appState, AppState())
+  .environment(\.appState, appState)
 }

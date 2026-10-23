@@ -41,7 +41,7 @@ private func makeChannel(radioID: UUID, index: UInt8 = 3, name: String = "Genera
     unreadCount: 0,
     unreadMentionCount: 0,
     notificationLevel: .all,
-    isFavorite: false
+    isPinned: false
   )
 }
 

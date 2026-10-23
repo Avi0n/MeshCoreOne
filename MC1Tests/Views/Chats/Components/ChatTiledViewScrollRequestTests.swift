@@ -156,6 +156,18 @@ struct ChatTiledViewScrollRequestTests {
     return lastBottom
   }
 
+  private func rowScreenMinY(
+    _ found: (collectionView: UICollectionView, messagesSection: Int),
+    id: UUID,
+    in rows: [Row]
+  ) throws -> CGFloat {
+    let itemIndex = try #require(rows.firstIndex(where: { $0.id == id }))
+    let attributes = try #require(found.collectionView.layoutAttributesForItem(
+      at: IndexPath(item: itemIndex, section: found.messagesSection)
+    ))
+    return attributes.frame.minY - found.collectionView.contentOffset.y
+  }
+
   private func lastRowScreenBottom(
     _ found: (collectionView: UICollectionView, messagesSection: Int),
     id: UUID? = nil,
@@ -267,6 +279,51 @@ struct ChatTiledViewScrollRequestTests {
     #expect(abs(after - before) < Self.stayPutSlop, "incoming append must not jump a scrolled-up list")
     #expect(model.unreadCount >= 1)
     #expect(!model.isAtBottom)
+  }
+
+  @Test
+  func `prepend and incoming admit keep a middle row in place`() throws {
+    let model = ChatTiledViewScrollHarnessModel(rows: makeRows(count: 60))
+    let (window, _, _) = try mount(model: model)
+    defer { window.isHidden = true }
+
+    let found = try #require(waitForCollectionView(in: window, itemCount: model.rows.count))
+    let middle = model.rows[20]
+    let middleAttributes = try #require(found.collectionView.layoutAttributesForItem(
+      at: IndexPath(item: 20, section: found.messagesSection)
+    ))
+    found.collectionView.setContentOffset(
+      CGPoint(x: 0, y: middleAttributes.frame.minY),
+      animated: false
+    )
+    window.layoutIfNeeded()
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: Self.afterRequestSettle))
+
+    let before = try rowScreenMinY(found, id: middle.id, in: model.rows)
+    let older = (0..<8).map { Row(id: UUID(), index: -($0 + 1)) }
+    model.rows.insert(contentsOf: older, at: 0)
+    window.layoutIfNeeded()
+    _ = waitForCollectionView(in: window, itemCount: model.rows.count)
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: Self.afterRequestSettle))
+
+    let afterPrepend = try rowScreenMinY(found, id: middle.id, in: model.rows)
+    #expect(
+      abs(afterPrepend - before) < Self.stayPutSlop,
+      "prepend must not move the anchored middle row"
+    )
+
+    model.rows.append(Row(id: UUID(), index: model.rows.count, countsTowardUnread: true))
+    window.layoutIfNeeded()
+    _ = waitForCollectionView(in: window, itemCount: model.rows.count)
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: Self.afterRequestSettle))
+
+    let afterAdmit = try rowScreenMinY(found, id: middle.id, in: model.rows)
+    #expect(
+      abs(afterAdmit - before) < Self.stayPutSlop,
+      "incoming admit must not move the anchored middle row"
+    )
+    #expect(model.unreadCount >= 1)
+    #expect(Set(model.rows.map(\.id)).count == model.rows.count)
   }
 
   @Test

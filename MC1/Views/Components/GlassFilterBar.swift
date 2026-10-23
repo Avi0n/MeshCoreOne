@@ -12,6 +12,8 @@ private let regularPillVerticalPadding: CGFloat = 6
 private let largePillHorizontalPadding: CGFloat = 18
 private let largePillVerticalPadding: CGFloat = 9
 private let dimmedOpacity: Double = 0.5
+/// Inside the capsule, so the selected pill stays visible without color alone and without changing its layout size.
+private let selectedOutlineLineWidth: CGFloat = 2
 /// Hueless tint marking the selected pill, flipped by color scheme (darker in light, lighter in
 /// dark) so the selection holds contrast on every theme canvas without a hue that clashes with one.
 private let selectedSegmentTintLight = Color.black.opacity(0.12)
@@ -98,6 +100,8 @@ struct GlassFilterBar<Filter: Hashable & CaseIterable & Sendable>: View
     // Scope the pill morph to the bar so it doesn't leak a transaction into consumer
     // content (a list's row transitions would otherwise animate on every filter tap).
     .animation(reduceMotion ? nil : .smooth, value: selection)
+    .accessibilityElement(children: .contain)
+    .accessibilityLabel(pickerLabel)
   }
 
   @available(iOS 26.0, *)
@@ -130,11 +134,22 @@ struct GlassFilterBar<Filter: Hashable & CaseIterable & Sendable>: View
         .contentShape(.capsule)
     }
     .buttonStyle(.plain)
+    .accessibilityAddTraits(isSelected ? .isSelected : [])
     .glassEffect(
-      isSelected ? .regular.tint(selectedSegmentTint).interactive() : .regular.interactive(),
+      isSelected
+        ? .regular.tint(selectedSegmentTint).interactive(!ProcessInfo.processInfo.isiOSAppOnMac)
+        : .regular.interactive(!ProcessInfo.processInfo.isiOSAppOnMac),
       in: .capsule
     )
     .glassEffectID(filter, in: glassNamespace)
+    .overlay {
+      if isSelected {
+        Capsule()
+          .strokeBorder(.primary, lineWidth: selectedOutlineLineWidth)
+          .allowsHitTesting(false)
+          .accessibilityHidden(true)
+      }
+    }
   }
 
   private var segmentedFallback: some View {

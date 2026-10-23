@@ -27,7 +27,9 @@ struct GetMessageSerializationTests {
 
     // getMessage is issued while the reset is outstanding; it must park behind it.
     let messageTask = Task { try await session.getMessage() }
-    try? await Task.sleep(for: .milliseconds(50))
+    try await waitUntil("getMessage should wait on the serializer") {
+      await session.requestResponseSerializer.waiterCountForTest == 1
+    }
     #expect(await transport.sentData.count == 2, "getMessage must wait behind the in-flight command")
 
     // The error belongs to the reset command, which owns the serializer.

@@ -40,6 +40,8 @@ final class RoomSettingsViewModel {
   private var originalFloodMaxHops: Int?
   var isLoadingBehavior = false
   var behaviorError = false
+  private var behaviorEpoch = Epoch()
+  private var didScheduleDeviceInfo = false
   var isApplyingBehavior = false
   var behaviorApplySuccess = false
   var isBehaviorExpanded = false
@@ -92,21 +94,33 @@ final class RoomSettingsViewModel {
       }
     )
 
-    helper.setNodeInfo(firmwareVersion: nil, name: session.name, ownerInfo: nil)
-
     // Room doesn't have binary protocol for node info — firmware fetched via CLI
     helper.onPreFetchNodeInfo = nil
 
     registerBehaviorLateRecovery()
 
-    // Register CLI handler for late responses
-    await roomAdminService.setCLIHandler { [weak self] message, _ in
+    await roomAdminService.setCLIHandler { [weak self] message, contact in
       await MainActor.run {
-        self?.helper.handleCommonLateResponse(message.text)
+        guard let self, self.matches(contact) else { return }
+        self.helper.handleCommonLateResponse(message.text)
       }
     }
 
-    Task { await helper.fetchDeviceInfo() }
+    if !didScheduleDeviceInfo, !helper.deviceInfoLoaded, !helper.isLoadingDeviceInfo {
+      didScheduleDeviceInfo = true
+      Task { await helper.fetchDeviceInfo() }
+    }
+  }
+
+  private func matches(_ contact: ContactDTO) -> Bool {
+    guard let session = helper.session else { return false }
+    return session.publicKey.prefix(6) == contact.publicKey.prefix(6)
+  }
+
+  func reset() {
+    behaviorEpoch.bump()
+    didScheduleDeviceInfo = false
+    helper.reset()
   }
 
   /// Builds the node-CLI send closure, pre-binding this session's id and

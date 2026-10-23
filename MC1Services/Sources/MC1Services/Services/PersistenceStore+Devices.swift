@@ -49,6 +49,19 @@ public extension PersistenceStore {
     return try modelContext.fetch(descriptor).first.map { DeviceDTO(from: $0) }
   }
 
+  /// Every row with this public key, most recently connected first.
+  func fetchDevices(publicKey: Data) throws -> [DeviceDTO] {
+    let targetKey = publicKey
+    let predicate = #Predicate<Device> { device in
+      device.publicKey == targetKey
+    }
+    let descriptor = FetchDescriptor<Device>(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\Device.lastConnected, order: .reverse)]
+    )
+    return try modelContext.fetch(descriptor).map { DeviceDTO(from: $0) }
+  }
+
   /// Fetch the active device
   func fetchActiveDevice() throws -> DeviceDTO? {
     let predicate = #Predicate<Device> { device in
@@ -184,6 +197,26 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
+  /// Drops the Bluetooth method for `peripheralID` when that row also has WiFi.
+  /// Otherwise returns nil and writes nothing. `#Predicate` cannot look inside the method list.
+  func removeBluetoothMethod(peripheralID: UUID) throws -> DeviceDTO? {
+    let devices = try modelContext.fetch(FetchDescriptor<Device>())
+    guard let device = devices.first(where: { row in
+      row.connectionMethods.contains { method in
+        if case let .bluetooth(id, _) = method { return id == peripheralID }
+        return false
+      }
+    }) else {
+      return nil
+    }
+    guard device.connectionMethods.contains(where: \.isWiFi) else {
+      return nil
+    }
+    device.connectionMethods = device.connectionMethods.filter { !$0.isBluetooth }
+    try modelContext.save()
+    return DeviceDTO(from: device)
+  }
+
   /// Demotes a device row to a "ghost": preserves `publicKey` and `radioID` so the
   /// publicKey ↔ radioID bridge survives, but assigns a fresh `id`, clears `isActive`,
   /// and strips ALL connection methods so the row is hidden from
@@ -249,8 +282,11 @@ public extension PersistenceStore {
   /// `ConnectionMethod`. SwiftData `#Predicate` cannot reliably introspect array
   /// elements, so the BLE check happens post-fetch in code.
   ///
+  /// Adopts the ghost's first WiFi method only when the current list is non-empty and has none, putting it first.
+  /// An empty list stays empty. This row's WiFi method, last-used method, and Bluetooth peripheral id stay put.
+  ///
   /// - Parameters:
-  ///   - currentDeviceID: The BLE peripheral UUID of the live, currently-paired device.
+  ///   - currentDeviceID: The connected row's `Device.id`.
   ///   - newPublicKey: The radio's `selfInfo.publicKey` after `importPrivateKey`.
   /// - Returns: The new `radioID` if reconciliation occurred, otherwise `nil`.
   func reconcileGhostIdentity(currentDeviceID: UUID, newPublicKey: Data) throws -> UUID? {
@@ -280,10 +316,11 @@ public extension PersistenceStore {
     let newRadioID = ghost.radioID
     current.radioID = newRadioID
     current.publicKey = newPublicKey
-    for method in ghost.connectionMethods where !method.isBluetooth {
-      if !current.connectionMethods.contains(where: { $0.id == method.id }) {
-        current.connectionMethods.append(method)
-      }
+    current.connectionMethods = ConnectionMethod.canonicalized(current.connectionMethods)
+    if !current.connectionMethods.isEmpty,
+       !current.connectionMethods.contains(where: \.isWiFi),
+       let wifi = ConnectionMethod.canonicalized(ghost.connectionMethods).first(where: \.isWiFi) {
+      current.connectionMethods.insert(wifi, at: 0)
     }
 
     modelContext.delete(ghost)

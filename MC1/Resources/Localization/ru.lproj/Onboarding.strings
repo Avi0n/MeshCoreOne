@@ -106,9 +106,9 @@
 "deviceScan.demoModeAlert.message" = "Теперь вы можете продолжить без устройства. Отключите демо-режим в любое время в Настройках.";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "Сохранённое сопряжение с этой рацией перестало работать. Нажмите «Удалить и попробовать снова», чтобы выполнить сопряжение заново в приложении; рация может показать новый код сопряжения.";
+"deviceScan.error.authenticationFailed" = "Сохранённое сопряжение с этой рацией перестало работать. Нажмите «Удалить и попробовать снова», чтобы выполнить сопряжение заново в приложении; рация может показать новый код сопряжения. Если это повторяется, выполните полное стирание и перепрошейте прошивку на компьютере по адресу https://flasher.meshcore.io. Повреждённая флеш-память на рации может быть причиной.";
 /* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
-"deviceScan.error.authenticationFailedMac" = "Сохранённое сопряжение с этой рацией перестало работать. В Системных настройках забудьте эту рацию в Bluetooth, затем нажмите «Удалить и попробовать снова».";
+"deviceScan.error.authenticationFailedMac" = "Сохранённое сопряжение с этой рацией перестало работать. В Системных настройках забудьте эту рацию в Bluetooth, затем нажмите «Удалить и попробовать снова». Если это повторяется, выполните полное стирание и перепрошейте прошивку на компьютере по адресу https://flasher.meshcore.io. Повреждённая флеш-память на рации может быть причиной.";
 "deviceScan.error.pinRejected" = "PIN-код не принят. Проверьте PIN-код, показанный на устройстве, и повторите попытку. Сначала iOS попросит подтвердить удаление неудачного сопряжения.";
 /* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
 "deviceScan.error.pinRejectedMac" = "PIN-код не принят. В Системных настройках забудьте эту рацию в Bluetooth, затем повторите попытку.";
@@ -191,6 +191,12 @@
 
 /* Location: NoDeviceSheet.swift - Secondary CTA */
 "noDevice.sheet.cancel" = "Отмена";
+
+
+// MARK: - Region and Preset
+
+/* Location: RegionStepView.swift and PresetStepView.swift - Finishes onboarding without saving a place or writing the radio */
+"skipForNow" = "Пока пропустить";
 
 
 // MARK: - Preset Step View

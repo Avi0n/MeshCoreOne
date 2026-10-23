@@ -206,6 +206,9 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
   /// Installed by `ConnectionManager.init` (via `iOSBLETransport.setDisconnectionHandler`).
   var onDisconnection: (@Sendable (UUID, Error?) -> Void)?
+  /// Peripheral link loss with the CoreBluetooth event time. Not fired for local
+  /// shutdown or the phone's own Bluetooth power-off.
+  var onRemoteLinkLost: (@Sendable (UUID, CFAbsoluteTime) -> Void)?
   /// Installed by `ConnectionManager.init` (via `iOSBLETransport.setReconnectionHandler`,
   /// which wraps it to capture the data stream before the handler runs).
   var onReconnection: (@Sendable (UUID, AsyncStream<Data>) -> Void)?
@@ -422,6 +425,10 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Sets a handler for disconnection events
   func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) {
     onDisconnection = handler
+  }
+
+  func setRemoteLinkLostHandler(_ handler: @escaping @Sendable (UUID, CFAbsoluteTime) -> Void) {
+    onRemoteLinkLost = handler
   }
 
   /// Sets a handler for reconnection events.

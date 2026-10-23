@@ -106,9 +106,9 @@
 "deviceScan.demoModeAlert.message" = "Du kannst jetzt ohne Gerät fortfahren. Schalte den Demo-Modus jederzeit in den Einstellungen um.";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "Die gespeicherte Kopplung mit diesem Funkgerät funktioniert nicht mehr. Tippe auf „Entfernen und erneut versuchen“, um es in der App neu zu koppeln; das Funkgerät zeigt möglicherweise einen neuen Kopplungscode an.";
+"deviceScan.error.authenticationFailed" = "Die gespeicherte Kopplung mit diesem Funkgerät funktioniert nicht mehr. Tippe auf „Entfernen und erneut versuchen“, um es in der App neu zu koppeln; das Funkgerät zeigt möglicherweise einen neuen Kopplungscode an. Wenn das immer wieder passiert, lösche das Funkgerät vollständig und flashe die Firmware auf einem Computer unter https://flasher.meshcore.io neu. Beschädigter Flash-Speicher auf dem Funkgerät kann das verursachen.";
 /* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
-"deviceScan.error.authenticationFailedMac" = "Die gespeicherte Kopplung mit diesem Funkgerät funktioniert nicht mehr. Vergiss dieses Funkgerät unter Bluetooth in den Systemeinstellungen und tippe dann auf „Entfernen und erneut versuchen“.";
+"deviceScan.error.authenticationFailedMac" = "Die gespeicherte Kopplung mit diesem Funkgerät funktioniert nicht mehr. Vergiss dieses Funkgerät unter Bluetooth in den Systemeinstellungen und tippe dann auf „Entfernen und erneut versuchen“. Wenn das immer wieder passiert, lösche das Funkgerät vollständig und flashe die Firmware auf einem Computer unter https://flasher.meshcore.io neu. Beschädigter Flash-Speicher auf dem Funkgerät kann das verursachen.";
 "deviceScan.error.pinRejected" = "Die PIN wurde nicht akzeptiert. Überprüfe die auf deinem Gerät angezeigte PIN und versuche es erneut. iOS fragt dich zuerst, ob die fehlgeschlagene Kopplung entfernt werden soll.";
 /* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
 "deviceScan.error.pinRejectedMac" = "Die PIN wurde nicht akzeptiert. Vergiss dieses Funkgerät unter Bluetooth in den Systemeinstellungen und versuche es dann erneut.";
@@ -191,6 +191,12 @@
 
 /* Location: NoDeviceSheet.swift - Secondary CTA */
 "noDevice.sheet.cancel" = "Abbrechen";
+
+
+// MARK: - Region and Preset
+
+/* Location: RegionStepView.swift and PresetStepView.swift - Finishes onboarding without saving a place or writing the radio */
+"skipForNow" = "Vorerst überspringen";
 
 
 // MARK: - Preset Step View

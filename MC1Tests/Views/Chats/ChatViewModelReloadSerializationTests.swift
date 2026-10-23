@@ -18,6 +18,7 @@ struct ChatViewModelReloadSerializationTests {
     name: String,
     type: ContactType = .chat,
     isFavorite: Bool = false,
+    isPinned: Bool = false,
     isBlocked: Bool = false,
     lastMessageDate: Date? = Date()
   ) -> ContactDTO {
@@ -39,6 +40,7 @@ struct ChatViewModelReloadSerializationTests {
       isBlocked: isBlocked,
       isMuted: false,
       isFavorite: isFavorite,
+      isPinned: isPinned,
       lastMessageDate: lastMessageDate,
       unreadCount: 0
     )
@@ -48,7 +50,7 @@ struct ChatViewModelReloadSerializationTests {
     id: UUID = UUID(),
     radioID: UUID = UUID(),
     name: String = "Room",
-    isFavorite: Bool = false,
+    isPinned: Bool = false,
     lastMessageDate: Date? = Date()
   ) -> RemoteNodeSessionDTO {
     RemoteNodeSessionDTO(
@@ -58,7 +60,7 @@ struct ChatViewModelReloadSerializationTests {
       name: name,
       role: .roomServer,
       isConnected: true,
-      isFavorite: isFavorite,
+      isPinned: isPinned,
       lastMessageDate: lastMessageDate
     )
   }
@@ -69,7 +71,7 @@ struct ChatViewModelReloadSerializationTests {
     index: UInt8 = 0,
     name: String,
     secret: Data = Data(),
-    isFavorite: Bool = false,
+    isPinned: Bool = false,
     lastMessageDate: Date? = Date()
   ) -> ChannelDTO {
     ChannelDTO(
@@ -83,7 +85,7 @@ struct ChatViewModelReloadSerializationTests {
       unreadCount: 0,
       unreadMentionCount: 0,
       notificationLevel: .all,
-      isFavorite: isFavorite
+      isPinned: isPinned
     )
   }
 
@@ -167,14 +169,14 @@ struct ChatViewModelReloadSerializationTests {
     let older = Date(timeIntervalSince1970: 1000)
     let newer = Date(timeIntervalSince1970: 2000)
 
-    let favNewer = makeContact(radioID: radioID, name: "FavNewer", isFavorite: true, lastMessageDate: newer)
-    let favOlder = makeContact(radioID: radioID, name: "FavOlder", isFavorite: true, lastMessageDate: older)
+    let pinNewer = makeContact(radioID: radioID, name: "PinNewer", isPinned: true, lastMessageDate: newer)
+    let pinOlder = makeContact(radioID: radioID, name: "PinOlder", isPinned: true, lastMessageDate: older)
     let plain = makeContact(radioID: radioID, name: "Plain", lastMessageDate: newer)
     let repeaterContact = makeContact(radioID: radioID, name: "Repeater", type: .repeater)
     let blockedContact = makeContact(radioID: radioID, name: "Blocked", isBlocked: true)
 
     let viewModel = ChatViewModel()
-    viewModel.conversations = [favOlder, plain, repeaterContact, blockedContact, favNewer]
+    viewModel.conversations = [pinOlder, plain, repeaterContact, blockedContact, pinNewer]
     viewModel.channels = [makeChannel(radioID: radioID, name: "")] // empty-name, secretless → excluded
     viewModel.recomputeSnapshot()
 
@@ -184,9 +186,8 @@ struct ChatViewModelReloadSerializationTests {
     #expect(!names.contains("Blocked"))
     #expect(viewModel.allConversations.count == 3)
 
-    // Favorites partitioned first, each partition sorted by lastMessageDate descending.
-    #expect(viewModel.favoriteConversations.map(\.displayName) == ["FavNewer", "FavOlder"])
-    #expect(viewModel.nonFavoriteConversations.map(\.displayName) == ["Plain"])
+    #expect(viewModel.pinnedConversations.map(\.displayName) == ["PinNewer", "PinOlder"])
+    #expect(viewModel.unpinnedConversations.map(\.displayName) == ["Plain"])
   }
 }
 

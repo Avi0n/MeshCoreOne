@@ -1,4 +1,5 @@
 import Foundation
+import MC1Services
 @testable import MeshCore
 
 /// A stateful fake `ConfigurationSessionOps` for exercising a real `SettingsService`
@@ -18,6 +19,8 @@ actor MockConfigurationSession: ConfigurationSessionOps {
 
   private(set) var readCount = 0
   private(set) var rebootCalled = false
+  private(set) var powerOffCallCount = 0
+  private var powerOffBehavior: PowerOffBehavior = .poweredOff
   private(set) var setNameCalls: [String] = []
   private(set) var setTxPowerCalls: [Int8] = []
   private(set) var setPathHashModeCalls: [UInt8] = []
@@ -26,6 +29,53 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   private(set) var setCoordinatesCalls: [(latitude: Double, longitude: Double)] = []
   private(set) var setOtherParamsCalls: [(manualAddContacts: Bool, multiAcks: UInt8?)] = []
   private(set) var setCustomVarCalls: [(key: String, value: String)] = []
+  private(set) var runCliCommandCalls: [String] = []
+  /// The command parked by `holdNextCLIReply()`, until `releaseHeldCLIReply()`.
+  private(set) var heldCLICommand: String?
+  var cliReply = "OK"
+  var cliReplyQueue: [String] = []
+  private var cliError: (any Error & Sendable)?
+  private var deferredCLIFailures: [(remaining: Int, error: any Error & Sendable)] = []
+  private var holdNextCLI = false
+  private var holdSkip: Int?
+  private var heldCLIContinuation: CheckedContinuation<String, Never>?
+
+  func setCLIReply(_ reply: String) {
+    cliReply = reply
+  }
+
+  func setCLIReplyQueue(_ replies: [String]) {
+    cliReplyQueue = replies
+    cliReply = "OK"
+  }
+
+  /// The next `runCliCommand` records its command, throws `error` once, and does not reply.
+  func failNextCLICommand(_ error: any Error & Sendable) {
+    cliError = error
+  }
+
+  /// Throws `error` on the `runCliCommand` that is `skip` calls from now. Zero is the next call.
+  func failCLICommand(after skip: Int, _ error: any Error & Sendable) {
+    deferredCLIFailures.append((remaining: skip, error: error))
+  }
+
+  /// The next `runCliCommand` records its command and waits for `releaseHeldCLIReply()`.
+  func holdNextCLIReply() {
+    holdNextCLI = true
+  }
+
+  /// Holds the `runCliCommand` that is `skip` calls from now. Zero is the next call.
+  func holdCLIReply(after skip: Int) {
+    holdSkip = skip
+  }
+
+  /// Returns the parked CLI reply. The reply is the queue head, or `cliReply`.
+  func releaseHeldCLIReply() {
+    let reply = dequeueCLIReply()
+    let continuation = heldCLIContinuation
+    heldCLIContinuation = nil
+    Task.detached { continuation?.resume(returning: reply) }
+  }
 
   init(
     name: String = "TestDevice",
@@ -184,6 +234,34 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     rebootCalled = true
   }
 
+  enum PowerOffBehavior: Sendable {
+    case poweredOff
+    case stillOn
+    case bleNotConnected
+    case wifiNotConnected
+    case invalidInput
+  }
+
+  func setPowerOffBehavior(_ behavior: PowerOffBehavior) {
+    powerOffBehavior = behavior
+  }
+
+  func powerOff() async throws -> Bool {
+    powerOffCallCount += 1
+    switch powerOffBehavior {
+    case .poweredOff:
+      return true
+    case .stillOn:
+      return false
+    case .bleNotConnected:
+      throw BLEError.notConnected
+    case .wifiNotConnected:
+      throw WiFiTransportError.notConnected
+    case .invalidInput:
+      throw MeshCoreError.invalidInput("power off")
+    }
+  }
+
   // MARK: - Custom Variables
 
   /// Make the next `setCustomVar` throw `MeshCoreError.deviceError(code:)`,
@@ -215,6 +293,55 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     }
     guard !suppressWrites else { return }
     customVars[key] = value
+  }
+
+  func runCliCommand(_ command: String) async throws -> String {
+    runCliCommandCalls.append(command)
+    if let failure = takeDueCLIFailure() {
+      throw failure
+    }
+    if let cliError {
+      self.cliError = nil
+      throw cliError
+    }
+    if let skip = holdSkip {
+      if skip == 0 {
+        holdSkip = nil
+        return await parkCLI(command)
+      }
+      holdSkip = skip - 1
+    }
+    if holdNextCLI {
+      holdNextCLI = false
+      return await parkCLI(command)
+    }
+    return dequeueCLIReply()
+  }
+
+  private func takeDueCLIFailure() -> (any Error & Sendable)? {
+    defer {
+      deferredCLIFailures = deferredCLIFailures.map { (remaining: $0.remaining - 1, error: $0.error) }
+    }
+    guard let index = deferredCLIFailures.firstIndex(where: { $0.remaining == 0 }) else {
+      return nil
+    }
+    return deferredCLIFailures.remove(at: index).error
+  }
+
+  private func parkCLI(_ command: String) async -> String {
+    heldCLICommand = command
+    let reply = await withCheckedContinuation { (continuation: CheckedContinuation<String, Never>) in
+      heldCLIContinuation = continuation
+    }
+    heldCLICommand = nil
+    return reply
+  }
+
+  private func dequeueCLIReply() -> String {
+    if !cliReplyQueue.isEmpty {
+      return cliReplyQueue.removeFirst()
+    }
+    return cliReply
   }
 
   // MARK: - Unused requirements

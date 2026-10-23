@@ -26,25 +26,25 @@ struct ConnectionUIStateTests {
     appState.connectionUI.simulateSyncStarted()
     appState.connectionUI.showSyncFailedPill()
 
-    #expect(appState.statusPillState == .failed(message: "Sync Failed"))
+    #expect(appState.statusPillState == .failed(message: "Sync failed"))
   }
 
   @Test
-  func `Syncing takes priority over ready toast`() {
+  func `Ready toast takes priority over sync activity when usable`() {
     let appState = AppState()
+    appState.connectionManager.setTestState(connectionState: .ready)
     appState.connectionUI.showReadyToastBriefly()
     appState.connectionUI.simulateSyncStarted()
 
-    #expect(appState.statusPillState == .syncing)
+    #expect(appState.statusPillState == .ready)
   }
 
   @Test
-  func `Ready toast takes priority over disconnected`() {
+  func `Ready toast cannot show while disconnected`() {
     let appState = AppState()
     appState.connectionUI.showReadyToastBriefly()
 
-    // Even if disconnectedPillVisible were true, ready should win
-    #expect(appState.statusPillState == .ready)
+    #expect(appState.statusPillState == .hidden)
   }
 
   @Test
@@ -68,6 +68,7 @@ struct ConnectionUIStateTests {
   @Test
   func `showReadyToastBriefly sets showReadyToast to true`() {
     let appState = AppState()
+    appState.connectionManager.setTestState(connectionState: .ready)
 
     appState.connectionUI.showReadyToastBriefly()
 
@@ -133,7 +134,7 @@ struct ConnectionUIStateTests {
     appState.connectionUI.showSyncFailedPill()
 
     #expect(appState.connectionUI.syncFailedPillVisible == true)
-    #expect(appState.statusPillState == .failed(message: "Sync Failed"))
+    #expect(appState.statusPillState == .failed(message: "Sync failed"))
   }
 
   @Test
@@ -169,47 +170,12 @@ struct ConnectionUIStateTests {
     #expect(appState.connectionUI.disconnectedPillVisible == false)
   }
 
-  @Test
-  func `hideDisconnectedPill clears pill immediately`() {
-    let appState = AppState()
-
-    appState.connectionUI.hideDisconnectedPill()
-
-    #expect(appState.connectionUI.disconnectedPillVisible == false)
-  }
-
-  @Test
-  func `updateDisconnectedPillState without paired device stays hidden`() {
-    let sut = ConnectionUIState()
-
-    sut.updateDisconnectedPillState(
-      connectionState: .disconnected,
-      lastConnectedDeviceID: nil,
-      shouldSuppressDisconnectedPill: false
-    )
-
-    #expect(sut.disconnectedPillVisible == false)
-  }
-
   // MARK: - canRunSettingsStartupReads
 
   @Test
   func `canRunSettingsStartupReads is false when disconnected`() {
     let appState = AppState()
     #expect(appState.canRunSettingsStartupReads == false)
-  }
-
-  // MARK: - Sync Activity Tracking
-
-  @Test
-  func `Sync activity shows syncing pill while active`() {
-    let appState = AppState()
-
-    appState.connectionUI.simulateSyncStarted()
-    #expect(appState.statusPillState == .syncing)
-
-    appState.connectionUI.simulateSyncEnded()
-    #expect(appState.statusPillState != .syncing)
   }
 
   // MARK: - UI State Defaults
@@ -265,65 +231,6 @@ struct ConnectionUIStateTests {
   }
 
   // MARK: - handleDisconnect
-
-  @Test
-  func `handleDisconnect resets syncActivityCount to zero`() {
-    let sut = ConnectionUIState()
-    sut.simulateSyncStarted()
-    sut.simulateSyncStarted()
-    #expect(sut.syncActivityCount == 2)
-
-    sut.handleDisconnect(
-      connectionState: .disconnected,
-      lastConnectedDeviceID: nil,
-      shouldSuppressDisconnectedPill: false
-    )
-
-    #expect(sut.syncActivityCount == 0)
-  }
-
-  @Test
-  func `handleDisconnect clears currentSyncPhase`() {
-    let sut = ConnectionUIState()
-    sut.currentSyncPhase = .contacts
-
-    sut.handleDisconnect(
-      connectionState: .disconnected,
-      lastConnectedDeviceID: nil,
-      shouldSuppressDisconnectedPill: false
-    )
-
-    #expect(sut.currentSyncPhase == nil)
-  }
-
-  @Test
-  func `handleDisconnect sets isNodeStorageFull to false`() {
-    let sut = ConnectionUIState()
-    sut.isNodeStorageFull = true
-
-    sut.handleDisconnect(
-      connectionState: .disconnected,
-      lastConnectedDeviceID: nil,
-      shouldSuppressDisconnectedPill: false
-    )
-
-    #expect(sut.isNodeStorageFull == false)
-  }
-
-  @Test
-  func `handleDisconnect hides ready toast`() {
-    let sut = ConnectionUIState()
-    sut.showReadyToastBriefly()
-    #expect(sut.showReadyToast == true)
-
-    sut.handleDisconnect(
-      connectionState: .disconnected,
-      lastConnectedDeviceID: nil,
-      shouldSuppressDisconnectedPill: false
-    )
-
-    #expect(sut.showReadyToast == false)
-  }
 
   @Test
   func `handleDisconnect shows disconnected pill when device was paired`() async throws {

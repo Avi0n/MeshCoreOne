@@ -77,7 +77,7 @@ struct DeviceSelectionSheet: View {
       tracker: tracker,
       showingWiFiConnection: $showingWiFiConnection,
       editingWiFiDevice: $editingWiFiDevice,
-      onConnect: { connectToDevice($0) },
+      onConnect: { connectToDevice($0, target: $1) },
       onDelete: { deleteDevice($0) },
       onSetup: { setupAccessory($0) },
       onScanForNew: { scanForNewDevice() }
@@ -128,10 +128,8 @@ struct DeviceSelectionSheet: View {
 
     var connectedElsewhere: Set<UUID> = []
     for device in result.connectable {
-      let hasBluetooth = device.connectionMethods.isEmpty ||
-        device.connectionMethods.contains { !$0.isWiFi }
-      if hasBluetooth {
-        if await appState.connectionManager.isDeviceConnectedToOtherApp(device.id) {
+      if case let .bluetooth(peripheralID) = device.savedDeviceConnectTarget {
+        if await appState.connectionManager.isDeviceConnectedToOtherApp(peripheralID) {
           connectedElsewhere.insert(device.id)
         }
       }
@@ -140,35 +138,25 @@ struct DeviceSelectionSheet: View {
   }
 
   private func scanForNewDevice() {
-    appState.connectionUI.queuedSystemPairingSetup = nil
-    appState.connectionUI.queuedDeviceScanAfterSelectionDismiss = true
+    appState.connectionUI.queueDeviceScan()
     appState.connectionManager.isPairingFlowActive = true
     dismiss()
   }
 
   private func setupAccessory(_ accessory: SystemPairedAccessory) {
-    appState.connectionUI.queuedDeviceScanAfterSelectionDismiss = false
-    appState.connectionUI.queuedSystemPairingSetup = SystemPairingSetupPrompt(
+    appState.connectionUI.queueSystemPairingSetup(SystemPairingSetupPrompt(
       accessories: [accessory]
-    )
+    ))
     appState.connectionManager.isPairingFlowActive = true
     dismiss()
   }
 
-  private func connectToDevice(_ device: DeviceDTO) {
-    dismiss()
-    Task {
-      logger.info("[UI] User tapped Connect for device: \(device.id.uuidString.prefix(8)), name: \(device.nodeName)")
-      do {
-        if case let .wifi(host, port, _) = device.primaryConnectionMethod {
-          try await appState.connectViaWiFi(host: host, port: port, forceFullSync: true)
-        } else {
-          try await appState.connectionManager.connect(to: device.id, forceFullSync: true, forceReconnect: true)
-        }
-      } catch {
-        appState.connectionUI.presentSavedDeviceConnectFailure(deviceID: device.id, error: error)
-      }
+  private func connectToDevice(_ device: DeviceDTO, target: SavedDeviceConnectTarget) {
+    if case let .bluetooth(peripheralID) = target, !tracker.isAdvertising(peripheralID) {
+      return
     }
+    appState.connectionUI.queueSavedDeviceConnection(device, target: target)
+    dismiss()
   }
 
   private func deleteDevice(_ device: DeviceDTO) {
@@ -194,7 +182,7 @@ private struct DeviceListView: View {
   let tracker: RSSIScanTracker
   @Binding var showingWiFiConnection: Bool
   @Binding var editingWiFiDevice: DeviceDTO?
-  let onConnect: (DeviceDTO) -> Void
+  let onConnect: (DeviceDTO, SavedDeviceConnectTarget) -> Void
   let onDelete: (DeviceDTO) -> Void
   let onSetup: (SystemPairedAccessory) -> Void
   let onScanForNew: () -> Void
@@ -203,33 +191,50 @@ private struct DeviceListView: View {
     List {
       Section {
         ForEach(connectable) { device in
-          let tier = device.connectsViaWiFi ? nil : tracker.signalTier(for: device.id)
-          let isDisabledByBLE = !device.connectsViaWiFi && !tracker.isAdvertising(device.id)
-          Button {
-            guard !isDisabledByBLE else { return }
-            onConnect(device)
-          } label: {
-            DeviceRow(
-              device: device,
-              connectsViaWiFi: device.connectsViaWiFi,
-              isConnectedElsewhere: devicesConnectedElsewhere.contains(device.id),
-              signalTier: tier
-            )
-            .contentShape(.rect)
-          }
-          .buttonStyle(.plain)
-          .contextMenu {
-            Button(role: .destructive) {
-              onDelete(device)
+          let selected = device.savedDeviceConnectTarget
+          let connectsViaWiFi = if case .wifi = selected { true } else { false }
+          let advertiseID = device.bluetoothPeripheralID ?? device.id
+          let tier = connectsViaWiFi ? nil : tracker.signalTier(for: advertiseID)
+          let choice = DeviceConnectionChoice.make(
+            device: device,
+            bluetoothAdvertising: tracker.isAdvertising(advertiseID),
+            selected: selected
+          )
+          HStack(spacing: 0) {
+            Button {
+              onConnect(device, selected)
             } label: {
-              Label(L10n.Localizable.Common.delete, systemImage: "trash")
+              DeviceRow(
+                device: device,
+                dialTarget: selected,
+                connectsViaWiFi: connectsViaWiFi,
+                isConnectedElsewhere: devicesConnectedElsewhere.contains(device.id),
+                signalTier: tier
+              )
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .contentShape(.rect)
+            }
+            .buttonStyle(.borderless)
+            .contextMenu {
+              if device.wifiConnectionMethod != nil {
+                Button {
+                  editingWiFiDevice = device
+                } label: {
+                  Label(L10n.Localizable.Common.edit, systemImage: "pencil")
+                }
+                Divider()
+              }
+
+              Button(role: .destructive) {
+                onDelete(device)
+              } label: {
+                Label(L10n.Localizable.Common.delete, systemImage: "trash")
+              }
             }
 
-            if device.primaryConnectionMethod?.isWiFi == true {
-              Button {
-                editingWiFiDevice = device
-              } label: {
-                Label(L10n.Localizable.Common.edit, systemImage: "pencil")
+            if case let .available(bluetooth, wifi) = choice {
+              DeviceConnectionMenu(bluetooth: bluetooth, wifi: wifi) { target in
+                onConnect(device, target)
               }
             }
           }
@@ -275,7 +280,7 @@ private struct DeviceListView: View {
       WiFiConnectionSheet()
     }
     .sheet(item: $editingWiFiDevice) { device in
-      if case let .wifi(host, port, _) = device.primaryConnectionMethod {
+      if case let .wifi(host, port, _) = device.wifiConnectionMethod {
         WiFiEditSheet(initialHost: host, initialPort: port)
       }
     }
@@ -356,6 +361,7 @@ private struct NeedsSetupDeviceRow: View {
 
 private struct DeviceRow: View {
   let device: DeviceDTO
+  let dialTarget: SavedDeviceConnectTarget
   let connectsViaWiFi: Bool
   let isConnectedElsewhere: Bool
   let signalTier: RSSITuning.SignalTier?
@@ -365,24 +371,30 @@ private struct DeviceRow: View {
   }
 
   private var transportIcon: String {
-    guard let method = device.primaryConnectionMethod else {
-      return "antenna.radiowaves.left.and.right"
+    switch dialTarget {
+    case .wifi:
+      "wifi"
+    case .bluetooth:
+      "antenna.radiowaves.left.and.right"
     }
-    return method.isWiFi ? "wifi" : "antenna.radiowaves.left.and.right"
   }
 
   private var transportColor: Color {
-    guard let method = device.primaryConnectionMethod else {
-      return .green
+    switch dialTarget {
+    case .wifi:
+      .blue
+    case .bluetooth:
+      .green
     }
-    return method.isWiFi ? .blue : .green
   }
 
   private var connectionDescription: String {
-    if let method = device.primaryConnectionMethod, method.isWiFi {
-      return method.shortDescription
+    switch dialTarget {
+    case let .wifi(host, port):
+      ConnectionMethod.wifi(host: host, port: port, displayName: nil).shortDescription
+    case .bluetooth:
+      L10n.Settings.DeviceSelection.bluetooth
     }
-    return L10n.Settings.DeviceSelection.bluetooth
   }
 
   var body: some View {
@@ -441,15 +453,5 @@ private struct DeviceRow: View {
   private var signalDescription: String {
     guard let tier = signalTier else { return "" }
     return SignalBars.accessibilityDescription(forTier: tier)
-  }
-}
-
-private extension DeviceDTO {
-  var primaryConnectionMethod: ConnectionMethod? {
-    connectionMethods.first { $0.isWiFi } ?? connectionMethods.first
-  }
-
-  var connectsViaWiFi: Bool {
-    primaryConnectionMethod?.isWiFi == true
   }
 }

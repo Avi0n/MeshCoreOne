@@ -14,8 +14,7 @@ struct NotificationPreferences {
   let badgeEnabled: Bool
   let lowBatteryEnabled: Bool
 
-  init() {
-    let defaults = UserDefaults.standard
+  init(defaults: UserDefaults = .standard) {
     func enabled(_ key: AppStorageKey) -> Bool {
       defaults.object(forKey: key.rawValue) as? Bool ?? AppStorageKey.defaultNotificationEnabled
     }

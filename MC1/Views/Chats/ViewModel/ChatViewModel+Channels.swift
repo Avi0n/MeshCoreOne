@@ -10,6 +10,9 @@ extension ChatViewModel {
   /// side effects here run only when that load succeeded.
   /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
   func loadChannelMessages(for channel: ChannelDTO, populateMode: ChatPopulateMode) async {
+    guard !Task.isCancelled else { return }
+    let dataStore = dataStore
+    let capturedCoordinator = syncCoordinator
     // Track active channel for notification suppression
     notificationService?.setActiveConversation(
       channelIndex: channel.index,
@@ -17,27 +20,32 @@ extension ChatViewModel {
     )
 
     let loaded = await primeInitialChannelMessages(for: channel, populateMode: populateMode)
+    guard !Task.isCancelled else { return }
 
     // Push the device flood scope after populating the timeline. A device
     // command, so it runs only on real channel open — never during prefetch.
     await syncFloodScope(for: channel)
 
-    guard loaded else { return }
+    guard loaded, !Task.isCancelled else { return }
 
     // Clear unread count and mention badge, then notify UI to refresh chat list.
     // The messages already rendered, so a bookkeeping failure here is logged
     // rather than surfaced as a load error.
     do {
       try await dataStore?.clearChannelUnreadCount(channelID: channel.id)
+      guard !Task.isCancelled else { return }
       try await dataStore?.clearChannelUnreadMentionCount(channelID: channel.id)
+      guard !Task.isCancelled else { return }
       try await dataStore?.markFailedSendsSeen(radioID: channel.radioID, channelIndex: channel.index)
     } catch {
       logger.warning("loadChannelMessages: failed to clear unread counts - \(error.localizedDescription)")
     }
-    syncCoordinator?.notifyConversationsChanged()
-
-    // Update app badge
-    await notificationService?.updateBadgeCount()
+    if currentRadioIDProvider() == channel.radioID, syncCoordinator === capturedCoordinator {
+      capturedCoordinator?.notifyConversationsChanged()
+    }
+    if let dataStore {
+      await refreshReadStateBadge(dataStore: dataStore, radioID: channel.radioID)
+    }
   }
 
   /// Populates the bound coordinator for `channel` and builds its render
@@ -136,12 +144,15 @@ extension ChatViewModel {
 
   // MARK: - Channel Actions
 
-  /// Send a channel message optimistically — shows immediately, sends in background.
-  func sendChannelMessage(text: String) async {
+  /// Creates a pending channel Message for the service-owned send queue.
+  /// Missing connection context returns false so the composer can restore the Draft.
+  @discardableResult
+  func sendChannelMessage(text: String) async -> Bool {
+    guard !text.isEmpty else { return true }
     guard let channel = currentChannel,
-          let messageService,
-          !text.isEmpty else {
-      return
+          let messageService else {
+      sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+      return false
     }
 
     errorMessage = nil
@@ -154,10 +165,10 @@ extension ChatViewModel {
         radioID: channel.radioID
       )
       appendMessageIfNew(message)
-      schedulePrefetchForOutgoingMessage(message, isChannelMessage: true)
+      schedulePrefetchForMessage(message, isChannelMessage: true)
     } catch {
       errorMessage = error.userFacingMessage
-      return
+      return true
     }
 
     let envelope = ChannelMessageEnvelope(
@@ -173,6 +184,7 @@ extension ChatViewModel {
     } catch {
       await recordLocalEnqueueFailure(messageID: message.id, error: error)
     }
+    return true
   }
 
   /// Retry sending a failed channel message in place. The drain stamps a

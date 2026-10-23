@@ -150,11 +150,18 @@ final class LineOfSightViewModel {
 
   var cameraRegion: MKCoordinateRegion?
   private(set) var cameraRegionVersion = 0
+  private(set) var hasAppliedInitialCameraFit = false
+  private var hasUserAdjustedCamera = false
+  @ObservationIgnored private(set) var viewport: MapViewportSnapshot?
+  @ObservationIgnored private var mapRenderers: [UUID] = []
+  @ObservationIgnored private var viewportRendererID: UUID?
 
   // MARK: - RF Parameters
 
   /// Operating frequency in MHz - call `commitFrequencyChange()` after editing
   var frequencyMHz: Double = 906.0
+  var frequencyInputText: String?
+  private var hasSeededFrequency = false
 
   /// Refraction k-factor - auto-triggers re-analysis on change
   var refractionK: Double = 1.0 {
@@ -167,6 +174,7 @@ final class LineOfSightViewModel {
 
   /// Commits frequency change and triggers re-analysis with cached profile
   func commitFrequencyChange() {
+    hasSeededFrequency = true
     reanalyzeWithCachedProfileIfNeeded()
   }
 
@@ -187,8 +195,8 @@ final class LineOfSightViewModel {
   /// Renders a frequency value for editing using a locale-stable format,
   /// so the displayed text always round-trips back through `parseFrequency`.
   func formatFrequencyForEditing(_ value: Double) -> String {
-    if value.truncatingRemainder(dividingBy: 1) == 0 {
-      return String(Int(value))
+    if let integer = Int(exactly: value) {
+      return String(integer)
     }
     return String(format: "%.1f", value)
   }
@@ -487,6 +495,51 @@ final class LineOfSightViewModel {
     cameraRegionVersion += 1
   }
 
+  /// Records a camera change that came from the map, not from `setCameraRegion`.
+  func noteUserAdjustedCamera() {
+    hasUserAdjustedCamera = true
+  }
+
+  /// Stores a finished user pan or zoom without bumping `cameraRegionVersion`.
+  /// A version bump would push that same region back into the map.
+  func acceptUserCameraRegion(_ region: MKCoordinateRegion) {
+    cameraRegion = region
+    noteUserAdjustedCamera()
+  }
+
+  /// Fits repeaters once. Skips if the user already moved the camera or a
+  /// programmatic region is in place, so a late repeater load cannot jump back.
+  func applyInitialRepeaterCameraFitIfNeeded() {
+    if hasUserAdjustedCamera || cameraRegionVersion > 0 {
+      hasAppliedInitialCameraFit = true
+      return
+    }
+    let coordinates = repeatersWithLocation.map(\.coordinate)
+    guard !coordinates.isEmpty else { return }
+    guard !hasAppliedInitialCameraFit else { return }
+    hasAppliedInitialCameraFit = true
+    setCameraRegion(fitting: coordinates)
+  }
+
+  func mountMapRenderer(_ id: UUID) {
+    mapRenderers.removeAll { $0 == id }
+    mapRenderers.append(id)
+  }
+
+  func unmountMapRenderer(_ id: UUID) {
+    mapRenderers.removeAll { $0 == id }
+  }
+
+  func viewportReady(renderer id: UUID) {
+    guard mapRenderers.last == id else { return }
+    viewportRendererID = id
+  }
+
+  func captureViewport(_ snapshot: MapViewportSnapshot, renderer id: UUID) {
+    guard viewportRendererID == id else { return }
+    viewport = snapshot
+  }
+
   private func setCameraRegion(fitting coordinates: [CLLocationCoordinate2D]) {
     guard let region = coordinates.boundingRegion() else { return }
     setCameraRegion(region)
@@ -530,20 +583,19 @@ final class LineOfSightViewModel {
 
   // MARK: - Configuration
 
-  /// Configure with the data store and radio this view model uses; a provider returning nil mirrors a disconnected state.
-  /// Pass the connected device's frequency in kHz as a one-shot seed for the analysis frequency field.
+  /// Rebinds live store and radio providers. Device frequency is a one-shot seed
+  /// so a later user edit survives service or radio changes.
   func configure(
     dataStore: @escaping @MainActor () -> (any PersistenceStoreProtocol)?,
     radioID: @escaping @MainActor () -> UUID?,
-    deviceFrequencyKHz: UInt32? = nil
+    deviceFrequencyKHz: UInt32?
   ) {
     dataStoreProvider = dataStore
     radioIDProvider = radioID
 
-    // Device frequency is stored in kHz; analysis works in MHz.
-    // Treated as a one-shot seed: the user edits frequencyMHz independently after this.
-    if let deviceFrequencyKHz {
+    if !hasSeededFrequency, let deviceFrequencyKHz {
       frequencyMHz = Double(deviceFrequencyKHz) / 1000.0
+      hasSeededFrequency = true
     }
   }
 

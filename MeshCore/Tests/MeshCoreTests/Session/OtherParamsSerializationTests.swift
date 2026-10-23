@@ -4,6 +4,60 @@ import Testing
 
 @Suite("MeshCoreSession other-params serialization")
 struct OtherParamsSerializationTests {
+  @Test(arguments: [false, true])
+  func `full and granular setters preserve acknowledged configuration`(concurrent: Bool) async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(transport: transport)
+    try await startSession(session, transport: transport)
+    let device = OtherParamsDevice(transport: transport)
+    let responder = Task { await device.run() }
+    defer { responder.cancel() }
+
+    let full = Task {
+      try await session.setOtherParams(
+        manualAddContacts: true, telemetryModeEnvironment: 2,
+        telemetryModeLocation: 1, telemetryModeBase: 3,
+        advertisementLocationPolicy: 1, multiAcks: 4
+      )
+    }
+    try await waitUntil {
+      await transport.sentData.contains { $0.first == CommandCode.setOtherParams.rawValue }
+    }
+    if !concurrent { try await full.value }
+    let granular = Task { try await session.setMultiAcks(7) }
+    try await full.value
+    try await granular.value
+
+    let final = try #require(await device.lastWrittenConfig)
+    #expect(final.manualAddContacts)
+    #expect(final.telemetryModeEnvironment == 2)
+    #expect(final.telemetryModeLocation == 1)
+    #expect(final.telemetryModeBase == 3)
+    #expect(final.advertisementLocationPolicy == 1)
+    #expect(final.multiAcks == 7)
+    await session.stop()
+  }
+
+  @Test
+  func `omitting multi acks preserves the radio value and refreshes the cache`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(transport: transport)
+    try await startSession(session, transport: transport)
+    let device = OtherParamsDevice(transport: transport)
+    let responder = Task { await device.run() }
+    defer { responder.cancel() }
+    try await session.setMultiAcks(7)
+    try await session.setOtherParams(
+      manualAddContacts: true, telemetryModeEnvironment: 0,
+      telemetryModeLocation: 0, telemetryModeBase: 0,
+      advertisementLocationPolicy: 0
+    )
+    #expect(await session.currentSelfInfo?.manualAddContacts == true)
+    #expect(await session.currentSelfInfo?.multiAcks == 7)
+    #expect(await transport.sentData.last { $0.first == CommandCode.setOtherParams.rawValue }?.count == 4)
+    await session.stop()
+  }
+
   /// Two granular setters fired concurrently must both survive. Each setter does a
   /// read-modify-write of the full config across several wire exchanges, so without
   /// serialization the second setter reads the pre-first-write snapshot and reverts
@@ -69,7 +123,7 @@ private actor OtherParamsDevice {
     guard let code = frame.first else { return }
     switch code {
     case CommandCode.setOtherParams.rawValue:
-      if let config = Self.decodeSetOtherParams(frame) {
+      if let config = Self.decodeSetOtherParams(frame, current: current) {
         current = config
         lastWrittenConfig = config
       }
@@ -82,9 +136,9 @@ private actor OtherParamsDevice {
   }
 
   /// Decodes a setOtherParams command frame: [cmd][manualAdd][telemetryByte][advLoc][multiAcks].
-  private static func decodeSetOtherParams(_ frame: Data) -> OtherParamsConfig? {
+  private static func decodeSetOtherParams(_ frame: Data, current: OtherParamsConfig) -> OtherParamsConfig? {
     let bytes = Array(frame)
-    guard bytes.count >= 5 else { return nil }
+    guard bytes.count >= 4 else { return nil }
     let telemetry = bytes[2]
     return OtherParamsConfig(
       manualAddContacts: bytes[1] != 0,
@@ -92,7 +146,7 @@ private actor OtherParamsDevice {
       telemetryModeLocation: (telemetry >> 2) & 0b11,
       telemetryModeEnvironment: (telemetry >> 4) & 0b11,
       advertisementLocationPolicy: bytes[3],
-      multiAcks: bytes[4]
+      multiAcks: bytes.count >= 5 ? bytes[4] : current.multiAcks
     )
   }
 }

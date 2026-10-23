@@ -2,7 +2,7 @@ import Foundation
 @testable import MeshCore
 import Testing
 
-@Suite("MeshCoreSession auto contact refresh")
+@Suite("MeshCoreSession auto contact refresh", .timeLimit(.minutes(1)))
 struct AutoContactRefreshTests {
   @Test
   func `auto-refresh coalesces bursty contact invalidations`() async throws {
@@ -14,31 +14,37 @@ struct AutoContactRefreshTests {
     try await startSession(session, transport: transport)
     await session.setAutoUpdateContacts(true)
 
-    let advertisementPacket = makeAdvertisementPacket(publicKey: Data(repeating: 0x22, count: 32))
-    await transport.simulateReceive(advertisementPacket)
-    await transport.simulateReceive(advertisementPacket)
-    await transport.simulateReceive(advertisementPacket)
+    do {
+      let finalAdvertKey = Data(repeating: 0x33, count: 32)
+      let finalAdvertEvents = await session.events(filter: .advertisement(fromPrefix: finalAdvertKey))
+      var finalAdvertIterator = finalAdvertEvents.makeAsyncIterator()
+      let advertisementPacket = makeAdvertisementPacket(publicKey: Data(repeating: 0x22, count: 32))
+      await transport.simulateReceive(advertisementPacket)
+      try await waitUntil("first contact refresh should be sent") {
+        await transport.sentData.count == 1
+      }
+      #expect(await transport.sentData.first == PacketBuilder.getContacts())
 
-    try await waitUntil("first contact refresh should be sent") {
-      await transport.sentData.count >= 1
-    }
+      await transport.simulateReceive(advertisementPacket)
+      await transport.simulateReceive(makeAdvertisementPacket(publicKey: finalAdvertKey))
+      // Scheduling precedes dispatch, so the last advert proves all invalidations were admitted.
+      try #require(await finalAdvertIterator.next() != nil)
+      #expect(await session.autoContactRefreshStateForTest.requested)
+      #expect(await transport.sentData.count == 1)
+      let refreshTask = try #require(await session.autoContactRefreshStateForTest.task)
 
-    #expect(await transport.sentData.count == 1)
-    #expect(await transport.sentData.first == PacketBuilder.getContacts())
-
-    await simulateEmptyContactsResponse(transport, lastModified: 1)
-    try await Task.sleep(for: .milliseconds(50))
-
-    let sentAfterFirstResponse = await transport.sentData.count
-    #expect(sentAfterFirstResponse >= 1)
-    #expect(sentAfterFirstResponse <= 2)
-
-    if sentAfterFirstResponse == 2 {
+      await simulateEmptyContactsResponse(transport, lastModified: 1)
+      try await waitUntil("the pending invalidation should produce one follow-up refresh") {
+        await transport.sentData.count == 2
+      }
       await simulateEmptyContactsResponse(transport, lastModified: 2)
-      try await Task.sleep(for: .milliseconds(50))
+      await refreshTask.value
+      #expect(await transport.sentData.count == 2)
+    } catch {
+      await session.stop()
+      throw error
     }
-
-    #expect(await transport.sentData.count <= 2)
+    await session.stop()
   }
 
   private func simulateEmptyContactsResponse(_ transport: MockTransport, lastModified: UInt32) async {
@@ -56,24 +62,6 @@ struct AutoContactRefreshTests {
     await transport.simulateReceive(makeSelfInfoPacket())
     try await startTask.value
     await transport.clearSentData()
-  }
-
-  private func waitUntil(
-    _ description: String,
-    timeout: Duration = .seconds(10),
-    pollInterval: Duration = .milliseconds(10),
-    condition: @escaping @Sendable () async -> Bool
-  ) async throws {
-    let clock = ContinuousClock()
-    let deadline = clock.now.advanced(by: timeout)
-
-    while clock.now < deadline {
-      if await condition() { return }
-      try await Task.sleep(for: pollInterval)
-    }
-
-    Issue.record("Timed out waiting: \(description)")
-    throw MeshCoreError.timeout
   }
 
   private func makeAdvertisementPacket(publicKey: Data) -> Data {

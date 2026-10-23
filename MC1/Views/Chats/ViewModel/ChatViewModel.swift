@@ -42,6 +42,10 @@ final class ChatViewModel {
   /// All contacts for mention autocomplete (includes contacts without messages)
   var allContacts: [ContactDTO] = []
 
+  /// Contact ids committed with `conversations`. Nil when contacts were not
+  /// fetched, so a messageless direct stays open until a successful fetch.
+  var retainingDirectContactIDs: Set<UUID>?
+
   /// `loweredName -> nickname` for channel sender matching, rebuilt whenever
   /// `allContacts` changes so per-message resolution stays O(1).
   var nicknamesByLoweredName: [String: String] = [:]
@@ -99,6 +103,12 @@ final class ChatViewModel {
     /// Test-only fault injection fired immediately before the failed-send keys
     /// fetch so tests can exercise the keep-last-known catch path.
     @ObservationIgnored var failedSendRefreshFaultInjection: (@MainActor () throws -> Void)?
+
+    /// Test-only hook after offline unread totals are fetched, before badge publication.
+    @ObservationIgnored var readStateBadgeFetchInterleaveHook: (@MainActor () async -> Void)?
+
+    /// Test-only hook before a queued command waits for its predecessor.
+    @ObservationIgnored var readStateBeforePredecessorInterleaveHook: (@MainActor () async -> Void)?
   #endif
 
   // MARK: - Conversation Cache Storage
@@ -229,9 +239,6 @@ final class ChatViewModel {
   /// `errorMessage` (modal "Error" alert) or `sendErrorMessage` (modal
   /// "Unable to Send" alert).
   var errorBannerMessage: String?
-
-  /// Message text being composed
-  var composingText = ""
 
   /// Reentry guard for retry actions. A single `ChatViewModel` is bound to one
   /// conversation at a time (`currentChannel` xor `currentContact`), so this
@@ -382,10 +389,8 @@ final class ChatViewModel {
   /// (the always-present text link remains the baseline).
   @ObservationIgnored var onNavigateToMap: ((CLLocationCoordinate2D) -> Void)?
 
-  /// Drives receive-time prefetch of inline image dimensions and link
-  /// preview metadata so message bubbles render at final size on first
-  /// paint. Constructed in `configure(...)` when services are available;
-  /// nil while disconnected (offline browse never receives new messages).
+  /// Resolves image dimensions and preview metadata after message insertion.
+  /// Constructed in `configure(...)` when services are available; nil while disconnected.
   @ObservationIgnored var prefetcher: InlineImagePrefetcher?
 
   /// Long-running subscription to `InlineImageDimensionsStore.resolutionUpdates()`.
@@ -400,11 +405,6 @@ final class ChatViewModel {
   /// `ChatTimelinePrimer` does not subscribe.
   @ObservationIgnored var snapshotResolutionTask: Task<Void, Never>?
 
-  /// Per-instance override of the receive-time prefetch timeout. Production
-  /// callers leave this at `defaultPrefetchTimeout` (3s); tests can shorten
-  /// it to bound their wall-clock budget.
-  @ObservationIgnored var prefetchTimeout: Duration = ChatViewModel.defaultPrefetchTimeout
-
   /// Write capability for the bound coordinator, minted when `timeline`
   /// binds. Every timeline mutation goes through this; when a newer owner
   /// binds the same coordinator (live open superseding a prime, BFU scene
@@ -415,12 +415,18 @@ final class ChatViewModel {
     timeline.writer
   }
 
-  /// Contact ID currently having its favorite status toggled (for loading UI)
-  var togglingFavoriteID: UUID?
-
   // MARK: - Initialization
 
-  init() {}
+  @ObservationIgnored let notificationDefaults: UserDefaults
+  @ObservationIgnored let notificationSystemOperations: NotificationService.SystemOperations
+
+  init(
+    notificationDefaults: UserDefaults = .standard,
+    notificationSystemOperations: NotificationService.SystemOperations = .live
+  ) {
+    self.notificationDefaults = notificationDefaults
+    self.notificationSystemOperations = notificationSystemOperations
+  }
 
   /// Forwards a map-thumbnail tap to the same navigation sink the coordinate
   /// text link uses. `onNavigateToMap` is optional; if nil, the tap is a

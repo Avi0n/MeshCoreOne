@@ -30,3 +30,38 @@
 "whatsNew.fasterChatLoading.title" = "Faster chat loading";
 /* What's New v1.5 - Faster chat loading, description */
 "whatsNew.fasterChatLoading.description" = "Opening a chat is up to 90%% faster.";
+
+/* What's New v1.6 - Pinned chats, title */
+"whatsNew.pinnedChats.title" = "Pinned chats";
+/* What's New v1.6 - Pinned chats, description */
+"whatsNew.pinnedChats.description" = "Pinned chats are now separate from favorites. Pinned chats appear in a Pinned section, and contacts you had already favorited are pinned the first time you open the app.";
+
+/* What's New v1.6 - Read and unread, title */
+"whatsNew.readAndUnread.title" = "Read and unread";
+/* What's New v1.6 - Read and unread, description */
+"whatsNew.readAndUnread.description" = "Mark a conversation as read or unread by long pressing on the chat.";
+
+/* What's New v1.6 - iPhone Duo, title */
+"whatsNew.iPhoneDuo.title" = "iPhone Duo";
+/* What's New v1.6 - iPhone Duo, description */
+"whatsNew.iPhoneDuo.description" = "MC1 is ready for iPhone Duo with resizable layouts.";
+
+/* What's New v1.6 - iPad tab bar, title */
+"whatsNew.iPadTabBar.title" = "iPad tab bar";
+/* What's New v1.6 - iPad tab bar, description */
+"whatsNew.iPadTabBar.description" = "iPad is moving the tab icons from the left to the top. This helps us better support all devices including the iPhone Duo.";
+
+/* What's New v1.6 - Advanced map filters, title */
+"whatsNew.advancedMapFilters.title" = "Advanced map filters";
+/* What's New v1.6 - Advanced map filters, description */
+"whatsNew.advancedMapFilters.description" = "Filter the map by last heard time and hop count. You can pick a preset or set a custom range, and remove a filter from its chip.";
+
+/* What's New v1.6 - Bluetooth and Wi-Fi, title */
+"whatsNew.bluetoothAndWiFi.title" = "Bluetooth and Wi-Fi";
+/* What's New v1.6 - Bluetooth and Wi-Fi, description */
+"whatsNew.bluetoothAndWiFi.description" = "If a radio is on firmware 1.18 or later and paired over both Bluetooth and Wi-Fi, you can switch between them in Connect Device and in Settings > Connection.";
+
+/* What's New v1.6 - More changes, title */
+"whatsNew.moreChanges.title" = "More changes";
+/* What's New v1.6 - More changes, description */
+"whatsNew.moreChanges.description" = "Tap \"See all new changes\" below to view the full list of bug fixes and other features.";

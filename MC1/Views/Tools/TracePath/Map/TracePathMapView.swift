@@ -8,7 +8,6 @@ private let logger = Logger(subsystem: "com.mc1", category: "TracePathMapView")
 /// Map-based view for building and visualizing trace paths
 struct TracePathMapView: View {
   @Environment(\.appState) private var appState
-  @Environment(\.colorScheme) private var colorScheme
   @Bindable var traceViewModel: TracePathViewModel
   @Binding var presentedResult: TraceResult?
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
@@ -16,16 +15,9 @@ struct TracePathMapView: View {
   @AppStorage(AppStorageKey.mapClusteringEnabled.rawValue)
   private var clusteringEnabled = AppStorageKey.defaultMapClusteringEnabled
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
-  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
-  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
   @AppStorage(AppStorageKey.mapFilterTracePath.rawValue)
   private var mapFilterRaw: String = ""
   @State private var mapViewModel = TracePathMapViewModel()
-
-  private var mapIsDark: Bool {
-    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
-    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
-  }
 
   private var mapFilter: MapFilterState {
     MapFilterPreferences.state(fromRaw: mapFilterRaw, host: .tracePath)
@@ -146,7 +138,6 @@ struct TracePathMapView: View {
       points: mapViewModel.mapPoints,
       lines: mapViewModel.mapLines,
       mapStyle: mapStyleSelection,
-      isDarkMode: mapIsDark,
       isOffline: !appState.offlineMapService.isNetworkAvailable,
       showLabels: showLabels,
       clusteringEnabled: clusteringEnabled,

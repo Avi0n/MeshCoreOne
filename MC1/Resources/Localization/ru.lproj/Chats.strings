@@ -242,6 +242,13 @@
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "Не удалось загрузить разговоры.";
 
+/* Location: ChatViewModel - Error when saving a chat pin fails */
+"chats.error.pinSaveFailed" = "Не удалось сохранить закрепление. Повторите попытку.";
+
+/* Error when saving a conversation's read state fails */
+/* AI-translated - please verify with native speakers. */
+"chats.error.readStateSaveFailed" = "Не удалось сохранить статус прочтения. Повторите попытку.";
+
 // MARK: - Channel Options Sheet
 
 /* Location: ChannelOptionsSheet.swift - Loading indicator text */
@@ -315,8 +322,8 @@
 /* Location: NewChatView.swift - Contact type label for rooms */
 // MARK: - Conversation Row
 
-/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator */
-"chats.row.favorite" = "Избранное";
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
+"chats.row.pin" = "Закреплено";
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "Пока нет сообщений";
@@ -338,11 +345,15 @@
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
 "chats.action.mute" = "Без звука";
 
-/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
-"chats.action.unfavorite" = "Убрать из избранного";
+/* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
+"chats.action.pin" = "Закрепить";
 
-/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
-"chats.action.favorite" = "В избранное";
+/* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
+"chats.action.unpin" = "Открепить";
+
+/* Context-menu action to mark a conversation as unread */
+/* AI-translated - please verify with native speakers. */
+"chats.action.markAsUnread" = "Непрочитанное";
 
 // MARK: - Room Conversation Row
 
@@ -507,10 +518,10 @@
 "chats.joinFromMessage.error.loadFailed" = "Канал создан, но не удалось загрузить.";
 
 /* Location: JoinChannelConfirmationSheet.swift - Region scope shown before join - %@ is region name */
-"chats.joinFromMessage.regionScope" = "Region: %@";
+"chats.joinFromMessage.regionScope" = "Регион: %@";
 
 /* Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret */
-"chats.joinFromMessage.hashtagSecretMismatch" = "This secret does not match the public hashtag key. You will join a private channel that uses this name.";
+"chats.joinFromMessage.hashtagSecretMismatch" = "Секретный ключ ссылки не совпадает с известным ключом, полученным из названия хэштега. Ты присоединишься к приватному каналу с этим названием.";
 
 // MARK: - Scan Channel QR View
 
@@ -630,7 +641,6 @@
 /* Location: MessageActionsSheet.swift - Details row shown when region could not be resolved */
 "chats.message.info.regionUnresolved" = "Регион: Неизвестно";
 
-/* TODO: translate */
 /* Location: ActionsDetailsSection.swift - Details row when multiple known regions match the packet transport code - %@ is localized list of names */
 "chats.message.info.regionAmbiguous" = "Регион (неоднозначный): %@";
 
@@ -948,7 +958,6 @@
 /* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
 "chats.message.region.accessibilityLabel" = "Регион %@";
 
-/* TODO: translate */
 /* Location: BubbleFooterRow.swift - VoiceOver when multiple regions match - %@ is localized list of names */
 "chats.message.region.ambiguousAccessibilityLabel" = "Регион, неоднозначный: %@";
 
@@ -1128,6 +1137,9 @@
 
 /* Location: ConversationRow.swift - Purpose: Mentions only indicator */
 "chats.row.mentionsOnly" = "Только упоминания";
+
+/* TODO: translate - Accessibility label for the row actions menu */
+"chats.row.actionsMenu.accessibilityLabel" = "Conversation actions";
 
 // MARK: - Reactions
 

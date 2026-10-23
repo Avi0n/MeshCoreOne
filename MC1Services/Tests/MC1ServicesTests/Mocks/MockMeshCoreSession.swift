@@ -85,6 +85,8 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000)
   )
 
+  private var sendMessageObserver: (@Sendable () async -> Void)?
+
   /// Result to return from sendChannelMessage
   public var stubbedSendChannelMessageError: Error?
 
@@ -155,6 +157,9 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   /// Event to return from waitForEvent (nil simulates a timeout)
   public var stubbedWaitForEventResult: MeshEvent?
 
+  /// When set, `changeContactFlags` awaits this before returning. A throw fails the call.
+  public var changeContactFlagsHold: (@Sendable () async throws -> Void)?
+
   /// Result to return from getMessage
   public var stubbedGetMessageResult: Result<MessageResult, Error> = .success(.noMoreMessages)
 
@@ -166,6 +171,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   public var stubbedSendCommandResult: Result<MessageSentInfo, Error> = .success(
     MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100)
   )
+
+  public func setSendCommandResult(_ result: Result<MessageSentInfo, Error>) {
+    stubbedSendCommandResult = result
+  }
 
   /// Result to return from `requestStatus` when the FIFO list is empty.
   public var stubbedRequestStatusResult: Result<StatusResponse, Error> =
@@ -216,6 +225,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   public struct SendCommandInvocation: Sendable, Equatable {
     public let destination: Data
     public let command: String
+    public let textType: TextType
   }
 
   public struct SetChannelInvocation: Sendable, Equatable {
@@ -258,6 +268,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     stubbedContacts = contacts
   }
 
+  /// Actor isolation forbids writing `changeContactFlagsHold` from a test.
+  public func setChangeContactFlagsHold(_ hold: (@Sendable () async throws -> Void)?) {
+    changeContactFlagsHold = hold
+  }
+
   /// Sets the reported total for `getContactsReportingTotal` (isolated setter).
   /// Set it above the stubbed contact count to simulate a truncated stream.
   public func setStubbedReportedTotal(_ total: Int?) {
@@ -274,6 +289,22 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   /// for the same actor-isolation reason as `setStubbedContacts`.
   public func setCurrentSelfInfo(_ selfInfo: SelfInfo?) {
     currentSelfInfo = selfInfo
+  }
+
+  public func setSendMessageResult(_ result: Result<MessageSentInfo, Error>) {
+    stubbedSendMessageResult = result
+  }
+
+  public func setSendMessageObserver(_ observer: (@Sendable () async -> Void)?) {
+    sendMessageObserver = observer
+  }
+
+  public func setSendChannelMessageError(_ error: Error?) {
+    stubbedSendChannelMessageError = error
+  }
+
+  public func setGetChannelError(_ error: Error?) {
+    stubbedGetChannelError = error
   }
 
   /// Sets the results returned by successive `sendLogin` calls (isolated setter).
@@ -365,6 +396,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   public func sendMessage(to destination: Data, text: String, timestamp: Date, attempt: UInt8) async throws -> MessageSentInfo {
     sendMessageInvocations.append(SendMessageInvocation(destination: destination, text: text, timestamp: timestamp, attempt: attempt))
+    await sendMessageObserver?()
     switch stubbedSendMessageResult {
     case let .success(info):
       return info
@@ -378,6 +410,15 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     if let error = stubbedSendChannelMessageError {
       throw error
     }
+  }
+
+  public func sendChannelMessage(
+    channel: UInt8,
+    text: String,
+    timestamp: Date,
+    floodScope: ResolvedFloodScope
+  ) async throws {
+    try await sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
   }
 
   public func getContacts(since lastModified: Date?) async throws -> [MeshContact] {
@@ -435,6 +476,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   public func setName(_ name: String) async throws {}
 
   public func setCoordinates(latitude: Double, longitude: Double) async throws {}
+
+  public func failNextAddContact(_ error: Error) {
+    stubbedAddContactError = error
+  }
 
   public func addContact(_ contact: MeshContact) async throws {
     addContactInvocations.append(AddContactInvocation(contact: contact))
@@ -511,8 +556,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     // Stub - not used in current tests
   }
 
+  public private(set) var changeContactFlagsCalls: [(contact: MeshContact, flags: ContactFlags)] = []
+
   public func changeContactFlags(_ contact: MeshContact, flags: ContactFlags) async throws {
-    // Stub - not used in current tests
+    changeContactFlagsCalls.append((contact, flags))
+    try await changeContactFlagsHold?()
   }
 
   public func waitForEvent(filter: EventFilter, timeout: TimeInterval?) async -> MeshEvent? {
@@ -578,8 +626,15 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
 
   public func sendLogout(to destination: Data) async throws {}
 
-  public func sendCommand(to destination: Data, command: String, timestamp: Date) async throws -> MessageSentInfo {
-    sendCommandInvocations.append(SendCommandInvocation(destination: destination, command: command))
+  public func sendCommand(
+    to destination: Data,
+    command: String,
+    textType: TextType,
+    timestamp: Date
+  ) async throws -> MessageSentInfo {
+    sendCommandInvocations.append(
+      SendCommandInvocation(destination: destination, command: command, textType: textType)
+    )
     switch stubbedSendCommandResult {
     case let .success(info): return info
     case let .failure(error): throw error

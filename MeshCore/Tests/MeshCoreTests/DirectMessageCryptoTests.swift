@@ -81,6 +81,7 @@ struct DirectMessageCryptoTests {
     timestamp: UInt32,
     typeAttempt: UInt8,
     message: String,
+    authorPrefix: Data = Data(),
     sharedSecret: Data
   ) -> Data? {
     // Build plaintext
@@ -88,6 +89,7 @@ struct DirectMessageCryptoTests {
     var ts = timestamp.littleEndian
     plaintext.append(Data(bytes: &ts, count: 4))
     plaintext.append(typeAttempt)
+    plaintext.append(authorPrefix)
     plaintext.append(Data(message.utf8))
 
     // Encrypt
@@ -109,6 +111,27 @@ struct DirectMessageCryptoTests {
   }
 
   // MARK: - Tests
+
+  @Test(arguments: [Data([0x41, 0x42, 0x43, 0x44]), Data([0, 0x42, 0x43, 0x44]), Data([0xFF, 0x42, 0x43, 0x44])], [UInt8(8), 11])
+  func `signed post excludes the author prefix`(authorPrefix: Data, typeAttempt: UInt8) throws {
+    let sharedSecret = computeSharedSecret(myPrivateKey: recipientPrivateKey, theirPublicKey: senderPublicKey)
+    let payload = try #require(createEncryptedPayload(
+      destHash: 0xAA,
+      srcHash: 0xBB,
+      timestamp: 1_703_123_456,
+      typeAttempt: typeAttempt,
+      message: "Hello",
+      authorPrefix: authorPrefix,
+      sharedSecret: sharedSecret
+    ))
+
+    let result = DirectMessageCrypto.decrypt(
+      payload: payload,
+      myPrivateKey: recipientPrivateKey.rawRepresentation,
+      senderPublicKey: senderPublicKey.rawRepresentation
+    )
+    #expect(result == .success(timestamp: 1_703_123_456, typeAttempt: typeAttempt, text: "Hello"))
+  }
 
   @Test
   func `Decrypt success`() throws {

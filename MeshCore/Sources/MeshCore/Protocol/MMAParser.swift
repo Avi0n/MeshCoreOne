@@ -6,7 +6,7 @@ import Foundation
 enum MMAParser {
   /// Parses MMA entries from binary protocol data.
   ///
-  /// - Parameter data: Raw MMA data.
+  /// - Parameter data: MMA entries after the request tag and server clock.
   /// - Returns: An array of ``MMAEntry`` structs.
   ///
   /// ### Binary Format

@@ -32,11 +32,6 @@ struct MessageText: View {
     Text(precomputedText ?? formattedText)
   }
 
-  /// Exposes formatted text for testing
-  var testableFormattedText: AttributedString {
-    formattedText
-  }
-
   private var formattedText: AttributedString {
     MessageText.buildFormattedText(
       text: text,

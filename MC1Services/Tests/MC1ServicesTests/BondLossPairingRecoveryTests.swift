@@ -149,6 +149,31 @@ struct BondLossPairingRecoveryTests {
     #expect(try await store.fetchChannels(radioID: secondConnect.radioID).contains { $0.name == "FieldChannel" })
   }
 
+  @Test
+  func `removeFailedPairing on a dual row keeps the row and its radioID with wifi`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let manager = env.manager
+    let peripheralID = UUID()
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(id: peripheralID, radioID: radioID).copy {
+      $0.connectionMethods = [
+        .bluetooth(peripheralUUID: peripheralID, displayName: nil),
+        .wifi(host: "10.0.0.4", port: 5000, displayName: nil)
+      ]
+    }
+    try await manager.persistenceStore.saveDevice(device)
+    manager.persistConnection(deviceID: peripheralID, radioID: radioID, deviceName: device.nodeName)
+
+    await manager.removeFailedPairing(deviceID: peripheralID)
+
+    let rows = try await manager.persistenceStore.fetchDevices()
+    #expect(rows.map(\.id) == [peripheralID])
+    #expect(rows.first?.radioID == radioID)
+    #expect(rows.first?.connectionMethods == [.wifi(host: "10.0.0.4", port: 5000, displayName: nil)])
+    #expect(manager.lastConnectedDeviceID == peripheralID)
+  }
+
   // MARK: - Bond-verification clear
 
   @Test

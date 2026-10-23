@@ -198,6 +198,21 @@ Share your contact info or a channel via QR code:
   - **Cyan**: Repeaters.
   - **Orange**: Room Servers.
 
+#### Map Filters
+
+Tap the **Filter** button on the map toolbar to choose which nodes appear:
+
+- **Favorites**: Show only favorite contacts.
+- **Discovered**: Also show discovered nodes that are not in your contact list.
+- **Contacts**, **Repeaters**, **Rooms**: Show or hide each node type.
+
+Choose **More Filters…** to open **Advanced Filters**:
+
+- **Last Heard**: Show nodes by how long ago you last heard from them (adverts, messages, or pings). Pick a preset such as **2h**, or enter a **Minimum** and **Maximum** in minutes, hours, or days. For example, set only a maximum of 2 hours to see repeaters heard recently, or only a minimum of 1 day to find nodes that have gone quiet. The window rolls forward, so pins drop off the map as they age.
+- **Hops**: Show nodes by how many repeaters sit between you and them. **Direct** shows nodes heard without a repeater (0 hops). Set a **Minimum** and **Maximum** (0–63) for a range such as 6–10 hops.
+
+All filters combine, including with Favorites. While a Last Heard or Hops filter is on, nodes with no heard time or an unknown hop count are hidden. Each active advanced filter appears as a chip at the top of the map. Tap a chip to edit it, or tap its **✕** to clear it.
+
 ### Contact Actions
 
 Long-press a node row to open its context menu, where you can perform quick actions:

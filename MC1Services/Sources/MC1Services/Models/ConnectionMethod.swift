@@ -41,13 +41,32 @@ public enum ConnectionMethod: Codable, Sendable, Identifiable, Hashable {
     return false
   }
 
+  /// Companion WiFi TCP port. Firmware `TCP_PORT` defaults to this, and the CLI cannot read it.
+  public static let defaultWiFiPort: UInt16 = 5000
+
+  /// Keeps the first endpoint of each transport.
+  /// A later row for the same transport is a duplicate, not a newer connection.
+  static func canonicalized(_ methods: [ConnectionMethod]) -> [ConnectionMethod] {
+    var result: [ConnectionMethod] = []
+    for method in methods {
+      switch method {
+      case .bluetooth:
+        guard !result.contains(where: \.isBluetooth) else { continue }
+      case .wifi:
+        guard !result.contains(where: \.isWiFi) else { continue }
+      }
+      result.append(method)
+    }
+    return result
+  }
+
   /// Short description for display in lists.
   public var shortDescription: String {
     switch self {
     case .bluetooth:
       return "Bluetooth"
     case let .wifi(host, port, _):
-      if port == 5000 {
+      if port == Self.defaultWiFiPort {
         return host
       }
       return "\(host):\(port)"

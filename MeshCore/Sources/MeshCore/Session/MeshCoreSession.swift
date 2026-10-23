@@ -84,12 +84,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   let dispatcher = EventDispatcher()
   let requestResponseSerializer = RequestResponseSerializer()
 
-  /// Serializes the read-modify-write of the granular "other params" setters. The
-  /// inner wire exchanges already serialize on requestResponseSerializer, but a
-  /// read-modify-write spans several of them, so without this outer guard two
-  /// concurrent setters each write back the full config and silently revert each
-  /// other's change. This is a distinct lock from requestResponseSerializer, which
-  /// is not reentrant; nesting the two would deadlock.
+  /// Serializes full and granular configuration writes through their cache refresh.
+  /// This is separate from the nonreentrant serializer used by each wire exchange.
   let otherParamsSerializer = RequestResponseSerializer()
 
   // State
@@ -113,6 +109,13 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   }
 
   private var isRunning = false
+
+  /// False after `stop()`. `performBinaryExchange`, `sendAndMatch`, and `performGetMessage`
+  /// read this so a stopped session does not send or report a radio timeout.
+  var sessionIsRunning: Bool {
+    isRunning
+  }
+
   private var receiveTask: Task<Void, Never>?
   private var autoMessageFetchTask: Task<Void, Never>?
   private var autoMessageDrainTask: Task<Void, Never>?
@@ -121,6 +124,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   private var autoMessageDrainRequested = false
   private var autoContactRefreshRequested = false
   var inFlightGetMessage: Task<MessageResult, Error>?
+  var getMessageCallerCountForTest = 0
+  private(set) var processedMessagesWaitingCountForTest = 0
 
   // MARK: - Connection State
 
@@ -362,6 +367,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
       if case .messagesWaiting = event {
         requestAutoMessageDrain()
+        processedMessagesWaitingCountForTest += 1
       }
     }
   }
@@ -450,6 +456,9 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
     if case let .parseFailure(_, reason) = event {
       logger.warning("Failed to parse packet: \(data.hexString) - \(reason)")
+    } else if case .cliReply = event {
+      // Log the event name only. The reply can carry a WiFi password or a BLE PIN.
+      logger.debug("Received event: cliReply")
     } else {
       logger.debug("Received event: \(String(describing: event))")
     }
@@ -514,6 +523,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   /// subscribe call before dispatching events, avoiding the dispatch-vs-subscribe race.
   var subscriberCountForTest: Int {
     get async { await dispatcher.subscriberCountForTest }
+  }
+
+  var autoMessageDrainStateForTest: (requested: Bool, task: Task<Void, Never>?) {
+    (autoMessageDrainRequested, autoMessageDrainTask)
+  }
+
+  var autoContactRefreshStateForTest: (requested: Bool, task: Task<Void, Never>?) {
+    (autoContactRefreshRequested, autoContactRefreshTask)
   }
 }
 

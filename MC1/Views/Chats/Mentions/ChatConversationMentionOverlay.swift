@@ -11,7 +11,7 @@ struct ChatConversationMentionOverlay: View {
 
   var body: some View {
     if !suggestions.isEmpty {
-      VStack {
+      VStack(spacing: 0) {
         Spacer()
         MentionSuggestionView(contacts: suggestions) { contact in
           onSelectMention(contact)
@@ -28,6 +28,8 @@ struct ChatConversationMentionOverlay: View {
             removal: .move(edge: .bottom).combined(with: .opacity)
           )
         )
+        // `ChatWindowBottomInset` keeps suggestions above the bar once the container inset is ignored.
+        ChatWindowBottomInset()
       }
       .animation(.spring(response: 0.3, dampingFraction: 0.8), value: suggestions.isEmpty)
     }

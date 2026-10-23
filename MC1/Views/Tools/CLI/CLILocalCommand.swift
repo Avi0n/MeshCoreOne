@@ -11,6 +11,7 @@ enum CLILocalCommand: Equatable {
   case board
   case advert(flood: Bool)
   case reboot
+  case powerOff
   case getKey(CLILocalKey)
   case setName(String)
   case setLatitude(Double)
@@ -28,7 +29,7 @@ enum CLILocalCommand: Equatable {
   /// confirm step before executing.
   var requiresConfirmation: Bool {
     switch self {
-    case .reboot, .setRadio, .setFrequency:
+    case .reboot, .powerOff, .setRadio, .setFrequency:
       true
     default:
       false
@@ -39,6 +40,7 @@ enum CLILocalCommand: Equatable {
   var displayName: String {
     switch self {
     case .reboot: "reboot"
+    case .powerOff: "poweroff"
     case .setRadio: "set radio"
     case .setFrequency: "set freq"
     default: ""

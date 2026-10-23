@@ -8,6 +8,17 @@ final class RoomStatusViewModel {
   // MARK: - Shared Helper
 
   var helper = NodeStatusViewModel()
+  private var statusEpoch = Epoch()
+  #if DEBUG
+    var requestStatusForTesting: (@Sendable (UUID) async throws -> StatusResponse)?
+  #endif
+
+  func reset() {
+    statusEpoch.bump()
+    helper.status = nil
+    helper.statusSectionError = nil
+    helper.isLoadingStatus = false
+  }
 
   // MARK: - Dependencies
 
@@ -72,14 +83,27 @@ final class RoomStatusViewModel {
     guard let roomAdminService else { return }
     if helper.session == nil { helper.session = session }
 
+    statusEpoch.bump()
+    let ticket = statusEpoch.ticket()
+    #if DEBUG
+      let hookedStatus = requestStatusForTesting
+    #endif
     await helper.runRetryingSectionRequest(
       operationName: "status",
       setLoading: { self.helper.isLoadingStatus = $0 },
       setError: { self.helper.statusSectionError = $0 },
       operation: { [roomAdminService] timeout in
-        try await roomAdminService.requestStatus(sessionID: session.id, timeout: timeout)
+        #if DEBUG
+          if let hookedStatus {
+            return try await hookedStatus(session.id)
+          }
+        #endif
+        return try await roomAdminService.requestStatus(sessionID: session.id, timeout: timeout)
       },
-      onSuccess: { await self.handleStatusResponse($0) }
+      onSuccess: { [ticket] response in
+        guard ticket.isCurrent(in: self.statusEpoch) else { return }
+        await self.handleStatusResponse(response)
+      }
     )
   }
 

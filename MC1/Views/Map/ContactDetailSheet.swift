@@ -278,11 +278,16 @@ struct ContactDetailSheet: View {
   // MARK: - Favorite
 
   private func toggleFavorite() async {
+    guard !isTogglingFavorite else { return }
+    guard let service = appState.services?.contactService else {
+      errorMessage = L10n.Contacts.Contacts.Detail.Error.servicesUnavailable
+      return
+    }
     isTogglingFavorite = true
     defer { isTogglingFavorite = false }
     let newValue = !isFavorite
     do {
-      try await appState.services?.contactService.setContactFavorite(contact.id, isFavorite: newValue)
+      try await service.setContactFavorite(contact.id, isFavorite: newValue)
       isFavorite = newValue
     } catch {
       errorMessage = error.userFacingMessage

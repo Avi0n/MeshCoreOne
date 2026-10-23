@@ -4,6 +4,24 @@ import Testing
 
 @Suite("DataExtensions")
 struct DataExtensionsTests {
+  @Test(arguments: ["x", "1", "001122334455x", "001122334455a"])
+  func `hex rejects odd length input`(hex: String) {
+    #expect(Data(hexString: hex) == nil)
+    let error = #expect(throws: DestinationError.self) {
+      try Destination.hexString(hex).publicKey()
+    }
+    guard case let .invalidHexString(value)? = error else {
+      Issue.record("Expected invalidHexString")
+      return
+    }
+    #expect(value == hex)
+  }
+
+  @Test(arguments: [("", Data()), ("00aAFF", Data([0, 0xAA, 0xFF]))])
+  func `hex preserves even length input`(hex: String, expected: Data) {
+    #expect(Data(hexString: hex) == expected)
+  }
+
   @Test
   func `paddedOrTruncated pads short data`() {
     let data = Data([0x01, 0x02, 0x03])

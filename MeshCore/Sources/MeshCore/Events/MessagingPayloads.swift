@@ -134,7 +134,7 @@ public struct ChannelDatagram: Sendable, Equatable {
   public let pathLength: UInt8
   /// Application data-type namespace (see firmware `number_allocations.md`).
   public let dataType: UInt16
-  /// The raw binary payload (up to 163 bytes).
+  /// The raw binary payload (up to 165 bytes).
   public let data: Data
   /// The signal-to-noise ratio of the received packet in dB.
   ///

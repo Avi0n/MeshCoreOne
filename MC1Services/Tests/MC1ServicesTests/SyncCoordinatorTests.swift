@@ -84,12 +84,6 @@ struct SyncCoordinatorTests {
   }
 
   @Test
-  func `SyncPhase has all expected cases`() {
-    let phases: [SyncPhase] = [.contacts, .channels, .messages]
-    #expect(phases.count == 3)
-  }
-
-  @Test
   @MainActor
   func `SyncCoordinator initializes with idle state`() {
     let coordinator = SyncCoordinator()
@@ -226,6 +220,20 @@ struct SyncCoordinatorTests {
     #expect(reason.localizedStandardContains("messages saturated"))
     #expect(result.isConnectionUsable)
     #expect(coordinator.state == .synced)
+  }
+
+  @Test
+  func `hasCleanRecipientData requires clean contacts and clean channels`() {
+    #expect(
+      FullSyncResult(contacts: .clean, channels: .clean, messages: .failed("catch-up")).hasCleanRecipientData
+    )
+    #expect(
+      !FullSyncResult(contacts: .partial, channels: .clean, messages: .clean).hasCleanRecipientData
+    )
+    #expect(
+      !FullSyncResult(contacts: .clean, channels: .partial, messages: .clean).hasCleanRecipientData
+    )
+    #expect(!FullSyncResult.skipped.hasCleanRecipientData)
   }
 
   @Test

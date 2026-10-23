@@ -1,30 +1,9 @@
 @testable import MC1
-import Testing
-
-@Suite("Store value-model types")
-struct StoreValueModelTests {
-  @Test
-  func `RestoreState distinguishes its five cases`() {
-    #expect(RestoreState.idle == .idle)
-    #expect(RestoreState.syncing != .completed)
-    #expect(RestoreState.failed != .idle)
-    #expect(RestoreState.cancelled != .completed)
-    #expect(RestoreState.cancelled != .failed)
-  }
-
-  @Test
-  func `PendingPurchase carries productID and displayName`() {
-    let pending = PendingPurchase(productID: "io.pocketmesh.app.theme.marine", displayName: "Marine")
-    #expect(pending.productID == "io.pocketmesh.app.theme.marine")
-    #expect(pending.displayName == "Marine")
-    #expect(pending == PendingPurchase(productID: "io.pocketmesh.app.theme.marine", displayName: "Marine"))
-  }
-}
-
 @testable import MC1Services
 import StoreKit
 import StoreKitTest
 import SwiftUI
+import Testing
 
 @MainActor
 @Suite("StoreState error mapping")
@@ -77,19 +56,6 @@ final class StoreStatePurchaseTests {
   deinit { session.clearTransactions() }
 
   @Test
-  func `buying the bundle sets no error and leaves no pending purchase`() async {
-    let service = StoreService()
-    await service.load()
-    let state = StoreState(service: service)
-
-    await state.purchase(productID: StoreCatalog.Theme.bundleAll) { try await $0.purchase() }
-
-    #expect(state.errorMessage == nil)
-    #expect(state.pendingPurchase == nil)
-    #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
-  }
-
-  @Test
   func `an Ask-to-Buy purchase sets a pending banner, then reconcile clears it on approval`() async throws {
     try await waitForClearedStoreKitSession(session)
     session.askToBuyEnabled = true
@@ -136,6 +102,7 @@ final class StoreStatePurchaseTests {
 
     #expect(result == true)
     #expect(state.errorMessage == nil)
+    #expect(state.pendingPurchase == nil)
     #expect(service.ownedThemeIDs == StoreCatalog.Theme.bundledThemeIDs)
   }
 

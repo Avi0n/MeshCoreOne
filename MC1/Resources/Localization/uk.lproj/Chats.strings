@@ -242,6 +242,13 @@
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "Не вдалося завантажити розмови.";
 
+/* Location: ChatViewModel - Error when saving a chat pin fails */
+"chats.error.pinSaveFailed" = "Не вдалося зберегти закріплення. Спробуйте ще раз.";
+
+/* Error when saving a conversation's read state fails */
+/* AI-translated - please verify with native speakers. */
+"chats.error.readStateSaveFailed" = "Не вдалося зберегти стан прочитання. Спробуйте ще раз.";
+
 // MARK: - Channel Options Sheet
 
 /* Location: ChannelOptionsSheet.swift - Loading indicator text */
@@ -315,8 +322,8 @@
 /* Location: NewChatView.swift - Contact type label for rooms */
 // MARK: - Conversation Row
 
-/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator */
-"chats.row.favorite" = "Обране";
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
+"chats.row.pin" = "Закріплено";
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "Поки що немає повідомлень";
@@ -338,11 +345,15 @@
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
 "chats.action.mute" = "Вимкнути звук";
 
-/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
-"chats.action.unfavorite" = "Прибрати з обраного";
+/* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
+"chats.action.pin" = "Закріпити";
 
-/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
-"chats.action.favorite" = "До обраного";
+/* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
+"chats.action.unpin" = "Відкріпити";
+
+/* Context-menu action to mark a conversation as unread */
+/* AI-translated - please verify with native speakers. */
+"chats.action.markAsUnread" = "Непрочитане";
 
 // MARK: - Room Conversation Row
 
@@ -507,10 +518,10 @@
 "chats.joinFromMessage.error.loadFailed" = "Канал створено, але не вдалося завантажити.";
 
 /* Location: JoinChannelConfirmationSheet.swift - Region scope shown before join - %@ is region name */
-"chats.joinFromMessage.regionScope" = "Region: %@";
+"chats.joinFromMessage.regionScope" = "Регіон: %@";
 
 /* Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret */
-"chats.joinFromMessage.hashtagSecretMismatch" = "This secret does not match the public hashtag key. You will join a private channel that uses this name.";
+"chats.joinFromMessage.hashtagSecretMismatch" = "Цей секретний ключ не є загальновідомим ключем, виведеним з назви хештегу. Ти приєднаєшся до приватного каналу з цією назвою.";
 
 // MARK: - Scan Channel QR View
 
@@ -630,7 +641,6 @@
 /* Location: MessageActionsSheet.swift - Details row shown when region could not be resolved */
 "chats.message.info.regionUnresolved" = "Регіон: Невідомо";
 
-/* TODO: translate */
 /* Location: ActionsDetailsSection.swift - Details row when multiple known regions match the packet transport code - %@ is localized list of names */
 "chats.message.info.regionAmbiguous" = "Регіон (неоднозначний): %@";
 
@@ -948,7 +958,6 @@
 /* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
 "chats.message.region.accessibilityLabel" = "Регіон %@";
 
-/* TODO: translate */
 /* Location: BubbleFooterRow.swift - VoiceOver when multiple regions match - %@ is localized list of names */
 "chats.message.region.ambiguousAccessibilityLabel" = "Регіон, неоднозначний: %@";
 
@@ -1130,6 +1139,9 @@
 
 /* Location: ConversationRow.swift - Purpose: Mentions-only indicator */
 "chats.row.mentionsOnly" = "Лише згадки";
+
+/* TODO: translate - Accessibility label for the row actions menu */
+"chats.row.actionsMenu.accessibilityLabel" = "Conversation actions";
 
 // MARK: - Reactions
 
