@@ -275,7 +275,7 @@ class ProcessContainerTest : RoomProcessTest() {
             } catch (failure: IllegalStateException) {
                 failure
             }
-            assertSame(constructionFailure, observedFailure)
+            assertCoroutineFailureIdentity(constructionFailure, assertNotNull(observedFailure))
             assertFalse(assertNotNull(failedTransferDatabase.get()).isOpen,
                 "a database is closed if constructing its process owner fails")
             assertNotSame(mainThread, transferThread.get(), "the process owner is constructed off the main caller")
@@ -435,8 +435,8 @@ class ProcessContainerTest : RoomProcessTest() {
                     constructionRelease.countDown()
                     assertFailsWith<CancellationException> { task.await() }
                     val observed = assertNotNull(propagatedFailure.get())
-                    assertSame(cancellation, observed, "cleanup never replaces the cancellation")
-                    if (failCleanup) assertSame(cleanupFailure, observed.suppressed.single())
+                    assertCoroutineFailureIdentity(cancellation, observed)
+                    if (failCleanup) assertCoroutineFailureIdentity(cleanupFailure, observed.suppressed.single())
                     else assertTrue(observed.suppressed.isEmpty())
                     assertEquals(1, cleanupCalls.get(), "a constructed but unpublished store is disposed exactly once")
                     assertFalse(assertNotNull(openedDatabase.get()).isOpen,
@@ -465,6 +465,14 @@ class ProcessContainerTest : RoomProcessTest() {
         } finally {
             cleanUpRoomOwnerTest(primaryFailure, { Dispatchers.resetMain(); mainDispatcher.close() })
         }
+    }
+
+    private fun assertCoroutineFailureIdentity(expected: Throwable, actual: Throwable) {
+        assertEquals(expected.javaClass, actual.javaClass)
+        assertEquals(expected.message, actual.message)
+        // Coroutine debug stack recovery may copy an exception at withContext; its direct cause is the original.
+        assertSame(expected, if (actual === expected) actual else actual.cause,
+            "only the original failure or its direct coroutine recovery copy is accepted")
     }
 
     private suspend fun cleanUpRoomOwnerTest(primary: Throwable?, vararg operations: suspend () -> Unit) {
