@@ -89,7 +89,7 @@ DIAGNOSTICS = FamilySpec(
     ),
 )
 NODES = FamilySpec(
-    "nodes", (37,),
+    "nodes", (31, 37),
     "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest",
     (
         "offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable",
@@ -117,6 +117,7 @@ NODES = FamilySpec(
         ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt",
          "7f24b57c1ab06437435b8938d166a5254fec0894", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
     ),
+    publication_ref=MAIN_REF,
 )
 COMPARATOR = FamilySpec(
     "comparator", (37,),
@@ -389,7 +390,9 @@ def prepare_binding(revision, claim, *, family="language"):
         methods != (spec.fixture_methods or spec.methods)
         or not spec.methods or len(spec.methods) != len(set(spec.methods))
         or tuple(method for method in methods if method in spec.methods) != spec.methods
-        or (current_main and spec.methods != ("realAppFallbackSenderLabelIncludesPossibleMatchDisclosure",))
+        or (current_main and spec.methods != (
+            NODES.methods if family == "nodes" else ("realAppFallbackSenderLabelIncludesPossibleMatchDisclosure",)
+        ))
     ):
         raise PortError({
             "language": "Language cohort must retain exactly the two original method identities",
@@ -426,7 +429,8 @@ class LanguageRequest:
             raise PortError("API is not admitted for the immutable " + spec.name + " family")
         if (
             (self.binding.producer_revision, self.binding.fixture_blob) != (spec.producer, spec.fixture_blob)
-            or (spec.publication_ref != MAIN_REF and self.binding.production_blob != spec.production_blob)
+            or ((spec.publication_ref != MAIN_REF or spec.name == "nodes")
+                and self.binding.production_blob != spec.production_blob)
             or not isinstance(self.binding.production_blob, str)
             or re.fullmatch(r"[0-9a-f]{40}", self.binding.production_blob) is None
         ):
@@ -475,7 +479,7 @@ def verify_current_request(request):
 def trusted_main_policy_for_source(revision):
     policy = trusted_execution_policy()
     if git("rev-parse", "refs/remotes/origin/main") != revision:
-        raise PortError("Fallback disclosure requires the exact current trusted main execution source")
+        raise PortError("Selected family requires the exact current trusted main execution source")
     return policy
 
 

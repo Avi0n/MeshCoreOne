@@ -609,10 +609,10 @@ class DisposableConsumerTest(unittest.TestCase):
         self.assertEqual("dispose", self.ledger.events[-1])
         self.assert_disposed()
 
-    def test_all_fixed_original_families_and_language_api31_use_the_same_adapter_without_expansion(self):
+    def test_all_fixed_original_families_and_both_nodes_apis_use_the_same_adapter_without_method_expansion(self):
         for family, api, count in (
                 ("language", 31, 2), ("language", 37, 2), ("comparator", 37, 11), ("traz", 37, 2),
-                ("diagnostics", 37, 5), ("nodes", 37, 7), ("los", 37, 1), ("cached-chat", 37, 1)):
+                ("diagnostics", 37, 5), ("nodes", 31, 7), ("nodes", 37, 7), ("los", 37, 1), ("cached-chat", 37, 1)):
             with self.subTest(family=family, api=api):
                 parent = self.root / (family + str(api))
                 parent.mkdir()
@@ -624,6 +624,30 @@ class DisposableConsumerTest(unittest.TestCase):
                 self.assertEqual(count, result["cohort"]["passed"])
                 self.assertEqual(self.request.identities, result["original_identities"])
                 self.assert_disposed()
+
+    def test_nodes_both_apis_model_current_main_seven_and_original_profile_packaging_disposal_guards(self):
+        owners = set()
+        for api in (31, 37):
+            parent = self.root / ("current-nodes" + str(api))
+            parent.mkdir()
+            self.config = replace(self.config, parent=parent, output=self.root / ("current-output" + str(api)))
+            (self.config.image / "source.properties").write_text(f"AndroidVersion.ApiLevel={api}\n")
+            self.request = runner.request_for(source("nodes"), api)
+            owners.add(self.request.operation_owner)
+            with self.subTest(api=api):
+                result = self.execute()
+                self.assertEqual("refs/heads/main", result["publication_ref"])
+                self.assertEqual(self.request.identities, result["original_identities"])
+                self.assertEqual(7, len(result["original_identities"]))
+                self.assertEqual((7, 7, 7, 7, 0, 0, 0), tuple(result["cohort"][key] for key in (
+                    "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+                self.assertEqual(2.0, float(result["profile_before"]["font"]))
+                self.assertEqual([APP, TEST], result["mutation_attempts"])
+                self.assertEqual(0, result["host_instrumentation_process_exit"])
+                self.assertTrue(result["disposal_verified"])
+                self.assertFalse(result["acceptance"])
+                self.assert_disposed()
+        self.assertEqual(2, len(owners))
 
     def test_fallback_disclosure_models_one_original_per_api_through_unchanged_owned_adapter(self):
         owners = set()

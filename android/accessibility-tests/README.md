@@ -10,7 +10,7 @@ the original ten mounted messaging cases are not selected or replayed. The real
 MainActivity/process-store/App label path and refreshed native-row observer are
 unchanged. The case was compiled by landed PR307, not natively executed.
 
-Unlike all historical families, this route requires the exact **current trusted
+Like the current Nodes route below, this route requires the exact **current trusted
 main** as its clean execution HEAD, with fresh local/remote main agreement.
 It records that HEAD's complete Android tree/source digest and current App source
 tree, manifest/policy, actual canonical actor and reservation revision, replacement
@@ -19,8 +19,8 @@ establishes producer ancestry, not a permanent freeze of the App production tree
 The original fixture correction `6c334753` and actual harness producer `cb7b7545`
 remain byte-pinned. Frozen reference `db14559b39d32322b06477c6ae676112f583db50`
 continues to be enforced by manifest loading. Request verification repeats current
-source/claim/policy/main checks at the existing consumer boundaries. Historical
-families retain their original `PUBLIC_REF`/PR205 checks and original pins.
+source/claim/policy/main checks at the existing consumer boundaries. All other
+historical families retain their original `PUBLIC_REF`/PR205 checks and original pins.
 
 Non-native preparation, only after this candidate is reviewed and actually lands
 on trusted main:
@@ -303,8 +303,8 @@ There is no runtime backend/availability override or alternate ledger/endpoint.
 Source/models do not themselves authorize execution or publication; see the
 [source and execution chronology](../../docs/android/evidence/WP-503/shared-api37-profile-admission.md).
 
-For the current source-approved continuation, use the existing whole `nodes`
-family; its seven original assertions include both unresolved failures. There is
+For a future independently authorized current-main continuation, use the existing
+whole `nodes` family; its seven original assertions include the QR case. There is
 no added method-selector/control feature. The reviewed clipboard fixture is now
 bound to actual producer `1440142b`/blob `469f756f`; no old native result is rebound.
 
@@ -354,7 +354,7 @@ evidence retain their original source bindings.
 ### Fixed Nodes family: software-only preparation
 
 The same immutable specification, typed binding/request and shared process
-lifecycle accept `--family nodes` on API37 only. Selection retains precisely the
+lifecycle now accept `--family nodes` on API31 and API37. Selection retains precisely the
 seven original `NativeNodesFlowAccessibilityTest` identities in fixture order:
 
 - `offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable`
@@ -365,8 +365,15 @@ seven original `NativeNodesFlowAccessibilityTest` identities in fixture order:
 - `actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200`
 - `offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail`
 
-Read-only source preparation:
-`python android\accessibility-tests\language_binding.py --head CURRENT_HEAD --family nodes`.
+This is an intentional forward-only admission change from the historical API37/
+PR205 `PUBLIC_REF` route. It reuses the current-main publication mechanism landed
+in PR309, not another family, QR-only selector, witness or authorization framework.
+Non-native source preparation after this successor actually lands:
+`python android\accessibility-tests\language_binding.py --head EXACT_CURRENT_TRUSTED_MAIN --family nodes`.
+It produces two requests with distinct owners and the same seven ordered identities,
+not fourteen native starts. Clean execution HEAD must equal fresh trusted main;
+an unpublished/local successor or the historical `81dc` ref is not substituted.
+
 The initial seven-method registration at `fc9188ab` has the same ordered method
 inventory as the unchanged current fixture/audit producer `9101b45f`. The binding
 pins that fixture and Nodes audit, the delegated offline audit at `41bdbfac`,
@@ -387,8 +394,13 @@ This increment has software-only binding/selection/lifecycle tests, not actual
 Nodes execution, goldens or full-WP acceptance. It authorizes no native lane,
 Gradle/APK build, ADB, install or instrumentation action. Nodes7 belongs to the
 original missing27, which remains27; separate language2+2 still subtracts zero.
-Keep the currently published candidate unchanged until its healthy automatic
-verification is terminal and this local increment has been reviewed.
+Historical API31 positives and API37 `325` outcomes retain their actual source
+and acceptance status; no current-source QR acceptance is backdated from them.
+The external ended `81dc` allowance remains ENDED. Family registration and
+`--execute` are not grants: a separate fresh exact-scope coordinator decision,
+actual budget/readiness and all existing consumer guards are required before
+any future native action. Publication of this local successor is held for source
+review; no own combined-tree hosted or native result is claimed.
 
 ### Fixed original US comparator family: software-only preparation
 

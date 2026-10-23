@@ -59,6 +59,8 @@ class LanguageBindingTest(unittest.TestCase):
 
     def family_git(self, *arguments, family="diagnostics"):
         spec = binding.family_spec(family)
+        if arguments == ("rev-parse", "refs/remotes/origin/main"):
+            return HEAD
         if arguments[0] == "merge-base":
             return ""
         if arguments[0] == "show":
@@ -81,6 +83,7 @@ class LanguageBindingTest(unittest.TestCase):
                 patch.object(binding, "source_identity", return_value="b" * 64) as identity, \
                 patch.object(binding, "load_manifest", return_value=manifest), \
                 patch.object(binding, "load_json", return_value={"repository": source().repository}), \
+                patch.object(binding, "trusted_execution_policy", return_value={"repository": source().repository}), \
                 patch.object(binding, "policy_revision", return_value="d" * 64), \
                 patch.object(binding, "CapabilityEngine"):
             actual = binding.prepare_binding(HEAD, self.claim, family=family)
@@ -367,12 +370,14 @@ class LanguageBindingTest(unittest.TestCase):
     def test_nodes_binding_restricts_api_producer_and_truthful_unique_owner_to_original_seven(self):
         bound = self.prepare("nodes")
         self.assertEqual(source("nodes"), bound)
-        first, second = (binding.request_for(bound, 37) for _ in range(2))
+        first, second = (binding.request_for(bound, api) for api in (31, 37))
+        self.assertEqual((31, 37), binding.NODES.apis)
+        self.assertEqual(binding.MAIN_REF, binding.NODES.publication_ref)
         self.assertEqual(binding.NODES.identities, first.identities)
         self.assertEqual(7, len(first.identities))
         self.assertNotEqual(first.operation_owner, second.operation_owner)
         self.assertTrue(first.operation_owner.startswith(binding.CANONICAL + ":nodes:"))
-        for api in (30, 31, 33, 34, 36, 38, True, "37", 37.0):
+        for api in (30, 32, 33, 34, 36, 38, True, "31", "37", 31.0, 37.0):
             with self.subTest(api=api), self.assertRaises(binding.PortError):
                 binding.request_for(bound, api)
         for changes in ({"producer_revision": "0" * 40}, {"production_blob": "0" * 40},
@@ -412,6 +417,7 @@ class LanguageBindingTest(unittest.TestCase):
                         return "0" * 40
                     return self.family_git(*args, family="nodes")
                 with self.subTest(path=path, revision=revision), \
+                        patch.object(binding, "trusted_main_policy_for_source"), \
                         patch.object(binding, "source_identity", return_value="b" * 64), \
                         patch.object(binding, "git", side_effect=changed):
                     with self.assertRaisesRegex(binding.PortError, "drifted"):
@@ -419,13 +425,14 @@ class LanguageBindingTest(unittest.TestCase):
 
     def test_nodes_missing_duplicate_extra_wrong_order_identity_or_ancestor_fails_closed(self):
         methods = binding.NODES.methods
-        for actual in (methods[:-1], (*methods, "extra"), methods[::-1],
+        for actual in ((), methods[:-1], (*methods, "extra"), methods[::-1],
                        (*methods[:-1], methods[0]), (*methods[:-1], "wrongIdentity")):
             def changed(*args):
                 if args[0] == "show":
                     return "\n".join("@Test fun " + method + "() {}" for method in actual)
                 return self.family_git(*args, family="nodes")
             with self.subTest(methods=actual), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "trusted_main_policy_for_source"), \
                     patch.object(binding, "git", side_effect=changed):
                 with self.assertRaisesRegex(binding.PortError, "seven original"):
                     binding.prepare_binding(HEAD, self.claim, family="nodes")
@@ -436,6 +443,7 @@ class LanguageBindingTest(unittest.TestCase):
                     raise subprocess.CalledProcessError(1, "missing Nodes ancestor")
                 return self.family_git(*args, family="nodes")
             with self.subTest(producer=producer), patch.object(binding, "source_identity", return_value="b" * 64), \
+                    patch.object(binding, "trusted_main_policy_for_source"), \
                     patch.object(binding, "git", side_effect=missing):
                 with self.assertRaises(subprocess.CalledProcessError):
                     binding.prepare_binding(HEAD, self.claim, family="nodes")
@@ -444,10 +452,11 @@ class LanguageBindingTest(unittest.TestCase):
         bound = source("nodes")
         request = binding.request_for(bound, 37)
         with patch.object(binding, "current_binding", return_value=bound) as current, \
-                patch.object(binding, "git", return_value=HEAD + "\t" + binding.PUBLIC_REF), \
+                patch.object(binding, "git", return_value=HEAD) as git, \
                 patch.object(binding, "trusted_execution_policy", return_value={"paused": True}):
             self.assertEqual({"paused": True}, binding.verify_current_request(request))
         current.assert_called_once_with(HEAD, family="nodes")
+        git.assert_called_once_with("rev-parse", "refs/remotes/origin/main")
         for actual in (replace(bound, reservation_revision=15), replace(bound, policy_revision="e" * 64),
                        replace(bound, source_revision="e" * 40), source("diagnostics"), source()):
             with self.subTest(binding=actual), patch.object(binding, "current_binding", return_value=actual), \
@@ -457,8 +466,9 @@ class LanguageBindingTest(unittest.TestCase):
                 git.assert_not_called()
         for published in ("", "e" * 40 + "\t" + binding.PUBLIC_REF, HEAD + "\trefs/heads/other"):
             with self.subTest(published=published), patch.object(binding, "current_binding", return_value=bound), \
+                    patch.object(binding, "trusted_execution_policy", return_value={"paused": False}), \
                     patch.object(binding, "git", return_value=published):
-                with self.assertRaisesRegex(binding.PortError, "exact currently published"):
+                with self.assertRaisesRegex(binding.PortError, "exact current trusted main"):
                     binding.verify_current_request(request)
 
     def test_nodes_exact_seven_outcomes_require_all_positive_normal_completion_without_acceptance(self):
@@ -488,18 +498,111 @@ class LanguageBindingTest(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(RuntimeError):
                 binding.account_outcomes(value, request, process_exit=0, forced_termination=False)
 
-    def test_nodes_cli_prepares_only_ordered_api37_seven_without_native_or_build_authority(self):
+    def test_nodes_cli_prepares_two_ordered_api31_37_sevens_without_native_or_build_authority(self):
         output = io.StringIO()
         with patch.object(binding, "current_binding", return_value=source("nodes")) as current, \
                 patch("sys.stdout", output):
             self.assertEqual(0, binding.main(["--head", HEAD, "--family", "nodes"]))
         current.assert_called_once_with(HEAD, family="nodes")
         result = json.loads(output.getvalue())
-        self.assertEqual([37], [request["api"] for request in result["requests"]])
-        self.assertEqual(list(binding.NODES.identities), result["requests"][0]["identities"])
+        self.assertEqual([31, 37], [request["api"] for request in result["requests"]])
+        self.assertEqual([list(binding.NODES.identities)] * 2, [request["identities"] for request in result["requests"]])
+        self.assertEqual(2, len({request["operation_owner"] for request in result["requests"]}))
         self.assertFalse(result["authority"])
         self.assertEqual(0, result["native_starts"])
         self.assertFalse(result["apks_built"])
+
+    def test_nodes_current_main_both_apis_use_real_ref_policy_guards_not_the_historical_publisher(self):
+        bound = self.prepare("nodes")
+        policy = {"repository": bound.repository, "paused": False}
+        def current_git(*args):
+            if args == ("rev-parse", "refs/remotes/origin/main"):
+                return HEAD
+            if args == ("ls-remote", "origin", binding.MAIN_REF):
+                return HEAD + "\t" + binding.MAIN_REF
+            if args[0] == "diff":
+                return ""
+            if args == ("show", HEAD + ":docs/android/automation-policy.json"):
+                return json.dumps(policy)
+            self.fail(args)
+        for api in (31, 37):
+            with self.subTest(api=api), patch.object(binding, "current_binding", return_value=bound), \
+                    patch.object(binding, "git", side_effect=current_git) as git:
+                self.assertEqual(policy, binding.verify_current_request(binding.request_for(bound, api)))
+            self.assertNotIn(unittest.mock.call("ls-remote", "origin", binding.PUBLIC_REF), git.call_args_list)
+        for remote in ("", "e" * 40 + "\t" + binding.MAIN_REF, HEAD + "\t" + binding.PUBLIC_REF,
+                       HEAD + "\trefs/heads/other"):
+            def stale(*args):
+                if args == ("ls-remote", "origin", binding.MAIN_REF):
+                    return remote
+                return current_git(*args)
+            with self.subTest(remote=remote), patch.object(binding, "current_binding", return_value=bound), \
+                    patch.object(binding, "git", side_effect=stale), \
+                    self.assertRaisesRegex(binding.PortError, "Trusted main is stale"):
+                binding.verify_current_request(binding.request_for(bound, 31))
+        def changed_policy(*args):
+            if args[0] == "diff":
+                raise subprocess.CalledProcessError(1, "candidate policy differs")
+            return current_git(*args)
+        with patch.object(binding, "current_binding", return_value=bound), \
+                patch.object(binding, "git", side_effect=changed_policy), \
+                self.assertRaisesRegex(binding.PortError, "policy or manifest differs"):
+            binding.verify_current_request(binding.request_for(bound, 37))
+
+    def test_nodes_non_main_source_or_stale_claim_is_rejected_before_source_preparation(self):
+        for local_ref in ("", PINNED_CONFIGURATION, "0" * 40, HEAD + "\t" + binding.PUBLIC_REF):
+            with self.subTest(local_ref=local_ref), \
+                    patch.object(binding, "trusted_execution_policy", return_value={"paused": False}), \
+                    patch.object(binding, "git", return_value=local_ref), \
+                    patch.object(binding, "source_identity") as identity, \
+                    self.assertRaisesRegex(binding.PortError, "exact current trusted main"):
+                binding.prepare_binding(HEAD, self.claim, family="nodes")
+            identity.assert_not_called()
+        for changes in ({"revision": 0}, {"revision": True}, {"attempt": "retired"},
+                        {"identity": {"session_id": "retired"}}, {"wp": "WP-311"}):
+            with self.subTest(changes=changes), patch.object(binding, "trusted_main_policy_for_source") as main, \
+                    patch.object(binding, "source_identity") as identity, self.assertRaises(binding.PortError):
+                binding.prepare_binding(HEAD, {**self.claim, **changes}, family="nodes")
+            main.assert_not_called()
+            identity.assert_not_called()
+
+    def test_nodes_cannot_select_qr_only_subsets_extra_or_substituted_methods(self):
+        spec = binding.NODES
+        for selected in ((), (spec.methods[1],), spec.methods[:-1], spec.methods[::-1],
+                         spec.methods * 2, (*spec.methods, "extraMethod"), ("wrongMethod",)):
+            with self.subTest(selected=selected), patch.object(binding, "FAMILIES", {
+                **binding.FAMILIES, "nodes": replace(spec, methods=selected, fixture_methods=spec.methods),
+            }), self.assertRaisesRegex(binding.PortError, "seven original"):
+                self.prepare("nodes")
+        for option in ("--class", "--method", "--selector", "--api", "--font", "--execute"):
+            with self.subTest(option=option), patch("sys.stderr", io.StringIO()), \
+                    patch.object(binding, "current_binding") as current, self.assertRaises(SystemExit):
+                binding.main(["--head", HEAD, "--family", "nodes", option, "arbitrary"])
+            current.assert_not_called()
+        self.assertEqual({
+            name for name, spec in binding.FAMILIES.items() if spec.publication_ref == binding.MAIN_REF
+        }, {"nodes", "fallback-disclosure"})
+        self.assertEqual(("realAppFallbackSenderLabelIncludesPossibleMatchDisclosure",),
+                         binding.family_spec("fallback-disclosure").methods)
+        self.assertEqual(11, len(binding.family_spec("fallback-disclosure").fixture_methods))
+
+    def test_nodes_each_api_requires_exact_seven_normal_positive_outcomes_not_historical_or_partial_credit(self):
+        for api in (31, 37):
+            request = binding.request_for(source("nodes"), api)
+            result = binding.account_outcomes(
+                transcript(family="nodes"), request, process_exit=0, forced_termination=False)
+            self.assertEqual(api, result["api"])
+            self.assertEqual((7, 7, 7, 7, 0, 0, 0), tuple(result[key] for key in (
+                "discovered", "started", "matching_outcomes", "passed", "failed", "errors", "skipped")))
+            self.assertFalse(result["acceptance"])
+            for text in (transcript(-2, family="nodes"), transcript(-3, family="nodes"),
+                         transcript(family="fallback-disclosure"), transcript(family="nodes") * 2):
+                with self.subTest(api=api, text=text), self.assertRaises((binding.PortError, RuntimeError)):
+                    binding.account_outcomes(text, request, process_exit=0, forced_termination=False)
+            for exit_code, forced in ((2, False), (0, True), (False, False), (0, None)):
+                with self.subTest(api=api, exit=exit_code, forced=forced), self.assertRaises(binding.PortError):
+                    binding.account_outcomes(
+                        transcript(family="nodes"), request, process_exit=exit_code, forced_termination=forced)
 
     def test_comparator_binds_only_original_eleven_api37_and_unique_current_owner_not_supplemental_locales(self):
         bound = self.prepare("comparator")
@@ -1240,8 +1343,14 @@ class LanguageBindingTest(unittest.TestCase):
             '"03306ff125655f977d88c5b517ad4cab26d9e771", "6e191c79de3a5cebf3f8e0603956e180f97bd014"',
             '"31557a16ca4492bbd669a7ad0358e702c5c54031", "ee5c5e112dcf041d8dbbd1471e2ad01d755b6bf8"',
         )
-        self.assertEqual(expected,
-                         current[current.index("DIAGNOSTICS ="):current.index("COLD_PLATFORM_SOURCE_PINS =")])
+        actual = current[current.index("DIAGNOSTICS ="):current.index("COLD_PLATFORM_SOURCE_PINS =")]
+        start, end = actual.index("NODES ="), actual.index("COMPARATOR =")
+        nodes = actual[start:end]
+        self.assertEqual(1, nodes.count('"nodes", (31, 37),'))
+        self.assertEqual(1, nodes.count("    publication_ref=MAIN_REF,\n"))
+        historical_nodes = nodes.replace('"nodes", (31, 37),', '"nodes", (37,),').replace(
+            "    publication_ref=MAIN_REF,\n", "")
+        self.assertEqual(expected, actual[:start] + historical_nodes + actual[end:])
         for name in ("platform-service-control", "platform-callback-control"):
             spec = binding.family_spec(name)
             with self.subTest(family=name):
@@ -1453,7 +1562,7 @@ class LanguageBindingTest(unittest.TestCase):
         body = binding.git("show", "HEAD:" + spec.fixture)
         self.assertEqual(spec.fixture_methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
         for name, historical in binding.FAMILIES.items():
-            if name != spec.name:
+            if name not in (spec.name, "nodes"):
                 self.assertEqual(binding.PUBLIC_REF, historical.publication_ref)
 
     def test_fallback_disclosure_binds_current_main_production_not_an_old_app_tree(self):
