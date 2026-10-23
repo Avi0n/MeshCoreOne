@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -107,7 +108,7 @@ class CandidateFamilyTests(unittest.TestCase):
         self.git("commit", "--quiet", "-m", "private source selection fixture")
         return self.git("rev-parse", "HEAD")
 
-    def run_candidate(self, base, head, *, scope=False, event=None, event_name="push"):
+    def run_candidate(self, base, head, *, scope=False, event=None, event_name="push", github_sha=None):
         event_path = self.root / "event.json"
         event_path.write_text(json.dumps(
             {"before": base, "after": head} if event is None else event,
@@ -121,7 +122,93 @@ class CandidateFamilyTests(unittest.TestCase):
             output = self.root / "scope-output"
             output.write_text("controller=false\n", encoding="utf-8")
             command += ["--scope-output", str(output)]
-        return subprocess.run(command, capture_output=True, encoding="utf-8", timeout=30)
+        environment = dict(os.environ)
+        environment.pop("GITHUB_SHA", None)
+        if github_sha is not None:
+            environment["GITHUB_SHA"] = github_sha
+        return subprocess.run(command, env=environment, capture_output=True, encoding="utf-8", timeout=30)
+
+    def test_real_manual_event_runs_committed_accessibility_and_controller_without_pr_endpoints(self):
+        from oracle.workflow_scope import evaluate, SCOPES
+
+        with self.repository():
+            self.write("android/accessibility-tests/test_native_fixture.py", self.CASE)
+            head = self.commit()
+            event = {"ref": self.git("symbolic-ref", "--short", "HEAD"), "inputs": {},
+                     "repository": {"full_name": "fixture/repository"}}
+            self.assertEqual(evaluate(self.repo, "workflow_dispatch", event)["scopes"],
+                             {scope: True for scope in SCOPES})
+            for scope in (True, False):
+                result = self.run_candidate(None, head, event_name="workflow_dispatch", event=event,
+                                            github_sha=head, scope=scope)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                reports = [json.loads(line) for line in result.stdout.splitlines()]
+                self.assertIsNone(reports[0]["base"])
+                self.assertEqual(reports[0]["head"], head)
+                self.assertEqual(reports[0]["reason"], "present-in-manual-commit")
+                if scope:
+                    self.assertIn("controller=true", (self.root / "scope-output").read_text())
+                else:
+                    self.assertEqual(reports[1]["discovered"], 2)
+                    self.assertEqual(reports[1]["run"], 2)
+                    self.assertEqual(reports[1]["passed"], 2)
+                    self.assertEqual((reports[1]["failed"], reports[1]["errors"], reports[1]["skipped"]), (0, 0, 0))
+                    self.assertIn("test_native_fixture.CommittedFixture.test_committed_fixture", result.stderr)
+
+    def test_manual_event_absence_is_commit_bound_and_dirty_zero_failed_skipped_suites_still_fail(self):
+        for mode in ("absent", "missing", "dirty", "untracked", "malformed", "zero", "failed", "skipped"):
+            with self.subTest(mode=mode), self.repository():
+                if mode != "absent":
+                    text = self.CASE
+                    if mode == "zero":
+                        text = "# no tests\n"
+                    elif mode == "malformed":
+                        text = "def incomplete(\n"
+                    elif mode == "failed":
+                        text = text.replace("2 + 2, 4", "2 + 2, 5")
+                    elif mode == "skipped":
+                        text = text.replace("    def test_", '    @unittest.skip("negative fixture")\n    def test_')
+                    path = self.write("android/accessibility-tests/test_native_fixture.py", text)
+                    head = self.commit()
+                    if mode == "missing":
+                        path.unlink()
+                    elif mode == "dirty":
+                        path.write_text(self.CASE + "\n", encoding="utf-8")
+                    elif mode == "untracked":
+                        self.write("android/accessibility-tests/test_extra.py", self.CASE)
+                else:
+                    head = self.base
+                result = self.run_candidate(None, head, event_name="workflow_dispatch",
+                                            event={"ref": "main", "inputs": {}}, github_sha=head)
+                self.assertEqual(result.returncode, 0 if mode == "absent" else 2, result.stdout + result.stderr)
+                if mode == "absent":
+                    self.assertEqual(json.loads(result.stdout.splitlines()[0])["reason"], "absent-from-manual-commit")
+
+    def test_manual_missing_malformed_stale_provenance_and_partial_pr_endpoints_fail_closed(self):
+        with self.repository():
+            self.write("unrelated.txt", "actual new commit\n")
+            head = self.commit()
+            for sha in (None, "", "main", "a" * 39, "0" * 40, self.base, self.git("rev-parse", "HEAD^{tree}")):
+                with self.subTest(sha=sha):
+                    result = self.run_candidate(None, head, event_name="workflow_dispatch",
+                                                event={"ref": "main", "inputs": {}}, github_sha=sha)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertNotIn("NOT SELECTED", result.stdout)
+            for event in ([], {}, {"ref": None}, {"ref": ""},
+                          {"ref": "main", "pull_request": {"head": {"sha": head}}},
+                          {"ref": "main", "before": self.base}):
+                with self.subTest(event=event):
+                    result = self.run_candidate(None, head, event_name="workflow_dispatch",
+                                                event=event, github_sha=head)
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            for event in (
+                {"pull_request": {"head": {"sha": head}}},
+                {"pull_request": {"base": {"sha": self.base}}},
+                {"pull_request": {"base": {"sha": "main"}, "head": {"sha": head}}},
+                {"pull_request": {"base": {"sha": self.base}, "head": {"sha": self.base}}},
+            ):
+                result = self.run_candidate(self.base, head, event_name="pull_request", event=event, github_sha=head)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
     def test_never_present_producer_only_candidate_is_explicitly_not_selected_not_executed(self):
         with self.repository():

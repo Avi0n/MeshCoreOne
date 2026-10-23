@@ -105,7 +105,8 @@ Even success intentionally retains terminal private data for inspection.
 
 The existing candidate controller job retains ONE strict `test_runner.py` test
 invocation alongside controller/local tests. Its candidate-event arguments bind
-native-family selection to actual HEAD and immutable GitHub base/head trees.
+native-family selection to actual HEAD and immutable GitHub base/head trees for
+PR, merge-group and push events.
 `android/accessibility-tests` is explicitly **NOT SELECTED** only when absent
 from BOTH trees and untouched by relevant family changes. The filesystem's
 absence alone never decides selection, and an uncommitted family cannot be
@@ -121,6 +122,20 @@ suite, malformed authority, stale HEAD, checkout/file-byte drift, zero discovery
 failures/errors/skips all fail closed. Selected files must match the head tree;
 ignored Python bytecode is not producer source. Unknown/missing immutable
 endpoints block selection rather than inventing an absence baseline.
+
+The advertised `workflow_dispatch` event requests full verification. It has no
+diff endpoints: both scope selection and the controller test invocation instead
+read GitHub's immutable `GITHUB_SHA`, require a full commit SHA equal to actual
+HEAD, and select the accessibility suite from that committed tree. The normal
+dispatch payload must contain its ref, not substituted PR/push endpoints.
+Reports retain `base: null`; no synthetic PR or head/head comparison is used.
+Any committed accessibility suite is mandatory even without a changed-file
+diff, with the same checkout-byte, discovery, failure and skip guards above.
+An absent family is reported `absent-from-manual-commit` only after checking the
+immutable tree and rejecting an uncommitted family. Missing/malformed/stale
+commit provenance blocks manual selection. Actual PR/merge-group/push endpoint
+validation and the workflow's full manual scope classification are unchanged.
+Local event fixtures verify source behavior, not a live manual workflow run.
 
 The one strict suite prints actual method names and requires nonzero
 discovered=run with zero failures/errors/skips. Read-only tokens, ephemeral
