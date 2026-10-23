@@ -1,0 +1,6 @@
+--------- beginning of main
+10-12 23:43:42.545  2284  2300 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 23:43:42.568  2284  2300 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 23:43:42.584  2284  2300 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+10-12 23:43:43.951  2284  2300 I System.out: WP503_FONT|text=Appearance|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 23:43:43.952  2284  2300 I System.out: WP503_FONT_LINE|text=Appearance|line=0|left=0.0|right=148.45312|top=0.0|bottom=33.0

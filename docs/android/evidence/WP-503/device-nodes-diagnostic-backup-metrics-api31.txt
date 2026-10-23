@@ -1,0 +1,144 @@
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_FONT|text=Disconnect from your radio before importing a backup.|size=328 x 60|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x60.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Disconnect from your radio before importing a backup.|line=0|left=0.0|right=290.1211|top=0.0|bottom=29.0
+WP503_FONT_LINE|text=Disconnect from your radio before importing a backup.|line=1|left=0.0|right=285.36328|top=29.0|bottom=60.0
+WP503_BACKUP_TEXT|text=Disconnect from your radio before importing a backup.|bounds=Rect.fromLTRB(16.0, 313.0, 344.0, 373.0)|size=328 x 60|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 199.0, 344.0, 305.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41016|top=0.0|bottom=30.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 199.0, 344.0, 305.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41016|top=0.0|bottom=30.0
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 199.0, 344.0, 305.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41016|top=0.0|bottom=30.0
+WP503_FONT|text=The backup file is invalid or could not be read.|size=272 x 114|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = 585)|paragraph=272.0x114.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=The backup file is invalid or could not be read.|line=0|left=0.0|right=200.0|top=0.0|bottom=38.0
+WP503_FONT_LINE|text=The backup file is invalid or could not be read.|line=1|left=0.0|right=252.8086|top=38.0|bottom=76.0
+WP503_FONT_LINE|text=The backup file is invalid or could not be read.|line=2|left=0.0|right=58.757812|top=76.0|bottom=114.0
+WP503_BACKUP_TEXT|text=The backup file is invalid or could not be read.|bounds=Rect.fromLTRB(24.0, 24.0, 296.0, 138.0)|size=272 x 114|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 240.0)
+WP503_BACKUP_TARGET|label=Dismiss|bounds=Rect.fromLTRB(24.0, 162.0, 141.0, 216.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 240.0)
+WP503_FONT|text=Dismiss|size=93 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 647)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Dismiss|line=0|left=0.0|right=93.0|top=0.0|bottom=38.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 199.0, 344.0, 305.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41016|top=0.0|bottom=30.0
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 199.0, 344.0, 305.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41016|top=0.0|bottom=30.0
+WP503_BACKUP_TARGET|label=Import Data|bounds=Rect.fromLTRB(16.0, 641.0, 344.0, 695.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Import Data|size=139 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import Data|line=0|left=0.0|right=138.63281|top=0.0|bottom=38.0
+WP503_FONT|text=Importing data…|size=203 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 519)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Importing data…|line=0|left=0.0|right=202.6836|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Importing data…|bounds=Rect.fromLTRB(79.0, 415.0, 282.0, 457.0)|size=203 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_BACKUP_TARGET|label=Cancel|bounds=Rect.fromLTRB(16.0, 16.0, 106.0, 108.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Cancel|size=66 x 76|constraints=Constraints(minWidth = 0, maxWidth = 66, minHeight = 0, maxHeight = 663)|paragraph=66.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=59.0|top=0.0|bottom=38.0
+WP503_FONT_LINE|text=Cancel|line=1|left=0.0|right=21.0|top=38.0|bottom=76.0
+WP503_FONT|text=Import Cancelled|size=223 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 575)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import Cancelled|line=0|left=0.0|right=221.0836|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Import Cancelled|bounds=Rect.fromLTRB(69.0, 120.0, 292.0, 162.0)|size=223 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=No data was changed.|size=276 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 521)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=No data was changed.|line=0|left=26.0|right=302.0|top=0.0|bottom=42.0
+WP503_FONT|text=No data was changed.|size=276 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 521)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=No data was changed.|line=0|left=26.0|right=302.0|top=0.0|bottom=42.0
+WP503_FONT_FULL_INK|text=No data was changed.|actual=[10, 17, 22, 22, 23, 50, 150, 175, 183, 138, 127, 106, 132, 140, 132, 113, 119, 135, 165, 169, 154, 62, 5, 8, 11, 11, 7]|reference=[10, 17, 22, 22, 23, 50, 150, 175, 183, 138, 127, 106, 132, 140, 132, 113, 119, 135, 165, 169, 154, 62, 5, 8, 11, 11, 7]|bounds=Rect.fromLTRB(42.0, 174.0, 318.0, 216.0)
+WP503_BACKUP_TEXT|text=No data was changed.|bounds=Rect.fromLTRB(42.0, 174.0, 318.0, 216.0)|size=276 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_BACKUP_TARGET|label=Done|bounds=Rect.fromLTRB(16.0, 228.0, 344.0, 282.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Done|size=60 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = 451)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Done|line=0|left=0.0|right=60.0|top=0.0|bottom=38.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 199.0, 344.0, 305.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41016|top=0.0|bottom=30.0
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 199.0, 344.0, 305.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41016|top=0.0|bottom=30.0
+WP503_FONT|text=Contacts|size=111 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Contacts|line=0|left=0.0|right=111.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Contacts|bounds=Rect.fromLTRB(233.0, 385.0, 344.0, 427.0)|size=111 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=17|size=32 x 42|constraints=Constraints(minWidth = 0, maxWidth = 217, minHeight = 0, maxHeight = Infinity)|paragraph=217.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=17|line=0|left=0.0|right=32.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=17|bounds=Rect.fromLTRB(16.0, 385.0, 48.0, 427.0)|size=32 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Messages|size=127 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Messages|line=0|left=0.0|right=127.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Messages|bounds=Rect.fromLTRB(217.0, 337.0, 344.0, 379.0)|size=127 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=23|size=32 x 42|constraints=Constraints(minWidth = 0, maxWidth = 201, minHeight = 0, maxHeight = Infinity)|paragraph=201.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=23|line=0|left=0.0|right=32.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=23|bounds=Rect.fromLTRB(16.0, 337.0, 48.0, 379.0)|size=32 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Channels|size=114 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Channels|line=0|left=0.0|right=114.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Channels|bounds=Rect.fromLTRB(230.0, 433.0, 344.0, 475.0)|size=114 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=3|size=16 x 42|constraints=Constraints(minWidth = 0, maxWidth = 214, minHeight = 0, maxHeight = Infinity)|paragraph=214.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=3|line=0|left=0.0|right=16.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=3|bounds=Rect.fromLTRB(16.0, 433.0, 32.0, 475.0)|size=16 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Discovered Nodes|size=227 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Discovered Nodes|line=0|left=0.0|right=226.35156|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Discovered Nodes|bounds=Rect.fromLTRB(117.0, 481.0, 344.0, 523.0)|size=227 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=5|size=16 x 42|constraints=Constraints(minWidth = 0, maxWidth = 101, minHeight = 0, maxHeight = Infinity)|paragraph=101.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=5|line=0|left=0.0|right=16.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=5|bounds=Rect.fromLTRB(16.0, 481.0, 32.0, 523.0)|size=16 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_BACKUP_TARGET|label=Import Data|bounds=Rect.fromLTRB(16.0, 641.0, 344.0, 695.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Import Data|size=139 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import Data|line=0|left=0.0|right=138.63281|top=0.0|bottom=38.0
+WP503_FONT|text=Import Complete|size=218 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import Complete|line=0|left=0.0|right=216.6836|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Import Complete|bounds=Rect.fromLTRB(71.0, 120.0, 289.0, 162.0)|size=218 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=17 items added.|size=187 x 30|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=17 items added.|line=0|left=70.0|right=258.0|top=0.0|bottom=30.0
+WP503_FONT|text=17 items added.|size=187 x 30|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=17 items added.|line=0|left=70.0|right=258.0|top=0.0|bottom=30.0
+WP503_FONT_FULL_INK|text=17 items added.|actual=[9, 29, 36, 38, 23, 23, 98, 113, 115, 81, 75, 81, 87, 87, 64, 66, 74, 94, 111, 100, 36]|reference=[9, 29, 36, 38, 23, 23, 98, 113, 115, 81, 75, 81, 87, 87, 64, 66, 74, 94, 111, 100, 36]|bounds=Rect.fromLTRB(87.0, 162.0, 274.0, 192.0)
+WP503_BACKUP_TEXT|text=17 items added.|bounds=Rect.fromLTRB(87.0, 162.0, 274.0, 192.0)|size=187 x 30|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Contacts|size=111 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Contacts|line=0|left=0.0|right=111.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Contacts|bounds=Rect.fromLTRB(233.0, 234.0, 344.0, 276.0)|size=111 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=17|size=32 x 42|constraints=Constraints(minWidth = 0, maxWidth = 217, minHeight = 0, maxHeight = Infinity)|paragraph=217.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=17|line=0|left=0.0|right=32.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=17|bounds=Rect.fromLTRB(16.0, 234.0, 48.0, 276.0)|size=32 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=23 items already here|size=267 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=23 items already here|line=0|left=0.0|right=266.47656|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=23 items already here|bounds=Rect.fromLTRB(77.0, 318.0, 344.0, 360.0)|size=267 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Messages|size=127 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Messages|line=0|left=0.0|right=127.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Messages|bounds=Rect.fromLTRB(217.0, 366.0, 344.0, 408.0)|size=127 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=23|size=32 x 42|constraints=Constraints(minWidth = 0, maxWidth = 201, minHeight = 0, maxHeight = Infinity)|paragraph=201.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=23|line=0|left=0.0|right=32.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=23|bounds=Rect.fromLTRB(16.0, 366.0, 48.0, 408.0)|size=32 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=8 items couldn't be restored|size=328 x 84|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=8 items couldn't be restored|line=0|left=0.0|right=234.57812|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=8 items couldn't be restored|line=1|left=0.0|right=102.203125|top=42.0|bottom=84.0
+WP503_BACKUP_TEXT|text=8 items couldn't be restored|bounds=Rect.fromLTRB(16.0, 548.0, 344.0, 632.0)|size=328 x 84|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Channels|size=114 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Channels|line=0|left=0.0|right=114.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Channels|bounds=Rect.fromLTRB(230.0, 638.0, 344.0, 680.0)|size=114 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=3|size=16 x 42|constraints=Constraints(minWidth = 0, maxWidth = 214, minHeight = 0, maxHeight = Infinity)|paragraph=214.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=3|line=0|left=0.0|right=16.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=3|bounds=Rect.fromLTRB(16.0, 638.0, 32.0, 680.0)|size=16 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Discovered Nodes|size=227 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Discovered Nodes|line=0|left=0.0|right=226.35156|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Discovered Nodes|bounds=Rect.fromLTRB(117.0, 653.0, 344.0, 695.0)|size=227 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=5|size=16 x 42|constraints=Constraints(minWidth = 0, maxWidth = 101, minHeight = 0, maxHeight = Infinity)|paragraph=101.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=5|line=0|left=0.0|right=16.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=5|bounds=Rect.fromLTRB(16.0, 653.0, 32.0, 695.0)|size=16 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|size=328 x 316|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x316.0|widthOverflow=false|heightOverflow=false|lines=10
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=0|left=0.0|right=251.0625|top=0.0|bottom=29.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=1|left=0.0|right=281.3203|top=29.0|bottom=61.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=2|left=0.0|right=323.7578|top=61.0|bottom=93.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=3|left=0.0|right=269.76562|top=93.0|bottom=125.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=4|left=0.0|right=301.95312|top=125.0|bottom=157.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=5|left=0.0|right=307.47266|top=157.0|bottom=189.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=6|left=0.0|right=226.36328|top=189.0|bottom=221.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=7|left=0.0|right=248.0|top=221.0|bottom=253.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=8|left=0.0|right=216.21094|top=253.0|bottom=285.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=9|left=0.0|right=196.44922|top=285.0|bottom=316.0
+WP503_BACKUP_TEXT|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|bounds=Rect.fromLTRB(16.0, 319.0, 344.0, 635.0)|size=328 x 316|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_BACKUP_TARGET|label=Done|bounds=Rect.fromLTRB(16.0, 641.0, 344.0, 695.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 711.0)
+WP503_FONT|text=Done|size=60 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Done|line=0|left=0.0|right=60.0|top=0.0|bottom=38.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 199.0, 344.0, 305.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41016|top=0.0|bottom=30.0

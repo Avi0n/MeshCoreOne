@@ -1,0 +1,145 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_publication": "ef9dddd32f77b01ce619cd64f14020a509971a07",
+  "previous_combined_binding": "device-notices-integration.json",
+  "executed_combined_head": "56a0ecf77e0db819ed72eabc09f7f586a11d6b7d",
+  "executed_android_tree": "f8ba74630977504f29f5ff4e80fbbd8b1002d311",
+  "apk_binding": "device-language-inputs.json",
+  "new_native_cases": [
+    "actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+    "actualNamedChineseChoiceAndSystemResetPreserveLanguageDetailAcrossNativeRecreation"
+  ],
+  "source_guards": {
+    "sole_android_change": "accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeAppLanguageAccessibilityTest.kt",
+    "all_prior_77_native_fixtures_and_shared_oracles_byte_identical": true,
+    "production_apk_byte_identical_to_previous_77": true,
+    "producer_code_build_dependencies_floors_deadlines_goldens_or_wp501_bindings_changed": false
+  },
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "native_surface_and_observations": {
+    "entry": "Actual MainActivity, MeshCoreApplication process graph and public Settings/Language; no replacement renderer, graph or locale provider",
+    "supported_app_languages": ["en", "de", "es", "fr", "it", "ko", "nl", "pl", "pt-PT", "ru", "uk", "zh-Hans"],
+    "selection": "All12 selected controls have empty names; separate autonym TextButtons lack Selected; strict named-selection expected1/actual0 per language",
+    "target_measurements_per_scope_or_full_command": 31,
+    "all_measured_targets_contained_and_at_least_48dp": true,
+    "lifecycle": "Public Chinese/System actions produce new real resumed Activities, zh/en resources, zh-Hans/empty stored tags, selected-control counts1/0, retained detail/tab stacks and native Back",
+    "original_1000ms_wait_preserved": true,
+    "reset_oracle": "Compare with the original system language captured before app-locale change, not a mutable Resources.getSystem snapshot after clicking System",
+    "actual_api37_scope_reset": "expectedLanguage=en|systemSnapshot=zh|observedLanguage=en|observedTag=|newActivity=true",
+    "message_translation_physical_talkback_or_full_theme_window_matrix": false
+  },
+  "historical_language_observations": [
+    {
+      "head": "4c33fcde1bedcd828b1390f16c1e80b326b2496f",
+      "inputs": "device-language-pre-radio-inputs.json",
+      "api": 31,
+      "discovered": 2, "passed": 1, "failed_cases": 1, "junit_assertion_failures": 12, "seconds": 10.596,
+      "qualification": "Initial missing-name evidence before additional raw-radio target measurements; retained, not retroactively passed"
+    },
+    {
+      "head": "15f3bb8d1330b58a89853c399978ac91e2f8b3f5",
+      "inputs": "device-language-pre-system-inputs.json",
+      "record_prefix": "device-language-pre-system-",
+      "scope_api31": {"discovered": 2, "passed": 1, "failed_cases": 1, "junit_assertion_failures": 12, "seconds": 9.844},
+      "scope_api37": {"discovered": 2, "passed": 1, "failed_cases": 1, "junit_assertion_failures": 12, "seconds": 42.341},
+      "full_api31": {"discovered": 79, "passed": 76, "failed_cases": 3, "junit_assertion_failures": 14, "seconds": 188.331},
+      "full_api37": {"discovered": 79, "passed": 76, "failed_cases": 3, "junit_assertion_failures": 14, "seconds": 302.559},
+      "qualification": "Full37 additionally fails1000ms System-reset wait; scoped lifecycle passes. Racing mutable system-resource expectation corrected in owned audit; no proven product lifecycle defect or retrospective pass"
+    },
+    {
+      "head": "56a0ecf77e0db819ed72eabc09f7f586a11d6b7d",
+      "inputs": "device-language-inputs.json",
+      "record_prefix": "device-language-pre-live-",
+      "api": 37,
+      "discovered": 79, "passed": 77, "failed_cases": 2, "junit_assertion_failures": 13, "seconds": 327.87,
+      "qualification": "Naming/CLI only; final rotating logcat buffer evicted early language metrics. Retained separately, not substituted for the later six-failure live-record full run"
+    }
+  ],
+  "native_metric_retention": {
+    "capture": "Same System.out:I *:S native logcat filter streamed live during instrumentation instead of a final rotating-buffer dump",
+    "outer_timeout_seconds_unchanged": 600,
+    "boot_timeout_seconds_unchanged": 300,
+    "product_test_fixture_buffer_size_or_assertions_changed": false
+  },
+  "jvm_summary_not_retained_result_bundle": {
+    "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+    "both_original_sdk_variants_and_names_preserved": true,
+    "app_and_instrumentation_assembly": "PASS"
+  },
+  "native_api31": {
+    "scope": {
+      "discovered": 2, "passed": 1, "failed": 1, "errors": 0, "skipped": 0, "seconds": 9.662,
+      "junit_assertion_failures": 12,
+      "failed_identities": ["NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions"]
+    },
+    "full": {
+      "discovered": 79, "passed": 76, "failed": 3, "errors": 0, "skipped": 0, "seconds": 188.26,
+      "junit_assertion_failures": 14,
+      "failed_identities": [
+        "NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ]
+    }
+  },
+  "native_api37": {
+    "scope": {
+      "discovered": 2, "passed": 1, "failed": 1, "errors": 0, "skipped": 0, "seconds": 40.846,
+      "junit_assertion_failures": 12,
+      "failed_identities": ["NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions"]
+    },
+    "full": {
+      "discovered": 79, "passed": 73, "failed": 6, "errors": 0, "skipped": 0, "seconds": 475.869,
+      "junit_assertion_failures": 17,
+      "failed_identities": [
+        "NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable",
+        "NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions",
+        "NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable",
+        "NativeLauncherFocusAccessibilityTest.actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride"
+      ]
+    },
+    "launcher_diagnostic": {
+      "discovered": 9, "passed": 9, "failed": 0, "errors": 0, "skipped": 0, "seconds": 55.08,
+      "junit_assertion_failures": 0,
+      "failed_identities": [],
+      "qualification": "Same unchanged APKs/device/profile, entire original launcher class including native framework and motion controls. Scoped pass does not clear the four full-suite negatives or prove their cause"
+    }
+  },
+  "language_lifecycle_case_passes_in_both_full_commands": true,
+  "all_prior_77_native_cases_pass_in_both_full_commands": false,
+  "product_blockers": [
+    {"issue": 236, "owner": "WP-316"},
+    {"issue": 237, "owner": "WP-311", "api": 31},
+    {"issue": 238, "owner": "WP-407", "surface": "App integration", "verified_active_repair_worker": false}
+  ],
+  "additional_api37_full_negatives": {
+    "case_count": 4,
+    "qualification": "Original unchanged launcher focus/appearance/motion cases. Touch-exploration activation times out or toggles false mid-case despite requested flags; native focus actions fail, and final motion0 observation times out1000ms. Not yet classified as new product defects and not cleared by earlier full37",
+    "assertions_and_1000ms_deadlines_unchanged": true,
+    "unchanged_scoped_launcher9_pass_does_not_clear_full_suite_failures": true
+  },
+  "native_operation_cleanup": {
+    "current_phase_owned_emulator_exit_codes": [0, 0, 0],
+    "exact_six_current_phase_owned_image_and_qcow_files_removed": true,
+    "previous_15f3_phase_exact_four_owned_image_and_qcow_files_removed": true,
+    "final_adb_device_list_empty": true,
+    "shared_adb_restart_or_wipe": false
+  },
+  "physical_talkback_approved_goldens_full_matrix_acceptance_admission_or_independent_review": false,
+  "merge_self_approval_or_wp_completion": false
+}

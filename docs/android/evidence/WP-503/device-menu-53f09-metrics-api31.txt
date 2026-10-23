@@ -1,0 +1,26 @@
+--------- beginning of main
+10-12 21:49:41.095  2446  2465 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 21:49:41.117  2446  2465 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 21:49:41.376  2446  2465 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+10-12 21:49:42.543  2446  2465 I System.out: WP503_NATIVE_CHAT_IME_INPUT|sdk=31|nativeInputFocus=true|acceptingText=true|physicalTalkBack=false
+10-12 21:49:43.199  2446  2465 I System.out: WP503_FONT|text=Draft 中文 مرحبا|size=154 x 84|constraints=Constraints(minWidth = 154, maxWidth = 154, minHeight = 42, maxHeight = Infinity)|paragraph=154.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 21:49:43.200  2446  2465 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=30.546875|right=154.0|top=0.0|bottom=42.0
+10-12 21:49:43.200  2446  2465 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=1|left=97.0|right=154.0|top=42.0|bottom=84.0
+10-12 21:49:43.211  2446  2446 I System.out: WP503_NATIVE_CHAT_IME_INSETS|sdk=31|imeBottom=389|decorHeight=900|visible=Rect(0, 0 - 360, 511)|actualIme=true|physicalTalkBack=false
+10-12 21:49:43.252  2446  2465 I System.out: WP503_NATIVE_CHAT_IME_TARGET|sdk=31|name=null|bounds=Rect(69, 387 - 291, 503)|visible=Rect(0, 0 - 360, 511)|native48dp=true|actualIme=true|physicalTalkBack=false
+10-12 21:49:43.253  2446  2465 I System.out: WP503_NATIVE_CHAT_IME_TARGET|sdk=31|name=Send message|bounds=Rect(12, 454 - 61, 503)|visible=Rect(0, 0 - 360, 511)|native48dp=true|actualIme=true|physicalTalkBack=false
+10-12 21:49:43.254  2446  2465 I System.out: WP503_NATIVE_CHAT_IME_TARGET|sdk=31|name=null|bounds=Rect(299, 454 - 348, 503)|visible=Rect(0, 0 - 360, 511)|native48dp=true|actualIme=true|physicalTalkBack=false
+10-12 21:49:43.345  2446  2465 I System.out: WP503_FONT|text=Draft 中文 مرحبا|size=154 x 84|constraints=Constraints(minWidth = 154, maxWidth = 154, minHeight = 42, maxHeight = Infinity)|paragraph=154.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 21:49:43.345  2446  2465 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=30.546875|right=154.0|top=0.0|bottom=42.0
+10-12 21:49:43.346  2446  2465 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=1|left=97.0|right=154.0|top=42.0|bottom=84.0
+10-12 21:49:43.387  2446  2465 I System.out: WP503_NATIVE_CHAT_IME_BACK|sdk=31|imeVisible=false|entry=5|stacksRetained=true|draftSaved=true|disconnectedSendDisabled=true|realStore=true|realGraph=true|physicalTalkBack=false
+10-12 21:49:43.677  2446  2465 I System.out: WP503_FONT|text=Share Location|size=175 x 38|constraints=Constraints(minWidth = 0, maxWidth = 175, minHeight = 0, maxHeight = Infinity)|paragraph=175.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 21:49:43.677  2446  2465 I System.out: WP503_FONT_LINE|text=Share Location|line=0|left=0.0|right=174.75781|top=0.0|bottom=38.0
+10-12 21:49:43.711  2446  2465 I System.out: WP503_FONT|text=Share Contact|size=165 x 38|constraints=Constraints(minWidth = 0, maxWidth = 175, minHeight = 0, maxHeight = Infinity)|paragraph=175.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 21:49:43.711  2446  2465 I System.out: WP503_FONT_LINE|text=Share Contact|line=0|left=0.0|right=164.75781|top=0.0|bottom=38.0
+10-12 21:49:43.743  2446  2465 I System.out: WP503_FONT|text=Share My Info|size=160 x 38|constraints=Constraints(minWidth = 0, maxWidth = 175, minHeight = 0, maxHeight = Infinity)|paragraph=175.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 21:49:43.744  2446  2465 I System.out: WP503_FONT_LINE|text=Share My Info|line=0|left=0.0|right=159.75781|top=0.0|bottom=38.0
+10-12 21:49:44.044  2446  2465 I System.out: WP503_FONT|text=Keyboard 中文 peer|size=227 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 21:49:44.044  2446  2465 I System.out: WP503_FONT_LINE|text=Keyboard 中文 peer|line=0|left=0.0|right=226.25781|top=0.0|bottom=38.0
+10-12 21:49:44.094  2446  2465 I System.out: WP503_FONT|text=Cancel|size=80 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 647)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 21:49:44.094  2446  2465 I System.out: WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=80.0|top=0.0|bottom=38.0

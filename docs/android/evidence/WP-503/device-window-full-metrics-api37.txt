@@ -1,0 +1,443 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=Language|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=Language|bounds=Rect.fromLTRB(28.0, 589.0, 332.0, 638.0)|viewport=Rect.fromLTRB(0.0, 225.0, 360.0, 662.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=中文 (简体中文)|size=180 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文 (简体中文)|line=0|left=0.0|right=180.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=中文 (简体中文)|bounds=Rect.fromLTRB(140.0, 822.0, 344.0, 876.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_LOCALE_WAIT|tag=zh-Hans|expectedLanguage=zh|systemSnapshot=zh|observedLanguage=zh|observedTag=zh-Hans|newActivity=true
+WP503_FONT|text=设置|size=248 x 51|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 848)|paragraph=248.0x51.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=设置|line=0|left=0.0|right=70.0|top=0.0|bottom=51.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=中文 (简体中文)|size=180 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文 (简体中文)|line=0|left=0.0|right=180.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=中文 (简体中文)|bounds=Rect.fromLTRB(140.0, 822.0, 344.0, 876.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_LOCALE|tag=zh-Hans|resourcesLanguage=zh|newActivity=true|selectedControls=1|detailRetained=true
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=System language|size=201 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System language|line=0|left=0.0|right=201.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=System language|bounds=Rect.fromLTRB(119.0, 180.0, 344.0, 234.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_LOCALE_WAIT|tag=|expectedLanguage=en|systemSnapshot=zh|observedLanguage=en|observedTag=|newActivity=true
+WP503_FONT|text=Settings|size=248 x 45|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 848)|paragraph=248.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=English|size=85 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=English|line=0|left=0.0|right=85.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=English|bounds=Rect.fromLTRB(235.0, 288.0, 344.0, 342.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_LOCALE|tag=system|resourcesLanguage=en|newActivity=true|selectedControls=0|detailRetained=true
+WP503_LANGUAGE_RETURN|nativeBack=true|stacksUnchanged=true|realProcessGraph=true|physicalTalkBack=false
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=Language|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=Language|bounds=Rect.fromLTRB(28.0, 589.0, 332.0, 638.0)|viewport=Rect.fromLTRB(0.0, 225.0, 360.0, 662.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=System language|size=201 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System language|line=0|left=0.0|right=201.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=System language|bounds=Rect.fromLTRB(119.0, 280.0, 344.0, 334.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION_INVENTORY|count=12|names=[, , , , , , , , , , , ]|selected=[false, false, false, false, false, false, false, false, false, false, false, false]
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=English|size=85 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=English|line=0|left=0.0|right=85.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=English|bounds=Rect.fromLTRB(235.0, 334.0, 344.0, 388.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=en:selected-control|bounds=Rect.fromLTRB(16.0, 334.0, 64.0, 382.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=en|label=English|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=Deutsch|size=95 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Deutsch|line=0|left=0.0|right=95.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=Deutsch|bounds=Rect.fromLTRB(225.0, 388.0, 344.0, 442.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=de:selected-control|bounds=Rect.fromLTRB(16.0, 388.0, 64.0, 436.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=de|label=Deutsch|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=español|size=92 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=español|line=0|left=0.0|right=92.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=español|bounds=Rect.fromLTRB(228.0, 442.0, 344.0, 496.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=es:selected-control|bounds=Rect.fromLTRB(16.0, 442.0, 64.0, 490.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=es|label=español|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=français|size=94 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=français|line=0|left=0.0|right=93.53906|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=français|bounds=Rect.fromLTRB(226.0, 496.0, 344.0, 550.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=fr:selected-control|bounds=Rect.fromLTRB(16.0, 496.0, 64.0, 544.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=fr|label=français|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=italiano|size=87 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=italiano|line=0|left=0.0|right=87.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=italiano|bounds=Rect.fromLTRB(233.0, 550.0, 344.0, 604.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=it:selected-control|bounds=Rect.fromLTRB(16.0, 550.0, 64.0, 598.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=it|label=italiano|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=한국어|size=72 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=한국어|line=0|left=0.0|right=72.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=한국어|bounds=Rect.fromLTRB(248.0, 604.0, 344.0, 658.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=ko:selected-control|bounds=Rect.fromLTRB(16.0, 604.0, 64.0, 652.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=ko|label=한국어|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=Nederlands|size=133 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Nederlands|line=0|left=0.0|right=133.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=Nederlands|bounds=Rect.fromLTRB(187.0, 658.0, 344.0, 712.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=nl:selected-control|bounds=Rect.fromLTRB(16.0, 658.0, 64.0, 706.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=nl|label=Nederlands|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=polski|size=71 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=polski|line=0|left=0.0|right=71.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=polski|bounds=Rect.fromLTRB(249.0, 712.0, 344.0, 766.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=pl:selected-control|bounds=Rect.fromLTRB(16.0, 712.0, 64.0, 760.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=pl|label=polski|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=português (Portugal)|size=244 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=português (Portugal)|line=0|left=0.0|right=243.10938|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=português (Portugal)|bounds=Rect.fromLTRB(76.0, 766.0, 344.0, 820.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=pt-PT:selected-control|bounds=Rect.fromLTRB(16.0, 766.0, 64.0, 814.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=pt-PT|label=português (Portugal)|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=русский|size=100 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=русский|line=0|left=0.0|right=99.69531|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=русский|bounds=Rect.fromLTRB(220.0, 820.0, 344.0, 874.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=ru:selected-control|bounds=Rect.fromLTRB(16.0, 820.0, 64.0, 868.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=ru|label=русский|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=українська|size=134 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=українська|line=0|left=0.0|right=134.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=українська|bounds=Rect.fromLTRB(186.0, 822.0, 344.0, 876.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=uk:selected-control|bounds=Rect.fromLTRB(16.0, 822.0, 64.0, 870.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=uk|label=українська|namedSelectedControls=0|expectedSelected=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_FONT|text=中文 (简体中文)|size=180 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=中文 (简体中文)|line=0|left=0.0|right=180.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=中文 (简体中文)|bounds=Rect.fromLTRB(140.0, 822.0, 344.0, 876.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_LANGUAGE_TARGET|label=zh-Hans:selected-control|bounds=Rect.fromLTRB(16.0, 822.0, 64.0, 870.0)|viewport=Rect.fromLTRB(0.0, 180.0, 360.0, 876.0)
+WP503_LANGUAGE_SELECTION|tag=zh-Hans|label=中文 (简体中文)|namedSelectedControls=0|expectedSelected=false
+WP503_LANGUAGE_RETURN|nativeBack=true|stacksUnchanged=true|realProcessGraph=true|physicalTalkBack=false
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Disconnect from your radio before importing a backup.|size=328 x 60|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x60.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Disconnect from your radio before importing a backup.|line=0|left=0.0|right=290.1211|top=0.0|bottom=29.0
+WP503_FONT_LINE|text=Disconnect from your radio before importing a backup.|line=1|left=0.0|right=285.36328|top=29.0|bottom=60.0
+WP503_BACKUP_TEXT|text=Disconnect from your radio before importing a backup.|bounds=Rect.fromLTRB(16.0, 302.0, 344.0, 362.0)|size=328 x 60|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 188.0, 344.0, 294.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41406|top=0.0|bottom=30.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 188.0, 344.0, 294.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41406|top=0.0|bottom=30.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 188.0, 344.0, 294.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41406|top=0.0|bottom=30.0
+WP503_FONT|text=The backup file is invalid or could not be read.|size=272 x 114|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = 698)|paragraph=272.0x114.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=The backup file is invalid or could not be read.|line=0|left=0.0|right=200.0|top=0.0|bottom=38.0
+WP503_FONT_LINE|text=The backup file is invalid or could not be read.|line=1|left=0.0|right=252.8086|top=38.0|bottom=76.0
+WP503_FONT_LINE|text=The backup file is invalid or could not be read.|line=2|left=0.0|right=58.757812|top=76.0|bottom=114.0
+WP503_BACKUP_TEXT|text=The backup file is invalid or could not be read.|bounds=Rect.fromLTRB(24.0, 24.0, 296.0, 138.0)|size=272 x 114|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 240.0)
+WP503_BACKUP_TARGET|label=Dismiss|bounds=Rect.fromLTRB(24.0, 162.0, 141.0, 216.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 240.0)
+WP503_FONT|text=Dismiss|size=93 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 760)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Dismiss|line=0|left=0.0|right=93.0|top=0.0|bottom=38.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 188.0, 344.0, 294.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41406|top=0.0|bottom=30.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 188.0, 344.0, 294.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41406|top=0.0|bottom=30.0
+WP503_BACKUP_TARGET|label=Import Data|bounds=Rect.fromLTRB(16.0, 754.0, 344.0, 808.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Import Data|size=139 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import Data|line=0|left=0.0|right=138.63672|top=0.0|bottom=38.0
+WP503_FONT|text=Importing data…|size=203 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 632)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Importing data…|line=0|left=0.0|right=202.6836|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Importing data…|bounds=Rect.fromLTRB(79.0, 471.0, 282.0, 513.0)|size=203 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_BACKUP_TARGET|label=Cancel|bounds=Rect.fromLTRB(16.0, 16.0, 106.0, 108.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Cancel|size=66 x 76|constraints=Constraints(minWidth = 0, maxWidth = 66, minHeight = 0, maxHeight = 776)|paragraph=66.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=59.0|top=0.0|bottom=38.0
+WP503_FONT_LINE|text=Cancel|line=1|left=0.0|right=21.0|top=38.0|bottom=76.0
+WP503_FONT|text=Import Cancelled|size=222 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 688)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import Cancelled|line=0|left=0.0|right=220.68361|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Import Cancelled|bounds=Rect.fromLTRB(69.0, 120.0, 291.0, 162.0)|size=222 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=No data was changed.|size=276 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 634)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=No data was changed.|line=0|left=26.0|right=302.0|top=0.0|bottom=42.0
+WP503_FONT|text=No data was changed.|size=276 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 634)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=No data was changed.|line=0|left=26.0|right=302.0|top=0.0|bottom=42.0
+WP503_FONT_FULL_INK|text=No data was changed.|actual=[10, 17, 22, 22, 23, 50, 150, 175, 179, 138, 127, 106, 132, 140, 132, 114, 119, 135, 157, 169, 155, 60, 5, 8, 11, 11, 7]|reference=[10, 17, 22, 22, 23, 50, 150, 175, 179, 138, 127, 106, 132, 140, 132, 114, 119, 135, 157, 169, 155, 60, 5, 8, 11, 11, 7]|bounds=Rect.fromLTRB(42.0, 174.0, 318.0, 216.0)
+WP503_BACKUP_TEXT|text=No data was changed.|bounds=Rect.fromLTRB(42.0, 174.0, 318.0, 216.0)|size=276 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_BACKUP_TARGET|label=Done|bounds=Rect.fromLTRB(16.0, 228.0, 344.0, 282.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Done|size=60 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = 564)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Done|line=0|left=0.0|right=60.0|top=0.0|bottom=38.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 188.0, 344.0, 294.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41406|top=0.0|bottom=30.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 188.0, 344.0, 294.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41406|top=0.0|bottom=30.0
+WP503_FONT|text=Contacts|size=111 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Contacts|line=0|left=0.0|right=111.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Contacts|bounds=Rect.fromLTRB(233.0, 385.0, 344.0, 427.0)|size=111 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=17|size=32 x 42|constraints=Constraints(minWidth = 0, maxWidth = 217, minHeight = 0, maxHeight = Infinity)|paragraph=217.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=17|line=0|left=0.0|right=32.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=17|bounds=Rect.fromLTRB(16.0, 385.0, 48.0, 427.0)|size=32 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Messages|size=127 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Messages|line=0|left=0.0|right=127.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Messages|bounds=Rect.fromLTRB(217.0, 337.0, 344.0, 379.0)|size=127 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=23|size=32 x 42|constraints=Constraints(minWidth = 0, maxWidth = 201, minHeight = 0, maxHeight = Infinity)|paragraph=201.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=23|line=0|left=0.0|right=32.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=23|bounds=Rect.fromLTRB(16.0, 337.0, 48.0, 379.0)|size=32 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Channels|size=114 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Channels|line=0|left=0.0|right=114.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Channels|bounds=Rect.fromLTRB(230.0, 433.0, 344.0, 475.0)|size=114 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=3|size=16 x 42|constraints=Constraints(minWidth = 0, maxWidth = 214, minHeight = 0, maxHeight = Infinity)|paragraph=214.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=3|line=0|left=0.0|right=16.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=3|bounds=Rect.fromLTRB(16.0, 433.0, 32.0, 475.0)|size=16 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Discovered Nodes|size=227 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Discovered Nodes|line=0|left=0.0|right=226.36328|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Discovered Nodes|bounds=Rect.fromLTRB(117.0, 481.0, 344.0, 523.0)|size=227 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=5|size=16 x 42|constraints=Constraints(minWidth = 0, maxWidth = 101, minHeight = 0, maxHeight = Infinity)|paragraph=101.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=5|line=0|left=0.0|right=16.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=5|bounds=Rect.fromLTRB(16.0, 481.0, 32.0, 523.0)|size=16 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_BACKUP_TARGET|label=Import Data|bounds=Rect.fromLTRB(16.0, 754.0, 344.0, 808.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Import Data|size=139 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import Data|line=0|left=0.0|right=138.63672|top=0.0|bottom=38.0
+WP503_FONT|text=Import Complete|size=218 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import Complete|line=0|left=0.0|right=216.2836|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Import Complete|bounds=Rect.fromLTRB(71.0, 120.0, 289.0, 162.0)|size=218 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=17 items added.|size=187 x 30|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=17 items added.|line=0|left=70.0|right=258.0|top=0.0|bottom=30.0
+WP503_FONT|text=17 items added.|size=187 x 30|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=17 items added.|line=0|left=70.0|right=258.0|top=0.0|bottom=30.0
+WP503_FONT_FULL_INK|text=17 items added.|actual=[9, 29, 36, 38, 23, 23, 99, 113, 114, 81, 75, 81, 87, 87, 64, 68, 73, 94, 111, 100, 36]|reference=[9, 29, 36, 38, 23, 23, 99, 113, 114, 81, 75, 81, 87, 87, 64, 68, 73, 94, 111, 100, 36]|bounds=Rect.fromLTRB(87.0, 162.0, 274.0, 192.0)
+WP503_BACKUP_TEXT|text=17 items added.|bounds=Rect.fromLTRB(87.0, 162.0, 274.0, 192.0)|size=187 x 30|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Contacts|size=111 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Contacts|line=0|left=0.0|right=111.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Contacts|bounds=Rect.fromLTRB(233.0, 234.0, 344.0, 276.0)|size=111 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=17|size=32 x 42|constraints=Constraints(minWidth = 0, maxWidth = 217, minHeight = 0, maxHeight = Infinity)|paragraph=217.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=17|line=0|left=0.0|right=32.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=17|bounds=Rect.fromLTRB(16.0, 234.0, 48.0, 276.0)|size=32 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=23 items already here|size=267 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=23 items already here|line=0|left=0.0|right=266.48438|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=23 items already here|bounds=Rect.fromLTRB(77.0, 318.0, 344.0, 360.0)|size=267 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Messages|size=127 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Messages|line=0|left=0.0|right=127.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Messages|bounds=Rect.fromLTRB(217.0, 366.0, 344.0, 408.0)|size=127 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=23|size=32 x 42|constraints=Constraints(minWidth = 0, maxWidth = 201, minHeight = 0, maxHeight = Infinity)|paragraph=201.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=23|line=0|left=0.0|right=32.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=23|bounds=Rect.fromLTRB(16.0, 366.0, 48.0, 408.0)|size=32 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=8 items couldn't be restored|size=328 x 84|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=8 items couldn't be restored|line=0|left=0.0|right=234.57812|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=8 items couldn't be restored|line=1|left=0.0|right=102.21094|top=42.0|bottom=84.0
+WP503_BACKUP_TEXT|text=8 items couldn't be restored|bounds=Rect.fromLTRB(16.0, 548.0, 344.0, 632.0)|size=328 x 84|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Channels|size=114 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Channels|line=0|left=0.0|right=114.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Channels|bounds=Rect.fromLTRB(230.0, 638.0, 344.0, 680.0)|size=114 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=3|size=16 x 42|constraints=Constraints(minWidth = 0, maxWidth = 214, minHeight = 0, maxHeight = Infinity)|paragraph=214.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=3|line=0|left=0.0|right=16.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=3|bounds=Rect.fromLTRB(16.0, 638.0, 32.0, 680.0)|size=16 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Discovered Nodes|size=227 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Discovered Nodes|line=0|left=0.0|right=226.36328|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=Discovered Nodes|bounds=Rect.fromLTRB(117.0, 686.0, 344.0, 728.0)|size=227 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=5|size=16 x 42|constraints=Constraints(minWidth = 0, maxWidth = 101, minHeight = 0, maxHeight = Infinity)|paragraph=101.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=5|line=0|left=0.0|right=16.0|top=0.0|bottom=42.0
+WP503_BACKUP_TEXT|text=5|bounds=Rect.fromLTRB(16.0, 686.0, 32.0, 728.0)|size=16 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|size=328 x 316|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x316.0|widthOverflow=false|heightOverflow=false|lines=10
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=0|left=0.0|right=251.0625|top=0.0|bottom=29.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=1|left=0.0|right=281.3203|top=29.0|bottom=61.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=2|left=0.0|right=323.7578|top=61.0|bottom=93.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=3|left=0.0|right=269.76562|top=93.0|bottom=125.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=4|left=0.0|right=301.95312|top=125.0|bottom=157.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=5|left=0.0|right=307.47266|top=157.0|bottom=189.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=6|left=0.0|right=226.36328|top=189.0|bottom=221.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=7|left=0.0|right=248.0|top=221.0|bottom=253.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=8|left=0.0|right=216.21094|top=253.0|bottom=285.0
+WP503_FONT_LINE|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|line=9|left=0.0|right=196.44922|top=285.0|bottom=316.0
+WP503_BACKUP_TEXT|text=Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (1000 nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.|bounds=Rect.fromLTRB(16.0, 492.0, 344.0, 808.0)|size=328 x 316|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_BACKUP_TARGET|label=Done|bounds=Rect.fromLTRB(16.0, 754.0, 344.0, 808.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 824.0)
+WP503_FONT|text=Done|size=60 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Done|line=0|left=0.0|right=60.0|top=0.0|bottom=38.0
+WP503_BACKUP_TARGET|label=Import App Data|bounds=Rect.fromLTRB(16.0, 188.0, 344.0, 294.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Import App Data|size=192 x 30|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Import App Data|line=0|left=0.0|right=191.41406|top=0.0|bottom=30.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Offline|size=85 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = 743)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Offline|line=0|left=0.0|right=83.600006|top=0.0|bottom=42.0
+WP503_FONT|text=Connect to a mesh radio to view RF packets.|size=288 x 126|constraints=Constraints(minWidth = 0, maxWidth = 288, minHeight = 0, maxHeight = 521)|paragraph=288.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=Connect to a mesh radio to view RF packets.|line=0|left=0.0|right=232.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Connect to a mesh radio to view RF packets.|line=1|left=0.0|right=197.17969|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Connect to a mesh radio to view RF packets.|line=2|left=0.0|right=104.72656|top=84.0|bottom=126.0
+WP503_FONT|text=Flood Only|size=124 x 30|constraints=Constraints(minWidth = 0, maxWidth = Infinity, minHeight = 0, maxHeight = 665)|paragraph=2.1474836E9x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Flood Only|line=0|left=0.0|right=124.0|top=0.0|bottom=30.0
+WP503_TARGET|width=70.0|height=48.0|role=Checkbox
+WP503_TARGET|width=114.0|height=48.0|role=Checkbox
+WP503_PARTIAL_TARGET|position=Offset(-17.0, 68.0)|size=165 x 32
+WP503_TARGET|width=63.0|height=48.0|role=Checkbox
+WP503_TARGET|width=156.0|height=48.0|role=Checkbox
+WP503_PARTIAL_TARGET|position=Offset(-47.0, 211.0)|size=160 x 32
+WP503_TARGET|width=63.0|height=48.0|role=Checkbox
+WP503_TARGET|width=153.0|height=48.0|role=Checkbox
+WP503_TARGET|width=103.0|height=48.0|role=Checkbox
+WP503_DIAGNOSTICS_WINDOW|actualOverride=360x600|beforeActivityOrAfterTeardown=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_GRAPH_VALUE|label=Minimum|bounds=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|size=253 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 576.0)
+WP503_GRAPH_VALUE|label=Maximum|bounds=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|size=260 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 576.0)
+WP503_GRAPH_VALUE|label=Average|bounds=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|size=259 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 576.0)
+WP503_FONT|text=Minimum: -110 dBm|size=253 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Minimum: -110 dBm|line=0|left=0.0|right=253.0|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|after=Rect.fromLTRB(95.0, 534.0, 348.0, 576.0)|position=Offset(95.0, 663.0)->Offset(95.0, 534.0)
+WP503_FONT|text=Maximum: -110 dBm|size=260 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Maximum: -110 dBm|line=0|left=0.0|right=260.0|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|after=Rect.fromLTRB(88.0, 534.0, 348.0, 576.0)|position=Offset(88.0, 576.0)->Offset(88.0, 534.0)
+WP503_FONT|text=Average: -110.0 dBm|size=259 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Average: -110.0 dBm|line=0|left=0.0|right=258.59375|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|after=Rect.fromLTRB(89.0, 534.0, 348.0, 576.0)|position=Offset(89.0, 576.0)->Offset(89.0, 534.0)
+WP503_TARGET|width=70.0|height=48.0|role=Checkbox
+WP503_TARGET|width=114.0|height=48.0|role=Checkbox
+WP503_PARTIAL_TARGET|position=Offset(-17.0, 68.0)|size=165 x 32
+WP503_DIAGNOSTICS_WINDOW|actualOverride=360x900|beforeActivityOrAfterTeardown=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Connect to a mesh radio to measure noise floor.|size=288 x 126|constraints=Constraints(minWidth = 0, maxWidth = 288, minHeight = 0, maxHeight = Infinity)|paragraph=288.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=Connect to a mesh radio to measure noise floor.|line=0|left=0.0|right=232.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Connect to a mesh radio to measure noise floor.|line=1|left=0.0|right=282.92188|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Connect to a mesh radio to measure noise floor.|line=2|left=0.0|right=62.320312|top=84.0|bottom=126.0
+WP503_TARGET|width=70.0|height=48.0|role=Checkbox
+WP503_TARGET|width=114.0|height=48.0|role=Checkbox
+WP503_PARTIAL_TARGET|position=Offset(-17.0, 68.0)|size=165 x 32
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_GRAPH_VALUE|label=Minimum|bounds=Rect.fromLTRB(95.0, 663.0, 348.0, 705.0)|size=253 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_GRAPH_VALUE|label=Maximum|bounds=Rect.fromLTRB(88.0, 705.0, 348.0, 747.0)|size=260 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_GRAPH_VALUE|label=Average|bounds=Rect.fromLTRB(89.0, 747.0, 348.0, 789.0)|size=259 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Minimum: -110 dBm|size=253 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Minimum: -110 dBm|line=0|left=0.0|right=253.0|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(95.0, 663.0, 348.0, 705.0)|after=Rect.fromLTRB(95.0, 663.0, 348.0, 705.0)|position=Offset(95.0, 663.0)->Offset(95.0, 663.0)
+WP503_FONT|text=Maximum: -110 dBm|size=260 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Maximum: -110 dBm|line=0|left=0.0|right=260.0|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(88.0, 705.0, 348.0, 747.0)|after=Rect.fromLTRB(88.0, 705.0, 348.0, 747.0)|position=Offset(88.0, 705.0)->Offset(88.0, 705.0)
+WP503_FONT|text=Average: -110.0 dBm|size=259 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Average: -110.0 dBm|line=0|left=0.0|right=258.59375|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(89.0, 747.0, 348.0, 789.0)|after=Rect.fromLTRB(89.0, 747.0, 348.0, 789.0)|position=Offset(89.0, 747.0)->Offset(89.0, 747.0)
+WP503_TARGET|width=70.0|height=48.0|role=Checkbox
+WP503_TARGET|width=114.0|height=48.0|role=Checkbox
+WP503_PARTIAL_TARGET|position=Offset(-17.0, 68.0)|size=165 x 32
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Default|size=84 x 30|constraints=Constraints(minWidth = 0, maxWidth = 360, minHeight = 0, maxHeight = 824)|paragraph=360.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Default|line=0|left=0.0|right=84.0|top=0.0|bottom=30.0
+WP503_FONT_PAINT|label=Default|bounds=Rect.fromLTRB(276.0, 52.0, 360.0, 82.0)|colors=156|nonBackgroundPixels=893
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=No data was changed.|size=276 x 33|constraints=Constraints(minWidth = 0, maxWidth = 276, minHeight = 0, maxHeight = 60)|paragraph=276.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=No data was changed.|line=0|left=0.0|right=276.0|top=0.0|bottom=33.0
+WP503_FONT_FULL_INK|text=No data was changed.|actual=[3, 3, 3, 3, 3, 11, 50, 60, 59, 49, 46, 36, 48, 53, 50, 40, 45, 49, 56, 59, 55, 21]|reference=[10, 17, 22, 22, 23, 50, 150, 175, 179, 138, 127, 106, 132, 140, 132, 114, 119, 135, 157, 169, 155, 60, 5, 8, 11, 11, 7]|bounds=Rect.fromLTRB(260.0, 52.0, 360.0, 85.0)
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=No data was changed.|size=276 x 33|constraints=Constraints(minWidth = 0, maxWidth = 360, minHeight = 0, maxHeight = 824)|paragraph=360.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=No data was changed.|line=0|left=42.0|right=318.0|top=0.0|bottom=33.0
+WP503_FONT|text=No data was changed.|size=276 x 33|constraints=Constraints(minWidth = 0, maxWidth = 360, minHeight = 0, maxHeight = 824)|paragraph=360.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=No data was changed.|line=0|left=42.0|right=318.0|top=0.0|bottom=33.0
+WP503_FONT_FULL_INK|text=No data was changed.|actual=[10, 17, 22, 22, 23, 50, 150, 175, 179, 138, 127, 106, 132, 140, 132, 114, 119, 135, 157, 169, 155, 60, 5, 8, 11, 11, 7]|reference=[10, 17, 22, 22, 23, 50, 150, 175, 179, 138, 127, 106, 132, 140, 132, 114, 119, 135, 157, 169, 155, 60, 5, 8, 11, 11, 7]|bounds=Rect.fromLTRB(84.0, 52.0, 360.0, 85.0)
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=clipped native text|size=32 x 4|constraints=Constraints(minWidth = 0, maxWidth = 32, minHeight = 0, maxHeight = 4)|paragraph=32.0x35.0|widthOverflow=false|heightOverflow=true|lines=1
+WP503_FONT_LINE|text=clipped native text|line=0|left=0.0|right=29.0|top=0.0|bottom=35.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=16
+WP503_NATIVE_TOUCH_FINAL|enabled=false|actualFlags=65558|elapsedMs=1025
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=1032|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=13
+WP503_NATIVE_TOUCH_FINAL|enabled=false|actualFlags=65558|elapsedMs=1025
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=1031|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=6
+WP503_NATIVE_TOUCH_FINAL|enabled=false|actualFlags=65558|elapsedMs=1008
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=1015|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=25
+WP503_NATIVE_TOUCH_FINAL|enabled=false|actualFlags=65558|elapsedMs=1310
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=1325|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=5
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=581
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size|response=Physical size: 1344x2992
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 900x900|response=
+WP503_NATIVE_WINDOW_READY|sdk=37|size=900x900|resumed=true|laidOut=true|windowFocus=true|semanticCount=1|semanticDisplayed=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW|sdk=37|size=900x900|bounds=Rect(0, 0 - 900, 900)|activityRecreated=true|shell=navigation-rail|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Nodes|size=530 x 45|constraints=Constraints(minWidth = 0, maxWidth = 530, minHeight = 0, maxHeight = 848)|paragraph=530.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Nodes|line=0|left=0.0|right=102.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=37|tab=NODES|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Map|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 848)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Map|line=0|left=0.0|right=70.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=37|tab=MAP|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Tools|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 848)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Tools|line=0|left=0.0|right=86.30859|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=37|tab=TOOLS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Settings|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 848)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=37|tab=SETTINGS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Chats|size=756 x 45|constraints=Constraints(minWidth = 0, maxWidth = 756, minHeight = 0, maxHeight = 848)|paragraph=756.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Chats|line=0|left=0.0|right=90.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=37|tab=CHATS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Language|size=324 x 33|constraints=Constraints(minWidth = 0, maxWidth = 324, minHeight = 0, maxHeight = Infinity)|paragraph=324.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+WP503_NATIVE_WINDOW_READY|sdk=37|size=360x900|resumed=true|laidOut=true|windowFocus=true|semanticCount=1|semanticDisplayed=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW|sdk=37|size=360x900|bounds=Rect(0, 0 - 360, 900)|activityRecreated=true|shell=navigation-hidden|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Settings|size=248 x 45|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 848)|paragraph=248.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_NATIVE_WINDOW_DETAIL|sdk=37|expanded=900x900|compact=360x900|retainedEntry=7|nativeBack=true|focusReacquired=true|automaticBackFocusRetained=false|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=11835
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=11923
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=11935|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=50
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=874
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size|response=Physical size: 1344x2992
+WP503_NATIVE_CHAT_EDITOR|sdk=37|focusedBefore=false|focusActionAdvertised=true
+WP503_FONT|text=Draft 中文 مرحبا|size=154 x 84|constraints=Constraints(minWidth = 154, maxWidth = 154, minHeight = 42, maxHeight = Infinity)|paragraph=154.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=30.546875|right=154.0|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=1|left=97.0|right=154.0|top=42.0|bottom=84.0
+WP503_FONT|text=Cached history 15 中文|size=286 x 40|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=286.0x40.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cached history 15 中文|line=0|left=0.02734375|right=286.0|top=0.0|bottom=40.0
+WP503_NATIVE_CHAT_WINDOW_BEFORE|sdk=37|message=00000000-0000-0000-0000-00000007ad4b|textBounds=Rect.fromLTRB(50.0, 617.0, 336.0, 657.0)|entry=8|draftSaved=true|realStore=true|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 900x900|response=
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=

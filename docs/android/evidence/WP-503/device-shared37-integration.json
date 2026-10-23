@@ -1,0 +1,688 @@
+{
+  "generator": "session wp503-shared37-evidence.py; existing native setup capture and read-only public certificate verification",
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "kind": "actual-api37-preinstrumentation-install-failure-not-a-native-test-or-acceptance-pass",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 8,
+  "frozen_swift_reference": "db14559b39d32322b06477c6ae676112f583db50",
+  "adapter_execution_commit": "17eb976864f4c84774c0f1e11ce566002f474740",
+  "adapter_executed_sha256": "59a19785628a0201ed40a2c908a00a88412370fb2ea67a79db33f02824c982d3",
+  "source_binding": {
+    "head": "3f39a777376e322e2bc533f1d1caf92a87a44ed8",
+    "apks": {
+      "wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-app.apk": {
+        "size": 105509157,
+        "sha256": "c2b9865c65bf3f47b02bc6281fd4e31d19be751bb85d1c07306194d0eeada0fd"
+      },
+      "wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-test.apk": {
+        "size": 4530035,
+        "sha256": "af3808bff51daf4e7e8c1b02e8070f9f087ea67260f04e69c2afebd2af8c4bb0"
+      }
+    },
+    "android_tree": "7a9dd08e005e1e9cad79405dafecf325158d8b0c"
+  },
+  "exact_final_producer_files": [
+    {
+      "wp": "WP-307",
+      "producer_head": "4b6629ac2bf215577ec1522530a77de61ed577fe",
+      "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt",
+      "before_blob": null,
+      "producer_blob": "187e1a7e6fcd43c2494e0b036706d5f25cd9015f"
+    },
+    {
+      "wp": "WP-307",
+      "producer_head": "4b6629ac2bf215577ec1522530a77de61ed577fe",
+      "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt",
+      "before_blob": "7a8073ebc137eaf04291fc122c8d27f511a6e526",
+      "producer_blob": "3b10d361363e08af68225c9fba12e378c3eaf725"
+    },
+    {
+      "wp": "WP-315",
+      "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+      "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+      "before_blob": "0513c55748f756da621ba3a04b0a2eda7e6ae2f5",
+      "matching_producer_ancestor": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+      "producer_blob": "e6bac5fc92755ca3a104928e6969586af3c2709b"
+    },
+    {
+      "wp": "WP-315",
+      "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+      "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+      "before_blob": "819a6d982c34974f3dcd1534a9577546c5d5861b",
+      "matching_producer_ancestor": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+      "producer_blob": "e1eeebc4967dbf1db140ba1397338e3242202daf"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/build.gradle.kts",
+      "before_blob": "dde3ca834ec3687d323a36ff7833ecf948ffc256",
+      "producer_blob": "1e95d1cc8a6b54b812640f84314b1301dd8d8894"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt",
+      "before_blob": "905f08c90e0c64b7e69d509886a95f4bbc91f13b",
+      "producer_blob": "213866562c54c12d1f82f9c397b5cdcac7a4907c"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliCanonicalCompletionTest.kt",
+      "before_blob": "be8175d77eba394361ac45cd58aff3067d80e515",
+      "producer_blob": "6ee68cd8303c7d664c2d3dc38011a5a0cf4407f2"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalControllerTest.kt",
+      "before_blob": "e2650e5a3b33ede82c5fe5ed106c19507a43676f",
+      "producer_blob": "ab6bccdce44529b681b0f499b2d69c392d9ee4ba"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolLocalCommandsTest.kt",
+      "before_blob": "25237ef01c4be8c4572d594010c05667329c7be5",
+      "producer_blob": "7352f8e60d3bc5ce2a75e7e9f5581da79e09f604"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolSessionsTest.kt",
+      "before_blob": "47b8493825df6a29e325533fe7dc6f3fa7c4b93f",
+      "producer_blob": "5d859e10474193315726002bd99a8f063bfb67bd"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolStateHolderTest.kt",
+      "before_blob": "9509eae14b01e90fe4f9b7c36c303f6e5ad6e5d9",
+      "producer_blob": "ebfe48e4422110a1906c87dd22c196f633e2eae5"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+      "before_blob": "345cb7a6ee3cf48b2594efd471eceeed793cb27a",
+      "producer_blob": "58af4467a85422c8d53cee7001a159cf56f31642"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/gradle/dependency-locks/feature-tools.lockfile",
+      "before_blob": "65bbd5c3d118b4b9e394965058046e5292f414ff",
+      "producer_blob": "885331ce23ec8d93b4dcb5fe4c13b42d3faa1ed7"
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/build.gradle.kts",
+      "before_blob": "deef6fb56a33f25b03322fda6c1b8d8ef1864b4d",
+      "producer_blob": "852ca05b1f425d8a813d33cae42ba3a31b0c191d",
+      "matching_producer_ancestor": "21ac36c724f8b91e180864ba1963da784a5b42bf",
+      "already_exact": false
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryStateHolder.kt",
+      "before_blob": "0f5bb57e737156b3210b0d3e36607d7dd9f0f020",
+      "producer_blob": "825b8815468c318c8c95717f379d85850223fe70",
+      "matching_producer_ancestor": "fe67497f4de3b7223aa94860d582fc7b5261394d",
+      "already_exact": false
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/ContactDetailScreen.kt",
+      "before_blob": "84b6da7bcdd5569446687669a067d20e9baf724f",
+      "producer_blob": "84b6da7bcdd5569446687669a067d20e9baf724f",
+      "matching_producer_ancestor": "b6225590ff61884ea4dc6836ae2e3323f520593e",
+      "already_exact": true
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+      "before_blob": "b79941e1e4a01b3a59d12d670bcf714a6b1933a5",
+      "producer_blob": "6e34c414ede1772598e3597f924dcb8005b3beb3",
+      "matching_producer_ancestor": "34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67",
+      "already_exact": false
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryNativeTest.kt",
+      "before_blob": "78ca21071600940f96c39bd7cf93b8ddf4399c68",
+      "producer_blob": "b6c1302c3f56578daa098aa56511ec7ff318b6c0",
+      "matching_producer_ancestor": "fe67497f4de3b7223aa94860d582fc7b5261394d",
+      "already_exact": false
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesScreensComposeTest.kt",
+      "before_blob": null,
+      "producer_blob": "0de08c2cf4ebde03d3da81cc8e280c13ad1d3202",
+      "matching_producer_ancestor": null,
+      "already_exact": false
+    },
+    {
+      "wp": "WP-311",
+      "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "path": "android/gradle/dependency-locks/feature-nodes.lockfile",
+      "before_blob": "9b9cf17327508be1a24c8d2b01c861ae7993b428",
+      "producer_blob": "f1b6d9d22218b8d8d0233ef3704eb1f7e23627e0",
+      "matching_producer_ancestor": "21ac36c724f8b91e180864ba1963da784a5b42bf",
+      "already_exact": false
+    }
+  ],
+  "exact_unchanged_fixture_blobs": {
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeNodesFlowAccessibilityTest.kt": "3f50d6c80dab380e0e7883016295a16510604921",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NodesAccessibilityAudit.kt": "29a0f83dd33c57e1304e822b5a394cfc05db3b3e",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/OfflineNodesAudit.kt": "5fd9340c847780b0a4cb1df4b0fc4dd7fae36f45",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt": "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt": "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareParityTest.kt": "79e7e12b950f1459f006bc72942539ecf07375e0",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareLocalePreservationTest.kt": "41a1e4046f96aeb0c725a1344e7f420dfd142be4",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLauncherFocusAccessibilityTest.kt": "698d649b230b7d7945a5d901d37f748427508986",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightContrastTest.kt": "6ad88ceada36198db31309932900c5b51a39910d",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightPointBContrastTest.kt": "32c2819ecb9834a0ed2cfba2dea996a954032943",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeDiagnosticsFlowAccessibilityTest.kt": "e31edcf50c08532465ad3254919ff13eefbd8d7f",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightAccessibilityTest.kt": "f8c2cab5dc964548e938f1e023f72912874fc2a8",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/DiagnosticsAccessibilityAudit.kt": "3b81cb7808bebee6bcbb2e15eadd5cb7a77e58b5"
+  },
+  "endpoint": {
+    "adb": "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "host": "127.0.0.1",
+    "port": 5037,
+    "serial": "emulator-5556",
+    "existing_server_owner_executable_verified": true,
+    "profile_before_and_verified_unchanged_after": {
+      "sdk": "37",
+      "boot": "1",
+      "bootanim": "stopped",
+      "cpus": "4",
+      "font": "2.0",
+      "ime": "0",
+      "size": "Physical size: 1344x2992\r\nOverride size: 360x900",
+      "density": "Physical density: 480\r\nOverride density: 160",
+      "fingerprint": "google/sdk_gphone16k_x86_64/emu64xa16k:17/CP41.260831.007/16416850:user/dev-keys",
+      "avd": "Pixel_10_Pro_XL",
+      "animator_duration_scale": "0",
+      "window_animation_scale": "0",
+      "transition_animation_scale": "0"
+    }
+  },
+  "resource_profile_admission": {
+    "actual_cpus": 4,
+    "actual_unchanged_ime_setting": 0,
+    "rationale": "procedural broad-wrapper defaults; no selected original case requires2CPU or IME1",
+    "original_assertions_or_timing_geometry_thresholds_changed": false,
+    "prior_profile_evidence_relabelled": false
+  },
+  "cohorts": [
+    {
+      "cohort": "comparator-us",
+      "expected_original_methods": 11,
+      "identities": [
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#asciiCaseMatchesSwiftEquality",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#sharpSMatchesSwiftEquality",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#canonicalAccentMatchesSwiftEquality",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#fullWidthMatchesSwiftEquality",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#nodeNameCaseMatchesSwiftEquality",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#digraphCaseMatchesSwiftEquality",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#ligatureMatchesSwiftEquality",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#accentRemainsUnequalAsInSwift",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#dotlessIRemainsUnequalAsInSwift",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#dottedIRemainsUnequalAsInSwift",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#equalNamesKeepTheirInputOrderWithTheProductionComparator"
+      ],
+      "status": "BLOCKED_BEFORE_INSTRUMENTATION_PACKAGE_SIGNATURE",
+      "discovered": 0,
+      "started": 0,
+      "matching_outcomes": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "cohort": "comparator-tr-az",
+      "expected_original_methods": 2,
+      "identities": [
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest#turkishProducerCasesPreserveLocaleTailoringOnAndroid",
+        "com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest#azeriProducerCasesPreserveLocaleTailoringOnAndroid"
+      ],
+      "status": "BLOCKED_BEFORE_INSTRUMENTATION_PACKAGE_SIGNATURE",
+      "discovered": 0,
+      "started": 0,
+      "matching_outcomes": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "cohort": "diagnostics",
+      "expected_original_methods": 5,
+      "identities": [
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200",
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200",
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph",
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection"
+      ],
+      "status": "BLOCKED_BEFORE_INSTRUMENTATION_PACKAGE_SIGNATURE",
+      "discovered": 0,
+      "started": 0,
+      "matching_outcomes": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "cohort": "nodes",
+      "expected_original_methods": 7,
+      "identities": [
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200",
+        "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail"
+      ],
+      "status": "BLOCKED_BEFORE_INSTRUMENTATION_PACKAGE_SIGNATURE",
+      "discovered": 0,
+      "started": 0,
+      "matching_outcomes": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "cohort": "los",
+      "expected_original_methods": 1,
+      "identities": [
+        "com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest#savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200"
+      ],
+      "status": "BLOCKED_BEFORE_INSTRUMENTATION_PACKAGE_SIGNATURE",
+      "discovered": 0,
+      "started": 0,
+      "matching_outcomes": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "cohort": "chat",
+      "expected_original_methods": 1,
+      "identities": [
+        "com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200"
+      ],
+      "status": "BLOCKED_BEFORE_INSTRUMENTATION_PACKAGE_SIGNATURE",
+      "discovered": 0,
+      "started": 0,
+      "matching_outcomes": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "shared_setup_failures": 1,
+  "actual_failure": "CalledProcessError(1, ['C:\\\\Users\\\\camer\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe', '-H', '127.0.0.1', '-P', '5037', '-s', 'emulator-5556', 'install', '-r', 'C:\\\\Users\\\\camer\\\\.copilot\\\\session-state\\\\d2980f28-620c-408b-9947-067e2da8eedf\\\\files\\\\wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-app.apk'], b'Performing Streamed Install\\r\\n', b'adb.exe: failed to install C:\\\\Users\\\\camer\\\\.copilot\\\\session-state\\\\d2980f28-620c-408b-9947-067e2da8eedf\\\\files\\\\wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-app.apk: Failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package com.meshcoreone.android.debug signatures do not match newer version; ignoring!]\\r\\n\\r\\n')",
+  "public_debug_certificate_sha256": {
+    "original_target": "000be798aca5806230ec26d9feee36cbd0acadc857cf22a4ba711f43a4a2c8b7",
+    "retained_app": "891462f47d1f534cfcc0e755f7a938510282d35de2ff933542b643f338a9f21d",
+    "retained_test": "891462f47d1f534cfcc0e755f7a938510282d35de2ff933542b643f338a9f21d"
+  },
+  "original_target_apk_sha256_before_and_verified_after": "6d98b22de0d99a0e3a017f579bc068011bcba34c0ab527392cc63bfb1b613748",
+  "original_and_retained_room_schema_identity": "847554c8d7ca15f1f881ba6bccce4121",
+  "target_apk_replaced": false,
+  "test_apk_installed": false,
+  "user_data_wiped": false,
+  "key_auth_security_or_guest_setting_change": false,
+  "server_or_emulator_lifecycle_action": false,
+  "api31_or_successful_native_cohort_replayed": false,
+  "native_execution_lock_acquired_and_released": true,
+  "cleanup": {
+    "original_target_apk": "verified",
+    "owned_new_test_package": "verified",
+    "original_target_digest": "verified",
+    "original_profile": "verified"
+  },
+  "retained_nonreproducible_capture": {
+    "session_relative_path": "files/wp503-shared37-missing/operations.json",
+    "size": 16963,
+    "sha256": "9c39641e28311eab82a2f0ed26483c81c236cec936dc25b938f5c6fe5ba13d05",
+    "raw_operations": {
+      "source_binding": {
+        "head": "3f39a777376e322e2bc533f1d1caf92a87a44ed8",
+        "apks": {
+          "wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-app.apk": {
+            "size": 105509157,
+            "sha256": "c2b9865c65bf3f47b02bc6281fd4e31d19be751bb85d1c07306194d0eeada0fd"
+          },
+          "wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-test.apk": {
+            "size": 4530035,
+            "sha256": "af3808bff51daf4e7e8c1b02e8070f9f087ea67260f04e69c2afebd2af8c4bb0"
+          }
+        },
+        "android_tree": "7a9dd08e005e1e9cad79405dafecf325158d8b0c"
+      },
+      "fixtures": {
+        "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeNodesFlowAccessibilityTest.kt": "3f50d6c80dab380e0e7883016295a16510604921",
+        "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NodesAccessibilityAudit.kt": "29a0f83dd33c57e1304e822b5a394cfc05db3b3e",
+        "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/OfflineNodesAudit.kt": "5fd9340c847780b0a4cb1df4b0fc4dd7fae36f45",
+        "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt": "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c",
+        "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt": "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81",
+        "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareParityTest.kt": "79e7e12b950f1459f006bc72942539ecf07375e0",
+        "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareLocalePreservationTest.kt": "41a1e4046f96aeb0c725a1344e7f420dfd142be4",
+        "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLauncherFocusAccessibilityTest.kt": "698d649b230b7d7945a5d901d37f748427508986",
+        "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightContrastTest.kt": "6ad88ceada36198db31309932900c5b51a39910d",
+        "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightPointBContrastTest.kt": "32c2819ecb9834a0ed2cfba2dea996a954032943",
+        "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeDiagnosticsFlowAccessibilityTest.kt": "e31edcf50c08532465ad3254919ff13eefbd8d7f",
+        "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightAccessibilityTest.kt": "f8c2cab5dc964548e938f1e023f72912874fc2a8",
+        "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/DiagnosticsAccessibilityAudit.kt": "3b81cb7808bebee6bcbb2e15eadd5cb7a77e58b5"
+      },
+      "products": [
+        {
+          "wp": "WP-307",
+          "producer_head": "4b6629ac2bf215577ec1522530a77de61ed577fe",
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt",
+          "before_blob": null,
+          "producer_blob": "187e1a7e6fcd43c2494e0b036706d5f25cd9015f"
+        },
+        {
+          "wp": "WP-307",
+          "producer_head": "4b6629ac2bf215577ec1522530a77de61ed577fe",
+          "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt",
+          "before_blob": "7a8073ebc137eaf04291fc122c8d27f511a6e526",
+          "producer_blob": "3b10d361363e08af68225c9fba12e378c3eaf725"
+        },
+        {
+          "wp": "WP-315",
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+          "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+          "before_blob": "0513c55748f756da621ba3a04b0a2eda7e6ae2f5",
+          "matching_producer_ancestor": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+          "producer_blob": "e6bac5fc92755ca3a104928e6969586af3c2709b"
+        },
+        {
+          "wp": "WP-315",
+          "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+          "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+          "before_blob": "819a6d982c34974f3dcd1534a9577546c5d5861b",
+          "matching_producer_ancestor": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+          "producer_blob": "e1eeebc4967dbf1db140ba1397338e3242202daf"
+        },
+        {
+          "wp": "WP-316",
+          "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+          "path": "android/feature/tools/build.gradle.kts",
+          "before_blob": "dde3ca834ec3687d323a36ff7833ecf948ffc256",
+          "producer_blob": "1e95d1cc8a6b54b812640f84314b1301dd8d8894"
+        },
+        {
+          "wp": "WP-316",
+          "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+          "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt",
+          "before_blob": "905f08c90e0c64b7e69d509886a95f4bbc91f13b",
+          "producer_blob": "213866562c54c12d1f82f9c397b5cdcac7a4907c"
+        },
+        {
+          "wp": "WP-316",
+          "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+          "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliCanonicalCompletionTest.kt",
+          "before_blob": "be8175d77eba394361ac45cd58aff3067d80e515",
+          "producer_blob": "6ee68cd8303c7d664c2d3dc38011a5a0cf4407f2"
+        },
+        {
+          "wp": "WP-316",
+          "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+          "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalControllerTest.kt",
+          "before_blob": "e2650e5a3b33ede82c5fe5ed106c19507a43676f",
+          "producer_blob": "ab6bccdce44529b681b0f499b2d69c392d9ee4ba"
+        },
+        {
+          "wp": "WP-316",
+          "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+          "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolLocalCommandsTest.kt",
+          "before_blob": "25237ef01c4be8c4572d594010c05667329c7be5",
+          "producer_blob": "7352f8e60d3bc5ce2a75e7e9f5581da79e09f604"
+        },
+        {
+          "wp": "WP-316",
+          "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+          "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolSessionsTest.kt",
+          "before_blob": "47b8493825df6a29e325533fe7dc6f3fa7c4b93f",
+          "producer_blob": "5d859e10474193315726002bd99a8f063bfb67bd"
+        },
+        {
+          "wp": "WP-316",
+          "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+          "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolStateHolderTest.kt",
+          "before_blob": "9509eae14b01e90fe4f9b7c36c303f6e5ad6e5d9",
+          "producer_blob": "ebfe48e4422110a1906c87dd22c196f633e2eae5"
+        },
+        {
+          "wp": "WP-316",
+          "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+          "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+          "before_blob": "345cb7a6ee3cf48b2594efd471eceeed793cb27a",
+          "producer_blob": "58af4467a85422c8d53cee7001a159cf56f31642"
+        },
+        {
+          "wp": "WP-316",
+          "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+          "path": "android/gradle/dependency-locks/feature-tools.lockfile",
+          "before_blob": "65bbd5c3d118b4b9e394965058046e5292f414ff",
+          "producer_blob": "885331ce23ec8d93b4dcb5fe4c13b42d3faa1ed7"
+        },
+        {
+          "wp": "WP-311",
+          "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+          "path": "android/feature/nodes/build.gradle.kts",
+          "before_blob": "deef6fb56a33f25b03322fda6c1b8d8ef1864b4d",
+          "producer_blob": "852ca05b1f425d8a813d33cae42ba3a31b0c191d",
+          "matching_producer_ancestor": "21ac36c724f8b91e180864ba1963da784a5b42bf",
+          "already_exact": false
+        },
+        {
+          "wp": "WP-311",
+          "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+          "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryStateHolder.kt",
+          "before_blob": "0f5bb57e737156b3210b0d3e36607d7dd9f0f020",
+          "producer_blob": "825b8815468c318c8c95717f379d85850223fe70",
+          "matching_producer_ancestor": "fe67497f4de3b7223aa94860d582fc7b5261394d",
+          "already_exact": false
+        },
+        {
+          "wp": "WP-311",
+          "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+          "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/ContactDetailScreen.kt",
+          "before_blob": "84b6da7bcdd5569446687669a067d20e9baf724f",
+          "producer_blob": "84b6da7bcdd5569446687669a067d20e9baf724f",
+          "matching_producer_ancestor": "b6225590ff61884ea4dc6836ae2e3323f520593e",
+          "already_exact": true
+        },
+        {
+          "wp": "WP-311",
+          "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+          "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+          "before_blob": "b79941e1e4a01b3a59d12d670bcf714a6b1933a5",
+          "producer_blob": "6e34c414ede1772598e3597f924dcb8005b3beb3",
+          "matching_producer_ancestor": "34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67",
+          "already_exact": false
+        },
+        {
+          "wp": "WP-311",
+          "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryNativeTest.kt",
+          "before_blob": "78ca21071600940f96c39bd7cf93b8ddf4399c68",
+          "producer_blob": "b6c1302c3f56578daa098aa56511ec7ff318b6c0",
+          "matching_producer_ancestor": "fe67497f4de3b7223aa94860d582fc7b5261394d",
+          "already_exact": false
+        },
+        {
+          "wp": "WP-311",
+          "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesScreensComposeTest.kt",
+          "before_blob": null,
+          "producer_blob": "0de08c2cf4ebde03d3da81cc8e280c13ad1d3202",
+          "matching_producer_ancestor": null,
+          "already_exact": false
+        },
+        {
+          "wp": "WP-311",
+          "producer_head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+          "path": "android/gradle/dependency-locks/feature-nodes.lockfile",
+          "before_blob": "9b9cf17327508be1a24c8d2b01c861ae7993b428",
+          "producer_blob": "f1b6d9d22218b8d8d0233ef3704eb1f7e23627e0",
+          "matching_producer_ancestor": "21ac36c724f8b91e180864ba1963da784a5b42bf",
+          "already_exact": false
+        }
+      ],
+      "selections": {
+        "comparator-us": [
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#asciiCaseMatchesSwiftEquality",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#sharpSMatchesSwiftEquality",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#canonicalAccentMatchesSwiftEquality",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#fullWidthMatchesSwiftEquality",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#nodeNameCaseMatchesSwiftEquality",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#digraphCaseMatchesSwiftEquality",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#ligatureMatchesSwiftEquality",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#accentRemainsUnequalAsInSwift",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#dotlessIRemainsUnequalAsInSwift",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#dottedIRemainsUnequalAsInSwift",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest#equalNamesKeepTheirInputOrderWithTheProductionComparator"
+        ],
+        "comparator-tr-az": [
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest#turkishProducerCasesPreserveLocaleTailoringOnAndroid",
+          "com.meshcoreone.android.accessibility.NativeLocalizedCompareLocalePreservationTest#azeriProducerCasesPreserveLocaleTailoringOnAndroid"
+        ],
+        "diagnostics": [
+          "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200",
+          "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200",
+          "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph",
+          "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+          "com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest#disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection"
+        ],
+        "nodes": [
+          "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineChatRepeaterAndRoomKeepTransportDisabledAndSavedHistoryRoutingReachable",
+          "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable",
+          "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable",
+          "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting",
+          "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineSyncShowsLocalizedRecoveryDialogWithReachableScaledTextAndDismissAction",
+          "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200",
+          "com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest#offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail"
+        ],
+        "los": [
+          "com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest#savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200"
+        ],
+        "chat": [
+          "com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200"
+        ]
+      },
+      "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+      "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+      "reservation_revision": 8,
+      "cohorts": [],
+      "published_head_results_transfer": false,
+      "runner_sha256": "59a19785628a0201ed40a2c908a00a88412370fb2ea67a79db33f02824c982d3",
+      "audit_publication_parent": "17eb976864f4c84774c0f1e11ce566002f474740",
+      "profile_adaptation": "actual4CPU/IME0; no assertion/deadline/settings/source change",
+      "profile_before": {
+        "sdk": "37",
+        "boot": "1",
+        "bootanim": "stopped",
+        "cpus": "4",
+        "font": "2.0",
+        "ime": "0",
+        "size": "Physical size: 1344x2992\r\nOverride size: 360x900",
+        "density": "Physical density: 480\r\nOverride density: 160",
+        "fingerprint": "google/sdk_gphone16k_x86_64/emu64xa16k:17/CP41.260831.007/16416850:user/dev-keys",
+        "avd": "Pixel_10_Pro_XL",
+        "animator_duration_scale": "0",
+        "window_animation_scale": "0",
+        "transition_animation_scale": "0"
+      },
+      "installed_before": {
+        "path": "/data/app/~~MDJkAxN0ZuWonE0BL__2vQ==/com.meshcoreone.android.debug-aSU8evAtwBDxku9ME1f0hA==/base.apk",
+        "sha256": "6d98b22de0d99a0e3a017f579bc068011bcba34c0ab527392cc63bfb1b613748"
+      },
+      "execution_error": "CalledProcessError(1, ['C:\\\\Users\\\\camer\\\\AppData\\\\Local\\\\Android\\\\Sdk\\\\platform-tools\\\\adb.exe', '-H', '127.0.0.1', '-P', '5037', '-s', 'emulator-5556', 'install', '-r', 'C:\\\\Users\\\\camer\\\\.copilot\\\\session-state\\\\d2980f28-620c-408b-9947-067e2da8eedf\\\\files\\\\wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-app.apk'], b'Performing Streamed Install\\r\\n', b'adb.exe: failed to install C:\\\\Users\\\\camer\\\\.copilot\\\\session-state\\\\d2980f28-620c-408b-9947-067e2da8eedf\\\\files\\\\wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-app.apk: Failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package com.meshcoreone.android.debug signatures do not match newer version; ignoring!]\\r\\n\\r\\n')",
+      "cleanup": {
+        "original_target_apk": "verified",
+        "owned_new_test_package": "verified",
+        "original_target_digest": "verified",
+        "original_profile": "verified"
+      }
+    },
+    "original_target_apk_preserved_only_locally_not_committed": true
+  },
+  "current_producer_freshness": [
+    {
+      "pr": 233,
+      "head": "fd9fa8e16c8a74043387010a192c3a9e36abd783",
+      "state": "open-ready-unmerged"
+    },
+    {
+      "pr": 227,
+      "head": "497a5d82b010095d8c5b3d5ebc7a735fdb8f488d",
+      "state": "open-ready-unmerged",
+      "final_c6_production_blob_unchanged": "e1eeebc4967dbf1db140ba1397338e3242202daf"
+    },
+    {
+      "pr": 235,
+      "head": "040ed2fe62d450e348ea9eaedfa88f6f3ad0ec70",
+      "state": "open-ready-unmerged",
+      "final_4b_production_blob_unchanged": "3b10d361363e08af68225c9fba12e378c3eaf725"
+    },
+    {
+      "pr": 239,
+      "head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "state": "open-ready-unmerged"
+    }
+  ],
+  "next_action_owner": "existing WP-003 support owner06d49; typed standard-debug-packaging adapter admission",
+  "next_action": "User authorizes standard existing Gradle DEBUG assembly using the host's already-configured compatible public debug identity without agent private-key access/copy/export/change. The trusted policy has no exact supporting adapter operation; owner003 must supply that bounded support admission before the adapter uses the existing key through Gradle. This is not a release-signing gate. Preserve the old capture and bind newly built App+Test/source/toolchain hashes separately.",
+  "debug_packaging_capability_check": {
+    "existing_relevant_capability": "app-build-launcher",
+    "existing_allowed_operations": [
+      "add-direct-support-wiring",
+      "update-build-or-manifest",
+      "update-launcher-or-composition"
+    ],
+    "required_support_path": "tools/android-port/local/debug_packaging.py",
+    "proposed_bounded_operation": "build-debug-test-apks-with-existing-local-identity",
+    "actual_engine_error": "Capability admission blocked: WP WP-503, path tools/android-port/local/debug_packaging.py, operation build-debug-test-apks-with-existing-local-identity; no trusted path+operation rule",
+    "external_key_operation_executed": false,
+    "user_authorizes_ordinary_debug_packaging_not_release_or_key_export": true
+  },
+  "preinstall_certificate_guard_added_after_actual_failure": true,
+  "adapter_only_unit_verification": {
+    "command": "python -m unittest discover -s android\\accessibility-tests -p test_shared_device_runner.py",
+    "discovered": 5,
+    "passed": 5,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "native_credit": false
+  },
+  "progress_comment": "https://github.com/cbattlegear/MeshCoreOne-Android/pull/205#issuecomment-6276271523",
+  "actual_result_comment": "https://github.com/cbattlegear/MeshCoreOne-Android/pull/205#issuecomment-6276341384",
+  "f75_hosted_failed800_4_and_missing_two_identities_unchanged": true,
+  "hosted_result_bundle_created": false,
+  "native_credit_transferred_to_owned_only_publication": false,
+  "physical_talkback_or_whole_wp_acceptance_claimed": false
+}

@@ -1,0 +1,263 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest:
+INSTRUMENTATION_STATUS: test=asciiCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=asciiCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=dotlessIRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=dotlessIRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=dottedIRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=dottedIRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=canonicalAccentMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=canonicalAccentMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=nodeNameCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=nodeNameCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=equalNamesKeepTheirInputOrderWithTheProductionComparator
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Equal names must retain their actual input order
+Expected: <[straße, STRASSE]>
+     but: was <[STRASSE, straße]>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.equalNamesKeepTheirInputOrderWithTheProductionComparator(NativeLocalizedCompareParityTest.kt:92)
+
+INSTRUMENTATION_STATUS: stream=
+Error in equalNamesKeepTheirInputOrderWithTheProductionComparator(com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest):
+java.lang.AssertionError: Equal names must retain their actual input order
+Expected: <[straße, STRASSE]>
+     but: was <[STRASSE, straße]>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.equalNamesKeepTheirInputOrderWithTheProductionComparator(NativeLocalizedCompareParityTest.kt:92)
+
+INSTRUMENTATION_STATUS: test=equalNamesKeepTheirInputOrderWithTheProductionComparator
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=accentRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=accentRemainsUnequalAsInSwift
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=fullWidthMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=fullWidthMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=ligatureMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=ligatureMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=sharpSMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: STRASSE|straße comparator zero
+Expected: <true>
+     but: was <false>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.assertPair(NativeLocalizedCompareParityTest.kt:65)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.sharpSMatchesSwiftEquality(NativeLocalizedCompareParityTest.kt:72)
+
+INSTRUMENTATION_STATUS: stream=
+Error in sharpSMatchesSwiftEquality(com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest):
+java.lang.AssertionError: STRASSE|straße comparator zero
+Expected: <true>
+     but: was <false>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.assertPair(NativeLocalizedCompareParityTest.kt:65)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.sharpSMatchesSwiftEquality(NativeLocalizedCompareParityTest.kt:72)
+
+INSTRUMENTATION_STATUS: test=sharpSMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=digraphCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=11
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=digraphCaseMatchesSwiftEquality
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.314
+There were 5 failures:
+1) equalNamesKeepTheirInputOrderWithTheProductionComparator(com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest)
+java.lang.AssertionError: Equal names must retain their actual input order
+Expected: <[straße, STRASSE]>
+     but: was <[STRASSE, straße]>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.equalNamesKeepTheirInputOrderWithTheProductionComparator(NativeLocalizedCompareParityTest.kt:92)
+2) sharpSMatchesSwiftEquality(com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest)
+java.lang.AssertionError: straße|STRASSE equality
+Expected: <true>
+     but: was <false>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.assertPair(NativeLocalizedCompareParityTest.kt:62)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.sharpSMatchesSwiftEquality(NativeLocalizedCompareParityTest.kt:72)
+3) sharpSMatchesSwiftEquality(com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest)
+java.lang.AssertionError: STRASSE|straße equality
+Expected: <true>
+     but: was <false>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.assertPair(NativeLocalizedCompareParityTest.kt:63)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.sharpSMatchesSwiftEquality(NativeLocalizedCompareParityTest.kt:72)
+4) sharpSMatchesSwiftEquality(com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest)
+java.lang.AssertionError: straße|STRASSE comparator zero
+Expected: <true>
+     but: was <false>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.assertPair(NativeLocalizedCompareParityTest.kt:64)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.sharpSMatchesSwiftEquality(NativeLocalizedCompareParityTest.kt:72)
+5) sharpSMatchesSwiftEquality(com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest)
+java.lang.AssertionError: STRASSE|straße comparator zero
+Expected: <true>
+     but: was <false>
+	at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+	at org.junit.Assert.assertThat(Assert.java:964)
+	at org.junit.rules.ErrorCollector$1.call(ErrorCollector.java:77)
+	at org.junit.rules.ErrorCollector.checkSucceeds(ErrorCollector.java:90)
+	at org.junit.rules.ErrorCollector.checkThat(ErrorCollector.java:75)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.assertPair(NativeLocalizedCompareParityTest.kt:65)
+	at com.meshcoreone.android.accessibility.NativeLocalizedCompareParityTest.sharpSMatchesSwiftEquality(NativeLocalizedCompareParityTest.kt:72)
+
+FAILURES!!!
+Tests run: 11,  Failures: 5
+
+
+INSTRUMENTATION_CODE: -1

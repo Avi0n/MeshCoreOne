@@ -1,0 +1,33 @@
+WP503_EXECUTED_INPUT|40cb94e846a9f99de0afaa3f99b61c668386e7e4
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 37, "head": "40cb94e846a9f99de0afaa3f99b61c668386e7e4", "scenario": "full", "discovered": 80, "statuses": {"0": 78, "-2": 2}, "time": ["Time: 321.272"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest', 'actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest', 'disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal')|-2
+test.MainTestClockImpl$1.invoke(MainTestClockImpl.android.kt:32)
+	at androidx.compose.ui.test.AbstractMainTestClock.advanceScheduler(AbstractMainTestClock.jvm.kt:101)
+	at androidx.compose.ui.test.AbstractMainTestClock.advanceTimeByFrame(AbstractMainTestClock.jvm.kt:41)
+	at androidx.compose.ui.test.ComposeIdlingResource.isIdleNow(ComposeIdlingResource.android.kt:92)
+	at androidx.compose.ui.test.IdlingResourceRegistry.areAllResourcesIdle(IdlingResourceRegistry.jvm.kt:115)
+	at androidx.compose.ui.test.IdlingResourceRegistry.isIdleOrEnsurePolling$ui_test(IdlingResourceRegistry.jvm.kt:93)
+	at androidx.compose.ui.test.EspressoLink.isIdleNow(EspressoLink.android.kt:49)
+	at androidx.test.espresso.base.IdlingResourceRegistry.allResourcesAreIdle(IdlingResourceRegistry.java:281)
+	at androidx.test.espresso.base.IdlingResourceRegistry$6.isIdleNow(IdlingResourceRegistry.java:320)
+	at androidx.test.espresso.base.UiControllerImpl.loopMainThreadUntilIdle(UiControllerImpl.java:407)
+	at androidx.test.espresso.Espresso.lambda$onIdle$2(Espresso.java:340)
+	at androidx.test.espresso.Espresso$$ExternalSyntheticLambda1.call(D8$$SyntheticClass:0)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:328)
+	at android.os.Handler.handleCallback(Handler.java:1080)
+	at android.os.Handler.dispatchMessageImpl(Handler.java:135)
+	at android.os.Handler.dispatchMessage(Handler.java:126)
+	at android.os.Looper.loopOnce(Looper.java:285)
+	at android.os.Looper.loop(Looper.java:390)
+	at android.app.ActivityThread.main(ActivityThread.java:9884)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:906)
+
+FAILURES!!!
+Tests run: 80,  Failures: 13
+
+
+INSTRUMENTATION_CODE: -1

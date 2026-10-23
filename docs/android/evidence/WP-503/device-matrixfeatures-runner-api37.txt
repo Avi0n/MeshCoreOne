@@ -1,0 +1,27 @@
+WP503_EXECUTED_INPUT|d2c73dd2f855bd038a82e904bce7f481285cbd84
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e notClass com.meshcoreone.android.accessibility.NativePlatformServiceControlTest,com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 37, "head": "d2c73dd2f855bd038a82e904bce7f481285cbd84", "scenario": "feature-matrix", "discovered": 80, "statuses": {"0": 77, "-2": 3}, "time": ["Time: 300.26"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest', 'actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest', 'actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest', 'emptyPanelTypedDiskAndNetworkFailuresStayReadableAndRetryStartsOnlyTheNamedRegion')|-2
+roidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode$default(SemanticsNodeInteraction.kt:83)
+	at com.meshcoreone.android.accessibility.NodesAccessibilityAudit.actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable(NodesAccessibilityAudit.kt:257)
+	at com.meshcoreone.android.accessibility.NativeNodesFlowAccessibilityTest.actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable(NativeNodesFlowAccessibilityTest.kt:68)
+14) emptyPanelTypedDiskAndNetworkFailuresStayReadableAndRetryStartsOnlyTheNamedRegion(com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest)
+java.lang.AssertionError: Offline map actions must be fully visible and at least48dp
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest.assertTarget(NativeOfflineMapAccessibilityTest.kt:216)
+	at com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest.assertTarget$default(NativeOfflineMapAccessibilityTest.kt:207)
+	at com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest.panelAction(NativeOfflineMapAccessibilityTest.kt:196)
+	at com.meshcoreone.android.accessibility.NativeOfflineMapAccessibilityTest.emptyPanelTypedDiskAndNetworkFailuresStayReadableAndRetryStartsOnlyTheNamedRegion(NativeOfflineMapAccessibilityTest.kt:90)
+
+FAILURES!!!
+Tests run: 80,  Failures: 14
+
+
+INSTRUMENTATION_CODE: -1
+

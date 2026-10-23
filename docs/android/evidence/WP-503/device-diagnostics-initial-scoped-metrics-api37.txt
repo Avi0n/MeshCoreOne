@@ -1,0 +1,61 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Offline|size=85 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = 743)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Offline|line=0|left=0.0|right=83.600006|top=0.0|bottom=42.0
+WP503_FONT|text=Connect to a mesh radio to view RF packets.|size=288 x 126|constraints=Constraints(minWidth = 0, maxWidth = 288, minHeight = 0, maxHeight = 521)|paragraph=288.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=Connect to a mesh radio to view RF packets.|line=0|left=0.0|right=232.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Connect to a mesh radio to view RF packets.|line=1|left=0.0|right=197.17969|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Connect to a mesh radio to view RF packets.|line=2|left=0.0|right=104.72656|top=84.0|bottom=126.0
+WP503_FONT|text=Flood Only|size=124 x 30|constraints=Constraints(minWidth = 0, maxWidth = Infinity, minHeight = 0, maxHeight = 665)|paragraph=2.1474836E9x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Flood Only|line=0|left=0.0|right=124.0|top=0.0|bottom=30.0
+WP503_TARGET|width=70.0|height=48.0|role=Checkbox
+WP503_TARGET|width=114.0|height=48.0|role=Checkbox
+WP503_PARTIAL_TARGET|position=Offset(-17.0, 68.0)|size=165 x 32
+WP503_TARGET|width=63.0|height=48.0|role=Checkbox
+WP503_TARGET|width=156.0|height=48.0|role=Checkbox
+WP503_PARTIAL_TARGET|position=Offset(-47.0, 211.0)|size=160 x 32
+WP503_TARGET|width=63.0|height=48.0|role=Checkbox
+WP503_TARGET|width=153.0|height=48.0|role=Checkbox
+WP503_TARGET|width=103.0|height=48.0|role=Checkbox
+WP503_DIAGNOSTICS_WINDOW|actualOverride=360x600|beforeActivityOrAfterTeardown=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_GRAPH_VALUE|label=Minimum|bounds=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|size=253 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 576.0)
+WP503_GRAPH_VALUE|label=Maximum|bounds=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|size=260 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 576.0)
+WP503_GRAPH_VALUE|label=Average|bounds=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|size=259 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 576.0)
+WP503_FONT|text=Minimum: -110 dBm|size=253 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Minimum: -110 dBm|line=0|left=0.0|right=253.0|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|after=Rect.fromLTRB(95.0, 534.0, 348.0, 576.0)|position=Offset(95.0, 663.0)->Offset(95.0, 534.0)
+WP503_FONT|text=Maximum: -110 dBm|size=260 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Maximum: -110 dBm|line=0|left=0.0|right=260.0|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|after=Rect.fromLTRB(88.0, 534.0, 348.0, 576.0)|position=Offset(88.0, 576.0)->Offset(88.0, 534.0)
+WP503_FONT|text=Average: -110.0 dBm|size=259 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Average: -110.0 dBm|line=0|left=0.0|right=258.59375|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|after=Rect.fromLTRB(89.0, 534.0, 348.0, 576.0)|position=Offset(89.0, 576.0)->Offset(89.0, 534.0)
+WP503_TARGET|width=70.0|height=48.0|role=Checkbox
+WP503_TARGET|width=114.0|height=48.0|role=Checkbox
+WP503_PARTIAL_TARGET|position=Offset(-17.0, 68.0)|size=165 x 32
+WP503_DIAGNOSTICS_WINDOW|actualOverride=360x900|beforeActivityOrAfterTeardown=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Connect to a mesh radio to measure noise floor.|size=288 x 126|constraints=Constraints(minWidth = 0, maxWidth = 288, minHeight = 0, maxHeight = Infinity)|paragraph=288.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=Connect to a mesh radio to measure noise floor.|line=0|left=0.0|right=232.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Connect to a mesh radio to measure noise floor.|line=1|left=0.0|right=282.92188|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Connect to a mesh radio to measure noise floor.|line=2|left=0.0|right=62.320312|top=84.0|bottom=126.0
+WP503_TARGET|width=70.0|height=48.0|role=Checkbox
+WP503_TARGET|width=114.0|height=48.0|role=Checkbox
+WP503_PARTIAL_TARGET|position=Offset(-17.0, 68.0)|size=165 x 32
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_GRAPH_VALUE|label=Minimum|bounds=Rect.fromLTRB(95.0, 663.0, 348.0, 705.0)|size=253 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_GRAPH_VALUE|label=Maximum|bounds=Rect.fromLTRB(88.0, 705.0, 348.0, 747.0)|size=260 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_GRAPH_VALUE|label=Average|bounds=Rect.fromLTRB(89.0, 747.0, 348.0, 789.0)|size=259 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Minimum: -110 dBm|size=253 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Minimum: -110 dBm|line=0|left=0.0|right=253.0|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(95.0, 663.0, 348.0, 705.0)|after=Rect.fromLTRB(95.0, 663.0, 348.0, 705.0)|position=Offset(95.0, 663.0)->Offset(95.0, 663.0)
+WP503_FONT|text=Maximum: -110 dBm|size=260 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Maximum: -110 dBm|line=0|left=0.0|right=260.0|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(88.0, 705.0, 348.0, 747.0)|after=Rect.fromLTRB(88.0, 705.0, 348.0, 747.0)|position=Offset(88.0, 705.0)->Offset(88.0, 705.0)
+WP503_FONT|text=Average: -110.0 dBm|size=259 x 42|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = Infinity)|paragraph=336.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Average: -110.0 dBm|line=0|left=0.0|right=258.59375|top=0.0|bottom=42.0
+WP503_GRAPH_REACHABLE|before=Rect.fromLTRB(89.0, 747.0, 348.0, 789.0)|after=Rect.fromLTRB(89.0, 747.0, 348.0, 789.0)|position=Offset(89.0, 747.0)->Offset(89.0, 747.0)
+WP503_TARGET|width=70.0|height=48.0|role=Checkbox
+WP503_TARGET|width=114.0|height=48.0|role=Checkbox
+WP503_PARTIAL_TARGET|position=Offset(-17.0, 68.0)|size=165 x 32
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0

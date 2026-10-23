@@ -1,0 +1,187 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Offline Maps|size=147 x 30|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = 800)|paragraph=296.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Offline Maps|line=0|left=0.0|right=147.0|top=0.0|bottom=30.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(165.0, 116.0, 344.0, 164.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Region 中文 שלום|size=204 x 38|constraints=Constraints(minWidth = 0, maxWidth = 244, minHeight = 0, maxHeight = Infinity)|paragraph=244.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Region 中文 שלום|line=0|left=0.0|right=203.73828|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Region 中文 שלום|bounds=Rect.fromLTRB(98.0, 496.0, 302.0, 534.0)|size=204 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Downloading…|size=181 x 42|constraints=Constraints(minWidth = 0, maxWidth = 244, minHeight = 0, maxHeight = Infinity)|paragraph=244.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Downloading…|line=0|left=0.0|right=181.0|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Downloading…|bounds=Rect.fromLTRB(121.0, 540.0, 302.0, 582.0)|size=181 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_OFFLINE_MAP_PROGRESS|current=0.25|range=0..1|dataBound=true
+WP503_FONT|text=Pause|size=72 x 38|constraints=Constraints(minWidth = 0, maxWidth = 220, minHeight = 0, maxHeight = Infinity)|paragraph=220.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Pause|line=0|left=0.0|right=71.859375|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Pause|bounds=Rect.fromLTRB(218.0, 606.0, 290.0, 644.0)|size=72 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(206.0, 598.0, 302.0, 652.0)|viewport=Rect.fromLTRB(46.0, 264.0, 314.0, 664.0)
+WP503_FONT|text=Paused|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 244, minHeight = 0, maxHeight = Infinity)|paragraph=244.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Paused|line=0|left=0.0|right=92.85156|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Paused|bounds=Rect.fromLTRB(209.0, 540.0, 302.0, 582.0)|size=93 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Resume|size=94 x 38|constraints=Constraints(minWidth = 0, maxWidth = 220, minHeight = 0, maxHeight = Infinity)|paragraph=220.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Resume|line=0|left=0.0|right=94.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Resume|bounds=Rect.fromLTRB(196.0, 606.0, 290.0, 644.0)|size=94 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(184.0, 598.0, 302.0, 652.0)|viewport=Rect.fromLTRB(46.0, 264.0, 314.0, 664.0)
+WP503_FONT|text=Downloading…|size=181 x 42|constraints=Constraints(minWidth = 0, maxWidth = 244, minHeight = 0, maxHeight = Infinity)|paragraph=244.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Downloading…|line=0|left=0.0|right=181.0|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Downloading…|bounds=Rect.fromLTRB(121.0, 540.0, 302.0, 582.0)|size=181 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Delete|size=75 x 38|constraints=Constraints(minWidth = 0, maxWidth = 116, minHeight = 0, maxHeight = Infinity)|paragraph=116.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Delete|line=0|left=0.0|right=75.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Delete|bounds=Rect.fromLTRB(111.0, 606.0, 186.0, 644.0)|size=75 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(99.0, 598.0, 198.0, 652.0)|viewport=Rect.fromLTRB(46.0, 264.0, 314.0, 664.0)
+WP503_FONT|text=Region 中文 שלום|size=203 x 38|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = 698)|paragraph=272.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Region 中文 שלום|line=0|left=0.0|right=202.73828|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Region 中文 שלום|bounds=Rect.fromLTRB(53.0, 24.0, 256.0, 62.0)|size=203 x 38|viewport=Rect.fromLTRB(0.0, 0.0, 280.0, 164.0)
+WP503_FONT|text=Cancel|size=80 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 760)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=80.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Cancel|bounds=Rect.fromLTRB(135.0, 94.0, 215.0, 132.0)|size=80 x 38|viewport=Rect.fromLTRB(0.0, 0.0, 280.0, 164.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(123.0, 86.0, 227.0, 140.0)|viewport=Rect.fromLTRB(0.0, 0.0, 280.0, 164.0)
+WP503_FONT|text=Delete|size=75 x 38|constraints=Constraints(minWidth = 0, maxWidth = 116, minHeight = 0, maxHeight = Infinity)|paragraph=116.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Delete|line=0|left=0.0|right=75.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Delete|bounds=Rect.fromLTRB(111.0, 606.0, 186.0, 644.0)|size=75 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(99.0, 598.0, 198.0, 652.0)|viewport=Rect.fromLTRB(46.0, 264.0, 314.0, 664.0)
+WP503_FONT|text=Delete|size=75 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 760)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Delete|line=0|left=0.0|right=75.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Delete|bounds=Rect.fromLTRB(36.0, 94.0, 111.0, 132.0)|size=75 x 38|viewport=Rect.fromLTRB(0.0, 0.0, 280.0, 164.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(24.0, 86.0, 123.0, 140.0)|viewport=Rect.fromLTRB(0.0, 0.0, 280.0, 164.0)
+WP503_FONT|text=Download map regions for use without internet.|size=268 x 126|constraints=Constraints(minWidth = 0, maxWidth = 268, minHeight = 0, maxHeight = Infinity)|paragraph=268.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=Download map regions for use without internet.|line=0|left=0.0|right=187.0|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Download map regions for use without internet.|line=1|left=0.0|right=184.74219|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Download map regions for use without internet.|line=2|left=0.0|right=200.0|top=84.0|bottom=126.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Download map regions for use without internet.|bounds=Rect.fromLTRB(46.0, 511.0, 314.0, 637.0)|size=268 x 126|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Done|size=60 x 38|constraints=Constraints(minWidth = 0, maxWidth = 81, minHeight = 0, maxHeight = Infinity)|paragraph=81.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Done|line=0|left=0.0|right=60.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Done|bounds=Rect.fromLTRB(58.0, 299.0, 118.0, 337.0)|size=60 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(46.0, 291.0, 130.0, 345.0)|viewport=Rect.fromLTRB(46.0, 291.0, 314.0, 637.0)
+WP503_OFFLINE_MAP_LIFECYCLE|pause=1|resume=1|cancelDelete=0|confirmedDelete=1|exactPack=true|realBackend=false
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Offline Maps|size=147 x 30|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = 800)|paragraph=296.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Offline Maps|line=0|left=0.0|right=147.0|top=0.0|bottom=30.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(165.0, 116.0, 344.0, 164.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Region 中文 שלום|size=204 x 38|constraints=Constraints(minWidth = 0, maxWidth = 244, minHeight = 0, maxHeight = Infinity)|paragraph=244.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Region 中文 שלום|line=0|left=0.0|right=203.73828|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Region 中文 שלום|bounds=Rect.fromLTRB(98.0, 496.0, 302.0, 534.0)|size=204 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Downloaded|size=155 x 42|constraints=Constraints(minWidth = 0, maxWidth = 244, minHeight = 0, maxHeight = Infinity)|paragraph=244.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Downloaded|line=0|left=0.0|right=155.0|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Downloaded|bounds=Rect.fromLTRB(147.0, 540.0, 302.0, 582.0)|size=155 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_OFFLINE_MAP_PROGRESS|current=1.0|range=0..1|dataBound=true
+WP503_FONT|text=Delete|size=75 x 38|constraints=Constraints(minWidth = 0, maxWidth = 220, minHeight = 0, maxHeight = Infinity)|paragraph=220.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Delete|line=0|left=0.0|right=75.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Delete|bounds=Rect.fromLTRB(215.0, 606.0, 290.0, 644.0)|size=75 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(203.0, 598.0, 302.0, 652.0)|viewport=Rect.fromLTRB(46.0, 264.0, 314.0, 664.0)
+WP503_FONT|text=Done|size=60 x 38|constraints=Constraints(minWidth = 0, maxWidth = 81, minHeight = 0, maxHeight = Infinity)|paragraph=81.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Done|line=0|left=0.0|right=60.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Done|bounds=Rect.fromLTRB(58.0, 272.0, 118.0, 310.0)|size=60 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(46.0, 264.0, 130.0, 318.0)|viewport=Rect.fromLTRB(46.0, 264.0, 314.0, 664.0)
+WP503_OFFLINE_MAP_COMPLETE|progress=1.0|pauseResumeAbsent=true|doneDeletes=0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Offline Maps|size=147 x 30|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = 800)|paragraph=296.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Offline Maps|line=0|left=0.0|right=147.0|top=0.0|bottom=30.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(165.0, 116.0, 344.0, 164.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Offline Maps|size=163 x 42|constraints=Constraints(minWidth = 0, maxWidth = 268, minHeight = 0, maxHeight = Infinity)|paragraph=268.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Offline Maps|line=0|left=0.0|right=161.6|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Offline Maps|bounds=Rect.fromLTRB(151.0, 297.0, 314.0, 339.0)|size=163 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Download map regions for use without internet.|size=268 x 126|constraints=Constraints(minWidth = 0, maxWidth = 268, minHeight = 0, maxHeight = Infinity)|paragraph=268.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=Download map regions for use without internet.|line=0|left=0.0|right=187.0|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Download map regions for use without internet.|line=1|left=0.0|right=184.74219|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Download map regions for use without internet.|line=2|left=0.0|right=200.0|top=84.0|bottom=126.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Download map regions for use without internet.|bounds=Rect.fromLTRB(46.0, 511.0, 314.0, 637.0)|size=268 x 126|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Download Region|size=203 x 38|constraints=Constraints(minWidth = 0, maxWidth = 220, minHeight = 0, maxHeight = Infinity)|paragraph=220.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Download Region|line=0|left=0.0|right=203.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Download Region|bounds=Rect.fromLTRB(79.0, 457.0, 282.0, 495.0)|size=203 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(46.0, 449.0, 314.0, 503.0)|viewport=Rect.fromLTRB(46.0, 291.0, 314.0, 637.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(46.0, 353.0, 314.0, 441.0)|viewport=Rect.fromLTRB(46.0, 291.0, 314.0, 637.0)
+WP503_FONT|text=Region Name|size=168 x 42|constraints=Constraints(minWidth = 0, maxWidth = 236, minHeight = 0, maxHeight = Infinity)|paragraph=236.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Region Name|line=0|left=0.0|right=168.0|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Region Name|bounds=Rect.fromLTRB(130.0, 383.0, 298.0, 425.0)|size=168 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Download Region|size=203 x 38|constraints=Constraints(minWidth = 0, maxWidth = 220, minHeight = 0, maxHeight = Infinity)|paragraph=220.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Download Region|line=0|left=0.0|right=203.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Download Region|bounds=Rect.fromLTRB(79.0, 457.0, 282.0, 495.0)|size=203 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(46.0, 449.0, 314.0, 503.0)|viewport=Rect.fromLTRB(46.0, 291.0, 314.0, 637.0)
+WP503_FONT|text=Not enough storage space. At least 100 MB is required.|size=272 x 114|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = 698)|paragraph=272.0x114.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=Not enough storage space. At least 100 MB is required.|line=0|left=0.0|right=229.23828|top=0.0|bottom=38.0
+WP503_FONT_LINE|text=Not enough storage space. At least 100 MB is required.|line=1|left=0.0|right=266.78516|top=38.0|bottom=76.0
+WP503_FONT_LINE|text=Not enough storage space. At least 100 MB is required.|line=2|left=0.0|right=127.515625|top=76.0|bottom=114.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Not enough storage space. At least 100 MB is required.|bounds=Rect.fromLTRB(24.0, 24.0, 296.0, 138.0)|size=272 x 114|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 240.0)
+WP503_FONT|text=Done|size=60 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 760)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Done|line=0|left=0.0|right=60.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Done|bounds=Rect.fromLTRB(36.0, 170.0, 96.0, 208.0)|size=60 x 38|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 240.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(24.0, 162.0, 108.0, 216.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 240.0)
+WP503_FONT|text=Download Region|size=203 x 38|constraints=Constraints(minWidth = 0, maxWidth = 220, minHeight = 0, maxHeight = Infinity)|paragraph=220.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Download Region|line=0|left=0.0|right=203.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=386}|visibleFrame=Rect(0, 52 - 360, 514)
+WP503_OFFLINE_MAP_TEXT|label=Download Region|bounds=Rect.fromLTRB(79.0, 276.0, 282.0, 314.0)|size=203 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 514.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=386}|visibleFrame=Rect(0, 52 - 360, 514)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(46.0, 268.0, 314.0, 322.0)|viewport=Rect.fromLTRB(46.0, 110.0, 314.0, 456.0)
+WP503_FONT|text=An internet connection is required to download maps.|size=272 x 114|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = 698)|paragraph=272.0x114.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=An internet connection is required to download maps.|line=0|left=0.0|right=261.0|top=0.0|bottom=38.0
+WP503_FONT_LINE|text=An internet connection is required to download maps.|line=1|left=0.0|right=270.26172|top=38.0|bottom=76.0
+WP503_FONT_LINE|text=An internet connection is required to download maps.|line=2|left=0.0|right=72.0|top=76.0|bottom=114.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=An internet connection is required to download maps.|bounds=Rect.fromLTRB(24.0, 24.0, 296.0, 138.0)|size=272 x 114|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 240.0)
+WP503_FONT|text=Done|size=60 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 760)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Done|line=0|left=0.0|right=60.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Done|bounds=Rect.fromLTRB(36.0, 170.0, 96.0, 208.0)|size=60 x 38|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 240.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=0, right=0, bottom=0}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(24.0, 162.0, 108.0, 216.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 240.0)
+WP503_FONT|text=Download Region|size=203 x 38|constraints=Constraints(minWidth = 0, maxWidth = 220, minHeight = 0, maxHeight = Infinity)|paragraph=220.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Download Region|line=0|left=0.0|right=203.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TEXT|label=Download Region|bounds=Rect.fromLTRB(79.0, 457.0, 282.0, 495.0)|size=203 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(46.0, 449.0, 314.0, 503.0)|viewport=Rect.fromLTRB(46.0, 291.0, 314.0, 637.0)
+WP503_FONT|text=Region 中文 שלום|size=204 x 38|constraints=Constraints(minWidth = 0, maxWidth = 244, minHeight = 0, maxHeight = Infinity)|paragraph=244.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Region 中文 שלום|line=0|left=0.0|right=203.73828|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=299}|visibleFrame=Rect(0, 52 - 360, 601)
+WP503_OFFLINE_MAP_TEXT|label=Region 中文 שלום|bounds=Rect.fromLTRB(98.0, 359.0, 302.0, 397.0)|size=204 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)
+WP503_FONT|text=Downloading…|size=181 x 42|constraints=Constraints(minWidth = 0, maxWidth = 244, minHeight = 0, maxHeight = Infinity)|paragraph=244.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Downloading…|line=0|left=0.0|right=181.0|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=299}|visibleFrame=Rect(0, 52 - 360, 601)
+WP503_OFFLINE_MAP_TEXT|label=Downloading…|bounds=Rect.fromLTRB(121.0, 403.0, 302.0, 445.0)|size=181 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)
+WP503_OFFLINE_MAP_PROGRESS|current=0.0|range=0..1|dataBound=true
+WP503_FONT|text=Done|size=60 x 38|constraints=Constraints(minWidth = 0, maxWidth = 81, minHeight = 0, maxHeight = Infinity)|paragraph=81.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Done|line=0|left=0.0|right=60.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=299}|visibleFrame=Rect(0, 52 - 360, 601)
+WP503_OFFLINE_MAP_TEXT|label=Done|bounds=Rect.fromLTRB(58.0, 135.0, 118.0, 173.0)|size=60 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=299}|visibleFrame=Rect(0, 52 - 360, 601)
+WP503_OFFLINE_MAP_TARGET|bounds=Rect.fromLTRB(46.0, 127.0, 130.0, 181.0)|viewport=Rect.fromLTRB(46.0, 127.0, 314.0, 527.0)
+WP503_OFFLINE_MAP_DOWNLOAD|diskRejected=true|networkRejected=true|requests=1|trimmedName=true|realDownload=false

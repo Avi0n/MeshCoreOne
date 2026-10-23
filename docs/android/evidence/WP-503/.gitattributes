@@ -1,0 +1,23 @@
+# Preserve these captured native evidence bytes, including original line endings.
+device-callbackdelivery-* -text
+device-callbackstack-* -text
+device-processready-* -text
+device-processreadyfull-* -text
+device-matrixfeatures-* -text
+device-matrixplatform-* -text
+device-matrixcallbacks-* -text
+device-processreadynodes-* -text
+device-processreadymaps-* -text
+device-servicecleanup-* -text
+device-cleanupfeatures-* -text
+device-cleanupplatform-* -text
+device-cleanupcallbacks-* -text
+device-isolatedcleanup-* -text
+device-cleanupmatrix-reconciliation.json -text
+device-isolatedmatrix-reconciliation.json -text
+device-localizedcompare-* -text
+device-reviewedrepairs-* -text
+device-uipreconditions-* -text
+device-finalnodes-* -text
+device-losendpoints-* -text
+device-current-language-* -text whitespace=cr-at-eol

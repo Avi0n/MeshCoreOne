@@ -1,0 +1,359 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=40
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=false|checks=1|waitElapsedMs=15|helperElapsedMs=55|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=60
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=true|checks=2|waitElapsedMs=28|helperElapsedMs=68|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=2|elapsedMs=28|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_READY|sdk=37|checks=2|waitElapsedMs=29|physicalTalkBack=false
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_LAUNCHER_SELECTION|sdk=37|tab=NODES|nativeSelected=true|accessibilityFocus=true|realSelected=NODES
+WP503_FONT|text=Nodes|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Nodes|line=0|left=5.0|right=67.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Nodes|line=1|left=30.0|right=42.0|top=32.0|bottom=64.0
+WP503_NATIVE_LAUNCHER_FOCUS|sdk=37|tab=NODES|nativeSelected=true|accessibilityFocus=true|bounds=Rect(216, 716 - 288, 876)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+WP503_NATIVE_LAUNCHER_SELECTION|sdk=37|tab=MAP|nativeSelected=true|accessibilityFocus=true|realSelected=MAP
+WP503_FONT|text=Map|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Map|line=0|left=11.0|right=61.0|top=0.0|bottom=32.0
+WP503_NATIVE_LAUNCHER_FOCUS|sdk=37|tab=MAP|nativeSelected=true|accessibilityFocus=true|bounds=Rect(144, 716 - 216, 876)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+WP503_NATIVE_LAUNCHER_SELECTION|sdk=37|tab=TOOLS|nativeSelected=true|accessibilityFocus=true|realSelected=TOOLS
+WP503_FONT|text=Tools|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Tools|line=0|left=4.0|right=68.0|top=0.0|bottom=32.0
+WP503_NATIVE_LAUNCHER_FOCUS|sdk=37|tab=TOOLS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(72, 716 - 144, 876)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+WP503_NATIVE_LAUNCHER_SELECTION|sdk=37|tab=SETTINGS|nativeSelected=true|accessibilityFocus=true|realSelected=SETTINGS
+WP503_FONT|text=Settings|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Settings|line=0|left=13.0|right=59.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Settings|line=1|left=7.0|right=65.0|top=32.0|bottom=64.0
+WP503_NATIVE_LAUNCHER_FOCUS|sdk=37|tab=SETTINGS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(0, 716 - 72, 876)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+WP503_NATIVE_LAUNCHER_SELECTION|sdk=37|tab=CHATS|nativeSelected=true|accessibilityFocus=true|realSelected=CHATS
+WP503_FONT|text=Chats|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Chats|line=0|left=3.0|right=69.0|top=0.0|bottom=32.0
+WP503_NATIVE_LAUNCHER_FOCUS|sdk=37|tab=CHATS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(288, 716 - 360, 876)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=9804
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=true|expectedFlags=65554|expectedEnabled=false|checks=1|waitElapsedMs=3|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=9887
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=false|expectedFlags=65554|expectedEnabled=false|checks=5|waitElapsedMs=78|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=5|elapsedMs=79|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=9892|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=5
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=false|checks=1|waitElapsedMs=0|helperElapsedMs=5|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=false|checks=90|elapsedMs=1000|originalDeadlineMs=1000|result=TIMEOUT_NOT_PASS|physicalTalkBack=false
+WP503_NATIVE_TOUCH_TIMEOUT|sdk=37|lastObserved=false|currentEnabled=false|checks=90|lastCheckElapsedMs=1000|waitElapsedMs=1001|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=launcher-activation-timeout|afterOriginalDeadline=true|managerEnabled=false|flags=65558
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=1131
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|ACCESSIBILITY MANAGER (dumpsys accessibility)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|currentUserId=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|hasMagnificationConnection=false
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Magnification on display#0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    MagnificationConfig[mode: 1, activated: false, scale: 1.0, centerX: 0.0, centerY: 0.0] 
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Magnification region=SkRegion((0,0,360,876))
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    IdOfLastServiceToMagnify=-1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    SupportWindowMagnification=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    WindowMagnificationConnectionState=DISCONNECTED
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Magnification preferences:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    magnificationCursorFollowingMode=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    magnificationFollowTypingEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    magnificationFollowKeyboardEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    alwaysOnMagnificationEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    magnificationPanelButtonEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|User state[
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=5, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, textHighContrastEnabled=false, mouseKeysEnabled=false, gamepadMouseEnabled=false, permittedAccessibilityServices=null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     button mode: 1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     shortcut key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     button:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     button target:{null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     gesture:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     qs shortcut targets:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     a11y tiles in QS panel:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     top row key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     quick access dialog:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     keyboard shortcuts targets:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Installed services:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|      0 : {com.android.systemui.accessibility.accessibilitymenu/com.android.systemui.accessibility.accessibilitymenu.AccessibilityMenuService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|      1 : {com.google.android.accessibility.switchaccess/com.android.switchaccess.SwitchAccessService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|      2 : {com.google.android.apps.accessibility.voiceaccess/com.google.android.apps.accessibility.voiceaccess.JustSpeakService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|      3 : {com.google.android.marvin.talkback/com.google.android.accessibility.selecttospeak.SelectToSpeakService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|      4 : {com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     }
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Bound services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Enabled services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Binding services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Crashed services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|          Client list callbacks: 8
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|          Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|          Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|          Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|[com.google.android.apps.wellbeing][com.meshcoreone.android.debug.test][com.google.android.apps.photos][com.google.android.apps.nexuslauncher][com.google.android.as][com.meshcoreone.android.debug][com.google.android.inputmethod.latin][com.google.android.gms]}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Ui Automation[eventTypes=TYPES_ALL_MASK, notificationTimeout=0]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|User Info [ userId=0 ]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Top focused display Id = 0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Active Window Id = 13
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Top Focused Window Id = 13
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Accessibility Focused Window Id = -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Window attributes:[{0=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 1=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 3=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 4=AccessibilityWindowAttributes{mAccessibilityWindowTitle=Navigation barmLocales=[en_US]}, 5=AccessibilityWindowAttributes{mAccessibilityWindowTitle=Navigation bar Edge PanelmLocales=[en_US]}, 6=AccessibilityWindowAttributes{mAccessibilityWindowTitle=HomemLocales=[en_US]}, 7=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 8=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 9=AccessibilityWindowAttributes{mAccessibilityWindowTitle=NotificationShademLocales=[en_US]}, 13=AccessibilityWindowAttributes{mAccessibilityWindowTitle=MeshCore OnemLocales=[en_US]}}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Global client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Client list callbacks: 7
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|[com.google.android.documentsui][com.google.android.googlesdksetup][com.android.location.fused, com.android.inputdevices, com.android.DeviceAsWebcam, android, com.android.providers.settings, com.android.emulator.multidisplay, com.android.server.telecom, com.android.keychain, com.android.localtransport, com.android.dynsystem, com.android.settings][com.google.android.gms][com.android.systemui][com.google.android.permissioncontroller][com.android.providers.settings, android, com.android.settings, com.android.keychain, com.android.DeviceAsWebcam, com.android.emulator.multidisplay, com.android.dynsystem, com.android.location.fused, com.android.inputdevices, com.android.localtransport, com.android.server.telecom]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Proxy manager state:
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Number of proxy connections: 0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Registered proxy connections:
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Accessibility Display Listener:
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    SystemUI uid: 10195
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    1 valid display: 0
+WP503_NATIVE_SERVICE_DUMP_MARKERS|phase=launcher-activation-timeout|actual=1|expected=1
+WP503_NATIVE_SERVICE_DUMP_RESULT|phase=launcher-activation-timeout|WP503_NATIVE_SERVICE_DUMP_EXIT=0
+WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=launcher-activation-timeout|managerEnabled=true|flags=65558|durationMs=131|physicalTalkBack=false
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=1150
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=true|expectedFlags=65554|expectedEnabled=false|checks=1|waitElapsedMs=1|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=1555
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=false|expectedFlags=65554|expectedEnabled=false|checks=30|waitElapsedMs=387|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=30|elapsedMs=388|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=1564|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=69
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=false|checks=1|waitElapsedMs=0|helperElapsedMs=69|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=309
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=true|checks=20|waitElapsedMs=241|helperElapsedMs=310|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=20|elapsedMs=241|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_READY|sdk=37|checks=20|waitElapsedMs=241|physicalTalkBack=false
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 1.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global transition_animation_scale 1.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global window_animation_scale 1.0|response=
+WP503_FONT|text=Nodes|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Nodes|line=0|left=5.0|right=67.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Nodes|line=1|left=30.0|right=42.0|top=32.0|bottom=64.0
+WP503_NATIVE_MOTION_TAB|sdk=37|scale=1.0|tab=NODES|selected=true|focus=true|bounds=Rect(216, 716 - 288, 876)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Map|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Map|line=0|left=11.0|right=61.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=37|scale=1.0|tab=MAP|selected=true|focus=true|bounds=Rect(144, 716 - 216, 876)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Tools|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Tools|line=0|left=4.0|right=68.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=37|scale=1.0|tab=TOOLS|selected=true|focus=true|bounds=Rect(72, 716 - 144, 876)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Settings|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Settings|line=0|left=13.0|right=59.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Settings|line=1|left=7.0|right=65.0|top=32.0|bottom=64.0
+WP503_NATIVE_MOTION_TAB|sdk=37|scale=1.0|tab=SETTINGS|selected=true|focus=true|bounds=Rect(0, 716 - 72, 876)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Chats|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Chats|line=0|left=3.0|right=69.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=37|scale=1.0|tab=CHATS|selected=true|focus=true|bounds=Rect(288, 716 - 360, 876)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Language|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_MOTION_LANGUAGE|sdk=37|scale=1.0|bounds=Rect(28, 589 - 332, 638)|scrollTarget=mergedAction|fontScale=2.0|physicalTalkBack=false
+WP503_NATIVE_MOTION_BACK|sdk=37|scale=1.0|languageNativeAction=true|nativeBack=true|stacksRestored=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global transition_animation_scale 0.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global window_animation_scale 0.0|response=
+WP503_FONT|text=Nodes|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Nodes|line=0|left=5.0|right=67.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Nodes|line=1|left=30.0|right=42.0|top=32.0|bottom=64.0
+WP503_NATIVE_MOTION_TAB|sdk=37|scale=0.0|tab=NODES|selected=true|focus=true|bounds=Rect(216, 716 - 288, 876)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Map|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Map|line=0|left=11.0|right=61.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=37|scale=0.0|tab=MAP|selected=true|focus=true|bounds=Rect(144, 716 - 216, 876)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Tools|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Tools|line=0|left=4.0|right=68.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=37|scale=0.0|tab=TOOLS|selected=true|focus=true|bounds=Rect(72, 716 - 144, 876)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Settings|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Settings|line=0|left=13.0|right=59.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Settings|line=1|left=7.0|right=65.0|top=32.0|bottom=64.0
+WP503_NATIVE_MOTION_TAB|sdk=37|scale=0.0|tab=SETTINGS|selected=true|focus=true|bounds=Rect(0, 716 - 72, 876)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Chats|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Chats|line=0|left=3.0|right=69.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=37|scale=0.0|tab=CHATS|selected=true|focus=true|bounds=Rect(288, 716 - 360, 876)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Language|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_MOTION_LANGUAGE|sdk=37|scale=0.0|bounds=Rect(28, 589 - 332, 638)|scrollTarget=mergedAction|fontScale=2.0|physicalTalkBack=false
+WP503_NATIVE_MOTION_BACK|sdk=37|scale=0.0|languageNativeAction=true|nativeBack=true|stacksRestored=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global transition_animation_scale 0.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global window_animation_scale 0.0|response=
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=17782
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=true|expectedFlags=65554|expectedEnabled=false|checks=1|waitElapsedMs=1|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=18717
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=false|expectedFlags=65554|expectedEnabled=false|checks=69|waitElapsedMs=908|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=69|elapsedMs=908|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=18721|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=348
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=false|checks=1|waitElapsedMs=0|helperElapsedMs=349|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=526
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=true|checks=16|waitElapsedMs=179|helperElapsedMs=528|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=16|elapsedMs=181|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_READY|sdk=37|checks=16|waitElapsedMs=182|physicalTalkBack=false
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_FOCUS_CONTROL|sdk=37|focused=true|callback=1|physicalTalkBack=false
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=780
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=true|expectedFlags=65554|expectedEnabled=false|checks=1|waitElapsedMs=1|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=813
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=false|expectedFlags=65554|expectedEnabled=false|checks=3|waitElapsedMs=30|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=3|elapsedMs=31|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=824|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=22
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=false|checks=1|waitElapsedMs=1|helperElapsedMs=24|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=834
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=true|checks=70|waitElapsedMs=815|helperElapsedMs=838|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=70|elapsedMs=815|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_READY|sdk=37|checks=70|waitElapsedMs=815|physicalTalkBack=false
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size|response=Physical size: 1344x2992
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 900x900|response=
+WP503_NATIVE_WINDOW_OBSERVATION|sdk=37|size=900x900|hostCount=1|hosts=attached:true,laidOut:true,focused:false,decor:900x900,metrics:[0,0][900,900],ready:true|ready=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_READY|sdk=37|size=900x900|resumed=true|laidOut=true|windowFocus=false|semanticCount=1|semanticDisplayed=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW|sdk=37|size=900x900|bounds=Rect(0, 0 - 900, 900)|activityRecreated=true|shell=navigation-rail|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Nodes|size=530 x 45|constraints=Constraints(minWidth = 0, maxWidth = 530, minHeight = 0, maxHeight = 848)|paragraph=530.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Nodes|line=0|left=0.0|right=102.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=37|tab=NODES|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Map|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 848)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Map|line=0|left=0.0|right=70.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=37|tab=MAP|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Tools|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 848)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Tools|line=0|left=0.0|right=86.30859|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=37|tab=TOOLS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Settings|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 848)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=37|tab=SETTINGS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Chats|size=756 x 45|constraints=Constraints(minWidth = 0, maxWidth = 756, minHeight = 0, maxHeight = 848)|paragraph=756.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Chats|line=0|left=0.0|right=90.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=37|tab=CHATS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Language|size=324 x 33|constraints=Constraints(minWidth = 0, maxWidth = 324, minHeight = 0, maxHeight = Infinity)|paragraph=324.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+WP503_NATIVE_WINDOW_OBSERVATION|sdk=37|size=360x900|hostCount=1|hosts=attached:true,laidOut:true,focused:false,decor:360x900,metrics:[0,0][360,900],ready:true|ready=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_READY|sdk=37|size=360x900|resumed=true|laidOut=true|windowFocus=false|semanticCount=1|semanticDisplayed=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW|sdk=37|size=360x900|bounds=Rect(0, 0 - 360, 900)|activityRecreated=true|shell=navigation-hidden|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Settings|size=248 x 45|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 848)|paragraph=248.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_NATIVE_WINDOW_DETAIL|sdk=37|expanded=900x900|compact=360x900|retainedEntry=7|nativeBack=true|focusReacquired=true|automaticBackFocusRetained=false|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=12690
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=true|expectedFlags=65554|expectedEnabled=false|checks=1|waitElapsedMs=3|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=12709
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=false|expectedFlags=65554|expectedEnabled=false|checks=2|waitElapsedMs=63|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=2|elapsedMs=67|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=12769|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=13
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=false|checks=1|waitElapsedMs=0|helperElapsedMs=13|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=false|checks=84|elapsedMs=1001|originalDeadlineMs=1000|result=TIMEOUT_NOT_PASS|physicalTalkBack=false
+WP503_NATIVE_TOUCH_TIMEOUT|sdk=37|lastObserved=false|currentEnabled=false|checks=84|lastCheckElapsedMs=1001|waitElapsedMs=1001|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=launcher-activation-timeout|afterOriginalDeadline=true|managerEnabled=false|flags=65558
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|ACCESSIBILITY MANAGER (dumpsys accessibility)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|currentUserId=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|hasMagnificationConnection=false
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Magnification on display#0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    MagnificationConfig[mode: 1, activated: false, scale: 1.0, centerX: 180.0, centerY: 438.0] 
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Magnification region=SkRegion((0,0,360,876))
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    IdOfLastServiceToMagnify=-1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    SupportWindowMagnification=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    WindowMagnificationConnectionState=DISCONNECTED
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Magnification preferences:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    magnificationCursorFollowingMode=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    magnificationFollowTypingEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    magnificationFollowKeyboardEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    alwaysOnMagnificationEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    magnificationPanelButtonEnabled=true
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|User state[
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     attributes:{id=0, touchExplorationEnabled=true, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=5, magnificationModes={0=1}, magnificationCapabilities=3, audioDescriptionByDefaultEnabled=false, textHighContrastEnabled=false, mouseKeysEnabled=false, gamepadMouseEnabled=false, permittedAccessibilityServices=null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     button mode: 1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     shortcut key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     button:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     button target:{null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     gesture:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     qs shortcut targets:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     a11y tiles in QS panel:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     top row key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     quick access dialog:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     keyboard shortcuts targets:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Installed services:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|      0 : {com.android.systemui.accessibility.accessibilitymenu/com.android.systemui.accessibility.accessibilitymenu.AccessibilityMenuService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|      1 : {com.google.android.accessibility.switchaccess/com.android.switchaccess.SwitchAccessService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|      2 : {com.google.android.apps.accessibility.voiceaccess/com.google.android.apps.accessibility.voiceaccess.JustSpeakService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|      3 : {com.google.android.marvin.talkback/com.google.android.accessibility.selecttospeak.SelectToSpeakService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|      4 : {com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService} (A11yTool)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     }
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Bound services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Enabled services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Binding services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Crashed services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|          Client list callbacks: 8
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|          Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|          Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|          Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|[com.google.android.apps.wellbeing][com.meshcoreone.android.debug.test][com.google.android.apps.photos][com.google.android.apps.nexuslauncher][com.google.android.as][com.meshcoreone.android.debug][com.google.android.inputmethod.latin][com.google.android.gms]}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Ui Automation[eventTypes=TYPES_ALL_MASK, notificationTimeout=0]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|User Info [ userId=0 ]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Top focused display Id = 0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Active Window Id = 30
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Top Focused Window Id = 30
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|     Accessibility Focused Window Id = -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Window attributes:[{0=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 1=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 3=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 4=AccessibilityWindowAttributes{mAccessibilityWindowTitle=Navigation barmLocales=[en_US]}, 5=AccessibilityWindowAttributes{mAccessibilityWindowTitle=Navigation bar Edge PanelmLocales=[en_US]}, 6=AccessibilityWindowAttributes{mAccessibilityWindowTitle=HomemLocales=[en_US]}, 7=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 8=AccessibilityWindowAttributes{mAccessibilityWindowTitle=nullmLocales=[en_US]}, 9=AccessibilityWindowAttributes{mAccessibilityWindowTitle=NotificationShademLocales=[en_US]}, 30=AccessibilityWindowAttributes{mAccessibilityWindowTitle=MeshCore OnemLocales=[en_US]}}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Global client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Client list callbacks: 7
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|[com.google.android.documentsui][com.google.android.googlesdksetup][com.android.location.fused, com.android.inputdevices, com.android.DeviceAsWebcam, android, com.android.providers.settings, com.android.emulator.multidisplay, com.android.server.telecom, com.android.keychain, com.android.localtransport, com.android.dynsystem, com.android.settings][com.google.android.gms][com.android.systemui][com.google.android.permissioncontroller][com.android.providers.settings, android, com.android.settings, com.android.keychain, com.android.DeviceAsWebcam, com.android.emulator.multidisplay, com.android.dynsystem, com.android.location.fused, com.android.inputdevices, com.android.localtransport, com.android.server.telecom]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Proxy manager state:
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Number of proxy connections: 0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    Registered proxy connections:
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|Accessibility Display Listener:
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    SystemUI uid: 10195
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-activation-timeout|    1 valid display: 0
+WP503_NATIVE_SERVICE_DUMP_MARKERS|phase=launcher-activation-timeout|actual=1|expected=1
+WP503_NATIVE_SERVICE_DUMP_RESULT|phase=launcher-activation-timeout|WP503_NATIVE_SERVICE_DUMP_EXIT=0
+WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=launcher-activation-timeout|managerEnabled=false|flags=65558|durationMs=345|physicalTalkBack=false
+WP503_NATIVE_TOUCH_FINAL|enabled=false|actualFlags=65558|elapsedMs=1364
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=false|expectedFlags=65554|expectedEnabled=false|checks=1|waitElapsedMs=2|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=1|elapsedMs=5|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=1373|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_EFFECT_SCHEDULING|sdk=37|phase=frame|inlineDuringMeasure=true|auditedDuringMeasure=false
+WP503_NATIVE_EFFECT_SCHEDULING|sdk=37|phase=native|inlineDuringMeasure=true|auditedDuringMeasure=false
+WP503_FONT|text=Native effect scheduling|size=352 x 824|constraints=Constraints(minWidth = 0, maxWidth = 352, minHeight = 0, maxHeight = 824)|paragraph=352.0x42.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Native effect scheduling|line=0|left=0.0|right=302.4961|top=0.0|bottom=42.0
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+WP503_NATIVE_MOTION_PROVIDER|sdk=37|system=0.0|observed=0.0|duration=0|explicitOverride=false|frameworkControl=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 1.0|response=
+WP503_NATIVE_MOTION_PROVIDER|sdk=37|system=1.0|observed=1.0|duration=300|explicitOverride=false|frameworkControl=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+WP503_NATIVE_MOTION_PROVIDER|sdk=37|system=0.0|observed=0.0|duration=0|explicitOverride=false|frameworkControl=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=18
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=false|checks=1|waitElapsedMs=0|helperElapsedMs=18|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=556
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=37|enabled=true|checks=47|waitElapsedMs=548|helperElapsedMs=566|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=47|elapsedMs=548|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_READY|sdk=37|checks=47|waitElapsedMs=548|physicalTalkBack=false
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_CHAT_IME_INPUT|sdk=37|nativeInputFocus=true|acceptingText=true|physicalTalkBack=false
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=3464
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=true|expectedFlags=65554|expectedEnabled=false|checks=1|waitElapsedMs=4|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=3479
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=37|actualFlags=65554|enabled=false|expectedFlags=65554|expectedEnabled=false|checks=2|waitElapsedMs=17|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=2|elapsedMs=19|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=3495|beforeNextFixture=true

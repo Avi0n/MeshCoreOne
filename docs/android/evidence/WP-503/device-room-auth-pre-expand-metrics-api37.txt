@@ -1,0 +1,157 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Room 中文 שלום|size=260 x 51|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 796)|paragraph=328.0x51.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Room 中文 שלום|line=0|left=0.0|right=259.64844|top=0.0|bottom=51.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Room 中文 שלום|bounds=Rect.fromLTRB(84.0, 691.0, 344.0, 742.0)|size=260 x 51|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Room Not Found|size=210 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 733)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Room Not Found|line=0|left=0.0|right=209.71484|top=0.0|bottom=42.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Room Not Found|bounds=Rect.fromLTRB(134.0, 656.0, 344.0, 698.0)|size=210 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Could not find the room contact|size=328 x 84|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 679)|paragraph=328.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Could not find the room contact|line=0|left=0.0|right=291.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Could not find the room contact|line=1|left=0.0|right=94.0|top=42.0|bottom=84.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Could not find the room contact|bounds=Rect.fromLTRB(16.0, 710.0, 344.0, 794.0)|size=328 x 84|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Cancel|size=80 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = 567)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=80.0|top=0.0|bottom=38.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Cancel|bounds=Rect.fromLTRB(28.0, 814.0, 108.0, 852.0)|size=80 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 806.0, 120.0, 860.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|size=104 x 54
+WP503_ROOM_AUTH_DISMISSED|cancellations=1|submissions=0|realRadio=false
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Room 中文 שלום|size=260 x 51|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 796)|paragraph=328.0x51.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Room 中文 שלום|line=0|left=0.0|right=259.64844|top=0.0|bottom=51.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Room 中文 שלום|bounds=Rect.fromLTRB(84.0, 516.0, 344.0, 567.0)|size=260 x 51|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 679.0, 344.0, 728.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|size=328 x 49
+WP503_FONT|text=Remember Password|size=267 x 42|constraints=Constraints(minWidth = 0, maxWidth = 276, minHeight = 0, maxHeight = 633)|paragraph=276.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Remember Password|line=0|left=0.0|right=266.59375|top=0.0|bottom=42.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Remember Password|bounds=Rect.fromLTRB(25.0, 683.0, 292.0, 725.0)|size=267 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 579.0, 344.0, 667.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|size=328 x 88
+WP503_FONT|text=Password|size=123 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = 703)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Password|line=0|left=0.0|right=122.59375|top=0.0|bottom=42.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Password|bounds=Rect.fromLTRB(205.0, 609.0, 328.0, 651.0)|size=123 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_ROOM_AUTH_FAILURE|case=knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200|failure=androidx.compose.ui.test.ComposeTimeoutException
+WP503_ROOM_AUTH_WINDOW|imeVisible=false|imeBottom=0
+WP503_ROOM_AUTH_FAILURE_TREE|Printing with useUnmergedTree = 'true'
+1) Node #27 at (l=0.0, t=0.0, r=360.0, b=900.0)px
+ |-Node #31 at (l=0.0, t=52.0, r=360.0, b=876.0)px, Tag: 'audit-root'
+   IsContainer = 'true'
+   Shape = 'RectangleShape'
+    |-Node #32 at (l=0.0, t=52.0, r=360.0, b=876.0)px
+      Text = '[Room authentication host]'
+      Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+2) Node #30 at (l=0.0, t=0.0, r=360.0, b=900.0)px
+ |-Node #33 at (l=0.0, t=0.0, r=360.0, b=900.0)px
+   [IsDialog]
+    |-Node #34 at (l=0.0, t=0.0, r=360.0, b=900.0)px
+      IsTraversalGroup = 'true'
+       |-Node #35 at (l=0.0, t=0.0, r=360.0, b=900.0)px
+       | ContentDescription = '[Close sheet]'
+       | TraversalIndex = '1.0'
+       | Actions = [OnClick]
+       | MergeDescendants = 'true'
+       |-Node #36 at (l=0.0, t=452.0, r=360.0, b=900.0)px
+         IsContainer = 'true'
+         PaneTitle = 'Bottom Sheet'
+         Shape = 'RoundedCornerShape(topStart = CornerSize(size = 28.0.dp), topEnd = CornerSize(size = 28.0.dp), bottomEnd = CornerSize(size = 0.0.dp), bottomStart = CornerSize(size = 0.0.dp))'
+         TraversalIndex = '0.0'
+          |-Node #37 at (l=0.0, t=452.0, r=360.0, b=876.0)px
+             |-Node #40 at (l=164.0, t=452.0, r=196.0, b=500.0)px
+             | Actions = [OnLongClick]
+             | MergeDescendants = 'true'
+             |  |-Node #42 at (l=164.0, t=452.0, r=196.0, b=500.0)px
+             |    Focused = 'false'
+             |    Actions = [Dismiss, OnClick, RequestFocus]
+             |    MergeDescendants = 'true'
+             |     |-Node #43 at (l=164.0, t=474.0, r=196.0, b=478.0)px
+             |       ContentDescription = '[Drag handle]'
+             |       IsContainer = 'true'
+             |       Shape = 'RoundedCornerShape(topStart = CornerSize(size = 28.0.dp), topEnd = CornerSize(size = 28.0.dp), bottomEnd = CornerSize(size = 28.0.dp), bottomStart = CornerSize(size = 28.0.dp))'
+             |-Node #46 at (l=84.0, t=516.0, r=344.0, b=567.0)px
+             | Text = '[Room 中文 שלום]'
+             | [Heading]
+             | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+             |-Node #47 at (l=16.0, t=579.0, r=344.0, b=667.0)px
+             | ContentDataType = 'AndroidContentDataType(androidAutofillType=1)'
+             | EditableText = '•••••••'
+             | FillableData = 'androidx.compose.ui.autofill.AndroidFillableData@74139bb'
+             | Focused = 'true'
+             | ImeAction = 'Default'
+             | InputText = 'fixture'
+             | IsEditable = 'true'
+             | TextSelectionRange = 'TextRange(7, 7)'
+             | [Password]
+             | Actions = [GetTextLayoutResult, InsertTextAtCursor, OnClick, OnFillData, OnLongClick, PasteText, PerformImeAction, RequestFocus, SetSelection, SetText]
+             | MergeDescendants = 'true'
+             |  |-Node #51 at (l=16.0, t=593.0, r=344.0, b=667.0)px
+             |  | Shape = 'RoundedCornerShape(topStart = CornerSize(size = 4.0.dp), topEnd = CornerSize(size = 4.0.dp), bottomEnd = CornerSize(size = 4.0.dp), bottomStart = CornerSize(size = 4.0.dp))'
+             |  |-Node #56 at (l=222.0, t=577.0, r=328.0, b=609.0)px
+             |  | Text = '[Password]'
+             |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+             |  |-Node #53 at (l=32.0, t=609.0, r=328.0, b=651.0)px
+             |    Shape = 'RectangleShape'
+             |    Actions = [MagnifierPositionInRoot]
+             |-Node #57 at (l=16.0, t=679.0, r=344.0, b=728.0)px
+             | ContentDataType = 'AndroidContentDataType(androidAutofillType=2)'
+             | FillableData = 'androidx.compose.ui.autofill.AndroidFillableData@c90bbda'
+             | Focused = 'false'
+             | Role = 'Switch'
+             | ToggleableState = 'Off'
+             | Actions = [OnClick, OnFillData, RequestFocus]
+             | MergeDescendants = 'true'
+             |  |-Node #58 at (l=292.0, t=688.0, r=344.0, b=720.0)px
+             |  | Shape = 'RoundedCornerShape(topStart = CornerSize(size = 50.0%), topEnd = CornerSize(size = 50.0%), bottomEnd = CornerSize(size = 50.0%), bottomStart = CornerSize(size = 50.0%))'
+             |  |  |-Node #59 at (l=320.0, t=696.0, r=336.0, b=712.0)px
+             |  |    Shape = 'RoundedCornerShape(topStart = CornerSize(size = 50.0%), topEnd = CornerSize(size = 50.0%), bottomEnd = CornerSize(size = 50.0%), bottomStart = CornerSize(size = 50.0%))'
+             |  |-Node #60 at (l=25.0, t=683.0, r=292.0, b=725.0)px
+             |    Text = '[Remember Password]'
+             |    Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+             |-Node #61 at (l=16.0, t=740.0, r=344.0, b=794.0)px
+             | Focused = 'false'
+             | Role = 'Button'
+             | Shape = 'RoundedCornerShape(topStart = CornerSize(size = 50.0%), topEnd = CornerSize(size = 50.0%), bottomEnd = CornerSize(size = 50.0%), bottomStart = CornerSize(size = 50.0%))'
+             | Actions = [OnClick, RequestFocus]
+             | MergeDescendants = 'true'
+             |  |-Node #63 at (l=118.0, t=748.0, r=243.0, b=786.0)px
+             |    Text = '[Join Room]'
+             |    Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+             |-Node #64 at (l=16.0, t=806.0, r=120.0, b=860.0)px
+               Focused = 'false'
+               Role = 'Button'
+               Shape = 'RoundedCornerShape(topStart = CornerSize(size = 50.0%), topEnd = CornerSize(size = 50.0%), bottomEnd = CornerSize(size = 50.0%), bottomStart = CornerSize(size = 50.0%))'
+               Actions = [OnClick, RequestFocus]
+               MergeDescendants = 'true'
+                |-Node #66 at (l=28.0, t=814.0, r=108.0, b=852.0)px
+                  Text = '[Cancel]'
+                  Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+WP503_ROOM_AUTH_SCREENSHOT|path=wp503-room-auth-knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200.png|approvedGolden=false
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_FONT|text=Room 中文 שלום|size=260 x 51|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 796)|paragraph=328.0x51.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Room 中文 שלום|line=0|left=0.0|right=259.64844|top=0.0|bottom=51.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Room 中文 שלום|bounds=Rect.fromLTRB(84.0, 516.0, 344.0, 567.0)|size=260 x 51|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Join Room|size=125 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = 556)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Join Room|line=0|left=0.0|right=125.0|top=0.0|bottom=38.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Join Room|bounds=Rect.fromLTRB(118.0, 748.0, 243.0, 786.0)|size=125 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 740.0, 344.0, 794.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|size=328 x 54
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 679.0, 344.0, 728.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|size=328 x 49
+WP503_FONT|text=Remember Password|size=267 x 42|constraints=Constraints(minWidth = 0, maxWidth = 276, minHeight = 0, maxHeight = 633)|paragraph=276.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Remember Password|line=0|left=0.0|right=266.59375|top=0.0|bottom=42.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Remember Password|bounds=Rect.fromLTRB(25.0, 683.0, 292.0, 725.0)|size=267 x 42|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_FONT|text=Cancel|size=80 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = 490)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=80.0|top=0.0|bottom=38.0
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TEXT|label=Cancel|bounds=Rect.fromLTRB(28.0, 814.0, 108.0, 852.0)|size=80 x 38|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)
+WP503_ROOM_AUTH_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=52, right=0, bottom=24}|visibleFrame=Rect(0, 52 - 360, 876)|activeImeAnimations=0
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 806.0, 120.0, 860.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|size=104 x 54
+WP503_ROOM_AUTH_DISMISSED|cancellations=1|submissions=0|realRadio=false

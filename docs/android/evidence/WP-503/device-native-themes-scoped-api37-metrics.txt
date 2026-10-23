@@ -1,0 +1,686 @@
+--------- beginning of main
+10-12 23:04:44.372  3364  3959 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 23:04:45.451  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:45.451  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:45.452  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:45.452  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:45.610  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=false:outgoing=false:0-6|ratio=6.038327258148572|minimum=4.5
+10-12 23:04:45.610  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=false:outgoing=false:6-11|ratio=16.72742988890828|minimum=4.5
+10-12 23:04:45.610  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=false:outgoing=false:11-30|ratio=16.72742988890828|minimum=4.5
+10-12 23:04:45.610  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=false:outgoing=false:30-31|ratio=16.72742988890828|minimum=4.5
+10-12 23:04:45.610  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=false:outgoing=false:31-35|ratio=4.526751067285064|minimum=4.5
+10-12 23:04:45.750  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:45.750  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:45.751  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:45.751  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:45.902  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=false:outgoing=true:0-6|ratio=4.551030916010126|minimum=4.5
+10-12 23:04:45.902  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=false:outgoing=true:6-11|ratio=4.5411365964291015|minimum=4.5
+10-12 23:04:45.902  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=false:outgoing=true:11-30|ratio=4.5411365964291015|minimum=4.5
+10-12 23:04:45.902  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=false:outgoing=true:30-31|ratio=4.5411365964291015|minimum=4.5
+10-12 23:04:45.906  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=false:outgoing=true:31-35|ratio=4.534514553898803|minimum=4.5
+10-12 23:04:46.132  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:46.132  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:46.132  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:46.132  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:46.266  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=true:outgoing=false:0-6|ratio=7.893286584628481|minimum=7.0
+10-12 23:04:46.266  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=true:outgoing=false:6-11|ratio=16.72742988890828|minimum=4.5
+10-12 23:04:46.266  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=true:outgoing=false:11-30|ratio=16.72742988890828|minimum=4.5
+10-12 23:04:46.266  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=true:outgoing=false:30-31|ratio=16.72742988890828|minimum=4.5
+10-12 23:04:46.266  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=true:outgoing=false:31-35|ratio=5.406266138824142|minimum=4.5
+10-12 23:04:46.453  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:46.454  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:46.454  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:46.455  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:46.598  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=true:outgoing=true:0-6|ratio=4.737207174952169|minimum=4.5
+10-12 23:04:46.598  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=true:outgoing=true:6-11|ratio=7.876365987884537|minimum=4.5
+10-12 23:04:46.598  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=true:outgoing=true:11-30|ratio=7.876365987884537|minimum=4.5
+10-12 23:04:46.598  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=true:outgoing=true:30-31|ratio=7.876365987884537|minimum=4.5
+10-12 23:04:46.598  3364  3959 I System.out: WP503_CONTRAST|default:LIGHT:hc=true:outgoing=true:31-35|ratio=4.52357800787566|minimum=4.5
+10-12 23:04:46.789  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:46.789  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:46.789  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:46.789  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:46.976  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=false:outgoing=false:0-6|ratio=4.549136315476117|minimum=4.5
+10-12 23:04:46.976  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=false:outgoing=false:6-11|ratio=4.536321057398013|minimum=4.5
+10-12 23:04:46.976  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=false:outgoing=false:11-30|ratio=4.536321057398013|minimum=4.5
+10-12 23:04:46.976  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=false:outgoing=false:30-31|ratio=4.536321057398013|minimum=4.5
+10-12 23:04:46.976  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=false:outgoing=false:31-35|ratio=7.8585910022154275|minimum=4.5
+10-12 23:04:47.102  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:47.103  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:47.103  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:47.108  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:47.321  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=false:outgoing=true:0-6|ratio=4.549729235410248|minimum=4.5
+10-12 23:04:47.324  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=false:outgoing=true:6-11|ratio=5.340294609188888|minimum=4.5
+10-12 23:04:47.324  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=false:outgoing=true:11-30|ratio=5.340294609188888|minimum=4.5
+10-12 23:04:47.324  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=false:outgoing=true:30-31|ratio=5.340294609188888|minimum=4.5
+10-12 23:04:47.325  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=false:outgoing=true:31-35|ratio=16.342600119151548|minimum=4.5
+10-12 23:04:47.487  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:47.487  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:47.487  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:47.488  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:47.730  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=true:outgoing=false:0-6|ratio=7.041249299943432|minimum=7.0
+10-12 23:04:47.730  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=true:outgoing=false:6-11|ratio=7.0256653367802615|minimum=4.5
+10-12 23:04:47.731  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=true:outgoing=false:11-30|ratio=7.0256653367802615|minimum=4.5
+10-12 23:04:47.731  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=true:outgoing=false:30-31|ratio=7.0256653367802615|minimum=4.5
+10-12 23:04:47.731  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=true:outgoing=false:31-35|ratio=7.8585910022154275|minimum=4.5
+10-12 23:04:47.904  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:47.904  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:47.905  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:47.905  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:48.180  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=true:outgoing=true:0-6|ratio=5.334485895381145|minimum=4.5
+10-12 23:04:48.183  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=true:outgoing=true:6-11|ratio=9.983856964348076|minimum=4.5
+10-12 23:04:48.184  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=true:outgoing=true:11-30|ratio=9.983856964348076|minimum=4.5
+10-12 23:04:48.184  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=true:outgoing=true:30-31|ratio=9.983856964348076|minimum=4.5
+10-12 23:04:48.185  3364  3959 I System.out: WP503_CONTRAST|default:DARK:hc=true:outgoing=true:31-35|ratio=19.778323282522653|minimum=4.5
+10-12 23:04:48.376  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:48.382  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:48.384  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:48.384  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:48.643  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=false:outgoing=false:0-6|ratio=4.527147279043583|minimum=4.5
+10-12 23:04:48.643  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=false:outgoing=false:6-11|ratio=4.536321057398013|minimum=4.5
+10-12 23:04:48.643  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=false:outgoing=false:11-30|ratio=4.536321057398013|minimum=4.5
+10-12 23:04:48.644  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=false:outgoing=false:30-31|ratio=4.536321057398013|minimum=4.5
+10-12 23:04:48.644  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=false:outgoing=false:31-35|ratio=8.502340140519534|minimum=4.5
+10-12 23:04:48.819  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:48.820  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:48.820  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:48.821  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:48.994  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=false:outgoing=true:0-6|ratio=4.532169423747225|minimum=4.5
+10-12 23:04:48.994  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=false:outgoing=true:6-11|ratio=6.401780769051071|minimum=4.5
+10-12 23:04:48.994  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=false:outgoing=true:11-30|ratio=6.401780769051071|minimum=4.5
+10-12 23:04:48.994  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=false:outgoing=true:30-31|ratio=6.401780769051071|minimum=4.5
+10-12 23:04:48.994  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=false:outgoing=true:31-35|ratio=14.69594271984971|minimum=4.5
+10-12 23:04:49.165  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:49.165  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:49.166  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:49.166  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:49.398  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=true:outgoing=false:0-6|ratio=7.027937730337613|minimum=7.0
+10-12 23:04:49.399  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=true:outgoing=false:6-11|ratio=7.0256653367802615|minimum=4.5
+10-12 23:04:49.399  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=true:outgoing=false:11-30|ratio=7.0256653367802615|minimum=4.5
+10-12 23:04:49.400  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=true:outgoing=false:30-31|ratio=7.0256653367802615|minimum=4.5
+10-12 23:04:49.400  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=true:outgoing=false:31-35|ratio=8.502340140519534|minimum=4.5
+10-12 23:04:49.637  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:49.639  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:49.639  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:49.639  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:49.862  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=true:outgoing=true:0-6|ratio=5.527993721980127|minimum=4.5
+10-12 23:04:49.862  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=true:outgoing=true:6-11|ratio=10.21974508098036|minimum=4.5
+10-12 23:04:49.863  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=true:outgoing=true:11-30|ratio=10.21974508098036|minimum=4.5
+10-12 23:04:49.863  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=true:outgoing=true:30-31|ratio=10.21974508098036|minimum=4.5
+10-12 23:04:49.863  3364  3959 I System.out: WP503_CONTRAST|ember:DARK:hc=true:outgoing=true:31-35|ratio=15.097734677177236|minimum=4.5
+10-12 23:04:50.116  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:50.122  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:50.123  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:50.123  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:50.394  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=false:outgoing=false:0-6|ratio=6.326050417216227|minimum=4.5
+10-12 23:04:50.397  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=false:outgoing=false:6-11|ratio=6.3583361457035235|minimum=4.5
+10-12 23:04:50.398  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=false:outgoing=false:11-30|ratio=6.3583361457035235|minimum=4.5
+10-12 23:04:50.398  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=false:outgoing=false:30-31|ratio=6.3583361457035235|minimum=4.5
+10-12 23:04:50.398  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=false:outgoing=false:31-35|ratio=6.3583361457035235|minimum=4.5
+10-12 23:04:50.591  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:50.591  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:50.591  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:50.592  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:50.829  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=false:outgoing=true:0-6|ratio=4.552901031597776|minimum=4.5
+10-12 23:04:50.829  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=false:outgoing=true:6-11|ratio=4.9981442164632925|minimum=4.5
+10-12 23:04:50.830  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=false:outgoing=true:11-30|ratio=4.9981442164632925|minimum=4.5
+10-12 23:04:50.830  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=false:outgoing=true:30-31|ratio=4.9981442164632925|minimum=4.5
+10-12 23:04:50.830  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=false:outgoing=true:31-35|ratio=4.574207512913477|minimum=4.5
+10-12 23:04:51.017  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:51.018  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:51.018  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:51.018  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:51.211  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=true:outgoing=false:0-6|ratio=8.204571813210618|minimum=7.0
+10-12 23:04:51.213  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=true:outgoing=false:6-11|ratio=7.727701860549156|minimum=4.5
+10-12 23:04:51.213  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=true:outgoing=false:11-30|ratio=7.727701860549156|minimum=4.5
+10-12 23:04:51.214  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=true:outgoing=false:30-31|ratio=7.727701860549156|minimum=4.5
+10-12 23:04:51.214  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=true:outgoing=false:31-35|ratio=7.210116109578207|minimum=4.5
+10-12 23:04:51.419  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:51.419  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:51.420  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:51.420  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:51.711  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=true:outgoing=true:0-6|ratio=4.555755243913998|minimum=4.5
+10-12 23:04:51.711  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=true:outgoing=true:6-11|ratio=7.019086772158374|minimum=4.5
+10-12 23:04:51.711  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=true:outgoing=true:11-30|ratio=7.019086772158374|minimum=4.5
+10-12 23:04:51.711  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=true:outgoing=true:30-31|ratio=7.019086772158374|minimum=4.5
+10-12 23:04:51.712  3364  3959 I System.out: WP503_CONTRAST|fern:LIGHT:hc=true:outgoing=true:31-35|ratio=4.576931734858094|minimum=4.5
+10-12 23:04:51.902  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:51.903  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:51.904  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:51.904  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:52.151  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=false:outgoing=false:0-6|ratio=4.543871778541058|minimum=4.5
+10-12 23:04:52.152  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=false:outgoing=false:6-11|ratio=9.028391661412295|minimum=4.5
+10-12 23:04:52.152  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=false:outgoing=false:11-30|ratio=9.028391661412295|minimum=4.5
+10-12 23:04:52.152  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=false:outgoing=false:30-31|ratio=9.028391661412295|minimum=4.5
+10-12 23:04:52.153  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=false:outgoing=false:31-35|ratio=9.028391661412295|minimum=4.5
+10-12 23:04:52.283  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:52.283  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:52.283  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:52.284  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:52.468  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=false:outgoing=true:0-6|ratio=4.535943212265745|minimum=4.5
+10-12 23:04:52.468  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=false:outgoing=true:6-11|ratio=7.313752041372397|minimum=4.5
+10-12 23:04:52.468  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=false:outgoing=true:11-30|ratio=7.313752041372397|minimum=4.5
+10-12 23:04:52.468  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=false:outgoing=true:30-31|ratio=7.313752041372397|minimum=4.5
+10-12 23:04:52.468  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=false:outgoing=true:31-35|ratio=4.532329369410044|minimum=4.5
+10-12 23:04:52.619  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:52.619  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:52.619  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:52.620  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:52.796  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=true:outgoing=false:0-6|ratio=7.05223122732691|minimum=7.0
+10-12 23:04:52.797  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=true:outgoing=false:6-11|ratio=10.173900337699488|minimum=4.5
+10-12 23:04:52.797  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=true:outgoing=false:11-30|ratio=10.173900337699488|minimum=4.5
+10-12 23:04:52.797  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=true:outgoing=false:30-31|ratio=10.173900337699488|minimum=4.5
+10-12 23:04:52.797  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=true:outgoing=false:31-35|ratio=10.173900337699488|minimum=4.5
+10-12 23:04:52.932  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:52.932  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:52.933  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:52.933  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:53.147  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=true:outgoing=true:0-6|ratio=4.587202742315432|minimum=4.5
+10-12 23:04:53.147  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=true:outgoing=true:6-11|ratio=9.142239553828443|minimum=4.5
+10-12 23:04:53.148  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=true:outgoing=true:11-30|ratio=9.142239553828443|minimum=4.5
+10-12 23:04:53.149  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=true:outgoing=true:30-31|ratio=9.142239553828443|minimum=4.5
+10-12 23:04:53.149  3364  3959 I System.out: WP503_CONTRAST|fern:DARK:hc=true:outgoing=true:31-35|ratio=4.577191909154988|minimum=4.5
+10-12 23:04:53.299  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:53.300  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:53.300  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:53.300  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:53.495  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=false:outgoing=false:0-6|ratio=6.293879031579796|minimum=4.5
+10-12 23:04:53.496  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=false:outgoing=false:6-11|ratio=5.818602947364|minimum=4.5
+10-12 23:04:53.496  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=false:outgoing=false:11-30|ratio=5.818602947364|minimum=4.5
+10-12 23:04:53.496  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=false:outgoing=false:30-31|ratio=5.818602947364|minimum=4.5
+10-12 23:04:53.497  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=false:outgoing=false:31-35|ratio=5.818602947364|minimum=4.5
+10-12 23:04:53.702  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:53.702  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:53.703  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:53.703  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:53.944  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=false:outgoing=true:0-6|ratio=4.562082319258677|minimum=4.5
+10-12 23:04:53.944  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=false:outgoing=true:6-11|ratio=6.851836752838817|minimum=4.5
+10-12 23:04:53.944  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=false:outgoing=true:11-30|ratio=6.851836752838817|minimum=4.5
+10-12 23:04:53.944  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=false:outgoing=true:30-31|ratio=6.851836752838817|minimum=4.5
+10-12 23:04:53.944  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=false:outgoing=true:31-35|ratio=4.561272816594885|minimum=4.5
+10-12 23:04:54.121  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:54.121  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:54.122  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:54.122  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:54.296  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=true:outgoing=false:0-6|ratio=8.252128298620997|minimum=7.0
+10-12 23:04:54.296  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=true:outgoing=false:6-11|ratio=7.653614592733535|minimum=4.5
+10-12 23:04:54.296  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=true:outgoing=false:11-30|ratio=7.653614592733535|minimum=4.5
+10-12 23:04:54.296  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=true:outgoing=false:30-31|ratio=7.653614592733535|minimum=4.5
+10-12 23:04:54.296  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=true:outgoing=false:31-35|ratio=6.60957294417764|minimum=4.5
+10-12 23:04:54.455  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:54.456  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:54.456  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:54.456  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:54.670  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=true:outgoing=true:0-6|ratio=4.81599057813779|minimum=4.5
+10-12 23:04:54.672  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=true:outgoing=true:6-11|ratio=8.218718007370057|minimum=4.5
+10-12 23:04:54.672  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=true:outgoing=true:11-30|ratio=8.218718007370057|minimum=4.5
+10-12 23:04:54.672  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=true:outgoing=true:30-31|ratio=8.218718007370057|minimum=4.5
+10-12 23:04:54.672  3364  3959 I System.out: WP503_CONTRAST|marine:LIGHT:hc=true:outgoing=true:31-35|ratio=4.517812074094317|minimum=4.5
+10-12 23:04:54.817  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:54.817  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:54.818  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:54.819  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:54.996  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=false:outgoing=false:0-6|ratio=4.538693875264042|minimum=4.5
+10-12 23:04:54.996  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=false:outgoing=false:6-11|ratio=10.161324477013446|minimum=4.5
+10-12 23:04:54.996  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=false:outgoing=false:11-30|ratio=10.161324477013446|minimum=4.5
+10-12 23:04:54.996  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=false:outgoing=false:30-31|ratio=10.161324477013446|minimum=4.5
+10-12 23:04:54.996  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=false:outgoing=false:31-35|ratio=10.161324477013446|minimum=4.5
+10-12 23:04:55.118  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:55.118  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:55.118  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:55.118  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:55.244  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=false:outgoing=true:0-6|ratio=4.541533990708118|minimum=4.5
+10-12 23:04:55.244  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=false:outgoing=true:6-11|ratio=4.536600028314313|minimum=4.5
+10-12 23:04:55.245  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=false:outgoing=true:11-30|ratio=4.536600028314313|minimum=4.5
+10-12 23:04:55.245  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=false:outgoing=true:30-31|ratio=4.536600028314313|minimum=4.5
+10-12 23:04:55.245  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=false:outgoing=true:31-35|ratio=15.722976178564826|minimum=4.5
+10-12 23:04:55.450  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:55.451  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:55.451  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:55.451  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:55.537  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=true:outgoing=false:0-6|ratio=7.031985605890407|minimum=7.0
+10-12 23:04:55.537  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=true:outgoing=false:6-11|ratio=11.340128440326657|minimum=4.5
+10-12 23:04:55.537  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=true:outgoing=false:11-30|ratio=11.340128440326657|minimum=4.5
+10-12 23:04:55.537  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=true:outgoing=false:30-31|ratio=11.340128440326657|minimum=4.5
+10-12 23:04:55.538  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=true:outgoing=false:31-35|ratio=11.340128440326657|minimum=4.5
+10-12 23:04:55.651  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:55.651  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:55.652  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:55.652  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:55.742  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=true:outgoing=true:0-6|ratio=4.540946121442725|minimum=4.5
+10-12 23:04:55.742  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=true:outgoing=true:6-11|ratio=7.347217200135247|minimum=4.5
+10-12 23:04:55.742  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=true:outgoing=true:11-30|ratio=7.347217200135247|minimum=4.5
+10-12 23:04:55.742  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=true:outgoing=true:30-31|ratio=7.347217200135247|minimum=4.5
+10-12 23:04:55.742  3364  3959 I System.out: WP503_CONTRAST|marine:DARK:hc=true:outgoing=true:31-35|ratio=18.426453729900217|minimum=4.5
+10-12 23:04:55.884  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:55.885  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:55.885  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:55.885  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:55.957  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=false:outgoing=false:0-6|ratio=6.333891914508173|minimum=4.5
+10-12 23:04:55.957  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=false:outgoing=false:6-11|ratio=5.822188454253595|minimum=4.5
+10-12 23:04:55.957  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=false:outgoing=false:11-30|ratio=5.822188454253595|minimum=4.5
+10-12 23:04:55.958  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=false:outgoing=false:30-31|ratio=5.822188454253595|minimum=4.5
+10-12 23:04:55.958  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=false:outgoing=false:31-35|ratio=5.822188454253595|minimum=4.5
+10-12 23:04:56.087  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:56.087  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:56.087  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:56.087  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:56.163  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=false:outgoing=true:0-6|ratio=4.567617168971184|minimum=4.5
+10-12 23:04:56.164  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=false:outgoing=true:6-11|ratio=4.71855589700031|minimum=4.5
+10-12 23:04:56.164  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=false:outgoing=true:11-30|ratio=4.71855589700031|minimum=4.5
+10-12 23:04:56.164  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=false:outgoing=true:30-31|ratio=4.71855589700031|minimum=4.5
+10-12 23:04:56.164  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=false:outgoing=true:31-35|ratio=4.5303954992861755|minimum=4.5
+10-12 23:04:56.300  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:56.302  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:56.303  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:56.303  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:56.408  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=true:outgoing=false:0-6|ratio=8.219642885711135|minimum=7.0
+10-12 23:04:56.409  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=true:outgoing=false:6-11|ratio=7.726801408714102|minimum=4.5
+10-12 23:04:56.409  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=true:outgoing=false:11-30|ratio=7.726801408714102|minimum=4.5
+10-12 23:04:56.409  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=true:outgoing=false:30-31|ratio=7.726801408714102|minimum=4.5
+10-12 23:04:56.409  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=true:outgoing=false:31-35|ratio=6.630959472368299|minimum=4.5
+10-12 23:04:56.553  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:56.553  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:56.553  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:56.553  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:56.645  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=true:outgoing=true:0-6|ratio=4.525461646397143|minimum=4.5
+10-12 23:04:56.647  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=true:outgoing=true:6-11|ratio=7.0295254053768055|minimum=4.5
+10-12 23:04:56.648  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=true:outgoing=true:11-30|ratio=7.0295254053768055|minimum=4.5
+10-12 23:04:56.648  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=true:outgoing=true:30-31|ratio=7.0295254053768055|minimum=4.5
+10-12 23:04:56.648  3364  3959 I System.out: WP503_CONTRAST|olive:LIGHT:hc=true:outgoing=true:31-35|ratio=4.524544265905484|minimum=4.5
+10-12 23:04:56.799  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:56.799  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:56.799  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:56.799  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:56.865  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=false:outgoing=false:0-6|ratio=4.538801388557116|minimum=4.5
+10-12 23:04:56.865  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=false:outgoing=false:6-11|ratio=11.281692114470086|minimum=4.5
+10-12 23:04:56.865  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=false:outgoing=false:11-30|ratio=11.281692114470086|minimum=4.5
+10-12 23:04:56.866  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=false:outgoing=false:30-31|ratio=11.281692114470086|minimum=4.5
+10-12 23:04:56.866  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=false:outgoing=false:31-35|ratio=11.281692114470086|minimum=4.5
+10-12 23:04:56.968  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:56.968  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:56.968  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:56.968  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:57.065  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=false:outgoing=true:0-6|ratio=4.565929632682638|minimum=4.5
+10-12 23:04:57.065  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=false:outgoing=true:6-11|ratio=5.454464144103276|minimum=4.5
+10-12 23:04:57.065  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=false:outgoing=true:11-30|ratio=5.454464144103276|minimum=4.5
+10-12 23:04:57.066  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=false:outgoing=true:30-31|ratio=5.454464144103276|minimum=4.5
+10-12 23:04:57.067  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=false:outgoing=true:31-35|ratio=4.561393179643013|minimum=4.5
+10-12 23:04:57.198  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:57.198  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:57.198  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:57.198  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:57.294  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=true:outgoing=false:0-6|ratio=7.069866179774873|minimum=7.0
+10-12 23:04:57.295  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=true:outgoing=false:6-11|ratio=12.636349134560575|minimum=4.5
+10-12 23:04:57.295  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=true:outgoing=false:11-30|ratio=12.636349134560575|minimum=4.5
+10-12 23:04:57.295  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=true:outgoing=false:30-31|ratio=12.636349134560575|minimum=4.5
+10-12 23:04:57.295  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=true:outgoing=false:31-35|ratio=12.636349134560575|minimum=4.5
+10-12 23:04:57.418  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:57.418  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:57.419  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:57.419  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:57.516  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=true:outgoing=true:0-6|ratio=4.529832097459697|minimum=4.5
+10-12 23:04:57.517  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=true:outgoing=true:6-11|ratio=7.160558406436361|minimum=4.5
+10-12 23:04:57.518  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=true:outgoing=true:11-30|ratio=7.160558406436361|minimum=4.5
+10-12 23:04:57.518  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=true:outgoing=true:30-31|ratio=7.160558406436361|minimum=4.5
+10-12 23:04:57.518  3364  3959 I System.out: WP503_CONTRAST|olive:DARK:hc=true:outgoing=true:31-35|ratio=4.579450917054436|minimum=4.5
+10-12 23:04:57.632  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:57.632  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:57.632  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:57.632  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:57.713  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=false:outgoing=false:0-6|ratio=6.297951182306992|minimum=4.5
+10-12 23:04:57.713  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=false:outgoing=false:6-11|ratio=5.548764749228327|minimum=4.5
+10-12 23:04:57.713  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=false:outgoing=false:11-30|ratio=5.548764749228327|minimum=4.5
+10-12 23:04:57.713  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=false:outgoing=false:30-31|ratio=5.548764749228327|minimum=4.5
+10-12 23:04:57.713  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=false:outgoing=false:31-35|ratio=5.548764749228327|minimum=4.5
+10-12 23:04:57.867  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:57.868  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:57.868  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:57.868  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:57.961  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=false:outgoing=true:0-6|ratio=4.552362413452438|minimum=4.5
+10-12 23:04:57.963  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=false:outgoing=true:6-11|ratio=4.850927150750402|minimum=4.5
+10-12 23:04:57.963  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=false:outgoing=true:11-30|ratio=4.850927150750402|minimum=4.5
+10-12 23:04:57.963  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=false:outgoing=true:30-31|ratio=4.850927150750402|minimum=4.5
+10-12 23:04:57.963  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=false:outgoing=true:31-35|ratio=4.546554937368817|minimum=4.5
+10-12 23:04:58.119  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:58.119  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:58.119  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:58.119  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:58.203  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=true:outgoing=false:0-6|ratio=8.228501099845111|minimum=7.0
+10-12 23:04:58.203  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=true:outgoing=false:6-11|ratio=7.732060835102412|minimum=4.5
+10-12 23:04:58.203  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=true:outgoing=false:11-30|ratio=7.732060835102412|minimum=4.5
+10-12 23:04:58.203  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=true:outgoing=false:30-31|ratio=7.732060835102412|minimum=4.5
+10-12 23:04:58.203  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=true:outgoing=false:31-35|ratio=6.355727418480206|minimum=4.5
+10-12 23:04:58.333  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:58.333  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:58.333  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:58.333  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:58.423  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=true:outgoing=true:0-6|ratio=4.543242341009863|minimum=4.5
+10-12 23:04:58.423  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=true:outgoing=true:6-11|ratio=7.108541143460624|minimum=4.5
+10-12 23:04:58.424  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=true:outgoing=true:11-30|ratio=7.108541143460624|minimum=4.5
+10-12 23:04:58.424  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=true:outgoing=true:30-31|ratio=7.108541143460624|minimum=4.5
+10-12 23:04:58.424  3364  3959 I System.out: WP503_CONTRAST|lavender:LIGHT:hc=true:outgoing=true:31-35|ratio=4.571162691409793|minimum=4.5
+10-12 23:04:58.550  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:58.550  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:58.550  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:58.550  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:58.661  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=false:outgoing=false:0-6|ratio=4.5464462196461115|minimum=4.5
+10-12 23:04:58.661  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=false:outgoing=false:6-11|ratio=9.084984679078858|minimum=4.5
+10-12 23:04:58.661  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=false:outgoing=false:11-30|ratio=9.084984679078858|minimum=4.5
+10-12 23:04:58.661  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=false:outgoing=false:30-31|ratio=9.084984679078858|minimum=4.5
+10-12 23:04:58.661  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=false:outgoing=false:31-35|ratio=9.084984679078858|minimum=4.5
+10-12 23:04:58.800  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:58.800  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:58.801  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:58.801  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:58.883  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=false:outgoing=true:0-6|ratio=4.562616016650648|minimum=4.5
+10-12 23:04:58.884  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=false:outgoing=true:6-11|ratio=6.92363465131785|minimum=4.5
+10-12 23:04:58.884  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=false:outgoing=true:11-30|ratio=6.92363465131785|minimum=4.5
+10-12 23:04:58.884  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=false:outgoing=true:30-31|ratio=6.92363465131785|minimum=4.5
+10-12 23:04:58.884  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=false:outgoing=true:31-35|ratio=4.537265509208945|minimum=4.5
+10-12 23:04:59.000  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:59.000  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:59.000  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:59.000  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:59.064  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=true:outgoing=false:0-6|ratio=7.0508324951000585|minimum=7.0
+10-12 23:04:59.066  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=true:outgoing=false:6-11|ratio=10.106639218632171|minimum=4.5
+10-12 23:04:59.068  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=true:outgoing=false:11-30|ratio=10.106639218632171|minimum=4.5
+10-12 23:04:59.068  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=true:outgoing=false:30-31|ratio=10.106639218632171|minimum=4.5
+10-12 23:04:59.068  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=true:outgoing=false:31-35|ratio=10.106639218632171|minimum=4.5
+10-12 23:04:59.198  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:59.199  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:59.199  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:59.199  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:59.280  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=true:outgoing=true:0-6|ratio=4.560875664490704|minimum=4.5
+10-12 23:04:59.281  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=true:outgoing=true:6-11|ratio=8.5198089913601|minimum=4.5
+10-12 23:04:59.281  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=true:outgoing=true:11-30|ratio=8.5198089913601|minimum=4.5
+10-12 23:04:59.281  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=true:outgoing=true:30-31|ratio=8.5198089913601|minimum=4.5
+10-12 23:04:59.282  3364  3959 I System.out: WP503_CONTRAST|lavender:DARK:hc=true:outgoing=true:31-35|ratio=4.5800961479520375|minimum=4.5
+10-12 23:04:59.383  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:59.384  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:59.384  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:59.384  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:59.441  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=false:outgoing=false:0-6|ratio=6.3016980767781865|minimum=4.5
+10-12 23:04:59.443  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=false:outgoing=false:6-11|ratio=5.099005190005975|minimum=4.5
+10-12 23:04:59.443  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=false:outgoing=false:11-30|ratio=5.099005190005975|minimum=4.5
+10-12 23:04:59.443  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=false:outgoing=false:30-31|ratio=5.099005190005975|minimum=4.5
+10-12 23:04:59.443  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=false:outgoing=false:31-35|ratio=5.099005190005975|minimum=4.5
+10-12 23:04:59.552  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:59.552  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:59.553  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:59.553  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:59.609  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=false:outgoing=true:0-6|ratio=4.556615914322855|minimum=4.5
+10-12 23:04:59.609  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=false:outgoing=true:6-11|ratio=5.301532950590443|minimum=4.5
+10-12 23:04:59.609  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=false:outgoing=true:11-30|ratio=5.301532950590443|minimum=4.5
+10-12 23:04:59.609  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=false:outgoing=true:30-31|ratio=5.301532950590443|minimum=4.5
+10-12 23:04:59.609  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=false:outgoing=true:31-35|ratio=4.572042097482475|minimum=4.5
+10-12 23:04:59.716  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:59.717  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:59.717  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:59.717  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:59.776  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=true:outgoing=false:0-6|ratio=8.214495967472208|minimum=7.0
+10-12 23:04:59.776  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=true:outgoing=false:6-11|ratio=7.690887681873286|minimum=4.5
+10-12 23:04:59.776  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=true:outgoing=false:11-30|ratio=7.690887681873286|minimum=4.5
+10-12 23:04:59.776  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=true:outgoing=false:30-31|ratio=7.690887681873286|minimum=4.5
+10-12 23:04:59.776  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=true:outgoing=false:31-35|ratio=5.936836396215695|minimum=4.5
+10-12 23:04:59.881  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:04:59.882  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:04:59.882  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:04:59.882  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:04:59.949  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=true:outgoing=true:0-6|ratio=4.531877436794314|minimum=4.5
+10-12 23:04:59.950  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=true:outgoing=true:6-11|ratio=7.013974708287007|minimum=4.5
+10-12 23:04:59.950  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=true:outgoing=true:11-30|ratio=7.013974708287007|minimum=4.5
+10-12 23:04:59.950  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=true:outgoing=true:30-31|ratio=7.013974708287007|minimum=4.5
+10-12 23:04:59.950  3364  3959 I System.out: WP503_CONTRAST|sakura:LIGHT:hc=true:outgoing=true:31-35|ratio=4.534176613306826|minimum=4.5
+10-12 23:05:00.084  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:00.084  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:00.084  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:00.084  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:00.162  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=false:outgoing=false:0-6|ratio=4.537701579273405|minimum=4.5
+10-12 23:05:00.163  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=false:outgoing=false:6-11|ratio=10.905501922535743|minimum=4.5
+10-12 23:05:00.163  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=false:outgoing=false:11-30|ratio=10.905501922535743|minimum=4.5
+10-12 23:05:00.163  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=false:outgoing=false:30-31|ratio=10.905501922535743|minimum=4.5
+10-12 23:05:00.163  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=false:outgoing=false:31-35|ratio=10.905501922535743|minimum=4.5
+10-12 23:05:00.268  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:00.268  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:00.268  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:00.268  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:00.332  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=false:outgoing=true:0-6|ratio=4.536695284324881|minimum=4.5
+10-12 23:05:00.334  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=false:outgoing=true:6-11|ratio=7.957630664048447|minimum=4.5
+10-12 23:05:00.334  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=false:outgoing=true:11-30|ratio=7.957630664048447|minimum=4.5
+10-12 23:05:00.334  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=false:outgoing=true:30-31|ratio=7.957630664048447|minimum=4.5
+10-12 23:05:00.334  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=false:outgoing=true:31-35|ratio=4.545428870920036|minimum=4.5
+10-12 23:05:00.433  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:00.433  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:00.434  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:00.434  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:00.495  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=true:outgoing=false:0-6|ratio=7.0647513225416665|minimum=7.0
+10-12 23:05:00.495  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=true:outgoing=false:6-11|ratio=12.131673811662303|minimum=4.5
+10-12 23:05:00.495  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=true:outgoing=false:11-30|ratio=12.131673811662303|minimum=4.5
+10-12 23:05:00.495  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=true:outgoing=false:30-31|ratio=12.131673811662303|minimum=4.5
+10-12 23:05:00.496  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=true:outgoing=false:31-35|ratio=12.131673811662303|minimum=4.5
+10-12 23:05:00.599  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:00.599  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:00.599  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:00.599  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:00.660  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=true:outgoing=true:0-6|ratio=4.773264791923822|minimum=4.5
+10-12 23:05:00.660  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=true:outgoing=true:6-11|ratio=9.923987152032426|minimum=4.5
+10-12 23:05:00.660  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=true:outgoing=true:11-30|ratio=9.923987152032426|minimum=4.5
+10-12 23:05:00.660  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=true:outgoing=true:30-31|ratio=9.923987152032426|minimum=4.5
+10-12 23:05:00.660  3364  3959 I System.out: WP503_CONTRAST|sakura:DARK:hc=true:outgoing=true:31-35|ratio=4.526622988219518|minimum=4.5
+10-12 23:05:00.748  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:00.748  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:00.749  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:00.749  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:00.813  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=false:outgoing=false:0-6|ratio=6.224930276172018|minimum=4.5
+10-12 23:05:00.816  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=false:outgoing=false:6-11|ratio=5.158211051577257|minimum=4.5
+10-12 23:05:00.816  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=false:outgoing=false:11-30|ratio=5.158211051577257|minimum=4.5
+10-12 23:05:00.816  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=false:outgoing=false:30-31|ratio=5.158211051577257|minimum=4.5
+10-12 23:05:00.818  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=false:outgoing=false:31-35|ratio=4.6947272813405245|minimum=4.5
+10-12 23:05:00.982  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:00.982  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:00.982  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:00.982  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:01.045  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=false:outgoing=true:0-6|ratio=4.570229091529045|minimum=4.5
+10-12 23:05:01.048  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=false:outgoing=true:6-11|ratio=4.567903685161489|minimum=4.5
+10-12 23:05:01.049  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=false:outgoing=true:11-30|ratio=4.567903685161489|minimum=4.5
+10-12 23:05:01.049  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=false:outgoing=true:30-31|ratio=4.567903685161489|minimum=4.5
+10-12 23:05:01.049  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=false:outgoing=true:31-35|ratio=4.548396904238419|minimum=4.5
+10-12 23:05:01.167  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:01.167  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:01.169  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:01.169  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:01.230  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=true:outgoing=false:0-6|ratio=8.394650954045003|minimum=7.0
+10-12 23:05:01.234  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=true:outgoing=false:6-11|ratio=9.102332021579773|minimum=4.5
+10-12 23:05:01.234  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=true:outgoing=false:11-30|ratio=9.102332021579773|minimum=4.5
+10-12 23:05:01.234  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=true:outgoing=false:30-31|ratio=9.102332021579773|minimum=4.5
+10-12 23:05:01.234  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=true:outgoing=false:31-35|ratio=4.6344375122539425|minimum=4.5
+10-12 23:05:01.400  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:01.400  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:01.400  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:01.400  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:01.471  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=true:outgoing=true:0-6|ratio=4.529558809608586|minimum=4.5
+10-12 23:05:01.473  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=true:outgoing=true:6-11|ratio=7.023402424197015|minimum=4.5
+10-12 23:05:01.473  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=true:outgoing=true:11-30|ratio=7.023402424197015|minimum=4.5
+10-12 23:05:01.474  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=true:outgoing=true:30-31|ratio=7.023402424197015|minimum=4.5
+10-12 23:05:01.474  3364  3959 I System.out: WP503_CONTRAST|solarized:LIGHT:hc=true:outgoing=true:31-35|ratio=4.554103079556045|minimum=4.5
+10-12 23:05:01.601  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:01.601  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:01.601  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:01.601  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:01.689  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=false:outgoing=false:0-6|ratio=4.54620099891493|minimum=4.5
+10-12 23:05:01.689  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=false:outgoing=false:6-11|ratio=5.550895568212975|minimum=4.5
+10-12 23:05:01.689  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=false:outgoing=false:11-30|ratio=5.550895568212975|minimum=4.5
+10-12 23:05:01.691  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=false:outgoing=false:30-31|ratio=5.550895568212975|minimum=4.5
+10-12 23:05:01.691  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=false:outgoing=false:31-35|ratio=5.550895568212975|minimum=4.5
+10-12 23:05:01.865  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:01.865  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:01.865  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:01.865  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:01.942  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=false:outgoing=true:0-6|ratio=4.5594954475426865|minimum=4.5
+10-12 23:05:01.942  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=false:outgoing=true:6-11|ratio=4.600550732533885|minimum=4.5
+10-12 23:05:01.943  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=false:outgoing=true:11-30|ratio=4.600550732533885|minimum=4.5
+10-12 23:05:01.943  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=false:outgoing=true:30-31|ratio=4.600550732533885|minimum=4.5
+10-12 23:05:01.943  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=false:outgoing=true:31-35|ratio=12.880847262627755|minimum=4.5
+10-12 23:05:02.049  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:02.050  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:02.050  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:02.050  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:02.144  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=true:outgoing=false:0-6|ratio=7.039310789441447|minimum=7.0
+10-12 23:05:02.145  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=true:outgoing=false:6-11|ratio=7.05360644188492|minimum=4.5
+10-12 23:05:02.145  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=true:outgoing=false:11-30|ratio=7.05360644188492|minimum=4.5
+10-12 23:05:02.145  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=true:outgoing=false:30-31|ratio=7.05360644188492|minimum=4.5
+10-12 23:05:02.145  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=true:outgoing=false:31-35|ratio=4.692777772806189|minimum=4.5
+10-12 23:05:02.265  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:02.265  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:02.265  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:02.265  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:02.347  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=true:outgoing=true:0-6|ratio=4.6788741567096555|minimum=4.5
+10-12 23:05:02.347  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=true:outgoing=true:6-11|ratio=10.01783694893839|minimum=4.5
+10-12 23:05:02.347  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=true:outgoing=true:11-30|ratio=10.01783694893839|minimum=4.5
+10-12 23:05:02.347  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=true:outgoing=true:30-31|ratio=10.01783694893839|minimum=4.5
+10-12 23:05:02.348  3364  3959 I System.out: WP503_CONTRAST|solarized:DARK:hc=true:outgoing=true:31-35|ratio=15.628883065813202|minimum=4.5
+10-12 23:05:02.484  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:02.484  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:02.484  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:02.484  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:02.568  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=false:outgoing=false:0-6|ratio=6.336184578851055|minimum=4.5
+10-12 23:05:02.572  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=false:outgoing=false:6-11|ratio=5.264269132952149|minimum=4.5
+10-12 23:05:02.572  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=false:outgoing=false:11-30|ratio=5.264269132952149|minimum=4.5
+10-12 23:05:02.574  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=false:outgoing=false:30-31|ratio=5.264269132952149|minimum=4.5
+10-12 23:05:02.574  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=false:outgoing=false:31-35|ratio=4.710237004045232|minimum=4.5
+10-12 23:05:02.683  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:02.684  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:02.684  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:02.684  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:02.759  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=false:outgoing=true:0-6|ratio=4.558895557250654|minimum=4.5
+10-12 23:05:02.762  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=false:outgoing=true:6-11|ratio=4.57361732680728|minimum=4.5
+10-12 23:05:02.762  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=false:outgoing=true:11-30|ratio=4.57361732680728|minimum=4.5
+10-12 23:05:02.762  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=false:outgoing=true:30-31|ratio=4.57361732680728|minimum=4.5
+10-12 23:05:02.763  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=false:outgoing=true:31-35|ratio=4.548880853176224|minimum=4.5
+10-12 23:05:02.882  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:02.882  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:02.882  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:02.882  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:02.960  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=true:outgoing=false:0-6|ratio=8.515477027301614|minimum=7.0
+10-12 23:05:02.963  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=true:outgoing=false:6-11|ratio=8.891927421496009|minimum=4.5
+10-12 23:05:02.963  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=true:outgoing=false:11-30|ratio=8.891927421496009|minimum=4.5
+10-12 23:05:02.963  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=true:outgoing=false:30-31|ratio=8.891927421496009|minimum=4.5
+10-12 23:05:02.963  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=true:outgoing=false:31-35|ratio=4.689671386119699|minimum=4.5
+10-12 23:05:03.069  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:03.069  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:03.070  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:03.070  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:03.153  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=true:outgoing=true:0-6|ratio=4.56101598431464|minimum=4.5
+10-12 23:05:03.153  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=true:outgoing=true:6-11|ratio=7.084018848169437|minimum=4.5
+10-12 23:05:03.153  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=true:outgoing=true:11-30|ratio=7.084018848169437|minimum=4.5
+10-12 23:05:03.153  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=true:outgoing=true:30-31|ratio=7.084018848169437|minimum=4.5
+10-12 23:05:03.153  3364  3959 I System.out: WP503_CONTRAST|nord:LIGHT:hc=true:outgoing=true:31-35|ratio=4.519093047171203|minimum=4.5
+10-12 23:05:03.276  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:03.276  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:03.277  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:03.277  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:03.336  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=false:outgoing=false:0-6|ratio=4.557523752509722|minimum=4.5
+10-12 23:05:03.336  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=false:outgoing=false:6-11|ratio=5.60311313615088|minimum=4.5
+10-12 23:05:03.336  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=false:outgoing=false:11-30|ratio=5.60311313615088|minimum=4.5
+10-12 23:05:03.336  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=false:outgoing=false:30-31|ratio=5.60311313615088|minimum=4.5
+10-12 23:05:03.336  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=false:outgoing=false:31-35|ratio=5.60311313615088|minimum=4.5
+10-12 23:05:03.452  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:03.452  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:03.452  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:03.452  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:03.529  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=false:outgoing=true:0-6|ratio=4.557296254636223|minimum=4.5
+10-12 23:05:03.529  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=false:outgoing=true:6-11|ratio=4.617630050701729|minimum=4.5
+10-12 23:05:03.529  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=false:outgoing=true:11-30|ratio=4.617630050701729|minimum=4.5
+10-12 23:05:03.529  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=false:outgoing=true:30-31|ratio=4.617630050701729|minimum=4.5
+10-12 23:05:03.529  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=false:outgoing=true:31-35|ratio=4.548726240552414|minimum=4.5
+10-12 23:05:03.716  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:03.717  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:03.717  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:03.717  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:03.836  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=true:outgoing=false:0-6|ratio=7.050589819047374|minimum=7.0
+10-12 23:05:03.836  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=true:outgoing=false:6-11|ratio=7.059197444911194|minimum=4.5
+10-12 23:05:03.837  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=true:outgoing=false:11-30|ratio=7.059197444911194|minimum=4.5
+10-12 23:05:03.837  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=true:outgoing=false:30-31|ratio=7.059197444911194|minimum=4.5
+10-12 23:05:03.837  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=true:outgoing=false:31-35|ratio=4.708753597218723|minimum=4.5
+10-12 23:05:03.948  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:03.948  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:03.949  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:03.949  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:04.015  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=true:outgoing=true:0-6|ratio=4.5590348778545255|minimum=4.5
+10-12 23:05:04.015  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=true:outgoing=true:6-11|ratio=9.392168521389358|minimum=4.5
+10-12 23:05:04.016  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=true:outgoing=true:11-30|ratio=9.392168521389358|minimum=4.5
+10-12 23:05:04.016  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=true:outgoing=true:30-31|ratio=9.392168521389358|minimum=4.5
+10-12 23:05:04.016  3364  3959 I System.out: WP503_CONTRAST|nord:DARK:hc=true:outgoing=true:31-35|ratio=4.557967048382863|minimum=4.5
+10-12 23:05:04.168  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:04.168  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:04.168  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:04.168  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:04.240  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=false:outgoing=false:0-6|ratio=5.703709245377819|minimum=4.5
+10-12 23:05:04.241  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=false:outgoing=false:6-11|ratio=4.693063640795244|minimum=4.5
+10-12 23:05:04.241  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=false:outgoing=false:11-30|ratio=4.693063640795244|minimum=4.5
+10-12 23:05:04.241  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=false:outgoing=false:30-31|ratio=4.693063640795244|minimum=4.5
+10-12 23:05:04.241  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=false:outgoing=false:31-35|ratio=4.693063640795244|minimum=4.5
+10-12 23:05:04.351  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:04.351  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:04.351  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:04.351  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:04.422  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=false:outgoing=true:0-6|ratio=4.566948147976268|minimum=4.5
+10-12 23:05:04.423  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=false:outgoing=true:6-11|ratio=5.01786481099423|minimum=4.5
+10-12 23:05:04.423  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=false:outgoing=true:11-30|ratio=5.01786481099423|minimum=4.5
+10-12 23:05:04.423  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=false:outgoing=true:30-31|ratio=5.01786481099423|minimum=4.5
+10-12 23:05:04.423  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=false:outgoing=true:31-35|ratio=4.549393757661204|minimum=4.5
+10-12 23:05:04.531  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:04.531  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:04.531  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:04.531  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:04.597  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=true:outgoing=false:0-6|ratio=7.041546223634427|minimum=7.0
+10-12 23:05:04.597  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=true:outgoing=false:6-11|ratio=7.091321622477305|minimum=4.5
+10-12 23:05:04.597  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=true:outgoing=false:11-30|ratio=7.091321622477305|minimum=4.5
+10-12 23:05:04.598  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=true:outgoing=false:30-31|ratio=7.091321622477305|minimum=4.5
+10-12 23:05:04.598  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=true:outgoing=false:31-35|ratio=4.7020263004412906|minimum=4.5
+10-12 23:05:04.737  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:04.737  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:04.738  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:04.738  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:04.839  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=true:outgoing=true:0-6|ratio=5.706748192099435|minimum=4.5
+10-12 23:05:04.839  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=true:outgoing=true:6-11|ratio=10.266472454760246|minimum=4.5
+10-12 23:05:04.839  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=true:outgoing=true:11-30|ratio=10.266472454760246|minimum=4.5
+10-12 23:05:04.839  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=true:outgoing=true:30-31|ratio=10.266472454760246|minimum=4.5
+10-12 23:05:04.840  3364  3959 I System.out: WP503_CONTRAST|catppuccin:LIGHT:hc=true:outgoing=true:31-35|ratio=4.530509671273132|minimum=4.5
+10-12 23:05:04.967  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:04.967  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:04.967  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:04.967  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:05.045  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=false:outgoing=false:0-6|ratio=4.544961718879728|minimum=4.5
+10-12 23:05:05.045  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=false:outgoing=false:6-11|ratio=5.970526074819907|minimum=4.5
+10-12 23:05:05.045  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=false:outgoing=false:11-30|ratio=5.970526074819907|minimum=4.5
+10-12 23:05:05.045  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=false:outgoing=false:30-31|ratio=5.970526074819907|minimum=4.5
+10-12 23:05:05.045  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=false:outgoing=false:31-35|ratio=5.970526074819907|minimum=4.5
+10-12 23:05:05.237  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:05.237  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:05.237  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:05.237  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:05.296  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=false:outgoing=true:0-6|ratio=4.549328159912963|minimum=4.5
+10-12 23:05:05.296  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=false:outgoing=true:6-11|ratio=5.979382710017259|minimum=4.5
+10-12 23:05:05.296  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=false:outgoing=true:11-30|ratio=5.979382710017259|minimum=4.5
+10-12 23:05:05.296  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=false:outgoing=true:30-31|ratio=5.979382710017259|minimum=4.5
+10-12 23:05:05.296  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=false:outgoing=true:31-35|ratio=4.550271873210548|minimum=4.5
+10-12 23:05:05.432  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:05.433  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:05.433  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:05.433  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:05.503  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=true:outgoing=false:0-6|ratio=7.050156522354878|minimum=7.0
+10-12 23:05:05.503  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=true:outgoing=false:6-11|ratio=7.025257842817547|minimum=4.5
+10-12 23:05:05.503  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=true:outgoing=false:11-30|ratio=7.025257842817547|minimum=4.5
+10-12 23:05:05.503  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=true:outgoing=false:30-31|ratio=7.025257842817547|minimum=4.5
+10-12 23:05:05.503  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=true:outgoing=false:31-35|ratio=5.355016386145835|minimum=4.5
+10-12 23:05:05.619  3364  3959 I System.out: WP503_FONT|text=@Alice see https://example.com #ops|size=312 x 117|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x117.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 23:05:05.631  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=0|left=174.0|right=312.0|top=0.0|bottom=35.0
+10-12 23:05:05.631  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=1|left=51.0625|right=312.0|top=35.0|bottom=77.0
+10-12 23:05:05.631  3364  3959 I System.out: WP503_FONT_LINE|text=@Alice see https://example.com #ops|line=2|left=249.0|right=312.0|top=77.0|bottom=117.0
+10-12 23:05:05.786  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=true:outgoing=true:0-6|ratio=5.029980214504534|minimum=4.5
+10-12 23:05:05.786  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=true:outgoing=true:6-11|ratio=11.925427133750775|minimum=4.5
+10-12 23:05:05.786  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=true:outgoing=true:11-30|ratio=11.925427133750775|minimum=4.5
+10-12 23:05:05.786  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=true:outgoing=true:30-31|ratio=11.925427133750775|minimum=4.5
+10-12 23:05:05.787  3364  3959 I System.out: WP503_CONTRAST|catppuccin:DARK:hc=true:outgoing=true:31-35|ratio=4.538182703944686|minimum=4.5

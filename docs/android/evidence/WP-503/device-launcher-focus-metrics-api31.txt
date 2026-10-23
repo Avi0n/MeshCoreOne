@@ -1,0 +1,29 @@
+10-12 19:29:02.249  3530  3548 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 19:29:02.256  3530  3548 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 19:29:02.506  3530  3548 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+10-12 19:29:03.811  3530  3548 I System.out: WP503_NATIVE_LAUNCHER_SELECTION|sdk=31|tab=NODES|nativeSelected=true|accessibilityFocus=true|realSelected=NODES
+10-12 19:29:03.851  3530  3548 I System.out: WP503_FONT|text=Nodes|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 19:29:03.851  3530  3548 I System.out: WP503_FONT_LINE|text=Nodes|line=0|left=5.0|right=67.0|top=0.0|bottom=32.0
+10-12 19:29:03.851  3530  3548 I System.out: WP503_FONT_LINE|text=Nodes|line=1|left=29.0|right=43.0|top=32.0|bottom=64.0
+10-12 19:29:03.852  3530  3548 I System.out: WP503_NATIVE_LAUNCHER_FOCUS|sdk=31|tab=NODES|nativeSelected=true|accessibilityFocus=true|bounds=Rect(216, 614 - 288, 774)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+10-12 19:29:04.523  3530  3548 I System.out: WP503_NATIVE_LAUNCHER_SELECTION|sdk=31|tab=MAP|nativeSelected=true|accessibilityFocus=true|realSelected=MAP
+10-12 19:29:04.549  3530  3548 I System.out: WP503_FONT|text=Map|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 19:29:04.549  3530  3548 I System.out: WP503_FONT_LINE|text=Map|line=0|left=11.0|right=61.0|top=0.0|bottom=32.0
+10-12 19:29:04.550  3530  3548 I System.out: WP503_NATIVE_LAUNCHER_FOCUS|sdk=31|tab=MAP|nativeSelected=true|accessibilityFocus=true|bounds=Rect(144, 614 - 216, 774)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+10-12 19:29:04.948  3530  3548 I System.out: WP503_NATIVE_LAUNCHER_SELECTION|sdk=31|tab=TOOLS|nativeSelected=true|accessibilityFocus=true|realSelected=TOOLS
+10-12 19:29:04.964  3530  3548 I System.out: WP503_FONT|text=Tools|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 19:29:04.965  3530  3548 I System.out: WP503_FONT_LINE|text=Tools|line=0|left=3.0|right=69.0|top=0.0|bottom=32.0
+10-12 19:29:04.965  3530  3548 I System.out: WP503_NATIVE_LAUNCHER_FOCUS|sdk=31|tab=TOOLS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(72, 614 - 144, 774)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+10-12 19:29:05.276  3530  3548 I System.out: WP503_NATIVE_LAUNCHER_SELECTION|sdk=31|tab=SETTINGS|nativeSelected=true|accessibilityFocus=true|realSelected=SETTINGS
+10-12 19:29:05.298  3530  3548 I System.out: WP503_FONT|text=Settings|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 19:29:05.299  3530  3548 I System.out: WP503_FONT_LINE|text=Settings|line=0|left=12.0|right=60.0|top=0.0|bottom=32.0
+10-12 19:29:05.299  3530  3548 I System.out: WP503_FONT_LINE|text=Settings|line=1|left=7.0|right=65.0|top=32.0|bottom=64.0
+10-12 19:29:05.299  3530  3548 I System.out: WP503_NATIVE_LAUNCHER_FOCUS|sdk=31|tab=SETTINGS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(0, 614 - 72, 774)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+10-12 19:29:05.493  3530  3548 I System.out: WP503_NATIVE_LAUNCHER_SELECTION|sdk=31|tab=CHATS|nativeSelected=true|accessibilityFocus=true|realSelected=CHATS
+10-12 19:29:05.516  3530  3548 I System.out: WP503_FONT|text=Chats|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 19:29:05.517  3530  3548 I System.out: WP503_FONT_LINE|text=Chats|line=0|left=2.0|right=70.0|top=0.0|bottom=32.0
+10-12 19:29:05.517  3530  3548 I System.out: WP503_NATIVE_LAUNCHER_FOCUS|sdk=31|tab=CHATS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(288, 614 - 360, 774)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+10-12 19:29:05.921  3530  3548 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 19:29:05.922  3530  3548 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+10-12 19:29:05.964  3530  3548 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+10-12 19:29:06.122  3530  3548 I System.out: WP503_NATIVE_FOCUS_CONTROL|sdk=31|focused=true|callback=1|physicalTalkBack=false

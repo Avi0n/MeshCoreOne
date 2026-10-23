@@ -1,0 +1,12 @@
+WP503_NATIVE_TRANSPORT_EXIT|serial=emulator-5714|state=absent|observations=1|elapsedMs=31.000
+WP503_MAINOBSERVER_LAUNCH|["C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe", "-avd", "Medium_Phone", "-port", "5714", "-read-only", "-no-snapshot", "-no-window", "-no-audio", "-no-metrics", "-gpu", "swiftshader_indirect", "-memory", "1536", "-cores", "2", "-data", "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-timesnapshot-api31-userdata.img"]
+WP503_MAINOBSERVER_OUTCOME|api=31|scenario=launcher|exit=1
+WP503_MAINOBSERVER_OUTCOME|api=31|scenario=service-state-control|exit=0
+WP503_NATIVE_TRANSPORT_EXIT|serial=emulator-5714|state=emulator-5714	offline|observations=1|elapsedMs=31.000
+WP503_NATIVE_TRANSPORT_EXIT|serial=emulator-5714|state=absent|observations=3|elapsedMs=265.000
+WP503_MAINOBSERVER_LAUNCH|["C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe", "-avd", "Pixel_10_Pro_XL", "-port", "5714", "-read-only", "-no-snapshot", "-no-window", "-no-audio", "-no-metrics", "-gpu", "swiftshader_indirect", "-memory", "1536", "-cores", "2", "-data", "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-timesnapshot-api37-userdata.img"]
+WP503_MAINOBSERVER_OUTCOME|api=37|scenario=launcher|exit=1
+WP503_MAINOBSERVER_OUTCOME|api=37|scenario=service-state-control|exit=0
+WP503_NATIVE_TRANSPORT_EXIT|serial=emulator-5714|state=emulator-5714	offline|observations=1|elapsedMs=31.000
+WP503_NATIVE_TRANSPORT_EXIT|serial=emulator-5714|state=absent|observations=3|elapsedMs=281.000
+WP503_MAINOBSERVER_CLEANUP|twoEmulatorExit0=true|twoOwnedTransportsAbsent=true|otherDevicesNotRequiredToExit=true

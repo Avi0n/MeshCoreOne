@@ -1,0 +1,38 @@
+EXECUTED_SOURCE|afea92392a31347ff210d1c87183c94ee4cd26f8
+POST_ORIGINAL600S_RESULT|true
+OWNED_PID|3379
+TRANSPORT|explicit com.sun.jdi.SocketAttach through exact owned adb jdwp forward; forward removed
+SUSPEND_AND_RESUME_OBSERVED|true
+QUALIFICATION|Selected main/instrumentation frames only. This snapshot differs from the predecessor semantics-query stall; no underlying storage cause or completed test inferred.
+main:
+  [1] android.os.MessageQueue.nativePollOnce (native method)
+  [2] android.os.MessageQueue.nextDeliQueue (MessageQueue.java:790)
+  [3] android.os.MessageQueue.next (MessageQueue.java:770)
+  [4] android.os.Looper.loopOnce (Looper.java:221)
+  [5] android.os.Looper.loop (Looper.java:390)
+  [6] android.app.ActivityThread.main (ActivityThread.java:9,884)
+  [7] java.lang.reflect.Method.invoke (native method)
+  [8] com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run (RuntimeInit.java:575)
+  [9] com.android.internal.os.ZygoteInit.main (ZygoteInit.java:906)
+
+Instr: androidx.test.runner.AndroidJUnitRunner:
+  [1] jdk.internal.misc.Unsafe.park (native method)
+  [2] java.util.concurrent.locks.LockSupport.parkNanos (LockSupport.java:276)
+  [3] kotlinx.coroutines.BlockingCoroutine.joinBlocking (Builders.kt:97)
+  [4] kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking (Builders.kt:70)
+  [5] kotlinx.coroutines.BuildersKt.runBlocking (unknown)
+  [6] kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default (Builders.kt:48)
+  [7] kotlinx.coroutines.BuildersKt.runBlocking$default (unknown)
+  [8] com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200$lambda$0 (NativeLauncherFocusAccessibilityTest.kt:427)
+  [9] com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda5.invoke (D8$$SyntheticClass:0)
+  [10] com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration (NativeLauncherFocusAccessibilityTest.kt:895)
+  [11] com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200 (NativeLauncherFocusAccessibilityTest.kt:328)
+  [12] java.lang.reflect.Method.invoke (native method)
+  [13] org.junit.runners.model.FrameworkMethod$1.runReflectiveCall (FrameworkMethod.java:59)
+  [14] org.junit.internal.runners.model.ReflectiveCallable.run (ReflectiveCallable.java:12)
+  [15] org.junit.runners.model.FrameworkMethod.invokeExplosively (FrameworkMethod.java:56)
+  [16] org.junit.internal.runners.statements.InvokeMethod.evaluate (InvokeMethod.java:17)
+  [17] androidx.test.internal.runner.junit4.statement.RunBefores.evaluate (RunBefores.java:80)
+  [18] org.junit.rules.Verifier$1.evaluate (Verifier.java:35)
+  [19] androidx.compose.ui.test.junit4.AndroidComposeTestRule$apply$testWithDisposal$1.evaluate (AndroidComposeTestRule.android.kt:322)
+  [20] org.junit.rules.ExternalResource$1.evaluate (ExternalResource.java:54)

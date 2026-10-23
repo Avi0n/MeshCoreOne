@@ -1,0 +1,17 @@
+WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+WP503_WIFI_IME_CONTROL|nativeInputFocus=true|acceptingText=true|imeVisible=true
+WP503_WIFI_IME_ALLOCATION|phase=pending-first-scroll|position=Offset(16.0, 543.0)|bounds=Rect.fromLTRB(16.0, 543.0, 344.0, 601.0)|size=328 x 58|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)|imeVisible=true
+WP503_FONT|text=Connecting...|size=174 x 42|constraints=Constraints(minWidth = 0, maxWidth = 254, minHeight = 0, maxHeight = Infinity)|paragraph=254.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Connecting...|line=0|left=0.0|right=172.79999|top=0.0|bottom=42.0
+WP503_WIFI_IME_ALLOCATION|phase=deliberate-two-pixel-counterexample|position=Offset(16.0, 545.0)|bounds=Rect.fromLTRB(16.0, 545.0, 344.0, 601.0)|size=328 x 58|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)|imeVisible=true
+WP503_WHOLE_ALLOCATION_SCROLL|delta=2.0|before=Rect.fromLTRB(16.0, 545.0, 344.0, 601.0)|after=Rect.fromLTRB(16.0, 543.0, 344.0, 601.0)|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)
+WP503_FONT|text=Connecting...|size=174 x 42|constraints=Constraints(minWidth = 0, maxWidth = 254, minHeight = 0, maxHeight = Infinity)|paragraph=254.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Connecting...|line=0|left=0.0|right=172.79999|top=0.0|bottom=42.0
+WP503_WIFI_IME_ALLOCATION|phase=whole-action|position=Offset(16.0, 543.0)|bounds=Rect.fromLTRB(16.0, 543.0, 344.0, 601.0)|size=328 x 58|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)|imeVisible=true
+WP503_FONT|text=Radio unavailable|size=219 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Radio unavailable|line=0|left=0.0|right=218.59375|top=0.0|bottom=42.0
+WP503_WIFI_IME_ALLOCATION|phase=after-error-scroll|position=Offset(16.0, 603.0)|bounds=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|size=328 x 58|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)|imeVisible=true
+WP503_FONT|text=Connect|size=109 x 42|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = Infinity)|paragraph=280.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Connect|line=0|left=0.0|right=107.40001|top=0.0|bottom=42.0
+WP503_WIFI_IME_ALLOCATION|phase=whole-action|position=Offset(16.0, 543.0)|bounds=Rect.fromLTRB(16.0, 543.0, 344.0, 601.0)|size=328 x 58|viewport=Rect.fromLTRB(0.0, 52.0, 360.0, 601.0)|imeVisible=true
+WP503_WIFI_IME_CONTROL|complete=true|attempts=1|cancelled=0|realRadio=false|physicalTalkBack=false

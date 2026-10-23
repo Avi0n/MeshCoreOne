@@ -1,0 +1,17 @@
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_FONT|text=Default|size=84 x 30|constraints=Constraints(minWidth = 0, maxWidth = 360, minHeight = 0, maxHeight = 711)|paragraph=360.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Default|line=0|left=0.0|right=84.0|top=0.0|bottom=30.0
+WP503_FONT_PAINT|label=Default|bounds=Rect.fromLTRB(276.0, 63.0, 360.0, 93.0)|colors=156|nonBackgroundPixels=893
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_FONT|text=No data was changed.|size=276 x 33|constraints=Constraints(minWidth = 0, maxWidth = 276, minHeight = 0, maxHeight = 60)|paragraph=276.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=No data was changed.|line=0|left=0.0|right=276.0|top=0.0|bottom=33.0
+WP503_FONT_FULL_INK|text=No data was changed.|actual=[3, 3, 3, 3, 3, 11, 50, 60, 61, 49, 46, 36, 48, 53, 50, 39, 45, 49, 59, 59, 55, 22]|reference=[10, 17, 22, 22, 23, 50, 150, 175, 183, 138, 127, 106, 132, 140, 132, 113, 119, 135, 165, 169, 154, 62, 5, 8, 11, 11, 7]|bounds=Rect.fromLTRB(260.0, 63.0, 360.0, 96.0)
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_FONT|text=No data was changed.|size=276 x 33|constraints=Constraints(minWidth = 0, maxWidth = 360, minHeight = 0, maxHeight = 711)|paragraph=360.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=No data was changed.|line=0|left=42.0|right=318.0|top=0.0|bottom=33.0
+WP503_FONT|text=No data was changed.|size=276 x 33|constraints=Constraints(minWidth = 0, maxWidth = 360, minHeight = 0, maxHeight = 711)|paragraph=360.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=No data was changed.|line=0|left=42.0|right=318.0|top=0.0|bottom=33.0
+WP503_FONT_FULL_INK|text=No data was changed.|actual=[10, 17, 22, 22, 23, 50, 150, 175, 183, 138, 127, 106, 132, 140, 132, 113, 119, 135, 165, 169, 154, 62, 5, 8, 11, 11, 7]|reference=[10, 17, 22, 22, 23, 50, 150, 175, 183, 138, 127, 106, 132, 140, 132, 113, 119, 135, 165, 169, 154, 62, 5, 8, 11, 11, 7]|bounds=Rect.fromLTRB(84.0, 63.0, 360.0, 96.0)
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_FONT|text=clipped native text|size=32 x 4|constraints=Constraints(minWidth = 0, maxWidth = 32, minHeight = 0, maxHeight = 4)|paragraph=32.0x35.0|widthOverflow=false|heightOverflow=true|lines=1
+WP503_FONT_LINE|text=clipped native text|line=0|left=0.0|right=29.0|top=0.0|bottom=35.0

@@ -1,0 +1,10 @@
+API37 owned PlayStore x86_64 emulator; physical TalkBack not performed
+37
+x86_64
+16384
+Physical size: 1344x2992
+Override size: 360x900
+Physical density: 480
+Override density: 160
+2.0
+0

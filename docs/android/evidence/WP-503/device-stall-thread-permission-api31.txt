@@ -1,0 +1,3 @@
+COMMAND|['C:\\android-sdk\\platform-tools\\adb.exe', '-s', 'emulator-5714', 'shell', 'run-as', 'com.meshcoreone.android.debug', 'debuggerd', '-j', '2642']
+EXIT|1
+debuggerd: root is required

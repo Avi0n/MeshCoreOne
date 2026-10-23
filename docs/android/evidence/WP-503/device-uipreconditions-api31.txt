@@ -1,0 +1,56 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest:
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Saved LOS repeater '中文西側中繼' must expose a named native accessibility click or non-gesture list action, independent of map tiles
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:125)
+
+INSTRUMENTATION_STATUS: stream=
+Error in savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest):
+java.lang.AssertionError: Saved LOS repeater '中文西側中繼' must expose a named native accessibility click or non-gesture list action, independent of map tiles
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:125)
+
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 12.816
+There was 1 failure:
+1) savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest)
+java.lang.AssertionError: Saved LOS repeater '中文西側中繼' must expose a named native accessibility click or non-gesture list action, independent of map tiles
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest.savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200(NativeLineOfSightAccessibilityTest.kt:125)
+
+FAILURES!!!
+Tests run: 2,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

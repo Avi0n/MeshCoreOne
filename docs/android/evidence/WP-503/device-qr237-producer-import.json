@@ -1,0 +1,69 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "issue": 237,
+  "producer_wp": "WP-311",
+  "producer_pr": 233,
+  "producer_head": "34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67",
+  "producer_actual_session": "869123e3-46d4-474e-94aa-4bc2d026143b",
+  "audit_parent": "ec4ae3b8a06eae65d0493e783701b2b13f5bcc66",
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 4,
+  "immutable_reservation_binding": {
+    "repository": "cbattlegear/MeshCoreOne-Android",
+    "work_package": "WP-503",
+    "base_sha": "d958471ab4835813881a5e7af36e8249a8b273a4",
+    "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+    "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+    "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20"
+  },
+  "admission": {
+    "capability": "merge-integration",
+    "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+    "operation": "merge-disjoint-semantic-edits",
+    "same_attempt_cas": "3->4"
+  },
+  "producer_blob": "b79941e1e4a01b3a59d12d670bcf714a6b1933a5",
+  "audit_original_blob_equals_producer_parent": true,
+  "exact_producer_file_import": true,
+  "manual_producer_changes": false,
+  "producer_tests_build_metadata_locks_not_imported": true,
+  "all_audit_fixtures_helpers_deadlines_unchanged": true,
+  "deterministic_reconciliation": {
+    "path": "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+    "capability": "merge-integration",
+    "current_base": "ec4ae3b8a06eae65d0493e783701b2b13f5bcc66",
+    "intents": [
+      {
+        "owner": "WP-311/869123e3-46d4-474e-94aa-4bc2d026143b",
+        "semantic_key": "ContactShareDialog.scrollable-content-and-minimum-copy-target",
+        "value_digest": "b79941e1e4a01b3a59d12d670bcf714a6b1933a5",
+        "evidence": "https://github.com/cbattlegear/MeshCoreOne-Android/pull/233/commits/34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67"
+      }
+    ],
+    "merged": [
+      {
+        "owner": "WP-311/869123e3-46d4-474e-94aa-4bc2d026143b",
+        "semantic_key": "ContactShareDialog.scrollable-content-and-minimum-copy-target",
+        "value_digest": "b79941e1e4a01b3a59d12d670bcf714a6b1933a5",
+        "evidence": "https://github.com/cbattlegear/MeshCoreOne-Android/pull/233/commits/34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67"
+      }
+    ],
+    "owners": [
+      "WP-311/869123e3-46d4-474e-94aa-4bc2d026143b"
+    ],
+    "evidence": [
+      "https://github.com/cbattlegear/MeshCoreOne-Android/pull/233/commits/34a20d96d68e0eb025ec8dff7bdb22ac1b30ac67"
+    ],
+    "validation": [
+      "current-base tests",
+      "capability-required validation",
+      "protected merge gate"
+    ],
+    "advisory": true,
+    "merge_allowed": true
+  },
+  "qualification": "Combined audit integration only; no main merge, producer authorship takeover, prior CI transfer or native acceptance yet."
+}

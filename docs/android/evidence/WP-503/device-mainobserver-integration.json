@@ -1,0 +1,460 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "audit_parent": "31bea871de75700a43b91fcca5b3b73d6ed12f28",
+  "executed_combined_head": "496917719aba81cd2f5f3a1c4b0e613a10137b1d",
+  "executed_android_tree": "d5628af3792e59f9b432e92ee4d25938f7604187",
+  "producer_binding": "device-cli-integration.json",
+  "apk_binding": "device-mainobserver-inputs.json",
+  "launcher9_bodies_and_all_other_existing_helpers_unchanged": true,
+  "shared_237_238_assertions_and_all_product_bytes_unchanged": true,
+  "source_change": "Only the launcher native-state helper samples the same condition via Instrumentation.runOnMainSync instead of reading the cached AccessibilityManager from the worker. Main-looper waiting counts against the same original1000ms measured deadline; late true fails. No dispatcher, predicate, fixture body, threshold or product changes.",
+  "cleanup_change": "After actual emulator exit0, observe only the owned serial disappearing from adb devices within10s; require actual header/unique serial, reject late success and command errors, ignore other users' devices. Remove exact scratch paths only after both process exit and transport absence. Original300s boot and600s instrumentation guards unchanged.",
+  "native_results": {
+    "31": {
+      "actual_guest_cpus": 2,
+      "scenarios": {
+        "launcher": {
+          "started": 9,
+          "matching_outcomes": 9,
+          "passed": 9,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "seconds": 49.969,
+          "test_outcomes": [
+            {
+              "test": "realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable",
+              "status": 0
+            },
+            {
+              "test": "realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions",
+              "status": 0
+            },
+            {
+              "test": "realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable",
+              "status": 0
+            },
+            {
+              "test": "frameworkControlCanAcquireRealNativeAccessibilityFocus",
+              "status": 0
+            },
+            {
+              "test": "realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable",
+              "status": 0
+            },
+            {
+              "test": "realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200",
+              "status": 0
+            },
+            {
+              "test": "actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample",
+              "status": 0
+            },
+            {
+              "test": "actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride",
+              "status": 0
+            },
+            {
+              "test": "realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft",
+              "status": 0
+            }
+          ],
+          "runner_exit": 0,
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "31",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "launcher"
+          ],
+          "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+          "main_observer_ready_ms": [
+            15,
+            16,
+            3,
+            21,
+            1,
+            4,
+            2,
+            3,
+            1,
+            2,
+            14,
+            14,
+            12,
+            14
+          ],
+          "main_observer_timeouts": 0,
+          "activation_ready_ms": [
+            15,
+            3,
+            2,
+            4,
+            2,
+            14,
+            13
+          ],
+          "restoration_last_observed_ms": [
+            1,
+            15,
+            6,
+            20,
+            3,
+            2,
+            1,
+            0,
+            13,
+            0,
+            13
+          ],
+          "touch_requested": 7,
+          "touch_activated": 7,
+          "touch_restored": 7,
+          "theme_scheme_observations": 30,
+          "tab_focus_observations": 5,
+          "motion_tab_observations": 10,
+          "motion_back_observations": 2,
+          "ime_target_observations": 3,
+          "native_window_ready_observations": 4
+        },
+        "service-state-control": {
+          "started": 1,
+          "matching_outcomes": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "seconds": 2.522,
+          "test_outcomes": [
+            {
+              "test": "actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling",
+              "status": 0
+            }
+          ],
+          "runner_exit": 0,
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "31",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "service-state-control"
+          ],
+          "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner"
+        }
+      },
+      "transport_exit": {
+        "serial": "emulator-5714",
+        "observations": 3,
+        "elapsed_ms": 281.0,
+        "absent": true
+      },
+      "emulator_exit": 0,
+      "exact_two_scratch_paths_removed": true
+    },
+    "37": {
+      "actual_guest_cpus": 2,
+      "scenarios": {
+        "launcher": {
+          "started": 9,
+          "matching_outcomes": 9,
+          "passed": 6,
+          "failed": 3,
+          "errors": 0,
+          "skipped": 0,
+          "seconds": 126.395,
+          "test_outcomes": [
+            {
+              "test": "realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable",
+              "status": 0
+            },
+            {
+              "test": "realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions",
+              "status": -2
+            },
+            {
+              "test": "realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable",
+              "status": -2
+            },
+            {
+              "test": "frameworkControlCanAcquireRealNativeAccessibilityFocus",
+              "status": 0
+            },
+            {
+              "test": "realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable",
+              "status": -2
+            },
+            {
+              "test": "realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200",
+              "status": 0
+            },
+            {
+              "test": "actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample",
+              "status": 0
+            },
+            {
+              "test": "actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride",
+              "status": 0
+            },
+            {
+              "test": "realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft",
+              "status": 0
+            }
+          ],
+          "runner_exit": 1,
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "37",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "launcher"
+          ],
+          "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+          "main_observer_ready_ms": [
+            726,
+            575,
+            14,
+            4,
+            5,
+            3,
+            247,
+            3,
+            246,
+            650,
+            39
+          ],
+          "main_observer_timeouts": 3,
+          "activation_ready_ms": [
+            728,
+            5,
+            247,
+            3,
+            650
+          ],
+          "restoration_last_observed_ms": [
+            3,
+            572,
+            13,
+            4,
+            3,
+            2,
+            1,
+            244,
+            1,
+            39
+          ],
+          "touch_requested": 7,
+          "touch_activated": 5,
+          "touch_restored": 6,
+          "theme_scheme_observations": 0,
+          "tab_focus_observations": 5,
+          "motion_tab_observations": 0,
+          "motion_back_observations": 0,
+          "ime_target_observations": 3,
+          "native_window_ready_observations": 4
+        },
+        "service-state-control": {
+          "started": 1,
+          "matching_outcomes": 1,
+          "passed": 1,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "seconds": 8.836,
+          "test_outcomes": [
+            {
+              "test": "actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling",
+              "status": 0
+            }
+          ],
+          "runner_exit": 0,
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "37",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "service-state-control"
+          ],
+          "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner"
+        }
+      },
+      "transport_exit": {
+        "serial": "emulator-5714",
+        "observations": 3,
+        "elapsed_ms": 312.0,
+        "absent": true
+      },
+      "emulator_exit": 0,
+      "exact_two_scratch_paths_removed": true
+    }
+  },
+  "operations": [
+    {
+      "api": 31,
+      "head": "496917719aba81cd2f5f3a1c4b0e613a10137b1d",
+      "emulator_command": [
+        "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+        "-avd",
+        "Medium_Phone",
+        "-port",
+        "5714",
+        "-read-only",
+        "-no-snapshot",
+        "-no-window",
+        "-no-audio",
+        "-no-metrics",
+        "-gpu",
+        "swiftshader_indirect",
+        "-memory",
+        "1536",
+        "-cores",
+        "2",
+        "-data",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-mainobserver-api31-userdata.img"
+      ],
+      "scenarios": [
+        {
+          "scenario": "launcher",
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "31",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "launcher"
+          ],
+          "exit": 0
+        },
+        {
+          "scenario": "service-state-control",
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "31",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "service-state-control"
+          ],
+          "exit": 0
+        }
+      ],
+      "profile_command": [
+        "C:\\Python312\\python.exe",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+        "--api",
+        "31",
+        "--expected-cpus",
+        "2"
+      ],
+      "profile_exit": 0,
+      "emulator_exit": 0,
+      "transport_exit": {
+        "serial": "emulator-5714",
+        "observations": 3,
+        "elapsed_ms": 281.0,
+        "absent": true
+      },
+      "removed_scratch_paths": [
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-mainobserver-api31-userdata.img",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-mainobserver-api31-userdata.img.qcow2"
+      ]
+    },
+    {
+      "api": 37,
+      "head": "496917719aba81cd2f5f3a1c4b0e613a10137b1d",
+      "emulator_command": [
+        "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+        "-avd",
+        "Pixel_10_Pro_XL",
+        "-port",
+        "5714",
+        "-read-only",
+        "-no-snapshot",
+        "-no-window",
+        "-no-audio",
+        "-no-metrics",
+        "-gpu",
+        "swiftshader_indirect",
+        "-memory",
+        "1536",
+        "-cores",
+        "2",
+        "-data",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-mainobserver-api37-userdata.img"
+      ],
+      "scenarios": [
+        {
+          "scenario": "launcher",
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "37",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "launcher"
+          ],
+          "exit": 1
+        },
+        {
+          "scenario": "service-state-control",
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "37",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "service-state-control"
+          ],
+          "exit": 0
+        }
+      ],
+      "profile_command": [
+        "C:\\Python312\\python.exe",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+        "--api",
+        "37",
+        "--expected-cpus",
+        "2"
+      ],
+      "profile_exit": 0,
+      "emulator_exit": 0,
+      "transport_exit": {
+        "serial": "emulator-5714",
+        "observations": 3,
+        "elapsed_ms": 312.0,
+        "absent": true
+      },
+      "removed_scratch_paths": [
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-mainobserver-api37-userdata.img",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-mainobserver-api37-userdata.img.qcow2"
+      ]
+    }
+  ],
+  "qualification": "Fresh sequential primary-profile actualAPI31/37, originallauncher9 once each then separate independent-service-control1 on the same owned device, no failed-case retries. Positive variation alone does not prove a causal/stable framework repair. Preserve all earlier activation/restoration/full80/cleanup negatives. No successor full80,237/238 repair, physical TalkBack,approved goldens,admission,independent review or whole-WP acceptance."
+}

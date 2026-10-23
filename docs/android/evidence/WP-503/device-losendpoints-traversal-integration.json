@@ -1,0 +1,326 @@
+{
+  "generator": "session wp503-losendpoints-evidence.py; actual native observations, not hosted CI",
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 6,
+  "frozen_swift_reference": "db14559b39d32322b06477c6ae676112f583db50",
+  "executed_combined_head": "3f39a777376e322e2bc533f1d1caf92a87a44ed8",
+  "executed_android_tree": "7a9dd08e005e1e9cad79405dafecf325158d8b0c",
+  "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+  "source_import": {
+    "kind": "exact-final-los-source-integration-not-acceptance",
+    "audit_parent": "87fb05cb18ba84f4252e065e6fe83d32e952e15e",
+    "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+    "producer_ancestor": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+    "reservation_revision": 6,
+    "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+    "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+    "frozen_swift_reference": "db14559b39d32322b06477c6ae676112f583db50",
+    "reservation_identity_binding_authorization_history_unchanged": true,
+    "already_admitted_paths_no_evolution_needed": true,
+    "admissions": [
+      {
+        "capability": "merge-integration",
+        "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      },
+      {
+        "capability": "merge-integration",
+        "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+        "operation": "merge-disjoint-semantic-edits",
+        "invariants": [
+          "exact-current-base",
+          "all-owner-attributions",
+          "semantic-conflicts-block-merge",
+          "protected-approval-at-main-merge"
+        ],
+        "validation": [
+          "current-base tests",
+          "capability-required validation",
+          "protected merge gate"
+        ]
+      }
+    ],
+    "exact_producer_files": [
+      {
+        "wp": "WP-315",
+        "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+        "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+        "before_blob": "0513c55748f756da621ba3a04b0a2eda7e6ae2f5",
+        "matching_producer_ancestor": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+        "producer_blob": "e6bac5fc92755ca3a104928e6969586af3c2709b"
+      },
+      {
+        "wp": "WP-315",
+        "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+        "producer_head": "c6cdac39e89081647ea6475e6bcae800f2531109",
+        "before_blob": "819a6d982c34974f3dcd1534a9577546c5d5861b",
+        "matching_producer_ancestor": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+        "producer_blob": "e1eeebc4967dbf1db140ba1397338e3242202daf"
+      }
+    ],
+    "producer_documentation_imported": false,
+    "wp503_authored_product_behavior_changes": false,
+    "native_starts": 0
+  },
+  "audit_fixture_blobs": {
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightAccessibilityTest.kt": "f8c2cab5dc964548e938f1e023f72912874fc2a8"
+  },
+  "preserved_fixture_blobs": {
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeNodesFlowAccessibilityTest.kt": "3f50d6c80dab380e0e7883016295a16510604921",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NodesAccessibilityAudit.kt": "29a0f83dd33c57e1304e822b5a394cfc05db3b3e",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/OfflineNodesAudit.kt": "5fd9340c847780b0a4cb1df4b0fc4dd7fae36f45",
+    "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityAssertions.kt": "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt": "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareParityTest.kt": "79e7e12b950f1459f006bc72942539ecf07375e0",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLocalizedCompareLocalePreservationTest.kt": "41a1e4046f96aeb0c725a1344e7f420dfd142be4",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLauncherFocusAccessibilityTest.kt": "698d649b230b7d7945a5d901d37f748427508986",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightContrastTest.kt": "6ad88ceada36198db31309932900c5b51a39910d",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLineOfSightPointBContrastTest.kt": "32c2819ecb9834a0ed2cfba2dea996a954032943",
+    "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeDiagnosticsFlowAccessibilityTest.kt": "e31edcf50c08532465ad3254919ff13eefbd8d7f"
+  },
+  "selection": [
+    {
+      "class": "NativeLineOfSightAccessibilityTest",
+      "blob": "f8c2cab5dc964548e938f1e023f72912874fc2a8",
+      "methods": [
+        "savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200"
+      ]
+    }
+  ],
+  "apk_binding": {
+    "head": "3f39a777376e322e2bc533f1d1caf92a87a44ed8",
+    "apks": {
+      "wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-app.apk": {
+        "size": 105509157,
+        "sha256": "c2b9865c65bf3f47b02bc6281fd4e31d19be751bb85d1c07306194d0eeada0fd"
+      },
+      "wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-test.apk": {
+        "size": 4530035,
+        "sha256": "af3808bff51daf4e7e8c1b02e8070f9f087ea67260f04e69c2afebd2af8c4bb0"
+      }
+    },
+    "android_tree": "7a9dd08e005e1e9cad79405dafecf325158d8b0c"
+  },
+  "actual_dex_class_definitions": {
+    "wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-app.apk": {
+      "Lcom/meshcoreone/android/feature/tools/los/LineOfSightScreenKt;": [
+        "classes3.dex"
+      ],
+      "Lcom/meshcoreone/android/accessibility/NativeLineOfSightAccessibilityTest;": []
+    },
+    "wp503-reviewedrepairs-3f39a777376e322e2bc533f1d1caf92a87a44ed8-test.apk": {
+      "Lcom/meshcoreone/android/feature/tools/los/LineOfSightScreenKt;": [],
+      "Lcom/meshcoreone/android/accessibility/NativeLineOfSightAccessibilityTest;": [
+        "classes3.dex"
+      ]
+    }
+  },
+  "native31": {
+    "actual_api": 31,
+    "discovered": 1,
+    "started": 1,
+    "matching_outcomes": 1,
+    "passed": 1,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 9.563,
+    "test_outcomes": [
+      {
+        "identity": "com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest#savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200",
+        "status": 0
+      }
+    ],
+    "observations": [
+      "WP503_LOS_PLATFORM_ACTIONS|label=East saved repeater|matches=1|clickable=1|catalogReads=1|elevationReads=0|realRadio=false",
+      "WP503_LOS_PLATFORM_ACTIONS|label=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|matches=1|clickable=1|catalogReads=1|elevationReads=0|realRadio=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_SELECTION_STATE|contact=East saved repeater|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|tag=los-saved-endpoint-contact-name|actualText=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_RENDERED_TEXT|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_SELECTION_STATE|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point A|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-role-label|actualText=Point A|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_SELECTION_STATE|contact=East saved repeater|selected=true|localizedState=Point A|nativeChecked=true|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|tag=los-saved-endpoint-contact-name|actualText=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_RENDERED_TEXT|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_SELECTION_STATE|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point A|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-role-label|actualText=Point A|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_SELECTION_STATE|contact=East saved repeater|selected=true|localizedState=Point A|nativeChecked=true|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point B|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|tag=los-saved-endpoint-contact-name|actualText=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_RENDERED_TEXT|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|tag=los-saved-endpoint-role-label|actualText=Point B|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_SELECTION_STATE|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|selected=true|localizedState=Point B|nativeChecked=true|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point A|actualAncestorAction=true",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_SELECTION_STATE|contact=East saved repeater|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point B|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|tag=los-saved-endpoint-contact-name|actualText=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_RENDERED_TEXT|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|tag=los-saved-endpoint-role-label|actualText=Point B|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_SELECTION_STATE|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|selected=true|localizedState=Point B|nativeChecked=true|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=true|actionState=Point B|actualAncestorAction=true",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=East saved repeater|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-contact-name|actualText=East saved repeater|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_RENDERED_TEXT|contact=East saved repeater|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_SELECTION_STATE|contact=East saved repeater|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false",
+      "WP503_LOS_NATIVE_ACTION_LINK|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|nameClickable=false|nameCheckable=false|nameChecked=false|nameState=null|actionClickable=true|actionCheckable=true|actionChecked=false|actionState=Not selected|actualAncestorAction=true",
+      "WP503_LOS_RENDERED_TEXT|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|tag=los-saved-endpoint-contact-name|actualText=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_RENDERED_TEXT|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|tag=los-saved-endpoint-role-label|actualText=Not selected|source=actualGetTextLayoutResult|fontScale=2.0|layoutDirection=Rtl|duplicateSpokenText=false",
+      "WP503_LOS_SELECTION_STATE|contact=\u4e2d\u6587\u897f\u5074\u4e2d\u7e7c|selected=false|localizedState=Not selected|nativeChecked=false|nativeSelected=false|visibleRoleMeasured=true|realRadio=false|physicalTalkBack=false"
+    ],
+    "operations": {
+      "api": 31,
+      "head": "3f39a777376e322e2bc533f1d1caf92a87a44ed8",
+      "emulator_command": [
+        "C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+        "-avd",
+        "Medium_Phone",
+        "-port",
+        "5714",
+        "-read-only",
+        "-no-snapshot",
+        "-no-window",
+        "-no-audio",
+        "-no-metrics",
+        "-gpu",
+        "swiftshader_indirect",
+        "-memory",
+        "1536",
+        "-cores",
+        "2",
+        "-data",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-losendpoints-api31-userdata.img"
+      ],
+      "scenarios": [
+        {
+          "scenario": "los-endpoints",
+          "command": [
+            "C:\\Python312\\python.exe",
+            "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+            "--api",
+            "31",
+            "--serial",
+            "emulator-5714",
+            "--scenario",
+            "los-endpoints"
+          ],
+          "exit": 0
+        }
+      ],
+      "apk_input_binding": "wp503-losendpoints-apk-inputs.json",
+      "source_plan": "wp503-losendpoints-inputs.json",
+      "profile_command": [
+        "C:\\Python312\\python.exe",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+        "--api",
+        "31",
+        "--expected-cpus",
+        "2"
+      ],
+      "profile_exit": 0,
+      "emulator_exit": 0,
+      "transport_exit": {
+        "serial": "emulator-5714",
+        "observations": 3,
+        "elapsed_ms": 266.0,
+        "absent": true
+      },
+      "removed_scratch_paths": [
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-losendpoints-api31-userdata.img",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-losendpoints-api31-userdata.img.qcow2"
+      ]
+    },
+    "runner_exit": 0,
+    "verified_observation_counts": {
+      "initial_exact_native_names_and_actions": 2,
+      "native_ancestor_action_links": 14,
+      "endpoint_states_in_original_transition_order": 10,
+      "actual_name_layouts": 11,
+      "actual_role_layouts": 10,
+      "nonzero_actual_ink_checks": 20
+    },
+    "final_original_counter_assertions_reached": {
+      "catalog_reads": 1,
+      "elevation_reads": 2,
+      "native_select_clear_clicks": 4,
+      "basis": "Terminal success reaches the unchanged source-bound counter/order assertions; deterministic providers, not real terrain/radio."
+    }
+  },
+  "requested37": {
+    "outcome": "BLOCKED_BEFORE_LAUNCH",
+    "started": 0,
+    "matching_outcomes": 0,
+    "blocker": "No verified authorization resolution; no new preparation/emulator/auth/settings attempt."
+  },
+  "diagnosis": "Corrected owned observer uses the original actual named-child-to-clickable-ancestor traversal; raw state/layout/callback observations and terminal result remain authoritative. No model-text substitution, shared-helper/oracle/floor change, successful-cohort replay or API37 action.",
+  "retained_native_files": {
+    "device-losendpoints-traversal-api31.txt": {
+      "bytes": 959,
+      "sha256": "bd8d04fd1de7b786748f5d6d6407c2063634545e20f05b512fefdd4ce0fcf562"
+    },
+    "device-losendpoints-traversal-metrics-api31.txt": {
+      "bytes": 74712,
+      "sha256": "e0a352dd0b353e437914d3be2d62b19d612006d7988d8b5d28dde9a5ae02da6e"
+    },
+    "device-losendpoints-traversal-runner-api31.txt": {
+      "bytes": 1741,
+      "sha256": "84ab9aff3fdd7ca1a68cb51824dbd9c894947597246c75e3e89a335dbda0e5a6"
+    },
+    "device-losendpoints-traversal-profile-api31.txt": {
+      "bytes": 2598,
+      "sha256": "996fb07a86ffd26db9abcfc4e09ba5f82d962656a99ccc8e162653d22b64d0b8"
+    },
+    "device-losendpoints-traversal-operation-observations.txt": {
+      "bytes": 1737,
+      "sha256": "094c0d55c2b2bd3a90d69b3f59134f28dc917fda47cc70229b92a1438ee18c1c"
+    },
+    "device-losendpoints-traversal-operations.json": {
+      "bytes": 1963,
+      "sha256": "fbbc856527f82f193673ffcb1b0a62aee962673695d4bdb3e01910bfb64c57bc"
+    },
+    "device-losendpoints-traversal-inputs.json": {
+      "bytes": 524,
+      "sha256": "f6bcfec75457d010b1e273279ec28c02f7ff193658dea2a25d1682f101c34cd7"
+    }
+  },
+  "commands": [
+    "python \"$F\\wp503-localizedcompare-build.py\" --los-endpoints",
+    "python \"$F\\wp503-private-adb-native31.py\" --phase losendpoints --head 3f39a777376e322e2bc533f1d1caf92a87a44ed8 --api 31 --scenario los-endpoints"
+  ],
+  "whole_wp_acceptance": "INCOMPLETE",
+  "physical_talkback_or_hosted_acceptance_claimed": false,
+  "targeted_build": {
+    "exit": 0,
+    "seconds": 49,
+    "tasks": 446,
+    "executed": 9,
+    "up_to_date": 437
+  },
+  "first_attempt_app_bytes_unchanged": true
+}

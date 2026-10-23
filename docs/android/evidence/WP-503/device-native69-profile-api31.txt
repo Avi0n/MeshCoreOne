@@ -1,0 +1,10 @@
+API31 owned AOSP x86_64 emulator; physical TalkBack not performed
+31
+x86_64
+4096
+Physical size: 1080x2400
+Override size: 360x900
+Physical density: 420
+Override density: 160
+2.0
+0

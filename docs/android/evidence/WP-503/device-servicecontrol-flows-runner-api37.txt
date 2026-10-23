@@ -1,0 +1,26 @@
+WP503_EXECUTED_INPUT|c2823e5aa294c49fce1834c595c2b5a9be5e47e1
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 37, "head": "c2823e5aa294c49fce1834c595c2b5a9be5e47e1", "scenario": "service-state-control", "discovered": 1, "statuses": {"0": 1}, "time": ["Time: 13.153"]}
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest:
+INSTRUMENTATION_STATUS: test=actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 13.153
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1

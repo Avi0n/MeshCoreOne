@@ -1,0 +1,890 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest:
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkControlCanAcquireRealNativeAccessibilityFocus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkControlCanAcquireRealNativeAccessibilityFocus
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalArgumentException: performMeasureAndLayout called during measure layout
+	at androidx.compose.ui.internal.InlineClassHelperKt.throwIllegalArgumentException(InlineClassHelper.kt:36)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.measureAndLayout(MeasureAndLayoutDelegate.kt:825)
+	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayout(AndroidComposeView.android.kt:1735)
+	at androidx.compose.ui.node.Owner.measureAndLayout$default(Owner.kt:258)
+	at androidx.compose.ui.node.LayoutNode.forceRemeasure(LayoutNode.kt:1358)
+	at androidx.compose.foundation.lazy.LazyListState.snapToItemIndexInternal$foundation(LazyListState.kt:443)
+	at androidx.compose.foundation.lazy.LazyListState$scrollToItem$2.invokeSuspend(LazyListState.kt:390)
+	at androidx.compose.foundation.lazy.LazyListState$scrollToItem$2.invoke(LazyListState.kt:8)
+	at androidx.compose.foundation.lazy.LazyListState$scrollToItem$2.invoke(LazyListState.kt:4)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2$1.invokeSuspend(ScrollableState.kt:211)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2$1.invoke(ScrollableState.kt:8)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2$1.invoke(ScrollableState.kt:4)
+	at androidx.compose.foundation.MutatorMutex$mutateWith$2.invokeSuspend(MutatorMutex.kt:167)
+	at androidx.compose.foundation.MutatorMutex$mutateWith$2.invoke(MutatorMutex.kt:8)
+	at androidx.compose.foundation.MutatorMutex$mutateWith$2.invoke(MutatorMutex.kt:4)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.CoroutineScopeKt.coroutineScope(CoroutineScope.kt:286)
+	at androidx.compose.foundation.MutatorMutex.mutateWith(MutatorMutex.kt:160)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2.invokeSuspend(ScrollableState.kt:208)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2.invoke(ScrollableState.kt:8)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2.invoke(ScrollableState.kt:4)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.CoroutineScopeKt.coroutineScope(CoroutineScope.kt:286)
+	at androidx.compose.foundation.gestures.DefaultScrollableState.scroll(ScrollableState.kt:207)
+	at androidx.compose.foundation.lazy.LazyListState.scroll(LazyListState.kt:464)
+	at androidx.compose.foundation.gestures.ScrollableState.scroll$default(ScrollableState.kt:53)
+	at androidx.compose.foundation.lazy.LazyListState.scrollToItem(LazyListState.kt:390)
+	at androidx.compose.foundation.lazy.LazyListState.scrollToItem$default(LazyListState.kt:389)
+	at com.meshcoreone.android.feature.chats.timeline.ui.ChatTimelineKt$ChatTimeline$1$1.invokeSuspend(ChatTimeline.kt:118)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at androidx.compose.ui.test.ApplyingContinuationInterceptor$SendApplyContinuation.resumeWith(ApplyingContinuationInterceptor.kt:52)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor$FrameDeferredContinuation.resumeWith(FrameDeferringContinuationInterceptor.jvm.kt:187)
+	at kotlinx.coroutines.internal.DispatchedContinuationKt.resumeCancellableWith(DispatchedContinuation.kt:279)
+	at kotlinx.coroutines.intrinsics.CancellableKt.startCoroutineCancellable(Cancellable.kt:26)
+	at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:358)
+	at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:134)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:53)
+	at kotlinx.coroutines.BuildersKt.launch(dex-id-298e422cd066dae6729070927c5e7dfa58f4973b-2974:1)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch$default(Builders.common.kt:44)
+	at kotlinx.coroutines.BuildersKt.launch$default(dex-id-298e422cd066dae6729070927c5e7dfa58f4973b-2975:1)
+	at androidx.compose.runtime.LaunchedEffectImpl.onRemembered(Effects.kt:279)
+	at androidx.compose.runtime.internal.RememberEventDispatcher.dispatchRememberList(RememberEventDispatcher.kt:256)
+	at androidx.compose.runtime.internal.RememberEventDispatcher.dispatchRememberObservers(RememberEventDispatcher.kt:228)
+	at androidx.compose.runtime.CompositionImpl.applyChangesInLocked(Composition.kt:1133)
+	at androidx.compose.runtime.CompositionImpl.applyChanges(Composition.kt:1160)
+	at androidx.compose.runtime.Recomposer.composeInitial$runtime(Recomposer.kt:1299)
+	at androidx.compose.runtime.ComposerImpl$CompositionContextImpl.composeInitial$runtime(ComposerImpl.kt:2998)
+	at androidx.compose.runtime.ComposerImpl$CompositionContextImpl.composeInitial$runtime(ComposerImpl.kt:2998)
+	at androidx.compose.runtime.CompositionImpl.composeInitial(Composition.kt:672)
+	at androidx.compose.runtime.CompositionImpl.setContent(Composition.kt:639)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState.subcompose(SubcomposeLayout.kt:721)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState.subcompose(SubcomposeLayout.kt:658)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState.subcompose(SubcomposeLayout.kt:624)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState$Scope.subcompose(SubcomposeLayout.kt:1352)
+	at androidx.compose.material3.ScaffoldKt.ScaffoldLayout_FMILGgc$lambda$15$lambda$14(Scaffold.kt:274)
+	at androidx.compose.material3.ScaffoldKt$$ExternalSyntheticLambda2.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState$createMeasurePolicy$1.measure-3p2s80s(SubcomposeLayout.kt:955)
+	at androidx.compose.ui.node.InnerNodeCoordinator.measure-BRTryo0(InnerNodeCoordinator.kt:128)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:173)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:172)
+	at androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads(SnapshotStateObserver.kt:699)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:1064)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui(LayoutNode.kt:1281)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui$default(LayoutNode.kt:1274)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.doRemeasure-sdFAvZA(MeasureAndLayoutDelegate.kt:380)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.remeasureAndRelayoutIfNeeded(MeasureAndLayoutDelegate.kt:595)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.onlyRemeasureIfPending(MeasureAndLayoutDelegate.kt:683)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:710)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:717)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:717)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:717)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtree(MeasureAndLayoutDelegate.kt:674)
+	at androidx.compose.ui.platform.AndroidComposeView.forceMeasureTheSubtree(AndroidComposeView.android.kt:1767)
+	at androidx.compose.ui.node.Owner.forceMeasureTheSubtree$default(Owner.kt:271)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:508)
+	at androidx.compose.ui.node.MeasurePassDelegate.measure-BRTryo0(MeasurePassDelegate.kt:470)
+	at androidx.compose.foundation.layout.BoxMeasurePolicy.measure-3p2s80s(Box.kt:145)
+	at androidx.compose.ui.node.InnerNodeCoordinator.measure-BRTryo0(InnerNodeCoordinator.kt:128)
+	at androidx.compose.ui.graphics.SimpleGraphicsLayerModifier.measure-3p2s80s(GraphicsLayerModifier.kt:843)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.foundation.layout.InsetsPaddingModifierNode.measure-3p2s80s(WindowInsetsPadding.kt:499)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.foundation.layout.FillNode.measure-3p2s80s(Size.kt:721)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:173)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:172)
+	at androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads(SnapshotStateObserver.kt:699)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:1064)
+	at androidx.compose.ui.node.MeasurePassDelegate.measure-BRTryo0(MeasurePassDelegate.kt:470)
+	at androidx.compose.foundation.layout.BoxMeasurePolicy.measure-3p2s80s(Box.kt:145)
+	at androidx.compose.foundation.layout.BoxWithConstraintsKt.BoxWithConstraints$lambda$0$0(BoxWithConstraints.kt:68)
+	at androidx.compose.foundation.layout.BoxWithConstraintsKt.$r8$lambda$p9yh-8kbO_kwrsRP1ZyRK8puGy8(BoxWithConstraints.kt:0)
+	at androidx.compose.foundation.layout.BoxWithConstraintsKt$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState$createMeasurePolicy$1.measure-3p2s80s(SubcomposeLayout.kt:955)
+	at androidx.compose.ui.node.InnerNodeCoordinator.measure-BRTryo0(InnerNodeCoordinator.kt:128)
+	at androidx.compose.foundation.layout.InsetsPaddingModifierNode.measure-3p2s80s(WindowInsetsPadding.kt:499)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.foundation.layout.FillNode.measure-3p2s80s(Size.kt:721)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:173)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:172)
+	at androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads(SnapshotStateObserver.kt:728)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:1064)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui(LayoutNode.kt:1281)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui$default(LayoutNode.kt:1274)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.doRemeasure-sdFAvZA(MeasureAndLayoutDelegate.kt:380)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.remeasureAndRelayoutIfNeeded(MeasureAndLayoutDelegate.kt:595)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.onlyRemeasureIfPending(MeasureAndLayoutDelegate.kt:683)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:710)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtree(MeasureAndLayoutDelegate.kt:674)
+	at androidx.compose.ui.platform.AndroidComposeView.forceMeasureTheSubtree(AndroidComposeView.android.kt:1767)
+	at androidx.compose.ui.node.Owner.forceMeasureTheSubtree$default(Owner.kt:271)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:508)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui(LayoutNode.kt:1281)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.doRemeasure-sdFAvZA(MeasureAndLayoutDelegate.kt:378)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.remeasureOnly(MeasureAndLayoutDelegate.kt:652)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.measureOnly(MeasureAndLayoutDelegate.kt:446)
+	at androidx.compose.ui.platform.AndroidComposeView.onMeasure(AndroidComposeView.android.kt:1847)
+	at android.view.View.measure(View.java:29133)
+	at androidx.compose.ui.platform.AbstractComposeView.internalOnMeasure$ui(ComposeView.android.kt:314)
+	at androidx.compose.ui.platform.AbstractComposeView.onMeasure(ComposeView.android.kt:301)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7320)
+	at android.widget.FrameLayout.onMeasure(FrameLayout.java:195)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7320)
+	at android.widget.FrameLayout.onMeasure(FrameLayout.java:195)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7320)
+	at android.widget.FrameLayout.onMeasure(FrameLayout.java:195)
+	at com.android.internal.policy.DecorView.onMeasure(DecorView.java:728)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewRootImpl.performMeasure(ViewRootImpl.java:5902)
+	at android.view.ViewRootImpl.measureHierarchy(ViewRootImpl.java:3987)
+	at android.view.ViewRootImpl.performTraversals(ViewRootImpl.java:4448)
+	at android.view.ViewRootImpl.doTraversal(ViewRootImpl.java:3677)
+	at android.view.ViewRootImpl$TraversalCallback.onVsync(ViewRootImpl.java:11993)
+	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1916)
+	at android.view.Choreographer.doCallbacks(Choreographer.java:1434)
+	at android.view.Choreographer.doFrame(Choreographer.java:1289)
+	at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1892)
+	at android.os.Handler.handleCallback(Handler.java:1080)
+	at android.os.Handler.dispatchMessageImpl(Handler.java:135)
+	at android.os.Handler.dispatchMessage(Handler.java:126)
+	at android.os.TestLooperManager.execute(TestLooperManager.java:165)
+	at androidx.test.espresso.base.TestLooperManagerCompat.execute(TestLooperManagerCompat.java:119)
+	at androidx.test.espresso.base.Interrogator.loopAndInterrogate(Interrogator.java:128)
+	at androidx.test.espresso.base.UiControllerImpl.loopUntil(UiControllerImpl.java:513)
+	at androidx.test.espresso.base.UiControllerImpl.loopMainThreadUntilIdle(UiControllerImpl.java:434)
+	at androidx.test.espresso.Espresso.lambda$onIdle$2(Espresso.java:340)
+	at androidx.test.espresso.Espresso$$ExternalSyntheticLambda1.call(D8$$SyntheticClass:0)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:328)
+	at android.os.Handler.handleCallback(Handler.java:1080)
+	at android.os.Handler.dispatchMessageImpl(Handler.java:135)
+	at android.os.Handler.dispatchMessage(Handler.java:126)
+	at android.os.Looper.loopOnce(Looper.java:285)
+	at android.os.Looper.loop(Looper.java:390)
+	at android.app.ActivityThread.main(ActivityThread.java:9884)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:906)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest):
+java.lang.IllegalArgumentException: performMeasureAndLayout called during measure layout
+	at androidx.compose.ui.internal.InlineClassHelperKt.throwIllegalArgumentException(InlineClassHelper.kt:36)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.measureAndLayout(MeasureAndLayoutDelegate.kt:825)
+	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayout(AndroidComposeView.android.kt:1735)
+	at androidx.compose.ui.node.Owner.measureAndLayout$default(Owner.kt:258)
+	at androidx.compose.ui.node.LayoutNode.forceRemeasure(LayoutNode.kt:1358)
+	at androidx.compose.foundation.lazy.LazyListState.snapToItemIndexInternal$foundation(LazyListState.kt:443)
+	at androidx.compose.foundation.lazy.LazyListState$scrollToItem$2.invokeSuspend(LazyListState.kt:390)
+	at androidx.compose.foundation.lazy.LazyListState$scrollToItem$2.invoke(LazyListState.kt:8)
+	at androidx.compose.foundation.lazy.LazyListState$scrollToItem$2.invoke(LazyListState.kt:4)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2$1.invokeSuspend(ScrollableState.kt:211)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2$1.invoke(ScrollableState.kt:8)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2$1.invoke(ScrollableState.kt:4)
+	at androidx.compose.foundation.MutatorMutex$mutateWith$2.invokeSuspend(MutatorMutex.kt:167)
+	at androidx.compose.foundation.MutatorMutex$mutateWith$2.invoke(MutatorMutex.kt:8)
+	at androidx.compose.foundation.MutatorMutex$mutateWith$2.invoke(MutatorMutex.kt:4)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.CoroutineScopeKt.coroutineScope(CoroutineScope.kt:286)
+	at androidx.compose.foundation.MutatorMutex.mutateWith(MutatorMutex.kt:160)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2.invokeSuspend(ScrollableState.kt:208)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2.invoke(ScrollableState.kt:8)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2.invoke(ScrollableState.kt:4)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.CoroutineScopeKt.coroutineScope(CoroutineScope.kt:286)
+	at androidx.compose.foundation.gestures.DefaultScrollableState.scroll(ScrollableState.kt:207)
+	at androidx.compose.foundation.lazy.LazyListState.scroll(LazyListState.kt:464)
+	at androidx.compose.foundation.gestures.ScrollableState.scroll$default(ScrollableState.kt:53)
+	at androidx.compose.foundation.lazy.LazyListState.scrollToItem(LazyListState.kt:390)
+	at androidx.compose.foundation.lazy.LazyListState.scrollToItem$default(LazyListState.kt:389)
+	at com.meshcoreone.android.feature.chats.timeline.ui.ChatTimelineKt$ChatTimeline$1$1.invokeSuspend(ChatTimeline.kt:118)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at androidx.compose.ui.test.ApplyingContinuationInterceptor$SendApplyContinuation.resumeWith(ApplyingContinuationInterceptor.kt:52)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor$FrameDeferredContinuation.resumeWith(FrameDeferringContinuationInterceptor.jvm.kt:187)
+	at kotlinx.coroutines.internal.DispatchedContinuationKt.resumeCancellableWith(DispatchedContinuation.kt:279)
+	at kotlinx.coroutines.intrinsics.CancellableKt.startCoroutineCancellable(Cancellable.kt:26)
+	at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:358)
+	at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:134)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:53)
+	at kotlinx.coroutines.BuildersKt.launch(dex-id-298e422cd066dae6729070927c5e7dfa58f4973b-2974:1)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch$default(Builders.common.kt:44)
+	at kotlinx.coroutines.BuildersKt.launch$default(dex-id-298e422cd066dae6729070927c5e7dfa58f4973b-2975:1)
+	at androidx.compose.runtime.LaunchedEffectImpl.onRemembered(Effects.kt:279)
+	at androidx.compose.runtime.internal.RememberEventDispatcher.dispatchRememberList(RememberEventDispatcher.kt:256)
+	at androidx.compose.runtime.internal.RememberEventDispatcher.dispatchRememberObservers(RememberEventDispatcher.kt:228)
+	at androidx.compose.runtime.CompositionImpl.applyChangesInLocked(Composition.kt:1133)
+	at androidx.compose.runtime.CompositionImpl.applyChanges(Composition.kt:1160)
+	at androidx.compose.runtime.Recomposer.composeInitial$runtime(Recomposer.kt:1299)
+	at androidx.compose.runtime.ComposerImpl$CompositionContextImpl.composeInitial$runtime(ComposerImpl.kt:2998)
+	at androidx.compose.runtime.ComposerImpl$CompositionContextImpl.composeInitial$runtime(ComposerImpl.kt:2998)
+	at androidx.compose.runtime.CompositionImpl.composeInitial(Composition.kt:672)
+	at androidx.compose.runtime.CompositionImpl.setContent(Composition.kt:639)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState.subcompose(SubcomposeLayout.kt:721)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState.subcompose(SubcomposeLayout.kt:658)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState.subcompose(SubcomposeLayout.kt:624)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState$Scope.subcompose(SubcomposeLayout.kt:1352)
+	at androidx.compose.material3.ScaffoldKt.ScaffoldLayout_FMILGgc$lambda$15$lambda$14(Scaffold.kt:274)
+	at androidx.compose.material3.ScaffoldKt$$ExternalSyntheticLambda2.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState$createMeasurePolicy$1.measure-3p2s80s(SubcomposeLayout.kt:955)
+	at androidx.compose.ui.node.InnerNodeCoordinator.measure-BRTryo0(InnerNodeCoordinator.kt:128)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:173)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:172)
+	at androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads(SnapshotStateObserver.kt:699)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:1064)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui(LayoutNode.kt:1281)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui$default(LayoutNode.kt:1274)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.doRemeasure-sdFAvZA(MeasureAndLayoutDelegate.kt:380)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.remeasureAndRelayoutIfNeeded(MeasureAndLayoutDelegate.kt:595)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.onlyRemeasureIfPending(MeasureAndLayoutDelegate.kt:683)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:710)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:717)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:717)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:717)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtree(MeasureAndLayoutDelegate.kt:674)
+	at androidx.compose.ui.platform.AndroidComposeView.forceMeasureTheSubtree(AndroidComposeView.android.kt:1767)
+	at androidx.compose.ui.node.Owner.forceMeasureTheSubtree$default(Owner.kt:271)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:508)
+	at androidx.compose.ui.node.MeasurePassDelegate.measure-BRTryo0(MeasurePassDelegate.kt:470)
+	at androidx.compose.foundation.layout.BoxMeasurePolicy.measure-3p2s80s(Box.kt:145)
+	at androidx.compose.ui.node.InnerNodeCoordinator.measure-BRTryo0(InnerNodeCoordinator.kt:128)
+	at androidx.compose.ui.graphics.SimpleGraphicsLayerModifier.measure-3p2s80s(GraphicsLayerModifier.kt:843)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.foundation.layout.InsetsPaddingModifierNode.measure-3p2s80s(WindowInsetsPadding.kt:499)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.foundation.layout.FillNode.measure-3p2s80s(Size.kt:721)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:173)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:172)
+	at androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads(SnapshotStateObserver.kt:699)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:1064)
+	at androidx.compose.ui.node.MeasurePassDelegate.measure-BRTryo0(MeasurePassDelegate.kt:470)
+	at androidx.compose.foundation.layout.BoxMeasurePolicy.measure-3p2s80s(Box.kt:145)
+	at androidx.compose.foundation.layout.BoxWithConstraintsKt.BoxWithConstraints$lambda$0$0(BoxWithConstraints.kt:68)
+	at androidx.compose.foundation.layout.BoxWithConstraintsKt.$r8$lambda$p9yh-8kbO_kwrsRP1ZyRK8puGy8(BoxWithConstraints.kt:0)
+	at androidx.compose.foundation.layout.BoxWithConstraintsKt$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState$createMeasurePolicy$1.measure-3p2s80s(SubcomposeLayout.kt:955)
+	at androidx.compose.ui.node.InnerNodeCoordinator.measure-BRTryo0(InnerNodeCoordinator.kt:128)
+	at androidx.compose.foundation.layout.InsetsPaddingModifierNode.measure-3p2s80s(WindowInsetsPadding.kt:499)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.foundation.layout.FillNode.measure-3p2s80s(Size.kt:721)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:173)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:172)
+	at androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads(SnapshotStateObserver.kt:728)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:1064)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui(LayoutNode.kt:1281)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui$default(LayoutNode.kt:1274)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.doRemeasure-sdFAvZA(MeasureAndLayoutDelegate.kt:380)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.remeasureAndRelayoutIfNeeded(MeasureAndLayoutDelegate.kt:595)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.onlyRemeasureIfPending(MeasureAndLayoutDelegate.kt:683)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:710)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtree(MeasureAndLayoutDelegate.kt:674)
+	at androidx.compose.ui.platform.AndroidComposeView.forceMeasureTheSubtree(AndroidComposeView.android.kt:1767)
+	at androidx.compose.ui.node.Owner.forceMeasureTheSubtree$default(Owner.kt:271)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:508)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui(LayoutNode.kt:1281)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.doRemeasure-sdFAvZA(MeasureAndLayoutDelegate.kt:378)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.remeasureOnly(MeasureAndLayoutDelegate.kt:652)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.measureOnly(MeasureAndLayoutDelegate.kt:446)
+	at androidx.compose.ui.platform.AndroidComposeView.onMeasure(AndroidComposeView.android.kt:1847)
+	at android.view.View.measure(View.java:29133)
+	at androidx.compose.ui.platform.AbstractComposeView.internalOnMeasure$ui(ComposeView.android.kt:314)
+	at androidx.compose.ui.platform.AbstractComposeView.onMeasure(ComposeView.android.kt:301)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7320)
+	at android.widget.FrameLayout.onMeasure(FrameLayout.java:195)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7320)
+	at android.widget.FrameLayout.onMeasure(FrameLayout.java:195)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7320)
+	at android.widget.FrameLayout.onMeasure(FrameLayout.java:195)
+	at com.android.internal.policy.DecorView.onMeasure(DecorView.java:728)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewRootImpl.performMeasure(ViewRootImpl.java:5902)
+	at android.view.ViewRootImpl.measureHierarchy(ViewRootImpl.java:3987)
+	at android.view.ViewRootImpl.performTraversals(ViewRootImpl.java:4448)
+	at android.view.ViewRootImpl.doTraversal(ViewRootImpl.java:3677)
+	at android.view.ViewRootImpl$TraversalCallback.onVsync(ViewRootImpl.java:11993)
+	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1916)
+	at android.view.Choreographer.doCallbacks(Choreographer.java:1434)
+	at android.view.Choreographer.doFrame(Choreographer.java:1289)
+	at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1892)
+	at android.os.Handler.handleCallback(Handler.java:1080)
+	at android.os.Handler.dispatchMessageImpl(Handler.java:135)
+	at android.os.Handler.dispatchMessage(Handler.java:126)
+	at android.os.TestLooperManager.execute(TestLooperManager.java:165)
+	at androidx.test.espresso.base.TestLooperManagerCompat.execute(TestLooperManagerCompat.java:119)
+	at androidx.test.espresso.base.Interrogator.loopAndInterrogate(Interrogator.java:128)
+	at androidx.test.espresso.base.UiControllerImpl.loopUntil(UiControllerImpl.java:513)
+	at androidx.test.espresso.base.UiControllerImpl.loopMainThreadUntilIdle(UiControllerImpl.java:434)
+	at androidx.test.espresso.Espresso.lambda$onIdle$2(Espresso.java:340)
+	at androidx.test.espresso.Espresso$$ExternalSyntheticLambda1.call(D8$$SyntheticClass:0)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:328)
+	at android.os.Handler.handleCallback(Handler.java:1080)
+	at android.os.Handler.dispatchMessageImpl(Handler.java:135)
+	at android.os.Handler.dispatchMessage(Handler.java:126)
+	at android.os.Looper.loopOnce(Looper.java:285)
+	at android.os.Looper.loop(Looper.java:390)
+	at android.app.ActivityThread.main(ActivityThread.java:9884)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:906)
+
+INSTRUMENTATION_STATUS: test=realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest:
+INSTRUMENTATION_STATUS: test=frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest:
+INSTRUMENTATION_STATUS: test=selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightContrastTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest:
+INSTRUMENTATION_STATUS: test=selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLineOfSightPointBContrastTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest:
+INSTRUMENTATION_STATUS: test=actualNativeLosEntryKeepsEmptyPointsTextualWithoutFabricatedTerrainOrAnalysis
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualNativeLosEntryKeepsEmptyPointsTextualWithoutFabricatedTerrainOrAnalysis
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=actualNativeMapEntryExposesReachableRefreshAndConsumesPendingFocus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualNativeMapEntryExposesReachableRefreshAndConsumesPendingFocus
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest:
+INSTRUMENTATION_STATUS: test=authenticationPrefillsProtectedPasswordAndExposesLabelledRememberAndFloodState
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=authenticationPrefillsProtectedPasswordAndExposesLabelledRememberAndFloodState
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=guestStatusAndEmptyTelemetryExposeRealUnitsRecoveryAndHandlerTeardownAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=guestStatusAndEmptyTelemetryExposeRealUnitsRecoveryAndHandlerTeardownAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=emptyOfflineHistoryExplainsTheAbsenceOfSnapshotsWithoutDrawingAFakeChart
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=emptyOfflineHistoryExplainsTheAbsenceOfSnapshotsWithoutDrawingAFakeChart
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkNeutralRtlParagraphRetainsAllNativeInkAndRejectsActualAncestorClipping
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkNeutralRtlParagraphRetainsAllNativeInkAndRejectsActualAncestorClipping
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkLinearProgressCalibratesExpandedSemanticsVersusActualNativeAllocation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkLinearProgressCalibratesExpandedSemanticsVersusActualNativeAllocation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkSliderCalibratesNativeSemanticsVersusPointerTargetExpansion
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkSliderCalibratesNativeSemanticsVersusPointerTargetExpansion
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkSecureDialogPrefillIsMaskedAndIdleAtSystemFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkSecureDialogPrefillIsMaskedAndIdleAtSystemFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=catalogFailureIsTextualAndRefreshRecoversTheActualOfflineRemoteRow
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=catalogFailureIsTextualAndRefreshRecoversTheActualOfflineRemoteRow
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=pendingGuestTelemetryDisablesDuplicateReadsAndCancelsOnActualDoneAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=pendingGuestTelemetryDisablesDuplicateReadsAndCancelsOnActualDoneAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=populatedTelemetryKeepsChannelUnitsCoordinatesAndNativeMapRecoveryReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=pendingAuthenticationHasTextualCountdownDisabledDuplicatesAndRealCancellation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=pendingAuthenticationHasTextualCountdownDisabledDuplicatesAndRealCancellation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=authenticationLongPasswordWarningAndTypedFailureRemainReachableAndEditingRecovers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=authenticationLongPasswordWarningAndTypedFailureRemainReachableAndEditingRecovers
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=27
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=offlineSavedHistoryExposesActualVoltageAndNonGestureSampleSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=27
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=27
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=offlineSavedHistoryExposesActualVoltageAndNonGestureSampleSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 70.03
+There was 1 failure:
+1) realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+java.lang.IllegalArgumentException: performMeasureAndLayout called during measure layout
+	at androidx.compose.ui.internal.InlineClassHelperKt.throwIllegalArgumentException(InlineClassHelper.kt:36)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.measureAndLayout(MeasureAndLayoutDelegate.kt:825)
+	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayout(AndroidComposeView.android.kt:1735)
+	at androidx.compose.ui.node.Owner.measureAndLayout$default(Owner.kt:258)
+	at androidx.compose.ui.node.LayoutNode.forceRemeasure(LayoutNode.kt:1358)
+	at androidx.compose.foundation.lazy.LazyListState.snapToItemIndexInternal$foundation(LazyListState.kt:443)
+	at androidx.compose.foundation.lazy.LazyListState$scrollToItem$2.invokeSuspend(LazyListState.kt:390)
+	at androidx.compose.foundation.lazy.LazyListState$scrollToItem$2.invoke(LazyListState.kt:8)
+	at androidx.compose.foundation.lazy.LazyListState$scrollToItem$2.invoke(LazyListState.kt:4)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2$1.invokeSuspend(ScrollableState.kt:211)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2$1.invoke(ScrollableState.kt:8)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2$1.invoke(ScrollableState.kt:4)
+	at androidx.compose.foundation.MutatorMutex$mutateWith$2.invokeSuspend(MutatorMutex.kt:167)
+	at androidx.compose.foundation.MutatorMutex$mutateWith$2.invoke(MutatorMutex.kt:8)
+	at androidx.compose.foundation.MutatorMutex$mutateWith$2.invoke(MutatorMutex.kt:4)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.CoroutineScopeKt.coroutineScope(CoroutineScope.kt:286)
+	at androidx.compose.foundation.MutatorMutex.mutateWith(MutatorMutex.kt:160)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2.invokeSuspend(ScrollableState.kt:208)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2.invoke(ScrollableState.kt:8)
+	at androidx.compose.foundation.gestures.DefaultScrollableState$scroll$2.invoke(ScrollableState.kt:4)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndspatched(Undispatched.kt:66)
+	at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:43)
+	at kotlinx.coroutines.CoroutineScopeKt.coroutineScope(CoroutineScope.kt:286)
+	at androidx.compose.foundation.gestures.DefaultScrollableState.scroll(ScrollableState.kt:207)
+	at androidx.compose.foundation.lazy.LazyListState.scroll(LazyListState.kt:464)
+	at androidx.compose.foundation.gestures.ScrollableState.scroll$default(ScrollableState.kt:53)
+	at androidx.compose.foundation.lazy.LazyListState.scrollToItem(LazyListState.kt:390)
+	at androidx.compose.foundation.lazy.LazyListState.scrollToItem$default(LazyListState.kt:389)
+	at com.meshcoreone.android.feature.chats.timeline.ui.ChatTimelineKt$ChatTimeline$1$1.invokeSuspend(ChatTimeline.kt:118)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at androidx.compose.ui.test.ApplyingContinuationInterceptor$SendApplyContinuation.resumeWith(ApplyingContinuationInterceptor.kt:52)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor$FrameDeferredContinuation.resumeWith(FrameDeferringContinuationInterceptor.jvm.kt:187)
+	at kotlinx.coroutines.internal.DispatchedContinuationKt.resumeCancellableWith(DispatchedContinuation.kt:279)
+	at kotlinx.coroutines.intrinsics.CancellableKt.startCoroutineCancellable(Cancellable.kt:26)
+	at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:358)
+	at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:134)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:53)
+	at kotlinx.coroutines.BuildersKt.launch(dex-id-298e422cd066dae6729070927c5e7dfa58f4973b-2974:1)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch$default(Builders.common.kt:44)
+	at kotlinx.coroutines.BuildersKt.launch$default(dex-id-298e422cd066dae6729070927c5e7dfa58f4973b-2975:1)
+	at androidx.compose.runtime.LaunchedEffectImpl.onRemembered(Effects.kt:279)
+	at androidx.compose.runtime.internal.RememberEventDispatcher.dispatchRememberList(RememberEventDispatcher.kt:256)
+	at androidx.compose.runtime.internal.RememberEventDispatcher.dispatchRememberObservers(RememberEventDispatcher.kt:228)
+	at androidx.compose.runtime.CompositionImpl.applyChangesInLocked(Composition.kt:1133)
+	at androidx.compose.runtime.CompositionImpl.applyChanges(Composition.kt:1160)
+	at androidx.compose.runtime.Recomposer.composeInitial$runtime(Recomposer.kt:1299)
+	at androidx.compose.runtime.ComposerImpl$CompositionContextImpl.composeInitial$runtime(ComposerImpl.kt:2998)
+	at androidx.compose.runtime.ComposerImpl$CompositionContextImpl.composeInitial$runtime(ComposerImpl.kt:2998)
+	at androidx.compose.runtime.CompositionImpl.composeInitial(Composition.kt:672)
+	at androidx.compose.runtime.CompositionImpl.setContent(Composition.kt:639)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState.subcompose(SubcomposeLayout.kt:721)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState.subcompose(SubcomposeLayout.kt:658)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState.subcompose(SubcomposeLayout.kt:624)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState$Scope.subcompose(SubcomposeLayout.kt:1352)
+	at androidx.compose.material3.ScaffoldKt.ScaffoldLayout_FMILGgc$lambda$15$lambda$14(Scaffold.kt:274)
+	at androidx.compose.material3.ScaffoldKt$$ExternalSyntheticLambda2.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState$createMeasurePolicy$1.measure-3p2s80s(SubcomposeLayout.kt:955)
+	at androidx.compose.ui.node.InnerNodeCoordinator.measure-BRTryo0(InnerNodeCoordinator.kt:128)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:173)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:172)
+	at androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads(SnapshotStateObserver.kt:699)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:1064)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui(LayoutNode.kt:1281)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui$default(LayoutNode.kt:1274)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.doRemeasure-sdFAvZA(MeasureAndLayoutDelegate.kt:380)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.remeasureAndRelayoutIfNeeded(MeasureAndLayoutDelegate.kt:595)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.onlyRemeasureIfPending(MeasureAndLayoutDelegate.kt:683)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:710)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:717)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:717)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:717)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtree(MeasureAndLayoutDelegate.kt:674)
+	at androidx.compose.ui.platform.AndroidComposeView.forceMeasureTheSubtree(AndroidComposeView.android.kt:1767)
+	at androidx.compose.ui.node.Owner.forceMeasureTheSubtree$default(Owner.kt:271)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:508)
+	at androidx.compose.ui.node.MeasurePassDelegate.measure-BRTryo0(MeasurePassDelegate.kt:470)
+	at androidx.compose.foundation.layout.BoxMeasurePolicy.measure-3p2s80s(Box.kt:145)
+	at androidx.compose.ui.node.InnerNodeCoordinator.measure-BRTryo0(InnerNodeCoordinator.kt:128)
+	at androidx.compose.ui.graphics.SimpleGraphicsLayerModifier.measure-3p2s80s(GraphicsLayerModifier.kt:843)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.foundation.layout.InsetsPaddingModifierNode.measure-3p2s80s(WindowInsetsPadding.kt:499)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.foundation.layout.FillNode.measure-3p2s80s(Size.kt:721)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:173)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:172)
+	at androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads(SnapshotStateObserver.kt:699)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:1064)
+	at androidx.compose.ui.node.MeasurePassDelegate.measure-BRTryo0(MeasurePassDelegate.kt:470)
+	at androidx.compose.foundation.layout.BoxMeasurePolicy.measure-3p2s80s(Box.kt:145)
+	at androidx.compose.foundation.layout.BoxWithConstraintsKt.BoxWithConstraints$lambda$0$0(BoxWithConstraints.kt:68)
+	at androidx.compose.foundation.layout.BoxWithConstraintsKt.$r8$lambda$p9yh-8kbO_kwrsRP1ZyRK8puGy8(BoxWithConstraints.kt:0)
+	at androidx.compose.foundation.layout.BoxWithConstraintsKt$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+	at androidx.compose.ui.layout.LayoutNodeSubcompositionsState$createMeasurePolicy$1.measure-3p2s80s(SubcomposeLayout.kt:955)
+	at androidx.compose.ui.node.InnerNodeCoordinator.measure-BRTryo0(InnerNodeCoordinator.kt:128)
+	at androidx.compose.foundation.layout.InsetsPaddingModifierNode.measure-3p2s80s(WindowInsetsPadding.kt:499)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.foundation.layout.FillNode.measure-3p2s80s(Size.kt:721)
+	at androidx.compose.ui.node.LayoutModifierNodeCoordinator.measure-BRTryo0(LayoutModifierNodeCoordinator.kt:190)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:173)
+	at androidx.compose.ui.node.MeasurePassDelegate$performMeasureBlock$1.invoke(MeasurePassDelegate.kt:172)
+	at androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads(SnapshotStateObserver.kt:728)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:1064)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui(LayoutNode.kt:1281)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui$default(LayoutNode.kt:1274)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.doRemeasure-sdFAvZA(MeasureAndLayoutDelegate.kt:380)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.remeasureAndRelayoutIfNeeded(MeasureAndLayoutDelegate.kt:595)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.onlyRemeasureIfPending(MeasureAndLayoutDelegate.kt:683)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtreeInternal(MeasureAndLayoutDelegate.kt:710)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.forceMeasureTheSubtree(MeasureAndLayoutDelegate.kt:674)
+	at androidx.compose.ui.platform.AndroidComposeView.forceMeasureTheSubtree(AndroidComposeView.android.kt:1767)
+	at androidx.compose.ui.node.Owner.forceMeasureTheSubtree$default(Owner.kt:271)
+	at androidx.compose.ui.node.MeasurePassDelegate.remeasure-BRTryo0(MeasurePassDelegate.kt:508)
+	at androidx.compose.ui.node.LayoutNode.remeasure-_Sx5XlM$ui(LayoutNode.kt:1281)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.doRemeasure-sdFAvZA(MeasureAndLayoutDelegate.kt:378)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.remeasureOnly(MeasureAndLayoutDelegate.kt:652)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.measureOnly(MeasureAndLayoutDelegate.kt:446)
+	at androidx.compose.ui.platform.AndroidComposeView.onMeasure(AndroidComposeView.android.kt:1847)
+	at android.view.View.measure(View.java:29133)
+	at androidx.compose.ui.platform.AbstractComposeView.internalOnMeasure$ui(ComposeView.android.kt:314)
+	at androidx.compose.ui.platform.AbstractComposeView.onMeasure(ComposeView.android.kt:301)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7320)
+	at android.widget.FrameLayout.onMeasure(FrameLayout.java:195)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7320)
+	at android.widget.FrameLayout.onMeasure(FrameLayout.java:195)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7320)
+	at android.widget.FrameLayout.onMeasure(FrameLayout.java:195)
+	at com.android.internal.policy.DecorView.onMeasure(DecorView.java:728)
+	at android.view.View.measure(View.java:29133)
+	at android.view.ViewRootImpl.performMeasure(ViewRootImpl.java:5902)
+	at android.view.ViewRootImpl.measureHierarchy(ViewRootImpl.java:3987)
+	at android.view.ViewRootImpl.performTraversals(ViewRootImpl.java:4448)
+	at android.view.ViewRootImpl.doTraversal(ViewRootImpl.java:3677)
+	at android.view.ViewRootImpl$TraversalCallback.onVsync(ViewRootImpl.java:11993)
+	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1916)
+	at android.view.Choreographer.doCallbacks(Choreographer.java:1434)
+	at android.view.Choreographer.doFrame(Choreographer.java:1289)
+	at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1892)
+	at android.os.Handler.handleCallback(Handler.java:1080)
+	at android.os.Handler.dispatchMessageImpl(Handler.java:135)
+	at android.os.Handler.dispatchMessage(Handler.java:126)
+	at android.os.TestLooperManager.execute(TestLooperManager.java:165)
+	at androidx.test.espresso.base.TestLooperManagerCompat.execute(TestLooperManagerCompat.java:119)
+	at androidx.test.espresso.base.Interrogator.loopAndInterrogate(Interrogator.java:128)
+	at androidx.test.espresso.base.UiControllerImpl.loopUntil(UiControllerImpl.java:513)
+	at androidx.test.espresso.base.UiControllerImpl.loopMainThreadUntilIdle(UiControllerImpl.java:434)
+	at androidx.test.espresso.Espresso.lambda$onIdle$2(Espresso.java:340)
+	at androidx.test.espresso.Espresso$$ExternalSyntheticLambda1.call(D8$$SyntheticClass:0)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:328)
+	at android.os.Handler.handleCallback(Handler.java:1080)
+	at android.os.Handler.dispatchMessageImpl(Handler.java:135)
+	at android.os.Handler.dispatchMessage(Handler.java:126)
+	at android.os.Looper.loopOnce(Looper.java:285)
+	at android.os.Looper.loop(Looper.java:390)
+	at android.app.ActivityThread.main(ActivityThread.java:9884)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:906)
+
+FAILURES!!!
+Tests run: 27,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

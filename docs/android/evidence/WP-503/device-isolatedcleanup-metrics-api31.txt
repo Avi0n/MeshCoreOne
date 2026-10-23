@@ -1,0 +1,47 @@
+WP503_NATIVE_PROCESS_STARTUP|phase=await|alreadyCompleted=true
+WP503_NATIVE_PROCESS_STARTUP|phase=ready|actualCompleted=true|elapsedMs=1|serviceDeadlineUnchangedMs=1000|startupPrerequisiteNotServiceWindow=true
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_CLEANUP_FAULT_ARM|requestedMainBlockMs=1500|originalDeadlineMs=1000|faultInjectionOnly=true|physicalTalkBack=false
+WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=5
+WP503_NATIVE_TOUCH_OBSERVATION|sdk=31|enabled=true|checks=1|waitElapsedMs=1|helperElapsedMs=6|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=1|elapsedMs=2|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_TOUCH_READY|sdk=31|checks=1|waitElapsedMs=2|physicalTalkBack=false
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=7
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=17
+WP503_NATIVE_TOUCH_RESTORE_OBSERVATION|sdk=31|actualFlags=65554|enabled=false|expectedFlags=65554|expectedEnabled=false|checks=1|waitElapsedMs=1484|physicalTalkBack=false
+WP503_NATIVE_MAIN_OBSERVER|ready=true|checks=1|elapsedMs=1485|originalDeadlineMs=1000|result=TIMEOUT_NOT_PASS|physicalTalkBack=false
+WP503_NATIVE_TOUCH_RESTORE_TIMEOUT|sdk=31|lastObserved=(65554, false)|expectedFlags=65554|expectedEnabled=false|checks=1|lastCheckElapsedMs=1484|waitElapsedMs=1485|originalDeadlineMs=1000|physicalTalkBack=false
+WP503_NATIVE_SERVICE_SNAPSHOT_START|phase=launcher-restoration-timeout|afterOriginalDeadline=true|managerEnabled=false|flags=65554
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=1518
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|ACCESSIBILITY MANAGER (dumpsys accessibility)
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|currentUserId=0
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|hasWindowMagnificationConnection=false
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|User state[
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|     attributes:{id=0, touchExplorationEnabled=false, serviceHandlesDoubleTap=false, requestMultiFingerGestures=false, requestTwoFingerPassthrough=false, sendMotionEventsEnabledfalse, displayMagnificationEnabled=false, autoclickEnabled=false, nonInteractiveUiTimeout=0, interactiveUiTimeout=0, installedServiceCount=0, magnificationMode=1, magnificationCapabilities=3}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|     shortcut key:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|     button:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|     button target:{null}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|     Bound services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|     Enabled services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|     Binding services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|     Crashed services:{}
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|     Client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|          Client list callbacks: 3
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|          Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|          Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|          Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|[com.meshcoreone.android.debug][com.android.inputmethod.latin][com.android.launcher3]}]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|Ui Automation[eventTypes=TYPES_ALL_MASK, notificationTimeout=0]
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|Global client list info:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|    Client list callbacks: 3
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|    Client list killed: false
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|    Client list broadcasts count: -1
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|    Registered clients:{
+WP503_NATIVE_SERVICE_SYSTEM|phase=launcher-restoration-timeout|[android, com.android.location.fused, com.android.dynsystem, com.android.emulator.multidisplay, com.android.localtransport, com.android.inputdevices, com.android.providers.settings, com.android.keychain, com.android.wallpaperbackup, com.android.server.telecom, com.android.settings][android, com.android.location.fused, com.android.dynsystem, com.android.emulator.multidisplay, com.android.localtransport, com.android.inputdevices, com.android.providers.settings, com.android.keychain, com.android.wallpaperbackup, com.android.server.telecom, com.android.settings][com.android.systemui]
+WP503_NATIVE_SERVICE_DUMP_MARKERS|phase=launcher-restoration-timeout|actual=1|expected=1
+WP503_NATIVE_SERVICE_DUMP_RESULT|phase=launcher-restoration-timeout|WP503_NATIVE_SERVICE_DUMP_EXIT=0
+WP503_NATIVE_SERVICE_SNAPSHOT_END|phase=launcher-restoration-timeout|managerEnabled=false|flags=65554|durationMs=38|physicalTalkBack=false
+WP503_NATIVE_CLEANUP_PRESERVED|primarySame=true|suppressed=1|cleanup=ComposeTimeoutException|mainBlockMs=1501|flagsRestored=true|stateRestored=true|afterFailedDeadline=true|faultInjectionOnly=true|physicalTalkBack=false

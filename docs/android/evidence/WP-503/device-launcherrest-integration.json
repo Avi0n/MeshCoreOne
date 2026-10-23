@@ -1,0 +1,106 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "published_head_before_execution": "781d54bcc94dfb3dffffe6f7ab35842e81c35c05",
+  "executed_combined_head": "9425f2876cd5221cd9a7f39ff97a6bd16cabb8e2",
+  "executed_android_tree": "a97c8c665c1f13bc283f06078c99d2b6bb32626d",
+  "apk_binding": "device-launcherrest-inputs.json",
+  "same_producer_and_source_binding": "device-corecomparison-integration.json",
+  "selected_existing_method_names": [
+    "actualSubcompositionQueuesEffectsAndDetectsInlineSchedulingCounterexample",
+    "realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft",
+    "actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride",
+    "realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable",
+    "realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions",
+    "frameworkControlCanAcquireRealNativeAccessibilityFocus",
+    "realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable"
+  ],
+  "source_change": "None: same exact9425 tree/APKs/79 bodies/helpers, original1000ms waits/300s boot/600s outer guards and actual manager/flags/nativefocus/layout/font/48dp/state assertions. Session runner only selects seven existing methods disjoint from the earlier window pair",
+  "native_api31": {
+    "actual_guest_online_cpu_count": 2,
+    "emulator_enforced_memory_mib": 2048,
+    "boot_ready_elapsed_seconds": 45,
+    "profile": "Fresh isolated existingMedium_Phone/AOSP31/x86_64/4KiB/noGMS,360x900/mdpi160/font2/decorRTL/motion0/hardwareIME1",
+    "flows": {
+      "expected_total": 7, "started": 7, "terminal": 7, "passed": 7, "failed": 0,
+      "completed": true, "seconds": 32.457, "failed_identities": [],
+      "touch_requested": 5, "touch_activated": 5, "touch_finally": 5, "touch_restored": 5,
+      "native_window_ready_observations": 0,
+      "activation_ready_elapsed_ms": [370, 53, 7, 51, 4],
+      "restoration_ready_elapsed_ms": [39, 4, 34, 2, 46],
+      "persisted_theme_scheme_observations": 30,
+      "unlocked_theme_ids": ["default", "ember", "fern", "marine", "olive", "lavender", "sakura", "solarized", "nord", "catppuccin"],
+      "scheme_ids": ["system", "light", "dark"],
+      "initial_theme_scheme_and_onboarding_restored": true,
+      "native_selected_tab_focus_observations": 5,
+      "native_motion_tab_focus_observations": 10,
+      "native_motion_detail_back_observations": 2,
+      "native_ime_bottom_px": 389,
+      "native_ime_visible_rect_px": [0, 0, 360, 511],
+      "native_composer_targets_px": [[69, 387, 291, 503], [12, 454, 61, 503], [299, 454, 348, 503]],
+      "native_composer_targets_wholly_above_ime_and_at_least_48dp": 3,
+      "ime_back_preserves_entry_draft_stacks_and_disabled_disconnected_send": true,
+      "share_cancel_automatic_native_focus": true,
+      "native_share_contact_menu_cached_contact_and_cancel_bounds_px": [[149, 546, 348, 594], [54, 352, 305, 406], [54, 430, 158, 484]],
+      "share_cancel_preserves_entry_draft_stacks_and_keyboard_hidden": true,
+      "qualification": "All seven original methods pass. Thirty actual persisted theme/scheme selections with original effective-scheme/font200/48dp/nativefocus checks, not native all-role contrast or approved goldens. Separate from the earlier passing two-method window run, not a new single9-case invocation"
+    }
+  },
+  "native_api37": {
+    "actual_guest_online_cpu_count": 4,
+    "emulator_enforced_memory_mib": 4096,
+    "boot_ready_elapsed_seconds": 96,
+    "profile": "Fresh isolated samePixel10/API37.2 PlayStore/x86_64/16KiB/GMS four-CPU comparison profile,360x900/mdpi160/font2/decorRTL/motion0/hardwareIME1",
+    "flows": {
+      "expected_total": 7, "started": 7, "terminal": 7, "passed": 3, "failed": 4,
+      "completed": true, "seconds": 30.215,
+      "failed_identities": [
+        "NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable",
+        "NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions",
+        "NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable",
+        "NativeLauncherFocusAccessibilityTest.realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft"
+      ],
+      "touch_requested": 5, "touch_activated": 1, "touch_finally": 5, "touch_restored": 5,
+      "native_window_ready_observations": 0,
+      "activation_ready_elapsed_ms": [15],
+      "restoration_ready_elapsed_ms": [41, 1, 1, 1, 2],
+      "persisted_theme_scheme_observations": 0,
+      "native_selected_tab_focus_observations": 0,
+      "native_motion_tab_focus_observations": 0,
+      "native_motion_detail_back_observations": 0,
+      "native_composer_targets_wholly_above_ime_and_at_least_48dp": 0,
+      "qualification": "Four original1000ms activation953 failures before actual feature bodies; no themes/tab/motion-flow/IME credit. Three original controls pass: native frameworkfocus callback1, queued-vs-inline frame/native subcomposition and actual system-motion provider0/1/0. Four CPUs alone do not repair broad readiness"
+    },
+    "actual_manager_false_at_original_activation_timeout": [
+      {"fixture": "disconnected-tabs", "checks": 1, "last_check_elapsed_ms": 27, "timeout_observed_elapsed_ms": 1103},
+      {"fixture": "appearance", "checks": 65, "last_check_elapsed_ms": 992, "timeout_observed_elapsed_ms": 1005},
+      {"fixture": "motion-launcher", "checks": 75, "last_check_elapsed_ms": 989, "timeout_observed_elapsed_ms": 1000},
+      {"fixture": "cached-ime", "checks": 78, "last_check_elapsed_ms": 999, "timeout_observed_elapsed_ms": 1011}
+    ],
+    "framework_control_qualification": "Original frameworkfocus assertions pass after actual initial managertrue readiness15ms, but enabledfalse callback arrives helper399ms and final managerfalse467ms while actual serviceflags65558. Not sustained touch exploration, physical TalkBack or a stable service-state repair"
+  },
+  "both_api_independent_framework_observations": {
+    "queued_effects_during_frame_and_native_measurement": false,
+    "inline_counterexample_during_both_measurements": true,
+    "observed_system_motion_scale_and_duration": [["0.0", "0.0", "0"], ["1.0", "1.0", "300"], ["0.0", "0.0", "0"]],
+    "explicit_motion_override": false
+  },
+  "native_operation_cleanup": {
+    "separate_fresh_images_single_invocation_per_api": true,
+    "sequential_owned_emulator_exit_codes": [0, 0],
+    "exact_four_phase_image_and_qcow_paths_removed_after_confirmed_exit": true,
+    "final_adb_device_list_empty": true,
+    "shared_adb_restart_wipe_avd_edit_installation_or_worker": false
+  },
+  "existing_region_repair_qualification": "No duplicate region execution:491d02b already records pair2PASS and fullremote15PASS on each actualAPI31/37 for exactproducerd2ff006f. Current native region fixture blobae4b983df456be8a73d894d06fdc06dba0bc5d69 equals491d02b; no credit from integrations excludingPR234",
+  "same_four_cpu_profile_provides_reliable_broad_readiness": false,
+  "producer_or_framework_cause_or_behavior_repair_verified": false,
+  "previous_native_negatives_physical_matrix_goldens_admission_review_or_wp_completion_cleared": false
+}

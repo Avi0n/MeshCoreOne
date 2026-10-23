@@ -1,0 +1,13 @@
+WP503 executed combined head410e66f9a12b27b34cfdf2fb717576e2101d0797; Android tree follows integration JSON; emulator readiness/profile, not physical TalkBack
+37
+16384
+Physical size: 1344x2992
+Override size: 360x900
+Physical density: 480
+Override density: 160
+2.0
+0.0
+0.0
+0.0
+package:com.google.android.gms.supervision
+package:com.google.android.gms

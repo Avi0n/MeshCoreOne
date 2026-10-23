@@ -1,0 +1,497 @@
+{
+  "kind": "exact-producer-source-integration-not-acceptance",
+  "generator": "session wp503-import-reviewed-producers.py",
+  "audit_parent": "6c81bad084f27c1a6501e1296eec93f160fb517e",
+  "frozen_swift_reference": "db14559b39d32322b06477c6ae676112f583db50",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision_before": 4,
+  "reservation_revision_after": 5,
+  "immutable_identity_binding_authorization_preserved": true,
+  "typed_evolution_receipt": {
+    "repository": "cbattlegear/MeshCoreOne-Android",
+    "wp": "WP-503",
+    "state": "leased",
+    "attempt": "1666502a-0420-46ef-930f-e78651ba8b9f",
+    "binding": {
+      "repository": "cbattlegear/MeshCoreOne-Android",
+      "work_package": "WP-503",
+      "base_sha": "d958471ab4835813881a5e7af36e8249a8b273a4",
+      "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+      "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+      "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20"
+    },
+    "backend": "local",
+    "paths": [
+      "android/accessibility-tests/",
+      "android/app/build.gradle.kts",
+      "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+      "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt",
+      "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt",
+      "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+      "android/feature/tools/build.gradle.kts",
+      "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt",
+      "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+      "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliCanonicalCompletionTest.kt",
+      "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalControllerTest.kt",
+      "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolLocalCommandsTest.kt",
+      "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolSessionsTest.kt",
+      "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolStateHolderTest.kt",
+      "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+      "android/gradle/dependency-locks/feature-tools.lockfile",
+      "docs/android/accessibility/",
+      "docs/android/deviations/WP-503.md",
+      "docs/android/evidence/WP-503/"
+    ],
+    "expires": 3939297106.6939173,
+    "reservation": 1.0,
+    "identity": {
+      "issue_number": null,
+      "task_id": null,
+      "session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+      "pr_number": null
+    },
+    "repairs": 0,
+    "completion": null,
+    "record_state": "advisory",
+    "capabilities": {
+      "wp-owned": [
+        "android/accessibility-tests/",
+        "docs/android/accessibility/",
+        "docs/android/deviations/WP-503.md",
+        "docs/android/evidence/WP-503/"
+      ],
+      "dependency-resolution-metadata": [
+        "android/app/build.gradle.kts"
+      ],
+      "merge-integration": [
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt",
+        "android/feature/nodes/src/main/kotlin/com/meshcoreone/android/feature/nodes/ui/NodesListScreen.kt",
+        "android/feature/tools/build.gradle.kts",
+        "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt",
+        "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliCanonicalCompletionTest.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalControllerTest.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolLocalCommandsTest.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolSessionsTest.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolStateHolderTest.kt",
+        "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+        "android/gradle/dependency-locks/feature-tools.lockfile"
+      ]
+    },
+    "reservation_operations": [
+      "create",
+      "merge-disjoint-semantic-edits",
+      "modify",
+      "update-directly-required-build-wiring"
+    ],
+    "overlapping_intents": [
+      "WP-000"
+    ],
+    "authorization_context": {
+      "authorization": "User-directed dedicated WP-503 producer for issue136; approved accessibility audit scope and trusted capability-admitted necessary support; preserve frozen source and current producer ownership."
+    },
+    "migration_revision": "capability-reservation-v1",
+    "revision": 5,
+    "branch": "cbattlegear-issue-136-wp-503-accessibility-audit-807238",
+    "worktree": "C:\\Users\\camer\\source\\repos\\copilot-worktrees\\MeshCoreOne-Android\\cbattlegear-issue-136-wp-503-accessibility-audit-807238",
+    "predecessor_attempt": null,
+    "predecessor_receipt_sha256": null
+  },
+  "admissions": [
+    {
+      "capability": "merge-integration",
+      "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/feature/tools/build.gradle.kts",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliCanonicalCompletionTest.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalControllerTest.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolLocalCommandsTest.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolSessionsTest.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolStateHolderTest.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    },
+    {
+      "capability": "merge-integration",
+      "path": "android/gradle/dependency-locks/feature-tools.lockfile",
+      "operation": "merge-disjoint-semantic-edits",
+      "invariants": [
+        "exact-current-base",
+        "all-owner-attributions",
+        "semantic-conflicts-block-merge",
+        "protected-approval-at-main-merge"
+      ],
+      "validation": [
+        "current-base tests",
+        "capability-required validation",
+        "protected merge gate"
+      ]
+    }
+  ],
+  "producer_heads": {
+    "WP-307": "4b6629ac2bf215577ec1522530a77de61ed577fe",
+    "WP-315": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+    "WP-316": "8a8c6348af1c98b3f11f21769800308cf302b8f9"
+  },
+  "exact_producer_files": [
+    {
+      "wp": "WP-307",
+      "producer_head": "4b6629ac2bf215577ec1522530a77de61ed577fe",
+      "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatTimelineRestorationTest.kt",
+      "before_blob": null,
+      "producer_blob": "187e1a7e6fcd43c2494e0b036706d5f25cd9015f"
+    },
+    {
+      "wp": "WP-307",
+      "producer_head": "4b6629ac2bf215577ec1522530a77de61ed577fe",
+      "path": "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt",
+      "before_blob": "7a8073ebc137eaf04291fc122c8d27f511a6e526",
+      "producer_blob": "3b10d361363e08af68225c9fba12e378c3eaf725"
+    },
+    {
+      "wp": "WP-315",
+      "producer_head": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+      "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/los/SavedEndpointSemanticsTest.kt",
+      "before_blob": null,
+      "producer_blob": "0513c55748f756da621ba3a04b0a2eda7e6ae2f5"
+    },
+    {
+      "wp": "WP-315",
+      "producer_head": "3a4e9a869f7c81014fb6aed245273e5838883ae2",
+      "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/los/LineOfSightScreen.kt",
+      "before_blob": "a779037080977ff7aaddb68993311b7374660ea9",
+      "producer_blob": "819a6d982c34974f3dcd1534a9577546c5d5861b"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/build.gradle.kts",
+      "before_blob": "dde3ca834ec3687d323a36ff7833ecf948ffc256",
+      "producer_blob": "1e95d1cc8a6b54b812640f84314b1301dd8d8894"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt",
+      "before_blob": "905f08c90e0c64b7e69d509886a95f4bbc91f13b",
+      "producer_blob": "213866562c54c12d1f82f9c397b5cdcac7a4907c"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliCanonicalCompletionTest.kt",
+      "before_blob": "be8175d77eba394361ac45cd58aff3067d80e515",
+      "producer_blob": "6ee68cd8303c7d664c2d3dc38011a5a0cf4407f2"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliTerminalControllerTest.kt",
+      "before_blob": "e2650e5a3b33ede82c5fe5ed106c19507a43676f",
+      "producer_blob": "ab6bccdce44529b681b0f499b2d69c392d9ee4ba"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolLocalCommandsTest.kt",
+      "before_blob": "25237ef01c4be8c4572d594010c05667329c7be5",
+      "producer_blob": "7352f8e60d3bc5ce2a75e7e9f5581da79e09f604"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolSessionsTest.kt",
+      "before_blob": "47b8493825df6a29e325533fe7dc6f3fa7c4b93f",
+      "producer_blob": "5d859e10474193315726002bd99a8f063bfb67bd"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/cli/CliToolStateHolderTest.kt",
+      "before_blob": "9509eae14b01e90fe4f9b7c36c303f6e5ad6e5d9",
+      "producer_blob": "ebfe48e4422110a1906c87dd22c196f633e2eae5"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt",
+      "before_blob": "345cb7a6ee3cf48b2594efd471eceeed793cb27a",
+      "producer_blob": "58af4467a85422c8d53cee7001a159cf56f31642"
+    },
+    {
+      "wp": "WP-316",
+      "producer_head": "8a8c6348af1c98b3f11f21769800308cf302b8f9",
+      "path": "android/gradle/dependency-locks/feature-tools.lockfile",
+      "before_blob": "65bbd5c3d118b4b9e394965058046e5292f414ff",
+      "producer_blob": "885331ce23ec8d93b4dcb5fe4c13b42d3faa1ed7"
+    }
+  ],
+  "producer_documentation_imported": false,
+  "wp503_authored_production_behavior_changes": false,
+  "build_executed": false,
+  "new_apks": [],
+  "native_instrumentation_starts": 0,
+  "acceptance": "UNVERIFIED_NOT_PASS",
+  "combined_source_commit": "18cc3eb7c9bd157b69db9bcecb4f52c2983111e1",
+  "combined_android_tree": "ec2dbbcab061ee9b019b0ae7caacc47d9c19eada",
+  "audit_fixture_source": "6c81bad084f27c1a6501e1296eec93f160fb517e",
+  "audit_fixtures": [
+    {
+      "class": "NativeLauncherFocusAccessibilityTest",
+      "blob": "37c8d2c841d9ec13c87bd7db5bf68052745d7dc3",
+      "methods": [
+        "realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200"
+      ]
+    },
+    {
+      "class": "NativeLineOfSightAccessibilityTest",
+      "blob": "425152d1b41e14f0bf8e6b47999e83a0df4cf06d",
+      "methods": [
+        "frameworkNativeAccessibilityTreeFindsAndInvokesTheActualNamedButton",
+        "savedRepeatersExposeNamedNativeActionsForNonGestureEndpointSelectionAtFont200"
+      ]
+    },
+    {
+      "class": "NativeLineOfSightContrastTest",
+      "blob": "6ad88ceada36198db31309932900c5b51a39910d",
+      "methods": [
+        "selectedSavedEndpointTextClearsItsNativePaintInAll38EffectiveFrames"
+      ]
+    },
+    {
+      "class": "NativeLineOfSightPointBContrastTest",
+      "blob": "32c2819ecb9834a0ed2cfba2dea996a954032943",
+      "methods": [
+        "selectedPointBLabelClearsItsNativeGreenPaintInAll38EffectiveFrames"
+      ]
+    },
+    {
+      "class": "NativeDiagnosticsFlowAccessibilityTest",
+      "blob": "e31edcf50c08532465ad3254919ff13eefbd8d7f",
+      "methods": [
+        "noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200",
+        "shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200",
+        "disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph",
+        "disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection"
+      ]
+    },
+    {
+      "class": "NativeLocalizedCompareParityTest",
+      "blob": "79e7e12b950f1459f006bc72942539ecf07375e0",
+      "methods": [
+        "asciiCaseMatchesSwiftEquality",
+        "sharpSMatchesSwiftEquality",
+        "canonicalAccentMatchesSwiftEquality",
+        "fullWidthMatchesSwiftEquality",
+        "nodeNameCaseMatchesSwiftEquality",
+        "digraphCaseMatchesSwiftEquality",
+        "ligatureMatchesSwiftEquality",
+        "accentRemainsUnequalAsInSwift",
+        "dotlessIRemainsUnequalAsInSwift",
+        "dottedIRemainsUnequalAsInSwift",
+        "equalNamesKeepTheirInputOrderWithTheProductionComparator"
+      ]
+    },
+    {
+      "class": "NativeLocalizedCompareLocalePreservationTest",
+      "blob": "41a1e4046f96aeb0c725a1344e7f420dfd142be4",
+      "methods": [
+        "turkishProducerCasesPreserveLocaleTailoringOnAndroid",
+        "azeriProducerCasesPreserveLocaleTailoringOnAndroid"
+      ]
+    }
+  ],
+  "expected_identities_not_discovered": 23,
+  "independent_us_method_count": 11,
+  "supplemental_locale_method_count": 2,
+  "blocked_before_build": [
+    "WP315 public actual rendered role Text/GetTextLayoutResult observation",
+    "Confirmed WP316 Tools lane release before the single build"
+  ],
+  "blocked_before_api37_execution": [
+    "Verified lane-owner authorization resolution; no blind retry"
+  ]
+}

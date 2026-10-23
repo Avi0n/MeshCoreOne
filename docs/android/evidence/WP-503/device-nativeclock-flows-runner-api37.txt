@@ -1,0 +1,36 @@
+WP503_EXECUTED_INPUT|40cb94e846a9f99de0afaa3f99b61c668386e7e4
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 37, "head": "40cb94e846a9f99de0afaa3f99b61c668386e7e4", "scenario": "launcher", "discovered": 9, "statuses": {"-2": 1, "0": 8}, "time": ["Time: 114.016"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest', 'realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable')|-2
+N_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realCachedChatImeKeepsNativeComposerVisibleAndBackPreservesDraft
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 114.016
+There was 1 failure:
+1) realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+androidx.compose.ui.test.ComposeTimeoutException: Native accessibility state did not become ready within1000ms
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.waitForNativeAccessibilityState(NativeLauncherFocusAccessibilityTest.kt:986)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:953)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable(NativeLauncherFocusAccessibilityTest.kt:753)
+
+FAILURES!!!
+Tests run: 9,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

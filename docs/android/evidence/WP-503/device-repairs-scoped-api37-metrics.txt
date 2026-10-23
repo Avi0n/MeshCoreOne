@@ -1,0 +1,282 @@
+--------- beginning of main
+10-13 21:39:37.212  3744  4224 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-13 21:39:37.361  3744  4224 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+10-13 21:39:38.179  3744  4224 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+10-13 21:39:41.754  3744  4224 I System.out: WP503_FONT|text=Appearance|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+10-13 21:39:41.756  3744  4224 I System.out: WP503_FONT_LINE|text=Appearance|line=0|left=0.0|right=148.45312|top=0.0|bottom=33.0
+10-13 21:39:42.872  3744  4224 I System.out: WP503_FONT|text=Settings|size=248 x 45|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 848)|paragraph=248.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+10-13 21:39:42.874  3744  4224 I System.out: WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+10-13 21:39:43.037  3744  4224 I System.out: WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:43.037  3744  4224 I System.out: WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+10-13 21:39:43.411  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=System|checked=true|checkable=true|bounds=Rect(16, 218 - 344, 266)|enabled=true|clickable=false|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null]
+10-13 21:39:43.707  3744  4224 I System.out: WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:43.707  3744  4224 I System.out: WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+10-13 21:39:43.808  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=System|checked=true|checkable=true|bounds=Rect(16, 218 - 344, 266)|enabled=true|clickable=false|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null]
+10-13 21:39:43.936  3744  4224 I System.out: WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:43.937  3744  4224 I System.out: WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+10-13 21:39:43.969  3744  4224 I System.out: WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:43.969  3744  4224 I System.out: WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+10-13 21:39:44.085  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=Light|checked=false|checkable=true|bounds=Rect(16, 266 - 344, 314)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+10-13 21:39:44.191  3744  4224 I System.out: WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:44.191  3744  4224 I System.out: WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+10-13 21:39:44.238  3744  4224 I System.out: WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:44.238  3744  4224 I System.out: WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+10-13 21:39:44.330  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=Dark|checked=false|checkable=true|bounds=Rect(16, 314 - 344, 362)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+10-13 21:39:44.443  3744  4224 I System.out: WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:44.443  3744  4224 I System.out: WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+10-13 21:39:44.647  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, currently selected|enabled=false|clickable=true
+10-13 21:39:45.066  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, currently selected|enabled=false|clickable=true
+10-13 21:39:45.239  3744  4224 I System.out: WP503_FONT|text=Default|size=84 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:45.239  3744  4224 I System.out: WP503_FONT_LINE|text=Default|line=0|left=0.0|right=84.0|top=0.0|bottom=30.0
+10-13 21:39:45.239  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=default|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:45.726  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, owned|enabled=true|clickable=true
+10-13 21:39:46.656  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, currently selected|enabled=false|clickable=true
+10-13 21:39:46.778  3744  4224 I System.out: WP503_FONT|text=Ember|size=76 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:46.778  3744  4224 I System.out: WP503_FONT_LINE|text=Ember|line=0|left=0.0|right=76.0|top=0.0|bottom=30.0
+10-13 21:39:46.779  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=ember|scheme=system|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:47.017  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, owned|enabled=true|clickable=true
+10-13 21:39:47.906  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, currently selected|enabled=false|clickable=true
+10-13 21:39:48.011  3744  4224 I System.out: WP503_FONT|text=Fern|size=51 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:48.011  3744  4224 I System.out: WP503_FONT_LINE|text=Fern|line=0|left=0.0|right=50.734375|top=0.0|bottom=30.0
+10-13 21:39:48.016  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=fern|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:48.181  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, owned|enabled=true|clickable=true
+10-13 21:39:49.063  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, currently selected|enabled=false|clickable=true
+10-13 21:39:49.161  3744  4224 I System.out: WP503_FONT|text=Marine|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:49.161  3744  4224 I System.out: WP503_FONT_LINE|text=Marine|line=0|left=0.0|right=81.0|top=0.0|bottom=30.0
+10-13 21:39:49.163  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=marine|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:49.374  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, owned|enabled=true|clickable=true
+10-13 21:39:49.835  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, currently selected|enabled=false|clickable=true
+10-13 21:39:49.905  3744  4224 I System.out: WP503_FONT|text=Olive|size=59 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:49.906  3744  4224 I System.out: WP503_FONT_LINE|text=Olive|line=0|left=0.0|right=58.835938|top=0.0|bottom=30.0
+10-13 21:39:49.906  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=olive|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:50.311  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, owned|enabled=true|clickable=true
+10-13 21:39:51.011  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, currently selected|enabled=false|clickable=true
+10-13 21:39:51.110  3744  4224 I System.out: WP503_FONT|text=Lavender|size=107 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:51.110  3744  4224 I System.out: WP503_FONT_LINE|text=Lavender|line=0|left=0.0|right=106.64453|top=0.0|bottom=30.0
+10-13 21:39:51.110  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=lavender|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:51.269  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, owned|enabled=true|clickable=true
+10-13 21:39:51.690  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, currently selected|enabled=false|clickable=true
+10-13 21:39:51.753  3744  4224 I System.out: WP503_FONT|text=Sakura|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:51.755  3744  4224 I System.out: WP503_FONT_LINE|text=Sakura|line=0|left=0.0|right=80.53906|top=0.0|bottom=30.0
+10-13 21:39:51.755  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=sakura|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:51.986  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, owned|enabled=true|clickable=true
+10-13 21:39:52.537  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, currently selected|enabled=false|clickable=true
+10-13 21:39:52.638  3744  4224 I System.out: WP503_FONT|text=Solarized|size=110 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:52.638  3744  4224 I System.out: WP503_FONT_LINE|text=Solarized|line=0|left=0.0|right=109.796875|top=0.0|bottom=30.0
+10-13 21:39:52.638  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=solarized|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:52.826  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, owned|enabled=true|clickable=true
+10-13 21:39:53.587  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, currently selected|enabled=false|clickable=true
+10-13 21:39:53.672  3744  4224 I System.out: WP503_FONT|text=Nord|size=57 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:53.672  3744  4224 I System.out: WP503_FONT_LINE|text=Nord|line=0|left=0.0|right=56.757812|top=0.0|bottom=30.0
+10-13 21:39:53.672  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=nord|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:53.941  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, owned|enabled=true|clickable=true
+10-13 21:39:54.487  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, currently selected|enabled=false|clickable=true
+10-13 21:39:54.576  3744  4224 I System.out: WP503_FONT|text=Catppuccin|size=133 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:54.576  3744  4224 I System.out: WP503_FONT_LINE|text=Catppuccin|line=0|left=0.0|right=133.0|top=0.0|bottom=30.0
+10-13 21:39:54.576  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=catppuccin|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:54.935  3744  4224 I System.out: WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:54.935  3744  4224 I System.out: WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+10-13 21:39:55.100  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=Light|checked=false|checkable=true|bounds=Rect(16, 266 - 344, 314)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+10-13 21:39:55.522  3744  4224 I System.out: WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:55.522  3744  4224 I System.out: WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+10-13 21:39:55.749  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=System|checked=false|checkable=true|bounds=Rect(16, 218 - 344, 266)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+10-13 21:39:55.820  3744  4224 I System.out: WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:55.820  3744  4224 I System.out: WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+10-13 21:39:55.852  3744  4224 I System.out: WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:55.852  3744  4224 I System.out: WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+10-13 21:39:55.920  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=Light|checked=true|checkable=true|bounds=Rect(16, 266 - 344, 314)|enabled=true|clickable=false|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null]
+10-13 21:39:56.005  3744  4224 I System.out: WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:56.005  3744  4224 I System.out: WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+10-13 21:39:56.035  3744  4224 I System.out: WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:56.036  3744  4224 I System.out: WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+10-13 21:39:56.073  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=Dark|checked=false|checkable=true|bounds=Rect(16, 314 - 344, 362)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+10-13 21:39:56.188  3744  4224 I System.out: WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:56.188  3744  4224 I System.out: WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+10-13 21:39:56.341  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, owned|enabled=true|clickable=true
+10-13 21:39:57.019  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, currently selected|enabled=false|clickable=true
+10-13 21:39:57.122  3744  4224 I System.out: WP503_FONT|text=Default|size=84 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:57.122  3744  4224 I System.out: WP503_FONT_LINE|text=Default|line=0|left=0.0|right=84.0|top=0.0|bottom=30.0
+10-13 21:39:57.122  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=default|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:57.374  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, owned|enabled=true|clickable=true
+10-13 21:39:58.317  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, currently selected|enabled=false|clickable=true
+10-13 21:39:58.446  3744  4224 I System.out: WP503_FONT|text=Ember|size=76 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:58.446  3744  4224 I System.out: WP503_FONT_LINE|text=Ember|line=0|left=0.0|right=76.0|top=0.0|bottom=30.0
+10-13 21:39:58.446  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=ember|scheme=light|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:39:58.676  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, owned|enabled=true|clickable=true
+10-13 21:39:59.919  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, currently selected|enabled=false|clickable=true
+10-13 21:39:59.990  3744  4224 I System.out: WP503_FONT|text=Fern|size=51 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:39:59.990  3744  4224 I System.out: WP503_FONT_LINE|text=Fern|line=0|left=0.0|right=50.734375|top=0.0|bottom=30.0
+10-13 21:39:59.990  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=fern|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:00.155  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, owned|enabled=true|clickable=true
+10-13 21:40:00.923  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, currently selected|enabled=false|clickable=true
+10-13 21:40:01.008  3744  4224 I System.out: WP503_FONT|text=Marine|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:01.009  3744  4224 I System.out: WP503_FONT_LINE|text=Marine|line=0|left=0.0|right=81.0|top=0.0|bottom=30.0
+10-13 21:40:01.009  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=marine|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:01.190  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, owned|enabled=true|clickable=true
+10-13 21:40:01.832  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, currently selected|enabled=false|clickable=true
+10-13 21:40:01.926  3744  4224 I System.out: WP503_FONT|text=Olive|size=59 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:01.926  3744  4224 I System.out: WP503_FONT_LINE|text=Olive|line=0|left=0.0|right=58.835938|top=0.0|bottom=30.0
+10-13 21:40:01.926  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=olive|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:02.204  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, owned|enabled=true|clickable=true
+10-13 21:40:02.719  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, currently selected|enabled=false|clickable=true
+10-13 21:40:03.082  3744  4224 I System.out: WP503_FONT|text=Lavender|size=107 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:03.082  3744  4224 I System.out: WP503_FONT_LINE|text=Lavender|line=0|left=0.0|right=106.64453|top=0.0|bottom=30.0
+10-13 21:40:03.082  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=lavender|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:03.289  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, owned|enabled=true|clickable=true
+10-13 21:40:04.281  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, currently selected|enabled=false|clickable=true
+10-13 21:40:04.421  3744  4224 I System.out: WP503_FONT|text=Sakura|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:04.421  3744  4224 I System.out: WP503_FONT_LINE|text=Sakura|line=0|left=0.0|right=80.53906|top=0.0|bottom=30.0
+10-13 21:40:04.422  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=sakura|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:04.800  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, owned|enabled=true|clickable=true
+10-13 21:40:05.567  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, currently selected|enabled=false|clickable=true
+10-13 21:40:06.015  3744  4224 I System.out: WP503_FONT|text=Solarized|size=110 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:06.015  3744  4224 I System.out: WP503_FONT_LINE|text=Solarized|line=0|left=0.0|right=109.796875|top=0.0|bottom=30.0
+10-13 21:40:06.015  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=solarized|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:06.941  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, owned|enabled=true|clickable=true
+10-13 21:40:07.879  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, currently selected|enabled=false|clickable=true
+10-13 21:40:08.006  3744  4224 I System.out: WP503_FONT|text=Nord|size=57 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:08.006  3744  4224 I System.out: WP503_FONT_LINE|text=Nord|line=0|left=0.0|right=56.757812|top=0.0|bottom=30.0
+10-13 21:40:08.006  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=nord|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:08.569  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, owned|enabled=true|clickable=true
+10-13 21:40:09.051  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, currently selected|enabled=false|clickable=true
+10-13 21:40:09.172  3744  4224 I System.out: WP503_FONT|text=Catppuccin|size=133 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:09.173  3744  4224 I System.out: WP503_FONT_LINE|text=Catppuccin|line=0|left=0.0|right=133.0|top=0.0|bottom=30.0
+10-13 21:40:09.173  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=catppuccin|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:09.486  3744  4224 I System.out: WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:09.487  3744  4224 I System.out: WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+10-13 21:40:09.571  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=Dark|checked=false|checkable=true|bounds=Rect(16, 314 - 344, 362)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+10-13 21:40:10.205  3744  4224 I System.out: WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:10.205  3744  4224 I System.out: WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+10-13 21:40:10.256  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=System|checked=false|checkable=true|bounds=Rect(16, 218 - 344, 266)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+10-13 21:40:10.341  3744  4224 I System.out: WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:10.341  3744  4224 I System.out: WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+10-13 21:40:10.390  3744  4224 I System.out: WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:10.390  3744  4224 I System.out: WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+10-13 21:40:10.445  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=Light|checked=false|checkable=true|bounds=Rect(16, 266 - 344, 314)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+10-13 21:40:10.519  3744  4224 I System.out: WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:10.522  3744  4224 I System.out: WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+10-13 21:40:10.551  3744  4224 I System.out: WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:10.551  3744  4224 I System.out: WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+10-13 21:40:10.812  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RADIO|label=Dark|checked=true|checkable=true|bounds=Rect(16, 314 - 344, 362)|enabled=true|clickable=false|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null]
+10-13 21:40:10.869  3744  4224 I System.out: WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:10.869  3744  4224 I System.out: WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+10-13 21:40:11.049  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, owned|enabled=true|clickable=true
+10-13 21:40:11.577  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, currently selected|enabled=false|clickable=true
+10-13 21:40:11.694  3744  4224 I System.out: WP503_FONT|text=Default|size=84 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:11.694  3744  4224 I System.out: WP503_FONT_LINE|text=Default|line=0|left=0.0|right=84.0|top=0.0|bottom=30.0
+10-13 21:40:11.694  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=default|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:11.872  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, owned|enabled=true|clickable=true
+10-13 21:40:12.556  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, currently selected|enabled=false|clickable=true
+10-13 21:40:12.787  3744  4224 I System.out: WP503_FONT|text=Ember|size=76 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:12.787  3744  4224 I System.out: WP503_FONT_LINE|text=Ember|line=0|left=0.0|right=76.0|top=0.0|bottom=30.0
+10-13 21:40:12.787  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=ember|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:12.918  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, owned|enabled=true|clickable=true
+10-13 21:40:13.394  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, currently selected|enabled=false|clickable=true
+10-13 21:40:13.484  3744  4224 I System.out: WP503_FONT|text=Fern|size=51 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:13.485  3744  4224 I System.out: WP503_FONT_LINE|text=Fern|line=0|left=0.0|right=50.734375|top=0.0|bottom=30.0
+10-13 21:40:13.485  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=fern|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:13.594  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, owned|enabled=true|clickable=true
+10-13 21:40:14.046  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, currently selected|enabled=false|clickable=true
+10-13 21:40:14.130  3744  4224 I System.out: WP503_FONT|text=Marine|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:14.130  3744  4224 I System.out: WP503_FONT_LINE|text=Marine|line=0|left=0.0|right=81.0|top=0.0|bottom=30.0
+10-13 21:40:14.131  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=marine|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:14.291  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, owned|enabled=true|clickable=true
+10-13 21:40:14.802  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, currently selected|enabled=false|clickable=true
+10-13 21:40:15.035  3744  4224 I System.out: WP503_FONT|text=Olive|size=59 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:15.035  3744  4224 I System.out: WP503_FONT_LINE|text=Olive|line=0|left=0.0|right=58.835938|top=0.0|bottom=30.0
+10-13 21:40:15.036  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=olive|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:15.195  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, owned|enabled=true|clickable=true
+10-13 21:40:15.708  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, currently selected|enabled=false|clickable=true
+10-13 21:40:15.809  3744  4224 I System.out: WP503_FONT|text=Lavender|size=107 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:15.809  3744  4224 I System.out: WP503_FONT_LINE|text=Lavender|line=0|left=0.0|right=106.64453|top=0.0|bottom=30.0
+10-13 21:40:15.809  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=lavender|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:15.972  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, owned|enabled=true|clickable=true
+10-13 21:40:16.755  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, currently selected|enabled=false|clickable=true
+10-13 21:40:16.857  3744  4224 I System.out: WP503_FONT|text=Sakura|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:16.857  3744  4224 I System.out: WP503_FONT_LINE|text=Sakura|line=0|left=0.0|right=80.53906|top=0.0|bottom=30.0
+10-13 21:40:16.857  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=sakura|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:17.178  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, owned|enabled=true|clickable=true
+10-13 21:40:17.908  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, currently selected|enabled=false|clickable=true
+10-13 21:40:17.972  3744  4224 I System.out: WP503_FONT|text=Solarized|size=110 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:17.972  3744  4224 I System.out: WP503_FONT_LINE|text=Solarized|line=0|left=0.0|right=109.796875|top=0.0|bottom=30.0
+10-13 21:40:17.972  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=solarized|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:18.166  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, owned|enabled=true|clickable=true
+10-13 21:40:18.672  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, currently selected|enabled=false|clickable=true
+10-13 21:40:18.741  3744  4224 I System.out: WP503_FONT|text=Nord|size=57 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:18.741  3744  4224 I System.out: WP503_FONT_LINE|text=Nord|line=0|left=0.0|right=56.757812|top=0.0|bottom=30.0
+10-13 21:40:18.741  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=nord|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:19.324  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, owned|enabled=true|clickable=true
+10-13 21:40:19.748  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, currently selected|enabled=false|clickable=true
+10-13 21:40:19.847  3744  4224 I System.out: WP503_FONT|text=Catppuccin|size=133 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:19.847  3744  4224 I System.out: WP503_FONT_LINE|text=Catppuccin|line=0|left=0.0|right=133.0|top=0.0|bottom=30.0
+10-13 21:40:19.848  3744  4224 I System.out: WP503_NATIVE_APPEARANCE|sdk=37|theme=catppuccin|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+10-13 21:40:19.937  3744  4224 I System.out: WP503_NATIVE_APPEARANCE_RESTORED|theme=default|scheme=system|onboarding=false
+10-13 21:40:24.534  3744  4224 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-13 21:40:24.539  3744  4224 I System.out: WP503_NATIVE_FOCUS_SERVICE|sdk=37|capabilities=11|flags=65554|touchExploration=false|physicalTalkBack=false
+10-13 21:40:24.734  3744  4224 I System.out: WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=37|touchExploration=true|physicalTalkBack=false
+10-13 21:40:24.780  3744  4224 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size|response=Physical size: 1344x2992
+10-13 21:40:24.780  3744  4224 I System.out: Override size: 360x900
+10-13 21:40:27.702  3744  4224 I System.out: WP503_NATIVE_CHAT_EDITOR|sdk=37|focusedBefore=false|focusActionAdvertised=true
+10-13 21:40:28.517  3744  4224 I System.out: WP503_FONT|text=Draft 中文 مرحبا|size=154 x 84|constraints=Constraints(minWidth = 154, maxWidth = 154, minHeight = 42, maxHeight = Infinity)|paragraph=154.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+10-13 21:40:28.520  3744  4224 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=30.546875|right=154.0|top=0.0|bottom=42.0
+10-13 21:40:28.520  3744  4224 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=1|left=97.0|right=154.0|top=42.0|bottom=84.0
+10-13 21:40:32.353  3744  4224 I System.out: WP503_FONT|text=Cached history 15 中文|size=286 x 40|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=286.0x40.0|widthOverflow=false|heightOverflow=false|lines=1
+10-13 21:40:32.353  3744  4224 I System.out: WP503_FONT_LINE|text=Cached history 15 中文|line=0|left=0.02734375|right=286.0|top=0.0|bottom=40.0
+10-13 21:40:32.835  3744  4224 I System.out: WP503_NATIVE_CHAT_WINDOW_BEFORE|sdk=37|message=00000000-0000-0000-0000-00000007ad4b|textBounds=Rect.fromLTRB(50.0, 255.0, 336.0, 295.0)|entry=6|draftSaved=true|realStore=true|realGraph=true|physicalTalkBack=false
+10-13 21:40:33.416  3744  4224 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size 900x900|response=
+10-13 21:40:36.620  3744  4224 I System.out: WP503_NATIVE_WINDOW|sdk=37|size=900x900|bounds=Rect(0, 0 - 900, 900)|activityRecreated=true|shell=navigation-rail|fontScale=2.0|physicalTalkBack=false
+10-13 21:40:36.688  3744  4224 I System.out: WP503_FONT|text=Draft 中文 مرحبا|size=234 x 50|constraints=Constraints(minWidth = 234, maxWidth = 234, minHeight = 42, maxHeight = Infinity)|paragraph=234.0x50.0|widthOverflow=false|heightOverflow=false|lines=1
+10-13 21:40:36.690  3744  4224 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=46.546875|right=234.0|top=0.0|bottom=50.0
+10-13 21:40:36.986  3744  4224 I System.out: WP503_NATIVE_CHAT_WINDOW_AFTER|sdk=37|size=900x900|message=00000000-0000-0000-0000-00000007ad4b|visibleMatches=1|entry=6|draftSaved=true|timelineLoaded=true|realStore=true|realGraph=true|physicalTalkBack=false
+10-13 21:40:37.018  3744  4224 I System.out: WP503_FONT|text=Cached history 15 中文|size=286 x 40|constraints=Constraints(minWidth = 0, maxWidth = 392, minHeight = 0, maxHeight = Infinity)|paragraph=286.0x40.0|widthOverflow=false|heightOverflow=false|lines=1
+10-13 21:40:37.018  3744  4224 I System.out: WP503_FONT_LINE|text=Cached history 15 中文|line=0|left=0.02734375|right=286.0|top=0.0|bottom=40.0
+10-13 21:40:37.225  3744  4224 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+10-13 21:40:39.886  3744  4224 I System.out: WP503_NATIVE_WINDOW|sdk=37|size=360x900|bounds=Rect(0, 0 - 360, 900)|activityRecreated=true|shell=navigation-hidden|fontScale=2.0|physicalTalkBack=false
+10-13 21:40:39.916  3744  4224 I System.out: WP503_FONT|text=Draft 中文 مرحبا|size=154 x 84|constraints=Constraints(minWidth = 154, maxWidth = 154, minHeight = 42, maxHeight = Infinity)|paragraph=154.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+10-13 21:40:39.916  3744  4224 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=30.546875|right=154.0|top=0.0|bottom=42.0
+10-13 21:40:39.916  3744  4224 I System.out: WP503_FONT_LINE|text=Draft 中文 مرحبا|line=1|left=97.0|right=154.0|top=42.0|bottom=84.0
+10-13 21:40:40.116  3744  4224 I System.out: WP503_NATIVE_CHAT_WINDOW_AFTER|sdk=37|size=360x900|message=00000000-0000-0000-0000-00000007ad4b|visibleMatches=1|entry=6|draftSaved=true|timelineLoaded=true|realStore=true|realGraph=true|physicalTalkBack=false
+10-13 21:40:40.152  3744  4224 I System.out: WP503_FONT|text=Cached history 15 中文|size=286 x 40|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=286.0x40.0|widthOverflow=false|heightOverflow=false|lines=1
+10-13 21:40:40.153  3744  4224 I System.out: WP503_FONT_LINE|text=Cached history 15 中文|line=0|left=0.02734375|right=286.0|top=0.0|bottom=40.0
+10-13 21:40:40.186  3744  4224 I System.out: WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+10-13 21:40:42.489  3744  4224 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-13 21:40:42.969  3744  4224 I System.out: WP503_OFFLINE_DISCOVERY|sdk=37|indeterminate=0|discoveredReads=1|cachedRadio=true|storeAvailable=true|connectedDevice=false|realRadio=false
+10-13 21:40:43.010  3744  4224 I System.out: WP503_FONT|text=No Discovered Nodes|size=312 x 96|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = 524)|paragraph=312.0x96.0|widthOverflow=false|heightOverflow=false|lines=2
+10-13 21:40:43.011  3744  4224 I System.out: WP503_FONT_LINE|text=No Discovered Nodes|line=0|left=0.0|right=234.17969|top=0.0|bottom=48.0
+10-13 21:40:43.011  3744  4224 I System.out: WP503_FONT_LINE|text=No Discovered Nodes|line=1|left=0.0|right=105.0|top=48.0|bottom=96.0
+10-13 21:40:43.050  3744  4224 I System.out: WP503_FONT|text=Nodes will appear here as their advertisements are discovered.|size=312 x 126|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = 420)|paragraph=312.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+10-13 21:40:43.050  3744  4224 I System.out: WP503_FONT_LINE|text=Nodes will appear here as their advertisements are discovered.|line=0|left=0.0|right=283.7422|top=0.0|bottom=42.0
+10-13 21:40:43.051  3744  4224 I System.out: WP503_FONT_LINE|text=Nodes will appear here as their advertisements are discovered.|line=1|left=0.0|right=290.5078|top=42.0|bottom=84.0
+10-13 21:40:43.051  3744  4224 I System.out: WP503_FONT_LINE|text=Nodes will appear here as their advertisements are discovered.|line=2|left=0.0|right=189.10547|top=84.0|bottom=126.0
+10-13 21:40:43.085  3744  4224 I System.out: WP503_TARGET|width=230.0|height=130.0|role=null
+10-13 21:40:43.085  3744  4224 I System.out: WP503_TARGET|width=98.0|height=54.0|role=Button
+10-13 21:40:43.085  3744  4224 I System.out: WP503_TARGET|width=81.0|height=48.0|role=Checkbox
+10-13 21:40:43.086  3744  4224 I System.out: WP503_TARGET|width=81.0|height=106.0|role=Checkbox
+10-13 21:40:43.086  3744  4224 I System.out: WP503_TARGET|width=82.0|height=106.0|role=Checkbox
+10-13 21:40:43.086  3744  4224 I System.out: WP503_TARGET|width=82.0|height=68.0|role=Checkbox
+10-13 21:40:46.092  3744  4224 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-13 21:40:46.784  3744  4224 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=37|label=Discover Path|bounds=Rect.fromLTRB(118.0, 822.0, 328.0, 876.0)|size=210 x 54|position=Offset(118.0, 822.0)|touchBounds=Rect.fromLTRB(118.0, 822.0, 328.0, 876.0)|root=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|realRadio=false
+10-13 21:40:46.835  3744  4224 I System.out: WP503_FONT|text=Discover Path|size=162 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:46.836  3744  4224 I System.out: WP503_FONT_LINE|text=Discover Path|line=0|left=0.0|right=161.5039|top=0.0|bottom=38.0
+10-13 21:40:46.983  3744  4224 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=37|label=Edit Path|bounds=Rect.fromLTRB(174.0, 822.0, 328.0, 876.0)|size=154 x 54|position=Offset(174.0, 822.0)|touchBounds=Rect.fromLTRB(174.0, 822.0, 328.0, 876.0)|root=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|realRadio=false
+10-13 21:40:47.032  3744  4224 I System.out: WP503_FONT|text=Edit Path|size=106 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:47.032  3744  4224 I System.out: WP503_FONT_LINE|text=Edit Path|line=0|left=0.0|right=105.61719|top=0.0|bottom=38.0
+10-13 21:40:47.164  3744  4224 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=37|label=Reset Path|bounds=Rect.fromLTRB(178.0, 822.0, 328.0, 876.0)|size=150 x 54|position=Offset(178.0, 822.0)|touchBounds=Rect.fromLTRB(178.0, 822.0, 328.0, 876.0)|root=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|realRadio=false
+10-13 21:40:47.216  3744  4224 I System.out: WP503_FONT|text=Reset Path|size=126 x 38|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:47.217  3744  4224 I System.out: WP503_FONT_LINE|text=Reset Path|line=0|left=0.0|right=125.859375|top=0.0|bottom=38.0
+10-13 21:40:47.451  3744  4224 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=37|label=Send Message|bounds=Rect.fromLTRB(32.0, 303.0, 328.0, 357.0)|size=296 x 54|position=Offset(32.0, 303.0)|touchBounds=Rect.fromLTRB(32.0, 303.0, 328.0, 357.0)|root=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|realRadio=false
+10-13 21:40:47.505  3744  4224 I System.out: WP503_FONT|text=Send Message|size=171 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:47.505  3744  4224 I System.out: WP503_FONT_LINE|text=Send Message|line=0|left=0.0|right=171.0|top=0.0|bottom=38.0
+10-13 21:40:47.584  3744  4224 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=37|label=Telemetry|bounds=Rect.fromLTRB(32.0, 365.0, 328.0, 419.0)|size=296 x 54|position=Offset(32.0, 365.0)|touchBounds=Rect.fromLTRB(32.0, 365.0, 328.0, 419.0)|root=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|realRadio=false
+10-13 21:40:47.633  3744  4224 I System.out: WP503_FONT|text=Telemetry|size=119 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:47.633  3744  4224 I System.out: WP503_FONT_LINE|text=Telemetry|line=0|left=0.0|right=118.01953|top=0.0|bottom=38.0
+10-13 21:40:47.707  3744  4224 I System.out: WP503_OFFLINE_DETAIL_ACTION|sdk=37|label=Share Contact via Advert|bounds=Rect.fromLTRB(32.0, 551.0, 328.0, 643.0)|size=296 x 92|position=Offset(32.0, 551.0)|touchBounds=Rect.fromLTRB(32.0, 551.0, 328.0, 643.0)|root=Rect.fromLTRB(0.0, 52.0, 360.0, 876.0)|realRadio=false
+10-13 21:40:47.789  3744  4224 I System.out: WP503_FONT|text=Share Contact via Advert|size=248 x 76|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+10-13 21:40:47.789  3744  4224 I System.out: WP503_FONT_LINE|text=Share Contact via Advert|line=0|left=0.0|right=204.75781|top=0.0|bottom=38.0
+10-13 21:40:47.789  3744  4224 I System.out: WP503_FONT_LINE|text=Share Contact via Advert|line=1|left=0.0|right=77.47266|top=38.0|bottom=76.0
+10-13 21:40:47.894  3744  4224 I System.out: WP503_FONT|text=Telemetry History|size=208 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+10-13 21:40:47.895  3744  4224 I System.out: WP503_FONT_LINE|text=Telemetry History|line=0|left=0.0|right=207.94922|top=0.0|bottom=38.0
+10-13 21:40:47.933  3744  4224 I System.out: WP503_TARGET|width=296.0|height=54.0|role=Button
+10-13 21:40:47.938  3744  4224 I System.out: WP503_TARGET|width=296.0|height=54.0|role=Button
+10-13 21:40:47.939  3744  4224 I System.out: WP503_TARGET|width=296.0|height=54.0|role=Button
+10-13 21:40:47.939  3744  4224 I System.out: WP503_PARTIAL_TARGET|position=Offset(94.0, 861.0)|size=234 x 54

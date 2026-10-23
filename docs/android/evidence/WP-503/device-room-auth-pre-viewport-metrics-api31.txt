@@ -1,0 +1,59 @@
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_FONT|text=Room 中文 שלום|size=259 x 51|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 694)|paragraph=328.0x51.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Room 中文 שלום|line=0|left=0.0|right=258.65625|top=0.0|bottom=51.0
+WP503_ROOM_AUTH_TEXT|label=Room 中文 שלום|bounds=Rect.fromLTRB(85.0, 589.0, 344.0, 640.0)|size=259 x 51|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Room Not Found|size=210 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 631)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Room Not Found|line=0|left=0.0|right=209.71094|top=0.0|bottom=42.0
+WP503_ROOM_AUTH_TEXT|label=Room Not Found|bounds=Rect.fromLTRB(134.0, 554.0, 344.0, 596.0)|size=210 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Could not find the room contact|size=328 x 84|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 577)|paragraph=328.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Could not find the room contact|line=0|left=0.0|right=291.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Could not find the room contact|line=1|left=0.0|right=94.0|top=42.0|bottom=84.0
+WP503_ROOM_AUTH_TEXT|label=Could not find the room contact|bounds=Rect.fromLTRB(16.0, 608.0, 344.0, 692.0)|size=328 x 84|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Cancel|size=80 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = 465)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=80.0|top=0.0|bottom=38.0
+WP503_ROOM_AUTH_TEXT|label=Cancel|bounds=Rect.fromLTRB(28.0, 712.0, 108.0, 750.0)|size=80 x 38|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 704.0, 120.0, 758.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)|size=104 x 54
+WP503_ROOM_AUTH_DISMISSED|cancellations=1|submissions=0|realRadio=false
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_FONT|text=Room 中文 שלום|size=259 x 51|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 694)|paragraph=328.0x51.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Room 中文 שלום|line=0|left=0.0|right=258.65625|top=0.0|bottom=51.0
+WP503_ROOM_AUTH_TEXT|label=Room 中文 שלום|bounds=Rect.fromLTRB(85.0, 514.0, 344.0, 565.0)|size=259 x 51|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 677.0, 344.0, 726.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)|size=328 x 49
+WP503_FONT|text=Remember Password|size=267 x 42|constraints=Constraints(minWidth = 0, maxWidth = 276, minHeight = 0, maxHeight = 531)|paragraph=276.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Remember Password|line=0|left=0.0|right=266.58594|top=0.0|bottom=42.0
+WP503_ROOM_AUTH_TEXT|label=Remember Password|bounds=Rect.fromLTRB(25.0, 681.0, 292.0, 723.0)|size=267 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 577.0, 344.0, 665.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)|size=328 x 88
+WP503_FONT|text=Password|size=123 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = 601)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Password|line=0|left=0.0|right=122.58594|top=0.0|bottom=42.0
+WP503_ROOM_AUTH_TEXT|label=Password|bounds=Rect.fromLTRB(205.0, 607.0, 328.0, 649.0)|size=123 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_ROOM_AUTH_IME|acceptingText=true|imeVisible=true|physicalTalkBack=false
+WP503_FONT|text=Remember Password|size=267 x 42|constraints=Constraints(minWidth = 0, maxWidth = 276, minHeight = 0, maxHeight = 268)|paragraph=276.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Remember Password|line=0|left=0.0|right=266.58594|top=0.0|bottom=42.0
+WP503_ROOM_AUTH_TEXT|label=Remember Password|bounds=Rect.fromLTRB(25.0, 487.0, 292.0, 529.0)|size=267 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 483.0, 344.0, 532.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)|size=328 x 49
+WP503_FONT|text=Join Room|size=125 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = 191)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Join Room|line=0|left=0.0|right=125.0|top=0.0|bottom=38.0
+WP503_ROOM_AUTH_TEXT|label=Join Room|bounds=Rect.fromLTRB(118.0, 552.0, 243.0, 590.0)|size=125 x 38|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 544.0, 344.0, 598.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)|size=328 x 54
+WP503_FONT|text=Cancel|size=80 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = 125)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=80.0|top=0.0|bottom=38.0
+WP503_ROOM_AUTH_TEXT|label=Cancel|bounds=Rect.fromLTRB(28.0, 618.0, 108.0, 656.0)|size=80 x 38|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 610.0, 120.0, 664.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)|size=104 x 54
+WP503_ROOM_AUTH_DISMISSED|cancellations=1|submissions=1|realRadio=false
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_FONT|text=Room 中文 שלום|size=259 x 51|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 694)|paragraph=328.0x51.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Room 中文 שלום|line=0|left=0.0|right=258.65625|top=0.0|bottom=51.0
+WP503_ROOM_AUTH_TEXT|label=Room 中文 שלום|bounds=Rect.fromLTRB(85.0, 514.0, 344.0, 565.0)|size=259 x 51|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Join Room|size=125 x 38|constraints=Constraints(minWidth = 0, maxWidth = 280, minHeight = 0, maxHeight = 454)|paragraph=280.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Join Room|line=0|left=0.0|right=125.0|top=0.0|bottom=38.0
+WP503_ROOM_AUTH_TEXT|label=Join Room|bounds=Rect.fromLTRB(118.0, 746.0, 243.0, 784.0)|size=125 x 38|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 738.0, 344.0, 792.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)|size=328 x 54
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 677.0, 344.0, 726.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)|size=328 x 49
+WP503_FONT|text=Remember Password|size=267 x 42|constraints=Constraints(minWidth = 0, maxWidth = 276, minHeight = 0, maxHeight = 531)|paragraph=276.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Remember Password|line=0|left=0.0|right=266.58594|top=0.0|bottom=42.0
+WP503_ROOM_AUTH_TEXT|label=Remember Password|bounds=Rect.fromLTRB(25.0, 681.0, 292.0, 723.0)|size=267 x 42|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_FONT|text=Cancel|size=80 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = 388)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=80.0|top=0.0|bottom=38.0
+WP503_ROOM_AUTH_TEXT|label=Cancel|bounds=Rect.fromLTRB(28.0, 812.0, 108.0, 850.0)|size=80 x 38|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)
+WP503_ROOM_AUTH_TARGET|bounds=Rect.fromLTRB(16.0, 804.0, 120.0, 858.0)|viewport=Rect.fromLTRB(0.0, 0.0, 360.0, 900.0)|size=104 x 54
+WP503_ROOM_AUTH_DISMISSED|cancellations=1|submissions=0|realRadio=false

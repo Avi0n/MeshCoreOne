@@ -1,0 +1,37 @@
+WP503_EXECUTED_INPUT|7f24b57c1ab06437435b8938d166a5254fec0894
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 31, "head": "7f24b57c1ab06437435b8938d166a5254fec0894", "scenario": "full", "discovered": 82, "statuses": {"0": 79, "-2": 3}, "time": ["Time: 170.335"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeAppLanguageAccessibilityTest', 'actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest', 'actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativePlatformServiceControlTest', 'actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule')|-2
+01)
+	at android.os.Looper.loop(Looper.java:288)
+	at android.app.ActivityThread.main(ActivityThread.java:7839)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1003)
+14) actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule(com.meshcoreone.android.accessibility.NativePlatformServiceControlTest)
+java.lang.AssertionError: A platform-only control must start without an Activity expected:<0> but was:<6>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.meshcoreone.android.accessibility.NativePlatformServiceControlTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule$lambda$1(NativePlatformServiceControlTest.kt:42)
+	at com.meshcoreone.android.accessibility.NativePlatformServiceControlTest$$ExternalSyntheticLambda2.run(D8$$SyntheticClass:0)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:462)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2266)
+	at android.os.Handler.handleCallback(Handler.java:938)
+	at android.os.Handler.dispatchMessage(Handler.java:99)
+	at android.os.Looper.loopOnce(Looper.java:201)
+	at android.os.Looper.loop(Looper.java:288)
+	at android.app.ActivityThread.main(ActivityThread.java:7839)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1003)
+
+FAILURES!!!
+Tests run: 82,  Failures: 14
+
+
+INSTRUMENTATION_CODE: -1
+

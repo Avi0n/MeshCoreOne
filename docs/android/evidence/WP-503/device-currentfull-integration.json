@@ -1,0 +1,89 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "published_head_before_execution": "8a4673585811c3c63f48373123ccfe0e82c9158f",
+  "executed_combined_head": "40cb94e846a9f99de0afaa3f99b61c668386e7e4",
+  "executed_android_tree": "f9e05b54d0dc5bf544c30bca8085b94a0e2afcb5",
+  "apk_binding": "device-currentfull-inputs.json",
+  "same_source_and_producer_binding": "device-nativeclock-integration.json",
+  "selector": "Existing full80 App AndroidJUnitRunner package com.meshcoreone.android.accessibility, independently required expectedApi31or37",
+  "source_change": "None: same exact40cb source/Android tree/APKs as the preceding targeted launcher9, unchanged80 native methods, helpers, assertions and1000ms/300s/600s guards. First full80 invocation at this source per API, not failing-case retryuntilgreen.",
+  "native_api31": {
+    "actual_guest_online_cpu_count": 2,
+    "emulator_enforced_memory_mib": 2048,
+    "full": {
+      "expected_total": 80, "started": 80, "terminal": 80, "passed": 77, "failed": 3,
+      "completed": true, "seconds": 192.963,
+      "errors": 0, "skipped": 0, "junit_expanded_exception_count": 14,
+      "failed_identities": [
+        "NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "touch_requested": 7, "touch_activated": 7, "touch_finally": 7, "touch_restored": 7,
+      "native_window_ready_observations": 4,
+      "activation_ready_elapsed_ms": [2, 13, 14, 13, 1, 11, 1],
+      "restoration_ready_elapsed_ms": [11, 13, 13, 13, 19, 12, 1],
+      "launcher_passed": 9,
+      "independent_service_control_passed": 1,
+      "persisted_theme_scheme_observations": 30,
+      "native_selected_tab_focus_observations": 5,
+      "native_motion_tab_focus_observations": 10,
+      "native_motion_detail_back_observations": 2,
+      "native_composer_targets_wholly_above_ime_and_at_least_48dp": 3,
+      "control_activation_ms": 12, "control_restoration_ms": 12,
+      "control_snapshot_durations_ms": [41, 31]
+    }
+  },
+  "native_api37": {
+    "actual_guest_online_cpu_count": 2,
+    "emulator_enforced_memory_mib": 4096,
+    "full": {
+      "expected_total": 80, "started": 80, "terminal": 80, "passed": 78, "failed": 2,
+      "completed": true, "seconds": 321.272,
+      "errors": 0, "skipped": 0, "junit_expanded_exception_count": 13,
+      "failed_identities": [
+        "NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal"
+      ],
+      "touch_requested": 7, "touch_activated": 7, "touch_finally": 7, "touch_restored": 7,
+      "native_window_ready_observations": 4,
+      "activation_ready_elapsed_ms": [12, 107, 12, 47, 24, 28, 12],
+      "restoration_ready_elapsed_ms": [16, 17, 25, 31, 92, 22, 15],
+      "launcher_passed": 9,
+      "independent_service_control_passed": 1,
+      "persisted_theme_scheme_observations": 30,
+      "native_selected_tab_focus_observations": 5,
+      "native_motion_tab_focus_observations": 10,
+      "native_motion_detail_back_observations": 2,
+      "native_composer_targets_wholly_above_ime_and_at_least_48dp": 3,
+      "control_activation_ms": 11, "control_restoration_ms": 10,
+      "control_snapshot_durations_ms": [58, 41],
+      "qr_share_original_fixture_passed": true
+    }
+  },
+  "failure_classification": {
+    "language": "Existing#238: twelve own-name/selected-state mismatches en,de,es,fr,it,ko,nl,pl,pt-PT,ru,uk,zh-Hans, each expected1/actual0, in one failing method on each API.",
+    "cli": "Existing#236: production LocalizedCompare16 sets unsupported Collator.FULL_DECOMPOSITION; actual java.text.Collator.decompositionMode_Java_ICU throws IllegalArgumentException Bad mode2 during CLI construction on both APIs, before disconnected explanation.",
+    "qr": "Existing#237: original Copy line0 clips vertically at200% font on API31. Same unchanged fixture passes on API37; that does not clear API31 or establish a producer repair.",
+    "junit_summary": "Expanded14/13 exceptions are not14/13 distinct failing methods. Actual unique terminal statuses are77pass/3fail and78pass/2fail, with no error/skip statuses."
+  },
+  "native_operation_cleanup": {
+    "separate_fresh_images_single_full_invocation_per_api": true,
+    "owned_emulator_exit_codes": [0, 0],
+    "exact_four_image_and_qcow_paths_removed_after_confirmed_exit": true,
+    "final_adb_device_list_empty": true
+  },
+  "native_profile": "Actual two guest CPUs each, unchanged fresh installed AOSP31/noGMS/4KiB and PlayStore37.2/GMS/16KiB images,360x900/mdpi160/font2/nativeRTL/motion0/hardwareIME1, original300s boot/600s instrumentation guards.",
+  "qualification": "All80 declared identities genuinely execute with matching outcomes on both APIs. Launcher9 and independent control1 pass within this larger invocation on both APIs; all original native contrast/action/feature assertions run. This different invocation context does not erase the preceding same-source isolated launcher37 activation failure, initialcontrolfailure or earlier incomplete/restoration negatives, prove stable readiness, or satisfy unexecuted physical/golden/admission/review gates.",
+  "product_blockers": [236, 237, 238],
+  "producer_or_framework_cause_or_behavior_repair_verified": false,
+  "previous_native_negatives_physical_matrix_goldens_admission_review_or_wp_completion_cleared": false
+}

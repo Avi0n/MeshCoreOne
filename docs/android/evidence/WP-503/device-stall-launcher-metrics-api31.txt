@@ -1,0 +1,433 @@
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=2
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=27
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_LAUNCHER_SELECTION|sdk=31|tab=NODES|nativeSelected=true|accessibilityFocus=true|realSelected=NODES
+WP503_FONT|text=Nodes|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Nodes|line=0|left=5.0|right=67.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Nodes|line=1|left=29.0|right=43.0|top=32.0|bottom=64.0
+WP503_NATIVE_LAUNCHER_FOCUS|sdk=31|tab=NODES|nativeSelected=true|accessibilityFocus=true|bounds=Rect(216, 614 - 288, 774)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+WP503_NATIVE_LAUNCHER_SELECTION|sdk=31|tab=MAP|nativeSelected=true|accessibilityFocus=true|realSelected=MAP
+WP503_FONT|text=Map|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Map|line=0|left=11.0|right=61.0|top=0.0|bottom=32.0
+WP503_NATIVE_LAUNCHER_FOCUS|sdk=31|tab=MAP|nativeSelected=true|accessibilityFocus=true|bounds=Rect(144, 614 - 216, 774)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+WP503_NATIVE_LAUNCHER_SELECTION|sdk=31|tab=TOOLS|nativeSelected=true|accessibilityFocus=true|realSelected=TOOLS
+WP503_FONT|text=Tools|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Tools|line=0|left=3.0|right=69.0|top=0.0|bottom=32.0
+WP503_NATIVE_LAUNCHER_FOCUS|sdk=31|tab=TOOLS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(72, 614 - 144, 774)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+WP503_NATIVE_LAUNCHER_SELECTION|sdk=31|tab=SETTINGS|nativeSelected=true|accessibilityFocus=true|realSelected=SETTINGS
+WP503_FONT|text=Settings|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Settings|line=0|left=12.0|right=60.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Settings|line=1|left=7.0|right=65.0|top=32.0|bottom=64.0
+WP503_NATIVE_LAUNCHER_FOCUS|sdk=31|tab=SETTINGS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(0, 614 - 72, 774)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+WP503_NATIVE_LAUNCHER_SELECTION|sdk=31|tab=CHATS|nativeSelected=true|accessibilityFocus=true|realSelected=CHATS
+WP503_FONT|text=Chats|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Chats|line=0|left=2.0|right=70.0|top=0.0|bottom=32.0
+WP503_NATIVE_LAUNCHER_FOCUS|sdk=31|tab=CHATS|nativeSelected=true|accessibilityFocus=true|bounds=Rect(288, 614 - 360, 774)|fontScale=2.0|completedPreferenceSeeded=true|realGraph=true|realRadio=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=5237
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=5242|beforeNextFixture=true
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=5242
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=9
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=11
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+WP503_FONT|text=Appearance|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Appearance|line=0|left=0.0|right=148.45312|top=0.0|bottom=33.0
+WP503_FONT|text=Settings|size=248 x 45|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 837)|paragraph=248.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=System|checked=true|checkable=true|bounds=Rect(16, 229 - 344, 277)|enabled=true|clickable=false|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null]
+WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=System|checked=true|checkable=true|bounds=Rect(16, 229 - 344, 277)|enabled=true|clickable=false|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null]
+WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=Light|checked=false|checkable=true|bounds=Rect(16, 277 - 344, 325)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=Dark|checked=false|checkable=true|bounds=Rect(16, 325 - 344, 373)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, currently selected|enabled=false|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Default|size=84 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Default|line=0|left=0.0|right=84.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=default|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Ember|size=76 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Ember|line=0|left=0.0|right=76.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=ember|scheme=system|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Fern|size=51 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Fern|line=0|left=0.0|right=50.73047|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=fern|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Marine|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Marine|line=0|left=0.0|right=81.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=marine|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Olive|size=59 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Olive|line=0|left=0.0|right=58.83203|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=olive|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Lavender|size=107 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Lavender|line=0|left=0.0|right=106.640625|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=lavender|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Sakura|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Sakura|line=0|left=0.0|right=80.53906|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=sakura|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Solarized|size=110 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Solarized|line=0|left=0.0|right=109.796875|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=solarized|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Nord|size=57 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Nord|line=0|left=0.0|right=56.757812|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=nord|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Catppuccin|size=133 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Catppuccin|line=0|left=0.0|right=133.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=catppuccin|scheme=system|effective=null|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=Light|checked=false|checkable=true|bounds=Rect(16, 277 - 344, 325)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=System|checked=false|checkable=true|bounds=Rect(16, 229 - 344, 277)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=Light|checked=true|checkable=true|bounds=Rect(16, 277 - 344, 325)|enabled=true|clickable=false|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null]
+WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=Dark|checked=false|checkable=true|bounds=Rect(16, 325 - 344, 373)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Default|size=84 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Default|line=0|left=0.0|right=84.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=default|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Ember|size=76 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Ember|line=0|left=0.0|right=76.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=ember|scheme=light|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Fern|size=51 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Fern|line=0|left=0.0|right=50.73047|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=fern|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Marine|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Marine|line=0|left=0.0|right=81.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=marine|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Olive|size=59 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Olive|line=0|left=0.0|right=58.83203|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=olive|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Lavender|size=107 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Lavender|line=0|left=0.0|right=106.640625|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=lavender|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Sakura|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Sakura|line=0|left=0.0|right=80.53906|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=sakura|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Solarized|size=110 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Solarized|line=0|left=0.0|right=109.796875|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=solarized|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Nord|size=57 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Nord|line=0|left=0.0|right=56.757812|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=nord|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Catppuccin|size=133 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Catppuccin|line=0|left=0.0|right=133.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=catppuccin|scheme=light|effective=LIGHT|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=Dark|checked=false|checkable=true|bounds=Rect(16, 325 - 344, 373)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=System|checked=false|checkable=true|bounds=Rect(16, 229 - 344, 277)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+WP503_FONT|text=System|size=93 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=System|line=0|left=0.0|right=93.0|top=0.0|bottom=42.0
+WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=Light|checked=false|checkable=true|bounds=Rect(16, 277 - 344, 325)|enabled=true|clickable=true|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_CLICK - null]
+WP503_FONT|text=Light|size=62 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Light|line=0|left=0.0|right=62.0|top=0.0|bottom=42.0
+WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_RADIO|label=Dark|checked=true|checkable=true|bounds=Rect(16, 325 - 344, 373)|enabled=true|clickable=false|actions=[AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_FOCUS - null]
+WP503_FONT|text=Dark|size=56 x 42|constraints=Constraints(minWidth = 0, maxWidth = 296, minHeight = 0, maxHeight = Infinity)|paragraph=296.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Dark|line=0|left=0.0|right=56.0|top=0.0|bottom=42.0
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Default, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Default|size=84 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Default|line=0|left=0.0|right=84.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=default|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Ember, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Ember|size=76 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Ember|line=0|left=0.0|right=76.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=ember|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Fern, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Fern|size=51 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Fern|line=0|left=0.0|right=50.73047|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=fern|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Marine, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Marine|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Marine|line=0|left=0.0|right=81.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=marine|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Olive, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Olive|size=59 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Olive|line=0|left=0.0|right=58.83203|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=olive|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Lavender, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Lavender|size=107 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Lavender|line=0|left=0.0|right=106.640625|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=lavender|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Sakura, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Sakura|size=81 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Sakura|line=0|left=0.0|right=80.53906|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=sakura|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Solarized, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Solarized|size=110 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Solarized|line=0|left=0.0|right=109.796875|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=solarized|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Nord, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Nord|size=57 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Nord|line=0|left=0.0|right=56.757812|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=nord|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, owned|enabled=true|clickable=true
+WP503_NATIVE_APPEARANCE_CARD|label=Theme Catppuccin, currently selected|enabled=false|clickable=true
+WP503_FONT|text=Catppuccin|size=133 x 30|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=312.0x30.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Catppuccin|line=0|left=0.0|right=133.0|top=0.0|bottom=30.0
+WP503_NATIVE_APPEARANCE|sdk=31|theme=catppuccin|scheme=dark|effective=DARK|persisted=true|selectedText=true|duplicateDisabled=true|focus=true|cardTarget48=true|fontScale=2.0|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_APPEARANCE_RESTORED|theme=default|scheme=system|onboarding=false
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=14570
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=14577
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=14582|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=15
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=24
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 1.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global transition_animation_scale 1.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global window_animation_scale 1.0|response=
+WP503_FONT|text=Nodes|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Nodes|line=0|left=5.0|right=67.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Nodes|line=1|left=29.0|right=43.0|top=32.0|bottom=64.0
+WP503_NATIVE_MOTION_TAB|sdk=31|scale=1.0|tab=NODES|selected=true|focus=true|bounds=Rect(216, 614 - 288, 774)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Map|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Map|line=0|left=11.0|right=61.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=31|scale=1.0|tab=MAP|selected=true|focus=true|bounds=Rect(144, 614 - 216, 774)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Tools|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Tools|line=0|left=3.0|right=69.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=31|scale=1.0|tab=TOOLS|selected=true|focus=true|bounds=Rect(72, 614 - 144, 774)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Settings|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Settings|line=0|left=12.0|right=60.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Settings|line=1|left=7.0|right=65.0|top=32.0|bottom=64.0
+WP503_NATIVE_MOTION_TAB|sdk=31|scale=1.0|tab=SETTINGS|selected=true|focus=true|bounds=Rect(0, 614 - 72, 774)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Chats|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Chats|line=0|left=2.0|right=70.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=31|scale=1.0|tab=CHATS|selected=true|focus=true|bounds=Rect(288, 614 - 360, 774)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Language|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_MOTION_LANGUAGE|sdk=31|scale=1.0|bounds=Rect(28, 511 - 332, 560)|scrollTarget=mergedAction|fontScale=2.0|physicalTalkBack=false
+WP503_NATIVE_MOTION_BACK|sdk=31|scale=1.0|languageNativeAction=true|nativeBack=true|stacksRestored=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global transition_animation_scale 0.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global window_animation_scale 0.0|response=
+WP503_FONT|text=Nodes|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Nodes|line=0|left=5.0|right=67.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Nodes|line=1|left=29.0|right=43.0|top=32.0|bottom=64.0
+WP503_NATIVE_MOTION_TAB|sdk=31|scale=0.0|tab=NODES|selected=true|focus=true|bounds=Rect(216, 614 - 288, 774)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Map|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Map|line=0|left=11.0|right=61.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=31|scale=0.0|tab=MAP|selected=true|focus=true|bounds=Rect(144, 614 - 216, 774)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Tools|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Tools|line=0|left=3.0|right=69.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=31|scale=0.0|tab=TOOLS|selected=true|focus=true|bounds=Rect(72, 614 - 144, 774)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Settings|size=72 x 64|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x64.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Settings|line=0|left=12.0|right=60.0|top=0.0|bottom=32.0
+WP503_FONT_LINE|text=Settings|line=1|left=7.0|right=65.0|top=32.0|bottom=64.0
+WP503_NATIVE_MOTION_TAB|sdk=31|scale=0.0|tab=SETTINGS|selected=true|focus=true|bounds=Rect(0, 614 - 72, 774)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Chats|size=72 x 32|constraints=Constraints(minWidth = 0, maxWidth = 72, minHeight = 0, maxHeight = 124)|paragraph=72.0x32.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Chats|line=0|left=2.0|right=70.0|top=0.0|bottom=32.0
+WP503_NATIVE_MOTION_TAB|sdk=31|scale=0.0|tab=CHATS|selected=true|focus=true|bounds=Rect(288, 614 - 360, 774)|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Language|size=304 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_MOTION_LANGUAGE|sdk=31|scale=0.0|bounds=Rect(28, 511 - 332, 560)|scrollTarget=mergedAction|fontScale=2.0|physicalTalkBack=false
+WP503_NATIVE_MOTION_BACK|sdk=31|scale=0.0|languageNativeAction=true|nativeBack=true|stacksRestored=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global transition_animation_scale 0.0|response=
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global window_animation_scale 0.0|response=
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=6239
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=6246|beforeNextFixture=true
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=6246
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=8
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=84
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_FOCUS_CONTROL|sdk=31|focused=true|callback=1|physicalTalkBack=false
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=430
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=438
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=439|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=4
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=8
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size|response=Physical size: 1080x2400
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 900x900|response=
+WP503_NATIVE_WINDOW|sdk=31|size=900x900|bounds=Rect(0, 0 - 900, 900)|activityRecreated=true|shell=navigation-rail|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Nodes|size=530 x 45|constraints=Constraints(minWidth = 0, maxWidth = 530, minHeight = 0, maxHeight = 837)|paragraph=530.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Nodes|line=0|left=0.0|right=102.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=31|tab=NODES|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Map|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 837)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Map|line=0|left=0.0|right=70.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=31|tab=MAP|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Tools|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 837)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Tools|line=0|left=0.0|right=86.30469|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=31|tab=TOOLS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Settings|size=708 x 45|constraints=Constraints(minWidth = 0, maxWidth = 708, minHeight = 0, maxHeight = 837)|paragraph=708.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=31|tab=SETTINGS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Chats|size=756 x 45|constraints=Constraints(minWidth = 0, maxWidth = 756, minHeight = 0, maxHeight = 837)|paragraph=756.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Chats|line=0|left=0.0|right=90.0|top=0.0|bottom=45.0
+WP503_NATIVE_RAIL|sdk=31|tab=CHATS|selected=true|focus=true|realGraph=true|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Language|size=324 x 33|constraints=Constraints(minWidth = 0, maxWidth = 324, minHeight = 0, maxHeight = Infinity)|paragraph=324.0x33.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Language|line=0|left=0.0|right=122.0|top=0.0|bottom=33.0
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+WP503_NATIVE_WINDOW|sdk=31|size=360x900|bounds=Rect(0, 0 - 360, 900)|activityRecreated=true|shell=navigation-hidden|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Settings|size=248 x 45|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 837)|paragraph=248.0x45.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Settings|line=0|left=0.0|right=128.0|top=0.0|bottom=45.0
+WP503_NATIVE_WINDOW_DETAIL|sdk=31|expanded=900x900|compact=360x900|retainedEntry=8|nativeBack=true|focusReacquired=true|automaticBackFocusRetained=false|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=4790
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=4803
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=4806|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=6
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=6
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size|response=Physical size: 1080x2400
+WP503_NATIVE_CHAT_EDITOR|sdk=31|focusedBefore=false|focusActionAdvertised=true
+WP503_FONT|text=Draft 中文 مرحبا|size=154 x 84|constraints=Constraints(minWidth = 154, maxWidth = 154, minHeight = 42, maxHeight = Infinity)|paragraph=154.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=30.546875|right=154.0|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=1|left=97.0|right=154.0|top=42.0|bottom=84.0
+WP503_FONT|text=Cached history 15 中文|size=286 x 40|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=286.0x40.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cached history 15 中文|line=0|left=0.02734375|right=286.0|top=0.0|bottom=40.0
+WP503_NATIVE_CHAT_WINDOW_BEFORE|sdk=31|message=00000000-0000-0000-0000-00000007ad4b|textBounds=Rect.fromLTRB(50.0, 191.0, 336.0, 231.0)|entry=9|draftSaved=true|realStore=true|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 900x900|response=
+WP503_NATIVE_WINDOW|sdk=31|size=900x900|bounds=Rect(0, 0 - 900, 900)|activityRecreated=true|shell=navigation-rail|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Draft 中文 مرحبا|size=234 x 42|constraints=Constraints(minWidth = 234, maxWidth = 234, minHeight = 42, maxHeight = Infinity)|paragraph=234.0x42.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=46.546875|right=234.0|top=0.0|bottom=42.0
+WP503_NATIVE_CHAT_WINDOW_AFTER|sdk=31|size=900x900|message=00000000-0000-0000-0000-00000007ad4b|visibleMatches=1|entry=9|draftSaved=true|timelineLoaded=true|realStore=true|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Cached history 15 中文|size=286 x 40|constraints=Constraints(minWidth = 0, maxWidth = 392, minHeight = 0, maxHeight = Infinity)|paragraph=286.0x40.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cached history 15 中文|line=0|left=0.02734375|right=286.0|top=0.0|bottom=40.0
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+WP503_NATIVE_WINDOW|sdk=31|size=360x900|bounds=Rect(0, 0 - 360, 900)|activityRecreated=true|shell=navigation-hidden|fontScale=2.0|physicalTalkBack=false
+WP503_FONT|text=Draft 中文 مرحبا|size=154 x 84|constraints=Constraints(minWidth = 154, maxWidth = 154, minHeight = 42, maxHeight = Infinity)|paragraph=154.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=30.546875|right=154.0|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=1|left=97.0|right=154.0|top=42.0|bottom=84.0
+WP503_NATIVE_CHAT_WINDOW_AFTER|sdk=31|size=360x900|message=00000000-0000-0000-0000-00000007ad4b|visibleMatches=1|entry=9|draftSaved=true|timelineLoaded=true|realStore=true|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Cached history 15 中文|size=286 x 40|constraints=Constraints(minWidth = 0, maxWidth = 312, minHeight = 0, maxHeight = Infinity)|paragraph=286.0x40.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cached history 15 中文|line=0|left=0.02734375|right=286.0|top=0.0|bottom=40.0
+WP503_NATIVE_WINDOW_COMMAND|command=wm size 360x900|response=
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=7183
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=7190
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=7193|beforeNextFixture=true
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_EFFECT_SCHEDULING|sdk=31|phase=frame|inlineDuringMeasure=true|auditedDuringMeasure=false
+WP503_NATIVE_EFFECT_SCHEDULING|sdk=31|phase=native|inlineDuringMeasure=true|auditedDuringMeasure=false
+WP503_FONT|text=Native effect scheduling|size=352 x 711|constraints=Constraints(minWidth = 0, maxWidth = 352, minHeight = 0, maxHeight = 711)|paragraph=352.0x42.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Native effect scheduling|line=0|left=0.0|right=302.4922|top=0.0|bottom=42.0
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+WP503_NATIVE_MOTION_PROVIDER|sdk=31|system=0.0|observed=0.0|duration=0|explicitOverride=false|frameworkControl=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 1.0|response=
+WP503_NATIVE_MOTION_PROVIDER|sdk=31|system=1.0|observed=1.0|duration=300|explicitOverride=false|frameworkControl=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+WP503_NATIVE_MOTION_PROVIDER|sdk=31|system=0.0|observed=0.0|duration=0|explicitOverride=false|frameworkControl=true|physicalTalkBack=false
+WP503_NATIVE_WINDOW_COMMAND|command=settings put global animator_duration_scale 0.0|response=
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_FOCUS_SERVICE|sdk=31|capabilities=15|flags=65554|touchExploration=false|physicalTalkBack=false
+WP503_NATIVE_TOUCH_LISTENER|registered=true
+WP503_NATIVE_TOUCH_CALLBACK|enabled=true|elapsedMs=13
+WP503_NATIVE_TOUCH_REQUEST|requestedFlags=65558|actualFlags=65558|elapsedMs=17
+WP503_NATIVE_FOCUS_SERVICE_ACTIVE|sdk=31|touchExploration=true|physicalTalkBack=false
+WP503_NATIVE_CHAT_IME_INPUT|sdk=31|nativeInputFocus=true|acceptingText=true|physicalTalkBack=false
+WP503_FONT|text=Draft 中文 مرحبا|size=154 x 84|constraints=Constraints(minWidth = 154, maxWidth = 154, minHeight = 42, maxHeight = Infinity)|paragraph=154.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=30.546875|right=154.0|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=1|left=97.0|right=154.0|top=42.0|bottom=84.0
+WP503_NATIVE_CHAT_IME_INSETS|sdk=31|imeBottom=389|decorHeight=900|visible=Rect(0, 0 - 360, 511)|actualIme=true|physicalTalkBack=false
+WP503_NATIVE_CHAT_IME_TARGET|sdk=31|name=null|bounds=Rect(69, 387 - 291, 503)|visible=Rect(0, 0 - 360, 511)|native48dp=true|actualIme=true|physicalTalkBack=false
+WP503_NATIVE_CHAT_IME_TARGET|sdk=31|name=Send message|bounds=Rect(12, 454 - 61, 503)|visible=Rect(0, 0 - 360, 511)|native48dp=true|actualIme=true|physicalTalkBack=false
+WP503_NATIVE_CHAT_IME_TARGET|sdk=31|name=null|bounds=Rect(299, 454 - 348, 503)|visible=Rect(0, 0 - 360, 511)|native48dp=true|actualIme=true|physicalTalkBack=false
+WP503_FONT|text=Draft 中文 مرحبا|size=154 x 84|constraints=Constraints(minWidth = 154, maxWidth = 154, minHeight = 42, maxHeight = Infinity)|paragraph=154.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=0|left=30.546875|right=154.0|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Draft 中文 مرحبا|line=1|left=97.0|right=154.0|top=42.0|bottom=84.0
+WP503_NATIVE_CHAT_IME_BACK|sdk=31|imeVisible=false|entry=10|stacksRetained=true|draftSaved=true|disconnectedSendDisabled=true|realStore=true|realGraph=true|physicalTalkBack=false
+WP503_FONT|text=Share Location|size=175 x 38|constraints=Constraints(minWidth = 0, maxWidth = 175, minHeight = 0, maxHeight = Infinity)|paragraph=175.0x38.0|widthOverflow=false|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Share Location|line=0|left=0.0|right=174.75781|top=0.0|bottom=38.0
+WP503_FONT|text=Share Contact|size=165 x 38|constraints=Constraints(minWidth = 0, maxWidth = 175, minHeight = 0, maxHeight = Infinity)|paragraph=175.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Share Contact|line=0|left=0.0|right=164.75781|top=0.0|bottom=38.0
+WP503_FONT|text=Share My Info|size=160 x 38|constraints=Constraints(minWidth = 0, maxWidth = 175, minHeight = 0, maxHeight = Infinity)|paragraph=175.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Share My Info|line=0|left=0.0|right=159.75781|top=0.0|bottom=38.0
+WP503_FONT|text=Keyboard 中文 peer|size=227 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = Infinity)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Keyboard 中文 peer|line=0|left=0.0|right=226.25781|top=0.0|bottom=38.0
+WP503_FONT|text=Cancel|size=80 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 647)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Cancel|line=0|left=0.0|right=80.0|top=0.0|bottom=38.0
+WP503_NATIVE_CHAT_SHARE_RETURN_FOCUS|sdk=31|automaticNativeFocus=true|physicalTalkBack=false
+WP503_NATIVE_CHAT_SHARE_CANCEL|sdk=31|contactMenu=Rect(149, 546 - 348, 594)|cachedContact=Rect(54, 352 - 305, 406)|cancel=Rect(54, 430 - 158, 484)|optionalSharesDisabled=true|automaticNativeFocus=true|nativeFocusReacquired=true|entry=10|stacksRetained=true|draftSaved=true|realStore=true|realGraph=true|physicalTalkBack=false
+WP503_NATIVE_TOUCH_FINAL|enabled=true|actualFlags=65558|elapsedMs=1710
+WP503_NATIVE_TOUCH_CALLBACK|enabled=false|elapsedMs=1715
+WP503_NATIVE_TOUCH_RESTORED|flags=65554|enabled=false|elapsedMs=1716|beforeNextFixture=true

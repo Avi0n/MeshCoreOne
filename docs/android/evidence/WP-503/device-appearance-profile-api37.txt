@@ -1,0 +1,18 @@
+COMMAND: shell getprop ro.build.version.sdk
+37
+COMMAND: shell getconf PAGE_SIZE
+16384
+COMMAND: shell wm size
+Physical size: 1344x2992
+Override size: 360x900
+COMMAND: shell wm density
+Physical density: 480
+Override density: 160
+COMMAND: shell settings get system font_scale
+2.0
+COMMAND: shell settings get global animator_duration_scale
+0.0
+COMMAND: shell settings get global transition_animation_scale
+0.0
+COMMAND: shell settings get global window_animation_scale
+0.0

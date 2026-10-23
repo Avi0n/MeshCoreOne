@@ -1,0 +1,13 @@
+WP503_OWNED_ADB_SERVER|{"command": ["C:\\android-sdk\\platform-tools\\adb.exe", "-L", "tcp:55682", "--one-device", "wp503-no-usb", "server", "nodaemon"], "port": 55682, "emulator_scan_max": 5553, "usb_filter": "wp503-no-usb", "mdns_autoconnect": [], "shared5037_stop_or_restart": false}
+WP503_OWNED_ADB_SERVER_READY|responsive=true|noOtherDevicesAttached=true
+WP503_NATIVE_TRANSPORT_EXIT|serial=emulator-5714|state=absent|observations=1|elapsedMs=31.000
+WP503_MAINOBSERVER_LAUNCH|["C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe", "-avd", "Medium_Phone", "-port", "5714", "-read-only", "-no-snapshot", "-no-window", "-no-audio", "-no-metrics", "-gpu", "swiftshader_indirect", "-memory", "1536", "-cores", "2", "-data", "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-matrixplatform-api31-userdata.img"]
+WP503_MAINOBSERVER_OUTCOME|api=31|scenario=platform-service-control|exit=0
+WP503_NATIVE_TRANSPORT_EXIT|serial=emulator-5714|state=emulator-5714	offline|observations=1|elapsedMs=31.000
+WP503_NATIVE_TRANSPORT_EXIT|serial=emulator-5714|state=absent|observations=3|elapsedMs=265.000
+WP503_MAINOBSERVER_LAUNCH|["C:\\Users\\camer\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe", "-avd", "Pixel_10_Pro_XL", "-port", "5714", "-read-only", "-no-snapshot", "-no-window", "-no-audio", "-no-metrics", "-gpu", "swiftshader_indirect", "-memory", "1536", "-cores", "2", "-data", "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-matrixplatform-api37-userdata.img"]
+WP503_MAINOBSERVER_OUTCOME|api=37|scenario=platform-service-control|exit=1
+WP503_NATIVE_TRANSPORT_EXIT|serial=emulator-5714|state=emulator-5714	offline|observations=1|elapsedMs=16.000
+WP503_NATIVE_TRANSPORT_EXIT|serial=emulator-5714|state=absent|observations=3|elapsedMs=266.000
+WP503_MAINOBSERVER_CLEANUP|selectedDevices=2|emulatorExit0=2|ownedTransportsAbsent=2|otherDevicesNotRequiredToExit=true
+WP503_OWNED_ADB_SERVER_STOPPED|pid=39328|exit=0|ownedPortClosed=true|shared5037Untouched=true

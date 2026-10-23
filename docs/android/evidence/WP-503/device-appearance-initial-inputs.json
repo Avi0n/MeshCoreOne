@@ -1,0 +1,13 @@
+{
+  "head": "7f3c97e7c8b5c8258332651caace3d24ddc2b40f",
+  "apks": {
+    "wp503-device-app.apk": {
+      "size": 105464909,
+      "sha256": "af1af8d4c963502180ac4425b4da5896e2d9792fef29572a31cb3b02347fd373"
+    },
+    "wp503-device-test.apk": {
+      "size": 2896607,
+      "sha256": "8e68a97bc4702ace90d3ad296b31ca6d194701a25024f9c1c95058c93badfb72"
+    }
+  }
+}

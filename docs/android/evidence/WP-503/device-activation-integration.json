@@ -1,0 +1,111 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_publication": "51c93e90bf87c0578a41f2cd8554c0b23e3f6ea8",
+  "previous_combined_binding": "device-language-integration.json",
+  "executed_combined_head": "0ff9a71218c18ae075bdbd300243bc5e6ff470d5",
+  "executed_android_tree": "60fc47a9779b0fb464fe6b5266b28fcf02949dc4",
+  "apk_binding": "device-activation-inputs.json",
+  "source_guards": {
+    "sole_android_change": "accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeLauncherFocusAccessibilityTest.kt",
+    "change": "Require actual original UiAutomation flags and restored AccessibilityManager state before leaving withTouchExploration; remove the listener even if strict restoration fails",
+    "all_79_original_test_bodies_and_other_helpers_unchanged": true,
+    "production_apk_byte_identical_to_previous_publication": true,
+    "producer_build_dependencies_floors_deadlines_goldens_or_wp501_bindings_changed": false,
+    "new_native_cases": 0
+  },
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "jvm_summary_not_retained_result_bundle": {
+    "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+    "both_original_sdk_variants_and_names_preserved": true,
+    "app_and_instrumentation_assembly": "PASS",
+    "installed_ext4_snapshot_preflight": "PASS"
+  },
+  "native_api31": {
+    "launcher": {
+      "expected_total": 9, "started": 9, "terminal": 9, "passed": 9, "failed": 0,
+      "completed": true, "seconds": 41.865, "launcher_passed": 9,
+      "failed_identities": [], "unfinished_identities": [],
+      "touch_requested": 7, "touch_activated": 7, "touch_finally": 7, "touch_restored": 7,
+      "motion_observations": [["0.0", "0.0", "0"], ["1.0", "1.0", "300"], ["0.0", "0.0", "0"]]
+    },
+    "full": {
+      "expected_total": 79, "started": 21, "terminal": 20, "passed": 18, "failed": 2,
+      "completed": false, "outer_timeout_seconds": 600, "launcher_passed": 5,
+      "failed_identities": [
+        "NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal"
+      ],
+      "unfinished_identities": [
+        "NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200"
+      ],
+      "touch_requested": 6, "touch_activated": 6, "touch_finally": 5, "touch_restored": 5,
+      "motion_observations": [],
+      "qualification": "INCOMPLETE_NOT_PASS: no final JUnit result or duration; not79 executed cases. QR and later cases were not reached. Last completed window observation is900x900 with retained message; wm size360x900 returns but no matching native360 window observation follows. No cause or producer regression established",
+      "endpoint_interpretation_correction": "Earlier prose claimed restored360x900 was observed; the raw record only acknowledges that shell request. Corrected by inspecting the complete metrics; raw native records remain unchanged"
+    }
+  },
+  "native_api37": {
+    "launcher": {
+      "expected_total": 9, "started": 9, "terminal": 9, "passed": 3, "failed": 6,
+      "completed": true, "seconds": 90.248, "launcher_passed": 3,
+      "failed_identities": [
+        "NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable",
+        "NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions",
+        "NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable",
+        "NativeLauncherFocusAccessibilityTest.frameworkControlCanAcquireRealNativeAccessibilityFocus",
+        "NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable",
+        "NativeLauncherFocusAccessibilityTest.actualThemeProviderObservesDefaultAndReducedSystemMotionWithoutAnOverride"
+      ],
+      "unfinished_identities": [],
+      "touch_requested": 7, "touch_activated": 3, "touch_finally": 7, "touch_restored": 6,
+      "motion_observations": [["0.0", "0.0", "0"], ["1.0", "1.0", "300"]],
+      "qualification": "Four original activation1000ms timeouts at853; one new strict restoration1000ms timeout at865 in default/reduced-motion launcher case; final independent motion0 observation times out at444. Not cleared by the later full run"
+    },
+    "full": {
+      "expected_total": 79, "started": 79, "terminal": 79, "passed": 77, "failed": 2,
+      "completed": true, "seconds": 294.083, "launcher_passed": 9,
+      "failed_identities": [
+        "NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal"
+      ],
+      "unfinished_identities": [],
+      "touch_requested": 7, "touch_activated": 7, "touch_finally": 7, "touch_restored": 7,
+      "motion_observations": [["0.0", "0.0", "0"], ["1.0", "1.0", "300"], ["0.0", "0.0", "0"]],
+      "junit_assertion_failures": 13,
+      "qualification": "Two failed identities, not13 failed cases; original launcher9 and other cases pass in this invocation, not retrospective clearance of scoped or predecessor failures"
+    }
+  },
+  "native_observation_qualification": {
+    "restoration_log_elapsed_ms": "Total since helper entry, not isolated cleanup duration",
+    "instantaneous_restored_state_does_not_prove_queued_callbacks_drained": true,
+    "activation_and_restoration_waits_ms": 1000,
+    "boot_guard_seconds": 300,
+    "instrumentation_guard_seconds": 600,
+    "profile": "Sequential actual AOSP31/x86_64/4KiB/noGMS and PlayStore37.2/x86_64/16KiB/GMS;360x900/mdpi160/font2/decorRTL/animation0",
+    "api37_initial_readiness": "Boot reports1 at156s, then transport goes offline during transition_animation_scale configuration. Retained pre-ready negative; no tests executed. One explicit later readiness invocation succeeds on the same owned device/APKs before launcher9",
+    "api31_empty_filtered_runtime_capture": "No AndroidRuntime:E/System.err:W output captured; not proof of no crash or a root-cause diagnosis"
+  },
+  "native_operation_cleanup": {
+    "owned_emulator_exit_codes": [0, 0],
+    "exact_four_phase_owned_image_and_qcow_files_removed_after_exit": true,
+    "final_adb_device_list_empty": true,
+    "shared_adb_restart_wipe_or_additional_worker": false
+  },
+  "product_blockers": [236, 237, 238],
+  "mandatory_full_acceptance": "INCOMPLETE_OR_FAILED",
+  "physical_talkback_approved_goldens_full_matrix_acceptance_admission_or_independent_review": false,
+  "merge_self_approval_or_wp_completion": false
+}

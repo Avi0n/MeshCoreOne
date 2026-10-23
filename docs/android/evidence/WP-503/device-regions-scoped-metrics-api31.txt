@@ -1,0 +1,48 @@
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_FONT|text=Flood packets are dropped for any region that is off.|size=244 x 126|constraints=Constraints(minWidth = 0, maxWidth = 244, minHeight = 0, maxHeight = Infinity)|paragraph=244.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=0|left=0.0|right=220.46484|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=1|left=0.0|right=195.72656|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=2|left=0.0|right=210.73828|top=84.0|bottom=126.0
+WP503_NATIVE_REGION_ROLES|label=Unscoped|roles=[android.view.View:null, android.view.View:null, android.view.View:null, android.view.View:null, android.widget.TextView:null, android.view.View:Switch]
+WP503_NATIVE_REGION|sdk=31|label=Unscoped|gutter=0.0|expectedGutter=0.0|bounds=Rect(28, 632 - 332, 758)|viewport=Rect(0, 0 - 360, 900)|checked=true|hint=When off, flood packets from this region are dropped|fontScale=2.0|physicalTalkBack=false|realRadio=false
+WP503_FONT|text=Flood packets are dropped for any region that is off.|size=220 x 168|constraints=Constraints(minWidth = 0, maxWidth = 220, minHeight = 0, maxHeight = Infinity)|paragraph=220.0x168.0|widthOverflow=false|heightOverflow=false|lines=4
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=0|left=0.0|right=174.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=1|left=0.0|right=191.46484|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=2|left=0.0|right=210.73828|top=84.0|bottom=126.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=3|left=0.0|right=43.0|top=126.0|bottom=168.0
+WP503_NATIVE_REGION_ROLES|label=on, child of Unscoped|roles=[android.view.View:null, android.view.View:null, android.view.View:null, android.view.View:null, android.widget.TextView:null, android.view.View:Switch]
+WP503_NATIVE_REGION|sdk=31|label=on, child of Unscoped|gutter=24.0|expectedGutter=24.0|bounds=Rect(28, 590 - 308, 758)|viewport=Rect(0, 0 - 360, 900)|checked=true|hint=When off, flood packets from this region are dropped|fontScale=2.0|physicalTalkBack=false|realRadio=false
+WP503_FONT|text=Flood packets are dropped for any region that is off.|size=196 x 168|constraints=Constraints(minWidth = 0, maxWidth = 196, minHeight = 0, maxHeight = Infinity)|paragraph=196.0x168.0|widthOverflow=false|heightOverflow=false|lines=4
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=0|left=0.0|right=174.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=1|left=0.0|right=191.46484|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=2|left=0.0|right=182.73828|top=84.0|bottom=126.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=3|left=0.0|right=71.0|top=126.0|bottom=168.0
+WP503_NATIVE_REGION_ROLES|label=gta, child of on|roles=[android.view.View:null, android.view.View:null, android.view.View:null, android.view.View:null, android.widget.TextView:null, android.view.View:Switch]
+WP503_NATIVE_REGION|sdk=31|label=gta, child of on|gutter=48.0|expectedGutter=48.0|bounds=Rect(28, 590 - 284, 758)|viewport=Rect(0, 0 - 360, 900)|checked=true|hint=When off, flood packets from this region are dropped|fontScale=2.0|physicalTalkBack=false|realRadio=false
+WP503_FONT|text=Flood packets are dropped for any region that is off.|size=196 x 168|constraints=Constraints(minWidth = 0, maxWidth = 196, minHeight = 0, maxHeight = Infinity)|paragraph=196.0x168.0|widthOverflow=false|heightOverflow=false|lines=4
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=0|left=0.0|right=174.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=1|left=0.0|right=191.46484|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=2|left=0.0|right=182.73828|top=84.0|bottom=126.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=3|left=0.0|right=71.0|top=126.0|bottom=168.0
+WP503_NATIVE_REGION_ROLES|label=downtown, child of gta|roles=[android.view.View:null, android.view.View:null, android.view.View:null, android.view.View:null, android.widget.TextView:null, android.view.View:Switch]
+WP503_NATIVE_REGION|sdk=31|label=downtown, child of gta|gutter=48.0|expectedGutter=48.0|bounds=Rect(28, 590 - 284, 758)|viewport=Rect(0, 0 - 360, 900)|checked=true|hint=When off, flood packets from this region are dropped|fontScale=2.0|physicalTalkBack=false|realRadio=false
+WP503_FONT|text=Flood packets are dropped for any region that is off.|size=196 x 168|constraints=Constraints(minWidth = 0, maxWidth = 196, minHeight = 0, maxHeight = Infinity)|paragraph=196.0x168.0|widthOverflow=false|heightOverflow=false|lines=4
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=0|left=0.0|right=174.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=1|left=0.0|right=191.46484|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=2|left=0.0|right=182.73828|top=84.0|bottom=126.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=3|left=0.0|right=71.0|top=126.0|bottom=168.0
+WP503_NATIVE_REGION_ROLES|label=east, child of downtown|roles=[android.view.View:null, android.view.View:null, android.view.View:null, android.view.View:null, android.widget.TextView:null, android.view.View:Switch]
+WP503_NATIVE_REGION|sdk=31|label=east, child of downtown|gutter=48.0|expectedGutter=48.0|bounds=Rect(28, 590 - 284, 758)|viewport=Rect(0, 0 - 360, 900)|checked=true|hint=When off, flood packets from this region are dropped|fontScale=2.0|physicalTalkBack=false|realRadio=false
+WP503_FONT|text=Flood packets are dropped for any region that is off.|size=196 x 168|constraints=Constraints(minWidth = 0, maxWidth = 196, minHeight = 0, maxHeight = Infinity)|paragraph=196.0x168.0|widthOverflow=false|heightOverflow=false|lines=4
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=0|left=0.0|right=174.72656|top=0.0|bottom=42.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=1|left=0.0|right=191.46484|top=42.0|bottom=84.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=2|left=0.0|right=182.73828|top=84.0|bottom=126.0
+WP503_FONT_LINE|text=Flood packets are dropped for any region that is off.|line=3|left=0.0|right=71.0|top=126.0|bottom=168.0
+WP503_NATIVE_REGION_ROLES|label=north, child of east|roles=[android.view.View:null, android.view.View:null, android.view.View:null, android.view.View:null, android.widget.TextView:null, android.view.View:Switch]
+WP503_NATIVE_REGION|sdk=31|label=north, child of east|gutter=48.0|expectedGutter=48.0|bounds=Rect(28, 590 - 284, 758)|viewport=Rect(0, 0 - 360, 900)|checked=true|hint=When off, flood packets from this region are dropped|fontScale=2.0|physicalTalkBack=false|realRadio=false
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(82.0, 370.0, 186.0, 424.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 448.0)
+WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(24.0, 370.0, 82.0, 424.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 448.0)
+WP503_FONT|text=OK|size=34 x 38|constraints=Constraints(minWidth = 0, maxWidth = 248, minHeight = 0, maxHeight = 439)|paragraph=248.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=OK|line=0|left=0.0|right=34.0|top=0.0|bottom=38.0
+WP503_NATIVE_REGION_CONFIRM|sdk=31|cancelWrites=0|confirmedCommand=region denyf gta|otherRegionsUnchanged=5|realRadio=false

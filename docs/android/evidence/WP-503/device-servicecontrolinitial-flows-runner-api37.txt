@@ -1,0 +1,27 @@
+WP503_EXECUTED_INPUT|c6bc0b0ba568e5c8a3460bf6a3318f13a98fb1d1
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 37, "head": "c6bc0b0ba568e5c8a3460bf6a3318f13a98fb1d1", "scenario": "service-state-control", "discovered": 1, "statuses": {"-2": 1}, "time": ["Time: 31.987"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest', 'actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling')|-2
+ateDiagnosticTest.waitForNativeState(NativeServiceStateDiagnosticTest.kt:71)
+	at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(NativeServiceStateDiagnosticTest.kt:43)
+	Suppressed: java.util.NoSuchElementException: List is empty.
+		at kotlin.collections.CollectionsKt___CollectionsKt.single(_Collections.kt:619)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.snapshot(NativeServiceStateDiagnosticTest.kt:88)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.waitForNativeState$lambda$0(NativeServiceStateDiagnosticTest.kt:69)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest$$ExternalSyntheticLambda0.close(D8$$SyntheticClass:0)
+		at kotlin.io.CloseableKt.closeFinally(Closeable.kt:50)
+		... 69 more
+	Suppressed: java.util.NoSuchElementException: List is empty.
+		at kotlin.collections.CollectionsKt___CollectionsKt.single(_Collections.kt:619)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.snapshot(NativeServiceStateDiagnosticTest.kt:88)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling$lambda$0(NativeServiceStateDiagnosticTest.kt:37)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest$$ExternalSyntheticLambda1.close(D8$$SyntheticClass:0)
+		at kotlin.io.CloseableKt.closeFinally(Closeable.kt:50)
+		at com.meshcoreone.android.accessibility.NativeServiceStateDiagnosticTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutComposePolling(NativeServiceStateDiagnosticTest.kt:39)
+		... 67 more
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

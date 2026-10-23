@@ -1,0 +1,114 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "source": "db14559b39d32322b06477c6ae676112f583db50",
+  "main": "d8181418614a5acaa46f4acde54b741b492ac4b0",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "previous_publication": "02f27320202378aacabbd8e1732fa034d4e62e35",
+  "executed_combined_head": "afea92392a31347ff210d1c87183c94ee4cd26f8",
+  "executed_android_tree": "20ee74556580969f6f2596318ec7573e5506466d",
+  "apk_binding": "device-window-inputs.json",
+  "producers": [
+    {"wp": "WP-318", "pr": 232, "head": "1b2cd0476b5f70bbbd9ccaf71590e4613898eca1"},
+    {"wp": "WP-311", "pr": 233, "head": "c8708313310b76df40be9e75a763fe90dac876e8"},
+    {"wp": "WP-307", "pr": 235, "head": "2396ac64f9d3bcee7fa3a7e4f33e87956508d31d"},
+    {"wp": "WP-313", "pr": 234, "head": "d2ff006f764bcad25eb65def7a8fc17f68c32caa"}
+  ],
+  "source_change": "Owned resize readiness checks the actual resumed MainActivity and attached, laid-out, focused decor/WindowMetrics inside the original1000ms wait instead of synchronized Compose semantics during the lifecycle transition; original semantic count1 remains and displayed assertion is added. Prior error-preserving Closeable.use remains. All79 original test bodies, producer bytes, floors and deadlines are unchanged",
+  "jvm_summary_not_retained_result_bundle": {
+    "discovered": 74, "passed": 74, "failures": 0, "errors": 0, "skipped": 0,
+    "both_apk_tasks_and_installed_preflight": "PASS"
+  },
+  "native_api31": {
+    "launcher": {
+      "expected_total": 9, "started": 9, "terminal": 9, "passed": 9, "failed": 0,
+      "completed": true, "seconds": 47.36,
+      "native_window_ready_observations": 4,
+      "touch_requested": 7, "touch_activated": 7, "touch_restored": 7
+    },
+    "full": {
+      "expected_total": 79, "started": 79, "terminal": 79, "passed": 76, "failed": 3,
+      "completed": true, "seconds": 187.471,
+      "status_counts": {"0": 76, "-2": 3},
+      "collected_assertion_failures": 14,
+      "qualification": "Twelve language assertions are one failed test identity, plus one CLI and one QR identity; JUnit prints14 collected failures, not14 distinct failed tests",
+      "failed_identities": [
+        "NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "NativeNodesFlowAccessibilityTest.offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable"
+      ],
+      "native_window_ready_observations": 4,
+      "touch_requested": 7, "touch_activated": 7, "touch_restored": 7
+    }
+  },
+  "native_api37": {
+    "launcher": {
+      "expected_total": 9, "started": 6, "terminal": 5, "passed": 0, "failed": 5,
+      "completed": false, "outer_timeout_seconds": 600,
+      "failed_identities": [
+        "NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable",
+        "NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions",
+        "NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable",
+        "NativeLauncherFocusAccessibilityTest.frameworkControlCanAcquireRealNativeAccessibilityFocus",
+        "NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable"
+      ],
+      "unfinished_identities": [
+        "NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200"
+      ],
+      "native_window_ready_observations": 0,
+      "touch_requested": 6, "touch_activated": 1, "touch_finally": 5, "touch_restored": 5,
+      "qualification": "INCOMPLETE_NOT_PASS: five original1000ms activation prerequisite failures, sixth identity unfinished in unchanged runBlocking/deleteDeviceAndData teardown427; no9-case completion"
+    },
+    "full": {
+      "expected_total": 79, "started": 21, "terminal": 20, "passed": 14, "failed": 6,
+      "completed": false, "outer_timeout_seconds": 600,
+      "failed_identities": [
+        "NativeAppLanguageAccessibilityTest.actualLanguageChoicesExposeTheirOwnNameAndSelectedStateWithContainedFont200Actions",
+        "NativeDiagnosticsFlowAccessibilityTest.disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+        "NativeLauncherFocusAccessibilityTest.realDisconnectedLauncherKeepsFiveTabsSelectedAndPlatformFocusReachable",
+        "NativeLauncherFocusAccessibilityTest.realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions",
+        "NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable",
+        "NativeLauncherFocusAccessibilityTest.frameworkControlCanAcquireRealNativeAccessibilityFocus"
+      ],
+      "unfinished_identities": [
+        "NativeLauncherFocusAccessibilityTest.realCachedChatDraftAndScrolledMessageSurviveCurrentWindowRecreationAtFont200"
+      ],
+      "native_window_ready_observations": 2,
+      "touch_requested": 6, "touch_activated": 2, "touch_finally": 5, "touch_restored": 5,
+      "fresh_owned_device_after_scope_shutdown": true,
+      "profile": "device-window-full-profile-api37.txt",
+      "qualification": "INCOMPLETE_NOT_PASS:21 starts/20 outcomes,14PASS/6FAIL, not79 executed. Language238/CLI236 and four original activation prerequisites fail; settings resize completes both ready windows, cached-chat remains unfinished in teardown427. QR/later cases not reached; no retrospective scope clearance"
+    }
+  },
+  "post_original_timeout_diagnostics": {
+    "launcher": {
+      "owned_pid": 3379,
+      "selected_threads": "device-window-thread-excerpts-api37.txt",
+      "actual_main_activity_window": "Resumed at restored360x900, visible drawn surface after the cleanup shell request",
+      "instrumentation_wait": "BlockingCoroutine.joinBlocking/runBlocking -> cached-chat lambda427 -> processStore.deleteDeviceAndData fixture teardown",
+      "main_thread_snapshot": "MessageQueue.nativePollOnce/Looper",
+      "explicit_socket_attach_positive_suspend_resume_and_exact_forward_removal": true
+    },
+    "isolated_full": {
+      "owned_pid": 3214,
+      "selected_threads": "device-window-full-thread-excerpts-api37.txt",
+      "instrumentation_wait": "BlockingCoroutine.joinBlocking/runBlocking -> cached-chat lambda427 -> processStore.deleteDeviceAndData fixture teardown",
+      "main_thread_snapshot": "MessageQueue.nativePollOnce/Looper",
+      "explicit_socket_attach_positive_suspend_resume_and_exact_forward_removal": true
+    },
+    "qualification": "Both captures follow their own original600s failure, never suspend acceptance intervals. This differs from predecessor0b206's synchronized semantics-predicate wait. No proof of underlying storage fault, product lifecycle cause or verified causal observer repair"
+  },
+  "native_operation_cleanup": {
+    "owned_emulator_exit_codes": [0, 0, 0],
+    "qualification": "API31, API37 scope and separately isolated API37 full devices are stopped after each result. Exact six phase image/qcow files removed only after confirmed exit; final owned transport absent",
+    "shared_adb_restart_or_wipe": false
+  },
+  "hosted_ci_for_executed_source": "No hosted result transferred from predecessor or later documentation publication",
+  "causal_or_product_repair_verified": false,
+  "product_blockers": [236, 237, 238],
+  "previous_native_negatives_physical_matrix_goldens_admission_review_or_wp_completion_cleared": false
+}

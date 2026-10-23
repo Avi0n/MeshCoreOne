@@ -1,0 +1,93 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest:
+INSTRUMENTATION_STATUS: test=unresolvedRoomLookupBecomesReadableNotFoundAndCancelDismissesWithoutJoining
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=unresolvedRoomLookupBecomesReadableNotFoundAndCancelDismissesWithoutJoining
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+s_glBindAttribLocation: bind attrib 0 name position
+s_glBindAttribLocation: bind attrib 1 name localCoord
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: The complete room authentication label must be visible in its actual sheet
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.assertLabel(NativeRoomAuthenticationAccessibilityTest.kt:229)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200(NativeRoomAuthenticationAccessibilityTest.kt:134)
+
+INSTRUMENTATION_STATUS: stream=
+Error in knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200(com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest):
+java.lang.AssertionError: The complete room authentication label must be visible in its actual sheet
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.assertLabel(NativeRoomAuthenticationAccessibilityTest.kt:229)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200(NativeRoomAuthenticationAccessibilityTest.kt:134)
+
+INSTRUMENTATION_STATUS: test=knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=pendingRoomJoinStaysDisabledAndNamedCancelDismissesWithoutDuplicateSubmission
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: The complete room authentication label must be visible in its actual sheet
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.assertLabel(NativeRoomAuthenticationAccessibilityTest.kt:229)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.pendingRoomJoinStaysDisabledAndNamedCancelDismissesWithoutDuplicateSubmission(NativeRoomAuthenticationAccessibilityTest.kt:173)
+
+INSTRUMENTATION_STATUS: stream=
+Error in pendingRoomJoinStaysDisabledAndNamedCancelDismissesWithoutDuplicateSubmission(com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest):
+java.lang.AssertionError: The complete room authentication label must be visible in its actual sheet
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.assertLabel(NativeRoomAuthenticationAccessibilityTest.kt:229)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.pendingRoomJoinStaysDisabledAndNamedCancelDismissesWithoutDuplicateSubmission(NativeRoomAuthenticationAccessibilityTest.kt:173)
+
+INSTRUMENTATION_STATUS: test=pendingRoomJoinStaysDisabledAndNamedCancelDismissesWithoutDuplicateSubmission
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 7.051
+There were 2 failures:
+1) knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200(com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest)
+java.lang.AssertionError: The complete room authentication label must be visible in its actual sheet
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.assertLabel(NativeRoomAuthenticationAccessibilityTest.kt:229)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.knownRoomPasswordRememberJoinAndCancelStayReachableWithNativeImeAtFont200(NativeRoomAuthenticationAccessibilityTest.kt:134)
+2) pendingRoomJoinStaysDisabledAndNamedCancelDismissesWithoutDuplicateSubmission(com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest)
+java.lang.AssertionError: The complete room authentication label must be visible in its actual sheet
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.assertLabel(NativeRoomAuthenticationAccessibilityTest.kt:229)
+	at com.meshcoreone.android.accessibility.NativeRoomAuthenticationAccessibilityTest.pendingRoomJoinStaysDisabledAndNamedCancelDismissesWithoutDuplicateSubmission(NativeRoomAuthenticationAccessibilityTest.kt:173)
+
+FAILURES!!!
+Tests run: 3,  Failures: 2
+
+
+INSTRUMENTATION_CODE: -1

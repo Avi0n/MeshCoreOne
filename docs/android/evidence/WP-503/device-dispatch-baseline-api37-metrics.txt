@@ -1,0 +1,5 @@
+--------- beginning of main
+10-12 22:35:04.842 13868 13908 I System.out: WP503_DEVICE_PROFILE|sdk=37|fontScale=2.0|density=1.0
+10-12 22:35:05.007 13868 13908 I System.out: WP503_NATIVE_EFFECT_SCHEDULING|sdk=37|inlineDuringMeasure=true|auditedDuringMeasure=false
+10-12 22:35:05.040 13868 13908 I System.out: WP503_FONT|text=Native effect scheduling|size=360 x 824|constraints=Constraints(minWidth = 0, maxWidth = 360, minHeight = 0, maxHeight = 824)|paragraph=360.0x42.0|widthOverflow=false|heightOverflow=false|lines=1
+10-12 22:35:05.041 13868 13908 I System.out: WP503_FONT_LINE|text=Native effect scheduling|line=0|left=0.0|right=302.4961|top=0.0|bottom=42.0

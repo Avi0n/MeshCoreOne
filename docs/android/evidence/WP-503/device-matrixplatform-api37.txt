@@ -1,0 +1,38 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativePlatformServiceControlTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativePlatformServiceControlTest:
+INSTRUMENTATION_STATUS: test=actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativePlatformServiceControlTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Native platform activation state false did not reach true within1000ms
+	at com.meshcoreone.android.accessibility.NativePlatformServiceControlTest.waitForState(NativePlatformServiceControlTest.kt:106)
+	at com.meshcoreone.android.accessibility.NativePlatformServiceControlTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule(NativePlatformServiceControlTest.kt:76)
+
+INSTRUMENTATION_STATUS: stream=
+Error in actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule(com.meshcoreone.android.accessibility.NativePlatformServiceControlTest):
+java.lang.AssertionError: Native platform activation state false did not reach true within1000ms
+	at com.meshcoreone.android.accessibility.NativePlatformServiceControlTest.waitForState(NativePlatformServiceControlTest.kt:106)
+	at com.meshcoreone.android.accessibility.NativePlatformServiceControlTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule(NativePlatformServiceControlTest.kt:76)
+
+INSTRUMENTATION_STATUS: test=actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 4.886
+There was 1 failure:
+1) actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule(com.meshcoreone.android.accessibility.NativePlatformServiceControlTest)
+java.lang.AssertionError: Native platform activation state false did not reach true within1000ms
+	at com.meshcoreone.android.accessibility.NativePlatformServiceControlTest.waitForState(NativePlatformServiceControlTest.kt:106)
+	at com.meshcoreone.android.accessibility.NativePlatformServiceControlTest.actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule(NativePlatformServiceControlTest.kt:76)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

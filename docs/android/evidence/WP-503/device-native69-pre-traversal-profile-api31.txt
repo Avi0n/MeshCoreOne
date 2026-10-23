@@ -1,0 +1,11 @@
+WP503 executed combined head70d22f51b764247e1c94fbd1f7a67251b60a4101; actual emulator profile, not physical TalkBack
+31
+4096
+Physical size: 1080x2400
+Override size: 360x900
+Physical density: 420
+Override density: 160
+2.0
+0.0
+0.0
+0.0

@@ -1,0 +1,14 @@
+Actual invocation at combined491d02b98ae9faef868996210c92c086f6b107df:
+adb -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest#realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+
+Transcribed outer runner failure, not raw instrumentation stdout:
+subprocess.TimeoutExpired: command timed out after 600 seconds
+Runner exited1. Its original subprocess.run timeout propagated before raw instrumentation stdout was persisted.
+
+Actual separately captured TestRunner/System.out diagnostics are device-regions-resize-metrics-api37.txt.
+They announce1 test, start the named method, observe actual900x900 recreation and all five named/selected/focused rail actions, then issue wm size360x900.
+No terminal test outcome is observed. This is INCOMPLETE/TIMEOUT, not1/1PASS or a normal terminal assertion failure.
+The real device remains adb-responsive; final actual OS profile is device-regions-final-profile-api37.txt.
+The1000ms touch-exploration prerequisite passes here, without proving the earlier activation failure's cause.
+The existing600s outer runner bound and1000ms UI deadline were not increased.
+After retaining diagnostics, only this owned App is force-stopped and its isolated emulator is stopped.

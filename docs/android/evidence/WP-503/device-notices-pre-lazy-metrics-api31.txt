@@ -1,0 +1,84 @@
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=About|size=70 x 38|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = 407)|paragraph=336.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=About|line=0|left=0.0|right=70.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=About|bounds=Rect.fromLTRB(0.0, 560.0, 360.0, 614.0)|viewport=Rect.fromLTRB(0.0, 63.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Support Development|size=271 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Support Development|line=0|left=0.0|right=270.32422|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=Support Development|bounds=Rect.fromLTRB(16.0, 291.0, 344.0, 339.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 614.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Feedback|size=121 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Feedback|line=0|left=0.0|right=120.71094|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=Feedback|bounds=Rect.fromLTRB(16.0, 339.0, 344.0, 387.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 614.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=MeshCore Website|size=234 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=MeshCore Website|line=0|left=0.0|right=233.3125|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=MeshCore Website|bounds=Rect.fromLTRB(16.0, 387.0, 344.0, 435.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 614.0)
+WP503_NOTICES_EXTERNAL|label=MeshCore Website|url=https://meshcore.io|actualIntent=true|browserLaunched=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=MeshCore Online Map|size=273 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=MeshCore Online Map|line=0|left=0.0|right=272.73828|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=MeshCore Online Map|bounds=Rect.fromLTRB(16.0, 435.0, 344.0, 483.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 614.0)
+WP503_NOTICES_EXTERNAL|label=MeshCore Online Map|url=https://map.meshcore.io/|actualIntent=true|browserLaunched=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=GitHub|size=86 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=GitHub|line=0|left=0.0|right=86.0|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=GitHub|bounds=Rect.fromLTRB(16.0, 483.0, 344.0, 531.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 614.0)
+WP503_NOTICES_EXTERNAL|label=GitHub|url=https://github.com/Avi0n/MeshCoreOne|actualIntent=true|browserLaunched=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Privacy Policy|size=174 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Privacy Policy|line=0|left=0.0|right=173.61328|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=Privacy Policy|bounds=Rect.fromLTRB(16.0, 531.0, 344.0, 579.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 614.0)
+WP503_NOTICES_EXTERNAL|label=Privacy Policy|url=https://meshcoreone.com/privacy.html|actualIntent=true|browserLaunched=false
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Open-source licenses|size=266 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Open-source licenses|line=0|left=0.0|right=265.73828|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=Open-source licenses|bounds=Rect.fromLTRB(16.0, 566.0, 344.0, 614.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 614.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Apache-2.0|size=134 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Apache-2.0|line=0|left=0.0|right=133.77734|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=Apache-2.0|bounds=Rect.fromLTRB(16.0, 261.0, 344.0, 315.0)|viewport=Rect.fromLTRB(16.0, 261.0, 344.0, 598.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=BouncyCastle-MIT|size=215 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=BouncyCastle-MIT|line=0|left=0.0|right=214.6289|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=BouncyCastle-MIT|bounds=Rect.fromLTRB(16.0, 315.0, 344.0, 369.0)|viewport=Rect.fromLTRB(16.0, 261.0, 344.0, 598.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=DataStore-Protobuf-BSD-3-Clause|size=304 x 76|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=DataStore-Protobuf-BSD-3-Clause|line=0|left=0.0|right=294.82812|top=0.0|bottom=38.0
+WP503_FONT_LINE|text=DataStore-Protobuf-BSD-3-Clause|line=1|left=0.0|right=103.0|top=38.0|bottom=76.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=DataStore-Protobuf-BSD-3-Clause|bounds=Rect.fromLTRB(16.0, 369.0, 344.0, 461.0)|viewport=Rect.fromLTRB(16.0, 261.0, 344.0, 598.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Emojibase-Bindings-Apache-2.0|size=304 x 76|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+WP503_FONT_LINE|text=Emojibase-Bindings-Apache-2.0|line=0|left=0.0|right=301.77734|top=0.0|bottom=38.0
+WP503_FONT_LINE|text=Emojibase-Bindings-Apache-2.0|line=1|left=0.0|right=74.0|top=38.0|bottom=76.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=Emojibase-Bindings-Apache-2.0|bounds=Rect.fromLTRB(16.0, 461.0, 344.0, 553.0)|viewport=Rect.fromLTRB(16.0, 261.0, 344.0, 598.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Emojibase-Data-MIT|size=241 x 38|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Emojibase-Data-MIT|line=0|left=0.0|right=240.6289|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=Emojibase-Data-MIT|bounds=Rect.fromLTRB(16.0, 544.0, 344.0, 598.0)|viewport=Rect.fromLTRB(16.0, 261.0, 344.0, 598.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=About|size=70 x 38|constraints=Constraints(minWidth = 0, maxWidth = 336, minHeight = 0, maxHeight = 407)|paragraph=336.0x38.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=About|line=0|left=0.0|right=70.0|top=0.0|bottom=38.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=About|bounds=Rect.fromLTRB(0.0, 560.0, 360.0, 614.0)|viewport=Rect.fromLTRB(0.0, 63.0, 360.0, 774.0)
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_FONT|text=Open-source licenses|size=266 x 42|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = Infinity)|paragraph=328.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+WP503_FONT_LINE|text=Open-source licenses|line=0|left=0.0|right=265.73828|top=0.0|bottom=42.0
+WP503_NATIVE_WINDOW_VIEWPORT|window=Rect(0, 0 - 360, 900)|safe=Insets{left=0, top=63, right=0, bottom=126}|visibleFrame=Rect(0, 63 - 360, 774)
+WP503_NOTICES_TARGET|label=Open-source licenses|bounds=Rect.fromLTRB(16.0, 566.0, 344.0, 614.0)|viewport=Rect.fromLTRB(0.0, 191.0, 360.0, 614.0)

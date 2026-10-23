@@ -1,0 +1,26 @@
+WP503_EXECUTED_INPUT|496917719aba81cd2f5f3a1c4b0e613a10137b1d
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 37, "head": "496917719aba81cd2f5f3a1c4b0e613a10137b1d", "scenario": "launcher", "discovered": 9, "statuses": {"0": 6, "-2": 3}, "time": ["Time: 126.395"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest', 'realAppearancePersistsAllUnlockedThemesAndSchemesWithNativeFont200Actions')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest', 'realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable')|-2
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest', 'realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable')|-2
+usAccessibilityTest)
+androidx.compose.ui.test.ComposeTimeoutException: Native accessibility state did not become ready within1000ms
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.waitForNativeAccessibilityState(NativeLauncherFocusAccessibilityTest.kt:997)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:953)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realLauncherDefaultAndReducedMotionKeepTabsAndNativeDetailBackReachable(NativeLauncherFocusAccessibilityTest.kt:462)
+3) realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest)
+androidx.compose.ui.test.ComposeTimeoutException: Native accessibility state did not become ready within1000ms
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.waitForNativeAccessibilityState(NativeLauncherFocusAccessibilityTest.kt:997)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration$lambda$1(NativeLauncherFocusAccessibilityTest.kt:915)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest$$ExternalSyntheticLambda9.close(D8$$SyntheticClass:0)
+	at kotlin.io.CloseableKt.closeFinally(Closeable.kt:47)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.withTouchExploration(NativeLauncherFocusAccessibilityTest.kt:943)
+	at com.meshcoreone.android.accessibility.NativeLauncherFocusAccessibilityTest.realWindowResizeKeepsNamedRailActionsAndSettingsDetailBackStackReachable(NativeLauncherFocusAccessibilityTest.kt:531)
+
+FAILURES!!!
+Tests run: 9,  Failures: 3
+
+
+INSTRUMENTATION_CODE: -1
+

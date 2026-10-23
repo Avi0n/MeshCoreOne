@@ -1,0 +1,157 @@
+{
+  "producer_head": "3bcb254a31e3c4d51b81b74d19f043199a824905",
+  "audit_head": "55f7c666d4e36b9725c308f806e2b8f02deb33da",
+  "combined_head": "e680a2b0c329c13557e9d66e453d3ff1280271c9",
+  "combined_android_tree": "3db54097a0c7ff80af5bb218c563d7d57664983d",
+  "producer_blobs": {
+    "android/feature/tools/src/main/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/LocalizedCompare.kt": "905f08c90e0c64b7e69d509886a95f4bbc91f13b",
+    "android/feature/tools/src/test/kotlin/com/meshcoreone/android/feature/tools/diagnostics/text/SwiftTextParityTest.kt": "345cb7a6ee3cf48b2594efd471eceeed793cb27a",
+    "docs/android/deviations/WP-316.md": "d5bdd88256900ed12977ab94179defb8c3bc58e9"
+  },
+  "original_audit_tree_unchanged": true,
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-503",
+  "canonical_session_id": "1666502a-0420-46ef-930f-e78651ba8b9f",
+  "actual_cli_alias": "d2980f28-620c-408b-9947-067e2da8eedf",
+  "reservation_revision": 3,
+  "frozen_source": "db14559b39d32322b06477c6ae676112f583db50",
+  "producer_pr": 239,
+  "producer_issue": 236,
+  "execution_kind": "combined integration, not standalone producer-head acceptance",
+  "apk_binding": "device-cli-inputs.json",
+  "native_fixture_blob": "e31edcf50c08532465ad3254919ff13eefbd8d7f",
+  "unchanged_audit_tree": "0b36f3296edb0e88c13b965bedb90e1e1b9f56c6",
+  "build_entry": "python <session-files>\\wp503-messaging-check.py",
+  "build_result": "PASS: existing preflight, assembleDebug, assembleDebugAndroidTest and original six App JVM families; positive74, no failures/errors/skips. Producer feature parity suite not separately executed.",
+  "build_environment": "/home/cbattagler/meshcoreone-work/toolchain/environment.json",
+  "native_results": {
+    "31": {
+      "started": 5,
+      "matching_outcomes": 5,
+      "passed": 5,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 10.327,
+      "test_outcomes": [
+        {
+          "test": "disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection",
+          "status": 0
+        },
+        {
+          "test": "shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200",
+          "status": 0
+        },
+        {
+          "test": "disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph",
+          "status": 0
+        },
+        {
+          "test": "noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200",
+          "status": 0
+        },
+        {
+          "test": "disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+          "status": 0
+        }
+      ],
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest -e expectedApi 31 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "runner_command": [
+        "C:\\Python312\\python.exe",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+        "--api",
+        "31",
+        "--serial",
+        "emulator-5714",
+        "--scenario",
+        "diagnostics"
+      ],
+      "profile_command": [
+        "C:\\Python312\\python.exe",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+        "--api",
+        "31",
+        "--expected-cpus",
+        "2"
+      ],
+      "observed_cpu_count": 2,
+      "native_profile_observations": 5,
+      "graph_scroll_reachability_observations": 6,
+      "cli_editable_inputs": 0,
+      "cli_disabled_terminal_inputs": [],
+      "cli_explanation_complete_lines": 2,
+      "original_boot_guard_seconds": 300,
+      "original_instrumentation_guard_seconds": 600,
+      "emulator_exit": 0
+    },
+    "37": {
+      "started": 5,
+      "matching_outcomes": 5,
+      "passed": 5,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 42.043,
+      "test_outcomes": [
+        {
+          "test": "disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection",
+          "status": 0
+        },
+        {
+          "test": "shorterWindowRevealsEveryNumericAlternativeByActualNativeScrollAtFont200",
+          "status": 0
+        },
+        {
+          "test": "disconnectedNoiseFloorExplainsUnavailableDataWithoutAnEmptyGraph",
+          "status": 0
+        },
+        {
+          "test": "noiseFloorHasDataBoundSummaryAndVisibleNumericAlternativesAtFont200",
+          "status": 0
+        },
+        {
+          "test": "disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal",
+          "status": 0
+        }
+      ],
+      "instrumentation_command": "C:\\android-sdk\\platform-tools\\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeDiagnosticsFlowAccessibilityTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner",
+      "runner_command": [
+        "C:\\Python312\\python.exe",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-run-native.py",
+        "--api",
+        "37",
+        "--serial",
+        "emulator-5714",
+        "--scenario",
+        "diagnostics"
+      ],
+      "profile_command": [
+        "C:\\Python312\\python.exe",
+        "C:\\Users\\camer\\.copilot\\session-state\\d2980f28-620c-408b-9947-067e2da8eedf\\files\\wp503-prepare-native.py",
+        "--api",
+        "37",
+        "--expected-cpus",
+        "2"
+      ],
+      "observed_cpu_count": 2,
+      "native_profile_observations": 5,
+      "graph_scroll_reachability_observations": 6,
+      "cli_editable_inputs": 0,
+      "cli_disabled_terminal_inputs": [],
+      "cli_explanation_complete_lines": 2,
+      "original_boot_guard_seconds": 300,
+      "original_instrumentation_guard_seconds": 600,
+      "emulator_exit": 0
+    }
+  },
+  "qualification": "One original diagnostics5 class invocation per fresh actual two-CPU API31/37, no retries, fixture/assertion/deadline/dispatcher changes. Existing CLI236 regression now passes within this combined integration. No connected-radio session, comparator parity on device, physical TalkBack, full80 successor run, approved goldens, admission, independent review or whole-WP acceptance claimed. Original full80/activation/restoration/QR237/language238 negatives retained.",
+  "cleanup": {
+    "emulator_exits": [
+      0,
+      0
+    ],
+    "four_exact_scratch_paths_removed": true,
+    "final_adb_empty": true,
+    "orchestrator_result": "Post-run immediate adb-empty assertion failed after both successful runner/emulator exits and scratch removal; subsequent independent adb observation is empty. No native retry."
+  }
+}

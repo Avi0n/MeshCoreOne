@@ -1,0 +1,82 @@
+WP503_BOOT|37|elapsed=0|exit=1|out=|error=adb.exe: device 'emulator-5714' not found
+WP503_BOOT|37|elapsed=5|exit=1|out=|error=adb.exe: device 'emulator-5714' not found
+WP503_BOOT|37|elapsed=10|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=15|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=20|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=25|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=30|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=35|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=40|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=45|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=50|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=56|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=61|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=66|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=71|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=76|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=81|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=86|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=91|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=96|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=101|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=106|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=111|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=116|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=121|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=126|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=131|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=136|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=141|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=146|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=151|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=157|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=162|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=167|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=172|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=177|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=182|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=187|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=192|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=197|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=202|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=207|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=212|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=217|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=222|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=227|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=232|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=237|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=242|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=248|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=253|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=258|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=263|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=268|exit=1|out=|error=adb.exe: device offline
+WP503_BOOT|37|elapsed=273|exit=1|out=|error=adb.exe: device unauthorized.
+This adb server's $ADB_VENDOR_KEYS is not set
+Try 'adb kill-server' if that seems wrong.
+Otherwise check for a confirmation dialog on your device.
+WP503_BOOT|37|elapsed=278|exit=1|out=|error=adb.exe: device unauthorized.
+This adb server's $ADB_VENDOR_KEYS is not set
+Try 'adb kill-server' if that seems wrong.
+Otherwise check for a confirmation dialog on your device.
+WP503_BOOT|37|elapsed=283|exit=1|out=|error=adb.exe: device unauthorized.
+This adb server's $ADB_VENDOR_KEYS is not set
+Try 'adb kill-server' if that seems wrong.
+Otherwise check for a confirmation dialog on your device.
+WP503_BOOT|37|elapsed=288|exit=1|out=|error=adb.exe: device unauthorized.
+This adb server's $ADB_VENDOR_KEYS is not set
+Try 'adb kill-server' if that seems wrong.
+Otherwise check for a confirmation dialog on your device.
+WP503_BOOT|37|elapsed=293|exit=1|out=|error=adb.exe: device unauthorized.
+This adb server's $ADB_VENDOR_KEYS is not set
+Try 'adb kill-server' if that seems wrong.
+Otherwise check for a confirmation dialog on your device.
+WP503_BOOT|37|elapsed=298|exit=1|out=|error=adb.exe: device unauthorized.
+This adb server's $ADB_VENDOR_KEYS is not set
+Try 'adb kill-server' if that seems wrong.
+Otherwise check for a confirmation dialog on your device.
+Traceback (most recent call last):
+  File "C:\Users\camer\.copilot\session-state\d2980f28-620c-408b-9947-067e2da8eedf\files\wp503-prepare-native.py", line 24, in <module>
+    raise RuntimeError("Owned emulator did not become boot-ready within300s")
+RuntimeError: Owned emulator did not become boot-ready within300s

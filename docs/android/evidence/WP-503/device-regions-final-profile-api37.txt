@@ -1,0 +1,12 @@
+37
+16384
+Physical size: 1344x2992
+Override size: 360x900
+Physical density: 480
+Override density: 160
+2.0
+0
+0
+0
+package:com.google.android.gms.supervision
+package:com.google.android.gms

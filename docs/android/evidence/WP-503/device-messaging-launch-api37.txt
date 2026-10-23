@@ -1,0 +1,6 @@
+Starting: Intent { cmp=com.meshcoreone.android.debug/com.meshcoreone.android.MainActivity }
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: com.meshcoreone.android.debug/com.meshcoreone.android.MainActivity
+WaitTime: 3308
+Complete

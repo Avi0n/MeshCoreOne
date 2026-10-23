@@ -1,0 +1,30 @@
+WP503_EXECUTED_INPUT|d977bce7658a83c5df7d7dcc88b20eeaaeecf85d
+WP503_COMMAND|C:\android-sdk\platform-tools\adb.exe -s emulator-5714 shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest -e expectedApi 37 com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+WP503_NATIVE_DISCOVERY|{"api": 37, "head": "d977bce7658a83c5df7d7dcc88b20eeaaeecf85d", "scenario": "platform-callback-control", "discovered": 1, "statuses": {"-2": 1}, "time": ["Time: 5.509"]}
+WP503_NATIVE_FAILED|('com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest', 'actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations')|-2
+ryTest.kt:0)
+	at com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest$$ExternalSyntheticLambda7.close(D8$$SyntheticClass:0)
+	at kotlin.io.CloseableKt.closeFinally(Closeable.kt:47)
+	at com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest.actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations(NativePlatformCallbackDeliveryTest.kt:94)
+
+INSTRUMENTATION_STATUS: test=actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 5.509
+There was 1 failure:
+1) actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations(com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest)
+java.lang.AssertionError: Native callback control restoration state true did not reach false within1000ms
+	at com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest.waitForState(NativePlatformCallbackDeliveryTest.kt:177)
+	at com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest.actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations$lambda$3$2$0(NativePlatformCallbackDeliveryTest.kt:91)
+	at com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest.$r8$lambda$_bpD_9VhJK7_ujbK67pYVOhEiOI(NativePlatformCallbackDeliveryTest.kt:0)
+	at com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest$$ExternalSyntheticLambda7.close(D8$$SyntheticClass:0)
+	at kotlin.io.CloseableKt.closeFinally(Closeable.kt:47)
+	at com.meshcoreone.android.accessibility.NativePlatformCallbackDeliveryTest.actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations(NativePlatformCallbackDeliveryTest.kt:94)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
+
