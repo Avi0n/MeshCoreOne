@@ -93,6 +93,7 @@ object AndroidAppContainerFactory {
         val store = openRoomDatabaseOnIo(
             openDatabase = { MeshCoreDatabase.open(application) },
             transferOwnership = { RoomPersistenceStore(it, storeScope) },
+            closeUntransferredOwner = { it.close() },
         )
         cleanup.addFirst { store.close() }
         val diagnostics = ConnectivityDiagnostics { operation, failure ->
@@ -286,16 +287,22 @@ object AndroidAppContainerFactory {
 internal suspend fun <Owner> openRoomDatabaseOnIo(
     openDatabase: () -> MeshCoreDatabase,
     transferOwnership: (MeshCoreDatabase) -> Owner,
+    closeUntransferredOwner: suspend (Owner) -> Unit,
 ): Owner {
-    var opened: MeshCoreDatabase? = null
+    val cleanup = ArrayDeque<suspend () -> Unit>()
     var ownershipTransferred = false
     var primaryFailure: Throwable? = null
     try {
-        val database = withContext(Dispatchers.IO) {
-            openDatabase().also { opened = it }
+        val owner = withContext(Dispatchers.IO) {
+            val database = openDatabase()
+            cleanup.addFirst { RoomPersistenceStore.closeUntransferredDatabase(database) }
+            currentCoroutineContext().ensureActive()
+            transferOwnership(database).also { owner ->
+                cleanup.addFirst { closeUntransferredOwner(owner) }
+            }
         }
         currentCoroutineContext().ensureActive()
-        val owner = transferOwnership(database)
+        // IO result delivery can be cancelled after construction but before the caller receives its owner.
         ownershipTransferred = true
         return owner
     } catch (failure: Throwable) {
@@ -305,7 +312,17 @@ internal suspend fun <Owner> openRoomDatabaseOnIo(
         if (!ownershipTransferred) {
             try {
                 withContext(NonCancellable + Dispatchers.IO) {
-                    opened?.let { RoomPersistenceStore.closeUntransferredDatabase(it) }
+                    var cleanupFailure: Throwable? = null
+                    while (cleanup.isNotEmpty()) {
+                        try {
+                            cleanup.removeFirst().invoke()
+                        } catch (failure: Throwable) {
+                            val previous = cleanupFailure
+                            if (previous == null) cleanupFailure = failure
+                            else if (previous !== failure) previous.addSuppressed(failure)
+                        }
+                    }
+                    cleanupFailure?.let { throw it }
                 }
             } catch (cleanup: Throwable) {
                 val failure = primaryFailure
