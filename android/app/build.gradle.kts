@@ -75,6 +75,7 @@ dependencies {
 
 val applicationProfileInput = layout.projectDirectory.file("src/main/baseline-prof.txt").asFile
 val applicationProfileAvailable = applicationProfileInput.exists()
+val startupStrictMode = providers.gradleProperty("wp504StartupStrictMode").map { it.toBooleanStrict() }.getOrElse(false)
 if (applicationProfileAvailable) {
     check(applicationProfileInput.isFile && !Files.isSymbolicLink(applicationProfileInput.toPath())) {
         "WP-504 application profile input must be a regular file"
@@ -86,8 +87,13 @@ if (applicationProfileAvailable) {
 }
 
 android {
+    buildFeatures { resValues = true }
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        resValue("bool", "wp504_startup_strict_mode", "false")
+    }
+    buildTypes.getByName("debug") {
+        resValue("bool", "wp504_startup_strict_mode", startupStrictMode.toString())
     }
     packaging {
         // AndroidOnly: WP-312 MapLibre's 64-bit binaries are 16 KiB-page aligned. Keep the app's existing

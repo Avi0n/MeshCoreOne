@@ -253,8 +253,30 @@ another reproducible CI-result bundle.
 Diagnostic-only fixture launches accept `--ez strictMode true`. They enable
 detect-all thread/VM policies with log plus death, never swallowed violations.
 Run them separately and force-stop the isolated package before normal timing.
-This covers code after fixture Activity entry, **not Application startup**;
-startup-wide StrictMode remains an explicit unverified review surface.
+That intent covers code after fixture Activity entry, not Application startup.
+For a separate **debug-only startup diagnostic build**, the existing
+`:app:assembleDebug` task accepts `-Pwp504StartupStrictMode=true`. The property
+accepts only literal `true` or `false` (default); invalid values fail configuration.
+It changes only the debug resource `wp504_startup_strict_mode`. Ordinary debug
+is disabled by default; release, benchmark and profile always retain `false`,
+even when that property is supplied. The runtime also requires a debuggable APK.
+Never collect profiles or timings from this diagnostic debug build.
+
+When opted in, the real `MeshCoreApplication.onCreate` installs detect-all
+thread/VM policies with log plus death **before** `super.onCreate`, widget-owner
+installation, lifecycle callbacks, unlock checks and ensuing container startup.
+There is no allow-disk/network exemption, caught violation or automatic fallback.
+The observation boundary begins after reading that build gate at `onCreate`
+entry: it does **not** cover zygote/framework startup, Application construction/
+field initializers, `attachBaseContext`, or providers initialized before
+`onCreate`. The thread policy applies to the invoking main thread, not a claim
+that all pre-existing worker threads have the same policy; the VM policy is
+process-wide. Robolectric API31/API37 tests observe both policies at the real
+Application super-call boundary, before any of the claimed app startup work,
+and verify disabled/nondebuggable gates preserve existing policies. These are
+software ordering/configuration tests, not actual-device violation or clean
+startup evidence. Genuine diagnostics still require a separate authorized
+execution and log review; the original workload intent behavior is unchanged.
 
 Retain sanitized logcat/Perfetto and actual `dumpsys activity exit-info` observations
 for the exact APK and scenario, including process lifecycle, repeated paging,
@@ -280,6 +302,6 @@ non-reproducible device/hardware/profile-source/human/legal evidence as required
 with sanitized identities and no messages/credentials/keys.
 
 Device measurements, actually collected/embedded profiles, measured budgets,
-physical battery/ANR, startup-wide StrictMode and 16 KiB native runtime remain
+physical battery/ANR, actually observed startup StrictMode and 16 KiB native runtime remain
 blocked until genuine execution and review. This harness and its build assertions
 do not complete WP-504 or unlock WP-505/506.

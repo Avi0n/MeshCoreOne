@@ -1,4 +1,5 @@
 // AndroidOnly: WP-303 Process entry: creates the AppContainer once and feeds it the process foreground/background edges.
+// AndroidOnly: WP-504 Opt-in debug startup diagnostics before onCreate widget/container work.
 package com.meshcoreone.android.app
 
 import android.app.Activity
@@ -7,9 +8,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.os.Build
+import android.os.StrictMode
 import android.os.UserManager
+import com.meshcoreone.android.R
 import com.meshcoreone.android.app.platform.UnlockedProcessStart
 import com.meshcoreone.android.app.container.AndroidAppContainerFactory
 import com.meshcoreone.android.app.container.AppContainer
@@ -52,6 +56,12 @@ class MeshCoreApplication : Application() {
     val container: kotlinx.coroutines.Deferred<AppContainer> get() = pending
 
     override fun onCreate() {
+        if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0 &&
+            resources.getBoolean(R.bool.wp504_startup_strict_mode)
+        ) {
+            StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().penaltyDeath().build())
+            StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder().detectAll().penaltyLog().penaltyDeath().build())
+        }
         super.onCreate()
         installWidgetConnectionOwner()
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
