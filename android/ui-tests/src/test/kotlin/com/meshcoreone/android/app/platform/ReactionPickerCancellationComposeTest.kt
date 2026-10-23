@@ -101,9 +101,9 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
             val navigationEntry = h.container.navigation.state.value.activeStack.last()
             compose.onNodeWithText(context.getString(C.chatsMessageActionDetails)).performClick()
             val more = context.getString(C.reactionsMoreEmojis)
-            val search = context.getString(C.reactionsEmojiSearchPlaceholder)
+            val search = hasSetTextAction() and hasAnyAncestor(isDialog())
             compose.onNodeWithText(more).performClick()
-            compose.onNodeWithText(search).performTextInput("grinning")
+            compose.onNode(search).performTextInput("grinning")
             compose.waitUntil(30_000) {
                 compose.onAllNodesWithContentDescription("grinning face").fetchSemanticsNodes().size == 1 &&
                     recentStates.isNotEmpty() && frequentStates.isNotEmpty()
@@ -130,12 +130,12 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
             compose.onNode(
                 SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss) and hasAnyDescendant(hasSetTextAction()),
             ).performSemanticsAction(SemanticsActions.Dismiss) { assertTrue(it()) }
-            compose.onNodeWithText(search).assertDoesNotExist()
+            compose.onNode(search).assertDoesNotExist()
             compose.onNodeWithText(more).assertIsDisplayed().assertHasClickAction()
             assertNoSelection()
 
             compose.onNodeWithText(more).performClick()
-            compose.onNodeWithText(search).performTextReplacement("rocket")
+            compose.onNode(search).assertTextContains("grinning").performTextReplacement("rocket")
             compose.waitUntil(30_000) {
                 compose.onAllNodesWithContentDescription("rocket").fetchSemanticsNodes().size == 1
             }
@@ -156,7 +156,7 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
                 } && recentStates.size == 2 && frequentStates.size == 2
             }
             compose.onNodeWithText(more).assertDoesNotExist()
-            compose.onNodeWithText(search).assertDoesNotExist()
+            compose.onNode(search).assertDoesNotExist()
             h.settle()
             compose.waitForIdle()
             val messages = store.fetchMessages(conversation, 10, 0)

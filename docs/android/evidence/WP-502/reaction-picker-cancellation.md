@@ -40,6 +40,15 @@ including preservation/order of the two seeded choices and no abandoned grinning
 selection. No assertion pretends that idempotent preference writes expose method
 invocation counts.
 
+The child field is located by its real text-edit action inside the dialog, not
+its empty-only placeholder: the App keeps the picker holder and its `grinning`
+query when the child is cancelled. Reopening must expose that retained query
+before replacing it with `rocket`. The same field predicate must be absent on
+child cancellation and after selection, so a hidden placeholder cannot fake
+sheet dismissal. This source-review correction supersedes the first authoring
+candidate's placeholder locator without changing product behavior or weakening
+the cancellation/selection assertions.
+
 ## Admission and verification boundary
 
 Same canonical session/attempt `3bc8c1b8-20ec-4647-88ae-db3775268489`, same branch
