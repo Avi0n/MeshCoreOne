@@ -15,6 +15,8 @@ from test_shared_device_runner import completed, record
 
 
 HEAD = "9d2366ba5e6eeeb2e01fda9ad3990c25e6af9928"
+# Coherent reviewed pins, not a native execution result for every family.
+PINNED_CONFIGURATION = "81dccf57622cdfc90159fbdcb0761110408616c7"
 
 
 def source(family="language"):
@@ -1045,7 +1047,9 @@ class LanguageBindingTest(unittest.TestCase):
         for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
-                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                self.assertEqual(blob, binding.git("rev-parse", PINNED_CONFIGURATION + ":" + path))
+                if path.startswith("android/accessibility-tests/"):
+                    self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
                 self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
         for revision in (spec.producer, "HEAD"):
             body = binding.git("show", revision + ":" + spec.fixture)
@@ -1243,7 +1247,9 @@ class LanguageBindingTest(unittest.TestCase):
             with self.subTest(family=name):
                 for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
                     self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
-                    self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                    self.assertEqual(blob, binding.git("rev-parse", PINNED_CONFIGURATION + ":" + path))
+                    if path.startswith("android/accessibility-tests/"):
+                        self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
                     self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
                 body = binding.git("show", "HEAD:" + spec.fixture)
                 self.assertEqual(body, binding.git("show", spec.producer + ":" + spec.fixture))
@@ -1273,6 +1279,23 @@ class LanguageBindingTest(unittest.TestCase):
                                "90cc4df7d8f5645b81a2321daf4e6a4c6bdd47c5"), spec.source_pins)
                 self.assertIn(("android/app/build.gradle.kts", "ee1104b097899ab08f3f82227d8cde354bc92602",
                                "a0752382e0c641e417b6c92297bc5018f0ace2b0"), spec.source_pins)
+
+    def test_real_app_changes_preserve_historical_pins_but_do_not_admit_current_native_execution(self):
+        changed_revision = "4b22c2526618f5cb556f593be4ed169c38448615"
+        for family in ("cached-chat", "platform-service-control", "platform-callback-control"):
+            spec = binding.family_spec(family)
+            with self.subTest(family=family):
+                self.assertNotEqual(
+                    binding.git("rev-parse", PINNED_CONFIGURATION + ":" + spec.production),
+                    binding.git("rev-parse", changed_revision + ":" + spec.production),
+                )
+                self.assertEqual(spec.fixture_blob, binding.git("rev-parse", changed_revision + ":" + spec.fixture))
+                with patch.object(binding, "source_identity", return_value="b" * 64):
+                    reviewed = binding.prepare_binding(PINNED_CONFIGURATION, self.claim, family=family)
+                    self.assertEqual(PINNED_CONFIGURATION, reviewed.source_revision)
+                    self.assertEqual(spec.production_blob, reviewed.production_blob)
+                    with self.assertRaisesRegex(binding.PortError, "drifted"):
+                        binding.prepare_binding(changed_revision, self.claim, family=family)
 
     def test_cold_platform_each_current_original_fixture_app_helper_and_ancestor_rejects_drift(self):
         for name in ("platform-service-control", "platform-callback-control"):
