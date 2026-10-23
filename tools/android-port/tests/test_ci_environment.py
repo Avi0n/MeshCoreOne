@@ -1,5 +1,6 @@
 """AndroidOnly: WP-003 Deterministic isolation/archive tests, not live-host evidence."""
 
+import contextlib
 import copy
 import hashlib
 import io
@@ -43,7 +44,7 @@ class EnvironmentTests(unittest.TestCase):
             "run_id": 123, "run_attempt": 2,
         }
 
-    def captured_stage(self, directory, host, stage, identity, *, local=False):
+    def captured_stage(self, directory, host, stage, identity, *, local=False, scopes=None):
         from controller.ci import run_stage
 
         state = {**self.state(directory), "host": host}
@@ -65,7 +66,7 @@ class EnvironmentTests(unittest.TestCase):
                                     "ANDROID_CI_OUTPUT": str(output)}),
             self.assertRaises(PortError),
         ):
-            run_stage(stage, state, output, local=local)
+            run_stage(stage, state, output, local=local, scopes=scopes)
         self.assertEqual(2, len(calls))
         self.assertFalse((output / f"stage-{stage}.json").exists(), "A failed command cannot publish success")
         if host == "windows":
@@ -83,6 +84,86 @@ class EnvironmentTests(unittest.TestCase):
         self.assertNotIn("--no-build-cache", arguments)
         self.assertNotIn("--max-workers=1", arguments)
         return output, state, arguments, observe_identity.call_count
+
+    def test_scaffold_selects_android_test_compilation_without_install_or_execution(self):
+        expected = [
+            "verifyScaffoldTests", "verifyRoomSchema", "validateModuleGraph",
+            "runtimeDependencyInventory", "resolveScaffoldDependencies",
+            ":app:assembleDebug", ":app:compileDebugAndroidTestKotlin", "lintScaffold",
+        ]
+        for host in ("linux", "windows"):
+            for scopes in (None, ["scaffold"], ["scaffold", "protocol"]):
+                with self.subTest(host=host, scopes=scopes), tempfile.TemporaryDirectory() as temporary:
+                    _, _, arguments, _ = self.captured_stage(
+                        Path(temporary), host, "scaffold", self.forwarding_identity(), scopes=scopes,
+                    )
+                    tasks = arguments[:arguments.index("--no-daemon")]
+                    self.assertEqual(tasks, expected + ([":core:protocol:test"] if scopes and "protocol" in scopes else []))
+                    self.assertEqual(tasks.count(":app:compileDebugAndroidTestKotlin"), 1)
+                    self.assertFalse(any(
+                        forbidden in task.lower()
+                        for task in tasks for forbidden in ("connected", "install", "device")
+                    ))
+
+    def test_scaffold_graph_requires_the_declared_android_test_compiler(self):
+        from controller.ci import TASKS, validate_candidate_task_graph
+
+        compiler = ":app:compileDebugAndroidTestKotlin"
+        self.assertIn(compiler, TASKS["scaffold"])
+        records = [
+            {"path": task if task.startswith(":") else ":" + task, "type": "fixture", "command": []}
+            for task in TASKS["scaffold"]
+        ]
+        with tempfile.TemporaryDirectory() as temporary:
+            graph = Path(temporary) / "graph.json"
+            graph.write_text(json.dumps({"schema_version": 1, "tasks": records}), encoding="utf-8")
+            self.assertEqual(validate_candidate_task_graph(graph, TASKS["scaffold"])["tasks"], len(records))
+            graph.write_text(json.dumps({
+                "schema_version": 1, "tasks": [record for record in records if record["path"] != compiler],
+            }), encoding="utf-8")
+            with self.assertRaisesRegex(PortError, "Requested Gradle task missing.*compileDebugAndroidTestKotlin"):
+                validate_candidate_task_graph(graph, TASKS["scaffold"])
+
+    def test_successful_compile_fixture_cannot_replace_missing_or_zero_unit_reports(self):
+        from controller import ci
+
+        collect_suites = ci.collect_suites
+        for empty_report in (False, True):
+            with self.subTest(empty_report=empty_report), tempfile.TemporaryDirectory() as temporary:
+                directory = Path(temporary)
+                android = directory / "android"
+                if empty_report:
+                    reports = android / "build-logic/convention/build/test-results/test"
+                    reports.mkdir(parents=True)
+                    (reports / "TEST-Fixture.xml").write_text(
+                        '<testsuite tests="0" failures="0" errors="0" skipped="0"/>', encoding="utf-8",
+                    )
+
+                def execute(command, environment, log, **kwargs):
+                    if log.name == "gradle-scaffold.log":
+                        self.assertIn(":app:compileDebugAndroidTestKotlin", command)
+                        graph = Path(environment["ANDROID_CI_TASK_GRAPH"])
+                        graph.parent.mkdir(parents=True, exist_ok=True)
+                        graph.write_text(json.dumps({
+                            "schema_version": 1,
+                            "tasks": [
+                                {"path": task if task.startswith(":") else ":" + task,
+                                 "type": "fixture", "command": []}
+                                for task in ci.TASKS["scaffold"]
+                            ],
+                        }), encoding="utf-8")
+
+                with (
+                    patch.object(ci, "verify_wrapper"),
+                    patch.object(ci, "candidate_environment", return_value={}),
+                    patch.object(ci, "execute", side_effect=execute),
+                    patch.object(ci, "collect_suites", side_effect=lambda _: collect_suites(android)) as collect,
+                    contextlib.redirect_stdout(io.StringIO()) as printed,
+                    self.assertRaisesRegex(PortError, "Missing mandatory test reports|Zero, failed, skipped"),
+                ):
+                    ci.run_stage("scaffold", {**self.state(directory), "host": "linux"}, directory / "output")
+                collect.assert_called_once()
+                self.assertNotIn('"result": "success"', printed.getvalue())
 
     def test_prepare_resolves_dependencies_without_demanding_test_reports(self):
         from controller.ci import run_stage

@@ -14,13 +14,13 @@ import com.meshcoreone.android.app.MeshCoreApplication
 import com.meshcoreone.android.app.navigation.ChatSelection
 import com.meshcoreone.android.app.navigation.NavigationDestination
 import com.meshcoreone.android.core.contracts.AppTab
+import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.datastore.AppStorageKey
 import com.meshcoreone.android.core.datastore.MeshCoreStorage
 import com.meshcoreone.android.core.l10n.generated.AppChatsStrings
 import com.meshcoreone.android.core.model.ChannelDTO
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.DeviceDTO
-import com.meshcoreone.android.core.model.EntityKey
 import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.MessageDirection
 import com.meshcoreone.android.core.model.MessageStatus
@@ -183,9 +183,9 @@ class NativeMessagingFlowAccessibilityTest : DeviceAccessibilityHarness() {
                     val window = automation.rootInActiveWindow
                     if (window == null || window.packageName?.toString() != activity.packageName) false
                     else {
-                        val matches = window.findAccessibilityNodeInfosByText(label).filter {
+                        val matches = nativeMessageDescendants(window).filter {
                             it.contentDescription?.toString() == label && it.isVisibleToUser
-                        }
+                        }.toList()
                         assertTrue("Only one actual native message may expose the observed label", matches.size <= 1)
                         nativeMessage = matches.singleOrNull()
                         nativeMessage != null
@@ -193,6 +193,7 @@ class NativeMessagingFlowAccessibilityTest : DeviceAccessibilityHarness() {
                 }
                 val native = requireNotNull(nativeMessage)
                 assertTrue(native.refresh())
+                assertTrue(native.isVisibleToUser)
                 assertEquals(label, native.contentDescription?.toString())
                 val bounds = Rect().also(native::getBoundsInScreen)
                 assertTrue("The exposed native message must have actual visible bounds", !bounds.isEmpty)
@@ -247,6 +248,16 @@ class NativeMessagingFlowAccessibilityTest : DeviceAccessibilityHarness() {
                     assertTrue(store.fetchContacts(radio).isEmpty())
                     assertTrue(store.fetchChannels(radio).isEmpty())
                     assertEquals(originalActiveDevice, store.fetchActiveDevice())
+                }
+            }
+
+            private fun nativeMessageDescendants(node: AccessibilityNodeInfo): Sequence<AccessibilityNodeInfo> = sequence {
+                assertTrue("Refresh actual message bridge data", node.refresh())
+                yield(node)
+                for (index in 0 until node.childCount) {
+                    yieldAll(nativeMessageDescendants(requireNotNull(node.getChild(index)) {
+                        "A declared native message child became unavailable"
+                    }))
                 }
             }
         }
