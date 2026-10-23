@@ -3814,3 +3814,12 @@ At this source-preparation point allocations/native starts/builds are zero.
 Only actual admitted source-bound native operations can establish a new result;
 compiled7c cold negatives, unknown cause, cleanup and historical ba software
 success are not rebound. No CI-result bundle or source-based acceptance is added.
+
+Actual committed c1e01b57 runner discovery reports258run/256PASS/2FAIL,
+0ERROR/SKIP,18.666s. Both failures are existing strict current cached-production
+pins: Chats-main49528b80 versus actualc466bf76 and AppChatsContent6e191c79 versus
+actualee5c5e11. The bounded follow-up imports no product code: it records these
+two genuine315 producer inputs while retaining original historical tree/blob
+checks and complete fixture/identity/pixel-offset assertions. The cold-family
+preservation regression admits only those exact provenance substitutions.
+No cached-chat selection or native result is claimed.

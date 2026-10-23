@@ -1004,8 +1004,11 @@ class LanguageBindingTest(unittest.TestCase):
         current_producer = "03306ff125655f977d88c5b517ad4cab26d9e771"
         chats_producer = "32bb28c6ea08f697ee69222f775237c190460883"
         merged_producer = "514c451653531da9e3cc47139a9e4e44fb9d6cf0"
-        self.assertEqual("49528b80d06929a403597b389fafb0e8a090d6e6", spec.production_blob)
-        self.assertIn((spec.production, merged_producer, spec.production_blob), spec.source_pins)
+        current_graph = "31557a16ca4492bbd669a7ad0358e702c5c54031"
+        self.assertEqual("c466bf76ceadddb370ed9803be6d9f403c0275b5", spec.production_blob)
+        self.assertIn((spec.production, current_graph, spec.production_blob), spec.source_pins)
+        self.assertEqual("49528b80d06929a403597b389fafb0e8a090d6e6",
+                         binding.git("rev-parse", merged_producer + ":" + spec.production))
         self.assertEqual("ea4fbdfcd7100b5c48b48b6a5b5e5bbcd795134e",
                          binding.git("rev-parse", chats_producer + ":" + spec.production))
         self.assertEqual(
@@ -1024,7 +1027,7 @@ class LanguageBindingTest(unittest.TestCase):
                        merged_producer, "--", spec.production).splitlines())
         for path, producer, blob in (
             ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatsContent.kt",
-             current_producer, "6e191c79de3a5cebf3f8e0603956e180f97bd014"),
+             current_graph, "ee5c5e112dcf041d8dbbd1471e2ad01d755b6bf8"),
             ("android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt",
              merged_producer, "11d18815632db5298a0552636ac86a7c73a657d4"),
             ("android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageContent.kt",
@@ -1224,7 +1227,16 @@ class LanguageBindingTest(unittest.TestCase):
     def test_cold_platform_actual_original_fixtures_deadlines_flags_diagnostics_and_app_provenance_are_unchanged(self):
         previous = binding.git("show", "ff0871665b6b071194684a72489fefa0af3810f5:android/accessibility-tests/language_binding.py")
         current = binding.Path(binding.__file__).read_text(encoding="utf-8")
-        self.assertEqual(previous[previous.index("DIAGNOSTICS ="):previous.index("FAMILIES =")],
+        expected = previous[previous.index("DIAGNOSTICS ="):previous.index("FAMILIES =")]
+        expected = expected.replace(
+            '"514c451653531da9e3cc47139a9e4e44fb9d6cf0", "49528b80d06929a403597b389fafb0e8a090d6e6"',
+            '"31557a16ca4492bbd669a7ad0358e702c5c54031", "c466bf76ceadddb370ed9803be6d9f403c0275b5"',
+        ).replace('"49528b80d06929a403597b389fafb0e8a090d6e6"',
+                  '"c466bf76ceadddb370ed9803be6d9f403c0275b5"').replace(
+            '"03306ff125655f977d88c5b517ad4cab26d9e771", "6e191c79de3a5cebf3f8e0603956e180f97bd014"',
+            '"31557a16ca4492bbd669a7ad0358e702c5c54031", "ee5c5e112dcf041d8dbbd1471e2ad01d755b6bf8"',
+        )
+        self.assertEqual(expected,
                          current[current.index("DIAGNOSTICS ="):current.index("COLD_PLATFORM_SOURCE_PINS =")])
         for name in ("platform-service-control", "platform-callback-control"):
             spec = binding.family_spec(name)
