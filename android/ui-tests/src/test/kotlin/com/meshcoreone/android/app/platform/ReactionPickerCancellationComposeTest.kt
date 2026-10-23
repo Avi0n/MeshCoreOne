@@ -4,8 +4,8 @@
 package com.meshcoreone.android.app.platform
 
 import android.content.Context
+import android.view.KeyEvent
 import androidx.activity.compose.setContent
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ApplicationProvider
@@ -31,6 +31,7 @@ import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowDialog
 
 @Config(sdk = [31], qualifiers = "w360dp-h800dp")
 class ReactionPickerCancellationComposeTest : RoomProcessTest() {
@@ -100,6 +101,9 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
             compose.waitForIdle()
             val navigationEntry = h.container.navigation.state.value.activeStack.last()
             compose.onNodeWithText(context.getString(C.chatsMessageActionDetails)).performClick()
+            val parentDialog = compose.runOnIdle {
+                requireNotNull(ShadowDialog.getLatestDialog()).also { assertTrue(it.isShowing) }
+            }
             val more = context.getString(C.reactionsMoreEmojis)
             val search = hasSetTextAction() and hasAnyAncestor(isDialog())
             compose.onNodeWithText(more).performClick()
@@ -127,9 +131,27 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
                 assertTrue(h.messagingDiagnostics.toString(), h.messagingDiagnostics.isEmpty())
             }
             assertNoSelection()
-            compose.onNode(
-                SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss) and hasAnyDescendant(hasSetTextAction()),
-            ).performSemanticsAction(SemanticsActions.Dismiss) { assertTrue(it()) }
+            val childDialog = compose.runOnIdle {
+                requireNotNull(ShadowDialog.getLatestDialog()).also {
+                    assertNotSame(parentDialog, it)
+                    assertTrue(it.isShowing)
+                }
+            }
+            // Material Back can first collapse an expanded sheet to its partial detent.
+            repeat(2) {
+                compose.runOnIdle {
+                    if (childDialog.isShowing) {
+                        childDialog.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
+                        childDialog.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK))
+                    }
+                }
+                compose.waitForIdle()
+            }
+            compose.runOnIdle {
+                assertNotSame(parentDialog, childDialog)
+                assertFalse(childDialog.isShowing)
+                assertTrue(parentDialog.isShowing)
+            }
             compose.onNode(search).assertDoesNotExist()
             compose.onNodeWithText(more).assertIsDisplayed().assertHasClickAction()
             assertNoSelection()

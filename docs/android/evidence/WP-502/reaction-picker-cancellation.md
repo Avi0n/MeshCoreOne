@@ -21,8 +21,13 @@ its PR/automatic hosted run, not by a self-referential source checksum.
 
 ## Assertions
 
-The child searches for grinning face without choosing, then invokes the actual
-child sheet's Dismiss semantics (not an OS Back/TalkBack claim). Parent retention
+The child searches for grinning face without choosing, then dispatches Back
+down/up events to its actual Robolectric Dialog, first requiring a distinct
+showing child window from the captured parent. This reuses the incumbent
+MessagePathComposeTest native-dialog input pattern, not an emulator/OS/TalkBack
+claim. At most two Back events target only that same still-showing child:
+Material may first collapse an expanded sheet to its partial detent. The child
+must actually close and the parent Dialog must stay showing. Parent retention
 and the next real MoreEmojis click are required. Before cancellation, after
 cancellation, and after reopening/searching rocket, complete persisted conversation
 rows/reactions, pending sends, DM/channel sends, frequent/recent lists and observed
@@ -48,6 +53,26 @@ child cancellation and after selection, so a hidden placeholder cannot fake
 sheet dismissal. This source-review correction supersedes the first authoring
 candidate's placeholder locator without changing product behavior or weakening
 the cancellation/selection assertions.
+
+## Actual60c795 failure and input repair
+
+Own automatic39876887409, attempt1, exact60c795d189b2e93e866d2cf60c292b8afefb5fe0,
+completed FAILURE. Official Linux120165866922 discovered/ran App1264,1263 passed,
+one failure, zero errors/skips. The sole App failure is this new method:
+`Expected exactly '1' node but could not find any node that satisfies:
+((Dismiss is defined) && (hasAnyDescendantThat(SetText is defined)))`.
+The compiled/executed case reached that input; this is not a passing flow or
+evidence of an App product defect. Mandatory later module reports were missing
+because the declared build stopped at the App test failure; no full-suite pass
+or complete failed-command evidence is inferred.
+
+The input-only repair targets the actual child Dialog's Back event path instead
+of assuming that the Material Dismiss action is an ancestor of the search field.
+It additionally checks different parent/child Dialog identities and a still
+showing parent after cancellation. All no-send/Room/preference/query/once-only
+selection checks remain intact. The old failure remains60c795-bound; only a new
+candidate's own run can verify the repaired path. No manual local build, runner
+change, weakened expectation, product edit or old-run rerun/cancel accompanies it.
 
 ## Admission and verification boundary
 
