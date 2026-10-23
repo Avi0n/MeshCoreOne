@@ -393,13 +393,19 @@ class MessageActionsRepairComposeTest {
                     val distanceNode = compose.onNode(hasText(unit, substring = true)).assertIsDisplayed()
                     val formatted = distanceNode.fetchSemanticsNode().config[SemanticsProperties.Text].single().text
                     val number = java.text.NumberFormat.getInstance(Locale.forLanguageTag(locale)).parse(formatted).toDouble()
-                    assertTrue("$locale: $formatted", number in range)
-                    assertFalse(formatted.contains("12400"))
+                    val case = "sdk=${android.os.Build.VERSION.SDK_INT}, resources=$locale, " +
+                        "ambient=${Locale.getDefault()}, formatted=<$formatted>, parsed=$number"
+                    assertTrue("$case: expected magnitude in $range $unit for 12400m", number in range)
+                    assertFalse("$case: must not display unconverted raw meters", formatted.contains("12400"))
                     val layouts = mutableListOf<TextLayoutResult>()
                     distanceNode.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
-                    assertEquals(2f, layouts.single().layoutInput.density.fontScale, 0f)
-                    assertFalse(layouts.single().didOverflowWidth)
-                    assertFalse(layouts.single().didOverflowHeight)
+                    val layout = layouts.single()
+                    val measured = "$case: size=${layout.size}, constraints=${layout.layoutInput.constraints}, " +
+                        "paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height}, " +
+                        "lines=${layout.lineCount}, fontScale=${layout.layoutInput.density.fontScale}"
+                    assertEquals("$measured: expected 200% font", 2f, layout.layoutInput.density.fontScale, 0f)
+                    assertFalse("$measured: distance must not overflow width", layout.didOverflowWidth)
+                    assertFalse("$measured: distance must not overflow height", layout.didOverflowHeight)
                     // Only distance and localized incomplete label: the source preview excludes hop count.
                     assertEquals(2, compose.onAllNodes(
                         SemanticsMatcher.keyIsDefined(SemanticsProperties.Text),
@@ -462,7 +468,8 @@ class MessageActionsRepairComposeTest {
                     value.text.contains(Regex("\\d.*(?:km|mi| m|公里|米)"))
                 } == true
             }).assertDoesNotExist()
-            compose.onNodeWithText(text(AppChatsStrings.chatsMessageActionDetails)).performScrollTo().performClick()
+            compose.onNode(hasText(text(AppChatsStrings.chatsMessageActionDetails)) and hasClickAction())
+                .performScrollTo().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp).performClick()
             receiver().performScrollTo().assertTextContains(signal(2.5, AppChatsStrings.chatsSignalGood))
             compose.onNodeWithContentDescription(text(AppChatsStrings.chatsPathCopyAccessibility)).performScrollTo().assertExists()
             assertNoExtraReads()

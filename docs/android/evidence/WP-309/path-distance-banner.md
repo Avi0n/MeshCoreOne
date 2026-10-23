@@ -84,3 +84,22 @@ remembered value as `String?`. The lambda now returns only the nullable formatte
 API guards, formatter behavior, all endpoint/copy/banner methods and other production files are unchanged.
 The corrected changed candidate is committed/pushed normally; its own check/run identity and outcomes
 are recorded in PR #305, without borrowing b554 execution or rerunning an unchanged candidate.
+
+## Centrally reported executed failures and focused correction
+
+The coordinator consumed official Linux job `120294142070` once for exact25ec / run39917166681 attempt1.
+This worker did not reread/download the log or create a second result bundle. Reported main and test
+Kotlin compilation succeeded; App tests discovered1373, passed1370, failed3, errors0, skipped0.
+Both SDK31/33 original12400m cases failed with generic AssertionError without assertion line/value.
+The unlocated-path method failed because text-only Details matched two nodes (button and metadata
+heading). Suppressed UnExecutedRunnablesException is not a demonstrated cause; selected Gradle command
+failed, not a passing overall verdict. Controller succeeded; oracles skipped; no native result.
+
+Details is now selected by its localized text AND click semantics, with a48dp action assertion, not
+arbitrary first-match selection. Numeric/unit/locale/200%/overflow expectations remain unchanged.
+Existing plain assertion failures now carry SDK, explicit resource/ambient locale, formatted/parsed
+distance, text size/constraints, paragraph dimensions, line count and font scale. This narrows the
+otherwise value-less failure without attributing it to a production or fixture cause prematurely.
+No looper shortcut, renderer fake, source filter, golden/expectation relaxation or foreign edit.
+Both component SDK variants and all six incumbent methods are preserved.
+The already integrated current-main3f0 bytes and incoming WP501 entries remain unchanged.
