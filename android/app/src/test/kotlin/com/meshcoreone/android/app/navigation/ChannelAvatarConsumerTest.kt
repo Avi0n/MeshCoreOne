@@ -1,4 +1,5 @@
 // PortedFrom: MC1/Views/Chats/Components/IncomingAvatarGutter.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/Components/IncomingBubbleAvatarMetrics.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1Tests/ViewModels/IncomingAvatarClusterTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // Native adaptation: mounted App table/photo/grouping regressions, not additional original-case credit.
@@ -14,8 +15,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import com.meshcoreone.android.app.container.AppChatContent
 import com.meshcoreone.android.app.container.ContainerHarness
@@ -79,11 +82,26 @@ class ChannelAvatarConsumerTest : RoomProcessTest() {
             compose.onNodeWithTag(spacerTag(first), useUnmergedTree = true).assertExists()
             val avatar = compose.onNodeWithTag(avatarTag(second), useUnmergedTree = true)
             val bounds = avatar.getUnclippedBoundsInRoot()
-            assertEquals(56f, (bounds.right - bounds.left).value, 0.1f)
+            assertEquals(28f, (bounds.right - bounds.left).value, 0.1f)
+            assertEquals(28f, (bounds.bottom - bounds.top).value, 0.1f)
+            val sharedAvatarBounds = compose.onNodeWithContentDescription("Alice", useUnmergedTree = true).getUnclippedBoundsInRoot()
+            assertEquals(28f, (sharedAvatarBounds.right - sharedAvatarBounds.left).value, 0.1f)
+            assertEquals(28f, (sharedAvatarBounds.bottom - sharedAvatarBounds.top).value, 0.1f)
+            val spacerBounds = compose.onNodeWithTag(spacerTag(first), useUnmergedTree = true).getUnclippedBoundsInRoot()
+            assertEquals(28f, (spacerBounds.right - spacerBounds.left).value, 0.1f)
             val firstLeft = bubble(first).getUnclippedBoundsInRoot().left.value
             val secondLeft = bubble(second).getUnclippedBoundsInRoot().left.value
             assertEquals(firstLeft, secondLeft, 0.1f)
-            assertEquals(62f, secondLeft - avatar.getUnclippedBoundsInRoot().left.value, 0.1f)
+            assertEquals(34f, secondLeft - bounds.left.value, 0.1f)
+            assertEquals(6f, secondLeft - bounds.right.value, 0.1f)
+            for (message in listOf(first, second)) {
+                val layouts = mutableListOf<TextLayoutResult>()
+                compose.onNodeWithText(message.text, useUnmergedTree = true)
+                    .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
+                val layout = layouts.single()
+                assertEquals("Message text must retain 200-percent scaling", 2f, layout.layoutInput.density.fontScale, 0f)
+                assertFalse("Message text must not clip at 200 percent", layout.hasVisualOverflow)
+            }
             avatar.assertHasNoClickAction()
             assertTrue("Avatar descendants must be cleared from accessibility", avatar.fetchSemanticsNode().config.isClearingSemantics)
             compose.onAllNodesWithContentDescription("Alice").assertCountEquals(0)

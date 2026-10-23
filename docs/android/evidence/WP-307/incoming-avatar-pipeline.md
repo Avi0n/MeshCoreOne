@@ -62,8 +62,10 @@ increase the 12-case original denominator.
 `AppChatsContent` over the existing real AppContainer/fake-radio/Room harness, not a preview
 or test-only configuration adapter. Its nine methods cover:
 
-- Actual cluster-end avatar and reserved leading alignment at 200% font: 56 dp diameter and
-  6 dp gap; decorative semantics and unchanged stored messages.
+- Actual cluster-end avatar and reserved leading alignment at 200% font: the source's
+  fixed 28 dp diameter, 6 dp gap and 34 dp column. Both the rendered shared avatar and
+  preceding spacer retain these dimensions while real message text retains 200% scaling
+  without overflow; decorative semantics and stored messages remain unchanged.
 - Real local-photo pixels changing from red to green when `lastModified` does not change,
   without replacing the existing bubble's semantics identity.
 - Name collision revoking the asserted photo, followed by unique-name recovery.
@@ -121,6 +123,21 @@ both complete parent message labels remain accessible. Shared `ContactAvatar`
 child semantics and production message semantics are unchanged. This is
 tightly coupled verification support for the missing avatar feature, not a new
 product defect or a separate tooling workstream.
+
+### Source-metric correction at large font
+
+Subsequent source review found that the initial timeline multiplied its avatar
+column diameter by system font scale. Frozen `IncomingBubbleAvatarMetrics.swift`
+defines fixed size 28, gap 6 and column width 34; `IncomingAvatarGutter.swift`
+uses those constants without Dynamic Type multiplication. The previous 56/62 dp
+large-font assertions recorded that native drift rather than source behavior.
+The timeline now uses a fixed 28 dp slot/spacer and 6 dp gap. Its constraints also
+keep the shared `ContactAvatar` inside 28 dp without changing that shared
+component's other consumers or disabling text scaling. The same large-font method
+requires both the slot and rendered avatar to be 28 dp, the spacer to be 28 dp,
+the total leading column to be 34 dp and the gap to be 6 dp. It inspects actual
+message `TextLayoutResult` values for 2x font density and no visual overflow.
+The 24 method identities and 48 required SDK records remain unchanged.
 
 Both new classes select Robolectric SDK 31 and 37: 15 configuration methods plus nine
 consumer methods declare 48 SDK-specific executions. This is an expected inventory only;

@@ -38,7 +38,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -389,7 +388,7 @@ private fun MessageBubble(
         verticalAlignment = Alignment.Bottom,
     ) {
         if (showsIncomingAvatars && !outgoing && row.message.isChannelMessage) {
-            val diameter = 28.dp * LocalDensity.current.fontScale.coerceAtLeast(1f)
+            val diameter = 28.dp
             if (isAvatarClusterEnd) {
                 Box(Modifier.size(diameter).testTag("timeline-avatar:${row.message.id}").clearAndSetSemantics {}) {
                     incomingAvatar(row.message)
