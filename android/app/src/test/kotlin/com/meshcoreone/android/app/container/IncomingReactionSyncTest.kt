@@ -69,8 +69,11 @@ class IncomingReactionSyncTest : RoomProcessTest() {
             }
             val live = assertNotNull(harness.sessions.current)
             assertTrue(live.messagePollingService.hasMessageHandlersWired)
-            live.channelService.syncChannels(live.token.radioId, 1u, usePipelinedRead = false)
-            assertEquals(secret, store.fetchChannels(live.token.radioId).single().secret)
+            val channelSync = live.channelService.syncChannels(live.token.radioId, 1u, usePipelinedRead = false)
+            val channels = store.fetchChannels(live.token.radioId)
+            assertEquals(1, channels.size,
+                "configured channel after sync (direct=$direct, pending=$pending, sync=$channelSync)")
+            assertEquals(secret, channels.single().secret)
             val peer = ContactDTO(radioId = live.token.radioId, publicKey = peerKey, name = "Bob", lastHeardTimestamp = null)
             store.saveContact(peer)
             val contact = EntityKey(live.token.radioId, peer.id)
@@ -79,7 +82,10 @@ class IncomingReactionSyncTest : RoomProcessTest() {
             suspend fun target() {
                 poll(harness, live, direct, if (direct) "Hello" else "Alice: Hello", timestamp)
                 assertEquals(listOf("Hello"), messages().map { it.text })
-                val saved = messages().single()
+                val targets = messages()
+                assertEquals(1, targets.size,
+                    "stored target after original polling (direct=$direct, pending=$pending, hash=$expectedHash)")
+                val saved = targets.single()
                 assertEquals(timestamp, saved.timestamp)
                 assertEquals(timestamp, saved.reactionTimestamp)
                 assertTrue(!saved.timestampCorrected)
@@ -95,9 +101,16 @@ class IncomingReactionSyncTest : RoomProcessTest() {
                 target()
                 reaction()
             }
-            val savedTarget = messages().single()
+            val targets = messages()
+            assertEquals(1, targets.size,
+                "stored target after reaction polling (direct=$direct, pending=$pending, hash=$expectedHash)")
+            val savedTarget = targets.single()
             val message = EntityKey(live.token.radioId, savedTarget.id)
-            val savedReaction = store.fetchReactions(message).single()
+            val reactions = store.fetchReactions(message)
+            assertEquals(1, reactions.size,
+                "stored reaction (direct=$direct, pending=$pending, hash=$expectedHash, " +
+                    "gaps=${live.reportedGaps}, diagnostics=${harness.messagingDiagnostics})")
+            val savedReaction = reactions.single()
             assertEquals(savedTarget.id, savedReaction.messageID)
             assertEquals(live.token.radioId, savedReaction.radioId)
             assertEquals(emoji, savedReaction.emoji)
