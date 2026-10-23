@@ -4,6 +4,8 @@
 package com.meshcoreone.android.app.actions
 
 import android.content.res.Configuration
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.os.LocaleList
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -299,6 +301,63 @@ class MessageActionsRepairComposeTest {
                 requireNotNull(radioDevice.nodeName), text(AppChatsStrings.chatsPathReceiverLabel),
             )
             assertNoExtraReads()
+        }
+
+        @Test fun selectedPathCopyWritesPlatformClipboardWithoutDispatchingMessageCopyOrLeavingDetails() {
+            for (locale in listOf("en-US", "zh-Hans")) {
+                val target = message(Bytes.of(0x0A, 0xFF), 2u)
+                mount(target, locale = locale, fontScale = 2f)
+                val echo = MessageRepeatDTO(
+                    messageID = target.id, receivedAt = instant.plusSeconds(1),
+                    pathNodes = Bytes.of(0xA3, 0x7F), pathLength = 2u, snr = -4.5,
+                )
+                finishRead(listOf(echo))
+                val clipboard = requireNotNull(host.get().getSystemService(ClipboardManager::class.java))
+                compose.runOnIdle { clipboard.setPrimaryClip(ClipData.newPlainText("Existing", target.text)) }
+                fun copy(expected: String) {
+                    val control = compose.onNodeWithContentDescription(text(AppChatsStrings.chatsPathCopyAccessibility))
+                    control.performScrollTo().assertIsDisplayed().assertHasClickAction()
+                        .assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+                        .assertTextContains(text(AppChatsStrings.chatsPathCopyButton))
+                        .assert(SemanticsMatcher("localized copy hint") {
+                            it.config[SemanticsActions.OnClick].label == text(AppChatsStrings.chatsPathCopyHint)
+                        }).performClick()
+                    compose.runOnIdle {
+                        val actual = requireNotNull(clipboard.primaryClip).getItemAt(0).text.toString()
+                        assertEquals(expected, actual)
+                        assertNotEquals(target.text, actual)
+                        assertFalse(actual.contains("\u2192"))
+                    }
+                    receiver().performScrollTo().assertExists()
+                    assertNoExtraReads()
+                }
+                copy("0A,FF")
+                compose.onNodeWithText("#2").performScrollTo().performClick()
+                compose.onNodeWithText("A3 \u2192 7F").performScrollTo().assertIsDisplayed()
+                copy("A3,7F")
+                compose.runOnIdle { revision.value += 1 }
+                receiver().performScrollTo().assertTextContains(signal(-4.5, AppChatsStrings.chatsSignalFair))
+                copy("A3,7F")
+                compose.onNodeWithText(text(AppChatsStrings.chatsPathArrivalFirst)).performScrollTo().performClick()
+                copy("0A,FF")
+            }
+        }
+
+        @Test fun zeroHopAndUnavailableNeverOfferOrWritePathCopy() {
+            val clipboard = requireNotNull(host.get().getSystemService(ClipboardManager::class.java))
+            for (target in listOf(message(null), message(Bytes.EMPTY), message(Bytes.EMPTY, 1u))) {
+                mount(target)
+                compose.runOnIdle { clipboard.setPrimaryClip(ClipData.newPlainText("Existing", "untouched")) }
+                finishRead()
+                compose.onNodeWithContentDescription(text(AppChatsStrings.chatsPathCopyAccessibility)).assertDoesNotExist()
+                compose.onNodeWithText(text(AppChatsStrings.chatsPathCopyButton)).assertDoesNotExist()
+                compose.runOnIdle { revision.value += 1 }
+                compose.onNodeWithContentDescription(text(AppChatsStrings.chatsPathCopyAccessibility)).assertDoesNotExist()
+                compose.runOnIdle {
+                    assertEquals("untouched", requireNotNull(clipboard.primaryClip).getItemAt(0).text.toString())
+                }
+                assertNoExtraReads()
+            }
         }
 
         private class EndpointSource(

@@ -51,14 +51,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meshcoreone.android.core.l10n.generated.AppChatsStrings
@@ -444,6 +448,28 @@ private fun PathHopList(
         resolution = NodeNameResolution(receiverName, NodeNameMatchKind.EXACT),
         snr = arrival.snr,
     )
+    if (arrival.pathHops.isNotEmpty()) {
+        val clipboard = LocalClipboardManager.current
+        val copyLabel = stringResource(AppChatsStrings.chatsPathCopyAccessibility)
+        val copyHint = stringResource(AppChatsStrings.chatsPathCopyHint)
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            TextButton(
+                onClick = { clipboard.setText(AnnotatedString(arrival.pathStringForClipboard)) },
+                modifier = Modifier.sharedTouchTarget().semantics {
+                    contentDescription = copyLabel
+                    onClick(label = copyHint, action = null)
+                },
+            ) {
+                Text(stringResource(AppChatsStrings.chatsPathCopyButton))
+            }
+            Text(
+                arrival.pathString,
+                style = MaterialTheme.typography.bodySmall,
+                fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
 }
 
 @Composable
