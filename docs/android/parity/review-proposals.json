@@ -5,6 +5,38 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "message-region-original-channel-legacy-consumer-edges",
+      "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageRegionOriginalPredicateTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.MessageRegionOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "regionToShow: channel messages render region regardless of routeType",
+        "regionToShow: legacy radio with no routeType respects pathLength 0xFF as direct"
+      ],
+      "comparison": "Two distinct standalone frozen originals retain their actual production-footer assertions. ChannelIndex0 with explicit DIRECT route, United States sticky scope and regiontrue must show United States. Legacy incoming DM with nil channel/route, pathLength255, United States sticky scope, EMPTY matches and regiontrue must hide the region. Existing generic channel3/nil-route/path2 builder coverage does not assert the explicit-DIRECT channel override; generic legacy direct coverage starts from multi-match alpha/beta rather than the exact original sticky-only fixture. Neither generic test is removed or counted as either original.",
+      "inputs": "Complete makeMessage/messageItem defaults retained: fresh message/radio UUIDs, nil contact, Test/timestamp0, incoming/delivered/plain/read, A37F path bytes even for pathLength255, nil ack/SNR/sender-key/reply/RTT, heard0/retry0/max0/sendCount1, empty matches and other source-equivalent DTO defaults. Channel case retains source senderNodeName RemoteNode; legacy DM senderNodeName remains nil. Ambient Date maps only to irrelevant Instant.EPOCH. The original eight ordered matrix rows, row-specific flags/routes/scopes/expected strings and indexed equality assertions are unchanged. Its inline DTO and production build inputs/environment are extracted into private makeMessage/sourceFooter helpers with equivalent defaults, not duplicated evaluators.",
+      "adaptations": "Two synchronous JUnit4 methods in the existing App parity source set read the real MessageFragmentBuilder.makeItem footer, with native String equality and assertNull equivalents. sourceFooter extracts the original exact idle/nil preview/URL/images/format/path inputs, incoming color, Unknown/unresolved sender, sender-groupingtrue/other flagsfalse, previewsEnabledtrue/currentUserNameMe and actual environment defaults; removed translation remains false. No Compose/UIKit mount, source-set/build/runner/framework change, DTO-only result, fake footer, product repair or generated accounting. Same-owner receipt133->134 admits four owned modifications before edits; local parent/public7786 is the still-frozen pending PR312 candidate, not a new current-main integration.",
+      "helpers": [
+        "MC1Tests/Views/Chats/Components/MessageBubbleTestData.swift",
+        "MC1Services/Sources/MC1Services/Models/Message.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageFragmentBuilder.swift",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageRegionOriginalPredicateTest.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/Snapshots.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageFragmentBuilder.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageBuildInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/EnvInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/NodeNameResolution.kt"
+      ],
+      "consumer": "Actual DTO channel-first/route-second/path-fallback semantics reach the real footer consumer: showIncomingRegion && isFloodRouted, then coalescing/chip label. Assertions read the returned footer.regionToShow, never a candidate-derived expected predicate. Required new identities are directRouteOriginalChannelStillShowsRegion and legacyNoRouteOriginalDirectPathHidesRegion. Existing allEightOriginalRegionRowsUseTheProductionBuilder keeps all eight literal inputs and predicates; published three ambiguity cases and their test blob remain unchanged. This adds two originals only, not another eight-row family or whole-file acceptance.",
+      "unresolved": [
+        "LOCAL ONLY; publication held for independent root review and actual pending-PR312 CI/current-main sequencing. Public7786 and PR312 remain frozen; local-only successor bytes are not pushed or written to its body. Candidate Kotlin compilation and actual two-method discovery/execution remain UNVERIFIED; declared readiness/non-native outcomes are recorded in docs/android/evidence/WP-501/message-region-channel-legacy-originals.md. No archive/accounting regeneration, borrowed or reread successful official logs, CI bundle/rerun/dispatch, native/device/resource/allowance action or whole-WP acceptance."
+      ]
+    },
+    {
       "id": "message-region-original-three-ambiguity-consumers",
       "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
       "partial_source_file": true,
