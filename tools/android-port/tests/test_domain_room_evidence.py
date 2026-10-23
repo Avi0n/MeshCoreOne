@@ -64,6 +64,7 @@ class DomainRoomFixture:
     def command(self, *arguments, input=None):
         return subprocess.run(
             ["git", "-c", "core.autocrlf=false", "-c", "core.hooksPath=" + str(self.root / "no-hooks"),
+             "-c", "maintenance.auto=false", "-c", "gc.auto=0",
              "-c", "commit.gpgsign=false", "-c", "user.name=Domain evidence fixture",
              "-c", "user.email=fixture@example.invalid", "-C", str(self.repo), *arguments],
             input=input, capture_output=True, text=True, check=True, timeout=30,
@@ -122,6 +123,27 @@ class DomainRoomEvidenceTests(unittest.TestCase):
 
     def report(self, **kwargs):
         return collector.report(self.fixture.repo, **kwargs)
+
+    def test_fixture_git_writes_disable_inherited_automatic_housekeeping(self):
+        config = self.fixture.root / "parent-gitconfig"
+        config.write_text(
+            "[maintenance]\n\tauto = true\n\tautoDetach = false\n"
+            "[gc]\n\tauto = 1\n\tautoDetach = false\n", encoding="utf-8",
+        )
+        trace = self.fixture.root / "git-trace.jsonl"
+        with patch.dict(os.environ, {
+            "GIT_CONFIG_GLOBAL": str(config), "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_TRACE2_EVENT": str(trace),
+        }):
+            self.fixture.write("housekeeping-fixture.txt", "Owned disposable Git lifecycle regression\n")
+            self.fixture.commit()
+        children = [
+            event["argv"]
+            for line in trace.read_text(encoding="utf-8").splitlines()
+            if (event := json.loads(line)).get("event") == "child_start"
+            and any(argument in ("maintenance", "gc") for argument in event["argv"])
+        ]
+        self.assertEqual(children, [], "Fixture writes must not launch implicit Git housekeeping children")
 
     def test_original_isolated_writer_passes_the_explicit_exact_base_audit(self):
         result = self.report(audit_base=self.fixture.base)

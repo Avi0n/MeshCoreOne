@@ -307,6 +307,7 @@ class SourceDispositionTests(unittest.TestCase):
             self.assertEqual(gradle[3], ":core:protocol:test")
             self.assertNotIn("verifyScaffoldTests", gradle)
             self.assertNotIn(":app:assembleDebug", gradle)
+            self.assertNotIn(":app:compileDebugAndroidTestKotlin", gradle)
             self.assertIn("--dependency-verification", gradle)
             summary, report = printed.getvalue().split("\n", 1)
             self.assertEqual(summary, "Verified Kotlin source dispositions and pinned provenance: 1 files")

@@ -38,7 +38,7 @@ TASKS = {
     "scaffold": [
         "verifyScaffoldTests", "verifyRoomSchema", "validateModuleGraph",
         "runtimeDependencyInventory", "resolveScaffoldDependencies",
-        ":app:assembleDebug", "lintScaffold",
+        ":app:assembleDebug", ":app:compileDebugAndroidTestKotlin", "lintScaffold",
     ],
     "prepare": ["resolveScaffoldDependencies"],
     "protocol": [":core:protocol:test"],
