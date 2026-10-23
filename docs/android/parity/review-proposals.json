@@ -5,6 +5,40 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "message-region-original-incoming-dm-label-consumers",
+      "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBubbleAccessibilityAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.MessageBubbleAccessibilityAcceptanceTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "accessibilityMessageLabel: direct-routed message must not include region fragment",
+        "accessibilityMessageLabel: flood-routed message includes region fragment"
+      ],
+      "comparison": "Two separate standalone original consumer cases, retained as two annotated JUnit methods in the existing acceptance class. DIRECT incoming DM with United States scope, regiontrue/hoptrue: actual production label does not contain the resource-derived localized region fragment. FLOOD incoming DM with the same scope, regiontrue/default hopfalse: label does contain it. Existing positive channel labels/preference updates and outgoing failed-DM tests do not assert these incoming-DM predicates; delivered eight-row footer matrix asserts only regionToShow, not label consumption. No product discrepancy, healthy-family replay or extra parameter-family credit is inferred.",
+      "inputs": "Full frozen makeMessage defaults retained in a small predicateIncomingDm helper: fresh UUID message/radio, explicit nil contact/channel, Test/timestamp0, incoming/delivered/plain/read, pathLength2/A37F, nil sender/key/ack/SNR/reply/RTT, heard0/retry0/max0/sendCount1, empty region matches and remaining DTO defaults. Ambient Date becomes Instant.EPOCH, irrelevant to these labels. Existing sourceItem unchanged: production makeItem, idle/nil preview/URL/images/format/path, incoming color, Unknown/unresolved sender, sender-groupingtrue/other flagsfalse, previewsEnabledtrue/currentUserNameMe and source-equivalent environment defaults. Removed translation offers false. Actual label showSenderName=false preserves directMessage configuration, not the helper grouping flag; contactName Alice is unused on this label path, not fabricated as a resolution. Expected localized fragment comes from Chats resources, never candidate footer output.",
+      "adaptations": "Swift MainActor/UIKit bubble construction becomes two synchronous JUnit4/API31 Robolectric label-function assertions using the existing host/resources, real production builder and real App label function. No newly mounted screen, image resolver/layout dependency, fake evaluator, Room/native scenario, product repair, runner/build change, witness framework or deadline change. Two source originals remain two methods, not combined into one parameter family or claimed as passing discoveries. Clean identical-tree FF f0->actuale1b9 has zero incoming file changes; trusted same-owner receipt130->131 admits exactly four owned paths before edits and preserves immutable identity/authorization. Publication held for source review and actual309 integration after landing.",
+      "helpers": [
+        "MC1Tests/Views/Chats/Components/MessageBubbleTestData.swift",
+        "MC1/Views/Chats/Components/UnifiedMessageBubble.swift",
+        "MC1/Views/Chats/Components/MessageBubbleConfiguration.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageFragmentBuilder.swift",
+        "MC1Services/Sources/MC1Services/Models/Message.swift",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBubbleAccessibilityAcceptanceTest.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageBubbleAccessibility.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageFragmentBuilder.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageBuildInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/EnvInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/NodeNameResolution.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt"
+      ],
+      "consumer": "Both real builder items feed messageBubbleAccessibilityLabel with sender displayfalse, exactly matching the source directMessage configuration and localization-containment predicates. Production consumes footer.regionToShow and localized region resources rather than raw scope; the same function reaches live AppChatsContent/AppChatConversationScreen/ChatTimeline bubble semantics. Product and all incumbent assertion/helper bodies remain equal actuale1b9f42c43ef60d592efe38e039984100e02c061. Required identities are directRoutedOriginalIncomingDmLabelOmitsRegionFragment and floodRoutedOriginalIncomingDmLabelIncludesRegionFragment. Previous four label originals, three mounted methods, one supplemental method and delivered eight-row footer family are unchanged, not new credit.",
+      "unresolved": [
+        "Local candidate held for coordinator review and actual309 integration. Kotlin compilation, actual two-method discovery/execution and independent source review remain UNVERIFIED; declared preflight BLOCKED exit2 without explicit --state/ANDROID_CI_STATE. No state/runtime/hook/lock repair, resource/native action, CI dispatch/rerun/log reread or result bundle. Historical exact hosted success remains historical; old implementation-time UNVERIFIED notes are not reopened software gaps. No TalkBack/native/device, independent protocol/backup-oracle or whole-WP acceptance; archives/accounting and incumbent proposals remain unchanged."
+      ]
+    },
+    {
       "id": "message-region-original-eight-row-routing-preference-scope",
       "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
       "partial_source_file": true,
