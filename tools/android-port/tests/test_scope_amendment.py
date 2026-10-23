@@ -27,6 +27,8 @@ from controller.scope_amendment import (
     parity_support_predecessor, REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY,
     receive_prefetch_predecessor, RECEIVE_PREFETCH_ADMISSION_CAPABILITY,
     room_cleanup_predecessor,
+    bubble_consumer_predecessor, BUBBLE_CONSUMER_CAPABILITY,
+    room_failed_event_predecessor, ROOM_FAILED_EVENT_CAPABILITY,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -40,6 +42,28 @@ from controller.software_verification import project as project_software
 class TranslationScopeAmendmentTests(unittest.TestCase):
     def policy_before_room_cleanup_text(self):
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp502-room-failed-event-consumer",')
+        end = text.index('      {\n        "id": "dependency-resolution-metadata",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), room_failed_event_predecessor(json.loads(text)))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "6a5492b6814db737a8caab898fb8f0b72e798191:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
+        start = text.index('      {\n        "id": "wp501-bubble-consumer-support",')
+        end = text.index('      {\n        "id": "app-build-launcher",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), bubble_consumer_predecessor(json.loads(text)))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "31557a16ca4492bbd669a7ad0358e702c5c54031:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
         start = text.index('      {\n        "id": "wp303-room-cleanup-companion",')
         end = text.index('      {\n        "id": "traceability-validation",', start)
         previous = text[:start] + text[end:]
@@ -51,6 +75,83 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         ]).strip())
         self.assertEqual(json.loads(previous), room_cleanup_predecessor(json.loads(text)))
         return previous
+
+    def test_bubble_consumer_inverse_rejects_widening_and_preserves_entire_current_main(self):
+        current = load_json(REPO / "docs/android/automation-policy.json")
+        before = copy.deepcopy(current)
+        previous = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "31557a16ca4492bbd669a7ad0358e702c5c54031:docs/android/automation-policy.json",
+        ]))
+        self.assertEqual(bubble_consumer_predecessor(current), previous)
+        self.assertEqual(current, before)
+        self.assertEqual(bubble_consumer_predecessor(previous), previous)
+        for mode in ("wp", "path", "operation", "invariant", "validation", "extra", "duplicate", "order"):
+            changed = copy.deepcopy(current)
+            rules = changed["reservation_policy"]["capabilities"]
+            rule = next(r for r in rules if r["id"] == BUBBLE_CONSUMER_CAPABILITY["id"])
+            if mode in ("wp", "path", "operation"):
+                field, value = {
+                    "wp": ("work_packages", "WP-502"), "path": ("path_rules", "android/**"),
+                    "operation": ("operations", "modify"),
+                }[mode]
+                rule[field].append(value)
+            elif mode in ("invariant", "validation"):
+                rule["invariants" if mode == "invariant" else "validation"] = []
+            elif mode == "extra":
+                rule["extra"] = True
+            elif mode == "duplicate":
+                rules.append(copy.deepcopy(rule))
+            else:
+                rules.remove(rule)
+                rules.insert(0, rule)
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                bubble_consumer_predecessor(changed)
+        for malformed in (None, [], {"reservation_policy": {"capabilities": None}}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                bubble_consumer_predecessor(malformed)
+        for offset in (-1, 1):
+            changed = copy.deepcopy(current)
+            rules = changed["reservation_policy"]["capabilities"]
+            index = next(i for i, r in enumerate(rules) if r["id"] == BUBBLE_CONSUMER_CAPABILITY["id"])
+            rules[index + offset] = None
+            with self.subTest(neighbor=offset), self.assertRaises(PortError):
+                bubble_consumer_predecessor(changed)
+
+    def test_room_failed_event_inverse_restores_whole_main_and_rejects_rule_drift(self):
+        current = load_json(REPO / "docs/android/automation-policy.json")
+        before = copy.deepcopy(current)
+        previous = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "6a5492b6814db737a8caab898fb8f0b72e798191:docs/android/automation-policy.json",
+        ]))
+        self.assertEqual(room_failed_event_predecessor(current), previous)
+        self.assertEqual(current, before)
+        self.assertEqual(room_failed_event_predecessor(previous), previous)
+        for mode in ("wp", "path", "operation", "invariant", "validation", "extra", "duplicate", "order", "neighbor"):
+            changed = copy.deepcopy(current)
+            rules = changed["reservation_policy"]["capabilities"]
+            rule = next(r for r in rules if r["id"] == ROOM_FAILED_EVENT_CAPABILITY["id"])
+            if mode in ("wp", "path", "operation"):
+                field, value = {"wp": ("work_packages", "WP-501"), "path": ("path_rules", "android/**"),
+                                "operation": ("operations", "modify")}[mode]
+                rule[field].append(value)
+            elif mode in ("invariant", "validation"):
+                rule["invariants" if mode == "invariant" else "validation"] = []
+            elif mode == "extra":
+                rule["extra"] = True
+            elif mode == "duplicate":
+                rules.append(copy.deepcopy(rule))
+            elif mode == "neighbor":
+                rules[rules.index(rule) - 1] = None
+            else:
+                rules.remove(rule)
+                rules.insert(0, rule)
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                room_failed_event_predecessor(changed)
+        for malformed in (None, [], {"reservation_policy": {"capabilities": None}}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                room_failed_event_predecessor(malformed)
 
     def test_receive_prefetch_single_rule_inverse_restores_entire_b677_object_and_raw_git_blob(self):
         current = room_cleanup_predecessor(load_json(REPO / "docs/android/automation-policy.json"))

@@ -89,11 +89,61 @@
         "validation": ["manifest-declared verification commands", "trusted ownership and traceability validators"]
       },
       {
+        "id": "wp502-room-failed-event-consumer",
+        "work_packages": ["WP-502"],
+        "path_rules": [
+          "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomContracts.kt",
+          "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolder.kt"
+        ],
+        "operations": ["repair-room-failed-event-consumer"],
+        "invariants": [
+          "pinned-source-db14559b39d32322b06477c6ae676112f583db50-WP310-App-primary-provenance-unchanged",
+          "preserve-failed-versus-status-event-distinction-known-current-session-messages-only",
+          "immediate-markFailedSendsSeen-then-conversationsChanged-independent-of-held-or-failed-later-read",
+          "unchanged-first-50ms-debounce-ordering-and-stale-generation-protection",
+          "ordinary-status-unknown-message-and-foreign-session-events-no-immediate-failed-effects",
+          "cancellation-propagates-real-mark-failure-reaches-existing-diagnostics-collector-survives",
+          "no-send-retry-transport-translation-original-credit-or-native-acceptance-change",
+          "existing-WP502-after-current-PR292-lands-same-owner-scope-evolution-no-authorization-rewrite",
+          "trusted-main-landing-before-consumption-semantic-overlap-serialized-no-policy-landing-during-active-native-or-Gradle",
+          "old473-native66bd-lease-runtime-hooks-hard-locks-and-history-unchanged"
+        ],
+        "validation": [
+          "existing selector exact WP502 two-path named-operation positives and wrong-WP-path-operation negatives",
+          "future owned WP502 real failed-versus-status adapter and consumer tests with held and failed reads, known unknown foreign messages, first50ms ordering and stale generations",
+          "future real mark failure diagnostics and collector survival plus propagated cancellation; six existing Room accessibility originals receive no replayed credit",
+          "affected declared verification and primary provenance accounting; source-policy tests do not claim native Room acceptance"
+        ]
+      },
+      {
         "id": "dependency-resolution-metadata",
         "path_rules": ["android/**/libs.versions.toml", "android/**/dependency-locks/*", "android/**/verification-metadata.xml", "android/**/*.gradle.kts"],
         "operations": ["add-or-update-dependency", "add-resolved-lock", "add-resolved-artifact-checksum", "update-directly-required-build-wiring"],
         "invariants": ["no-speculative-version", "resolved-artifact-provenance", "complete-lock-and-checksum-set", "license-policy"],
         "validation": ["dependency verification", "affected build and tests", "license checks when distribution changes"]
+      },
+      {
+        "id": "wp501-bubble-consumer-support",
+        "work_packages": ["WP-501"],
+        "path_rules": ["android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt"],
+        "operations": ["repair-original-message-bubble-accessibility-consumer"],
+        "invariants": [
+          "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+          "WP-307-WP-213-primary-provenance-and-original-cases-unchanged",
+          "real-mounted-App-ChatTimeline-consumer-existing-builder-sender-resolution-and-preferences-no-fabricated-defaults",
+          "resolved-sender-colon-fallback-possible-match-and-unverified-disclosure-original-text-outgoing-status-incoming-hop-path-region",
+          "once-only-labels-existing-retry-link-media-actions-and-virtualized-message-identity-preserved",
+          "no-message-translation-or-unrelated-UI-service-build-authority",
+          "same-owner-advisory-scope-evolution-semantic-collisions-serialize-or-transfer-current-producer",
+          "trusted-main-landing-before-product-consumption-no-policy-landing-during-actual-native-or-gradle-operation",
+          "old473-native66bd-runtime-hooks-hard-locks-and-history-unchanged"
+        ],
+        "validation": [
+          "existing capability selector admits only WP-501 exact ChatTimeline path and named operation; rejects wrong WP path and operation",
+          "future owned WP-501 mounted-consumer tests preserve all frozen UnifiedMessageBubbleA11yLabelTests families plus unverified disclosure and once-only action semantics",
+          "affected declared module verification and source ownership accounting; policy tests are not native accessibility acceptance",
+          "exact-head current-base source review and active native/Gradle serialization before landing"
+        ]
       },
       {
         "id": "app-build-launcher",

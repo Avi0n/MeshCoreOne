@@ -1269,8 +1269,8 @@ class LanguageBindingTest(unittest.TestCase):
                 else:
                     self.assertIn("activityEvents.isEmpty()", body)
                 self.assertEqual("android/app/src/main", spec.production)
-                self.assertIn((spec.production, "31557a16ca4492bbd669a7ad0358e702c5c54031",
-                               "d093f4fc5e59ce51919217fcce87b50f103ac453"), spec.source_pins)
+                self.assertIn((spec.production, "db1478c897f46c5df25c94daf275b3335b327192",
+                               "90cc4df7d8f5645b81a2321daf4e6a4c6bdd47c5"), spec.source_pins)
                 self.assertIn(("android/app/build.gradle.kts", "ee1104b097899ab08f3f82227d8cde354bc92602",
                                "a0752382e0c641e417b6c92297bc5018f0ace2b0"), spec.source_pins)
 

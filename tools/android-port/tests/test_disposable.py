@@ -20,7 +20,10 @@ from controller.disposable import ADAPTER, OPERATION, RESOURCE, PrivateGuest, tr
 from controller.errors import PortError
 from controller.ledger import Identity, Ledger
 from controller.schema import load_json
-from controller.scope_amendment import disposable_predecessor, parity_support_predecessor, room_cleanup_predecessor
+from controller.scope_amendment import (
+    bubble_consumer_predecessor, disposable_predecessor, parity_support_predecessor, room_cleanup_predecessor,
+    room_failed_event_predecessor,
+)
 from local import debug_packaging
 
 
@@ -2150,6 +2153,26 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(current, before)
         self.assertEqual(disposable_predecessor(previous), previous)
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp502-room-failed-event-consumer",')
+        end = text.index('      {\n        "id": "dependency-resolution-metadata",', start)
+        text = text[:start] + text[end:]
+        self.assertEqual(json.loads(text), room_failed_event_predecessor(current))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=text.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "6a5492b6814db737a8caab898fb8f0b72e798191:docs/android/automation-policy.json",
+        ]).strip())
+        start = text.index('      {\n        "id": "wp501-bubble-consumer-support",')
+        end = text.index('      {\n        "id": "app-build-launcher",', start)
+        text = text[:start] + text[end:]
+        self.assertEqual(json.loads(text), bubble_consumer_predecessor(current))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=text.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "31557a16ca4492bbd669a7ad0358e702c5c54031:docs/android/automation-policy.json",
+        ]).strip())
         start = text.index('      {\n        "id": "wp303-room-cleanup-companion",')
         end = text.index('      {\n        "id": "traceability-validation",', start)
         text = text[:start] + text[end:]

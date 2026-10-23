@@ -328,10 +328,118 @@ ROOM_CLEANUP_CAPABILITY = {
 }
 
 
+BUBBLE_CONSUMER_CAPABILITY = {
+    "id": "wp501-bubble-consumer-support",
+    "work_packages": ["WP-501"],
+    "path_rules": ["android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt"],
+    "operations": ["repair-original-message-bubble-accessibility-consumer"],
+    "invariants": [
+        "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+        "WP-307-WP-213-primary-provenance-and-original-cases-unchanged",
+        "real-mounted-App-ChatTimeline-consumer-existing-builder-sender-resolution-and-preferences-no-fabricated-defaults",
+        "resolved-sender-colon-fallback-possible-match-and-unverified-disclosure-original-text-outgoing-status-incoming-hop-path-region",
+        "once-only-labels-existing-retry-link-media-actions-and-virtualized-message-identity-preserved",
+        "no-message-translation-or-unrelated-UI-service-build-authority",
+        "same-owner-advisory-scope-evolution-semantic-collisions-serialize-or-transfer-current-producer",
+        "trusted-main-landing-before-product-consumption-no-policy-landing-during-actual-native-or-gradle-operation",
+        "old473-native66bd-runtime-hooks-hard-locks-and-history-unchanged",
+    ],
+    "validation": [
+        "existing capability selector admits only WP-501 exact ChatTimeline path and named operation; rejects wrong WP path and operation",
+        "future owned WP-501 mounted-consumer tests preserve all frozen UnifiedMessageBubbleA11yLabelTests families plus unverified disclosure and once-only action semantics",
+        "affected declared module verification and source ownership accounting; policy tests are not native accessibility acceptance",
+        "exact-head current-base source review and active native/Gradle serialization before landing",
+    ],
+}
+
+
+ROOM_FAILED_EVENT_CAPABILITY = {
+    "id": "wp502-room-failed-event-consumer",
+    "work_packages": ["WP-502"],
+    "path_rules": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomContracts.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/RoomConversationStateHolder.kt",
+    ],
+    "operations": ["repair-room-failed-event-consumer"],
+    "invariants": [
+        "pinned-source-db14559b39d32322b06477c6ae676112f583db50-WP310-App-primary-provenance-unchanged",
+        "preserve-failed-versus-status-event-distinction-known-current-session-messages-only",
+        "immediate-markFailedSendsSeen-then-conversationsChanged-independent-of-held-or-failed-later-read",
+        "unchanged-first-50ms-debounce-ordering-and-stale-generation-protection",
+        "ordinary-status-unknown-message-and-foreign-session-events-no-immediate-failed-effects",
+        "cancellation-propagates-real-mark-failure-reaches-existing-diagnostics-collector-survives",
+        "no-send-retry-transport-translation-original-credit-or-native-acceptance-change",
+        "existing-WP502-after-current-PR292-lands-same-owner-scope-evolution-no-authorization-rewrite",
+        "trusted-main-landing-before-consumption-semantic-overlap-serialized-no-policy-landing-during-active-native-or-Gradle",
+        "old473-native66bd-lease-runtime-hooks-hard-locks-and-history-unchanged",
+    ],
+    "validation": [
+        "existing selector exact WP502 two-path named-operation positives and wrong-WP-path-operation negatives",
+        "future owned WP502 real failed-versus-status adapter and consumer tests with held and failed reads, known unknown foreign messages, first50ms ordering and stale generations",
+        "future real mark failure diagnostics and collector survival plus propagated cancellation; six existing Room accessibility originals receive no replayed credit",
+        "affected declared verification and primary provenance accounting; source-policy tests do not claim native Room acceptance",
+    ],
+}
+
+
+def room_failed_event_predecessor(policy):
+    if not isinstance(policy, dict):
+        raise PortError("Room failed-event amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    reservation = result.get("reservation_policy")
+    if reservation is None:
+        return result
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Room failed-event amendment requires the canonical capability catalog")
+    selected = [i for i, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == ROOM_FAILED_EVENT_CAPABILITY["id"]]
+    if not selected:
+        return result
+    index = selected[0]
+    if (
+        len(selected) != 1 or rules[index] != ROOM_FAILED_EVENT_CAPABILITY
+        or index == 0 or not isinstance(rules[index - 1], dict)
+        or rules[index - 1].get("id") != "wp-owned"
+        or index + 1 >= len(rules) or not isinstance(rules[index + 1], dict)
+        or rules[index + 1].get("id") != "dependency-resolution-metadata"
+    ):
+        raise PortError("Room failed-event capability changed outside the exact two-path amendment")
+    rules.pop(index)
+    return result
+
+
+def bubble_consumer_predecessor(policy):
+    if not isinstance(policy, dict):
+        raise PortError("Bubble consumer amendment requires a policy object")
+    result = room_failed_event_predecessor(policy)
+    reservation = result.get("reservation_policy")
+    if reservation is None:
+        return result
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Bubble consumer amendment requires the canonical capability catalog")
+    selected = [i for i, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == BUBBLE_CONSUMER_CAPABILITY["id"]]
+    if not selected:
+        return result
+    index = selected[0]
+    if (
+        len(selected) != 1 or rules[index] != BUBBLE_CONSUMER_CAPABILITY
+        or index == 0 or not isinstance(rules[index - 1], dict)
+        or rules[index - 1].get("id") != "dependency-resolution-metadata"
+        or index + 1 >= len(rules) or not isinstance(rules[index + 1], dict)
+        or rules[index + 1].get("id") != "app-build-launcher"
+    ):
+        raise PortError("Bubble consumer capability changed outside the exact single-path amendment")
+    rules.pop(index)
+    return result
+
+
 def room_cleanup_predecessor(policy):
     if not isinstance(policy, dict):
         raise PortError("Room cleanup amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = bubble_consumer_predecessor(policy)
     reservation = result.get("reservation_policy")
     if reservation is None:
         return result

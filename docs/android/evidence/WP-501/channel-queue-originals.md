@@ -1,5 +1,64 @@
 # WP-501: persisted channel-drain originals and a blocked real-query boundary
 
+## Exact b686 published-source review: acceptance remains blocked
+
+The existing WP-303 producer has genuinely published
+`b6860ca876386fa0984c8572d58444501ef9d6df`, including lower WP-208
+`3fdc609a70e37161a1914c999ebc9d1bd82c5f79` and runtime WP-207
+`cdf9ebc8392c80ccbd94019d2a9deac0546e3f46`. Its actual positive method is
+`com.meshcoreone.android.app.container.SessionLifecycleTest.sameRadioChannelQueryFailureIsIsolatedToEachPendingEnvelopeInTheAppRoomGraph`.
+The old missing-selector blocker is superseded. The earlier local
+`ChannelQueueCounterAppOriginalPredicateTest` preparation is archived, not the
+current selector or an accepted result. PR281 comment6347740262 now explicitly
+says not to apply that archived patch; it omitted the factory lifecycle-wrapper
+configuration forwarding which the actual producer correctly supplies.
+
+The complete nine-path successor and frozen original372-463/harness606-745
+were reviewed. Original same-radio A7/resend/sequence1 and B2/non-resend/sequence2,
+cap2/pool2/base0.01/session0.2, ERROR2 parser stimulus20ms and queue-open50ms
+loops are present. Configuration reaches the actual services through the factory's
+`withLifecycle` environment copy without changing production defaults.
+SystemRuntimeClock/Default govern runtime/session timing; the harness UI scope
+remains the test scope. The Default-dispatched B delay is real three seconds.
+The explicit fake-Bluetooth adaptation adds a manager/physical recovery policy
+absent from the frozen SimulatorMockTransport harness. Its A30s deadline begins
+before connect, earlier than the original's post-hydration wait.
+
+[Exact-head COMMENTED review5619368518](https://github.com/cbattlegear/MeshCoreOne-Android/pull/281#pullrequestreview-5619368518)
+records two unresolved source findings, not an observed runtime failure:
+
+- At line246, cap2 needs two genuine A-query failures, but the first uncertainty
+  retires the physical generation after accounting. This fake Bluetooth link
+  supplies no spontaneous reconnect callback. The source-visible watchdog waits
+  30 seconds before its first action, after the already-running total30s deadline
+  has begun. Queue-open triggers do not reconnect the graph. The native fixture/
+  lifecycle adaptation therefore lacks a source-visible path to the second
+  required query within its budget; no production-counter defect is inferred.
+- At line269, B's row can survive without B reaching a genuine channel-query
+  failure. Queue admissions are sealed during recovery; ERROR2 is READY-only
+  and queue-open triggers cannot reconnect. Keeping the stimulus jobs alive is
+  not B-path proof. Actual typed query/cap-exhaustion provenance for A and genuine
+  B-query consumption remain necessary; preserve B's diagnostic-only status and
+  do not impose an exact final B attempt count.
+
+No deadline extension, shorter B observation, recovery gate, manual reconnect
+acceleration, WiFi substitution or invented null is proposed. Resolution belongs
+to the current producer/coordinator. This is source review only, not parity,
+merge approval, hardware evidence or a passing App result.
+
+The future declared full affected-class command is
+`:app:testDebugUnitTest --tests com.meshcoreone.android.app.container.SessionLifecycleTest`
+and remains NOT RUN here under the requested execution hold. Its eight method
+declarations are not eight discovered/passing cases. Automatic39834486621 is the
+exact candidate's hosted authority when terminal; no result is borrowed.
+
+A preliminary Python-only discovery-gate experiment, started before this actual
+selector arrived, ran528 controller fixtures:526 passed,2 errored because the
+experimental uncommitted `ci_evidence.py` differed from its immutable HEAD.
+Both uncommitted experiment files were removed and verified byte-identical to
+HEAD; no verifier weakening, old-selector gate or all-green rerun is claimed.
+This was not App/Gradle/native execution or original-case evidence.
+
 ## Bounded diagnostic correction after exact586 failure (2026-10-21)
 
 **LOCAL CORRECTION, NOT COMPILED/RUN/DISCOVERED.** Its direct parent is
@@ -267,6 +326,74 @@ reset protocol generations behind consumers, manufacture repeated
 Timeouts or assert the counter original accepted. Actual focused
 execution must first confirm/refute the diagnostic; retain the original
 scenario open regardless of whether the diagnostic itself passes.
+
+## New ungated App counter candidate: execution pending
+
+`ChannelQueueCounterAppOriginalPredicateTest.originalAReachesTerminalAndBRetainsItsRowForLiteralThreeSecondsThroughTheUngatedApp`
+now implements the previously absent positive predicate in the admitted parity
+source set. Implementation commit `f4d4d8c504d5ddc919b761984a71499b919aa99b`
+is locally integrated with published WP-303 `0ecfb10d0f48f25254316bd8d1062602046f8ac6`,
+including WP-207 e75682 and WP-208 f2ce014f. This is new source, not an
+unchanged previously passing method or a relabelled negative diagnostic.
+
+The actual AppContainer, factory, per-connection services, public session and
+Room queries receive same-radio Aattempt7/resendtrue/sequence1 and
+Battempt2/resendfalse/sequence2. Default-preserving App configuration wiring
+supplies the original failurecap2, poolcap2/base0.01 and session timeout0.2s.
+FirmwareRadio returns raw ERROR2 frames for real sends and channel queries;
+it does not inject a service exception or null. A 50ms transport-open loop
+uses the current real queue without resetting its generation or progress.
+
+The fixture uses Bluetooth, production Default recovery and real clocks.
+A row must be observed deleted inside the original monotonic30-second
+wait, then its status must be FAILED; B's row must survive a literal
+three-second real delay afterward. Follow-up source
+`96b2b7a7a` checks the clock before each poll, matching the frozen helper:
+a post-deadline deletion cannot turn an expired wait into a pass.
+No stable Bstatus/final attempt count is required. Genuine typed query
+failures and B consumption additionally exclude cancellation or a disconnected,
+never-consumed B as counter-isolation proof. No recovery gate, manual reconnect
+acceleration, watchdog change or observation shortening is present. The original
+Swift simulator has no physical reconnect/watchdog; the native30-second initial
+BLE watchdog remains a real compatibility risk, not an approved timing exception.
+
+Relevant declared execution is `:app:testDebugUnitTest` with both selectors
+`--tests com.meshcoreone.android.parity.ChannelQueueCounterAppOriginalPredicateTest`
+and `--tests com.meshcoreone.android.app.container.QueueChannelConsumerIntegrationTest`.
+Read-only configuration, ownership, portmap, audit, semantic and whitespace checks
+pass on the coherent local integration. Kotlin compilation, positive discovery
+and execution remain UNVERIFIED: the actual shared native-execution guard is
+still held. It is not bypassed or released by this WP. The four-path source
+transfer is in PR281 comment6347740262; source execution must bind to a candidate
+that actually contains the new test, not borrow the incumbent producer's CI.
+
+The coordinator subsequently assigned faithful ungated regression implementation
+and reconciliation to the existing WP-303 producer on PR281. WP-501 transferred
+the prepared patch in comment6348026374 and awaits that producer's published
+source for independent review. This local candidate is not a competing PR or
+an accepted result; no new session, closed PR272 edit or native action follows.
+
+### Exact consumer dependency: concrete compiler failure
+
+Published `0ecfb10d0f48f25254316bd8d1062602046f8ac6` automatic
+[39828296502](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39828296502)
+completed FAILURE. Official Linux119997708685 reports
+`CorrelationRecoveryTest.kt:136:25` at18:31:02.1703672Z:
+`:core:runtime:compileTestKotlin` fails because the replacement test supplies
+`forceReconnect` without the required `forceFullSync` argument.
+The build failed in23m36s/exit1, not at the command limit or an A/B assertion.
+Available reports contain2672 passes and no failures/errors/skips, but mandatory
+runtime/services/later reports are missing; this is incomplete evidence.
+
+The source-proven test-only repair is
+`manager.connect(platform.target, forceFullSync = false, forceReconnect = true)`.
+It matches the existing ordinary overload's false value and preserves the
+replacement test's intent and assertions without changing production defaults.
+This inherited path belongs to current WP-207 e75682; the concrete repair was
+transferred to PR277 comment6348297775 and WP-303 comment6348297825 for ordinary
+producer publication/integration. No foreign branch edit or unchanged rerun.
+The official terminal log was inspected in memory, not retained as a CI bundle.
+This failure is not execution of the new local positive test absent from0ec.
 
 ## Explicit native fixture substitutions
 
