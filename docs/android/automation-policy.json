@@ -96,6 +96,29 @@
         "validation": ["dependency verification", "affected build and tests", "license checks when distribution changes"]
       },
       {
+        "id": "wp501-bubble-consumer-support",
+        "work_packages": ["WP-501"],
+        "path_rules": ["android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt"],
+        "operations": ["repair-original-message-bubble-accessibility-consumer"],
+        "invariants": [
+          "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+          "WP-307-WP-213-primary-provenance-and-original-cases-unchanged",
+          "real-mounted-App-ChatTimeline-consumer-existing-builder-sender-resolution-and-preferences-no-fabricated-defaults",
+          "resolved-sender-colon-fallback-possible-match-and-unverified-disclosure-original-text-outgoing-status-incoming-hop-path-region",
+          "once-only-labels-existing-retry-link-media-actions-and-virtualized-message-identity-preserved",
+          "no-message-translation-or-unrelated-UI-service-build-authority",
+          "same-owner-advisory-scope-evolution-semantic-collisions-serialize-or-transfer-current-producer",
+          "trusted-main-landing-before-product-consumption-no-policy-landing-during-actual-native-or-gradle-operation",
+          "old473-native66bd-runtime-hooks-hard-locks-and-history-unchanged"
+        ],
+        "validation": [
+          "existing capability selector admits only WP-501 exact ChatTimeline path and named operation; rejects wrong WP path and operation",
+          "future owned WP-501 mounted-consumer tests preserve all frozen UnifiedMessageBubbleA11yLabelTests families plus unverified disclosure and once-only action semantics",
+          "affected declared module verification and source ownership accounting; policy tests are not native accessibility acceptance",
+          "exact-head current-base source review and active native/Gradle serialization before landing"
+        ]
+      },
+      {
         "id": "app-build-launcher",
         "path_rules": ["android/app/**", "android/**/AndroidManifest.xml", "android/**/AppContainer.kt", "android/**/RadioSessionContainer.kt"],
         "operations": ["add-direct-support-wiring", "update-build-or-manifest", "update-launcher-or-composition"],

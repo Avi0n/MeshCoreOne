@@ -328,10 +328,62 @@ ROOM_CLEANUP_CAPABILITY = {
 }
 
 
+BUBBLE_CONSUMER_CAPABILITY = {
+    "id": "wp501-bubble-consumer-support",
+    "work_packages": ["WP-501"],
+    "path_rules": ["android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/timeline/ui/ChatTimeline.kt"],
+    "operations": ["repair-original-message-bubble-accessibility-consumer"],
+    "invariants": [
+        "pinned-source-db14559b39d32322b06477c6ae676112f583db50",
+        "WP-307-WP-213-primary-provenance-and-original-cases-unchanged",
+        "real-mounted-App-ChatTimeline-consumer-existing-builder-sender-resolution-and-preferences-no-fabricated-defaults",
+        "resolved-sender-colon-fallback-possible-match-and-unverified-disclosure-original-text-outgoing-status-incoming-hop-path-region",
+        "once-only-labels-existing-retry-link-media-actions-and-virtualized-message-identity-preserved",
+        "no-message-translation-or-unrelated-UI-service-build-authority",
+        "same-owner-advisory-scope-evolution-semantic-collisions-serialize-or-transfer-current-producer",
+        "trusted-main-landing-before-product-consumption-no-policy-landing-during-actual-native-or-gradle-operation",
+        "old473-native66bd-runtime-hooks-hard-locks-and-history-unchanged",
+    ],
+    "validation": [
+        "existing capability selector admits only WP-501 exact ChatTimeline path and named operation; rejects wrong WP path and operation",
+        "future owned WP-501 mounted-consumer tests preserve all frozen UnifiedMessageBubbleA11yLabelTests families plus unverified disclosure and once-only action semantics",
+        "affected declared module verification and source ownership accounting; policy tests are not native accessibility acceptance",
+        "exact-head current-base source review and active native/Gradle serialization before landing",
+    ],
+}
+
+
+def bubble_consumer_predecessor(policy):
+    if not isinstance(policy, dict):
+        raise PortError("Bubble consumer amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    reservation = result.get("reservation_policy")
+    if reservation is None:
+        return result
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Bubble consumer amendment requires the canonical capability catalog")
+    selected = [i for i, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == BUBBLE_CONSUMER_CAPABILITY["id"]]
+    if not selected:
+        return result
+    index = selected[0]
+    if (
+        len(selected) != 1 or rules[index] != BUBBLE_CONSUMER_CAPABILITY
+        or index == 0 or not isinstance(rules[index - 1], dict)
+        or rules[index - 1].get("id") != "dependency-resolution-metadata"
+        or index + 1 >= len(rules) or not isinstance(rules[index + 1], dict)
+        or rules[index + 1].get("id") != "app-build-launcher"
+    ):
+        raise PortError("Bubble consumer capability changed outside the exact single-path amendment")
+    rules.pop(index)
+    return result
+
+
 def room_cleanup_predecessor(policy):
     if not isinstance(policy, dict):
         raise PortError("Room cleanup amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = bubble_consumer_predecessor(policy)
     reservation = result.get("reservation_policy")
     if reservation is None:
         return result
