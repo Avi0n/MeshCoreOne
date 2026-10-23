@@ -45,32 +45,11 @@ fun MessagePathDistanceBanner(
 ) {
     if (totalDistanceMeters == null && !isDistanceIncomplete) return
     val locale = LocalResources.current.configuration.locales[0]
-    val distance = remember(totalDistanceMeters, locale) {
+    val distance: String? = remember(totalDistanceMeters, locale) {
         totalDistanceMeters?.let {
             require(it.isFinite() && it >= 0) { "Path distance must be finite and nonnegative" }
             if (Build.VERSION.SDK_INT >= 33) formatNativeRoadDistance(it, locale)
             else formatLegacyRoadDistance(it, locale)
-        }
-
-        @RequiresApi(33)
-        private fun formatNativeRoadDistance(meters: Double, locale: Locale): String =
-            NumberFormatter.withLocale(locale).unit(MeasureUnit.METER).usage("road")
-                .unitWidth(NumberFormatter.UnitWidth.SHORT).format(meters).toString()
-
-        private fun formatLegacyRoadDistance(meters: Double, locale: Locale): String {
-            val system = LocaleData.getMeasurementSystem(ULocale.forLocale(locale))
-            val imperial = system == LocaleData.MeasurementSystem.US || system == LocaleData.MeasurementSystem.UK
-            // API 31–32 has no public road-usage formatter. Keep conventional whole-unit transitions,
-            // with ICU's regional measurement system, localized units and two-significant-digit precision.
-            val (unit, metersPerUnit) = when {
-                !imperial && meters >= 1_000 -> MeasureUnit.KILOMETER to 1_000.0
-                !imperial -> MeasureUnit.METER to 1.0
-                meters >= 1_609.344 -> MeasureUnit.MILE to 1_609.344
-                system == LocaleData.MeasurementSystem.UK -> MeasureUnit.YARD to 0.9144
-                else -> MeasureUnit.FOOT to 0.3048
-            }
-            return NumberFormatter.withLocale(locale).unit(unit).unitWidth(NumberFormatter.UnitWidth.SHORT)
-                .precision(Precision.maxSignificantDigits(2)).format(meters / metersPerUnit).toString()
         }
     }
     Column(
@@ -105,4 +84,25 @@ fun MessagePathDistanceBanner(
             }
         }
     }
+}
+
+@RequiresApi(33)
+private fun formatNativeRoadDistance(meters: Double, locale: Locale): String =
+    NumberFormatter.withLocale(locale).unit(MeasureUnit.METER).usage("road")
+        .unitWidth(NumberFormatter.UnitWidth.SHORT).format(meters).toString()
+
+private fun formatLegacyRoadDistance(meters: Double, locale: Locale): String {
+    val system = LocaleData.getMeasurementSystem(ULocale.forLocale(locale))
+    val imperial = system == LocaleData.MeasurementSystem.US || system == LocaleData.MeasurementSystem.UK
+    // API 31–32 has no public road-usage formatter. Keep conventional whole-unit transitions,
+    // with ICU's regional measurement system, localized units and two-significant-digit precision.
+    val (unit, metersPerUnit) = when {
+        !imperial && meters >= 1_000 -> MeasureUnit.KILOMETER to 1_000.0
+        !imperial -> MeasureUnit.METER to 1.0
+        meters >= 1_609.344 -> MeasureUnit.MILE to 1_609.344
+        system == LocaleData.MeasurementSystem.UK -> MeasureUnit.YARD to 0.9144
+        else -> MeasureUnit.FOOT to 0.3048
+    }
+    return NumberFormatter.withLocale(locale).unit(unit).unitWidth(NumberFormatter.UnitWidth.SHORT)
+        .precision(Precision.maxSignificantDigits(2)).format(meters / metersPerUnit).toString()
 }

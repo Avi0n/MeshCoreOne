@@ -73,3 +73,14 @@ edited tree; runner revision names parent bea7, not a completed Kotlin/Android t
 No runtime/hook/SDK installation, native/guest/device/probe, execution allowance or lock bypass.
 Current-increment source checks and exact-commit ordinary publication/own automatic run are recorded in
 the same PR body after commit. Hosted results/logs remain authoritative; no duplicate CI-result bundle.
+
+## Static formatter-scope correction
+
+Review of published b554 found both private formatter declarations accidentally inside the `remember`
+lambda. Kotlin disallows private local functions, and declarations after the nullable formatting
+expression also changed the lambda result to Unit. This was a blocking source defect, not an observed
+hosted failure. The correction moves both helpers to file scope unchanged and explicitly types the
+remembered value as `String?`. The lambda now returns only the nullable formatted string.
+API guards, formatter behavior, all endpoint/copy/banner methods and other production files are unchanged.
+The corrected changed candidate is committed/pushed normally; its own check/run identity and outcomes
+are recorded in PR #305, without borrowing b554 execution or rerunning an unchanged candidate.
