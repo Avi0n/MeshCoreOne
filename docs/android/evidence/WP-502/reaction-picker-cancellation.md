@@ -90,6 +90,28 @@ original timeout cause. No exception is swallowed and no success-shaped fallback
 or runner/reporting-policy change is added. Another exact-candidate execution is
 required to identify the unresolved condition rather than speculate or weaken it.
 
+Own diagnostic82b0af76a3dcd4408fad6eeeedb43f168f18cfde run39882617357,
+attempt1, completed FAILURE. Official Linux120184264463 App1265/1264 passed/
+one failure identifies the final `delivered fresh reaction and durable
+frequent/recent transitions` wait. Its actual state contains the original row
+and exactly the fresh rocket `d11q0688` outbound DELIVERED row, one DM opcode,
+empty messaging diagnostics, and unchanged seeded recent/frequent values and
+observer lists. Earlier cancellation/retained-query/reopened-search assertions
+were reached, but the complete method failed; no passing flow is claimed.
+
+The final wait advanced only the harness's coroutine scheduler and polled Room/
+DataStore. It omitted the Compose/Robolectric UI-idle synchronization used by
+the incumbent full-picker registration test's preference wait. Both the durable
+frequent writer/observers and the suspended App reaction effect use Main;
+delivery alone does not establish their completion. The owned test now calls
+`compose.waitForIdle()` on each final poll, retaining the same 30-second deadline
+and every expected durable value/count. Both actual sheet controls must also
+be absent within that same wait; preference visibility is not substituted for
+the later App onDismiss/composition removal. Final explicit absence assertions
+remain. This is a test observation/scheduling repair, not an established product
+defect or a verified fix until its own new hosted execution. No sibling run
+outcome is borrowed and no incumbent/product test is changed.
+
 ## Admission and verification boundary
 
 Same canonical session/attempt `3bc8c1b8-20ec-4647-88ae-db3775268489`, same branch

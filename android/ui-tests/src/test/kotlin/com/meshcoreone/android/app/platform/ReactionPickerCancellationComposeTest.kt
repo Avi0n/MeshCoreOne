@@ -174,12 +174,15 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
             phase = "delivered fresh reaction and durable frequent/recent transitions"
             compose.waitUntil(30_000) {
                 h.settle()
+                compose.waitForIdle()
                 runBlocking {
                     store.fetchMessages(conversation, 10, 0).any {
                         it.text == wireText && it.status == MessageStatus.DELIVERED
                     } && storage.preferences.get(AppStorageKey.recentReactionEmojis) == recentAfter &&
                         storage.preferences.get(AppStorageKey.frequentEmojis) == frequentAfter
-                } && recentStates.size == 2 && frequentStates.size == 2
+                } && recentStates.size == 2 && frequentStates.size == 2 &&
+                    compose.onAllNodesWithText(more).fetchSemanticsNodes().isEmpty() &&
+                    compose.onAllNodes(search).fetchSemanticsNodes().isEmpty()
             }
             compose.onNodeWithText(more).assertDoesNotExist()
             compose.onNode(search).assertDoesNotExist()
