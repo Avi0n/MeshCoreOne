@@ -128,6 +128,41 @@ class AdvisoryLauncherTests(unittest.TestCase):
             result = check.main(["--pre-push"])
         return result, errors.getvalue()
 
+    def observe_timeout(self, root, work, *, ready_child):
+        control = root / "control/advisory.py"
+        supervisor = root / "supervisor.py"
+        supervisor.write_bytes(control.read_bytes())
+        if ready_child:
+            os.mkfifo(work / "child.ready")
+        # Prepare only this fixture before the real wait(.3); production timing stays unchanged.
+        control.write_text(
+            "import json,os,pathlib,runpy,select,subprocess,sys\n"
+            f"module=runpy.run_path({str(supervisor)!r})\n"
+            f"work=pathlib.Path({str(work)!r})\n"
+            "real_wait=subprocess.Popen.wait\n"
+            "def observed_wait(process,timeout=None):\n"
+            " if timeout != .3: return real_wait(process,timeout)\n"
+            " observed={'pid':process.pid,'command':process.args,'seconds':timeout}\n"
+            + (
+                " pipe=os.open(work/'child.ready',os.O_RDWR|os.O_NONBLOCK)\n"
+                " try:\n"
+                "  if not select.select([pipe],[],[],2)[0]:\n"
+                "   raise AssertionError('Detached child did not become ready before fixture deadline')\n"
+                "  observed['child']=json.loads(os.read(pipe,4096))\n"
+                " finally: os.close(pipe)\n"
+                " os.kill(observed['child']['pid'],0)\n"
+                if ready_child else ""
+            ) +
+            " (work/'before-timeout.json').write_text(json.dumps(observed))\n"
+            " try: return real_wait(process,timeout)\n"
+            " except subprocess.TimeoutExpired:\n"
+            "  (work/'timed-out.json').write_text(json.dumps(observed))\n"
+            "  raise\n"
+            "subprocess.Popen.wait=observed_wait\n"
+            "sys.exit(module['main']())\n",
+            encoding="utf-8",
+        )
+
     def test_held_lane_records_exact_pending_and_preserves_holder(self):
         if self.native():
             return
@@ -158,26 +193,78 @@ class AdvisoryLauncherTests(unittest.TestCase):
             "import os,pathlib,signal,subprocess,sys,threading,time\n"
             "signal.signal(signal.SIGTERM,signal.SIG_IGN)\n"
             "work=pathlib.Path(os.environ['ANDROID_LOCAL_HOME'])\n"
-            "code=\"import os,pathlib,signal,sys,time; signal.signal(signal.SIGTERM,signal.SIG_IGN); "
-            "pathlib.Path(sys.argv[1]).write_text(str(os.getpid())); time.sleep(60)\"\n"
+            "code=\"import json,os,pathlib,signal,sys,time; signal.signal(signal.SIGTERM,signal.SIG_IGN); "
+            "work=pathlib.Path(sys.argv[1]); (work/'child.pid').write_text(str(os.getpid())); "
+            "ready={'pid':os.getpid(),'parent':os.getppid(),'session':os.getsid(0),"
+            "'group':os.getpgrp(),'thread':int(sys.argv[2]),"
+            "'ignores_term':signal.getsignal(signal.SIGTERM)==signal.SIG_IGN}; "
+            "pipe=os.open(work/'child.ready',os.O_WRONLY); "
+            "os.write(pipe,json.dumps(ready).encode()); os.close(pipe); time.sleep(60)\"\n"
             "def spawn():\n"
-            " subprocess.Popen([sys.executable,'-c',code,str(work/'child.pid')],start_new_session=True)\n"
+            " subprocess.Popen([sys.executable,'-c',code,str(work),str(threading.get_native_id())],"
+            "start_new_session=True)\n"
             " time.sleep(60)\n"
             "threading.Thread(target=spawn,daemon=True).start()\n"
             "time.sleep(60)\n"
         )
-        with self.fixture(fast_source) as (_, repo, work, commit, tree):
+        with self.fixture(fast_source) as (root, repo, work, commit, tree):
+            self.observe_timeout(root, work, ready_child=True)
             started = time.monotonic()
-            result, _ = self.pre_push(commit)
+            result, errors = self.pre_push(commit)
             self.assertEqual(result, 0)
             self.assertLess(time.monotonic() - started, 6)
+            self.assertIn("UNVERIFIED CANDIDATE", errors)
             record = json.loads(check.pending_file(repo).read_text())
-            self.assertEqual((record["commit"], record["tree"]), (commit, tree))
+            self.assertEqual((record["commit"], record["tree"], record["status"]),
+                             (commit, tree, "verification-pending"))
             self.assertIn("owned work cleaned", record["reason"])
             self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
             pid = int((work / "child.pid").read_text())
+            observed = json.loads((work / "before-timeout.json").read_text())
+            self.assertEqual(json.loads((work / "timed-out.json").read_text()), observed)
+            self.assertEqual(observed["seconds"], 0.3)
+            self.assertIn("owned-lock", observed["command"])
+            child = observed["child"]
+            self.assertEqual((child["pid"], child["session"], child["group"]), (pid, pid, pid))
+            self.assertNotEqual(child["thread"], child["parent"])
+            self.assertTrue(child["ignores_term"])
             with self.assertRaises(ProcessLookupError):
                 os.kill(pid, 0)
+            with self.assertRaises(ProcessLookupError):
+                os.kill(observed["pid"], 0)
+            with (work / "local-checks/gradle.lock").open() as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+    def test_startup_timeout_records_pending_without_child_readiness(self):
+        if self.native():
+            return
+        import fcntl
+        fast_source = (
+            "import os,pathlib\n"
+            "work=pathlib.Path(os.environ['ANDROID_LOCAL_HOME'])\n"
+            "os.read(os.open(work/'startup.gate',os.O_RDWR),1)\n"
+            "raise AssertionError('Startup gate must not be released')\n"
+        )
+        with self.fixture(fast_source) as (root, repo, work, commit, tree):
+            os.mkfifo(work / "startup.gate")
+            self.observe_timeout(root, work, ready_child=False)
+            started = time.monotonic()
+            result, errors = self.pre_push(commit)
+            self.assertEqual(result, 0)
+            self.assertLess(time.monotonic() - started, 6)
+            self.assertIn("UNVERIFIED CANDIDATE", errors)
+            record = json.loads(check.pending_file(repo).read_text())
+            self.assertEqual((record["commit"], record["tree"], record["status"]),
+                             (commit, tree, "verification-pending"))
+            self.assertIn("owned work cleaned", record["reason"])
+            self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
+            observed = json.loads((work / "before-timeout.json").read_text())
+            self.assertEqual(json.loads((work / "timed-out.json").read_text()), observed)
+            self.assertEqual(observed["seconds"], 0.3)
+            self.assertIn("owned-lock", observed["command"])
+            self.assertNotIn("child", observed)
+            with self.assertRaises(ProcessLookupError):
+                os.kill(observed["pid"], 0)
             with (work / "local-checks/gradle.lock").open() as lock:
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
 

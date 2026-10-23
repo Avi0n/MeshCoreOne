@@ -75,7 +75,7 @@ class LocalCheckTests(unittest.TestCase):
                 self.assertEqual(advisory_test.fixture_class(host), expected)
                 expected_names = unittest.TestLoader().getTestCaseNames(expected)
                 self.assertEqual([test._testMethodName for test in suite], expected_names)
-                self.assertEqual(len(expected_names), 7 if host.startswith("linux") else 1)
+                self.assertEqual(len(expected_names), 8 if host.startswith("linux") else 1)
         for host in ("darwin", "", "windows", "freebsd"):
             with self.subTest(host=host), self.assertRaisesRegex(ValueError, "Linux or native Windows"):
                 advisory_test.fixture_class(host)
