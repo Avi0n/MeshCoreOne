@@ -1,6 +1,7 @@
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+EventStream.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift@db14559b39d32322b06477c6ae676112f583db50
 // WP-407 native composition binds the existing chat list/timeline/composer to the single process store and live radio graph.
 package com.meshcoreone.android.app.container
 
@@ -502,9 +503,11 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
                 }
                 val message = store.fetchRoomMessage(EntityKey(room.radioId, id)) ?: return@transform
                 if (message.sessionID == room.id) {
-                    emit(if (event is MessageEvent.RoomMessageReceived) {
-                        RoomConversationEvent.MessageReceived(room.id, message)
-                    } else RoomConversationEvent.MessageChanged(room.id, message.id))
+                    emit(when (event) {
+                        is MessageEvent.RoomMessageReceived -> RoomConversationEvent.MessageReceived(room.id, message)
+                        is MessageEvent.RoomMessageFailed -> RoomConversationEvent.MessageFailed(room.id, message.id)
+                        else -> RoomConversationEvent.MessageChanged(room.id, message.id)
+                    })
                 }
             },
             changes.mapNotNull {
