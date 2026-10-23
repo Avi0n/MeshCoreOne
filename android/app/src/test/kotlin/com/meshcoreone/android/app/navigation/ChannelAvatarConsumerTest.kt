@@ -74,7 +74,8 @@ class ChannelAvatarConsumerTest : RoomProcessTest() {
             compose.onNodeWithTag(avatarTag(first), useUnmergedTree = true).assertDoesNotExist()
             compose.onNodeWithTag(spacerTag(first), useUnmergedTree = true).assertExists()
             val avatar = compose.onNodeWithTag(avatarTag(second), useUnmergedTree = true)
-            assertEquals(56f, avatar.getUnclippedBoundsInRoot().width.value, 0.1f)
+            val bounds = avatar.getUnclippedBoundsInRoot()
+            assertEquals(56f, (bounds.right - bounds.left).value, 0.1f)
             val firstLeft = bubble(first).getUnclippedBoundsInRoot().left.value
             val secondLeft = bubble(second).getUnclippedBoundsInRoot().left.value
             assertEquals(firstLeft, secondLeft, 0.1f)
