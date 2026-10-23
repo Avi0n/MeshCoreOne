@@ -90,6 +90,38 @@ Photos are deterministic, valid in-memory PNGs decoded by the production bounded
 cache. Initials assertions require visible nonuniform glyph rendering, not a blank avatar
 box. Each flow asserts no message sends and no HTTP requests.
 
+### Grouped mounted-capture and accessibility oracle repair
+
+Candidate `ec7ee5736561ef0ffdcee3a5435e0fe0e413ffa3` failed in automatic run
+`40016279008`, attempt 1, Linux job `120630843634`: the App runner reported
+1,450 tests and 12 failures. Five pixel-observing methods on each SDK reached
+Compose window capture's internal 2,000 ms timeout before observing the avatar.
+The scaled-column method on each SDK incorrectly searched for no standalone
+sender description in the unmerged tree, which exposes cleared child semantics.
+Seventeen subsequent module report directories were missing after the App failure;
+their absence is incomplete evidence, not seventeen separate feature defects.
+The complete inventory and single repair scope were logged on
+[#314](https://github.com/cbattlegear/MeshCoreOne-Android/issues/314#issuecomment-6374566791)
+before user-directed implementation release.
+
+The consumer fixture now records the actual composed `LocalView` in `SideEffect`.
+After Compose is idle it draws that native view with `View.draw(Canvas(bitmap))`,
+the established approach in `RoomAccessibilityComposeTest`. Avatar pixels are
+cropped from that real rendered bitmap using the node's pixel `boundsInRoot`
+in the same view coordinates, with finite, positive and in-view bounds required.
+Full-frame and cropped bitmaps are recycled. This avoids Robolectric window/
+PixelCopy synchronization, not the real App, Room, contact-table or image-decoder
+pipeline. The outer 30,000 ms waits, exact photo colors, nonuniform initials,
+stable identities and all nine mounted journeys remain intact.
+
+Geometry and avatar-slot queries still use the unmerged tree. The decorative-slot
+oracle requires clearing semantics and no click action, then checks that the
+merged accessibility-facing tree has no standalone sender announcement and that
+both complete parent message labels remain accessible. Shared `ContactAvatar`
+child semantics and production message semantics are unchanged. This is
+tightly coupled verification support for the missing avatar feature, not a new
+product defect or a separate tooling workstream.
+
 Both new classes select Robolectric SDK 31 and 37: 15 configuration methods plus nine
 consumer methods declare 48 SDK-specific executions. This is an expected inventory only;
 the candidate's actual selected hosted lane must prove nonzero complete discovery and

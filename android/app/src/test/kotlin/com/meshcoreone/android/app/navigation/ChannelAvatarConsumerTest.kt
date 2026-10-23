@@ -5,13 +5,15 @@
 package com.meshcoreone.android.app.navigation
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.unit.Density
@@ -37,6 +39,8 @@ import java.time.format.FormatStyle
 import java.util.UUID
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
+import kotlin.math.ceil
+import kotlin.math.floor
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -81,7 +85,10 @@ class ChannelAvatarConsumerTest : RoomProcessTest() {
             assertEquals(firstLeft, secondLeft, 0.1f)
             assertEquals(62f, secondLeft - avatar.getUnclippedBoundsInRoot().left.value, 0.1f)
             avatar.assertHasNoClickAction()
-            compose.onAllNodesWithContentDescription("Alice", useUnmergedTree = true).assertCountEquals(0)
+            assertTrue("Avatar descendants must be cleared from accessibility", avatar.fetchSemanticsNode().config.isClearingSemantics)
+            compose.onAllNodesWithContentDescription("Alice").assertCountEquals(0)
+            compose.onNodeWithContentDescription("Alice: First").assertExists()
+            compose.onNodeWithContentDescription("Alice: Second").assertExists()
             assertEquals(first, store.fetchMessage(EntityKey(f.radio, first.id)))
             assertEquals(second, store.fetchMessage(EntityKey(f.radio, second.id)))
             f.assertNoSendsOrHttp()
@@ -273,6 +280,7 @@ class ChannelAvatarConsumerTest : RoomProcessTest() {
         private val scope = CoroutineScope(test.backgroundScope.coroutineContext + job)
         private val httpRequests = java.util.Collections.synchronizedList(mutableListOf<String>())
         private lateinit var content: AppChatContent
+        private lateinit var renderedView: View
         lateinit var h: ContainerHarness
         val radio get() = requireNotNull(h.appState.currentRadioId)
 
@@ -324,6 +332,8 @@ class ChannelAvatarConsumerTest : RoomProcessTest() {
             val destination = h.container.navigation.state.value.activeStack.last().destination
             compose.runOnUiThread {
                 host.get().setContent {
+                    val view = LocalView.current
+                    SideEffect { renderedView = view }
                     CompositionLocalProvider(LocalDensity provides Density(1f, fontScale)) {
                         MeshCoreTheme(motionScale = 0f) {
                             AppChatsContent(h.container.chatsFeature, destination, h.container.navigation)
@@ -356,26 +366,46 @@ class ChannelAvatarConsumerTest : RoomProcessTest() {
             if (image == null) {
                 false
             } else {
-                val pixels = image.toPixelMap()
-                val innerColors = buildSet {
-                    for (x in image.width / 4 until image.width * 3 / 4) {
-                        for (y in image.height / 4 until image.height * 3 / 4) add(pixels[x, y].toArgb())
+                try {
+                    val innerColors = buildSet {
+                        for (x in image.width / 4 until image.width * 3 / 4) {
+                            for (y in image.height / 4 until image.height * 3 / 4) add(image.getPixel(x, y))
+                        }
                     }
-                }
-                innerColors.size > 1 &&
-                    pixels[image.width / 2, image.height / 2].toArgb() !in setOf(Color.RED, Color.GREEN)
+                    innerColors.size > 1 &&
+                        image.getPixel(image.width / 2, image.height / 2) !in setOf(Color.RED, Color.GREEN)
+                } finally { image.recycle() }
             }
         }
 
-        private fun avatarImage(message: MessageDTO): androidx.compose.ui.graphics.ImageBitmap? {
+        private fun avatarImage(message: MessageDTO): Bitmap? {
             if (compose.onAllNodesWithTag(avatarTag(message), useUnmergedTree = true).fetchSemanticsNodes().size != 1) {
                 return null
             }
-            return compose.onNodeWithTag(avatarTag(message), useUnmergedTree = true).captureToImage()
+            compose.waitForIdle()
+            val bounds = compose.onNodeWithTag(avatarTag(message), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+            return compose.runOnUiThread {
+                assertTrue("Mounted view must have positive dimensions", renderedView.width > 0 && renderedView.height > 0)
+                assertTrue("Avatar bounds must be finite", listOf(bounds.left, bounds.top, bounds.right, bounds.bottom).all { it.isFinite() })
+                assertTrue("Avatar bounds must have positive dimensions", bounds.width > 0f && bounds.height > 0f)
+                val left = floor(bounds.left).toInt()
+                val top = floor(bounds.top).toInt()
+                val right = ceil(bounds.right).toInt()
+                val bottom = ceil(bounds.bottom).toInt()
+                assertTrue(
+                    "Avatar bounds must lie inside the same mounted view",
+                    left >= 0 && top >= 0 && right <= renderedView.width && bottom <= renderedView.height,
+                )
+                val frame = Bitmap.createBitmap(renderedView.width, renderedView.height, Bitmap.Config.ARGB_8888)
+                try {
+                    renderedView.draw(Canvas(frame))
+                    Bitmap.createBitmap(frame, left, top, right - left, bottom - top)
+                } finally { frame.recycle() }
+            }
         }
 
         private fun avatarColor(message: MessageDTO): Int? = avatarImage(message)?.let { image ->
-            image.toPixelMap()[image.width / 2, image.height / 2].toArgb()
+            try { image.getPixel(image.width / 2, image.height / 2) } finally { image.recycle() }
         }
 
         fun assertNoSendsOrHttp() {
