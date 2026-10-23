@@ -1,5 +1,6 @@
 // PortedFrom: MC1Tests/Views/Chats/Components/UnifiedMessageBubbleA11yLabelTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1Tests/Views/Chats/Components/MessageBubbleTestData.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.parity
 
 import android.content.ClipboardManager
@@ -26,6 +27,7 @@ import com.meshcoreone.android.core.l10n.generated.AppChatsStrings as Chats
 import com.meshcoreone.android.core.l10n.generated.AppLocalizableStrings
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.event.RouteType
 import com.meshcoreone.android.core.services.content.BoundedHttpFetching
 import com.meshcoreone.android.core.services.content.HttpFetchAttempt
 import com.meshcoreone.android.core.services.rendering.*
@@ -101,6 +103,26 @@ class MessageBubbleAccessibilityAcceptanceTest : RoomProcessTest() {
         val second = messageBubbleAccessibilityLabel(message, item, false, resources)
         assertEquals(first, second)
         assertTrue(first.contains("stable"))
+    }
+
+    @OriginalCase("MessageBubblePredicateTests::accessibilityMessageLabel: direct-routed message must not include region fragment()")
+    @Test fun directRoutedOriginalIncomingDmLabelOmitsRegionFragment() {
+        val message = predicateIncomingDm(RouteType.DIRECT, "United States")
+        val item = sourceItem(message, hop = true, region = true)
+        val label = messageBubbleAccessibilityLabel(message, item, false, resources)
+        val regionFragment = Chats.chatsMessageRegionAccessibilityLabel(resources, "United States")
+
+        assertFalse(label.contains(regionFragment))
+    }
+
+    @OriginalCase("MessageBubblePredicateTests::accessibilityMessageLabel: flood-routed message includes region fragment()")
+    @Test fun floodRoutedOriginalIncomingDmLabelIncludesRegionFragment() {
+        val message = predicateIncomingDm(RouteType.FLOOD, "United States")
+        val item = sourceItem(message, region = true)
+        val label = messageBubbleAccessibilityLabel(message, item, false, resources)
+        val regionFragment = Chats.chatsMessageRegionAccessibilityLabel(resources, "United States")
+
+        assertTrue(label.contains(regionFragment))
     }
 
     @Test fun supplementalStatusAndRegionLabelsKeepWideCountersAndEveryAmbiguousCandidate() {
@@ -346,6 +368,14 @@ class MessageBubbleAccessibilityAcceptanceTest : RoomProcessTest() {
             }
         }
     }
+
+    private fun predicateIncomingDm(routeType: RouteType, regionScope: String) = MessageDTO(
+        id = UUID.randomUUID(), radioId = RadioId(UUID.randomUUID()),
+        contactID = null, channelIndex = null, text = "Test", timestamp = 0u, createdAt = Instant.EPOCH,
+        direction = MessageDirection.INCOMING, status = MessageStatus.DELIVERED,
+        pathLength = 2u, pathNodes = Bytes.of(0xA3, 0x7F), isRead = true,
+        routeType = routeType, regionScope = regionScope,
+    )
 
     private fun incoming(text: String) = MessageDTO(
         id = UUID.fromString("44444444-4444-4444-4444-444444444444"), radioId = sourceRadio,
