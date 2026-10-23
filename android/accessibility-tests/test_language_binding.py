@@ -1,5 +1,6 @@
 """AndroidOnly: WP-503 Pure fixed-family source/publication guards, not native acceptance."""
 
+import ast
 from dataclasses import replace
 import hashlib
 import io
@@ -422,6 +423,58 @@ class LanguageBindingTest(unittest.TestCase):
                         patch.object(binding, "git", side_effect=changed):
                     with self.assertRaisesRegex(binding.PortError, "drifted"):
                         binding.prepare_binding(HEAD, self.claim, family="nodes")
+
+    def test_nodes_subject_pair_uses_real_committed_anchors_and_retains_original_fixture_and_other_helpers(self):
+        previous = binding.git("show", "bc34b3d73675d88c3255de778bdc3d283aca9b99:android/accessibility-tests/language_binding.py")
+        declaration = next(node.value for node in ast.parse(previous).body
+                           if isinstance(node, ast.Assign)
+                           and any(isinstance(target, ast.Name) and target.id == "NODES" for target in node.targets))
+        original = [ast.literal_eval(argument) for argument in declaration.args]
+        spec = binding.NODES
+        self.assertEqual((original[2], original[3]), (spec.klass, spec.methods))
+        self.assertEqual(original[5], spec.production)
+        self.assertEqual((original[7], original[8]), (spec.fixture, spec.fixture_blob))
+        self.assertEqual("bd325b2e939a33b4ae917429aad9686877aed9de", spec.producer)
+        self.assertEqual("7c74a004c993d57014b3cfcd35f8916d8c2a6fc7", spec.production_blob)
+        self.assertIn((spec.fixture, original[4], original[8]), spec.source_pins)
+        audit = "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NodesAccessibilityAudit.kt"
+        self.assertIn((audit, "d4d1f9b2f709abc46b8024f7703121c1facab672",
+                       "1e7ff135e8786bbe02056e8e6fe6d642e5e2e1a3"), spec.source_pins)
+        for pin in original[9]:
+            if pin[0] not in (spec.production, audit):
+                self.assertIn(pin, spec.source_pins)
+        for api in (31, 37):
+            for changes in ({"producer_revision": original[4]}, {"production_blob": original[6]}):
+                with self.subTest(api=api, changes=changes), self.assertRaises(binding.PortError):
+                    binding.request_for(replace(source("nodes"), **changes), api)
+        self.assertEqual((31, 37), spec.apis)
+        self.assertEqual(binding.MAIN_REF, spec.publication_ref)
+
+    def test_nodes_shared_subject_delta_preserves_every_other_original_predicate_and_both_inventories(self):
+        audit = "android/accessibility-tests/src/shared/kotlin/com/meshcoreone/android/accessibility/NodesAccessibilityAudit.kt"
+        previous = subprocess.check_output(
+            ["git", "show", "bc34b3d73675d88c3255de778bdc3d283aca9b99:" + audit],
+            cwd=binding.ROOT, encoding="utf-8")
+        wrong = '        assertEquals(contact.displayName, payload.getStringExtra(Intent.EXTRA_SUBJECT))'
+        correct = (
+            '        val shareSubject = activity.getString(C.contactsQrShareSubject)\n'
+            '        assertTrue("Fixture must distinguish the localized subject from the contact name",\n'
+            '            shareSubject != contact.displayName)\n'
+            '        assertEquals(shareSubject, payload.getStringExtra(Intent.EXTRA_SUBJECT))'
+        )
+        chooser = "        assertEquals(Intent.ACTION_CHOOSER, chooser.action)\n"
+        title = "        assertEquals(contact.displayName, chooser.getCharSequenceExtra(Intent.EXTRA_TITLE)?.toString())\n"
+        self.assertEqual(1, previous.count(wrong))
+        self.assertEqual(1, previous.count(chooser))
+        expected = previous.replace(wrong, correct).replace(chooser, chooser + title)
+        self.assertEqual(expected, (binding.ROOT / audit).read_text(encoding="utf-8"))
+        jvm = "android/accessibility-tests/src/test/kotlin/com/meshcoreone/android/accessibility/NativeNodesAccessibilityTest.kt"
+        for path, count in ((binding.NODES.fixture, 7), (jvm, 9)):
+            old_body = binding.git("show", "bc34b3d73675d88c3255de778bdc3d283aca9b99:" + path)
+            current = (binding.ROOT / path).read_text(encoding="utf-8")
+            self.assertEqual(old_body, current.rstrip("\n"))
+            self.assertEqual(count, len(re.findall(r"@Test fun (\w+)\(", current)))
+        self.assertIn("@Config(sdk = [31, 37]", (binding.ROOT / jvm).read_text(encoding="utf-8"))
 
     def test_nodes_missing_duplicate_extra_wrong_order_identity_or_ancestor_fails_closed(self):
         methods = binding.NODES.methods
@@ -1345,12 +1398,8 @@ class LanguageBindingTest(unittest.TestCase):
         )
         actual = current[current.index("DIAGNOSTICS ="):current.index("COLD_PLATFORM_SOURCE_PINS =")]
         start, end = actual.index("NODES ="), actual.index("COMPARATOR =")
-        nodes = actual[start:end]
-        self.assertEqual(1, nodes.count('"nodes", (31, 37),'))
-        self.assertEqual(1, nodes.count("    publication_ref=MAIN_REF,\n"))
-        historical_nodes = nodes.replace('"nodes", (31, 37),', '"nodes", (37,),').replace(
-            "    publication_ref=MAIN_REF,\n", "")
-        self.assertEqual(expected, actual[:start] + historical_nodes + actual[end:])
+        old_start, old_end = expected.index("NODES ="), expected.index("COMPARATOR =")
+        self.assertEqual(expected[:old_start] + expected[old_end:], actual[:start] + actual[end:])
         for name in ("platform-service-control", "platform-callback-control"):
             spec = binding.family_spec(name)
             with self.subTest(family=name):

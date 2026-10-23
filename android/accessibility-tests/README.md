@@ -375,12 +375,33 @@ not fourteen native starts. Clean execution HEAD must equal fresh trusted main;
 an unpublished/local successor or the historical `81dc` ref is not substituted.
 
 The initial seven-method registration at `fc9188ab` has the same ordered method
-inventory as the unchanged current fixture/audit producer `9101b45f`. The binding
-pins that fixture and Nodes audit, the delegated offline audit at `41bdbfac`,
-the complete Nodes production `src/main` tree (including its manifest) at
-`fd9fa8e1`, and the same original assertion/device-harness pins used above.
+inventory as the unchanged native fixture originally produced at `9101b45f`.
+That original fixture/hash remains an explicit provenance pin. The paired subject
+correction now binds the complete Nodes production `src/main` tree (including its
+manifest) `7c74a004` to source-cleared primary `bd325b2e`, and shared Nodes audit
+blob `1e7ff135` to the real separate commit `d4d1f9b2`. The primary is not main:
+its actual parent is `3ec966b4`, whose merge parents are `b4e02fad` and `b8c6c610`.
+The delegated offline audit at `41bdbfac` and original assertion/device-harness
+pins remain unchanged.
 Each current and original object and producer ancestry is checked; drift is an
 error, not permission to advance a pin or edit Kotlin.
+
+The frozen `ContactQRShareSheet.swift` share action uses the existing localized
+`Contacts.Qr.shareSubject`, not the contact name. The primary dialog now uses
+`C.contactsQrShareSubject`; the shared QR case independently reads that resource,
+requires it to differ from this fixture's contact name, and separately checks
+the chooser title remains the contact name. Every URI/key/clipboard five-second
+observation/injected two-second disabled-Copied/reset/48dp/full-line/Done/one-export
+predicate is retained. All nine JVM cases at both SDKs and all seven native-family
+identities remain unchanged. No old contact-name-subject pass establishes this
+corrected subject parity.
+
+This paired source is LOCAL/PUBLICATION HELD. The earlier public `bc34` head and
+PR body remain frozen; neither source-cleared primary bytes nor family registration
+authorize native execution. Exact current-main, source/claim/policy and original
+operational fences still apply after any future combined landing. Own new
+combined-tree hosted compiler/software evidence is required; no earlier green
+transfers to this changed pair.
 
 The unique owner is `CANONICAL:nodes:UUID`, with canonical/replacement identities
 kept separate. Existing source/publication/main/policy/reservation, exact positive
