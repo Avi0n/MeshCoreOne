@@ -5,6 +5,40 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "message-region-original-eight-row-routing-preference-scope",
+      "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageRegionOriginalPredicateTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.MessageRegionOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "regionToShow: nil unless flag AND isFloodRouted AND scope present"
+      ],
+      "comparison": "One complete original family, eight ordered literal preference/route/nullable-scope/expected tuples in one annotated JUnit method. Actual production MessageFragmentBuilder.makeItem footer.regionToShow equals original strings: true/flood/United States=United States, true/tcFlood/United States=United States, true/flood/nil=nil, true/direct/United States=nil, true/tcDirect/United States=nil, false/flood/United States=nil, false/direct/United States=nil, true/direct/nil=nil. Existing channel/legacy/ambiguous/preference-off builder cases are partial coverage, not explicit TC region outputs; DTO routing, hop-only and combined footer OR assertions do not cover a region-only TC regression. No product defect or annotation-only replay is inferred.",
+      "inputs": "Original makeMessage fresh UUID message/radio, nil contact/channel, Test text, timestamp0, incoming/delivered/plain/read, pathLength2/A37F, nil sender, heard0/retry0, sendCount1, empty region matches and actual DTO defaults retained. Explicit routes remain DM inputs so channel-always-flood cannot invalidate direct rows. Ambient createdAt becomes Instant.EPOCH, irrelevant to selected predicate. Complete messageItem helper idle/nil preview/URL/images/format/path, incoming color, Unknown/unresolved sender, sender-groupingtrue/other flagsfalse, previewsEnabledtrue/currentUserNameMe and source-equivalent environment defaults retained. Removed translation offers explicitly disabled.",
+      "adaptations": "Swift MainActor pure construction becomes synchronous JUnit4 in the existing App parity source set, using the same public production builder. No Compose/UIKit mounting, fake footer evaluator, new fixture framework, Room/radio/network/native action, product repair, runner/build change or deadline relaxation. Same reservation128->129 reconciles all22 incoming paths before clean main7a42 fast-forward;129->130 admits only four owned paths before edits with immutable identity/authorization retained. Eight inputs are one family/one required execution identity, not eight families. Adjacent channel/legacy/label/ambiguity originals are not bundled.",
+      "helpers": [
+        "MC1Tests/Views/Chats/Components/MessageBubbleTestData.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageFragmentBuilder.swift",
+        "MC1Services/Sources/MC1Services/Models/Message.swift",
+        "MC1Services/Sources/MC1Services/Models/RegionScopeSemantics.swift",
+        "MeshCore/Sources/MeshCore/Protocol/RxLogTypes.swift",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageRegionOriginalPredicateTest.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageFragmentBuilder.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageBuildInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/EnvInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/NodeNameResolution.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RegionValues.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RxLogTypes.kt"
+      ],
+      "consumer": "Read the returned real footer from public makeItem as frozen MessageBubbleTestData does. Production makeFooter consumes actual showIncomingRegion and MessageDTO.isFloodRouted, then real coalesce/chipLabel. Existing live App projects this same footer through AppMessageBubbleAccessibility to AppChatsContent/AppChatConversationScreen/ChatTimeline private bubble semantics; no label or speech assertion is claimed here. Product and incumbent tests remain equal actual main7a42bb666d593e64df49d0267d27f3d87a7e125f. Required discovery is allEightOriginalRegionRowsUseTheProductionBuilder; previous delivered family methods/hosted results are not new credit.",
+      "unresolved": [
+        "Local-only candidate held for coordinator source review. Own Kotlin compilation, actual one-method discovery/execution and independent review remain UNVERIFIED. Declared preflight BLOCKED exit2 by absent explicit --state/ANDROID_CI_STATE; no state fabricated, runtime/hook/lock repair, protected probe, native/Gradle action or lane bypass. No actual TalkBack, mounted UI, native/device, independent protocol oracle, bidirectional backup or whole-WP acceptance. Archived groups/accounting/review bindings and all historical results remain unchanged; no CI-log reread/result bundle."
+      ]
+    },
+    {
       "id": "message-hop-count-original-six-row-routing-conjunction",
       "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
       "partial_source_file": true,
