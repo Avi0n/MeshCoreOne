@@ -326,6 +326,161 @@ class MessagePathComposeTest {
         compose.runOnIdle { assertSame(retained, holder.state.value) }
     }
 
+    @Test fun nilPathFirstArrivalRemainsZeroHopWhenSelectingItsEchoAndRecomposing() {
+        val radio = RadioId(UUID.fromString("50200000-0000-0000-0000-000000000713"))
+        val message = MessageDTO(
+            id = UUID.fromString("50200000-0000-0000-0000-000000000714"),
+            radioId = radio, contactID = null, channelIndex = 0u, text = "flood", timestamp = 1_700_000_000u,
+            createdAt = Instant.ofEpochSecond(1_700_000_000), direction = MessageDirection.INCOMING,
+            status = MessageStatus.DELIVERED, textType = TextType.PLAIN, ackCode = null,
+            pathLength = 0u, snr = 8.5, pathNodes = null, senderKeyPrefix = null,
+            senderNodeName = "Alice", isRead = true, replyToID = null, roundTripTime = null,
+            heardRepeats = 1, retryAttempt = 0, maxRetryAttempts = 0,
+        )
+        val echo = MessageRepeatDTO(
+            id = UUID.fromString("50200000-0000-0000-0000-000000000715"),
+            messageID = message.id, receivedAt = Instant.ofEpochSecond(1_700_000_001),
+            pathNodes = Bytes.of(0xAA), pathLength = 1u, snr = 7.0, rssi = -80L, rxLogEntryID = null,
+        )
+        val repeats = listOf(echo)
+        val gate = CompletableDeferred<List<MessageRepeatDTO>>()
+        val reads = mutableListOf<String>()
+        val forbiddenCalls = mutableListOf<String>()
+        fun forbidden(operation: String): Nothing {
+            forbiddenCalls += operation
+            throw AssertionError("Forbidden zero-hop arrival interaction: $operation")
+        }
+        val source = object : MessageActionsDataSource {
+            override suspend fun contacts(radioId: RadioId): List<ContactDTO> {
+                assertEquals(radio, radioId)
+                reads += "contacts"
+                return emptyList()
+            }
+            override suspend fun discoveredNodes(radioId: RadioId): List<DiscoveredNodeDTO> {
+                assertEquals(radio, radioId)
+                reads += "discoveredNodes"
+                return emptyList()
+            }
+            override suspend fun repeats(messageId: UUID): List<MessageRepeatDTO> {
+                assertEquals(message.id, messageId)
+                reads += "repeats"
+                return gate.await()
+            }
+            override suspend fun reactions(messageId: UUID): List<ReactionDTO> = forbidden("reactions")
+            override suspend fun blockChannelSender(radioId: RadioId, senderName: String): Unit = forbidden("blockChannelSender")
+            override suspend fun blockContacts(contactIds: Set<UUID>): Unit = forbidden("blockContacts")
+            override suspend fun setMuted(contactId: UUID, muted: Boolean): Unit = forbidden("setMuted")
+        }
+        val holder = MessageActionsStateHolder(source, scope)
+        val revision = mutableStateOf(0)
+        host.get().setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                MeshCoreTheme(
+                    colorSchemePreference = AppColorSchemePreference.LIGHT,
+                    systemDark = false, highContrast = false, motionScale = 0f,
+                ) {
+                    MessageActionsRoute(
+                        message, holder, localDevice = null, userLocation = null, recentEmojis = emptyList(),
+                        onAction = { forbidden("action:$it") }, modifier = Modifier.testTag("zero-hop-route-${revision.value}"),
+                    )
+                }
+            }
+        }
+        val tabRole = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+        fun tab(label: String) = compose.onNode(hasText(label) and tabRole, useUnmergedTree = true)
+        fun text(copy: String) = compose.onNode(
+            hasText(copy) and hasAnyAncestor(hasTestTag("zero-hop-route-${revision.value}")), useUnmergedTree = true,
+        )
+        compose.runOnIdle {
+            assertMountedProfile(host.get(), ScreenCase("nil-first-with-echo", heightDp = 1400, locale = "en-US", fontScale = 2f))
+            assertEquals(listOf("contacts", "discoveredNodes", "repeats"), reads)
+            assertTrue(holder.state.value.isLoadingDetails)
+            assertNull(holder.state.value.repeats)
+            assertNull(holder.state.value.failure)
+        }
+        compose.onAllNodes(tabRole, useUnmergedTree = true).assertCountEquals(0)
+        text("Flood").assertDoesNotExist()
+        text("1. AA").assertDoesNotExist()
+        compose.runOnIdle { assertTrue(gate.complete(repeats)) }
+
+        fun assertOriginalAndState() {
+            compose.runOnIdle {
+                val state = holder.state.value
+                assertFalse(state.isLoadingDetails)
+                assertNull(state.failure)
+                assertSame(repeats, state.repeats)
+                assertSame(echo, requireNotNull(state.repeats).single())
+                assertNull(message.pathNodes)
+                val arrivals = MessagePathArrivals.assemble(message, requireNotNull(state.repeats))
+                assertEquals(2, arrivals.size)
+                val first = arrivals.first()
+                assertTrue(first.isFirst)
+                assertEquals(Bytes.EMPTY, first.pathNodes)
+                assertTrue(first.isZeroHop)
+                assertFalse(first.isPathUnavailable)
+                assertEquals(message.id, first.id)
+                assertEquals(0.toUByte(), first.pathLength)
+                assertTrue(first.pathHops.isEmpty())
+                assertEquals(8.5, first.snr)
+                assertNull(first.rssi)
+                assertEquals(message.createdAt, first.receivedAt)
+                assertEquals(echo.id, arrivals[1].id)
+                assertFalse(arrivals[1].isFirst)
+                assertFalse(arrivals[1].isZeroHop)
+                assertFalse(arrivals[1].isPathUnavailable)
+                assertEquals(listOf("AA"), arrivals[1].pathHops.map { it.hex })
+                assertEquals(2L, MessagePathArrivals.arrivalCount(message))
+                assertEquals(listOf("contacts", "discoveredNodes", "repeats"), reads)
+                assertTrue(state.directory.contacts.isEmpty())
+                assertTrue(state.directory.repeaters.isEmpty())
+                assertTrue(state.directory.discoveredRepeaters.isEmpty())
+                assertNull(state.blockedSender)
+                assertTrue(state.mutedContactIds.isEmpty())
+                assertTrue(state.reactionGroups.isEmpty())
+                assertTrue(forbiddenCalls.isEmpty())
+            }
+            compose.onAllNodes(tabRole, useUnmergedTree = true).assertCountEquals(2)
+            for (label in listOf("First", "#2")) {
+                val node = tab(label).performScrollTo().assertIsDisplayed().assertHasClickAction()
+                    .assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+                assertMountedText(compose, node, label, 2f, LayoutDirection.Ltr, "real arrival selector")
+            }
+            text("Path data is not available for this message").assertDoesNotExist()
+            val repeatRow = text("AA  <unknown repeater>").performScrollTo().assertIsDisplayed()
+            assertMountedText(compose, repeatRow, "AA  <unknown repeater>", 2f, LayoutDirection.Ltr, "original one-AA echo")
+        }
+        fun assertSelected(first: Boolean) {
+            tab("First").assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, first))
+            tab("#2").assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, !first))
+            if (first) {
+                val flood = text("Flood").performScrollTo().assertIsDisplayed()
+                assertMountedText(compose, flood, "Flood", 2f, LayoutDirection.Ltr, "canonical nil-path zero-hop consumer")
+                text("1. AA").assertDoesNotExist()
+            } else {
+                text("Flood").assertDoesNotExist()
+                for (copy in listOf("1. AA", "<unknown>")) {
+                    val node = text(copy).performScrollTo().assertIsDisplayed()
+                    assertMountedText(compose, node, copy, 2f, LayoutDirection.Ltr, "selected AA echo hop")
+                }
+            }
+        }
+        assertOriginalAndState()
+        assertSelected(first = true)
+        val retained = compose.runOnIdle { holder.state.value }
+        tab("#2").performScrollTo().performClick()
+        assertSelected(first = false)
+        assertOriginalAndState()
+        compose.runOnIdle { revision.value++ }
+        compose.onNodeWithTag("zero-hop-route-1").assertExists()
+        compose.onNodeWithTag("zero-hop-route-0").assertDoesNotExist()
+        assertSelected(first = false)
+        assertOriginalAndState()
+        tab("First").performScrollTo().performClick()
+        assertSelected(first = true)
+        assertOriginalAndState()
+        compose.runOnIdle { assertSame(retained, holder.state.value) }
+    }
+
     @Test fun repeatFallbackHasIndependentAccessibleExplanationWithoutChangingExactOrUnresolvedRows() {
         val radio = RadioId(UUID.fromString("50200000-0000-0000-0000-000000000706"))
         val ridge = ContactDTO(
