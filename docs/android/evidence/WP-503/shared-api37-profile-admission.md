@@ -3776,3 +3776,41 @@ No source result, case pass, cause, hardware or whole-WP acceptance is inferred.
 No Gradle/native/runtime-install/old-state action, push, dispatch/rerun or body
 mutation occurs; live bodyCAS82962ee9ea24/254lines/247protected remains intact
 pending the next head decision and local parent review.
+
+### Actual315 App graph integration before any new cold-control attempt
+
+The coordinator reports actual main31557a16ca4492bbd669a7ad0358e702c5c54031
+normally merged the reviewed coherent App graph. Its own39869898467 software
+success is not a native verdict or a result of this WP503 successor.
+Fresh read-only readiness independently confirms actual main315 and existing
+PR205 OPEN/ready/publishedba. Supported canonical scope35-to36 preserves all
+non-scope identity, binding, authorization and history fields.
+
+Normal source integration imports that exact current main, preserving ba/6be
+and all original negative evidence in ancestry. The one WP003 chronology
+conflict resolves to exact current-main producer bytes. Only the two fixed cold
+families' App-main bindings advance to actual315 tree
+d093f4fc5e59ce51919217fcce87b50f103ac453. App build remains exact inherited
+ee1104/a0752382e0c641e417b6c92297bc5018f0ace2b0; its six WP503 source-set
+lines differ from main and remain necessary for the original native fixtures.
+Existing provenance/drift regressions
+continue requiring exact current bytes and real producer ancestry.
+Their original d977 fixtures and cc360 helper, complete identities, original
+1000ms bounds, zero Activity, no Compose/test dispatcher/warmup, flags and
+restoration/callback/heartbeat diagnostics remain byte-identical.
+
+One actual read-only ordinary-launcher inspection returns
+`Malformed installed reservation runtime manifest`: installed schema1 is not
+the repository-bound schema2 required by that entrypoint. No installation,
+hook change, new actor or workaround is made. The existing trusted disposable
+factory is a separate declared source-verified primitive: it deliberately keeps
+the legacy installation and requires all current runtime_sources bytes before
+allocating a distinct guest and its own atomic host/Gradle guard. Its unchanged
+packaging lane uses that actual guest, not ordinary launcher lock acquisition.
+Thus the ordinary-launcher error is not substituted for a disposable admission
+verdict. The exact retained66bd owner/acquisition and complete locks stay intact.
+
+At this source-preparation point allocations/native starts/builds are zero.
+Only actual admitted source-bound native operations can establish a new result;
+compiled7c cold negatives, unknown cause, cleanup and historical ba software
+success are not rebound. No CI-result bundle or source-based acceptance is added.

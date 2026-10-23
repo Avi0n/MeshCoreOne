@@ -251,7 +251,7 @@ CACHED_CHAT = FamilySpec(
 )
 COLD_PLATFORM_SOURCE_PINS = (
     ("android/app/src/main",
-     "ee1104b097899ab08f3f82227d8cde354bc92602", "d16548e5b9ad79248c0c1e8289e01fb83514c035"),
+     "31557a16ca4492bbd669a7ad0358e702c5c54031", "d093f4fc5e59ce51919217fcce87b50f103ac453"),
     ("android/app/build.gradle.kts",
      "ee1104b097899ab08f3f82227d8cde354bc92602", "a0752382e0c641e417b6c92297bc5018f0ace2b0"),
     ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityServiceSnapshot.kt",
@@ -263,7 +263,7 @@ PLATFORM_SERVICE_CONTROL = FamilySpec(
     ("actualServiceStateActivatesAndRestoresWithin1000msWithoutActivityOrComposeRule",),
     "d977bce7658a83c5df7d7dcc88b20eeaaeecf85d",
     "android/app/src/main",
-    "d16548e5b9ad79248c0c1e8289e01fb83514c035",
+    "d093f4fc5e59ce51919217fcce87b50f103ac453",
     "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativePlatformServiceControlTest.kt",
     "14bb0ea56959ea52e4b5d65d232f9a8c98a9b6ca",
     COLD_PLATFORM_SOURCE_PINS,
@@ -274,7 +274,7 @@ PLATFORM_CALLBACK_CONTROL = FamilySpec(
     ("actualServiceStateRetains1000msWithPublicCallbackAndMainLooperObservations",),
     "d977bce7658a83c5df7d7dcc88b20eeaaeecf85d",
     "android/app/src/main",
-    "d16548e5b9ad79248c0c1e8289e01fb83514c035",
+    "d093f4fc5e59ce51919217fcce87b50f103ac453",
     "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativePlatformCallbackDeliveryTest.kt",
     "5f5913207d6ccc23121bc20e99159062e8622ae6",
     COLD_PLATFORM_SOURCE_PINS,

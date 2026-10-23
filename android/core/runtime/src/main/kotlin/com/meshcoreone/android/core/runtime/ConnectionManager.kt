@@ -44,6 +44,7 @@ class ConnectionManager(
     private val configuration: SessionConfiguration = SessionConfiguration.DEFAULT,
     private val jitter: () -> Double = { kotlin.random.Random.nextDouble(0.0, 0.1) },
     epoch: ProcessEpoch = ProcessEpoch(UUID.randomUUID()),
+    private val recoveryDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ConnectionController, BLEReconnectionDelegate {
     private class RuntimeOperation(val owner: Any) : AbstractCoroutineContextElement(Key) {
         companion object Key : CoroutineContext.Key<RuntimeOperation>
@@ -82,6 +83,8 @@ class ConnectionManager(
         var logicalEnded = false
         var physicalEnding = false
         var restorationRoute = false
+        var lossHandled = false
+        var correlationAccounting: Deferred<Unit>? = null
         val registrationReady = CompletableDeferred<Unit>()
     }
 
@@ -425,8 +428,18 @@ class ConnectionManager(
         val session = MeshCoreSession(
             link.transport, configuration, sessionClock, owner.scope.coroutineContext,
             onDiagnostic = { diagnostic ->
-                if (diagnostic is SessionDiagnostic.BackgroundFailure) {
-                    reporter.report(RuntimeDiagnostic.Failure(diagnostic.operation, diagnostic.cause))
+                when (diagnostic) {
+                    is SessionDiagnostic.BackgroundFailure ->
+                        reporter.report(RuntimeDiagnostic.Failure(diagnostic.operation, diagnostic.cause))
+                    is SessionDiagnostic.CorrelationUncertain -> {
+                        // The producer holds its protocol lock. Always enqueue recovery off that stack.
+                        dispatch(owner, "session.correlationUncertain", recoveryDispatcher) {
+                            recoverCorrelation(owner, MeshCoreException.ConnectionLost(
+                                SessionCorrelationException.UnresolvedReply(diagnostic.generation, diagnostic.responseFamily),
+                            ))
+                        }
+                    }
+                    else -> Unit
                 }
             },
         )
@@ -1004,6 +1017,7 @@ class ConnectionManager(
         publishDisconnected: Boolean = true,
     ): TeardownReport {
         synchronized(lock) {
+            owner.correlationAccounting?.cancel()
             if (primary != null && provenForeignAdmission(primary, owner)) {
                 owner.link?.let { PhysicalOwnership.release(it.transport, owner.physicalOwner) }
                 owner.ownsPhysical = false
@@ -1090,6 +1104,7 @@ class ConnectionManager(
 
     private fun detachOwnersLocked(state: DeviceConnectionState, intent: ConnectionIntent = values.value.intent): List<RadioGeneration> {
         val owners = listOfNotNull(active, retained).distinct()
+        owners.forEach { it.correlationAccounting?.cancel() }
         active = null
         retained = null
         deviceValue = null
@@ -1110,30 +1125,72 @@ class ConnectionManager(
             (hasCause<SessionCorrelationException.ConcurrentTransportOwner>(failure) ||
                 hasCause<SessionCorrelationException.RetainedTransport>(failure))
 
-    private suspend fun handleConnectionLoss(owner: RadioGeneration, failure: Throwable?) {
-        if (!isRelevant(owner)) { reporter.report(RuntimeDiagnostic.StaleCallback("connectionLoss", owner.number)); return }
-        val before = snapshot.value
-        reconnectionCoordinator.clearReconnectingDevice()
-        synchronized(lock) {
-            if (active === owner) active = null
-            retained = owner
-            deviceValue = null
-            repeatRanges = SnapshotList.empty()
-            publishLocked(DeviceConnectionState.DISCONNECTED, ConnectionState.Disconnected, null,
-                failure?.let { issueFor(it, LifecycleStage.CONNECT) })
+    private suspend fun recoverCorrelation(owner: RadioGeneration, failure: Throwable) {
+        val accounting = synchronized(lock) {
+            if (!isCurrent(owner) || owner.lossHandled || owner.correlationAccounting != null) null
+            else owner.scope.async(start = CoroutineStart.LAZY) {
+                owner.services?.services?.awaitChannelQueryAccounting()
+                Unit
+            }.also { owner.correlationAccounting = it }
+        } ?: return
+        accounting.start()
+        try { accounting.await() }
+        catch (cancelled: CancellationException) {
+            currentCoroutineContext().ensureActive()
+            if (!isCurrent(owner)) return
+            reporter.report(RuntimeDiagnostic.Failure("session.channelQueryAccounting.cancelled", cancelled))
         }
-        val report = closeGeneration(owner, false, failure)
+        catch (accountingFailure: Exception) {
+            failure.addSuppressed(accountingFailure)
+            reporter.report(RuntimeDiagnostic.Failure("session.channelQueryAccounting", accountingFailure))
+        }
+        if (!isCurrent(owner)) return
+        handleConnectionLoss(owner, failure, disconnectPhysical = true)
+    }
+
+    private suspend fun handleConnectionLoss(
+        owner: RadioGeneration, failure: Throwable?, disconnectPhysical: Boolean = false,
+    ) {
+        val before = synchronized(lock) {
+            if (!isRelevant(owner) || owner.lossHandled || disconnectPhysical && !isCurrent(owner)) null
+            else {
+                val before = values.value
+                owner.lossHandled = true
+                owner.correlationAccounting?.cancel()
+                if (disconnectPhysical) owner.physicalEnding = true
+                if (active === owner) active = null
+                retained = owner
+                deviceValue = null
+                repeatRanges = SnapshotList.empty()
+                publishLocked(DeviceConnectionState.DISCONNECTED, ConnectionState.Disconnected, null,
+                    failure?.let { issueFor(it, LifecycleStage.CONNECT) })
+                before
+            }
+        } ?: run {
+            if (!disconnectPhysical && failure != null && isRelevant(owner) &&
+                platform.classifyFailure(failure) is LinkFailure.AuthenticationFailed && isRelevant(owner)) {
+                (owner.target as? ConnectionTarget.Bluetooth)?.deviceId?.let(::surfaceAuthenticationFailure)
+            } else reporter.report(RuntimeDiagnostic.StaleCallback("connectionLoss", owner.number))
+            return
+        }
+        reconnectionCoordinator.clearReconnectingDevice()
+        val report = closeGeneration(owner, disconnectPhysical, failure)
         owner.operation?.cancel()
         if (!report.isComplete) reporter.report(RuntimeDiagnostic.Teardown(report))
-        if (!isRelevant(owner)) return
+        if (!ownsConnectionLoss(owner)) return
         lastConnection.persistDisconnectDiagnostic("source=handleConnectionLoss, stateBefore=${before.state.name.lowercase()}, error=${failure?.javaClass?.simpleName ?: "none"}, intent=${intentSummary()}")
-        if (!isRelevant(owner)) return
+        if (!ownsConnectionLoss(owner)) return
         if (failure != null && platform.classifyFailure(failure) is LinkFailure.AuthenticationFailed) {
             (owner.target as? ConnectionTarget.Bluetooth)?.deviceId?.let(::surfaceAuthenticationFailure)
         }
         observer.onConnectionLost()
+        if (!ownsConnectionLoss(owner)) return
         if (owner.link?.type == TransportType.WIFI) startWiFiReconnection(owner.target)
         else if (connectionIntent.wantsConnection) startReconnectionWatchdog()
+    }
+
+    private fun ownsConnectionLoss(owner: RadioGeneration): Boolean = synchronized(lock) {
+        wantsCurrent(owner.revision) && retained === owner && active == null
     }
 
     private suspend fun autoReconnectEntered(owner: RadioGeneration, details: String) {
@@ -1318,8 +1375,12 @@ class ConnectionManager(
         }
     }
 
-    private fun dispatch(owner: RadioGeneration, operation: String, action: suspend () -> Unit) {
-        processScope.launch {
+    private fun dispatch(
+        owner: RadioGeneration, operation: String,
+        dispatchContext: CoroutineContext = kotlin.coroutines.EmptyCoroutineContext,
+        action: suspend () -> Unit,
+    ) {
+        processScope.launch(dispatchContext) {
             owner.registrationReady.await()
             if (!isRelevant(owner)) { reporter.report(RuntimeDiagnostic.StaleCallback(operation, owner.number)); return@launch }
             try { action() }

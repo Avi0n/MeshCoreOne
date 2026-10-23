@@ -87,6 +87,11 @@ class RoomPersistenceStore private constructor(
 
     companion object {
         const val MAX_DISCOVERED_NODES = DiscoveredNodeRepository.MAX_DISCOVERED_NODES
+        /** Closes a Room database when process-store construction failed before ownership transfer. */
+        fun closeUntransferredDatabase(database: MeshCoreDatabase) {
+            database.close()
+        }
+
         fun clampedPhoneClockTimestamp(stamp: UInt, now: java.time.Instant): UInt =
             com.meshcoreone.android.core.data.repository.clampedPhoneClockTimestamp(stamp, now)
     }

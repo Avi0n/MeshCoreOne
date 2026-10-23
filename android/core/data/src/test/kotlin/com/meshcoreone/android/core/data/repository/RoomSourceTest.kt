@@ -1,6 +1,8 @@
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.core.data.repository
 
+import androidx.room.Room
+import com.meshcoreone.android.core.database.MeshCoreDatabase
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.event.ChannelInfo
@@ -9,6 +11,21 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class RoomSourceTest : RepositoryTest() {
+    @Test
+    fun moduleClosesDatabaseWhenOwnershipWasNeverTransferred() {
+        val untransferred = Room.inMemoryDatabaseBuilder(context, MeshCoreDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        try {
+            untransferred.openHelper.writableDatabase
+            assertTrue(untransferred.isOpen)
+            RoomPersistenceStore.closeUntransferredDatabase(untransferred)
+            assertFalse(untransferred.isOpen)
+        } finally {
+            if (untransferred.isOpen) RoomPersistenceStore.closeUntransferredDatabase(untransferred)
+        }
+    }
+
     @Test @OriginalCase("PersistenceStoreTests::Save and fetch channels()")
     @OriginalCase("PersistenceStoreTests::Save and fetch remote node session()")
     fun channelsSortBySlotAndSessionsPreserveTheirRole() = runTest {
