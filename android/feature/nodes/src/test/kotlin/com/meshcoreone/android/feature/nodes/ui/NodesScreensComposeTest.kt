@@ -467,12 +467,15 @@ abstract class NodesScreensComposeTestBase {
             click(scrollToAction(context.getString(C.contactsDetailShareContact)))
             val chooser = Shadows.shadowOf(context).nextStartedActivity
             assertEquals(Intent.ACTION_CHOOSER, chooser.action)
+            assertEquals(holder.contactName, chooser.getCharSequenceExtra(Intent.EXTRA_TITLE)?.toString())
             val send = chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
             assertNotNull(send)
             assertEquals(Intent.ACTION_SEND, send.action)
             assertEquals("text/plain", send.type)
             assertEquals(holder.contactUri, send.getStringExtra(Intent.EXTRA_TEXT))
-            assertEquals(holder.contactName, send.getStringExtra(Intent.EXTRA_SUBJECT))
+            val shareSubject = context.getString(C.contactsQrShareSubject)
+            assertFalse(shareSubject == holder.contactName, "Fixture must distinguish the localized subject from the contact name")
+            assertEquals(shareSubject, send.getStringExtra(Intent.EXTRA_SUBJECT))
             click(scrollToAction(context.getString(C.contactsCommonDone)))
             assertFalse(showing.value)
         }

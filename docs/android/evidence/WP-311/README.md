@@ -287,3 +287,52 @@ Actual unchanged WP-503 native API31/API37 acceptance is still required against 
 producer. The unrelated Nodes search/favorite negative in the later owner report is not repaired
 or attributed by this bounded Add/QR increment. PR233 stays draft; no independent approval,
 current-base merge verification, device execution or merge is claimed.
+
+## Local-held QR share subject correction (2026-10-23)
+
+Review base/parent: `155a2ce70baa341fc9559f111454e8529dd7e47e` (actual current main).
+Frozen source remains `db14559b39d32322b06477c6ae676112f583db50`.
+Existing session/attempt `869123e3-46d4-474e-94aa-4bc2d026143b` and managed branch
+`cbattlegear-verbose-telegram` were retained. Same-owner typed reservation evolved to
+revision 7 for current-base integration and revision 8 for the bounded source, mounted
+regression and WP-311 documentation operations; immutable authorization was not rewritten.
+Integration fast-forwarded the prior merged producer to main; the 46 unrelated unstaged
+lock/license paths were disjoint from incoming changes and were not staged or discarded.
+All 46 post-integration SHA-256 snapshots remained unchanged through verification.
+
+Frozen `ContactQRShareSheet.swift:176-178` supplies
+`L10n.Contacts.Contacts.Qr.shareSubject`. Android's actual `ContactShareDialog` instead
+supplied the contact name to the pass-through holder. The dialog now resolves existing
+`C.contactsQrShareSubject` with `stringResource` and passes that value. No resource,
+holder, URI/key, chooser title, clipboard, feedback timing or layout change is needed.
+A-7 documents only the MIME/text platform adaptation, not a subject substitution.
+
+The actual mounted dialog regression now requires the localized subject to differ from
+the fixture's contact name and checks the captured send subject, while also retaining
+the contact-name chooser title and all existing clipboard/two-second feedback/URI/key/
+geometry/dismissal assertions. These are owned Robolectric tests, not native-device
+acceptance or WP-503 fixture changes.
+
+Commands from `android/`, with `ANDROID_HOME` and `ANDROID_SDK_ROOT` set to the existing
+`$env:LOCALAPPDATA\Android\Sdk`:
+
+```powershell
+.\gradlew.bat :feature:nodes:testDebugUnitTest --tests '*ContactShareApi31ComposeTest' --tests '*ContactShareApi37ComposeTest' --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"
+.\gradlew.bat :feature:nodes:testDebugUnitTest --tests '*ContactShareApi31ComposeTest' --tests '*ContactShareApi37ComposeTest' --tests '*ContactShareContentTest' :feature:nodes:lintDebug --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"
+```
+
+Red: the first command discovered 2 tests and failed both on
+`expected MeshCore One Contact, actual Offline relay`, with 0 errors/skips, before the
+caller fix. Green: the second command discovered/passed 7 tests across 3 suites
+(1 mounted case per API, 5 share-content cases), 0 failures/errors/skips; lint passed.
+The declared `ci.py preflight --state <existing session environment.json> --output
+<session qr-subject-preflight> --local` passed without provisioning. Declared
+`python -B tools\android-port\portmap.py` and
+`python -B tools\android-port\controller\validate.py` passed; scoped `git diff --check`
+passed.
+
+Publication is held for source review. No push, new PR, native replay, install, runtime
+installation, hook action or gate publication occurred. WP-503's frozen PR #311 and
+its shared native expectation/provenance remain untouched; its contact-name subject
+expectation still needs the owner-coordinated source-correct update. Whole-port and
+#237 native acceptance remain incomplete; prior native negatives are not cleared here.
