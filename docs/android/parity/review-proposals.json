@@ -5,6 +5,36 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "message-heard-count-original-four-row-conjunction",
+      "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageHeardCountOriginalPredicateTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.MessageHeardCountOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "showHeardCount: gated by flag AND incoming AND heardRepeats"
+      ],
+      "comparison": "One complete original parameter family, four ordered literal rows and one annotated JUnit method. Actual production MessageFragmentBuilder.makeItem supplies footer.showHeardCount; compare directly to source booleans for flagfalse/incoming2=false, flagtrue/incoming2=true, flagtrue/incoming0=false, flagtrue/outgoing2=false. Existing RenderingModelsTest checks only positive and outgoing suppression with other channel inputs; disabled-with-positive and enabled-with-zero footer predicates were absent. Other repeat-count actions/hash/status/backup tests do not assert these branches. No duplicate family credit or product defect is inferred.",
+      "inputs": "Original makeMessage fresh UUID message/radio, nil contact/channel, Test text, timestamp0, delivered/plain/read, pathLength2/A37F bytes, nil sender/route/region, zero retry counters and actual DTO defaults retained. Direction/repeats come only from exact source tuples. Swift64-bit Int becomes Long. Ambient createdAt becomes Instant.EPOCH because no selected predicate reads it. Helper builder idle/nil preview/URL/images/format/path, per-direction baseColor, Unknown/unresolved sender, sender-groupingtrue/other flagsfalse and previewsEnabledtrue/currentUserNameMe retained. EnvInputs source-equivalent defaults used; removed translation offers explicitly disabled.",
+      "adaptations": "Swift MainActor pure construction becomes a synchronous JUnit4 assertion in the already-declared App parity source set, matching source helper's public production builder call. No Compose/UIKit mounting, fake footer evaluator, Room/radio/network/native operation, new fixture machinery, build change, consumer repair or deadline change. Same reservation124->125 admits only owned test/evidence/proposal/deviation paths and preserves immutable identity/authorization; primary307/213 product ownership and active502Room/503accessibility remain untouched.",
+      "helpers": [
+        "MC1Tests/Views/Chats/Components/MessageBubbleTestData.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageFragmentBuilder.swift",
+        "MC1Services/Sources/MC1Services/Models/Message.swift",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageHeardCountOriginalPredicateTest.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageFragmentBuilder.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageBuildInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/EnvInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/NodeNameResolution.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt"
+      ],
+      "consumer": "Reads returned real footer from actual public makeItem just as frozen MessageBubbleTestData does. Native makeFooter already implements showIncomingHeardCount && !isOutgoing && heardRepeats > 0. Selected product/incumbent inputs equal actual merged main951369b25e2eabe6f9a09305742e9ee968f080e2. One required execution identity allFourOriginalHeardCountRowsUseTheProductionBuilder, not the prior seven-row footer or eight-method mounted label delivery. No source/header totals or old CI results substitute for actual new discovery.",
+      "unresolved": [
+        "Candidate Kotlin compilation, actual one-method discovery/execution and independent review are not yet established. Direct declared preflight is BLOCKED by absent explicit --state/ANDROID_CI_STATE; normal publication is allowed UNVERIFIED without runtime/hook/lock repair or lane bypass. No mounted UI, actual TalkBack, native/device, protocol-oracle, bidirectional backup or whole-WP acceptance is claimed. Archived accounting/groups/bindings and previous original-family results are not rewritten or promoted."
+      ]
+    },
+    {
       "id": "unified-bubble-original-labels-and-live-app-consumer",
       "source_path": "MC1Tests/Views/Chats/Components/UnifiedMessageBubbleA11yLabelTests.swift",
       "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBubbleAccessibilityAcceptanceTest.kt",
