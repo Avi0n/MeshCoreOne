@@ -93,7 +93,9 @@ internal fun AppMessageActions(
                     } catch (cancelled: CancellationException) { throw cancelled }
                     catch (problem: Exception) { feature.report("Message action failed", problem); failure = problem }
                 }
-            })
+            },
+            localDeviceName = path.localDeviceName,
+        )
         failure?.let { problem -> Text(com.meshcoreone.android.core.ui.uiString(com.meshcoreone.android.core.ui.UiErrorMapper().message(problem))) }
     }
     if (showEmojiPicker && emojiPicker != null) {
@@ -109,7 +111,11 @@ internal fun AppMessageActions(
     }
 }
 
-internal data class MessagePathLocation(val localDevice: PathEndpoint?, val userLocation: Coordinate?)
+internal data class MessagePathLocation(
+    val localDevice: PathEndpoint?,
+    val userLocation: Coordinate?,
+    val localDeviceName: String?,
+)
 
 internal fun messagePathLocation(
     radio: RadioId,
@@ -117,9 +123,10 @@ internal fun messagePathLocation(
     phone: Coordinate?,
     authorized: Boolean,
 ): MessagePathLocation {
-    val local = device?.takeIf { it.radioId == radio && it.hasLocation }
+    val matchingDevice = device?.takeIf { it.radioId == radio }
+    val local = matchingDevice?.takeIf { it.hasLocation }
     val endpoint = local?.let { PathEndpoint(it.id, it.publicKey, it.nodeName, GeoPoint(it.latitude, it.longitude)) }
     val best = phone?.takeIf { authorized && it.isValidFix }
         ?: local?.let { Coordinate(it.latitude, it.longitude) }
-    return MessagePathLocation(endpoint, best)
+    return MessagePathLocation(endpoint, best, matchingDevice?.nodeName)
 }
