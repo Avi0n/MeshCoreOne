@@ -87,6 +87,7 @@ if (applicationProfileAvailable) {
 }
 
 android {
+    buildFeatures { resValues = true }
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("bool", "wp504_startup_strict_mode", "false")
