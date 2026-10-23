@@ -290,15 +290,20 @@ current-base merge verification, device execution or merge is claimed.
 
 ## Local-held QR share subject correction (2026-10-23)
 
-Review base/parent: `155a2ce70baa341fc9559f111454e8529dd7e47e` (actual current main).
+Original repair base: `155a2ce70baa341fc9559f111454e8529dd7e47e`.
 Frozen source remains `db14559b39d32322b06477c6ae676112f583db50`.
 Existing session/attempt `869123e3-46d4-474e-94aa-4bc2d026143b` and managed branch
 `cbattlegear-verbose-telegram` were retained. Same-owner typed reservation evolved to
 revision 7 for current-base integration and revision 8 for the bounded source, mounted
 regression and WP-311 documentation operations; immutable authorization was not rewritten.
-Integration fast-forwarded the prior merged producer to main; the 46 unrelated unstaged
-lock/license paths were disjoint from incoming changes and were not staged or discarded.
-All 46 post-integration SHA-256 snapshots remained unchanged through verification.
+The repair commit `b4e02fadddcfdf9bb4931a2ddb46d22c7b9a9ffc` was integrated with current
+main `b8c6c610d5d4f5fe729ecd86ea89117aaebb9393` (WP-310 merge) in candidate
+`3ec966b4e2d178415d3994813a92dd441b6e0901`, tree
+`3ca170d1cd3ff24500c05eec5744383016e3343b`. The merge parents are the repair commit and
+`b8c6c610d5d4f5fe729ecd86ea89117aaebb9393`. Its four incoming WP-501 paths are disjoint
+from the Nodes source/test changes. The 46 unrelated unstaged lock/license paths were
+disjoint from incoming changes and were not staged or discarded. All 46 SHA-256 snapshots
+matched after integration and verification.
 
 Frozen `ContactQRShareSheet.swift:176-178` supplies
 `L10n.Contacts.Contacts.Qr.shareSubject`. Android's actual `ContactShareDialog` instead
@@ -317,14 +322,17 @@ Commands from `android/`, with `ANDROID_HOME` and `ANDROID_SDK_ROOT` set to the 
 `$env:LOCALAPPDATA\Android\Sdk`:
 
 ```powershell
-.\gradlew.bat :feature:nodes:testDebugUnitTest --tests '*ContactShareApi31ComposeTest' --tests '*ContactShareApi37ComposeTest' --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"
-.\gradlew.bat :feature:nodes:testDebugUnitTest --tests '*ContactShareApi31ComposeTest' --tests '*ContactShareApi37ComposeTest' --tests '*ContactShareContentTest' :feature:nodes:lintDebug --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"
+.\gradlew.bat :feature:nodes:testDebugUnitTest --tests '*ContactShareApi31ComposeTest' --tests '*ContactShareApi37ComposeTest' --tests '*ContactShareContentTest' --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"
+.\gradlew.bat :feature:nodes:lintDebug --dependency-verification=strict --no-daemon --quiet --max-workers=1 "-Pkotlin.compiler.execution.strategy=in-process"
 ```
 
-Red: the first command discovered 2 tests and failed both on
+On the original repair base, the pre-fix red run discovered 2 tests and failed both on
 `expected MeshCore One Contact, actual Offline relay`, with 0 errors/skips, before the
-caller fix. Green: the second command discovered/passed 7 tests across 3 suites
-(1 mounted case per API, 5 share-content cases), 0 failures/errors/skips; lint passed.
+caller fix. On integrated candidate `3ec966b4`, the test command discovered/passed 7 tests
+across 3 suites (1 mounted case per API, 5 share-content cases), 0 failures/errors/skips;
+the separate lint command passed. A combined forced rerun (`--rerun-tasks`) emitted passing
+test results but exited with Gradle `Metaspace` failures; the isolated test and lint commands
+above both completed successfully.
 The declared `ci.py preflight --state <existing session environment.json> --output
 <session qr-subject-preflight> --local` passed without provisioning. Declared
 `python -B tools\android-port\portmap.py` and
