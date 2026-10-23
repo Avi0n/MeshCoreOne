@@ -17,6 +17,7 @@ from controller.scope_amendment import (
     RECEIVE_PREFETCH_ADMISSION_CAPABILITY, receive_prefetch_predecessor,
     ROOM_CLEANUP_CAPABILITY, room_cleanup_predecessor,
     BUBBLE_CONSUMER_CAPABILITY, bubble_consumer_predecessor,
+    ROOM_FAILED_EVENT_CAPABILITY, room_failed_event_predecessor,
 )
 from portmap import capability_support_admitted
 
@@ -61,6 +62,42 @@ class CapabilityReservationTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="meshcore-capability-tests-")
         self.addCleanup(self.temporary.cleanup)
         self.ledger = Ledger(Path(self.temporary.name) / "ledger.sqlite", self.rules["repository"])
+
+    def test_wp502_failed_event_exact_two_paths_operation_and_existing_app_adapter_support(self):
+        rule = ROOM_FAILED_EVENT_CAPABILITY
+        operation = "repair-room-failed-event-consumer"
+        root = "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/"
+        self.assertEqual(rule["work_packages"], ["WP-502"])
+        self.assertEqual(rule["operations"], [operation])
+        self.assertEqual(rule["path_rules"], [root + "RoomContracts.kt", root + "RoomConversationStateHolder.kt"])
+        self.assertEqual(next(r for r in self.rules["reservation_policy"]["capabilities"]
+                              if r["id"] == rule["id"]), rule)
+        manifest = test_manifest("WP-502")
+        for path in rule["path_rules"]:
+            admitted = self.engine.admit("WP-502", manifest.wp("WP-502")["write_paths"], path, operation)
+            self.assertEqual((admitted.capability_id, admitted.path, admitted.operation),
+                             (rule["id"], path, operation))
+            for wp in ("WP-003", "WP-310", "WP-501", "WP-503"):
+                with self.subTest(wp=wp, path=path), self.assertRaises(PortError):
+                    self.engine.admit(wp, manifest.wp(wp)["write_paths"], path, operation)
+            for wrong in ("modify", "create", "delete", "repair-original-message-bubble-accessibility-consumer", "unknown"):
+                with self.subTest(operation=wrong), self.assertRaises(PortError):
+                    self.engine.admit("WP-502", manifest.wp("WP-502")["write_paths"], path, wrong)
+            for wrong in (path + ".backup", root.rstrip("/"), root + "Other.kt",
+                          path.replace("/src/main/", "/src/test/"), path.replace("/src/main/", "/src/androidTest/")):
+                with self.subTest(path=wrong), self.assertRaises(PortError):
+                    self.engine.admit("WP-502", manifest.wp("WP-502")["write_paths"], wrong, operation)
+            with self.assertRaises(PortError):
+                CapabilityEngine(room_failed_event_predecessor(self.rules)).admit("WP-502", [], path, operation)
+        app = "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatsFeature.kt"
+        self.assertEqual(self.engine.admit("WP-502", manifest.wp("WP-502")["write_paths"], app,
+                                          "update-launcher-or-composition").capability_id, "app-build-launcher")
+        for wrong in (app, root + "RoomConversationScreen.kt",
+                      "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/MessageEventDispatcher.kt"):
+            with self.subTest(path=wrong), self.assertRaises(PortError):
+                self.engine.admit("WP-502", manifest.wp("WP-502")["write_paths"], wrong, operation)
+        source = "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift"
+        self.assertEqual(next(e for e in manifest.data["inventory"] if e["path"] == source)["primary_owner"], "WP-310")
 
     def test_wp501_bubble_consumer_exact_path_named_operation_and_existing_companions(self):
         rule = BUBBLE_CONSUMER_CAPABILITY

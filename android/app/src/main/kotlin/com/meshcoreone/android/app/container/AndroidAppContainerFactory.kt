@@ -311,18 +311,21 @@ internal suspend fun <Owner> openRoomDatabaseOnIo(
     } finally {
         if (!ownershipTransferred) {
             try {
-                withContext(NonCancellable + Dispatchers.IO) {
-                    var cleanupFailure: Throwable? = null
-                    while (cleanup.isNotEmpty()) {
-                        try {
-                            cleanup.removeFirst().invoke()
-                        } catch (failure: Throwable) {
-                            val previous = cleanupFailure
-                            if (previous == null) cleanupFailure = failure
-                            else if (previous !== failure) previous.addSuppressed(failure)
+                // Return from IO into a non-cancellable caller, not the cancelled initialization context.
+                withContext(NonCancellable) {
+                    withContext(Dispatchers.IO) {
+                        var cleanupFailure: Throwable? = null
+                        while (cleanup.isNotEmpty()) {
+                            try {
+                                cleanup.removeFirst().invoke()
+                            } catch (failure: Throwable) {
+                                val previous = cleanupFailure
+                                if (previous == null) cleanupFailure = failure
+                                else if (previous !== failure) previous.addSuppressed(failure)
+                            }
                         }
+                        cleanupFailure?.let { throw it }
                     }
-                    cleanupFailure?.let { throw it }
                 }
             } catch (cleanup: Throwable) {
                 val failure = primaryFailure
