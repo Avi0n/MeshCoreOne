@@ -84,7 +84,9 @@ class EmojiReactionRegistrationTest : RoomProcessTest() {
                 h.settle()
                 compose.waitForIdle()
                 assertTrue(h.messagingDiagnostics.toString(), h.messagingDiagnostics.isEmpty())
-                runBlocking { storage.preferences.get(AppStorageKey.recentReactionEmojis).firstOrNull() == "😀" }
+                runBlocking { storage.preferences.get(AppStorageKey.recentReactionEmojis).firstOrNull() == "😀" } &&
+                    compose.onAllNodesWithText(context.getString(C.reactionsMoreEmojis)).fetchSemanticsNodes().isEmpty() &&
+                    compose.onAllNodesWithText(context.getString(C.reactionsEmojiSearchPlaceholder)).fetchSemanticsNodes().isEmpty()
             }
             compose.onNodeWithText(context.getString(C.reactionsMoreEmojis)).assertDoesNotExist()
             compose.onNodeWithText(context.getString(C.reactionsEmojiSearchPlaceholder)).assertDoesNotExist()
