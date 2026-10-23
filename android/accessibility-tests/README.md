@@ -1,5 +1,57 @@
 # WP-503 native audit helpers
 
+## Real-App fallback disclosure: software-only family admission
+
+`--family fallback-disclosure` selects only
+`com.meshcoreone.android.accessibility.NativeMessagingFlowAccessibilityTest#realAppFallbackSenderLabelIncludesPossibleMatchDisclosure`,
+once on each explicitly selected API31/37, at the existing font200 compact profile.
+The complete eleven-method fixture inventory and its reviewed bytes remain pinned;
+the original ten mounted messaging cases are not selected or replayed. The real
+MainActivity/process-store/App label path and refreshed native-row observer are
+unchanged. The case was compiled by landed PR307, not natively executed.
+
+Unlike all historical families, this route requires the exact **current trusted
+main** as its clean execution HEAD, with fresh local/remote main agreement.
+It records that HEAD's complete Android tree/source digest and current App source
+tree, manifest/policy, actual canonical actor and reservation revision, replacement
+attribution and distinct per-API operation owner. The reviewed main `7a42bb66`
+establishes producer ancestry, not a permanent freeze of the App production tree.
+The original fixture correction `6c334753` and actual harness producer `cb7b7545`
+remain byte-pinned. Frozen reference `db14559b39d32322b06477c6ae676112f583db50`
+continues to be enforced by manifest loading. Request verification repeats current
+source/claim/policy/main checks at the existing consumer boundaries. Historical
+families retain their original `PUBLIC_REF`/PR205 checks and original pins.
+
+Non-native preparation, only after this candidate is reviewed and actually lands
+on trusted main:
+
+```powershell
+python android\accessibility-tests\language_binding.py --head EXACT_CURRENT_TRUSTED_MAIN --family fallback-disclosure
+```
+
+An unpublished/local successor is deliberately not admitted as current main.
+Preparation reports `authority=false`, `native_starts=0`, `apks_built=false`.
+There is no arbitrary class/method/API/profile selector. The existing disposable
+consumer uses the same fixed registry and records the selected publication ref;
+its unchanged source-loaded producer, pause, capability, actor, resource,
+packaging/certificate, observed API/font/profile, bounded process and independent
+cleanup guards still apply. Existing controller usage budgets are not native
+attempt allowances. Shared-device fixture-recovery admission remains blocked.
+
+**Registration and `--execute` are not execution authorization.** The ended
+`81dc` two-control allowance is external coordinator-owned operational accounting
+(`port_execution_state`, key `wp503-81dc37pair-a1-complete-independent`, ENDED),
+not a repository nonce or an API enforced by these consumers. Neither that record
+nor this software assignment authorizes an Alice attempt. A fresh exact-scope
+coordinator authorization, applicable budget and actual readiness are mandatory
+before any future live `--execute`; the current assignment permits zero native
+or resource actions. No allowance field, authorization-context parser or fake
+always-failing availability gate is added. Publication is held for source review.
+The adjacent declared Python suite tests source/selection guards, exact positive
+transcript accounting and in-memory consumer models, not guest/device execution.
+Normal unforced all-positive accounting still leaves `acceptance=false`;
+physical spoken disclosure/order, TalkBack and whole-WP acceptance are unobserved.
+
 ## Current-owner language source adapter
 
 By default, `language_binding.py` prepares only the unchanged issue238 fixture's two methods

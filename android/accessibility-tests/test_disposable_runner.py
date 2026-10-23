@@ -625,6 +625,84 @@ class DisposableConsumerTest(unittest.TestCase):
                 self.assertEqual(self.request.identities, result["original_identities"])
                 self.assert_disposed()
 
+    def test_fallback_disclosure_models_one_original_per_api_through_unchanged_owned_adapter(self):
+        owners = set()
+        for expected_commands, api in enumerate((31, 37), 1):
+            with self.subTest(api=api):
+                parent = self.root / ("fallback" + str(api))
+                parent.mkdir()
+                self.config = replace(self.config, parent=parent, output=self.root / ("fallback-output" + str(api)))
+                (self.config.image / "source.properties").write_text(f"AndroidVersion.ApiLevel={api}\n")
+                self.request = runner.request_for(source("fallback-disclosure"), api)
+                owners.add(self.request.operation_owner)
+                result = self.execute()
+                self.assertEqual("refs/heads/main", result["publication_ref"])
+                self.assertEqual(self.request.identities, result["original_identities"])
+                self.assertEqual(1, result["cohort"]["discovered"])
+                self.assertEqual(1, result["cohort"]["started"])
+                self.assertEqual(1, result["cohort"]["passed"])
+                self.assertTrue(all(result["cohort"][key] == 0 for key in ("failed", "errors", "skipped")))
+                commands = [event for event in self.ledger.events if isinstance(event, tuple)
+                            and event[:3] == ("shell", "am", "instrument")]
+                self.assertEqual(expected_commands, len(commands))
+                command = commands[-1]
+                self.assertEqual(self.request.identities[0], command[command.index("class") + 1])
+                self.assertEqual(str(api), command[command.index("expectedApi") + 1])
+                self.assertEqual(2.0, float(result["profile_before"]["font"]))
+                self.assertTrue(result["disposal_verified"])
+                self.assertFalse(result["acceptance"])
+                self.assert_disposed()
+        self.assertEqual(2, len(owners))
+
+    def test_fallback_disclosure_stale_source_or_actor_rejection_precedes_config_factory_or_output(self):
+        for api in (31, 37):
+            self.request = runner.request_for(source("fallback-disclosure"), api)
+            self.verify.side_effect = runner.PortError("source/policy/actor/revision no longer current")
+            with self.subTest(api=api), patch.object(runner.DisposableConfig, "validate") as config, \
+                    self.assertRaisesRegex(runner.PortError, "no longer current"):
+                self.execute()
+            config.assert_not_called()
+            self.factory.assert_not_called()
+            self.package.assert_not_called()
+            self.assertFalse(self.config.output.exists())
+
+    def test_fallback_disclosure_wrong_effective_profile_fails_before_instrumentation_and_disposes(self):
+        for api in (31, 37):
+            parent = self.root / ("wrong-profile" + str(api))
+            parent.mkdir()
+            self.config = replace(self.config, parent=parent, output=self.root / ("wrong-output" + str(api)))
+            (self.config.image / "source.properties").write_text(f"AndroidVersion.ApiLevel={api}\n")
+            self.request = runner.request_for(source("fallback-disclosure"), api)
+            original = runner.PrivateDevice.profile
+            def changed(device):
+                device.guest.settings[("system", "font_scale")] = "1.0"
+                return original(device)
+            with self.subTest(api=api), patch.object(runner.PrivateDevice, "profile", changed), \
+                    self.assertRaisesRegex(RuntimeError, "font"):
+                self.execute()
+            self.assertFalse(any(isinstance(event, tuple) and event[:3] == ("shell", "am", "instrument")
+                                 for event in self.ledger.events))
+            self.assertFalse(self.operations()["acceptance"])
+            self.assert_disposed()
+
+    def test_fallback_disclosure_negative_outcomes_and_forced_process_exit_never_claim_success(self):
+        for api, method_code, exit_code in ((31, -2, 0), (37, -3, 0), (31, -4, 0), (37, 0, -9)):
+            parent = self.root / (str(api) + str(method_code) + str(exit_code))
+            parent.mkdir()
+            self.config = replace(self.config, parent=parent, output=parent.with_name(parent.name + "-output"))
+            (self.config.image / "source.properties").write_text(f"AndroidVersion.ApiLevel={api}\n")
+            self.request = runner.request_for(source("fallback-disclosure"), api)
+            def altered(guest):
+                guest.method_code, guest.instrumentation_code = method_code, exit_code
+            self.alter_guest = altered
+            with self.subTest(api=api, outcome=method_code, exit=exit_code), self.assertRaises(
+                    (RuntimeError, subprocess.CalledProcessError)):
+                self.execute()
+            result = self.operations()
+            self.assertFalse(result["acceptance"])
+            self.assertTrue(result["disposal_verified"])
+            self.assert_disposed()
+
     def test_actual_user0_and_inherited_effective_profile_guards_apply_to_the_private_device(self):
         self.alter_guest = lambda guest: setattr(guest, "current_user", "10")
         with self.assertRaisesRegex(RuntimeError, "actual owner user0"):
