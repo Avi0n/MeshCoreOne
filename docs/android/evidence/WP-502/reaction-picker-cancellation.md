@@ -74,6 +74,22 @@ selection checks remain intact. The old failure remains60c795-bound; only a new
 candidate's own run can verify the repaired path. No manual local build, runner
 change, weakened expectation, product edit or old-run rerun/cancel accompanies it.
 
+Own repaired d451b9ff9cf63f5437e1921003c2c9e67c682f20 run39879520068,
+attempt1, also completed FAILURE. Official Linux120174222835 App1265/1264 passed/
+one failure/zero errors/skips reports a 30-second ComposeTimeoutException in the
+same new method, but its displayed stack omits the source phase. No test artifact
+was uploaded by that failed run. The available2270/2269/1 failed-command inventory
+is incomplete, with18 mandatory later reports absent. Do not infer which of the
+three waits failed, successful cancellation/selection, or a product defect.
+
+A focused diagnostic successor retains every input, timeout and assertion. Only
+on that precise Compose timeout it now reports the named phase, actual synthetic
+Room text/status/direction, actual current/observed frequent/recent values, radio
+opcode counts and messaging diagnostics, then rethrows as an assertion with the
+original timeout cause. No exception is swallowed and no success-shaped fallback
+or runner/reporting-policy change is added. Another exact-candidate execution is
+required to identify the unresolved condition rather than speculate or weaken it.
+
 ## Admission and verification boundary
 
 Same canonical session/attempt `3bc8c1b8-20ec-4647-88ae-db3775268489`, same branch

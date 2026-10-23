@@ -71,6 +71,7 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
                 if ((frame[0].toInt() and 255) == 0x02) sentAndDelivered(frame, key(7)) else null
             }
         }
+        var phase = "connect"
         try {
             h.manager.connect(h.target(UUID.fromString("50200000-0000-0000-0000-000000000098")))
             h.settle()
@@ -108,6 +109,7 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
             val search = hasSetTextAction() and hasAnyAncestor(isDialog())
             compose.onNodeWithText(more).performClick()
             compose.onNode(search).performTextInput("grinning")
+            phase = "initial grinning search and preference observers"
             compose.waitUntil(30_000) {
                 compose.onAllNodesWithContentDescription("grinning face").fetchSemanticsNodes().size == 1 &&
                     recentStates.isNotEmpty() && frequentStates.isNotEmpty()
@@ -158,6 +160,7 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
 
             compose.onNodeWithText(more).performClick()
             compose.onNode(search).assertTextContains("grinning").performTextReplacement("rocket")
+            phase = "reopened rocket search"
             compose.waitUntil(30_000) {
                 compose.onAllNodesWithContentDescription("rocket").fetchSemanticsNodes().size == 1
             }
@@ -168,6 +171,7 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
             val frequentAfter = Bytes.utf8("[\"$rocket\",\"$thumb\",\"$heart\"]")
             // Independent SHA-256(first five bytes)/Crockford hash of the literal target text and UInt32LE(1).
             val wireText = "$rocket\nd11q0688"
+            phase = "delivered fresh reaction and durable frequent/recent transitions"
             compose.waitUntil(30_000) {
                 h.settle()
                 runBlocking {
@@ -202,6 +206,21 @@ class ReactionPickerCancellationComposeTest : RoomProcessTest() {
             assertEquals(navigationEntry, h.container.navigation.state.value.activeStack.last())
             assertEquals(1, h.lifecycle.created.size)
             assertTrue(h.messagingDiagnostics.toString(), h.messagingDiagnostics.isEmpty())
+        } catch (timeout: ComposeTimeoutException) {
+            val radio = h.appState.currentRadioId
+            val messages = radio?.let { store.fetchContacts(it) }.orEmpty().flatMap {
+                store.fetchMessages(EntityKey(it.radioId, it.id), 10, 0)
+            }
+            val frequent = storage.preferences.get(AppStorageKey.frequentEmojis)
+            throw AssertionError(
+                "Reaction picker phase=$phase; rows=${messages.map { Triple(it.text, it.status, it.direction) }}; " +
+                    "recent=${storage.preferences.get(AppStorageKey.recentReactionEmojis)}; " +
+                    "recentStates=${recentStates.toList()}; frequent=${frequent.toByteArray().toString(Charsets.UTF_8)}; " +
+                    "frequentStates=${frequentStates.map { it.toByteArray().toString(Charsets.UTF_8) }}; " +
+                    "commands=${h.links.radios.flatMap { it.sent }.groupingBy { it[0].toInt() and 255 }.eachCount()}; " +
+                    "messaging=${h.messagingDiagnostics}",
+                timeout,
+            )
         } finally {
             compose.runOnUiThread { compose.activity.setContent {} }
             h.container.close()
