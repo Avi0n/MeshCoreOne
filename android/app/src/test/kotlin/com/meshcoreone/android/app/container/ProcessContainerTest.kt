@@ -430,14 +430,21 @@ class ProcessContainerTest : RoomProcessTest() {
                         }
                     }
                     opening = task
-                    assertTrue(withContext(Dispatchers.IO) { constructed.await(5, TimeUnit.SECONDS) })
+                    assertTrue(withContext(Dispatchers.IO) { constructed.await(5, TimeUnit.SECONDS) },
+                        "real owner construction reached its gate within 5s (failCleanup=$failCleanup)")
                     task.cancel(cancellation)
                     constructionRelease.countDown()
                     assertFailsWith<CancellationException> { task.await() }
                     val observed = assertNotNull(propagatedFailure.get())
                     assertCoroutineFailureIdentity(cancellation, observed)
                     if (failCleanup) assertCoroutineFailureIdentity(cleanupFailure, observed.suppressed.single())
-                    else assertTrue(observed.suppressed.isEmpty())
+                    else assertTrue(observed.suppressed.isEmpty(),
+                        "non-failing owner cleanup must add no suppressed errors: " +
+                            observed.suppressed.joinToString { failure ->
+                                "${failure.javaClass.name}: ${failure.message}; " +
+                                    "isExpectedCleanup=${failure === cleanupFailure}; " +
+                                    "directCauseIsExpectedCleanup=${failure.cause === cleanupFailure}"
+                            })
                     assertEquals(1, cleanupCalls.get(), "a constructed but unpublished store is disposed exactly once")
                     assertFalse(assertNotNull(openedDatabase.get()).isOpen,
                         "database disposal still happens when owner cleanup fails")
