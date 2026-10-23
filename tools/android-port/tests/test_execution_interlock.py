@@ -581,6 +581,9 @@ class ExecutionProcessFixtureTests(unittest.TestCase):
     def test_real_timeout_detached_child_cleanup_or_unsupported_platform_rejection(self):
         self.linux_fixture_or_fail_closed("test_timeout_reaps_detached_term_ignoring_child_and_releases_lane")
 
+    def test_real_startup_timeout_cleanup_or_unsupported_platform_rejection(self):
+        self.linux_fixture_or_fail_closed("test_startup_timeout_records_pending_without_child_readiness")
+
     def test_real_manual_completion_or_unsupported_platform_rejection(self):
         self.linux_fixture_or_fail_closed("test_manual_check_stays_serialized_without_advisory_deadline")
 
