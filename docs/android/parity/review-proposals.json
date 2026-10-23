@@ -5,6 +5,36 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "message-hop-count-original-six-row-routing-conjunction",
+      "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageHopCountOriginalPredicateTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.MessageHopCountOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "showHop: gated by both flag AND isFloodRouted"
+      ],
+      "comparison": "One complete original family, six ordered literal preference/route/expected tuples in one annotated JUnit method. Actual production MessageFragmentBuilder.makeItem footer.showHop equals source literals for true/flood=true, true/tcFlood=true, true/direct=false, true/tcDirect=false, false/flood=false, false/direct=false. Existing RenderingModelsTest covers enabled incoming channel, outgoing and legacy nil-route/path255, not TC variants or disabled flood footer. Existing DomainBoundaryTest asserts DTO routing, not footer consumption; delivered hasFooter OR has no TC and can mask a hop contribution. This fills actual missing predicates, not an annotation-only replay or inferred product defect.",
+      "inputs": "Original makeMessage fresh UUID message/radio, nil contact/channel, Test text, timestamp0, incoming/delivered/plain/read, pathLength2/A37F, nil sender/region, heard0/retry0 and actual DTO defaults retained. Explicit routes remain DM inputs so channel-always-flood does not invalidate direct rows. Ambient createdAt becomes Instant.EPOCH, irrelevant to selected predicate. Complete messageItem helper idle/nil preview/URL/images/format/path, incoming color, Unknown/unresolved sender, sender-groupingtrue/other flagsfalse, previewsEnabledtrue/currentUserNameMe and source-equivalent environment defaults retained. Removed translation offers explicitly disabled.",
+      "adaptations": "Swift MainActor pure construction becomes synchronous JUnit4 in the existing App parity source set, using the same public production builder. No Compose/UIKit mounting, fake footer evaluator, fixture framework, Room/radio/network/native action, product repair, runner/build change or deadline relaxation. Same reservation125->126 admits only four owned paths before edits with identity/authorization retained; active Room/accessibility/runtime owners untouched. Six inputs are one original family/one required execution identity, not six new families.",
+      "helpers": [
+        "MC1Tests/Views/Chats/Components/MessageBubbleTestData.swift",
+        "MC1Services/Sources/MC1Services/Services/MessageFragmentBuilder.swift",
+        "MC1Services/Sources/MC1Services/Models/Message.swift",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageHopCountOriginalPredicateTest.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageFragmentBuilder.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageBuildInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/EnvInputs.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/NodeNameResolution.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt"
+      ],
+      "consumer": "Read the returned actual footer from public makeItem as frozen MessageBubbleTestData does. Production makeFooter consumes real MessageDTO.isFloodRouted, itself using actual protocol RouteType.isFlood, in the source preference/flood/incoming conjunction. Product and incumbent tests remain equal actual main4b22c2526618f5cb556f593be4ed169c38448615. Required discovery is allSixOriginalHopCountRowsUseTheProductionBuilder; prior heard/footer/label methods and historical CI are not new credit. No actual mounted footer or live TalkBack assertion is claimed.",
+      "unresolved": [
+        "Own exact-candidate Kotlin compilation, actual one-method discovery/execution and independent review remain unverified. Declared preflight BLOCKED exit2 by absent explicit --state/ANDROID_CI_STATE; no state fabricated or runtime/hook/lock repair/native-Gradle bypass. Ordinary publication may be UNVERIFIED. No native/device, independent protocol oracle, bidirectional backup or whole-WP acceptance; archived groups/accounting/review bindings and prior results are not rewritten or promoted."
+      ]
+    },
+    {
       "id": "message-heard-count-original-four-row-conjunction",
       "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
       "partial_source_file": true,
