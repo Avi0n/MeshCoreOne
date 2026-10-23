@@ -1413,6 +1413,176 @@ class LanguageBindingTest(unittest.TestCase):
             with self.subTest(family=name), self.assertRaises(binding.PortError):
                 binding.family_spec(name)
 
+    def fallback_git(self, *arguments):
+        if arguments == ("rev-parse", "refs/remotes/origin/main"):
+            return HEAD
+        if arguments[0] == "rev-parse" and arguments[1].endswith(":" + binding.FAMILIES["fallback-disclosure"].production):
+            return binding.FAMILIES["fallback-disclosure"].production_blob
+        return self.family_git(*arguments, family="fallback-disclosure")
+
+    def prepare_fallback(self, git_override=None, claim=None):
+        policy = {"repository": source().repository, "paused": False}
+        manifest = Mock(sha256="c" * 64)
+        manifest.wp.return_value = {"write_paths": ["android/accessibility-tests/"]}
+        with patch.object(binding, "git", side_effect=git_override or self.fallback_git), \
+                patch.object(binding, "trusted_execution_policy", return_value=policy), \
+                patch.object(binding, "source_identity", return_value="b" * 64), \
+                patch.object(binding, "load_manifest", return_value=manifest), \
+                patch.object(binding, "load_json", return_value=policy), \
+                patch.object(binding, "policy_revision", return_value="d" * 64), \
+                patch.object(binding, "CapabilityEngine") as engine:
+            result = binding.prepare_binding(HEAD, claim or self.claim, family="fallback-disclosure")
+        engine.return_value.admit.assert_called_once_with(
+            "WP-503", ["android/accessibility-tests/"], binding.ADAPTER, binding.OPERATION)
+        return result
+
+    def test_fallback_disclosure_fixed_scope_and_actual_reviewed_fixture_harness_provenance(self):
+        spec = binding.family_spec("fallback-disclosure")
+        self.assertEqual((31, 37), spec.apis)
+        self.assertEqual(("com.meshcoreone.android.accessibility.NativeMessagingFlowAccessibilityTest"
+                          "#realAppFallbackSenderLabelIncludesPossibleMatchDisclosure",), spec.identities)
+        self.assertEqual(binding.MAIN_REF, spec.publication_ref)
+        self.assertEqual(11, len(spec.fixture_methods))
+        self.assertEqual((spec.fixture_methods[-1],), spec.methods)
+        self.assertEqual(spec.production_blob, binding.git("rev-parse", spec.producer + ":" + spec.production))
+        for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
+            with self.subTest(path=path, producer=producer):
+                self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
+                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
+        body = binding.git("show", "HEAD:" + spec.fixture)
+        self.assertEqual(spec.fixture_methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
+        for name, historical in binding.FAMILIES.items():
+            if name != spec.name:
+                self.assertEqual(binding.PUBLIC_REF, historical.publication_ref)
+
+    def test_fallback_disclosure_binds_current_main_production_not_an_old_app_tree(self):
+        self.assertEqual(source("fallback-disclosure"), self.prepare_fallback())
+        spec = binding.family_spec("fallback-disclosure")
+        def updated(*args):
+            if args == ("rev-parse", HEAD + ":" + spec.production):
+                return "e" * 40
+            return self.fallback_git(*args)
+        bound = self.prepare_fallback(updated)
+        self.assertEqual("e" * 40, bound.production_blob)
+        self.assertEqual(spec.producer, bound.producer_revision)
+        for api in spec.apis:
+            self.assertEqual(spec.identities, binding.request_for(bound, api).identities)
+        with patch.object(binding, "source_identity", side_effect=binding.PortError("dirty/current mismatch")):
+            with patch.object(binding, "trusted_main_policy_for_source"), self.assertRaisesRegex(
+                    binding.PortError, "dirty/current"):
+                binding.prepare_binding(HEAD, self.claim, family=spec.name)
+
+    def test_fallback_disclosure_rejects_substituted_main_provenance_and_fixture_inventory(self):
+        spec = binding.family_spec("fallback-disclosure")
+        commands = [
+            ("rev-parse", "refs/remotes/origin/main"),
+            ("rev-parse", spec.producer + ":" + spec.production),
+            ("rev-parse", HEAD + ":" + spec.fixture),
+            *(("rev-parse", revision + ":" + path)
+              for path, producer, _ in spec.source_pins for revision in (HEAD, producer)),
+        ]
+        for command in commands:
+            def changed(*args):
+                return "0" * 40 if args == command else self.fallback_git(*args)
+            with self.subTest(command=command), self.assertRaises(binding.PortError):
+                self.prepare_fallback(changed)
+        for methods in ((), spec.fixture_methods[:-1], spec.fixture_methods * 2,
+                        (*spec.fixture_methods, "extraMethod"), spec.methods, tuple(reversed(spec.fixture_methods))):
+            def changed(*args):
+                if args[0] == "show":
+                    return "\n".join("@Test fun " + method + "() {}" for method in methods)
+                return self.fallback_git(*args)
+            with self.subTest(methods=methods), self.assertRaisesRegex(binding.PortError, "eleven-method"):
+                self.prepare_fallback(changed)
+        for selected in ((), spec.fixture_methods, (*spec.methods, spec.fixture_methods[0]), ("wrongMethod",),
+                         spec.methods * 2):
+            with patch.object(binding, "FAMILIES", {
+                **binding.FAMILIES, spec.name: replace(spec, methods=selected),
+            }), self.subTest(selected=selected), self.assertRaisesRegex(binding.PortError, "eleven-method"):
+                self.prepare_fallback()
+
+    def test_fallback_disclosure_exact_main_publication_and_current_binding_are_rechecked(self):
+        bound = source("fallback-disclosure")
+        request = binding.request_for(bound, 31)
+        policy = {"paused": False}
+        with patch.object(binding, "current_binding", return_value=bound) as current, \
+                patch.object(binding, "trusted_execution_policy", return_value=policy), \
+                patch.object(binding, "git", return_value=HEAD) as git:
+            self.assertEqual(policy, binding.verify_current_request(request))
+        current.assert_called_once_with(HEAD, family=bound.family)
+        git.assert_called_once_with("rev-parse", "refs/remotes/origin/main")
+        for failure in ("stale remote main", "Candidate/worktree policy or manifest differs"):
+            with patch.object(binding, "current_binding", return_value=bound), \
+                    patch.object(binding, "trusted_execution_policy", side_effect=binding.PortError(failure)), \
+                    self.subTest(failure=failure), self.assertRaisesRegex(binding.PortError, failure):
+                binding.verify_current_request(request)
+        with patch.object(binding, "current_binding", return_value=bound), \
+                patch.object(binding, "trusted_execution_policy", return_value=policy), \
+                patch.object(binding, "git", return_value="f" * 40), \
+                self.assertRaisesRegex(binding.PortError, "exact current trusted main"):
+            binding.verify_current_request(request)
+        for field, value in (
+            ("source_revision", "f" * 40), ("android_tree", "f" * 40),
+            ("android_source_tree_sha256", "f" * 64), ("manifest_sha256", "f" * 64),
+            ("policy_revision", "f" * 64), ("reservation_revision", 45),
+            ("production_blob", "f" * 40), ("replacement_app_session", "retired"),
+            ("replacement_cli_session", "retired"), ("canonical_session", "retired"),
+        ):
+            with patch.object(binding, "current_binding", return_value=replace(bound, **{field: value})), \
+                    patch.object(binding, "git") as git, self.subTest(field=field), \
+                    self.assertRaisesRegex(binding.PortError, "Source, policy, current owner"):
+                binding.verify_current_request(request)
+            git.assert_not_called()
+
+    def test_fallback_disclosure_preparation_is_two_fixed_cells_with_no_execution_authority(self):
+        bound = self.prepare_fallback()
+        output = io.StringIO()
+        with patch.object(binding, "current_binding", return_value=bound), patch("sys.stdout", output):
+            self.assertEqual(0, binding.main(["--head", HEAD, "--family", bound.family]))
+        result = json.loads(output.getvalue())
+        self.assertEqual([31, 37], [request["api"] for request in result["requests"]])
+        self.assertEqual([list(binding.family_spec(bound.family).identities)] * 2,
+                         [request["identities"] for request in result["requests"]])
+        self.assertEqual(2, len({request["operation_owner"] for request in result["requests"]}))
+        self.assertFalse(result["authority"])
+        self.assertEqual(0, result["native_starts"])
+        self.assertFalse(result["apks_built"])
+        for api in (True, False, "31", 31.0, 30, 32, 36, 38):
+            with self.subTest(api=api), self.assertRaises(binding.PortError):
+                binding.request_for(bound, api)
+        for option in ("--class", "--method", "--api", "--font", "--execute"):
+            with patch("sys.stderr", io.StringIO()), patch.object(binding, "current_binding") as current, \
+                    self.subTest(option=option), self.assertRaises(SystemExit):
+                binding.main(["--head", HEAD, "--family", bound.family, option, "arbitrary"])
+            current.assert_not_called()
+        for identity in ("canonical_session", "replacement_app_session", "replacement_cli_session"):
+            with self.subTest(identity=identity), self.assertRaises(binding.PortError):
+                binding.request_for(replace(bound, **{identity: "retired"}), 31)
+
+    def test_fallback_disclosure_accounts_exactly_one_positive_original_per_api_without_acceptance(self):
+        for api in (31, 37):
+            request = binding.request_for(source("fallback-disclosure"), api)
+            result = binding.account_outcomes(
+                transcript(family=request.binding.family), request, process_exit=0, forced_termination=False)
+            self.assertEqual(1, result["passed"])
+            self.assertEqual(api, result["api"])
+            self.assertFalse(result["acceptance"])
+            for code in (-1, -2, -3, -4):
+                with self.subTest(api=api, code=code), self.assertRaises((binding.PortError, RuntimeError)):
+                    binding.account_outcomes(
+                        transcript(code, family=request.binding.family), request,
+                        process_exit=0, forced_termination=False)
+            for exit_code, forced in ((1, False), (0, True), (False, False), (0, None)):
+                with self.subTest(api=api, exit=exit_code, forced=forced), self.assertRaises(binding.PortError):
+                    binding.account_outcomes(
+                        transcript(family=request.binding.family), request,
+                        process_exit=exit_code, forced_termination=forced)
+            for text in ("", transcript(family="language"), transcript(family="cached-chat"),
+                         transcript(family=request.binding.family) * 2):
+                with self.subTest(api=api, text=text), self.assertRaises(RuntimeError):
+                    binding.account_outcomes(text, request, process_exit=0, forced_termination=False)
+
     def utf8_git_output(self, raw_for_command):
         check_output = subprocess.check_output
 

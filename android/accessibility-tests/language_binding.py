@@ -55,6 +55,7 @@ class FamilySpec:
     source_pins: tuple[tuple[str, str, str], ...] = ()
     fixture_methods: tuple[str, ...] = ()
     original_fixture_blob: str | None = None
+    publication_ref: str = PUBLIC_REF
 
     @property
     def identities(self):
@@ -290,6 +291,35 @@ FAMILIES = MappingProxyType({
     "cached-chat": CACHED_CHAT,
     "platform-service-control": PLATFORM_SERVICE_CONTROL,
     "platform-callback-control": PLATFORM_CALLBACK_CONTROL,
+    "fallback-disclosure": FamilySpec(
+        "fallback-disclosure", (31, 37),
+        "com.meshcoreone.android.accessibility.NativeMessagingFlowAccessibilityTest",
+        ("realAppFallbackSenderLabelIncludesPossibleMatchDisclosure",),
+        "7a42bb666d593e64df49d0267d27f3d87a7e125f",
+        "android/app/src/main", "5b7bbfc6a5b657904dacf10b9e97cfeccc1695c8",
+        "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeMessagingFlowAccessibilityTest.kt",
+        "ed51f7c080938a580806c087bd7288bf39f89e4d",
+        source_pins=(
+            ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt",
+             "cb7b75453e52b4e5ee381f2c4ac23f77403a07ef", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
+            ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeMessagingFlowAccessibilityTest.kt",
+             "6c334753d13eedb73d2835df62587cc394da221f", "ed51f7c080938a580806c087bd7288bf39f89e4d"),
+        ),
+        fixture_methods=(
+            "roomFollowUpRetainsAuthorContextWithoutAnnouncingTheWholeChat",
+            "roomOutgoingSentStatusIsExposedExactlyOnceOnItsMessage",
+            "roomClusterStartAnnouncesItsAuthorExactlyOnce",
+            "roomSentMessageHasNoRetryAction",
+            "roomFailedRetryHasANativeTargetAndInvokesTheCorrectMessageOnly",
+            "roomHttpsMessageExposesANamedNonGestureLinkAction",
+            "rememberPasswordSwitchHasPurposeAndCheckedStateOnOneNode",
+            "directFailureRetryAndMixedDirectionTextHonorSystemFontAndTargets",
+            "auditDetectsLiveRegionOnTheActualTimelineInsteadOfOnlyTheTestSurface",
+            "auditAllowsASmallFailureOnlyLiveRegionWithoutAnnouncingOtherRows",
+            "realAppFallbackSenderLabelIncludesPossibleMatchDisclosure",
+        ),
+        publication_ref=MAIN_REF,
+    ),
 })
 
 
@@ -332,11 +362,16 @@ def prepare_binding(revision, claim, *, family="language"):
         or type(claim["revision"]) is not int or claim["revision"] < 1
     ):
         raise PortError("Language binding requires the actual canonical WP503 claim and exact current revision")
+    current_main = spec.publication_ref == MAIN_REF
+    if current_main:
+        trusted_main_policy_for_source(revision)
     source = source_identity(ROOT, revision)
     if git("merge-base", "--is-ancestor", spec.producer, revision):
         raise PortError("Unexpected producer ancestry output")
+    production_blob = git("rev-parse", revision + ":" + spec.production)
     if (
-        git("rev-parse", revision + ":" + spec.production) != spec.production_blob
+        (not current_main and production_blob != spec.production_blob)
+        or (current_main and git("rev-parse", spec.producer + ":" + spec.production) != spec.production_blob)
         or (family == "language" and git("rev-parse", PRODUCER + ":" + spec.production) != spec.production_blob)
         or git("rev-parse", revision + ":" + spec.fixture) != spec.fixture_blob
     ):
@@ -354,6 +389,7 @@ def prepare_binding(revision, claim, *, family="language"):
         methods != (spec.fixture_methods or spec.methods)
         or not spec.methods or len(spec.methods) != len(set(spec.methods))
         or tuple(method for method in methods if method in spec.methods) != spec.methods
+        or (current_main and spec.methods != ("realAppFallbackSenderLabelIncludesPossibleMatchDisclosure",))
     ):
         raise PortError({
             "language": "Language cohort must retain exactly the two original method identities",
@@ -365,6 +401,7 @@ def prepare_binding(revision, claim, *, family="language"):
             "cached-chat": "Cached-chat cohort must retain the one original selected method and full ten-method fixture inventory",
             "platform-service-control": "Platform service control must retain exactly the one original zero-Activity method",
             "platform-callback-control": "Platform callback control must retain exactly the one original zero-Activity method",
+            "fallback-disclosure": "Fallback disclosure must select the one original method within the full eleven-method fixture inventory",
         }[family])
     manifest = load_manifest(ROOT)
     policy = load_json(ROOT / "docs" / "android" / "automation-policy.json")
@@ -373,7 +410,7 @@ def prepare_binding(revision, claim, *, family="language"):
         policy["repository"], revision, git("rev-parse", revision + ":android"), source,
         manifest.sha256, policy_revision(manifest, policy), CANONICAL,
         CURRENT_APP_SESSION, CURRENT_CLI_SESSION, claim["revision"],
-        spec.producer, spec.production_blob, spec.fixture_blob, family,
+        spec.producer, production_blob, spec.fixture_blob, family,
     )
 
 
@@ -387,8 +424,11 @@ class LanguageRequest:
         spec = family_spec(self.binding.family)
         if type(self.api) is not int or self.api not in spec.apis:
             raise PortError("API is not admitted for the immutable " + spec.name + " family")
-        if (self.binding.producer_revision, self.binding.production_blob, self.binding.fixture_blob) != (
-            spec.producer, spec.production_blob, spec.fixture_blob,
+        if (
+            (self.binding.producer_revision, self.binding.fixture_blob) != (spec.producer, spec.fixture_blob)
+            or (spec.publication_ref != MAIN_REF and self.binding.production_blob != spec.production_blob)
+            or not isinstance(self.binding.production_blob, str)
+            or re.fullmatch(r"[0-9a-f]{40}", self.binding.production_blob) is None
         ):
             raise PortError("Request family differs from its immutable producer/fixture binding")
         prefix = self.binding.canonical_session + ":" + spec.name + ":"
@@ -423,10 +463,20 @@ def verify_current_request(request):
               else current_binding(request.binding.source_revision, family=request.binding.family))
     if actual != request.binding:
         raise PortError("Source, policy, current owner or reservation revision changed before execution")
-    published = git("ls-remote", "origin", PUBLIC_REF).split()
-    if published != [request.binding.source_revision, PUBLIC_REF]:
+    publication_ref = family_spec(request.binding.family).publication_ref
+    if publication_ref == MAIN_REF:
+        return trusted_main_policy_for_source(request.binding.source_revision)
+    published = git("ls-remote", "origin", publication_ref).split()
+    if published != [request.binding.source_revision, publication_ref]:
         raise PortError("Native request is not the exact currently published PR205 input")
     return trusted_execution_policy()
+
+
+def trusted_main_policy_for_source(revision):
+    policy = trusted_execution_policy()
+    if git("rev-parse", "refs/remotes/origin/main") != revision:
+        raise PortError("Fallback disclosure requires the exact current trusted main execution source")
+    return policy
 
 
 def trusted_execution_policy():
