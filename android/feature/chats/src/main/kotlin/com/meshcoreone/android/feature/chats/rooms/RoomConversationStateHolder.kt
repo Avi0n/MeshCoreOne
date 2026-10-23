@@ -58,7 +58,8 @@ class RoomConversationStateHolder(
         if (eventsJob != null) return
         eventsJob = scope.launch {
             dependencies.events.collect { event ->
-                if (event.sessionId != mutableState.value.session.id) return@collect
+                val session = mutableState.value.session
+                if (event.sessionId != session.id) return@collect
                 when (event) {
                     is RoomConversationEvent.MessageReceived -> {
                         appendIfNew(event.message)
@@ -66,6 +67,18 @@ class RoomConversationStateHolder(
                     }
                     is RoomConversationEvent.MessageChanged -> {
                         if (mutableState.value.messages.any { it.id == event.messageId }) scheduleReload()
+                    }
+                    is RoomConversationEvent.MessageFailed -> {
+                        if (mutableState.value.messages.none { it.id == event.messageId }) return@collect
+                        scheduleReload()
+                        try {
+                            dependencies.data.markFailedSendsSeen(session)
+                            dependencies.conversationsChanged()
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
+                        } catch (failure: Exception) {
+                            dependencies.diagnostics.report("mark room failed sends seen", failure)
+                        }
                     }
                     is RoomConversationEvent.ConnectionRecovered -> mutableState.update {
                         it.copy(session = event.session, failure = null)

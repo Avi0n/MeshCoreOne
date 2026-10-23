@@ -36,6 +36,11 @@ sealed interface RoomConversationEvent {
         val messageId: UUID,
     ) : RoomConversationEvent
 
+    data class MessageFailed(
+        override val sessionId: UUID,
+        val messageId: UUID,
+    ) : RoomConversationEvent
+
     data class ConnectionRecovered(
         override val sessionId: UUID,
         val session: RemoteNodeSessionDTO,
