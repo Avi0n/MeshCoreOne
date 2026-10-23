@@ -7,6 +7,30 @@ Read-only specification: `db14559b39d32322b06477c6ae676112f583db50`.
 Primary WP-307/WP-213 provenance, originals and historical evidence are retained.
 The merged footer delivery and failed native controls are not new bubble evidence.
 
+## Current-main reconciliation after the picker landing
+
+Coordinator-directed integration uses actual main
+`dd07233b54fbff93be0185b684fc3840bb62ab49`, whose parents are
+`db1478c897f46c5df25c94daf275b3335b327192` and
+`d4737d0c0b2cd5519b489117b659e0158f81a4c2`.
+Normal merge `8e2bc3185a87bd0acc11d3d3b88b376e4341ae35` has parents
+`67e5d2835ae8790a4ec483613697a70255d84bb7` and that actual main.
+The merge was conflict-free: all existing bubble product, test, assertion and
+original-family accounting bytes are retained. Incoming Room-owner IO,
+cancellation cleanup, process-owner regressions, picker tests and their evidence
+remain the landed producers' bytes, not WP-501 replacements. The existing
+same-owner reservation reconciled this already-admitted owned evidence path
+idempotently at revision124; no release/recreate or authorization change.
+
+The prior successful
+[67e5d283 hosted job](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/39884770991/job/120191291249)
+is old-base evidence only. The earlier SDK-provisioning timeout and cancelled
+retry remain recorded in PR294's history. Neither old results nor a normal
+publication hook establish this integration's eight-method discovery or pass.
+The existing PR's own fresh automatic exact-head job/log is authoritative;
+no manual rerun, duplicate result bundle, native action or whole-WP acceptance
+is introduced. The sections below retain the original implementation snapshot.
+
 ## Original assertions and independent mounted checks
 
 The complete frozen `UnifiedMessageBubbleA11yLabelTests.swift`,
