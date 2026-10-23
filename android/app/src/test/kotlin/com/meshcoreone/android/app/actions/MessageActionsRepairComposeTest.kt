@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -358,6 +359,113 @@ class MessageActionsRepairComposeTest {
                 }
                 assertNoExtraReads()
             }
+        }
+
+        @Test
+        @Config(sdk = [31, 33])
+        fun original12400mBannerUsesResourceRoadUnitsAndExposesIncompleteWithoutDuplicateHops() {
+            val previousDefault = Locale.getDefault()
+            try {
+                for ((locale, unit, range) in listOf(
+                    Triple("en-AU", "km", 12.0..13.0),
+                    Triple("en-US", "mi", 7.0..8.0),
+                    Triple("en-GB", "mi", 7.0..8.0),
+                    Triple("fr-FR", "km", 12.0..13.0),
+                )) {
+                    Locale.setDefault(if (locale == "en-US") Locale.FRANCE else Locale.US)
+                    val distance = mutableStateOf<Double?>(12_400.0)
+                    val incomplete = mutableStateOf(true)
+                    host.get().setContent {
+                        val configuration = Configuration(LocalConfiguration.current).apply {
+                            setLocales(LocaleList(Locale.forLanguageTag(locale)))
+                            fontScale = 2f
+                        }
+                        localized = LocalContext.current.createConfigurationContext(configuration)
+                        CompositionLocalProvider(
+                            LocalContext provides localized, LocalConfiguration provides configuration,
+                            LocalResources provides localized.resources,
+                            LocalDensity provides Density(LocalDensity.current.density, 2f),
+                        ) {
+                            MeshCoreTheme { MessagePathDistanceBanner(distance.value, incomplete.value) }
+                        }
+                    }
+                    compose.waitForIdle()
+                    val distanceNode = compose.onNode(hasText(unit, substring = true)).assertIsDisplayed()
+                    val formatted = distanceNode.fetchSemanticsNode().config[SemanticsProperties.Text].single().text
+                    val number = java.text.NumberFormat.getInstance(Locale.forLanguageTag(locale)).parse(formatted).toDouble()
+                    assertTrue("$locale: $formatted", number in range)
+                    assertFalse(formatted.contains("12400"))
+                    val layouts = mutableListOf<TextLayoutResult>()
+                    distanceNode.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                    assertEquals(2f, layouts.single().layoutInput.density.fontScale, 0f)
+                    assertFalse(layouts.single().didOverflowWidth)
+                    assertFalse(layouts.single().didOverflowHeight)
+                    // Only distance and localized incomplete label: the source preview excludes hop count.
+                    assertEquals(2, compose.onAllNodes(
+                        SemanticsMatcher.keyIsDefined(SemanticsProperties.Text),
+                    ).fetchSemanticsNodes().size)
+                    val disclosure = compose.onNodeWithContentDescription(text(AppChatsStrings.chatsPathDistanceIncomplete))
+                    disclosure.assertIsDisplayed().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+                        .assert(SemanticsMatcher("localized distance explanation hint") {
+                            it.config[SemanticsActions.OnClick].label == text(AppChatsStrings.chatsPathDistanceIncompleteExplanation)
+                        }).performClick()
+                    compose.onNode(isDialog()).assertExists()
+                    compose.onNodeWithText(text(AppChatsStrings.chatsPathDistanceIncompleteTitle)).assertIsDisplayed()
+                    compose.onNodeWithText(text(AppChatsStrings.chatsPathDistanceIncompleteExplanation)).assertIsDisplayed()
+                    compose.onNodeWithText(text(AppLocalizableStrings.commonDone)).assertWidthIsAtLeast(48.dp)
+                        .assertHeightIsAtLeast(48.dp).performClick()
+                    compose.onNode(isDialog()).assertDoesNotExist()
+                    if (locale == "fr-FR") {
+                        compose.runOnIdle { distance.value = 1_500.0 }
+                        compose.onNode(hasText("km", substring = true) and hasText("1,5", substring = true))
+                            .assertIsDisplayed()
+                    }
+                    if (android.os.Build.VERSION.SDK_INT <= 32 && locale != "fr-FR") {
+                        val (meters, expected) = when (locale) {
+                            "en-AU" -> 950.0 to "950 m"
+                            "en-US" -> 100.0 to "330 ft"
+                            else -> 100.0 to "110 yd"
+                        }
+                        compose.runOnIdle { distance.value = meters }
+                        compose.onNodeWithText(expected).assertIsDisplayed()
+                    }
+                    compose.runOnIdle { distance.value = null }
+                    compose.onNode(hasText(unit, substring = true)).assertDoesNotExist()
+                    disclosure.assertExists()
+                    compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).assertCountEquals(1)
+                    compose.runOnIdle { incomplete.value = false }
+                    disclosure.assertDoesNotExist()
+                    compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).assertCountEquals(0)
+                }
+            } finally {
+                Locale.setDefault(previousDefault)
+            }
+        }
+
+        @Test fun incompleteUnlocatedPathOffersRealExplanationWithoutInventingDistanceOrMapSuccess() {
+            mount(message(Bytes.of(0xA3), 1u), locale = "zh-Hans", fontScale = 2f)
+            finishRead()
+            compose.onNodeWithContentDescription(text(AppChatsStrings.chatsPathAccessibilityViewOnMap))
+                .performScrollTo().assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp).performClick()
+            compose.onNodeWithText(text(AppChatsStrings.chatsPathUnplaceableTitle)).performScrollTo().assertIsDisplayed()
+            val disclosure = compose.onNodeWithContentDescription(text(AppChatsStrings.chatsPathDistanceIncomplete))
+            disclosure.performScrollTo().assertIsDisplayed().assertWidthIsAtLeast(48.dp)
+                .assertHeightIsAtLeast(48.dp).performClick()
+            compose.onNode(isDialog()).assertExists()
+            compose.onNodeWithText(text(AppChatsStrings.chatsPathDistanceIncompleteExplanation)).assertIsDisplayed()
+            compose.onNodeWithText(text(AppLocalizableStrings.commonDone)).performClick()
+            compose.onNode(isDialog()).assertDoesNotExist()
+            compose.runOnIdle { revision.value += 1 }
+            disclosure.performScrollTo().assertIsDisplayed()
+            compose.onNode(SemanticsMatcher("no invented numeric map distance") {
+                it.config.getOrNull(SemanticsProperties.Text)?.any { value ->
+                    value.text.contains(Regex("\\d.*(?:km|mi| m|公里|米)"))
+                } == true
+            }).assertDoesNotExist()
+            compose.onNodeWithText(text(AppChatsStrings.chatsMessageActionDetails)).performScrollTo().performClick()
+            receiver().performScrollTo().assertTextContains(signal(2.5, AppChatsStrings.chatsSignalGood))
+            compose.onNodeWithContentDescription(text(AppChatsStrings.chatsPathCopyAccessibility)).performScrollTo().assertExists()
+            assertNoExtraReads()
         }
 
         private class EndpointSource(

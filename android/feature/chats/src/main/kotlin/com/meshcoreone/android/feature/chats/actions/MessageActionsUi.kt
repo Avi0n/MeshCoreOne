@@ -362,7 +362,11 @@ private fun PathDetails(
         OutlinedButton(onClick = { onShowMap(false) }, modifier = Modifier.sharedTouchTarget()) {
             Text(stringResource(AppChatsStrings.chatsMessageActionDetails))
         }
-        OutlinedButton(onClick = { onShowMap(true) }, modifier = Modifier.sharedTouchTarget()) {
+        val mapLabel = stringResource(AppChatsStrings.chatsPathAccessibilityViewOnMap)
+        OutlinedButton(
+            onClick = { onShowMap(true) },
+            modifier = Modifier.sharedTouchTarget().semantics { contentDescription = mapLabel },
+        ) {
             Text(stringResource(AppChatsStrings.chatsPathMap))
         }
     }
@@ -569,6 +573,7 @@ private fun PathMap(
                     else AppChatsStrings.chatsPathUnplaceableDescription,
                 ),
             )
+            MessagePathDistanceBanner(canvas.totalDistanceMeters, canvas.isDistanceIncomplete)
         }
         return
     }
@@ -591,18 +596,7 @@ private fun PathMap(
                 onMarkerSelected = {},
             )
         }
-        val distance = canvas.totalDistanceMeters?.let { "${it.toLong()} m" }
-        if (distance != null) {
-            Text(
-                buildString {
-                    append(distance)
-                    if (canvas.isDistanceIncomplete) append(" · ").append(
-                        stringResource(AppChatsStrings.chatsPathDistanceIncomplete),
-                    )
-                },
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            )
-        }
+        MessagePathDistanceBanner(canvas.totalDistanceMeters, canvas.isDistanceIncomplete)
         Text(
             presentation.attribution.joinToString(" · ") { it.label },
             style = MaterialTheme.typography.labelSmall,
