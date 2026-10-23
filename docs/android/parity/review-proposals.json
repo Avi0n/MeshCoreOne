@@ -5,6 +5,42 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "message-status-text-original-complete-suite",
+      "source_path": "MC1Tests/Views/Chats/Components/MessageStatusTextTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageStatusTextOriginalPredicateTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.MessageStatusTextOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "DM .sent renders as Sending",
+        "Channel .sent renders as Sent",
+        "DM .delivered still renders as Delivered",
+        "DM .failed still renders as Failed"
+      ],
+      "comparison": "All four standalone originals in the complete frozen MessageStatusTextTests suite preserve their independent resource equalities: outgoing DM SENT reads Sending, channel SENT reads Sent, DM DELIVERED reads Delivered and DM FAILED reads Failed. Current pending-label, SENT repeated-read stability and wide repeat/count assertions do not prove the two SENT statuses or exact Delivered equality. Existing mounted FAILED-DM label overlaps one behavior and stays intact, not counted as another new defect or duplicate original. No existing annotation/proposal maps this suite; full suite mapping is not passing execution.",
+      "inputs": "Full frozen makeItem helper retained: separate fresh item/envelope UUIDs, outgoingtrue, lower-case me sender/EXACT resolution, supplied raw status, Unix1700000000 date, hasFailed only for FAILED, selfMention/mentionSeenfalse, nilavatar, emptycontent; footer nohop/count0/nilpath/nilregion/nilsendTime/uncorrected, statusRowtrue, supplied status/channel, hearddefault0/retry0/max0/sendCountdefault1, empty region names/heardflagfalse; all groupingflagsfalse including default daydivider and no previewfetch. Swift Int maps to Long, Date to exact Instant. No builder or makeMessage fixture replaces the source hand-built item.",
+      "adaptations": "Source pure footer formatter is private in the native App. Four JUnit4 API31/en-US Robolectric methods invoke existing messageBubbleAccessibilityLabel->bubbleStatusText without a visibility API, reflection, copied evaluator, product change or Compose mount. Adapter-only MessageDTO supplies literal Test body, matching envelope id/date/status, outgoing direction, fresh radio, channel0/nil and matching heard/send counters; other DTO defaults are irrelevant. Exact full-label equality is Test-comma-space plus an independently chosen localized resource per original, never candidate status/formatter output. Existing App source-set wiring is unchanged. Same-owner r134->135 admits four owned paths before edits; public PR312/head9920/baseb8c/body stay frozen.",
+      "helpers": [
+        "MC1/Views/Chats/Components/BubbleFooterRow.swift",
+        "MC1Services/Sources/MC1Services/Models/MessageEnvelope.swift",
+        "MC1Services/Sources/MC1Services/Models/Rendering/MessageItem.swift",
+        "MC1Services/Sources/MC1Services/Models/Rendering/MessageFooter.swift",
+        "MC1Services/Sources/MC1Services/Models/Rendering/GroupingFlags.swift",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageStatusTextOriginalPredicateTest.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageBubbleAccessibility.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ConversationValues.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/MessageDTO.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageItem.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/MessageFooter.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/GroupingFlags.kt",
+        "android/core/l10n/src/main/kotlin/com/meshcoreone/android/core/l10n/generated/AppChatsStrings.kt"
+      ],
+      "consumer": "The original MessageStatusText.text(for: item.footer) semantics reach actual private bubbleStatusText through the outgoing App accessibility-label function. Both raw SENT branches plus Delivered and Failed are checked with complete original footer defaults. Required identities: directSentOriginalRendersAsSending, channelSentOriginalRendersAsSent, directDeliveredOriginalRendersAsDelivered, directFailedOriginalRendersAsFailed. The independent visible ChatTimeline.statusText has matching branches but is not executed here. All 198 incumbent groups and public9920 assertions/helpers/blobs remain unchanged; excluded MessageBubblePredicate/Unified label originals, issue261 and Rooms/path work receive no new credit.",
+      "unresolved": [
+        "LOCAL ONLY; PUBLICATION HELD for coordinator source review and concrete continuity/clearance. Actual Kotlin compilation, four-method discovery/execution and independent review remain UNVERIFIED; declared preflight lacks explicit CI state. Exact declared software outcomes are recorded in docs/android/evidence/WP-501/message-status-text-original-suite.md. No borrowed PR312/current-main acceptance, generated accounting refresh, official successful-log consumption/bundle, dispatch/rerun, native/device/resource/probe/allowance action, visible UI/TalkBack/API37/iOS or whole-WP acceptance."
+      ]
+    },
+    {
       "id": "message-region-original-channel-legacy-consumer-edges",
       "source_path": "MC1Tests/Views/Chats/Components/MessageBubblePredicateTests.swift",
       "partial_source_file": true,
