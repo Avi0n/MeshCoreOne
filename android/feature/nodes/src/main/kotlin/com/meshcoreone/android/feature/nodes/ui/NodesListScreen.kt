@@ -465,11 +465,12 @@ internal fun ContactShareDialog(
 ) {
     val context = LocalContext.current
     val copied by holder.copyFeedback.showing.collectAsStateWithLifecycle()
+    val shareSubject = stringResource(C.contactsQrShareSubject)
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = {
-                val payload = holder.sharePayload(holder.contactName)
+                val payload = holder.sharePayload(shareSubject)
                 context.startActivity(
                     Intent.createChooser(
                         Intent(Intent.ACTION_SEND)

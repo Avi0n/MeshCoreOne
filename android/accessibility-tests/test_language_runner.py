@@ -156,7 +156,7 @@ class LanguageRunnerTest(unittest.TestCase):
 
     def test_real_device_rejects_every_family_before_readiness_packaging_or_mutation(self):
         for family in runner.FAMILIES:
-            for api in ((31, 37) if family == "language" else (37,)):
+            for api in runner.FAMILIES[family].apis:
                 with self.subTest(family=family, api=api):
                     request = runner.request_for(source(family), api)
                     device = runner.ProcessDevice(self.config, api)
@@ -397,23 +397,22 @@ class LanguageRunnerTest(unittest.TestCase):
         self.assertTrue(self.device.profile_restoration_uncertain)
         self.ledger.release_hard_lock.assert_not_called()
 
-    def test_nodes_cli_reuses_process_readiness_and_rejects_api31_before_readiness(self):
+    def test_nodes_cli_models_both_apis_readiness_without_build_or_spawn(self):
         with patch.object(runner, "current_binding", return_value=source("nodes")) as current, \
                 patch.object(runner, "Ledger", return_value=self.ledger), \
                 patch.object(runner, "shared_ledger", return_value=self.root / "synthetic-ledger"), \
                 patch.object(runner, "readiness") as readiness:
-            self.assertEqual(0, runner.main(["--head", source().source_revision, "--family", "nodes",
-                                           "--api", "37", "--readiness"]))
-            result = json.loads(self.print.call_args.args[0])
-            self.assertEqual(list(runner.FAMILIES["nodes"].identities), result["identities"])
-            self.assertEqual(0, result["native_starts"])
-            self.assertFalse(result["acceptance"])
-            readiness.assert_called_once()
-            readiness.reset_mock()
-            with patch("sys.stderr", io.StringIO()):
-                self.assertEqual(2, runner.main(["--head", source().source_revision, "--family", "nodes",
-                                               "--api", "31", "--readiness"]))
-            readiness.assert_not_called()
+            for api in (31, 37):
+                with self.subTest(api=api):
+                    self.assertEqual(0, runner.main(["--head", source().source_revision, "--family", "nodes",
+                                                   "--api", str(api), "--readiness"]))
+                    result = json.loads(self.print.call_args.args[0])
+                    self.assertEqual(list(runner.FAMILIES["nodes"].identities), result["identities"])
+                    self.assertEqual(0, result["native_starts"])
+                    self.assertFalse(result["acceptance"])
+                    readiness.assert_called_once()
+                    self.assertEqual(api, readiness.call_args.args[0].api)
+                    readiness.reset_mock()
         current.assert_called_with(source().source_revision, family="nodes")
         self.package.assert_not_called()
         self.spawn.assert_not_called()
