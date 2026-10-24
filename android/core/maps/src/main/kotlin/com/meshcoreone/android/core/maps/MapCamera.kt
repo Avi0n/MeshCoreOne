@@ -28,12 +28,13 @@ data class MapCamera(
             }.getOrNull()
         }
 
-        data class MapCameraPose(val zoom: Double, val bearing: Double, val tilt: Double) {
-            init {
-                require(zoom.isFinite() && zoom in 0.0..25.5)
-                require(bearing.isFinite() && bearing in 0.0..360.0)
-                require(tilt.isFinite() && tilt in 0.0..85.0)
-            }
-        }
+    }
+}
+
+data class MapCameraPose(val zoom: Double, val bearing: Double, val tilt: Double) {
+    init {
+        require(zoom.isFinite() && zoom in 0.0..25.5)
+        require(bearing.isFinite() && bearing in 0.0..360.0)
+        require(tilt.isFinite() && tilt in 0.0..85.0)
     }
 }

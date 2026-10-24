@@ -71,8 +71,22 @@ Android candidate workflow supplies the admitted build/test commands.
 
 Local `python tools\android-port\controller\ci.py preflight` is **BLOCKED**:
 `Explicit --state/ANDROID_CI_STATE is required; failed cloud setup is not readiness`.
-No local Gradle/native resource was occupied. This is an **UNVERIFIED
-CANDIDATE** until the exact-head hosted result/log demonstrates otherwise.
+No manual Gradle/native command or runtime installation was performed. The
+normal trusted Git pre-push checker did resolve its own installed WSL state and
+run the declared scaffold in its admitted lane. Its first candidate
+`a21dfd99acf17f94fc0d3ef02c76dc3d9b1ef592` failed
+`:core:maps:compileDebugKotlin` with the actionable compiler diagnostic
+`MapLibreMapSurface.kt:196:32 Unresolved reference 'MapCameraPose'.`
+The pose declaration had accidentally been nested in the camera companion;
+it was moved to the intended top-level type, not replaced by a cast/default.
+The exact executed Gradle tasks were `verifyScaffoldTests verifyRoomSchema
+validateModuleGraph runtimeDependencyInventory resolveScaffoldDependencies
+:app:assembleDebug :app:compileDebugAndroidTestKotlin lintScaffold`, with strict
+dependency verification and the trusted checker's existing execution options.
+That failed check was explicitly published as an unverified candidate, not
+reported as tests passing. The next normal publication rechecks the correction.
+This remains an **UNVERIFIED CANDIDATE** until the exact-head hosted result/log
+demonstrates otherwise.
 The PR records actual command outcomes, never invented discovery counts.
 
 Added coverage includes owned map camera/marker/projection-handle contracts,
