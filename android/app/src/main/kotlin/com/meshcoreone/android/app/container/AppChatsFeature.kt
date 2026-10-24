@@ -280,10 +280,13 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
 
     internal suspend fun failPending(message: MessageDTO) {
         if (store.updateMessageStatusUnlessDelivered(EntityKey(message.radioId, message.id), MessageStatus.FAILED)) {
-            app.messageEventStream.send(MessageEvent.MessageFailed(message.id))
-            app.refreshConversations()
-            markFailedSendSeenIfVisible(message)
-            app.refreshConversations()
+            try {
+                markFailedSendSeenIfVisible(message)
+            } finally {
+                // The failure is already committed even if marking it seen is cancelled.
+                app.refreshConversations()
+                app.messageEventStream.send(MessageEvent.MessageFailed(message.id))
+            }
         }
     }
 
@@ -426,7 +429,7 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
                     is TimelineConversation.Channel -> message.channelIndex == conversation.channel.index
                 }
                 if (belongs) {
-                    if (event is MessageEvent.MessageFailed) {
+                    if (event is MessageEvent.MessageFailed && !message.failureSeen) {
                         markFailedSendSeenIfVisible(message)
                         app.refreshConversations()
                     }

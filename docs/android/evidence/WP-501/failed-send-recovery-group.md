@@ -36,9 +36,18 @@ rows. Persistence failures retain the standard warning, do not manufacture
 a seen result and do not drop the message-change event. Cancellation is not
 caught. No read-status/retry/wire/queue semantics change.
 
-The local enqueue path retains its delivered-status guard and existing two
-conversation refresh notifications. The helper extraction does not add an
-extra refresh to that path.
+The coordinator's in-session review identified that a live collector could
+otherwise repeat the local-enqueue seen write/observer refresh. The local
+path now completes its seen write before publishing MessageFailed and
+notifies observers once, after persistence. Non-suspending notification/event
+publication is in finally after the failed-status commit, so cancellation
+of the seen write still propagates without hiding the committed failure.
+The event adapter still emits
+the row update but skips the seen/refresh path for an already-seen row.
+Local failure therefore works without a subscriber and does not depend on
+event delivery. The delivered-status guard is unchanged. A real SQLite
+transition audit plus exact observer-version assertion covers the live
+collector case; the original no-subscriber local test remains intact.
 
 ## Complete frozen-family disposition
 
@@ -56,15 +65,16 @@ producer dependencies. The candidate contains:
 | F17: prime does not mark seen, interactive open does | **UNPROVIDED.** Production `ChatPrimerFactory` defaults to null, and `StorePrimeTimeline` is test-only. No fake primer or direct Room read is registered as the missing production consumer. |
 
 Thus there are **20 original candidates, not 21 accepted originals**.
-Five additional methods preserve the surrounding production contracts:
+Six additional methods preserve the surrounding production contracts:
 visible channel radio/slot isolation; inactive-tab retention; changed-route
 retention; real SQLite seen-write failure and recovery; and late local
-failure/repeated events against delivered storage.
+failure/repeated events against delivered storage; and one seen transition/
+one observer refresh for local failure with an active collector.
 
 Declared runner identities: 16 methods in
 `com.meshcoreone.android.parity.FailedSendBadgeRecoveryOriginalTest` plus
-9 in `com.meshcoreone.android.parity.FailedSendThreadRecoveryOriginalTest`.
-These **25 declarations are not execution/discovery evidence**. Exact-head
+10 in `com.meshcoreone.android.parity.FailedSendThreadRecoveryOriginalTest`.
+These **26 declarations are not execution/discovery evidence**. Exact-head
 App compilation and their complete passing JUnit identities are required.
 
 ## Fixture and native adaptations
@@ -95,8 +105,9 @@ The existing Android composer displays localized `NoDeviceConnected` for
 typed NOT_CONNECTED instead of the frozen generic `UnableToSend.message`.
 The test asserts the actual mounted native copy independently from the
 localization resource and records this difference; it does not modify or
-weaken the frozen equality. Independent acceptance of this native
-adaptation remains pending. No iOS execution is claimed.
+weaken the frozen equality. This native-copy source-parity question remains
+pending the coordinator's in-session review.
+No separate human/agent/reviewer gate or iOS execution is claimed.
 
 ## Reservation and verification
 
@@ -129,8 +140,14 @@ feature-branch publication may still use its existing automatic hosted
 checks; only the exact new-head job/log can establish those outcomes. No
 second CI-result bundle is retained.
 
+The first cbc780 candidate was published ordinarily. Its installed pre-push
+hook passed Python scaffold15/parity108 and reached App test compilation
+before the advisory180s deadline cleaned its owned processes; this is not a
+completed Kotlin/JUnit result. Its automatic hosted run40120739068 belongs
+only to cbc780, not to the subsequent coordinator-review correction.
+
 F17, the broader retained-window/reconnect/hidden-row/unread-boundary/mention
-work, mounted rich footer/inline reaction consumers, independent source
-review, exact-candidate execution and separately authorized native/human
+work, mounted rich footer/inline reaction consumers, source comparison by the
+coordinator in-session, exact-candidate execution and separately authorized native/human
 gates remain outstanding. Issue261's bounded historical acceptance is not
 reopened; whole issue134/WP-501 remains incomplete.

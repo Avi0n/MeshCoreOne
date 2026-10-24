@@ -306,6 +306,48 @@ class FailedSendThreadRecoveryOriginalTest : RoomProcessTest() {
         }
     }
 
+    @Test fun localFailureWithALiveCollectorHasOneSeenTransitionAndOneObserverRefresh() = runTest {
+        withRig {
+            val contact = contact()
+            val message = saveMessage(contactID = contact.id, status = MessageStatus.PENDING)
+            harness.container.navigation.navigateToChat(contact)
+            val conversation = TimelineConversation.Direct(contact)
+            val sql = db.openHelper.writableDatabase
+            sql.execSQL("CREATE TABLE seen_audit (transitions INTEGER NOT NULL)")
+            sql.execSQL("INSERT INTO seen_audit VALUES (0)")
+            sql.execSQL(
+                "CREATE TRIGGER audit_seen AFTER UPDATE OF failureSeen ON messages " +
+                    "WHEN NEW.failureSeen = 1 AND OLD.failureSeen = 0 " +
+                    "BEGIN UPDATE seen_audit SET transitions = transitions + 1; END",
+            )
+            try {
+                val before = harness.appState.conversationsVersion.value
+                val subscribersBefore = harness.appState.messageEventStream.subscriberCount
+                val next = test.backgroundScope.async(start = CoroutineStart.UNDISPATCHED) {
+                    feature.timeline(conversation).events.first()
+                }
+                assertEquals(subscribersBefore + 1, harness.appState.messageEventStream.subscriberCount)
+
+                feature.sender(radio).recordLocalEnqueueFailure(message.id)
+
+                assertEquals(TimelineEvent.MessageChanged(conversation.id, message.id), next.await())
+                assertEquals(subscribersBefore, harness.appState.messageEventStream.subscriberCount)
+                assertEquals(before + 1, harness.appState.conversationsVersion.value)
+                assertTrue(saved(message).failureSeen)
+                assertEquals(MessageStatus.FAILED, saved(message).status)
+                sql.query("SELECT transitions FROM seen_audit").use { cursor ->
+                    assertTrue(cursor.moveToFirst())
+                    assertEquals(1L, cursor.getLong(0))
+                }
+                holder.refreshFailedSendIndicators()
+                assertTrue(holder.state.value.failedSendIds.isEmpty())
+            } finally {
+                sql.execSQL("DROP TRIGGER audit_seen")
+                sql.execSQL("DROP TABLE seen_audit")
+            }
+        }
+    }
+
     private inner class Rig(val test: TestScope, val harness: ContainerHarness) {
         val feature get() = harness.container.chatsFeature
         val holder = ChatListStateHolder(feature.listFor(radio), test.backgroundScope)

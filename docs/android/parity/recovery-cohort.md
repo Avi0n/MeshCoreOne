@@ -13,7 +13,7 @@ configuration, contact table, photo and clustering bytes are unchanged.
 The released local bundle is visible-thread failed-send recovery, not all
 conversation-window repairs. It fixes the App event adapter's missing seen
 write, reuses local-enqueue bookkeeping, and supplies 20 original candidates
-in 25 declared methods (16 list, four thread originals, five additional
+in 26 declared methods (16 list, four thread originals, six additional
 thread/error/isolation boundaries). F17's real production-primer-to-open
 contract remains unprovided. No fake primer, primary timeline edit or
 complete 21/48/whole-WP acceptance is claimed. See the
@@ -154,7 +154,7 @@ refresh entry point, not a fake union evaluator or reflection.
 | F18 | loadChannelMessages marks failed sends seen | Candidate `FailedSendThreadRecoveryOriginalTest.channelOpenClearsTheStoredFailureBadgeWithoutChangingFailedStatus`: actual channel3/open/Room/list query; loaded row, FAILED status, seen=true and removed badge. |
 | F19 | handle messageFailed for the current contact marks seen | Candidate `serviceFailureForTheVisibleContactClearsItsPersistedBadge`: actual navigation, App event transform, Room write and list refresh. The production omission is repaired; no new execution is inferred. |
 | F20 | handle messageFailed for another contact does not mark seen | Candidate `foreignContactFailureCannotBeMarkedSeenByTheVisibleThread`: two contacts, persisted failed other row, ordered current-thread sentinel proves the foreign event was processed before retained badge/seen=false assertions. |
-| F21 | recordLocalEnqueueFailure marks the current contact seen | Candidate `offlineLocalEnqueueKeepsFailedSeenStorageAndAnActualLocalizedComposerError`: original pending row fixture, real offline App enqueue rejection, actual composer and App failure write; await completion of persistence before asserting FAILED/seen=true/no badge and mounted native localized error. Existing Android copy is specific NoDeviceConnected rather than the frozen generic UnableToSend; this adaptation still requires independent review. |
+| F21 | recordLocalEnqueueFailure marks the current contact seen | Candidate `offlineLocalEnqueueKeepsFailedSeenStorageAndAnActualLocalizedComposerError`: original pending row fixture, real offline App enqueue rejection, actual composer and App failure write; await completion of persistence before asserting FAILED/seen=true/no badge and mounted native localized error. Existing Android copy is specific NoDeviceConnected rather than the frozen generic UnableToSend; this is an outstanding source-parity question for the coordinator's in-session review, not a separate reviewer gate. |
 
 ## Fixtures, adaptations and remaining gates
 
@@ -189,8 +189,8 @@ connection/send/queue activation, network, native runner, manual Gradle,
 allowance or physical observation is implied.
 
 Proposals and source comparison remain candidates. Require exact new-head
-App Kotlin compilation plus all25 distinct JUnit identities, complete passing
-mandatory selected inventories and independent source review. Declared
+App Kotlin compilation plus all26 distinct JUnit identities, complete passing
+mandatory selected inventories and the coordinator's in-session source review. Declared
 preflight currently lacks explicit CI state; local software execution is
 UNVERIFIED, not a fabricated green or a publication blocker. Whole48 and
 whole-WP acceptance remain blocked on A/B, F17, actual execution/review and
