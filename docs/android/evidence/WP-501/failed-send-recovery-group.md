@@ -38,15 +38,19 @@ caught. No read-status/retry/wire/queue semantics change.
 
 The coordinator's in-session review identified that a live collector could
 otherwise repeat the local-enqueue seen write/observer refresh. The local
-path now completes its seen write before publishing MessageFailed and
-notifies observers once, after persistence. Non-suspending notification/event
-publication is in finally after the failed-status commit, so cancellation
-of the seen write still propagates without hiding the committed failure.
+path now completes its seen write before publishing MessageFailed. Both
+existing local notifications are necessary: the first publishes the committed
+FAILED row before fallible seen bookkeeping (the safety contract in
+`QueuedComposerIntegrationTest.failedSeenBookkeepingCannotSuppressDurableFailureEventOrRefresh`);
+the second invalidates any list fetch made before the seen write completed.
+Non-suspending final notification/event publication is in finally after the
+failed-status commit, so cancellation of the seen write still propagates
+without hiding the committed failure.
 The event adapter still emits
 the row update but skips the seen/refresh path for an already-seen row.
 Local failure therefore works without a subscriber and does not depend on
 event delivery. The delivered-status guard is unchanged. A real SQLite
-transition audit plus exact observer-version assertion covers the live
+transition audit plus an exact two-not-three observer-version assertion covers the live
 collector case; the original no-subscriber local test remains intact.
 
 ## Complete frozen-family disposition
@@ -69,7 +73,8 @@ Six additional methods preserve the surrounding production contracts:
 visible channel radio/slot isolation; inactive-tab retention; changed-route
 retention; real SQLite seen-write failure and recovery; and late local
 failure/repeated events against delivered storage; and one seen transition/
-one observer refresh for local failure with an active collector.
+two required local observer refreshes, without a redundant third from the
+active collector.
 
 Declared runner identities: 16 methods in
 `com.meshcoreone.android.parity.FailedSendBadgeRecoveryOriginalTest` plus

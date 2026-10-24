@@ -280,6 +280,7 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
 
     internal suspend fun failPending(message: MessageDTO) {
         if (store.updateMessageStatusUnlessDelivered(EntityKey(message.radioId, message.id), MessageStatus.FAILED)) {
+            app.refreshConversations()
             try {
                 markFailedSendSeenIfVisible(message)
             } finally {

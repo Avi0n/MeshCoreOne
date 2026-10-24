@@ -306,7 +306,7 @@ class FailedSendThreadRecoveryOriginalTest : RoomProcessTest() {
         }
     }
 
-    @Test fun localFailureWithALiveCollectorHasOneSeenTransitionAndOneObserverRefresh() = runTest {
+    @Test fun localFailureWithALiveCollectorHasOneSeenTransitionAndTwoRequiredRefreshes() = runTest {
         withRig {
             val contact = contact()
             val message = saveMessage(contactID = contact.id, status = MessageStatus.PENDING)
@@ -332,7 +332,7 @@ class FailedSendThreadRecoveryOriginalTest : RoomProcessTest() {
 
                 assertEquals(TimelineEvent.MessageChanged(conversation.id, message.id), next.await())
                 assertEquals(subscribersBefore, harness.appState.messageEventStream.subscriberCount)
-                assertEquals(before + 1, harness.appState.conversationsVersion.value)
+                assertEquals(before + 2, harness.appState.conversationsVersion.value)
                 assertTrue(saved(message).failureSeen)
                 assertEquals(MessageStatus.FAILED, saved(message).status)
                 sql.query("SELECT transitions FROM seen_audit").use { cursor ->
