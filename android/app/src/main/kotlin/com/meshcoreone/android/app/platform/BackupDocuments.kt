@@ -170,7 +170,7 @@ internal fun rememberBackupDocuments(): BackupDocuments {
     }
     val open = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { documents?.result(it) }
     val result = remember(context, create, open) {
-        BackupDocuments(context, create::launch) { open.launch(arrayOf("application/octet-stream", "*/*")) }
+        BackupDocuments(context, create::launch, open = { open.launch(arrayOf("application/octet-stream", "*/*")) })
     }
     SideEffect { documents = result }
     DisposableEffect(result) { onDispose { result.close() } }

@@ -76,6 +76,7 @@ class NodeConfigRegistrationTest : RoomProcessTest() {
             radio.respond = { command -> if ((command[0].toInt() and 255) == 0x08) listOf(Bytes.of(0)) else null }
             compose.runOnUiThread {
                 h.container.navigation.selectTab(AppTab.SETTINGS)
+                h.container.navigation.navigateToSetting(SettingsDetail.ADVANCED)
                 context.setContent {
                     val navigation by h.container.navigation.state.collectAsState()
                     MeshCoreTheme {
@@ -83,7 +84,6 @@ class NodeConfigRegistrationTest : RoomProcessTest() {
                     }
                 }
             }
-            compose.onNodeWithText(context.getString(S.advancedSettingsTitle)).performScrollTo().performClick()
             compose.onNodeWithText(context.getString(S.configExportExport)).performScrollTo().performClick()
             compose.onNodeWithText(context.getString(S.configExportExportSelected)).assertIsNotEnabled()
             compose.onNodeWithText(context.getString(S.configExportOtherSettings)).performClick()
