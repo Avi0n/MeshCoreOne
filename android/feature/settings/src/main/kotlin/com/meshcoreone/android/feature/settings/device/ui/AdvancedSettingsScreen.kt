@@ -66,11 +66,15 @@ class AdvancedSettingsHolders(
     val diagnostics: DiagnosticsStateHolder,
 )
 
-/** Settings > My Device > Advanced. [onDismissPage] pops the page after a forget or factory reset. */
+/**
+ * Settings > My Device > Advanced. [onDismissPage] pops the page after a forget or factory reset.
+ * [nodeConfigurationSection] supplies the WP-318 section and owns its connection guards and navigation.
+ */
 @Composable
 fun AdvancedSettingsScreen(
     holders: AdvancedSettingsHolders, navigator: SettingsNavigator, supportsDefaultFloodScope: Boolean,
     onShareFile: (String) -> Unit, onDismissPage: () -> Unit, onDone: (() -> Unit)?,
+    nodeConfigurationSection: (@Composable () -> Unit)? = null,
 ) {
     HolderLifecycle(
         { with(holders) { page.start(); floodScope.start(); contacts.start(); stale.start(); telemetry.start(); directMessages.start(); battery.start() } },
@@ -84,6 +88,7 @@ fun AdvancedSettingsScreen(
         TelemetrySection(holders.telemetry, navigator)
         DirectMessagesSection(holders.directMessages)
         BatteryCurveSection(holders.battery)
+        nodeConfigurationSection?.invoke()
         DeviceActionsSection(holders.actions)
         IdentitySection(holders.regenerate, navigator)
         DangerZoneSection(holders.dangerZone, onDismissPage)
