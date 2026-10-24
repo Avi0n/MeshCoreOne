@@ -13,6 +13,11 @@ import com.meshcoreone.android.core.services.device.SettingsService
 import com.meshcoreone.android.core.ui.percentage
 import com.meshcoreone.android.feature.settings.device.*
 import com.meshcoreone.android.feature.settings.device.GeneratedIdentity
+import com.meshcoreone.android.feature.settings.app.nodeconfig.*
+import com.meshcoreone.android.core.services.remote.NodeConfigJson
+import com.meshcoreone.android.core.services.remote.NodeConfigService
+import com.meshcoreone.android.core.services.remote.ImportStep
+import com.meshcoreone.android.core.l10n.generated.AppSettingsStrings as S
 import java.time.Instant
 import java.util.UUID
 import java.util.logging.Level
@@ -20,6 +25,7 @@ import java.util.logging.Logger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.selects.select
 
 class AppSettingsFeature private constructor(
     internal val container: AppContainer,
@@ -69,6 +75,64 @@ class AppSettingsFeature private constructor(
     private fun live(): RadioSessionContainer = container.sessions.current?.takeIf {
         app.canRunSettingsStartupReads && it.token.radioId == app.currentRadioId
     } ?: throw SettingsNotConnectedException()
+
+    private var configHolder: NodeConfigStateHolder? = null
+
+    internal fun nodeConfig(resources: android.content.res.Resources): NodeConfigStateHolder =
+        configHolder ?: NodeConfigStateHolder(scope, {
+            val connection = live()
+            val token = connection.token
+            object : NodeConfigSession {
+                override val deviceName = app.connectedDevice?.nodeName.orEmpty()
+                override fun requireCurrent() {
+                    if (container.sessions.current !== connection || connection.token != token ||
+                        !container.connectionManager.snapshot.value.state.isConnected) throw SettingsNotConnectedException()
+                }
+                private suspend fun <T> bound(action: suspend () -> T): T = coroutineScope {
+                    requireCurrent()
+                    val work = async { action() }
+                    val lost = async {
+                        changes.first {
+                            container.sessions.current !== connection || connection.token != token ||
+                                !container.connectionManager.snapshot.value.state.isConnected
+                        }
+                    }
+                    try {
+                        select<T> { work.onAwait { it }; lost.onAwait { throw SettingsNotConnectedException() } }.also { requireCurrent() }
+                    } finally {
+                        work.cancel()
+                        lost.cancel()
+                    }
+                }
+                override suspend fun export(sections: ConfigSections) = bound { connection.nodeConfigService.exportConfig(sections) }
+                override suspend fun current() = bound {
+                    val info = connection.settingsService.getSelfInfo()
+                    MeshCoreNodeConfig(name = info.name, radioSettings = NodeConfigService.buildRadioSettings(info),
+                        positionSettings = MeshCoreNodeConfig.PositionSettings(info.latitude.toString(), info.longitude.toString()))
+                }
+                override suspend fun preview(config: MeshCoreNodeConfig, sections: ConfigSections) =
+                    bound { connection.nodeConfigService.previewImport(config, sections).channelsOverwriteExisting }
+                override suspend fun apply(config: MeshCoreNodeConfig, sections: ConfigSections, progress: (NodeConfigProgress) -> Unit) = bound {
+                    connection.nodeConfigService.importConfig(config, sections, token.radioId) {
+                        val description = when (val step = it.step) {
+                            ImportStep.Position -> resources.getString(S.configImportStepPosition)
+                            ImportStep.OtherParameters -> resources.getString(S.configImportStepOtherParameters)
+                            ImportStep.PrivateKey -> resources.getString(S.configImportStepPrivateKey)
+                            ImportStep.NodeName -> resources.getString(S.configImportStepNodeName)
+                            ImportStep.RadioParameters -> resources.getString(S.configImportStepRadioParameters)
+                            ImportStep.TxPower -> resources.getString(S.configImportStepTxPower)
+                            is ImportStep.Channel -> S.configImportStepChannel(resources, step.name)
+                            is ImportStep.Contact -> S.configImportStepContact(resources, step.name)
+                        }
+                        progress(NodeConfigProgress(it.current, it.total, description))
+                    }
+                }
+                override suspend fun refresh() = bound { connection.settingsService.refreshDeviceInfo(); Unit }
+            }
+        }, object : NodeConfigCodec {
+            override fun decode(bytes: ByteArray) = NodeConfigJson.decode(bytes)
+            override fun encode(config: MeshCoreNodeConfig) = NodeConfigJson.encodeToBytes(config)
+        }, ResourceNodeConfigMessages(resources)).also { configHolder = it }
 
     val catalog = object : RadioCatalogPort {
         private fun RadioPreset.option() = RadioPresetOption(id, name, region.rawValue, repeatSectionHeader)

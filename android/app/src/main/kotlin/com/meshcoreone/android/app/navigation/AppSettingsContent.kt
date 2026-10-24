@@ -41,6 +41,7 @@ import com.meshcoreone.android.feature.settings.app.backup.*
 import com.meshcoreone.android.feature.settings.app.backup.ui.*
 import com.meshcoreone.android.feature.settings.app.diagnostics.*
 import com.meshcoreone.android.feature.settings.app.diagnostics.ui.*
+import com.meshcoreone.android.feature.settings.app.nodeconfig.*
 import com.meshcoreone.android.feature.settings.device.*
 import com.meshcoreone.android.feature.settings.device.ui.*
 import com.meshcoreone.android.feature.settings.device.SettingsDetail as Page
@@ -52,19 +53,25 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
 @Composable
-internal fun AppSettingsContent(feature: AppSettingsFeature, destination: NavigationDestination, coordinator: NavigationCoordinator) {
+internal fun AppSettingsContent(
+    feature: AppSettingsFeature, destination: NavigationDestination, coordinator: NavigationCoordinator,
+    nodeDocuments: NodeConfigDocuments? = null,
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val container = feature.container
     val permissions = rememberSettingsPermissions()
     val documents = rememberBackupDocuments()
+    val configDocuments = nodeDocuments ?: rememberNodeConfigDocuments()
+    val configHolder = remember(feature) { feature.nodeConfig(context.resources) }
+    var configPage by remember { mutableStateOf<SettingsSubpage?>(null) }
     var external by remember { mutableStateOf<SettingsExternalDestination?>(null) }
     var publicKey by remember { mutableStateOf<com.meshcoreone.android.core.protocol.bytes.Bytes?>(null) }
     var licenses by remember { mutableStateOf(false) }
     var about by remember { mutableStateOf(false) }
     var rendering by remember { mutableStateOf(false) }
-    val close = { external = null; publicKey = null; licenses = false; about = false; rendering = false }
-    BackHandler(external != null || publicKey != null || licenses || about || rendering, close)
+    val close = { external = null; publicKey = null; licenses = false; about = false; rendering = false; configPage = null }
+    BackHandler(external != null || publicKey != null || licenses || about || rendering || configPage != null, close)
     val navigator = remember(coordinator) {
         SettingsNavigator { target ->
             when (target) {
@@ -112,6 +119,8 @@ internal fun AppSettingsContent(feature: AppSettingsFeature, destination: Naviga
         text = { Text(uiString(UiErrorMapper().message(requireNotNull(error)))) },
         confirmButton = { TextButton(onClick = { feature.failure.value = null }) { Text(stringResource(L.commonOk)) } })
     when {
+        configPage == SettingsSubpage.ConfigExport -> NodeConfigExportScreen(configHolder, configDocuments, close)
+        configPage == SettingsSubpage.ConfigImport -> NodeConfigImportScreen(configHolder, configDocuments, close)
         licenses -> AppLicensesContent(onDone = close, onFailure = { feature.report("Could not load bundled license", it) })
         publicKey != null -> PublicKeyScreen(requireNotNull(publicKey), close)
         external != null -> AppSettingsExternal(feature, requireNotNull(external), close)
@@ -150,7 +159,10 @@ internal fun AppSettingsContent(feature: AppSettingsFeature, destination: Naviga
         }, navigator, device?.supportsDefaultFloodScope == true, { uri ->
             context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain")
                 .putExtra(Intent.EXTRA_STREAM, Uri.parse(uri)).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION), null))
-        }, done, done)
+        }, done, done, nodeConfigurationSection = {
+            NodeConfigSection(snapshot.state == com.meshcoreone.android.core.contracts.domain.DeviceConnectionState.READY,
+                { configPage = SettingsSubpage.ConfigExport }, { configPage = SettingsSubpage.ConfigImport })
+        })
         page == Page.NOTIFICATIONS -> NotificationSettingsScreen(holders.notifications, navigator, done)
         page == Page.CHATS -> {
             Column(Modifier.fillMaxSize()) {

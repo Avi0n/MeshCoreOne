@@ -20,6 +20,7 @@ internal class BackupDocuments(
     private val context: Context,
     private val create: (String) -> Unit,
     private val open: () -> Unit,
+    private val validateSize: (Long) -> Unit = BackupContract::validateCompressedSize,
 ) : BackupDocumentPort {
     private val operation = Mutex()
     private var pending: CompletableDeferred<Uri?>? = null
@@ -109,7 +110,7 @@ internal class BackupDocuments(
     override suspend fun pick(): BackupPickOutcome = operation.withLock {
         val uri = choose(open) ?: return@withLock BackupPickOutcome.Cancelled
         val length = withContext(Dispatchers.IO) { size(uri) }
-        length?.let(BackupContract::validateCompressedSize)
+        length?.let(validateSize)
         BackupPickOutcome.Picked(object : BackupSource {
             override val sizeBytes = length
             override suspend fun readBytes(): ByteArray = withContext(Dispatchers.IO) {
@@ -125,7 +126,7 @@ internal class BackupDocuments(
                             val read = it.read(chunk)
                             if (read < 0) break
                             count = Math.addExact(count, read.toLong())
-                            BackupContract.validateCompressedSize(count)
+                            validateSize(count)
                             output.write(chunk, 0, read)
                         }
                         output.toByteArray()
