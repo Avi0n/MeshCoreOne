@@ -89,6 +89,63 @@ class CliTests(unittest.TestCase):
         self.assertTrue(all(e["primary_owner"] == "WP-203" for e in entries))
         self.assertTrue(all("*" not in e["path"] for e in entries))
 
+    def test_status_scopes_fleet_blockers_without_gating_local_authoring(self):
+        rules = policy()
+        rules.update(dispatch_mode="off", paused=False, activation_approved=False)
+        with tempfile.TemporaryDirectory() as directory:
+            ledger = Path(directory) / "not-created.sqlite"
+            with patch("controller.dispatch.load_json", return_value=rules), patch(
+                "controller.dispatch.GitHubApi", side_effect=AssertionError("status must not access network")
+            ):
+                result, output, errors = self.command(
+                    ["status"], {"ANDROID_PORT_LEDGER": str(ledger)}
+                )
+            self.assertEqual((result, errors), (0, ""))
+            value = json.loads(output)
+            self.assertTrue(value["paused"])
+            self.assertFalse(value["policy_paused"])
+            self.assertTrue(value["blockers"])
+            self.assertEqual(value["blocker_scope"], "automated-dispatch-repair-and-merge")
+            self.assertFalse(value["local_authoring"]["fleet_activation_required"])
+            self.assertFalse(value["local_authoring"]["pre_edit_approval_required"])
+            self.assertTrue(value["local_authoring"]["capability_admission_required"])
+            self.assertTrue(value["local_authoring"]["file_intents_are_advisory"])
+            self.assertFalse(value["local_authoring"]["merge_authorized"])
+            self.assertEqual(
+                value["local_authoring"]["semantic_overlap_action"],
+                rules["reservation_policy"]["overlapping_semantic_edit_action"],
+            )
+            self.assertFalse(ledger.exists())
+
+    def test_status_reports_current_review_authority_not_a_second_human_requirement(self):
+        rules = policy()
+        with patch("controller.dispatch.load_json", return_value=rules):
+            result, output, errors = self.command(["status"])
+        self.assertEqual((result, errors), (0, ""))
+        value = json.loads(output)
+        self.assertEqual(value["review_policy"], rules["review_policy"])
+        self.assertEqual(value["review_policy"]["code_review_authority"], "trusted-read-only-review")
+        self.assertEqual(
+            value["review_policy"]["human_acceptance_work_packages"],
+            ["WP-001", "WP-505", "WP-506"],
+        )
+        self.assertIn("native-authenticated-review-publication", value["native_review_guide"])
+
+    def test_status_preserves_policy_pause_and_reports_local_constraints_from_policy(self):
+        rules = policy()
+        rules["paused"] = True
+        rules["reservation_policy"]["pre_edit_approval_required"] = True
+        rules["reservation_policy"]["overlapping_semantic_edit_action"] = "test-collision-rule"
+        with patch("controller.dispatch.load_json", return_value=rules):
+            result, output, errors = self.command(["status"], {"ANDROID_PORT_PAUSED": "false"})
+        self.assertEqual((result, errors), (0, ""))
+        value = json.loads(output)
+        self.assertTrue(value["paused"])
+        self.assertTrue(value["policy_paused"])
+        self.assertTrue(value["local_authoring"]["pre_edit_approval_required"])
+        self.assertEqual(value["local_authoring"]["semantic_overlap_action"], "test-collision-rule")
+        self.assertFalse(value["local_authoring"]["merge_authorized"])
+
     def test_cloud_local_and_issue_rendering_share_trusted_prompt_and_no_models(self):
         for format_name in ("cloud", "local", "issue", "prompt"):
             result, output, _ = self.command(["render", "--wp", "WP-101", "--format", format_name])
