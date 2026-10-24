@@ -1,16 +1,21 @@
 // PortedFrom: MC1/Views/Chats/ChatConversationMessagesContent.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Components/ChatTiledView.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Components/ScrollToBottomButton.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/Components/IncomingAvatarGutter.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/Components/IncomingBubbleAvatarMetrics.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatMessageBakeState+ItemBuild.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.feature.chats.timeline.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -33,8 +38,10 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -47,12 +54,17 @@ import com.meshcoreone.android.core.l10n.generated.AppLocalizableStrings
 import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.MessageDirection
 import com.meshcoreone.android.core.model.MessageStatus
+import com.meshcoreone.android.core.model.uppercaseHexString
 import com.meshcoreone.android.core.ui.sharedTouchTarget
+import com.meshcoreone.android.core.ui.ContactAvatar
 import com.meshcoreone.android.feature.chats.timeline.ChatTimelineState
 import com.meshcoreone.android.feature.chats.timeline.ChatViewModel
 import com.meshcoreone.android.feature.chats.timeline.InitialTimelineAnchor
 import com.meshcoreone.android.feature.chats.timeline.TimelineRow
+import com.meshcoreone.android.feature.chats.timeline.TimelineConversation
 import com.meshcoreone.android.feature.chats.timeline.TimelineScrollAnchor
+import java.text.Normalizer
+import java.time.Duration
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.UUID
@@ -64,6 +76,7 @@ fun ChatTimelineRoute(
     viewModel: ChatViewModel,
     modifier: Modifier = Modifier,
     messageAccessibilityLabel: ((MessageDTO) -> String)? = null,
+    incomingAvatar: @Composable (MessageDTO) -> Unit = DefaultIncomingAvatar,
     messageBody: @Composable (MessageDTO, Boolean) -> Unit = DefaultMessageBody,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -82,7 +95,15 @@ fun ChatTimelineRoute(
         viewModel.start()
         viewModel.open()
     }
-    ChatTimeline(state, callbacks, modifier, messageAccessibilityLabel = messageAccessibilityLabel, messageBody = messageBody)
+    val isChannel = viewModel.conversation is TimelineConversation.Channel
+    ChatTimeline(
+        state, callbacks, modifier,
+        messageAccessibilityLabel = messageAccessibilityLabel,
+        showSenderName = isChannel,
+        showsIncomingAvatars = isChannel,
+        incomingAvatar = incomingAvatar,
+        messageBody = messageBody,
+    )
 }
 
 /** Plain-text body; WP-308 supplies the linkified/mention/preview body through the `messageBody` slot. */
@@ -99,6 +120,15 @@ data class ChatTimelineCallbacks(
     val onRetryLoad: () -> Unit,
 )
 
+val DefaultIncomingAvatar: @Composable (MessageDTO) -> Unit = { message ->
+    ContactAvatar(
+        name = message.senderNodeName?.takeIf(String::isNotEmpty)
+            ?: message.senderKeyPrefix?.takeIf { it.size >= 2 }?.prefix(2)?.uppercaseHexString()
+            ?: stringResource(AppChatsStrings.chatsMessageSenderUnknown),
+        size = 28.dp,
+    )
+}
+
 @Composable
 fun ChatTimeline(
     state: ChatTimelineState,
@@ -106,9 +136,19 @@ fun ChatTimeline(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     messageAccessibilityLabel: ((MessageDTO) -> String)? = null,
+    showSenderName: Boolean = true,
+    showsIncomingAvatars: Boolean = true,
+    incomingAvatar: @Composable (MessageDTO) -> Unit = DefaultIncomingAvatar,
     messageBody: @Composable (MessageDTO, Boolean) -> Unit = DefaultMessageBody,
 ) {
     val visualRows = state.rows.asReversed()
+    val avatarClusterEnds = remember(state.messages) {
+        state.messages.mapIndexedNotNull { index, message ->
+            if (message.isChannelMessage && !message.isOutgoing &&
+                !incomingAvatarClusterContinues(message, state.messages.getOrNull(index + 1))
+            ) message.id else null
+        }.toSet()
+    }
     val scope = rememberCoroutineScope()
     var savedViewportMessageId by rememberSaveable { mutableStateOf<String?>(null) }
     var savedViewportOffset by rememberSaveable { mutableIntStateOf(0) }
@@ -221,6 +261,10 @@ fun ChatTimeline(
                         onRetry = { callbacks.onRetry(row.message) },
                         messageBody = messageBody,
                         messageAccessibilityLabel = messageAccessibilityLabel,
+                        showSenderName = showSenderName,
+                        showsIncomingAvatars = showsIncomingAvatars,
+                        isAvatarClusterEnd = row.message.id in avatarClusterEnds,
+                        incomingAvatar = incomingAvatar,
                     )
                 }
             }
@@ -244,6 +288,17 @@ fun ChatTimeline(
             }
         }
     }
+}
+
+private fun incomingAvatarClusterContinues(earlier: MessageDTO, later: MessageDTO?): Boolean {
+    if (later == null || !earlier.isChannelMessage || !later.isChannelMessage ||
+        earlier.isOutgoing || later.isOutgoing
+    ) return false
+    val earlierName = earlier.senderNodeName ?: return false
+    val laterName = later.senderNodeName ?: return false
+    return Duration.between(earlier.senderDate, later.senderDate).abs().seconds <= 300L &&
+        Normalizer.normalize(earlierName, Normalizer.Form.NFC) ==
+        Normalizer.normalize(laterName, Normalizer.Form.NFC)
 }
 
 internal data class TimelineViewportPosition(val index: Int, val offset: Int)
@@ -306,6 +361,10 @@ private fun MessageBubble(
     onRetry: () -> Unit,
     messageBody: @Composable (MessageDTO, Boolean) -> Unit,
     messageAccessibilityLabel: ((MessageDTO) -> String)?,
+    showSenderName: Boolean,
+    showsIncomingAvatars: Boolean,
+    isAvatarClusterEnd: Boolean,
+    incomingAvatar: @Composable (MessageDTO) -> Unit,
 ) {
     val outgoing = row.message.direction == MessageDirection.OUTGOING
     val status = if (outgoing) statusText(row.message) else null
@@ -326,13 +385,26 @@ private fun MessageBubble(
             .padding(horizontal = 12.dp, vertical = if (row.startsGroup) 6.dp else 1.dp)
             .semantics(mergeDescendants = true) { contentDescription = accessibilityLabel },
         horizontalArrangement = if (outgoing) Arrangement.End else Arrangement.Start,
+        verticalAlignment = Alignment.Bottom,
     ) {
+        if (showsIncomingAvatars && !outgoing && row.message.isChannelMessage) {
+            val diameter = 28.dp
+            if (isAvatarClusterEnd) {
+                Box(Modifier.size(diameter).testTag("timeline-avatar:${row.message.id}").clearAndSetSemantics {}) {
+                    incomingAvatar(row.message)
+                }
+            } else {
+                Spacer(Modifier.width(diameter).testTag("timeline-avatar-spacer:${row.message.id}"))
+            }
+            Spacer(Modifier.width(6.dp))
+        }
         Surface(
+            modifier = Modifier.testTag("timeline-bubble:${row.message.id}"),
             color = if (outgoing) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
             shape = MaterialTheme.shapes.medium,
         ) {
             Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                if (!outgoing && row.message.isChannelMessage && row.startsGroup && !row.message.senderNodeName.isNullOrBlank()) {
+                if (showSenderName && !outgoing && row.message.isChannelMessage && row.startsGroup && !row.message.senderNodeName.isNullOrBlank()) {
                     Text(row.message.senderNodeName.orEmpty(), style = MaterialTheme.typography.labelMedium)
                 }
                 messageBody(row.message, outgoing)
