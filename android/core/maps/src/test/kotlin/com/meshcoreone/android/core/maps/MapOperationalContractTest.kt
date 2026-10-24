@@ -63,4 +63,20 @@ class MapOperationalContractTest {
         assertEquals(endpoints, endpoints.partitionForClustering(true).fixed)
         assertEquals("Node", marker(MapPinStyle.CONTACT_CHAT).semanticText)
     }
+
+    @Test fun disposingAnOldRendererCannotDetachTheCurrentProjectionOwner() {
+        val handle = MapProjectionHandle()
+        fun source(point: GeoPoint) = object : MapCoordinateProjection {
+            override fun coordinateAt(pixel: MapScreenPoint) = MapProjectionResult.Value(point)
+            override fun screenPointFor(coordinate: GeoPoint) = MapProjectionResult.Value(MapScreenPoint(1f, 2f))
+        }
+        val old = source(GeoPoint(1.0, 2.0))
+        val current = source(GeoPoint(3.0, 4.0))
+        handle.bind(old)
+        handle.bind(current)
+        handle.unbind(old)
+        assertEquals(MapProjectionResult.Value(GeoPoint(3.0, 4.0)), handle.coordinateAt(MapScreenPoint(1f, 2f)))
+        handle.unbind(current)
+        assertEquals(MapProjectionResult.NotReady, handle.coordinateAt(MapScreenPoint(1f, 2f)))
+    }
 }

@@ -45,7 +45,10 @@ class MapFeatureStateHolder(
     private var pendingReload: Job? = null
     private var load: Job? = null
 
-    fun close() { owner.cancel() }
+    fun close() {
+        generation++
+        owner.cancel()
+    }
 
     init {
         refresh()

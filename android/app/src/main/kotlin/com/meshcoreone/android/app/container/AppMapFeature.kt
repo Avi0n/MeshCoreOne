@@ -43,7 +43,10 @@ internal fun AppContainer.createMapFeatureDependencies(): MapFeatureDependencies
                 )
             }
             val discoveredMarkers = store.fetchDiscoveredNodes(radioId)
-                .filter { it.hasLocation && it.publicKey !in contactKeys }
+                .filter {
+                    com.meshcoreone.android.core.model.Coordinate(it.latitude, it.longitude).isValidFix &&
+                        it.publicKey !in contactKeys
+                }
                 .map { node ->
                     MapFeatureMarker(
                         marker = MapMarker(

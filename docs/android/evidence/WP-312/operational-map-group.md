@@ -90,6 +90,10 @@ past that corrected type; the next actionable diagnostic was
 `:feature:map:compileDebugKotlin`,
 `MapEntry.kt:273:126 Unresolved reference 'hex'.`
 The callout now uses the existing `Bytes.hexString` API, not a new codec.
+At `c0ba011fc8ceef27bfe5bc6bf24c59c09a6624b4`, the normal checker compiled
+core maps, feature map and App production code before its fixed 180-second
+advisory deadline. The checker cleaned its owned descendants and published
+**UNVERIFIED**, not pass. No deadline, fixture or mandatory test was weakened.
 This remains an **UNVERIFIED CANDIDATE** until the exact-head hosted result/log
 demonstrates otherwise.
 The PR records actual command outcomes, never invented discovery counts.
@@ -107,6 +111,10 @@ device test for pan, zoom, rotation, tilt, resize, antimeridian, subpixel
 round-trips, rotated eastward direction, outside-viewport picking and unmount.
 It waits for real provider/native-camera readiness and fails if unavailable;
 its presence/compilation is not a claim that it executed. No device was started.
+The map-tab controls/callout are mounted inside the renderer's viewport overlay
+slot, with the shared legal footer outside that slot, so feature overlays cannot
+cover the footer. Invalid discovered fixes and already-saved contact keys are
+excluded before constructing pins, matching the frozen source predicate.
 
 ## Downstream and human follow-up
 

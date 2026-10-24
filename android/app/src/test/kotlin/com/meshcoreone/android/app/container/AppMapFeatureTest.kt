@@ -20,8 +20,26 @@ class AppMapFeatureTest : RoomProcessTest() {
                 latitude = 37.0, longitude = -122.0, lastHeardTimestamp = 0u, isFavorite = true,
             )
             store.saveContact(contact)
+            store.upsertDiscoveredNode(
+                radio,
+                ContactFrame(
+                    contact.publicKey, contact.type, 0u, 255u,
+                    com.meshcoreone.android.core.protocol.bytes.Bytes.EMPTY,
+                    "Already a contact", 1u, 38.0, -123.0, 1u,
+                ),
+            )
+            val invalid = store.upsertDiscoveredNode(
+                radio,
+                ContactFrame(
+                    key(44), contact.type, 0u, 255u,
+                    com.meshcoreone.android.core.protocol.bytes.Bytes.EMPTY,
+                    "Invalid fix", 1u, 91.0, -123.0, 1u,
+                ),
+            ).node
             val feature = h.container.mapFeature
-            val row = feature.dataSource.load().markers.single { it.marker.id == contact.id }
+            val markers = feature.dataSource.load().markers
+            assertFalse(markers.any { it.marker.id == invalid.id || it.isDiscovered })
+            val row = markers.single { it.marker.id == contact.id }
             assertEquals(contact, (row.selection as MapSelection.Contact).contact)
             assertTrue(row.isFavorite)
             val actions = assertNotNull(feature.actions)

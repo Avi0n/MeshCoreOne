@@ -138,13 +138,14 @@ class MapMountedConsumerTest {
             MeshCoreTheme(motionScale = 0f) {
                 MapEntry(
                     FeatureRoute(FeatureId.MAP), { error("No generic navigation") }, dependencies,
-                    mapSurface = { state, _, _, _, select ->
+                    mapSurface = { state, _, _, _, select, overlay ->
                         Box(Modifier.fillMaxSize()) {
-                            Column(Modifier.testTag("test-renderer")) {
+                            Column(Modifier.align(androidx.compose.ui.Alignment.Center).testTag("test-renderer")) {
                                 state.points.forEach { marker ->
                                     TextButton({ select(marker) }, Modifier.testTag("pick:${marker.id}")) { Text(marker.label.orEmpty()) }
                                 }
                             }
+                            overlay()
                         }
                     },
                 )

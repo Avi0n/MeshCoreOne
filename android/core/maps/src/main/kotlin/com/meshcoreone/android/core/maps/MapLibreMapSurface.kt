@@ -6,6 +6,8 @@ import android.graphics.PointF
 import android.os.Bundle
 import android.view.View
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -62,6 +64,7 @@ fun MapLibreMapSurface(
     onMarkerSelected: (MapMarker) -> Unit,
     modifier: Modifier = Modifier,
     projection: MapProjectionHandle? = null,
+    overlay: @Composable BoxScope.() -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -71,20 +74,23 @@ fun MapLibreMapSurface(
     }
 
     Column(modifier.fillMaxSize()) {
-        AndroidView(
-        factory = {
-            controller.initialize()
-            controller.mapView
-        },
-        update = {
-            controller.callbacks = MapLibreSurfaceCallbacks(onCameraChanged, onMarkerSelected)
-            controller.mapView.contentDescription = listOf(accessibilityLabel)
-                .plus(presentation.points.map { it.semanticText }).filter(String::isNotBlank).joinToString("; ")
-            controller.bindProjection(projection)
-            controller.render(presentation, clusteringEnabled, labelsEnabled)
-        },
-        modifier = Modifier.weight(1f),
-        )
+        Box(Modifier.weight(1f)) {
+            AndroidView(
+                factory = {
+                    controller.initialize()
+                    controller.mapView
+                },
+                update = {
+                    controller.callbacks = MapLibreSurfaceCallbacks(onCameraChanged, onMarkerSelected)
+                    controller.mapView.contentDescription = listOf(accessibilityLabel)
+                        .plus(presentation.points.map { it.semanticText }).filter(String::isNotBlank).joinToString("; ")
+                    controller.bindProjection(projection)
+                    controller.render(presentation, clusteringEnabled, labelsEnabled)
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+            overlay()
+        }
         MapAttribution(presentation.attribution)
     }
 

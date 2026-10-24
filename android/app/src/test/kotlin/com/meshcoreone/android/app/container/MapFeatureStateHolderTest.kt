@@ -82,6 +82,19 @@ class MapFeatureStateHolderTest {
         holder.close()
     }
 
+    @Test fun closingTheScreenCancelsOwnedWorkAndRejectsALateNonCooperativeResult() = runTest {
+        val held = CompletableDeferred<Unit>()
+        val marker = featureMarker("late")
+        val holder = MapFeatureStateHolder(deps({
+            withContext(NonCancellable) { held.await(); MapFeatureContent(listOf(marker)) }
+        }), backgroundScope, MapFilterState())
+        runCurrent()
+        holder.close()
+        held.complete(Unit)
+        runCurrent()
+        assertTrue(holder.state.value.visibleMarkers.isEmpty())
+    }
+
     @Test fun realSelectionPayloadActionsAndFailedReadRecoveryAreNotSuccessShaped() = runTest {
         val contact = contact("contact")
         val node = node("discovered")

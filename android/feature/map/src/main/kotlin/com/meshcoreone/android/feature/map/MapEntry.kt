@@ -5,6 +5,7 @@ package com.meshcoreone.android.feature.map
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -75,6 +76,11 @@ import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
+typealias OperationalMapSurface = @Composable (
+    MapPresentationState, Boolean, Boolean, (MapCamera) -> Unit, (MapMarker) -> Unit,
+    @Composable BoxScope.() -> Unit,
+) -> Unit
+
 @Composable
 fun MapEntry(
     route: FeatureRoute,
@@ -82,8 +88,8 @@ fun MapEntry(
     dependencies: MapFeatureDependencies? = null,
     focus: GeoPoint? = null,
     onFocusConsumed: () -> Unit = {},
-    mapSurface: @Composable (MapPresentationState, Boolean, Boolean, (MapCamera) -> Unit, (MapMarker) -> Unit) -> Unit =
-        { state, clusters, labels, camera, marker -> NativeMapSurface(state, clusters, labels, camera, marker) },
+    mapSurface: OperationalMapSurface =
+        { state, clusters, labels, camera, marker, overlay -> NativeMapSurface(state, clusters, labels, camera, marker, overlay) },
 ) {
     if (dependencies == null) {
         ScaffoldFeatureContent(
@@ -108,11 +114,15 @@ private fun NativeMapSurface(
     labels: Boolean,
     camera: (MapCamera) -> Unit,
     marker: (MapMarker) -> Unit,
+    overlay: @Composable BoxScope.() -> Unit,
 ) {
     if (!MapLibreRuntime.isSupported) {
-        MapRuntimeUnavailable()
+        Box(Modifier.fillMaxSize()) {
+            MapRuntimeUnavailable()
+            overlay()
+        }
     } else {
-        MapLibreMapSurface(state, clusters, labels, stringResource(R.string.tab_map), camera, marker)
+        MapLibreMapSurface(state, clusters, labels, stringResource(R.string.tab_map), camera, marker, overlay = overlay)
     }
 }
 
@@ -136,7 +146,7 @@ private fun MapContent(
     dependencies: MapFeatureDependencies,
     focus: GeoPoint?,
     onFocusConsumed: () -> Unit,
-    mapSurface: @Composable (MapPresentationState, Boolean, Boolean, (MapCamera) -> Unit, (MapMarker) -> Unit) -> Unit,
+    mapSurface: OperationalMapSurface,
 ) {
     val context = LocalContext.current
     val preferences = remember(context) { context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE) }
@@ -195,18 +205,17 @@ private fun MapContent(
         lines = feature.content.lines,
     )
 
-    Box(Modifier.fillMaxSize()) {
-        mapSurface(
-            state, clustering, labels,
-            {
-                camera = it
-                preferences.edit().putString(CAMERA_KEY, it.encode()).apply()
-            },
-            {
-                selectedFocus = it.takeIf { marker -> marker.style == MapPinStyle.DROPPED_PIN }
-                holder.select(it.id)
-            },
-        )
+    mapSurface(
+        state, clustering, labels,
+        {
+            camera = it
+            preferences.edit().putString(CAMERA_KEY, it.encode()).apply()
+        },
+        {
+            selectedFocus = it.takeIf { marker -> marker.style == MapPinStyle.DROPPED_PIN }
+            holder.select(it.id)
+        },
+    ) {
         MapControls(
             filter = filter,
             onFilter = {
