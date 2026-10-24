@@ -39,6 +39,95 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(workflow["jobs"]["android-ci"]["if"], "${{ always() }}")
         validate_candidate(workflow, text)
 
+    def test_debug_handoff_uploads_only_the_same_job_inspected_apk_without_an_extra_build(self):
+        from controller.ci import TASKS
+
+        workflow, text = self.read("android-ci.yml")
+        steps = workflow["jobs"]["build"]["steps"]
+        index = next(i for i, step in enumerate(steps)
+                     if step.get("name") == "Upload inspected debug APK for human testing")
+        upload = steps[index]
+        self.assertEqual(steps[index - 1]["run"], "python tools/android-port/controller/ci.py inspect")
+        self.assertEqual(upload["if"], "${{ success() && needs.scope.outputs.scaffold == 'true' }}")
+        self.assertEqual(upload["with"], {
+            "name": "debug-apk-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}",
+            "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+            "if-no-files-found": "error",
+            "retention-days": "7",
+        })
+        self.assertIn(":app:assembleDebug", TASKS["scaffold"])
+        self.assertNotIn(":app:assembleDebugAndroidTest", TASKS["scaffold"])
+        self.assertIn(":app:compileDebugAndroidTestKotlin", TASKS["scaffold"])
+        self.assertEqual(workflow["permissions"], {"contents": "read"})
+        self.assertEqual(steps[0]["with"]["persist-credentials"], "false")
+        self.assertNotIn("secrets.", text)
+        validate_candidate(workflow, text)
+
+    def test_debug_handoff_rejects_failed_uninspected_or_non_scaffold_publication(self):
+        original, text = self.read("android-ci.yml")
+        for mode in ("missing", "before-inspect", "mutation-after-inspect", "no-inspect",
+                     "ignored-inspect", "conditional-inspect", "build-after-inspect",
+                     "conditional-build", "ignored-build", "controller-upload",
+                     "always", "protocol-only", "unconditional", "ignored-upload"):
+            changed = copy.deepcopy(original)
+            steps = changed["jobs"]["build"]["steps"]
+            index = next(i for i, step in enumerate(steps)
+                         if step.get("name") == "Upload inspected debug APK for human testing")
+            upload = steps[index]
+            if mode == "missing":
+                steps.pop(index)
+            elif mode == "before-inspect":
+                steps[index - 1], steps[index] = steps[index], steps[index - 1]
+            elif mode == "mutation-after-inspect":
+                steps.insert(index, {"run": "echo replace the inspected bytes"})
+            elif mode == "no-inspect":
+                steps.pop(index - 1)
+            elif mode == "ignored-inspect":
+                steps[index - 1]["continue-on-error"] = "true"
+            elif mode == "conditional-inspect":
+                steps[index - 1]["if"] = "${{ false }}"
+            elif mode == "build-after-inspect":
+                stage = next(i for i, step in enumerate(steps)
+                             if "ci.py run --stage scaffold" in step.get("run", ""))
+                steps.append(steps.pop(stage))
+            elif mode in ("conditional-build", "ignored-build"):
+                stage = next(step for step in steps if "ci.py run --stage scaffold" in step.get("run", ""))
+                if mode == "conditional-build":
+                    stage["if"] = "${{ false }}"
+                else:
+                    stage["continue-on-error"] = "true"
+            elif mode == "controller-upload":
+                changed["jobs"]["controller"]["steps"].append(steps.pop(index))
+            elif mode == "always":
+                upload["if"] = "${{ always() && needs.scope.outputs.scaffold == 'true' }}"
+            elif mode == "protocol-only":
+                upload["if"] = "${{ success() && needs.scope.outputs.protocol == 'true' }}"
+            elif mode == "unconditional":
+                upload.pop("if")
+            else:
+                upload["continue-on-error"] = "true"
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                validate_candidate(changed, text)
+
+    def test_debug_handoff_rejects_other_files_unbound_names_and_missing_file_fallbacks(self):
+        original, text = self.read("android-ci.yml")
+        for key, value in (
+            ("path", "android/app/build/outputs/apk/"),
+            ("path", "android/app/build/outputs/apk/debug/*.apk"),
+            ("path", "android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"),
+            ("path", "android/app/build/outputs/apk/debug/app-debug.apk\nextra-results.json"),
+            ("name", "debug-apk-${{ github.sha }}"),
+            ("name", "debug-apk-${{ github.run_id }}-${{ github.run_attempt }}"),
+            ("if-no-files-found", "warn"),
+            ("retention-days", "90"),
+        ):
+            changed = copy.deepcopy(original)
+            upload = next(step for step in changed["jobs"]["build"]["steps"]
+                          if step.get("name") == "Upload inspected debug APK for human testing")
+            upload["with"][key] = value
+            with self.subTest(key=key, value=value), self.assertRaises(PortError):
+                validate_candidate(changed, text)
+
     def test_consolidated_controller_installs_hash_pinned_yaml_runtime_before_tests(self):
         workflow, text = self.read("android-ci.yml")
         steps = workflow["jobs"]["controller"]["steps"]
