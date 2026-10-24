@@ -2,6 +2,8 @@
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.model.*
+import com.meshcoreone.android.core.maps.OfflineMapController
+import com.meshcoreone.android.core.maps.UnavailableOfflineMapBackend
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
 import com.meshcoreone.android.core.services.contacts.ContactServiceError
 import com.meshcoreone.android.feature.map.MapSelection
@@ -11,7 +13,7 @@ import org.junit.Test
 
 class AppMapFeatureTest : RoomProcessTest() {
     @Test fun locatedMarkersKeepActualIdentityAndUseExistingDetailAndChatNavigation() = runTest {
-        val h = ContainerHarness(this, store)
+        val h = ContainerHarness(this, store, offlineMaps = offlineMaps())
         try {
             h.manager.connect(h.target()); h.settle(); h.assertReady()
             val radio = assertNotNull(h.appState.currentRadioId)
@@ -51,7 +53,7 @@ class AppMapFeatureTest : RoomProcessTest() {
     }
 
     @Test fun discoveryRetainsItsDtoAndAStaleRadioCannotNavigateOrAddToTheReplacementSession() = runTest {
-        val h = ContainerHarness(this, store)
+        val h = ContainerHarness(this, store, offlineMaps = offlineMaps())
         try {
             h.manager.connect(h.target()); h.settle(); h.assertReady()
             val radio = assertNotNull(h.appState.currentRadioId)
@@ -78,4 +80,11 @@ class AppMapFeatureTest : RoomProcessTest() {
             assertNull(h.container.navigation.state.value.pendingContactDetail)
         } finally { h.container.close() }
     }
+
+    private fun offlineMaps() = OfflineMapController(
+        backend = UnavailableOfflineMapBackend,
+        policies = emptyMap(),
+        availableBytes = { error("App map adapter tests must not request downloads") },
+        networkAvailable = { false },
+    )
 }

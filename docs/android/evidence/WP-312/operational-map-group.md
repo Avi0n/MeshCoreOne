@@ -98,6 +98,21 @@ This remains an **UNVERIFIED CANDIDATE** until the exact-head hosted result/log
 demonstrates otherwise.
 The PR records actual command outcomes, never invented discovery counts.
 
+Exact-head hosted run `40064012848`, job `120784167445`, failed at
+`:app:testDebugUnitTest` on candidate
+`5d2a227fa05c84435adc1fd60c822e0e7a64f5f4`: 1,465 tests completed, two failures.
+Both new `AppMapFeatureTest` cases reached the production fail-closed guard
+`AppContainer.kt:288`, `Production map dependencies were not installed`.
+The test harness had omitted its offline-map dependency; no production guard
+or assertion was relaxed. The harness now accepts an optional explicit
+`OfflineMapController`, and these two tests provide the real controller with
+the existing unavailable-native-backend adapter. Download attempts fail in the
+fixture; the tests do not fabricate native map readiness or network access.
+Other harness consumers retain their previous default. Missing JUnit directories
+after Gradle stopped are consequent incomplete evidence, not separate failures.
+The failed run does not certify this repair; its exact-head successor is
+recorded on the PR.
+
 Added coverage includes owned map camera/marker/projection-handle contracts,
 feature filter algebra, deterministic first-window refresh/stale-read/action
 state, mounted MapEntry action/filter/live-store behavior, mounted shared legal
