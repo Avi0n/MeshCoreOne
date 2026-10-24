@@ -204,7 +204,20 @@ class FoundationWorkflowTests(unittest.TestCase):
     def test_only_actual_backup_bytes_cross_the_job_boundary(self):
         steps = self.workflow["jobs"]["build"]["steps"]
         uploads = [step for step in steps if step.get("uses", "").startswith("actions/upload-artifact@")]
-        self.assertEqual(len(uploads), 1)
-        paths = uploads[0]["with"]["path"]
+        self.assertEqual(len(uploads), 2)
+        self.assertEqual({step["with"]["path"] for step in uploads}, {
+            "android/app/build/outputs/apk/debug/app-debug.apk",
+            "android/core/data/build/reports/wp203/interop/",
+        })
+        transfers = [
+            step for job in self.workflow["jobs"].values() for step in job["steps"]
+            if step.get("uses", "").startswith("actions/download-artifact@")
+        ]
+        self.assertEqual(len(transfers), 1)
+        backup = next(step for step in uploads if step["with"]["name"] == transfers[0]["with"]["name"])
+        self.assertEqual(backup["if"], "${{ needs.scope.outputs.backup == 'true' }}")
+        self.assertEqual(backup["with"]["if-no-files-found"], "error")
+        paths = backup["with"]["path"]
         self.assertIn("wp203/interop", paths)
-        self.assertNotIn("ci-result", paths)
+        for upload in uploads:
+            self.assertNotIn("ci-result", upload["with"]["path"])

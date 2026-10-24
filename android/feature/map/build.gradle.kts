@@ -2,4 +2,7 @@
 plugins { id("mesh.android.feature") }
 dependencies {
     implementation(project(":core:maps"))
+    implementation(project(":core:model"))
+    implementation(libs.kotlinx.coroutines.core)
 }
+rootProject.tasks.named("verifyScaffoldTests") { dependsOn(":feature:map:testDebugUnitTest") }

@@ -516,6 +516,29 @@ skips, malformed output or a failed command fail the job. The always-running
 and requires a skipped build otherwise. CI does not upload, download, hash or
 revalidate a second result bundle.
 
+### Debug APK handoff for human testing
+
+After a successful scaffold build and `ci.py inspect`, the same build job uploads
+only the exact inspected `android/app/build/outputs/apk/debug/app-debug.apk`.
+Find it under the successful **Android candidate CI** run's **Artifacts** section:
+`debug-apk-<candidate-head-sha>-<run-id>-<run-attempt>`. For PR runs the SHA is the
+actual PR head, not GitHub's synthetic merge SHA. The artifact is retained for
+seven days; download and extract its `app-debug.apk` for the planned manual test.
+Check the run's exact head and final selected-job outcomes before using it.
+
+Missing APKs fail the upload. A failed build/inspection, controller-only run or
+protocol-only run cannot upload this handoff. This transfers the existing APK,
+not another build or a duplicate CI-result bundle. The scaffold task currently
+compiles instrumentation Kotlin but does **not** assemble an instrumentation APK;
+this handoff therefore makes no same-build App/Test pair or instrumentation-run
+claim. Ordinary human app testing needs only the application APK.
+
+This is an ephemeral debug CI artifact (`com.meshcoreone.android.debug`), not a
+WP-506 signed release or GitHub Release distribution. Debug certificates are
+ephemeral between CI hosts/runs: do not assume install-over-upgrade compatibility
+or wipe existing data to resolve a certificate mismatch. There is no signing/key
+change, installation, device execution or hardware acceptance in the upload.
+
 | Stage | Actual executable tasks / mandatory evidence |
 | --- | --- |
 | Python | Frozen overlay/manifest/traceability/notices, controller regressions and all scaffold Python cases; nonzero discovery and no failed/error/skipped case |

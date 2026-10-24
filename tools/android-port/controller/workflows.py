@@ -92,6 +92,42 @@ def validate_candidate(value: dict, text: str):
     ]
     if len(stage_runs) != 1 or "ci.py run --stage scaffold" not in stage_runs[0]:
         raise PortError("Candidate workflow must use one consolidated scaffold Gradle invocation")
+    steps = build["steps"]
+    inspections = [
+        index for index, step in enumerate(steps)
+        if "ci.py inspect" in step.get("run", "")
+    ]
+    apk_uploads = [
+        index for index, step in enumerate(steps)
+        if step.get("name") == "Upload inspected debug APK for human testing"
+    ]
+    if len(inspections) != 1 or len(apk_uploads) != 1:
+        raise PortError("Candidate requires one inspected debug APK handoff")
+    inspection, upload = inspections[0], apk_uploads[0]
+    stage = next(index for index, step in enumerate(steps) if "ci.py run --stage scaffold" in step.get("run", ""))
+    if (
+        steps[inspection].get("run") != "python tools/android-port/controller/ci.py inspect"
+        or steps[inspection].get("if") != "${{ needs.scope.outputs.scaffold == 'true' }}"
+        or steps[inspection].get("continue-on-error")
+        or upload != inspection + 1
+        or stage >= inspection or "if" in steps[stage] or steps[stage].get("continue-on-error")
+    ):
+        raise PortError("Debug APK upload must immediately follow successful scaffold APK inspection")
+    if steps[upload] != {
+        "name": "Upload inspected debug APK for human testing",
+        "if": "${{ success() && needs.scope.outputs.scaffold == 'true' }}",
+        "uses": "actions/upload-artifact@" + ACTION_PINS["actions/upload-artifact"],
+        "with": {
+            "name": (
+                "debug-apk-${{ github.event.pull_request.head.sha || github.sha }}"
+                "-${{ github.run_id }}-${{ github.run_attempt }}"
+            ),
+            "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+            "if-no-files-found": "error",
+            "retention-days": "7",
+        },
+    }:
+        raise PortError("Debug APK handoff must be successful, scaffold-only, exact-candidate/run-bound and fail on absence")
     gate_runs = "\n".join(s.get("run", "") for s in gate["steps"])
     gate_environment = {
         key: value for step in gate["steps"] for key, value in step.get("env", {}).items()

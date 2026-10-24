@@ -2,12 +2,43 @@
 
 **Installed, not activated.** WP-000 adds traceability and testable control logic, not an Android
 application, production CI, reviewer execution, signing, repository settings or a fleet.
-`automation-policy.json` is committed with dispatch **off**, **paused**, activation unapproved,
-no trusted publisher/workflow IDs and branch rules unproven. The wrappers cannot override this.
+`automation-policy.json` keeps fleet dispatch **off** and activation unapproved, with no configured
+legacy publisher/workflow IDs and branch rules unproven. The dispatch wrapper also defaults its
+effective pause to true; `status.policy_paused` reports the separate committed policy value.
 The 64 active macro WPs require actual merged PR and acceptance evidence; the retired translation
 WP-406 is neither pending implementation nor completed. Historical installation counts remain history.
 
 ## Pinned inventory and authority
+
+### Current local coordination and review contract
+
+The fleet setup below is not a prerequisite for capability-admitted source edits in an already
+assigned local worktree. Assignment authorizes the declared work; reservations record advisory file
+intent, not pre-edit locks. Automatically attempt the reservation/capability bookkeeping and preserve
+its actual result. A historical claim or base-binding mismatch alone does not establish a live
+semantic collision or require deleting a ledger row before isolated authoring can continue.
+Reconcile actual overlapping work with its producer; unknown capabilities, conflicting live writes,
+hardware/execution locks and protected merge gates remain separate blockers. Never release/recreate
+claims or edit SQLite directly to manufacture ownership, completion or successor authority.
+
+`dispatch.py status` scopes its `blockers` to automated dispatch/repair/merge and reports
+`local_authoring` separately. Neither that report nor an advisory claim authorizes a merge or proves
+acceptance. Missing local Android readiness records an unverified candidate; it does not prohibit
+feature-branch publication for the candidate's existing hosted checks.
+
+Code review does **not** require another human or a formal GitHub `APPROVED` review. The deployed
+`review_policy` uses trusted read/search-only review, which an authorized coordinator can arrange even
+when the coordinator is the PR author. The supported
+[native review publication route](ci/README.md#native-authenticated-review-publication-bounded-wp-003-repair)
+uses an authenticated `COMMENTED` review and the default-branch publisher; it does not require a
+custom GitHub App or activation of the autonomous fleet. Do not fabricate reviewer results or
+mistake an empty GitHub `reviewDecision` for a missing separate-person approval.
+
+Actual human acceptance is retained for WP-001 architecture/license decisions, WP-505 hardware,
+WP-506 signing/release, the configured release/signing/legal paths and explicit `needs-human` labels.
+The maintainer can record a truthful, exact-bound acceptance comment on their own PR; that is not
+a GitHub self-approval. CI, exact base/head/source/policy binding, unresolved findings and real
+hardware/legal/signing outcomes remain mandatory where applicable.
 
 The [approved plan](PORTING_PLAN.md) supplies every macro owner/dependency. The canonical
 [manifest](port-manifest.json) freezes **1,866 exact tracked paths and Git blob SHAs** from
@@ -77,7 +108,7 @@ This Python-only tooling runs natively on Windows; it has no JDK/Android SDK/Gra
 `android-ci.yml` only verifies a Linux (`ubuntu-24.04`) build. Once the Android module has real
 Gradle builds to run, do that work from WSL (or another Linux environment) rather than native
 Windows, since native-Windows Gradle/AGP behavior is not covered by CI.
-Every mutating command defaults to dry-run: no network, ledger writes, backlog issues, workers or merge.
+Dispatcher commands default to dry-run: no network, ledger writes, backlog issues, workers or merge.
 Use global `--live` only after separately approved setup; missing capability is a nonzero `BLOCKED`,
 never a simulated successful launch. All 64 active handoffs fit the 65,536-character issue-body bound.
 Wide read-only inputs (notably WP-501) reference the complete manifest/scope digest and deterministic
@@ -159,9 +190,12 @@ mutations retain state and block duplicate dispatch; reconcile authoritative API
 the one actionable blocker. An independently reconciled existing worker is reused, not relaunched.
 Pause never kills workers.
 
-The currently installed helper still models static whole-WP claim/release. WP-003 must add the versioned
-capability state and idempotent compare-and-swap migration defined by ADR-006 while preserving historical
-authorization bytes and all actual identities/bindings without release/recreate or manual SQLite edits.
+The local helper supports trusted path/operation admission and same-owner compare-and-swap scope
+evolution. `release` is only a compatibility name and refuses to delete advisory history; terminal merge
+reconciliation and authenticated successor admission are distinct operations. A stale historical claim
+is not a file lock, and authenticating a new autonomous worker/completion is not the same as admitting
+an isolated source edit. Preserve historical authorization bytes and actual identities/bindings;
+do not erase claims or reinterpret an idle session as completion.
 
 Repairs target the same actual task/PR or native session, at most three rounds per attempt; requests
 reserve usage before delivery. A pending repair is not ready for another repair. Current-base repair
@@ -235,7 +269,9 @@ WP-003 must prove native-host integration/tool/path boundaries, receipt/restart 
 
 ## Limits, pause and portable environment
 
-No guessed AI ceiling or concurrent fleet size is supplied. Live dispatch/repair/merge requires:
+No guessed AI ceiling or concurrent fleet size is supplied. The autonomous controller's live
+dispatch/repair/merge requires the following setup. These are not blanket prerequisites for local
+source authoring or for the separately documented native review publication route:
 
 | Interface | Meaning |
 | --- | --- |
@@ -302,20 +338,19 @@ must execute the trusted base SHA on workflow_dispatch, not candidate code via p
 workflow_run. The publisher architecture, artifacts/catalog provenance, token scopes and runner proof
 are mandatory WP-003 integration acceptance, not bootstrap claims.
 
-Human approval is required for WPs000/001/002/003/006/406/505/506, any protected path and `needs-human`.
-Protected policy/build/catalog/manifest/container/schema/signing/oracle paths have no worker exceptions.
-CODEOWNERS routes review; it does not itself configure branch protection. Ordinary product WPs with
-unprotected changes can pass without a human once all independent gates are actually proven.
-The normal approval path verifies an actual current-head APPROVED maintainer review whose body
-contains `<!-- android-port-approval:<Binding.key> -->`; the publisher binds that explicit stamp
-to current base/policy as well. A stale stamp, self-review, missing reviewer or model-written record fails.
+The user-directed WP-003 review-authority amendment supersedes the original separate-person
+`APPROVED` requirement, including the code-review portions of supervised foundation and protected-path
+gates. Protected policy/build/catalog/manifest/container/schema/oracle changes still require trusted
+code review; protection does not by itself require a second human. CODEOWNERS routes review but does
+not configure branch protection. The sole maintainer being the PR author is not a code-review blocker.
 
-**Known personal-repo blocker:** the sole configured maintainer is `cbattlegear`. A native PR published
-as that same user cannot get an independent self-PR review. This bootstrap does not invent a human
-attestation or weaken that condition. WP-003 must establish an actually authorized alternate
-maintainer/reviewer or publisher identity, or separately design/prove a trusted interactive human
-attestation mechanism in a protected amendment. Until then these local/self-authored automated gates
-remain BLOCKED. The current WP-000 PR is for human inspection/manual disposition, not controller merge.
+`review_policy` and `gates.human_acceptance_required` define the retained human outcomes: WP-001,
+WP-505, WP-506, configured release/signing/legal paths and `needs-human`. A real maintainer
+`COMMENTED` or `APPROVED` review carrying `<!-- android-port-acceptance:<Binding.key> -->` can record
+typed human acceptance, including on the maintainer's own PR. Exact source/head/base/policy and
+server-side review identity remain bound. Historical untyped `APPROVED` records and
+`android-port-approval` stamps remain readable; they are not a new separate-person requirement.
+The native publication route described above is the current supported coordinator transport.
 
 This public personal repository has `allow_auto_merge=false`. No native organization merge queue is
 assumed. The default engine obtains a durable serialized merge lane, rechecks exact head/current base,

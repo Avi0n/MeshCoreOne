@@ -110,8 +110,20 @@ def main(argv=None, environment=None):
         if args.command == "status":
             result = {
                 "dry_run": dry_run, "dispatch_mode": settings.mode, "paused": settings.paused,
+                "policy_paused": policy["paused"],
                 "activation_approved": policy["activation_approved"],
                 "blockers": settings.blockers(policy, settings.mode),
+                "blocker_scope": "automated-dispatch-repair-and-merge",
+                "local_authoring": {
+                    "fleet_activation_required": False,
+                    "pre_edit_approval_required": policy["reservation_policy"]["pre_edit_approval_required"],
+                    "capability_admission_required": policy["merge_gate_policy"]["capability_admission_required"],
+                    "file_intents_are_advisory": True,
+                    "semantic_overlap_action": policy["reservation_policy"]["overlapping_semantic_edit_action"],
+                    "merge_authorized": False,
+                },
+                "review_policy": policy["review_policy"],
+                "native_review_guide": "docs/android/ci/README.md#native-authenticated-review-publication-bounded-wp-003-repair",
                 "inventory": manifest.counts(),
                 "work_packages": [
                     {
