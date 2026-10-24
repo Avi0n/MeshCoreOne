@@ -1,6 +1,7 @@
 // AndroidOnly: WP-303 Test harness: the production AppContainer over a Room store, a fake radio and fake platform roles.
 // AndroidOnly: WP-501 Fixed, class-scoped Room lifecycle diagnostic markers.
 // AndroidOnly: WP-207 Forward recovery scheduling through the real App graph.
+// AndroidOnly: WP-312 Explicit optional map dependency injection for App adapter tests.
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.database.MeshCoreDatabase
@@ -97,6 +98,7 @@ internal class ContainerHarness(
     chatSendQueueConfig: ChatSendQueueConfig = ChatSendQueueConfig(),
     mainScope: CoroutineScope = test.backgroundScope,
     onChannelQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null,
+    offlineMaps: com.meshcoreone.android.core.maps.OfflineMapController? = null,
 ) {
     val scheduler: TestCoroutineScheduler = test.testScheduler
     val links = HarnessLinks(identity)
@@ -139,6 +141,7 @@ internal class ContainerHarness(
             newBootstrapDebugLog = { DebugLogBuffer(store, it) },
             primerFactory = primerFactory,
             chatContent = chatContent,
+            offlineMaps = offlineMaps,
         ),
     )
     val manager get() = container.connectionManager
