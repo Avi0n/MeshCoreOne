@@ -161,7 +161,7 @@ private class MapLibreSurfaceController(
     }
 
     fun bindProjection(handle: MapProjectionHandle?) {
-        if (projectionHandle !== handle) projectionHandle?.bind(null)
+        if (projectionHandle !== handle) projectionHandle?.unbind(nativeProjection)
         projectionHandle = handle
         handle?.bind(nativeProjection)
     }
@@ -169,7 +169,7 @@ private class MapLibreSurfaceController(
     fun destroy() {
         if (destroyed) return
         destroyed = true
-        projectionHandle?.bind(null)
+        projectionHandle?.unbind(nativeProjection)
         projectionHandle = null
         map = null
         loadedStyle = null

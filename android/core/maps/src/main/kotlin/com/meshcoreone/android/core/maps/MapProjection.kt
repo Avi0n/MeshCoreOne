@@ -22,6 +22,9 @@ interface MapCoordinateProjection {
 class MapProjectionHandle : MapCoordinateProjection {
     private var binding: MapCoordinateProjection? = null
     internal fun bind(projection: MapCoordinateProjection?) { binding = projection }
+    internal fun unbind(projection: MapCoordinateProjection) {
+        if (binding === projection) binding = null
+    }
     override fun coordinateAt(point: MapScreenPoint): MapProjectionResult<GeoPoint> =
         binding?.coordinateAt(point) ?: MapProjectionResult.NotReady
     override fun screenPointFor(coordinate: GeoPoint): MapProjectionResult<MapScreenPoint> =

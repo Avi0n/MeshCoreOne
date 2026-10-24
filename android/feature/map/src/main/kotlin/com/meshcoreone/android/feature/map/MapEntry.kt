@@ -270,7 +270,7 @@ private fun MapContent(
                         is MapSelection.Discovered -> {
                             Text(stringResource(R.string.l10n_app_map_map_discovereddetail_title))
                             Text(
-                                stringResource(R.string.l10n_app_map_map_detail_publickey) + ": " + selection.node.publicKey.hex,
+                                stringResource(R.string.l10n_app_map_map_detail_publickey) + ": " + selection.node.publicKey.hexString,
                                 style = MaterialTheme.typography.bodySmall,
                             )
                             if (dependencies.actions != null) {

@@ -85,6 +85,11 @@ validateModuleGraph runtimeDependencyInventory resolveScaffoldDependencies
 dependency verification and the trusted checker's existing execution options.
 That failed check was explicitly published as an unverified candidate, not
 reported as tests passing. The next normal publication rechecks the correction.
+At `59976db5b081f5c108a5a7adfa5b61fb21e01e8b`, core maps compilation proceeded
+past that corrected type; the next actionable diagnostic was
+`:feature:map:compileDebugKotlin`,
+`MapEntry.kt:273:126 Unresolved reference 'hex'.`
+The callout now uses the existing `Bytes.hexString` API, not a new codec.
 This remains an **UNVERIFIED CANDIDATE** until the exact-head hosted result/log
 demonstrates otherwise.
 The PR records actual command outcomes, never invented discovery counts.
@@ -97,6 +102,11 @@ The mounted JVM tests replace only the native surface at its explicit seam;
 they are not MapLibre JNI, native window, device, network or physical-radio
 observations. Real native pan/zoom/rotation/tilt/resize/antimeridian fidelity
 remains unverified until separately executed on the admitted native lane.
+`MapProjectionDeviceTest` additionally supplies an actual mounted shared-renderer
+device test for pan, zoom, rotation, tilt, resize, antimeridian, subpixel
+round-trips, rotated eastward direction, outside-viewport picking and unmount.
+It waits for real provider/native-camera readiness and fails if unavailable;
+its presence/compilation is not a claim that it executed. No device was started.
 
 ## Downstream and human follow-up
 
