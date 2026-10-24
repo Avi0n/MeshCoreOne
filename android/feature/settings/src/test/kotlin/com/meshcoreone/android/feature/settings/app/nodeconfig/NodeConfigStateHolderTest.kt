@@ -28,6 +28,7 @@ class NodeConfigStateHolderTest {
         var valid = true
         var writes = 0
         var refreshes = 0
+        var refreshAction: suspend () -> Unit = { refreshes++ }
         var overwrite = false
         var currentFailure: Exception? = null
         var preview: suspend () -> Unit = {}
@@ -40,7 +41,7 @@ class NodeConfigStateHolderTest {
         }
         override suspend fun preview(config: MeshCoreNodeConfig, sections: ConfigSections): Boolean { preview(); return overwrite }
         override suspend fun apply(config: MeshCoreNodeConfig, sections: ConfigSections, progress: (NodeConfigProgress) -> Unit) = execute(progress)
-        override suspend fun refresh() { refreshes++ }
+        override suspend fun refresh() = refreshAction()
     }
     private class Documents : NodeConfigDocuments {
         var read: suspend () -> ByteArray? = { byteArrayOf(1) }
@@ -103,6 +104,14 @@ class NodeConfigStateHolderTest {
         assertEquals(NodeConfigImportState(), h.importState.value)
     }
 
+    @Test fun leavingCompletionWindowResetsToFilePicker() = runTest {
+        val h = holder(Radio())
+        h.pick(Documents()); runCurrent(); h.prepareConfirmation(); runCurrent(); h.apply(); runCurrent()
+        assertTrue(h.importState.value.complete)
+        h.handleDismissal()
+        assertEquals(NodeConfigImportState(), h.importState.value)
+    }
+
     @Test
     @OriginalCase("NodeConfigImportViewModelTests::A cancellation message distinguishes a partial cancel from a clean one()")
     fun cancellationBeforeAndAfterProgressIsDistinct() = runTest {
@@ -134,6 +143,34 @@ class NodeConfigStateHolderTest {
             assertEquals("failed:$partial:fault", h.importState.value.error)
             assertFalse(h.importState.value.complete)
         }
+    }
+
+    @Test fun refreshFailureDoesNotUndoCommittedImport() = runTest {
+        val radio = Radio().also {
+            it.refreshAction = { it.refreshes++; throw IOException("refresh failed") }
+        }
+        val h = holder(radio)
+        h.pick(Documents()); runCurrent(); h.prepareConfirmation(); runCurrent(); h.apply(); runCurrent()
+        assertEquals(1, radio.writes)
+        assertEquals(1, radio.refreshes)
+        assertTrue(h.importState.value.complete)
+        assertFalse(h.importState.value.applying)
+        assertNull(h.importState.value.error)
+    }
+
+    @Test fun cancellationDuringBestEffortRefreshKeepsCommittedImportComplete() = runTest {
+        val radio = Radio().also {
+            it.refreshAction = { it.refreshes++; awaitCancellation() }
+        }
+        val h = holder(radio)
+        h.pick(Documents()); runCurrent(); h.prepareConfirmation(); runCurrent(); h.apply(); runCurrent()
+        assertTrue(h.importState.value.applying)
+        h.cancelImport(); runCurrent()
+        assertEquals(1, radio.writes)
+        assertEquals(1, radio.refreshes)
+        assertTrue(h.importState.value.complete)
+        assertFalse(h.importState.value.applying)
+        assertNull(h.importState.value.error)
     }
 
     @Test fun previewValidatesBeforeConfirmationAndLocksSelection() = runTest {

@@ -174,24 +174,36 @@ class NodeConfigStateHolder(
         didProgress = false
         importing.value = state.copy(confirmation = false, applying = true, progress = null, error = null)
         applyJob = scope.launch {
+            val connection: NodeConfigSession
             try {
-                val connection = requireNotNull(captured)
+                connection = requireNotNull(captured)
                 connection.requireCurrent()
                 connection.apply(config, state.sections) { progress ->
                     didProgress = true
                     importing.value = importing.value.copy(progress = progress)
                 }
                 connection.requireCurrent()
-                connection.refresh()
-                importing.value = importing.value.copy(applying = false, complete = true)
-                sleep(1500)
-                reset()
             } catch (cancelled: CancellationException) {
                 importing.value = importing.value.copy(applying = false, complete = false, error = messages.cancelled(didProgress))
                 throw cancelled
             } catch (failure: Exception) {
                 importing.value = importing.value.copy(applying = false, error = messages.failed(failure, didProgress))
+                return@launch
             }
+
+            // The destructive apply has committed; refresh is best-effort like the source workflow.
+            try {
+                connection.refresh()
+            } catch (_: CancellationException) {
+            } catch (_: Exception) {
+            }
+            importing.value = importing.value.copy(applying = false, complete = true)
+            try {
+                sleep(1500)
+            } catch (_: CancellationException) {
+                return@launch
+            }
+            reset()
         }
     }
 
@@ -201,7 +213,7 @@ class NodeConfigStateHolder(
         ++parseId
         parseJob?.cancel()
         previewJob?.cancel()
-        if (!importing.value.applying && !importing.value.complete) reset()
+        if (!importing.value.applying) reset()
     }
 
     private fun reset() {
