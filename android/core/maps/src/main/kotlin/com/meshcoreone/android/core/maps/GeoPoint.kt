@@ -41,13 +41,20 @@ fun List<GeoPoint>.boundingCamera(paddingMultiplier: Double = 1.5): MapCamera? {
         minLongitude = min(minLongitude, it.longitude)
         maxLongitude = max(maxLongitude, it.longitude)
     }
+    val longitudes = map { it.longitude }.sorted()
+    val gapIndex = longitudes.indices.maxBy { index ->
+        val next = if (index == longitudes.lastIndex) longitudes.first() + 360.0 else longitudes[index + 1]
+        next - longitudes[index]
+    }
+    minLongitude = longitudes[(gapIndex + 1) % longitudes.size]
+    maxLongitude = longitudes[gapIndex].let { if (it < minLongitude) it + 360.0 else it }
     val center = GeoPoint(
         latitude = (minLatitude + maxLatitude) / 2.0,
-        longitude = (minLongitude + maxLongitude) / 2.0,
+        longitude = wrapLongitude((minLongitude + maxLongitude) / 2.0),
     )
     val latitudeSpan = min(
         max(0.01, (maxLatitude - minLatitude) * paddingMultiplier),
-        (90.0 - abs(center.latitude)) * 2.0,
+        ((90.0 - abs(center.latitude)) * 2.0).coerceAtLeast(0.000001),
     )
     val longitudeSpan = min(max(0.01, (maxLongitude - minLongitude) * paddingMultiplier), 360.0)
     return MapCamera(center, latitudeSpan, longitudeSpan)

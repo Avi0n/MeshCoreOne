@@ -3,8 +3,6 @@
 package com.meshcoreone.android.feature.map
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +10,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,9 +27,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -66,6 +65,10 @@ import com.meshcoreone.android.core.maps.OfflineMapError
 import com.meshcoreone.android.core.maps.OfflinePack
 import com.meshcoreone.android.core.maps.OfflinePackState
 import com.meshcoreone.android.core.maps.boundingCamera
+import com.meshcoreone.android.core.maps.semanticText
+import com.meshcoreone.android.core.protocol.model.ContactType
+import com.meshcoreone.android.core.ui.UiErrorMapper
+import com.meshcoreone.android.core.ui.uiString
 import com.meshcoreone.android.core.ui.FeatureShellCopy
 import com.meshcoreone.android.core.ui.ScaffoldFeatureContent
 import java.util.UUID
@@ -79,6 +82,8 @@ fun MapEntry(
     dependencies: MapFeatureDependencies? = null,
     focus: GeoPoint? = null,
     onFocusConsumed: () -> Unit = {},
+    mapSurface: @Composable (MapPresentationState, Boolean, Boolean, (MapCamera) -> Unit, (MapMarker) -> Unit) -> Unit =
+        { state, clusters, labels, camera, marker -> NativeMapSurface(state, clusters, labels, camera, marker) },
 ) {
     if (dependencies == null) {
         ScaffoldFeatureContent(
@@ -93,7 +98,22 @@ fun MapEntry(
         )
         return
     }
-    MapContent(dependencies, focus, onFocusConsumed)
+    MapContent(dependencies, focus, onFocusConsumed, mapSurface)
+}
+
+@Composable
+private fun NativeMapSurface(
+    state: MapPresentationState,
+    clusters: Boolean,
+    labels: Boolean,
+    camera: (MapCamera) -> Unit,
+    marker: (MapMarker) -> Unit,
+) {
+    if (!MapLibreRuntime.isSupported) {
+        MapRuntimeUnavailable()
+    } else {
+        MapLibreMapSurface(state, clusters, labels, stringResource(R.string.tab_map), camera, marker)
+    }
 }
 
 @Composable
@@ -116,11 +136,8 @@ private fun MapContent(
     dependencies: MapFeatureDependencies,
     focus: GeoPoint?,
     onFocusConsumed: () -> Unit,
+    mapSurface: @Composable (MapPresentationState, Boolean, Boolean, (MapCamera) -> Unit, (MapMarker) -> Unit) -> Unit,
 ) {
-    if (!MapLibreRuntime.isSupported) {
-        MapRuntimeUnavailable()
-        return
-    }
     val context = LocalContext.current
     val preferences = remember(context) { context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE) }
     var filter by remember {
@@ -133,44 +150,33 @@ private fun MapContent(
     }
     var clustering by remember { mutableStateOf(preferences.getBoolean(CLUSTER_KEY, true)) }
     var labels by remember { mutableStateOf(preferences.getBoolean(LABEL_KEY, true)) }
-    var content by remember { mutableStateOf<MapFeatureContent?>(null) }
-    var loadError by remember { mutableStateOf(false) }
-    var refreshGeneration by remember { mutableIntStateOf(0) }
-    var selected by remember { mutableStateOf<MapMarker?>(null) }
+    val scope = rememberCoroutineScope()
+    val holder = remember(dependencies, scope) { MapFeatureStateHolder(dependencies, scope, filter) }
+    val feature by holder.state.collectAsStateWithLifecycle()
+    DisposableEffect(holder) { onDispose { holder.close() } }
     var listVisible by remember { mutableStateOf(false) }
     var focusedPoint by remember { mutableStateOf(focus) }
+    var selectedFocus by remember { mutableStateOf<MapMarker?>(null) }
     var offlineVisible by remember { mutableStateOf(false) }
     var camera by remember {
         mutableStateOf(preferences.getString(CAMERA_KEY, null)?.let(MapCamera::decode))
     }
 
-    LaunchedEffect(dependencies, refreshGeneration) {
-        loadError = false
-        try {
-            val loaded = dependencies.dataSource.load()
-            content = loaded
-            if (camera == null && focusedPoint == null) {
-                camera = loaded.markers.map { it.marker.position }.boundingCamera()
-            }
-        } catch (cancelled: CancellationException) {
-            throw cancelled
-        } catch (_: Exception) {
-            loadError = true
+    LaunchedEffect(feature.content) {
+        if (camera == null && focusedPoint == null) {
+            camera = feature.content.markers.map { it.marker.position }.boundingCamera()
         }
     }
     LaunchedEffect(focus) {
         if (focus != null) {
             focusedPoint = focus
+            selectedFocus = null
             camera = MapCamera(focus, 0.05, 0.05)
             onFocusConsumed()
         }
     }
 
-    val filtered = content?.markers.orEmpty().filter { item ->
-        (!filter.favoritesOnly || item.isFavorite) &&
-            (filter.favoritesOnly || !item.isDiscovered || filter.effectiveShowDiscovered) &&
-            filter.allows(item.type)
-    }.map { it.marker }.toMutableList()
+    val filtered = feature.visibleMarkers.map { it.marker }.toMutableList()
     focusedPoint?.let {
         filtered += MapMarker(
             id = UUID(it.latitude.toBits(), it.longitude.toBits()),
@@ -186,26 +192,27 @@ private fun MapContent(
         style = MapStyle.STANDARD,
         camera = camera,
         points = filtered,
-        lines = content?.lines.orEmpty(),
+        lines = feature.content.lines,
     )
 
     Box(Modifier.fillMaxSize()) {
-        MapLibreMapSurface(
-            presentation = state,
-            clusteringEnabled = clustering,
-            labelsEnabled = labels,
-            accessibilityLabel = stringResource(R.string.tab_map),
-            onCameraChanged = {
+        mapSurface(
+            state, clustering, labels,
+            {
                 camera = it
                 preferences.edit().putString(CAMERA_KEY, it.encode()).apply()
             },
-            onMarkerSelected = { selected = it },
-            modifier = Modifier.fillMaxSize(),
+            {
+                selectedFocus = it.takeIf { marker -> marker.style == MapPinStyle.DROPPED_PIN }
+                holder.select(it.id)
+            },
         )
         MapControls(
             filter = filter,
             onFilter = {
                 filter = it
+                holder.setFilter(it)
+                selectedFocus = null
                 preferences.edit().putString(FILTER_KEY, MapFilterPreferences.encode(it, MapFilterHost.MAIN_MAP)).apply()
             },
             clustering = clustering,
@@ -220,28 +227,61 @@ private fun MapContent(
             },
             listVisible = listVisible,
             onListVisible = { listVisible = it },
-            onRefresh = { refreshGeneration += 1 },
+            onRefresh = holder::refresh,
             onOffline = { offlineVisible = !offlineVisible },
             modifier = Modifier.align(Alignment.TopCenter),
         )
-        Attribution(
-            context = context,
-            modifier = Modifier.align(Alignment.BottomCenter),
-        )
-        if (content == null && !loadError) {
+        if (feature.loading && feature.error == null) {
             CircularProgressIndicator(Modifier.align(Alignment.Center))
         }
-        if (loadError) {
-            Button(onClick = { refreshGeneration += 1 }, modifier = Modifier.align(Alignment.Center)) {
-                Text(stringResource(R.string.l10n_app_map_map_controls_refresh))
+        feature.error?.let { error ->
+            val presented = remember(error) { UiErrorMapper().present(error) }
+            Card(Modifier.align(Alignment.Center).padding(16.dp)) {
+                Column(Modifier.padding(12.dp)) {
+                    Text(uiString(presented.content.message))
+                    Button(onClick = holder::refresh) {
+                        Text(stringResource(R.string.l10n_app_map_map_controls_refresh))
+                    }
+                }
             }
         }
-        selected?.let { marker ->
+        val selectedItem = feature.selected ?: selectedFocus?.let {
+            MapFeatureMarker(it, ContactMapType.CHAT, false, false)
+        }
+        selectedItem?.let { item ->
+            val marker = item.marker
             Card(Modifier.align(Alignment.BottomStart).padding(bottom = 52.dp, start = 12.dp, end = 12.dp)) {
                 Column(Modifier.padding(12.dp)) {
-                    Text(marker.label ?: stringResource(R.string.l10n_app_contacts_contacts_list_selectnode))
+                    Text(marker.semanticText.ifBlank { stringResource(R.string.l10n_app_contacts_contacts_list_selectnode) })
                     Text("${marker.position.latitude}, ${marker.position.longitude}", style = MaterialTheme.typography.bodySmall)
-                    TextButton(onClick = { selected = null }) {
+                    when (val selection = item.selection) {
+                        is MapSelection.Contact -> if (dependencies.actions != null) {
+                            FlowRow {
+                                TextButton(onClick = holder::openContact) {
+                                    Text(stringResource(R.string.l10n_app_map_map_callout_details))
+                                }
+                                if (selection.contact.type == ContactType.CHAT) {
+                                    TextButton(onClick = holder::openChat) {
+                                        Text(stringResource(R.string.l10n_app_map_map_callout_message))
+                                    }
+                                }
+                            }
+                        }
+                        is MapSelection.Discovered -> {
+                            Text(stringResource(R.string.l10n_app_map_map_discovereddetail_title))
+                            Text(
+                                stringResource(R.string.l10n_app_map_map_detail_publickey) + ": " + selection.node.publicKey.hex,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            if (dependencies.actions != null) {
+                                TextButton(onClick = holder::addDiscovered, enabled = !feature.adding) {
+                                    Text(stringResource(R.string.l10n_app_map_map_discovereddetail_add))
+                                }
+                            }
+                        }
+                        null -> Unit
+                    }
+                    TextButton(onClick = { holder.select(null); selectedFocus = null }) {
                         Text(stringResource(R.string.l10n_app_map_map_common_done))
                     }
                 }
@@ -249,13 +289,19 @@ private fun MapContent(
         }
         if (listVisible) {
             val mapListDescription = stringResource(R.string.tab_map)
-            Card(Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.68f).padding(12.dp)) {
+            Card(Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.68f).fillMaxHeight(0.55f).padding(12.dp)) {
                 LazyColumn(
                     Modifier.semantics { contentDescription = mapListDescription },
                 ) {
                     items(filtered, key = { it.id }) { marker ->
-                        TextButton(onClick = { selected = marker }, modifier = Modifier.fillMaxWidth()) {
-                            Text(marker.label ?: "${marker.position.latitude}, ${marker.position.longitude}")
+                        TextButton(
+                            onClick = {
+                                selectedFocus = marker.takeIf { it.style == MapPinStyle.DROPPED_PIN }
+                                holder.select(marker.id)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(marker.semanticText.ifBlank { "${marker.position.latitude}, ${marker.position.longitude}" })
                         }
                     }
                 }
@@ -589,25 +635,6 @@ private fun normalizeLongitude(value: Double): Double {
     return normalized
 }
 
-@Composable
-private fun Attribution(context: Context, modifier: Modifier = Modifier) {
-    Card(modifier.padding(6.dp)) {
-        FlowRow(Modifier.padding(horizontal = 4.dp)) {
-            MapLibreOpenFreeMap.attribution.forEach { attribution ->
-                TextButton(
-                    onClick = {
-                        context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse(attribution.legalUri))
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                        )
-                    },
-                ) {
-                    Text(attribution.label, style = MaterialTheme.typography.labelSmall)
-                }
-            }
-        }
-    }
-}
 
 private const val PREFERENCES = "shared-map"
 private const val CAMERA_KEY = "camera-v1"

@@ -10,12 +10,22 @@ import com.meshcoreone.android.feature.map.MapFeatureContent
 import com.meshcoreone.android.feature.map.MapFeatureDataSource
 import com.meshcoreone.android.feature.map.MapFeatureDependencies
 import com.meshcoreone.android.feature.map.MapFeatureMarker
+import com.meshcoreone.android.feature.map.MapSelection
+import com.meshcoreone.android.feature.map.MapFeatureActions
+import com.meshcoreone.android.feature.map.MapFeatureUpdate
+import com.meshcoreone.android.core.model.ContactDTO
+import com.meshcoreone.android.core.model.DiscoveredNodeDTO
+import com.meshcoreone.android.core.model.ContactFrame
+import com.meshcoreone.android.core.services.contacts.ContactServiceError
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.combine
 
 internal fun AppContainer.createMapFeatureDependencies(): MapFeatureDependencies =
     MapFeatureDependencies(
         dataSource = MapFeatureDataSource {
             val radioId = appState.currentRadioId ?: return@MapFeatureDataSource MapFeatureContent()
             val store = appState.offlineDataStore ?: return@MapFeatureDataSource MapFeatureContent()
+            val version = appState.servicesVersion.value
             val contacts = store.fetchContacts(radioId)
             val contactKeys = contacts.mapTo(mutableSetOf()) { it.publicKey }
             val contactMarkers = contacts.filter { it.hasLocation }.map { contact ->
@@ -29,6 +39,7 @@ internal fun AppContainer.createMapFeatureDependencies(): MapFeatureDependencies
                     type = contact.type.mapType,
                     isFavorite = contact.isFavorite,
                     isDiscovered = false,
+                    selection = MapSelection.Contact(contact),
                 )
             }
             val discoveredMarkers = store.fetchDiscoveredNodes(radioId)
@@ -44,11 +55,52 @@ internal fun AppContainer.createMapFeatureDependencies(): MapFeatureDependencies
                         type = node.nodeType.mapType,
                         isFavorite = false,
                         isDiscovered = true,
+                        selection = MapSelection.Discovered(node),
                     )
                 }
+            if (radioId != appState.currentRadioId || version != appState.servicesVersion.value) {
+                throw CancellationException("Map radio generation changed")
+            }
             MapFeatureContent(markers = contactMarkers + discoveredMarkers)
         },
         offlineMaps = offlineMaps,
+        updates = combine(
+            connectionManager.snapshot, appState.servicesVersion, appState.contactsVersion, appState.sessionStateChangeCount,
+        ) { connection, services, _, _ ->
+            MapFeatureUpdate("${appState.currentRadioId}:${connection.token}:$services")
+        },
+        actions = object : MapFeatureActions {
+            private fun requireRadio(radio: com.meshcoreone.android.core.model.RadioId) {
+                if (radio != appState.currentRadioId) throw ContactServiceError.NotConnected()
+            }
+
+            override fun openContact(contact: ContactDTO) {
+                requireRadio(contact.radioId)
+                navigation.navigateToContactDetail(contact)
+            }
+
+            override fun openChat(contact: ContactDTO) {
+                requireRadio(contact.radioId)
+                navigation.navigateToChat(contact)
+            }
+
+            override suspend fun addDiscovered(node: DiscoveredNodeDTO) {
+                requireRadio(node.radioId)
+                val session = sessions.current?.takeIf { it.token.radioId == node.radioId }
+                    ?: throw ContactServiceError.NotConnected()
+                session.contactService.addOrUpdateContact(
+                    node.radioId,
+                    ContactFrame(
+                        publicKey = node.publicKey, type = node.nodeType, typeRawValue = node.typeRawValue,
+                        flags = 0u, outPathLength = node.outPathLength, outPath = node.outPath, name = node.name,
+                        lastAdvertTimestamp = node.lastAdvertTimestamp, latitude = node.latitude, longitude = node.longitude,
+                        lastModified = java.time.Instant.now().epochSecond.toUInt(),
+                    ),
+                )
+                if (sessions.current !== session) throw ContactServiceError.NotConnected()
+                appState.bumpContactsVersion()
+            }
+        },
     )
 
 private val ContactType.mapType: ContactMapType
