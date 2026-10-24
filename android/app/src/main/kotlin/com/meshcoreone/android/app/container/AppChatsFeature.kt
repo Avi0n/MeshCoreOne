@@ -280,29 +280,37 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
 
     internal suspend fun failPending(message: MessageDTO) {
         if (store.updateMessageStatusUnlessDelivered(EntityKey(message.radioId, message.id), MessageStatus.FAILED)) {
-            app.messageEventStream.send(MessageEvent.MessageFailed(message.id))
             app.refreshConversations()
-            val state = navigation.state.value
-            val open = if (state.selectedTab == com.meshcoreone.android.core.contracts.AppTab.CHATS) {
-                state.stacks.getValue(com.meshcoreone.android.core.contracts.AppTab.CHATS).last().destination
-                    as? com.meshcoreone.android.app.navigation.NavigationDestination.Chat
-            } else null
             try {
-                when (val selection = open?.selection) {
-                    is com.meshcoreone.android.app.navigation.ChatSelection.Direct ->
-                        if (selection.contact.radioId == message.radioId && selection.contact.id == message.contactID) {
-                            store.markFailedSendsSeen(EntityKey(message.radioId, selection.contact.id))
-                        }
-                    is com.meshcoreone.android.app.navigation.ChatSelection.Channel ->
-                        if (selection.channel.radioId == message.radioId && selection.channel.index == message.channelIndex) {
-                            store.markFailedSendsSeen(message.radioId, selection.channel.index)
-                        }
-                    else -> Unit
-                }
-            } catch (failure: PersistenceStoreException) {
-                report("Mark visible failed send seen", failure)
+                markFailedSendSeenIfVisible(message)
+            } finally {
+                // The failure is already committed even if marking it seen is cancelled.
+                app.refreshConversations()
+                app.messageEventStream.send(MessageEvent.MessageFailed(message.id))
             }
-            app.refreshConversations()
+        }
+    }
+
+    private suspend fun markFailedSendSeenIfVisible(message: MessageDTO) {
+        val state = navigation.state.value
+        val open = if (state.selectedTab == com.meshcoreone.android.core.contracts.AppTab.CHATS) {
+            state.stacks.getValue(com.meshcoreone.android.core.contracts.AppTab.CHATS).last().destination
+                as? com.meshcoreone.android.app.navigation.NavigationDestination.Chat
+        } else null
+        try {
+            when (val selection = open?.selection) {
+                is com.meshcoreone.android.app.navigation.ChatSelection.Direct ->
+                    if (selection.contact.radioId == message.radioId && selection.contact.id == message.contactID) {
+                        store.markFailedSendsSeen(EntityKey(message.radioId, selection.contact.id))
+                    }
+                is com.meshcoreone.android.app.navigation.ChatSelection.Channel ->
+                    if (selection.channel.radioId == message.radioId && selection.channel.index == message.channelIndex) {
+                        store.markFailedSendsSeen(message.radioId, selection.channel.index)
+                    }
+                else -> Unit
+            }
+        } catch (failure: PersistenceStoreException) {
+            report("Mark visible failed send seen", failure)
         }
     }
 
@@ -421,11 +429,17 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
                     is TimelineConversation.Direct -> message.contactID == conversation.contact.id
                     is TimelineConversation.Channel -> message.channelIndex == conversation.channel.index
                 }
-                if (belongs) emit(when (event) {
-                    is MessageEvent.DirectMessageReceived, is MessageEvent.ChannelMessageReceived ->
-                        TimelineEvent.MessageReceived(conversation.id, message)
-                    else -> TimelineEvent.MessageChanged(conversation.id, message.id)
-                })
+                if (belongs) {
+                    if (event is MessageEvent.MessageFailed && !message.failureSeen) {
+                        markFailedSendSeenIfVisible(message)
+                        app.refreshConversations()
+                    }
+                    emit(when (event) {
+                        is MessageEvent.DirectMessageReceived, is MessageEvent.ChannelMessageReceived ->
+                            TimelineEvent.MessageReceived(conversation.id, message)
+                        else -> TimelineEvent.MessageChanged(conversation.id, message.id)
+                    })
+                }
             }
         }
         override val diagnostics = TimelineDiagnostics { operation, failure -> report(operation, failure) }
