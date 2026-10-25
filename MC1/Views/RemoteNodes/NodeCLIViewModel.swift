@@ -32,10 +32,17 @@ final class NodeCLIViewModel {
   private var sendRawCommand: (@MainActor (_ command: String, _ timeout: Duration) async throws -> String)?
   private var currentCommandTask: Task<Void, Never>?
   private var hasConfigured = false
+  private var sensorSubmissionPending = false
+
+  var canCancelCurrentCommand: Bool {
+    isWaitingForResponse && !sensorSubmissionPending
+  }
+
   private var commandEpoch = Epoch()
 
   func reset() {
     commandEpoch.bump()
+    sensorSubmissionPending = false
     currentCommandTask?.cancel()
     currentCommandTask = nil
     outputLines.removeAll()
@@ -95,6 +102,7 @@ final class NodeCLIViewModel {
     let cmd = parts[0].lowercased()
     let args = parts.count > 1 ? parts[1] : ""
 
+    sensorSubmissionPending = remoteTarget == .sensor && RemoteCLINoReplyCommand.sensorCommand(transmitted) != nil
     isWaitingForResponse = true
     // Compared with `currentCommandTask` so a newer command stays waiting.
     var task: Task<Void, Never>!
@@ -109,7 +117,7 @@ final class NodeCLIViewModel {
 
   /// Radio CLI sends the submitted line. Help, clear, and the other targets keep the trimmed line.
   private func transmittedLine(original: String, normalized: String) -> String {
-    guard remoteTarget == .radio else { return normalized }
+    guard remoteTarget == .radio || remoteTarget == .sensor else { return normalized }
     let parts = normalized.split(separator: " ", maxSplits: 1).map(String.init)
     let verb = parts[0].lowercased()
     let args = parts.count > 1 ? parts[1] : ""
@@ -120,6 +128,7 @@ final class NodeCLIViewModel {
   }
 
   func cancelCurrentCommand() {
+    guard !sensorSubmissionPending else { return }
     // A reply already in hand must not print after cancel.
     commandEpoch.bump()
     currentCommandTask?.cancel()
@@ -133,6 +142,7 @@ final class NodeCLIViewModel {
   private func clearWaitingIfCurrent(_ task: Task<Void, Never>) {
     guard currentCommandTask == task else { return }
     currentCommandTask = nil
+    sensorSubmissionPending = false
     isWaitingForResponse = false
   }
 
@@ -158,13 +168,13 @@ final class NodeCLIViewModel {
         } else {
           appendOutput(response, type: .response)
         }
-      } catch RemoteNodeError.timeout {
+      } catch RemoteNodeError.timeout where remoteTarget != .sensor {
         guard ticket.isCurrent(in: commandEpoch) else { return }
         appendOutput(sentLine, type: .success)
       } catch is CancellationError {
       } catch {
         guard ticket.isCurrent(in: commandEpoch) else { return }
-        appendOutput(error.localizedDescription, type: .error)
+        appendOutput(error.userFacingMessage, type: .error)
       }
       return
     }
@@ -179,7 +189,7 @@ final class NodeCLIViewModel {
       appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.radioNoReply(sessionName), type: .error)
     } catch {
       guard ticket.isCurrent(in: commandEpoch) else { return }
-      appendOutput(error.localizedDescription, type: .error)
+      appendOutput(error.userFacingMessage, type: .error)
     }
   }
 
@@ -187,6 +197,12 @@ final class NodeCLIViewModel {
   /// A radio matches the whole command, including case.
   private func noReplySentLine(for command: String) -> String? {
     switch remoteTarget {
+    case .sensor:
+      switch RemoteCLINoReplyCommand.sensorCommand(command) {
+      case .reboot: L10n.RemoteNodes.RemoteNodes.Sensor.rebootSent
+      case .powerOff: L10n.RemoteNodes.RemoteNodes.NodeCli.powerOffSent
+      case nil: nil
+      }
     case .repeater, .room:
       switch RemoteCLINoReplyCommand(command) {
       case .reboot:
@@ -214,7 +230,9 @@ final class NodeCLIViewModel {
     appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.helpHeader, type: .response)
     appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.helpHelp, type: .response)
     appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.helpClear, type: .response)
-    appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.helpClearStats, type: .response)
+    if remoteTarget != .sensor {
+      appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.helpClearStats, type: .response)
+    }
     appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.helpReboot, type: .response)
     appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.helpPassthrough, type: .response)
   }

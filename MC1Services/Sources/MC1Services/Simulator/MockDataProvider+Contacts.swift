@@ -6,6 +6,27 @@ public extension MockDataProvider {
     let now = Date()
 
     return [
+      ContactDTO(
+        id: creekSensorID,
+        radioID: simulatorDeviceID,
+        publicKey: mockPublicKey(seed: 0x94),
+        name: "Creek Sensor",
+        typeRawValue: ContactType.sensor.rawValue,
+        flags: 0,
+        outPathLength: 0,
+        outPath: Data(),
+        lastAdvertTimestamp: UInt32(now.timeIntervalSince1970),
+        latitude: 37.78,
+        longitude: -122.42,
+        lastModified: UInt32(now.timeIntervalSince1970),
+        lastHeardTimestamp: nil,
+        nickname: nil,
+        isBlocked: false,
+        isMuted: false,
+        isFavorite: false,
+        lastMessageDate: nil,
+        unreadCount: 0
+      ),
       // Alice Chen - chat, normal, 3 unread, 2 hops
       ContactDTO(
         id: aliceChenID,

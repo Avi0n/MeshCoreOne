@@ -194,6 +194,7 @@ private enum DiscoveryListLayout {
 // MARK: - Node Row
 
 private struct DiscoveryNodeRow: View {
+  private static let avatarSize: CGFloat = 44
   @Environment(\.appState) private var appState
   let node: DiscoveredNodeDTO
   let isAdded: Bool
@@ -289,11 +290,13 @@ private struct DiscoveryNodeRow: View {
   private var avatarView: some View {
     switch node.nodeType {
     case .chat:
-      ContactAvatar(name: node.name, size: 44)
+      ContactAvatar(name: node.name, size: Self.avatarSize)
     case .repeater:
-      NodeAvatar(publicKey: node.publicKey, role: .repeater, size: 44)
+      NodeAvatar(publicKey: node.publicKey, role: .repeater, size: Self.avatarSize)
     case .room:
-      NodeAvatar(publicKey: node.publicKey, role: .roomServer, size: 44)
+      NodeAvatar(publicKey: node.publicKey, role: .roomServer, size: Self.avatarSize)
+    case .sensor:
+      NodeAvatar(publicKey: node.publicKey, role: .sensor, size: Self.avatarSize)
     }
   }
 
@@ -302,6 +305,7 @@ private struct DiscoveryNodeRow: View {
     case .chat: L10n.Contacts.Contacts.NodeKind.chat
     case .repeater: L10n.Contacts.Contacts.NodeKind.repeater
     case .room: L10n.Contacts.Contacts.NodeKind.room
+    case .sensor: L10n.Contacts.Contacts.NodeKind.sensor
     }
   }
 

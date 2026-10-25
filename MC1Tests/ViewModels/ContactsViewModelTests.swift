@@ -48,6 +48,22 @@ private func createContact(
 @Suite("ContactsViewModel Tests")
 @MainActor
 struct ContactsViewModelTests {
+  @Test
+  func `sensors have their own segment and remain searchable favorites`() {
+    let model = ContactsViewModel()
+    let sensor = createContact(name: "Sensor", type: .sensor, isFavorite: true)
+    model.contacts = [sensor, createContact(type: .chat), createContact(type: .repeater), createContact(type: .room)]
+    func filtered(_ segment: NodeSegment, search: String = "") -> [UUID] {
+      model.filteredContacts(searchText: search, segment: segment, sortOrder: .name, userLocation: nil).map(\.id)
+    }
+    #expect(filtered(.sensors) == [sensor.id])
+    #expect(filtered(.favorites) == [sensor.id])
+    #expect(!filtered(.contacts).contains(sensor.id))
+    #expect(!filtered(.repeaters).contains(sensor.id))
+    #expect(!filtered(.rooms).contains(sensor.id))
+    #expect(filtered(.contacts, search: "Sensor") == [sensor.id])
+  }
+
   // MARK: - Initial State
 
   @Test

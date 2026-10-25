@@ -857,6 +857,9 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "伴侣节点";
 
+/* TODO: translate */
+"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "中继器";
 

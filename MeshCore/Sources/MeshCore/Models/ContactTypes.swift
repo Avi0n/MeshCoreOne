@@ -10,6 +10,7 @@ public enum ContactType: UInt8, Sendable, Codable {
   case chat = 0x01
   case repeater = 0x02
   case room = 0x03
+  case sensor = 0x04
 }
 
 // MARK: - Contact Flags

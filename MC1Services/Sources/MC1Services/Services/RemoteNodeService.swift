@@ -12,7 +12,7 @@ private let cliResponseTextType: UInt8 = 0x01
 // MARK: - Remote Node Service
 
 /// Shared service for remote node operations.
-/// Handles login, keep-alive, status, telemetry, and CLI for both room servers and repeaters.
+/// Handles authentication and commands for sensors, repeaters, and room servers.
 public actor RemoteNodeService {
   // MARK: - Properties
 
@@ -22,7 +22,12 @@ public actor RemoteNodeService {
   let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
   let auditLogger = CommandAuditLogger()
 
+  var isRetired = false
+  var loginAttemptIDs: [Data: UUID] = [:]
+  var sensorConnectAttempts: [UUID: UUID] = [:]
+
   struct PendingLogin {
+    let id: UUID
     /// Session that called `login`, so a prefix match cannot update another radio's row.
     let sessionID: UUID
     let continuation: CheckedContinuation<LoginResult, Error>
@@ -250,7 +255,9 @@ public actor RemoteNodeService {
     return TimeInterval(seconds) + TimeInterval(attoseconds) / 1e18
   }
 
-  func cancelPendingLogin(for prefix: Data) {
+  func cancelPendingLogin(for prefix: Data, attemptID: UUID? = nil) {
+    if let attemptID, loginAttemptIDs[prefix] != attemptID { return }
+    loginAttemptIDs[prefix] = nil
     pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
     if let pending = pendingLogins.removeValue(forKey: prefix) {
       pending.continuation.resume(throwing: RemoteNodeError.cancelled)
@@ -300,6 +307,15 @@ public actor RemoteNodeService {
     radioID: UUID,
     contact: ContactDTO
   ) async throws -> RemoteNodeSessionDTO {
+    try await createSession(radioID: radioID, contact: contact, sensorAttemptID: nil)
+  }
+
+  func createSession(
+    radioID: UUID,
+    contact: ContactDTO,
+    sensorAttemptID: UUID?
+  ) async throws -> RemoteNodeSessionDTO {
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     guard let role = RemoteNodeRole(contactType: contact.type) else {
       throw RemoteNodeError.invalidResponse
     }
@@ -319,19 +335,28 @@ public actor RemoteNodeService {
       logger.info("createSession: creating new session for \(pubKeyHex)")
     }
 
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     let dto = makeSessionDTO(radioID: radioID, contact: contact, role: role, preserving: existing)
 
     try await dataStore.saveRemoteNodeSessionDTO(dto)
-
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     try await dataStore.cleanupDuplicateRemoteNodeSessions(publicKey: contact.publicKey, keepID: dto.id)
 
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     guard let saved = try await dataStore.fetchRemoteNodeSession(id: dto.id) else {
       logger.error("createSession: failed to fetch saved session for \(pubKeyHex)")
       throw RemoteNodeError.sessionNotFound
     }
 
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     logger.info("createSession: saved session \(saved.id) for \(pubKeyHex)")
     return saved
+  }
+
+  private func validateSessionCreation(contactID: UUID, sensorAttemptID: UUID?) throws {
+    try Task.checkCancellation()
+    guard !isRetired else { throw RemoteNodeError.notConnected }
+    if let sensorAttemptID, sensorConnectAttempts[contactID] != sensorAttemptID { throw RemoteNodeError.cancelled }
   }
 
   /// Remove a session and its associated data
@@ -381,6 +406,7 @@ public actor RemoteNodeService {
 
   /// Stop all keep-alive timers and resume any parked login continuations (call on app termination)
   public func stopAllKeepAlives() {
+    loginAttemptIDs.removeAll()
     for task in keepAliveTasks.values {
       task.cancel()
     }
@@ -390,6 +416,21 @@ public actor RemoteNodeService {
     // continuation that would have resumed them is gone and the caller hangs.
     for prefix in Array(pendingLogins.keys) {
       cancelPendingLogin(for: prefix)
+    }
+  }
+
+  func retire() {
+    isRetired = true
+    sensorConnectAttempts.removeAll()
+    stopEventMonitoring()
+    stopAllKeepAlives()
+    for (prefix, pending) in pendingCLIRequests {
+      cancelPendingCLIRequest(for: prefix, requestID: pending.id)
+    }
+    let waiters = cliSlotWaiters.values.flatMap(\.self)
+    cliSlotWaiters.removeAll()
+    for waiter in waiters {
+      waiter.continuation.resume(throwing: CancellationError())
     }
   }
 

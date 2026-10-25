@@ -13,6 +13,9 @@ extension ContactDetailState {
   func presentAdminSession() {
     defer { adminSession = nil; adminSessionContext = nil }
     guard let context = adminSessionContext, accepts(context), let session = adminSession else { return }
+    guard session.publicKey == currentContact.publicKey, session.radioID == currentContact.radioID,
+          session.role == RemoteNodeRole(contactType: currentContact.type) else { return }
+    guard !session.isSensor || (session.isConnected && session.isAdmin) else { return }
     if session.isAdmin {
       activeSheet = .adminSettings(session)
     } else if session.isRoom {

@@ -48,7 +48,7 @@ struct ContactActionsSection: View {
           onRowPosition: nil
         )
 
-      case .repeater:
+      case .repeater, .sensor:
         NodeActionRows(
           contact: currentContact,
           pingLabel: L10n.Contacts.Contacts.Detail.ping,

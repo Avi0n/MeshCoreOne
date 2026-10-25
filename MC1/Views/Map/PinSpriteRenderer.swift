@@ -198,6 +198,8 @@ enum PinSpriteRenderer {
                iconName: "person.fill", text: nil, ringColor: nil, renderStyle: .standard),
     SpriteSpec(name: "pin-repeater", circleColor: .systemCyan,
                iconName: "antenna.radiowaves.left.and.right", text: nil, ringColor: nil, renderStyle: .standard),
+    SpriteSpec(name: "pin-sensor", circleColor: .systemGray,
+               iconName: "sensor", text: nil, ringColor: nil, renderStyle: .standard),
     SpriteSpec(name: "pin-room", circleColor: UIColor(red: 1, green: 136 / 255, blue: 0, alpha: 1),
                iconName: "person.3.fill", text: nil, ringColor: nil, renderStyle: .standard),
 

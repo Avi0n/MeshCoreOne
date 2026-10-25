@@ -5,7 +5,7 @@ public extension RemoteNodeService {
   // MARK: - Login
 
   /// Login to a remote node.
-  /// Works for both room servers and repeaters.
+  /// Works for sensors, repeaters, and room servers.
   /// - Parameters:
   ///   - sessionID: The remote session ID.
   ///   - password: Optional password (uses stored password if nil).
@@ -17,6 +17,8 @@ public extension RemoteNodeService {
     pathLength: UInt8 = 0,
     onTimeoutKnown: (@Sendable (Int) async -> Void)? = nil
   ) async throws -> LoginResult {
+    try Task.checkCancellation()
+    guard !isRetired else { throw RemoteNodeError.notConnected }
     guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
       throw RemoteNodeError.sessionNotFound
     }
@@ -31,18 +33,19 @@ public extension RemoteNodeService {
       throw RemoteNodeError.passwordNotFound
     }
 
+    guard pwd.utf8.count <= ProtocolLimits.maxRemotePasswordBytes else { throw RemoteNodeError.invalidPasswordLength }
+    try Task.checkCancellation()
+    guard !isRetired else { throw RemoteNodeError.notConnected }
     let prefix = Data(remoteSession.publicKey.prefix(6))
-
-    // Cancel any existing pending login for this prefix
-    if let existing = pendingLogins.removeValue(forKey: prefix) {
-      let prefixHex = prefix.map { String(format: "%02x", $0) }.joined()
-      logger.warning("Overwriting pending login for prefix \(prefixHex)")
-      pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
-      existing.continuation.resume(throwing: RemoteNodeError.cancelled)
+    cancelPendingLogin(for: prefix)
+    let attemptID = UUID()
+    loginAttemptIDs[prefix] = attemptID
+    defer {
+      if loginAttemptIDs[prefix] == attemptID { loginAttemptIDs[prefix] = nil }
     }
 
     // Log login request
-    let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
+    let targetType: CommandAuditLogger.Target = CommandAuditLogger.target(for: remoteSession.role)
     await auditLogger.logLoginRequest(target: targetType, publicKey: remoteSession.publicKey, pathLength: pathLength)
 
     // Register continuation BEFORE sending to avoid race condition with loginSuccess event
@@ -50,7 +53,11 @@ public extension RemoteNodeService {
     logger.info("login: registering pending login for prefix \(prefixHex)")
     return try await withTaskCancellationHandler {
       try await withCheckedThrowingContinuation { continuation in
-        pendingLogins[prefix] = PendingLogin(sessionID: sessionID, continuation: continuation)
+        guard !Task.isCancelled, loginAttemptIDs[prefix] == attemptID, !isRetired else {
+          continuation.resume(throwing: RemoteNodeError.cancelled)
+          return
+        }
+        pendingLogins[prefix] = PendingLogin(id: attemptID, sessionID: sessionID, continuation: continuation)
 
         let timeoutTask = Task { [self] in
           let sentInfo: MessageSentInfo
@@ -64,7 +71,7 @@ public extension RemoteNodeService {
             // Cancellation means this task no longer owns the continuation: whoever
             // cancelled it (an overlapping login for this prefix, or cancelPendingLogin
             // on outer-task cancellation) has already resumed and removed it.
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled, loginAttemptIDs[prefix] == attemptID, !isRetired else { return }
             pendingLoginTimeoutTasks.removeValue(forKey: prefix)
             if let pending = pendingLogins.removeValue(forKey: prefix) {
               let rnError = (error as? RemoteNodeError)
@@ -74,6 +81,7 @@ public extension RemoteNodeService {
             return
           }
 
+          guard !Task.isCancelled, loginAttemptIDs[prefix] == attemptID, !isRetired else { return }
           let timeout = RemoteOperationTimeoutPolicy.loginTimeout(for: sentInfo, pathLength: pathLength)
           logger.info("login: send succeeded, starting \(timeout) timeout for prefix \(prefixHex)")
 
@@ -95,7 +103,7 @@ public extension RemoteNodeService {
             guard remaining > .zero else { break }
             let sleepFor = remaining < retransmitInterval ? remaining : retransmitInterval
             try? await Task.sleep(for: sleepFor)
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled, loginAttemptIDs[prefix] == attemptID, !isRetired else { return }
             guard pendingLogins[prefix] != nil else {
               logger.info("login: continuation consumed for prefix \(prefixHex); stopping retransmits")
               return
@@ -114,7 +122,7 @@ public extension RemoteNodeService {
             }
           }
 
-          guard !Task.isCancelled else { return }
+          guard !Task.isCancelled, loginAttemptIDs[prefix] == attemptID, !isRetired else { return }
           if let pending = pendingLogins.removeValue(forKey: prefix) {
             logger.warning("Login timeout after \(timeout) for session \(sessionID), prefix \(prefixHex)")
             pendingLoginTimeoutTasks.removeValue(forKey: prefix)
@@ -127,7 +135,7 @@ public extension RemoteNodeService {
       }
     } onCancel: { [weak self] in
       Task { [weak self] in
-        await self?.cancelPendingLogin(for: prefix)
+        await self?.cancelPendingLogin(for: prefix, attemptID: attemptID)
       }
     }
   }
@@ -200,56 +208,34 @@ public extension RemoteNodeService {
     logger.info("handleLoginResult: found continuation for prefix \(prefixHex)")
     let continuation = pending.continuation
 
-    if result.success {
-      // Update session state
-      do {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: pending.sessionID) else {
-          logger.error("handleLoginResult: no session found for \(pending.sessionID) - database may be corrupted")
-          continuation.resume(returning: result)
-          return
-        }
-
-        // Log successful login
-        let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
-        await auditLogger.logLoginSuccess(target: targetType, publicKey: prefix, isAdmin: result.isAdmin)
-
-        let permission = result.permissionLevel
-
-        logger.info("handleLoginResult: updating session \(remoteSession.id) isConnected=true, permission=\(permission.rawValue)")
-
-        try await dataStore.updateRemoteNodeSessionConnection(
-          id: remoteSession.id,
-          isConnected: true,
-          permissionLevel: permission
-        )
-
-        // Verify the update succeeded
-        if let verifySession = try await dataStore.fetchRemoteNodeSession(id: remoteSession.id) {
-          if verifySession.isConnected {
-            logger.info("handleLoginResult: verified session \(remoteSession.id) isConnected=true")
-          } else {
-            logger.error("handleLoginResult: session \(remoteSession.id) still shows isConnected=false after update!")
-          }
-        }
-
-        // Notify UI of session state change
-        eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: true))
-
-        keepAliveIntervals[remoteSession.id] = Self.defaultKeepAliveInterval
-      } catch {
-        logger.error("handleLoginResult: failed to update session state: \(error)")
+    do {
+      guard loginAttemptIDs[prefix] == pending.id, !isRetired else { throw RemoteNodeError.cancelled }
+      guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: pending.sessionID) else {
+        throw RemoteNodeError.sessionNotFound
       }
+      guard loginAttemptIDs[prefix] == pending.id, !isRetired else { throw RemoteNodeError.cancelled }
+      let target = CommandAuditLogger.target(for: remoteSession.role)
+      guard result.success else {
+        await auditLogger.logLoginFailed(target: target, publicKey: prefix, reason: "authentication failed")
+        throw RemoteNodeError.loginFailed("authentication failed")
+      }
+      await auditLogger.logLoginSuccess(target: target, publicKey: prefix, isAdmin: result.isAdmin)
+      guard loginAttemptIDs[prefix] == pending.id, !isRetired else { throw RemoteNodeError.cancelled }
+      try await dataStore.updateRemoteNodeSessionConnection(
+        id: remoteSession.id,
+        isConnected: true,
+        permissionLevel: result.permissionLevel(for: remoteSession.role)
+      )
+      guard loginAttemptIDs[prefix] == pending.id, !isRetired else {
+        // A cancelled store turn may already have committed; retire it unless a new login owns the row.
+        if loginAttemptIDs[prefix] == nil { try? await dataStore.markSessionDisconnected(remoteSession.id) }
+        throw RemoteNodeError.cancelled
+      }
+      eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: true))
+      if remoteSession.isRoom { keepAliveIntervals[remoteSession.id] = Self.defaultKeepAliveInterval }
       continuation.resume(returning: result)
-    } else {
-      // Log failed login
-      // Try to determine target type from existing session
-      if let remoteSession = try? await dataStore.fetchRemoteNodeSession(id: pending.sessionID) {
-        let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
-        await auditLogger.logLoginFailed(target: targetType, publicKey: prefix, reason: "authentication failed")
-      } else {
-        await auditLogger.logLoginFailed(target: .repeater, publicKey: prefix, reason: "authentication failed")
-      }
-      continuation.resume(throwing: RemoteNodeError.loginFailed("authentication failed"))
+    } catch {
+      continuation.resume(throwing: error)
     }
   }
 
@@ -334,6 +320,8 @@ public extension RemoteNodeService {
       throw RemoteNodeError.sessionNotFound
     }
 
+    guard !remoteSession.isSensor else { throw RemoteNodeError.invalidResponse }
+
     // Check contact's routing status
     guard let contact = try await dataStore.fetchContact(radioID: remoteSession.radioID, publicKey: publicKey) else {
       throw RemoteNodeError.contactNotFound
@@ -345,7 +333,7 @@ public extension RemoteNodeService {
     }
 
     // Log keep-alive
-    let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
+    let targetType: CommandAuditLogger.Target = CommandAuditLogger.target(for: remoteSession.role)
     await auditLogger.logKeepAlive(target: targetType, publicKey: publicKey)
 
     // Send keep-alive with sync_since for force-resync hint
@@ -397,7 +385,7 @@ public extension RemoteNodeService {
 
     // Request status (which triggers sync)
     do {
-      let contactType: ContactType = remoteSession.isRoom ? .room : .repeater
+      let contactType: ContactType = .room
       _ = try await session.requestStatus(from: remoteSession.publicKey, type: contactType)
     } catch let error as MeshCoreError {
       throw RemoteNodeError.sessionError(error)
@@ -414,8 +402,13 @@ public extension RemoteNodeService {
       throw RemoteNodeError.sessionNotFound
     }
 
+    if remoteSession.isSensor {
+      await disconnect(sessionID: sessionID)
+      return
+    }
+
     // Log logout
-    let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
+    let targetType: CommandAuditLogger.Target = CommandAuditLogger.target(for: remoteSession.role)
     await auditLogger.logLogout(target: targetType, publicKey: remoteSession.publicKey)
 
     stopKeepAlive(sessionID: sessionID)

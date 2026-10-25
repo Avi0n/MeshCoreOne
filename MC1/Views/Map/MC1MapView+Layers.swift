@@ -480,6 +480,7 @@ extension MC1MapView.Coordinator {
     case .contactChat: "pin-chat"
     case .contactRepeater: "pin-repeater"
     case .contactRoom: "pin-room"
+    case .contactSensor: "pin-sensor"
     case .repeater: "pin-repeater"
     case .repeaterRingBlue: "pin-repeater-ring-blue"
     case .repeaterRingGreen: "pin-repeater-ring-green"

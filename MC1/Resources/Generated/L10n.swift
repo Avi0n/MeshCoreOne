@@ -1526,6 +1526,8 @@ public enum L10n {
           public static let repeaters = L10n.tr("Contacts", "contacts.discovery.segment.repeaters", fallback: "Repeaters")
           /// Location: DiscoveryView.swift - Purpose: Segment filter: Rooms
           public static let rooms = L10n.tr("Contacts", "contacts.discovery.segment.rooms", fallback: "Rooms")
+          /// Sensors
+          public static let sensors = L10n.tr("Contacts", "contacts.discovery.segment.sensors", fallback: "Sensors")
         }
       }
       public enum List {
@@ -1598,6 +1600,12 @@ public enum L10n {
             /// Location: ContactsListView.swift - Purpose: No search results title
             public static let title = L10n.tr("Contacts", "contacts.list.empty.search.title", fallback: "No Results")
           }
+          public enum Sensors {
+            /// Sensors appear here when discovered on the mesh.
+            public static let description = L10n.tr("Contacts", "contacts.list.empty.sensors.description", fallback: "Sensors appear here when discovered on the mesh.")
+            /// No Sensors
+            public static let title = L10n.tr("Contacts", "contacts.list.empty.sensors.title", fallback: "No Sensors")
+          }
         }
       }
       public enum NodeKind {
@@ -1611,6 +1619,8 @@ public enum L10n {
         public static let repeater = L10n.tr("Contacts", "contacts.nodeKind.repeater", fallback: "Repeater")
         /// Location: Multiple files - Purpose: Room contact type label
         public static let room = L10n.tr("Contacts", "contacts.nodeKind.room", fallback: "Room")
+        /// Sensor
+        public static let sensor = L10n.tr("Contacts", "contacts.nodeKind.sensor", fallback: "Sensor")
       }
       public enum PathDetail {
         /// Location: SavedPathDetailView.swift - Purpose: Average stat label
@@ -2089,6 +2099,8 @@ public enum L10n {
         public static let repeaters = L10n.tr("Contacts", "contacts.segment.repeaters", fallback: "Repeaters")
         /// Location: ContactsViewModel.swift - Purpose: Rooms segment
         public static let rooms = L10n.tr("Contacts", "contacts.segment.rooms", fallback: "Rooms")
+        /// Sensors
+        public static let sensors = L10n.tr("Contacts", "contacts.segment.sensors", fallback: "Sensors")
       }
       public enum Share {
         /// Location: ContactQRShareSheet.swift - Purpose: Contact label in share text, %@ is contact name
@@ -2647,8 +2659,14 @@ public enum L10n {
         public static let contactNotFound = L10n.tr("Localizable", "error.remoteNode.contactNotFound", fallback: "Contact not found in database")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Keep-alive needs a direct path but the route is flood-routed
         public static let floodRouted = L10n.tr("Localizable", "error.remoteNode.floodRouted", fallback: "Keep-alive requires direct routing path")
+        /// Passwords must use no more than %d UTF-8 bytes.
+        public static func invalidPasswordLength(_ p1: Int) -> String {
+          return L10n.tr("Localizable", "error.remoteNode.invalidPasswordLength", p1, fallback: "Passwords must use no more than %d UTF-8 bytes.")
+        }
         /// Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node
         public static let invalidResponse = L10n.tr("Localizable", "error.remoteNode.invalidResponse", fallback: "Invalid response from remote node")
+        /// Use a nonempty key and value without whitespace. The complete command must fit within 160 UTF-8 bytes.
+        public static let invalidSensorSetting = L10n.tr("Localizable", "error.remoteNode.invalidSensorSetting", fallback: "Use a nonempty key and value without whitespace. The complete command must fit within 160 UTF-8 bytes.")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed
         public static let loginFailed = L10n.tr("Localizable", "error.remoteNode.loginFailed", fallback: "Login failed.")
         /// Location: RemoteNodeError+UserFacingMessage.swift - No active connection to the mesh radio
@@ -2663,6 +2681,10 @@ public enum L10n {
         public static let radioContactsFull = L10n.tr("Localizable", "error.remoteNode.radioContactsFull", fallback: "Your radio is out of contact slots. Remove a contact you no longer need, then retry sign-in.")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed
         public static let sendFailed = L10n.tr("Localizable", "error.remoteNode.sendFailed", fallback: "Failed to send.")
+        /// The change could not be verified. Reload settings before saving again.
+        public static let sensorOutcomeUnknown = L10n.tr("Localizable", "error.remoteNode.sensorOutcomeUnknown", fallback: "The change could not be verified. Reload settings before saving again.")
+        /// The sensor rejected this setting.
+        public static let sensorSettingRejected = L10n.tr("Localizable", "error.remoteNode.sensorSettingRejected", fallback: "The sensor rejected this setting.")
         /// Location: RemoteNodeError+UserFacingMessage.swift - No stored session for the remote node
         public static let sessionNotFound = L10n.tr("Localizable", "error.remoteNode.sessionNotFound", fallback: "Remote node session not found")
         /// Location: RemoteNodeError+UserFacingMessage.swift - Remote node request timed out
@@ -2757,6 +2779,8 @@ public enum L10n {
         public static let repeater = L10n.tr("Localizable", "notifications.discovery.repeater", fallback: "New Repeater Discovered")
         /// Notification title when a new room is discovered on the mesh network
         public static let room = L10n.tr("Localizable", "notifications.discovery.room", fallback: "New Room Discovered")
+        /// New Sensor Discovered
+        public static let sensor = L10n.tr("Localizable", "notifications.discovery.sensor", fallback: "New Sensor Discovered")
         /// Fallback display name for a discovered contact with no advertised name
         public static let unknownContact = L10n.tr("Localizable", "notifications.discovery.unknownContact", fallback: "Unknown Contact")
       }
@@ -2822,6 +2846,8 @@ public enum L10n {
           public static let repeater = L10n.tr("Map", "map.callout.nodeKind.repeater", fallback: "Repeater")
           /// Location: ContactCalloutContent.swift - Purpose: Display name for room in callout
           public static let room = L10n.tr("Map", "map.callout.nodeKind.room", fallback: "Room")
+          /// Sensor
+          public static let sensor = L10n.tr("Map", "map.callout.nodeKind.sensor", fallback: "Sensor")
         }
       }
       public enum Common {
@@ -2835,6 +2861,8 @@ public enum L10n {
         public static let centerOnMyLocation = L10n.tr("Map", "map.controls.centerOnMyLocation", fallback: "Center on my location")
         /// Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that clusters nearby pins
         public static let clusterNodes = L10n.tr("Map", "map.controls.clusterNodes", fallback: "Cluster nodes")
+        /// Contacts & Sensors
+        public static let contactsAndSensors = L10n.tr("Map", "map.controls.contactsAndSensors", fallback: "Contacts & Sensors")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control
         public static let filter = L10n.tr("Map", "map.controls.filter", fallback: "Filter")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults
@@ -3039,6 +3067,8 @@ public enum L10n {
         public static let repeater = L10n.tr("Map", "map.nodeKind.repeater", fallback: "Repeater")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Display name for room type
         public static let room = L10n.tr("Map", "map.nodeKind.room", fallback: "Room")
+        /// Sensor
+        public static let sensor = L10n.tr("Map", "map.nodeKind.sensor", fallback: "Sensor")
       }
       public enum OfflineBadge {
         /// Label shown on map when device has no internet connection
@@ -3409,6 +3439,8 @@ public enum L10n {
         public static let typeRepeater = L10n.tr("RemoteNodes", "remoteNodes.auth.typeRepeater", fallback: "Repeater")
         /// Location: NodeAuthenticationSheet.swift - Room type value
         public static let typeRoom = L10n.tr("RemoteNodes", "remoteNodes.auth.typeRoom", fallback: "Room")
+        /// Sensor
+        public static let typeSensor = L10n.tr("RemoteNodes", "remoteNodes.auth.typeSensor", fallback: "Sensor")
       }
       public enum History {
         /// Location: NodeStatusHistoryView.swift - Time range picker
@@ -3621,6 +3653,28 @@ public enum L10n {
         public static let postsReceived = L10n.tr("RemoteNodes", "remoteNodes.roomStatus.postsReceived", fallback: "Posts Received")
         /// Location: RoomStatusView.swift - Navigation title
         public static let title = L10n.tr("RemoteNodes", "remoteNodes.roomStatus.title", fallback: "Room Status")
+      }
+      public enum Sensor {
+        /// Sensor management requires administrator access.
+        public static let adminRequired = L10n.tr("RemoteNodes", "remoteNodes.sensor.adminRequired", fallback: "Sensor management requires administrator access.")
+        /// This sensor exposes no settings.
+        public static let empty = L10n.tr("RemoteNodes", "remoteNodes.sensor.empty", fallback: "This sensor exposes no settings.")
+        /// Send a reboot request to this sensor?
+        public static let rebootConfirmation = L10n.tr("RemoteNodes", "remoteNodes.sensor.rebootConfirmation", fallback: "Send a reboot request to this sensor?")
+        /// Reboot request sent. The sensor has not confirmed a restart. Authenticate again before sending more commands.
+        public static let rebootSent = L10n.tr("RemoteNodes", "remoteNodes.sensor.rebootSent", fallback: "Reboot request sent. The sensor has not confirmed a restart. Authenticate again before sending more commands.")
+        /// Reload
+        public static let reload = L10n.tr("RemoteNodes", "remoteNodes.sensor.reload", fallback: "Reload")
+        /// Changes affect the running sensor. Persistence across reboot depends on its firmware.
+        public static let runtimeOnly = L10n.tr("RemoteNodes", "remoteNodes.sensor.runtimeOnly", fallback: "Changes affect the running sensor. Persistence across reboot depends on its firmware.")
+        /// Save
+        public static let save = L10n.tr("RemoteNodes", "remoteNodes.sensor.save", fallback: "Save")
+        /// Setting verified.
+        public static let saved = L10n.tr("RemoteNodes", "remoteNodes.sensor.saved", fallback: "Setting verified.")
+        /// Sensor Management
+        public static let title = L10n.tr("RemoteNodes", "remoteNodes.sensor.title", fallback: "Sensor Management")
+        /// Value
+        public static let value = L10n.tr("RemoteNodes", "remoteNodes.sensor.value", fallback: "Value")
       }
       public enum Settings {
         /// Location: RepeaterSettingsView.swift - Advert interval (0-hop) label
@@ -5330,6 +5384,8 @@ public enum L10n {
       public static let contactMessages = L10n.tr("Settings", "notifications.contactMessages", fallback: "Contact Messages")
       /// Label shown when notifications are disabled
       public static let disabled = L10n.tr("Settings", "notifications.disabled", fallback: "Notifications Disabled")
+      /// Companions & Sensors
+      public static let discoveryCompanionsAndSensors = L10n.tr("Settings", "notifications.discoveryCompanionsAndSensors", fallback: "Companions & Sensors")
       /// Toggle label for companion discovery notifications
       public static let discoveryContact = L10n.tr("Settings", "notifications.discoveryContact", fallback: "Companion")
       /// Toggle label for repeater discovery notifications

@@ -13,7 +13,7 @@ struct NewChatView: View {
   @State private var isLoading = false
 
   private var filteredContacts: [ContactDTO] {
-    let eligible = contacts.filter { !$0.isBlocked && $0.type != .repeater && $0.type != .room }
+    let eligible = contacts.filter { !$0.isBlocked && $0.type == .chat }
     guard !searchText.isEmpty else { return eligible }
     return eligible.filter { contact in
       contact.displayName.localizedStandardContains(searchText)
@@ -90,7 +90,7 @@ struct NewChatView: View {
       contact.isFloodRouted ? L10n.Chats.Chats.ConnectionStatus.floodRouting : L10n.Chats.Chats.NewChat.ContactType.direct
     case .repeater:
       L10n.Chats.Chats.NewChat.ContactType.repeater
-    case .room:
+    case .room, .sensor:
       ""
     }
   }

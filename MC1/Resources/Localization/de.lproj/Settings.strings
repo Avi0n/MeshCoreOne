@@ -822,6 +822,9 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "Companion";
 
+/* TODO: translate */
+"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Repeater";
 

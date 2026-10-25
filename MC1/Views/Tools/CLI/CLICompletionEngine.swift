@@ -57,6 +57,13 @@ final class CLICompletionEngine {
     "start"
   ]
 
+  private static let sensorCommands = [
+    "ver", "board", "clock", "clkreboot", "get", "set", "sensor", "password",
+    "reboot", "poweroff", "shutdown", "power", "advert", "advert.zerohop", "gps"
+  ]
+  private static let sensorGetKeys = ["role", "name", "radio", "tx", "lat", "lon", "public.key"]
+  private static let sensorSetKeys = ["name", "radio", "tx", "lat", "lon"]
+
   private static let sessionSubcommands = ["list", "local"]
 
   private static let sensorSubcommands = ["get", "list", "set"]
@@ -218,6 +225,18 @@ final class CLICompletionEngine {
     // A trailing space starts the next argument (position = parts.count); otherwise we are still typing the current one.
     let argPosition = endsWithSpace ? parts.count : parts.count - 1
 
+    if remoteTarget == .sensor, !isLocal {
+      let options: [String] = switch command {
+      case "get": Self.sensorGetKeys
+      case "set": Self.sensorSetKeys
+      case "sensor": Self.sensorSubcommands
+      case "clock": Self.clockSubcommands
+      case "gps": ["on", "off"]
+      default: []
+      }
+      return argPosition == 1 ? options.filter { $0.hasPrefix(prefix) }.sorted() : []
+    }
+
     switch command {
     case "session", "login", "log", "powersaving", "clear", "clock", "start":
       // 1-arg commands: only complete when argPosition == 1
@@ -307,13 +326,15 @@ final class CLICompletionEngine {
   ) -> [String] {
     var commands = Self.builtInCommands
 
-    if includeSessionCommands {
+    if includeSessionCommands, remoteTarget != .sensor {
       commands.append(contentsOf: Self.sessionCommands)
     }
 
     if isLocal {
       commands.append(contentsOf: Self.localOnlyCommands)
       commands.append(contentsOf: Self.localRadioCommands)
+    } else if remoteTarget == .sensor {
+      commands.append(contentsOf: Self.sensorCommands)
     } else if remoteTarget == .radio {
       commands.append(contentsOf: Self.radioCommands)
     } else {

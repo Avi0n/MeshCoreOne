@@ -422,6 +422,7 @@ public final class ServiceContainer {
   /// so the chat send queue drains. `stopEventMonitoring()` alone does not
   /// cover that.
   func tearDown() async {
+    await remoteNodeService.retire()
     await stopEventMonitoring()
 
     // Break the retain cycles the wired handlers form. The message

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Top-of-page segments on the repeater/room admin management page.
+/// Top-of-page segments on node management pages.
 /// No raw value: the selection is in-memory `@State`, never persisted, so
 /// `CaseIterable` (with the synthesized `Hashable`) is all the picker needs.
 enum NodeManagementTab: CaseIterable {

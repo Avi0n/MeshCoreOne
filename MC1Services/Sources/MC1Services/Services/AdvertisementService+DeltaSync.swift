@@ -310,6 +310,7 @@ extension AdvertisementService {
         let frame = ContactFrame(
           publicKey: contact.publicKey,
           type: contact.type,
+          typeRawValue: contact.typeRawValue,
           flags: contact.flags,
           outPathLength: contact.outPathLength,
           outPath: contact.outPath,
