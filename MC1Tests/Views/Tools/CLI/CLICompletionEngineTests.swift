@@ -4,6 +4,19 @@ import Testing
 @Suite("CLICompletionEngine Tests")
 @MainActor
 struct CLICompletionEngineTests {
+  @Test
+  func `sensor completions exclude unsupported repeater commands`() {
+    let engine = CLICompletionEngine()
+    let commands = engine.completions(for: "", isLocal: false, remoteTarget: .sensor, includeSessionCommands: false)
+    #expect(commands.contains("sensor"))
+    #expect(commands.contains("reboot"))
+    #expect(!commands.contains("neighbors"))
+    #expect(!commands.contains("room.post"))
+    #expect(!commands.contains("log"))
+    #expect(!commands.contains("start"))
+    #expect(!engine.completions(for: "get ", isLocal: false, remoteTarget: .sensor).contains("owner.info"))
+  }
+
   // MARK: - Helper
 
   private func createEngine() -> CLICompletionEngine {

@@ -69,13 +69,16 @@ extension RemoteNodeService {
       throw RemoteNodeError.permissionDenied
     }
 
-    let command = RemoteCLICommandRewriter.rewrite(command)
+    let command = remoteSession.isSensor
+      ? String(decoding: command.utf8.drop(while: { $0 == Self.cliIgnoredSpace }), as: UTF8.self)
+      : RemoteCLICommandRewriter.rewrite(command)
+    if remoteSession.isSensor { try SensorSetting.validateCommand(command) }
 
     // Log CLI command (with password redaction)
     await auditLogger.logCLICommand(
       publicKey: remoteSession.publicKey,
       command: command,
-      target: .repeater
+      target: CommandAuditLogger.target(for: remoteSession.role)
     )
 
     let destinationPrefix = Data(remoteSession.publicKey.prefix(6))
@@ -84,6 +87,28 @@ extension RemoteNodeService {
     try await acquireCLISlot(for: destinationPrefix, waiterID: requestID)
     defer { releaseCLISlot(for: destinationPrefix) }
     try Task.checkCancellation()
+
+    if remoteSession.isSensor {
+      _ = try await requireSensorAdmin(sessionID: sessionID)
+      if RemoteCLINoReplyCommand.sensorCommand(command) != nil {
+        do {
+          _ = try await session.sendCommand(
+            to: remoteSession.publicKey, command: makeCLIWirePrefix() + command, textType: .cliData
+          )
+        } catch is CancellationError {
+          throw CancellationError()
+        } catch let error as MeshCoreError {
+          throw RemoteNodeError.sessionError(error)
+        }
+        await disconnect(sessionID: sessionID)
+        return ""
+      }
+      return try await performCLIExchange(
+        publicKey: remoteSession.publicKey, destinationPrefix: destinationPrefix,
+        command: command, acceptsAnyResponse: true, timeout: timeout,
+        requestID: requestID, textType: .cliData
+      )
+    }
 
     // A no-reply command is sent once. Path reset and resend would repeat it.
     if RemoteCLINoReplyCommand(command) != nil {

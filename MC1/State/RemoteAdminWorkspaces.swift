@@ -1,7 +1,7 @@
 import Foundation
 import MC1Services
 
-/// Repeater and room admin models, kept until the radio resets.
+/// Sensor, repeater, and room admin models, kept until the radio resets.
 @MainActor
 final class RemoteAdminWorkspaces {
   struct RepeaterModels {
@@ -18,12 +18,19 @@ final class RemoteAdminWorkspaces {
     fileprivate let session: RemoteNodeSessionDTO
   }
 
+  struct SensorModels {
+    let settings: SensorSettingsViewModel
+    let cli: NodeCLIViewModel
+    fileprivate let session: RemoteNodeSessionDTO
+  }
+
   private struct Key: Hashable {
     var radioID: UUID
     var publicKey: Data
   }
 
   private var repeaters: [Key: RepeaterModels] = [:]
+  private var sensors: [Key: SensorModels] = [:]
   private var rooms: [Key: RoomModels] = [:]
 
   func repeater(for session: RemoteNodeSessionDTO) -> RepeaterModels {
@@ -56,6 +63,32 @@ final class RemoteAdminWorkspaces {
     return created
   }
 
+  func sensor(for session: RemoteNodeSessionDTO) -> SensorModels {
+    let key = Key(radioID: session.radioID, publicKey: session.publicKey)
+    if let existing = sensors[key] { return existing }
+    let created = SensorModels(settings: SensorSettingsViewModel(), cli: NodeCLIViewModel(), session: session)
+    sensors[key] = created
+    return created
+  }
+
+  @discardableResult
+  func configureSensor(
+    for session: RemoteNodeSessionDTO,
+    remoteNodeService: @escaping @MainActor () -> RemoteNodeService?,
+    dataStore: @escaping @MainActor () -> PersistenceStore?,
+    connectionState: @escaping @MainActor () -> DeviceConnectionState
+  ) -> SensorModels {
+    let models = sensor(for: session)
+    if !models.settings.isBound(to: remoteNodeService()) { models.cli.reset() }
+    models.settings.configure(session: session, remoteNodeService: remoteNodeService,
+                              dataStore: dataStore, connectionState: connectionState)
+    models.cli.configure(sessionName: session.name, remoteTarget: .sensor) { [weak settings = models.settings] command, timeout in
+      guard let settings else { throw RemoteNodeError.notConnected }
+      return try await settings.sendRawCommand(command, timeout: timeout)
+    }
+    return models
+  }
+
   func reset() {
     for models in repeaters.values {
       models.settings.reset()
@@ -67,6 +100,11 @@ final class RemoteAdminWorkspaces {
       models.status.reset()
       models.cli.reset()
     }
+    for models in sensors.values {
+      models.settings.reset()
+      models.cli.reset()
+    }
+    sensors.removeAll()
     repeaters.removeAll()
     rooms.removeAll()
   }
@@ -77,8 +115,15 @@ final class RemoteAdminWorkspaces {
     roomAdminService: @escaping @MainActor () -> RoomAdminService?,
     contactService: @escaping @MainActor () -> ContactService?,
     nodeSnapshotService: @escaping @MainActor () -> NodeSnapshotService?,
-    deviceHashSize: @escaping @MainActor () -> Int?
+    deviceHashSize: @escaping @MainActor () -> Int?,
+    remoteNodeService: @escaping @MainActor () -> RemoteNodeService?,
+    dataStore: @escaping @MainActor () -> PersistenceStore?,
+    connectionState: @escaping @MainActor () -> DeviceConnectionState
   ) async {
+    for models in sensors.values {
+      configureSensor(for: models.session, remoteNodeService: remoteNodeService,
+                      dataStore: dataStore, connectionState: connectionState)
+    }
     for models in repeaters.values {
       await models.settings.configure(
         repeaterAdminService: repeaterAdminService,

@@ -658,7 +658,7 @@ extension MessageService {
   }
 
   private func validateDirectMessage(text: String, to contact: ContactDTO) throws {
-    guard contact.type != .repeater else { throw MessageServiceError.invalidRecipient }
+    guard contact.type != .repeater, contact.type != .sensor else { throw MessageServiceError.invalidRecipient }
     guard text.utf8.count <= ProtocolLimits.maxDirectMessageLength else { throw MessageServiceError.messageTooLong }
   }
 

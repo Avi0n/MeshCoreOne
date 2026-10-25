@@ -17,7 +17,7 @@ struct NodeCLIView: View {
       tabSuggestions: viewModel.tabSuggestions,
       tabSelectionIndex: viewModel.tabSelectionIndex,
       isWaitingForResponse: viewModel.isWaitingForResponse,
-      canCancelCommand: CLICommandCancel.allows(
+      canCancelCommand: viewModel.canCancelCurrentCommand && CLICommandCancel.allows(
         isWaiting: viewModel.isWaitingForResponse,
         powerOffActive: false,
         powerOffCanStillPreventSend: true

@@ -1,8 +1,7 @@
 import MC1Services
 import SwiftUI
 
-/// Avatar view for remote nodes (room servers and repeaters). All repeaters share one theme color,
-/// all room servers share another — distinct per category, fixed per theme.
+/// Remote node avatar. Repeaters and room servers use category colors; sensors use neutral gray.
 struct NodeAvatar: View {
   @Environment(\.appTheme) private var theme
   @Environment(\.colorScheme) private var colorScheme
@@ -25,6 +24,8 @@ struct NodeAvatar: View {
 
   private var iconName: String {
     switch role {
+    case .sensor:
+      "sensor"
     case .roomServer:
       "door.left.hand.closed"
     case .repeater:
@@ -37,7 +38,7 @@ struct NodeAvatar: View {
   }
 
   private var fill: Color {
-    theme.categoryAvatarColor(category, colorScheme: colorScheme, contrast: colorSchemeContrast)
+    role == .sensor ? Color.gray : theme.categoryAvatarColor(category, colorScheme: colorScheme, contrast: colorSchemeContrast)
   }
 
   private var glyph: Color {

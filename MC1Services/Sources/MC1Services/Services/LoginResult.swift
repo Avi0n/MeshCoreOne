@@ -22,6 +22,10 @@ public struct LoginResult: Sendable {
     self.serverTime = serverTime
   }
 
+  public func permissionLevel(for role: RemoteNodeRole) -> RoomPermissionLevel {
+    role == .sensor ? (isAdmin ? .admin : .guest) : permissionLevel
+  }
+
   public var permissionLevel: RoomPermissionLevel {
     isAdmin ? .admin : (RoomPermissionLevel(rawValue: aclPermissions ?? 0) ?? .guest)
   }

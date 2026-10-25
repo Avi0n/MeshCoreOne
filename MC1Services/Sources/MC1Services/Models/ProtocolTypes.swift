@@ -25,6 +25,7 @@ public extension ContactType {
     case .chat: "Contact"
     case .repeater: "Repeater"
     case .room: "Room"
+    case .sensor: "Sensor"
     }
   }
 }
@@ -45,12 +46,14 @@ public enum TextType: UInt8, Sendable, Codable {
 public enum RemoteNodeRole: UInt8, Sendable, Codable {
   case repeater = 0x02
   case roomServer = 0x03
+  case sensor = 0x04
 
   /// Initialize from ContactType
   public init?(contactType: ContactType) {
     switch contactType {
     case .repeater: self = .repeater
     case .room: self = .roomServer
+    case .sensor: self = .sensor
     case .chat: return nil
     }
   }

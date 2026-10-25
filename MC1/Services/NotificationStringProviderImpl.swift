@@ -11,6 +11,8 @@ struct NotificationStringProviderImpl: NotificationStringProvider {
       L10n.Localizable.Notifications.Discovery.repeater
     case .room:
       L10n.Localizable.Notifications.Discovery.room
+    case .sensor:
+      L10n.Localizable.Notifications.Discovery.sensor
     }
   }
 

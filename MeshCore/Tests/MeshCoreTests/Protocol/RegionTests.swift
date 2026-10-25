@@ -511,8 +511,8 @@ struct RequestRegionsIntegrationTests {
     await session.stop()
   }
 
-  @Test
-  func `requestRegions preserves an unmodeled raw type byte in the temp write`() async throws {
+  @Test(arguments: [UInt8(0x04), UInt8(0x7F)])
+  func `requestRegions preserves sensor and unknown raw types in the temp write`(rawType: UInt8) async throws {
     let transport = MockTransport()
     // Short overall budget with retransmits disabled so the test can observe
     // the temp contact write after a fast timeout.
@@ -525,10 +525,10 @@ struct RequestRegionsIntegrationTests {
     )
     try await startSession(session, transport: transport)
 
-    // type falls back to .chat for the unmodeled 0x04 byte; typeRawValue carries the real byte.
+    // Unknown types keep their wire byte alongside the typed fallback.
     let contact = MeshContact(
-      id: "r", publicKey: Data(repeating: 0xCD, count: 32), type: .chat,
-      typeRawValue: 0x04, flags: ContactFlags(rawValue: 0), outPathLength: 0xFF,
+      id: "r", publicKey: Data(repeating: 0xCD, count: 32), type: ContactType(rawValue: rawType) ?? .chat,
+      typeRawValue: rawType, flags: ContactFlags(rawValue: 0), outPathLength: 0xFF,
       outPath: Data(), advertisedName: "Repeater", lastAdvertisement: Date(timeIntervalSince1970: 1000),
       latitude: 0, longitude: 0, lastModified: Date()
     )
@@ -545,10 +545,10 @@ struct RequestRegionsIntegrationTests {
     try await acknowledgeNextCommand(transport, sentCountBefore: 2, label: "resetPath")
     _ = try? await regionsTask.value
 
-    // First sent packet is the zero-hop temp write; its type byte must be the raw 0x04.
+    // The temporary write preserves the original type byte.
     let tempFrame = await transport.sentData[0]
     #expect(tempFrame[0] == CommandCode.updateContact.rawValue) // 0x09
-    #expect(tempFrame[33] == 0x04, "raw type byte must survive, not coerce to 0x01")
+    #expect(tempFrame[33] == rawType, "raw type byte must survive, not coerce to 0x01")
     #expect(tempFrame[35] == 0x00, "zero-hop direct out_path_len")
 
     await session.stop()

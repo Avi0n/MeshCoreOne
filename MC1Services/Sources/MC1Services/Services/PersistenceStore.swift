@@ -251,7 +251,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     let isNew: Bool
     if let existingNode = existing.first {
       existingNode.name = frame.name
-      existingNode.typeRawValue = frame.type.rawValue
+      existingNode.typeRawValue = frame.typeRawValue
       existingNode.lastHeard = Date()
       existingNode.lastAdvertTimestamp = frame.lastAdvertTimestamp
       existingNode.latitude = frame.latitude
@@ -265,7 +265,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
         radioID: radioID,
         publicKey: frame.publicKey,
         name: frame.name,
-        typeRawValue: frame.type.rawValue,
+        typeRawValue: frame.typeRawValue,
         lastAdvertTimestamp: frame.lastAdvertTimestamp,
         latitude: frame.latitude,
         longitude: frame.longitude,

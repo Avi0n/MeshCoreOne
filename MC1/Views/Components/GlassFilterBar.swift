@@ -66,6 +66,7 @@ struct GlassFilterBar<Filter: Hashable & CaseIterable & Sendable>: View
   let pickerLabel: String
   let title: @Sendable (Filter) -> String
   var size: Size = .regular
+  var filters: [Filter]?
 
   @Namespace private var glassNamespace
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -108,7 +109,7 @@ struct GlassFilterBar<Filter: Hashable & CaseIterable & Sendable>: View
   private var pillsRow: some View {
     GlassEffectContainer(spacing: pillSpacing) {
       HStack(spacing: pillSpacing) {
-        ForEach(Filter.allCases, id: \.self) { filter in
+        ForEach(filters ?? Array(Filter.allCases), id: \.self) { filter in
           pill(for: filter)
         }
       }
@@ -154,7 +155,7 @@ struct GlassFilterBar<Filter: Hashable & CaseIterable & Sendable>: View
 
   private var segmentedFallback: some View {
     Picker(pickerLabel, selection: $selection) {
-      ForEach(Filter.allCases, id: \.self) { filter in
+      ForEach(filters ?? Array(Filter.allCases), id: \.self) { filter in
         Text(title(filter)).tag(filter)
       }
     }

@@ -8,6 +8,7 @@ public extension RemoteNodeService {
   /// and broadcasts `RemoteNodeEvent.sessionStateChanged` for each.
   /// Returns the set of session IDs that were connected, for re-auth on reconnect.
   func handleBLEDisconnection() async -> Set<UUID> {
+    retire()
     let connectedSessions: [RemoteNodeSessionDTO]
     do {
       connectedSessions = try await dataStore.fetchConnectedRemoteNodeSessions()
@@ -48,7 +49,9 @@ public extension RemoteNodeService {
       return
     }
 
-    guard !sessionIDs.isEmpty else { return }
+    guard !sessionIDs.isEmpty, !isRetired else { return }
+    isReauthenticating = true
+    defer { isReauthenticating = false }
 
     // Fetch current session state for each ID
     var sessionsToReauth: [RemoteNodeSessionDTO] = []
@@ -63,34 +66,20 @@ public extension RemoteNodeService {
     guard !sessionsToReauth.isEmpty else { return }
 
     logger.info("BLE reconnection: re-authenticating \(sessionsToReauth.count) session(s)")
-    isReauthenticating = true
-    defer { isReauthenticating = false }
-
-    await withTaskGroup(of: Void.self) { group in
-      for remoteSession in sessionsToReauth {
-        group.addTask { [self] in
-          let previousPermission = remoteSession.permissionLevel
-          do {
-            let result = try await login(sessionID: remoteSession.id)
-            let newPermission = result.permissionLevel
-            if newPermission < previousPermission {
-              logger.warning(
-                "Re-auth returned degraded permission for session \(remoteSession.id): "
-                  + "\(previousPermission) -> \(newPermission), marking disconnected"
-              )
-              try? await dataStore.markSessionDisconnected(remoteSession.id)
-              eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: false))
-            }
-          } catch {
-            logger.warning("Re-auth failed for session \(remoteSession.id): \(error)")
-            do {
-              try await dataStore.markSessionDisconnected(remoteSession.id)
-            } catch {
-              logger.error("Failed to persist disconnected state for session \(remoteSession.id): \(error)")
-            }
-            eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: false))
-          }
+    for remoteSession in sessionsToReauth {
+      guard !Task.isCancelled, !isRetired else { return }
+      let previousPermission = remoteSession.permissionLevel
+      do {
+        let result = try await login(sessionID: remoteSession.id)
+        guard !Task.isCancelled, !isRetired else { return }
+        let permission = result.permissionLevel(for: remoteSession.role)
+        if permission < previousPermission {
+          await disconnect(sessionID: remoteSession.id)
         }
+      } catch {
+        await disconnect(sessionID: remoteSession.id)
+        guard !Task.isCancelled, !isRetired else { return }
+        logger.warning("Re-auth failed for session \(remoteSession.id): \(error)")
       }
     }
   }

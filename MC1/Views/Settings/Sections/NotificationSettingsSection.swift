@@ -62,7 +62,7 @@ struct NotificationSettingsSection: View {
         }
         if preferences.newContactDiscoveredEnabled {
           Toggle(isOn: $preferences.discoveryContactEnabled) {
-            TintedLabel(L10n.Settings.Notifications.discoveryContact, systemImage: "person")
+            TintedLabel(L10n.Settings.Notifications.discoveryCompanionsAndSensors, systemImage: "person")
           }
           .listRowInsets(EdgeInsets(top: 0, leading: 52, bottom: 0, trailing: 20))
           Toggle(isOn: $preferences.discoveryRepeaterEnabled) {

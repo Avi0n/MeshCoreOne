@@ -697,7 +697,10 @@ final class AppState {
       roomAdminService: { services.roomAdminService },
       contactService: { services.contactService },
       nodeSnapshotService: { services.nodeSnapshotService },
-      deviceHashSize: { [weak self] in self?.connectedDevice?.hashSize }
+      deviceHashSize: { [weak self] in self?.connectedDevice?.hashSize },
+      remoteNodeService: { [weak self] in self?.services?.remoteNodeService },
+      dataStore: { [weak self] in self?.offlineDataStore },
+      connectionState: { [weak self] in self?.connectionState ?? .disconnected }
     )
 
     // Process-wide inline image cache learns where to persist probed dims.

@@ -38,10 +38,15 @@ extension ContactDetailPresenter {
           NodeAuthenticationSheet(
             contact: state.currentContact,
             role: role,
+            requireAdmin: false,
             customTitle: L10n.Contacts.Contacts.Detail.telemetryAccess
           ) { session in
             guard state.accepts(context) else { return }
-            state.pendingSheet = state.currentContact.type == .room ? .roomStatus(session) : .repeaterStatus(session)
+            switch session.role {
+            case .roomServer: state.pendingSheet = .roomStatus(session)
+            case .repeater: state.pendingSheet = .repeaterStatus(session)
+            case .sensor: state.pendingSheet = .nodeTelemetry(state.currentContact)
+            }
             state.pendingSheetContext = context
             state.activeSheet = nil
           }
@@ -69,10 +74,10 @@ extension ContactDetailPresenter {
       case let .adminSettings(session):
         NavigationStack {
           Group {
-            if session.isRoom {
-              RoomSettingsView(session: session)
-            } else {
-              RepeaterSettingsView(session: session)
+            switch session.role {
+            case .roomServer: RoomSettingsView(session: session)
+            case .repeater: RepeaterSettingsView(session: session)
+            case .sensor: SensorSettingsView(session: session)
             }
           }
           .toolbar {

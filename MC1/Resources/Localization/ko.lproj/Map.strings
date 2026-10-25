@@ -37,6 +37,9 @@
 /* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
 "map.controls.filter" = "필터";
 
+/* TODO: translate */
+"map.controls.contactsAndSensors" = "Contacts & Sensors";
+
 /* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
 "map.controls.filterActive" = "필터 적용됨";
 
@@ -261,6 +264,9 @@
 /* Location: MapView.swift ContactDetailSheet - Purpose: Display name for room type */
 "map.nodeKind.room" = "룸";
 
+/* TODO: translate */
+"map.nodeKind.sensor" = "Sensor";
+
 // MARK: - Contact Callout
 
 /* Location: ContactCalloutContent.swift - Purpose: Button to view contact details */
@@ -277,6 +283,9 @@
 
 /* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
 "map.callout.nodeKind.room" = "룸";
+
+/* TODO: translate */
+"map.callout.nodeKind.sensor" = "Sensor";
 
 /* Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout */
 "map.callout.add" = "추가";

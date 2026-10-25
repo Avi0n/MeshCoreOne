@@ -21,7 +21,7 @@ struct NodeActionRows: View {
     .modifier(ContactDetailRowPosition(section: .actions, onPosition: onRowPosition))
 
     ContactSavedHistoryLink(
-      route: ContactRoute.TelemetryHistory(publicKey: contact.publicKey, radioID: contact.radioID),
+      route: ContactRoute.TelemetryHistory(publicKey: contact.publicKey, radioID: contact.radioID, showNeighbors: contact.type != .sensor),
       nodesRoute: historyRoute
     )
 
@@ -30,20 +30,22 @@ struct NodeActionRows: View {
     }
     .radioDisabled(for: connectionState)
 
-    Button(action: onPing) {
-      HStack {
-        Label(pingLabel, systemImage: "wave.3.right")
-        if isPinging {
-          Spacer()
-          ProgressView()
+    if contact.type != .sensor {
+      Button(action: onPing) {
+        HStack {
+          Label(pingLabel, systemImage: "wave.3.right")
+          if isPinging {
+            Spacer()
+            ProgressView()
+          }
         }
       }
-    }
-    .disabled(isPinging)
-    .radioDisabled(for: connectionState)
+      .disabled(isPinging)
+      .radioDisabled(for: connectionState)
 
-    if let result = pingResult {
-      PingResultRow(result: result)
+      if let result = pingResult {
+        PingResultRow(result: result)
+      }
     }
   }
 }
