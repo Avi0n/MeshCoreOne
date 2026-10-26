@@ -10,18 +10,6 @@ extension ContactDetailState {
     activeSheet = next
   }
 
-  func presentAdminSession() {
-    defer { adminSession = nil; adminSessionContext = nil }
-    guard let context = adminSessionContext, accepts(context), let session = adminSession else { return }
-    if session.isAdmin {
-      activeSheet = .adminSettings(session)
-    } else if session.isRoom {
-      activeSheet = .roomStatus(session)
-    } else {
-      activeSheet = .repeaterStatus(session)
-    }
-  }
-
   func showTelemetry() {
     guard hasPresentationOwnership else { return }
     activeSheet = currentContact.type == .chat ? .nodeTelemetry(currentContact) : .nodeAuth
@@ -34,8 +22,7 @@ extension ContactDetailState {
 
   func showAdminAccess() {
     guard hasPresentationOwnership else { return }
-    adminSession = nil
-    showRepeaterAdminAuth = true
+    activeSheet = .adminAuth
   }
 
   func requestFavorite(_ favorite: Bool) {
