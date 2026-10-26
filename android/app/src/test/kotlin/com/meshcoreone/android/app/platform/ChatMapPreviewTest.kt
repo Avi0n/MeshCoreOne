@@ -86,8 +86,14 @@ class ChatMapPreviewTest : RoomProcessTest() {
             assertEquals(37.7749, requests.single().latitude, 0.0)
             assertEquals(-122.4194, requests.single().longitude, 0.0)
             assertFalse(storage.preferences.get(AppStorageKey.linkPreviewsEnabled))
+            h.container.navigation.navigateToMap(1.0, 2.0)
+            h.container.navigation.selectTab(AppTab.CHATS)
             compose.onNodeWithContentDescription(label).performClick()
             assertEquals(AppTab.MAP, h.container.navigation.state.value.selectedTab)
+            assertEquals(
+                com.meshcoreone.android.app.navigation.MapFocusRequest(37.7749, -122.4194),
+                h.container.navigation.state.value.pendingMapFocus,
+            )
         }
     }
 

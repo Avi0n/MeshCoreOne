@@ -182,7 +182,10 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
             override fun stageContactLink(link: ContactLinkResult) =
                 container.navigation.stageContactLink(ContactLinkRequest(link.name, link.publicKey, link.contactType))
             override fun stageChannelLink(link: ChannelLinkResult) =
-                container.navigation.stageChannelLink(ChannelLinkRequest(link.name, link.secret, link.regionScope))
+                container.navigation.stageChannelLink(ChannelLinkRequest(
+                    link.name, link.secret, link.regionScope,
+                    com.meshcoreone.android.app.deeplinks.MeshCoreUriParser.hasHashtagSecretMismatch(link.name, link.secret),
+                ))
             override fun stageHashtag(fullName: String) = container.navigation.stageHashtag(HashtagJoinRequest(fullName))
             override suspend fun fetchContact(radioId: RadioId, publicKey: Bytes) = store.fetchContact(radioId, publicKey)
             override suspend fun fetchChannels(radioId: RadioId) = store.fetchChannels(radioId)
