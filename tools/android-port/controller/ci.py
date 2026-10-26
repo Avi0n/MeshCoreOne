@@ -24,6 +24,7 @@ from controller.ci_environment import REPO, candidate_environment, host_name, to
 from controller.ci_evidence import PYTHON_MINIMUMS, collect_lint, collect_suites, counts, read_xml, suite_counts, validate_graph_runtime
 from controller.errors import PortError
 from controller.gates import Binding, policy_revision
+from controller.local_scope import SCOPED_TASKS, TASKS
 from controller.model import git, load_manifest
 from controller.module_junit import check_module_tests, module_method_inventory
 from controller.provision import provision
@@ -33,26 +34,6 @@ from controller.test_runner import run_suite
 from portmap import port_map
 
 TASK_GRAPH_GUARD = REPO / "tools" / "android-port" / "controller" / "verify_candidate_task_graph.gradle"
-
-TASKS = {
-    "scaffold": [
-        "verifyScaffoldTests", "verifyRoomSchema", "validateModuleGraph",
-        "runtimeDependencyInventory", "resolveScaffoldDependencies",
-        ":app:assembleDebug", ":app:compileDebugAndroidTestKotlin", "lintScaffold",
-    ],
-    "prepare": ["resolveScaffoldDependencies"],
-    "protocol": [":core:protocol:test"],
-    "benchmark": [":benchmark:verifyBenchmarkHarness", "validateModuleGraph"],
-}
-SCOPED_TASKS = {
-    "scaffold": TASKS["scaffold"],
-    "protocol": TASKS["protocol"],
-    "backup": [
-        ":core:data:verifyBackupTests", ":core:data:verifyPersistenceRepositoryTests",
-        ":core:database:testDebugUnitTest",
-    ],
-    "external-oracle": [":core:testing:testDebugUnitTest", "validateModuleGraph"],
-}
 
 # AndroidOnly: WP-501 Fixed observation identities may precede the bounded failed-command tail.
 WP501_OBSERVATION_METHODS = {

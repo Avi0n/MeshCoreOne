@@ -14,7 +14,7 @@ from controller.model import SHA, git, tree
 
 CONTROLLER_MODULES = (
     "__init__", "apk_alignment", "authority", "backends", "capabilities", "ci", "ci_environment", "ci_evidence",
-    "dispatch", "disposable", "engine", "errors", "gate_runtime", "gates", "historical", "ledger", "model", "module_junit",
+    "dispatch", "disposable", "engine", "errors", "gate_runtime", "gates", "historical", "ledger", "local_scope", "model", "module_junit",
     "native_review", "paths", "performance", "publication", "provision", "repair_acceptance", "render", "runtime_inputs", "schema", "scope_amendment", "settings",
     "software_verification", "staging", "test_runner", "validate", "verification_config", "windows_guest", "workflows",
 )
