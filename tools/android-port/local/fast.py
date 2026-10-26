@@ -1,6 +1,7 @@
 """AndroidOnly: WP-003 Same CI checks, warm Gradle execution, local-only reports."""
 
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -25,6 +26,22 @@ def local_test_command(repo):
     ]
 
 
+def owned_lanes():
+    spec = importlib.util.spec_from_file_location(
+        "controller._local_owned_jvm_lanes", Path(__file__).with_name("jvm_lanes.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def execution_lane(work):
+    descriptor = Path("/proc/self/fd/8")
+    if not descriptor.is_file():
+        return None
+    admission = json.loads(descriptor.read_text(encoding="utf-8"))
+    return owned_lanes().lane_directory(work, admission["jvm_lane"]) if "jvm_lane" in admission else None
+
+
 def affected_request(repo, path, base, stages, advisory):
     from controller.errors import PortError
     from controller.local_scope import validate_plan
@@ -41,6 +58,7 @@ def affected_request(repo, path, base, stages, advisory):
     if (
         not isinstance(admission, dict)
         or set(admission) != {"schema_version", "interlock_version", "owner", "token", "commit", "tree"}
+        | ({"jvm_lane"} if "jvm_lane" in admission else set())
         or type(admission["schema_version"]) is not int or admission["schema_version"] != 1
         or type(admission["interlock_version"]) is not int or admission["interlock_version"] != 2
         or not isinstance(admission["token"], str) or not admission["token"]
@@ -49,6 +67,8 @@ def affected_request(repo, path, base, stages, advisory):
         or stages != plan["stages"]
     ):
         raise PortError("Affected plan differs from the actual owned admission or required stages")
+    if "jvm_lane" in admission:
+        owned_lanes().validate_binding(admission["jvm_lane"])
     return plan
 
 
@@ -83,13 +103,16 @@ def main():
 
     stages = args.stages.split(",")
     plan = affected_request(args.repo, args.affected_plan, args.affected_base, stages, args.advisory)
+    lane = execution_lane(args.work)
+    if lane is not None and (plan is None or args.advisory):
+        raise ValueError("Parallel JVM execution requires its exact manual affected plan")
     state = json.loads((args.work / "toolchain" / "environment.json").read_text(encoding="utf-8"))
     # Keep environment/credential stripping identical to CI, but retain local caches.
-    state["private_root"] = str(args.work / "local-checks" / "private")
+    state["private_root"] = str((lane or args.work / "local-checks") / "private")
     environment = candidate_environment(state)
     environment["PATH"] = os.pathsep.join([str(Path(state["java_home"]) / "bin"),
                                           str(Path(sys.executable).parent), environment.get("PATH", "")])
-    environment["GRADLE_USER_HOME"] = str(args.work / ".gradle-fast")
+    environment["GRADLE_USER_HOME"] = str((lane or args.work) / ".gradle-fast")
     environment["GRADLE_OPTS"] = '-Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8"'
     # Explicitly serial project execution: cross-project graph resolution is not
     # compatible with parallel-project execution. Gradle can still use four workers.

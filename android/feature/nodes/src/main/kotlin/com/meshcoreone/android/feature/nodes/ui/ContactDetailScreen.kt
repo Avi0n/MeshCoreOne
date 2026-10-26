@@ -61,7 +61,6 @@ import com.meshcoreone.android.core.maps.MapPinStyle
 import com.meshcoreone.android.core.maps.MapPresentationState
 import com.meshcoreone.android.core.maps.MapStyle
 import com.meshcoreone.android.core.model.ContactDTO
-import com.meshcoreone.android.core.model.RepeaterResolvable
 import com.meshcoreone.android.core.model.uppercaseHexString
 import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.feature.nodes.NodesNavigation
@@ -71,7 +70,6 @@ import com.meshcoreone.android.feature.nodes.detail.ContactDetailStateHolder
 import com.meshcoreone.android.feature.nodes.detail.DetailAction
 import com.meshcoreone.android.feature.nodes.detail.PingResult
 import com.meshcoreone.android.feature.nodes.deps.NodesFeatureDependencies
-import com.meshcoreone.android.feature.nodes.path.AddHopIntent
 import com.meshcoreone.android.feature.nodes.path.PathDiscoveryResult
 import com.meshcoreone.android.feature.nodes.path.PathManagementStateHolder
 import com.meshcoreone.android.feature.nodes.model.localizedNameRes
@@ -503,32 +501,7 @@ private fun PathEditorDialog(
         }
     }
     if (showNodes) {
-        val candidates = remember(state.availableRepeaters, state.availableRooms, state.discoveredNodes) {
-            buildList<RepeaterResolvable> {
-                addAll(state.availableRepeaters)
-                addAll(state.availableRooms)
-                addAll(state.discoveredNodes)
-            }
-        }
-        AlertDialog(
-            onDismissRequest = { showNodes = false },
-            confirmButton = { TextButton(onClick = { showNodes = false }) { Text(stringResource(C.contactsCommonDone)) } },
-            title = { Text(stringResource(R.string.l10n_app_contacts_contacts_pathedit_addhop)) },
-            text = {
-                LazyColumn(Modifier.heightIn(max = 420.dp)) {
-                    items(candidates, key = { it.publicKey.hexString }) { node ->
-                        TextButton(
-                            onClick = {
-                                holder.insert(node, AddHopIntent.APPEND)
-                                if (holder.isPathFull) showNodes = false
-                            },
-                            enabled = !holder.isPathFull,
-                            modifier = Modifier.fillMaxWidth(),
-                        ) { Text(node.resolvableName) }
-                    }
-                }
-            },
-        )
+        AddHopPickerDialog(holder, onDismiss = { showNodes = false })
     }
     routingConfirmation?.let { route ->
         AlertDialog(

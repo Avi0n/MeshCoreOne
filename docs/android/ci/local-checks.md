@@ -86,3 +86,39 @@ These Python suites establish source behavior only. Serialize their full runs
 under the coordinator's current host capacity decision. Do not persist a second
 CI-result bundle: the exact-commit hosted job and log remain final automated
 candidate authority.
+
+## Optional measured host JVM lanes
+
+On the actual Linux execution host, add `--parallel-jvm` to the exact
+`--affected-base` invocation above. It requires `ANDROID_PORT_LEDGER` to identify
+the existing absolute canonical shared database outside the checkout/Git-common
+directory; it does not create a per-clone execution database. Without the flag,
+the existing repository-wide serial lock and six-field admission stay unchanged.
+Adapters, advisory prepush, partial stages and arbitrary task overrides cannot
+use this path.
+
+The existing `hard_locks` transaction allocates the first free bounded slot for
+the actual `/etc/machine-id`, not a caller-supplied host label. Capacity is the
+smaller of available CPUs divided by four and available memory divided by 8 GiB.
+CPU affinity and the current unified cgroup plus every limiting ancestor's
+CPU/memory quotas are included. Unsupported cgroup layouts or missing/invalid
+identity/measurements fail closed. The 8 GiB reservation covers the existing
+3 GiB Gradle heap, 1 GiB metaspace, four 512 MiB test workers and headroom.
+For example, 12 available CPUs and 44 GiB available memory admit three slots,
+not a permanent two-slot ceiling. All occupied slots count against the current
+measurement; this deliberately conservative policy may delay refill under
+memory pressure rather than promising optimal utilization.
+
+Each allocated slot has its own inherited admission binding, actual Linux flock,
+input bundle, repository snapshots, reports, stripped private environment and
+Gradle user cache. The common toolchain state is read-only. Cleanup proof and
+successful owner-matched release permit ready work to refill a free slot.
+Global serial Gradle, native, disposable and installed-runtime ownership still
+exclude all JVM slots in both directions, including an unknown retained native
+owner. No runtime installation or native recovery is performed by this flag.
+
+The focused lane fixtures are declared by
+`python -m unittest test_jvm_lanes -v` with the controller/tests PYTHONPATH above.
+The local hook suite also contains real Linux shell/flock/pidfd fixtures using
+test-owned stub work, not Gradle; native Windows instead proves rejection before
+Linux launch. Neither outcome is real remote parallel product acceptance.

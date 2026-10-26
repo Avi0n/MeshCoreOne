@@ -99,8 +99,24 @@ def affected_request(repo, commit, base, scopes):
         raise ValueError(str(error)) from error
 
 
+def parallel_ledger(repo):
+    configured = os.environ.get("ANDROID_PORT_LEDGER")
+    if not configured:
+        raise ValueError("Parallel JVM execution requires the explicit existing canonical shared ledger")
+    path = Path(configured)
+    if not path.is_absolute() or not path.is_file():
+        raise ValueError("Parallel JVM execution requires an existing absolute shared ledger")
+    path = path.resolve()
+    common = Path(capture([
+        "git", "-C", str(repo), "rev-parse", "--path-format=absolute", "--git-common-dir",
+    ])).resolve()
+    if path.is_relative_to(repo.resolve()) or path.is_relative_to(common):
+        raise ValueError("A private checkout/Git-common ledger cannot supply parallel JVM authority")
+    return path
+
+
 def run_owned(repo, revision, distribution, stages, worktree, *, advisory=False, adapter=None,
-              affected_base=None, scopes=None):
+              affected_base=None, scopes=None, parallel_jvm=False):
     if worktree:
         raise ValueError("Working-tree overlays are not supported by the installed merge verifier")
     if (
@@ -109,11 +125,15 @@ def run_owned(repo, revision, distribution, stages, worktree, *, advisory=False,
         or adapter is not None and (advisory or stages != ALL_STAGES)
         or scopes is not None and affected_base is None
         or affected_base is not None and (advisory or adapter is not None or stages != ALL_STAGES)
+        or parallel_jvm and (affected_base is None or not sys.platform.startswith("linux"))
     ):
         raise ValueError("Invalid exact committed execution request")
     commit, tree = binding(repo, revision)
+    shared = parallel_ledger(repo) if parallel_jvm else None
     # Never invoke transport, bundle construction or an adapter before atomic admission.
     ledger = execution_runtime(repo)
+    if shared is not None and ledger.path.resolve() != shared:
+        raise ValueError("Parallel JVM runtime differs from the canonical shared ledger")
     from controller.errors import PortError
     token = uuid.uuid4().hex
     owner = f"local-check:{token}"
@@ -124,21 +144,32 @@ def run_owned(repo, revision, distribution, stages, worktree, *, advisory=False,
                "completion": str(completion), "mode": "advisory" if advisory else "manual"}
     if affected_base is not None:
         payload["affected_base"] = affected_base
+    resource = "gradle-execution"
     try:
-        ledger.acquire_hard_lock("gradle-execution", owner, payload, time.time())
+        if parallel_jvm:
+            lock = ledger.acquire_jvm_lane(owner, payload, time.time())
+            resource, payload = lock["resource"], lock["payload"]
+        else:
+            ledger.acquire_hard_lock(resource, owner, payload, time.time())
     except (PortError, sqlite3.Error) as error:
         directory.rmdir()
         raise ValueError(str(error)) from error
     execution = {"started": False}
     try:
         # Revalidate under ownership: installation and execution cannot cross here.
-        execution_runtime(repo)
+        current = execution_runtime(repo)
+        if parallel_jvm and (
+            parallel_ledger(repo) != shared or current.path.resolve() != shared
+            or current.repository != ledger.repository
+        ):
+            raise ValueError("Canonical execution authority changed under JVM ownership")
         plan = affected_request(repo, commit, affected_base, scopes) if affected_base is not None else None
         if adapter and not sys.platform.startswith("linux"):
             raise ValueError("Full/manual adapter cleanup requires the supported Linux pidfd supervisor")
         admission.write_text(json.dumps({
             "schema_version": 1, "interlock_version": 2, "owner": owner, "token": token,
             "commit": commit, "tree": tree,
+            **({"jvm_lane": payload["jvm_lane"]} if parallel_jvm else {}),
         }) + "\n", encoding="utf-8")
         if adapter:
             result = run_adapter(repo, commit, adapter, completion=completion, token=token,
@@ -161,7 +192,7 @@ def run_owned(repo, revision, distribution, stages, worktree, *, advisory=False,
     finally:
         if not execution["started"] or cleaned_execution(completion, token):
             try:
-                ledger.release_hard_lock("gradle-execution", owner)
+                ledger.release_hard_lock(resource, owner)
             except PortError as error:
                 raise ValueError("Own execution release failed; retain recovery inputs") from error
             shutil.rmtree(directory)
@@ -253,6 +284,9 @@ def run_candidate(repo, revision, prefix, stages, worktree, *, advisory=False, c
         source = tool / source_name
         if source.is_file():
             (control / installed_name).write_bytes(source.read_bytes().replace(b"\r\n", b"\n"))
+    from controller import jvm_lanes
+    (control / "jvm_lanes.py").write_bytes(
+        Path(jvm_lanes.__file__).read_bytes().replace(b"\r\n", b"\n"))
     bundle = completion.parent / "candidate.bundle"
     request = None
     if affected_plan is not None:
@@ -415,6 +449,8 @@ def main(argv=None):
     parser.add_argument("--stages", default="all")
     parser.add_argument("--affected-base", help="Immutable current trusted default-base SHA; explicit local-only scope")
     parser.add_argument("--scope", action="append", help="Explicit CI/module scope superset; cannot omit actual changes")
+    parser.add_argument("--parallel-jvm", action="store_true",
+                        help="Use a measured real-host JVM slot with explicit affected verification (Linux only)")
     parser.add_argument("--toolchain-state", type=Path)
     parser.add_argument("--validate-result", type=Path)
     parser.add_argument("remote", nargs="*")
@@ -427,6 +463,8 @@ def main(argv=None):
             raise ValueError("Pre-push accepts only exact committed declared-stage candidates")
         if args.scope is not None and args.affected_base is None:
             raise ValueError("--scope requires an explicit --affected-base")
+        if args.parallel_jvm and args.affected_base is None:
+            raise ValueError("--parallel-jvm requires the exact --affected-base contract")
         if args.affected_base is not None and (
             not SHA.fullmatch(args.affected_base) or args.pre_push or args.install_hook
             or args.validate_result or args.toolchain_state or args.worktree or args.stages != "all"
@@ -460,7 +498,8 @@ def main(argv=None):
                     run_owned(repo, commit, args.distribution, stages, args.worktree,
                               advisory=args.pre_push,
                               **({"affected_base": args.affected_base, "scopes": args.scope}
-                                 if args.affected_base is not None else {}))
+                                 if args.affected_base is not None else {}),
+                              **({"parallel_jvm": True} if args.parallel_jvm else {}))
             except (OSError, ValueError, KeyError, sqlite3.Error, subprocess.SubprocessError) as error:
                 if not args.pre_push:
                     raise
