@@ -1,5 +1,48 @@
 # WP-214 evidence
 
+## Current channel-sync repair batch (local, not published)
+
+Assignment: `WP214-CHANNEL-SYNC`, `services-porter`, default runtime with the
+tracked services-porter instructions applied. Session
+`d3a4cd0b-7a84-44c4-bb5a-8c2066c90afd`, branch
+`cbattlegear-studious-journey`, initial current-main base
+`263d30332940f09082709b9d38ee8877dfb9fedd`; source remains
+`db14559b39d32322b06477c6ae676112f583db50`.
+
+The only assigned root-cause groups are `SM-ACTIVE-LINK-POLICY` and
+`SM-CHANNEL-TYPED-ERROR`. The grouping artifact was read at SHA-256
+`62c185ffc08b9c38a37261d810147767b33f2a8ae2131a3a47c0622c660686d1`;
+its historical judgments are not current acceptance. Original policy-family
+coverage remains in `DevicePlatformSyncThrottlingTests`; new App graph coverage
+adds BLE/WiFi ESP32/nRF52/unknown-model forwarding and reconnect replacement.
+Two native cooldown cases additionally cover 24 clean/attempted timestamp,
+platform and transport combinations immediately below and at the 30-second
+boundary through actual coordinator phases.
+The original typed-failure case and cancellation assertions remain at the real
+`ChannelServiceProtocol` consumer seam.
+
+Prerequisites are actual merged ancestor commits: WP-208 #43, WP-209 #49,
+WP-210 #50, WP-211 #42, WP-212 #48, WP-215 #57 and WP-216 #53.
+Typed advisory bookkeeping was acquired for this session and evolved without
+releasing historical rows. App support uses `app-build-launcher`; runtime support
+must be admitted from trusted main and serialized after the WP-201 producer.
+
+| Local command | Current outcome |
+| --- | --- |
+| `python .\tools\android-port\controller\validate.py` | PASS; 1,866 pinned inputs, 1,786 owned and 80 excluded |
+| `python .\tools\android-port\controller\verification_config.py --check` | PASS; complete protected overlay |
+| `python .\tools\android-port\portmap.py` | PASS; 1,907 mappings after native App-test provenance correction |
+| `ci.py local-inputs --root <own-artifacts>/wp-readiness --jdk <declared-JDK> --sdk <declared-SDK>`; `ci.py preflight --state <own-artifacts>/wp-readiness/environment.json --output <own-artifacts>/wp-readiness/result --local` | PASS in WSL using the declared Python/JDK/SDK and converted own Git pointers |
+| Affected Gradle tests/build/lint | NOT RUN: retained native execution ownership/runtime migration blocks execution; zero test-discovery acceptance claimed |
+
+No push or PR is permitted for this batch until its affected local tests,
+build/lint and validators pass with positive discovery. No Android-device,
+iOS, hardware, signing, legal or whole-WP parity acceptance is claimed.
+Reproducible hosted results, once published, remain authoritative at the exact
+candidate job/log; no duplicate CI-result bundle is retained.
+
+## Historical initial contribution (not current repair acceptance)
+
 **External contribution:** prepared outside the dispatch controller, with no lease
 or receipt. This lists the commands that actually ran and their observed results.
 
