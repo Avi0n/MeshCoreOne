@@ -1,5 +1,29 @@
 # WP-214 evidence
 
+## Inherited WP-201 compile correction (local, unverified)
+
+WP-201 reported an authenticated `:core:runtime:compileTestKotlin` failure in
+the inherited `DeviceConnectionMethodPersistenceTest.kt` expected-list
+assertions, not a passing runtime suite. Exact producer commit
+`0384d1a8cb13b21f60a5d42e1b2a14ee624a0716` supplies two explicit
+`listOf<ConnectionMethod>` type arguments without casts, assertion weakening or
+production changes. WP-214's inherited old Git blob and the producer parent
+both equal `bbf84a0a572230f8712abd508254e35161ca81b9`; reconciliation yields
+the exact producer new blob `46c18f7788602ed70244ee49da183c845bec1bdc`.
+Only those two producer-owned lines are integrated, retaining WP-201 headers
+and attribution, not the producer's unrelated DATA10 ancestry or evidence edits.
+
+Generic `modify` was refused. Actual admission of
+`merge-integration` / `merge-disjoint-semantic-edits` passed; its trusted rule
+was checked unchanged at freshly fetched actual main
+`3a292b6498e8dcef0c374022a93c8e30c68f5bd5`.
+The same reservation evolved from revision 8 to 9 for this exact test path,
+without rewriting authorization prose or modifying a private ledger.
+No helper-driven main merge/rebase, frozen remote update or heavy job occurs.
+The union successor needs its own full verification at the supported admission
+boundary; exact blob equality is not compilation or test execution evidence.
+WP-201 remains the primary producer and verified/landed publication prerequisite.
+
 ## Subsequent suppression and smoke-oracle batch (local, unverified)
 
 The coordinator assigned `SM-SYNC-SUPPRESSION-ORACLE` and
