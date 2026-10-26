@@ -471,6 +471,6 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
             sys.executable, str(repo / "tools/android-port/l10n_convert.py"), "--check",
             "--verify-android-tests", str(repo / "android/core/l10n/build/test-results/testDebugUnitTest"),
         ], repo, environment, output / "l10n-junit.log")
-    report["junit_cases"] = collect_named_cases(repo, directories)
+    report["junit_cases"] = collect_named_cases(repo, directories) if directories else []
     validate_plan(repo, plan, trusted_base=trusted_base)
     return report

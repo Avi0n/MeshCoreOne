@@ -510,6 +510,32 @@ class LocalScopeBindingTests(unittest.TestCase):
         with self.assertRaises(PortError):
             collect_targeted_reports(self.repo, ["module:core/services"])
 
+    def test_no_test_module_preserves_compile_lint_graph_without_junit_obligation(self):
+        self.write("android/core/transport/build.gradle.kts", 'plugins { id("mesh.android.library") }\n')
+        self.write("android/core/transport/src/main/kotlin/Transport.kt", "base")
+        base = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", base)
+        self.write("android/core/transport/src/main/kotlin/Transport.kt", "changed production")
+        plan = candidate_plan(self.repo, base, self.commit())
+        self.assertEqual(plan["scopes"], ["module:core/transport"])
+        self.assertEqual(plan["tasks"], [
+            ":core:transport:check", ":core:transport:compileDebugKotlin", ":core:transport:lintDebug",
+            "validateModuleGraph", "runtimeDependencyInventory",
+        ])
+        self.assertEqual(report_inputs(self.repo, plan), ([], ["core/transport"]))
+        output = self.repo / "output"
+        output.mkdir()
+        calls, execute = self.execute_fixture(plan)
+        report = run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=base)
+        self.assertEqual(calls[0][3:3 + len(plan["tasks"])], plan["tasks"])
+        self.assertEqual(report["suites"], {})
+        self.assertEqual(report["junit_cases"], [])
+        self.assertEqual(set(report["lint"]), {"core/transport"})
+        self.assertEqual(
+            {key: report[key] for key in ("base", "head", "tree", "scopes", "tasks")},
+            {key: plan[key] for key in ("base", "head", "tree", "scopes", "tasks")},
+        )
+
     def test_named_evidence_cannot_turn_invalid_required_reports_into_success(self):
         plan = self.services_plan()
         output = self.repo / "output"
