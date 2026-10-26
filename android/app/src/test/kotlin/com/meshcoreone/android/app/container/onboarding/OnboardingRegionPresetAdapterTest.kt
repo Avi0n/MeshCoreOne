@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import com.meshcoreone.android.app.platform.AppLanguages
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.model.RegionSelection
+import com.meshcoreone.android.core.services.device.RegionalAreas
 import com.meshcoreone.android.core.contracts.domain.errors.SettingsServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.SettingsServiceException
 import com.meshcoreone.android.core.ui.UiText
@@ -114,7 +115,11 @@ class LocalizedRegionCatalogAdapterTest {
         val preferences = context.getSharedPreferences("app_language", Context.MODE_PRIVATE)
         val original = preferences.getString("language", null)
         val catalog = ServicesRegionCatalog(resources = { AppLanguages.attach(context).resources })
+        val originalSystemLocale = Locale.getDefault()
         try {
+            Locale.setDefault(Locale.US)
+            val cachedCountryIds = RegionalAreas.countriesSortedByLocalizedName.map { it.id }
+            var staleOrderDiffers = false
             for ((tag, california, pennsylvania, territory) in listOf(
                 listOf("fr", "Californie", "Pennsylvanie", "Territoire du Nord"),
                 listOf("de", "Kalifornien", "Pennsylvania", "Nordterritorium"),
@@ -139,9 +144,19 @@ class LocalizedRegionCatalogAdapterTest {
                 }
                 assertEquals(states.map { it.displayName }.sortedWith(collator), states.map { it.displayName })
                 assertEquals(8, catalog.subdivisions("AU").size)
-                assertEquals(setOf("US", "AU"), catalog.countries().filter { catalog.showsSubdivisionPicker(it.code) }.map { it.code }.toSet())
+                val countries = catalog.countries()
+                val countryCollator = java.text.Collator.getInstance(Locale.forLanguageTag(tag))
+                val expectedCountries = RegionalAreas.countries.map { it.id to it.name(Locale.forLanguageTag(tag)) }
+                    .sortedWith { left, right -> countryCollator.compare(left.second, right.second) }
+                assertEquals(expectedCountries.map { it.first }, countries.map { it.code })
+                assertEquals(expectedCountries.map { it.second }, countries.map { it.displayName })
+                staleOrderDiffers = staleOrderDiffers || cachedCountryIds != countries.map { it.code }
+                assertEquals(Locale.US, Locale.getDefault())
+                assertEquals(setOf("US", "AU"), countries.filter { catalog.showsSubdivisionPicker(it.code) }.map { it.code }.toSet())
             }
+            assertTrue("App-language ordering must differ from the primed global cache", staleOrderDiffers)
         } finally {
+            Locale.setDefault(originalSystemLocale)
             assertTrue(preferences.edit().putString("language", original).commit())
         }
     }

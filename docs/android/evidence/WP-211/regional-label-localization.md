@@ -36,6 +36,13 @@ The added adapter tests cover app-language changes on one existing catalog,
 French/German/English California, Pennsylvania, Texas and Australian Northern
 Territory labels, US/CA/non-US display formatting, localized subdivision
 ordering, unknown subdivision absence and unchanged catalog counts/IDs.
+The country-order regression primes the core's global lazy ordering while
+holding the system locale at US, then asserts locale-collated country IDs
+and labels for French, German and English on the same app catalog. It also
+asserts that at least one app-locale order differs from the cached core order,
+so the original stale-cache consumer cannot satisfy the regression. This
+assertion is authored but remains UNRUN; no failing-before/passing-after
+execution is claimed.
 Two added production-flow Compose tests select localized US states, switch
 countries, select the localized Australian territory and commit the stable
 `AU-NT` identity without applying a preset or completing onboarding.

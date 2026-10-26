@@ -40,8 +40,12 @@ class ServicesRegionCatalog(
         resources?.invoke()?.let { RegionalSubdivisionNames.displayName(it, code) }
     }
 
-    override fun countries(): List<OnboardingCountry> =
-        RegionalAreas.countriesSortedByLocalizedName.map { OnboardingCountry(it.id, it.name(locale())) }
+    override fun countries(): List<OnboardingCountry> {
+        val currentLocale = locale()
+        val collator = Collator.getInstance(currentLocale)
+        return RegionalAreas.countries.map { OnboardingCountry(it.id, it.name(currentLocale)) }
+            .sortedWith { left, right -> collator.compare(left.displayName, right.displayName) }
+    }
 
     override fun showsSubdivisionPicker(countryCode: String?): Boolean = RegionalAreas.showsSubdivisionPicker(countryCode)
 
