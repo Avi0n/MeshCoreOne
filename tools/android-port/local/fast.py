@@ -179,8 +179,7 @@ def main():
         "scope": "Local pre-push check; not hosted/cold-cache, hardware, signing or human-gate evidence",
     }
     if plan is not None:
-        from controller.local_scope import validate_plan
-        validate_plan(args.repo, plan, trusted_base=args.affected_base)
+        owned_scope().validate_plan(args.repo, plan, trusted_base=args.affected_base)
         binding.update(kind="local-affected-only", base=plan["base"], scopes=plan["scopes"], tasks=plan["tasks"])
     print(json.dumps(binding, indent=2), flush=True)
     print(

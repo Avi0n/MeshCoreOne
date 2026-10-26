@@ -1,10 +1,14 @@
+import contextlib
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import types
 import unittest
+from unittest.mock import patch
 
 from controller.errors import PortError
 from controller.local_scope import candidate_plan, collect_targeted_reports, report_inputs, run_scaffold, select_paths, validate_plan
@@ -287,6 +291,52 @@ class LocalScopeBindingTests(unittest.TestCase):
             owned.run_scaffold(self.repo, plan, {}, self.repo / "output", execute,
                                fast.scaffold_options(), trusted_base=base)
         self.assertEqual(self.git("rev-parse", "HEAD"), plan["head"])
+        import controller
+        from controller import ci, ci_environment
+        self.write("work/toolchain/environment.json", json.dumps({"java_home": str(self.repo / "fixture-java")}))
+        self.write("request.json", json.dumps(plan))
+        output = self.repo / "output"
+        output.mkdir(exist_ok=True)
+        admission = {
+            "schema_version": 1, "interlock_version": 2, "owner": "local-check:fixture",
+            "token": "fixture", "commit": plan["head"], "tree": plan["tree"],
+        }
+        original_read = Path.read_text
+
+        def read_text(path, *args, **kwargs):
+            return json.dumps(admission) if path == Path("/proc/self/fd/8") else original_read(path, *args, **kwargs)
+
+        calls, emit = self.execute_fixture(plan)
+
+        def complete(command, repo, environment, log):
+            if "ANDROID_CI_TASK_GRAPH" not in environment:
+                return
+            emit(command, repo, environment, log)
+            self.write("android/build/reports/scaffold/module-graph.tsv",
+                       "consumer\tproducer\tconfiguration\n:core:runtime\t:core:data\timplementation\n"
+                       ":app\t:core:data\timplementation\n:app\t:core:runtime\timplementation\n")
+
+        text = io.StringIO()
+        with patch.dict(sys.modules, {"controller.local_scope": legacy}), \
+                patch.object(controller, "local_scope", legacy), \
+                patch.object(sys, "argv", [
+                    "fast.py", "--repo", str(self.repo), "--work", str(self.repo / "work"),
+                    "--output", str(output), "--stages", ",".join(plan["stages"]),
+                    "--affected-plan", str(self.repo / "request.json"), "--affected-base", base,
+                ]), patch.object(Path, "read_text", new=read_text), \
+                patch.object(fast, "execution_lane", return_value=None), \
+                patch.object(fast, "execute", side_effect=complete), \
+                patch.object(ci_environment, "candidate_environment", return_value={}), \
+                patch.object(ci_environment, "verify_wrapper"), \
+                patch.object(ci, "python_checks"), patch.object(ci, "preflight"), \
+                contextlib.redirect_stdout(text):
+            fast.main()
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0][3:3 + len(plan["tasks"])], plan["tasks"])
+        self.assertIn('"kind": "local-affected-only"', text.getvalue())
+        self.assertIn("AFFECTED SNAPSHOT CHECKS COMPLETE", text.getvalue())
+        self.assertNotIn("FAST LOCAL CHECK PASSED", text.getvalue())
+        self.assertEqual(self.git("rev-parse", "HEAD"), plan["head"])
 
     def test_stale_base_and_head_are_rejected(self):
         plan = candidate_plan(self.repo, self.base, self.head)
@@ -384,12 +434,17 @@ class LocalScopeBindingTests(unittest.TestCase):
                     } for task in plan["tasks"]],
                 }), encoding="utf-8")
             if emit:
-                self.write(
-                    "android/core/services/build/test-results/test/TEST-Sync.xml",
-                    "<testsuite tests='1' failures='0' errors='0' skipped='0'>"
-                    "<testcase classname='SyncTest' name='required'>"
-                    + ("<skipped/>" if skipped else "") + "</testcase></testsuite>",
-                )
+                directories, lint = report_inputs(self.repo, plan)
+                for directory in directories:
+                    self.write(
+                        directory / "TEST-Sync.xml",
+                        "<testsuite tests='1' failures='0' errors='0' skipped='0'>"
+                        "<testcase classname='SyncTest' name='required'>"
+                        + ("<skipped/>" if skipped else "") + "</testcase></testsuite>",
+                    )
+                for module in lint:
+                    self.write(f"android/{module}/build/reports/lint-results-debug.xml",
+                               '<issues format="6" by="lint fixture"/>')
                 self.write("android/build/reports/scaffold/module-graph.tsv",
                            "consumer\tproducer\tconfiguration\n:core:services\t:core:protocol\timplementation\n")
                 self.write("android/build/reports/scaffold/runtime-dependencies.tsv",
