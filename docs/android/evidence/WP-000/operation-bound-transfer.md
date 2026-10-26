@@ -25,7 +25,8 @@ successor authority.
 | Reference source | `db14559b39d32322b06477c6ae676112f583db50` |
 | Manifest | raw SHA-256 `949598d9d070f14378dcda6150f67ead1bb70d29fc261c685cadf6649c4aa175`; validator digest `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8` |
 | Policy revision | `46a1aebeace81c8719901030e859569df4c2008e19cb841d80e887b5801077d8` |
-| Issue / task / PR | No issue or task identity is asserted. Prior WP-000 PR #319 is merged; this candidate has no PR yet. |
+| Issue / task / PR | No issue or task identity is asserted. Prior WP-000 PR #319 is merged; this follow-up is tracked by draft PR #326. |
+| Implementation commit | `93e73d747d63f024d470640b12759a4799cdf73d` |
 | Reservation | Existing attempt `5a89df75-a4ef-4cea-8c84-daa127f99f5e` belongs to another session/worktree/base. A fresh claim was blocked on that old binding; it was not treated as acquired. No ledger mutation occurred. |
 
 ## Verification
@@ -37,5 +38,8 @@ successor authority.
 | `python tools/android-port/local/reserve.py admit --wp WP-000 --path <changed path> --operation modify` | Passed for each changed code/documentation path; each returned `wp-owned`. |
 | `git diff --check` | Passed. |
 
-The full WP-000 acceptance is not claimed. The candidate does not change or verify Android product
-behavior, activate dispatch, mutate reservations, admit a successor, or satisfy protected review.
+The local pre-push runner marked implementation commit `93e73d747d63f024d470640b12759a4799cdf73d`
+UNVERIFIED after its selected stages returned nonzero; this is not a hosted result or a second result
+bundle. Draft PR #326 retains that candidate state. The full WP-000 acceptance is not claimed. The
+candidate does not change or verify Android product behavior, activate dispatch, mutate reservations,
+admit a successor, or satisfy protected review.
