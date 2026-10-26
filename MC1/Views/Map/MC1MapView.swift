@@ -81,6 +81,7 @@ struct MC1MapView: UIViewRepresentable {
       mapView.isRotateEnabled = false
       mapView.isPitchEnabled = false
       mapView.compassView.isHidden = true
+      context.coordinator.scrollWheelZoomGesture.isEnabled = false
     }
 
     // Disable quick-zoom (tap-then-hold-drag) gesture
@@ -217,8 +218,7 @@ struct MC1MapView: UIViewRepresentable {
 
   func updateCameraRegion(in mapView: MLNMapView, coordinator: Coordinator) {
     if viewportSnapshotProvider != nil, !coordinator.isStyleLoaded { return }
-    guard let region = cameraRegion else { return }
-    guard cameraRegionVersion != coordinator.lastAppliedRegionVersion else { return }
+    guard let region = cameraRegion, cameraRegionVersion != coordinator.lastAppliedRegionVersion else { return }
 
     guard CLLocationCoordinate2DIsValid(region.center) else {
       coordinator.lastAppliedRegionVersion = cameraRegionVersion
@@ -349,8 +349,14 @@ struct MC1MapView: UIViewRepresentable {
 extension MC1MapView {
   @MainActor
   class Coordinator: NSObject, @preconcurrency MLNMapViewDelegate, UIGestureRecognizerDelegate {
-    /// Non-zero frame avoids MapLibre zero-size Metal init (issue #67).
+    /// A non-zero frame avoids MapLibre's zero-size Metal initialization.
     let mapView = MLNMapView(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
+    let scrollWheelZoomGesture = UIPanGestureRecognizer()
+
+    override init() {
+      super.init()
+      configureScrollWheelZoom()
+    }
 
     // Callbacks
     var onPointTap: ((MapPoint, CGPoint) -> Void)?
@@ -484,13 +490,19 @@ extension MC1MapView {
     func mapView(_ mapView: MLNMapView, regionDidChangeWith reason: MLNCameraChangeReason, animated: Bool) {
       isUserInteracting = false
       let isUserGesture = !reason.isDisjoint(with: Self.userGestureReasons)
-      if isUserGesture, viewportSnapshotProvider != nil, isStyleLoaded {
+      if isUserGesture {
+        userCameraDidChange()
+      } else {
+        captureViewport()
+      }
+    }
+
+    func userCameraDidChange() {
+      if viewportSnapshotProvider != nil, isStyleLoaded {
         hasInitializedViewport = true
       }
       captureViewport()
       guard !isUpdatingFromSwiftUI else { return }
-
-      guard isUserGesture else { return }
 
       // Debounce: cancel previous pending write-back
       pendingRegionTask?.cancel()
