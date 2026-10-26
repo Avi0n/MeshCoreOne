@@ -849,8 +849,15 @@ class Ledger:
     def acquire_jvm_lane(self, owner: str, payload: dict, now: float):
         from .jvm_lanes import RESOURCE, host_capacity
 
-        if not owner or not isinstance(payload, dict) or "jvm_lane" in payload:
+        if not isinstance(owner, str) or not owner or not isinstance(payload, dict) or "jvm_lane" in payload:
             raise PortError("JVM execution requires a fresh owned payload")
+        if (
+            any(not isinstance(payload.get(key), str) or SHA.fullmatch(payload[key]) is None
+                for key in ("commit", "tree"))
+            or not isinstance(payload.get("token"), str) or not payload["token"]
+            or payload.get("mode") != "manual"
+        ):
+            raise PortError("JVM lane requires an exact committed manual candidate and cleanup token")
         if type(now) not in (int, float) or not math.isfinite(now):
             raise PortError("Malformed JVM execution acquisition time")
         with self.transaction() as connection:

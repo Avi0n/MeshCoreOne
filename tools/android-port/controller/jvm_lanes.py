@@ -2,7 +2,7 @@
 
 import hashlib
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import sys
 
@@ -25,17 +25,40 @@ def host_identity():
     return hashlib.sha256(identity.encode("ascii")).hexdigest()
 
 
-def cpu_capacity():
+def cgroup_directories():
+    memberships = Path("/proc/self/cgroup").read_text(encoding="ascii").splitlines()
+    if len(memberships) != 1 or not memberships[0].startswith("0::/"):
+        raise PortError("Parallel JVM lanes require supported unified cgroup membership")
+    name = memberships[0][3:]
+    relative = PurePosixPath(name)
+    if ".." in relative.parts or str(relative) != name or "\\" in name:
+        raise PortError("Unsupported current cgroup path")
+    mounts = [
+        line.split(" - ", 1)[0].split()
+        for line in Path("/proc/self/mountinfo").read_text(encoding="ascii").splitlines()
+        if " - cgroup2 " in line
+    ]
+    if len(mounts) != 1 or len(mounts[0]) < 6 or mounts[0][3:5] != ["/", "/sys/fs/cgroup"]:
+        raise PortError("Unsupported unified cgroup mount; cannot prove host limits")
+    root = Path("/sys/fs/cgroup")
+    current = root.joinpath(*relative.parts[1:])
+    if not current.is_dir():
+        raise PortError("Current unified cgroup is unavailable")
+    return [current, *list(current.parents)[:len(relative.parts) - 1]]
+
+
+def cpu_capacity(groups=None):
     cpus = len(os.sched_getaffinity(0))
-    quota = Path("/sys/fs/cgroup/cpu.max")
-    if quota.is_file():
-        values = quota.read_text(encoding="ascii").split()
-        if len(values) != 2 or not values[1].isdigit() or int(values[1]) <= 0:
-            raise PortError("Malformed actual CPU quota")
-        if values[0] != "max":
-            if not values[0].isdigit() or int(values[0]) <= 0:
+    for group in cgroup_directories() if groups is None else groups:
+        quota = group / "cpu.max"
+        if quota.is_file():
+            values = quota.read_text(encoding="ascii").split()
+            if len(values) != 2 or not values[1].isdigit() or int(values[1]) <= 0:
                 raise PortError("Malformed actual CPU quota")
-            cpus = min(cpus, int(values[0]) // int(values[1]))
+            if values[0] != "max":
+                if not values[0].isdigit() or int(values[0]) <= 0:
+                    raise PortError("Malformed actual CPU quota")
+                cpus = min(cpus, int(values[0]) // int(values[1]))
     return cpus // WORKERS
 
 
@@ -46,15 +69,17 @@ def host_capacity():
         if memory is None:
             raise PortError("Missing actual available-memory measurement")
         available = int(memory[1]) * 1024
-        limit = Path("/sys/fs/cgroup/memory.max")
-        if limit.is_file():
-            maximum = limit.read_text(encoding="ascii").strip()
-            if maximum != "max":
-                current = limit.with_name("memory.current").read_text(encoding="ascii").strip()
-                if not maximum.isdigit() or not current.isdigit():
-                    raise PortError("Malformed actual memory quota")
-                available = min(available, int(maximum) - int(current))
-        capacity = min(cpu_capacity(), available // MEMORY_PER_LANE)
+        groups = cgroup_directories()
+        for group in groups:
+            limit = group / "memory.max"
+            if limit.is_file():
+                maximum = limit.read_text(encoding="ascii").strip()
+                if maximum != "max":
+                    current = limit.with_name("memory.current").read_text(encoding="ascii").strip()
+                    if not maximum.isdigit() or not current.isdigit():
+                        raise PortError("Malformed actual memory quota")
+                    available = min(available, int(maximum) - int(current))
+        capacity = min(cpu_capacity(groups), available // MEMORY_PER_LANE)
     except OSError as error:
         raise PortError("Cannot measure actual JVM host capacity") from error
     if capacity < 1:

@@ -21,7 +21,7 @@ class JvmLaneTests(unittest.TestCase):
         self.ledger = Ledger(self.root / "shared.sqlite3", "fixture/repository")
         self.other = Ledger(self.ledger.path, self.ledger.repository)
         self.host = "a" * 64
-        self.payload = {"commit": "b" * 40, "tree": "c" * 40, "token": "actual-fixture"}
+        self.payload = {"commit": "b" * 40, "tree": "c" * 40, "token": "actual-fixture", "mode": "manual"}
 
     def acquire(self, owner, *, host=None, capacity=3, ledger=None):
         with patch.object(jvm_lanes, "host_capacity", return_value=(host or self.host, capacity)):
@@ -125,6 +125,12 @@ class JvmLaneTests(unittest.TestCase):
             self.ledger.acquire_jvm_lane("owner", {**self.payload, "jvm_lane": {}}, 1.0)
         self.assertEqual(self.ledger.hard_lock_records(), [])
 
+    def test_missing_or_mutable_candidate_and_advisory_mode_cannot_allocate(self):
+        for changed in ({"commit": "HEAD"}, {"tree": True}, {"token": ""}, {"mode": "advisory"}):
+            with self.subTest(changed=changed), self.assertRaisesRegex(PortError, "exact committed manual"):
+                self.ledger.acquire_jvm_lane("owner", {**self.payload, **changed}, 1.0)
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+
     def test_binding_is_host_checked_and_each_slot_has_an_isolated_root(self):
         with patch.object(jvm_lanes, "host_identity", return_value=self.host), \
                 patch.object(jvm_lanes, "cpu_capacity", return_value=3):
@@ -151,6 +157,7 @@ class HostMeasurementTests(unittest.TestCase):
         with patch.object(jvm_lanes.sys, "platform", "linux"), \
                 patch.object(jvm_lanes.os, "sched_getaffinity", return_value=set(range(cpus)), create=True), \
                 patch.object(Path, "read_text", autospec=True, side_effect=read), \
+                patch.object(Path, "is_dir", return_value=True), \
                 patch.object(Path, "is_file", autospec=True,
                              side_effect=lambda path: str(path).replace("\\", "/") in files):
             return jvm_lanes.host_capacity()
@@ -160,6 +167,8 @@ class HostMeasurementTests(unittest.TestCase):
             "/etc/machine-id": "a" * 32, "/proc/meminfo": f"MemAvailable: {44 * 1024**2} kB\n",
             "/sys/fs/cgroup/cpu.max": "max 100000",
             "/sys/fs/cgroup/memory.max": "max",
+            "/proc/self/cgroup": "0::/\n",
+            "/proc/self/mountinfo": "29 23 0:26 / /sys/fs/cgroup rw - cgroup2 cgroup rw\n",
         }
 
     def test_actual_twelve_cpu_host_supports_three_not_a_permanent_two_slot_cap(self):
@@ -184,6 +193,9 @@ class HostMeasurementTests(unittest.TestCase):
             ("/etc/machine-id", "caller-nonce"), ("/proc/meminfo", "missing"),
             ("/sys/fs/cgroup/cpu.max", "invalid quota"),
             ("/proc/meminfo", "MemAvailable: 1 kB\n"),
+            ("/proc/self/cgroup", "0::/../unknown\n"),
+            ("/proc/self/cgroup", "1:memory:/unsupported-v1\n"),
+            ("/proc/self/mountinfo", "29 23 0:26 /nested /sys/fs/cgroup rw - cgroup2 cgroup rw\n"),
         ):
             files = self.files()
             files[path] = value
@@ -192,3 +204,21 @@ class HostMeasurementTests(unittest.TestCase):
         with patch.object(jvm_lanes.sys, "platform", "win32"):
             with self.assertRaisesRegex(PortError, "actual supported Linux"):
                 jvm_lanes.host_identity()
+
+    def test_nested_ssh_cgroup_and_each_limiting_ancestor_are_enforced(self):
+        files = self.files()
+        files["/proc/self/cgroup"] = "0::/user.slice/session.scope\n"
+        files["/sys/fs/cgroup/user.slice/session.scope/cpu.max"] = "max 100000"
+        files["/sys/fs/cgroup/user.slice/cpu.max"] = "800000 100000"
+        self.assertEqual(self.measured(files)[1], 2)
+        files["/sys/fs/cgroup/user.slice/session.scope/cpu.max"] = "400000 100000"
+        self.assertEqual(self.measured(files)[1], 1)
+        files["/sys/fs/cgroup/user.slice/session.scope/cpu.max"] = "max 100000"
+        files["/sys/fs/cgroup/user.slice/cpu.max"] = "max 100000"
+        files["/sys/fs/cgroup/user.slice/memory.max"] = str(20 * 1024**3)
+        files["/sys/fs/cgroup/user.slice/memory.current"] = str(12 * 1024**3)
+        self.assertEqual(self.measured(files)[1], 1)
+        files["/sys/fs/cgroup/user.slice/session.scope/memory.max"] = str(16 * 1024**3)
+        files["/sys/fs/cgroup/user.slice/session.scope/memory.current"] = str(9 * 1024**3)
+        with self.assertRaisesRegex(PortError, "8 GiB"):
+            self.measured(files)
