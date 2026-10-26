@@ -1,4 +1,5 @@
 // AndroidOnly: WP-303 Test support: a protocol-speaking fake radio, runtime link/platform doubles and the Room-backed process harness.
+// AndroidOnly: WP-214 Observe actual session pipeline entry and vary the firmware model in graph tests.
 package com.meshcoreone.android.app.container
 
 import android.content.Context
@@ -109,6 +110,15 @@ internal class FirmwareRadio(private val publicKey: Bytes, private val nodeName:
     var readers = 0
     var connectFailure: Exception? = null
     var firmwareVersion: UByte = 9u
+    var modelName: String = "T-Deck"
+    var pipelinedReadsSupported = false
+    var pipelinedReadChecks = 0
+        private set
+
+    override suspend fun supportsPipelinedReads(): Boolean {
+        pipelinedReadChecks++
+        return pipelinedReadsSupported
+    }
 
     /** When set, [connect] suspends until the gate opens (an in-flight connection attempt). */
     var connectGate: kotlinx.coroutines.CompletableDeferred<Unit>? = null
@@ -172,7 +182,7 @@ internal class FirmwareRadio(private val publicKey: Bytes, private val nodeName:
 
     private fun devicePacket(): Bytes =
         Bytes.of(13, firmwareVersion.toInt(), 50, 8) + le32(0) + Bytes.utf8("01 Jan 2025").paddedOrTruncated(12) +
-            Bytes.utf8("T-Deck").paddedOrTruncated(40) + Bytes.utf8("v1.13.0").paddedOrTruncated(20) + Bytes.of(0)
+            Bytes.utf8(modelName).paddedOrTruncated(40) + Bytes.utf8("v1.13.0").paddedOrTruncated(20) + Bytes.of(0)
 }
 
 internal class HarnessLink(val radio: FirmwareRadio, override val type: TransportType, val target: ConnectionTarget) : RuntimeLink {
