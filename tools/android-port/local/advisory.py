@@ -5,12 +5,27 @@ import ctypes
 import json
 import os
 from pathlib import Path
+import re
 import signal
 import subprocess
 import sys
 import time
 
 CLEANUP_SECONDS = 2
+
+
+def admission_lane(admission):
+    if "jvm_lane" not in admission:
+        return None
+    value = admission["jvm_lane"]
+    if (
+        not isinstance(value, dict) or set(value) != {"host", "slot", "capacity"}
+        or not isinstance(value["host"], str) or re.fullmatch(r"[0-9a-f]{64}", value["host"]) is None
+        or type(value["slot"]) is not int or type(value["capacity"]) is not int
+        or not 0 <= value["slot"] < value["capacity"]
+    ):
+        raise ValueError("Malformed owned JVM host/slot binding")
+    return value["host"] + "/" + str(value["slot"])
 
 
 def pidfd_open(pid):
@@ -186,11 +201,16 @@ def main():
         admission = json.loads(args.admission.read_text(encoding="utf-8"))
         if (
             set(admission) != {"schema_version", "interlock_version", "owner", "token", "commit", "tree"}
+            | ({"jvm_lane"} if "jvm_lane" in admission else set())
             or admission["schema_version"] != 1 or admission["interlock_version"] != 2
             or admission["token"] != args.token or admission["owner"] != f"local-check:{args.token}"
             or admission["commit"] != args.commit
         ):
             parser.error("Shared execution admission differs from this exact invocation")
+        try:
+            admission_lane(admission)
+        except ValueError as error:
+            parser.error(str(error))
         # Internal shell modes require this actual inherited handoff, not a mode-name bypass.
         descriptor = os.open(args.admission, os.O_RDONLY)
         if descriptor != 8:
