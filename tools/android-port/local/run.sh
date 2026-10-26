@@ -38,8 +38,12 @@ import json
 from pathlib import Path
 import sys
 sys.path.insert(0, sys.argv[1])
-from advisory import admission_lane
-print(admission_lane(json.loads(Path("/proc/self/fd/8").read_text(encoding="utf-8"))) or "")
+admission = json.loads(Path("/proc/self/fd/8").read_text(encoding="utf-8"))
+if "jvm_lane" in admission:
+    from advisory import admission_lane
+    print(admission_lane(admission))
+else:
+    print("")
 PY
 )"
 lane_root="$work/local-checks"
