@@ -127,6 +127,18 @@ internal fun RemoteNodeManagementRoute(
             }
             if (!ready) TextButton(onAuthenticate) { Text(stringResource(L.remoteNodesAuthAuthentication)) }
         }
+        val cliSelected = !showHistory && tab == NodeManagementTab.CLI && helper != null
+        // A visited CLI tab stays composed so its terminal state outlives tab changes.
+        key(session.id) {
+            RetainedTabContent(cliSelected, Modifier.weight(1f)) {
+                val send = if (session.isRepeater) repeaterSettings?.makeNodeCLISend(session) else roomSettings?.makeNodeCLISend(session)
+                if (send != null && cliContent != null) cliContent(session, { _, command, timeout ->
+                    if (!canWrite) throw NodeSettingsNoServiceException()
+                    send(command, timeout)
+                }, canWrite)
+                else RemoteFailure(RemoteNodesText.Resource(L.remoteNodesSettingsNoService))
+            }
+        }
         when {
             showHistory -> RemoteNodeHistoryRoute(
                 session, historyStore, Modifier.weight(1f), mapSurface,
@@ -136,14 +148,7 @@ internal fun RemoteNodeManagementRoute(
                 helper, if (session.isRepeater) repeaterSettings else null,
                 if (session.isRoom) roomSettings else null, canWrite, request, Modifier.weight(1f), radioOptions, mapSurface,
             )
-            tab == NodeManagementTab.CLI && helper != null -> {
-                val send = if (session.isRepeater) repeaterSettings?.makeNodeCLISend(session) else roomSettings?.makeNodeCLISend(session)
-                if (send != null && cliContent != null) cliContent(session, { _, command, timeout ->
-                    if (!canWrite) throw NodeSettingsNoServiceException()
-                    send(command, timeout)
-                }, canWrite)
-                else RemoteFailure(RemoteNodesText.Resource(L.remoteNodesSettingsNoService))
-            }
+            tab == NodeManagementTab.CLI && helper != null -> Unit
             status != null -> RemoteNodeStatusContent(
                 session, status, if (session.isRepeater) repeaterStatus else null,
                 if (session.isRoom) roomStatus else null, catalog, connected, Modifier.weight(1f), mapSurface,
