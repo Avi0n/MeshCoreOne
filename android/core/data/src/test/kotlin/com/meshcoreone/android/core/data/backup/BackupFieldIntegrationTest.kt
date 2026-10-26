@@ -90,7 +90,15 @@ class BackupFieldIntegrationTest : BackupRoomTest() {
     }
 
     @OriginalCase("BackupIntegrationTests::Node altitude survives DTO encode → decode round-trip()")
-    @Test fun nodeAltitudeIsIndependentWireField() { assertEquals(42.0, requireNotNull(decodeSnapshot(encodeSnapshot(snapshot().copy(altitude = 42.0))).altitude), 0.0) }
+    @Test fun nodeAltitudeIsIndependentWireField() {
+        val expected = snapshot().copy(latitude = 37.7749, longitude = -122.4194, altitude = 42.0)
+        val codec = AppBackupCodec()
+        val actual = codec.parseBackup(codec.encode(envelope(snapshots = listOf(expected)))).nodeStatusSnapshots.single()
+        assertEquals(expected, actual)
+        assertEquals(42.0, requireNotNull(actual.altitude), 0.0)
+        assertEquals(37.7749, requireNotNull(actual.latitude), 0.0)
+        assertEquals(-122.4194, requireNotNull(actual.longitude), 0.0)
+    }
 
     @OriginalCase("BackupIntegrationTests::Legacy snapshot envelope without altitude decodes it as nil()")
     @Test fun omittedAltitudeDoesNotDiscardKnownLocation() {
@@ -167,7 +175,16 @@ class BackupFieldIntegrationTest : BackupRoomTest() {
     @Test fun messageFailureSeenWireRoundTrip() { assertTrue(decodeMessage(encodeMessage(message().copy(failureSeen = true, status = MessageStatus.FAILED))).failureSeen) }
 
     @OriginalCase("BackupIntegrationTests::Legacy MessageDTO envelope without failureSeen decodes as false()")
-    @Test fun legacyMessageFailureSeenDefaultsFalse() { assertFalse(decodeMessage(encodeMessage(message()).replacing("failureSeen", null)).failureSeen) }
+    @Test fun legacyMessageFailureSeenDefaultsFalse() {
+        for (status in listOf(MessageStatus.SENT, MessageStatus.FAILED)) {
+            val original = message(text = "Legacy").copy(status = status, failureSeen = true)
+            val legacy = envelope(messages = listOf(original)).jsonObject().modifyingRow("messages") { it.replacing("failureSeen", null) }
+            val actual = AppBackupCodec().parseBackup(legacy.compressed()).messages.single()
+            assertFalse(actual.failureSeen)
+            assertEquals(original.copy(failureSeen = false), actual)
+            assertEquals(MessageDirection.OUTGOING, actual.direction)
+        }
+    }
 
     @OriginalCase("BackupIntegrationTests::Message(dto:) forwards failureSeen verbatim through DTO to model()")
     @Test fun failureSeenNativeColumnPreserved() = runBlocking {
@@ -179,7 +196,15 @@ class BackupFieldIntegrationTest : BackupRoomTest() {
     @Test fun roomFailureSeenWireRoundTrip() { assertTrue(decodeRoomMessage(encodeRoomMessage(roomMessage().copy(isFromSelf = true, statusRawValue = 4, failureSeen = true))).failureSeen) }
 
     @OriginalCase("BackupIntegrationTests::Legacy RoomMessageDTO envelope without failureSeen decodes as false()")
-    @Test fun legacyRoomFailureSeenDefaultsFalse() { assertFalse(decodeRoomMessage(encodeRoomMessage(roomMessage()).replacing("failureSeen", null)).failureSeen) }
+    @Test fun legacyRoomFailureSeenDefaultsFalse() {
+        val original = roomMessage().copy(isFromSelf = true, statusRawValue = 4, failureSeen = true)
+        val legacy = envelope(roomMessages = listOf(original)).jsonObject().modifyingRow("roomMessages") { it.replacing("failureSeen", null) }
+        val actual = AppBackupCodec().parseBackup(legacy.compressed()).roomMessages.single()
+        assertFalse(actual.failureSeen)
+        assertTrue(actual.isFromSelf)
+        assertEquals(4L, actual.statusRawValue)
+        assertEquals(original.copy(failureSeen = false), actual)
+    }
 
     @OriginalCase("BackupIntegrationTests::RoomMessage(dto:) forwards failureSeen verbatim through DTO to model()")
     @Test fun roomFailureSeenNativeColumnPreserved() = runBlocking {
@@ -201,6 +226,20 @@ class BackupFieldIntegrationTest : BackupRoomTest() {
     }
 
     @OriginalCase("BackupIntegrationTests::Message(dto:) forwards sortDate verbatim through DTO to model()")
+    @Test fun originalEarlierSortDateForwardsVerbatimThroughCodecAndRoom() = runBlocking {
+        val original = message(text = "Forward").copy(createdAt = java.time.Instant.ofEpochSecond(1_700_000_000),
+            sortDate = java.time.Instant.ofEpochSecond(1_600_000_000))
+        val codec = AppBackupCodec()
+        val decoded = codec.parseBackup(codec.encode(envelope(messages = listOf(original))))
+        service.importBackup(decoded, store)
+        store.warmUp()
+        val actual = requireNotNull(db.messages().byId(RADIO.value, original.id)).toDTO()
+        assertEquals(original, actual)
+        assertEquals(java.time.Instant.ofEpochSecond(1_600_000_000), actual.sortDate)
+        assertEquals(java.time.Instant.ofEpochSecond(1_700_000_000), actual.createdAt)
+        assertTrue(actual.sortDate < actual.createdAt)
+    }
+
     @Test fun exactLegacyDatesRemainDistinctAfterRestoreAndWarmUp() = runBlocking {
         val dto = message().copy(timestamp = 1_700_000_000u, createdAt = java.time.Instant.ofEpochSecond(1_704_067_200),
             sortDate = java.time.Instant.ofEpochSecond(1_704_070_800))

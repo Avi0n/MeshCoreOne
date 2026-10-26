@@ -112,8 +112,16 @@ class AppBackupServiceTest : BackupRoomTest() {
         seed(envelope(devices = listOf(sensitive)))
         val exported = codec.parseBackup(service.export(store).data).devices.single()
         assertNotEquals(sensitive.id, exported.id)
-        assertEquals(sensitive.redactedForBackup(exported.id), exported)
+        val expected = sensitive.copy(id = exported.id, blePin = 0u, frequency = 915000u, bandwidth = 250000u,
+            spreadingFactor = 10u, codingRate = 5u, txPower = 20, maxTxPower = 20, latitude = 0.0, longitude = 0.0,
+            clientRepeat = false, pathHashMode = 0u, preRepeatFrequency = null, preRepeatBandwidth = null,
+            preRepeatSpreadingFactor = null, preRepeatCodingRate = null, autoAddConfig = 0u, autoAddMaxHops = 0u,
+            telemetryModeBase = 2u, telemetryModeLoc = 0u, telemetryModeEnv = 0u, advertLocationPolicy = 0u,
+            manualAddContacts = false, multiAcks = 2u, appliedRadioPresetID = null,
+            connectionMethods = SnapshotList.of(ConnectionMethod.WiFi("10.0.0.2", 5000u, "WiFi")))
+        assertEquals(expected, exported)
         assertEquals(0u, exported.blePin); assertEquals(915000u, exported.frequency); assertEquals(250000u, exported.bandwidth)
+        assertEquals(10.toUByte(), exported.spreadingFactor); assertEquals(5.toUByte(), exported.codingRate)
         assertEquals(20.toByte(), exported.txPower); assertEquals(20.toByte(), exported.maxTxPower)
         assertEquals(0.0, exported.latitude, 0.0); assertEquals(0.0, exported.longitude, 0.0)
         assertFalse(exported.clientRepeat); assertEquals(0.toUByte(), exported.pathHashMode)
@@ -161,14 +169,20 @@ class AppBackupServiceTest : BackupRoomTest() {
 
     @OriginalCase("AppBackupServiceTests::Redacted device round-trips through export and import with safe defaults()")
     @Test fun redactedDeviceRoundTripHasSafeDefaults() = runBlocking {
-        seed(envelope(devices = listOf(device(publicKey = key(0xF8)).copy(blePin = 999999u, frequency = 433000u, txPower = 10))))
+        val sensitive = device(publicKey = key(0xF8)).copy(blePin = 999999u, frequency = 433000u, txPower = 10)
+        seed(envelope(devices = listOf(sensitive)))
         val actual = codec.parseBackup(service.export(store).data)
-        db.devices().delete(id(1))
-        val result = service.importBackup(actual, store)
-        assertEquals(1L, result.count(BackupModelKind.DEVICES).inserted)
-        val restored = db.devices().all().single().toDTO()
-        assertEquals(0u, restored.blePin); assertEquals(915000u, restored.frequency); assertEquals(20.toByte(), restored.txPower)
-        assertEquals(key(0xF8), restored.publicKey)
+        withIndependentStore { destination, destinationStore ->
+            assertNotSame(db, destination)
+            assertTrue(destination.devices().all().isEmpty())
+            val result = service.importBackup(actual, destinationStore)
+            assertEquals(1L, result.count(BackupModelKind.DEVICES).inserted)
+            val restored = destination.devices().all().single().toDTO()
+            assertEquals(0u, restored.blePin); assertEquals(915000u, restored.frequency); assertEquals(20.toByte(), restored.txPower)
+            assertEquals(key(0xF8), restored.publicKey)
+            assertNotEquals(sensitive.id, restored.id)
+            assertEquals(sensitive, db.devices().all().single().toDTO())
+        }
     }
 
     @OriginalCase("AppBackupServiceTests::Importing same backup twice results in zero inserts on second pass()")

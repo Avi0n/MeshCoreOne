@@ -61,10 +61,19 @@ class AppBackupEnvelopeTest : BackupRoomTest() {
         assertEquals(AppBackupError.InvalidFile, failure(bytes.prefix(bytes.size - 1)).error)
     }
 
-    @OriginalCase("AppBackupEnvelopeTests::parseBackup rejects files larger than the size cap()")
     @Test fun compressedExactCap() {
         BackupContract.validateCompressedSize(52_428_800)
         val failure = assertThrows(AppBackupException::class.java) { BackupContract.validateCompressedSize(52_428_801) }
+        assertEquals(AppBackupError.FileTooLarge(52_428_801, 52_428_800), failure.error)
+    }
+
+    @OriginalCase("AppBackupEnvelopeTests::parseBackup rejects files larger than the size cap()")
+    @Test fun oversizedBodyIsRejectedByParserBeforeDecompression() {
+        val oversized = Bytes(ByteArray(52_428_801))
+        val failure = assertThrows(AppBackupException::class.java) {
+            // Invalid DEFLATE and a zero expanded cap must not mask the compressed-size error.
+            codec.parseBackup(oversized, maxUncompressedBytes = 0)
+        }
         assertEquals(AppBackupError.FileTooLarge(52_428_801, 52_428_800), failure.error)
     }
 

@@ -1,4 +1,5 @@
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1Services/Tests/MC1ServicesTests/ChannelFloodScopeTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.core.data.backup
 
 import com.meshcoreone.android.core.database.*
@@ -9,6 +10,51 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class BackupChannelIntegrationTest : BackupRoomTest() {
+    // SourceCase: ChannelFloodScopeTests::Codable round-trips all three cases for current envelope format()
+    @Test fun allCurrentFloodModesSurviveActualJsonCodec() {
+        val codec = AppBackupCodec()
+        for (scope in listOf(ChannelFloodScope.Inherit, ChannelFloodScope.AllRegions, ChannelFloodScope.Region("Germany"))) {
+            val expected = channel().withFloodScope(scope)
+            val actual = codec.parseBackup(codec.encode(envelope(channels = listOf(expected)))).channels.single()
+            assertEquals(expected, actual)
+            assertEquals(scope, actual.floodScope)
+        }
+    }
+
+    // SourceCase: ChannelFloodScopeTests::Legacy envelope omitting isFavorite key decodes as false()
+    @Test fun omittedFavoriteDefaultsFalseFromNondefaultChannelJson() {
+        val original = nondefaultLegacyChannel()
+        val actual = decodeLegacyChannelWithout("isFavorite", original)
+        assertFalse(actual.isFavorite)
+        assertEquals(original.copy(isFavorite = false), actual)
+    }
+
+    // SourceCase: ChannelFloodScopeTests::Legacy envelope omitting notificationLevel key decodes as .all()
+    @Test fun omittedNotificationDefaultsAllFromMutedChannelJson() {
+        val original = nondefaultLegacyChannel()
+        val actual = decodeLegacyChannelWithout("notificationLevel", original)
+        assertEquals(NotificationLevel.ALL, actual.notificationLevel)
+        assertEquals(original.copy(notificationLevel = NotificationLevel.ALL), actual)
+    }
+
+    // SourceCase: ChannelFloodScopeTests::Legacy envelope omitting unreadMentionCount key decodes as 0()
+    @Test fun omittedMentionsDefaultZeroFromNonzeroChannelJson() {
+        val original = nondefaultLegacyChannel()
+        val actual = decodeLegacyChannelWithout("unreadMentionCount", original)
+        assertEquals(0L, actual.unreadMentionCount)
+        assertEquals(original.copy(unreadMentionCount = 0), actual)
+    }
+
+    private fun nondefaultLegacyChannel(): ChannelDTO =
+        channel().copy(isFavorite = true, notificationLevel = NotificationLevel.MUTED, unreadMentionCount = 5)
+
+    private fun decodeLegacyChannelWithout(key: String, original: ChannelDTO): ChannelDTO {
+        val codec = AppBackupCodec()
+        assertEquals(original, codec.parseBackup(codec.encode(envelope(channels = listOf(original)))).channels.single())
+        val legacy = envelope(channels = listOf(original)).jsonObject().modifyingRow("channels") { it.replacing(key, null) }
+        return codec.parseBackup(legacy.compressed()).channels.single()
+    }
+
     private fun secret(value: Int): Bytes = Bytes(ByteArray(16) { value.toByte() })
     private fun channelMessage(index: UByte = 3u): MessageDTO =
         message(contactID = null, index = index, direction = MessageDirection.INCOMING, text = "Praha checkpoint")

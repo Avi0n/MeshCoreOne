@@ -1,6 +1,6 @@
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/Helpers/AppBackupEnvelope+Testing.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/Helpers/ImportResult+Testing.swift@db14559b39d32322b06477c6ae676112f583db50
-// Real Room and process DataStore fixtures; no production persistence surrogate.
+// Real Room, independent destination lifetimes and process DataStore; no persistence surrogate.
 package com.meshcoreone.android.core.data.backup
 
 import android.content.Context
@@ -148,6 +148,21 @@ abstract class BackupRoomTest {
         Room.databaseBuilder(context, MeshCoreDatabase::class.java, file.absolutePath)
             .setJournalMode(androidx.room.RoomDatabase.JournalMode.TRUNCATE)
             .allowMainThreadQueries().setQueryExecutor(immediate).setTransactionExecutor(immediate).build()
+
+    protected suspend fun withIndependentStore(block: suspend (MeshCoreDatabase, RoomPersistenceStore) -> Unit) {
+        val destination = Room.inMemoryDatabaseBuilder(context, MeshCoreDatabase::class.java)
+            .allowMainThreadQueries().setQueryExecutor(immediate).setTransactionExecutor(immediate).build()
+        try {
+            val destinationStore = RoomPersistenceStore(destination, owner, clock)
+            try {
+                block(destination, destinationStore)
+            } finally {
+                destinationStore.close()
+            }
+        } finally {
+            destination.close()
+        }
+    }
 
     @After fun closeStores() {
         try {
