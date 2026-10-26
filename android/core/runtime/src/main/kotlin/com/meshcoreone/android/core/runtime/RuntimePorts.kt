@@ -78,6 +78,7 @@ data class RuntimeServiceInputs(
     val connection: SessionInputs<MeshCoreSession>,
     val device: DeviceDTO,
     val callbacks: RuntimeServiceCallbacks,
+    val transportType: TransportType,
 )
 
 /** Implemented by real WPs 208-218 at WP-303; no concrete or no-op graph is constructed here. */

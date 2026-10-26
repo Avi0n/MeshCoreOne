@@ -15,9 +15,7 @@ import com.meshcoreone.android.core.contracts.domain.TeardownIssue
 import com.meshcoreone.android.core.contracts.domain.TeardownReport
 import com.meshcoreone.android.core.contracts.domain.UnreadCounts
 import com.meshcoreone.android.core.contracts.domain.DebugLogRetention
-import com.meshcoreone.android.core.model.ConnectionMethod
 import com.meshcoreone.android.core.model.RadioId
-import com.meshcoreone.android.core.model.TransportType
 import com.meshcoreone.android.core.model.snapshot
 import com.meshcoreone.android.core.protocol.model.BatteryInfo
 import com.meshcoreone.android.core.protocol.bytes.Bytes
@@ -381,7 +379,7 @@ class RadioSessionContainer private constructor(
     override suspend fun initialSync(forceFullSync: Boolean): RuntimeSyncResult {
         val outcome = resyncHost.beginOutcome()
         val usable = try {
-            retryController.performInitialSync(radioId, retryServices, transportType(), forceFullSync = forceFullSync)
+            retryController.performInitialSync(radioId, retryServices, inputs.transportType, forceFullSync = forceFullSync)
         } catch (cancelled: CancellationException) {
             resyncHost.abandonOutcome()
             throw cancelled
@@ -397,9 +395,6 @@ class RadioSessionContainer private constructor(
             is ResyncOutcome.Exhausted -> RuntimeSyncResult.Failed(result.cause)
         }
     }
-
-    private fun transportType(): TransportType =
-        if (inputs.device.connectionMethods.any { it is ConnectionMethod.WiFi }) TransportType.WIFI else TransportType.BLUETOOTH
 
     /** Room sessions to re-authenticate after the next usable sync (Swift `handleBLEDisconnection`). */
     override suspend fun remoteDisconnected(): Set<UUID> =

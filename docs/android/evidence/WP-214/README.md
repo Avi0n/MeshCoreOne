@@ -24,8 +24,15 @@ The original typed-failure case and cancellation assertions remain at the real
 Prerequisites are actual merged ancestor commits: WP-208 #43, WP-209 #49,
 WP-210 #50, WP-211 #42, WP-212 #48, WP-215 #57 and WP-216 #53.
 Typed advisory bookkeeping was acquired for this session and evolved without
-releasing historical rows. App support uses `app-build-launcher`; runtime support
-must be admitted from trusted main and serialized after the WP-201 producer.
+releasing historical rows. App support uses `app-build-launcher`. Trusted
+prerequisite PR #334 landed at `f2f481d2e7c2a9029808943529c98c98ef879299`;
+fresh admission of the three exact runtime paths under
+`wp214-active-link-channel-sync-input` /
+`add-active-link-channel-sync-input` passed and evolved this same reservation
+from revision 4 to 7. The disjoint required input, App consumer and runtime
+factory-input regression are authored. The sole `ConnectionManager` constructor
+call remains deliberately untouched until the WP-201 producer handoff, so this
+partial candidate is not build-complete or accepted.
 
 | Local command | Current outcome |
 | --- | --- |
