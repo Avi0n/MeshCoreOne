@@ -39,6 +39,12 @@ public struct PathAnalysisResult: Equatable, Sendable {
     distanceMeters / 1000
   }
 
+  /// RFCalculator uses zero distance for unusable clearance data,
+  /// allowing callers to distinguish missing data from an obstructed path.
+  public var isValid: Bool {
+    distanceMeters > 0
+  }
+
   public var worstObstructionPoint: ObstructionPoint? {
     obstructionPoints.min(by: { $0.fresnelClearancePercent < $1.fresnelClearancePercent })
   }

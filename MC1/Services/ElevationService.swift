@@ -49,6 +49,7 @@ actor ElevationService: ElevationServiceProtocol {
   private static let maxPointsPerRequest = 100
   private static let maxRetries = 3
   private static let baseRetryDelay: Duration = .milliseconds(500)
+  private static let longitudeBoundary = 180.0
 
   // MARK: - Sample Count Thresholds
 
@@ -91,7 +92,6 @@ actor ElevationService: ElevationServiceProtocol {
     guard !path.isEmpty else {
       throw ElevationServiceError.noData
     }
-
     var coordinatesToFetch = path
 
     // Subsample if exceeding max points, ensuring endpoints are preserved
@@ -108,7 +108,12 @@ actor ElevationService: ElevationServiceProtocol {
       .locale(Locale(identifier: "en_US_POSIX"))
       .precision(.fractionLength(6))
     let latitudes = coordinatesToFetch.map { $0.latitude.formatted(coordinateFormat) }.joined(separator: ",")
-    let longitudes = coordinatesToFetch.map { $0.longitude.formatted(coordinateFormat) }.joined(separator: ",")
+    let upperLongitude = Self.longitudeBoundary.formatted(coordinateFormat)
+    let lowerLongitude = (-Self.longitudeBoundary).formatted(coordinateFormat)
+    let longitudes = coordinatesToFetch.map { coordinate in
+      let formatted = coordinate.longitude.formatted(coordinateFormat)
+      return formatted == upperLongitude ? lowerLongitude : formatted
+    }.joined(separator: ",")
 
     guard var components = URLComponents(string: Self.apiEndpoint) else {
       throw ElevationServiceError.invalidResponse
@@ -165,18 +170,15 @@ actor ElevationService: ElevationServiceProtocol {
   ) -> [CLLocationCoordinate2D] {
     let count = max(2, min(sampleCount, maxPointsPerRequest))
 
-    guard count >= 2 else {
-      return [from, to]
-    }
-
     var coordinates: [CLLocationCoordinate2D] = []
     coordinates.reserveCapacity(count)
 
     for i in 0..<count {
       let fraction = Double(i) / Double(count - 1)
-      let latitude = from.latitude + fraction * (to.latitude - from.latitude)
-      let longitude = from.longitude + fraction * (to.longitude - from.longitude)
-      coordinates.append(CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+      guard let coordinate = RFCalculator.interpolateCoordinate(from: from, to: to, fraction: fraction) else {
+        return []
+      }
+      coordinates.append(coordinate)
     }
 
     return coordinates

@@ -1,4 +1,3 @@
-import CoreLocation
 import Foundation
 
 /// RF propagation calculator for line-of-sight analysis.
@@ -20,15 +19,20 @@ public enum RFCalculator {
   /// Minimum Fresnel zone clearance percentage for a "marginal" path
   public static let marginalClearanceThreshold: Double = 60
 
+  private static let hertzPerMegahertz: Double = 1_000_000
+  private static let minimumProfileSampleCount = 3
+
   // MARK: - Wavelength
 
   /// Calculates the wavelength in meters for a given frequency.
   /// - Parameter frequencyMHz: The frequency in megahertz.
-  /// - Returns: The wavelength in meters.
+  /// - Returns: The wavelength in meters, or zero for an unusable frequency.
   public static func wavelength(frequencyMHz: Double) -> Double {
-    guard frequencyMHz > 0 else { return 0 }
-    let frequencyHz = frequencyMHz * 1_000_000
-    return speedOfLight / frequencyHz
+    guard frequencyMHz.isFinite, frequencyMHz > 0 else { return 0 }
+    let frequencyHz = frequencyMHz * hertzPerMegahertz
+    guard frequencyHz.isFinite, frequencyHz > 0 else { return 0 }
+    let result = speedOfLight / frequencyHz
+    return result.isFinite && result > 0 ? result : 0
   }
 
   // MARK: - Fresnel Zone
@@ -49,9 +53,8 @@ public enum RFCalculator {
     distanceToAMeters: Double,
     distanceToBMeters: Double
   ) -> Double {
-    guard frequencyMHz > 0, distanceToAMeters > 0, distanceToBMeters > 0 else { return 0 }
-
     let lambda = wavelength(frequencyMHz: frequencyMHz)
+    guard lambda > 0, distanceToAMeters > 0, distanceToBMeters > 0 else { return 0 }
     let totalDistance = distanceToAMeters + distanceToBMeters
 
     // First Fresnel zone radius: r = sqrt((lambda * d1 * d2) / (d1 + d2))
@@ -99,7 +102,7 @@ public enum RFCalculator {
   ///   - frequencyMHz: The frequency in megahertz.
   /// - Returns: The free-space path loss in dB.
   public static func pathLoss(distanceMeters: Double, frequencyMHz: Double) -> Double {
-    guard distanceMeters > 0, frequencyMHz > 0 else { return 0 }
+    guard distanceMeters > 0, wavelength(frequencyMHz: frequencyMHz) > 0 else { return 0 }
 
     // FSPL (dB) = 20*log10(d) + 20*log10(f) + 20*log10(4*pi/c)
     // Simplified: FSPL = 20*log10(d_m) + 20*log10(f_MHz) + 20*log10(4*pi*1e6/c)
@@ -131,9 +134,8 @@ public enum RFCalculator {
     distanceToBMeters: Double,
     frequencyMHz: Double
   ) -> Double {
-    guard distanceToAMeters > 0, distanceToBMeters > 0, frequencyMHz > 0 else { return 0 }
-
     let lambda = wavelength(frequencyMHz: frequencyMHz)
+    guard lambda > 0, distanceToAMeters > 0, distanceToBMeters > 0 else { return 0 }
     let totalDistance = distanceToAMeters + distanceToBMeters
 
     // Fresnel-Kirchhoff diffraction parameter:
@@ -162,30 +164,6 @@ public enum RFCalculator {
     guard vParam > diffractionClearThresholdV else { return 0 }
     let shifted = vParam - 0.1
     return 6.9 + 20 * log10(sqrt(shifted * shifted + 1) + shifted)
-  }
-
-  // MARK: - Distance Calculation
-
-  /// Calculates the great-circle distance between two coordinates using the Haversine formula.
-  ///
-  /// - Parameters:
-  ///   - from: The starting coordinate.
-  ///   - destination: The ending coordinate.
-  /// - Returns: The distance in meters.
-  public static func distance(from: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D) -> Double {
-    let earthRadiusMeters = earthRadiusKm * 1000
-
-    let lat1 = from.latitude * .pi / 180
-    let lat2 = destination.latitude * .pi / 180
-    let deltaLat = (destination.latitude - from.latitude) * .pi / 180
-    let deltaLon = (destination.longitude - from.longitude) * .pi / 180
-
-    // Haversine formula
-    let haversineA = sin(deltaLat / 2) * sin(deltaLat / 2) +
-      cos(lat1) * cos(lat2) * sin(deltaLon / 2) * sin(deltaLon / 2)
-    let angularDistance = 2 * atan2(sqrt(haversineA), sqrt(1 - haversineA))
-
-    return earthRadiusMeters * angularDistance
   }
 
   // MARK: - Path Analysis
@@ -256,9 +234,6 @@ public enum RFCalculator {
 
   // MARK: - Shared Analysis Core
 
-  /// Distance margin (meters) within which a sample counts as an endpoint and is skipped.
-  private static let endpointSkipMarginMeters: Double = 1
-
   /// Shared core for `analyzePath` and `analyzePathSegment`.
   ///
   /// `distanceOriginMeters` anchors the local distance axis: 0 for a full
@@ -273,9 +248,10 @@ public enum RFCalculator {
     refractionK: Double,
     distanceOriginMeters: Double
   ) -> PathAnalysisResult {
-    guard elevationProfile.count >= 2,
+    guard elevationProfile.count >= minimumProfileSampleCount,
           let firstSample = elevationProfile.first,
-          let lastSample = elevationProfile.last else {
+          let lastSample = elevationProfile.last,
+          wavelength(frequencyMHz: frequencyMHz) > 0 else {
       return emptyResult(frequencyMHz: frequencyMHz, refractionK: refractionK)
     }
 
@@ -297,13 +273,9 @@ public enum RFCalculator {
     var obstructionPoints: [ObstructionPoint] = []
 
     // Analyze each intermediate sample point (skip endpoints)
-    for sample in elevationProfile {
+    for sample in elevationProfile.dropFirst().dropLast() {
       let distanceFromStart = sample.distanceFromAMeters - distanceOriginMeters
       let distanceToEnd = lengthMeters - distanceFromStart
-
-      // Skip points at or very near the endpoints
-      guard distanceFromStart > endpointSkipMarginMeters,
-            distanceToEnd > endpointSkipMarginMeters else { continue }
 
       // Line of sight height at this point (linear interpolation)
       let fraction = distanceFromStart / lengthMeters
@@ -331,10 +303,12 @@ public enum RFCalculator {
       // 100% = terrain clears full first Fresnel zone
       // 0% = terrain touches line of sight
       // <0% = terrain blocks line of sight
-      let clearancePercent: Double = if fresnelZoneRadius > 0 {
-        (clearance / fresnelZoneRadius) * 100
-      } else {
-        clearance > 0 ? 100 : 0
+      guard fresnelZoneRadius.isFinite, fresnelZoneRadius > 0 else {
+        return emptyResult(frequencyMHz: frequencyMHz, refractionK: refractionK)
+      }
+      let clearancePercent = (clearance / fresnelZoneRadius) * 100
+      guard clearancePercent.isFinite else {
+        return emptyResult(frequencyMHz: frequencyMHz, refractionK: refractionK)
       }
 
       // Track worst clearance
@@ -366,11 +340,6 @@ public enum RFCalculator {
         )
         obstructionPoints.append(obstruction)
       }
-    }
-
-    // If no samples were analyzed, set default clearance
-    if worstClearancePercent == .infinity {
-      worstClearancePercent = 100
     }
 
     return PathAnalysisResult(

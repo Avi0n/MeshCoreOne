@@ -518,8 +518,8 @@
 /* Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor */
 "tools.lineOfSight.assumptions" = "%1$@, %2$@, поріг 60 %% 1-ї зони Френеля";
 
-/* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
-"tools.lineOfSight.clearancePercent" = "%lld%% зазору";
+/* Clearance percentage; %@ is a localized percentage */
+"tools.lineOfSight.clearancePercent" = "%@ зазору";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
 "tools.lineOfSight.status.clear" = "Чисто";

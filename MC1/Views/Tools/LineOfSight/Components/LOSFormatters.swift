@@ -2,6 +2,10 @@ import Foundation
 
 /// Formatting utilities for Line of Sight results display
 enum LOSFormatters {
+  static let clearancePercentFormat = FloatingPointFormatStyle<Double>.Percent()
+    .scale(1)
+    .precision(.significantDigits(1...3))
+
   /// Formats diffraction loss for display
   /// - Parameter loss: Diffraction loss in dB
   /// - Returns: Formatted string like "+ 8.4 dB" or nil if loss is negligible (< 0.1 dB)
@@ -17,11 +21,9 @@ enum LOSFormatters {
     "\(loss.formatted(.number.precision(.fractionLength(1)))) dB"
   }
 
-  /// Formats clearance percentage for display
-  /// - Parameter percent: Clearance percentage (may be outside 0-100 range)
-  /// - Returns: Integer percentage clamped to 0-100 range
-  static func formatClearancePercent(_ percent: Double) -> Int {
-    Int(max(0, min(100, percent)))
+  /// Formats signed clearance ratios as localized percentages without limiting their range.
+  static func formatClearancePercent(_ percent: Double) -> String {
+    percent.formatted(clearancePercentFormat)
   }
 
   /// Formats distance using the locale's measurement system

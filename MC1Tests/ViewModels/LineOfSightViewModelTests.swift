@@ -1849,11 +1849,9 @@ struct RelayAnalysisTests {
 
     let fetchCountAfterPoints = await mockService.fetchCount
 
-    // Place repeater off-path and do initial analysis (triggers network fetch)
     let repeaterCoord = CLLocationCoordinate2D(latitude: 37.79, longitude: -122.35)
     viewModel.setRepeaterOffPath(coordinate: repeaterCoord)
 
-    // Wait for repeater elevation fetch
     try await waitUntil("repeater elevation should load") {
       viewModel.repeaterPoint?.groundElevation != nil
     }
@@ -1866,31 +1864,36 @@ struct RelayAnalysisTests {
 
     let fetchCountAfterAnalysis = await mockService.fetchCount
     #expect(fetchCountAfterAnalysis > fetchCountAfterPoints)
+    #expect(viewModel.elevationProfile.isEmpty)
 
-    // Change repeater height — should NOT trigger new fetches
     viewModel.updateRepeaterHeight(meters: 25)
     viewModel.analyzeWithRepeater()
 
     let fetchCountAfterHeight = await mockService.fetchCount
     #expect(fetchCountAfterHeight == fetchCountAfterAnalysis)
 
-    // Verify we still have a relay result
-    if case .relayResult = viewModel.analysisStatus {
-      // expected
-    } else {
+    guard case .relayResult = viewModel.analysisStatus else {
       Issue.record("Expected relayResult after height change, got: \(viewModel.analysisStatus)")
+      return
     }
 
-    // Change RF params — should NOT trigger new fetches
     viewModel.refractionK = 4.0 / 3.0
+    viewModel.frequencyMHz = 433
+    viewModel.commitFrequencyChange()
+
+    let sample = try #require(viewModel.profileSamples.dropFirst().first)
+    let length = try #require(viewModel.profileSamples.last?.x)
+    let expectedRadius = sqrt((299_792_458 / 433_000_000.0) * sample.x * (length - sample.x) / length)
+    let expectedBulge = sample.x * (length - sample.x) / (2 * (4.0 / 3.0) * 6_371_000)
+    #expect(abs(sample.fresnelRadius - expectedRadius) < 1e-10)
+    #expect(abs(sample.yTerrain - (100 + expectedBulge)) < 1e-10)
 
     let fetchCountAfterRF = await mockService.fetchCount
     #expect(fetchCountAfterRF == fetchCountAfterAnalysis)
 
-    if case .relayResult = viewModel.analysisStatus {
-      // expected
-    } else {
+    guard case .relayResult = viewModel.analysisStatus else {
       Issue.record("Expected relayResult after RF change, got: \(viewModel.analysisStatus)")
+      return
     }
   }
 }
@@ -1967,8 +1970,7 @@ struct FrequencyParsingTests {
   @Test(arguments: [
     Double(Int.max).nextDown,
     Double(Int.max),
-    Double(Int.max).nextUp,
-    Double.greatestFiniteMagnitude
+    Double(Int.max).nextUp
   ])
   func `Editing format round-trips frequencies at and beyond the integer boundary`(frequency: Double) {
     let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
@@ -1976,6 +1978,13 @@ struct FrequencyParsingTests {
     let formatted = viewModel.formatFrequencyForEditing(frequency)
 
     #expect(viewModel.parseFrequency(formatted) == frequency)
+  }
+
+  @Test(arguments: ["inf", "infinity", "1e309", "1e-320", String(Double.greatestFiniteMagnitude)])
+  func `Rejects frequencies without a finite positive wavelength`(text: String) {
+    let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+    #expect(viewModel.parseFrequency(text) == nil)
   }
 
   @Test
@@ -2361,7 +2370,7 @@ struct LineOfSightWorkspaceConfigurationTests {
   }
 
   @Test
-  func `reconfigure does not cancel in-flight analysis`() async throws {
+  func `late device frequency seed completes analysis with the seeded frequency`() async throws {
     let mockService = MockElevationService()
     let viewModel = LineOfSightViewModel(elevationService: mockService)
 
@@ -2381,8 +2390,9 @@ struct LineOfSightWorkspaceConfigurationTests {
     #expect(viewModel.isAnalyzing)
 
     try await waitForAnalysisResult(viewModel)
-    if case .result = viewModel.analysisStatus {
+    if case let .result(result) = viewModel.analysisStatus {
       #expect(!viewModel.isAnalyzing)
+      #expect(result.frequencyMHz == 915)
     } else {
       Issue.record("Expected analysis result after reconfigure, got: \(viewModel.analysisStatus)")
     }

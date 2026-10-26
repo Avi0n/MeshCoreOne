@@ -28,6 +28,8 @@ extension PointID: Identifiable {
 /// A repeater point for relay analysis.
 /// Can be on-path (from slider, uses cached profile) or off-path (relocated, needs fresh profiles).
 struct RepeaterPoint: Equatable {
+  static let pathFractionRange = 0.05...0.95
+
   /// The repeater's location
   var coordinate: CLLocationCoordinate2D
 
@@ -44,7 +46,7 @@ struct RepeaterPoint: Equatable {
   /// Used for terrain profile slider positioning
   var pathFraction: Double {
     didSet {
-      let clamped = pathFraction.clamped(to: 0.05...0.95)
+      let clamped = pathFraction.clamped(to: Self.pathFractionRange)
       if clamped != pathFraction { pathFraction = clamped }
     }
   }
@@ -54,7 +56,7 @@ struct RepeaterPoint: Equatable {
     self.groundElevation = groundElevation
     self.additionalHeight = additionalHeight
     self.isOnPath = isOnPath
-    self.pathFraction = pathFraction.clamped(to: 0.05...0.95)
+    self.pathFraction = pathFraction.clamped(to: Self.pathFractionRange)
   }
 
   static func == (lhs: RepeaterPoint, rhs: RepeaterPoint) -> Bool {
@@ -180,15 +182,11 @@ final class LineOfSightViewModel {
 
   // MARK: - Frequency Parsing
 
-  /// Parses a user-entered frequency string into a positive MHz value.
-  ///
-  /// Accepts both "." and "," as the decimal separator so comma-decimal
-  /// locales round-trip, and parses with a fixed separator rather than the
-  /// current locale's. Returns nil for empty, unparseable, or non-positive
-  /// input so callers can ignore it instead of feeding analysis a bad value.
+  /// Parses positive MHz using "." or "," as the decimal separator.
+  /// Rejects input whose derived wavelength is not finite and positive.
   func parseFrequency(_ text: String) -> Double? {
     let normalized = text.replacing(",", with: ".")
-    guard let value = Double(normalized), value > 0 else { return nil }
+    guard let value = Double(normalized), RFCalculator.wavelength(frequencyMHz: value) > 0 else { return nil }
     return value
   }
 
@@ -274,15 +272,13 @@ final class LineOfSightViewModel {
 
   /// Segment A→R distance in meters (nil when on-path or no repeater)
   var segmentARDistanceMeters: Double? {
-    guard let repeaterPoint, !repeaterPoint.isOnPath else { return nil }
-    guard case let .relayResult(result) = analysisStatus else { return nil }
+    guard let repeaterPoint, !repeaterPoint.isOnPath, case let .relayResult(result) = analysisStatus else { return nil }
     return result.segmentAR.distanceMeters
   }
 
   /// Segment R→B distance in meters (nil when on-path or no repeater)
   var segmentRBDistanceMeters: Double? {
-    guard let repeaterPoint, !repeaterPoint.isOnPath else { return nil }
-    guard case let .relayResult(result) = analysisStatus else { return nil }
+    guard let repeaterPoint, !repeaterPoint.isOnPath, case let .relayResult(result) = analysisStatus else { return nil }
     return result.segmentRB.distanceMeters
   }
 
@@ -515,8 +511,7 @@ final class LineOfSightViewModel {
       return
     }
     let coordinates = repeatersWithLocation.map(\.coordinate)
-    guard !coordinates.isEmpty else { return }
-    guard !hasAppliedInitialCameraFit else { return }
+    guard !coordinates.isEmpty, !hasAppliedInitialCameraFit else { return }
     hasAppliedInitialCameraFit = true
     setCameraRegion(fitting: coordinates)
   }
@@ -594,8 +589,12 @@ final class LineOfSightViewModel {
     radioIDProvider = radioID
 
     if !hasSeededFrequency, let deviceFrequencyKHz {
+      let previousFrequency = frequencyMHz
       frequencyMHz = Double(deviceFrequencyKHz) / 1000.0
       hasSeededFrequency = true
+      if frequencyMHz != previousFrequency {
+        reanalyzeWithCachedProfileIfNeeded()
+      }
     }
   }
 
@@ -771,7 +770,7 @@ final class LineOfSightViewModel {
       return
     }
 
-    let pathFraction = worstPoint.distanceFromAMeters / result.distanceMeters
+    let pathFraction = (worstPoint.distanceFromAMeters / result.distanceMeters).clamped(to: RepeaterPoint.pathFractionRange)
 
     // Get coordinate and elevation from cached profile
     guard let coordinate = coordinateAt(pathFraction: pathFraction),
@@ -792,10 +791,10 @@ final class LineOfSightViewModel {
 
     // Update path fraction and derive coordinate/elevation from cached profile
     repeater.pathFraction = pathFraction
-    if let coordinate = coordinateAt(pathFraction: pathFraction) {
+    if let coordinate = coordinateAt(pathFraction: repeater.pathFraction) {
       repeater.coordinate = coordinate
     }
-    if let elevation = elevationAt(pathFraction: pathFraction) {
+    if let elevation = elevationAt(pathFraction: repeater.pathFraction) {
       repeater.groundElevation = elevation
     }
 
@@ -805,6 +804,7 @@ final class LineOfSightViewModel {
   /// Updates repeater height above ground
   func updateRepeaterHeight(meters: Double) {
     guard repeaterPoint != nil else { return }
+    invalidateAnalysisOnly()
     repeaterPoint?.additionalHeight = max(0.0, meters)
   }
 
@@ -812,6 +812,7 @@ final class LineOfSightViewModel {
   /// - Parameter coordinate: The new coordinate for the repeater
   func setRepeaterOffPath(coordinate: CLLocationCoordinate2D) {
     let existingHeight = repeaterPoint?.additionalHeight ?? 10
+    invalidateAnalysisOnly()
 
     repeaterPoint = RepeaterPoint(
       coordinate: coordinate,
@@ -852,6 +853,10 @@ final class LineOfSightViewModel {
 
   /// Analyzes the path with the current repeater position
   func analyzeWithRepeater() {
+    analysisTask?.cancel()
+    analysisTask = nil
+    isAnalyzing = false
+
     guard let repeaterPoint,
           let pointA,
           let pointB else { return }
@@ -870,7 +875,7 @@ final class LineOfSightViewModel {
         refractionK: refractionK
       )
     } else {
-      analysisTask?.cancel()
+      isAnalyzing = true
       analysisTask = Task {
         await analyzeWithRepeaterOffPath()
       }
@@ -881,18 +886,30 @@ final class LineOfSightViewModel {
   private func analyzeWithRepeaterOnPath() {
     guard let repeaterPoint,
           let pointA,
-          let pointB,
-          elevationProfile.count >= 2 else { return }
+          let pointB else { return }
 
     let pathFraction = repeaterPoint.pathFraction
+    guard let indices = interpolationIndices(for: pathFraction),
+          let coordinate = coordinateAt(pathFraction: pathFraction),
+          let elevation = elevationAt(pathFraction: pathFraction) else {
+      analysisStatus = .error(ElevationServiceError.noData.localizedDescription)
+      return
+    }
 
-    // Calculate split index
-    let splitIndex = Int(pathFraction * Double(elevationProfile.count - 1))
-    guard splitIndex > 0, splitIndex < elevationProfile.count - 1 else { return }
+    let lowerSample = elevationProfile[indices.lower]
+    let upperSample = elevationProfile[indices.upper]
+    let junction = ElevationSample(
+      coordinate: coordinate,
+      elevation: elevation,
+      distanceFromAMeters: lowerSample.distanceFromAMeters
+        + indices.t * (upperSample.distanceFromAMeters - lowerSample.distanceFromAMeters)
+    )
+    let profileAR = Array(elevationProfile.prefix { $0.distanceFromAMeters < junction.distanceFromAMeters }) + [junction]
+    let profileRB = [junction] + Array(elevationProfile.drop { $0.distanceFromAMeters <= junction.distanceFromAMeters })
 
     applyRelayAnalysis(
-      profileAR: Array(elevationProfile[0...splitIndex]),
-      profileRB: Array(elevationProfile[splitIndex...]),
+      profileAR: profileAR,
+      profileRB: profileRB,
       pointAHeight: pointA.additionalHeight,
       repeaterHeight: repeaterPoint.additionalHeight,
       pointBHeight: pointB.additionalHeight,
@@ -906,8 +923,6 @@ final class LineOfSightViewModel {
     guard let repeaterPoint,
           let pointA,
           let pointB else { return }
-
-    isAnalyzing = true
 
     do {
       let pointACoord = pointA.coordinate
@@ -937,10 +952,7 @@ final class LineOfSightViewModel {
       let (profileAR, profileRB) = try await (profileARTask, profileRBTask)
 
       // A superseded task must not overwrite newer results
-      if Task.isCancelled {
-        isAnalyzing = false
-        return
-      }
+      if Task.isCancelled { return }
 
       // Offset R→B profile distances to continue from A→R endpoint
       // (fetchElevations returns distances relative to segment start, not global A)
@@ -1003,6 +1015,13 @@ final class LineOfSightViewModel {
       refractionK: refractionK
     )
 
+    guard arResult.isValid, rbResult.isValid else {
+      profileSamples = []
+      profileSamplesRB = []
+      analysisStatus = .error(ElevationServiceError.noData.localizedDescription)
+      return
+    }
+
     let relayResult = RelayPathAnalysisResult(
       segmentAR: SegmentAnalysisResult(
         startLabel: "A",
@@ -1042,9 +1061,7 @@ final class LineOfSightViewModel {
 
   /// Clears analysis results without clearing points
   func clearAnalysisResults() {
-    isAnalyzing = false
-    analysisStatus = .idle
-    shouldAutoZoomOnNextResult = false
+    invalidateAnalysisOnly()
   }
 
   func analyze() {
@@ -1092,6 +1109,10 @@ final class LineOfSightViewModel {
         }.value
 
         if Task.isCancelled { return }
+
+        guard result.isValid else {
+          throw ElevationServiceError.noData
+        }
 
         elevationProfile = profile
         profileSamples = FresnelZoneRenderer.buildProfileSamples(
@@ -1144,30 +1165,26 @@ final class LineOfSightViewModel {
 
   /// Re-runs analysis using cached elevation profile when RF settings change
   private func reanalyzeWithCachedProfileIfNeeded() {
-    // Only re-analyze if we have a cached profile and both points.
-    // Clear isAnalyzing on the bail path so a flag left set by a now-stale
-    // analysis (this method runs from a mid-analysis RF-setting change) can't
-    // strand the spinner.
-    guard !elevationProfile.isEmpty,
-          let pointA,
+    let wasAnalyzing = isAnalyzing
+    invalidateAnalysisOnly()
+
+    guard let pointA,
           let pointB,
           pointA.groundElevation != nil,
-          pointB.groundElevation != nil else {
-      isAnalyzing = false
-      return
-    }
+          pointB.groundElevation != nil else { return }
 
-    // If repeater is active, use relay analysis to preserve mode.
-    // Clear isAnalyzing first: the on-path/cached relay paths resolve
-    // synchronously, and the off-path path re-sets the flag itself.
     if repeaterPoint != nil {
-      isAnalyzing = false
-      analyzeWithRepeater()
+      if !elevationProfile.isEmpty || !elevationProfileAR.isEmpty || wasAnalyzing {
+        analyzeWithRepeater()
+      }
       return
     }
 
-    // Cancel any existing analysis; this task takes over the isAnalyzing flag
-    analysisTask?.cancel()
+    guard !elevationProfile.isEmpty else {
+      if wasAnalyzing { analyze() }
+      return
+    }
+
     isAnalyzing = true
 
     // Capture values for use in task
@@ -1178,8 +1195,6 @@ final class LineOfSightViewModel {
     let k = refractionK
 
     analysisTask = Task {
-      defer { isAnalyzing = false }
-
       let result = await Task.detached {
         RFCalculator.analyzePath(
           elevationProfile: profile,
@@ -1191,6 +1206,14 @@ final class LineOfSightViewModel {
       }.value
 
       if Task.isCancelled { return }
+
+      isAnalyzing = false
+      guard result.isValid else {
+        profileSamples = []
+        profileSamplesRB = []
+        analysisStatus = .error(ElevationServiceError.noData.localizedDescription)
+        return
+      }
 
       profileSamples = FresnelZoneRenderer.buildProfileSamples(
         from: profile,
@@ -1241,17 +1264,20 @@ final class LineOfSightViewModel {
 
   // MARK: - Elevation Interpolation
 
-  /// Returns interpolation indices and factor for a given path fraction
-  /// - Parameter pathFraction: Position along path (0.0 = A, 1.0 = B), clamped to valid range
-  /// - Returns: Tuple of (lowerIndex, upperIndex, interpolationFactor) or nil if profile has fewer than 2 samples
+  /// Locates neighboring samples by physical distance, including profiles with uneven spacing.
   private func interpolationIndices(for pathFraction: Double) -> (lower: Int, upper: Int, t: Double)? {
-    guard elevationProfile.count >= 2 else { return nil }
-
+    guard pathFraction.isFinite,
+          elevationProfile.count >= 2,
+          let first = elevationProfile.first,
+          let last = elevationProfile.last,
+          last.distanceFromAMeters > first.distanceFromAMeters else { return nil }
     let clamped = pathFraction.clamped(to: 0.0...1.0)
-    let index = clamped * Double(elevationProfile.count - 1)
-    let lowerIndex = Int(index)
-    let upperIndex = min(lowerIndex + 1, elevationProfile.count - 1)
-    let t = index - Double(lowerIndex)
+    let distance = first.distanceFromAMeters + clamped * (last.distanceFromAMeters - first.distanceFromAMeters)
+    let upperIndex = elevationProfile.firstIndex { $0.distanceFromAMeters >= distance } ?? elevationProfile.count - 1
+    let lowerIndex = max(0, upperIndex - 1)
+    let lowerDistance = elevationProfile[lowerIndex].distanceFromAMeters
+    let span = elevationProfile[upperIndex].distanceFromAMeters - lowerDistance
+    let t = span > 0 ? (distance - lowerDistance) / span : 0
 
     return (lowerIndex, upperIndex, t)
   }
@@ -1277,15 +1303,16 @@ final class LineOfSightViewModel {
     let lower = elevationProfile[indices.lower].coordinate
     let upper = elevationProfile[indices.upper].coordinate
 
-    return CLLocationCoordinate2D(
-      latitude: lower.latitude + indices.t * (upper.latitude - lower.latitude),
-      longitude: lower.longitude + indices.t * (upper.longitude - lower.longitude)
-    )
+    return RFCalculator.interpolateCoordinate(from: lower, to: upper, fraction: indices.t)
   }
 
   // MARK: - Testing Helpers
 
   #if DEBUG
+    var analysisTaskForTesting: Task<Void, Never>? {
+      analysisTask
+    }
+
     /// Testing helper to set analysis status directly
     func setAnalysisStatusForTesting(_ result: PathAnalysisResult) {
       analysisStatus = .result(result)

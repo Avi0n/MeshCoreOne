@@ -2,11 +2,41 @@ import Foundation
 @testable import MC1
 @testable import MC1Services
 import MeshCore
+import Observation
 import Testing
 
 @Suite("Region discovery owner", .serialized)
 @MainActor
 struct RegionDiscoveryStateTests {
+  @Test
+  func `configuration publishes regions observed before providers were installed`() async throws {
+    let fixture = try DiscoveryFixture()
+    defer { fixture.tearDown() }
+    fixture.install(device: fixture.device(regions: ["North", "South"]))
+    let owner = RegionDiscoveryState()
+    let state = fixture.appState
+    let sessions = fixture.sessions
+
+    await confirmation("Initial region reader is invalidated") { changed in
+      let initial = withObservationTracking {
+        owner.knownRegions
+      } onChange: {
+        changed()
+      }
+      #expect(initial.isEmpty)
+
+      owner.configure(
+        session: { sessions.session },
+        contactService: { nil },
+        connectedDevice: { state.connectedDevice },
+        connectionState: { state.connectionState },
+        connectionManager: state.connectionManager,
+        dataStore: nil
+      )
+      #expect(owner.knownRegions == ["North", "South"])
+    }
+  }
+
   @Test
   func `advanced and regions share one run and live regions`() async throws {
     let fixture = try DiscoveryFixture()

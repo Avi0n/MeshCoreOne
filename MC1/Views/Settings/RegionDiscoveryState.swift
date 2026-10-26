@@ -64,6 +64,8 @@ final class RegionDiscoveryState {
     connectionStateProvider = connectionState
     self.connectionManager = connectionManager
     self.dataStore = dataStore
+    // Notify existing readers because their first read may precede provider configuration.
+    noteRegionsChanged()
   }
 
   /// `true` while Settings is showing Advanced or Manage Regions.

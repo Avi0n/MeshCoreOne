@@ -518,8 +518,8 @@
 /* Location: ResultsCardView.swift - Assumptions footnote; %1$@ is frequency, %2$@ is k-factor */
 "tools.lineOfSight.assumptions" = "%1$@, %2$@, drempel van 60 %% van de 1e fresnelzone";
 
-/* Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent */
-"tools.lineOfSight.clearancePercent" = "%lld%% vrijheid";
+/* Clearance percentage; %@ is a localized percentage */
+"tools.lineOfSight.clearancePercent" = "%@ vrijheid";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: clear */
 "tools.lineOfSight.status.clear" = "Vrij";

@@ -1,6 +1,7 @@
 import Foundation
 @testable import MC1
 @testable import MC1Services
+import SwiftData
 import Testing
 
 @MainActor
@@ -60,7 +61,7 @@ struct ChatViewModelConversationTests {
     )
   }
 
-  private func makeDependencies(dataStore: DataStore?) -> ChatViewModel.Dependencies {
+  private func makeDependencies(dataStore: MC1Services.DataStore?) -> ChatViewModel.Dependencies {
     ChatViewModel.Dependencies(
       dataStore: { dataStore },
       messageService: { nil },
@@ -80,7 +81,7 @@ struct ChatViewModelConversationTests {
     )
   }
 
-  private func configuredViewModel(dataStore: DataStore?) -> ChatViewModel {
+  private func configuredViewModel(dataStore: MC1Services.DataStore?) -> ChatViewModel {
     let viewModel = ChatViewModel()
     viewModel.configure(
       dependencies: makeDependencies(dataStore: dataStore),
@@ -347,6 +348,29 @@ struct ChatViewModelConversationTests {
     let stored = try await store.fetchContact(id: contact.id)
     #expect(stored?.isPinned == true)
     #expect(stored?.isFavorite == true)
+  }
+
+  @Test(arguments: [false, true])
+  func `explicit channel pin changes survive reopening the store`(initialPin: Bool) async throws {
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: directory) }
+    let configuration = ModelConfiguration(schema: PersistenceStore.schema, url: directory.appendingPathComponent("pins.store"))
+    let channel = makeChannel(isPinned: initialPin)
+
+    do {
+      let container = try ModelContainer(for: PersistenceStore.schema, configurations: [configuration])
+      let store = PersistenceStore(modelContainer: container)
+      try await store.saveChannel(channel)
+      let viewModel = configuredViewModel(dataStore: store)
+      try await viewModel.setPinned(.channel(channel), isPinned: !initialPin)
+      #expect(try await store.fetchChannel(id: channel.id)?.isPinned == !initialPin)
+      try await viewModel.setPinned(.channel(channel), isPinned: initialPin)
+    }
+
+    let reopened = try ModelContainer(for: PersistenceStore.schema, configurations: [configuration])
+    let store = PersistenceStore(modelContainer: reopened)
+    #expect(try await store.fetchChannel(id: channel.id)?.isPinned == initialPin)
   }
 
   @Test

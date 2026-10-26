@@ -141,7 +141,7 @@ struct ResultsCardView: View {
           Text(L10n.Tools.Tools.LineOfSight.worstClearanceShort)
             .foregroundStyle(.secondary)
           Spacer()
-          Text("\(LOSFormatters.formatClearancePercent(result.worstClearancePercent))%")
+          Text(LOSFormatters.formatClearancePercent(result.worstClearancePercent))
             .monospacedDigit()
         }
 
@@ -357,7 +357,7 @@ struct RelayResultsCardView: View {
           Text(L10n.Tools.Tools.LineOfSight.worstClearanceShort)
             .foregroundStyle(.secondary)
           Spacer()
-          Text("\(LOSFormatters.formatClearancePercent(segment.worstClearancePercent))%")
+          Text(LOSFormatters.formatClearancePercent(segment.worstClearancePercent))
         }
       }
       .font(.caption)

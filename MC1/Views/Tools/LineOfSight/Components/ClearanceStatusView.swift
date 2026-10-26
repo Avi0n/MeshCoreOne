@@ -19,16 +19,11 @@ struct ClearanceStatusView: View {
       if status != .blocked {
         Text("·")
           .foregroundStyle(.secondary)
-        Text(L10n.Tools.Tools.LineOfSight.clearancePercent(clampedPercent))
+        Text(L10n.Tools.Tools.LineOfSight.clearancePercent(LOSFormatters.formatClearancePercent(clearancePercent)))
           .font(.subheadline)
           .foregroundStyle(.secondary)
       }
     }
-  }
-
-  /// Clamp percent to 0-100 range for display
-  private var clampedPercent: Int {
-    Int(max(0, min(100, clearancePercent)))
   }
 }
 

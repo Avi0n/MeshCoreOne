@@ -37,6 +37,8 @@ extension ChatViewModel {
   /// Live row for `id` from the fetch buffers.
   /// Swipe chrome keeps the value from first reveal, so toggles must not use that snapshot.
   func liveConversation(id: UUID) -> Conversation? {
+    // Fetch buffers are not observed; retained controls follow snapshot publication.
+    _ = snapshotGeneration
     if let contact = conversations.first(where: { $0.id == id }) {
       return .direct(contact)
     }
@@ -85,12 +87,14 @@ extension ChatViewModel {
   }
 
   private func writePin(_ conversation: Conversation, isPinned: Bool, disableAnimation: Bool) async throws {
-    let current = liveConversation(id: conversation.id) ?? conversation
+    let listed = liveConversation(id: conversation.id)
+    let current = listed ?? conversation
     let original = current.isPinned
-    guard original != isPinned else { return }
+    // Unlisted details may hold stale pins, so explicit writes must reach the store.
+    guard listed == nil || original != isPinned else { return }
     guard let dataStore else { throw ChatPinError.storeUnavailable }
 
-    let isListed = liveConversation(id: conversation.id) != nil
+    let isListed = listed != nil
     if isListed {
       applyPinUpdate(current, isPinned: isPinned, disableAnimation: disableAnimation)
     }

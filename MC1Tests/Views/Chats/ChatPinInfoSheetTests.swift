@@ -12,6 +12,43 @@ import Vision
 struct ChatPinInfoSheetTests {
   private static let viewport = CGRect(x: 0, y: 0, width: 390, height: 844)
 
+  @Test(arguments: [false, true])
+  func `retained pin action follows the live channel`(initialPin: Bool) async throws {
+    let store = try makeStore()
+    let channel = makeChannel().with(isPinned: initialPin)
+    try await store.saveChannel(channel)
+    let viewModel = configuredViewModel(dataStore: store)
+    viewModel.channels = [channel]
+    let host = try mount(viewModel: viewModel) {
+      VStack {
+        ConversationRowActions(
+          conversation: .channel(channel), viewModel: viewModel, onDelete: {}, edge: .leading
+        )
+      }
+    }
+    defer { hide(host) }
+
+    let initialLabel = initialPin ? L10n.Chats.Chats.Action.unpin : L10n.Chats.Chats.Action.pin
+    try await waitUntil(timeout: .seconds(2), "Initial pin action did not render") {
+      host.window.layoutIfNeeded()
+      return accessibilityLabels(in: host.window).contains(initialLabel)
+    }
+    await viewModel.togglePinned(.channel(channel))
+
+    let expected = initialPin ? L10n.Chats.Chats.Action.pin : L10n.Chats.Chats.Action.unpin
+    do {
+      try await waitUntil(timeout: .seconds(2), "Pin action did not follow the live channel") {
+        host.window.layoutIfNeeded()
+        let labels = accessibilityLabels(in: host.window)
+        return labels.contains(expected) && !labels.contains(initialLabel)
+      }
+    } catch {
+      Issue.record("Expected \(expected), rendered \(accessibilityLabels(in: host.window))")
+      throw error
+    }
+    #expect(try await store.fetchChannel(id: channel.id)?.isPinned == !initialPin)
+  }
+
   @Test
   func `turning Pin on for a missing channel reverts the switch and hides Try Again`() async throws {
     let store = try makeStore()
@@ -119,7 +156,9 @@ struct ChatPinInfoSheetTests {
       .environment(\.appState, appState)
       .environment(\.chatViewModel, viewModel)
     let controller = UIHostingController(rootView: rootView)
-    let window = UIWindow(frame: Self.viewport)
+    let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+    let window = UIWindow(windowScene: scene)
+    window.frame = Self.viewport
     window.rootViewController = controller
     window.makeKeyAndVisible()
     window.layoutIfNeeded()
@@ -129,6 +168,7 @@ struct ChatPinInfoSheetTests {
   private func hide(_ host: Host) {
     host.window.isHidden = true
     host.window.rootViewController = nil
+    host.window.windowScene = nil
     host.appState.shutdown()
   }
 
@@ -164,5 +204,23 @@ struct ChatPinInfoSheetTests {
   private func findSwitches(in view: UIView) -> [UISwitch] {
     if let toggle = view as? UISwitch { return [toggle] }
     return view.subviews.flatMap { findSwitches(in: $0) }
+  }
+
+  private func accessibilityLabels(in root: NSObject) -> [String] {
+    var visited: Set<ObjectIdentifier> = []
+    var labels: [String] = []
+    func walk(_ object: NSObject) {
+      guard visited.insert(ObjectIdentifier(object)).inserted else { return }
+      if let label = object.accessibilityLabel { labels.append(label) }
+      if let view = object as? UIView { view.subviews.forEach(walk) }
+      let count = object.accessibilityElementCount()
+      if count != NSNotFound, count > 0 {
+        for index in 0..<count {
+          if let child = object.accessibilityElement(at: index) as? NSObject { walk(child) }
+        }
+      }
+    }
+    walk(root)
+    return labels
   }
 }

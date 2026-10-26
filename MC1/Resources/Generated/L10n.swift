@@ -6357,9 +6357,9 @@ public enum L10n {
         public static let clear = L10n.tr("Tools", "tools.lineOfSight.clear", fallback: "Clear")
         /// Location: ResultsCardView.swift - Clearance section title
         public static let clearance = L10n.tr("Tools", "tools.lineOfSight.clearance", fallback: "Clearance")
-        /// Location: ClearanceStatusView.swift - Clearance percentage, %lld is percent
-        public static func clearancePercent(_ p1: Int) -> String {
-          return L10n.tr("Tools", "tools.lineOfSight.clearancePercent", p1, fallback: "%lld%% clearance")
+        /// Clearance percentage; %@ is a localized percentage
+        public static func clearancePercent(_ p1: Any) -> String {
+          return L10n.tr("Tools", "tools.lineOfSight.clearancePercent", String(describing: p1), fallback: "%@ clearance")
         }
         /// Location: LineOfSightView.swift - Copy coordinates button
         public static let copyCoordinates = L10n.tr("Tools", "tools.lineOfSight.copyCoordinates", fallback: "Copy Coordinates")

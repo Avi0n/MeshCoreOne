@@ -39,6 +39,7 @@ struct ChatConversationView: View {
   // MARK: - Sheet State
 
   @State private var showingInfo = false
+  @State private var channelInfoTask: Task<Void, Never>?
   @State private var selectedMessageForActions: MessageDTO?
   @State private var blockSenderContext: BlockSenderContext?
   @State private var sendDMContext: SendDMContext?
@@ -209,13 +210,13 @@ struct ChatConversationView: View {
       ),
       contentScrollsUnderBar: true,
       titleIcon: AnyView(titleAvatar),
-      onTitleTap: { showingInfo = true }
+      onTitleTap: showInfo
     )
     .toolbar {
       if #unavailable(iOS 26) {
         ToolbarItem(placement: .primaryAction) {
           Button(L10n.Chats.Chats.Common.info, systemImage: "info.circle") {
-            showingInfo = true
+            showInfo()
           }
         }
       }
@@ -226,7 +227,8 @@ struct ChatConversationView: View {
       case .dm:
         Task { await refreshContact() }
       case .channel:
-        Task { await refreshChannel() }
+        channelInfoTask?.cancel()
+        channelInfoTask = Task { _ = try? await refreshChannel() }
       }
     }, content: {
       ChatConversationInfoSheet(
@@ -311,6 +313,7 @@ struct ChatConversationView: View {
         )
     }
     .onDisappear {
+      channelInfoTask?.cancel()
       // Disappearance can beat the debounce, so persist the latest dirty text now.
       draftEditor.flush()
       chatViewModel.cancelPendingTranslation()
@@ -434,8 +437,7 @@ struct ChatConversationView: View {
   /// Removes delivered lock-screen / Notification Center notifications for the
   /// conversation the user just opened, then recomputes the app badge.
   private func clearDeliveredNotifications() async {
-    guard scenePhase == .active, !Task.isCancelled else { return }
-    guard let notificationService = appState.services?.notificationService else { return }
+    guard scenePhase == .active, !Task.isCancelled, let notificationService = appState.services?.notificationService else { return }
     switch conversationType {
     case let .dm(contact):
       await notificationService.removeDeliveredNotifications(forContactID: contact.id)
@@ -513,21 +515,41 @@ struct ChatConversationView: View {
     }
   }
 
-  private func refreshChannel() async {
-    guard case let .channel(channel) = conversationType else { return }
-    if let updated = try? await appState.offlineDataStore?.fetchChannel(id: channel.id) {
-      conversationType = conversationType.replacingChannel(updated)
-      chatViewModel.currentChannel = updated
-      chatViewModel.timeline.conversation = .channel(updated)
+  private func showInfo() {
+    channelInfoTask?.cancel()
+    switch conversationType {
+    case .dm:
+      showingInfo = true
+    case .channel:
+      channelInfoTask = Task {
+        do {
+          try await refreshChannel()
+          showingInfo = true
+        } catch {
+          guard !Task.isCancelled else { return }
+          chatViewModel.errorMessage = error.userFacingMessage
+        }
+      }
     }
+  }
+
+  private func refreshChannel() async throws {
+    guard case let .channel(channel) = conversationType else { return }
+    guard let dataStore = appState.offlineDataStore else { throw ConnectionError.notConnected }
+    guard let updated = try await dataStore.fetchChannel(id: channel.id) else {
+      throw PersistenceStoreError.channelNotFound
+    }
+    try Task.checkCancellation()
+    conversationType = conversationType.replacingChannel(updated)
+    chatViewModel.currentChannel = updated
+    chatViewModel.timeline.conversation = .channel(updated)
   }
 
   // MARK: - Mention Tracking
 
   /// Mark unseen mentions as seen on open because chat-list badges track conversation reads, not visible bubbles.
   private func markConversationMentionsSeen() async {
-    guard scenePhase == .active, !Task.isCancelled else { return }
-    guard let dataStore = appState.services?.dataStore else { return }
+    guard scenePhase == .active, !Task.isCancelled, let dataStore = appState.services?.dataStore else { return }
     do {
       switch conversationType {
       case let .dm(contact):
@@ -562,8 +584,7 @@ struct ChatConversationView: View {
   }
 
   private func persistMentionSeen(messageID: UUID) async -> Bool {
-    guard scenePhase == .active, !Task.isCancelled else { return false }
-    guard let dataStore = appState.services?.dataStore else { return false }
+    guard scenePhase == .active, !Task.isCancelled, let dataStore = appState.services?.dataStore else { return false }
     do {
       try await dataStore.markMentionSeen(messageID: messageID)
       guard scenePhase == .active, !Task.isCancelled else { return false }

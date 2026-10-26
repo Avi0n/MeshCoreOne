@@ -98,22 +98,15 @@ struct ElevationServiceTests {
     func `Coordinates are evenly distributed`() {
       let samples = ElevationService.sampleCoordinates(from: pointA, to: pointB, sampleCount: 5)
 
-      // Calculate expected latitude/longitude step
-      let latStep = (pointB.latitude - pointA.latitude) / 4
-      let lonStep = (pointB.longitude - pointA.longitude) / 4
+      let totalDistance = RFCalculator.distance(from: pointA, to: pointB)
+      let step = totalDistance / Double(samples.count - 1)
 
       // Check each point is at expected position
       for i in 0..<5 {
-        let expectedLat = pointA.latitude + Double(i) * latStep
-        let expectedLon = pointA.longitude + Double(i) * lonStep
-
+        let actualDistance = RFCalculator.distance(from: pointA, to: samples[i])
         #expect(
-          abs(samples[i].latitude - expectedLat) < 0.0001,
-          "Latitude at index \(i) differs: expected \(expectedLat), got \(samples[i].latitude)"
-        )
-        #expect(
-          abs(samples[i].longitude - expectedLon) < 0.0001,
-          "Longitude at index \(i) differs: expected \(expectedLon), got \(samples[i].longitude)"
+          abs(actualDistance - Double(i) * step) < 0.000001,
+          "Distance at index \(i) differs: expected \(Double(i) * step)m, got \(actualDistance)m"
         )
       }
     }
