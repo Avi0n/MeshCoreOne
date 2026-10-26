@@ -60,6 +60,9 @@ class ChannelRegionConsumerTest : RoomProcessTest() {
             h.manager.connect(h.target())
             h.settle()
             h.assertReady()
+            h.eventually("initial channel sync finishes before region join vectors") {
+                h.appState.syncCoordinator?.state == com.meshcoreone.android.core.services.sync.SyncState.Synced
+            }
             val radioId = assertNotNull(h.appState.currentRadioId)
             val feature = h.container.chatsFeature
             val navigation = h.container.navigation

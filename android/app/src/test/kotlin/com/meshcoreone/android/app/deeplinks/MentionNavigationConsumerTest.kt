@@ -49,6 +49,9 @@ class MentionNavigationConsumerTest : RoomProcessTest() {
             h.manager.connect(h.target())
             h.settle()
             h.assertReady()
+            h.eventually("original mention contacts finish synchronizing") {
+                h.appState.syncCoordinator?.state == com.meshcoreone.android.core.services.sync.SyncState.Synced
+            }
             val radio = assertNotNull(h.appState.currentRadioId)
             val contacts = store.fetchContacts(radio)
             val peer = contacts.single { it.name == names.first() }

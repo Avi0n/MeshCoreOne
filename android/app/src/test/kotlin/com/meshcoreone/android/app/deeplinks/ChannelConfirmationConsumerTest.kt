@@ -58,6 +58,34 @@ class ChannelConfirmationConsumerTest : RoomProcessTest() {
         confirmPrivateHashtag(fromChat = true, name = "#test", region = null)
     }
 
+    @Test fun disconnectedConfirmationShowsMetadataButCannotWriteAndCancellationClearsIt() = runTest {
+        val h = ContainerHarness(this, store)
+        try {
+            val navigation = h.container.navigation
+            val external = AppDeepLinkRouter(ContainerDeepLinkEnvironment(h.container, navigation))
+            external.routeExternal(
+                "meshcore://channel/add?name=%23test&secret=00112233445566778899AABBCCDDEEFF&region_scope=testregion",
+            )
+            compose.runOnUiThread {
+                host.get().setContent { MeshCoreTheme(motionScale = 0f) {
+                    AppPendingChannel(h.container.chatsFeature, navigation)
+                } }
+            }
+            compose.onNodeWithText(host.get().getString(R.string.l10n_app_chats_chats_joinfrommessage_hashtagsecretmismatch))
+                .assertIsDisplayed()
+            compose.onNodeWithText(host.get().getString(R.string.l10n_app_chats_chats_joinfrommessage_regionscope, "testregion"))
+                .assertIsDisplayed()
+            compose.onNodeWithText(host.get().getString(L.commonOk)).assertIsNotEnabled()
+            assertTrue(h.links.radios.isEmpty())
+            compose.onNodeWithText(host.get().getString(L.commonCancel)).performClick()
+            assertNull(navigation.state.value.pendingChannelLink)
+            assertTrue(h.links.radios.isEmpty())
+        } finally {
+            compose.runOnUiThread { host.get().setContent {} }
+            h.container.close()
+        }
+    }
+
     private suspend fun TestScope.confirmPrivateHashtag(fromChat: Boolean, name: String, region: String?) {
         val h = ContainerHarness(this, store)
         h.links.configureRadio = { radio ->
@@ -67,6 +95,9 @@ class ChannelConfirmationConsumerTest : RoomProcessTest() {
             h.manager.connect(h.target())
             h.settle()
             h.assertReady()
+            h.eventually("initial channel sync finishes before a confirmed write") {
+                h.appState.syncCoordinator?.state == com.meshcoreone.android.core.services.sync.SyncState.Synced
+            }
             val feature = h.container.chatsFeature
             val navigation = h.container.navigation
             val external = AppDeepLinkRouter(ContainerDeepLinkEnvironment(h.container, navigation))
