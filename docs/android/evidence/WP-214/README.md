@@ -30,9 +30,14 @@ fresh admission of the three exact runtime paths under
 `wp214-active-link-channel-sync-input` /
 `add-active-link-channel-sync-input` passed and evolved this same reservation
 from revision 4 to 7. The disjoint required input, App consumer and runtime
-factory-input regression are authored. The sole `ConnectionManager` constructor
-call remains deliberately untouched until the WP-201 producer handoff, so this
-partial candidate is not build-complete or accepted.
+factory-input regression are authored. WP-201 handed off exact local commit
+`f9bf75e0f285959e449a19b3fecf9c2a56d3ee2d`, whose parent is that trusted
+prerequisite. Deterministic merge `0a1b95ba56e24d2ff70c4c7c148f19f7e1becb28`
+retains its endpoint-method producer, three-family persistence regression and
+WP-201 attribution without copying patches. Only after that handoff did WP-214
+add `transportType = link.type` at the sole service-factory call. The WP-201
+methods/DTO block remains unchanged. This local source reconciliation does not
+prove merged dependency completion or test acceptance.
 
 | Local command | Current outcome |
 | --- | --- |
