@@ -73,6 +73,50 @@ mandatory before this batch's single finished push and template PR. The exact-he
 hosted job/log will be authoritative; no duplicate CI-result bundle is retained.
 No physical/device, signing, legal or human-gate acceptance is asserted.
 
+### Parallel-work resumption and exact affected selection
+
+User-directed resumption releases the old blanket idle hold for existing owners;
+it does not authorize laptop Gradle/native execution or an unassigned remote
+heavy-test slot. The original local source commit is
+`1388858bda904bd0e2dc0e7173543a69ee9f3b25`. Current trusted main
+`a8c624bcb095f81a30e5fee671099fa519f608b7` merged without product-file overlap
+as `d0b8f3b2d50bd44efa7991079c44c6642b17cced`, bringing in the landed
+affected verification selector. The working candidate is the commit containing
+this preparation section; its final hash is supplied to the coordinator.
+
+The read-only `controller.local_scope.candidate_plan` evaluated the exact current
+base/head/tree/diff and selected `module:app` and `module:platform/shortcuts`,
+not a full-repository fallback. Its actual declared tasks are:
+
+```text
+:app:testDebugUnitTest
+:app:compileDebugKotlin
+:app:lintDebug
+:app:compileDebugAndroidTestKotlin
+:platform:shortcuts:testDebugUnitTest
+:platform:shortcuts:check
+:platform:shortcuts:compileDebugKotlin
+:platform:shortcuts:lintDebug
+validateModuleGraph
+runtimeDependencyInventory
+```
+
+The documented owned launcher request is
+`python .\tools\android-port\local\check.py --commit <exact candidate> --affected-base <current trusted main>`.
+The derived stages are `python,preflight,scaffold`; arbitrary Gradle/test-filter
+overrides are not accepted. A remote transport is not inferred from the existing
+WSL/Linux launcher. The coordinator assigns the actual supported remote slot
+before any heavy command starts.
+
+Expected source inventory: 35 platform shortcut methods, four new App consumer
+methods, and 16 retained `ShortcutQueueIntegrationTest` methods (not a substitute
+for the selected complete App suite). Missing, zero, failed or skipped required
+execution is a failure, not evidence inferred from this inventory.
+**Product test discovery/execution is still zero at this preparation revision.**
+Owned worktree cleanliness, whitespace and trusted App support admission were
+rechecked; no policy, hook, runtime, dependency, source pin or test assertion was
+weakened.
+
 ## Historical original implementation and earlier repairs
 
 External contribution; no lease. No device verification claimed.
