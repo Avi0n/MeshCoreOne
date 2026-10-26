@@ -22,6 +22,7 @@ from controller.ledger import Identity, Ledger
 from controller.schema import load_json
 from controller.scope_amendment import (
     bubble_consumer_predecessor, disposable_predecessor, parity_support_predecessor, room_cleanup_predecessor,
+    room_failed_event_predecessor, wp503_accessibility_source_binding_predecessor,
     room_failed_event_predecessor, consumer_support_predecessor,
 )
 from local import debug_packaging
@@ -2153,10 +2154,23 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(current, before)
         self.assertEqual(disposable_predecessor(previous), previous)
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index(',\n      {\n        "id": "wp503-accessibility-source-binding",')
+        end = text.index("\n    ]", start)
+        text = text[:start] + text[end:]
+        self.assertEqual(json.loads(text), wp503_accessibility_source_binding_predecessor(current))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=text.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "f2f481d2e7c2a9029808943529c98c98ef879299:docs/android/automation-policy.json",
+        ]).strip())
         start = text.index('      {\n        "id": "wp405-uri-region-normalization",')
         end = text.index('      {\n        "id": "wp-owned",', start)
         text = text[:start] + text[end:]
-        self.assertEqual(json.loads(text), consumer_support_predecessor(current))
+        self.assertEqual(
+            json.loads(text),
+            consumer_support_predecessor(wp503_accessibility_source_binding_predecessor(current)),
+        )
         self.assertEqual(subprocess.check_output([
             "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
         ], input=text.encode()).strip(), subprocess.check_output([

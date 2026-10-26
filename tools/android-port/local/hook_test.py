@@ -38,9 +38,45 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(RESERVATIONS))
 import reserve
 from controller.ledger import Ledger
+from controller.errors import PortError
+from controller.local_scope import candidate_plan
 
 
 class LocalCheckTests(unittest.TestCase):
+    def test_affected_scope_cannot_replace_full_pre_push_adapter_or_result_contract(self):
+        base = "a" * 40
+        options = (
+            ["--scope", "protocol"],
+            ["--affected-base", "HEAD"],
+            ["--affected-base", base, "--pre-push"],
+            ["--affected-base", base, "--stages", "scaffold"],
+            ["--affected-base", base, "--toolchain-state", "adapter.json"],
+            ["--affected-base", base, "--validate-result", "result.json"],
+            ["--affected-base", base, "--worktree"],
+            ["--affected-base", base, "--install-hook"],
+        )
+        for arguments in options:
+            with self.subTest(arguments=arguments), patch.object(check, "run_owned") as run, \
+                    contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(check.main(arguments), 1)
+            run.assert_not_called()
+
+    def test_explicit_affected_contract_forwards_base_and_additional_scopes_only(self):
+        with patch.object(check, "run_owned") as run:
+            self.assertEqual(check.main(["--affected-base", "a" * 40, "--scope", "protocol"]), 0)
+        self.assertEqual(run.call_args.kwargs, {
+            "advisory": False, "affected_base": "a" * 40, "scopes": ["protocol"],
+        })
+        self.assertEqual(run.call_args.args[3], check.ALL_STAGES)
+
+    def test_shell_forwards_scoped_request_through_existing_supervision_only(self):
+        runner = Path(check.__file__).with_name("run.sh").read_text(encoding="utf-8")
+        self.assertIn('affected_plan="${13:-}"', runner)
+        self.assertIn('affected_base="${14:-}"', runner)
+        self.assertEqual(runner.count('"$admission" "$affected_plan" "$affected_base"'), 2)
+        self.assertIn('"$mode" == "manual-lane"', runner)
+        self.assertIn('options+=(--affected-plan "$affected_plan" --affected-base "$affected_base")', runner)
+
     def test_benchmark_is_optional_and_cannot_replace_complete_merge_verification(self):
         self.assertEqual(check.ALL_STAGES, ["python", "preflight", "scaffold", "inspect"])
         self.assertEqual(check.OPTIONAL_STAGES, {"benchmark", "benchmark-dependencies"})
@@ -254,6 +290,203 @@ class LocalCheckTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "Existing pre-push"):
                     check.install(hooks, ["wsl"], None)
             self.assertEqual(hook.read_text(encoding="utf-8"), "#!/bin/sh\nexit 1\n")
+
+
+class AffectedRunnerTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.repo = self.root / "repo"
+        self.repo.mkdir()
+        self.git("init", "--quiet")
+        self.git("config", "user.name", "Owned scope fixture")
+        self.git("config", "user.email", "fixture@example.invalid")
+        self.git("config", "core.autocrlf", "false")
+        self.write("android/core/protocol/build.gradle.kts", 'plugins { id("mesh.jvm.library") }\n')
+        self.base = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", self.base)
+        self.git("symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/main")
+        self.write("android/core/protocol/src/test/kotlin/FrameTest.kt", "fixture")
+        self.head = self.commit()
+        self.ledger = Ledger(self.root / "fixture-ledger.sqlite3", "fixture/repository")
+
+    def git(self, *arguments):
+        return subprocess.check_output(
+            ["git", "-C", str(self.repo), *arguments], text=True, stderr=subprocess.PIPE,
+        ).strip()
+
+    def write(self, name, text):
+        path = self.repo / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+    def commit(self):
+        self.git("add", "--all")
+        self.git("-c", "core.hooksPath=/dev/null", "-c", "commit.gpgsign=false",
+                 "commit", "--quiet", "-m", "owned scope fixture")
+        return self.git("rev-parse", "HEAD")
+
+    def cleanup(self, **arguments):
+        arguments["completion"].write_text(json.dumps({
+            "schema_version": 1, "token": arguments["token"],
+            "status": "owned-children-reaped", "returncode": 0,
+        }), encoding="utf-8")
+
+    def test_scoped_request_is_derived_only_under_actual_fixture_ownership(self):
+        original = check.affected_request
+
+        def derive(*arguments):
+            self.assertEqual([row["resource"] for row in self.ledger.hard_lock_records()], ["gradle-execution"])
+            self.assertEqual(self.ledger.hard_lock_records()[0]["payload"]["affected_base"], self.base)
+            return original(*arguments)
+
+        def candidate(*args, **kwargs):
+            self.assertEqual(kwargs["affected_plan"]["base"], self.base)
+            self.assertEqual(kwargs["affected_plan"]["head"], self.head)
+            self.assertIn(":core:protocol:test", kwargs["affected_plan"]["tasks"])
+            self.cleanup(**kwargs)
+
+        text = io.StringIO()
+        with patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "affected_request", side_effect=derive), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                contextlib.redirect_stdout(text):
+            check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False, affected_base=self.base)
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+        self.assertIn("AFFECTED LOCAL CHECK PASSED", text.getvalue())
+
+    def test_native_collision_blocks_selection_transport_and_launch(self):
+        self.ledger.acquire_hard_lock("native-execution", "fixture-native", {"source": "fixture"}, 1.0)
+        with patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "affected_request") as derive, \
+                patch.object(check, "transport") as transport, \
+                patch.object(check, "run_candidate") as candidate:
+            with self.assertRaises(ValueError):
+                check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False, affected_base=self.base)
+        derive.assert_not_called()
+        transport.assert_not_called()
+        candidate.assert_not_called()
+        self.assertEqual(self.ledger.hard_lock_records()[0]["owner"], "fixture-native")
+
+    def test_incomplete_scope_runs_nothing_and_releases_only_own_unused_lock(self):
+        with patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "transport") as transport, \
+                patch.object(check, "run_candidate") as candidate:
+            with self.assertRaisesRegex(ValueError, "Incomplete"):
+                check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False,
+                                affected_base=self.base, scopes=["backup"])
+        transport.assert_not_called()
+        candidate.assert_not_called()
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+
+    def test_base_movement_during_owned_execution_cannot_report_current_success(self):
+        def candidate(*args, **kwargs):
+            self.git("update-ref", "refs/remotes/origin/main", self.head)
+            self.cleanup(**kwargs)
+
+        text = io.StringIO()
+        with patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                contextlib.redirect_stdout(text):
+            with self.assertRaisesRegex(ValueError, "Stale affected base after execution"):
+                check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False, affected_base=self.base)
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+        self.assertNotIn("AFFECTED LOCAL CHECK PASSED", text.getvalue())
+
+    def test_release_failure_cannot_print_scoped_success(self):
+        directory = self.root / "owned-execution"
+        directory.mkdir()
+        text = io.StringIO()
+
+        def candidate(*args, **kwargs):
+            self.cleanup(**kwargs)
+
+        with patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check.tempfile, "mkdtemp", return_value=str(directory)), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                patch.object(self.ledger, "release_hard_lock", side_effect=PortError("fixture release failed")), \
+                contextlib.redirect_stdout(text):
+            with self.assertRaisesRegex(ValueError, "Own execution release failed"):
+                check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False, affected_base=self.base)
+        self.assertNotIn("AFFECTED LOCAL CHECK PASSED", text.getvalue())
+        self.assertEqual(len(self.ledger.hard_lock_records()), 1)
+
+    def read_request(self, plan, admission, stages=None):
+        path = self.root / "affected-plan.json"
+        path.write_text(json.dumps(plan), encoding="utf-8")
+        original = Path.read_text
+
+        def read_text(path, *args, **kwargs):
+            if path == Path("/proc/self/fd/8"):
+                return json.dumps(admission)
+            return original(path, *args, **kwargs)
+
+        with patch.object(Path, "read_text", new=read_text):
+            return fast.affected_request(self.repo, path, self.base, stages or plan["stages"], False)
+
+    def test_fast_requires_exact_owned_admission_and_stage_binding(self):
+        plan = candidate_plan(self.repo, self.base, self.head)
+        admission = {
+            "schema_version": 1, "interlock_version": 2, "owner": "local-check:fixture",
+            "token": "fixture", "commit": self.head, "tree": plan["tree"],
+        }
+        self.assertEqual(self.read_request(plan, admission), plan)
+        for changed in (
+            {"commit": "a" * 40}, {"tree": "b" * 40}, {"owner": "other"},
+            {"schema_version": True}, {"interlock_version": 1}, {"token": ""},
+        ):
+            with self.subTest(changed=changed), self.assertRaises(PortError):
+                self.read_request(plan, {**admission, **changed})
+        with self.assertRaises(PortError):
+            self.read_request(plan, admission, ["scaffold"])
+        path = self.root / "affected-plan.json"
+        with self.assertRaises(PortError):
+            fast.affected_request(self.repo, path, self.base, plan["stages"], True)
+        with self.assertRaises(PortError):
+            fast.affected_request(self.repo, None, self.base, plan["stages"], False)
+
+    def test_scoped_result_is_not_accepted_by_unchanged_full_result_parser(self):
+        path = self.root / "affected-plan.json"
+        path.write_text(json.dumps(candidate_plan(self.repo, self.base, self.head)), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Malformed"):
+            check.validate_result(path, self.head, self.git("rev-parse", "HEAD^{tree}"))
+
+    def test_full_fallback_dispatches_inspection_and_never_claims_default_result(self):
+        from controller import ci, ci_environment, local_scope
+        self.write("android/core/protocol/build.gradle.kts",
+                   'plugins { id("mesh.jvm.library") }\n// broad build change\n')
+        head = self.commit()
+        plan = candidate_plan(self.repo, self.base, head)
+        work = self.root / "work"
+        (work / "toolchain").mkdir(parents=True)
+        (work / "toolchain/environment.json").write_text(
+            json.dumps({"java_home": str(self.root / "fixture-java")}), encoding="utf-8",
+        )
+        output = self.root / "output"
+        output.mkdir()
+        text = io.StringIO()
+        with patch.object(sys, "argv", [
+            "fast.py", "--repo", str(self.repo), "--work", str(work), "--output", str(output),
+            "--stages", ",".join(plan["stages"]), "--affected-plan", str(self.root / "request.json"),
+            "--affected-base", self.base,
+        ]), patch.object(fast, "affected_request", return_value=plan), \
+                patch.object(ci_environment, "candidate_environment", return_value={}), \
+                patch.object(ci_environment, "verify_wrapper"), \
+                patch.object(ci, "python_checks"), patch.object(ci, "preflight"), \
+                patch.object(ci, "inspect") as inspect, patch.object(fast, "execute") as execute, \
+                patch.object(local_scope, "run_scaffold", return_value={"kind": "local-affected-only"}) as run, \
+                contextlib.redirect_stdout(text):
+            fast.main()
+        inspect.assert_called_once()
+        run.assert_called_once()
+        self.assertIn("test_runner.py", execute.call_args.args[0][1])
+        self.assertIn("AFFECTED SNAPSHOT CHECKS COMPLETE", text.getvalue())
+        self.assertNotIn("AFFECTED LOCAL CHECK PASSED", text.getvalue())
+        self.assertNotIn("FAST LOCAL CHECK PASSED", text.getvalue())
 
 
 class InstalledRuntimeTests(unittest.TestCase):

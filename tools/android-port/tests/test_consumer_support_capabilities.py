@@ -10,10 +10,12 @@ from controller.capabilities import CapabilityEngine
 from controller.errors import PortError
 from controller.scope_amendment import (
     CONSUMER_SUPPORT_CAPABILITIES, consumer_support_predecessor,
+    wp503_accessibility_source_binding_predecessor,
 )
 
 
 BASE = "263d30332940f09082709b9d38ee8877dfb9fedd"
+CONSUMER_SUPPORT_MERGE = "f2f481d2e7c2a9029808943529c98c98ef879299"
 ROOT = "android/core/runtime/src/"
 PACKAGE = "kotlin/com/meshcoreone/android/core/runtime/"
 
@@ -104,7 +106,13 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
             "git", "-C", str(REPO), "show", BASE + ":docs/android/automation-policy.json",
         ], encoding="utf-8"))
         actual = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
-        self.assertEqual(consumer_support_predecessor(actual), original)
+        without_wp503 = wp503_accessibility_source_binding_predecessor(actual)
+        merged_support = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            CONSUMER_SUPPORT_MERGE + ":docs/android/automation-policy.json",
+        ], encoding="utf-8"))
+        self.assertEqual(without_wp503, merged_support)
+        self.assertEqual(consumer_support_predecessor(without_wp503), original)
         self.assertEqual(consumer_support_predecessor(original), original)
         for rule in CONSUMER_SUPPORT_CAPABILITIES:
             for path in rule["path_rules"]:
