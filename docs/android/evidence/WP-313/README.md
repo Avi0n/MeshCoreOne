@@ -293,3 +293,12 @@ change-scoped lane supplies its own provisioning, test discovery and exact-candi
 Original-case counts are source-case parity for the logic layer only. They do not establish UI
 parity, map rendering, real BLE/service integration (the ports are driven by fakes), or
 CI/acceptance results.
+
+## TS-25 Remote CLI tab retention
+
+`RetainedTabContentTest` (Robolectric, API 31 and 37) mounts the retention primitive and asserts
+one creation, no disposal across repeated tab changes, preserved state, unselected content absent
+from semantics, and disposal only on route removal. Declared verification is `configured=false`,
+`commands=[]`: no test run is claimed for this change, and it is not device, TalkBack or Swift
+evidence. The four NodeCLI families remain covered by the existing `feature/tools` cases; this
+change does not alter them.
