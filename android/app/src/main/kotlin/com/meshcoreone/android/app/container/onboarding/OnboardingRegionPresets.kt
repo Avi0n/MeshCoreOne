@@ -1,11 +1,15 @@
 // AndroidOnly: WP-303 Onboarding region catalog, region and preset ports over core:services device data.
+// AndroidOnly: WP-211 Bind existing subdivision translations to current app-localized resources.
 package com.meshcoreone.android.app.container.onboarding
 
+import android.content.res.Resources
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.model.RegionSelection
 import com.meshcoreone.android.core.services.device.RadioPreset
 import com.meshcoreone.android.core.services.device.RadioPresets
 import com.meshcoreone.android.core.services.device.RegionalAreas
+import com.meshcoreone.android.core.services.device.SubdivisionNameResolver
+import com.meshcoreone.android.core.l10n.generated.RegionalSubdivisionNames
 import com.meshcoreone.android.core.contracts.domain.errors.SettingsServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.SettingsServiceException
 import com.meshcoreone.android.core.ui.UiText
@@ -28,15 +32,22 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 /** [OnboardingRegionCatalog] over `RegionalAreas` and `RadioPresets`; the picker never sees core:services types. */
-class ServicesRegionCatalog(private val locale: () -> Locale = { Locale.getDefault() }) : OnboardingRegionCatalog {
+class ServicesRegionCatalog(
+    private val resources: (() -> Resources)? = null,
+    private val locale: () -> Locale = { resources?.invoke()?.configuration?.locales?.get(0) ?: Locale.getDefault() },
+) : OnboardingRegionCatalog {
+    private val names = SubdivisionNameResolver { code, _ ->
+        resources?.invoke()?.let { RegionalSubdivisionNames.displayName(it, code) }
+    }
+
     override fun countries(): List<OnboardingCountry> =
         RegionalAreas.countriesSortedByLocalizedName.map { OnboardingCountry(it.id, it.name(locale())) }
 
     override fun showsSubdivisionPicker(countryCode: String?): Boolean = RegionalAreas.showsSubdivisionPicker(countryCode)
 
     override fun subdivisions(countryCode: String?): List<OnboardingSubdivision> =
-        RegionalAreas.subdivisions(countryCode, locale()).map {
-            OnboardingSubdivision(it.id, RegionalAreas.subdivisionDisplayName(it.id, locale()) ?: it.englishName)
+        RegionalAreas.subdivisions(countryCode, locale(), names).map {
+            OnboardingSubdivision(it.id, RegionalAreas.subdivisionDisplayName(it.id, locale(), names) ?: it.englishName)
         }
 
     override fun administrativeAreaKind(countryCode: String?): AdministrativeAreaKind =
@@ -45,9 +56,9 @@ class ServicesRegionCatalog(private val locale: () -> Locale = { Locale.getDefau
             RegionalAreas.AdministrativeAreaKind.STATE -> AdministrativeAreaKind.STATE
         }
 
-    override fun displayName(region: RegionSelection): String = RegionalAreas.displayName(region, locale())
+    override fun displayName(region: RegionSelection): String = RegionalAreas.displayName(region, locale(), names)
     override fun countryDisplayName(countryCode: String): String = RegionalAreas.Country(countryCode, null).name(locale())
-    override fun subdivisionDisplayName(code: String): String? = RegionalAreas.subdivisionDisplayName(code, locale())
+    override fun subdivisionDisplayName(code: String): String? = RegionalAreas.subdivisionDisplayName(code, locale(), names)
 
     override fun presets(region: RegionSelection?): List<OnboardingPresetOption> {
         val collator = Collator.getInstance(locale())

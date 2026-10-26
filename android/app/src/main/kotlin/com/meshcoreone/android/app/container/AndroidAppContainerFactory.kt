@@ -35,6 +35,7 @@ import com.meshcoreone.android.app.container.onboarding.AndroidOnboardingPermiss
 import com.meshcoreone.android.app.container.onboarding.OnboardingPlatform
 import com.meshcoreone.android.app.container.onboarding.WriteBehindOnboardingFlags
 import com.meshcoreone.android.app.container.onboarding.appSettingsOpener
+import com.meshcoreone.android.app.platform.AppLanguages
 import com.meshcoreone.android.core.services.content.LocationService
 import com.meshcoreone.android.core.services.content.RegionResolver
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueProgress
@@ -184,6 +185,7 @@ object AndroidAppContainerFactory {
             locationReporter = locationProducing,
             scans = scanCoordinator,
             openAppSettings = appSettingsOpener(application),
+            regionResources = { AppLanguages.attach(application).resources },
         )
         val chatSendQueueProgress = ChatSendQueueProgress()
         val container = AppContainer(

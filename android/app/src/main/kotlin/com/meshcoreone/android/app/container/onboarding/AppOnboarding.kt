@@ -1,8 +1,10 @@
 // AndroidOnly: WP-303 Builds OnboardingFeatureDependencies from the AppContainer and supplies the activity seams.
+// AndroidOnly: WP-211 Supply app-localized resources to the mounted regional catalog.
 package com.meshcoreone.android.app.container.onboarding
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -54,6 +56,7 @@ class OnboardingPlatform(
     val scans: BleScanCoordinator? = null,
     val openAppSettings: () -> Unit = {},
     val sdkInt: Int = Build.VERSION.SDK_INT,
+    val regionResources: (() -> Resources)? = null,
 )
 
 /** [OnboardingPermissionFacts] over the real platform readers. */
@@ -207,7 +210,7 @@ object AppOnboardingFactory {
             wifi = AppOnboardingWiFiPort(host),
             demo = AppOnboardingDemoPort(DemoModeManager.shared, scope),
             region = AppOnboardingRegionPort(
-                ServicesRegionCatalog(), container.appState.regionSelectionFlow,
+                ServicesRegionCatalog(resources = platform.regionResources), container.appState.regionSelectionFlow,
                 { container.appState.regionSelection = it }, platform.regionResolver?.let { resolver -> suspend { resolver.resolve() } },
             ),
             presets = AppOnboardingPresetPort(AppStateRadioConfigurator(container), scope),
