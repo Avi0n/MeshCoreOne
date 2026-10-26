@@ -31,6 +31,7 @@ from controller.scope_amendment import (
     room_failed_event_predecessor, ROOM_FAILED_EVENT_CAPABILITY,
     wp503_accessibility_source_binding_predecessor,
     WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES,
+    consumer_support_predecessor,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -52,7 +53,18 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
             "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
         ], input=previous.encode()).strip(), subprocess.check_output([
             "git", "-C", str(REPO), "rev-parse",
-            "23c2d985dca3d27dd2b819fb54babe66280077f5:docs/android/automation-policy.json",
+            "f2f481d2e7c2a9029808943529c98c98ef879299:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
+        start = text.index('      {\n        "id": "wp405-uri-region-normalization",')
+        end = text.index('      {\n        "id": "wp-owned",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), consumer_support_predecessor(json.loads(text)))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "263d30332940f09082709b9d38ee8877dfb9fedd:docs/android/automation-policy.json",
         ]).strip())
         text = previous
         start = text.index('      {\n        "id": "wp502-room-failed-event-consumer",')
@@ -172,9 +184,14 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         previous = wp503_accessibility_source_binding_predecessor(current)
         base = json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",
-            "23c2d985dca3d27dd2b819fb54babe66280077f5:docs/android/automation-policy.json",
+            "f2f481d2e7c2a9029808943529c98c98ef879299:docs/android/automation-policy.json",
         ]))
         self.assertEqual(previous, base)
+        original_base = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "263d30332940f09082709b9d38ee8877dfb9fedd:docs/android/automation-policy.json",
+        ]))
+        self.assertEqual(consumer_support_predecessor(previous), original_base)
         self.assertEqual(current, before)
         self.assertEqual(wp503_accessibility_source_binding_predecessor(previous), previous)
         restored = copy.deepcopy(previous)
@@ -255,8 +272,9 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
                          policy_revision(base_manifest(), current))
 
     def test_receive_prefetch_inverse_rejects_widening_weakened_predicates_and_order_drift(self):
-        current = wp503_accessibility_source_binding_predecessor(
-            load_json(REPO / "docs/android/automation-policy.json"))
+        current = consumer_support_predecessor(
+            wp503_accessibility_source_binding_predecessor(
+                load_json(REPO / "docs/android/automation-policy.json")))
         for mode in ("wp", "path", "operation", "invariant", "validation", "duplicate", "reorder", "predecessor"):
             changed = copy.deepcopy(current)
             rules = changed["reservation_policy"]["capabilities"]

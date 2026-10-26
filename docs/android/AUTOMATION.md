@@ -190,7 +190,9 @@ Binding evolution must keep the historical producer/path/blob immutable while re
 candidate path/blob separately, tied to that candidate. It preserves producer ancestry and selected
 fixture/method identities and rejects tampered historical/current pins or unrelated source drift.
 These policy and regression checks do not claim native accessibility acceptance or authorize native or
-Gradle execution.
+Gradle execution. Reversible policy checks strip the appended WP-503 pair before the WP-000
+consumer-support block and historical predecessors; that pair must remain outside the
+`disposable-native-guest`/consumer-support/`wp-owned` boundary.
 
 Each attempt persists repository, WP, backend, base/source/manifest/policy binding, capability IDs,
 operations, actual normalized paths, expiry/budget reservation, bounded repair count and
