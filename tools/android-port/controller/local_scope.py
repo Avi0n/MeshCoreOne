@@ -194,9 +194,12 @@ def select_paths(paths, requested=None, *, modules=None, graph_error=None):
     tasks = list(dict.fromkeys(tasks))
     if tasks:
         tasks = list(dict.fromkeys([*tasks, "validateModuleGraph", "runtimeDependencyInventory"]))
+    stages = ["python", "preflight", "scaffold"] if tasks else ["python"]
+    if "scaffold" in scopes:
+        stages.append("inspect")
     return {
         "scopes": scopes, "tasks": tasks, "full_scaffold": "scaffold" in scopes, "reason": reason,
-        "stages": ["python", "preflight", "scaffold"] if tasks else ["python"],
+        "stages": stages,
     }
 
 

@@ -12,6 +12,9 @@ sides of moves remain inputs. Explicit scopes can add obligations, never omit
 changed modules, consumers or required checks. Stale endpoints and malformed
 requests fail; empty diffs, unknown graph expressions, build/dependency/toolchain
 changes and unclassified product inputs widen to the full scaffold.
+Every full-scaffold selection retains all four existing stages: Python,
+preflight, scaffold and `inspect` (including APK/alignment inspection). A plan
+that drops inspection is rejected; only narrow no-APK scopes omit that stage.
 
 Existing CI task lists are shared unchanged with the local selector. Ordinary
 module source changes additionally select complete declared module unit tasks

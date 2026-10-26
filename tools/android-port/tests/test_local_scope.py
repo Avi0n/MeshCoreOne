@@ -49,6 +49,7 @@ class LocalScopeSelectionTests(unittest.TestCase):
             with self.subTest(path=path):
                 plan = select_paths([path])
                 self.assertTrue(plan["full_scaffold"])
+                self.assertEqual(plan["stages"], ["python", "preflight", "scaffold", "inspect"])
                 self.assertIn("resolveScaffoldDependencies", plan["tasks"])
                 self.assertIn("lintScaffold", plan["tasks"])
                 with self.assertRaises(PortError):
@@ -61,6 +62,7 @@ class LocalScopeSelectionTests(unittest.TestCase):
 
     def test_empty_diff_is_full_not_zero_work_success(self):
         self.assertTrue(select_paths([])["full_scaffold"])
+        self.assertIn("inspect", select_paths([])["stages"])
 
     def test_caller_can_add_but_not_remove_scopes(self):
         plan = select_paths(["android/core/protocol/src/test/kotlin/Test.kt"], ["protocol", "backup"])
@@ -78,6 +80,7 @@ class LocalScopeSelectionTests(unittest.TestCase):
             "android/core/runtime/src/main/kotlin/Owner.kt",
         ], modules=modules)
         self.assertFalse(plan["full_scaffold"])
+        self.assertNotIn("inspect", plan["stages"])
         for task in (
             ":core:services:test", ":core:runtime:test", ":app:testDebugUnitTest",
             ":app:compileDebugKotlin", ":app:compileDebugAndroidTestKotlin", ":app:lintDebug",
@@ -196,6 +199,16 @@ class LocalScopeBindingTests(unittest.TestCase):
         directories, lint = report_inputs(self.repo, plan)
         self.assertIn("app", lint)
         self.assertTrue(any("core" in path.parts and "services" in path.parts for path in directories))
+
+    def test_full_fallback_cannot_omit_the_required_apk_inspection_stage(self):
+        self.write("android/core/protocol/build.gradle.kts",
+                   'plugins { id("mesh.jvm.library") }\n// changed build input\n')
+        plan = candidate_plan(self.repo, self.base, self.commit())
+        self.assertTrue(plan["full_scaffold"])
+        self.assertEqual(plan["stages"], ["python", "preflight", "scaffold", "inspect"])
+        validate_plan(self.repo, plan)
+        with self.assertRaisesRegex(PortError, "required obligations"):
+            validate_plan(self.repo, {**plan, "stages": ["python", "preflight", "scaffold"]})
 
     def test_zero_missing_malformed_and_skipped_required_reports_fail(self):
         path = "android/core/testing/build/test-results/testDebugUnitTest/TEST-Fixture.xml"
