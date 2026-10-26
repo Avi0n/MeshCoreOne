@@ -206,11 +206,23 @@ class RepairExecutionTests(unittest.TestCase):
             '@OriginalCase("literal @Test() is only text")\n@Test',
             '@Test\n@Cases(values = [Case("nested )"), Case("other(")])',
             '@Test\n@OriginalCase("""raw "quotes" and ()""")',
+            '@Test\n@OriginalCase(""""quoted"""")',
+            '@Test\n@OriginalCase("""""two quotes""""")',
             '@Test\n@OriginalCase("${"nested ()"}")',
             '@Test /* outer /* @NotTest ) */ still comment */\n@OriginalCase("case()")',
         ):
             source = (annotations + "\nfun keepsListReachable() {}").encode()
             with self.subTest(annotations=annotations), patch(
+                "controller.staging.object_bytes", return_value=source,
+            ):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
+        for quotes in (4, 5):
+            source = (
+                'val ordinary = """content' + '"' * quotes
+                + '\n@Test fun keepsListReachable() {}'
+            ).encode()
+            with self.subTest(closing_quotes=quotes), patch(
                 "controller.staging.object_bytes", return_value=source,
             ):
                 validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
@@ -251,6 +263,8 @@ class RepairExecutionTests(unittest.TestCase):
             "@Test val unrelated = 1",
             "@my.Test",
             '@OriginalCase("""literal @Test()""")',
+            '@OriginalCase(""""literal @Test()"""")',
+            '@OriginalCase("""""literal @Test()""""")',
             '@OriginalCase("${"literal @Test()"}")',
         ):
             source = (prefix + "\nfun keepsListReachable() {}").encode()

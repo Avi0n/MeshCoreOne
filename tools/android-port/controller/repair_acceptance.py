@@ -396,7 +396,11 @@ def _kotlin_junit_methods(text):
         index += len(quote)
         while index < len(text):
             if text.startswith(quote, index):
-                return index + len(quote)
+                end = index + len(quote)
+                if quote == '"""':
+                    while end < len(text) and text[end] == '"':
+                        end += 1
+                return end
             if text[index] == "\\" and quote != '"""':
                 index += 2
             elif text.startswith("${", index) and quote != "'":

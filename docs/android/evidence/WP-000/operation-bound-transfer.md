@@ -84,3 +84,19 @@ The historical reservation failure remains unchanged and is not an acquired clai
 
 No original-family credit, full-WP acceptance, publisher deployment, protected merge approval,
 runtime installation, native execution or fleet activation is claimed.
+
+### Review correction: trailing raw-string quote runs
+
+At `ab2d3a6812623b22eea1d2a6b11a589233ffd17a`, existing independent source review found one
+new reader defect: legal four/five-quote raw-string closing runs were not consumed as a unit.
+The four-quote form reproduced an unterminated-literal rejection in both an attached annotation
+and an unrelated ordinary source literal. The corrected reader consumes the entire closing quote
+run; the focused 19 tests now include both closing lengths in annotation/ordinary-source contexts
+and reject raw-string JUnit spoofing. No assertion, method selection or evidence gate is removed.
+
+The preceding pending strict-suite statement is historical: that invocation finished 555
+discovered/run, 553 passed, zero failed/skipped and two unchanged skill-overlay immutable-input
+errors. Existing authoritative hosted run `40291104875`, controller job `121466183867`, verified
+987 discovered/run/passed with zero failures/errors/skips at `ab2d3a6`; its exact-head checklist also
+passed. Those results do not certify this subsequent quote-run correction. Fresh repaired-head
+source review and hosted checks remain necessary; no CI-result bundle is retained.
