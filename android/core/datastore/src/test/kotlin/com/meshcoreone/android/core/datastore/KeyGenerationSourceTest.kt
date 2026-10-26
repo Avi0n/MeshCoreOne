@@ -4,12 +4,19 @@ package com.meshcoreone.android.core.datastore
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import java.security.MessageDigest
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class KeyGenerationSourceTest {
@@ -83,9 +90,8 @@ class KeyGenerationSourceTest {
     @Test
     fun singleFAllowed() = runBlocking { assertVanity("F") }
 
-    @OriginalCase("KeyGenerationServiceTests::Cancellation is respected()")
     @Test
-    fun cancellationPropagates() = runBlocking {
+    fun cancellationBeforeStartNeverReachesEntropy() = runBlocking {
         var calls = 0
         val cancellable = KeyGenerationService(SeedSource { calls++; rfc8032Seed })
         val task = launch(start = CoroutineStart.LAZY) { cancellable.generateIdentity("0101") }
@@ -93,6 +99,42 @@ class KeyGenerationSourceTest {
         task.join()
         assertTrue(task.isCancelled)
         assertEquals(0, calls)
+    }
+
+    @OriginalCase("KeyGenerationServiceTests::Cancellation is respected()")
+    @Test
+    fun cancellationStopsAnExecutingVanitySearch() = runTest(timeout = 10.seconds) {
+        var calls = 0
+        var completed = false
+        var cleanedUp = false
+        lateinit var task: Deferred<GeneratedIdentity>
+        val cancellation = CancellationException("Test-only active search cancellation")
+        val cancellable = KeyGenerationService(
+            SeedSource {
+                calls++
+                assertTrue(calls <= 2, "Cancelled search must not request another seed")
+                // Reaching the second seed proves the first nonmatching attempt completed.
+                if (calls == 2) task.cancel(cancellation)
+                rfc8032Seed
+            },
+            StandardTestDispatcher(testScheduler),
+        )
+        assertFalse(rfc8032PublicKey.hexUppercase().startsWith("AA"))
+        task = async {
+            try {
+                cancellable.generateIdentity("AA").also { completed = true }
+            } finally {
+                cleanedUp = true
+            }
+        }
+
+        val failure = assertFailsWith<CancellationException> { task.await() }
+        assertEquals(cancellation.message, failure.message)
+        assertTrue(task.isCancelled)
+        assertTrue(task.isCompleted)
+        assertTrue(cleanedUp)
+        assertFalse(completed)
+        assertEquals(2, calls)
     }
 
     @OriginalCase("KeyGenerationServiceTests::Expanded key has correct SHA-512 clamping()")
