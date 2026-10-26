@@ -2,7 +2,8 @@
 
 Repository: `cbattlegear/MeshCoreOne-Android`.
 Batch: `SM-REGION-LOCALIZATION`.
-Base: `f2f481d2e7c2a9029808943529c98c98ef879299`.
+Original authoring base: `f2f481d2e7c2a9029808943529c98c98ef879299`.
+Assigned execution base: `3a292b6498e8dcef0c374022a93c8e30c68f5bd5`.
 Branch: `cbattlegear-wp211-regional-label-localization`.
 Source: `db14559b39d32322b06477c6ae676112f583db50` (unchanged).
 Candidate: local-only source commit containing this document; unpublished
@@ -41,12 +42,15 @@ holding the system locale at US, then asserts locale-collated country IDs
 and labels for French, German and English on the same app catalog. It also
 asserts that at least one app-locale order differs from the cached core order,
 so the original stale-cache consumer cannot satisfy the regression. This
-assertion is authored but remains UNRUN; no failing-before/passing-after
-execution is claimed.
+assertion passed in the first full supported candidate run. No executed
+old-code mutation/failing-before comparison is claimed.
 Two added production-flow Compose tests select localized US states, switch
 countries, select the localized Australian territory and commit the stable
 `AU-NT` identity without applying a preset or completing onboarding.
-These are authored assertions, not discovered passing tests.
+The first supported full run discovered all these assertions; the adapter
+methods passed while the two new mounted methods failed on the final
+invalid scroll gesture described below. Corrected mounted assertions are
+not yet verified.
 
 ## Local status
 
@@ -62,15 +66,44 @@ Android-only test-file disposition: the additional source reference is
 WP-502 test keeps its incumbent owner header. Named-capability admission and
 this document trace the bounded support change; file headers are not parity.
 
-Product execution remains blocked by the coordinator's explicit capacity
-hold. No Gradle/native/remote run, push or PR has occurred. Required work
-before publication remains the declared targeted `:app:testDebugUnitTest`
-selectors for `OnboardingRegionPresetAdapterTest`,
-`LocalizedRegionCatalogAdapterTest` and `OnboardingRegionPresetComposeTest`,
-plus affected module build/lint and trusted ownership/traceability validators,
-with actual nonzero discovery and no failures/errors/skips. Existing
-`RegionalAreasTest` families must remain intact. No outcome is claimed for
-these unexecuted commands, nor for API33+/hardware accessibility or signing.
+## First supported product run and bounded test correction
+
+The candidate integrated the coordinator-assigned installed execution
+baseline `3a292b6498e8dcef0c374022a93c8e30c68f5bd5` once, producing
+`f76cd93484f521f10668d8037c7a80a506c16c80` / tree
+`2abac691e5d495e5ca69d3efb50f9ec3e609d7bd`. Against that baseline the trusted
+actual-diff/reverse-consumer planner selects the complete `module:app`
+runner, not filtered methods:
+
+```text
+python3.12 -B tools/android-port/local/check.py --commit f76cd93484f521f10668d8037c7a80a506c16c80 --affected-base 3a292b6498e8dcef0c374022a93c8e30c68f5bd5 --parallel-jvm
+```
+
+Executed on `meshcore-build` through the canonical installed supervisor and
+shared ownership route, this command **failed, exit1**. The complete App unit
+runner discovered **1,551 tests across 188 suites: 1,549 passed, two failed,
+zero errors/skips**. All 16 mandatory method names were present: incumbent
+adapter5, localized adapter2 and incumbent mounted7 passed; only the two new
+French/German mounted methods failed. Their final `performScrollTo` targeted
+the fixed Continue button, which has no scroll-semantic ancestor. The
+localized state/territory selection assertions had already executed.
+
+The corrected test asserts Continue is displayed and enabled, then clicks
+it without inventing a scroll action. Stable `AU-NT` commit, disambiguated
+display, no preset application and no onboarding completion assertions remain.
+No production code or expected localized labels are changed by this correction.
+The corrected candidate is **unverified** and requires a fresh supported run.
+
+The derived tasks remain `:app:testDebugUnitTest`, `:app:compileDebugKotlin`,
+`:app:lintDebug`, `:app:compileDebugAndroidTestKotlin`, `validateModuleGraph`
+and `runtimeDependencyInventory`, plus Python and preflight stages. The
+failed Gradle execution does not prove that every remaining selected task
+completed. No overall build/lint/module-closure PASS is claimed.
+
+Guard PID139284 exited; subsequent canonical read-only reservation status
+showed no retained own slot2 owner. No ownership row was cleared manually.
+No push or PR occurred. Existing `RegionalAreasTest` families are unchanged.
+No API33+/hardware, native accessibility, signing or release result is claimed.
 
 Exact-candidate hosted logs remain authoritative when publication is allowed;
 this document is implementation scope/status, not a duplicate CI-result bundle.

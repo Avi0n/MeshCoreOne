@@ -400,7 +400,7 @@ class OnboardingRegionPresetComposeTest {
         compose.onNodeWithText(pennsylvania).assertDoesNotExist()
         pick(O.regionState, territory, territory)
         compose.onNode(hasText(territory) and hasClickAction()).assertIsDisplayed()
-        button(O.regionContinue).performScrollTo().assertIsEnabled().performClick()
+        button(O.regionContinue).assertIsDisplayed().assertIsEnabled().performClick()
         assertEquals(listOf(RegionSelection("AU", RegionSelection.Source.MANUAL, "AU-NT")), fixture.commits)
         assertEquals("$territory, $australia", catalog.displayName(fixture.commits.single()))
         assertTrue(fixture.applies.isEmpty())
