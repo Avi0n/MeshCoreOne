@@ -43,3 +43,44 @@ UNVERIFIED after its selected stages returned nonzero; this is not a hosted resu
 bundle. Draft PR #326 retains that candidate state. The full WP-000 acceptance is not claimed. The
 candidate does not change or verify Android product behavior, activate dispatch, mutate reservations,
 admit a successor, or satisfy protected review.
+
+## Follow-up: hosted Kotlin declaration binding
+
+The earlier verification and draft state above are historical. PR #326 subsequently became ready
+for protected review at `22d0d15cd690338e28cd92a402e7b019e227bd74`; this parser follow-up changes
+that candidate and requires fresh exact-head review/checks.
+
+The bounded repair publisher rejected two genuinely executed PR #327 paging methods because their
+attached `OriginalCase` strings contain `()`. Its old `[^)]*` annotation-argument expression stopped
+at the quoted closing parenthesis. It also mistook a quoted `@Test` inside a non-JUnit annotation
+for a real JUnit annotation.
+
+The declaration reader now skips comments and complete Kotlin literals/templates, balances nested
+annotation arguments, and requires `Test` or `org.junit.Test` on the selected function itself.
+Backtick names and the existing public/internal forms remain supported. Exact candidate blob,
+verified module and actual executed class/method checks are unchanged; no selected method is dropped.
+The controller-local reader avoids importing the separate WP-501 analysis tool into the installed
+controller runtime. Neither that tool nor its accounting behavior changes.
+
+Both code/test paths and the three directly related documentation paths returned `wp-owned` for
+WP-000 / `modify`. The separate attempted shared-lexer extraction was not admitted for
+`android/parity-tests/semantic.py` / `modify`; that path was not changed and no new helper was added.
+The historical reservation failure remains unchanged and is not an acquired claim.
+
+- `python tools/android-port/controller/validate.py`: passed, with 1,866 tracked reference files,
+  64 WPs and 178 dependency edges.
+- `$env:PYTHONPATH=(Join-Path (Get-Location) 'tools\android-port'); python -m unittest discover
+  -s tools\android-port\tests -p test_repair_acceptance.py -q`: 19 tests passed.
+  These include valid quoted/escaped/raw/template
+  strings, nested arguments/comments and backtick names, plus rejection of comment/string spoofing,
+  detached annotations, non-JUnit annotations and malformed syntax.
+- The candidate parser, applied in memory to the existing exact-head PR #327 source blobs and
+  authoritative run `40284686761` / job `121446689592` execution inventory, bound all three selected
+  methods: queued-spinner retirement, successful prepend/anchor preservation and failed-paging
+  passive error. The inventory contains 392 `feature/chats` methods. No second CI-result bundle
+  was retained, and this does not certify the revised PR #326 or deploy its parser.
+- The declared strict controller runner is pending for this follow-up. The preserved local skill
+  overlay remains present; no prior-head check or review is carried forward as new-head approval.
+
+No original-family credit, full-WP acceptance, publisher deployment, protected merge approval,
+runtime installation, native execution or fleet activation is claimed.

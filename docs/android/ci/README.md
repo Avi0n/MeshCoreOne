@@ -920,6 +920,10 @@ does not manufacture a historical completion receipt or alter old reservations.
 in a selected module's `src/test` tree. The publisher binds them to candidate
 blobs, requires the real successful Linux Android build job and parses its
 authoritative strict scaffold report with complete positive module counts.
+Declaration binding reads attached Kotlin annotations rather than matching through
+their argument text. Quoted parentheses in `OriginalCase`, escaped/raw strings,
+nested annotation arguments and comments preserve the real `Test`/`org.junit.Test`
+attachment; annotation-like text in comments or literals cannot qualify a method.
 The trusted runner now prints actual JUnit class/method identities, including
 SDK/parameter suffixes, in that same hosted log. Selected methods must be present
 in this executed inventory; a source function and green aggregate alone cannot

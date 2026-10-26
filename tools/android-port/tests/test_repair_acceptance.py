@@ -197,6 +197,84 @@ class RepairExecutionTests(unittest.TestCase):
             with patch("controller.staging.object_bytes", return_value=b"@Test fun keepsListReachable() {}"), self.assertRaises(PortError):
                 validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, inventory)
 
+    def test_hosted_method_accepts_quoted_annotation_arguments_without_treating_them_as_syntax(self):
+        manifest, _, _, scope = fixture()
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable[31]"}]}
+        for annotations in (
+            '@Test\n@OriginalCase("TimelineTests::older page preserves anchor()")',
+            '@org.junit.Test(timeout = 1000)\n@OriginalCase("case with \\"quotes\\" and ()")',
+            '@OriginalCase("literal @Test() is only text")\n@Test',
+            '@Test\n@Cases(values = [Case("nested )"), Case("other(")])',
+            '@Test\n@OriginalCase("""raw "quotes" and ()""")',
+            '@Test\n@OriginalCase("${"nested ()"}")',
+            '@Test /* outer /* @NotTest ) */ still comment */\n@OriginalCase("case()")',
+        ):
+            source = (annotations + "\nfun keepsListReachable() {}").encode()
+            with self.subTest(annotations=annotations), patch(
+                "controller.staging.object_bytes", return_value=source,
+            ):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
+        scope = copy.deepcopy(scope)
+        scope["coverage"][0]["hosted_methods"][0]["id"] = "older page preserves anchor"
+        executed["core/maps"][0]["method"] = "older page preserves anchor[31]"
+        with patch("controller.staging.object_bytes", return_value=(
+            b'@Test @OriginalCase("case()") internal fun `older page preserves anchor`() {}'
+        )):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
+    def test_annotation_argument_cannot_impersonate_a_junit_annotation(self):
+        manifest, _, _, scope = fixture()
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        for annotations in (
+            '@OriginalCase("@Test")',
+            '@OriginalCase("@org.junit.Test()")',
+            '@NotTest\n@OriginalCase("case()")',
+        ):
+            source = (annotations + "\nfun keepsListReachable() {}").encode()
+            with self.subTest(annotations=annotations), patch(
+                "controller.staging.object_bytes", return_value=source,
+            ), self.assertRaisesRegex(PortError, "JUnit test declaration"):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
+    def test_hosted_junit_annotation_must_be_attached_to_the_selected_declaration(self):
+        manifest, _, _, scope = fixture()
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        for prefix in (
+            "// @Test",
+            "/* @Test */",
+            "/* nested /* comment */ @Test */",
+            'val example = "@Test fun keepsListReachable() {}"',
+            'val example = """@Test fun keepsListReachable() {}"""',
+            'val example = "${"@Test fun keepsListReachable() {}"}"',
+            "@Test fun other() {}",
+            "@Test val unrelated = 1",
+            "@my.Test",
+            '@OriginalCase("""literal @Test()""")',
+            '@OriginalCase("${"literal @Test()"}")',
+        ):
+            source = (prefix + "\nfun keepsListReachable() {}").encode()
+            with self.subTest(prefix=prefix), patch(
+                "controller.staging.object_bytes", return_value=source,
+            ), self.assertRaisesRegex(PortError, "JUnit test declaration"):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
+    def test_malformed_hosted_annotation_syntax_fails_closed(self):
+        manifest, _, _, scope = fixture()
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        for prefix in (
+            '@Test @OriginalCase("unterminated)',
+            '@Test @OriginalCase("case()"',
+            '@Test @Cases([Case("case()"))',
+            "@Test /* unterminated",
+            '@Test @OriginalCase("${"unterminated template"}',
+        ):
+            source = (prefix + "\nfun keepsListReachable() {}").encode()
+            with self.subTest(prefix=prefix), patch(
+                "controller.staging.object_bytes", return_value=source,
+            ), self.assertRaises(PortError):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
     def transcript(self, outcomes):
         failed = sum(status in ("-1", "-2") for _, status in outcomes)
         executed = len(outcomes) - sum(status == "-3" for _, status in outcomes)
