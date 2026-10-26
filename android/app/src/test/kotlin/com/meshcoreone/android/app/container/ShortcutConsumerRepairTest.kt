@@ -1,4 +1,3 @@
-// AndroidOnly: WP-404 Real App shortcut consumers for RADIO-R118-G06/G07/G08/G10.
 // PortedFrom: MC1Tests/Intents/EntityIdentityTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1Tests/Intents/StatusQueryIntentTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1Tests/Intents/SendMessageIntentTests.swift@db14559b39d32322b06477c6ae676112f583db50

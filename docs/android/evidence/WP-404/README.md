@@ -1,5 +1,35 @@
 # WP-404 evidence
 
+## First guarded union attempt: traceability repair
+
+The coordinator released the installed guarded remote lane and approved one
+base reconciliation to `3a292b6498e8dcef0c374022a93c8e30c68f5bd5`.
+Merge candidate `512c32edd51842eb1f3ed51a1a7f15cf3385d1fe`, tree
+`de1613bc31a5dff1ed793d89b2a012e66ac3e023`, retained all prior source commits
+and selected the two affected modules and ten tasks, not full-repository
+scaffold. The unexecuted predecessor ticket was superseded by this union; no
+predecessor PASS is claimed.
+
+The actual trusted remote command was:
+
+```text
+python3.12 -B tools/android-port/local/check.py --commit 512c32edd51842eb1f3ed51a1a7f15cf3385d1fe --affected-base 3a292b6498e8dcef0c374022a93c8e30c68f5bd5 --parallel-jvm
+```
+
+It ran through the canonical external ledger and installed interlock, which
+selected host fingerprint
+`3ef4c5ed8f5cdc142f27b13d76551b492e5a9f8e961211dbe6ae05782b828fcc`,
+slot 2, guard PID 55524. It exited 1 in the Python traceability stage:
+`Conflicting traceability dispositions` in `ShortcutConsumerRepairTest.kt`.
+This is an actual source-validation failure, not a memory, admission or test
+failure. Gradle/JUnit did not run; product discovery remains zero.
+
+The follow-up removes only the conflicting `AndroidOnly` header, retaining the
+accurate pinned `PortedFrom` declarations and all test methods/assertions.
+The complete 66-method union obligations remain required at the exact repaired
+candidate. Earlier no-launch/NOT-RUN sections below describe their respective
+source-preparation revisions, not a claim that this guarded attempt never ran.
+
 ## Independent shortcut oracles: RADIO-R118-G19, unverified successor
 
 This is a separate source batch on the same WP-404 branch, based on
