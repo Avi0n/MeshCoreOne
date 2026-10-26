@@ -8,6 +8,11 @@ extension ChatViewModel {
   func setNotificationLevel(_ conversation: Conversation, level: NotificationLevel) async {
     guard connectionStateProvider() == .ready else { return }
     let originalLevel = conversation.notificationLevel
+    let radioID = switch conversation {
+    case let .direct(contact): contact.radioID
+    case let .channel(channel): channel.radioID
+    case let .room(session): session.radioID
+    }
 
     // Capture once so the write and the badge update target the same container.
     let dataStore = dataStore
@@ -25,6 +30,14 @@ extension ChatViewModel {
         try await dataStore?.setChannelNotificationLevel(channel.id, level: level)
       case let .room(session):
         try await dataStore?.setSessionNotificationLevel(session.id, level: level)
+      }
+      if let dataStore {
+        #if DEBUG
+          conversationMutationPostSaveHook?()
+        #endif
+        if currentRadioIDProvider() == radioID, self.dataStore === dataStore {
+          syncCoordinator?.notifyConversationsChanged()
+        }
       }
       await notificationService?.updateBadgeCount()
     } catch {

@@ -21,6 +21,10 @@ public extension PersistenceStore {
     func setFetchContactIDsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
       fetchContactIDsFaultInjection = hook
     }
+
+    func setUpdateContactLastMessageFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      updateContactLastMessageFaultInjection = hook
+    }
   #endif
 
   /// Fetch all contacts for a device
@@ -363,8 +367,7 @@ public extension PersistenceStore {
       let matches = contacts.filter { candidate in
         candidate.publicKey.starts(with: prefix)
       }
-      guard matches.count == 1, let match = matches.first else { continue }
-      guard contactByID[match.id] != nil else { continue }
+      guard matches.count == 1, let match = matches.first, contactByID[match.id] != nil else { continue }
 
       message.contactID = match.id
       message.deduplicationKey = DeduplicationKey.contentBased(
@@ -471,6 +474,9 @@ public extension PersistenceStore {
 
   /// Update contact's last message info (nil clears the date, removing from conversations list)
   func updateContactLastMessage(contactID: UUID, date: Date?) throws {
+    #if DEBUG
+      try updateContactLastMessageFaultInjection?()
+    #endif
     let targetID = contactID
     let predicate = #Predicate<Contact> { contact in
       contact.id == targetID
