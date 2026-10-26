@@ -1,6 +1,7 @@
 // AndroidOnly: WP-407 Native conversation registration; screen scopes never create or close a radio connection.
 // AndroidOnly: WP-310 Bind room body actions to the shared link dispatcher/router and radio-scoped contacts.
 // AndroidOnly: WP-307 Restore pending replies on composer initialization or notification-source replacement.
+// AndroidOnly: WP-308 Bind the frozen conversation-specific prompt to the mounted composer.
 package com.meshcoreone.android.app.navigation
 
 import android.Manifest
@@ -275,8 +276,16 @@ private fun AppChatConversation(
                 navigateToContact = coordinator::navigateToContactDetail,
             )
         }
+        val placeholder = stringResource(when (conversation) {
+            is TimelineConversation.Direct -> AppChatsStrings.chatsInputPlaceholderDirectMessage
+            is TimelineConversation.Channel -> if (conversation.channel.isEncryptedChannel) {
+                AppChatsStrings.chatsChannelTypePrivate
+            } else {
+                AppChatsStrings.chatsChannelTypePublic
+            }
+        })
         AppChatConversationScreen(
-            timeline, composer, stringResource(AppChatsStrings.chatsInputPlaceholderDirectMessage), links,
+            timeline, composer, placeholder, links,
             currentUserName = composerDevice?.nodeName,
             messageAccessibilityLabel = bubbleLabels,
             incomingAvatar = { message -> AppChannelAvatar(message, avatarTable, mentionContacts, avatarCache) },
