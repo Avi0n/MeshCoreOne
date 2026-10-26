@@ -84,10 +84,10 @@ class MentionNavigationConsumerTest : RoomProcessTest() {
                     compose.onAllNodesWithText("@$name", substring = true, useUnmergedTree = true)
                         .fetchSemanticsNodes().isNotEmpty()
                 }
-                compose.onNodeWithText("@$name", substring = true, useUnmergedTree = true)
-                    .performSemanticsAction(SemanticsActions.CustomActions) { actions ->
-                        assertTrue(actions.single { it.label.contains(name) }.action())
-                    }
+                val action = compose.onNodeWithText("@$name", substring = true, useUnmergedTree = true)
+                    .fetchSemanticsNode().config[SemanticsActions.CustomActions]
+                    .single { it.label.contains(name) }
+                compose.runOnIdle { assertTrue(action.action()) }
                 compose.waitForIdle()
                 val selected = assertNotNull(h.container.navigation.state.value.pendingContactDetail)
                 assertEquals(contacts.single { it.name == name }.id, selected.id)
