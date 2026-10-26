@@ -130,6 +130,45 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun `queued older request retires spinner when refresh closes paging`() = runBlocking {
+        val contact = contact()
+        val data = FakeData(List(ChatViewModel.PAGE_SIZE + 1) { message(contact, it) })
+        val viewModel = viewModel(contact, data = data)
+        viewModel.open()
+        assertTrue(viewModel.state.value.hasMoreMessages)
+        val anchor = TimelineScrollAnchor(viewModel.state.value.messages.first().id, 17)
+        viewModel.updateScrollPosition(anchor, isAtLatest = false)
+        val refreshEntered = CompletableDeferred<Unit>()
+        val releaseRefresh = CompletableDeferred<Unit>()
+        data.beforeFetch = { call, _ ->
+            if (call == 2) {
+                refreshEntered.complete(Unit)
+                releaseRefresh.await()
+            }
+        }
+
+        val refresh = scope.launch { viewModel.refresh() }
+        refreshEntered.await()
+        val older = scope.launch { viewModel.loadOlder() }
+        assertTrue(viewModel.state.value.isLoadingOlder)
+        assertFalse(older.isCompleted)
+        releaseRefresh.complete(Unit)
+        refresh.join()
+        older.join()
+
+        assertFalse(viewModel.state.value.isLoadingOlder)
+        assertFalse(viewModel.state.value.hasMoreMessages)
+        assertEquals(data.messages.map { it.id }, viewModel.state.value.messages.map { it.id })
+        assertEquals(data.messages.size, viewModel.state.value.totalFetchedCount)
+        assertEquals(anchor, viewModel.state.value.scrollAnchor)
+        assertNull(viewModel.state.value.passiveError)
+        assertEquals(listOf(0, 0), data.offsets)
+        assertEquals(2, data.fetchCalls)
+        assertEquals(1, data.clearUnreadCalls)
+        assertEquals(1, data.markFailedSeenCalls)
+    }
+
+    @Test
     @OriginalCase("ChatViewModelEventGuardTests::messageStatusResolved with no coordinator is a no-op()")
     fun `events for another stable conversation are ignored`() = runBlocking {
         val contact = contact()

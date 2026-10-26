@@ -165,7 +165,10 @@ class ChatViewModel(
         try {
             operationMutex.withLock {
                 val before = mutableState.value
-                if (!before.hasMoreMessages) return@withLock
+                if (!before.hasMoreMessages) {
+                    mutableState.update { it.copy(isLoadingOlder = false) }
+                    return@withLock
+                }
                 val fetched = dependencies.data.fetchMessages(conversation, PAGE_SIZE + 1, before.totalFetchedCount)
                 val page = fetched.takeLast(PAGE_SIZE)
                 val existingIds = before.messages.asSequence().map(MessageDTO::id).toHashSet()
