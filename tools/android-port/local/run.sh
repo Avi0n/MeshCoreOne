@@ -94,7 +94,7 @@ fi
 }
 if ! git -C "$repo" cat-file -e "$revision^{commit}" 2>/dev/null; then
   echo "Importing new local Git objects..."
-  git -C "$repo" fetch --quiet "$bundle" HEAD '+refs/*:refs/local-input/*'
+  git -C "$repo" fetch --quiet "$bundle" "$revision" HEAD '+refs/*:refs/local-input/*'
 fi
 git -C "$repo" checkout --detach --force "$revision"
 if [[ -n "$overlay" ]]; then
