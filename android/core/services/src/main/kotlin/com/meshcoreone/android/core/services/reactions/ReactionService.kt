@@ -204,12 +204,10 @@ class ReactionService internal constructor(
         const val MAX_PENDING_REACTIONS: Int = 100
 
         /**
-         * The candidate with the latest `indexedAt`; on a tie the later list entry (the cache keeps candidates
-         * oldest first, so that is the most recently indexed). Swift's `max(by:)` keeps the first of equal
-         * dates, which only differs when two indexes share a clock reading.
+         * The candidate with the latest `indexedAt`, keeping the first equal date like Swift's `max(by:)`.
          */
         private fun List<MessageCandidate>.mostRecentlyIndexed(): MessageCandidate? =
-            fold(null as MessageCandidate?) { best, candidate -> if (best == null || candidate.indexedAt >= best.indexedAt) candidate else best }
+            fold(null as MessageCandidate?) { best, candidate -> if (best == null || candidate.indexedAt > best.indexedAt) candidate else best }
     }
 }
 

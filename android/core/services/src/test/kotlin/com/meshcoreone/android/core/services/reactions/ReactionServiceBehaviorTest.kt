@@ -80,18 +80,43 @@ class ReactionServiceBehaviorTest {
             assertEquals(1, service.indexMessage(messageID, 0u, "Jose\u0301", "hola", stamp).size)
             assertEquals(messageID, service.findTargetMessage(ParsedReaction("👍", "José", ReactionParser.generateMessageHash("hola", stamp)), 0u))
         },
-        test("candidates indexed at the same clock instant resolve to the most recently indexed") {
-            val service = ReactionService(Clock.fixed(Instant.ofEpochSecond(1_700_000_000), ZoneOffset.UTC))
-            val older = UUID.randomUUID()
-            val newer = UUID.randomUUID()
-            service.indexMessage(older, 0u, "Node", "Same message", stamp)
-            service.indexMessage(newer, 0u, "Node", "Same message", stamp)
+        test("equal-clock collisions keep the first identity in either insertion order within each channel and contact") {
+            val first = UUID.fromString("00000000-0000-0000-0000-000000000001")
+            val second = UUID.fromString("00000000-0000-0000-0000-000000000002")
+            val contact = UUID.fromString("00000000-0000-0000-0000-000000000003")
+            val otherContact = UUID.fromString("00000000-0000-0000-0000-000000000004")
             val hash = ReactionParser.generateMessageHash("Same message", stamp)
-            assertEquals(newer, service.findTargetMessage(ParsedReaction("👍", "Node", hash), 0u))
-            val contact = UUID.randomUUID()
-            service.indexDMMessage(older, contact, "Same message", stamp)
-            service.indexDMMessage(newer, contact, "Same message", stamp)
-            assertEquals(newer, service.findDMTargetMessage(hash, contact))
+            val parsed = ParsedReaction("👍", "Node", hash)
+            for (order in listOf(listOf(first, second), listOf(second, first))) {
+                val service = ReactionService(Clock.fixed(Instant.ofEpochSecond(1_700_000_000), ZoneOffset.UTC))
+                order.forEach {
+                    service.indexMessage(it, 0u, "Node", "Same message", stamp)
+                    service.indexDMMessage(it, contact, "Same message", stamp)
+                }
+                service.indexMessage(order.last(), 1u, "Node", "Same message", stamp)
+                service.indexDMMessage(order.last(), otherContact, "Same message", stamp)
+                assertEquals(order.first(), service.findTargetMessage(parsed, 0u))
+                assertEquals(order.last(), service.findTargetMessage(parsed, 1u))
+                assertNull(service.findTargetMessage(parsed, 2u))
+                assertEquals(order.first(), service.findDMTargetMessage(hash, contact))
+                assertEquals(order.last(), service.findDMTargetMessage(hash, otherContact))
+                assertNull(service.findDMTargetMessage(hash, first))
+            }
+        },
+        test("distinct-clock collisions select the newest channel and DM identity in either insertion order") {
+            val first = UUID.fromString("00000000-0000-0000-0000-000000000001")
+            val second = UUID.fromString("00000000-0000-0000-0000-000000000002")
+            val contact = UUID.fromString("00000000-0000-0000-0000-000000000003")
+            val hash = ReactionParser.generateMessageHash("Same message", stamp)
+            for (order in listOf(listOf(first, second), listOf(second, first))) {
+                val service = ReactionService(ReactionsTickingClock())
+                order.forEach {
+                    service.indexMessage(it, 0u, "Node", "Same message", stamp)
+                    service.indexDMMessage(it, contact, "Same message", stamp)
+                }
+                assertEquals(order.last(), service.findTargetMessage(ParsedReaction("👍", "Node", hash), 0u))
+                assertEquals(order.last(), service.findDMTargetMessage(hash, contact))
+            }
         },
         test("matched reactions leave the queue and target lookup is scoped by sender") {
             val service = ReactionService(ReactionsTickingClock())
