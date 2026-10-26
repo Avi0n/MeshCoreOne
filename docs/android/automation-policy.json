@@ -445,6 +445,41 @@
           "cancelled or stale conversation/radio cannot admit; original text/identity/order/unread/send and zero radio commands; no fake renderer cloned evaluator fabricated network Room or device evidence",
           "affected manifest-declared verification and trusted ownership/traceability validators; exact-head/current-base protected review excluding active conflicts without old guest recovery prerequisite"
         ]
+      },
+      {
+        "id": "wp503-accessibility-source-binding",
+        "work_packages": ["WP-503"],
+        "path_rules": ["android/accessibility-tests/language_binding.py"],
+        "operations": ["add-or-update-validator-rule"],
+        "invariants": [
+          "immutable-historical-producer-path-blob",
+          "distinct-current-candidate-path-blob-bound-to-candidate-head",
+          "producer-ancestry-and-selected-fixture-method-identities",
+          "reject-historical-pin-current-pin-and-unrelated-source-drift",
+          "no-fake-refreshed-compatibility"
+        ],
+        "validation": [
+          "positive historical and candidate source-binding assertions",
+          "negative mutation tests for historical pins current pins and unrelated source drift",
+          "exact-candidate validator checks and independent source review before policy landing",
+          "native and Gradle execution locks remain unchanged"
+        ]
+      },
+      {
+        "id": "wp503-accessibility-source-binding-regression",
+        "work_packages": ["WP-503"],
+        "path_rules": ["android/accessibility-tests/test_language_binding.py"],
+        "operations": ["add-regression-fixture-or-test"],
+        "invariants": [
+          "preserve-original-fixture-and-selected-method-assertions",
+          "test-historical-and-current-source-bindings-independently",
+          "reject-historical-current-and-unrelated-source-drift"
+        ],
+        "validation": [
+          "positive historical and candidate binding cases",
+          "negative historical pin current pin and unrelated source mutation cases",
+          "nonzero execution of the declared WP-503 validator suite"
+        ]
       }
     ]
   },

@@ -22,7 +22,7 @@ from controller.ledger import Identity, Ledger
 from controller.schema import load_json
 from controller.scope_amendment import (
     bubble_consumer_predecessor, disposable_predecessor, parity_support_predecessor, room_cleanup_predecessor,
-    room_failed_event_predecessor,
+    room_failed_event_predecessor, wp503_accessibility_source_binding_predecessor,
 )
 from local import debug_packaging
 
@@ -2153,6 +2153,16 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(current, before)
         self.assertEqual(disposable_predecessor(previous), previous)
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index(',\n      {\n        "id": "wp503-accessibility-source-binding",')
+        end = text.index("\n    ]", start)
+        text = text[:start] + text[end:]
+        self.assertEqual(json.loads(text), wp503_accessibility_source_binding_predecessor(current))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=text.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "23c2d985dca3d27dd2b819fb54babe66280077f5:docs/android/automation-policy.json",
+        ]).strip())
         start = text.index('      {\n        "id": "wp502-room-failed-event-consumer",')
         end = text.index('      {\n        "id": "dependency-resolution-metadata",', start)
         text = text[:start] + text[end:]

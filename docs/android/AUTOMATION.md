@@ -182,6 +182,16 @@ through an automatic transaction or deterministic merge; real overlap serializes
 current producer. Only an unresolved semantic ownership collision, drift, protected/human gate, missing
 authentication/tool capability or substantive product decision escalates.
 
+WP-503's accessibility source-binding exception is limited to two exact paths and operations:
+`add-or-update-validator-rule` on `android/accessibility-tests/language_binding.py`, and
+`add-regression-fixture-or-test` on `android/accessibility-tests/test_language_binding.py`. These are
+WP-503-only capabilities, not broader access to the accessibility tree or additions to `wp-owned`.
+Binding evolution must keep the historical producer/path/blob immutable while recording the current
+candidate path/blob separately, tied to that candidate. It preserves producer ancestry and selected
+fixture/method identities and rejects tampered historical/current pins or unrelated source drift.
+These policy and regression checks do not claim native accessibility acceptance or authorize native or
+Gradle execution.
+
 Each attempt persists repository, WP, backend, base/source/manifest/policy binding, capability IDs,
 operations, actual normalized paths, expiry/budget reservation, bounded repair count and
 issue/task/session/PR identities. Dispatch intent is committed **before** an external mutation. Expiry
