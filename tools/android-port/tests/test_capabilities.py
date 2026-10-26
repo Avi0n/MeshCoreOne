@@ -261,7 +261,9 @@ class CapabilityReservationTests(unittest.TestCase):
         origin = {"wp": "WP-307", "session": "primary", "evidence": "frozen-prefetch-and-nine-originals"}
         producer = {"wp": "WP-501", "session": "existing-parity", "evidence": "future-mounted-App-cache"}
         for path in rule["path_rules"]:
-            transfer = self.engine.transfer_intent(origin, producer, path, rule["id"])
+            transfer = self.engine.transfer_intent(
+                origin, producer, path, rule["id"], rule["operations"][0],
+            )
             self.assertEqual(transfer["origin"], origin)
             self.assertEqual(transfer["producer"], producer)
             intent = {"owner": origin["wp"], "semantic_key": "receive-admission",
@@ -276,7 +278,13 @@ class CapabilityReservationTests(unittest.TestCase):
                 if wrong_rule == "channel-open-flood-scope" and path in CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY["path_rules"]:
                     continue
                 with self.subTest(rule=wrong_rule, path=path), self.assertRaises(PortError):
-                    self.engine.transfer_intent(origin, producer, path, wrong_rule)
+                    wrong_operation = next(
+                        item for item in self.rules["reservation_policy"]["capabilities"]
+                        if item["id"] == wrong_rule
+                    )["operations"][0]
+                    self.engine.transfer_intent(
+                        origin, producer, path, wrong_rule, wrong_operation,
+                    )
 
     def test_receive_prefetch_source_proposal_does_not_recover_retained_guest_or_weaken_active_conflicts(self):
         self.ledger.acquire_hard_lock(
@@ -335,7 +343,13 @@ class CapabilityReservationTests(unittest.TestCase):
                     origin = {"wp": "WP-310", "session": "primary", "evidence": "primary-source"}
                     producer = {"wp": wp, "session": "parity", "evidence": "future-consumer"}
                     with self.subTest(rule=rooms_rule, path=path), self.assertRaises(PortError):
-                        self.engine.transfer_intent(origin, producer, path, rooms_rule)
+                        transfer_operation = next(
+                            item for item in self.rules["reservation_policy"]["capabilities"]
+                            if item["id"] == rooms_rule
+                        )["operations"][0]
+                        self.engine.transfer_intent(
+                            origin, producer, path, rooms_rule, transfer_operation,
+                        )
 
     def test_parity_support_preserves_primary_attribution_and_real_semantic_overlap_fences(self):
         manifest = test_manifest("WP-501")
@@ -352,7 +366,9 @@ class CapabilityReservationTests(unittest.TestCase):
             origin = {"wp": "WP-309" if wp == "WP-502" else "WP-307",
                       "session": "original-producer", "evidence": "frozen-originals"}
             producer = {"wp": wp, "session": "same-parity-owner", "evidence": "future-real-consumer"}
-            result = self.engine.transfer_intent(origin, producer, path, rule["id"])
+            result = self.engine.transfer_intent(
+                origin, producer, path, rule["id"], rule["operations"][0],
+            )
             self.assertEqual(result["origin"], origin)
             self.assertEqual(result["producer"], producer)
             intent = {"owner": origin["wp"], "semantic_key": "real-consumer",
@@ -523,13 +539,75 @@ class CapabilityReservationTests(unittest.TestCase):
             ])
         origin = {"wp": "WP-310", "session": "historical-producer", "evidence": "primary-provenance"}
         producer = {"wp": "WP-502", "session": "existing-502", "evidence": "mounted-rooms"}
-        transfer = self.engine.transfer_intent(origin, producer, ROOM_RENDERER, ROOM_CAPABILITY)
+        transfer = self.engine.transfer_intent(
+            origin, producer, ROOM_RENDERER, ROOM_CAPABILITY, ROOM_REPAIR,
+        )
         self.assertEqual(transfer["origin"], origin)
         self.assertEqual(transfer["producer"], producer)
         self.assertTrue(transfer["advisory"])
         with self.assertRaisesRegex(PortError, "distinct owner sessions"):
             self.engine.transfer_intent(origin, {**producer, "session": origin["session"]},
-                                        ROOM_RENDERER, ROOM_CAPABILITY)
+                                        ROOM_RENDERER, ROOM_CAPABILITY, ROOM_REPAIR)
+
+    def test_wp_owned_transfer_resolves_only_the_same_assigned_wps_manifest_paths(self):
+        manifest = test_manifest("WP-308")
+        assigned_paths = manifest.wp("WP-308")["write_paths"]
+        path = assigned_paths[0]
+        origin = {"wp": "WP-308", "session": "previous-owner", "evidence": "prior-review"}
+        producer = {"wp": "WP-308", "session": "current-owner", "evidence": "new-assignment"}
+
+        transfer = self.engine.transfer_intent(
+            origin, producer, path, "wp-owned", "modify",
+            assigned_paths=assigned_paths,
+        )
+        self.assertEqual(transfer["path"], path)
+        self.assertEqual(transfer["capability"], "wp-owned")
+        self.assertEqual(transfer["operation"], "modify")
+        self.assertEqual(
+            transfer["attributions"],
+            sorted([origin, producer], key=lambda value: (value["wp"], value["session"])),
+        )
+        self.assertTrue(transfer["advisory"])
+        self.assertFalse(transfer["file_edit_blocked"])
+
+        with self.assertRaisesRegex(PortError, "trusted assigned-WP paths"):
+            self.engine.transfer_intent(origin, producer, path, "wp-owned", "modify")
+        with self.assertRaisesRegex(PortError, "same assigned WP"):
+            self.engine.transfer_intent(
+                origin, {**producer, "wp": "WP-307"}, path, "wp-owned", "modify",
+                assigned_paths=assigned_paths,
+            )
+        with self.assertRaisesRegex(PortError, "does not admit transfer path"):
+            self.engine.transfer_intent(
+                origin, producer, "android/core/protocol/session/Other.kt",
+                "wp-owned", "modify",
+                assigned_paths=assigned_paths,
+            )
+        with self.assertRaisesRegex(PortError, "does not admit transfer operation"):
+            self.engine.transfer_intent(
+                origin, producer, path, "wp-owned", "unsupported-operation",
+                assigned_paths=assigned_paths,
+            )
+
+    def test_transfer_intent_rejects_capability_operations_and_producer_wps_not_in_policy(self):
+        rule = next(
+            item for item in self.rules["reservation_policy"]["capabilities"]
+            if item["id"] == "channel-open-flood-scope"
+        )
+        origin = {"wp": "WP-307", "session": "original-owner", "evidence": "source-review"}
+        producer = {
+            "wp": rule["work_packages"][0], "session": "current-owner", "evidence": "consumer-review",
+        }
+        path = rule["path_rules"][0]
+        operation = rule["operations"][0]
+        transfer = self.engine.transfer_intent(origin, producer, path, rule["id"], operation)
+        self.assertEqual(transfer["operation"], operation)
+        with self.assertRaisesRegex(PortError, "does not admit transfer operation"):
+            self.engine.transfer_intent(origin, producer, path, rule["id"], "modify")
+        with self.assertRaisesRegex(PortError, "does not admit producer WP"):
+            self.engine.transfer_intent(
+                origin, {**producer, "wp": "WP-503"}, path, rule["id"], operation,
+            )
 
     def test_assigned_path_with_unsupported_operation_fails_closed(self):
         assigned_path = self.manifest.wp("WP-101")["write_paths"][0]
@@ -1012,7 +1090,7 @@ class CapabilityReservationTests(unittest.TestCase):
         result = self.engine.transfer_intent(
             {"wp": "WP-218", "session": "content", "evidence": "app3-origin.json"},
             {"wp": "WP-302", "session": "shell", "evidence": "app3-producer.json"},
-            "android/app/build.gradle.kts", "app-build-launcher",
+            "android/app/build.gradle.kts", "app-build-launcher", "update-build-or-manifest",
         )
         self.assertFalse(result["file_edit_blocked"])
         self.assertEqual([owner["wp"] for owner in result["attributions"]], ["WP-218", "WP-302"])
@@ -1022,6 +1100,7 @@ class CapabilityReservationTests(unittest.TestCase):
             {"wp": "WP-218", "session": "content", "evidence": "validator-origin.json"},
             {"wp": "WP-003", "session": "controller", "evidence": "validator-producer.json"},
             "tools/android-port/tests/test_cli.py", "traceability-validation",
+            "add-regression-fixture-or-test",
         )
         self.assertEqual(
             {owner["evidence"] for owner in result["attributions"]},

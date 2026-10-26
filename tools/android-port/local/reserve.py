@@ -301,6 +301,7 @@ def build_parser():
     )
     transfer.add_argument("--path", required=True)
     transfer.add_argument("--capability", required=True)
+    transfer.add_argument("--operation", required=True)
     for prefix in ("origin", "producer"):
         transfer.add_argument(f"--{prefix}-wp", required=True)
         transfer.add_argument(f"--{prefix}-session", required=True)
@@ -421,8 +422,17 @@ def main(argv=None):
                 "wp": args.producer_wp, "session": args.producer_session,
                 "evidence": args.producer_evidence,
             }
+            assigned_paths = None
+            if args.capability == "wp-owned":
+                if origin["wp"] != producer["wp"]:
+                    raise PortError("WP-owned transfer requires the same assigned WP")
+                assigned_paths = manifest.wp(origin["wp"])["write_paths"]
+            else:
+                manifest.wp(origin["wp"])
+                manifest.wp(producer["wp"])
             result = CapabilityEngine(policy).transfer_intent(
-                origin, producer, args.path, args.capability
+                origin, producer, args.path, args.capability, args.operation,
+                assigned_paths=assigned_paths,
             )
         elif args.command == "release":
             raise PortError(

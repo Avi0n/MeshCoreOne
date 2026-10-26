@@ -374,6 +374,115 @@ def validate_build_log(log, modules):
             "methods": inventory}
 
 
+def _kotlin_junit_methods(text):
+    def comment(index):
+        if text.startswith("//", index):
+            end = text.find("\n", index)
+            return len(text) if end < 0 else end
+        depth, index = 1, index + 2
+        while index < len(text) and depth:
+            if text.startswith("/*", index):
+                depth, index = depth + 1, index + 2
+            elif text.startswith("*/", index):
+                depth, index = depth - 1, index + 2
+            else:
+                index += 1
+        if depth:
+            raise PortError("Unterminated Kotlin block comment in hosted test source")
+        return index
+
+    def literal(index):
+        quote = '"""' if text.startswith('"""', index) else text[index]
+        index += len(quote)
+        while index < len(text):
+            if text.startswith(quote, index):
+                end = index + len(quote)
+                if quote == '"""':
+                    while end < len(text) and text[end] == '"':
+                        end += 1
+                return end
+            if text[index] == "\\" and quote != '"""':
+                index += 2
+            elif text.startswith("${", index) and quote != "'":
+                index = template(index + 2)
+            else:
+                index += 1
+        raise PortError("Unterminated Kotlin literal in hosted test source")
+
+    def template(index):
+        depth = 1
+        while index < len(text) and depth:
+            if text.startswith(("//", "/*"), index):
+                index = comment(index)
+            elif text[index] in "\"'":
+                index = literal(index)
+            elif text[index] == "{":
+                depth, index = depth + 1, index + 1
+            elif text[index] == "}":
+                depth, index = depth - 1, index + 1
+            else:
+                index += 1
+        if depth:
+            raise PortError("Unterminated Kotlin string template in hosted test source")
+        return index
+
+    token = re.compile(r"`[^`\r\n]+`|[^\W\d]\w*|[^\s]")
+    identifier = re.compile(r"[^\W\d]\w*")
+    tokens, index = [], 0
+    while index < len(text):
+        if text[index].isspace():
+            index += 1
+        elif text.startswith(("//", "/*"), index):
+            index = comment(index)
+        elif text[index] in "\"'":
+            index = literal(index)
+            tokens.append("<literal>")
+        else:
+            match = token.match(text, index)
+            tokens.append(match[0])
+            index = match.end()
+
+    methods = set()
+    for start, value in enumerate(tokens):
+        if value != "@":
+            continue
+        index, annotations = start, set()
+        while index < len(tokens) and tokens[index] == "@":
+            index += 1
+            if index == len(tokens) or identifier.fullmatch(tokens[index]) is None:
+                break
+            name = tokens[index]
+            index += 1
+            while index + 1 < len(tokens) and tokens[index] == "." and identifier.fullmatch(tokens[index + 1]):
+                name += "." + tokens[index + 1]
+                index += 2
+            annotations.add(name)
+            if index < len(tokens) and tokens[index] == "(":
+                stack = []
+                while index < len(tokens):
+                    value = tokens[index]
+                    if value in ("(", "[", "{"):
+                        stack.append(value)
+                    elif value in (")", "]", "}"):
+                        if not stack or stack.pop() != {")": "(", "]": "[", "}": "{"}[value]:
+                            raise PortError("Unbalanced Kotlin annotation in hosted test source")
+                        if not stack:
+                            index += 1
+                            break
+                    index += 1
+                if stack:
+                    raise PortError("Unclosed Kotlin annotation in hosted test source")
+        if index < len(tokens) and tokens[index] in ("public", "internal"):
+            index += 1
+        if (
+            annotations & {"Test", "org.junit.Test"}
+            and index + 2 < len(tokens)
+            and tokens[index] == "fun" and tokens[index + 2] == "("
+        ):
+            methods.add(tokens[index + 1].strip("`"))
+    return methods
+
+
 def validate_hosted_methods(scope, candidate_tree, repo, executed):
     from .staging import object_bytes
 
@@ -387,11 +496,7 @@ def validate_hosted_methods(scope, candidate_tree, repo, executed):
             text = object_bytes(repo, method["blob_sha"]).decode("utf-8")
             package = re.search(r"^\s*package\s+([\w.]+)", text, re.MULTILINE)
             test_class = (package[1] + "." if package else "") + method["path"].rsplit("/", 1)[-1][:-3]
-            declaration = re.search(
-                r"((?:@[\w.]+(?:\([^)]*\))?\s*)+)(?:(?:public|internal)\s+)?fun\s+(?:"
-                + re.escape(method["id"]) + r"|`" + re.escape(method["id"]) + r"`)\s*\(", text,
-            )
-            if declaration is None or not re.search(r"@(?:org\.junit\.)?Test\b", declaration[1]):
+            if method["id"] not in _kotlin_junit_methods(text):
                 raise PortError("Hosted method lacks its actual candidate JUnit test declaration")
             records = executed.get(module[1])
             if not isinstance(records, list) or not records:
