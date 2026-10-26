@@ -147,6 +147,90 @@ class CapabilityReservationTests(unittest.TestCase):
             self.assertEqual(next(e for e in manifest.data["inventory"]
                                   if e["path"] == original)["primary_owner"], owner)
 
+    def test_wp503_accessibility_source_binding_rules_are_exact_and_separate(self):
+        rules = {
+            rule["id"]: rule
+            for rule in self.rules["reservation_policy"]["capabilities"]
+        }
+        validator_rule = rules["wp503-accessibility-source-binding"]
+        regression_rule = rules["wp503-accessibility-source-binding-regression"]
+        self.assertEqual(
+            self.rules["reservation_policy"]["capabilities"][-2:],
+            [validator_rule, regression_rule],
+        )
+        self.assertEqual(validator_rule["work_packages"], ["WP-503"])
+        self.assertEqual(
+            validator_rule["path_rules"],
+            ["android/accessibility-tests/language_binding.py"],
+        )
+        self.assertEqual(validator_rule["operations"], ["add-or-update-validator-rule"])
+        self.assertEqual(
+            validator_rule["invariants"],
+            [
+                "immutable-historical-producer-path-blob",
+                "distinct-current-candidate-path-blob-bound-to-candidate-head",
+                "producer-ancestry-and-selected-fixture-method-identities",
+                "reject-historical-pin-current-pin-and-unrelated-source-drift",
+                "no-fake-refreshed-compatibility",
+            ],
+        )
+        self.assertEqual(regression_rule["work_packages"], ["WP-503"])
+        self.assertEqual(
+            regression_rule["path_rules"],
+            ["android/accessibility-tests/test_language_binding.py"],
+        )
+        self.assertEqual(regression_rule["operations"], ["add-regression-fixture-or-test"])
+        self.assertEqual(
+            regression_rule["invariants"],
+            [
+                "preserve-original-fixture-and-selected-method-assertions",
+                "test-historical-and-current-source-bindings-independently",
+                "reject-historical-current-and-unrelated-source-drift",
+            ],
+        )
+        self.assertNotIn("add-or-update-validator-rule", rules["wp-owned"]["operations"])
+        self.assertNotIn("add-regression-fixture-or-test", rules["wp-owned"]["operations"])
+
+        manifest = test_manifest("WP-503")
+        assigned_paths = manifest.wp("WP-503")["write_paths"]
+        validator_path = validator_rule["path_rules"][0]
+        regression_path = regression_rule["path_rules"][0]
+        admitted_validator = self.engine.admit(
+            "WP-503", assigned_paths, validator_path, "add-or-update-validator-rule",
+        )
+        self.assertEqual(
+            (admitted_validator.capability_id, admitted_validator.path, admitted_validator.operation),
+            (validator_rule["id"], validator_path, "add-or-update-validator-rule"),
+        )
+        self.assertEqual(
+            admitted_validator.invariants, tuple(validator_rule["invariants"]),
+        )
+        admitted_regression = self.engine.admit(
+            "WP-503", assigned_paths, regression_path, "add-regression-fixture-or-test",
+        )
+        self.assertEqual(
+            (admitted_regression.capability_id, admitted_regression.path, admitted_regression.operation),
+            (regression_rule["id"], regression_path, "add-regression-fixture-or-test"),
+        )
+        self.assertEqual(admitted_regression.invariants, tuple(regression_rule["invariants"]))
+
+        for wp in ("WP-000", "WP-316", "WP-501"):
+            with self.subTest(wp=wp), self.assertRaises(PortError):
+                self.engine.admit(
+                    wp, test_manifest(wp).wp(wp)["write_paths"],
+                    validator_path, "add-or-update-validator-rule",
+                )
+        for path, operation in (
+            (validator_path, "add-regression-fixture-or-test"),
+            (regression_path, "add-or-update-validator-rule"),
+            (validator_path + ".backup", "add-or-update-validator-rule"),
+            ("android/accessibility-tests/OtherBinding.py", "add-or-update-validator-rule"),
+            ("android/accessibility-tests/NativeNodesFlowAccessibilityTest.kt",
+             "add-regression-fixture-or-test"),
+        ):
+            with self.subTest(path=path, operation=operation), self.assertRaises(PortError):
+                self.engine.admit("WP-503", assigned_paths, path, operation)
+
     def test_wp303_room_cleanup_is_exact_two_paths_modify_only_and_reversible(self):
         rule = ROOM_CLEANUP_CAPABILITY
         self.assertEqual(next(r for r in self.rules["reservation_policy"]["capabilities"]

@@ -29,6 +29,10 @@ from controller.scope_amendment import (
     room_cleanup_predecessor,
     bubble_consumer_predecessor, BUBBLE_CONSUMER_CAPABILITY,
     room_failed_event_predecessor, ROOM_FAILED_EVENT_CAPABILITY,
+    wp503_accessibility_source_binding_predecessor,
+    WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES,
+    consumer_support_predecessor,
+    host_scoped_jvm_predecessor,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -42,6 +46,39 @@ from controller.software_verification import project as project_software
 class TranslationScopeAmendmentTests(unittest.TestCase):
     def policy_before_room_cleanup_text(self):
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp003-host-scoped-jvm-parallelism",')
+        end = text.index('      {\n        "id": "disposable-native-guest",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), host_scoped_jvm_predecessor(json.loads(text)))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "a8c624bcb095f81a30e5fee671099fa519f608b7:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
+        start = text.index(',\n      {\n        "id": "wp503-accessibility-source-binding",')
+        end = text.index("\n    ]", start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), wp503_accessibility_source_binding_predecessor(json.loads(text)))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "f2f481d2e7c2a9029808943529c98c98ef879299:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
+        start = text.index('      {\n        "id": "wp405-uri-region-normalization",')
+        end = text.index('      {\n        "id": "wp-owned",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), consumer_support_predecessor(json.loads(text)))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "263d30332940f09082709b9d38ee8877dfb9fedd:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
         start = text.index('      {\n        "id": "wp502-room-failed-event-consumer",')
         end = text.index('      {\n        "id": "dependency-resolution-metadata",', start)
         previous = text[:start] + text[end:]
@@ -153,6 +190,67 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
             with self.subTest(malformed=malformed), self.assertRaises(PortError):
                 room_failed_event_predecessor(malformed)
 
+    def test_wp503_accessibility_binding_projection_is_exact_reversible_and_drift_safe(self):
+        current = host_scoped_jvm_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
+        before = copy.deepcopy(current)
+        previous = wp503_accessibility_source_binding_predecessor(current)
+        base = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "f2f481d2e7c2a9029808943529c98c98ef879299:docs/android/automation-policy.json",
+        ]))
+        self.assertEqual(previous, base)
+        original_base = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "263d30332940f09082709b9d38ee8877dfb9fedd:docs/android/automation-policy.json",
+        ]))
+        self.assertEqual(consumer_support_predecessor(previous), original_base)
+        self.assertEqual(current, before)
+        self.assertEqual(wp503_accessibility_source_binding_predecessor(previous), previous)
+        restored = copy.deepcopy(previous)
+        restored["reservation_policy"]["capabilities"].extend(
+            copy.deepcopy(WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES)
+        )
+        self.assertEqual(restored, current)
+
+        for mode in ("work-package", "path", "operation", "invariant", "validation",
+                     "extra", "duplicate", "reordered", "unknown", "neighbor",
+                     "overlapping-path-rule"):
+            changed = copy.deepcopy(current)
+            rules = changed["reservation_policy"]["capabilities"]
+            rule = next(r for r in rules if r["id"] == WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES[0]["id"])
+            if mode == "work-package":
+                rule["work_packages"].append("WP-316")
+            elif mode == "path":
+                rule["path_rules"].append("android/accessibility-tests/**")
+            elif mode == "operation":
+                rule["operations"].append("modify")
+            elif mode == "invariant":
+                rule["invariants"].remove("no-fake-refreshed-compatibility")
+            elif mode == "validation":
+                rule["validation"] = []
+            elif mode == "extra":
+                rule["extra"] = True
+            elif mode == "duplicate":
+                rules.append(copy.deepcopy(rule))
+            elif mode == "reordered":
+                rules[-2:] = reversed(rules[-2:])
+            elif mode == "unknown":
+                rule["id"] = "unregistered-wp503-source-binding"
+            elif mode == "overlapping-path-rule":
+                overlapping = copy.deepcopy(rule)
+                overlapping["id"] = "unexpected-accessibility-overlap"
+                overlapping["path_rules"] = ["android/accessibility-tests/**"]
+                rules.insert(0, overlapping)
+            else:
+                rules[-3] = None
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                wp503_accessibility_source_binding_predecessor(changed)
+
+        unrelated = copy.deepcopy(current)
+        unrelated["branch_rules_proven"] = True
+        with self.assertRaises(PortError):
+            content_scope_revisions(base_manifest(), unrelated)
+
     def test_receive_prefetch_single_rule_inverse_restores_entire_b677_object_and_raw_git_blob(self):
         current = room_cleanup_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
         before = copy.deepcopy(current)
@@ -186,7 +284,9 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
                          policy_revision(base_manifest(), current))
 
     def test_receive_prefetch_inverse_rejects_widening_weakened_predicates_and_order_drift(self):
-        current = load_json(REPO / "docs/android/automation-policy.json")
+        current = consumer_support_predecessor(
+            wp503_accessibility_source_binding_predecessor(
+                load_json(REPO / "docs/android/automation-policy.json")))
         for mode in ("wp", "path", "operation", "invariant", "validation", "duplicate", "reorder", "predecessor"):
             changed = copy.deepcopy(current)
             rules = changed["reservation_policy"]["capabilities"]

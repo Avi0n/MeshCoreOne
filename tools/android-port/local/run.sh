@@ -13,6 +13,8 @@ fast_seconds="${9:-180}"
 completion="${10:-}"
 token="${11:-}"
 admission="${12:-}"
+affected_plan="${13:-}"
+affected_base="${14:-}"
 work="${ANDROID_LOCAL_HOME:-$HOME/meshcoreone-work}"
 mkdir -p "$work/local-checks"
 py="${ANDROID_LOCAL_PYTHON:-$work/venv312/bin/python}"
@@ -26,13 +28,32 @@ if [[ "$mode" == "manual" || "$mode" == "advisory" ]]; then
   exec "$py" "$tool/advisory.py" --completion "$completion" --token "$token" \
     --admission "$admission" --commit "$revision" "${options[@]}" -- \
     bash "$0" "$bundle" "$revision" "$key" "$tool" "$stages" "$overlay" "$mode-lane" \
-    "$queue_seconds" "$fast_seconds" "$completion" "$token" "$admission"
+    "$queue_seconds" "$fast_seconds" "$completion" "$token" "$admission" "$affected_plan" "$affected_base"
 fi
 [[ -f "$admission" && "$admission" -ef /proc/self/fd/8 ]] || {
   echo "BLOCKED: runner did not inherit actual shared execution admission" >&2; exit 1;
 }
+lane="$("$py" - "$tool" <<'PY'
+import json
+from pathlib import Path
+import sys
+sys.path.insert(0, sys.argv[1])
+admission = json.loads(Path("/proc/self/fd/8").read_text(encoding="utf-8"))
+if "jvm_lane" in admission:
+    from advisory import admission_lane
+    print(admission_lane(admission))
+else:
+    print("")
+PY
+)"
+lane_root="$work/local-checks"
+if [[ -n "$lane" ]]; then
+  [[ "$mode" == "manual-lane" ]] || { echo "BLOCKED: JVM slots require owned manual execution" >&2; exit 1; }
+  lane_root="$lane_root/lanes/$lane"
+fi
+mkdir -p "$lane_root"
 if [[ "$mode" == "owned-lock" ]]; then
-  [[ "$work/local-checks/gradle.lock" -ef /proc/self/fd/9 ]] && flock -n 9 || {
+  [[ "$lane_root/gradle.lock" -ef /proc/self/fd/9 ]] && flock -n 9 || {
     echo "BLOCKED: bounded runner did not inherit its actual lane lock" >&2; exit 1;
   }
 else
@@ -40,7 +61,7 @@ else
     echo "BLOCKED: unknown local launcher mode: $mode" >&2; exit 1;
   }
   echo "Waiting for shared local Gradle lane (other workstreams may be running)..."
-  exec 9>"$work/local-checks/gradle.lock"
+  exec 9>"$lane_root/gradle.lock"
   if [[ "$mode" == "advisory-lane" ]]; then
     if flock -E 75 -w "$queue_seconds" 9; then
       :
@@ -55,14 +76,14 @@ else
     fi
     exec "$py" "$tool/advisory.py" --seconds "$fast_seconds" -- \
       bash "$0" "$bundle" "$revision" "$key" "$tool" "$stages" "$overlay" owned-lock \
-      "$queue_seconds" "$fast_seconds" "$completion" "$token" "$admission"
+      "$queue_seconds" "$fast_seconds" "$completion" "$token" "$admission" "$affected_plan" "$affected_base"
   fi
   flock 9
 fi
-repo="$work/local-checks/repos/$key"
+repo="$lane_root/repos/$key"
 # Import from ext4 rather than repeatedly seeking through the Windows mount.
-cp "$bundle" "$work/local-checks/input.bundle"
-bundle="$work/local-checks/input.bundle"
+cp "$bundle" "$lane_root/input.bundle"
+bundle="$lane_root/input.bundle"
 if [[ ! -e "$repo" ]]; then
   git clone --no-hardlinks "$bundle" "$repo"
   mkdir "$repo/.git/meshcore-local-snapshot"
@@ -97,8 +118,14 @@ fi
 # Windows checkouts can contain CRLF. This changes only the generated Linux copy.
 sed -i 's/\r$//' "$repo/android/gradlew"
 chmod +x "$repo/android/gradlew"
-output="$(mktemp -d "$work/local-checks/run-XXXXXXXX")"
+output="$(mktemp -d "$lane_root/run-XXXXXXXX")"
 echo "Local reports: $output"
 options=()
 [[ "$mode" != "owned-lock" ]] || options+=(--advisory)
+if [[ -n "$affected_plan" || -n "$affected_base" ]]; then
+  [[ -n "$affected_plan" && -n "$affected_base" && "$mode" == "manual-lane" ]] || {
+    echo "BLOCKED: affected scope requires the exact manual owned request" >&2; exit 1;
+  }
+  options+=(--affected-plan "$affected_plan" --affected-base "$affected_base")
+fi
 "$py" "$tool/fast.py" --repo "$repo" --work "$work" --output "$output" --stages "$stages" "${options[@]}"

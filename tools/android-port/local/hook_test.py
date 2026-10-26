@@ -1,6 +1,7 @@
 """AndroidOnly: WP-003 Installed hook parsing, transport and runtime-copy regressions."""
 
 import contextlib
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import io
 import json
@@ -9,6 +10,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 
@@ -38,9 +40,179 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(RESERVATIONS))
 import reserve
 from controller.ledger import Ledger
+from controller.errors import PortError
+from controller.local_scope import candidate_plan
+from controller import jvm_lanes
 
 
 class LocalCheckTests(unittest.TestCase):
+    def test_staged_control_carries_exact_trusted_lane_helper(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            completion = root / "cleanup.json"
+            completion.write_text(json.dumps({
+                "schema_version": 1, "token": "fixture", "status": "owned-children-reaped", "returncode": 0,
+            }), encoding="utf-8")
+            with patch.object(check, "binding", return_value=("a" * 40, "b" * 40)), \
+                    patch.object(check.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)):
+                check.run_candidate(root, "a" * 40, [], check.ALL_STAGES, False,
+                                    completion=completion, token="fixture", admission=root / "admission.json",
+                                    execution={"started": False})
+            self.assertEqual((root / "control/jvm_lanes.py").read_bytes(),
+                             Path(jvm_lanes.__file__).read_bytes().replace(b"\r\n", b"\n"))
+
+    def test_real_fast_uses_owned_helper_with_older_candidate_controller(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            controller = root / "candidate/controller"
+            controller.mkdir(parents=True)
+            (controller / "__init__.py").touch()
+            (controller / "errors.py").write_bytes(Path(jvm_lanes.__file__).with_name("errors.py").read_bytes())
+            control = root / "control"
+            control.mkdir()
+            (control / "fast.py").write_bytes(Path(fast.__file__).read_bytes())
+            (control / "jvm_lanes.py").write_bytes(Path(jvm_lanes.__file__).read_bytes())
+            script = """
+import importlib.util, json, pathlib, sys
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+import controller
+assert importlib.util.find_spec('controller.jvm_lanes') is None
+spec = importlib.util.spec_from_file_location('owned_fast', sys.argv[2])
+fast = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(fast)
+work = pathlib.Path(sys.argv[3])
+descriptor = pathlib.Path('/proc/self/fd/8')
+original_is_file, original_read_text = pathlib.Path.is_file, pathlib.Path.read_text
+admission = {}
+def is_file(path):
+    return True if path == descriptor else original_is_file(path)
+def read_text(path, *args, **kwargs):
+    return json.dumps(admission) if path == descriptor else original_read_text(path, *args, **kwargs)
+with patch.object(pathlib.Path, 'is_file', new=is_file), patch.object(pathlib.Path, 'read_text', new=read_text):
+    with patch.object(fast, 'owned_lanes', side_effect=AssertionError('Serial must not load lane helper')):
+        assert fast.execution_lane(work) is None
+    owned = fast.owned_lanes()
+    assert pathlib.Path(owned.__file__).resolve() == pathlib.Path(sys.argv[2]).with_name('jvm_lanes.py').resolve()
+    admission['jvm_lane'] = {'host': 'a' * 64, 'slot': 1, 'capacity': 3}
+    with patch.object(owned, 'host_identity', return_value='a' * 64), \
+         patch.object(owned, 'cpu_capacity', return_value=3), \
+         patch.object(fast, 'owned_lanes', return_value=owned):
+        assert fast.execution_lane(work) == work / 'local-checks/lanes' / ('a' * 64) / '1'
+assert importlib.util.find_spec('controller.jvm_lanes') is None
+"""
+            subprocess.run([sys.executable, "-c", script, str(controller.parent),
+                            str(control / "fast.py"), str(root / "work")], check=True,
+                           capture_output=True, text=True)
+
+    def test_real_linux_slot_flocks_overlap_or_windows_rejects_before_launch(self):
+        if not sys.platform.startswith("linux"):
+            with self.assertRaisesRegex(PortError, "actual supported Linux"):
+                jvm_lanes.host_identity()
+            return
+        from advisory_test import AdvisoryLauncherTests
+        source = (
+            "import json,os,pathlib,time\n"
+            "binding=json.loads(pathlib.Path('/proc/self/fd/8').read_text())['jvm_lane']\n"
+            "work=pathlib.Path(os.environ['ANDROID_LOCAL_HOME'])\n"
+            "(work/('ready-'+str(binding['slot']))).touch()\n"
+            "while not (work/'release').exists(): time.sleep(.02)\n"
+        )
+        with AdvisoryLauncherTests.fixture(self, source) as (root, repo, work, commit, tree):
+            subprocess.run(["git", "-C", str(repo), "update-ref", "refs/remotes/origin/main", commit], check=True)
+            subprocess.run(["git", "-C", str(repo), "symbolic-ref",
+                            "refs/remotes/origin/HEAD", "refs/remotes/origin/main"], check=True)
+            host = jvm_lanes.host_identity()
+            with patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(root / "ledger.sqlite3")}), \
+                    patch.object(jvm_lanes, "host_capacity", return_value=(host, 3)), \
+                    ThreadPoolExecutor(max_workers=2) as workers:
+                futures = [
+                    workers.submit(check.run_owned, repo, commit, None, check.ALL_STAGES, False,
+                                   affected_base=commit, parallel_jvm=True)
+                    for _ in range(2)
+                ]
+                try:
+                    deadline = time.monotonic() + 15
+                    while not all((work / f"ready-{slot}").exists() for slot in (0, 1)) \
+                            and time.monotonic() < deadline:
+                        time.sleep(.02)
+                    self.assertTrue(all((work / f"ready-{slot}").exists() for slot in (0, 1)),
+                                    "Both actual shell lanes must enter before either releases")
+                    for slot in (0, 1):
+                        lane = work / "local-checks/lanes" / host / str(slot)
+                        self.assertTrue((lane / "gradle.lock").is_file())
+                        self.assertTrue((lane / "input.bundle").is_file())
+                        self.assertTrue((lane / "repos").is_dir())
+                    self.assertFalse((work / "local-checks/gradle.lock").exists())
+                finally:
+                    (work / "release").touch()
+                for future in futures:
+                    future.result(timeout=20)
+                self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
+
+    def test_parallel_flag_requires_and_forwards_the_affected_contract(self):
+        with patch.object(check, "run_owned") as run, contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(check.main(["--parallel-jvm"]), 1)
+        run.assert_not_called()
+        with patch.object(check, "run_owned") as run:
+            self.assertEqual(check.main(["--parallel-jvm", "--affected-base", "a" * 40]), 0)
+        self.assertIs(run.call_args.kwargs["parallel_jvm"], True)
+        with patch.object(check.sys, "platform", "win32"), \
+                patch.object(check, "execution_runtime") as runtime, \
+                self.assertRaisesRegex(ValueError, "Invalid exact"):
+            check.run_owned(Path.cwd(), "HEAD", None, check.ALL_STAGES, False,
+                            affected_base="a" * 40, parallel_jvm=True)
+        runtime.assert_not_called()
+
+    def test_supervisor_lane_is_bounded_and_serial_admission_is_unchanged(self):
+        import advisory
+        self.assertIsNone(advisory.admission_lane({}))
+        value = {"host": "a" * 64, "slot": 2, "capacity": 3}
+        self.assertEqual(advisory.admission_lane({"jvm_lane": value}), "a" * 64 + "/2")
+        for changed in ({"host": "../escape"}, {"slot": True}, {"slot": 3}, {"capacity": 0}):
+            with self.subTest(changed=changed), self.assertRaises(ValueError):
+                advisory.admission_lane({"jvm_lane": {**value, **changed}})
+        runner = Path(check.__file__).with_name("run.sh").read_text(encoding="utf-8")
+        for actual in (
+            'exec 9>"$lane_root/gradle.lock"', 'repo="$lane_root/repos/$key"',
+            'bundle="$lane_root/input.bundle"', '"$lane_root/run-XXXXXXXX"',
+        ):
+            self.assertIn(actual, runner)
+
+    def test_affected_scope_cannot_replace_full_pre_push_adapter_or_result_contract(self):
+        base = "a" * 40
+        options = (
+            ["--scope", "protocol"],
+            ["--affected-base", "HEAD"],
+            ["--affected-base", base, "--pre-push"],
+            ["--affected-base", base, "--stages", "scaffold"],
+            ["--affected-base", base, "--toolchain-state", "adapter.json"],
+            ["--affected-base", base, "--validate-result", "result.json"],
+            ["--affected-base", base, "--worktree"],
+            ["--affected-base", base, "--install-hook"],
+        )
+        for arguments in options:
+            with self.subTest(arguments=arguments), patch.object(check, "run_owned") as run, \
+                    contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(check.main(arguments), 1)
+            run.assert_not_called()
+
+    def test_explicit_affected_contract_forwards_base_and_additional_scopes_only(self):
+        with patch.object(check, "run_owned") as run:
+            self.assertEqual(check.main(["--affected-base", "a" * 40, "--scope", "protocol"]), 0)
+        self.assertEqual(run.call_args.kwargs, {
+            "advisory": False, "affected_base": "a" * 40, "scopes": ["protocol"],
+        })
+        self.assertEqual(run.call_args.args[3], check.ALL_STAGES)
+
+    def test_shell_forwards_scoped_request_through_existing_supervision_only(self):
+        runner = Path(check.__file__).with_name("run.sh").read_text(encoding="utf-8")
+        self.assertIn('affected_plan="${13:-}"', runner)
+        self.assertIn('affected_base="${14:-}"', runner)
+        self.assertEqual(runner.count('"$admission" "$affected_plan" "$affected_base"'), 2)
+        self.assertIn('"$mode" == "manual-lane"', runner)
+        self.assertIn('options+=(--affected-plan "$affected_plan" --affected-base "$affected_base")', runner)
+
     def test_benchmark_is_optional_and_cannot_replace_complete_merge_verification(self):
         self.assertEqual(check.ALL_STAGES, ["python", "preflight", "scaffold", "inspect"])
         self.assertEqual(check.OPTIONAL_STAGES, {"benchmark", "benchmark-dependencies"})
@@ -254,6 +426,290 @@ class LocalCheckTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "Existing pre-push"):
                     check.install(hooks, ["wsl"], None)
             self.assertEqual(hook.read_text(encoding="utf-8"), "#!/bin/sh\nexit 1\n")
+
+
+class AffectedRunnerTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.repo = self.root / "repo"
+        self.repo.mkdir()
+        self.git("init", "--quiet")
+        self.git("config", "user.name", "Owned scope fixture")
+        self.git("config", "user.email", "fixture@example.invalid")
+        self.git("config", "core.autocrlf", "false")
+        self.write("android/core/protocol/build.gradle.kts", 'plugins { id("mesh.jvm.library") }\n')
+        self.base = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", self.base)
+        self.git("symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/main")
+        self.write("android/core/protocol/src/test/kotlin/FrameTest.kt", "fixture")
+        self.head = self.commit()
+        self.ledger = Ledger(self.root / "fixture-ledger.sqlite3", "fixture/repository")
+
+    def git(self, *arguments):
+        return subprocess.check_output(
+            ["git", "-C", str(self.repo), *arguments], text=True, stderr=subprocess.PIPE,
+        ).strip()
+
+    def write(self, name, text):
+        path = self.repo / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+    def commit(self):
+        self.git("add", "--all")
+        self.git("-c", "core.hooksPath=/dev/null", "-c", "commit.gpgsign=false",
+                 "commit", "--quiet", "-m", "owned scope fixture")
+        return self.git("rev-parse", "HEAD")
+
+    def cleanup(self, **arguments):
+        arguments["completion"].write_text(json.dumps({
+            "schema_version": 1, "token": arguments["token"],
+            "status": "owned-children-reaped", "returncode": 0,
+        }), encoding="utf-8")
+
+    def test_parallel_receipt_is_forwarded_and_only_its_owned_slot_releases(self):
+        def candidate(*args, **kwargs):
+            admission = json.loads(kwargs["admission"].read_text(encoding="utf-8"))
+            self.assertEqual(admission["jvm_lane"], {"host": "a" * 64, "slot": 1, "capacity": 3})
+            self.assertEqual(admission["commit"], self.head)
+            self.assertEqual(kwargs["affected_plan"]["head"], self.head)
+            self.cleanup(**kwargs)
+
+        with patch.object(jvm_lanes, "host_capacity", return_value=("a" * 64, 3)), \
+                patch.object(check.sys, "platform", "linux"), \
+                patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(self.ledger.path)}), \
+                patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                contextlib.redirect_stdout(io.StringIO()):
+            retained = self.ledger.acquire_jvm_lane("other-live-owner", {
+                "commit": self.head, "tree": self.git("rev-parse", "HEAD^{tree}"),
+                "token": "retained-fixture", "mode": "manual",
+            }, 1.0)
+            check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False,
+                            affected_base=self.base, parallel_jvm=True)
+        self.assertEqual([row["resource"] for row in self.ledger.hard_lock_records()], [retained["resource"]])
+
+    def test_parallel_rejects_private_or_changed_canonical_ledger_before_launch(self):
+        private = self.repo / "private.sqlite3"
+        private.touch()
+        with patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(private)}):
+            with self.assertRaisesRegex(ValueError, "private checkout"):
+                check.parallel_ledger(self.repo)
+        foreign = Ledger(self.root / "foreign.sqlite3", "fixture/repository")
+        with patch.object(jvm_lanes, "host_capacity", return_value=("a" * 64, 3)), \
+                patch.object(check.sys, "platform", "linux"), \
+                patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(self.ledger.path)}), \
+                patch.object(check, "execution_runtime", side_effect=[self.ledger, foreign]), \
+                patch.object(check, "transport") as transport:
+            with self.assertRaisesRegex(ValueError, "authority changed"):
+                check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False,
+                                affected_base=self.base, parallel_jvm=True)
+        transport.assert_not_called()
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+        self.assertEqual(foreign.hard_lock_records(), [])
+
+    def test_parallel_fast_cache_and_private_paths_use_actual_inherited_binding(self):
+        value = {"host": "a" * 64, "slot": 1, "capacity": 3}
+        with patch.object(Path, "is_file", return_value=True), \
+                patch.object(Path, "read_text", return_value=json.dumps({"jvm_lane": value})), \
+                patch.object(fast, "owned_lanes", return_value=jvm_lanes), \
+                patch.object(jvm_lanes, "host_identity", return_value="a" * 64), \
+                patch.object(jvm_lanes, "cpu_capacity", return_value=3):
+            self.assertEqual(fast.execution_lane(self.root), self.root / "local-checks/lanes" / ("a" * 64) / "1")
+        with patch.object(Path, "is_file", return_value=True), \
+                patch.object(Path, "read_text", return_value=json.dumps({"jvm_lane": value})), \
+                patch.object(fast, "owned_lanes", return_value=jvm_lanes), \
+                patch.object(jvm_lanes, "host_identity", return_value="b" * 64):
+            with self.assertRaisesRegex(PortError, "actual host"):
+                fast.execution_lane(self.root)
+
+    def test_parallel_unproven_child_cleanup_retains_only_its_actual_slot(self):
+        directory = self.root / "unproven-execution"
+        directory.mkdir()
+
+        def candidate(*args, **kwargs):
+            kwargs["execution"]["started"] = True
+
+        with patch.object(jvm_lanes, "host_capacity", return_value=("a" * 64, 3)), \
+                patch.object(check.sys, "platform", "linux"), \
+                patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(self.ledger.path)}), \
+                patch.object(check.tempfile, "mkdtemp", return_value=str(directory)), \
+                patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                contextlib.redirect_stderr(io.StringIO()), \
+                self.assertRaisesRegex(ValueError, "without proven owned-child cleanup"):
+            check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False,
+                            affected_base=self.base, parallel_jvm=True)
+        rows = self.ledger.hard_lock_records()
+        self.assertEqual(len(rows), 1)
+        self.assertTrue(rows[0]["resource"].startswith("gradle-execution:"))
+        self.assertEqual(rows[0]["payload"]["commit"], self.head)
+        self.assertTrue(directory.exists())
+
+    def test_scoped_request_is_derived_only_under_actual_fixture_ownership(self):
+        original = check.affected_request
+
+        def derive(*arguments):
+            self.assertEqual([row["resource"] for row in self.ledger.hard_lock_records()], ["gradle-execution"])
+            self.assertEqual(self.ledger.hard_lock_records()[0]["payload"]["affected_base"], self.base)
+            return original(*arguments)
+
+        def candidate(*args, **kwargs):
+            self.assertEqual(kwargs["affected_plan"]["base"], self.base)
+            self.assertEqual(kwargs["affected_plan"]["head"], self.head)
+            self.assertIn(":core:protocol:test", kwargs["affected_plan"]["tasks"])
+            self.cleanup(**kwargs)
+
+        text = io.StringIO()
+        with patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "affected_request", side_effect=derive), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                contextlib.redirect_stdout(text):
+            check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False, affected_base=self.base)
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+        self.assertIn("AFFECTED LOCAL CHECK PASSED", text.getvalue())
+
+    def test_native_collision_blocks_selection_transport_and_launch(self):
+        self.ledger.acquire_hard_lock("native-execution", "fixture-native", {"source": "fixture"}, 1.0)
+        with patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "affected_request") as derive, \
+                patch.object(check, "transport") as transport, \
+                patch.object(check, "run_candidate") as candidate:
+            with self.assertRaises(ValueError):
+                check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False, affected_base=self.base)
+        derive.assert_not_called()
+        transport.assert_not_called()
+        candidate.assert_not_called()
+        self.assertEqual(self.ledger.hard_lock_records()[0]["owner"], "fixture-native")
+
+    def test_incomplete_scope_runs_nothing_and_releases_only_own_unused_lock(self):
+        with patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "transport") as transport, \
+                patch.object(check, "run_candidate") as candidate:
+            with self.assertRaisesRegex(ValueError, "Incomplete"):
+                check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False,
+                                affected_base=self.base, scopes=["backup"])
+        transport.assert_not_called()
+        candidate.assert_not_called()
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+
+    def test_base_movement_during_owned_execution_cannot_report_current_success(self):
+        def candidate(*args, **kwargs):
+            self.git("update-ref", "refs/remotes/origin/main", self.head)
+            self.cleanup(**kwargs)
+
+        text = io.StringIO()
+        with patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                contextlib.redirect_stdout(text):
+            with self.assertRaisesRegex(ValueError, "Stale affected base after execution"):
+                check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False, affected_base=self.base)
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+        self.assertNotIn("AFFECTED LOCAL CHECK PASSED", text.getvalue())
+
+    def test_release_failure_cannot_print_scoped_success(self):
+        directory = self.root / "owned-execution"
+        directory.mkdir()
+        text = io.StringIO()
+
+        def candidate(*args, **kwargs):
+            self.cleanup(**kwargs)
+
+        with patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check.tempfile, "mkdtemp", return_value=str(directory)), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                patch.object(self.ledger, "release_hard_lock", side_effect=PortError("fixture release failed")), \
+                contextlib.redirect_stdout(text):
+            with self.assertRaisesRegex(ValueError, "Own execution release failed"):
+                check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False, affected_base=self.base)
+        self.assertNotIn("AFFECTED LOCAL CHECK PASSED", text.getvalue())
+        self.assertEqual(len(self.ledger.hard_lock_records()), 1)
+
+    def read_request(self, plan, admission, stages=None):
+        path = self.root / "affected-plan.json"
+        path.write_text(json.dumps(plan), encoding="utf-8")
+        original = Path.read_text
+
+        def read_text(path, *args, **kwargs):
+            if path == Path("/proc/self/fd/8"):
+                return json.dumps(admission)
+            return original(path, *args, **kwargs)
+
+        with patch.object(Path, "read_text", new=read_text):
+            return fast.affected_request(self.repo, path, self.base, stages or plan["stages"], False)
+
+    def test_fast_requires_exact_owned_admission_and_stage_binding(self):
+        plan = candidate_plan(self.repo, self.base, self.head)
+        admission = {
+            "schema_version": 1, "interlock_version": 2, "owner": "local-check:fixture",
+            "token": "fixture", "commit": self.head, "tree": plan["tree"],
+        }
+        self.assertEqual(self.read_request(plan, admission), plan)
+        with patch.object(jvm_lanes, "host_identity", return_value="a" * 64), \
+                patch.object(fast, "owned_lanes", return_value=jvm_lanes), \
+                patch.object(jvm_lanes, "cpu_capacity", return_value=3):
+            self.assertEqual(self.read_request(plan, {
+                **admission, "jvm_lane": {"host": "a" * 64, "slot": 1, "capacity": 3},
+            }), plan)
+        for changed in (
+            {"commit": "a" * 40}, {"tree": "b" * 40}, {"owner": "other"},
+            {"schema_version": True}, {"interlock_version": 1}, {"token": ""},
+        ):
+            with self.subTest(changed=changed), self.assertRaises(PortError):
+                self.read_request(plan, {**admission, **changed})
+        with self.assertRaises(PortError):
+            self.read_request(plan, admission, ["scaffold"])
+        path = self.root / "affected-plan.json"
+        with self.assertRaises(PortError):
+            fast.affected_request(self.repo, path, self.base, plan["stages"], True)
+        with self.assertRaises(PortError):
+            fast.affected_request(self.repo, None, self.base, plan["stages"], False)
+
+    def test_scoped_result_is_not_accepted_by_unchanged_full_result_parser(self):
+        path = self.root / "affected-plan.json"
+        path.write_text(json.dumps(candidate_plan(self.repo, self.base, self.head)), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Malformed"):
+            check.validate_result(path, self.head, self.git("rev-parse", "HEAD^{tree}"))
+
+    def test_full_fallback_dispatches_inspection_and_never_claims_default_result(self):
+        from controller import ci, ci_environment, local_scope
+        self.write("android/core/protocol/build.gradle.kts",
+                   'plugins { id("mesh.jvm.library") }\n// broad build change\n')
+        head = self.commit()
+        plan = candidate_plan(self.repo, self.base, head)
+        work = self.root / "work"
+        (work / "toolchain").mkdir(parents=True)
+        (work / "toolchain/environment.json").write_text(
+            json.dumps({"java_home": str(self.root / "fixture-java")}), encoding="utf-8",
+        )
+        output = self.root / "output"
+        output.mkdir()
+        text = io.StringIO()
+        with patch.object(sys, "argv", [
+            "fast.py", "--repo", str(self.repo), "--work", str(work), "--output", str(output),
+            "--stages", ",".join(plan["stages"]), "--affected-plan", str(self.root / "request.json"),
+            "--affected-base", self.base,
+        ]), patch.object(fast, "affected_request", return_value=plan), \
+                patch.object(ci_environment, "candidate_environment", return_value={}), \
+                patch.object(ci_environment, "verify_wrapper"), \
+                patch.object(ci, "python_checks"), patch.object(ci, "preflight"), \
+                patch.object(ci, "inspect") as inspect, patch.object(fast, "execute") as execute, \
+                patch.object(local_scope, "run_scaffold", return_value={"kind": "local-affected-only"}) as run, \
+                contextlib.redirect_stdout(text):
+            fast.main()
+        inspect.assert_called_once()
+        run.assert_called_once()
+        self.assertIn("test_runner.py", execute.call_args.args[0][1])
+        self.assertIn("AFFECTED SNAPSHOT CHECKS COMPLETE", text.getvalue())
+        self.assertNotIn("AFFECTED LOCAL CHECK PASSED", text.getvalue())
+        self.assertNotIn("FAST LOCAL CHECK PASSED", text.getvalue())
 
 
 class InstalledRuntimeTests(unittest.TestCase):
