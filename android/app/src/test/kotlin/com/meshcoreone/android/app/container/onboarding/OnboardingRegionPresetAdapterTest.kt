@@ -1,8 +1,14 @@
 // AndroidOnly: WP-303 Region catalog, region port and preset-apply outcome mapping against fakes.
+// ReferenceInput: MC1Services/Tests/MC1ServicesTests/RegionalAreasTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// AndroidOnly: WP-211 Actual app-language resource binding preserves localized labels and stable selection identities.
 package com.meshcoreone.android.app.container.onboarding
 
+import android.content.Context
+import android.content.res.Configuration
+import com.meshcoreone.android.app.platform.AppLanguages
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.model.RegionSelection
+import com.meshcoreone.android.core.services.device.RegionalAreas
 import com.meshcoreone.android.core.contracts.domain.errors.SettingsServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.SettingsServiceException
 import com.meshcoreone.android.core.ui.UiText
@@ -22,6 +28,10 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OnboardingRegionPresetAdapterTest {
@@ -90,5 +100,74 @@ class OnboardingRegionPresetAdapterTest {
         assertEquals(Outcome.Failed(UiText.Verbatim("boom")), port.apply(anyPresetId()))
         radio.failure = CancellationException("stop")
         try { port.apply(anyPresetId()); fail("cancellation must propagate") } catch (expected: CancellationException) { }
+    }
+}
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [31])
+class LocalizedRegionCatalogAdapterTest {
+    private val context: Context get() = RuntimeEnvironment.getApplication()
+
+    private fun region(country: String, subdivision: String? = null) =
+        RegionSelection(country, RegionSelection.Source.MANUAL, subdivision)
+
+    @Test fun `current API31 app language replaces English labels without recreating the catalog`() {
+        val preferences = context.getSharedPreferences("app_language", Context.MODE_PRIVATE)
+        val original = preferences.getString("language", null)
+        val catalog = ServicesRegionCatalog(resources = { AppLanguages.attach(context).resources })
+        val originalSystemLocale = Locale.getDefault()
+        try {
+            Locale.setDefault(Locale.US)
+            val cachedCountryIds = RegionalAreas.countriesSortedByLocalizedName.map { it.id }
+            var staleOrderDiffers = false
+            for ((tag, california, pennsylvania, territory) in listOf(
+                listOf("fr", "Californie", "Pennsylvanie", "Territoire du Nord"),
+                listOf("de", "Kalifornien", "Pennsylvania", "Nordterritorium"),
+                listOf("en", "California", "Pennsylvania", "Northern Territory"),
+            )) {
+                assertTrue(preferences.edit().putString("language", tag).commit())
+                assertEquals(california, catalog.subdivisionDisplayName("US-CA"))
+                assertEquals(california, catalog.displayName(region("US", "US-CA")))
+                assertEquals(pennsylvania, catalog.displayName(region("US", "US-PA")))
+                assertEquals("Texas", catalog.displayName(region("US", "US-TX")))
+                assertEquals(territory, catalog.subdivisionDisplayName("AU-NT"))
+                assertEquals("$territory, ${catalog.countryDisplayName("AU")}", catalog.displayName(region("AU", "AU-NT")))
+                assertEquals(catalog.countryDisplayName("US"), catalog.displayName(region("US")))
+                assertEquals("CA-ON", catalog.displayName(region("CA", "CA-ON")))
+                assertNull(catalog.subdivisionDisplayName("US-UNKNOWN"))
+                val states = catalog.subdivisions("US")
+                assertEquals(51, states.size)
+                assertEquals(california, states.single { it.code == "US-CA" }.displayName)
+                val collator = java.text.Collator.getInstance(Locale.forLanguageTag(tag)).apply {
+                    strength = java.text.Collator.PRIMARY
+                    decomposition = java.text.Collator.CANONICAL_DECOMPOSITION
+                }
+                assertEquals(states.map { it.displayName }.sortedWith(collator), states.map { it.displayName })
+                assertEquals(8, catalog.subdivisions("AU").size)
+                val countries = catalog.countries()
+                val countryCollator = java.text.Collator.getInstance(Locale.forLanguageTag(tag))
+                val expectedCountries = RegionalAreas.countries.map { it.id to it.name(Locale.forLanguageTag(tag)) }
+                    .sortedWith { left, right -> countryCollator.compare(left.second, right.second) }
+                assertEquals(expectedCountries.map { it.first }, countries.map { it.code })
+                assertEquals(expectedCountries.map { it.second }, countries.map { it.displayName })
+                staleOrderDiffers = staleOrderDiffers || cachedCountryIds != countries.map { it.code }
+                assertEquals(Locale.US, Locale.getDefault())
+                assertEquals(setOf("US", "AU"), countries.filter { catalog.showsSubdivisionPicker(it.code) }.map { it.code }.toSet())
+            }
+            assertTrue("App-language ordering must differ from the primed global cache", staleOrderDiffers)
+        } finally {
+            Locale.setDefault(originalSystemLocale)
+            assertTrue(preferences.edit().putString("language", original).commit())
+        }
+    }
+
+    @Test fun `resource configuration rather than system locale controls catalog country and subdivision labels`() {
+        val resources = context.createConfigurationContext(Configuration(context.resources.configuration).apply {
+            setLocale(Locale.FRENCH)
+        }).resources
+        val catalog = ServicesRegionCatalog(resources = { resources })
+        assertEquals("Californie", catalog.subdivisionDisplayName("US-CA"))
+        assertEquals(Locale.forLanguageTag("und-AU").getDisplayCountry(Locale.FRENCH), catalog.countryDisplayName("AU"))
+        assertTrue(catalog.presets(region("US", "US-CA")).isNotEmpty())
     }
 }

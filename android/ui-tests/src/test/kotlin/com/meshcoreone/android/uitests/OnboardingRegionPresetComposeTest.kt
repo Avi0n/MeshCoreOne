@@ -376,12 +376,46 @@ class OnboardingRegionPresetComposeTest {
         assertTrue(fixture.resolutions.isEmpty())
     }
 
+    @Test fun frenchRegionalLabelsReachTheMountedPickerWithStableSelectionCodes() =
+        localizedPicker(Locale.FRENCH, "Californie", "Pennsylvanie", "Territoire du Nord")
+
+    @Test fun germanRegionalLabelsReachTheMountedPickerWithStableSelectionCodes() =
+        localizedPicker(Locale.GERMAN, "Kalifornien", "Pennsylvania", "Nordterritorium")
+
+    @Suppress("DEPRECATION")
+    private fun localizedPicker(locale: Locale, california: String, pennsylvania: String, territory: String) {
+        val resources = host.get().resources
+        resources.updateConfiguration(Configuration(resources.configuration).apply { setLocale(locale) }, resources.displayMetrics)
+        val catalog = ServicesRegionCatalog(resources = { host.get().resources })
+        val fixture = Fixture(catalog = catalog)
+        mount(fixture)
+        val usa = catalog.countryDisplayName("US")
+        pick(O.regionCountry, usa, usa)
+        pick(O.regionState, california, california)
+        compose.onNode(hasText(california) and hasClickAction()).assertIsDisplayed()
+        pick(O.regionState, pennsylvania, pennsylvania)
+        compose.onNode(hasText(pennsylvania) and hasClickAction()).assertIsDisplayed()
+        val australia = catalog.countryDisplayName("AU")
+        pick(O.regionCountry, australia, australia)
+        compose.onNodeWithText(pennsylvania).assertDoesNotExist()
+        pick(O.regionState, territory, territory)
+        compose.onNode(hasText(territory) and hasClickAction()).assertIsDisplayed()
+        button(O.regionContinue).assertIsDisplayed().assertIsEnabled().performClick()
+        assertEquals(listOf(RegionSelection("AU", RegionSelection.Source.MANUAL, "AU-NT")), fixture.commits)
+        assertEquals("$territory, $australia", catalog.displayName(fixture.commits.single()))
+        assertTrue(fixture.applies.isEmpty())
+        assertNotCompleted(fixture)
+    }
+
     private data class ApplyAttempt(
         val id: String, val owner: Job,
         val result: CompletableDeferred<OnboardingPresetOutcome> = CompletableDeferred(),
     )
 
-    private class Fixture(location: PermissionStatus = PermissionStatus.DENIED) : OnboardingFeatureDependencies {
+    private class Fixture(
+        location: PermissionStatus = PermissionStatus.DENIED,
+        catalog: OnboardingRegionCatalog = ServicesRegionCatalog { Locale.US },
+    ) : OnboardingFeatureDependencies {
         val resolutions = mutableListOf<CompletableDeferred<RegionSelection?>>()
         val commits = mutableListOf<RegionSelection>()
         val applies = mutableListOf<ApplyAttempt>()
@@ -425,7 +459,7 @@ class OnboardingRegionPresetComposeTest {
             override suspend fun connect(host: String, port: Int): OnboardingConnectOutcome = unexpected()
         }
         override val region = object : OnboardingRegionPort {
-            override val catalog = ServicesRegionCatalog { Locale.US }
+            override val catalog = catalog
             override val selection = MutableStateFlow<RegionSelection?>(null)
             override fun setSelection(selection: RegionSelection) {
                 commits += selection
