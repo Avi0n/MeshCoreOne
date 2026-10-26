@@ -86,6 +86,23 @@ lock was not touched. This is an **unverified feature candidate**, not verified
 acceptance of `WP-308-behavior`, `WP-308-boundaries` or `WP-308-source-test-parity`.
 Exact-candidate hosted logs remain authoritative; no duplicate CI bundle is retained.
 
+### Ordinary publication hook (143960afb)
+
+`git push origin HEAD` published implementation commit
+`143960afbff5f24468bbc895db11d55d3de67441`. Contrary to the earlier explicit
+Windows readiness failures, the already-installed pre-push hook automatically
+ran its WSL advisory adapter: `python,preflight,scaffold,inspect`, queue10s /
+fast180s. This was ordinary push behavior, not a manually replaced runtime,
+new toolchain installation or execution-lock bypass. Python passed (15 scaffold,
+108 parity-accounting and 47 local-tool tests); its adapter preflight passed.
+The declared scaffold Gradle invocation started, including App compile work,
+but returned nonzero before a completed App compilation or App test result.
+The hook explicitly printed **UNVERIFIED CANDIDATE**, then allowed publication.
+No discovery or pass for `ComposerPromptComposeTest` is claimed. This partial
+automatic execution does not turn the earlier direct Windows failures into passes.
+The documentation-only successor preserves production/test bytes; its PR/checks
+identify its actual head and any newer authoritative outcome.
+
 ## Bounded mention-picker successor: unverified candidate
 
 ### Actual hosted failure and bounded layout correction
