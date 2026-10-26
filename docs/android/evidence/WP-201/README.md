@@ -312,3 +312,22 @@ Post-edit lightweight checks passed: `git diff --check`;
 inputs, 64 WPs, 178 edges); and
 `python tools\android-port\controller\verification_config.py --check` (valid).
 These are provenance/ownership/configuration results, not model test execution.
+
+## DATA-01 authenticated compile failure and queued correction
+
+The guarded remote retry for exact `87e3ecce1629a659198a1313635f41caf46557ac`
+terminated with exit 1 at `:core:runtime:compileTestKotlin`. Its authentic log,
+`guarded-execution-87e3ecce-python-alias-fixed.log` in the assigned remote
+WP-201 lane, reports Kotlin type inference errors at lines 31 and 49 of
+`DeviceConnectionMethodPersistenceTest.kt`. The expected single-subtype lists
+were compared with a `SnapshotList<ConnectionMethod>`; Kotlin could not infer
+the assertion's shared type. The three mandatory runtime cases did not execute.
+Other partial module reports are not whole-candidate acceptance.
+
+The correction explicitly constructs `listOf<ConnectionMethod>` for those
+two expected values, retaining exact collection equality and every assertion
+without casts or production changes. It is a separate successor after DATA-10
+`f96d48ad598840a81e9012b9cce41a1ae176b965`; neither the failed `87e3ecce`
+record nor DATA-10's unexecuted status is overwritten. The successor requires
+an admitted diagnostic `:core:runtime:test` run before the full affected
+runtime/model/consumer closure; diagnostic execution alone is not acceptance.
