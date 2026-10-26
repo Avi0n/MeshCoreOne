@@ -25,6 +25,33 @@ def local_test_command(repo):
     ]
 
 
+def affected_request(repo, path, base, stages, advisory):
+    from controller.errors import PortError
+    from controller.local_scope import validate_plan
+
+    if (path is None) != (base is None) or path is not None and advisory:
+        raise PortError("Affected scope requires the exact manual owned request")
+    if path is None:
+        return None
+    if path.is_symlink() or not path.is_file() or path.stat().st_size > 8 * 1024 * 1024:
+        raise PortError("Missing/unsafe/oversized affected request")
+    admission = json.loads(Path("/proc/self/fd/8").read_text(encoding="utf-8"))
+    plan = json.loads(path.read_text(encoding="utf-8"))
+    plan = validate_plan(repo, plan, trusted_base=base)
+    if (
+        not isinstance(admission, dict)
+        or set(admission) != {"schema_version", "interlock_version", "owner", "token", "commit", "tree"}
+        or type(admission["schema_version"]) is not int or admission["schema_version"] != 1
+        or type(admission["interlock_version"]) is not int or admission["interlock_version"] != 2
+        or not isinstance(admission["token"], str) or not admission["token"]
+        or admission["owner"] != "local-check:" + admission["token"]
+        or admission.get("commit") != plan["head"] or admission.get("tree") != plan["tree"]
+        or stages != plan["stages"]
+    ):
+        raise PortError("Affected plan differs from the actual owned admission or required stages")
+    return plan
+
+
 def execute(command, repo, environment, log):
     print("Executing: " + " ".join(map(str, command)), flush=True)
     with log.open("w", encoding="utf-8") as stream:
@@ -45,6 +72,8 @@ def main():
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--stages", required=True)
     parser.add_argument("--advisory", action="store_true")
+    parser.add_argument("--affected-plan", type=Path)
+    parser.add_argument("--affected-base")
     args = parser.parse_args()
     sys.path.insert(0, str(args.repo / "tools" / "android-port"))
     from controller import ci
@@ -53,6 +82,7 @@ def main():
     from controller.module_junit import check_module_tests
 
     stages = args.stages.split(",")
+    plan = affected_request(args.repo, args.affected_plan, args.affected_base, stages, args.advisory)
     state = json.loads((args.work / "toolchain" / "environment.json").read_text(encoding="utf-8"))
     # Keep environment/credential stripping identical to CI, but retain local caches.
     state["private_root"] = str(args.work / "local-checks" / "private")
@@ -69,11 +99,22 @@ def main():
         print(f"\n===== FAST LOCAL: {stage} =====", flush=True)
         if stage == "python":
             ci.python_checks(args.output)
-            execute(local_test_command(args.repo), args.repo, environment, args.output / "local-tool-tests.log")
+            command = local_test_command(args.repo) if plan is None else [
+                sys.executable, str(args.repo / "tools/android-port/controller/test_runner.py"),
+                "--tests", str(args.repo / "tools/android-port/local"), "--quiet",
+            ]
+            execute(command, args.repo, environment, args.output / "local-tool-tests.log")
         elif stage == "preflight":
             ci.preflight(state, args.output)
         elif stage == "scaffold":
             options = scaffold_options(args.advisory)
+            if plan is not None:
+                from controller.local_scope import run_scaffold
+                report = run_scaffold(args.repo, plan, environment, args.output, execute, options,
+                                      trusted_base=args.affected_base)
+                print(json.dumps(report, indent=2), flush=True)
+                print(f"===== PASS: {stage} =====", flush=True)
+                continue
             project = args.repo / "android"
             execute([str(args.repo / "android" / "gradlew"), "-p", str(project),
                      *ci.TASKS[stage], *options], args.repo, environment, args.output / f"gradle-{stage}.log")
@@ -107,8 +148,16 @@ def main():
         "stages": stages, "elapsed_seconds": round(time.monotonic() - started, 2),
         "scope": "Local pre-push check; not hosted/cold-cache, hardware, signing or human-gate evidence",
     }
+    if plan is not None:
+        from controller.local_scope import validate_plan
+        validate_plan(args.repo, plan, trusted_base=args.affected_base)
+        binding.update(kind="local-affected-only", base=plan["base"], scopes=plan["scopes"], tasks=plan["tasks"])
     print(json.dumps(binding, indent=2), flush=True)
-    print("FAST LOCAL CHECK PASSED. No second cold local run is required.", flush=True)
+    print(
+        "AFFECTED SNAPSHOT CHECKS COMPLETE. Current-base finalization remains with the owned launcher."
+        if plan is not None else "FAST LOCAL CHECK PASSED. No second cold local run is required.",
+        flush=True,
+    )
 
 
 if __name__ == "__main__":

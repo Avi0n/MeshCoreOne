@@ -13,6 +13,8 @@ fast_seconds="${9:-180}"
 completion="${10:-}"
 token="${11:-}"
 admission="${12:-}"
+affected_plan="${13:-}"
+affected_base="${14:-}"
 work="${ANDROID_LOCAL_HOME:-$HOME/meshcoreone-work}"
 mkdir -p "$work/local-checks"
 py="${ANDROID_LOCAL_PYTHON:-$work/venv312/bin/python}"
@@ -26,7 +28,7 @@ if [[ "$mode" == "manual" || "$mode" == "advisory" ]]; then
   exec "$py" "$tool/advisory.py" --completion "$completion" --token "$token" \
     --admission "$admission" --commit "$revision" "${options[@]}" -- \
     bash "$0" "$bundle" "$revision" "$key" "$tool" "$stages" "$overlay" "$mode-lane" \
-    "$queue_seconds" "$fast_seconds" "$completion" "$token" "$admission"
+    "$queue_seconds" "$fast_seconds" "$completion" "$token" "$admission" "$affected_plan" "$affected_base"
 fi
 [[ -f "$admission" && "$admission" -ef /proc/self/fd/8 ]] || {
   echo "BLOCKED: runner did not inherit actual shared execution admission" >&2; exit 1;
@@ -55,7 +57,7 @@ else
     fi
     exec "$py" "$tool/advisory.py" --seconds "$fast_seconds" -- \
       bash "$0" "$bundle" "$revision" "$key" "$tool" "$stages" "$overlay" owned-lock \
-      "$queue_seconds" "$fast_seconds" "$completion" "$token" "$admission"
+      "$queue_seconds" "$fast_seconds" "$completion" "$token" "$admission" "$affected_plan" "$affected_base"
   fi
   flock 9
 fi
@@ -101,4 +103,10 @@ output="$(mktemp -d "$work/local-checks/run-XXXXXXXX")"
 echo "Local reports: $output"
 options=()
 [[ "$mode" != "owned-lock" ]] || options+=(--advisory)
+if [[ -n "$affected_plan" || -n "$affected_base" ]]; then
+  [[ -n "$affected_plan" && -n "$affected_base" && "$mode" == "manual-lane" ]] || {
+    echo "BLOCKED: affected scope requires the exact manual owned request" >&2; exit 1;
+  }
+  options+=(--affected-plan "$affected_plan" --affected-base "$affected_base")
+fi
 "$py" "$tool/fast.py" --repo "$repo" --work "$work" --output "$output" --stages "$stages" "${options[@]}"
