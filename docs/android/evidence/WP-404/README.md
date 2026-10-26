@@ -1,5 +1,80 @@
 # WP-404 evidence
 
+## Independent shortcut oracles: RADIO-R118-G19, unverified successor
+
+This is a separate source batch on the same WP-404 branch, based on
+`6ed8daf2abc4127441244ed6410b96b3c05e7a95`. That first consumer-repair candidate,
+tree `ef81bd3d9176bce6c6552c8de9d27b6c5ab45413`, and its prepared remote
+snapshot/ten-task queue are unchanged. The successor is the local commit containing
+this section; its exact head/tree are handed off separately. Neither candidate has
+product execution evidence. No production changes or new defect claims are made
+by G19.
+
+Authority is the parent's explicit same-owner G19 assignment and the same R118
+grouping input SHA-256 `62c185ffc08b9c38a37261d810147767b33f2a8ae2131a3a47c0622c660686d1`.
+The immutable reference remains `db14559b39d32322b06477c6ae676112f583db50`.
+Trusted admission accepted the new App test through `app-build-launcher` /
+`add-direct-support-wiring`; shortcut tests and this WP's evidence/deviation paths
+are `wp-owned`. Automatic claim again returned the preserved historical binding
+mismatch, without deleting/recreating a receipt or mutating a private ledger.
+
+Five methods in `IndependentShortcutOracleTest` (platform) and six methods in
+`ShortcutIndependentOracleTest` (App) supply the following original-vs-new
+predicates. Family labels below refer to the exact assigned Swift tests, not
+execution on Apple frameworks:
+
+| Original family | New independent predicate / native equivalent |
+| --- | --- |
+| EntityIdentity: contact ID derives from public key not row ID | Full literal `cd` public-key ID survives row replacement. |
+| EntityIdentity: channel ID derives from secret digest not raw secret/index/row ID | Full literal `bb9c...` ID survives slot/row/name replacement; raw synthetic secret absent. An additional nonuniform UUID/secret vector pins uppercase UUID text and RFC UUID byte ordering. |
+| EntityIdentity: contact and channel IDs distinct even when key matches | Identical key text produces independently literal `/contact/` and `/channel/` IDs. |
+| EntityIdentity: distinct channel secrets do not collide | All eight original repeated-byte inputs match eight fixed full IDs and remain unique. |
+| IntentBridge: adopt stores adopted app state | Native dispatcher drains the actual held request once to its installed owner. |
+| IntentBridge: re-adopt replaces previous app state | A different second handler receives the actual next request; the first receives nothing further. Uninstall holds rather than delivers. |
+| IntentErrorLocalization: localized string resource matches error description | Real Android text/executor output matches pinned English literals for the five owned categories and typed timeout. Android has one localization accessor, not Apple's second resource accessor; no new API or Apple accessor execution is claimed. Retained tests cover all 12 compiled resource locales. |
+| SendAdvert: general error mapping never leaks raw errors | Actual adapter mapping plus executor/presenter, both reaches: raw unknown diagnostic is absent, timeout retains its payload, existing MESSAGE_TOO_LONG exception passes through by identity. |
+| SendAdvert: map to intent error routes every case | All four AdvertisementError cases plus raw timeout, unknown error and existing ShortcutException; pinned literal feedback, cause/payload identity. |
+| SendAdvert: success dialog reach-specific and honest | Actual advert service/session sends literal `07` / `0701` frames; real presenter must say exactly "Sent your advert to nearby nodes." / "Sent your advert across the mesh.", never "delivered". |
+| SendMessage: channel message at limit accepted | Independent 137-byte zero-name and 131-byte six-byte-name limits reach the actual adapter and durable Room queue. |
+| SendMessage: channel message revalidated against live node name | Confirmation changes actual connected node name from empty to two CJK characters (six UTF-8 bytes); the previously valid 137-byte body is rejected without another row. |
+| SendMessage: channel service errors bucket into intent errors | All nine declared ChannelServiceError buckets have fixed expected categories/literal feedback; session payload identity retained. |
+| SendMessage: connected without services never enqueues | CONNECTED must hand off before recipient access, confirmation or enqueue; tripwire collaborators fail if reached. |
+| SendMessage: must foreground does not bump conversations version | Actual services-only teardown leaves READY/radio unchanged; real StateFlow observer and counter remain unchanged, with no added durable row. |
+| SendMessage: overlong channel message rejected | Independent 138-byte zero-name body is rejected; original accepted row and pending-send counts remain exact. Platform also rejects 132 bytes against a six-byte name. |
+| SendMessage: ready send bumps conversations version | Actual durable send increments by exactly one and reaches a real collector; original message and pending-send row exist. |
+| SendMessage: service errors rewrap to localized intent error | Seven MessageServiceError cases, both queue cases and unknown fallback go through actual mapping and real executor with fixed category/copy; no rows/version changes on these injected failures. |
+| SendMessage: status-unless-delivered fails pending but spares delivered | Actual Room pending row becomes FAILED through `chatsFeature.failPending`; ACKed DELIVERED row/text remain delivered/unchanged. |
+| StatusQuery: absent battery reports no reading, not zero percent | Actual adapter/presenter maps both raw zero and null to the literal no-reading line, never `0%`. |
+| StatusQuery: connected with battery speaks name and percent | Real READY adapter/presenter uses "Base Camp"/93 with no raw 4100; all three original connected-rung parameters additionally exercise the pure cached-snapshot dialog with that adapter-derived reading and literal expected copy. This is not execution of runtime transitions for the two other rungs. |
+| StatusQuery: millivolts convert to percent through OCV curve | Actual adapter uses the original custom eleven-point curve at 4100 mV and must produce exactly 93, not a value derived from the production percentage helper in the assertion. |
+
+Digest literals were independently calculated with Python `hashlib.sha256` over
+the pinned Swift domain UTF-8, `uuid.UUID.bytes` and synthetic secret bytes. Ten
+fixed SHA-256 vectors (the original eight, `0x5a`, and a nonuniform UUID/secret)
+are not generated by candidate Kotlin. English expectations are literal pinned
+source copy, not a second call to the same production provider. Error injection
+exercises the actual mapper/executor but does not pretend to execute every
+service failure; retained `ShortcutQueueIntegrationTest` methods still cover
+actual Room rollback/reopen, session failures and SYNCING-to-READY queue drain.
+Those 16 methods are unchanged, not replaced by fake queue tests.
+
+Source review and `git diff --check` are the only candidate-source checks so far.
+Kotlin compilation, Android/JVM tests, lint, controller/traceability verification
+and device tests are **NOT RUN** for this successor. No OOM, test failure or
+authentication failure is inferred from the absence of an assigned guarded
+remote slot. No laptop Gradle/native process, remote heavy job, runtime install,
+hook/config change, push or PR was started.
+
+The affected verification contract remains the ten declared tasks listed in the
+first batch's preparation section, using a separately bound exact successor plan
+and the supported guarded remote route. Expected source inventory is now **40**
+platform shortcut methods, **10** methods across the two App shortcut consumer
+classes (four retained plus six new), and the **16** unchanged queue-integration
+methods within the complete App suite. These are inventory expectations, **not
+discovery or passing counts**. The first candidate's eventual result cannot count
+as verification of this successor. G09 GPS, G18 adaptation, Apple-only second
+localization accessor, full-WP acceptance and device/human gates remain excluded.
+
 ## Shortcut consumer repair batch (2026-10-26): unverified local candidate
 
 Repository `cbattlegear/MeshCoreOne-Android`; owner
