@@ -805,15 +805,16 @@ class Ledger:
                     (self.repository,),
                 ).fetchall()
                 for peer in peers:
+                    jvm_lane = peer["resource"].startswith("gradle-execution:")
                     same_execution_owner = (
                         resource in EXECUTION_RESOURCES and peer["resource"] in EXECUTION_RESOURCES
                         and peer["owner"] == owner
                     )
                     conflicts = (
                         resource in EXECUTION_RESOURCES
-                        and peer["resource"] in EXECUTION_RESOURCES | {"installed-git-common-runtime"}
+                        and (peer["resource"] in EXECUTION_RESOURCES | {"installed-git-common-runtime"} or jvm_lane)
                         or resource == "installed-git-common-runtime"
-                        and peer["resource"] in EXECUTION_RESOURCES
+                        and (peer["resource"] in EXECUTION_RESOURCES or jvm_lane)
                     )
                     if conflicts and not same_execution_owner:
                         raise PortError(
@@ -841,6 +842,49 @@ class Ledger:
                 raise PortError(f"Hard-lock collision for external resource {resource}")
             connection.execute(
                 "INSERT OR REPLACE INTO hard_locks VALUES (?,?,?,?,?)",
+                (self.repository, resource, owner, json.dumps(payload), now),
+            )
+            return {"resource": resource, "owner": owner, "payload": payload, "acquired_new": True}
+
+    def acquire_jvm_lane(self, owner: str, payload: dict, now: float):
+        from .jvm_lanes import RESOURCE, host_capacity
+
+        if not isinstance(owner, str) or not owner or not isinstance(payload, dict) or "jvm_lane" in payload:
+            raise PortError("JVM execution requires a fresh owned payload")
+        if (
+            any(not isinstance(payload.get(key), str) or SHA.fullmatch(payload[key]) is None
+                for key in ("commit", "tree"))
+            or not isinstance(payload.get("token"), str) or not payload["token"]
+            or payload.get("mode") != "manual"
+        ):
+            raise PortError("JVM lane requires an exact committed manual candidate and cleanup token")
+        if type(now) not in (int, float) or not math.isfinite(now):
+            raise PortError("Malformed JVM execution acquisition time")
+        with self.transaction() as connection:
+            host, capacity = host_capacity()
+            records = connection.execute(
+                "SELECT resource,owner FROM hard_locks WHERE repository=?", (self.repository,),
+            ).fetchall()
+            occupied = set()
+            for record in records:
+                resource = record["resource"]
+                if resource in EXECUTION_RESOURCES | {"installed-git-common-runtime", "disposable-native-execution"}:
+                    raise PortError(f"JVM lane waits for existing external resource {resource}")
+                if resource.startswith("gradle-execution:"):
+                    match = RESOURCE.fullmatch(resource)
+                    if match is None:
+                        raise PortError("Malformed existing JVM execution resource")
+                    if record["owner"] == owner:
+                        raise PortError("Existing JVM execution owner must reconcile its retained receipt")
+                    if match[1] == host:
+                        occupied.add(int(match[2]))
+            if len(occupied) >= capacity:
+                raise PortError("Measured host JVM capacity is fully reserved")
+            slot = next(slot for slot in range(capacity) if slot not in occupied)
+            resource = f"gradle-execution:{host}:{slot}"
+            payload = {**payload, "jvm_lane": {"host": host, "slot": slot, "capacity": capacity}}
+            connection.execute(
+                "INSERT INTO hard_locks VALUES (?,?,?,?,?)",
                 (self.repository, resource, owner, json.dumps(payload), now),
             )
             return {"resource": resource, "owner": owner, "payload": payload, "acquired_new": True}
@@ -882,7 +926,7 @@ class Ledger:
             raise PortError("Malformed private guest acquisition time")
         with self.transaction() as connection:
             held = connection.execute(
-                "SELECT resource FROM hard_locks WHERE repository=? AND resource IN (?,?,?)",
+                "SELECT resource FROM hard_locks WHERE repository=? AND (resource IN (?,?,?) OR resource LIKE 'gradle-execution:%')",
                 (self.repository, "gradle-execution", "installed-git-common-runtime", "disposable-native-execution"),
             ).fetchall()
             if held:
