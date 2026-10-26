@@ -4,12 +4,16 @@ package com.meshcoreone.android.feature.remotenodes.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 
@@ -25,8 +29,18 @@ internal fun RetainedTabContent(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    var visited by remember { mutableStateOf(selected) }
-    if (selected && !visited) visited = true
+    var visited by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    SideEffect {
+        if (selected) visited = true
+    }
+    LaunchedEffect(selected, visited) {
+        if (visited && !selected) {
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
+        }
+    }
     if (!selected && !visited) return
     Box(
         if (selected) modifier else Modifier.size(0.dp).clipToBounds().clearAndSetSemantics {},

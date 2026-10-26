@@ -298,7 +298,9 @@ CI/acceptance results.
 
 `RetainedTabContentTest` (Robolectric, API 31 and 37) mounts the retention primitive and asserts
 one creation, no disposal across repeated tab changes, preserved state, unselected content absent
-from semantics, and disposal only on route removal. Declared verification is `configured=false`,
+from semantics, focused input clearing on deselection, and disposal on route removal or session
+identity change. The
+implementation requests keyboard hiding too; keyboard visibility is not asserted. Declared verification is `configured=false`,
 `commands=[]`: no test run is claimed for this change, and it is not device, TalkBack or Swift
 evidence. The four NodeCLI families remain covered by the existing `feature/tools` cases; this
 change does not alter them.

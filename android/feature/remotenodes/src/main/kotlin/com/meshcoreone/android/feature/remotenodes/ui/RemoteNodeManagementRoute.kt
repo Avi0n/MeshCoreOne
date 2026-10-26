@@ -129,13 +129,15 @@ internal fun RemoteNodeManagementRoute(
         }
         val cliSelected = !showHistory && tab == NodeManagementTab.CLI && helper != null
         // A visited CLI tab stays composed so its terminal state outlives tab changes.
-        RetainedTabContent(cliSelected, Modifier.weight(1f)) {
-            val send = if (session.isRepeater) repeaterSettings?.makeNodeCLISend(session) else roomSettings?.makeNodeCLISend(session)
-            if (send != null && cliContent != null) cliContent(session, { _, command, timeout ->
-                if (!canWrite) throw NodeSettingsNoServiceException()
-                send(command, timeout)
-            }, canWrite)
-            else RemoteFailure(RemoteNodesText.Resource(L.remoteNodesSettingsNoService))
+        key(session.id) {
+            RetainedTabContent(cliSelected, Modifier.weight(1f)) {
+                val send = if (session.isRepeater) repeaterSettings?.makeNodeCLISend(session) else roomSettings?.makeNodeCLISend(session)
+                if (send != null && cliContent != null) cliContent(session, { _, command, timeout ->
+                    if (!canWrite) throw NodeSettingsNoServiceException()
+                    send(command, timeout)
+                }, canWrite)
+                else RemoteFailure(RemoteNodesText.Resource(L.remoteNodesSettingsNoService))
+            }
         }
         when {
             showHistory -> RemoteNodeHistoryRoute(
