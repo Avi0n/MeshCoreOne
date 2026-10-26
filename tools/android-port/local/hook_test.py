@@ -7,6 +7,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -46,6 +47,81 @@ from controller import jvm_lanes
 
 
 class LocalCheckTests(unittest.TestCase):
+    def test_raw_candidate_fetch_into_reused_snapshot_uses_actual_shell_arguments(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repo, snapshot, bundle = root / "source", root / "snapshot", root / "candidate.bundle"
+            repo.mkdir()
+
+            def git(*args):
+                return subprocess.check_output(["git", "-C", str(repo), *args], text=True).strip()
+
+            git("init", "--quiet")
+            (repo / "tracked").write_text("fixture\n", encoding="utf-8")
+            git("add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                "commit", "--quiet", "-m", "initial")
+            base = git("rev-parse", "HEAD")
+            subprocess.run(["git", "clone", "--quiet", "--no-hardlinks", str(repo), str(snapshot)], check=True)
+            candidate = git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                            "commit-tree", git("rev-parse", "HEAD^{tree}"), "-p", base, "-m", "raw candidate")
+            self.assertNotIn(candidate, git("for-each-ref", "--format=%(objectname)").splitlines())
+            git("bundle", "create", str(bundle), *check.bundle_revisions(candidate))
+            absent = subprocess.run(["git", "-C", str(snapshot), "cat-file", "-e", candidate + "^{commit}"],
+                                    capture_output=True)
+            self.assertNotEqual(absent.returncode, 0)
+            fetch = next(line.strip() for line in Path(check.__file__).with_name("run.sh").read_text().splitlines()
+                         if line.strip().startswith('git -C "$repo" fetch --quiet "$bundle"'))
+            values = {"$repo": str(snapshot), "$bundle": str(bundle), "$revision": candidate}
+            subprocess.run([values.get(arg, arg) for arg in shlex.split(fetch)], check=True,
+                           capture_output=True, text=True)
+            subprocess.run(["git", "-C", str(snapshot), "cat-file", "-e", candidate + "^{commit}"], check=True)
+            self.assertEqual(subprocess.check_output(
+                ["git", "-C", str(snapshot), "rev-parse", "HEAD"], text=True).strip(), base)
+
+    def test_real_linux_reused_slot_checks_out_unreferenced_raw_candidate(self):
+        if not sys.platform.startswith("linux"):
+            with self.assertRaisesRegex(PortError, "actual supported Linux"):
+                jvm_lanes.host_identity()
+            return
+        from advisory_test import AdvisoryLauncherTests
+        source = (
+            "import os,pathlib,subprocess,sys\n"
+            "repo=sys.argv[sys.argv.index('--repo')+1]\n"
+            "head=subprocess.check_output(['git','-C',repo,'rev-parse','HEAD'],text=True).strip()\n"
+            "(pathlib.Path(os.environ['ANDROID_LOCAL_HOME'])/('visited-'+head)).touch()\n"
+        )
+        with AdvisoryLauncherTests.fixture(self, source) as (root, repo, work, base, tree):
+            subprocess.run(["git", "-C", str(repo), "update-ref", "refs/remotes/origin/main", base], check=True)
+            subprocess.run(["git", "-C", str(repo), "symbolic-ref",
+                            "refs/remotes/origin/HEAD", "refs/remotes/origin/main"], check=True)
+            host = jvm_lanes.host_identity()
+            with patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(root / "ledger.sqlite3")}), \
+                    patch.object(jvm_lanes, "host_capacity", return_value=(host, 3)):
+                check.run_owned(repo, base, None, check.ALL_STAGES, False,
+                                affected_base=base, parallel_jvm=True)
+                snapshots = list((work / "local-checks/lanes" / host / "0/repos").iterdir())
+                self.assertEqual(len(snapshots), 1)
+                snapshot = snapshots[0]
+                self.assertTrue((snapshot / ".git/meshcore-local-snapshot").is_dir())
+                candidate = subprocess.check_output([
+                    "git", "-C", str(repo), "-c", "user.name=Fixture",
+                    "-c", "user.email=fixture@example.invalid", "commit-tree", tree,
+                    "-p", base, "-m", "raw unreferenced candidate",
+                ], text=True).strip()
+                refs = subprocess.check_output(
+                    ["git", "-C", str(repo), "for-each-ref", "--format=%(objectname)"], text=True).splitlines()
+                self.assertNotIn(candidate, refs)
+                check.run_owned(repo, candidate, None, check.ALL_STAGES, False,
+                                affected_base=base, parallel_jvm=True)
+                self.assertTrue((work / ("visited-" + base)).is_file())
+                self.assertTrue((work / ("visited-" + candidate)).is_file())
+                self.assertEqual(subprocess.check_output(
+                    ["git", "-C", str(snapshot), "rev-parse", "HEAD"], text=True).strip(), candidate)
+                self.assertEqual(subprocess.check_output(
+                    ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip(), base)
+                self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
+
     def test_staged_control_carries_exact_trusted_lane_helper(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -262,7 +338,7 @@ assert importlib.util.find_spec('controller.jvm_lanes') is None
 
     def test_runner_imports_bundle_head_and_namespaced_refs(self):
         runner = Path(check.__file__).resolve().with_name("run.sh").read_text(encoding="utf-8")
-        self.assertIn('fetch --quiet "$bundle" HEAD', runner)
+        self.assertIn('fetch --quiet "$bundle" "$revision" HEAD', runner)
         self.assertIn("+refs/*:refs/local-input/*", runner)
 
 

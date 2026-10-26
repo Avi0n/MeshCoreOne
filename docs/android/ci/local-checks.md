@@ -12,6 +12,9 @@ The supported interlocked launcher has an explicit local-only affected contract:
 python .\tools\android-port\local\check.py --commit <candidate-SHA> --affected-base <current-origin-default-base-SHA>
 ```
 
+Raw candidate SHAs need no caller-created advertising ref. Reused managed
+snapshots explicitly fetch the requested immutable commit from the input bundle.
+
 Omit `--scope` to derive all obligations automatically. If supplied repeatedly,
 the explicit scope list must be a complete superset of the derived CI and
 `module:<Git-module-path>` scopes. Unknown, duplicate or incomplete lists fail.
