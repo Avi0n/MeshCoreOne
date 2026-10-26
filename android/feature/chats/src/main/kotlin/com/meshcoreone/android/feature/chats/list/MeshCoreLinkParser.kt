@@ -3,7 +3,9 @@
 package com.meshcoreone.android.feature.chats.list
 
 import com.meshcoreone.android.core.model.ChannelDTO
+import com.meshcoreone.android.core.model.ProtocolLimits
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.bytes.utf8Prefix
 import com.meshcoreone.android.core.protocol.model.ContactType
 import java.net.URI
 import java.net.URISyntaxException
@@ -59,7 +61,6 @@ object MeshCoreLinkParser : MeshCoreLinkParsing {
     const val SCHEME = "meshcore"
     private const val PUBLIC_KEY_SIZE = 32
     private const val CHANNEL_SECRET_SIZE = 16
-    private const val MAX_REGION_SCOPE_BYTES = 31
 
     private fun uri(text: String): URI? = try {
         URI(text)
@@ -149,21 +150,10 @@ object MeshCoreLinkParser : MeshCoreLinkParsing {
         return if (wholeOk && fractionOk) value.toDoubleOrNull() else null
     }
 
-    /** Trims, caps to the flood-scope name byte limit on a code-point boundary; blank becomes null. */
+    /** Trims, caps to the flood-scope name byte limit on a grapheme boundary; blank becomes null. */
     fun normalizedRegionScope(value: String?): String? {
         val trimmed = value?.trim() ?: return null
         if (trimmed.isEmpty()) return null
-        val capped = StringBuilder()
-        var bytes = 0
-        var index = 0
-        while (index < trimmed.length) {
-            val codePoint = trimmed.codePointAt(index)
-            val size = String(Character.toChars(codePoint)).toByteArray(Charsets.UTF_8).size
-            if (bytes + size > MAX_REGION_SCOPE_BYTES) break
-            capped.appendCodePoint(codePoint)
-            bytes += size
-            index += Character.charCount(codePoint)
-        }
-        return capped.toString().ifEmpty { null }
+        return trimmed.utf8Prefix(ProtocolLimits.MAX_DEFAULT_FLOOD_SCOPE_NAME_BYTES).ifEmpty { null }
     }
 }
