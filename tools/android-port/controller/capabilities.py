@@ -169,9 +169,11 @@ class CapabilityEngine:
         }
 
     def transfer_intent(self, origin: dict, producer: dict, path: str,
-                        capability_id: str) -> dict:
+                        capability_id: str, operation: str, *,
+                        assigned_paths: list[str] | None = None) -> dict:
         """Record producer handoff without changing either owner's identity or evidence."""
         path = git_path(path, subtree=True)
+        nonempty(operation, "Capability transfer operation")
         for label, record in (("origin", origin), ("producer", producer)):
             if not isinstance(record, dict) or any(
                 not isinstance(record.get(key), str) or not record[key]
@@ -180,12 +182,37 @@ class CapabilityEngine:
                 raise PortError(f"Malformed {label} intent owner")
         if origin["session"] == producer["session"]:
             raise PortError("Intent transfer requires distinct owner sessions")
-        if capability_id not in self._rules or not any(
-            self._matches(pattern, path) for pattern in self._rules[capability_id]["path_rules"]
-        ):
-            raise PortError(f"Capability {capability_id} does not admit transfer path {path}")
+        rule = self._rules.get(capability_id)
+        if rule is None:
+            raise PortError(f"Unknown transfer capability: {capability_id}")
+        if operation not in rule["operations"]:
+            raise PortError(
+                f"Capability {capability_id} does not admit transfer operation {operation}"
+            )
+        if capability_id == "wp-owned":
+            if origin["wp"] != producer["wp"]:
+                raise PortError("WP-owned transfer requires the same assigned WP")
+            if not isinstance(assigned_paths, list) or not assigned_paths:
+                raise PortError("WP-owned transfer requires trusted assigned-WP paths")
+            if not any(self._assigned_path(allowed, path) for allowed in assigned_paths):
+                raise PortError(
+                    f"Capability {capability_id} does not admit transfer path {path}"
+                )
+            admission = self.admit(origin["wp"], assigned_paths, path, operation)
+            if admission.capability_id != capability_id:
+                raise PortError(
+                    f"Capability {capability_id} does not admit transfer path {path} "
+                    f"with operation {operation}"
+                )
+        else:
+            if rule.get("work_packages") and producer["wp"] not in rule["work_packages"]:
+                raise PortError(
+                    f"Capability {capability_id} does not admit producer WP {producer['wp']}"
+                )
+            if not any(self._matches(pattern, path) for pattern in rule["path_rules"]):
+                raise PortError(f"Capability {capability_id} does not admit transfer path {path}")
         return {
-            "path": path, "capability": capability_id,
+            "path": path, "capability": capability_id, "operation": operation,
             "origin": dict(origin), "producer": dict(producer),
             "attributions": sorted(
                 [dict(origin), dict(producer)], key=lambda value: (value["wp"], value["session"])

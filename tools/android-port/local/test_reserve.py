@@ -293,11 +293,12 @@ class CapabilityAuthorityCliTests(unittest.TestCase):
             self.assert_rejected(repo, ledger, cli, self.operation)
             result, _, errors = cli(
                 "transfer", "--path", self.path, "--capability", "message-actions-translation-removal",
+                "--operation", self.operation,
                 "--origin-wp", "WP-502", "--origin-session", "existing-owner", "--origin-evidence", "original",
                 "--producer-wp", "WP-502", "--producer-session", "other-producer", "--producer-evidence", "pending",
             )
             self.assertEqual(result, 1, errors)
-            self.assertIn("does not admit transfer path", errors)
+            self.assertIn("Unknown transfer capability", errors)
             self.assertEqual(self.snapshot(ledger), before)
             candidate = json.loads(policy_path.read_text(encoding="utf-8"))
             candidate["repository"] = "candidate/incorrect"
@@ -305,6 +306,46 @@ class CapabilityAuthorityCliTests(unittest.TestCase):
             git("add", "docs")
             git("commit", "--quiet", "-m", "candidate namespace cannot select a foreign partition")
             self.assert_rejected(repo, ledger, cli, self.operation)
+
+    def test_wp_owned_transfer_uses_trusted_manifest_paths_without_mutating_ledger(self):
+        with authority_fixture() as (repo, ledger, _, cli):
+            manifest, _ = reserve.trusted_capability_authority(repo)
+            path = "tools/android-port/controller/capabilities.py"
+            self.assertTrue(any(CapabilityEngine._assigned_path(allowed, path)
+                                for allowed in manifest.wp("WP-000")["write_paths"]))
+            before = self.snapshot(ledger)
+
+            def transfer(path, operation="modify", producer_wp="WP-000"):
+                return cli(
+                    "transfer", "--path", path, "--capability", "wp-owned",
+                    "--operation", operation,
+                    "--origin-wp", "WP-000", "--origin-session", "old-owner",
+                    "--origin-evidence", "prior-evidence",
+                    "--producer-wp", producer_wp, "--producer-session", "current-owner",
+                    "--producer-evidence", "current-evidence",
+                )
+
+            result, receipt, errors = transfer(path)
+            self.assertEqual(result, 0, errors)
+            self.assertEqual(receipt["path"], path)
+            self.assertEqual(receipt["capability"], "wp-owned")
+            self.assertEqual(receipt["operation"], "modify")
+            self.assertEqual(receipt["origin"]["session"], "old-owner")
+            self.assertEqual(receipt["producer"]["session"], "current-owner")
+            self.assertTrue(receipt["advisory"])
+            self.assertFalse(receipt["file_edit_blocked"])
+            self.assertEqual(self.snapshot(ledger), before)
+
+            for requested_path, operation, producer_wp, expected_error in (
+                (path, "modify", "WP-003", "same assigned WP"),
+                ("android/core/protocol/session/Outside.kt", "modify", "WP-000",
+                 "does not admit transfer path"),
+                (path, "unknown-operation", "WP-000", "does not admit transfer operation"),
+            ):
+                result, _, errors = transfer(requested_path, operation, producer_wp)
+                self.assertEqual(result, 1)
+                self.assertIn(expected_error, errors)
+                self.assertEqual(self.snapshot(ledger), before)
 
     def test_real_cli_candidate_manifest_widening_cannot_grant_wp_owned_authority(self):
         with authority_fixture() as (repo, ledger, git, cli):

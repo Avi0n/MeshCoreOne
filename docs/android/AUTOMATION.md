@@ -194,7 +194,10 @@ The local helper supports trusted path/operation admission and same-owner compar
 evolution. `release` is only a compatibility name and refuses to delete advisory history; terminal merge
 reconciliation and authenticated successor admission are distinct operations. A stale historical claim
 is not a file lock, and authenticating a new autonomous worker/completion is not the same as admitting
-an isolated source edit. Preserve historical authorization bytes and actual identities/bindings;
+an isolated source edit. Advisory transfer requires the named capability operation; for `wp-owned`, the
+local CLI resolves the path against the trusted manifest only when origin and producer have the same WP.
+The returned transfer attribution does not mutate a lease or admit a successor. Preserve historical
+authorization bytes and actual identities/bindings;
 do not erase claims or reinterpret an idle session as completion.
 
 Repairs target the same actual task/PR or native session, at most three rounds per attempt; requests
