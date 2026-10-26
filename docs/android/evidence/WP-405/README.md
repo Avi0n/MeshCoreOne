@@ -1,5 +1,54 @@
 # WP-405 evidence
 
+## WP405-LINKS repair verification status
+
+The APP-G03/APP-G04/APP-G07 repair batch is **not Android-verified yet**.
+The passing results below belong to the original WP-405 implementation at its
+recorded historical base, not this repair candidate. They must not be reused as
+new test-discovery, compilation, build or consumer-parity evidence.
+
+The repair preserves private-secret hashtag warning/scope metadata through the
+mounted confirmation and reuses the unchanged protocol grapheme helper with the
+shared 30-byte region limit in external, chat and QR parsers. Original source
+remains pinned to `db14559b39d32322b06477c6ae676112f583db50`.
+The feature-parser capability was freshly admitted after trusted support landing
+`f2f481d2e7c2a9029808943529c98c98ef879299`; the same owner's reservation
+evolved to revision 4 before that edit.
+
+The committed regression definitions require these real consumer surfaces:
+
+| Test class | Defined repair methods | Required behavior |
+| --- | --- | --- |
+| `app.container.LinkConsumerIntegrationTest` | 4 | Actual retained Intent delivery/binding, original San Francisco focus, once-only consumption and external/chat confirmation metadata |
+| `app.container.ChannelConfirmationConsumerTest` | 5 | Mounted warning/scope before consent, exact confirmed firmware/Room state, disconnected disabled action and cancellation |
+| `app.container.ChannelRegionConsumerTest` | 4 | External/chat/QR parser-to-real-join and persisted region/secret, absent/empty values, padded ASCII and whole combining-grapheme boundaries |
+| `app.container.MentionNavigationConsumerTest` | 2 | Actual mounted mention producer/action to contact destination and non-mention dispatch, preserving all original encoded-name vectors |
+| `app.platform.ChatMapPreviewTest` | 2 coordinate methods | Independent mounted San Francisco/London thumbnail clicks replace prior focus with exact coordinates |
+
+These are method definitions, **not discovered or passing counts**. API expansion
+and the complete existing module suites must be observed from fresh real reports.
+The QR assertion covers the production parser/join seam, not camera or device
+evidence.
+
+After reconciliation with trusted main
+`a8c624bcb095f81a30e5fee671099fa519f608b7`, read-only affected-plan derivation
+selects `module:app` and `module:feature/chats`. The supported launcher contract is:
+
+```text
+python tools/android-port/local/check.py --commit <exact-candidate-SHA> --affected-base <current-trusted-main-SHA>
+```
+
+The derived obligations are complete `:app:testDebugUnitTest` and
+`:feature:chats:testDebugUnitTest` runners, App/chats Kotlin compilation and lint,
+`:feature:chats:check`, `:app:compileDebugAndroidTestKotlin`,
+`validateModuleGraph` and `runtimeDependencyInventory`. No arbitrary Gradle
+filters, direct execution workaround or full-scaffold widening is requested.
+Remote source preparation is not heavy-execution admission. The coordinator
+must assign the supported remote execution slot before that run starts.
+Publication remains pending combined meaningful nonzero discovery and PASS.
+
+## Historical original implementation evidence
+
 ## Scope and provenance
 
 - Work package: `WP-405`
