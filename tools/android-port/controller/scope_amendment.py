@@ -382,10 +382,204 @@ ROOM_FAILED_EVENT_CAPABILITY = {
 }
 
 
+CONSUMER_SUPPORT_CAPABILITIES = [
+    {
+        "id": "wp405-uri-region-normalization",
+        "work_packages": ["WP-405"],
+        "path_rules": [
+            "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/list/MeshCoreLinkParser.kt",
+        ],
+        "operations": ["repair-uri-region-normalization"],
+        "invariants": [
+            "pinned-source-db14559b39d32322b06477c6ae676112f583db50-primary-provenance-unchanged",
+            "REGION-only-reuse-existing-utf8Prefix-graphemes-and-MAX_DEFAULT_FLOOD_SCOPE_NAME_BYTES-30",
+            "trim-and-nil-empty-after-cap-preserved-no-broader-Unicode-trim-equivalence-claim",
+            "contact-map-scheme-host-path-query-decoding-validation-encoding-secrets-and-failure-unchanged",
+            "actual-external-chat-QR-join-and-local-region-persistence-not-parser-only-credit",
+            "no-protocol-helper-test-resource-build-or-feature-subtree-expansion",
+            "trusted-main-admission-before-product-edit-same-owner-advisory-evolution",
+            "semantic-overlap-serialize-or-transfer-current-producer-no-native-or-Gradle-lock-change",
+        ],
+        "validation": [
+            "exact WP405 path and named-operation admission; other-WP path and operation denial",
+            "future WP405 owned App consumer tests: padded40ASCII becomes30; 29ASCII-plus-combining-grapheme stays29 through external chat and QR joins",
+            "future nil-empty and explicit-secret consumers preserve actual persisted region and secret; no fabricated original-family credit",
+            "affected declared module verification with nonzero discovery and trusted ownership/traceability validators",
+        ],
+    },
+    {
+        "id": "wp201-active-connection-method",
+        "work_packages": ["WP-201"],
+        "path_rules": [
+            "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionManager.kt",
+        ],
+        "operations": ["persist-active-connection-method"],
+        "invariants": [
+            "pinned-source-db14559b39d32322b06477c6ae676112f583db50-primary-provenance-unchanged",
+            "establish-only-exhaustive-current-Bluetooth-target-deviceId-or-WiFi-host-port-method",
+            "actual-session-identity-to-DeviceDTO-fromConnection-and-DevicePersisting-saveDevice-boundary",
+            "preserve-WiFi-replace-stale-BLE-on-public-key-match-stable-radioId-distinct-from-endpoint",
+            "one-saved-row-no-dropped-preferences-no-merger-lifecycle-service-input-or-heartbeat-rewrite",
+            "WP201-first-ConnectionManager-producer-WP214-serializes-after-its-result",
+            "trusted-main-admission-before-product-edit-same-owner-advisory-evolution",
+            "semantic-overlap-serialize-or-transfer-current-producer-no-native-or-Gradle-lock-change",
+        ],
+        "validation": [
+            "exact WP201 source path and named-operation admission; generic modify create delete and other-WP denial",
+            "future real RuntimeFixture session-to-save tests retain fresh-BLE existing-WiFi and stale-BLE-replacement pinned families",
+            "future endpoint-versus-radioId single-row preferences and existing WiFi behavior assertions",
+            "affected declared runtime verification with nonzero discovery and trusted ownership/traceability validators",
+        ],
+    },
+    {
+        "id": "wp201-connection-method-regression",
+        "work_packages": ["WP-201"],
+        "path_rules": [
+            "android/core/runtime/src/test/kotlin/com/meshcoreone/android/core/runtime/DeviceConnectionMethodPersistenceTest.kt",
+        ],
+        "operations": ["add-connection-method-persistence-regression"],
+        "invariants": [
+            "create-update-and-test-only-this-exact-regression-no-generic-runtime-test-authority",
+            "real-existing-RuntimeFixture-MeshCoreSession-to-saveDevice-not-direct-DTO-only-proxy",
+            "retain-three-pinned-DevicePublicKeyDeduplicationTests-families-no-assertion-weakening",
+            "fresh-BLE-existing-WiFi-stale-BLE-replacement-radioId-endpoint-and-preferences-asserted",
+            "no-RuntimeTestSupport-build-dependency-or-source-ownership-edit",
+            "trusted-main-admission-before-product-edit-same-owner-advisory-evolution",
+            "semantic-overlap-serialize-or-transfer-current-producer-no-native-or-Gradle-lock-change",
+        ],
+        "validation": [
+            "exact WP201 test path and named-operation admission; source sibling other-WP and generic-operation denial",
+            "future declared runtime test runner discovers and passes all three source families with real save-boundary assertions",
+            "trusted ownership/traceability validators; policy regressions are not product acceptance",
+        ],
+    },
+    {
+        "id": "wp214-active-link-channel-sync-input",
+        "work_packages": ["WP-214"],
+        "path_rules": [
+            "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/RuntimePorts.kt",
+            "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionManager.kt",
+            "android/core/runtime/src/test/kotlin/com/meshcoreone/android/core/runtime/RuntimeOwnershipTest.kt",
+        ],
+        "operations": ["add-active-link-channel-sync-input"],
+        "invariants": [
+            "pinned-source-db14559b39d32322b06477c6ae676112f583db50-primary-provenance-unchanged",
+            "RuntimeServiceInputs-required-transportType-TransportType-no-default-or-saved-endpoint-inference",
+            "sole-real-ConnectionManager-establish-factory-call-forwards-actual-link-type-per-generation",
+            "modify-existing-exact-source-and-RuntimeOwnershipTest-only-no-test-helper-or-runtime-subtree-expansion",
+            "preserve-WP201-DeviceDTO-endpoint-semantics-platform-detection-and-unknown-WiFi-fallback",
+            "preserve-ownership-teardown-cancellation-cooldowns-READY-only-heartbeat-and-saved-endpoints",
+            "WP214-waits-for-WP201-ConnectionManager-producer-result-before-overlapping-product-edit",
+            "trusted-main-admission-before-product-edit-same-owner-advisory-evolution",
+            "semantic-overlap-serialize-or-transfer-current-producer-no-native-or-Gradle-lock-change",
+        ],
+        "validation": [
+            "exact WP214 three-path named-operation admission; other-WP sibling path generic-operation and cross-purpose denial",
+            "future RuntimeOwnershipTest factory-input assertions observe actual BLE WiFi and replacement-generation RuntimeLink.type",
+            "future real App channel-sync consumer retains typed-error and pipeline behavior; no source-family credit from support policy",
+            "affected declared module verification with nonzero discovery and trusted ownership/traceability validators",
+        ],
+    },
+    {
+        "id": "wp211-regional-label-localization",
+        "work_packages": ["WP-211"],
+        "path_rules": [
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/OnboardingRegionPresets.kt",
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/AppOnboarding.kt",
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AndroidAppContainerFactory.kt",
+            "android/app/src/test/kotlin/com/meshcoreone/android/app/container/onboarding/OnboardingRegionPresetAdapterTest.kt",
+            "android/ui-tests/src/test/kotlin/com/meshcoreone/android/uitests/OnboardingRegionPresetComposeTest.kt",
+        ],
+        "operations": ["repair-regional-label-localization"],
+        "invariants": [
+            "pinned-source-db14559b39d32322b06477c6ae676112f583db50-primary-provenance-unchanged",
+            "modify-five-existing-files-only-actual-app-locale-resources-to-mounted-ServicesRegionCatalog",
+            "factory-OnboardingPlatform-regional-resource-provider-and-import-only-other-factory-blocks-unchanged",
+            "current-app-localized-resources-per-call-including-API31-32-AppLanguages-attach-no-frozen-Application-default-locale",
+            "reuse-generated-RegionalSubdivisionNames-and-core-RegionalAreas-injection-no-shared-resource-edit",
+            "localized-subdivision-sort-label-and-selected-region-display-through-real-picker",
+            "preserve-stable-country-subdivision-IDs-selection-persistence-presets-US-CA-short-form",
+            "preserve-nonUS-AU-disambiguation-Pennsylvania-Texas-and-English-fallback-original-text",
+            "no-new-strings-generator-services-Android-dependency-translation-provider-or-onboarding-redesign",
+            "no-RxLog-ConnectedDeviceEditor-WP212-or-general-App-write-expansion",
+            "trusted-main-admission-before-product-edit-same-owner-advisory-evolution",
+            "semantic-overlap-serialize-or-transfer-current-producer-no-native-or-Gradle-lock-change",
+        ],
+        "validation": [
+            "exact WP211 five-path named-operation admission; other-WP sibling path generic-operation and cross-purpose denial",
+            "future App adapter and mounted OnboardingRegionPresetComposeTest assert retained French German labels through production catalog and picker",
+            "future affected declared module build lint tests with positive nonzero discovery and trusted ownership/traceability validators",
+            "policy regressions are not mounted UI native accessibility or original-family acceptance",
+        ],
+    },
+    {
+        "id": "wp003-scoped-local-verification",
+        "work_packages": ["WP-003"],
+        "path_rules": [
+            "tools/android-port/local/check.py",
+            "tools/android-port/local/fast.py",
+            "tools/android-port/local/run.sh",
+            "tools/android-port/local/hook_test.py",
+        ],
+        "operations": ["wire-scoped-local-verification"],
+        "invariants": [
+            "modify-four-existing-runner-regression-files-only-no-blanket-local-tree",
+            "preserve-trusted-repository-and-installed-runtime-namespace-no-installation-or-namespace-fallback",
+            "preserve-native-Gradle-install-hard-lock-admission-supervision-owned-cleanup-and-execution-identity",
+            "actual-complete-candidate-diff-immutable-current-trusted-base-head-tree-binding",
+            "requested-scopes-cannot-omit-changed-paths-or-verification-obligations",
+            "fixed-declared-task-selections-only-no-arbitrary-Gradle-override",
+            "strict-nonzero-test-discovery-no-failures-errors-skips-or-success-shaped-fallback",
+            "default-full-prepush-and-result-semantics-unchanged-unclassifiable-or-build-change-full-fallback",
+            "existing-hook_test-and-owned-test_local_scope-regressions-no-test-weakening",
+            "pinned-source-db14559b39d32322b06477c6ae676112f583db50-primary-provenance-unchanged",
+            "trusted-main-admission-before-consumer-edit-same-owner-advisory-evolution",
+            "semantic-overlap-serialize-or-transfer-current-producer-no-native-or-Gradle-lock-change",
+        ],
+        "validation": [
+            "exact WP003 four-path named-operation admission; other-WP sibling path generic-operation and cross-purpose denial",
+            "future actual candidate-diff selector and hook regressions retain default full and nonblocking prepush results",
+            "future stale-base-head-tree namespace interlock supervision cleanup omitted-path arbitrary-task and zero-test negative regressions",
+            "declared controller and local runner suites with nonzero discovery; no policy self-consumption runtime deployment or native execution",
+        ],
+    },
+]
+
+
+def consumer_support_predecessor(policy):
+    """Reverse only the complete exact consumer-support block; preserve all other policy bytes."""
+    if not isinstance(policy, dict):
+        raise PortError("Consumer support amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result["reservation_policy"]
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Consumer support amendment requires the canonical capability catalog")
+    identities = {rule["id"] for rule in CONSUMER_SUPPORT_CAPABILITIES}
+    selected = [i for i, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") in identities]
+    if not selected:
+        return result
+    start, end = selected[0], selected[-1] + 1
+    if (
+        rules[start:end] != CONSUMER_SUPPORT_CAPABILITIES
+        or len(selected) != len(CONSUMER_SUPPORT_CAPABILITIES)
+        or start == 0 or not isinstance(rules[start - 1], dict)
+        or rules[start - 1].get("id") != "disposable-native-guest"
+        or end >= len(rules) or not isinstance(rules[end], dict)
+        or rules[end].get("id") != "wp-owned"
+    ):
+        raise PortError("Consumer support capabilities changed outside the exact bounded amendment")
+    del rules[start:end]
+    return result
+
+
 def room_failed_event_predecessor(policy):
     if not isinstance(policy, dict):
         raise PortError("Room failed-event amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = consumer_support_predecessor(policy)
     reservation = result.get("reservation_policy")
     if reservation is None:
         return result
