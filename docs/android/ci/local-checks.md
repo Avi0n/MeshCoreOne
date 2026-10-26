@@ -6,6 +6,30 @@ or retained native owner is not permission to invoke Gradle directly. The existi
 supported full scaffold remains available after those actual gates are recovered;
 this optimization is not a prerequisite for other complete product batches.
 
+The supported interlocked launcher has an explicit local-only affected contract:
+
+```powershell
+python .\tools\android-port\local\check.py --commit <candidate-SHA> --affected-base <current-origin-default-base-SHA>
+```
+
+Omit `--scope` to derive all obligations automatically. If supplied repeatedly,
+the explicit scope list must be a complete superset of the derived CI and
+`module:<Git-module-path>` scopes. Unknown, duplicate or incomplete lists fail.
+No arbitrary Gradle command/test filter is accepted. Affected mode rejects
+partial-stage, working-tree, adapter, hook-installation, prepush and full-result
+validation overrides. Ordinary `--stages`, full/manual, adapter and nonblocking
+prepush behavior is unchanged.
+
+The request is derived only after canonical shared Gradle-resource acquisition,
+and passes through the existing native/Gradle/runtime interlock, Linux flock,
+supervisor and owned-child cleanup. Its snapshot stage list, commit and tree
+must match the inherited real admission descriptor. The immutable base is
+validated before transport and checked again on return. It does not install or
+upgrade the runtime, clear an incumbent owner, or add another execution route.
+The snapshot does not print a final affected pass: only the launcher can do so,
+after current-base revalidation, proven child cleanup and successful own-resource
+release. Failure at any of those steps cannot produce a scoped success receipt.
+
 The controller selector binds an immutable trusted default-base commit, candidate
 commit, tree and actual NUL-delimited, no-renames Git diff. Deletions and both
 sides of moves remain inputs. Explicit scopes can add obligations, never omit
@@ -41,6 +65,14 @@ Lightweight selector regression command:
 ```powershell
 $env:PYTHONPATH = "$PWD\tools\android-port"
 python -m unittest discover -s .\tools\android-port\tests -p test_local_scope.py -v
+```
+
+Focused source/launcher integration fixtures (no real Gradle/native/runtime
+deployment) can run within the light-source capacity lane:
+
+```powershell
+$env:PYTHONPATH = "$PWD\tools\android-port;$PWD\tools\android-port\local;$PWD\tools\android-port\tests"
+python -m unittest test_local_scope hook_test.AffectedRunnerTests hook_test.LocalCheckTests.test_affected_scope_cannot_replace_full_pre_push_adapter_or_result_contract hook_test.LocalCheckTests.test_explicit_affected_contract_forwards_base_and_additional_scopes_only hook_test.LocalCheckTests.test_shell_forwards_scoped_request_through_existing_supervision_only -v
 ```
 
 The declared strict controller/local suites remain:
