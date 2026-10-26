@@ -489,6 +489,10 @@ public actor SettingsService {
     return reply
   }
 
+  /// CommonCLI prints this, then the key, for an unknown get.
+  /// An exact match means the requested key is absent.
+  private static let unknownGetPrefix = "??: "
+
   /// Read one Radio CLI key. `nil` means this build has no such key.
   public func getRadioCLIValue(_ key: String) async throws -> String? {
     let reply = try await sendRadioCLI("get \(key)")
@@ -499,6 +503,8 @@ public actor SettingsService {
       return nil
     case let .error(text):
       throw SettingsServiceError.radioCLIRejected(text)
+    case let .other(text) where text == Self.unknownGetPrefix + key:
+      return nil
     case .ok, .other:
       throw SettingsServiceError.invalidResponse
     }
