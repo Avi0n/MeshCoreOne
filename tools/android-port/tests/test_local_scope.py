@@ -1,14 +1,83 @@
+import contextlib
+import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
+import types
 import unittest
+from unittest.mock import patch
 
 from controller.errors import PortError
 from controller.local_scope import candidate_plan, collect_targeted_reports, report_inputs, run_scaffold, select_paths, validate_plan
 
 
 class LocalScopeSelectionTests(unittest.TestCase):
+    def test_direct_test_then_direct_production_then_consumers_preserves_all_tasks(self):
+        modules = {
+            "core/data": {"runner": "testDebugUnitTest", "tests": True, "lint": True, "dependencies": []},
+            "core/runtime": {"runner": "test", "tests": True, "lint": False, "dependencies": ["core/data"]},
+            "app": {"runner": "testDebugUnitTest", "tests": True, "lint": True,
+                    "dependencies": ["core/data", "core/runtime"]},
+        }
+        tasks = {
+            "app": [":app:testDebugUnitTest", ":app:compileDebugKotlin", ":app:lintDebug",
+                    ":app:compileDebugAndroidTestKotlin"],
+            "core/data": [":core:data:testDebugUnitTest", ":core:data:check",
+                          ":core:data:compileDebugKotlin", ":core:data:lintDebug"],
+            "core/runtime": [":core:runtime:test", ":core:runtime:check"],
+        }
+        for paths, order in (
+            (["android/core/runtime/src/test/kotlin/RuntimeOwnershipTest.kt"], ["core/runtime", "app"]),
+            (["android/core/data/src/main/kotlin/Repository.kt"], ["core/data", "app", "core/runtime"]),
+            (["android/core/data/src/main/kotlin/Repository.kt",
+              "android/core/runtime/src/test/kotlin/RuntimeOwnershipTest.kt"], ["core/runtime", "core/data", "app"]),
+            (["android/core/data/src/testDebug/kotlin/RepositoryTest.kt",
+              "android/core/runtime/src/test/kotlin/RuntimeOwnershipTest.kt"], ["core/data", "core/runtime", "app"]),
+            (["android/core/data/src/main/kotlin/Repository.kt",
+              "android/core/runtime/src/androidTest/kotlin/RuntimeTest.kt"], ["core/runtime", "core/data", "app"]),
+        ):
+            with self.subTest(paths=paths):
+                plan = select_paths(paths, modules=modules)
+                original = [task for module in sorted(order) for task in tasks[module]]
+                original.extend(["validateModuleGraph", "runtimeDependencyInventory"])
+                self.assertCountEqual(plan["tasks"], original)
+                self.assertEqual(plan["tasks"], [task for module in order for task in tasks[module]]
+                                 + ["validateModuleGraph", "runtimeDependencyInventory"])
+                self.assertEqual(plan["scopes"], ["module:" + module for module in sorted(order)])
+                self.assertEqual(plan["stages"], ["python", "preflight", "scaffold"])
+                self.assertFalse(plan["full_scaffold"])
+        backup = select_paths([
+            "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/Codec.kt",
+            "android/core/runtime/src/test/kotlin/RuntimeOwnershipTest.kt",
+        ], modules=modules)
+        self.assertEqual(backup["tasks"][0], ":core:runtime:test")
+        self.assertCountEqual(backup["tasks"], [
+            *(task for module in sorted(tasks) for task in tasks[module]),
+            ":core:data:verifyBackupTests", ":core:data:verifyPersistenceRepositoryTests",
+            ":core:database:testDebugUnitTest", "validateModuleGraph", "runtimeDependencyInventory",
+        ])
+        self.assertEqual(backup["scopes"], ["backup", "module:app", "module:core/data", "module:core/runtime"])
+
+    def test_full_fallback_order_and_obligations_are_unchanged_by_direct_tests(self):
+        from controller.local_scope import SCOPED_TASKS
+        modules = {"core/runtime": {"runner": "test", "tests": True, "lint": False, "dependencies": []}}
+        original = list(dict.fromkeys(task for tasks in SCOPED_TASKS.values() for task in tasks))
+        for extra, graph_error in (
+            (["android/unclassified/input.bin"], None),
+            (["android/core/runtime/build.gradle.kts"], None),
+            ([], "unclassified committed dependency"),
+        ):
+            with self.subTest(extra=extra, graph_error=graph_error):
+                plan = select_paths(["android/core/runtime/src/test/kotlin/RuntimeTest.kt", *extra],
+                                    modules=modules, graph_error=graph_error)
+                self.assertEqual(plan["tasks"], original)
+                self.assertEqual(plan["scopes"], list(SCOPED_TASKS))
+                self.assertEqual(plan["stages"], ["python", "preflight", "scaffold", "inspect"])
+                self.assertTrue(plan["full_scaffold"])
+
     def test_protocol_uses_actual_declared_tasks_and_graph_checks(self):
         plan = select_paths(["android/core/protocol/src/main/kotlin/Frame.kt"])
         self.assertEqual(plan["scopes"], ["protocol"])
@@ -154,6 +223,121 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.assertEqual(plan["tree"], self.git("rev-parse", "HEAD^{tree}"))
         self.assertEqual(validate_plan(self.repo, json.loads(json.dumps(plan))), plan)
 
+    def test_wp201_data_production_and_runtime_test_keep_exact_reports_and_consumers(self):
+        self.write("android/core/data/build.gradle.kts", 'plugins { id("mesh.android.library") }\n')
+        self.write("android/core/data/src/test/kotlin/RepositoryTest.kt", "existing tests")
+        self.write("android/core/runtime/build.gradle.kts",
+                   'plugins { id("mesh.jvm.library") }\ndependencies { implementation(project(":core:data")) }\n')
+        self.write("android/app/build.gradle.kts",
+                   'plugins { id("mesh.android.application") }\ndependencies {'
+                   ' implementation(project(":core:data")); implementation(project(":core:runtime")) }\n')
+        self.write("android/core/data/src/main/kotlin/Repository.kt", "base")
+        self.write("android/core/runtime/src/test/kotlin/RuntimeOwnershipTest.kt", "base")
+        base = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", base)
+        self.write("android/core/data/src/main/kotlin/Repository.kt", "changed production")
+        self.write("android/core/runtime/src/test/kotlin/RuntimeOwnershipTest.kt", "changed regression")
+        plan = candidate_plan(self.repo, base, self.commit())
+        self.assertEqual(plan["tasks"], [
+            ":core:runtime:test", ":core:runtime:check",
+            ":core:data:testDebugUnitTest", ":core:data:check", ":core:data:compileDebugKotlin", ":core:data:lintDebug",
+            ":app:testDebugUnitTest", ":app:compileDebugKotlin", ":app:lintDebug", ":app:compileDebugAndroidTestKotlin",
+            "validateModuleGraph", "runtimeDependencyInventory",
+        ])
+        self.assertEqual(plan["scopes"], ["module:app", "module:core/data", "module:core/runtime"])
+        directories, lint = report_inputs(self.repo, plan)
+        self.assertEqual(directories, [
+            self.repo / "android/app/build/test-results/testDebugUnitTest",
+            self.repo / "android/core/data/build/test-results/testDebugUnitTest",
+            self.repo / "android/core/runtime/build/test-results/test",
+        ])
+        self.assertEqual(lint, ["app", "core/data"])
+        self.assertEqual(validate_plan(self.repo, plan), plan)
+        with self.assertRaisesRegex(PortError, "required obligations"):
+            validate_plan(self.repo, {**plan, "tasks": sorted(plan["tasks"])})
+        source = Path(__file__).resolve().parents[3]
+        legacy = types.ModuleType("controller._legacy_3a_scope")
+        legacy.__package__ = "controller"
+        exec(subprocess.check_output([
+            "git", "-C", str(source), "show",
+            "3a292b6498e8dcef0c374022a93c8e30c68f5bd5:tools/android-port/controller/local_scope.py",
+        ], text=True), legacy.__dict__)
+        control = self.repo / "owned-control"
+        control.mkdir()
+        (control / "local_scope.py").write_bytes(
+            (source / "tools/android-port/controller/local_scope.py").read_bytes())
+        (control / "fast.py").write_bytes((source / "tools/android-port/local/fast.py").read_bytes())
+        spec = importlib.util.spec_from_file_location("owned_fast_fixture", control / "fast.py")
+        fast = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fast)
+        owned = fast.owned_scope()
+        self.assertEqual(Path(owned.__file__).resolve(), (control / "local_scope.py").resolve())
+
+        class CapturedExecution(Exception):
+            pass
+
+        def execute(command, repo, environment, log):
+            self.assertEqual(command, [
+                str(self.repo / "android/gradlew"), "-p", str(self.repo / "android"),
+                *plan["tasks"], *fast.scaffold_options(), "--init-script",
+                str(self.repo / "tools/android-port/controller/verify_candidate_task_graph.gradle"),
+            ])
+            raise CapturedExecution
+
+        with self.assertRaisesRegex(PortError, "required obligations"):
+            legacy.run_scaffold(self.repo, plan, {}, self.repo / "output", execute,
+                                fast.scaffold_options(), trusted_base=base)
+        with self.assertRaises(CapturedExecution):
+            owned.run_scaffold(self.repo, plan, {}, self.repo / "output", execute,
+                               fast.scaffold_options(), trusted_base=base)
+        self.assertEqual(self.git("rev-parse", "HEAD"), plan["head"])
+        import controller
+        from controller import ci, ci_environment
+        self.write("work/toolchain/environment.json", json.dumps({"java_home": str(self.repo / "fixture-java")}))
+        self.write("request.json", json.dumps(plan))
+        output = self.repo / "output"
+        output.mkdir(exist_ok=True)
+        admission = {
+            "schema_version": 1, "interlock_version": 2, "owner": "local-check:fixture",
+            "token": "fixture", "commit": plan["head"], "tree": plan["tree"],
+        }
+        original_read = Path.read_text
+
+        def read_text(path, *args, **kwargs):
+            return json.dumps(admission) if path == Path("/proc/self/fd/8") else original_read(path, *args, **kwargs)
+
+        calls, emit = self.execute_fixture(plan)
+
+        def complete(command, repo, environment, log):
+            if "ANDROID_CI_TASK_GRAPH" not in environment:
+                return
+            emit(command, repo, environment, log)
+            self.write("android/build/reports/scaffold/module-graph.tsv",
+                       "consumer\tproducer\tconfiguration\n:core:runtime\t:core:data\timplementation\n"
+                       ":app\t:core:data\timplementation\n:app\t:core:runtime\timplementation\n")
+
+        text = io.StringIO()
+        with patch.dict(sys.modules, {"controller.local_scope": legacy}), \
+                patch.object(controller, "local_scope", legacy), \
+                patch.object(sys, "argv", [
+                    "fast.py", "--repo", str(self.repo), "--work", str(self.repo / "work"),
+                    "--output", str(output), "--stages", ",".join(plan["stages"]),
+                    "--affected-plan", str(self.repo / "request.json"), "--affected-base", base,
+                ]), patch.object(Path, "read_text", new=read_text), \
+                patch.object(fast, "execution_lane", return_value=None), \
+                patch.object(fast, "execute", side_effect=complete), \
+                patch.object(ci_environment, "candidate_environment", return_value={}), \
+                patch.object(ci_environment, "verify_wrapper"), \
+                patch.object(ci, "python_checks"), patch.object(ci, "preflight"), \
+                contextlib.redirect_stdout(text):
+            fast.main()
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0][3:3 + len(plan["tasks"])], plan["tasks"])
+        self.assertIn('"kind": "local-affected-only"', text.getvalue())
+        self.assertIn("AFFECTED SNAPSHOT CHECKS COMPLETE", text.getvalue())
+        self.assertNotIn("FAST LOCAL CHECK PASSED", text.getvalue())
+        self.assertEqual(self.git("rev-parse", "HEAD"), plan["head"])
+
     def test_stale_base_and_head_are_rejected(self):
         plan = candidate_plan(self.repo, self.base, self.head)
         self.git("update-ref", "refs/remotes/origin/main", self.head)
@@ -250,12 +434,17 @@ class LocalScopeBindingTests(unittest.TestCase):
                     } for task in plan["tasks"]],
                 }), encoding="utf-8")
             if emit:
-                self.write(
-                    "android/core/services/build/test-results/test/TEST-Sync.xml",
-                    "<testsuite tests='1' failures='0' errors='0' skipped='0'>"
-                    "<testcase classname='SyncTest' name='required'>"
-                    + ("<skipped/>" if skipped else "") + "</testcase></testsuite>",
-                )
+                directories, lint = report_inputs(self.repo, plan)
+                for directory in directories:
+                    self.write(
+                        directory / "TEST-Sync.xml",
+                        "<testsuite tests='1' failures='0' errors='0' skipped='0'>"
+                        "<testcase classname='SyncTest' name='required'>"
+                        + ("<skipped/>" if skipped else "") + "</testcase></testsuite>",
+                    )
+                for module in lint:
+                    self.write(f"android/{module}/build/reports/lint-results-debug.xml",
+                               '<issues format="6" by="lint fixture"/>')
                 self.write("android/build/reports/scaffold/module-graph.tsv",
                            "consumer\tproducer\tconfiguration\n:core:services\t:core:protocol\timplementation\n")
                 self.write("android/build/reports/scaffold/runtime-dependencies.tsv",

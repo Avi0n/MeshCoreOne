@@ -34,6 +34,14 @@ def owned_lanes():
     return module
 
 
+def owned_scope():
+    spec = importlib.util.spec_from_file_location(
+        "controller._local_owned_scope", Path(__file__).with_name("local_scope.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def execution_lane(work):
     descriptor = Path("/proc/self/fd/8")
     if not descriptor.is_file():
@@ -44,7 +52,6 @@ def execution_lane(work):
 
 def affected_request(repo, path, base, stages, advisory):
     from controller.errors import PortError
-    from controller.local_scope import validate_plan
 
     if (path is None) != (base is None) or path is not None and advisory:
         raise PortError("Affected scope requires the exact manual owned request")
@@ -54,7 +61,7 @@ def affected_request(repo, path, base, stages, advisory):
         raise PortError("Missing/unsafe/oversized affected request")
     admission = json.loads(Path("/proc/self/fd/8").read_text(encoding="utf-8"))
     plan = json.loads(path.read_text(encoding="utf-8"))
-    plan = validate_plan(repo, plan, trusted_base=base)
+    plan = owned_scope().validate_plan(repo, plan, trusted_base=base)
     if (
         not isinstance(admission, dict)
         or set(admission) != {"schema_version", "interlock_version", "owner", "token", "commit", "tree"}
@@ -132,9 +139,9 @@ def main():
         elif stage == "scaffold":
             options = scaffold_options(args.advisory)
             if plan is not None:
-                from controller.local_scope import run_scaffold
-                report = run_scaffold(args.repo, plan, environment, args.output, execute, options,
-                                      trusted_base=args.affected_base)
+                report = owned_scope().run_scaffold(
+                    args.repo, plan, environment, args.output, execute, options,
+                    trusted_base=args.affected_base)
                 print(json.dumps(report, indent=2), flush=True)
                 print(f"===== PASS: {stage} =====", flush=True)
                 continue
@@ -172,8 +179,7 @@ def main():
         "scope": "Local pre-push check; not hosted/cold-cache, hardware, signing or human-gate evidence",
     }
     if plan is not None:
-        from controller.local_scope import validate_plan
-        validate_plan(args.repo, plan, trusted_base=args.affected_base)
+        owned_scope().validate_plan(args.repo, plan, trusted_base=args.affected_base)
         binding.update(kind="local-affected-only", base=plan["base"], scopes=plan["scopes"], tasks=plan["tasks"])
     print(json.dumps(binding, indent=2), flush=True)
     print(

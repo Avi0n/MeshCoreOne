@@ -122,15 +122,21 @@ def select_paths(paths, requested=None, *, modules=None, graph_error=None):
     ):
         raise PortError("Unknown, empty or duplicate affected scope")
     changed = set()
+    changed_tests = set()
     unclassified = []
     for path in paths:
         matches = [module for module in modules if path.startswith(f"android/{module}/src/")]
         if matches:
             changed.update(matches)
+            changed_tests.update(module for module in matches if any(
+                path.startswith(f"android/{module}/src/{source}/")
+                for source in ("test", "testDebug", "androidTest")
+            ))
         elif path.startswith(("android/parity-tests/src/", "android/ui-tests/src/",
                               "android/screenshot-tests/src/", "android/accessibility-tests/src/")):
             if "app" in modules:
                 changed.add("app")
+                changed_tests.add("app")
             else:
                 unclassified.append(path)
         elif not path.startswith(("docs/", "tools/android-port/controller/", "tools/android-port/local/",
@@ -194,6 +200,9 @@ def select_paths(paths, requested=None, *, modules=None, graph_error=None):
     tasks = list(dict.fromkeys(tasks))
     if tasks:
         tasks = list(dict.fromkeys([*tasks, "validateModuleGraph", "runtimeDependencyInventory"]))
+    if "scaffold" not in scopes:
+        priority = {module: 0 if module in changed_tests else 1 for module in changed}
+        tasks.sort(key=lambda task: priority.get(task.rpartition(":")[0].lstrip(":").replace(":", "/"), 2))
     stages = ["python", "preflight", "scaffold"] if tasks else ["python"]
     if "scaffold" in scopes:
         stages.append("inspect")

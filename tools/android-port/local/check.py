@@ -287,6 +287,10 @@ def run_candidate(repo, revision, prefix, stages, worktree, *, advisory=False, c
     from controller import jvm_lanes
     (control / "jvm_lanes.py").write_bytes(
         Path(jvm_lanes.__file__).read_bytes().replace(b"\r\n", b"\n"))
+    if affected_plan is not None:
+        from controller import local_scope
+        (control / "local_scope.py").write_bytes(
+            Path(local_scope.__file__).read_bytes().replace(b"\r\n", b"\n"))
     bundle = completion.parent / "candidate.bundle"
     request = None
     if affected_plan is not None:
