@@ -16,6 +16,7 @@ import com.meshcoreone.android.core.protocol.event.ChannelMessage
 import com.meshcoreone.android.core.protocol.event.ContactMessage
 import com.meshcoreone.android.core.protocol.event.PayloadType
 import com.meshcoreone.android.core.protocol.event.RouteType
+import com.meshcoreone.android.core.protocol.model.ContactType
 import java.time.Instant
 import java.util.UUID
 import kotlin.test.assertEquals
@@ -145,6 +146,68 @@ class SyncCoordinatorMessageHandlerTests {
             coordinator.cancelDiscoveryEventMonitoring()
             settle()
             assertFalse(coordinator.isDiscoveryMonitoring)
+        },
+        nativeCase("wired message handlers deliver a DM and channel message into their own conversations") {
+            val radioId = newRadio()
+            val store = storeWithDevice(radioId)
+            val contact = testContact(radioId, "Peer")
+            val channel = ChannelDTO(radioId = radioId, index = 2u, name = "Oracle")
+            store.saveContact(contact)
+            store.saveChannel(channel)
+            val services = SyncTestServices(store)
+            val coordinator = coordinator()
+            coordinator.wireMessageHandlers(services.dependencies(), radioId)
+            checkNotNull(services.polling.capturedContactMessageHandler)(
+                contactMessage(contact.publicKey.prefix(6), "direct oracle", clock.now()), contact, DeliveryContext.Live,
+            )
+            checkNotNull(services.polling.capturedChannelMessageHandler)(
+                channelMessage("Peer: channel oracle", clock.now(), channel.index), channel, DeliveryContext.Live,
+            )
+            assertEquals(listOf("direct oracle"), store.fetchMessages(EntityKey(radioId, contact.id), 50, 0).map { it.text })
+            assertEquals(listOf("channel oracle"), store.fetchMessages(radioId, channel.index, 50, 0).map { it.text })
+            assertEquals(2, coordinator.conversationsVersion)
+            assertEquals(listOf("dm", "channel"), services.notifications.posts.map { it.kind })
+        },
+        nativeCase("discovery monitor delivers events and releases cancelled and replaced subscriptions") {
+            val coordinator = coordinator()
+            val radioId = newRadio()
+            val first = SyncTestServices()
+            val second = SyncTestServices()
+            fun event(name: String) = SyncDiscoveryEvent.NewContactDiscovered(name, UUID.randomUUID(), ContactType.CHAT)
+            coordinator.startDiscoveryEventMonitoring(first.dependencies(), radioId)
+            settle()
+            val firstJob = checkNotNull(coordinator.locked { discoveryEventsJob })
+            assertEquals(1, first.adverts.subscriberCount)
+            val firstEvent = event("First")
+            first.adverts.emit(firstEvent)
+            settle()
+            assertEquals(1, coordinator.contactsVersion)
+            assertEquals(firstEvent.contactID, first.notifications.posts.single().id)
+
+            coordinator.startDiscoveryEventMonitoring(second.dependencies(), radioId)
+            firstJob.join()
+            settle()
+            assertTrue(firstJob.isCancelled)
+            assertEquals(0, first.adverts.subscriberCount)
+            assertEquals(1, second.adverts.subscriberCount)
+            first.adverts.emit(event("Stale"))
+            val replacementEvent = event("Replacement")
+            second.adverts.emit(replacementEvent)
+            settle()
+            assertEquals(2, coordinator.contactsVersion, "only the replacement subscription delivers")
+            assertEquals(replacementEvent.contactID, second.notifications.posts.single().id)
+            assertEquals(1, first.notifications.posts.size)
+
+            val replacementJob = checkNotNull(coordinator.locked { discoveryEventsJob })
+            coordinator.cancelDiscoveryEventMonitoring()
+            replacementJob.join()
+            assertTrue(replacementJob.isCancelled)
+            assertFalse(coordinator.isDiscoveryMonitoring)
+            assertEquals(0, second.adverts.subscriberCount)
+            second.adverts.emit(event("Cancelled"))
+            settle()
+            assertEquals(2, coordinator.contactsVersion)
+            assertEquals(1, second.notifications.posts.size)
         },
         pureCase(suite, "Channel message that resolves to no local channel must not post a notification") {
             assertFalse(shouldPostChannelNotification(null))

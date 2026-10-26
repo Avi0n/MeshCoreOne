@@ -4,6 +4,7 @@ package com.meshcoreone.android.core.services.sync
 import com.meshcoreone.android.core.contracts.domain.ContactSyncResult
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.services.contacts.ChannelServiceError
+import com.meshcoreone.android.core.services.notifications.NotificationHarness
 import java.time.Instant
 import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
@@ -138,12 +139,20 @@ class SyncCoordinatorTests {
         },
         case("onDisconnected clears notification suppression flag") {
             val coordinator = coordinator()
-            val notifications = FakeNotificationService().apply { isSuppressing = true }
-            coordinator.onDisconnected(notifications)
-            assertFalse(notifications.isSuppressing)
+            val notifications = NotificationHarness(scope).service
+            notifications.isSuppressingNotifications = true
+            assertTrue(notifications.isSuppressingNotifications)
+            coordinator.onDisconnected(notifications.syncSuppressionPort())
+            assertFalse(notifications.isSuppressingNotifications)
         },
         case("onDisconnected resets sync state to idle") {
             val coordinator = coordinator()
+            val radioId = newRadio()
+            coordinator.performFullSync(
+                radioId, SyncInMemoryStore.createTestDataStore(radioId),
+                MockContactService(), MockChannelService(), MockMessagePollingService(),
+            )
+            assertEquals(SyncState.Synced, coordinator.state)
             coordinator.onDisconnected(FakeNotificationService())
             assertEquals(SyncState.Idle, coordinator.state)
         },
@@ -248,12 +257,14 @@ class SyncCoordinatorTests {
             val coordinator = coordinator()
             val radioId = newRadio()
             val store = SyncInMemoryStore.createTestDataStore(radioId)
-            val notifications = FakeNotificationService().apply { isSuppressing = true }
+            val notifications = NotificationHarness(scope, radioId).service
+            notifications.isSuppressingNotifications = true
+            assertTrue(notifications.isSuppressingNotifications)
             coordinator.performFullSync(
                 radioId, store, MockContactService(), MockChannelService(), MockMessagePollingService(),
-                notificationService = notifications,
+                notificationService = notifications.syncSuppressionPort(),
             )
-            assertFalse(notifications.isSuppressing)
+            assertFalse(notifications.isSuppressingNotifications)
         },
         case("Contact sync passes lastContactSync timestamp from device") {
             val coordinator = coordinator()

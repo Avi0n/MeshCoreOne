@@ -18,6 +18,7 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.event.ContactMessage
 import com.meshcoreone.android.core.protocol.event.PayloadType
 import com.meshcoreone.android.core.protocol.model.ContactType
+import com.meshcoreone.android.core.services.notifications.NotificationService
 import java.time.Instant
 import java.util.Collections
 import java.util.UUID
@@ -26,6 +27,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 private fun <T> recorder(): MutableList<T> = Collections.synchronizedList(ArrayList())
+
+/** Only suppression is exercised here; App integration separately covers the production adapter. */
+internal fun NotificationService.syncSuppressionPort(): SyncNotificationServicing =
+    object : SyncNotificationServicing by FakeNotificationService() {
+        override suspend fun isSuppressingNotifications(): Boolean = this@syncSuppressionPort.isSuppressingNotifications
+        override suspend fun setSuppressingNotifications(suppressing: Boolean) {
+            this@syncSuppressionPort.isSuppressingNotifications = suppressing
+        }
+    }
 
 /** Records every NotificationService call sync makes. */
 internal class FakeNotificationService : SyncNotificationServicing {

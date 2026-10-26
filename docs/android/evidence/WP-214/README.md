@@ -1,5 +1,63 @@
 # WP-214 evidence
 
+## Subsequent suppression and smoke-oracle batch (local, unverified)
+
+The coordinator assigned `SM-SYNC-SUPPRESSION-ORACLE` and
+`SM-SYNC-SMOKE-DISCRIMINATION` as the next bounded same-owner batch. This work
+starts after immutable queued candidate
+`99593d9b09786ebda0dcb3e56983f02006c15385`, tree
+`70357649bfefe0ec62984326955f8d5c2d5574a8`. That candidate's remote checkout,
+17-module affected plan and pending acceptance are not modified by this batch.
+The grouping input is the same pinned-digest artifact recorded below, exact
+`root_cause_groups` IDs and SERVICES-MEDIA workstreams 19 and 21. Its old
+judgments are context, not a reproduction or execution result.
+
+Current-source inspection confirmed the gaps before edits. Original suppression
+families now set the actual WP-215 `NotificationService` true, assert that
+precondition, invoke coordinator disconnect/full sync and assert false afterward.
+The module-local suppression bridge forwards only these two properties; it does
+not claim to be the production App adapter. Two additional App tests exercise
+the actual `SyncNotificationsAdapter` over the production Room-backed graph:
+disconnect resets suppression and state; a gated full-sync poll observes true
+while suspended, then releases the actual poll and verifies false/Synced with
+exactly one poll. Intermediate ordering is a new native oracle, not an assertion
+attributed to the original Swift case.
+
+The original disconnect state family now begins Synced rather than Idle.
+The original two handler/monitor smoke cases remain under their original names.
+New native cases deliver DM/channel messages through the installed handlers and
+assert conversation persistence/notifications, and deliver discovery events
+through the actual coordinator monitor. The latter captures monitor jobs,
+joins replacement/cancellation, verifies subscriber release and rejects stale
+or cancelled-source delivery. The original already-sorted DM input remains;
+a separate reversed-timestamp input across a six-second gap distinguishes
+cluster-local reordering from an incorrect global sender-timestamp sort.
+The source resync case is unchanged: begin plus disconnect expects **no** end
+callback. This is not double-end proof; existing retry-owner bracket balancing
+coverage and production activity ordering are unchanged.
+
+All modified service test/support paths were admitted under `wp-owned`.
+The new App test was admitted under `app-build-launcher` /
+`add-direct-support-wiring`; the existing reservation evolved from revision 7
+to 8 without changing authorization audit prose or recreating identity.
+No production code, Room prune behavior, timestamp-range adaptation or WP-212/
+chat behavior is changed.
+
+Actual lightweight results: `git diff --check` PASS;
+`python .\tools\android-port\controller\validate.py` PASS (1,866 pinned inputs);
+`python .\tools\android-port\portmap.py` PASS (1,911 mappings);
+`python .\tools\android-port\test_inventory.py --check` PASS (468 pinned
+paths, 5,133 source declarations). Source inventory is not runtime discovery.
+All seven selected original family names remain exactly once; five native
+oracles are added (two App adapter, two handler/monitor and one timestamp case).
+The actual declared acceptance runners remain complete
+`:core:services:test` and `:app:testDebugUnitTest` plus the trusted
+candidate-derived consumer/compile/lint/graph closure. These were **NOT RUN**
+for this new batch: no extra heavy/native execution was authorized or started.
+No earlier candidate result applies to these bytes. WP-201 verified/landed
+completion still gates standalone publication and exclusion of inherited
+WP-201 changes from the WP-214 PR.
+
 ## Current channel-sync repair batch (local, not published)
 
 Assignment: `WP214-CHANNEL-SYNC`, `services-porter`, default runtime with the
