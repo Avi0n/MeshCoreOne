@@ -150,7 +150,7 @@ class ShortcutConsumerRepairTest : RoomProcessTest() {
                 executor.run(request)
                 assertEquals(1, confirmations)
                 assertEquals(listOf(text.sendForeground), shown)
-                assertEquals(listOf(request), opened)
+                assertEquals(listOf<ShortcutRequest>(request), opened)
                 assertTrue(store.fetchMessages(EntityKey(radio, contact.id), 100, 0).isEmpty())
                 assertTrue(store.fetchMessages(radio, channel.index, 100, 0).isEmpty())
                 assertTrue(store.fetchPendingSends(radio).isEmpty())

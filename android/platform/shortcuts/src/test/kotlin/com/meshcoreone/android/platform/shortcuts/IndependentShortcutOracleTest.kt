@@ -98,11 +98,11 @@ class IndependentShortcutOracleTest {
         dispatcher.install { second += it }
         val current = ShortcutRequest.Advert(AdvertReach.ZERO_HOP)
         assertEquals(ShortcutDispatcher.Outcome.Delivered, dispatcher.submit(current))
-        assertEquals(listOf(held), first)
+        assertEquals(listOf<ShortcutRequest>(held), first)
         assertSame(current, second.single())
         dispatcher.uninstall()
         assertEquals(ShortcutDispatcher.Outcome.Held, dispatcher.submit(ShortcutRequest.Status))
-        assertEquals(listOf(current), second)
+        assertEquals(listOf<ShortcutRequest>(current), second)
     }
 
     @Test
