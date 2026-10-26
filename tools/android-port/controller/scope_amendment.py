@@ -3,6 +3,7 @@
 import copy
 from pathlib import Path
 
+from .capabilities import CapabilityEngine
 from .errors import PortError
 from .schema import digest, load_json
 
@@ -382,6 +383,44 @@ ROOM_FAILED_EVENT_CAPABILITY = {
 }
 
 
+WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES = [
+    {
+        "id": "wp503-accessibility-source-binding",
+        "work_packages": ["WP-503"],
+        "path_rules": ["android/accessibility-tests/language_binding.py"],
+        "operations": ["add-or-update-validator-rule"],
+        "invariants": [
+            "immutable-historical-producer-path-blob",
+            "distinct-current-candidate-path-blob-bound-to-candidate-head",
+            "producer-ancestry-and-selected-fixture-method-identities",
+            "reject-historical-pin-current-pin-and-unrelated-source-drift",
+            "no-fake-refreshed-compatibility",
+        ],
+        "validation": [
+            "positive historical and candidate source-binding assertions",
+            "negative mutation tests for historical pins current pins and unrelated source drift",
+            "exact-candidate validator checks and independent source review before policy landing",
+            "native and Gradle execution locks remain unchanged",
+        ],
+    },
+    {
+        "id": "wp503-accessibility-source-binding-regression",
+        "work_packages": ["WP-503"],
+        "path_rules": ["android/accessibility-tests/test_language_binding.py"],
+        "operations": ["add-regression-fixture-or-test"],
+        "invariants": [
+            "preserve-original-fixture-and-selected-method-assertions",
+            "test-historical-and-current-source-bindings-independently",
+            "reject-historical-current-and-unrelated-source-drift",
+        ],
+        "validation": [
+            "positive historical and candidate binding cases",
+            "negative historical pin current pin and unrelated source mutation cases",
+            "nonzero execution of the declared WP-503 validator suite",
+        ],
+    },
+]
+
 CONSUMER_SUPPORT_CAPABILITIES = [
     {
         "id": "wp405-uri-region-normalization",
@@ -546,6 +585,51 @@ CONSUMER_SUPPORT_CAPABILITIES = [
 ]
 
 
+def wp503_accessibility_source_binding_predecessor(policy):
+    """Reverse only the exact WP-503 validator/test capability pair."""
+    if not isinstance(policy, dict):
+        raise PortError("WP-503 accessibility binding amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    reservation = result.get("reservation_policy")
+    if reservation is None:
+        return result
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("WP-503 accessibility binding amendment requires the canonical capability catalog")
+    expected_ids = {rule["id"] for rule in WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES}
+    selected = [
+        rule for rule in rules
+        if isinstance(rule, dict) and rule.get("id") in expected_ids
+    ]
+    path_matches = [
+        rule for rule in rules
+        if isinstance(rule, dict)
+        and isinstance(rule.get("path_rules"), list)
+        and isinstance(rule.get("operations"), list)
+        and ("work_packages" not in rule or (
+            isinstance(rule["work_packages"], list) and "WP-503" in rule["work_packages"]
+        ))
+        and any(
+            operation in rule["operations"] and CapabilityEngine._matches(pattern, path)
+            for expected in WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES
+            for operation in expected["operations"]
+            for path in expected["path_rules"]
+            for pattern in rule["path_rules"] if isinstance(pattern, str)
+        )
+    ]
+    if not selected and not path_matches:
+        return result
+    if (
+        selected != WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES
+        or path_matches != WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES
+        or len(rules) < 3 or rules[-2:] != WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES
+        or rules[-3] != RECEIVE_PREFETCH_ADMISSION_CAPABILITY
+    ):
+        raise PortError("WP-503 accessibility binding capabilities changed outside the exact two-rule amendment")
+    del rules[-2:]
+    return result
+
+
 def consumer_support_predecessor(policy):
     """Reverse only the complete exact consumer-support block; preserve all other policy bytes."""
     if not isinstance(policy, dict):
@@ -579,7 +663,8 @@ def consumer_support_predecessor(policy):
 def room_failed_event_predecessor(policy):
     if not isinstance(policy, dict):
         raise PortError("Room failed-event amendment requires a policy object")
-    result = consumer_support_predecessor(policy)
+    result = wp503_accessibility_source_binding_predecessor(policy)
+    result = consumer_support_predecessor(result)
     reservation = result.get("reservation_policy")
     if reservation is None:
         return result
