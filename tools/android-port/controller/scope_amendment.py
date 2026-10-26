@@ -585,11 +585,89 @@ CONSUMER_SUPPORT_CAPABILITIES = [
 ]
 
 
+HOST_SCOPED_JVM_CAPABILITY = {
+    "id": "wp003-host-scoped-jvm-parallelism",
+    "work_packages": ["WP-003"],
+    "path_rules": [
+        "tools/android-port/local/check.py",
+        "tools/android-port/local/fast.py",
+        "tools/android-port/local/run.sh",
+        "tools/android-port/local/hook_test.py",
+        "tools/android-port/local/advisory.py",
+    ],
+    "operations": ["implement-host-scoped-jvm-lanes"],
+    "invariants": [
+        "source-only-host-lane-JVM-interlock-repair-no-runtime-installation-or-live-execution-authority",
+        "one-canonical-shared-durable-ledger-and-repository-no-private-clone-database",
+        "actual-machine-host-and-lane-identities-no-caller-nonce-host-label-bypass",
+        "atomic-bounded-host-slots-from-measured-safe-CPU-and-RAM-capacity-no-fixed-two-slot-policy-ceiling",
+        "serial-default-and-fail-closed-unknown-capacity-host-or-lane-identity",
+        "five-existing-local-paths-only-advisory-optional-real-host-slot-through-inherited-fd8-default-six-key-serial-admission-unchanged",
+        "existing-hard_locks-atomic-allocation-no-new-database-schema-registry-or-reserve-py-change",
+        "per-slot-bundle-repository-report-private-and-Gradle-cache-isolation",
+        "native-and-install-two-sided-exclusion-with-all-JVM-lanes-preserve-canonical-hard-lock-guards",
+        "pidfd-owned-process-supervision-and-bounded-cleanup-no-unrelated-process-termination",
+        "exact-immutable-candidate-base-head-tree-diff-and-declared-task-consumer-closure",
+        "stripped-credentials-isolated-candidate-reports-and-strict-nonzero-discovery-no-failure-error-or-skip",
+        "preserve-default-full-prepush-and-report-validation-no-arbitrary-task-override-or-fake-success",
+        "no-166-row-lease-rewrite-release-recreate-historical-identity-or-authorization-change",
+        "existing-scoped-local-verification-capability-and-no-lock-change-invariant-unchanged",
+        "trusted-main-admission-before-consumer-edit-same-owner-advisory-evolution",
+        "pinned-source-db14559b39d32322b06477c6ae676112f583db50-unchanged",
+    ],
+    "validation": [
+        "exact WP003 path and named-operation positives; generic cross-purpose other-WP and sibling negatives",
+        "future actual same-host independent JVM lanes bounded by atomic measured CPU/RAM slots; serial-default and malformed-capacity denial",
+        "future canonical shared-ledger real-machine identity tests reject private-clone ledger and caller-host-label bypass",
+        "future native-and-install acquire versus held-JVM-lane and JVM acquire versus held-native-install denial in both directions",
+        "future pidfd owned-child cleanup credential stripping exact-candidate task-closure and strict report failure/zero/skip regressions",
+        "declared controller policy and admission suites discover nonzero tests; no policy fixture counts as real remote parallel execution",
+    ],
+}
+
+
+def host_scoped_jvm_predecessor(policy):
+    """Remove only the exact source-support rule, retaining the complete previous policy."""
+    if not isinstance(policy, dict):
+        raise PortError("Host-scoped JVM amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result["reservation_policy"]
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Host-scoped JVM amendment requires the canonical capability catalog")
+    selected = [i for i, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == HOST_SCOPED_JVM_CAPABILITY["id"]]
+    path_matches = [
+        rule for rule in rules
+        if isinstance(rule, dict) and isinstance(rule.get("path_rules"), list)
+        and isinstance(rule.get("operations"), list)
+        and "implement-host-scoped-jvm-lanes" in rule["operations"]
+        and ("work_packages" not in rule or (
+            isinstance(rule["work_packages"], list) and "WP-003" in rule["work_packages"]
+        ))
+        and any(CapabilityEngine._matches(pattern, path)
+                for path in HOST_SCOPED_JVM_CAPABILITY["path_rules"]
+                for pattern in rule["path_rules"] if isinstance(pattern, str))
+    ]
+    if not selected and not path_matches:
+        return result
+    if (
+        selected != [0] or rules[0] != HOST_SCOPED_JVM_CAPABILITY
+        or path_matches != [HOST_SCOPED_JVM_CAPABILITY]
+        or len(rules) < 2 or rules[1] != DISPOSABLE_CAPABILITY
+    ):
+        raise PortError("Host-scoped JVM capability changed outside the exact bounded amendment")
+    rules.pop(0)
+    return result
+
+
 def wp503_accessibility_source_binding_predecessor(policy):
     """Reverse only the exact WP-503 validator/test capability pair."""
     if not isinstance(policy, dict):
         raise PortError("WP-503 accessibility binding amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = host_scoped_jvm_predecessor(policy)
     reservation = result.get("reservation_policy")
     if reservation is None:
         return result

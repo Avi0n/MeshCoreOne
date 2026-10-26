@@ -11,6 +11,7 @@ from controller.errors import PortError
 from controller.scope_amendment import (
     CONSUMER_SUPPORT_CAPABILITIES, consumer_support_predecessor,
     wp503_accessibility_source_binding_predecessor,
+    HOST_SCOPED_JVM_CAPABILITY, host_scoped_jvm_predecessor,
 )
 
 
@@ -25,6 +26,124 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
         self.rules = policy()
         self.engine = CapabilityEngine(self.rules)
         self.manifest = test_manifest("WP-000")
+
+    def test_host_scoped_jvm_exact_five_paths_and_named_operation(self):
+        expected = [
+            "tools/android-port/local/" + name
+            for name in ("check.py", "fast.py", "run.sh", "hook_test.py", "advisory.py")
+        ]
+        rule = HOST_SCOPED_JVM_CAPABILITY
+        self.assertEqual(rule["id"], "wp003-host-scoped-jvm-parallelism")
+        self.assertEqual(rule["path_rules"], expected)
+        self.assertEqual(rule["work_packages"], ["WP-003"])
+        self.assertEqual(rule["operations"], ["implement-host-scoped-jvm-lanes"])
+        self.assertEqual(self.rules["reservation_policy"]["capabilities"][0], rule)
+        for path in expected:
+            with self.subTest(path=path):
+                admitted = self.engine.admit("WP-003", self.manifest.wp("WP-003")["write_paths"],
+                                             path, rule["operations"][0])
+                self.assertEqual(admitted.capability_id, rule["id"])
+                self.assertEqual(admitted.invariants, tuple(rule["invariants"]))
+                self.assertEqual(admitted.validation, tuple(rule["validation"]))
+
+    def test_host_scoped_jvm_generic_cross_purpose_other_wp_and_sibling_denials(self):
+        operation = HOST_SCOPED_JVM_CAPABILITY["operations"][0]
+        for path in HOST_SCOPED_JVM_CAPABILITY["path_rules"]:
+            for wp in self.manifest.work_packages:
+                if wp != "WP-003":
+                    with self.subTest(path=path, wp=wp), self.assertRaises(PortError):
+                        self.engine.admit(wp, self.manifest.wp(wp)["write_paths"], path, operation)
+            for wrong in ("modify", "create", "delete", "test", "generate", "unknown",
+                          "wire-host-scoped-jvm-parallelism", "repair-uri-region-normalization"):
+                with self.subTest(path=path, operation=wrong), self.assertRaises(PortError):
+                    self.engine.admit("WP-003", self.manifest.wp("WP-003")["write_paths"], path, wrong)
+            for wrong in (path + ".backup", path.rsplit("/", 1)[0], path.replace("/local/", "/controller/")):
+                with self.subTest(path=wrong), self.assertRaises(PortError):
+                    self.engine.admit("WP-003", [], wrong, operation)
+        for name in ("reserve.py", "test_reserve.py", "advisory_test.py", "Other.py", "nested/check.py"):
+            with self.subTest(name=name), self.assertRaises(PortError):
+                self.engine.admit("WP-003", [], "tools/android-port/local/" + name, operation)
+        for rule in CONSUMER_SUPPORT_CAPABILITIES:
+            if rule["work_packages"] != ["WP-003"]:
+                for path in rule["path_rules"]:
+                    with self.subTest(path=path), self.assertRaises(PortError):
+                        self.engine.admit("WP-003", [], path, operation)
+        with self.assertRaises(PortError):
+            self.engine.admit("WP-003", [], "tools/android-port/local/advisory.py",
+                              "wire-scoped-local-verification")
+
+    def test_host_scoped_jvm_predecessor_restores_entire_actual_a8_policy(self):
+        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        before = copy.deepcopy(current)
+        previous = host_scoped_jvm_predecessor(current)
+        original = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "a8c624bcb095f81a30e5fee671099fa519f608b7:docs/android/automation-policy.json",
+        ]))
+        self.assertEqual(previous, original)
+        self.assertEqual(host_scoped_jvm_predecessor(previous), previous)
+        self.assertEqual(current, before)
+        restored = copy.deepcopy(previous)
+        restored["reservation_policy"]["capabilities"].insert(0, copy.deepcopy(HOST_SCOPED_JVM_CAPABILITY))
+        self.assertEqual(restored, current)
+        for path in HOST_SCOPED_JVM_CAPABILITY["path_rules"]:
+            with self.subTest(path=path), self.assertRaises(PortError):
+                CapabilityEngine(previous).admit("WP-003", [], path, "implement-host-scoped-jvm-lanes")
+        old = next(r for r in previous["reservation_policy"]["capabilities"]
+                   if r["id"] == "wp003-scoped-local-verification")
+        self.assertEqual(old, next(r for r in current["reservation_policy"]["capabilities"]
+                                  if r["id"] == old["id"]))
+        self.assertIn("semantic-overlap-serialize-or-transfer-current-producer-no-native-or-Gradle-lock-change",
+                      old["invariants"])
+
+    def test_host_scoped_jvm_rejects_widened_duplicate_reordered_unknown_and_overlapping_rules(self):
+        for field, value in (
+            ("work_packages", ["WP-003", "WP-503"]),
+            ("operations", ["implement-host-scoped-jvm-lanes", "modify"]),
+            ("path_rules", ["tools/android-port/local/**"]),
+            ("invariants", HOST_SCOPED_JVM_CAPABILITY["invariants"][:-1]),
+            ("validation", []),
+            ("id", "unregistered-host-lane-rule"),
+            ("extra", True),
+        ):
+            changed = copy.deepcopy(self.rules)
+            changed["reservation_policy"]["capabilities"][0][field] = value
+            with self.subTest(field=field), self.assertRaises(PortError):
+                host_scoped_jvm_predecessor(changed)
+        for mode in ("duplicate", "reorder", "neighbor", "overlap"):
+            changed = copy.deepcopy(self.rules)
+            rules = changed["reservation_policy"]["capabilities"]
+            if mode == "duplicate":
+                rules.append(copy.deepcopy(rules[0]))
+            elif mode == "reorder":
+                rules[0], rules[1] = rules[1], rules[0]
+            elif mode == "neighbor":
+                rules[1] = None
+            else:
+                extra = copy.deepcopy(rules[0])
+                extra["id"] = "unregistered-overlapping-host-lane-rule"
+                extra["path_rules"] = ["tools/android-port/local/**"]
+                rules.append(extra)
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                host_scoped_jvm_predecessor(changed)
+        for malformed in (None, [], {"reservation_policy": None},
+                          {"reservation_policy": {"capabilities": None}}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                host_scoped_jvm_predecessor(malformed)
+
+    def test_host_scoped_jvm_preserves_independent_capacity_identity_and_execution_fences(self):
+        text = " ".join(HOST_SCOPED_JVM_CAPABILITY["invariants"] + HOST_SCOPED_JVM_CAPABILITY["validation"])
+        for fence in (
+            "source-only", "canonical-shared-durable-ledger", "actual-machine-host",
+            "measured-safe-CPU-and-RAM", "no-fixed-two-slot-policy-ceiling", "serial-default",
+            "inherited-fd8-default-six-key", "existing-hard_locks-atomic", "per-slot",
+            "native-and-install-two-sided", "pidfd-owned-process", "immutable-candidate-base-head-tree",
+            "task-consumer-closure", "stripped-credentials", "strict-nonzero", "no-failure-error-or-skip",
+            "no-arbitrary-task", "no-166-row", "no-lock-change-invariant-unchanged",
+            "trusted-main-admission-before-consumer-edit", "no policy fixture counts as real remote",
+        ):
+            with self.subTest(fence=fence):
+                self.assertIn(fence, text)
 
     def test_exact_purposes_paths_and_operations(self):
         expected = [
