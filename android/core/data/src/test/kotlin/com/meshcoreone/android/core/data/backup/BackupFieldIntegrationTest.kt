@@ -240,7 +240,6 @@ class BackupFieldIntegrationTest : BackupRoomTest() {
         assertTrue(actual.sortDate < actual.createdAt)
     }
 
-    @OriginalCase("BackupIntegrationTests::Message(dto:) forwards sortDate verbatim through DTO to model()")
     @Test fun exactLegacyDatesRemainDistinctAfterRestoreAndWarmUp() = runBlocking {
         val dto = message().copy(timestamp = 1_700_000_000u, createdAt = java.time.Instant.ofEpochSecond(1_704_067_200),
             sortDate = java.time.Instant.ofEpochSecond(1_704_070_800))

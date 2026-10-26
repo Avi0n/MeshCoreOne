@@ -61,7 +61,6 @@ class AppBackupEnvelopeTest : BackupRoomTest() {
         assertEquals(AppBackupError.InvalidFile, failure(bytes.prefix(bytes.size - 1)).error)
     }
 
-    @OriginalCase("AppBackupEnvelopeTests::parseBackup rejects files larger than the size cap()")
     @Test fun compressedExactCap() {
         BackupContract.validateCompressedSize(52_428_800)
         val failure = assertThrows(AppBackupException::class.java) { BackupContract.validateCompressedSize(52_428_801) }

@@ -10,7 +10,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class BackupChannelIntegrationTest : BackupRoomTest() {
-    @OriginalCase("ChannelFloodScopeTests::Codable round-trips all three cases for current envelope format()")
+    // SourceCase: ChannelFloodScopeTests::Codable round-trips all three cases for current envelope format()
     @Test fun allCurrentFloodModesSurviveActualJsonCodec() {
         val codec = AppBackupCodec()
         for (scope in listOf(ChannelFloodScope.Inherit, ChannelFloodScope.AllRegions, ChannelFloodScope.Region("Germany"))) {
@@ -21,7 +21,7 @@ class BackupChannelIntegrationTest : BackupRoomTest() {
         }
     }
 
-    @OriginalCase("ChannelFloodScopeTests::Legacy envelope omitting isFavorite key decodes as false()")
+    // SourceCase: ChannelFloodScopeTests::Legacy envelope omitting isFavorite key decodes as false()
     @Test fun omittedFavoriteDefaultsFalseFromNondefaultChannelJson() {
         val original = nondefaultLegacyChannel()
         val actual = decodeLegacyChannelWithout("isFavorite", original)
@@ -29,7 +29,7 @@ class BackupChannelIntegrationTest : BackupRoomTest() {
         assertEquals(original.copy(isFavorite = false), actual)
     }
 
-    @OriginalCase("ChannelFloodScopeTests::Legacy envelope omitting notificationLevel key decodes as .all()")
+    // SourceCase: ChannelFloodScopeTests::Legacy envelope omitting notificationLevel key decodes as .all()
     @Test fun omittedNotificationDefaultsAllFromMutedChannelJson() {
         val original = nondefaultLegacyChannel()
         val actual = decodeLegacyChannelWithout("notificationLevel", original)
@@ -37,7 +37,7 @@ class BackupChannelIntegrationTest : BackupRoomTest() {
         assertEquals(original.copy(notificationLevel = NotificationLevel.ALL), actual)
     }
 
-    @OriginalCase("ChannelFloodScopeTests::Legacy envelope omitting unreadMentionCount key decodes as 0()")
+    // SourceCase: ChannelFloodScopeTests::Legacy envelope omitting unreadMentionCount key decodes as 0()
     @Test fun omittedMentionsDefaultZeroFromNonzeroChannelJson() {
         val original = nondefaultLegacyChannel()
         val actual = decodeLegacyChannelWithout("unreadMentionCount", original)
