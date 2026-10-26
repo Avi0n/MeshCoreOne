@@ -150,6 +150,13 @@ class SyncCoordinatorTimestampTests {
             pureCase(suite, "DM messages beyond 5 seconds are not reordered") {
                 assertEquals(listOf(100u, 200u), reorder(dm(100u, base), dm(200u, base.adding(6.0))).map { it.timestamp })
             },
+            pureCase("WP-214", "Reversed sender timestamps across a six second gap preserve separate DM clusters") {
+                val first = dm(200u, base)
+                val second = dm(100u, base.adding(6.0))
+                val result = reorder(first, second)
+                assertEquals(listOf(first.id, second.id), result.map { it.id })
+                assertEquals(listOf(200u, 100u), result.map { it.timestamp })
+            },
             pureCase(suite, "Channel messages from different senders are not clustered") {
                 val result = reorder(channel(200u, base, "Alice"), channel(100u, base.adding(2.0), "Bob"))
                 assertEquals(listOf("Alice", "Bob"), result.map { it.senderNodeName })

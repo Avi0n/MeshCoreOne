@@ -21,6 +21,40 @@ import kotlin.test.*
 class RuntimeOwnershipTest {
     @TestFactory
     fun nativeCases() = listOf(
+        nativeCase("service inputs bind the active BLE WiFi and replacement generation link types") {
+            withFixture {
+                devices.rows[platform.target.deviceId] = DeviceDTO(
+                    id = platform.target.deviceId,
+                    radioId = RadioId(UUID.randomUUID()),
+                    publicKey = publicKey,
+                    nodeName = "Dual method",
+                    connectionMethods = listOf(
+                        ConnectionMethod.Bluetooth(platform.target.deviceId),
+                        ConnectionMethod.WiFi("localhost", 5000u),
+                    ).snapshot(),
+                )
+                onFactory = { handle, _ ->
+                    assertEquals(links.last().type, handle.inputs.transportType)
+                }
+                connect()
+                val first = services.single()
+                assertEquals(TransportType.BLUETOOTH, first.inputs.transportType)
+                assertTrue(first.inputs.device.connectionMethods.any { it is ConnectionMethod.WiFi })
+                manager.disconnect(RuntimeDisconnectReason.WIFI_RECONNECT_PREP)
+                connect(ConnectionTarget.WiFi("localhost", 5000u))
+                val second = services.last()
+                assertEquals(TransportType.WIFI, second.inputs.transportType)
+                assertTrue(second.token.generation.value > first.token.generation.value)
+                assertEquals(1, first.teardowns)
+                manager.disconnect(RuntimeDisconnectReason.WIFI_RECONNECT_PREP)
+                connect()
+                val third = services.last()
+                assertEquals(TransportType.BLUETOOTH, third.inputs.transportType)
+                assertTrue(third.token.generation.value > second.token.generation.value)
+                assertEquals(1, second.teardowns)
+                assertEquals(TransportType.BLUETOOTH, first.inputs.transportType, "old inputs retain their own link")
+            }
+        },
         nativeCase("first radio identity is raw SHA256 prefix without UUID version or variant rewriting") {
             withFixture {
                 connect()

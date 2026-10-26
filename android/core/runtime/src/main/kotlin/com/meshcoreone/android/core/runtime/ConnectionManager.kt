@@ -536,6 +536,7 @@ class ConnectionManager(
                 channelSyncAttempted = { synchronized(lock) { if (isCurrent(owner)) attemptedSync = radioId to clock.instant } },
                 reconcileIdentity = { reconcileIdentity(token) },
             ),
+            transportType = link.type,
         ), ownership)
         ownership.verifyReturned(services)
         synchronized(lock) {
