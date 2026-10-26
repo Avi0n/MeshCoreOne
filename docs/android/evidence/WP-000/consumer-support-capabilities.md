@@ -19,10 +19,12 @@ distinct purposes in one support PR, not permission for another WP or a new work
 | --- | --- |
 | Repository / owner | `cbattlegear/MeshCoreOne-Android` / WP-000 / tracked `port-orchestrator` role |
 | Session / branch | `b2b6f2ee-7c0e-4d51-92b1-9b2ec4e771da` / `cbattlegear-wp000-wp405-uri-normalization` |
-| Start / rebased trusted base | `263d30332940f09082709b9d38ee8877dfb9fedd` |
+| Start trusted base | `263d30332940f09082709b9d38ee8877dfb9fedd` |
+| Integration trusted base | `8a14eb2d90014f793de8e16e32fbcc5af5becee3`; disjoint WP-313 source/tests/docs integrated without changing this support block |
 | Immutable reference | `db14559b39d32322b06477c6ae676112f583db50` |
 | Manifest digest | `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8` |
-| Candidate semantic policy / capability revisions | Derived from the actual complete candidate policy; recorded in the PR, not copied from a preceding partial scope |
+| Candidate semantic policy revision | `b79a4f28dfbff3185bbcf62604bfbcf4cad160a633e4d57135f1638c8e495ce2` |
+| Candidate capability revision | `f4223ec0389a02e4395632d0a4c4a92fcc7d9abb79611948b038eeca2ec578d0` |
 | First admitted edit / coding start | Trusted `reserve.py admit`: WP-000, `docs/android/automation-policy.json`, `modify`, `wp-owned`; implementation began with the exact capability/projection definitions after scope and consumer inspection |
 | Advisory reservation | Claim returned `BLOCKED: Existing WP lease is bound to different source/base/manifest/backend`; no new receipt acquired, historical authorization/identities unchanged, no release/recreate or private database edits |
 | Runtime | Default tracked role/common skill; no custom profile injection, runtime installation, native/Gradle execution, settings or schedule changes |
@@ -33,7 +35,8 @@ Read-only `dispatch.py --dry-run status` reported local capability admission req
 advisory file intents, no pre-edit approval requirement, and no merge authorization.
 Fleet activation/readiness remains separate and unapproved. All four new semantic
 initial purposes reproduced a trusted-main admission denial before this amendment;
-the WP-003 wiring producer separately reported its actual denied local runner paths.
+WP-003 `local/check.py` / `wire-scoped-local-verification` likewise returned no
+trusted path+operation rule after its producer reported the actual denied paths.
 
 ## Exact capability paths and operations
 
@@ -144,7 +147,8 @@ No product-behavior deviation is implemented in this support-only batch.
 | `python .\tools\android-port\controller\verification_config.py --check` | PASS: complete canonical configuration/projection |
 | `python .\tools\android-port\portmap.py` | PASS: ownership/traceability mapping, no product file changes |
 | `$env:PYTHONPATH=(Join-Path (Get-Location) 'tools\android-port'); python -m unittest discover -s .\tools\android-port\tests -p test_consumer_support_capabilities.py -v` | PASS: 7 discovered/run/passed, zero failures/errors/skips |
-| `python .\tools\android-port\controller\test_runner.py --quiet` | Pending completion; no passing full-suite result is claimed yet |
+| `python .\tools\android-port\controller\test_runner.py --quiet` (pre-extension invocation) | Exit 2: 562 discovered/run, 533 passed, 11 failures, 18 errors, zero skips. Scope changed during this invocation; not coherent final-candidate evidence |
+| `python .\tools\android-port\controller\test_runner.py --quiet` (stable final scope) | Pending serialized execution; no passing full-suite result is claimed yet |
 | `git diff --check` | PASS |
 
 The seven focused methods contain fifteen exact positive path/operation assertions,
@@ -153,6 +157,14 @@ negatives, excluded helper/resource/WP-503 paths, exact predecessor equality and
 partial/duplicate/reordered/widened-policy rejection. No assertions or validation
 requirements were lowered. Full-suite results must pass before completed-batch
 publication; hosted exact-commit jobs/logs remain authoritative after publication.
+
+The pre-extension process loaded five-rule definitions before the later approved
+WP-003 sixth-rule extension. Subsequent policy reads then failed the exact-block
+projection, and an immutable-input check observed the not-yet-committed policy.
+The partial result is retained as a failure, not relabelled a passing candidate.
+The complete six-rule scope is committed before its serialized full-suite invocation;
+no code/policy changes occur during that run. Capacity is coordinated with the other
+existing Python suites; no process is terminated or runtime/native lane modified.
 
 Consumers may evolve their existing advisory reservations with these named operations
 only after trusted-main landing. This candidate does not make its own support rules
