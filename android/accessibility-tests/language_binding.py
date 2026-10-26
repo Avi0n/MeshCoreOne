@@ -56,6 +56,7 @@ class FamilySpec:
     fixture_methods: tuple[str, ...] = ()
     original_fixture_blob: str | None = None
     publication_ref: str = PUBLIC_REF
+    current_production: tuple[str, str] | None = None
 
     @property
     def identities(self):
@@ -86,6 +87,10 @@ DIAGNOSTICS = FamilySpec(
          "f7474bb1bd06c6df93a71c8664e9dacade7c8749", "efc83d617bd7fe50fb6e5350e6a507aaf6f7bc1c"),
         ("android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/DeviceAccessibilityHarness.kt",
          "7f24b57c1ab06437435b8938d166a5254fec0894", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
+    ),
+    current_production=(
+        "1b455921a487fb1655babb0bdd5740ef70f81e69",
+        "0cb54d923d8c0a343caf37279012c79380c20412",
     ),
 )
 NODES = FamilySpec(
@@ -120,6 +125,10 @@ NODES = FamilySpec(
          "9101b45f3939bdb82af5c93cc77149c47bf34996", "3f50d6c80dab380e0e7883016295a16510604921"),
     ),
     publication_ref=MAIN_REF,
+    current_production=(
+        "86cb805495f565a3eb559af979b71eafb40b8f99",
+        "5cd07a338b508ff09d3e5fd0dbcf121ad1cfdec5",
+    ),
 )
 COMPARATOR = FamilySpec(
     "comparator", (37,),
@@ -354,6 +363,7 @@ class LanguageBinding:
     production_blob: str = PRODUCTION_BLOB
     fixture_blob: str = FIXTURE_BLOB
     family: str = "language"
+    current_source_anchor: str | None = None
 
 
 def prepare_binding(revision, claim, *, family="language"):
@@ -371,10 +381,21 @@ def prepare_binding(revision, claim, *, family="language"):
     source = source_identity(ROOT, revision)
     if git("merge-base", "--is-ancestor", spec.producer, revision):
         raise PortError("Unexpected producer ancestry output")
+    current_source_anchor = None
+    expected_production = spec.production_blob
+    if spec.current_production is not None:
+        anchor, blob = spec.current_production
+        # An unmerged candidate does not refresh the historical source contract.
+        if anchor in git("rev-list", revision).splitlines():
+            git("merge-base", "--is-ancestor", spec.producer, anchor)
+            if git("rev-parse", anchor + ":" + spec.production) != blob:
+                raise PortError("Exact current candidate production provenance drifted")
+            current_source_anchor, expected_production = anchor, blob
     production_blob = git("rev-parse", revision + ":" + spec.production)
     if (
-        (not current_main and production_blob != spec.production_blob)
-        or (current_main and git("rev-parse", spec.producer + ":" + spec.production) != spec.production_blob)
+        ((not current_main or spec.current_production is not None) and production_blob != expected_production)
+        or ((current_main or spec.current_production is not None)
+            and git("rev-parse", spec.producer + ":" + spec.production) != spec.production_blob)
         or (family == "language" and git("rev-parse", PRODUCER + ":" + spec.production) != spec.production_blob)
         or git("rev-parse", revision + ":" + spec.fixture) != spec.fixture_blob
     ):
@@ -384,6 +405,8 @@ def prepare_binding(revision, claim, *, family="language"):
         for path, producer, blob in pins:
             git("merge-base", "--is-ancestor", producer, revision)
             current_blob = spec.fixture_blob if path == spec.fixture else blob
+            if path == spec.production and spec.current_production is not None:
+                current_blob = expected_production
             if (git("rev-parse", revision + ":" + path) != current_blob
                     or git("rev-parse", producer + ":" + path) != blob):
                 raise PortError("Exact " + spec.name + " fixture/helper/production provenance drifted: " + path)
@@ -415,7 +438,7 @@ def prepare_binding(revision, claim, *, family="language"):
         policy["repository"], revision, git("rev-parse", revision + ":android"), source,
         manifest.sha256, policy_revision(manifest, policy), CANONICAL,
         CURRENT_APP_SESSION, CURRENT_CLI_SESSION, claim["revision"],
-        spec.producer, production_blob, spec.fixture_blob, family,
+        spec.producer, production_blob, spec.fixture_blob, family, current_source_anchor,
     )
 
 
@@ -429,10 +452,15 @@ class LanguageRequest:
         spec = family_spec(self.binding.family)
         if type(self.api) is not int or self.api not in spec.apis:
             raise PortError("API is not admitted for the immutable " + spec.name + " family")
+        expected_production = spec.production_blob
+        if self.binding.current_source_anchor is not None:
+            if spec.current_production is None or self.binding.current_source_anchor != spec.current_production[0]:
+                raise PortError("Request current source anchor differs from its exact candidate binding")
+            expected_production = spec.current_production[1]
         if (
             (self.binding.producer_revision, self.binding.fixture_blob) != (spec.producer, spec.fixture_blob)
-            or ((spec.publication_ref != MAIN_REF or spec.name == "nodes")
-                and self.binding.production_blob != spec.production_blob)
+            or ((spec.publication_ref != MAIN_REF or spec.name == "nodes" or spec.current_production is not None)
+                and self.binding.production_blob != expected_production)
             or not isinstance(self.binding.production_blob, str)
             or re.fullmatch(r"[0-9a-f]{40}", self.binding.production_blob) is None
         ):
