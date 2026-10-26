@@ -244,7 +244,7 @@ class LocalScopeBindingTests(unittest.TestCase):
                     + ("<skipped/>" if skipped else "") + "</testcase></testsuite>",
                 )
                 self.write("android/build/reports/scaffold/module-graph.tsv",
-                           "consumer\tproducer\tconfiguration\n:app\t:core:services\timplementation\n")
+                           "consumer\tproducer\tconfiguration\n:core:services\t:core:protocol\timplementation\n")
                 self.write("android/build/reports/scaffold/runtime-dependencies.tsv",
                            "artifact\tdeclared_license\tlicense_url\tlicense_pom\tlicense_pom_sha256\tlegal_gate\n"
                            "org:fixture:1\tMIT\thttps://example.invalid/license\torg:fixture:1\t"
@@ -284,6 +284,20 @@ class LocalScopeBindingTests(unittest.TestCase):
             run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
         _, execute = self.execute_fixture(plan, graph=False)
         with self.assertRaises(PortError):
+            run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
+
+    def test_actual_resolved_consumer_cannot_be_omitted_by_static_selection(self):
+        plan = self.services_plan()
+        output = self.repo / "output"
+        output.mkdir()
+        _, emit = self.execute_fixture(plan)
+
+        def execute(*arguments):
+            emit(*arguments)
+            self.write("android/build/reports/scaffold/module-graph.tsv",
+                       "consumer\tproducer\tconfiguration\n:app\t:core:services\timplementation\n")
+
+        with self.assertRaisesRegex(PortError, "omitted consumers.*app"):
             run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
 
     def test_command_failure_and_cancellation_propagate_without_report_success(self):

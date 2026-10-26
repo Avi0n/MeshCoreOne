@@ -328,6 +328,42 @@ def report_inputs(repo, plan):
     return sorted(directories), sorted(lint)
 
 
+def validate_runtime_scopes(repo, plan):
+    from .ci_evidence import report_tsv
+
+    if plan["full_scaffold"]:
+        return
+    modules = module_inventory(repo, plan["head"])
+    affected = {
+        module for module in modules
+        if any(path.startswith(f"android/{module}/src/") for path in plan["paths"])
+    }
+    if any(path.startswith(("android/parity-tests/src/", "android/ui-tests/src/",
+                            "android/screenshot-tests/src/", "android/accessibility-tests/src/"))
+           for path in plan["paths"]):
+        affected.add("app")
+    edges = report_tsv(
+        repo / "android/build/reports/scaffold/module-graph.tsv",
+        ["consumer", "producer", "configuration"],
+    )
+    while True:
+        consumers = {
+            edge["consumer"].lstrip(":").replace(":", "/") for edge in edges
+            if edge["producer"].lstrip(":").replace(":", "/") in affected
+        }
+        expanded = affected | consumers
+        if expanded == affected:
+            break
+        affected = expanded
+    selected = {scope[len("module:"):] for scope in plan["scopes"] if scope.startswith("module:")}
+    missing = affected - selected
+    if missing:
+        raise PortError(
+            "Resolved module graph exposes omitted consumers; full scaffold required: "
+            + ", ".join(sorted(missing))
+        )
+
+
 def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_base):
     """Execute fixed affected tasks through the already-owned local supervisor."""
     from . import ci
@@ -373,6 +409,7 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
         },
     }
     validate_graph_runtime(repo / "android/build/reports/scaffold")
+    validate_runtime_scopes(repo, plan)
     if plan["full_scaffold"]:
         report["scaffold_suites"] = collect_suites(repo / "android")
         report["module_unit_tests"] = check_module_tests(repo)

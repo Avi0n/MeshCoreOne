@@ -19,6 +19,9 @@ and reverse consumers from committed project dependencies, not caller-provided
 Gradle commands or test-method filters. Android consumers receive compile/lint
 checks; App receives its complete unit runner and AndroidTest compilation.
 Graph/runtime dependency inventory remains mandatory for every Gradle selection.
+The actual resolved production graph is checked against the selected consumer
+closure too: a consumer missed by static declaration inspection fails the
+affected run and explicitly requires full scaffold, never a passing partial result.
 Localization changes retain conversion and actual Android JUnit verification.
 The complete services/runtime/App suites include typed errors, cancellation and
 shared consumer tests rather than replacing them with selector fixtures.
