@@ -125,10 +125,13 @@ class ShortcutConsumerRepairTest : RoomProcessTest() {
             try {
                 val adapter = AppShortcutRadio(h.container)
                 val radio = assertNotNull(adapter.currentRadioId)
-                val channel = ChannelDTO(radioId = radio, index = 0u, name = "Shortcut channel", secret = secret(6))
+                val channel = store.fetchChannel(radio, 0u)?.copy(name = "Shortcut channel", secret = secret(6))
+                    ?: ChannelDTO(radioId = radio, index = 0u, name = "Shortcut channel", secret = secret(6))
                 store.saveChannel(channel)
                 val contact = assertNotNull(store.fetchContact(radio, key(4)))
                 val targetId = if (channelRecipient) TargetIdentity.channelId(channel) else TargetIdentity.contactId(contact)
+                assertEquals(1, adapter.targets(text.channelSubtitle).count { it.id == targetId },
+                    "Each recipient fixture must resolve uniquely before services disappear")
                 val shown = mutableListOf<String>()
                 val opened = mutableListOf<ShortcutRequest>()
                 var confirmations = 0

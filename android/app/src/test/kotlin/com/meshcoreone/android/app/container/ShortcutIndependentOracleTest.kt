@@ -102,7 +102,15 @@ class ShortcutIndependentOracleTest : RoomProcessTest() {
             val channel = ChannelDTO(radioId = radio, index = 0u, name = "Oracle", secret = Bytes(ByteArray(16) { 9 }))
             store.saveChannel(channel)
             val device = assertNotNull(h.appState.connectedDevice)
-            h.manager.replaceConnectedDevice(device.copy(nodeName = ""))
+            suspend fun setNodeName(name: String) {
+                val updated = device.copy(nodeName = name)
+                store.saveDevice(updated)
+                h.manager.replaceConnectedDevice(updated)
+                assertEquals(name, assertNotNull(store.fetchDevice(radio)).nodeName)
+                assertEquals(name, assertNotNull(h.appState.connectedDevice).nodeName)
+                assertEquals(name.toByteArray(Charsets.UTF_8).size, adapter.connectedNodeNameByteCount)
+            }
+            setNodeName("")
             adapter.queueMessage(ShortcutRecipient.Channel(channel), "x".repeat(137))
             assertEquals("x".repeat(137), store.fetchMessages(radio, 0u, 100, 0).single().text)
             assertEquals(ShortcutError.MESSAGE_TOO_LONG, assertFailsWith<ShortcutException> {
@@ -110,7 +118,7 @@ class ShortcutIndependentOracleTest : RoomProcessTest() {
             }.error)
             val flow = SendMessageFlow(adapter, object : ShortcutConfirmationPort {
                 override suspend fun confirm(request: ConfirmationRequest): Boolean {
-                    h.manager.replaceConnectedDevice(device.copy(nodeName = "\u8282\u70b9"))
+                    setNodeName("\u8282\u70b9")
                     return true
                 }
             }, text)

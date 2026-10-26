@@ -1,5 +1,60 @@
 # WP-404 evidence
 
+## Guarded 822d result and bounded fixture corrections
+
+Candidate `822d568de43b1bda5324bbf43896221512ed019c`, tree
+`0a2c1fbefbeaf25bb9fd0cc615c6588d29c1c11c`, failed the supported guarded
+affected check with actual OS exit 1 after 22m 51s (guard PID 127745, slot 1).
+App JUnit reported 1,557 tests with two failures; shortcut JUnit reported 40
+tests with no failures. Both suites had zero errors/skips. The managed snapshot
+was still exactly this candidate before and after reading its XML: all 66
+mandatory class/method identities were present, with 64 passing and two failing.
+The retained 16 durable queue integrations all passed. These are results for
+822d, not passing evidence for the corrected successor.
+
+Source diagnosis of the two actual failures:
+
+- `ShortcutConsumerRepairTest.servicesOnlyDisappearanceAfterClassificationEscalatesBothRecipientsWithoutEnqueueOrRadioChange`
+  failed at line 151: expected one confirmation, observed zero. Both parameter
+  cases share the process Room store and the same radio, but each inserted a
+  fresh random-ID channel with the same secret. `ChannelRepository.saveChannel`
+  updates by row ID, not slot; a retained first-case row therefore makes the
+  second target ambiguous. The correct duplicate-safe resolver rejects it before
+  confirmation, so the intended services-loss path was not reached. The fixture
+  now reuses the persisted slot's row ID and additionally requires exactly one
+  actual picker target before confirmation. Both direct/channel cases, real
+  teardown, unchanged READY/radio, foreground handoff, and all zero-write/wire
+  assertions remain.
+- `ShortcutIndependentOracleTest.actualChannelAdapterAcceptsExactUtf8BudgetRejectsOneMoreAndRechecksChangedLiveName`
+  failed at line 106: the initial 137-byte send raised `MESSAGE_TOO_LONG`.
+  `ConnectionManager.replaceConnectedDevice` replaces only the live snapshot;
+  `MessageService.rejectChannelText` independently reads the persisted device.
+  The fixture left `TestNode` in Room (eight UTF-8 bytes, a 129-byte budget)
+  while claiming an empty live name. The fixture now saves the same device
+  update to Room and the live snapshot at both name changes, asserting the
+  persisted/live names and adapter byte count. The independent 137/138 and
+  131-byte thresholds, confirmation-time six-byte CJK rename, exact messages,
+  and pending-row counts are unchanged. This is consistent fixture setup,
+  not a claim of exercising the radio settings write protocol.
+
+No production behavior or expected value was changed to accommodate either
+failure. All 66 source method identities and original assertions remain; no
+family is removed or skipped. The previous ten-task check did not complete:
+App unit tests failed; App/shortcut Kotlin compile tasks were up-to-date;
+App Android-test Kotlin compilation ran; shortcut unit tests passed. The App
+lint, shortcut check/lint, module graph and runtime dependency inventory tasks
+have no completion evidence and are not claimed as passed.
+
+The corrected candidate is the commit containing this section, based directly
+on 822d without another base merge. Its mandatory inventory remains
+40 platform + 4 first App + 6 independent App + 16 durable integration methods.
+Lightweight traceability, whitespace and source-inventory checks do not establish
+Kotlin compilation or product acceptance. Corrected-candidate Gradle/JUnit,
+lint and the complete affected closure are **NOT RUN** pending a new supported
+slot handoff. The prior guard's owned lock was released and its recovery
+directory removed. No retry, runtime/base/cache/ledger change, push or PR was
+performed for these corrections.
+
 ## First guarded union attempt: traceability repair
 
 The coordinator released the installed guarded remote lane and approved one
