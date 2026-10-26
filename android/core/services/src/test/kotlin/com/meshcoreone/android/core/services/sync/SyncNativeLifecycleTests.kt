@@ -9,8 +9,10 @@ import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
 import com.meshcoreone.android.core.model.ChannelDTO
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.DeliveryContext
+import com.meshcoreone.android.core.model.DevicePlatform
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.model.SnapshotList
+import com.meshcoreone.android.core.model.TransportType
 import com.meshcoreone.android.core.model.snapshot
 import com.meshcoreone.android.core.protocol.event.ChannelMessage
 import com.meshcoreone.android.core.protocol.event.ContactMessage
@@ -77,6 +79,38 @@ private fun timeouts(vararg indices: Int) =
     indices.map { ChannelSyncError(it.toUByte(), ChannelSyncErrorType.Timeout, "timeout") }.snapshot()
 
 class SyncNativeLifecycleTests {
+    @TestFactory
+    fun channelCooldownBoundaries(): List<DynamicTest> = listOf(false, true).map { attempted ->
+        nativeCase("${if (attempted) "attempted" else "clean"} channel cooldown expires exactly at 30 seconds only for ESP32") {
+            for (platform in DevicePlatform.entries) {
+                for (transport in TransportType.entries) {
+                    for (ageMillis in listOf(29_999L, 30_000L)) {
+                        val radioId = newRadio()
+                        val (controller, host) = retryController()
+                        host.detectedPlatform = platform
+                        val previous = radioId to clock.now().minusMillis(ageMillis)
+                        if (attempted) host.lastAttemptedChannelSync = previous else host.lastCleanChannelSync = previous
+                        val channels = MockChannelService()
+                        val polling = MockMessagePollingService()
+                        val coordinator = coordinator()
+                        val result = coordinator.performFullSync(
+                            radioId, SyncInMemoryStore.createTestDataStore(radioId),
+                            MockContactService(), channels, polling,
+                            channelSyncConfig = controller.currentChannelSyncConfig(radioId, transport),
+                        )
+                        val skip = platform == DevicePlatform.ESP32 && ageMillis < 30_000L
+                        val context = "$platform / $transport / $ageMillis ms / attempted=$attempted"
+                        assertEquals(if (skip) 0 else 1, channels.syncChannelsInvocations.size, context)
+                        assertEquals(if (skip) SyncPhaseStatus.Skipped else SyncPhaseStatus.Clean, result.channels, context)
+                        assertEquals(1, polling.pollAllMessagesCallCount, context)
+                        assertTrue(result.isConnectionUsable, context)
+                        assertEquals(SyncState.Synced, coordinator.state, context)
+                    }
+                }
+            }
+        }
+    }
+
     @TestFactory
     fun lifecycle(): List<DynamicTest> = listOf(
         nativeCase("connection setup wires handlers before monitoring and starts auto-fetch only after notifications resume") {
