@@ -1,5 +1,73 @@
 # WP-405 evidence
 
+## WP405-LINKS repair verification status
+
+The APP-G03/APP-G04/APP-G07 repair batch passed supported affected local
+verification on the assigned Linux host at candidate
+`35c1064d56f6affc92d3e2c585db0ed732230dd8`, tree
+`2e60fbb49f81dcc1cf4b9af8fd146828e399f73d`, against execution baseline
+`3a292b6498e8dcef0c374022a93c8e30c68f5bd5`. This is local automated
+evidence, not hosted, physical-device, native, signing or human acceptance.
+The separate historical section below must not be reused as repair evidence.
+
+The repair preserves private-secret hashtag warning/scope metadata through the
+mounted confirmation and reuses the unchanged protocol grapheme helper with the
+shared 30-byte region limit in external, chat and QR parsers. Original source
+remains pinned to `db14559b39d32322b06477c6ae676112f583db50`.
+The feature-parser capability was freshly admitted after trusted support landing
+`f2f481d2e7c2a9029808943529c98c98ef879299`; the same owner's reservation
+evolved to revision 4 before that edit.
+
+The committed regression definitions require these real consumer surfaces:
+
+| Test class | Defined repair methods | Required behavior |
+| --- | --- | --- |
+| `app.container.LinkConsumerIntegrationTest` | 4 | Actual retained Intent delivery/binding, original San Francisco focus, once-only consumption and external/chat confirmation metadata |
+| `app.container.ChannelConfirmationConsumerTest` | 5 | Mounted warning/scope before consent, exact confirmed firmware/Room state, disconnected disabled action and cancellation |
+| `app.container.ChannelRegionConsumerTest` | 4 | External/chat/QR parser-to-real-join and persisted region/secret, absent/empty values, padded ASCII and whole combining-grapheme boundaries |
+| `app.container.MentionNavigationConsumerTest` | 2 | Actual mounted mention producer/action to contact destination and non-mention dispatch, preserving all original encoded-name vectors |
+| `app.platform.ChatMapPreviewTest` | 2 coordinate methods | Independent mounted San Francisco/London thumbnail clicks replace prior focus with exact coordinates |
+
+Fresh source-bound JUnit reports discovered and passed 4 link integration,
+10 confirmation, 4 region and 4 mention cases. Both coordinate methods passed
+on API 31 and 37 (4 cases); the complete map-preview class passed 22 cases.
+These named results were read while the execution snapshot still had the exact
+tested HEAD, before slot reuse. No required case failed, errored or skipped.
+The QR assertion covers the production parser/join seam, not camera or device
+evidence.
+
+The actual affected plan selected `module:app` and `module:feature/chats`.
+The assigned canonical runner executed:
+
+```text
+env -i HOME="$HOME" PATH=/ai_cache/meshcoreone/python/3.12.4/bin:/usr/bin:/bin LANG=C.UTF-8 PYTHONDONTWRITEBYTECODE=1 ANDROID_LOCAL_HOME=/ai_cache/meshcoreone/execution/single-shared ANDROID_LOCAL_PYTHON=/ai_cache/meshcoreone/python/3.12.4/bin/python3.12 ANDROID_PORT_LEDGER=/ai_cache/meshcoreone/control/android-port-shared.sqlite3 /ai_cache/meshcoreone/python/3.12.4/bin/python3.12 -B tools/android-port/local/check.py --commit 35c1064d56f6affc92d3e2c585db0ed732230dd8 --affected-base 3a292b6498e8dcef0c374022a93c8e30c68f5bd5 --parallel-jvm
+```
+
+The derived obligations are complete `:app:testDebugUnitTest` and
+`:feature:chats:testDebugUnitTest` runners, App/chats Kotlin compilation and lint,
+`:feature:chats:check`, `:app:compileDebugAndroidTestKotlin`,
+`validateModuleGraph` and `runtimeDependencyInventory`. No arbitrary Gradle
+filters, direct execution workaround or full-scaffold widening is requested.
+Result: terminal exit 0, Python/preflight/scaffold passed, and the owned launcher
+printed final `AFFECTED LOCAL CHECK PASSED` after current-base revalidation and
+owned-child/resource cleanup. App discovered/ran/passed 1,571 tests; chats
+discovered/ran/passed 392 tests. Both had 0 failures, 0 errors and 0 skipped.
+Lint passed with 50 App and 4 chats warnings. Module graph validation covered
+30 modules; runtime inventory recorded 195 inputs. App AndroidTest compilation
+passed; APK assembly was not selected by this affected plan and is not claimed.
+
+The first run at `3c64b9845` terminated with exit 1 before App discovery because
+the mention test used the single-action API for a list-valued semantics property.
+The tested candidate fixes that using the existing custom-action list/idle-thread
+pattern without weakening navigation assertions. No hosted-first debugging,
+test filtering, direct Gradle or execution-interlock bypass was used.
+
+The exact-commit hosted job/log remains authoritative for hosted checks. No
+second CI-result bundle is committed. This evidence update changes documentation
+only after the tested candidate; it does not change tested production/test bytes.
+
+## Historical original implementation evidence
+
 ## Scope and provenance
 
 - Work package: `WP-405`

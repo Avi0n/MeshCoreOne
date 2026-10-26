@@ -2,6 +2,7 @@
 package com.meshcoreone.android.app.navigation
 
 import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import com.meshcoreone.android.app.container.AppChatsFeature
@@ -29,15 +30,25 @@ internal fun AppPendingChannel(feature: AppChatsFeature, navigation: NavigationC
     LaunchedEffect(holder) { holder.load() }
     AlertDialog(onDismissRequest = clear,
         text = {
-            Text(link?.name ?: requireNotNull(hashtag).id)
-            state.failure?.let { Text(com.meshcoreone.android.core.ui.uiString(com.meshcoreone.android.core.ui.UiErrorMapper().message(it))) }
+            Column {
+                Text(link?.name ?: requireNotNull(hashtag).id)
+                link?.regionScope?.let {
+                    Text(stringResource(com.meshcoreone.android.core.l10n.R.string.l10n_app_chats_chats_joinfrommessage_regionscope, it))
+                }
+                if (link?.hasHashtagSecretMismatch == true) {
+                    Text(stringResource(com.meshcoreone.android.core.l10n.R.string.l10n_app_chats_chats_joinfrommessage_hashtagsecretmismatch))
+                }
+                state.failure?.let { Text(com.meshcoreone.android.core.ui.uiString(com.meshcoreone.android.core.ui.UiErrorMapper().message(it))) }
+            }
         },
         confirmButton = {
             val connection by feature.connectionState.collectAsState()
             TextButton(enabled = radio != null && connection == com.meshcoreone.android.core.contracts.domain.DeviceConnectionState.READY &&
                 !state.isLoading && !state.isSubmitting, onClick = {
                 scope.launch {
-                    val channel = if (link != null) holder.joinLink(ChannelLink(link.name, link.secret, link.regionScope))
+                    val channel = if (link != null) holder.joinLink(ChannelLink(
+                        link.name, link.secret, link.regionScope, link.hasHashtagSecretMismatch,
+                    ))
                     else {
                         holder.updateHashtag(requireNotNull(hashtag).id)
                         holder.joinHashtag()

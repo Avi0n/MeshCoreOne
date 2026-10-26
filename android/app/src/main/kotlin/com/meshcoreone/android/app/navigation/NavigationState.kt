@@ -79,7 +79,12 @@ data class MapFocusRequest(val latitude: Double, val longitude: Double) {
     val coordinate: Coordinate get() = Coordinate(latitude, longitude)
 }
 data class ContactLinkRequest(val name: String, val publicKey: Bytes, val type: ContactType)
-data class ChannelLinkRequest(val name: String, val secret: Bytes, val regionScope: String? = null)
+data class ChannelLinkRequest(
+    val name: String,
+    val secret: Bytes,
+    val regionScope: String? = null,
+    val hasHashtagSecretMismatch: Boolean = false,
+)
 // PortedFrom: MC1/Views/Chats/HashtagDeeplinkSupport.swift@db14559b39d32322b06477c6ae676112f583db50
 data class HashtagJoinRequest(val id: String)
 data class PendingNotificationRoute(

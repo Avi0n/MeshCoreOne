@@ -4,6 +4,7 @@ package com.meshcoreone.android.app.deeplinks
 
 import com.meshcoreone.android.core.model.ProtocolLimits
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.bytes.utf8Prefix
 import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.core.services.contacts.ChannelService
 import java.net.URI
@@ -79,19 +80,7 @@ object MeshCoreUriParser {
 
     fun normalizedRegionScope(value: String?): String? {
         val trimmed = value?.trim()?.takeIf { it.isNotEmpty() } ?: return null
-        val capped = StringBuilder()
-        var byteCount = 0
-        var index = 0
-        while (index < trimmed.length) {
-            val codePoint = trimmed.codePointAt(index)
-            val text = String(Character.toChars(codePoint))
-            val bytes = text.toByteArray(Charsets.UTF_8).size
-            if (byteCount + bytes > ProtocolLimits.MAX_DEFAULT_FLOOD_SCOPE_NAME_BYTES) break
-            capped.append(text)
-            byteCount += bytes
-            index += Character.charCount(codePoint)
-        }
-        return capped.toString().ifEmpty { null }
+        return trimmed.utf8Prefix(ProtocolLimits.MAX_DEFAULT_FLOOD_SCOPE_NAME_BYTES).ifEmpty { null }
     }
 
     private fun uri(text: String): URI? = try {

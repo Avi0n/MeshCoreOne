@@ -31,7 +31,9 @@ class ContainerDeepLinkEnvironment(
         navigation.stageContactLink(ContactLinkRequest(link.name, link.publicKey, link.contactType))
 
     override fun stageChannelConfirmation(link: MeshCoreDeepLink.Channel) =
-        navigation.stageChannelLink(ChannelLinkRequest(link.name, link.secret, link.regionScope))
+        navigation.stageChannelLink(
+            ChannelLinkRequest(link.name, link.secret, link.regionScope, link.hasHashtagSecretMismatch),
+        )
 
     override fun stageHashtagConfirmation(link: MeshCoreDeepLink.Hashtag) =
         navigation.stageHashtag(HashtagJoinRequest(link.fullName))
