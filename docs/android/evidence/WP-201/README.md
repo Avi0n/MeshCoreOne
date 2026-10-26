@@ -208,3 +208,60 @@ WP-202 receives real rows/DAOs/checked mappings and full neutral interfaces;
 WP-203 receives exact legacy/wire policies and raw framing; WP-207 receives
 generation/factory/lifetime seams. Coordinator review/merge, not this worker's
 test summary, controls their dispatch. No next work package is started here.
+
+## DATA-01 current live-producer repair candidate
+
+Owner `data-persistence-engineer`; session/attempt
+`fc4b2e79-8993-46ae-b073-9fbad90d7635`; branch
+`cbattlegear-wp-201-persist-live-ble-method`. Initial base
+`263d30332940f09082709b9d38ee8877dfb9fedd` was fast-forwarded, before the first
+product edit, to trusted capability prerequisite
+`f2f481d2e7c2a9029808943529c98c98ef879299` (PR #334). The source pin remains
+`db14559b39d32322b06477c6ae676112f583db50`; the existing manifest/source/policy
+binding and immutable authorization context remain in the original advisory
+record, not silently rebound or recreated.
+
+Supported `reserve.py admit` accepted `ConnectionManager.kt` with
+`persist-active-connection-method` and the exact new
+`DeviceConnectionMethodPersistenceTest.kt` with
+`add-connection-method-persistence-regression`. Same-owner `evolve` advanced
+the actual reservation from revision 1 to 2 to 3, retaining identities/binding.
+The admitted capabilities are `wp201-active-connection-method` and
+`wp201-connection-method-regression`. WP-201 is the first runtime producer;
+WP-214's separate transport-type forwarding must reconcile serially afterward.
+
+The defect was reproduced by inspecting the real `establish` producer:
+its Bluetooth branch passed `emptyList()` while model-only tests injected a
+Bluetooth descriptor. The producer now exhaustively selects the actual target
+method. The added runtime suite maps exactly these three pinned families:
+
+| Original family | Producer-to-persistence assertions |
+| --- | --- |
+| `createDevice persists the Bluetooth method supplied by the BLE connect path()` | Fresh BLE endpoint stored; public-key-derived radio identity remains distinct; actual saved/current/service DTOs and last-connection identity agree |
+| `createDevice merges a Bluetooth method with an existing WiFi method()` | Establish WiFi first, then BLE for the same public key; retain WiFi host/port, stable radio partition and one saved row |
+| `createDevice replaces a stale Bluetooth peripheral UUID instead of accumulating()` | Exactly one fresh BLE method, retained WiFi and preferences, stable radio ID, save before stale-row cleanup |
+
+The fixture uses the real protocol session and runtime producer with recording
+in-memory persistence and simulated link/service boundaries. No Room, hardware,
+native-radio or backup-oracle result is implied. These assertions supplement,
+not replace or weaken, the existing source factory tests. Acceptance references:
+`WP-201-behavior`, `WP-201-boundaries`, `WP-201-source-test-parity` for this
+bounded DATA-01 concern only.
+
+Current execution state: **UNVERIFIED source candidate**. Independent declared
+WSL `ci.py local-inputs` / `ci.py preflight --local` passed before source edits;
+this establishes installed build inputs only. After the admitted source edits,
+`git diff --check` passed;
+`python tools\android-port\portmap.py` passed with 1,909 dispositions, including
+the new test's exact source provenance;
+`python tools\android-port\controller\validate.py` passed with 1,866 reference
+inputs, 64 WPs and 178 dependency edges; and
+`python tools\android-port\controller\verification_config.py --check` returned
+`valid`. These lightweight checks are not compilation or runtime execution.
+`:core:runtime:test` is an existing declared runtime task hooked into
+`verifyScaffoldTests`; it has **not run for this repair**, with zero execution
+or discovery claimed. Build/lint and runtime assertions remain pending.
+The installed execution runtime and retained native capacity gate are owned
+by the coordinator; no Gradle/native/heavy suite, push or PR is authorized
+until those gates are reconciled. Reproducible automated CI result bundles
+are not committed or duplicated here.
