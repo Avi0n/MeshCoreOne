@@ -70,6 +70,20 @@ remain authoritative. Affected results are explicitly local-only and must not be
 accepted as the existing full-result schema, hosted CI, Android/native/hardware
 acceptance, signing or a human/protected gate.
 
+The existing affected scaffold report also retains `junit_cases` before the
+owned snapshot can be released or reused. Each row records the repository-relative
+report, zero-based testcase index, exact class/method (including parameter names)
+and actual XML outcome (`passed`, `failure`, `error`, `skipped`). Rows are not
+deduplicated or truncated; repeated identities across module runners remain
+distinct. Existing strict checks still reject duplicate identities within a
+runner and any failed/error/skipped required case, so a successful report contains
+only passed cases. Its existing base/head/tree, tasks and scopes bind the named
+evidence to that run; later reads of reusable-slot XML are not needed. This adds
+no raw XML copy, second result artifact or hosted-CI evidence bundle. A selected
+module without tests retains its compile/lint/graph obligations and an empty
+`junit_cases` list only when the computed plan requires no JUnit directories;
+missing or zero required suites still fail.
+
 Lightweight selector regression command:
 
 ```powershell

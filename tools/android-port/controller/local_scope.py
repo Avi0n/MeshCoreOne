@@ -340,6 +340,42 @@ def report_inputs(repo, plan):
     return sorted(directories), sorted(lint)
 
 
+def collect_named_cases(repo, directories):
+    from .ci_evidence import read_xml
+    from .module_junit import bounded_directory
+
+    result = []
+    for directory in directories:
+        bounded_directory(directory, repo)
+        for path in sorted(directory.glob("TEST-*.xml")):
+            suite = read_xml(path)
+            cases = suite.findall("testcase")
+            try:
+                declared = {key: int(suite.attrib[key]) for key in ("tests", "failures", "errors", "skipped")}
+            except (KeyError, ValueError) as error:
+                raise PortError("Missing/malformed named JUnit counts") from error
+            if suite.tag != "testsuite" or not cases or declared["tests"] != len(cases):
+                raise PortError("Malformed/zero named JUnit suite")
+            observed = dict.fromkeys(("failures", "errors", "skipped"), 0)
+            for index, case in enumerate(cases):
+                classname, method = case.get("classname"), case.get("name")
+                outcomes = [node.tag for node in case if node.tag in ("failure", "error", "skipped")]
+                if not classname or not method or len(outcomes) > 1:
+                    raise PortError("Missing named JUnit identity or ambiguous outcome")
+                outcome = outcomes[0] if outcomes else "passed"
+                if outcomes:
+                    observed[{"failure": "failures", "error": "errors", "skipped": "skipped"}[outcome]] += 1
+                result.append({
+                    "report": path.relative_to(repo).as_posix(), "index": index,
+                    "class": classname, "method": method, "outcome": outcome,
+                })
+            if any(declared[key] != observed[key] for key in observed):
+                raise PortError("Named JUnit declared/actual outcomes disagree")
+    if not result:
+        raise PortError("Missing/zero named JUnit evidence")
+    return result
+
+
 def validate_runtime_scopes(repo, plan):
     from .ci_evidence import report_tsv
 
@@ -435,5 +471,6 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
             sys.executable, str(repo / "tools/android-port/l10n_convert.py"), "--check",
             "--verify-android-tests", str(repo / "android/core/l10n/build/test-results/testDebugUnitTest"),
         ], repo, environment, output / "l10n-junit.log")
+    report["junit_cases"] = collect_named_cases(repo, directories) if directories else []
     validate_plan(repo, plan, trusted_base=trusted_base)
     return report

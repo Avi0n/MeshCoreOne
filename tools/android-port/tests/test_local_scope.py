@@ -11,7 +11,10 @@ import unittest
 from unittest.mock import patch
 
 from controller.errors import PortError
-from controller.local_scope import candidate_plan, collect_targeted_reports, report_inputs, run_scaffold, select_paths, validate_plan
+from controller.local_scope import (
+    candidate_plan, collect_named_cases, collect_targeted_reports, report_inputs,
+    run_scaffold, select_paths, validate_plan,
+)
 
 
 class LocalScopeSelectionTests(unittest.TestCase):
@@ -337,6 +340,22 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.assertIn("AFFECTED SNAPSHOT CHECKS COMPLETE", text.getvalue())
         self.assertNotIn("FAST LOCAL CHECK PASSED", text.getvalue())
         self.assertEqual(self.git("rev-parse", "HEAD"), plan["head"])
+        captured, _ = json.JSONDecoder().raw_decode(text.getvalue()[text.getvalue().index('{\n  "kind"'):])
+        expected = [{
+            "report": directory.relative_to(self.repo).as_posix() + "/TEST-Sync.xml",
+            "index": 0, "class": "SyncTest", "method": "required", "outcome": "passed",
+        } for directory in directories]
+        self.assertEqual(captured["junit_cases"], expected)
+        self.assertEqual(
+            {key: captured[key] for key in ("base", "head", "tree", "scopes", "tasks")},
+            {key: plan[key] for key in ("base", "head", "tree", "scopes", "tasks")},
+        )
+        for directory in directories:
+            self.write(directory / "TEST-Sync.xml", "<not-the-original-run/>")
+        self.write("README", "next snapshot")
+        self.assertNotEqual(self.commit(), plan["head"])
+        retained, _ = json.JSONDecoder().raw_decode(text.getvalue()[text.getvalue().index('{\n  "kind"'):])
+        self.assertEqual(retained, captured)
 
     def test_stale_base_and_head_are_rejected(self):
         plan = candidate_plan(self.repo, self.base, self.head)
@@ -466,6 +485,92 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.assertIn("--init-script", calls[0])
         self.assertEqual(report["kind"], "local-affected-only")
         self.assertEqual(report["suites"]["core/services"]["passed"], 1)
+        self.assertEqual(report["junit_cases"], [{
+            "report": "android/core/services/build/test-results/test/TEST-Sync.xml",
+            "index": 0, "class": "SyncTest", "method": "required", "outcome": "passed",
+        }])
+
+    def test_named_cases_preserve_every_parameter_duplicate_and_actual_outcome(self):
+        directory = self.repo / "android/core/services/build/test-results/test"
+        self.write(directory / "TEST-Sync.xml",
+                   "<testsuite tests='5' failures='1' errors='1' skipped='1'>"
+                   "<testcase classname='Sync' name='parameter[one &amp; two]'/>"
+                   "<testcase classname='Sync' name='parameter[one &amp; two]'/>"
+                   "<testcase classname='Sync' name='failure'><failure/></testcase>"
+                   "<testcase classname='Sync' name='error'><error/></testcase>"
+                   "<testcase classname='Sync' name='skip'><skipped/></testcase></testsuite>")
+        cases = collect_named_cases(self.repo, [directory])
+        self.assertEqual(cases, [{
+            "report": "android/core/services/build/test-results/test/TEST-Sync.xml",
+            "index": index, "class": "Sync", "method": method, "outcome": outcome,
+        } for index, (method, outcome) in enumerate([
+            ("parameter[one & two]", "passed"), ("parameter[one & two]", "passed"),
+            ("failure", "failure"), ("error", "error"), ("skip", "skipped"),
+        ])])
+        with self.assertRaises(PortError):
+            collect_targeted_reports(self.repo, ["module:core/services"])
+
+    def test_no_test_module_preserves_compile_lint_graph_without_junit_obligation(self):
+        self.write("android/core/transport/build.gradle.kts", 'plugins { id("mesh.android.library") }\n')
+        self.write("android/core/transport/src/main/kotlin/Transport.kt", "base")
+        base = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", base)
+        self.write("android/core/transport/src/main/kotlin/Transport.kt", "changed production")
+        plan = candidate_plan(self.repo, base, self.commit())
+        self.assertEqual(plan["scopes"], ["module:core/transport"])
+        self.assertEqual(plan["tasks"], [
+            ":core:transport:check", ":core:transport:compileDebugKotlin", ":core:transport:lintDebug",
+            "validateModuleGraph", "runtimeDependencyInventory",
+        ])
+        self.assertEqual(report_inputs(self.repo, plan), ([], ["core/transport"]))
+        output = self.repo / "output"
+        output.mkdir()
+        calls, execute = self.execute_fixture(plan)
+        report = run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=base)
+        self.assertEqual(calls[0][3:3 + len(plan["tasks"])], plan["tasks"])
+        self.assertEqual(report["suites"], {})
+        self.assertEqual(report["junit_cases"], [])
+        self.assertEqual(set(report["lint"]), {"core/transport"})
+        self.assertEqual(
+            {key: report[key] for key in ("base", "head", "tree", "scopes", "tasks")},
+            {key: plan[key] for key in ("base", "head", "tree", "scopes", "tasks")},
+        )
+
+    def test_named_evidence_cannot_turn_invalid_required_reports_into_success(self):
+        plan = self.services_plan()
+        output = self.repo / "output"
+        output.mkdir()
+        directory = self.repo / "android/core/services/build/test-results/test"
+        _, emit = self.execute_fixture(plan)
+        for xml in (
+            "<broken",
+            "<testsuite tests='0' failures='0' errors='0' skipped='0'/>",
+            "<testsuite tests='1' failures='0' errors='0' skipped='0'><testcase name='missing'/></testsuite>",
+            "<testsuite tests='1' failures='1' errors='0' skipped='0'>"
+            "<testcase classname='Sync' name='bad'><failure/></testcase></testsuite>",
+            "<testsuite tests='1' failures='0' errors='1' skipped='0'>"
+            "<testcase classname='Sync' name='bad'><error/></testcase></testsuite>",
+            "<testsuite tests='1' failures='0' errors='0' skipped='1'>"
+            "<testcase classname='Sync' name='skip'><skipped/></testcase></testsuite>",
+            "<testsuite tests='2' failures='0' errors='0' skipped='0'>"
+            "<testcase classname='Sync' name='same'/><testcase classname='Sync' name='same'/></testsuite>",
+        ):
+            def execute(*args):
+                emit(*args)
+                self.write(directory / "TEST-Sync.xml", xml)
+            with self.subTest(xml=xml), self.assertRaises(PortError):
+                run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
+        for xml in (
+            "<testsuite tests='1' failures='0' errors='0' skipped='0'>"
+            "<testcase classname='Sync' name='bad'><failure/></testcase></testsuite>",
+            "<testsuite tests='1' failures='1' errors='1' skipped='0'>"
+            "<testcase classname='Sync' name='bad'><failure/><error/></testcase></testsuite>",
+        ):
+            self.write(directory / "TEST-Sync.xml", xml)
+            with self.subTest(xml=xml), self.assertRaises(PortError):
+                collect_named_cases(self.repo, [directory])
+        with self.assertRaisesRegex(PortError, "Missing/zero"):
+            collect_named_cases(self.repo, [])
 
     def test_skipped_task_cannot_reuse_previous_success_reports(self):
         plan = self.services_plan()
