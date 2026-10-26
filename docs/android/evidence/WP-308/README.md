@@ -103,6 +103,18 @@ automatic execution does not turn the earlier direct Windows failures into passe
 The documentation-only successor preserves production/test bytes; its PR/checks
 identify its actual head and any newer authoritative outcome.
 
+### Hosted compilation correction
+
+The ordinary exact-candidate hosted run
+[40284991091](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/40284991091)
+at `c6adc0576f4567dfb1a755ee03c031f0d5bfa65d` passed scope classification and
+controller/workflow policy, then failed `:app:compileDebugUnitTestKotlin`:
+the new DM fixture omitted required `ContactDTO.lastHeardTimestamp`.
+The fixture now explicitly supplies `null`, matching existing App fixtures.
+No assertion or production behavior was changed by this correction. That failed
+run discovered no App tests; only a subsequent exact-head hosted result can
+establish whether the corrected consumer tests pass.
+
 ## Bounded mention-picker successor: unverified candidate
 
 ### Actual hosted failure and bounded layout correction

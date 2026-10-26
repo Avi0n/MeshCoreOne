@@ -61,7 +61,9 @@ class ComposerPromptComposeTest : RoomProcessTest() {
             h.assertReady()
             val radio = requireNotNull(h.appState.currentRadioId)
             if (index == null) {
-                val contact = ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 5 }), name = name)
+                val contact = ContactDTO(
+                    radioId = radio, publicKey = Bytes(ByteArray(32) { 5 }), name = name, lastHeardTimestamp = null,
+                )
                 store.saveContact(contact)
                 h.container.navigation.navigateToChat(contact)
             } else {
