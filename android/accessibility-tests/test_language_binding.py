@@ -18,15 +18,20 @@ from test_shared_device_runner import completed, record
 HEAD = "9d2366ba5e6eeeb2e01fda9ad3990c25e6af9928"
 # Coherent reviewed pins, not a native execution result for every family.
 PINNED_CONFIGURATION = "81dccf57622cdfc90159fbdcb0761110408616c7"
+CURRENT_PRODUCTION = {
+    "diagnostics": ("1b455921a487fb1655babb0bdd5740ef70f81e69", "0cb54d923d8c0a343caf37279012c79380c20412"),
+    "nodes": ("86cb805495f565a3eb559af979b71eafb40b8f99", "5cd07a338b508ff09d3e5fd0dbcf121ad1cfdec5"),
+}
 
 
 def source(family="language"):
     spec = binding.family_spec(family)
+    anchor, production = CURRENT_PRODUCTION.get(family, (None, spec.production_blob))
     return binding.LanguageBinding(
         "cbattlegear/MeshCoreOne-Android", HEAD, "a" * 40, "b" * 64,
         "c" * 64, "d" * 64, binding.CANONICAL,
         binding.CURRENT_APP_SESSION, binding.CURRENT_CLI_SESSION, 14,
-        spec.producer, spec.production_blob, spec.fixture_blob, spec.name,
+        spec.producer, production, spec.fixture_blob, spec.name, anchor,
     )
 
 
@@ -62,6 +67,8 @@ class LanguageBindingTest(unittest.TestCase):
         spec = binding.family_spec(family)
         if arguments == ("rev-parse", "refs/remotes/origin/main"):
             return HEAD
+        if arguments == ("rev-list", HEAD):
+            return "\n".join((HEAD, CURRENT_PRODUCTION[family][0]))
         if arguments[0] == "merge-base":
             return ""
         if arguments[0] == "show":
@@ -70,17 +77,21 @@ class LanguageBindingTest(unittest.TestCase):
             revision, _, path = arguments[1].partition(":")
             if path == "android":
                 return "a" * 40
+            if path == spec.production and family in CURRENT_PRODUCTION:
+                anchor, blob = CURRENT_PRODUCTION[family]
+                return blob if revision in (HEAD, anchor) else spec.production_blob
             if path == spec.fixture and revision == spec.producer and spec.original_fixture_blob:
                 return spec.original_fixture_blob
             pins = {spec.fixture: spec.fixture_blob, **{path: blob for path, _, blob in spec.source_pins}}
             return pins[path]
         self.fail(arguments)
 
-    def prepare(self, family="language"):
+    def prepare(self, family="language", *, git_effect=None):
         manifest = Mock(sha256="c" * 64)
         manifest.wp.return_value = {"write_paths": ["android/accessibility-tests/"]}
-        with patch.object(binding, "git", side_effect=self.fake_git if family == "language"
-                          else lambda *args: self.family_git(*args, family=family)), \
+        effect = git_effect or (self.fake_git if family == "language"
+                                else lambda *args: self.family_git(*args, family=family))
+        with patch.object(binding, "git", side_effect=effect), \
                 patch.object(binding, "source_identity", return_value="b" * 64) as identity, \
                 patch.object(binding, "load_manifest", return_value=manifest), \
                 patch.object(binding, "load_json", return_value={"repository": source().repository}), \
@@ -268,11 +279,18 @@ class LanguageBindingTest(unittest.TestCase):
 
     def test_diagnostics_specification_matches_original_and_current_committed_git_objects(self):
         spec = binding.DIAGNOSTICS
+        anchor, current_blob = CURRENT_PRODUCTION["diagnostics"]
+        self.assertEqual((anchor, current_blob), spec.current_production)
+        current_is_ancestor = anchor in binding.git("rev-list", "HEAD").splitlines()
         for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
-                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                expected = current_blob if path == spec.production and current_is_ancestor else blob
+                self.assertEqual(expected, binding.git("rev-parse", "HEAD:" + path))
                 self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
+        if current_is_ancestor:
+            self.assertEqual(current_blob, binding.git("rev-parse", anchor + ":" + spec.production))
+            self.assertEqual("", binding.git("merge-base", "--is-ancestor", spec.producer, anchor))
         for revision in ("HEAD", spec.producer):
             body = binding.git("show", revision + ":" + spec.fixture)
             self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
@@ -310,6 +328,108 @@ class LanguageBindingTest(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 binding.prepare_binding(HEAD, self.claim, family="diagnostics")
 
+    def test_dual_production_bindings_retain_historical_producers_and_exact_current_candidates(self):
+        historical = {
+            "diagnostics": ("ff42476614d07588eb17f1df58b4f9e0e479b3ff",
+                            "c9f4bfeb12dd02729dbf080e6bb5e513d170e73b"),
+            "nodes": ("bd325b2e939a33b4ae917429aad9686877aed9de",
+                      "7c74a004c993d57014b3cfcd35f8916d8c2a6fc7"),
+        }
+        for family, (producer, blob) in historical.items():
+            with self.subTest(family=family):
+                spec = binding.family_spec(family)
+                self.assertEqual((producer, blob), (spec.producer, spec.production_blob))
+                self.assertTrue(any(path == spec.production and pinned == blob
+                                    for path, _, pinned in spec.source_pins))
+                actual = self.prepare(family)
+                anchor, current_blob = CURRENT_PRODUCTION[family]
+                self.assertEqual((anchor, current_blob), spec.current_production)
+                self.assertEqual((producer, anchor, current_blob),
+                                 (actual.producer_revision, actual.current_source_anchor, actual.production_blob))
+                self.assertEqual(spec.identities, binding.request_for(actual, 37).identities)
+
+    def test_unmerged_candidate_does_not_refresh_historical_source_or_accept_its_new_tree(self):
+        for family in CURRENT_PRODUCTION:
+            spec = binding.family_spec(family)
+
+            def historical(*args):
+                if args == ("rev-list", HEAD):
+                    return HEAD
+                if args == ("rev-parse", HEAD + ":" + spec.production):
+                    return spec.production_blob
+                return self.family_git(*args, family=family)
+
+            with self.subTest(family=family, source="historical"):
+                actual = self.prepare(family, git_effect=historical)
+                self.assertIsNone(actual.current_source_anchor)
+                self.assertEqual(spec.production_blob, actual.production_blob)
+                self.assertEqual(spec.identities, binding.request_for(actual, 37).identities)
+
+            def unreviewed(*args):
+                if args == ("rev-list", HEAD):
+                    return HEAD
+                return self.family_git(*args, family=family)
+
+            with self.subTest(family=family, source="new-tree-without-candidate"), \
+                    self.assertRaisesRegex(binding.PortError, "drifted"):
+                self.prepare(family, git_effect=unreviewed)
+
+            def stale(*args):
+                if args == ("rev-parse", HEAD + ":" + spec.production):
+                    return spec.production_blob
+                return self.family_git(*args, family=family)
+
+            with self.subTest(family=family, source="old-tree-after-candidate"), \
+                    self.assertRaisesRegex(binding.PortError, "drifted"):
+                self.prepare(family, git_effect=stale)
+
+    def test_dual_source_bindings_reject_candidate_tree_and_historical_primary_producer_tampering(self):
+        for family, (anchor, _) in CURRENT_PRODUCTION.items():
+            spec = binding.family_spec(family)
+            for revision in (anchor, HEAD, spec.producer):
+                def changed(*args):
+                    if args == ("rev-parse", revision + ":" + spec.production):
+                        return "0" * 40
+                    return self.family_git(*args, family=family)
+
+                with self.subTest(family=family, revision=revision), \
+                        self.assertRaisesRegex(binding.PortError, "drifted"):
+                    self.prepare(family, git_effect=changed)
+
+            def missing(*args):
+                if args == ("merge-base", "--is-ancestor", spec.producer, anchor):
+                    raise subprocess.CalledProcessError(1, "candidate has no original producer ancestor")
+                return self.family_git(*args, family=family)
+
+            with self.subTest(family=family, ancestry="missing"), \
+                    self.assertRaises(subprocess.CalledProcessError):
+                self.prepare(family, git_effect=missing)
+
+    def test_dual_source_bindings_reject_changed_candidate_metadata(self):
+        for family, (anchor, blob) in CURRENT_PRODUCTION.items():
+            spec = binding.family_spec(family)
+            for current in (("0" * 40, blob), (anchor, "0" * 40)):
+                altered = {**binding.FAMILIES, family: replace(spec, current_production=current)}
+                with self.subTest(family=family, current=current), \
+                        patch.object(binding, "FAMILIES", altered), \
+                        self.assertRaisesRegex(binding.PortError, "drifted"):
+                    self.prepare(family)
+
+    def test_requests_cannot_mix_historical_and_current_candidate_bindings(self):
+        for family in CURRENT_PRODUCTION:
+            bound = source(family)
+            spec = binding.family_spec(family)
+            for changes in (
+                {"current_source_anchor": None},
+                {"current_source_anchor": "0" * 40},
+                {"production_blob": spec.production_blob},
+                {"producer_revision": bound.current_source_anchor},
+            ):
+                with self.subTest(family=family, changes=changes), self.assertRaises(binding.PortError):
+                    binding.request_for(replace(bound, **changes), 37)
+        with self.assertRaises(binding.PortError):
+            binding.request_for(replace(source(), current_source_anchor=CURRENT_PRODUCTION["diagnostics"][0]), 37)
+
     def test_diagnostics_current_family_publication_policy_and_revision_guards_are_reused(self):
         bound = source("diagnostics")
         request = binding.request_for(bound, 37)
@@ -319,7 +439,8 @@ class LanguageBindingTest(unittest.TestCase):
             self.assertEqual({"paused": True}, binding.verify_current_request(request))
         current.assert_called_once_with(HEAD, family="diagnostics")
         for actual in (replace(bound, reservation_revision=15), replace(bound, policy_revision="f" * 64),
-                       replace(bound, source_revision="a" * 40), source()):
+                       replace(bound, source_revision="a" * 40),
+                       replace(bound, current_source_anchor=None), source()):
             with self.subTest(binding=actual), patch.object(binding, "current_binding", return_value=actual), \
                     patch.object(binding, "git") as git:
                 with self.assertRaisesRegex(binding.PortError, "changed before"):
@@ -394,6 +515,9 @@ class LanguageBindingTest(unittest.TestCase):
 
     def test_nodes_specification_matches_initial_seven_current_original_pins_and_ancestry(self):
         spec = binding.NODES
+        anchor, current_blob = CURRENT_PRODUCTION["nodes"]
+        self.assertEqual((anchor, current_blob), spec.current_production)
+        current_is_ancestor = anchor in binding.git("rev-list", "HEAD").splitlines()
         initial = "fc9188ab1dc1549be8788cbc3c180c895d5d5def"
         self.assertEqual("", binding.git("merge-base", "--is-ancestor", initial, spec.producer))
         for revision in (initial, spec.producer, "HEAD"):
@@ -402,8 +526,12 @@ class LanguageBindingTest(unittest.TestCase):
         for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
-                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
+                expected = current_blob if path == spec.production and current_is_ancestor else blob
+                self.assertEqual(expected, binding.git("rev-parse", "HEAD:" + path))
                 self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
+        if current_is_ancestor:
+            self.assertEqual(current_blob, binding.git("rev-parse", anchor + ":" + spec.production))
+            self.assertEqual("", binding.git("merge-base", "--is-ancestor", spec.producer, anchor))
         self.assertEqual("android/feature/nodes/src/main", spec.production)
         self.assertIn("AndroidManifest.xml", binding.git("ls-tree", "--name-only", "HEAD:" + spec.production))
         with self.assertRaises(TypeError):
@@ -511,7 +639,8 @@ class LanguageBindingTest(unittest.TestCase):
         current.assert_called_once_with(HEAD, family="nodes")
         git.assert_called_once_with("rev-parse", "refs/remotes/origin/main")
         for actual in (replace(bound, reservation_revision=15), replace(bound, policy_revision="e" * 64),
-                       replace(bound, source_revision="e" * 40), source("diagnostics"), source()):
+                       replace(bound, source_revision="e" * 40),
+                       replace(bound, current_source_anchor=None), source("diagnostics"), source()):
             with self.subTest(binding=actual), patch.object(binding, "current_binding", return_value=actual), \
                     patch.object(binding, "git") as git:
                 with self.assertRaisesRegex(binding.PortError, "changed before"):
@@ -1395,6 +1524,16 @@ class LanguageBindingTest(unittest.TestCase):
                   '"c466bf76ceadddb370ed9803be6d9f403c0275b5"').replace(
             '"03306ff125655f977d88c5b517ad4cab26d9e771", "6e191c79de3a5cebf3f8e0603956e180f97bd014"',
             '"31557a16ca4492bbd669a7ad0358e702c5c54031", "ee5c5e112dcf041d8dbbd1471e2ad01d755b6bf8"',
+        )
+        boundary = "\n)\nNODES ="
+        self.assertEqual(1, expected.count(boundary))
+        expected = expected.replace(
+            boundary,
+            '\n    current_production=(\n'
+            '        "1b455921a487fb1655babb0bdd5740ef70f81e69",\n'
+            '        "0cb54d923d8c0a343caf37279012c79380c20412",\n'
+            '    ),\n)\nNODES =',
+            1,
         )
         actual = current[current.index("DIAGNOSTICS ="):current.index("COLD_PLATFORM_SOURCE_PINS =")]
         start, end = actual.index("NODES ="), actual.index("COMPARATOR =")
