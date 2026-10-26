@@ -23,7 +23,7 @@ from controller.schema import load_json
 from controller.scope_amendment import (
     bubble_consumer_predecessor, disposable_predecessor, parity_support_predecessor, room_cleanup_predecessor,
     room_failed_event_predecessor, wp503_accessibility_source_binding_predecessor,
-    room_failed_event_predecessor, consumer_support_predecessor,
+    room_failed_event_predecessor, consumer_support_predecessor, host_scoped_jvm_predecessor,
 )
 from local import debug_packaging
 
@@ -2154,6 +2154,16 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(current, before)
         self.assertEqual(disposable_predecessor(previous), previous)
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp003-host-scoped-jvm-parallelism",')
+        end = text.index('      {\n        "id": "disposable-native-guest",', start)
+        text = text[:start] + text[end:]
+        self.assertEqual(json.loads(text), host_scoped_jvm_predecessor(current))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=text.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "a8c624bcb095f81a30e5fee671099fa519f608b7:docs/android/automation-policy.json",
+        ]).strip())
         start = text.index(',\n      {\n        "id": "wp503-accessibility-source-binding",')
         end = text.index("\n    ]", start)
         text = text[:start] + text[end:]
@@ -2225,7 +2235,8 @@ class DisposableGuestTests(unittest.TestCase):
         ]).strip())
         for kind in ("resource", "duplicate", "operation", "wp", "path"):
             changed = copy.deepcopy(current)
-            rule = changed["reservation_policy"]["capabilities"][0]
+            rule = next(r for r in changed["reservation_policy"]["capabilities"]
+                        if r["id"] == "disposable-native-guest")
             if kind == "resource":
                 changed["reservation_policy"]["hard_lock_resources"].remove(RESOURCE)
             elif kind == "duplicate":
