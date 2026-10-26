@@ -1,5 +1,6 @@
 // PortedFrom: MC1/Views/Chats/Components/Fragments/MapPreviewFragmentView.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Settings/Sections/MapPreviewSettingsSection.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1Tests/AppState/NavigationCoordinatorTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.app.platform
 
 import android.content.Context
@@ -60,40 +61,45 @@ class ChatMapPreviewTest : RoomProcessTest() {
     @After fun disposeNativeHost() { controller.pause().stop().destroy() }
 
     @Test fun mountedConversationShowsTheCoordinateCardWithWebPreviewsDisabledAndRoutesToMaps() = runTest {
-        withFixture {
-            h.manager.connect(h.target())
-            h.settle()
-            h.assertReady()
-            val radio = requireNotNull(h.appState.currentRadioId)
-            val peer = ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 4 }),
-                name = "Synthetic map peer", lastHeardTimestamp = null)
-            store.saveContact(peer)
-            store.saveMessage(message.copy(radioId = radio, contactID = peer.id))
-            compose.runOnUiThread {
-                h.container.navigation.navigateToChat(peer)
-                host.setContent { MeshCoreTheme(motionScale = 0f) {
-                    NativeNavigationShell(h.container.navigation, chats = h.container.chatsFeature)
-                } }
+        for ((latitude, longitude) in listOf(37.7749 to -122.4194, 51.5074 to -0.1278)) {
+            withFixture {
+                h.manager.connect(h.target())
+                h.eventually {
+                    h.appState.syncCoordinator?.state == com.meshcoreone.android.core.services.sync.SyncState.Synced
+                }
+                h.assertReady()
+                val radio = requireNotNull(h.appState.currentRadioId)
+                val peer = ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 4 }),
+                    name = "Synthetic map peer", lastHeardTimestamp = null)
+                store.saveContact(peer)
+                store.saveMessage(message.copy(radioId = radio, contactID = peer.id,
+                    text = "$latitude, $longitude"))
+                compose.runOnUiThread {
+                    h.container.navigation.navigateToChat(peer)
+                    host.setContent { MeshCoreTheme(motionScale = 0f) {
+                        NativeNavigationShell(h.container.navigation, chats = h.container.chatsFeature)
+                    } }
+                }
+                compose.waitUntil(10_000) {
+                    h.settle()
+                    compose.onAllNodesWithContentDescription(label).fetchSemanticsNodes().isNotEmpty()
+                }
+                compose.onNodeWithContentDescription(label).assertIsDisplayed()
+                    .assertWidthIsAtLeast(250.dp).assertHeightIsAtLeast(150.dp)
+                compose.onNodeWithTag("chat-map-pin", useUnmergedTree = true).assertIsDisplayed()
+                assertEquals(1, requests.size)
+                assertEquals(latitude, requests.single().latitude, 0.0)
+                assertEquals(longitude, requests.single().longitude, 0.0)
+                assertFalse(storage.preferences.get(AppStorageKey.linkPreviewsEnabled))
+                h.container.navigation.navigateToMap(1.0, 2.0)
+                h.container.navigation.selectTab(AppTab.CHATS)
+                compose.onNodeWithContentDescription(label).performClick()
+                assertEquals(AppTab.MAP, h.container.navigation.state.value.selectedTab)
+                assertEquals(
+                    com.meshcoreone.android.app.navigation.MapFocusRequest(latitude, longitude),
+                    h.container.navigation.state.value.pendingMapFocus,
+                )
             }
-            compose.waitUntil(10_000) {
-                h.settle()
-                compose.onAllNodesWithContentDescription(label).fetchSemanticsNodes().isNotEmpty()
-            }
-            compose.onNodeWithContentDescription(label).assertIsDisplayed()
-                .assertWidthIsAtLeast(250.dp).assertHeightIsAtLeast(150.dp)
-            compose.onNodeWithTag("chat-map-pin", useUnmergedTree = true).assertIsDisplayed()
-            assertEquals(1, requests.size)
-            assertEquals(37.7749, requests.single().latitude, 0.0)
-            assertEquals(-122.4194, requests.single().longitude, 0.0)
-            assertFalse(storage.preferences.get(AppStorageKey.linkPreviewsEnabled))
-            h.container.navigation.navigateToMap(1.0, 2.0)
-            h.container.navigation.selectTab(AppTab.CHATS)
-            compose.onNodeWithContentDescription(label).performClick()
-            assertEquals(AppTab.MAP, h.container.navigation.state.value.selectedTab)
-            assertEquals(
-                com.meshcoreone.android.app.navigation.MapFocusRequest(37.7749, -122.4194),
-                h.container.navigation.state.value.pendingMapFocus,
-            )
         }
     }
 
