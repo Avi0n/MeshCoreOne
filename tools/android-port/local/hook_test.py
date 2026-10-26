@@ -123,19 +123,26 @@ class LocalCheckTests(unittest.TestCase):
                 self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
 
     def test_staged_control_carries_exact_trusted_lane_helper(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            completion = root / "cleanup.json"
-            completion.write_text(json.dumps({
-                "schema_version": 1, "token": "fixture", "status": "owned-children-reaped", "returncode": 0,
-            }), encoding="utf-8")
-            with patch.object(check, "binding", return_value=("a" * 40, "b" * 40)), \
-                    patch.object(check.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)):
-                check.run_candidate(root, "a" * 40, [], check.ALL_STAGES, False,
-                                    completion=completion, token="fixture", admission=root / "admission.json",
-                                    execution={"started": False})
-            self.assertEqual((root / "control/jvm_lanes.py").read_bytes(),
-                             Path(jvm_lanes.__file__).read_bytes().replace(b"\r\n", b"\n"))
+        for affected in (False, True):
+            with self.subTest(affected=affected), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                completion = root / "cleanup.json"
+                completion.write_text(json.dumps({
+                    "schema_version": 1, "token": "fixture", "status": "owned-children-reaped", "returncode": 0,
+                }), encoding="utf-8")
+                plan = {"head": "a" * 40, "tree": "b" * 40, "base": "c" * 40, "stages": check.ALL_STAGES}
+                with patch.object(check, "binding", return_value=("a" * 40, "b" * 40)), \
+                        patch.object(check.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)):
+                    check.run_candidate(root, "a" * 40, [], check.ALL_STAGES, False,
+                                        completion=completion, token="fixture", admission=root / "admission.json",
+                                        execution={"started": False}, affected_plan=plan if affected else None)
+                self.assertEqual((root / "control/jvm_lanes.py").read_bytes(),
+                                 Path(jvm_lanes.__file__).read_bytes().replace(b"\r\n", b"\n"))
+                self.assertEqual((root / "control/local_scope.py").exists(), affected)
+                if affected:
+                    from controller import local_scope
+                    self.assertEqual((root / "control/local_scope.py").read_bytes(),
+                                     Path(local_scope.__file__).read_bytes().replace(b"\r\n", b"\n"))
 
     def test_real_fast_uses_owned_helper_with_older_candidate_controller(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -718,7 +725,8 @@ class AffectedRunnerTests(unittest.TestCase):
                 return json.dumps(admission)
             return original(path, *args, **kwargs)
 
-        with patch.object(Path, "read_text", new=read_text):
+        with patch.object(Path, "read_text", new=read_text), \
+                patch.object(fast, "owned_scope", return_value=sys.modules[candidate_plan.__module__]):
             return fast.affected_request(self.repo, path, self.base, stages or plan["stages"], False)
 
     def test_fast_requires_exact_owned_admission_and_stage_binding(self):
@@ -777,6 +785,7 @@ class AffectedRunnerTests(unittest.TestCase):
                 patch.object(ci_environment, "verify_wrapper"), \
                 patch.object(ci, "python_checks"), patch.object(ci, "preflight"), \
                 patch.object(ci, "inspect") as inspect, patch.object(fast, "execute") as execute, \
+                patch.object(fast, "owned_scope", return_value=local_scope), \
                 patch.object(local_scope, "run_scaffold", return_value={"kind": "local-affected-only"}) as run, \
                 contextlib.redirect_stdout(text):
             fast.main()

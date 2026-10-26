@@ -49,6 +49,13 @@ and reverse consumers from committed project dependencies, not caller-provided
 Gradle commands or test-method filters. Android consumers receive compile/lint
 checks; App receives its complete unit runner and AndroidTest compilation.
 Graph/runtime dependency inventory remains mandatory for every Gradle selection.
+For narrow selections, requested tasks for directly changed test-source modules
+come first, then other directly changed modules, then required consumers.
+The task set, scope/report lists and strict options are unchanged; full fallbacks
+retain their existing order. Gradle still schedules prerequisites, so this is
+not a measured wall-clock speedup. The trusted scope planner travels with the
+owned launcher so immutable older product snapshots use the same strict plan
+validation and requested task order without a product rebase.
 The actual resolved production graph is checked against the selected consumer
 closure too: a consumer missed by static declaration inspection fails the
 affected run and explicitly requires full scaffold, never a passing partial result.
