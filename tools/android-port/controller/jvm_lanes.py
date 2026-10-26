@@ -20,7 +20,7 @@ def host_identity():
         identity = Path("/etc/machine-id").read_text(encoding="ascii").strip()
     except OSError as error:
         raise PortError("Cannot identify the actual Linux execution host") from error
-    if re.fullmatch(r"[0-9a-f]{32}", identity) is None:
+    if re.fullmatch(r"[0-9a-f]{32}", identity) is None or identity == "0" * 32:
         raise PortError("Invalid actual Linux machine identity")
     return hashlib.sha256(identity.encode("ascii")).hexdigest()
 
@@ -31,7 +31,7 @@ def cgroup_directories():
         raise PortError("Parallel JVM lanes require supported unified cgroup membership")
     name = memberships[0][3:]
     relative = PurePosixPath(name)
-    if ".." in relative.parts or str(relative) != name or "\\" in name:
+    if relative.root != "/" or ".." in relative.parts or str(relative) != name or "\\" in name:
         raise PortError("Unsupported current cgroup path")
     mounts = [
         line.split(" - ", 1)[0].split()

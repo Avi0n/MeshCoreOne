@@ -1,6 +1,7 @@
 """AndroidOnly: WP-003 Installed hook parsing, transport and runtime-copy regressions."""
 
 import contextlib
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import io
 import json
@@ -9,6 +10,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 
@@ -40,9 +42,84 @@ import reserve
 from controller.ledger import Ledger
 from controller.errors import PortError
 from controller.local_scope import candidate_plan
+from controller import jvm_lanes
 
 
 class LocalCheckTests(unittest.TestCase):
+    def test_real_linux_slot_flocks_overlap_or_windows_rejects_before_launch(self):
+        if not sys.platform.startswith("linux"):
+            with self.assertRaisesRegex(PortError, "actual supported Linux"):
+                jvm_lanes.host_identity()
+            return
+        from advisory_test import AdvisoryLauncherTests
+        source = (
+            "import json,os,pathlib,time\n"
+            "binding=json.loads(pathlib.Path('/proc/self/fd/8').read_text())['jvm_lane']\n"
+            "work=pathlib.Path(os.environ['ANDROID_LOCAL_HOME'])\n"
+            "(work/('ready-'+str(binding['slot']))).touch()\n"
+            "while not (work/'release').exists(): time.sleep(.02)\n"
+        )
+        with AdvisoryLauncherTests.fixture(self, source) as (root, repo, work, commit, tree):
+            subprocess.run(["git", "-C", str(repo), "update-ref", "refs/remotes/origin/main", commit], check=True)
+            subprocess.run(["git", "-C", str(repo), "symbolic-ref",
+                            "refs/remotes/origin/HEAD", "refs/remotes/origin/main"], check=True)
+            host = jvm_lanes.host_identity()
+            with patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(root / "ledger.sqlite3")}), \
+                    patch.object(jvm_lanes, "host_capacity", return_value=(host, 3)), \
+                    ThreadPoolExecutor(max_workers=2) as workers:
+                futures = [
+                    workers.submit(check.run_owned, repo, commit, None, check.ALL_STAGES, False,
+                                   affected_base=commit, parallel_jvm=True)
+                    for _ in range(2)
+                ]
+                try:
+                    deadline = time.monotonic() + 15
+                    while not all((work / f"ready-{slot}").exists() for slot in (0, 1)) \
+                            and time.monotonic() < deadline:
+                        time.sleep(.02)
+                    self.assertTrue(all((work / f"ready-{slot}").exists() for slot in (0, 1)),
+                                    "Both actual shell lanes must enter before either releases")
+                    for slot in (0, 1):
+                        lane = work / "local-checks/lanes" / host / str(slot)
+                        self.assertTrue((lane / "gradle.lock").is_file())
+                        self.assertTrue((lane / "input.bundle").is_file())
+                        self.assertTrue((lane / "repos").is_dir())
+                    self.assertFalse((work / "local-checks/gradle.lock").exists())
+                finally:
+                    (work / "release").touch()
+                for future in futures:
+                    future.result(timeout=20)
+                self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])
+
+    def test_parallel_flag_requires_and_forwards_the_affected_contract(self):
+        with patch.object(check, "run_owned") as run, contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(check.main(["--parallel-jvm"]), 1)
+        run.assert_not_called()
+        with patch.object(check, "run_owned") as run:
+            self.assertEqual(check.main(["--parallel-jvm", "--affected-base", "a" * 40]), 0)
+        self.assertIs(run.call_args.kwargs["parallel_jvm"], True)
+        with patch.object(check.sys, "platform", "win32"), \
+                patch.object(check, "execution_runtime") as runtime, \
+                self.assertRaisesRegex(ValueError, "Invalid exact"):
+            check.run_owned(Path.cwd(), "HEAD", None, check.ALL_STAGES, False,
+                            affected_base="a" * 40, parallel_jvm=True)
+        runtime.assert_not_called()
+
+    def test_supervisor_lane_is_bounded_and_serial_admission_is_unchanged(self):
+        import advisory
+        self.assertIsNone(advisory.admission_lane({}))
+        value = {"host": "a" * 64, "slot": 2, "capacity": 3}
+        self.assertEqual(advisory.admission_lane({"jvm_lane": value}), "a" * 64 + "/2")
+        for changed in ({"host": "../escape"}, {"slot": True}, {"slot": 3}, {"capacity": 0}):
+            with self.subTest(changed=changed), self.assertRaises(ValueError):
+                advisory.admission_lane({"jvm_lane": {**value, **changed}})
+        runner = Path(check.__file__).with_name("run.sh").read_text(encoding="utf-8")
+        for actual in (
+            'exec 9>"$lane_root/gradle.lock"', 'repo="$lane_root/repos/$key"',
+            'bundle="$lane_root/input.bundle"', '"$lane_root/run-XXXXXXXX"',
+        ):
+            self.assertIn(actual, runner)
+
     def test_affected_scope_cannot_replace_full_pre_push_adapter_or_result_contract(self):
         base = "a" * 40
         options = (
@@ -333,6 +410,85 @@ class AffectedRunnerTests(unittest.TestCase):
             "status": "owned-children-reaped", "returncode": 0,
         }), encoding="utf-8")
 
+    def test_parallel_receipt_is_forwarded_and_only_its_owned_slot_releases(self):
+        def candidate(*args, **kwargs):
+            admission = json.loads(kwargs["admission"].read_text(encoding="utf-8"))
+            self.assertEqual(admission["jvm_lane"], {"host": "a" * 64, "slot": 1, "capacity": 3})
+            self.assertEqual(admission["commit"], self.head)
+            self.assertEqual(kwargs["affected_plan"]["head"], self.head)
+            self.cleanup(**kwargs)
+
+        with patch.object(jvm_lanes, "host_capacity", return_value=("a" * 64, 3)), \
+                patch.object(check.sys, "platform", "linux"), \
+                patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(self.ledger.path)}), \
+                patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                contextlib.redirect_stdout(io.StringIO()):
+            retained = self.ledger.acquire_jvm_lane("other-live-owner", {
+                "commit": self.head, "tree": self.git("rev-parse", "HEAD^{tree}"),
+                "token": "retained-fixture", "mode": "manual",
+            }, 1.0)
+            check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False,
+                            affected_base=self.base, parallel_jvm=True)
+        self.assertEqual([row["resource"] for row in self.ledger.hard_lock_records()], [retained["resource"]])
+
+    def test_parallel_rejects_private_or_changed_canonical_ledger_before_launch(self):
+        private = self.repo / "private.sqlite3"
+        private.touch()
+        with patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(private)}):
+            with self.assertRaisesRegex(ValueError, "private checkout"):
+                check.parallel_ledger(self.repo)
+        foreign = Ledger(self.root / "foreign.sqlite3", "fixture/repository")
+        with patch.object(jvm_lanes, "host_capacity", return_value=("a" * 64, 3)), \
+                patch.object(check.sys, "platform", "linux"), \
+                patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(self.ledger.path)}), \
+                patch.object(check, "execution_runtime", side_effect=[self.ledger, foreign]), \
+                patch.object(check, "transport") as transport:
+            with self.assertRaisesRegex(ValueError, "authority changed"):
+                check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False,
+                                affected_base=self.base, parallel_jvm=True)
+        transport.assert_not_called()
+        self.assertEqual(self.ledger.hard_lock_records(), [])
+        self.assertEqual(foreign.hard_lock_records(), [])
+
+    def test_parallel_fast_cache_and_private_paths_use_actual_inherited_binding(self):
+        value = {"host": "a" * 64, "slot": 1, "capacity": 3}
+        with patch.object(Path, "is_file", return_value=True), \
+                patch.object(Path, "read_text", return_value=json.dumps({"jvm_lane": value})), \
+                patch.object(jvm_lanes, "host_identity", return_value="a" * 64), \
+                patch.object(jvm_lanes, "cpu_capacity", return_value=3):
+            self.assertEqual(fast.execution_lane(self.root), self.root / "local-checks/lanes" / ("a" * 64) / "1")
+        with patch.object(Path, "is_file", return_value=True), \
+                patch.object(Path, "read_text", return_value=json.dumps({"jvm_lane": value})), \
+                patch.object(jvm_lanes, "host_identity", return_value="b" * 64):
+            with self.assertRaisesRegex(PortError, "actual host"):
+                fast.execution_lane(self.root)
+
+    def test_parallel_unproven_child_cleanup_retains_only_its_actual_slot(self):
+        directory = self.root / "unproven-execution"
+        directory.mkdir()
+
+        def candidate(*args, **kwargs):
+            kwargs["execution"]["started"] = True
+
+        with patch.object(jvm_lanes, "host_capacity", return_value=("a" * 64, 3)), \
+                patch.object(check.sys, "platform", "linux"), \
+                patch.dict(os.environ, {"ANDROID_PORT_LEDGER": str(self.ledger.path)}), \
+                patch.object(check.tempfile, "mkdtemp", return_value=str(directory)), \
+                patch.object(check, "execution_runtime", return_value=self.ledger), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                contextlib.redirect_stderr(io.StringIO()), \
+                self.assertRaisesRegex(ValueError, "without proven owned-child cleanup"):
+            check.run_owned(self.repo, self.head, None, check.ALL_STAGES, False,
+                            affected_base=self.base, parallel_jvm=True)
+        rows = self.ledger.hard_lock_records()
+        self.assertEqual(len(rows), 1)
+        self.assertTrue(rows[0]["resource"].startswith("gradle-execution:"))
+        self.assertEqual(rows[0]["payload"]["commit"], self.head)
+        self.assertTrue(directory.exists())
+
     def test_scoped_request_is_derived_only_under_actual_fixture_ownership(self):
         original = check.affected_request
 
@@ -435,6 +591,11 @@ class AffectedRunnerTests(unittest.TestCase):
             "token": "fixture", "commit": self.head, "tree": plan["tree"],
         }
         self.assertEqual(self.read_request(plan, admission), plan)
+        with patch.object(jvm_lanes, "host_identity", return_value="a" * 64), \
+                patch.object(jvm_lanes, "cpu_capacity", return_value=3):
+            self.assertEqual(self.read_request(plan, {
+                **admission, "jvm_lane": {"host": "a" * 64, "slot": 1, "capacity": 3},
+            }), plan)
         for changed in (
             {"commit": "a" * 40}, {"tree": "b" * 40}, {"owner": "other"},
             {"schema_version": True}, {"interlock_version": 1}, {"token": ""},
