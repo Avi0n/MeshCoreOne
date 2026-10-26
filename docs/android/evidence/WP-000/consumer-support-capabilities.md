@@ -30,7 +30,8 @@ distinct purposes in one support PR, not permission for another WP or a new work
 | Runtime | Default tracked role/common skill; no custom profile injection, runtime installation, native/Gradle execution, settings or schedule changes |
 | Head / PR | Git commit and PR metadata bind the final candidate; no self-referential head or duplicate CI-result bundle is committed |
 
-The four edited docs/tools paths were independently admitted as `wp-owned` before edits.
+The four initial docs/tools paths and the two directly coupled historical inverse
+test files were independently admitted as `wp-owned` before their edits.
 Read-only `dispatch.py --dry-run status` reported local capability admission required,
 advisory file intents, no pre-edit approval requirement, and no merge authorization.
 Fleet activation/readiness remains separate and unapproved. All four new semantic
@@ -130,6 +131,12 @@ existing historical chain; complete baseline equality and canonical projection
 remain enforced. Disjoint future policy edits reconcile by exact capability IDs;
 real semantic overlap serializes/transfers to the current producer.
 
+The existing raw-text historical inverse tests in `test_scope_amendment.py` and
+`test_disposable.py` now independently remove the new block first, assert its
+complete predecessor object, and assert its raw Git blob equals the original
+`263d3033` policy before proceeding through every unchanged historical blob check.
+This is necessary integration of the new delta, not removal of historical assertions.
+
 Relevant pinned inputs were inspected read-only. Existing unrelated reference drift
 in `AdvertisementServiceTests.swift` and
 `MeshCoreSessionCommandCorrelationTests.swift` was reported to the coordinator;
@@ -148,6 +155,8 @@ No product-behavior deviation is implemented in this support-only batch.
 | `python .\tools\android-port\portmap.py` | PASS: ownership/traceability mapping, no product file changes |
 | `$env:PYTHONPATH=(Join-Path (Get-Location) 'tools\android-port'); python -m unittest discover -s .\tools\android-port\tests -p test_consumer_support_capabilities.py -v` | PASS: 7 discovered/run/passed, zero failures/errors/skips |
 | `python .\tools\android-port\controller\test_runner.py --quiet` (pre-extension invocation) | Exit 2: 562 discovered/run, 533 passed, 11 failures, 18 errors, zero skips. Scope changed during this invocation; not coherent final-candidate evidence |
+| `python .\tools\android-port\controller\test_runner.py --quiet` at `e23ba4f42f0e83cbbc13c3003a283c37e45cde38` | Exit 2: 562 discovered/run, 559 passed, 3 failures, zero errors/skips. Three existing raw-text inverse tests needed the new delta reversed first |
+| Focused admission plus all three raw-blob inverse regressions (exact command below) | PASS: 10 discovered/run/passed, zero failures/errors/skips |
 | `python .\tools\android-port\controller\test_runner.py --quiet` (stable final scope) | Pending serialized execution; no passing full-suite result is claimed yet |
 | `git diff --check` | PASS |
 
@@ -162,12 +171,50 @@ The pre-extension process loaded five-rule definitions before the later approved
 WP-003 sixth-rule extension. Subsequent policy reads then failed the exact-block
 projection, and an immutable-input check observed the not-yet-committed policy.
 The partial result is retained as a failure, not relabelled a passing candidate.
-The complete six-rule scope is committed before its serialized full-suite invocation;
+The stable `e23ba4f42` failure exposed the three genuinely coupled historical
+raw-text helper integration gaps. The repair adds object and raw Git-blob assertions
+for the new predecessor before preserving all prior inverse assertions. The complete
+repair is committed before its next serialized full-suite invocation;
 no code/policy changes occur during that run. Capacity is coordinated with the other
 existing Python suites; no process is terminated or runtime/native lane modified.
+
+Focused repair command:
+
+```powershell
+$env:PYTHONPATH=(Join-Path (Get-Location) 'tools\android-port')+';'+(Join-Path (Get-Location) 'tools\android-port\tests')
+python -m unittest test_consumer_support_capabilities test_scope_amendment.TranslationScopeAmendmentTests.test_parity_support_inverse_restores_entire_exact_6b_policy_and_manifest test_scope_amendment.TranslationScopeAmendmentTests.test_receive_prefetch_single_rule_inverse_restores_entire_b677_object_and_raw_git_blob test_disposable.DisposableGuestTests.test_resource_and_capability_inverse_restore_entire_actual_ad40165_policy -v
+```
 
 Consumers may evolve their existing advisory reservations with these named operations
 only after trusted-main landing. This candidate does not make its own support rules
 trusted for product edits. Protected exact-head/current-base review and landing remain
 the parent oversight decision. No native, Android, iOS, hardware, signing, legal,
 fleet activation or full feature acceptance is claimed.
+
+## Bounded publication-only exception
+
+Oversight delegated-maintainer decision `call_V4QR2FERHi4jBzqNKJV4kVKI` authorizes
+one normal authenticated nonforce push for this batch only, conditional on the final
+declared Python/controller/policy/admission checks passing with nonzero discovery.
+It does not authorize product consumption, native execution, runtime deployment
+or main landing.
+
+The actual installed `pre-push` was inspected through Git's resolved hooks path;
+there is no configured `core.hooksPath` override. Its sole body resolves that path
+and execs the installed `meshcore-local/check.py --pre-push`. The complete installed
+launcher and its copied `run.sh`, `fast.py`, `advisory.py` chain were inspected,
+not assumed equal to the newer tracked files. This chain is only the nonblocking
+all-stage fast-check launcher (`python`, `preflight`, `scaffold`, `inspect`) with
+queue/deadline/owned-cleanup supervision; it contains no additional security,
+secret-scanning or other independent mandatory hook. The full fast launcher would
+start Gradle and remains NOT RUN / UNVERIFIED under the policy-only scope, memory
+pressure and native/execution hold.
+
+After actual final PASS and unchanged candidate binding, supported
+`local.check.record_pending` records that exact commit/tree and the not-run reason.
+An own empty session-artifact hooks directory may then be selected for that single
+push through invocation-only `git -c core.hooksPath=...`; no persistent Git config,
+installed hook, runtime or reservation changes, `--no-verify`, force push or merge
+gate waiver is permitted. The PR must distinguish actual Python PASS from full-fast
+NOT RUN and hosted checks pending. Discovery of another mandatory hook would stop
+this exception rather than silently omit it.

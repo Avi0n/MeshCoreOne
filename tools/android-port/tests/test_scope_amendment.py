@@ -29,6 +29,7 @@ from controller.scope_amendment import (
     room_cleanup_predecessor,
     bubble_consumer_predecessor, BUBBLE_CONSUMER_CAPABILITY,
     room_failed_event_predecessor, ROOM_FAILED_EVENT_CAPABILITY,
+    consumer_support_predecessor,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -42,6 +43,17 @@ from controller.software_verification import project as project_software
 class TranslationScopeAmendmentTests(unittest.TestCase):
     def policy_before_room_cleanup_text(self):
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp405-uri-region-normalization",')
+        end = text.index('      {\n        "id": "wp-owned",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), consumer_support_predecessor(json.loads(text)))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "263d30332940f09082709b9d38ee8877dfb9fedd:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
         start = text.index('      {\n        "id": "wp502-room-failed-event-consumer",')
         end = text.index('      {\n        "id": "dependency-resolution-metadata",', start)
         previous = text[:start] + text[end:]
