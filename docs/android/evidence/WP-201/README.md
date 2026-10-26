@@ -265,3 +265,69 @@ The installed execution runtime and retained native capacity gate are owned
 by the coordinator; no Gradle/native/heavy suite, push or PR is authorized
 until those gates are reconciled. Reproducible automated CI result bundles
 are not committed or duplicated here.
+
+## DATA-10 queued model-oracle batch
+
+The next same-owner assignment covers only `DATA-10` / `D265`, `D269`, `D281`,
+not RX/restore/schema or a global re-audit. Its parent is the frozen DATA-01
+candidate `87e3ecce1629a659198a1313635f41caf46557ac` (tree
+`8b9d0f0069a4ce8fa079c2b6d4f998d54f00f860`). The existing remote DATA-01
+snapshot, active verification ticket and acceptance/publication boundary are
+unchanged. No DATA-10 assertion is claimed as exercised by that earlier run.
+
+The retained grouping artifact was read and its SHA-256 verified as
+`62c185ffc08b9c38a37261d810147767b33f2a8ae2131a3a47c0622c660686d1`.
+The actual current `SourceModelCasesTest.kt` still used shared-default SF10
+snapshots in the three assigned cases. The pinned
+`MC1Services/Tests/MC1ServicesTests/Models/DeviceDTOClientRepeatTests.swift`
+matches the immutable source commit and explicitly uses SF8 in all three.
+Supported admission accepted the owned test path with operation `modify`;
+same-owner reservation evolution advanced revision 3 to 4 without rewriting
+the historical authorization or replacing the record.
+
+| Retained family | Current oracle repair |
+| --- | --- |
+| `clearingPreRepeatSettings sets all preRepeat fields to nil()` (`D265`) | Explicit 915000/250000/SF8/CR5 saved inputs; four nulls/false presence; absolute unchanged active and original saved fields |
+| `hasPreRepeatSettings requires all four fields()` (`D269`) | Original frequency-only negative and explicit four-field positive; absolute saved values; each individually missing field remains false |
+| `updating(from: SelfInfo) carries forward preRepeat settings()` (`D281`) | Absolute saved 915000/250000/SF8/CR5 after real SelfInfo update; active 906875/250000/SF11/CR8 and original input unchanged |
+
+The original dynamic case identities remain in
+`SourceModelCasesTest.clientRepeat`; the test count is not increased merely to
+inflate parity coverage. No production defect is alleged, no generic model
+default is changed, and no expected value comes from the implementation under
+test. Acceptance references are `WP-201-behavior`, `WP-201-boundaries` and
+`WP-201-source-test-parity` for this bounded oracle correction.
+
+This is an **UNVERIFIED next source batch** until the exact new candidate runs
+the declared `:core:model:test` and its affected consumer obligations. The
+specific class/factory selectors are
+`com.meshcoreone.android.core.model.SourceModelCasesTest` / `clientRepeat`;
+the required three original families must appear in nonzero successful JUnit
+discovery, with no failures, errors or skips. No additional heavy job, native
+execution, remote snapshot update, push or PR was started for DATA-10.
+
+Post-edit lightweight checks passed: `git diff --check`;
+`python tools\android-port\portmap.py` (1,909 dispositions);
+`python tools\android-port\controller\validate.py` (valid, 1,866 reference
+inputs, 64 WPs, 178 edges); and
+`python tools\android-port\controller\verification_config.py --check` (valid).
+These are provenance/ownership/configuration results, not model test execution.
+
+## DATA-01 authenticated compile failure and queued correction
+
+The guarded remote retry for exact `87e3ecce1629a659198a1313635f41caf46557ac`
+terminated with exit 1 at `:core:runtime:compileTestKotlin`. Its authentic log,
+`guarded-execution-87e3ecce-python-alias-fixed.log` in the assigned remote
+WP-201 lane, reports Kotlin type inference errors at lines 31 and 49 of
+`DeviceConnectionMethodPersistenceTest.kt`. The expected single-subtype lists
+were compared with a `SnapshotList<ConnectionMethod>`; Kotlin could not infer
+the assertion's shared type. The three mandatory runtime cases did not execute.
+Other partial module reports are not whole-candidate acceptance.
+
+The correction explicitly constructs `listOf<ConnectionMethod>` for those
+two expected values, retaining exact collection equality and every assertion
+without casts or production changes. It is a separate successor after DATA-10
+`f96d48ad598840a81e9012b9cce41a1ae176b965`; neither the failed `87e3ecce`
+record nor DATA-10's unexecuted status is overwritten. The successor requires
+an admitted diagnostic `:core:runtime:test` run before the full affected
+runtime/model/consumer closure; diagnostic execution alone is not acceptance.

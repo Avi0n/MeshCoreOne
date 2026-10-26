@@ -32,6 +32,7 @@ from controller.scope_amendment import (
     wp503_accessibility_source_binding_predecessor,
     WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES,
     consumer_support_predecessor,
+    host_scoped_jvm_predecessor,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -45,6 +46,17 @@ from controller.software_verification import project as project_software
 class TranslationScopeAmendmentTests(unittest.TestCase):
     def policy_before_room_cleanup_text(self):
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp003-host-scoped-jvm-parallelism",')
+        end = text.index('      {\n        "id": "disposable-native-guest",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), host_scoped_jvm_predecessor(json.loads(text)))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "a8c624bcb095f81a30e5fee671099fa519f608b7:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
         start = text.index(',\n      {\n        "id": "wp503-accessibility-source-binding",')
         end = text.index("\n    ]", start)
         previous = text[:start] + text[end:]
@@ -179,7 +191,7 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
                 room_failed_event_predecessor(malformed)
 
     def test_wp503_accessibility_binding_projection_is_exact_reversible_and_drift_safe(self):
-        current = load_json(REPO / "docs/android/automation-policy.json")
+        current = host_scoped_jvm_predecessor(load_json(REPO / "docs/android/automation-policy.json"))
         before = copy.deepcopy(current)
         previous = wp503_accessibility_source_binding_predecessor(current)
         base = json.loads(subprocess.check_output([

@@ -94,16 +94,57 @@ class SourceModelCasesTest {
             assertTrue(n.clientRepeat); assertEquals(d.nodeName, n.nodeName); assertEquals(d.firmwareVersion, n.firmwareVersion)
         },
         "clearingPreRepeatSettings sets all preRepeat fields to nil" to {
-            val n = testDevice().savingPreRepeatSettings().clearingPreRepeatSettings()
+            val d = testDevice().copy(
+                frequency = 915_000u, bandwidth = 250_000u, spreadingFactor = 8u, codingRate = 5u,
+                preRepeatFrequency = 915_000u, preRepeatBandwidth = 250_000u,
+                preRepeatSpreadingFactor = 8u, preRepeatCodingRate = 5u,
+            )
+            val n = d.clearingPreRepeatSettings()
             assertNull(n.preRepeatFrequency); assertNull(n.preRepeatBandwidth); assertNull(n.preRepeatSpreadingFactor); assertNull(n.preRepeatCodingRate); assertFalse(n.hasPreRepeatSettings)
+            assertEquals(915_000u, n.frequency); assertEquals(250_000u, n.bandwidth)
+            assertEquals(8.toUByte(), n.spreadingFactor); assertEquals(5.toUByte(), n.codingRate)
+            assertEquals(915_000u, d.preRepeatFrequency); assertEquals(250_000u, d.preRepeatBandwidth)
+            assertEquals(8.toUByte(), d.preRepeatSpreadingFactor); assertEquals(5.toUByte(), d.preRepeatCodingRate)
         },
-        "hasPreRepeatSettings requires all four fields" to { assertFalse(testDevice().copy(preRepeatFrequency = 915_000u).hasPreRepeatSettings); assertTrue(testDevice().savingPreRepeatSettings().hasPreRepeatSettings) },
+        "hasPreRepeatSettings requires all four fields" to {
+            val partial = testDevice().copy(
+                frequency = 915_000u, bandwidth = 250_000u, spreadingFactor = 8u, codingRate = 5u,
+                preRepeatFrequency = 915_000u,
+            )
+            assertFalse(partial.hasPreRepeatSettings)
+            assertEquals(915_000u, partial.preRepeatFrequency)
+            assertNull(partial.preRepeatBandwidth); assertNull(partial.preRepeatSpreadingFactor); assertNull(partial.preRepeatCodingRate)
+            val complete = testDevice().copy(
+                frequency = 915_000u, bandwidth = 250_000u, spreadingFactor = 8u, codingRate = 5u,
+                preRepeatFrequency = 915_000u, preRepeatBandwidth = 250_000u,
+                preRepeatSpreadingFactor = 8u, preRepeatCodingRate = 5u,
+            )
+            assertTrue(complete.hasPreRepeatSettings)
+            assertEquals(915_000u, complete.preRepeatFrequency); assertEquals(250_000u, complete.preRepeatBandwidth)
+            assertEquals(8.toUByte(), complete.preRepeatSpreadingFactor); assertEquals(5.toUByte(), complete.preRepeatCodingRate)
+            assertFalse(complete.copy(preRepeatFrequency = null).hasPreRepeatSettings)
+            assertFalse(complete.copy(preRepeatBandwidth = null).hasPreRepeatSettings)
+            assertFalse(complete.copy(preRepeatSpreadingFactor = null).hasPreRepeatSettings)
+            assertFalse(complete.copy(preRepeatCodingRate = null).hasPreRepeatSettings)
+        },
         "hasPreRepeatSettings returns false when all nil" to { assertFalse(testDevice().hasPreRepeatSettings) },
         "updating(from: SelfInfo) carries forward clientRepeat" to { assertTrue(testDevice().copy(clientRepeat = true).updating(testSelfInfo()).clientRepeat) },
         "updating(from: SelfInfo) carries forward preRepeat settings" to {
-            val d = testDevice().savingPreRepeatSettings(); val n = d.updating(testSelfInfo())
-            assertEquals(d.preRepeatFrequency, n.preRepeatFrequency); assertEquals(d.preRepeatBandwidth, n.preRepeatBandwidth)
-            assertEquals(d.preRepeatSpreadingFactor, n.preRepeatSpreadingFactor); assertEquals(d.preRepeatCodingRate, n.preRepeatCodingRate); assertTrue(n.hasPreRepeatSettings)
+            val d = testDevice().copy(
+                frequency = 915_000u, bandwidth = 250_000u, spreadingFactor = 8u, codingRate = 5u,
+                preRepeatFrequency = 915_000u, preRepeatBandwidth = 250_000u,
+                preRepeatSpreadingFactor = 8u, preRepeatCodingRate = 5u,
+            )
+            val n = d.updating(testSelfInfo())
+            assertEquals(915_000u, n.preRepeatFrequency); assertEquals(250_000u, n.preRepeatBandwidth)
+            assertEquals(8.toUByte(), n.preRepeatSpreadingFactor); assertEquals(5.toUByte(), n.preRepeatCodingRate); assertTrue(n.hasPreRepeatSettings)
+            assertEquals(906_875u, n.frequency); assertEquals(250_000u, n.bandwidth)
+            assertEquals(11.toUByte(), n.spreadingFactor); assertEquals(8.toUByte(), n.codingRate)
+            assertEquals("UpdatedNode", n.nodeName)
+            assertEquals(915_000u, d.frequency); assertEquals(250_000u, d.bandwidth)
+            assertEquals(8.toUByte(), d.spreadingFactor); assertEquals(5.toUByte(), d.codingRate)
+            assertEquals(915_000u, d.preRepeatFrequency); assertEquals(250_000u, d.preRepeatBandwidth)
+            assertEquals(8.toUByte(), d.preRepeatSpreadingFactor); assertEquals(5.toUByte(), d.preRepeatCodingRate)
         },
         "updating(from: SelfInfo) updates radio params from SelfInfo" to {
             val n = testDevice().updating(testSelfInfo())
