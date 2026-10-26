@@ -208,3 +208,126 @@ WP-202 receives real rows/DAOs/checked mappings and full neutral interfaces;
 WP-203 receives exact legacy/wire policies and raw framing; WP-207 receives
 generation/factory/lifetime seams. Coordinator review/merge, not this worker's
 test summary, controls their dispatch. No next work package is started here.
+
+## DATA-01 current live-producer repair candidate
+
+Owner `data-persistence-engineer`; session/attempt
+`fc4b2e79-8993-46ae-b073-9fbad90d7635`; branch
+`cbattlegear-wp-201-persist-live-ble-method`. Initial base
+`263d30332940f09082709b9d38ee8877dfb9fedd` was fast-forwarded, before the first
+product edit, to trusted capability prerequisite
+`f2f481d2e7c2a9029808943529c98c98ef879299` (PR #334). The source pin remains
+`db14559b39d32322b06477c6ae676112f583db50`; the existing manifest/source/policy
+binding and immutable authorization context remain in the original advisory
+record, not silently rebound or recreated.
+
+Supported `reserve.py admit` accepted `ConnectionManager.kt` with
+`persist-active-connection-method` and the exact new
+`DeviceConnectionMethodPersistenceTest.kt` with
+`add-connection-method-persistence-regression`. Same-owner `evolve` advanced
+the actual reservation from revision 1 to 2 to 3, retaining identities/binding.
+The admitted capabilities are `wp201-active-connection-method` and
+`wp201-connection-method-regression`. WP-201 is the first runtime producer;
+WP-214's separate transport-type forwarding must reconcile serially afterward.
+
+The defect was reproduced by inspecting the real `establish` producer:
+its Bluetooth branch passed `emptyList()` while model-only tests injected a
+Bluetooth descriptor. The producer now exhaustively selects the actual target
+method. The added runtime suite maps exactly these three pinned families:
+
+| Original family | Producer-to-persistence assertions |
+| --- | --- |
+| `createDevice persists the Bluetooth method supplied by the BLE connect path()` | Fresh BLE endpoint stored; public-key-derived radio identity remains distinct; actual saved/current/service DTOs and last-connection identity agree |
+| `createDevice merges a Bluetooth method with an existing WiFi method()` | Establish WiFi first, then BLE for the same public key; retain WiFi host/port, stable radio partition and one saved row |
+| `createDevice replaces a stale Bluetooth peripheral UUID instead of accumulating()` | Exactly one fresh BLE method, retained WiFi and preferences, stable radio ID, save before stale-row cleanup |
+
+The fixture uses the real protocol session and runtime producer with recording
+in-memory persistence and simulated link/service boundaries. No Room, hardware,
+native-radio or backup-oracle result is implied. These assertions supplement,
+not replace or weaken, the existing source factory tests. Acceptance references:
+`WP-201-behavior`, `WP-201-boundaries`, `WP-201-source-test-parity` for this
+bounded DATA-01 concern only.
+
+Current execution state: **UNVERIFIED source candidate**. Independent declared
+WSL `ci.py local-inputs` / `ci.py preflight --local` passed before source edits;
+this establishes installed build inputs only. After the admitted source edits,
+`git diff --check` passed;
+`python tools\android-port\portmap.py` passed with 1,909 dispositions, including
+the new test's exact source provenance;
+`python tools\android-port\controller\validate.py` passed with 1,866 reference
+inputs, 64 WPs and 178 dependency edges; and
+`python tools\android-port\controller\verification_config.py --check` returned
+`valid`. These lightweight checks are not compilation or runtime execution.
+`:core:runtime:test` is an existing declared runtime task hooked into
+`verifyScaffoldTests`; it has **not run for this repair**, with zero execution
+or discovery claimed. Build/lint and runtime assertions remain pending.
+The installed execution runtime and retained native capacity gate are owned
+by the coordinator; no Gradle/native/heavy suite, push or PR is authorized
+until those gates are reconciled. Reproducible automated CI result bundles
+are not committed or duplicated here.
+
+## DATA-10 queued model-oracle batch
+
+The next same-owner assignment covers only `DATA-10` / `D265`, `D269`, `D281`,
+not RX/restore/schema or a global re-audit. Its parent is the frozen DATA-01
+candidate `87e3ecce1629a659198a1313635f41caf46557ac` (tree
+`8b9d0f0069a4ce8fa079c2b6d4f998d54f00f860`). The existing remote DATA-01
+snapshot, active verification ticket and acceptance/publication boundary are
+unchanged. No DATA-10 assertion is claimed as exercised by that earlier run.
+
+The retained grouping artifact was read and its SHA-256 verified as
+`62c185ffc08b9c38a37261d810147767b33f2a8ae2131a3a47c0622c660686d1`.
+The actual current `SourceModelCasesTest.kt` still used shared-default SF10
+snapshots in the three assigned cases. The pinned
+`MC1Services/Tests/MC1ServicesTests/Models/DeviceDTOClientRepeatTests.swift`
+matches the immutable source commit and explicitly uses SF8 in all three.
+Supported admission accepted the owned test path with operation `modify`;
+same-owner reservation evolution advanced revision 3 to 4 without rewriting
+the historical authorization or replacing the record.
+
+| Retained family | Current oracle repair |
+| --- | --- |
+| `clearingPreRepeatSettings sets all preRepeat fields to nil()` (`D265`) | Explicit 915000/250000/SF8/CR5 saved inputs; four nulls/false presence; absolute unchanged active and original saved fields |
+| `hasPreRepeatSettings requires all four fields()` (`D269`) | Original frequency-only negative and explicit four-field positive; absolute saved values; each individually missing field remains false |
+| `updating(from: SelfInfo) carries forward preRepeat settings()` (`D281`) | Absolute saved 915000/250000/SF8/CR5 after real SelfInfo update; active 906875/250000/SF11/CR8 and original input unchanged |
+
+The original dynamic case identities remain in
+`SourceModelCasesTest.clientRepeat`; the test count is not increased merely to
+inflate parity coverage. No production defect is alleged, no generic model
+default is changed, and no expected value comes from the implementation under
+test. Acceptance references are `WP-201-behavior`, `WP-201-boundaries` and
+`WP-201-source-test-parity` for this bounded oracle correction.
+
+This is an **UNVERIFIED next source batch** until the exact new candidate runs
+the declared `:core:model:test` and its affected consumer obligations. The
+specific class/factory selectors are
+`com.meshcoreone.android.core.model.SourceModelCasesTest` / `clientRepeat`;
+the required three original families must appear in nonzero successful JUnit
+discovery, with no failures, errors or skips. No additional heavy job, native
+execution, remote snapshot update, push or PR was started for DATA-10.
+
+Post-edit lightweight checks passed: `git diff --check`;
+`python tools\android-port\portmap.py` (1,909 dispositions);
+`python tools\android-port\controller\validate.py` (valid, 1,866 reference
+inputs, 64 WPs, 178 edges); and
+`python tools\android-port\controller\verification_config.py --check` (valid).
+These are provenance/ownership/configuration results, not model test execution.
+
+## DATA-01 authenticated compile failure and queued correction
+
+The guarded remote retry for exact `87e3ecce1629a659198a1313635f41caf46557ac`
+terminated with exit 1 at `:core:runtime:compileTestKotlin`. Its authentic log,
+`guarded-execution-87e3ecce-python-alias-fixed.log` in the assigned remote
+WP-201 lane, reports Kotlin type inference errors at lines 31 and 49 of
+`DeviceConnectionMethodPersistenceTest.kt`. The expected single-subtype lists
+were compared with a `SnapshotList<ConnectionMethod>`; Kotlin could not infer
+the assertion's shared type. The three mandatory runtime cases did not execute.
+Other partial module reports are not whole-candidate acceptance.
+
+The correction explicitly constructs `listOf<ConnectionMethod>` for those
+two expected values, retaining exact collection equality and every assertion
+without casts or production changes. It is a separate successor after DATA-10
+`f96d48ad598840a81e9012b9cce41a1ae176b965`; neither the failed `87e3ecce`
+record nor DATA-10's unexecuted status is overwritten. The successor requires
+an admitted diagnostic `:core:runtime:test` run before the full affected
+runtime/model/consumer closure; diagnostic execution alone is not acceptance.
