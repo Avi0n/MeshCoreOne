@@ -23,7 +23,8 @@ class AndroidShortcutText(private val context: Context) : ShortcutText {
         ShortcutError.NOT_CONNECTED -> s(R.string.l10n_app_localizable_error_intent_notconnected)
         ShortcutError.INVALID_RECIPIENT -> s(R.string.l10n_app_localizable_error_intent_invalidrecipient)
         ShortcutError.MESSAGE_TOO_LONG -> s(R.string.l10n_app_localizable_error_intent_messagetoolong)
-        ShortcutError.SEND_FAILED, ShortcutError.ADVERT_FAILED, ShortcutError.DENIED ->
+        ShortcutError.ADVERT_FAILED -> s(L.errorAdvertisementSendFailed)
+        ShortcutError.SEND_FAILED, ShortcutError.DENIED ->
             s(R.string.l10n_app_localizable_error_intent_sendfailed)
         is ShortcutError.SessionError -> sessionError(error.underlying)
     }

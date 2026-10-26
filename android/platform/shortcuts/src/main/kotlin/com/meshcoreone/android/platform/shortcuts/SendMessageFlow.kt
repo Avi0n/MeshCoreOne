@@ -58,7 +58,7 @@ object SendRouting {
         val byName = compareBy<ShortcutTarget, String>(String.CASE_INSENSITIVE_ORDER) { it.displayName }
         val contactTargets = contacts.map { TargetIdentity.target(it) }.sortedWith(byName)
         val channelTargets = channels
-            .filter { resolveUniqueChannel(TargetIdentity.channelId(it), channels) != null }
+            .filter { it.name.isNotEmpty() && resolveUniqueChannel(TargetIdentity.channelId(it), channels) != null }
             .map { TargetIdentity.target(it, channelSubtitle) }
             .sortedWith(byName)
         return contactTargets + channelTargets
@@ -109,6 +109,8 @@ class SendMessageFlow(
         SendRouting.validate(message, recipient, radio.connectedNodeNameByteCount)
         try {
             radio.queueMessage(recipient, message)
+        } catch (error: ShortcutServicesUnavailableException) {
+            return SendResult.NeedsForeground
         } catch (error: ShortcutException) {
             throw error
         } catch (error: kotlin.coroutines.cancellation.CancellationException) {

@@ -92,7 +92,7 @@ class SendMessageFlowTest {
     }
 
     @Test
-    @SourceCases("SendMessageIntentTests::services nil after classify routes to foreground not A silent enqueue", "SendMessageIntentTests::recipient from another radio routes to foreground not A cross radio enqueue", "SendMessageIntentTests::connected without services never enqueues")
+    @SourceCases("SendMessageIntentTests::recipient from another radio routes to foreground not A cross radio enqueue", "SendMessageIntentTests::connected without services never enqueues")
     fun stateChangeDuringConfirmationEscalatesWithoutQueueing() = runSuspend {
         val dropRadio = FakeRadio(contacts = listOf(alice))
         val (_, _, dropFlow) = fixture(dropRadio, FakeConfirmation { dropRadio.connectionState = DeviceConnectionState.DISCONNECTED })
@@ -106,6 +106,25 @@ class SendMessageFlowTest {
             val (radio, confirmation, flow) = fixture(FakeRadio(connectionState = state, contacts = listOf(alice)))
             assertEquals(SendResult.NeedsForeground, flow.execute(TargetIdentity.contactId(alice), "x"))
             assertTrue(radio.queued.isEmpty() && confirmation.requests.isEmpty())
+        }
+    }
+
+    @Test
+    @SourceCases("SendMessageIntentTests::services nil after classify routes to foreground not A silent enqueue")
+    fun servicesDisappearWithoutChangingOperationalStateOrRadio() = runSuspend {
+        for (state in listOf(DeviceConnectionState.READY, DeviceConnectionState.SYNCING)) {
+            for (id in listOf(TargetIdentity.contactId(alice), TargetIdentity.channelId(ops))) {
+                val radio = FakeRadio(connectionState = state, contacts = listOf(alice), channels = listOf(ops))
+                val confirmation = FakeConfirmation {
+                    radio.queueFailure = ShortcutServicesUnavailableException()
+                }
+                val (_, _, flow) = fixture(radio, confirmation)
+                assertEquals(SendResult.NeedsForeground, flow.execute(id, "not queued"))
+                assertEquals(state, radio.connectionState)
+                assertEquals(RADIO_A, radio.currentRadioId)
+                assertEquals(1, confirmation.requests.size)
+                assertTrue(radio.queued.isEmpty())
+            }
         }
     }
 

@@ -1,5 +1,80 @@
 # WP-404 evidence
 
+## Shortcut consumer repair batch (2026-10-26): unverified local candidate
+
+Repository `cbattlegear/MeshCoreOne-Android`; owner
+`platform-integrations-engineer`, implemented by the assigned DEFAULT runtime using
+the tracked role and android-port-wp/Swift-to-Kotlin/Compose skills, not injected
+custom-profile execution. Session `a8b04b96-985a-4d80-a85d-bf5188cd6d8a`;
+branch `cbattlegear-wp-404-shortcut-consumer-repairs`; base
+`8a14eb2d90014f793de8e16e32fbcc5af5becee3`. The candidate is the local commit
+containing this section; its exact head is reported to the coordinator for later
+immutable-input verification. Local persistence is not verified publication.
+Source pin remains `db14559b39d32322b06477c6ae676112f583db50`.
+Base manifest Git blob `582edce11e1cb7761bc1b8f2de7e5c1caaeae27a`;
+base policy Git blob `b1c1ef30533f2f424d1c33e23ede04fafebce014`.
+Prerequisites were checked as merged PRs #43 (WP-208), #49 (WP-209), #71 (WP-303);
+later repairs do not replace that prerequisite lineage.
+
+The assigned read-only R118 grouping input's SHA-256 was checked:
+`62c185ffc08b9c38a37261d810147767b33f2a8ae2131a3a47c0622c660686d1`.
+The retained groups and exact source families are:
+
+| Group | Consumer repair and authored regression |
+| --- | --- |
+| RADIO-R118-G06 | App picker/publisher use duplicate-safe targets; `EntityQueryScopingTests` duplicate-digest picker family in `EntityIdentityTests.swift`. App/Room regression covers duplicate named slots, a named/unnamed collision, current/foreign radio scoping and real ShortcutManager publication. Existing platform test remains; a new unnamed-collision method supplements it. |
+| RADIO-R118-G07 | Status reads the existing persisted cached name; `StatusQueryIntentTests.swift` connecting and disconnected-known-radio families. App regression holds the actual connection transport at CONNECTING and asserts cached name with no invented live name/battery. |
+| RADIO-R118-G08 | Services-only disappearance with READY/radio unchanged returns foreground recovery before any pending write; `SendMessageIntentTests.swift` services-nil-after-classify family. Actual App graph teardown during confirmation covers direct/channel executor handoff and zero durable/wire sends. The platform original-case annotation now belongs to a distinct services-only regression, not a state-changing disconnect test. |
+| RADIO-R118-G10 | Advert fallback uses existing advertisement copy; `IntentErrorLocalizationTests.swift` own-key and session families plus `SendAdvertIntentTests.swift` every-case/general-error families. App regression checks five keyed cases across all 12 locales, both reaches through the real executor/presenter, adapter-mapped fallback causes and unchanged typed session payload. Fault injection here is not claimed as wire/service execution. Existing real advert-service integration tests are retained unchanged. |
+
+Acceptance IDs affected: `WP-404-behavior`, `WP-404-boundaries`,
+`WP-404-source-test-parity`. Four new App regression methods and two new platform
+methods are authored; **zero product tests executed for this batch**. This is not
+full-WP acceptance or a new passing original-family count.
+
+Trusted `reserve.py admit` accepted the owned shortcut/evidence paths and App
+support using `app-build-launcher` / `add-direct-support-wiring` and
+`update-launcher-or-composition`. Generic `modify` correctly rejected App and
+ui-tests paths; the new consumer tests therefore live under the admitted App test
+tree. Both actual automatic `claim` attempts returned
+`BLOCKED: Existing WP lease is bound to different source/base/manifest/backend`.
+This historical advisory mismatch was preserved, not deleted, impersonated or used
+as a local-edit veto under current AUTOMATION/ADR-006. No live semantic overlap was
+identified in the assigned consumer surfaces.
+
+Readiness command executed successfully from this worktree:
+
+```powershell
+& 'C:\Users\camer\.copilot\session-state\902ae61f-c20e-498b-8312-966b19bf8be6\files\prepare-worker-readiness.ps1' -Artifacts 'C:\Users\camer\.copilot\session-state\792767ba-cf3e-4b83-b321-b5c0d0cd39b0\files'
+```
+
+It creates this worker's own isolated inputs and invokes the declared
+`ci.py preflight --state <own environment.json> --output <own result> --local`.
+`worker-readiness.json` reports `environment_ready: true`; this is environment
+readiness only, not product test/build/native acceptance. `git diff --check`
+passed. Frozen Intents source/test paths showed no diff against the immutable pin.
+Admission/claim diagnostics remain in the worker's session artifacts.
+
+**Execution blocker:** the coordinator's explicit memory-pressure hold forbids
+Gradle, emulator and heavy full validators until a supported serialized lane and
+capacity decision are supplied. No resource failure was observed by this worker;
+the hold is not misreported as an OOM, failed test, authentication failure or
+environment-preflight failure. No runner/lock/runtime bypass, provisioning,
+process termination, dependency changes, push or PR occurred.
+The coordinator explicitly requested one local commit for exact-candidate
+persistence while keeping the hold. **Android execution: NOT RUN.**
+
+After that hold is lifted, run the actually declared relevant strict verification
+route, not the historical lenient command below. The documented full fallback is
+`ci.py run --stage scaffold --local`, with the required preparation/inspection and
+ownership/traceability checks; targeted execution must be a supported declared
+route. Actual nonzero discovery and passing required tests/build/validators are
+mandatory before this batch's single finished push and template PR. The exact-head
+hosted job/log will be authoritative; no duplicate CI-result bundle is retained.
+No physical/device, signing, legal or human-gate acceptance is asserted.
+
+## Historical original implementation and earlier repairs
+
 External contribution; no lease. No device verification claimed.
 
 ## Scope

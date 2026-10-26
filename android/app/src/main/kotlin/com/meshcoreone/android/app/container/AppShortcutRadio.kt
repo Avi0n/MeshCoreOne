@@ -28,18 +28,25 @@ internal class AppShortcutRadio(private val container: AppContainer) : ShortcutR
     override val currentRadioId get() = app.currentRadioId
     override val hasRestorableRadio get() = container.connectionPort.lastConnectedDeviceId != null
     override val connectedNodeNameByteCount get() = app.connectedDevice?.nodeName?.toByteArray(Charsets.UTF_8)?.size ?: 0
-    override fun status() = RadioStatusSnapshot(connectionState, app.connectedDevice?.nodeName, null,
+    override fun status() = RadioStatusSnapshot(connectionState, app.connectedDevice?.nodeName,
+        container.connectionPort.lastConnectedDeviceName,
         app.batteryMonitor.deviceBattery?.takeIf { it.isBatteryPresent }
             ?.percentage(app.batteryMonitor.activeBatteryOcvArray(app.connectedDevice)))
     override suspend fun contacts(radioId: RadioId) = container.processStore.fetchContacts(radioId)
     override suspend fun channels(radioId: RadioId) = container.processStore.fetchChannels(radioId)
+    internal suspend fun targets(channelSubtitle: String): List<ShortcutTarget> {
+        val radioId = currentRadioId ?: return emptyList()
+        return SendRouting.buildTargets(SendRouting.chatContacts(contacts(radioId)), channels(radioId), channelSubtitle)
+    }
     private fun live(radioId: RadioId?) = container.sessions.current?.takeIf {
         it.token.radioId == radioId && connectionState == DeviceConnectionState.READY
     } ?: throw ShortcutException(ShortcutError.NOT_CONNECTED)
     override suspend fun queueMessage(recipient: ShortcutRecipient, text: String) {
-        val session = container.sessions.current?.takeIf {
-            it.token.radioId == recipient.radioId && connectionState.isOperational
-        } ?: throw ShortcutException(ShortcutError.NOT_CONNECTED)
+        if (!connectionState.isOperational || currentRadioId != recipient.radioId) {
+            throw ShortcutException(ShortcutError.NOT_CONNECTED)
+        }
+        val session = container.sessions.current ?: throw ShortcutServicesUnavailableException()
+        if (session.token.radioId != recipient.radioId) throw ShortcutException(ShortcutError.NOT_CONNECTED)
         val localNodeName = app.connectedDevice?.takeIf { it.radioId == recipient.radioId }?.nodeName
         SendRouting.validate(text, recipient, localNodeName?.toByteArray(Charsets.UTF_8)?.size ?: 0)
         val pending = try {
