@@ -46,6 +46,65 @@ from controller import jvm_lanes
 
 
 class LocalCheckTests(unittest.TestCase):
+    def test_staged_control_carries_exact_trusted_lane_helper(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            completion = root / "cleanup.json"
+            completion.write_text(json.dumps({
+                "schema_version": 1, "token": "fixture", "status": "owned-children-reaped", "returncode": 0,
+            }), encoding="utf-8")
+            with patch.object(check, "binding", return_value=("a" * 40, "b" * 40)), \
+                    patch.object(check.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)):
+                check.run_candidate(root, "a" * 40, [], check.ALL_STAGES, False,
+                                    completion=completion, token="fixture", admission=root / "admission.json",
+                                    execution={"started": False})
+            self.assertEqual((root / "control/jvm_lanes.py").read_bytes(),
+                             Path(jvm_lanes.__file__).read_bytes().replace(b"\r\n", b"\n"))
+
+    def test_real_fast_uses_owned_helper_with_older_candidate_controller(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            controller = root / "candidate/controller"
+            controller.mkdir(parents=True)
+            (controller / "__init__.py").touch()
+            (controller / "errors.py").write_bytes(Path(jvm_lanes.__file__).with_name("errors.py").read_bytes())
+            control = root / "control"
+            control.mkdir()
+            (control / "fast.py").write_bytes(Path(fast.__file__).read_bytes())
+            (control / "jvm_lanes.py").write_bytes(Path(jvm_lanes.__file__).read_bytes())
+            script = """
+import importlib.util, json, pathlib, sys
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+import controller
+assert importlib.util.find_spec('controller.jvm_lanes') is None
+spec = importlib.util.spec_from_file_location('owned_fast', sys.argv[2])
+fast = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(fast)
+work = pathlib.Path(sys.argv[3])
+descriptor = pathlib.Path('/proc/self/fd/8')
+original_is_file, original_read_text = pathlib.Path.is_file, pathlib.Path.read_text
+admission = {}
+def is_file(path):
+    return True if path == descriptor else original_is_file(path)
+def read_text(path, *args, **kwargs):
+    return json.dumps(admission) if path == descriptor else original_read_text(path, *args, **kwargs)
+with patch.object(pathlib.Path, 'is_file', new=is_file), patch.object(pathlib.Path, 'read_text', new=read_text):
+    with patch.object(fast, 'owned_lanes', side_effect=AssertionError('Serial must not load lane helper')):
+        assert fast.execution_lane(work) is None
+    owned = fast.owned_lanes()
+    assert pathlib.Path(owned.__file__).resolve() == pathlib.Path(sys.argv[2]).with_name('jvm_lanes.py').resolve()
+    admission['jvm_lane'] = {'host': 'a' * 64, 'slot': 1, 'capacity': 3}
+    with patch.object(owned, 'host_identity', return_value='a' * 64), \
+         patch.object(owned, 'cpu_capacity', return_value=3), \
+         patch.object(fast, 'owned_lanes', return_value=owned):
+        assert fast.execution_lane(work) == work / 'local-checks/lanes' / ('a' * 64) / '1'
+assert importlib.util.find_spec('controller.jvm_lanes') is None
+"""
+            subprocess.run([sys.executable, "-c", script, str(controller.parent),
+                            str(control / "fast.py"), str(root / "work")], check=True,
+                           capture_output=True, text=True)
+
     def test_real_linux_slot_flocks_overlap_or_windows_rejects_before_launch(self):
         if not sys.platform.startswith("linux"):
             with self.assertRaisesRegex(PortError, "actual supported Linux"):
@@ -456,11 +515,13 @@ class AffectedRunnerTests(unittest.TestCase):
         value = {"host": "a" * 64, "slot": 1, "capacity": 3}
         with patch.object(Path, "is_file", return_value=True), \
                 patch.object(Path, "read_text", return_value=json.dumps({"jvm_lane": value})), \
+                patch.object(fast, "owned_lanes", return_value=jvm_lanes), \
                 patch.object(jvm_lanes, "host_identity", return_value="a" * 64), \
                 patch.object(jvm_lanes, "cpu_capacity", return_value=3):
             self.assertEqual(fast.execution_lane(self.root), self.root / "local-checks/lanes" / ("a" * 64) / "1")
         with patch.object(Path, "is_file", return_value=True), \
                 patch.object(Path, "read_text", return_value=json.dumps({"jvm_lane": value})), \
+                patch.object(fast, "owned_lanes", return_value=jvm_lanes), \
                 patch.object(jvm_lanes, "host_identity", return_value="b" * 64):
             with self.assertRaisesRegex(PortError, "actual host"):
                 fast.execution_lane(self.root)
@@ -592,6 +653,7 @@ class AffectedRunnerTests(unittest.TestCase):
         }
         self.assertEqual(self.read_request(plan, admission), plan)
         with patch.object(jvm_lanes, "host_identity", return_value="a" * 64), \
+                patch.object(fast, "owned_lanes", return_value=jvm_lanes), \
                 patch.object(jvm_lanes, "cpu_capacity", return_value=3):
             self.assertEqual(self.read_request(plan, {
                 **admission, "jvm_lane": {"host": "a" * 64, "slot": 1, "capacity": 3},

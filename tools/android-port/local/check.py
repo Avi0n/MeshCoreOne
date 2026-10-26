@@ -284,6 +284,9 @@ def run_candidate(repo, revision, prefix, stages, worktree, *, advisory=False, c
         source = tool / source_name
         if source.is_file():
             (control / installed_name).write_bytes(source.read_bytes().replace(b"\r\n", b"\n"))
+    from controller import jvm_lanes
+    (control / "jvm_lanes.py").write_bytes(
+        Path(jvm_lanes.__file__).read_bytes().replace(b"\r\n", b"\n"))
     bundle = completion.parent / "candidate.bundle"
     request = None
     if affected_plan is not None:

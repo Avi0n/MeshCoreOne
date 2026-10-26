@@ -1,6 +1,7 @@
 """AndroidOnly: WP-003 Same CI checks, warm Gradle execution, local-only reports."""
 
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -25,14 +26,20 @@ def local_test_command(repo):
     ]
 
 
-def execution_lane(work):
-    from controller.jvm_lanes import lane_directory
+def owned_lanes():
+    spec = importlib.util.spec_from_file_location(
+        "controller._local_owned_jvm_lanes", Path(__file__).with_name("jvm_lanes.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
+
+def execution_lane(work):
     descriptor = Path("/proc/self/fd/8")
     if not descriptor.is_file():
         return None
     admission = json.loads(descriptor.read_text(encoding="utf-8"))
-    return lane_directory(work, admission["jvm_lane"]) if "jvm_lane" in admission else None
+    return owned_lanes().lane_directory(work, admission["jvm_lane"]) if "jvm_lane" in admission else None
 
 
 def affected_request(repo, path, base, stages, advisory):
@@ -61,8 +68,7 @@ def affected_request(repo, path, base, stages, advisory):
     ):
         raise PortError("Affected plan differs from the actual owned admission or required stages")
     if "jvm_lane" in admission:
-        from controller.jvm_lanes import validate_binding
-        validate_binding(admission["jvm_lane"])
+        owned_lanes().validate_binding(admission["jvm_lane"])
     return plan
 
 
