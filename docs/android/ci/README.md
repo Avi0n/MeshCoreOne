@@ -927,7 +927,14 @@ producer's server file inventory; additional real cross-module consumers need
 not have been authored by that same producer. Every bound regular-file identity
 must match at **all three**
 revisions: that producer's merge commit, the exact current base and candidate
-head. Foreign producers, missing/changed consumers, stale bindings and symlinks
+head. Regular-file proof uses the existing trusted local Git reader's exact
+`ls-tree -z --full-tree <immutable-commit> -- <bound-path>` record at every
+revision: one complete record, mode `100644` or `100755`, type `blob`, exact
+path and blob SHA. Missing objects, missing/truncated/duplicate records and any
+mode/type/identity mismatch fail closed. Contents metadata is additionally
+checked, but cannot prove Git mode: GitHub may resolve a repository symlink
+and return its target as `type: file`.
+Foreign producers, missing/changed consumers, stale bindings and symlinks
 cannot establish this continuity. Every bound consumer module must be selected
 alongside the changed test module. Source review must account for the actual
 consumer relationship; a blob match alone is not behavioral acceptance.

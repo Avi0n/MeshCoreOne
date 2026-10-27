@@ -531,7 +531,58 @@ class RepairAuthorityTests(unittest.TestCase):
             api.routes[("GET", prefix + f"/contents/{PATH}?ref={revision}")] = {
                 "type": "file", "path": PATH, "sha": "5" * 40,
             }
+
+        def regular_tree(repo, *arguments):
+            self.assertEqual(arguments[:3], ("ls-tree", "-z", "--full-tree"))
+            self.assertEqual(arguments[4], "--")
+            revision, path = arguments[3], arguments[5]
+            record = api.routes[("GET", prefix + f"/contents/{path}?ref={revision}")]
+            return f"100644 blob {record['sha']}\t{record['path']}\0".encode()
+
+        reader = patch("controller.repair_acceptance.git", side_effect=regular_tree)
+        reader.start()
+        self.addCleanup(reader.stop)
         return native, api, prefix, value, scope, staged, entries
+
+    def test_verification_git_mode_identity_is_required_even_when_contents_resolves_a_symlink(self):
+        for revision in (MERGE, BASE, HEAD):
+            for kind in ("symlink", "tree", "gitlink", "missing", "truncated", "duplicate", "blob", "path",
+                         "metadata", "missing-object"):
+                native, _, _, value, _, _, _ = self.verification_fixture()
+                valid = f"100644 blob {'5' * 40}\t{PATH}\0".encode()
+                raw = {
+                    "symlink": valid.replace(b"100644", b"120000"),
+                    "tree": valid.replace(b"100644 blob", b"040000 tree"),
+                    "gitlink": valid.replace(b"100644 blob", b"160000 commit"),
+                    "missing": b"",
+                    "truncated": valid[:-1],
+                    "duplicate": valid + valid,
+                    "blob": valid.replace(b"5" * 40, b"6" * 40),
+                    "path": valid.replace(PATH.encode(), TEST.encode()),
+                    "metadata": b"not-git-tree-data\0",
+                    "missing-object": valid,
+                }[kind]
+
+                def read(repo, *arguments):
+                    self.assertEqual(arguments, ("ls-tree", "-z", "--full-tree", arguments[3], "--", PATH))
+                    if arguments[3] != revision:
+                        return valid
+                    if kind == "missing-object":
+                        raise PortError("Git command failed: ls-tree -z")
+                    return raw
+
+                # All Contents metadata remains type=file/path/equal SHA, including the symlink case.
+                with self.subTest(revision=revision, kind=kind), patch(
+                    "controller.repair_acceptance.git", side_effect=read,
+                ), self.assertRaisesRegex(PortError, "regular Git blob|Git command failed"):
+                    authenticated_scope(native, 700, value.binding)
+        native, _, _, value, _, _, _ = self.verification_fixture()
+        for mode in ("100644", "100755"):
+            with self.subTest(regular_mode=mode), patch(
+                "controller.repair_acceptance.git", return_value=f"{mode} blob {'5' * 40}\t{PATH}\0".encode(),
+            ) as reader:
+                authenticated_scope(native, 700, value.binding)
+                self.assertEqual([call.args[4] for call in reader.call_args_list], [MERGE, BASE, HEAD])
 
     def test_verification_only_scope_authenticates_unchanged_landed_consumer_without_production_edit(self):
         native, _, _, value, scope, _, _ = self.verification_fixture()

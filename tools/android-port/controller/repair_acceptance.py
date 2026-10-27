@@ -16,7 +16,7 @@ from .gates import (
     Binding, _acceptance, hosted_references, human_acceptance_required, policy_revision,
     protected_paths, validate_approval, validate_review,
 )
-from .model import SHA
+from .model import SHA, git
 from .paths import git_path
 from .publication import bounded_output
 from .render import marker
@@ -125,6 +125,11 @@ def authenticated_scope(native, comment_id, binding):
             raise PortError("Verification consumer is not accounted for by the actual landed producer")
         for path, blob in bindings.items():
             for revision in (landed["merge_commit_sha"], binding.base_sha, binding.head_sha):
+                entry = git(native.manifest.repo, "ls-tree", "-z", "--full-tree", revision, "--", path)
+                if entry not in {
+                    f"{mode} blob {blob}\t{path}\0".encode("utf-8") for mode in ("100644", "100755")
+                }:
+                    raise PortError("Verification consumer lacks an exact regular Git blob at the bound revision")
                 actual = native.get(f"/contents/{path}?ref={revision}")
                 if actual.get("type") != "file" or actual.get("path") != path or actual.get("sha") != blob:
                     raise PortError("Verification consumer differs from the landed producer/current base/head")
