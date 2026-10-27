@@ -147,7 +147,9 @@ class CandidateFamilyTests(unittest.TestCase):
                 self.assertEqual(reports[0]["head"], head)
                 self.assertEqual(reports[0]["reason"], "present-in-manual-commit")
                 if scope:
-                    self.assertIn("controller=true", (self.root / "scope-output").read_text())
+                    scope_output = (self.root / "scope-output").read_text()
+                    self.assertIn("controller=false\n", scope_output)
+                    self.assertIn("accessibility-suite=true\n", scope_output)
                 else:
                     self.assertEqual(reports[1]["discovered"], 2)
                     self.assertEqual(reports[1]["run"], 2)
@@ -217,7 +219,10 @@ class CandidateFamilyTests(unittest.TestCase):
             scope = self.run_candidate(self.base, head, scope=True)
             self.assertEqual(scope.returncode, 0, scope.stdout + scope.stderr)
             self.assertIn('"result": "NOT SELECTED"', scope.stdout)
-            self.assertEqual((self.root / "scope-output").read_text(), "controller=false\n")
+            self.assertEqual(
+                (self.root / "scope-output").read_text(),
+                "controller=false\naccessibility-suite=false\n",
+            )
             result = self.run_candidate(self.base, head)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             reports = [json.loads(line) for line in result.stdout.splitlines()]
@@ -235,7 +240,9 @@ class CandidateFamilyTests(unittest.TestCase):
                 head = self.commit()
                 scope = self.run_candidate(base, head, scope=True)
                 self.assertEqual(scope.returncode, 0, scope.stdout + scope.stderr)
-                self.assertIn("controller=true", (self.root / "scope-output").read_text())
+                scope_output = (self.root / "scope-output").read_text()
+                self.assertIn("controller=false\n", scope_output)
+                self.assertIn("accessibility-suite=true\n", scope_output)
                 result = self.run_candidate(base, head)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 reports = [json.loads(line) for line in result.stdout.splitlines()]

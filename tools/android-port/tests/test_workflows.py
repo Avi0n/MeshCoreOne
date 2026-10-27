@@ -153,7 +153,10 @@ class WorkflowTests(unittest.TestCase):
             runner["run"],
         )
         self.assertNotIn("continue-on-error", runner)
-        self.assertEqual(runner["if"], "${{ needs.scope.outputs.controller == 'true' }}")
+        self.assertEqual(
+            runner["if"],
+            "${{ needs.scope.outputs.controller == 'true' || needs.scope.outputs.accessibility-suite == 'true' }}",
+        )
 
     def test_controller_includes_actual_native_runner_suite_with_strict_positive_discovery(self):
         workflow, text = self.read("android-ci.yml")
@@ -253,8 +256,16 @@ class WorkflowTests(unittest.TestCase):
         workflow, _ = self.read("android-ci.yml")
         jobs = workflow["jobs"]
         self.assertEqual(
-            set(jobs["scope"]["outputs"]), {"controller", "scaffold", "protocol", "backup", "external-oracle"}
+            set(jobs["scope"]["outputs"]),
+            {"controller", "accessibility-suite", "scaffold", "protocol", "backup", "external-oracle"},
         )
+        self.assertEqual(jobs["scope"]["outputs"]["controller"], "${{ steps.changed.outputs.controller }}")
+        self.assertEqual(
+            jobs["scope"]["outputs"]["accessibility-suite"],
+            "${{ steps.changed.outputs.accessibility-suite }}",
+        )
+        gradle = next(step for step in jobs["build"]["steps"] if step.get("id") == "gradle")
+        self.assertEqual(gradle["env"]["RUN_CONTROLLER"], "${{ needs.scope.outputs.controller }}")
         expected = {
             "external-oracle": ("external-oracle", ["scope"]),
             "backup-oracle": ("backup", ["scope", "build"]),

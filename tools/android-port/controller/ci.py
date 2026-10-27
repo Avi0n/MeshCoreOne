@@ -189,6 +189,19 @@ def print_failed_command_diagnostics(log: Path, failure_reports):
         print_failed_command_log(log)
 
 
+def terminate_streamed_process(process, reader):
+    if os.name == "nt":
+        if process.poll() is None:
+            process.kill()
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    process.wait()
+    reader.join(timeout=10)
+
+
 def execute(command: list[str], environment: dict | None, log: Path, *,
             timeout=1800, failure_reports=None, stream_output=False):
     log.parent.mkdir(parents=True, exist_ok=True)
@@ -223,15 +236,10 @@ def execute(command: list[str], environment: dict | None, log: Path, *,
                 reader.start()
                 try:
                     returncode = process.wait(timeout=timeout)
-                except subprocess.TimeoutExpired as timeout_error:
-                    if os.name == "nt":
-                        process.kill()
-                    else:
-                        os.killpg(process.pid, signal.SIGKILL)
-                    process.wait()
-                    reader.join(timeout=10)
-                    raise timeout_error
-                reader.join()
+                    reader.join()
+                except (subprocess.TimeoutExpired, KeyboardInterrupt):
+                    terminate_streamed_process(process, reader)
+                    raise
                 if reader_errors:
                     raise PortError(f"Unable to stream command output: {reader_errors[0]}")
             result = subprocess.CompletedProcess(command, returncode)

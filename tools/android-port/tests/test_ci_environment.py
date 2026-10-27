@@ -254,12 +254,18 @@ class EnvironmentTests(unittest.TestCase):
                 "verify_candidate_task_graph.gradle"
             ))
 
-    def test_backup_interop_task_cache_declares_and_verifies_its_side_effects(self):
+    def test_only_wp203_test_task_is_cacheable_and_its_side_effects_are_declared(self):
         script = (REPO / "tools/android-port/controller/verify_candidate_task_graph.gradle").read_text(
             encoding="utf-8",
         )
-        self.assertIn('task.path == ":core:data:testDebugUnitTest"', script)
-        self.assertIn("task.outputs.cacheIf(", script)
+        cache_policy = (
+            'task.outputs.cacheIf("Only WP-203 test inputs and interop outputs are explicitly declared") {\n'
+            '            task.path == ":core:data:testDebugUnitTest"\n'
+            "        }"
+        )
+        self.assertIn(cache_policy, script)
+        self.assertEqual(script.count("task.outputs.cacheIf("), 1)
+        self.assertLess(script.index(cache_policy), script.index('if (task.path == ":core:data:testDebugUnitTest")'))
         self.assertIn('task.outputs.dir(interopOutput)', script)
         self.assertIn("task.inputs.dir(interopInput)", script)
         self.assertIn("task.doFirst", script)

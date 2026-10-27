@@ -75,6 +75,12 @@ def validate_candidate(value: dict, text: str):
     if set(jobs) != {"scope", "controller", "build", "external-oracle", "backup-oracle", "android-ci"}:
         raise PortError("Missing/unknown mandatory CI job")
     gate = jobs["android-ci"]
+    scope_outputs = jobs["scope"].get("outputs", {})
+    if (
+        scope_outputs.get("controller") != "${{ steps.changed.outputs.controller }}"
+        or scope_outputs.get("accessibility-suite") != "${{ steps.changed.outputs.accessibility-suite }}"
+    ):
+        raise PortError("Diff-derived controller scope and committed accessibility-suite selection must remain separate")
     if (gate.get("name") != "android-ci" or gate.get("if") != "${{ always() }}"
             or gate.get("needs") != ["scope", "controller", "build", "external-oracle", "backup-oracle"]):
         raise PortError("android-ci must always report every selected build outcome")
@@ -97,6 +103,22 @@ def validate_candidate(value: dict, text: str):
         or "ci.py run --stage scaffold @affected @scopes" not in stage_run
     ):
         raise PortError("Candidate Gradle invocation must use exact affected planning outside controller changes")
+    selected_controller = (
+        "${{ needs.scope.outputs.controller == 'true' || "
+        "needs.scope.outputs.accessibility-suite == 'true' }}"
+    )
+    unselected_controller = (
+        "${{ needs.scope.outputs.controller != 'true' && "
+        "needs.scope.outputs.accessibility-suite != 'true' }}"
+    )
+    controller_steps = jobs["controller"]["steps"]
+    selected_steps = [step for step in controller_steps if step.get("name") != "No controller inputs selected"]
+    unselected_steps = [step for step in controller_steps if step.get("name") == "No controller inputs selected"]
+    if (
+        not selected_steps or any(step.get("if") != selected_controller for step in selected_steps)
+        or len(unselected_steps) != 1 or unselected_steps[0].get("if") != unselected_controller
+    ):
+        raise PortError("Controller execution must honor either diff-selected inputs or the mandatory accessibility suite")
     inspections = [
         index for index, step in enumerate(steps)
         if "ci.py inspect" in step.get("run", "")
@@ -179,7 +201,7 @@ def validate_candidate(value: dict, text: str):
         step for step in jobs["controller"]["steps"] if "controller/test_runner.py" in step.get("run", "")
     ]
     if (
-        len(runners) != 1 or runners[0].get("if") != "${{ needs.scope.outputs.controller == 'true' }}"
+        len(runners) != 1 or runners[0].get("if") != selected_controller
         or runners[0].get("continue-on-error")
         or [
             line for line in runners[0].get("run", "").splitlines()

@@ -27,9 +27,11 @@ finishes, alongside the independent controller checks. The final required
 `android-ci` gate still waits for every selected result, and the SwiftData
 backup oracle still waits for the Android build that produces its input.
 Ordinary module changes use the exact candidate diff and dependency-consumer
-closure to select module tests, checks and lint; only broad, unclassified or
-build-graph changes retain the full scaffold and APK handoff. Configuration-
-resolving tasks (`validateModuleGraph`, `runtimeDependencyInventory`, and
+closure to select module tests, checks and lint; the committed accessibility
+controller suite is selected separately and does not widen Gradle planning.
+Only broad, unclassified or build-graph changes retain the full scaffold and
+APK handoff. Configuration-resolving tasks (`validateModuleGraph`,
+`runtimeDependencyInventory`, and
 full-scaffold `resolveScaffoldDependencies`) run in a serial Gradle preflight
 before the selected build, test and lint tasks. A preflight failure therefore
 prevents that expensive task graph from starting. The remaining tasks run in a
@@ -40,11 +42,14 @@ owned by WP-002 and remains a separate follow-up.
 Dependency-only `prepare` also stays serialized because AGP's `androidJdkImage`
 configuration requires an exclusive resolution lock. Each invocation streams
 plain-console output to the hosted log and retains a separate full command log
-and resolved task graph for failure evidence.
+and resolved task graph for failure evidence. Ctrl-C terminates the streamed
+process group, reaps Gradle and joins its output reader before propagating the
+interrupt.
 
 Hosted Gradle task-output caching is enabled. Only `:core:data:testDebugUnitTest`
-is explicitly opted into test-result caching; other test tasks retain Gradle's
-default cache policy. The candidate task-graph init script declares the WP-203
+is explicitly eligible for test-result caching; all other Gradle `Test` tasks
+are explicitly denied cache eligibility until their external inputs and side
+effects are accounted for. The candidate task-graph init script declares the WP-203
 fixture directory as an input and the interop artifact directory as an output,
 clears stale files when the task executes, and fails closed if either
 declaration is absent from the resolved graph. This lets a cache hit restore the

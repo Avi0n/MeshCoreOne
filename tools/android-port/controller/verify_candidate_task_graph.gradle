@@ -4,10 +4,12 @@ import org.gradle.api.tasks.AbstractExecTask
 
 gradle.beforeProject { project ->
     project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach { task ->
+        task.outputs.cacheIf("Only WP-203 test inputs and interop outputs are explicitly declared") {
+            task.path == ":core:data:testDebugUnitTest"
+        }
         if (task.path == ":core:data:testDebugUnitTest") {
             def interopOutput = project.layout.buildDirectory.dir("reports/wp203/interop").get().asFile
             task.outputs.dir(interopOutput)
-            task.outputs.cacheIf("WP-203 test inputs and interop outputs are explicitly declared") { true }
             def inputPath = project.providers.gradleProperty("wp203InteropInputDir").orNull
             def interopInput = inputPath
                 ? project.file(inputPath)

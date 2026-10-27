@@ -399,6 +399,12 @@ class SourceDispositionTests(unittest.TestCase):
                         self.wait_count = 0
                         self.killed = False
 
+                    def poll(self):
+                        return -9 if self.killed else None
+
+                    def kill(self):
+                        self.killed = True
+
                     def wait(self, timeout=None):
                         if timeout is not None:
                             self.assert_timeout(timeout)
@@ -412,9 +418,6 @@ class SourceDispositionTests(unittest.TestCase):
                     def assert_timeout(timeout):
                         if timeout != 3600:
                             raise AssertionError(f"Unexpected Gradle timeout: {timeout}")
-
-                    def kill(self):
-                        self.killed = True
 
                 process = FixtureProcess()
 
@@ -444,6 +447,49 @@ class SourceDispositionTests(unittest.TestCase):
                     else:
                         self.assertTrue(process.killed)
                 self.assertEqual((output / "gradle-scaffold.log").read_text(), "actual selected batch progress\n")
+
+    def test_streamed_gradle_keyboard_interrupt_kills_process_tree_and_reaps_reader(self):
+        class FixtureProcess:
+            def __init__(self):
+                self.stdout = io.StringIO("interrupted progress\n")
+                self.pid = 12345
+                self.wait_count = 0
+                self.killed = False
+
+            def poll(self):
+                return -9 if self.killed else None
+
+            def kill(self):
+                self.killed = True
+
+            def wait(self, timeout=None):
+                self.wait_count += 1
+                if timeout is not None:
+                    raise KeyboardInterrupt
+                return -9
+
+        process = FixtureProcess()
+
+        def kill_group(pid, sig):
+            self.assertEqual((pid, sig), (process.pid, ci.signal.SIGKILL))
+            process.killed = True
+
+        with tempfile.TemporaryDirectory() as temporary:
+            log = Path(temporary) / "gradle.log"
+            with patch.object(ci.subprocess, "Popen", return_value=process), \
+                    patch.object(ci.os, "killpg", side_effect=kill_group, create=True) as kill, \
+                    contextlib.redirect_stdout(io.StringIO()) as output:
+                with self.assertRaises(KeyboardInterrupt):
+                    ci.execute(["fixture-gradle"], {}, log, timeout=3600, stream_output=True)
+
+            if ci.os.name != "nt":
+                kill.assert_called_once_with(process.pid, ci.signal.SIGKILL)
+            else:
+                self.assertTrue(process.killed)
+            self.assertEqual(process.wait_count, 2)
+            self.assertTrue(process.stdout.closed)
+            self.assertIn("interrupted progress", output.getvalue())
+            self.assertEqual(log.read_text(), "interrupted progress\n")
 
     def test_streamed_gradle_output_is_written_live_and_retained_in_the_command_log(self):
         class FixtureProcess:
