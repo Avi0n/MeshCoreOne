@@ -188,7 +188,11 @@ class BackupRegistrationTest : RoomProcessTest() {
                     engine.importBackup(ParsedAppBackup(backup))
                     throw AssertionError("A real refresh failure must stay explicit")
                 } catch (expected: IllegalStateException) { expected }
-                assertSame(cause, failure.cause)
+                // Coroutine stack-trace recovery can copy the exception while retaining the original cause.
+                val refreshFailure = requireNotNull(failure.cause)
+                assertEquals(cause.javaClass, refreshFailure.javaClass)
+                assertEquals(cause.message, refreshFailure.message)
+                assertSame(cause, generateSequence(refreshFailure) { it.cause }.last())
                 assertTrue(failure.message.orEmpty().contains("committed"))
                 assertEquals(1, effects)
                 assertEquals(1, store.fetchContacts(contact.radioId).size)
