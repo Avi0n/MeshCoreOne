@@ -70,6 +70,39 @@ abstract class AndroidGattAdapterTest {
             assertEquals(2, fixture.gatts.size)
             assertEquals(calls, fixture.shadow.calls)
         }
+
+        val fixture = AndroidGattFixture()
+        fixture.transport.connect()
+        fixture.transport.disconnect()
+        fixture.configure = { it.pause = GattOperationKind.DiscoverServices }
+        val connecting = async {
+            assertFailsWith<BleTransportException> { fixture.transport.connect(BleConnectMode.Reconnect) }
+        }
+        runCurrent()
+        val gatt = fixture.gatt
+        val callback = requireNotNull(fixture.shadow.gattCallback)
+        fixture.clock.advanceBy(8.seconds)
+        runCurrent()
+        fixture.shadow.pause = GattOperationKind.Mtu
+        callback.onServicesDiscovered(gatt, BluetoothGatt.GATT_SUCCESS)
+        runCurrent()
+        fixture.clock.advanceBy(4.seconds)
+        runCurrent()
+        fixture.shadow.pause = GattOperationKind.Subscribe
+        callback.onMtuChanged(gatt, fixture.shadow.actualMtu, BluetoothGatt.GATT_SUCCESS)
+        runCurrent()
+        fixture.clock.advanceBy(2_999.milliseconds)
+        runCurrent()
+        assertFalse(connecting.isCompleted)
+        fixture.clock.advanceBy(1.milliseconds)
+        runCurrent()
+        val failure = connecting.await()
+        assertEquals(BleError.ConnectionTimeout, failure.error)
+        assertEquals(GattOperationKind.Subscribe, failure.operation)
+        assertEquals(BlePhase.Idle, fixture.transport.diagnostics.value.phase)
+        assertEquals(2L, fixture.transport.diagnostics.value.generation)
+        assertEquals(0, fixture.clock.sleeperCount)
+        assertEquals(1, fixture.shadow.closeCount)
     }
 
     @Test fun `cancelled native writes require a fresh GATT and reject old completion callbacks`() = runTest {
