@@ -437,6 +437,46 @@ def validate_runtime_scopes(repo, plan):
         )
 
 
+_SERIAL_PREFLIGHT_TASKS = (
+    "resolveScaffoldDependencies", "validateModuleGraph", "runtimeDependencyInventory",
+)
+
+
+def split_preflight_tasks(tasks):
+    preflight = [task for task in _SERIAL_PREFLIGHT_TASKS if task in tasks]
+    build = [task for task in tasks if task not in _SERIAL_PREFLIGHT_TASKS]
+    return preflight, build
+
+
+def serial_preflight_options(options):
+    result = []
+    index = 0
+    has_worker_limit = False
+    while index < len(options):
+        option = options[index]
+        if option == "--parallel":
+            index += 1
+            continue
+        if option == "--continue":
+            raise PortError("Affected scaffold preflight cannot use Gradle --continue")
+        if option == "--max-workers":
+            if index + 1 >= len(options):
+                raise PortError("Malformed Gradle --max-workers option")
+            result.extend(("--max-workers", "1"))
+            has_worker_limit = True
+            index += 2
+            continue
+        if option.startswith("--max-workers="):
+            result.append("--max-workers=1")
+            has_worker_limit = True
+        else:
+            result.append(option)
+        index += 1
+    if not has_worker_limit:
+        result.append("--max-workers=1")
+    return result
+
+
 def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_base):
     """Execute fixed affected tasks through the already-owned local supervisor."""
     started = False
@@ -502,8 +542,13 @@ def _run_scaffold(repo, plan, environment, output, execute, options, *, trusted_
     validate_plan(repo, plan, trusted_base=trusted_base)
     if not plan["tasks"]:
         raise PortError("Affected scaffold cannot execute a zero-task request")
+    preflight_tasks, build_tasks = split_preflight_tasks(plan["tasks"])
+    if not preflight_tasks or not build_tasks:
+        raise PortError("Affected scaffold requires serial validation and build/test tasks")
+    preflight_options = serial_preflight_options(options)
     directories, lint = report_inputs(repo, plan)
-    graph = output / "gradle-affected-task-graph.json"
+    preflight_graph = output / "gradle-affected-preflight-task-graph.json"
+    build_graph = output / "gradle-affected-task-graph.json"
     reports = [
         repo / "android" / module / "build/reports/lint-results-debug.xml" for module in lint
     ] + [
@@ -519,18 +564,30 @@ def _run_scaffold(repo, plan, environment, output, execute, options, *, trusted_
             raise PortError("Linked previous report cannot become current evidence")
         if report.exists():
             report.unlink()
-    if graph.is_symlink():
-        raise PortError("Linked resolved task graph")
-    graph.unlink(missing_ok=True)
-    environment = {**environment, "ANDROID_CI_TASK_GRAPH": str(graph)}
-    execute([
-        str(repo / "android/gradlew"), "-p", str(repo / "android"), *plan["tasks"], *options,
-        "--init-script", str(repo / "tools/android-port/controller/verify_candidate_task_graph.gradle"),
-    ], repo, environment, output / "gradle-scaffold.log")
+    for graph in (preflight_graph, build_graph):
+        if graph.is_symlink():
+            raise PortError("Linked resolved task graph")
+        graph.unlink(missing_ok=True)
+    init_script = str(repo / "tools/android-port/controller/verify_candidate_task_graph.gradle")
+    graph_summaries = {}
+    for phase, tasks, graph, log, gradle_options in (
+        ("preflight", preflight_tasks, preflight_graph, "gradle-affected-preflight.log", preflight_options),
+        ("build", build_tasks, build_graph, "gradle-scaffold.log", options),
+    ):
+        phase_environment = {**environment, "ANDROID_CI_TASK_GRAPH": str(graph)}
+        execute([
+            str(repo / "android/gradlew"), "-p", str(repo / "android"), *tasks, *gradle_options,
+            "--init-script", init_script,
+        ], repo, phase_environment, output / log)
+        graph_summaries[phase] = ci.validate_candidate_task_graph(graph, tasks)
     report = {
         "kind": "local-affected-only", "base": plan["base"], "head": plan["head"], "tree": plan["tree"],
         "scopes": plan["scopes"], "tasks": plan["tasks"],
-        "resolved_task_graph": ci.validate_candidate_task_graph(graph, plan["tasks"]),
+        "resolved_task_graph": {
+            "tasks": sum(summary["tasks"] for summary in graph_summaries.values()),
+            "result": "no-duplicate-ci-evidence",
+            "phases": graph_summaries,
+        },
         "suites": collect_targeted_reports(repo, plan["scopes"]),
         "lint": {
             module: lint_evidence(repo / "android" / module / "build/reports/lint-results-debug.xml")

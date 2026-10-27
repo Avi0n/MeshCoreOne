@@ -26,7 +26,9 @@ from controller.ci_environment import REPO, candidate_environment, host_name, to
 from controller.ci_evidence import PYTHON_MINIMUMS, collect_lint, collect_suites, counts, read_xml, suite_counts, validate_graph_runtime
 from controller.errors import PortError
 from controller.gates import Binding, policy_revision
-from controller.local_scope import SCOPED_TASKS, TASKS
+from controller.local_scope import (
+    SCOPED_TASKS, TASKS, serial_preflight_options, split_preflight_tasks,
+)
 from controller.model import git, load_manifest
 from controller.module_junit import check_module_tests, module_method_inventory
 from controller.provision import provision
@@ -392,7 +394,10 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
                 raise PortError("Affected Gradle command escaped the candidate repository")
             execute(
                 command, task_environment, log, timeout=3600,
-                failure_reports=lambda: report_inputs(REPO, plan)[0], stream_output=True,
+                failure_reports=(
+                    None if "preflight" in log.name else lambda: report_inputs(REPO, plan)[0]
+                ),
+                stream_output=True,
             )
 
         report = run_scaffold(
@@ -404,18 +409,6 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         full_scaffold="scaffold" in selected,
         localization="scaffold" in selected or "core/l10n" in selected,
     )
-    gradle_arguments = [*tasks, *options, "--init-script", str(TASK_GRAPH_GUARD)]
-    command = [str(wrapper), "-p", str(project), *gradle_arguments]
-    if state["host"] == "windows":
-        shell = shutil.which("pwsh", path=environment.get("PATH"))
-        if shell is None:
-            raise PortError("Windows batch execution requires the hosted/local PowerShell 7 input")
-        invocation = output / f"gradle-{stage}-invocation.json"
-        write_json(invocation, {"wrapper": str(wrapper), "project": str(project), "arguments": gradle_arguments})
-        command = [
-            shell, "-NoLogo", "-NoProfile", "-NonInteractive", "-File",
-            str(Path(__file__).with_name("gradle_windows.ps1")), "-InvocationFile", str(invocation),
-        ]
     from controller.ci_evidence import SUITES
     from controller.module_junit import REPORT_LOCATIONS, module_sources
 
@@ -435,11 +428,62 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
                 )
         return sorted(directories)
 
-    execute(command, environment, output / f"gradle-{stage}.log",
+    preflight_tasks, build_tasks = split_preflight_tasks(tasks)
+    split_preflight = bool(preflight_tasks and build_tasks)
+    preflight_graph = output / f"gradle-{stage}-preflight-task-graph.json"
+    if split_preflight:
+        phases = [
+            ("preflight", preflight_tasks, preflight_graph, serial_preflight_options(options)),
+            ("build", build_tasks, task_graph, options),
+        ]
+    else:
+        phases = [("build", tasks, task_graph, options)]
+    for _, _, graph_path, _ in phases:
+        if graph_path.is_symlink():
+            raise PortError("Linked resolved task graph")
+        graph_path.unlink(missing_ok=True)
+
+    shell = None
+    if state["host"] == "windows":
+        shell = shutil.which("pwsh", path=environment.get("PATH"))
+        if shell is None:
+            raise PortError("Windows batch execution requires the hosted/local PowerShell 7 input")
+
+    graph_summaries = {}
+    for phase, phase_tasks, graph_path, phase_options in phases:
+        phase_environment = {**environment, "ANDROID_CI_TASK_GRAPH": str(graph_path)}
+        gradle_arguments = [
+            *phase_tasks, *phase_options, "--init-script", str(TASK_GRAPH_GUARD),
+        ]
+        command = [str(wrapper), "-p", str(project), *gradle_arguments]
+        if shell is not None:
+            invocation_name = (
+                f"gradle-{stage}-preflight-invocation.json" if phase == "preflight"
+                else f"gradle-{stage}-invocation.json"
+            )
+            invocation = output / invocation_name
+            write_json(invocation, {
+                "wrapper": str(wrapper), "project": str(project), "arguments": gradle_arguments,
+            })
+            command = [
+                shell, "-NoLogo", "-NoProfile", "-NonInteractive", "-File",
+                str(Path(__file__).with_name("gradle_windows.ps1")), "-InvocationFile", str(invocation),
+            ]
+        log_name = f"gradle-{stage}-preflight.log" if phase == "preflight" else f"gradle-{stage}.log"
+        execute(
+            command, phase_environment, output / log_name,
             timeout=3600 if stage in ("scaffold", "protocol") else 1800,
-            failure_reports=report_directories if selected else None,
-            stream_output=state["host"] != "windows")
-    graph = validate_candidate_task_graph(task_graph, tasks)
+            failure_reports=report_directories if selected and phase != "preflight" else None,
+            stream_output=state["host"] != "windows",
+        )
+        graph_summaries[phase] = validate_candidate_task_graph(graph_path, phase_tasks)
+    graph = (
+        next(iter(graph_summaries.values())) if len(graph_summaries) == 1 else {
+            "tasks": sum(summary["tasks"] for summary in graph_summaries.values()),
+            "result": "no-duplicate-ci-evidence",
+            "phases": graph_summaries,
+        }
+    )
     if stage == "benchmark":
         from controller.performance import verify_build
         print(json.dumps(verify_build(REPO, Path(state["android_home"]), environment), indent=2))

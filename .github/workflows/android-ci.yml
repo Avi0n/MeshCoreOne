@@ -133,7 +133,7 @@ jobs:
       - name: Check worker readiness
         run: python tools/android-port/controller/ci.py preflight
       - id: gradle
-        name: Run affected Linux and Android tasks in one Gradle invocation
+        name: Run serial Gradle preflight and Android tasks
         env:
           RUN_SCAFFOLD: ${{ needs.scope.outputs.scaffold }}
           RUN_PROTOCOL: ${{ needs.scope.outputs.protocol }}

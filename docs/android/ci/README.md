@@ -28,11 +28,19 @@ finishes, alongside the independent controller checks. The final required
 backup oracle still waits for the Android build that produces its input.
 Ordinary module changes use the exact candidate diff and dependency-consumer
 closure to select module tests, checks and lint; only broad, unclassified or
-build-graph changes retain the full scaffold and APK handoff. Gradle project
-parallelism is bounded to two workers for build/test stages. Dependency-only
-preflight stays serialized because AGP's `androidJdkImage` configuration requires
-an exclusive resolution lock. Plain-console output is streamed to the hosted log
-while the full command log remains available for failure evidence.
+build-graph changes retain the full scaffold and APK handoff. Configuration-
+resolving tasks (`validateModuleGraph`, `runtimeDependencyInventory`, and
+full-scaffold `resolveScaffoldDependencies`) run in a serial Gradle preflight
+before the selected build, test and lint tasks. A preflight failure therefore
+prevents that expensive task graph from starting. The remaining tasks run in a
+separate Gradle invocation with project parallelism bounded to two workers.
+This ordering limits wasted work but does not repair unsafe cross-project
+configuration resolution inside the validators; that build-logic defect is
+owned by WP-002 and remains a separate follow-up.
+Dependency-only `prepare` also stays serialized because AGP's `androidJdkImage`
+configuration requires an exclusive resolution lock. Each invocation streams
+plain-console output to the hosted log and retains a separate full command log
+and resolved task graph for failure evidence.
 
 Hosted Gradle task-output caching is enabled. Only `:core:data:testDebugUnitTest`
 is explicitly opted into test-result caching; other test tasks retain Gradle's

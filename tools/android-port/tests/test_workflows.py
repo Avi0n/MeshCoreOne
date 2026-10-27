@@ -374,7 +374,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn("wp109-invocation", text)
         self.assertNotIn("raw-retention", text)
         controller = (REPO / "tools/android-port/controller/ci.py").read_text(encoding="utf-8")
-        self.assertIn("validate_candidate_task_graph(task_graph, tasks)", controller)
+        self.assertIn("validate_candidate_task_graph(graph_path, phase_tasks)", controller)
         self.assertIn("--init-script", controller)
 
     def test_cloud_setup_supported_single_job_and_only_supported_properties(self):

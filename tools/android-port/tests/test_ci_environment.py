@@ -53,7 +53,20 @@ class EnvironmentTests(unittest.TestCase):
 
         def execute(command, environment, log, **kwargs):
             calls.append((command, environment, log, kwargs))
-            if log.name == f"gradle-{stage}.log":
+            if log.name == f"gradle-{stage}-preflight.log":
+                graph = Path(environment["ANDROID_CI_TASK_GRAPH"])
+                graph.parent.mkdir(parents=True, exist_ok=True)
+                graph.write_text(json.dumps({
+                    "schema_version": 1,
+                    "tasks": [
+                        {"path": ":" + task, "type": "fixture", "command": []}
+                        for task in (
+                            "resolveScaffoldDependencies", "validateModuleGraph",
+                            "runtimeDependencyInventory",
+                        )
+                    ],
+                }), encoding="utf-8")
+            elif log.name == f"gradle-{stage}.log":
                 raise PortError("Declared command fixture failure; never a real JVM run")
 
         with (
@@ -67,17 +80,28 @@ class EnvironmentTests(unittest.TestCase):
             self.assertRaises(PortError),
         ):
             run_stage(stage, state, output, local=local, scopes=scopes)
-        self.assertEqual(2, len(calls))
+        split_preflight = stage == "scaffold" and (scopes is None or "scaffold" in scopes)
+        self.assertEqual(3 if split_preflight else 2, len(calls))
         self.assertFalse((output / f"stage-{stage}.json").exists(), "A failed command cannot publish success")
+        main_index = len(calls) - 1
+        preflight_arguments = None
         if host == "windows":
             wrapper_record = load_json(output / f"gradle-{stage}-invocation.json")
             arguments = wrapper_record["arguments"]
-            self.assertIn("-InvocationFile", calls[1][0])
-            self.assertEqual(str(output / f"gradle-{stage}-invocation.json"), calls[1][0][-1])
+            self.assertIn("-InvocationFile", calls[main_index][0])
+            self.assertEqual(str(output / f"gradle-{stage}-invocation.json"), calls[main_index][0][-1])
+            if split_preflight:
+                preflight_record = load_json(output / f"gradle-{stage}-preflight-invocation.json")
+                preflight_arguments = preflight_record["arguments"]
+                self.assertEqual(
+                    str(output / f"gradle-{stage}-preflight-invocation.json"), calls[1][0][-1],
+                )
         else:
-            arguments = calls[1][0][3:]
+            arguments = calls[main_index][0][3:]
+            if split_preflight:
+                preflight_arguments = calls[1][0][3:]
         for key in ("GH_TOKEN", "GITHUB_TOKEN", "ANDROID_CI_OUTPUT", "GITHUB_RUN_ID", "GITHUB_EVENT_PATH"):
-            self.assertNotIn(key, calls[1][1], "No credential or disallowed parent environment forwarding")
+            self.assertNotIn(key, calls[main_index][1], "No credential or disallowed parent environment forwarding")
         self.assertIn("--dependency-verification", arguments)
         self.assertEqual("strict", arguments[arguments.index("--dependency-verification") + 1])
         self.assertNotIn("--rerun-tasks", arguments)
@@ -88,7 +112,11 @@ class EnvironmentTests(unittest.TestCase):
         else:
             self.assertIn("--parallel", arguments)
         self.assertNotIn("--no-build-cache", arguments)
-        return output, state, arguments, observe_identity.call_count
+        if split_preflight:
+            self.assertNotIn("--parallel", preflight_arguments)
+            self.assertIn("--max-workers=1", preflight_arguments)
+            self.assertIn("--build-cache", preflight_arguments)
+        return output, state, arguments, observe_identity.call_count, preflight_arguments
 
     def test_scaffold_selects_android_test_compilation_without_install_or_execution(self):
         expected = [
@@ -99,12 +127,21 @@ class EnvironmentTests(unittest.TestCase):
         for host in ("linux", "windows"):
             for scopes in (None, ["scaffold"], ["scaffold", "protocol"]):
                 with self.subTest(host=host, scopes=scopes), tempfile.TemporaryDirectory() as temporary:
-                    _, _, arguments, _ = self.captured_stage(
+                    _, _, arguments, _, preflight_arguments = self.captured_stage(
                         Path(temporary), host, "scaffold", self.forwarding_identity(), scopes=scopes,
                     )
-                    tasks = arguments[:arguments.index("--no-daemon")]
-                    self.assertEqual(tasks, expected + ([":core:protocol:test"] if scopes and "protocol" in scopes else []))
-                    self.assertEqual(tasks.count(":app:compileDebugAndroidTestKotlin"), 1)
+                    build_tasks = arguments[:arguments.index("--no-daemon")]
+                    preflight_tasks = preflight_arguments[:preflight_arguments.index("--no-daemon")]
+                    self.assertEqual(
+                        preflight_tasks,
+                        ["resolveScaffoldDependencies", "validateModuleGraph", "runtimeDependencyInventory"],
+                    )
+                    tasks = [*preflight_tasks, *build_tasks]
+                    self.assertCountEqual(
+                        tasks,
+                        expected + ([":core:protocol:test"] if scopes and "protocol" in scopes else []),
+                    )
+                    self.assertEqual(build_tasks.count(":app:compileDebugAndroidTestKotlin"), 1)
                     self.assertFalse(any(
                         forbidden in task.lower()
                         for task in tasks for forbidden in ("connected", "install", "device")
@@ -145,16 +182,22 @@ class EnvironmentTests(unittest.TestCase):
                     )
 
                 def execute(command, environment, log, **kwargs):
-                    if log.name == "gradle-scaffold.log":
-                        self.assertIn(":app:compileDebugAndroidTestKotlin", command)
+                    if log.name in ("gradle-scaffold-preflight.log", "gradle-scaffold.log"):
+                        if log.name == "gradle-scaffold.log":
+                            self.assertIn(":app:compileDebugAndroidTestKotlin", command)
                         graph = Path(environment["ANDROID_CI_TASK_GRAPH"])
                         graph.parent.mkdir(parents=True, exist_ok=True)
+                        requested = []
+                        for argument in command[3:]:
+                            if argument.startswith("-"):
+                                break
+                            requested.append(argument)
                         graph.write_text(json.dumps({
                             "schema_version": 1,
                             "tasks": [
                                 {"path": task if task.startswith(":") else ":" + task,
                                  "type": "fixture", "command": []}
-                                for task in ci.TASKS["scaffold"]
+                                for task in requested
                             ],
                         }), encoding="utf-8")
 
