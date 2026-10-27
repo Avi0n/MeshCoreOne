@@ -200,13 +200,19 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
             "six-G18-exclusions", "overlapping-publication-lifetime-is-observable-test-seam-not-proven-bug",
             "no-automatic-pause-clear-policy", "WP405-ChannelJoinFloodScopeApplier-PendingExternalRoute-distinct",
             "ef87-G09-queue-and-48-mandatory-identities-unchanged", "trusted-main-landing",
-            "fresh-same-owner-admission", "stored-identity-revision-authorization-unchanged",
-            "semantic-collision", "no-runtime-installation-live-guards-refs-source-claims",
+            "fresh-same-owner-admission", "same-stored-identity", "immutable-authorization-prose",
+            "historical-receipts-and-revision-history", "supported-same-owner-scope-evolution",
+            "normal-new-revisions-and-fresh-bound-receipts", "no-impersonation-release-recreate-or-private-ledger-edit",
+            "normal-supported-own-reservation-acquire-evolve-permitted",
+            "no-private-ledger-other-owner-or-liveguard-source-ref-mutation",
+            "semantic-collision", "no-runtime-installation-settings-schedules-publication-or-merge-authority",
             "complete exact trusted predecessor", "BOTH helpers", "nonzero discovery",
             "policy fixtures prove admission only",
         ):
             with self.subTest(fence=fence):
                 self.assertIn(fence, text)
+        self.assertNotIn("stored-identity-revision-authorization-unchanged", text)
+        self.assertNotIn("no-runtime-installation-live-guards-refs-source-claims", text)
 
     def test_reaction_wire_classification_exact_single_path_and_wp216_operation(self):
         rule = REACTION_WIRE_CLASSIFICATION_CAPABILITY

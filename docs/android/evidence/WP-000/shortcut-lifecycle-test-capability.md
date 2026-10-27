@@ -31,8 +31,11 @@ Actual trusted-main WP404 admission for the exact App test path failed for
 paths separately passed actual `wp-owned`/`modify` admission before edits.
 Authenticated identity was `cbattlegear`. The supported same-session WP000
 claim attempt returned the historical source/base/manifest/backend binding
-mismatch. That stored identity/revision/prose is retained, not impersonated,
-released/recreated, evolved as another owner or privately rewritten.
+mismatch. The same stored identity, immutable authorization prose and historical
+receipts/revision history are retained, not impersonated, released/recreated,
+evolved as another owner or privately rewritten. This preserves history rather
+than freezing legitimate supported same-owner scope evolution, normal new
+revisions and fresh bound receipts.
 The documented `ci.py preflight` returned explicit-state-required; no state,
 SDK, Gradle or native runtime was installed or inferred ready. This does not
 block the authorized pure source-policy checks below.
@@ -77,10 +80,16 @@ producer edit is requested. Preserve primary provenance and original family
 accountability, ef87's G09 queue and its 48 mandatory identities.
 
 Consumer authoring starts only after actual trusted-main rule landing and fresh
-same-owner admission. Preserve reservation identity/revision/authorization and
-serialize/transfer real producer collisions. No runtime, installed three guards,
-refs, claims, settings, schedule, source deployment, publication or merge control
-is changed here. Deployed `047ecbfb0f8837109a3aa1ff3fd4f522ca868a18` remains
+same-owner admission. Preserve the same stored identity, immutable authorization
+prose and historical receipts/revision history while permitting supported
+same-owner scope evolution, normal new revisions and fresh bound receipts.
+Normal supported own-reservation acquisition/evolution is permitted; private
+ledger rewriting, other-owner mutation and liveguard source/ref mutation are
+not. Serialize/transfer real producer collisions without impersonation or
+release/recreation. This capability grants no runtime installation, settings,
+schedule, publication or merge authority. No claim or runtime mutation is
+performed for this authority-fence text correction. The installed three guards
+and deployed `047ecbfb0f8837109a3aa1ff3fd4f522ca868a18` remain
 separate from this source-policy baseline.
 
 ## Strict inverse and declared focused verification
@@ -119,7 +128,7 @@ seconds, exit 0. `validate.py`, `verification_config.py --check`,
 Portmap's complete JSON output was consumed, not truncated by a pipeline;
 this is source traceability, not product acceptance. Manifest digest remains
 `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`.
-Policy digest with the exact rule is
+Initial candidate policy digest before the authority-fence correction was
 `d258ac6c3725a29c7904418aeb2a20c72fab4c49233328408b52c39575ddc0f4`.
 
 Final exact frozen-candidate run counts/results and head/tree belong in the
@@ -130,3 +139,19 @@ Policy fixtures prove admission only, not G09/G18/root feature completion.
 Hosted exact-commit job result/log remains authoritative; no duplicate CI-result
 bundle is retained. No push/PR is authorized by this assignment. Stop at
 protected source review of the frozen candidate and await a distinct decision.
+
+## Protected-review authority-fence correction
+
+The initial frozen candidate `4c4ff324bdec59cb12ce474b3476e4665785a5d0`
+passed its final 117-test run in 16.122 seconds, with zero failures/errors/skips;
+it received no publication grant. Protected review identified that its compressed
+identity/revision wording could incorrectly freeze legitimate supported revision
+advances. The ordinary successor changes only the new rule's two authority-fence
+strings, matching constant, explicit fence assertions and this evidence.
+Supported same-owner scope evolution, normal new revisions and fresh bound
+receipts are now explicit alongside same identity, immutable authorization prose
+and preserved historical receipts/revision history. The normal supported own
+reservation acquire/evolve route is not banned. No claim is actually mutated
+for this correction. All paths/operations, old rules, inverse helpers, primary
+provenance and controls remain unchanged; successor results are separate from
+the initial candidate's historical results.

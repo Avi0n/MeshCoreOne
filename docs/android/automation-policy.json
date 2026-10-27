@@ -407,9 +407,9 @@
           "WP405-ChannelJoinFloodScopeApplier-PendingExternalRoute-distinct-no-same-producer-edit",
           "existing-WP404-ef87-G09-queue-and-48-mandatory-identities-unchanged-no-replayed-credit",
           "trusted-main-landing-and-fresh-same-owner-admission-before-future-test-authoring",
-          "stored-identity-revision-authorization-unchanged-no-impersonation-release-recreate-or-private-ledger-edit",
+          "same-stored-identity-immutable-authorization-prose-historical-receipts-and-revision-history-supported-same-owner-scope-evolution-normal-new-revisions-and-fresh-bound-receipts-no-impersonation-release-recreate-or-private-ledger-edit",
           "real-semantic-collision-serialize-or-transfer-current-producer",
-          "no-runtime-installation-live-guards-refs-source-claims-settings-schedules-publication-or-merge-authority"
+          "normal-supported-own-reservation-acquire-evolve-permitted-no-private-ledger-other-owner-or-liveguard-source-ref-mutation-no-runtime-installation-settings-schedules-publication-or-merge-authority"
         ],
         "validation": [
           "exact WP404 single-test create test modify positives; other-WP wrong-operation sibling traversal malformed-rule denials",
