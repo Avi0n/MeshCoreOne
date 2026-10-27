@@ -94,6 +94,20 @@ module without tests retains its compile/lint/graph obligations and an empty
 `junit_cases` list only when the computed plan requires no JUnit directories;
 missing or zero required suites still fail.
 
+After execution has begun, a nonzero Gradle command, strict evidence failure,
+OS error or interruption emits a failure-form affected report to the same run
+log before rethrowing the original exception. It retains the selected
+base/head/tree/scopes/tasks/stages and each available runner's exact pass,
+failure, error and skipped case rows. Each expected JUnit directory is marked
+`available`, `invalid`, or `missing-or-not-run`; missing XML cannot establish
+which individual tests ran. Malformed/truncated/zero/duplicate reports are
+explicitly invalid, never passing evidence. Valid runners are retained even if
+another runner is missing or invalid. Source binding is revalidated before and
+after harvest; a mismatch discards all case attribution and records the error.
+Old reports were removed before the supervised command began. No failure-form
+report prints success or changes the original nonzero/cancellation behavior,
+and report harvesting completes before child cleanup and owned-resource release.
+
 Lightweight selector regression command:
 
 ```powershell

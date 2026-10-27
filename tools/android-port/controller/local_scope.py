@@ -1,5 +1,6 @@
 """AndroidOnly: WP-003 Immutable, CI-derived local affected-scope requests."""
 
+import json
 import re
 import subprocess
 import sys
@@ -438,6 +439,62 @@ def validate_runtime_scopes(repo, plan):
 
 def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_base):
     """Execute fixed affected tasks through the already-owned local supervisor."""
+    started = False
+
+    def owned_execute(*arguments):
+        nonlocal started
+        started = True
+        return execute(*arguments)
+
+    try:
+        return _run_scaffold(repo, plan, environment, output, owned_execute, options, trusted_base=trusted_base)
+    except (subprocess.CalledProcessError, PortError, OSError, KeyboardInterrupt) as failure:
+        if started:
+            report = {
+                "kind": "local-affected-only", "result": "failure",
+                **{key: plan[key] for key in ("base", "head", "tree", "scopes", "tasks", "stages")},
+                "failure": {"type": type(failure).__name__, "message": str(failure)},
+                "junit_cases": [], "junit_reports": [],
+            }
+            if isinstance(failure, subprocess.CalledProcessError):
+                report["failure"]["returncode"] = failure.returncode
+            try:
+                validate_plan(repo, plan, trusted_base=trusted_base)
+                directories, _ = report_inputs(repo, plan)
+                from .module_junit import bounded_directory
+
+                for directory in directories:
+                    record = {"directory": directory.relative_to(repo).as_posix()}
+                    try:
+                        bounded_directory(directory, repo)
+                        if not any(directory.glob("TEST-*.xml")):
+                            record["status"] = "missing-or-not-run"
+                        else:
+                            cases = collect_named_cases(repo, [directory])
+                            identities = [(case["class"], case["method"]) for case in cases]
+                            if len(set(identities)) != len(identities):
+                                raise PortError("Duplicate actual test-case identity in failed-run evidence")
+                            record["status"] = "available"
+                            record["counts"] = {
+                                outcome: sum(case["outcome"] == outcome for case in cases)
+                                for outcome in ("passed", "failure", "error", "skipped")
+                            }
+                            report["junit_cases"].extend(cases)
+                    except (PortError, OSError) as error:
+                        record.update(status="invalid", error=str(error))
+                    report["junit_reports"].append(record)
+                validate_plan(repo, plan, trusted_base=trusted_base)
+                report["source_binding"] = "valid"
+            except (PortError, OSError, subprocess.SubprocessError) as error:
+                report.update(source_binding="invalid", junit_cases=[], junit_reports=[], evidence_error=str(error))
+            try:
+                print(json.dumps(report, indent=2), flush=True)
+            except OSError as error:
+                failure.add_note("Failed to emit affected failure evidence: " + str(error))
+        raise
+
+
+def _run_scaffold(repo, plan, environment, output, execute, options, *, trusted_base):
     from . import ci
     from .ci_evidence import collect_lint, collect_suites, lint_evidence, validate_graph_runtime
     from .module_junit import bounded_directory, check_module_tests
