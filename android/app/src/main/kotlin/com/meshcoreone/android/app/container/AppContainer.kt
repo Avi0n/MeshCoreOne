@@ -133,6 +133,8 @@ class AppContainerDependencies(
     val chooserResult: ((Long, Int, android.content.Intent?) -> Unit)? = null,
     /** Platform pieces for the onboarding flow; null leaves onboarding unbound (the shell shows no fake flow). */
     val onboardingPlatform: com.meshcoreone.android.app.container.onboarding.OnboardingPlatform? = null,
+    /** Production pre-advert policy; an unbound composition must not silently skip an enabled refresh. */
+    val advertLocation: AppAdvertLocation? = null,
     val offlineMaps: OfflineMapController? = null,
     val nodesMessages: UserFacingMessages = UserFacingMessages { it.message ?: "Operation failed" },
     val nodesAnnouncer: Announcer = Announcer {},
@@ -278,6 +280,7 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
     internal val chatContent get() = dependencies.chatContent
     internal val notificationPreferences get() = dependencies.notificationPreferences
     internal val settingsRegionResolver get() = dependencies.onboardingPlatform?.regionResolver
+    internal val advertLocation get() = dependencies.advertLocation
     var settingsFeature: AppSettingsFeature? = null
         internal set
     internal val nodesMessages get() = dependencies.nodesMessages

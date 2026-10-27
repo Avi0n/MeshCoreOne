@@ -1,5 +1,269 @@
 # WP-404 evidence
 
+## G09 ef87 guarded failure and diagnosed fixture correction
+
+The shared-cache candidate `ef87b2292728e283c186cebb9323c83a88054243`,
+tree `8d3037504c3dab9813671b629b5e647d02fda00e`, completed its one admitted
+guarded run with actual OS exit **1**. Guard 460698 selected slot 0; owner
+`local-check:9010af7ecb3c4461a795a343a095e3e2`; original report
+`run-HJr22HVE`. The installed trusted authority was
+`047ecbfb0f8837109a3aa1ff3fd4f522ca868a18`, not the historical six-task
+runner. The exact invocation was:
+
+```text
+/ai_cache/meshcoreone/python/3.12.4/bin/python3.12 -B tools/android-port/local/check.py --commit ef87b2292728e283c186cebb9323c83a88054243 --affected-base 047ecbfb0f8837109a3aa1ff3fd4f522ca868a18 --parallel-jvm .
+```
+
+Its actual conservative plan selected the full 13 tasks and all four stages.
+Python/preflight completed; scaffold failed at `:app:testDebugUnitTest`;
+inspect did not complete. Gradle reported `BUILD FAILED in 23m 24s`.
+App XML contains **1,620 tests: 1,619 passed, 1 failed, 0 errors, 0 skipped**.
+All **48 mandatory identities** were present exactly once: App SDK31
+19 passed/1 failed, native producer SDK31 14 passed, and native producer SDK37
+14 passed. All original 17 App methods passed. This is not a full closure or
+G09 PASS, and no App SDK37 requirement or result is implied.
+
+The sole failure was
+`regionResolverFixIsSharedWithAdvertFallbackAfterFailureOrDenialForBothReaches`:
+at line 521, the complete expected command list `[14,1,7]` was actually `[7]`.
+The XML does not identify the loop iteration. Source diagnosis found an
+inconsistent fixture: `share(active)` made only the live device public, while
+`RadioLocation` still returned private advertisement policy zero in its real
+SelfInfo response. `SettingsService.setLocationVerified` reads that response
+and publishes `DeviceUpdated`; the actual App observer and device editor
+correctly replace the live policy from it. A following advert therefore
+correctly skips the publicly gated location write.
+
+Only these requested aggregate tasks were observed completed:
+`:core:data:verifyBackupTests` and
+`:core:data:verifyPersistenceRepositoryTests` executed;
+`:core:database:testDebugUnitTest` was from cache. The other ten requested
+tasks were not observed completed. The named XML acceptance reader returned 1,
+not PASS. Snapshot HEAD/tree matched the exact candidate before and after the
+complete named-results read and the separate original failure-detail read.
+The guard PID, its supported canonical hard lock and
+`/tmp/meshcore-execution-1zt10sy8` were absent before reuse was reported safe.
+The original run/log/XML remain authoritative; no second results bundle or
+result hash was made.
+
+The corrective commit containing this section changes only the test fixture
+and these owned evidence/deviation notes. The fixture policy remains zero by
+default; only the positive cross-wrapper case configures a public radio before
+connection. It asserts the actual initial public policy, the policy before
+each reach, and public policy plus coordinates after real verified readback.
+The full `[14,1,7]` traces, coordinate bytes, both reaches, failed/denied
+refresh branches, private/opt-out/session/cancellation/decline predicates and
+all 20 App/14 native source method identities remain. No production gate,
+cache behavior or negative fixture default changes.
+
+Fresh trusted path/operation admission passed for the exact test and both
+owned documents under `wp404-shared-location-producer-cache` /
+`restore-shared-pre-advert-location-cache`. The previously refused legacy
+advisory evolution remains historical; no identity, authorization, claim or
+ledger was rewritten. Corrective Android execution is **NOT RUN** pending
+protected source review and a distinct coordinator-issued heavy admission.
+There is no push, publication, hardware result or G18 authoring.
+
+Corrective source-only checks:
+
+```text
+python -B .\tools\android-port\portmap.py                    PASS
+python -B .\tools\android-port\controller\validate.py        PASS
+git --no-pager diff --check                                PASS
+```
+
+An ordered source-method comparison, including Kotlin backtick names, matches
+the predecessor's exact 20 App and 14 native identities. The native producer
+test source and its SDK31/SDK37 declaration are unchanged. These checks are
+not Kotlin compilation, JUnit discovery or corrective execution acceptance.
+
+## Historical shared-cache source submission before the ef87 run
+
+The corrected candidate `3db4cbd567465b9071f4bad8afd5bd2ee90c2f47`,
+tree `2addde0d74fa77e0a47d59b5f49b58fc794a59c0`, completed its one admitted
+diagnosed run with actual OS exit **1**. Guard 351146 selected slot 1; owner
+`local-check:8815a918127140fe931e7ad4b2ff13d4`; report `run-bXmLS7BB` on the
+existing trusted `610f606b` runner. The exact invocation was:
+
+```text
+/ai_cache/meshcoreone/python/3.12.4/bin/python3.12 -B tools/android-port/local/check.py --commit 3db4cbd567465b9071f4bad8afd5bd2ee90c2f47 --affected-base 610f606baaaf38eb2a2b14cb054b18fedba58a1f --parallel-jvm
+```
+
+The previously admitted clean environment and supported guard were unchanged.
+Gradle reported `BUILD FAILED in 21m 35s`; 197 App JUnit files contain
+**1,611 tests: 1,606 passed, 5 failed, 0 errors, 0 skipped**. All 17 mandatory
+`ShortcutAdvertLocationTest` identities were present exactly once: 12 passed
+and these five failed:
+
+| Method | Actual assertion failure |
+| --- | --- |
+| `existingCoarseLocationManagerProducerRefreshesBeforeActualRadioAdvertWithoutPermissionRequest` | Expected `[14,1,7]`; observed `[14,1,20,7]`. |
+| `optedInDeviceGpsIsReadEnabledAndVerifiedBeforeActualAdvertWithoutPhoneLocation` | Expected `[40,41,40,1,7]`; observed `[40,20,41,40,1,20,7]`. |
+| `cancellationDuringPhoneFixPropagatesWithoutLocationWriteOrAdvert` | Same cancellation type/message, different outer exception object identity. |
+| `actualSavedPerDevicePreferencesControlTheRealAdvertAndSurviveStorageReopen` | Expected `[7]`; observed `[20,7]`. |
+| `authorizedPhoneFixIsVerifiedBeforeAdvertForBothReachesWithoutPrompting` | Expected `[14,1,7]`; observed `[14,1,20,7]`. |
+
+`:app:testDebugUnitTest` failed. `:app:compileDebugKotlin`,
+`:app:compileDebugAndroidTestKotlin`, `validateModuleGraph` and
+`runtimeDependencyInventory` executed; `:app:lintDebug` did not complete.
+There is no full-six-task PASS. Actual managed snapshot HEAD/tree matched the
+candidate both **before and after** reading all named JUnit outcomes. Guard
+351146 and its own canonical lock were gone, and
+`/tmp/meshcore-execution-0xn964v1` was absent before snapshot reuse was reported
+safe. The original run/report/log are authoritative; no second result bundle
+or result hash was created.
+
+The source successor keeps the literal complete operation traces. Its fixture
+waits for the real battery bootstrap, executes and asserts a separate actual
+`[0x14]` read, then stops the unrelated periodic monitor and joins the cancelled
+background jobs before taking the advert baseline. Public activity flags and
+an empty cancellation-phase wire trace are asserted. `AppAdvertLocation` does
+not use the battery monitor; the real location producer, settings/session graph,
+radio and advert consumer remain active. No operation frame is filtered or
+discarded, and the original full expected GPS/advert traces remain literal. The
+cancellation oracle requires the exact runtime type/message and the original
+injected cancellation identity in the causal chain, plus zero cache reads,
+radio writes and adverts; it accommodates coroutine stack recovery without a
+production cancellation change.
+
+The same successor adds the actual shared process callback cache and read-only
+factory binding. New API31/API37 producer cases cover initial absence,
+before-resumption publication, replacement, failed/null/denied retention and
+cancelled/late callbacks. New real App/Room/radio cases obtain the prior fix
+through a distinct `RegionResolver`/`LocationService` wrapper, then exercise
+failed or unauthorized advert fallback, both reaches, policy/session revocation
+and declined confirmation. These are authored assertions, **not execution
+evidence**; the successor is **NOT RUN** and G09 is not claimed complete.
+
+Authenticated readback confirmed PR #356 merged at
+`de20d1a6f3ff97068076204504ca7c854044bb77`. Trusted-default `admit` returned
+`wp404-shared-location-producer-cache` for all eight exact paths with operation
+`restore-shared-pre-advert-location-cache`. Same-stored-identity evolution was
+attempted using the existing revision/attempt and rejected because its legacy
+session/branch/worktree differs. That historical receipt and authorization were
+not altered, released or recreated. `AUTOMATION.md` and ADR 006 distinguish that
+advisory tooling collision from a source-edit lock; actual assignment, trusted
+admission and absence of producer semantic overlap permit isolated authoring.
+No runtime, base integration, new actor, heavy retry or publication follows
+from these source/admission receipts.
+
+Local source checks for this successor:
+
+```text
+python -B .\tools\android-port\portmap.py                    PASS
+python -B .\tools\android-port\controller\validate.py        PASS
+git --no-pager diff --check                                PASS
+```
+
+The source inventory preserves all original 17 App method names and adds three
+shared-cache consumer methods (20 total). The native producer class retains its
+11 existing methods and adds three cache methods (14 total), with its existing
+SDK31/SDK37 declaration unchanged. These are source counts, not JUnit discovery,
+compile, SDK-execution or assertion results. Seven changed paths are inside the
+eight-path capability; the test harness support path requires no additional edit.
+
+## G09 first guarded result: missing test import
+
+The first G09 candidate `8b046e770dc64159f0552b5711714af43d7e09bf`,
+tree `1a672c74345faf00f6ac234082694c76ba6c7853`, ran once on the supported
+new trusted runner at base `610f606baaaf38eb2a2b14cb054b18fedba58a1f`.
+Guard 284038 chose host slot 2 (capacity 3), owner
+`local-check:208c23fb5b154d02974580cee8904270`; original report directory:
+`run-GJTZZppD`. Actual retained OS exit was 1 at
+`2026-10-27T01:52:51Z`; Gradle reported `BUILD FAILED in 8m 26s`.
+This was a test compilation defect, not a capacity failure or policy refusal.
+
+Production `:app:compileDebugKotlin` completed. Test compilation failed at
+`ShortcutAdvertLocationTest.kt:241`: unresolved `AndroidShortcutText`, followed
+by the resulting uninferred `ApplicationProvider` type argument. Unlike the
+earlier wildcard-importing shortcut oracles, this new file's explicit imports
+omitted `platform.shortcuts.AndroidShortcutText`. The correction adds that
+actual production class import and an explicit `<Context>` type argument.
+No production behavior, expected value, assertion, family or method is changed.
+
+No App unit tests executed: the source-bound App JUnit directory and named
+results are absent, so all 17 required methods remain **NOT RUN**, not passed.
+The six-task closure did not complete; lint, Android-test compilation, graph
+and dependency-inventory success are not claimed. Exact snapshot HEAD and tree
+were checked both before and after the report/absence read; the original run
+log remains authoritative. Supported canonical status confirmed the own slot-2
+lock gone, and `/tmp/meshcore-execution-jsn907o4` was removed. Snapshot reuse
+was reported safe only after this truthful closeout.
+
+The corrected successor is the commit containing this section. The 17-method
+inventory and the two original families are unchanged. Its execution remains
+**NOT RUN** pending a separately admitted, diagnosed corrected-candidate run;
+no automatic retry, base/runtime/cache change or publication was performed.
+The cached-currentLocation correspondence remains unresolved regardless of
+future gate-test results; documentation is not approval of that divergence.
+
+## RADIO-R118-G09: source candidate after merged #350
+
+Repository: `cbattlegear/MeshCoreOne-Android`; owner:
+`platform-integrations-engineer`; START base
+`610f606baaaf38eb2a2b14cb054b18fedba58a1f`, tree
+`ced3cdbdc42cd7d22dc0bd33aef7b3c43e01eb6f`. The initial G09 source candidate
+was `8b046e770dc64159f0552b5711714af43d7e09bf`, tree
+`1a672c74345faf00f6ac234082694c76ba6c7853`, not an earlier #350 candidate.
+The source-only execution notes in this section are historical; see the actual
+guarded failure and corrected successor above. Source remains
+`db14559b39d32322b06477c6ae676112f583db50`. Fresh authenticated readback
+confirmed prerequisite PRs #43 (WP-208), #49 (WP-209), #71 (WP-303), and #350
+merged before the clean, authorized fast-forward START.
+
+Retained group RADIO-R118-G09 assigns exactly these original families from
+`MC1Tests/Intents/SendAdvertIntentTests.swift`:
+
+| Original family | Authored native predicates |
+| --- | --- |
+| `gps gate is nil without A device()` | Null device returns no source and performs no preference read; policy-zero device performs no refresh/settings command. |
+| `gps gate respects the per device preference()` | Original default-disabled, enabled/policy-zero, configured-DEVICE/policy-one predicates; foreign device opt-in isolation; real saved per-device preferences control actual advert and survive DataStore reopening. |
+
+`ShortcutAdvertLocationTest` contains 17 mandatory, non-ignored methods. Beyond
+the exact original predicates, they exercise actual App/service/protocol calls:
+DEVICE read/enable/readback before advert; already-enabled GPS without a write;
+PHONE verified coordinates before both reaches; declined flood confirmation with
+zero refresh/wire effects and accepted confirmation with real refresh ordering;
+no-device/disconnected/default/foreign-device/policy-zero gates; all three
+unauthorized statuses without a permission call; typed unavailable location/GPS
+refresh failures retaining the source's best-effort advert behavior; unchanged
+cancellation; opt-out/public-policy changes during a fix; services-only loss
+without stale-session writes; the existing real coarse-permission LocationManager
+callback; actual OS permission revocation re-read; persisted preference reopening.
+Literal firmware command order and coordinate bytes are independent assertions,
+not values computed by the candidate helper. All earlier merged tests remain.
+
+Production changes are limited to `AppAdvertLocation`, `AppShortcutRadio`,
+`AppContainer`, and its real Android factory. The factory reuses the already
+process-owned producer and real `DevicePreferenceStore.observe(id).first()`;
+it never activates a new provider/permission/cache. `ContainerHarness` supplies
+an explicit default-opt-out fixture whose location/prompt methods fail if
+unexpectedly invoked, rather than silently accepting missing production wiring.
+See the companion deviation for the existing absent cached-location operation.
+
+Trusted path/operation admission passed for all six source/test paths and the
+two owned evidence/deviation paths. Automatic same-owner reservation was
+attempted and retained in this session's `wp404-g09-reservation.txt`; the
+historical lease reports a different source/base/manifest/backend. It was not
+released/recreated and no private ledger was edited. This historical advisory
+binding is not a new edit veto under the current policy.
+
+Actual lightweight checks:
+
+```powershell
+python -B .\tools\android-port\portmap.py
+python -B .\tools\android-port\controller\validate.py
+git diff --check
+```
+
+All exited 0 after the source/test integration. These checks do not compile
+Kotlin or prove any G09 assertion passed. Android/JVM tests, lint, packaging
+and the exact affected closure are **NOT RUN** for this new candidate. They
+require the supported guarded remote route, an immutable candidate/declared
+scope and actual capacity admission (maximum three heavy JVM jobs). No laptop
+Gradle, new actor/session, push or PR has been run for G09. #350's successful
+1,597/66 results do not provide G09 execution evidence.
+
 ## Guarded 822d result and bounded fixture corrections
 
 Candidate `822d568de43b1bda5324bbf43896221512ed019c`, tree

@@ -111,7 +111,20 @@ internal class AppShortcutRadio(private val container: AppContainer) : ShortcutR
         return ShortcutException(error, failure)
     }
     override suspend fun sendAdvert(flood: Boolean) {
-        try { live(currentRadioId).advertisementService.sendSelfAdvertisement(flood) }
+        try {
+            val radioId = currentRadioId
+            val session = live(radioId)
+            val deviceId = app.connectedDevice?.id
+            fun requireCurrent() {
+                if (live(radioId) !== session || app.connectedDevice?.id != deviceId) {
+                    throw ShortcutException(ShortcutError.NOT_CONNECTED)
+                }
+            }
+            val location = checkNotNull(container.advertLocation) { "Shortcut advert location policy is not bound" }
+            location.prepare({ app.connectedDevice }, session.settingsService, ::requireCurrent)
+            requireCurrent()
+            session.advertisementService.sendSelfAdvertisement(flood)
+        }
         catch (cancelled: CancellationException) { throw cancelled }
         catch (failure: ShortcutException) { throw failure }
         catch (failure: Exception) {
