@@ -43,7 +43,19 @@ class ReactionWireFormatAgreementTest {
         }
         val oracle = ReactionsSwiftOracleVectors.channelParse.map { it.first } + ReactionsSwiftOracleVectors.directParse.map { it.first } +
             ReactionsSwiftOracleVectors.isReactionText.map { it.first }
-        return (oracle + generated + shaped).distinct()
+        val boundaryEmojis = listOf(
+            "\uD83D\uDC4D\u200D\u200D\uD83D\uDC4D",
+            "\uD83D\uDC4D\u200D\u200D\u200D\uD83D\uDC4D",
+            "\uD83D\uDC4D\u200D\u0308\u200D\uD83D\uDC4D",
+            "\uD83D\uDC4D\u0903\u200D\uD83D\uDC4D",
+            "\uD83D\uDC4D\uD83C\uDFFD\u200D\uD83D\uDC4D",
+            "\uD83D\uDE00\u200D", "\uD83D\uDE00\u200D\u200D",
+            "\uD83C\uDFFD",
+        )
+        val boundaries = boundaryEmojis.flatMap { emoji ->
+            listOf("@[Node]$emoji\nabcdefgh", "$emoji@[Node]\nabcdefgh", "$emoji\nabcdefgh")
+        } + "@[Node\uD83D\uDD25]\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67\nABCDEFGH"
+        return (oracle + generated + shaped + boundaries).distinct()
     }
 
     @TestFactory

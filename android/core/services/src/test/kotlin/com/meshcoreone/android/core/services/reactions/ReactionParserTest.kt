@@ -4,7 +4,9 @@ package com.meshcoreone.android.core.services.reactions
 import com.meshcoreone.android.core.contracts.domain.ParsedReaction
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.model.ReactionDTO
+import com.meshcoreone.android.core.services.rendering.CharacterEmojiDetection
 import com.meshcoreone.android.core.services.rendering.SwiftText
+import java.security.MessageDigest
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -217,16 +219,105 @@ class ReactionParserTest {
     )
 
     @TestFactory
-    fun knownGraphemeDeviations(): List<DynamicTest> = listOf(
-        DynamicTest.dynamicTest("WP-216::known deviation: JDK grapheme rules join an emoji run with doubled ZWJ that Swift splits") {
-            // Swift 6.3.2 segments "👍\u200D\u200D👍" into 2 Characters, so its parse returns nil; the JDK/ICU `\X`
-            // matcher keeps it as 1 grapheme and accepts the reaction. Adversarial input only (no real emoji
-            // sequence repeats ZWJ); pinned here so a segmentation change is noticed. Same result in WP-213's
-            // ReactionWireFormat, which shares SwiftText.graphemes.
-            val text = "@[A]\uD83D\uDC4D\u200D\u200D\uD83D\uDC4D\nabcdefgh"
-            assertEquals(ParsedReaction("\uD83D\uDC4D\u200D\u200D\uD83D\uDC4D", "A", "abcdefgh"), ReactionParser.parse(text))
+    fun graphemeClassification(): List<DynamicTest> = listOf(
+        DynamicTest.dynamicTest("WP-216::doubled ZWJ starts another Character rather than a channel or DM reaction") {
+            // GB9 attaches both ZWJs; GB11 cannot cross the second one because
+            // ZWJ is not Extend. The pinned parser requires exactly one Character.
+            assertReactionClassification("\uD83D\uDC4D\u200D\u200D\uD83D\uDC4D", accepted = false)
+        },
+        DynamicTest.dynamicTest("WP-216::GB11 context resets across arbitrary extra joiners and non-Extend scalars") {
+            listOf(
+                "\uD83D\uDC4D\u200D\u200D\u200D\uD83D\uDC4D",
+                "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\u200D\uD83D\uDC67",
+                "\uD83D\uDC4D\u200D\u0308\u200D\uD83D\uDC4D",
+                "\uD83D\uDC4D\u0903\u200D\uD83D\uDC4D",
+            ).forEach { assertReactionClassification(it, accepted = false) }
+        },
+        DynamicTest.dynamicTest("WP-216::GB11 keeps complete pictographic Extend star ZWJ chains") {
+            listOf(
+                "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67",
+                "\uD83D\uDC4D\uD83C\uDFFD\u200D\uD83D\uDC4D",
+                "\u2764\uFE0F\u200D\uD83D\uDD25",
+                "\uD83D\uDC4D\u0308\uFE0F\u200D\uD83D\uDC4D",
+            ).forEach { assertReactionClassification(it, accepted = true) }
+        },
+        DynamicTest.dynamicTest("WP-216::GB9 preserves trailing joiners without requiring a following pictograph") {
+            listOf(
+                "\uD83D\uDE00\u200D",
+                "\uD83D\uDE00\u200D\u200D",
+                "\uD83D\uDE00\u200D\u0308\u200D",
+            ).forEach { assertReactionClassification(it, accepted = true) }
+        },
+        DynamicTest.dynamicTest("WP-216::flags skin tones and emoji in target names retain exact wire fields") {
+            listOf("\uD83C\uDDFA\uD83C\uDDF8", "\uD83D\uDC4D\uD83C\uDFFD")
+                .forEach { assertReactionClassification(it, accepted = true) }
+            val modifier = "\uD83C\uDFFD"
+            val mentionFirst = "@[Node]$modifier\nabcdefgh"
+            val emojiFirst = "$modifier@[Node]\nabcdefgh"
+            val direct = "$modifier\nabcdefgh"
+            // GB9 joins the modifier to ']', so the pinned Character lookup cannot find that delimiter.
+            assertNull(ReactionParser.parse(mentionFirst))
+            assertFalse(ReactionParser.isReactionText(mentionFirst, isDM = false))
+            assertEquals(ParsedReaction(modifier, "Node", "abcdefgh"), ReactionParser.parse(emojiFirst))
+            assertTrue(ReactionParser.isReactionText(emojiFirst, isDM = false))
+            assertEquals(ParsedDMReaction(modifier, "abcdefgh"), ReactionParser.parseDM(direct))
+            assertTrue(ReactionParser.isReactionText(direct, isDM = true))
+            assertEquals(
+                ParsedReaction("\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67", "Node\uD83D\uDD25", "abcdefgh"),
+                ReactionParser.parse("@[Node\uD83D\uDD25]\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67\nABCDEFGH"),
+            )
+        },
+        DynamicTest.dynamicTest("WP-216::GB11 uses Extended Pictographic and Extend rather than the Emoji property") {
+            assertTrue(CharacterEmojiDetection.hasEmojiProperty(0x1F1FA))
+            assertFalse(ReactionGraphemeProperties.isExtendedPictographic(0x1F1FA))
+            assertTrue(ReactionGraphemeProperties.isExtend(0x1F3FD))
+            assertFalse(ReactionGraphemeProperties.isExtendedPictographic(0x1F3FD))
+            assertTrue(ReactionGraphemeProperties.isExtend(0xFE0F))
+            assertFalse(ReactionGraphemeProperties.isExtend(0x200D))
+            assertFalse(ReactionGraphemeProperties.isExtend(0x0903))
+            assertTrue(ReactionGraphemeProperties.isExtendedPictographic(0x1F44D))
+        },
+        DynamicTest.dynamicTest("WP-216::generated Extended Pictographic membership matches the independent JDK 21 Unicode baseline") {
+            var members = 0
+            for (scalar in 0..Character.MAX_CODE_POINT) {
+                val expected = Character.isExtendedPictographic(scalar)
+                assertEquals(expected, ReactionGraphemeProperties.isExtendedPictographic(scalar), "U+${scalar.toString(16)}")
+                if (expected) members++
+            }
+            assertEquals(3537, members)
+        },
+        DynamicTest.dynamicTest("WP-216::generated Extend membership matches the independent official UCD 15 digest") {
+            // SHA-256 of ascending Extend scalars, each encoded as four LE bytes,
+            // calculated directly from the checksum-bound official UCD input.
+            val digest = MessageDigest.getInstance("SHA-256")
+            var members = 0
+            for (scalar in 0..Character.MAX_CODE_POINT) {
+                if (!ReactionGraphemeProperties.isExtend(scalar)) continue
+                members++
+                for (offset in 0..3) digest.update((scalar ushr (offset * 8)).toByte())
+            }
+            assertEquals(2130, members)
+            assertEquals(
+                "3a8199c1373e1bcebe32e029de62eacc351ecef2a8dc5faff767d4d5619b2e38",
+                digest.digest().joinToString("") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') },
+            )
         },
     )
+
+    private fun assertReactionClassification(emoji: String, accepted: Boolean) {
+        val hash = "abcdefgh"
+        val direct = "$emoji\n$hash"
+        val channels = listOf("@[Node]$emoji\n$hash", "$emoji@[Node]\n$hash")
+        if (accepted) {
+            assertEquals(ParsedDMReaction(emoji, hash), ReactionParser.parseDM(direct))
+            channels.forEach { assertEquals(ParsedReaction(emoji, "Node", hash), ReactionParser.parse(it)) }
+        } else {
+            assertNull(ReactionParser.parseDM(direct))
+            channels.forEach { assertNull(ReactionParser.parse(it)) }
+        }
+        assertEquals(accepted, ReactionParser.isReactionText(direct, isDM = true))
+        channels.forEach { assertEquals(accepted, ReactionParser.isReactionText(it, isDM = false)) }
+    }
 
     private fun case(name: String, body: () -> Unit): DynamicTest = DynamicTest.dynamicTest("ReactionParserTests::$name()", body)
 }
