@@ -862,17 +862,6 @@ Native completion validates the server PR's actual merged head/merge commit and
 first-parent base for both a normal merge and the existing REST adapter's squash
 strategy; it never invents a second parent for a squash commit.
 
-**Project acceptance is not GitHub enforcement, producer completion or permission
-to merge.** A source-reviewed open PR cannot complete a dependency. Current-base
-serialization, paused/off activation, budgets, actual worker reconciliation,
-protected historical foundation import and branch-rule/no-bypass proof still gate
-the existing landing controller. This repair does not merge anything, change
-repository settings, install credentials, clear failed feature CI, or enable a
-schedule/fleet. GitHub supports an authenticated author's normal merge without
-formal self-approval, but an admin merge is not evidence that project gates or
-no-bypass protection were satisfied. At dispatch, main had no legacy branch
-protection (HTTP 404); branch/ruleset proof remains explicitly unverified.
-
 ### Change-scoped acceptance for an already-landed WP repair
 
 An open repair of an already-landed WP is not a request to complete that entire
@@ -881,15 +870,6 @@ default-branch publisher, but returns `acceptance_kind: "bounded-repair"`,
 `wp_complete: false` and `dependency_unlock: false`. Evidence schema 3 is
 deliberately rejected by full-WP gates and completion/accounting. Existing
 whole-WP manifest verification stays unchanged, including unconfigured WPs.
-This path does not enable the paused automatic landing controller or prove
-branch protection. **Current paused/off policy still prohibits automatic
-landing, even with valid bounded checks.** There is no new bypass merge API.
-A supported supervised landing decision remains with maintainer `cbattlegear`:
-it must retain exact candidate/current-base checks, conditional human gates,
-serialization and actual no-bypass enforcement proof. That protected decision
-is separate from this deployment; valid acceptance alone is not end-to-end
-merge authorization and cannot import a WP completion. Do not substitute an
-administrator `gh pr merge` for the blocked controller decision.
 
 The authorized human coordinator first posts one structured scope comment on
 the **existing repair issue**, not on an invented tracking issue. Its body is
