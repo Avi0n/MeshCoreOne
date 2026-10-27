@@ -226,7 +226,9 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.assertEqual(plan["tree"], self.git("rev-parse", "HEAD^{tree}"))
         self.assertEqual(validate_plan(self.repo, json.loads(json.dumps(plan))), plan)
 
-    def test_wp201_data_production_and_runtime_test_keep_exact_reports_and_consumers(self, *, diverged=False):
+    def test_wp201_data_production_and_runtime_test_keep_exact_reports_and_consumers(
+        self, *, diverged=False, failed=False,
+    ):
         self.write("android/core/data/build.gradle.kts", 'plugins { id("mesh.android.library") }\n')
         self.write("android/core/data/src/test/kotlin/RepositoryTest.kt", "existing tests")
         self.write("android/core/runtime/build.gradle.kts",
@@ -315,6 +317,7 @@ class LocalScopeBindingTests(unittest.TestCase):
             return json.dumps(admission) if path == Path("/proc/self/fd/8") else original_read(path, *args, **kwargs)
 
         calls, emit = self.execute_fixture(plan)
+        failure = subprocess.CalledProcessError(23, ["fixture-gradle"])
 
         def complete(command, repo, environment, log):
             if "ANDROID_CI_TASK_GRAPH" not in environment:
@@ -323,6 +326,8 @@ class LocalScopeBindingTests(unittest.TestCase):
             self.write("android/build/reports/scaffold/module-graph.tsv",
                        "consumer\tproducer\tconfiguration\n:core:runtime\t:core:data\timplementation\n"
                        ":app\t:core:data\timplementation\n:app\t:core:runtime\timplementation\n")
+            if failed:
+                raise failure
 
         text = io.StringIO()
         with patch.dict(sys.modules, {"controller.local_scope": legacy}), \
@@ -338,14 +343,25 @@ class LocalScopeBindingTests(unittest.TestCase):
                 patch.object(ci_environment, "verify_wrapper"), \
                 patch.object(ci, "python_checks"), patch.object(ci, "preflight"), \
                 contextlib.redirect_stdout(text):
-            fast.main()
+            if failed:
+                with self.assertRaises(subprocess.CalledProcessError) as raised:
+                    fast.main()
+                self.assertIs(raised.exception, failure)
+            else:
+                fast.main()
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][3:3 + len(plan["tasks"])], plan["tasks"])
         self.assertIn('"kind": "local-affected-only"', text.getvalue())
-        self.assertIn("AFFECTED SNAPSHOT CHECKS COMPLETE", text.getvalue())
+        if failed:
+            self.assertNotIn("AFFECTED SNAPSHOT CHECKS COMPLETE", text.getvalue())
+        else:
+            self.assertIn("AFFECTED SNAPSHOT CHECKS COMPLETE", text.getvalue())
         self.assertNotIn("FAST LOCAL CHECK PASSED", text.getvalue())
         self.assertEqual(self.git("rev-parse", "HEAD"), plan["head"])
         captured, _ = json.JSONDecoder().raw_decode(text.getvalue()[text.getvalue().index('{\n  "kind"'):])
+        if failed:
+            self.assertEqual(captured["result"], "failure")
+            self.assertEqual(captured["failure"]["returncode"], 23)
         expected = [{
             "report": directory.relative_to(self.repo).as_posix() + "/TEST-Sync.xml",
             "index": 0, "class": "SyncTest", "method": "required", "outcome": "passed",
@@ -364,6 +380,9 @@ class LocalScopeBindingTests(unittest.TestCase):
 
     def test_diverged_old_candidate_uses_owned_planner_through_final_named_completion(self):
         self.test_wp201_data_production_and_runtime_test_keep_exact_reports_and_consumers(diverged=True)
+
+    def test_old_candidate_owned_fast_emits_failure_evidence_without_completion(self):
+        self.test_wp201_data_production_and_runtime_test_keep_exact_reports_and_consumers(failed=True)
 
     def test_stale_base_and_head_are_rejected(self):
         plan = candidate_plan(self.repo, self.base, self.head)
@@ -724,3 +743,225 @@ class LocalScopeBindingTests(unittest.TestCase):
                 raise failure
             with self.subTest(failure=type(failure)), self.assertRaises(type(failure)):
                 run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
+
+    def test_nonzero_gradle_retains_bound_cases_before_cleanup_and_reuse(self):
+        plan = self.services_plan()
+        output = self.repo / "output"
+        output.mkdir()
+        _, emit = self.execute_fixture(plan)
+        path = self.repo / "android/core/services/build/test-results/test/TEST-Sync.xml"
+        failure = subprocess.CalledProcessError(17, ["fixture-gradle"])
+        text = io.StringIO()
+        events = []
+
+        def execute(*args):
+            emit(*args)
+            self.write(path, "<testsuite tests='4' failures='1' errors='1' skipped='1'>"
+                       "<testcase classname='Sync' name='pass[original]'/>"
+                       "<testcase classname='Sync' name='failed'><failure/></testcase>"
+                       "<testcase classname='Sync' name='error'><error/></testcase>"
+                       "<testcase classname='Sync' name='skip'><skipped/></testcase></testsuite>")
+            events.append("gradle-nonzero")
+            raise failure
+
+        with contextlib.redirect_stdout(text), self.assertRaises(subprocess.CalledProcessError) as raised:
+            try:
+                run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
+            finally:
+                self.assertIn('"result": "failure"', text.getvalue())
+                events.append("cleanup-release")
+                self.write(path, "<next-slot-owner/>")
+        self.assertIs(raised.exception, failure)
+        captured = json.loads(text.getvalue())
+        self.assertEqual(events, ["gradle-nonzero", "cleanup-release"])
+        self.assertEqual(
+            {key: captured[key] for key in ("base", "head", "tree", "scopes", "tasks")},
+            {key: plan[key] for key in ("base", "head", "tree", "scopes", "tasks")},
+        )
+        self.assertEqual(captured["failure"]["returncode"], 17)
+        self.assertEqual(captured["source_binding"], "valid")
+        self.assertEqual(captured["junit_reports"][0]["counts"],
+                         {"passed": 1, "failure": 1, "error": 1, "skipped": 1})
+        self.assertEqual([case["method"] for case in captured["junit_cases"]],
+                         ["pass[original]", "failed", "error", "skip"])
+        self.assertEqual([case["outcome"] for case in captured["junit_cases"]],
+                         ["passed", "failure", "error", "skipped"])
+        self.assertNotIn("CHECK PASSED", text.getvalue())
+
+    def test_real_owned_launcher_releases_only_after_failed_report_and_cleanup(self):
+        from controller.ledger import Ledger
+
+        source = Path(__file__).resolve().parents[3]
+        spec = importlib.util.spec_from_file_location(
+            "failure_owned_check_fixture", source / "tools/android-port/local/check.py")
+        check = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(check)
+        plan = self.services_plan()
+        ledger = Ledger(self.repo / "fixture-ledger.sqlite3", "fixture/repository")
+        output = self.repo / "output"
+        output.mkdir()
+        _, emit = self.execute_fixture(plan)
+        failure = subprocess.CalledProcessError(7, ["fixture-gradle"])
+        events, text = [], io.StringIO()
+        original_release = ledger.release_hard_lock
+
+        def execute(*args):
+            self.assertEqual(len(ledger.hard_lock_records()), 1)
+            emit(*args)
+            raise failure
+
+        def candidate(*args, **kwargs):
+            kwargs["execution"]["started"] = True
+            try:
+                run_scaffold(self.repo, kwargs["affected_plan"], {}, output, execute, [],
+                             trusted_base=plan["base"])
+            finally:
+                self.assertEqual(json.loads(text.getvalue())["failure"]["returncode"], 7)
+                events.append("report-before-cleanup")
+                kwargs["completion"].write_text(json.dumps({
+                    "schema_version": 1, "token": kwargs["token"],
+                    "status": "owned-children-reaped", "returncode": 7,
+                }), encoding="utf-8")
+
+        def release(*args):
+            self.assertEqual(events, ["report-before-cleanup"])
+            self.assertEqual(json.loads(text.getvalue())["head"], plan["head"])
+            events.append("release")
+            self.write("android/core/services/build/test-results/test/TEST-Sync.xml", "<reused/>")
+            return original_release(*args)
+
+        with patch.object(check, "execution_runtime", return_value=ledger), \
+                patch.object(check, "transport", return_value=[]), \
+                patch.object(check, "run_candidate", side_effect=candidate), \
+                patch.object(ledger, "release_hard_lock", side_effect=release), \
+                contextlib.redirect_stdout(text), \
+                self.assertRaises(subprocess.CalledProcessError) as raised:
+            check.run_owned(self.repo, plan["head"], None, check.ALL_STAGES, False,
+                            affected_base=plan["base"])
+        self.assertIs(raised.exception, failure)
+        self.assertEqual(events, ["report-before-cleanup", "release"])
+        self.assertEqual(ledger.hard_lock_records(), [])
+        self.assertEqual(json.loads(text.getvalue())["junit_cases"][0]["method"], "required")
+
+    def test_failed_report_missing_invalid_or_foreign_evidence_never_masks_original(self):
+        plan = self.services_plan()
+        plan = candidate_plan(self.repo, plan["base"], plan["head"], [*plan["scopes"], "protocol"])
+        output = self.repo / "output"
+        output.mkdir()
+        path = self.repo / "android/core/services/build/test-results/test/TEST-Sync.xml"
+        _, emit = self.execute_fixture(plan)
+        invalid = (
+            "<broken",
+            "<testsuite tests='0' failures='0' errors='0' skipped='0'/>",
+            "<testsuite tests='2' failures='0' errors='0' skipped='0'>"
+            "<testcase classname='Sync' name='same'/><testcase classname='Sync' name='same'/></testsuite>",
+            "<testsuite tests='1' failures='0' errors='0' skipped='0'>"
+            "<testcase classname='Sync' name='failed'><failure/></testcase></testsuite>",
+        )
+        for value in (None, *invalid, "foreign"):
+            failure = subprocess.CalledProcessError(9, ["fixture-gradle"])
+            text = io.StringIO()
+
+            def execute(*args):
+                emit(*args)
+                if value is None:
+                    path.unlink()
+                elif value == "foreign":
+                    self.git("checkout", "--quiet", "--detach", plan["base"])
+                else:
+                    self.write(path, value)
+                raise failure
+
+            try:
+                with self.subTest(value=value), contextlib.redirect_stdout(text), \
+                        self.assertRaises(subprocess.CalledProcessError) as raised:
+                    run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
+                self.assertIs(raised.exception, failure)
+                report = json.loads(text.getvalue())
+                self.assertEqual(report["result"], "failure")
+                if value == "foreign":
+                    self.assertIn("Stale affected head", report["evidence_error"])
+                    self.assertEqual(report["junit_cases"], [])
+                else:
+                    record = next(row for row in report["junit_reports"]
+                                  if row["directory"].startswith("android/core/services/"))
+                    self.assertEqual(record["status"], "missing-or-not-run" if value is None else "invalid")
+                    self.assertEqual(len(report["junit_cases"]), 1)
+                    self.assertIn("core/protocol", report["junit_cases"][0]["report"])
+            finally:
+                self.git("checkout", "--quiet", "--detach", plan["head"])
+
+    def test_compile_failure_reports_not_run_and_strict_parse_failure_retains_outcomes(self):
+        plan = self.services_plan()
+        output = self.repo / "output"
+        output.mkdir()
+        for original in (subprocess.CalledProcessError(1, ["compile"]), OSError("compiler unavailable"),
+                         KeyboardInterrupt()):
+            text = io.StringIO()
+
+            def execute(*args):
+                raise original
+
+            with contextlib.redirect_stdout(text), self.assertRaises(type(original)) as raised:
+                run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
+            self.assertIs(raised.exception, original)
+            report = json.loads(text.getvalue())
+            self.assertEqual(report["junit_cases"], [])
+            self.assertEqual(report["junit_reports"][0]["status"], "missing-or-not-run")
+        _, emit = self.execute_fixture(plan, skipped=True)
+        text = io.StringIO()
+        with contextlib.redirect_stdout(text), self.assertRaisesRegex(PortError, "failed/skipped"):
+            run_scaffold(self.repo, plan, {}, output, emit, [], trusted_base=plan["base"])
+        report = json.loads(text.getvalue())
+        self.assertEqual(report["result"], "failure")
+        self.assertEqual(report["junit_reports"][0]["status"], "invalid")
+
+    def test_strict_failure_harvests_true_failed_and_skipped_cases_without_success(self):
+        plan = self.services_plan()
+        output = self.repo / "output"
+        output.mkdir()
+        _, emit = self.execute_fixture(plan)
+        path = self.repo / "android/core/services/build/test-results/test/TEST-Sync.xml"
+
+        def execute(*args):
+            emit(*args)
+            self.write(path, "<testsuite tests='2' failures='1' errors='0' skipped='1'>"
+                       "<testcase classname='Sync' name='failed'><failure/></testcase>"
+                       "<testcase classname='Sync' name='skipped'><skipped/></testcase></testsuite>")
+
+        text = io.StringIO()
+        with contextlib.redirect_stdout(text), self.assertRaises(PortError):
+            run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
+        report = json.loads(text.getvalue())
+        self.assertEqual(report["result"], "failure")
+        self.assertEqual(report["junit_reports"][0]["status"], "available")
+        self.assertEqual([case["outcome"] for case in report["junit_cases"]], ["failure", "skipped"])
+
+    def test_source_change_during_harvest_discards_attribution_and_keeps_original_exception(self):
+        import controller.local_scope as scope
+
+        plan = self.services_plan()
+        output = self.repo / "output"
+        output.mkdir()
+        _, emit = self.execute_fixture(plan)
+        failure = subprocess.CalledProcessError(13, ["fixture-gradle"])
+        original_collect = scope.collect_named_cases
+
+        def execute(*args):
+            emit(*args)
+            raise failure
+
+        def changed(*args):
+            cases = original_collect(*args)
+            self.git("checkout", "--quiet", "--detach", plan["base"])
+            return cases
+
+        text = io.StringIO()
+        with patch.object(scope, "collect_named_cases", side_effect=changed), \
+                contextlib.redirect_stdout(text), self.assertRaises(subprocess.CalledProcessError) as raised:
+            run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
+        self.assertIs(raised.exception, failure)
+        report = json.loads(text.getvalue())
+        self.assertEqual(report["source_binding"], "invalid")
+        self.assertEqual(report["junit_cases"], [])
+        self.assertIn("Stale affected head", report["evidence_error"])
