@@ -180,13 +180,15 @@ class AppBackupStateHolder(
         }
         mutableState.update { it.copy(isCancellingImport = false, import = ImportState.Importing) }
         return scope.launch {
+            var importCompleted = false
             try {
                 val result = dependencies.engine.importBackup(preview.backup)
+                importCompleted = true
                 mutableState.update { it.copy(import = ImportState.Success(result)) }
                 applyRestoreEffects(result)
             } catch (cancelled: CancellationException) {
-                // The engine rolled back; show a terminal state so the user sees nothing changed.
-                mutableState.update { it.copy(import = ImportState.Cancelled) }
+                // Later UI effects cannot turn a committed restore into a rollback-shaped outcome.
+                if (!importCompleted) mutableState.update { it.copy(import = ImportState.Cancelled) }
                 throw cancelled
             } catch (failure: Exception) {
                 dependencies.diagnostics.report("Import failed", failure)
