@@ -5,7 +5,12 @@ package com.meshcoreone.android.core.data.backup
 import com.meshcoreone.android.core.database.*
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.command.PacketBuilder
+import com.meshcoreone.android.core.protocol.crypto.CryptoException
+import com.meshcoreone.android.core.protocol.crypto.WireCrypto
+import java.util.Base64
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.*
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -106,19 +111,67 @@ class BackupChannelIntegrationTest : BackupRoomTest() {
 
     @OriginalCase("BackupIntegrationTests::batchInsertChannels reports newly-occupied local slots for draft clearing, excluding merges()")
     @Test fun affectedSlotsIncludeOnlyInsertedAndDroppedOccupancy() = runBlocking {
-        seed(envelope(channels = listOf(channel(index = 2u, secret = secret(0xC1)),
-            channel(index = 4u, secret = secret(0xC4), id = id(34)))))
-        val result = service.importBackup(envelope(devices = listOf(device()), channels = listOf(
-            channel(index = 6u, secret = secret(0xC1), id = id(36)),
-            channel(index = 5u, secret = secret(0xD5), id = id(35)),
-            channel(index = 4u, secret = secret(0xD4), id = id(37)))), store)
+        assertAffectedSlotPredicates(secretWidth = 32)
+    }
+
+    // AndroidOnly: WP-203 Retain the old canonical-width predicate without claiming source-input parity.
+    @Test fun canonical16ByteSecretsRetainAffectedSlotPredicates() = runBlocking {
+        assertAffectedSlotPredicates(secretWidth = 16)
+    }
+
+    private suspend fun assertAffectedSlotPredicates(secretWidth: Int) {
+        fun fixtureSecret(value: Int): Bytes = Bytes(ByteArray(secretWidth) { value.toByte() })
+        val keep = channel(index = 2u, secret = fixtureSecret(0xC1)).copy(name = "Keep")
+        val occupied = channel(index = 4u, secret = fixtureSecret(0xC4), id = id(34)).copy(name = "Occupied")
+        seed(envelope(channels = listOf(keep, occupied)))
+        val value = envelope(devices = listOf(device()), channels = listOf(
+            channel(index = 6u, secret = fixtureSecret(0xC1), id = id(36)).copy(name = "Keep"),
+            channel(index = 5u, secret = fixtureSecret(0xD5), id = id(35)).copy(name = "Fresh"),
+            channel(index = 4u, secret = fixtureSecret(0xD4), id = id(37)).copy(name = "Collide")))
+        val codec = AppBackupCodec()
+        val decoded = codec.parseBackup(codec.encode(value))
+        assertEquals(value.channels, decoded.channels)
+        assertTrue(decoded.channels.all { it.secret.size == secretWidth })
+        val result = service.importBackup(decoded, store)
         val affected = result.channelSlotsAffectedByImport.getValue(RADIO)
         assertTrue(affected.contains(5.toUByte()))
         for (slot in listOf(2u, 6u, 4u)) assertFalse(affected.contains(slot.toUByte()))
-        val relocated = db.channels().forRadio(RADIO.value).single { it.secret == secret(0xD4) }
+        val all = db.channels().forRadio(RADIO.value)
+        val relocated = all.single { it.secret == fixtureSecret(0xD4) }
         assertNotEquals(4L, relocated.index)
         assertTrue(affected.contains(relocated.index.toUByte()))
+        assertEquals(setOf(5.toUByte(), relocated.index.toUByte()), affected.toSet())
         assertEquals(2L, result.count(BackupModelKind.CHANNELS).inserted)
+        assertEquals(1L, result.count(BackupModelKind.CHANNELS).skipped)
+        assertEquals(4, all.size)
+        assertTrue(all.all { it.secret.size == secretWidth })
+        assertEquals(keep, all.single { it.secret == keep.secret }.toDTO())
+        assertEquals(occupied, all.single { it.secret == occupied.secret }.toDTO())
+        assertEquals("Fresh", all.single { it.index == 5L }.name)
+        assertEquals("Collide", relocated.name)
+    }
+
+    // AndroidOnly: WP-203 Raw backup bytes and the existing fixed-width wire projection are distinct contracts.
+    @Test fun backupPreservesFullSecretsWhileWireBuilderProjectsOnlyExisting16BytePrefix() {
+        val codec = AppBackupCodec()
+        for (width in listOf(16, 32)) {
+            val raw = ByteArray(width) { if (it < 16) 0xC1.toByte() else 0xD4.toByte() }
+            val value = envelope(channels = listOf(channel(index = 4u, secret = Bytes(raw))))
+            val encodedSecret = value.jsonObject().getValue("channels").jsonArray.single().jsonObject
+                .getValue("secret").jsonPrimitive.content
+            assertEquals(Base64.getEncoder().encodeToString(raw), encodedSecret)
+            assertArrayEquals(raw, Base64.getDecoder().decode(encodedSecret))
+            val restored = codec.parseBackup(codec.encode(value)).channels.single()
+            assertEquals(width, restored.secret.size)
+            assertArrayEquals(raw, restored.secret.toByteArray())
+            val packet = PacketBuilder.setChannel(restored.index, restored.name, restored.secret)
+            assertEquals(50, packet.size)
+            assertArrayEquals(raw.copyOfRange(0, 16), packet.toByteArray().copyOfRange(34, 50))
+        }
+        val failure = assertThrows(CryptoException.SecretTooShort::class.java) {
+            WireCrypto.encryptAes128EcbZeroPadded(Bytes.of(0), Bytes(ByteArray(15)))
+        }
+        assertEquals(15, failure.actual)
     }
 
     @OriginalCase("BackupIntegrationTests::Exporting a channel with an unmigrated notification level does not migrate the live row()")
