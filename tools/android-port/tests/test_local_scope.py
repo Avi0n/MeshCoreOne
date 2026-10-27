@@ -226,7 +226,7 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.assertEqual(plan["tree"], self.git("rev-parse", "HEAD^{tree}"))
         self.assertEqual(validate_plan(self.repo, json.loads(json.dumps(plan))), plan)
 
-    def test_wp201_data_production_and_runtime_test_keep_exact_reports_and_consumers(self):
+    def test_wp201_data_production_and_runtime_test_keep_exact_reports_and_consumers(self, *, diverged=False):
         self.write("android/core/data/build.gradle.kts", 'plugins { id("mesh.android.library") }\n')
         self.write("android/core/data/src/test/kotlin/RepositoryTest.kt", "existing tests")
         self.write("android/core/runtime/build.gradle.kts",
@@ -237,6 +237,11 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.write("android/core/data/src/main/kotlin/Repository.kt", "base")
         self.write("android/core/runtime/src/test/kotlin/RuntimeOwnershipTest.kt", "base")
         base = self.commit()
+        if diverged:
+            common = base
+            self.write("docs/target-only.md", "trusted target advancement")
+            base = self.commit()
+            self.git("checkout", "--quiet", "--detach", common)
         self.git("update-ref", "refs/remotes/origin/main", base)
         self.write("android/core/data/src/main/kotlin/Repository.kt", "changed production")
         self.write("android/core/runtime/src/test/kotlin/RuntimeOwnershipTest.kt", "changed regression")
@@ -287,7 +292,7 @@ class LocalScopeBindingTests(unittest.TestCase):
             ])
             raise CapturedExecution
 
-        with self.assertRaisesRegex(PortError, "required obligations"):
+        with self.assertRaisesRegex(PortError, "ancestor" if diverged else "required obligations"):
             legacy.run_scaffold(self.repo, plan, {}, self.repo / "output", execute,
                                 fast.scaffold_options(), trusted_base=base)
         with self.assertRaises(CapturedExecution):
@@ -357,6 +362,9 @@ class LocalScopeBindingTests(unittest.TestCase):
         retained, _ = json.JSONDecoder().raw_decode(text.getvalue()[text.getvalue().index('{\n  "kind"'):])
         self.assertEqual(retained, captured)
 
+    def test_diverged_old_candidate_uses_owned_planner_through_final_named_completion(self):
+        self.test_wp201_data_production_and_runtime_test_keep_exact_reports_and_consumers(diverged=True)
+
     def test_stale_base_and_head_are_rejected(self):
         plan = candidate_plan(self.repo, self.base, self.head)
         self.git("update-ref", "refs/remotes/origin/main", self.head)
@@ -368,6 +376,106 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.commit()
         with self.assertRaisesRegex(PortError, "Stale affected head"):
             validate_plan(self.repo, plan, trusted_base=self.base)
+
+    def diverged_plan(self):
+        self.write("docs/target-only.md", "trusted target advancement")
+        target = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", target)
+        self.git("checkout", "--quiet", "--detach", self.head)
+        self.write("android/core/services/src/main/kotlin/Sync.kt", "published correction")
+        candidate = self.commit()
+        return candidate_plan(self.repo, target, candidate)
+
+    def test_diverged_published_candidate_retains_current_target_and_owned_reports(self):
+        plan = self.diverged_plan()
+        self.assertEqual(self.git("merge-base", "--all", plan["base"], plan["head"]), self.head)
+        self.assertNotEqual(plan["base"], self.head)
+        self.assertEqual(plan["paths"], [
+            "android/core/services/src/main/kotlin/Sync.kt", "docs/target-only.md",
+        ])
+        self.assertEqual(plan["scopes"], ["module:core/services"])
+        self.assertEqual(validate_plan(self.repo, plan), plan)
+        output = self.repo / "output"
+        output.mkdir()
+        calls, execute = self.execute_fixture(plan)
+        report = run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
+        self.assertEqual(calls[0][3:3 + len(plan["tasks"])], plan["tasks"])
+        self.assertEqual(report["base"], plan["base"])
+        self.assertEqual(report["head"], plan["head"])
+        self.assertEqual(report["tree"], plan["tree"])
+        self.assertEqual(report["suites"]["core/services"]["passed"], 1)
+        self.assertEqual(report["junit_cases"][0]["method"], "required")
+        self.assertEqual(self.git("rev-parse", "HEAD"), plan["head"])
+        for field in ("paths", "tasks", "scopes"):
+            with self.subTest(field=field), self.assertRaises(PortError):
+                validate_plan(self.repo, {**plan, field: []})
+        with self.assertRaisesRegex(PortError, "Stale affected base"):
+            candidate_plan(self.repo, self.head, plan["head"])
+        self.git("update-ref", "refs/remotes/origin/main", plan["head"])
+        with self.assertRaisesRegex(PortError, "Stale affected base"):
+            validate_plan(self.repo, plan)
+
+    def test_diverged_diff_union_keeps_target_only_and_convergent_branch_changes(self):
+        path = "android/core/services/src/test/kotlin/SyncTest.kt"
+        self.write(path, "same change independently landed")
+        self.write("android/core/protocol/src/main/kotlin/Target.kt", "target-only source")
+        target = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", target)
+        self.git("checkout", "--quiet", "--detach", self.head)
+        self.write(path, "same change independently landed")
+        candidate = self.commit()
+        plan = candidate_plan(self.repo, target, candidate)
+        self.assertEqual(plan["paths"], [
+            "android/core/protocol/src/main/kotlin/Target.kt", path,
+        ])
+        self.assertEqual(plan["scopes"], ["protocol", "module:core/protocol", "module:core/services"])
+        self.assertIn(":core:services:test", plan["tasks"])
+        self.assertIn(":core:protocol:test", plan["tasks"])
+        self.assertEqual(validate_plan(self.repo, plan), plan)
+        with self.assertRaisesRegex(PortError, "Incomplete"):
+            candidate_plan(self.repo, target, candidate, ["module:core/services"])
+
+    def test_diverged_target_build_change_still_requires_full_fallback(self):
+        self.write("android/core/services/build.gradle.kts",
+                   'plugins { id("mesh.jvm.library") }\n// target build repair\n')
+        target = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", target)
+        self.git("checkout", "--quiet", "--detach", self.head)
+        self.write("android/core/services/src/main/kotlin/Sync.kt", "candidate source")
+        plan = candidate_plan(self.repo, target, self.commit())
+        self.assertTrue(plan["full_scaffold"])
+        self.assertEqual(plan["stages"], ["python", "preflight", "scaffold", "inspect"])
+        self.assertIn("android/core/services/build.gradle.kts", plan["paths"])
+        self.assertEqual(validate_plan(self.repo, plan), plan)
+
+    def test_unknown_unrelated_ambiguous_and_rewritten_lineage_fail_closed(self):
+        plan = self.diverged_plan()
+        with self.assertRaisesRegex(PortError, "commit is unavailable"):
+            candidate_plan(self.repo, plan["base"], "f" * 40)
+        tree = self.git("rev-parse", "HEAD^{tree}")
+        unrelated = self.git("commit-tree", tree, "-m", "unrelated")
+        with self.assertRaisesRegex(PortError, "unrelated"):
+            candidate_plan(self.repo, plan["base"], unrelated)
+        left = self.git("commit-tree", tree, "-p", self.head, "-m", "left")
+        right = self.git("commit-tree", tree, "-p", self.head, "-m", "right")
+        target = self.git("commit-tree", tree, "-p", left, "-p", right, "-m", "target")
+        candidate = self.git("commit-tree", tree, "-p", right, "-p", left, "-m", "candidate")
+        self.git("update-ref", "refs/remotes/origin/main", target)
+        with self.assertRaisesRegex(PortError, "ambiguous"):
+            candidate_plan(self.repo, target, candidate)
+        self.git("update-ref", "refs/remotes/origin/main", plan["base"])
+        shallow = self.repo / ".git/shallow"
+        shallow.write_text(self.head + "\n", encoding="ascii")
+        with self.assertRaisesRegex(PortError, "complete, unreplaced"):
+            candidate_plan(self.repo, plan["base"], plan["head"])
+        shallow.unlink()
+        self.git("replace", plan["head"], unrelated)
+        with self.assertRaisesRegex(PortError, "complete, unreplaced"):
+            candidate_plan(self.repo, plan["base"], plan["head"])
+        self.git("replace", "-d", plan["head"])
+        self.write(".git/info/grafts", "")
+        with self.assertRaisesRegex(PortError, "complete, unreplaced"):
+            candidate_plan(self.repo, plan["base"], plan["head"])
 
     def test_omitted_path_task_or_scope_is_rejected_from_real_diff(self):
         original = candidate_plan(self.repo, self.base, self.head)
