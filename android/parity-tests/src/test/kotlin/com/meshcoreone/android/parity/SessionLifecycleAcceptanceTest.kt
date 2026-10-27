@@ -87,6 +87,7 @@ class SessionLifecycleAcceptanceTest {
                 assertEquals(ConnectionState.Connecting, states[states.lastIndex - 1])
                 assertEquals(ConnectionState.Connected, states.last())
                 assertFalse(startup.isCompleted)
+                // Virtual time makes the source's 50 ms timeout boundary deterministic.
                 advanceTimeBy(49)
                 runCurrent()
                 assertFalse("The original fifty-millisecond deadline has not expired", startup.isCompleted)

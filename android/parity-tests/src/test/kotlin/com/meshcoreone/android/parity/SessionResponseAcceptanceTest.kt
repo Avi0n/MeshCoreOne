@@ -47,6 +47,37 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionResponseAcceptanceTest {
+    private companion object {
+        // Fixed wire bytes expanded from the helpers in the pinned Swift test sources.
+        const val SOURCE_SELF_INFO_TEST_HEX =
+            "050116160101010101010101010101010101010101010101010101010101" +
+                "01010101010100000000000000000000000038f60d0048e80100070554657374"
+        const val SOURCE_SELF_INFO_TEMP_HEX =
+            "050116160101010101010101010101010101010101010101010101010101" +
+                "01010101010100000000000000000000000038f60d0048e80100070554656d70"
+        const val SOURCE_SELF_INFO_RESTORED_HEX =
+            "050116164444444444444444444444444444444444444444444444444444" +
+                "44444444444400000000000000000000000038f60d0048e801000705526573746f726564"
+        const val SOURCE_CHANNEL_ZERO_HEX =
+            "12007a65726f000000000000000000000000000000000000000000000000" +
+                "0000000000000000000000000000000000000000"
+        const val SOURCE_CHANNEL_ONE_HEX =
+            "12016f6e6500000000000000000000000000000000000000000000000000" +
+                "0000000000000000000000000000000000000000"
+        const val SOURCE_CHANNEL_TWO_HEX =
+            "120274776f00000000000000000000000000000000000000000000000000" +
+                "0000000000000000000000000000000000000000"
+        const val SOURCE_CHANNEL_THREE_HEX =
+            "120374687265650000000000000000000000000000000000000000000000" +
+                "0000000000000000000000000000000000000000"
+        const val SOURCE_CHANNEL_LATE_HEX =
+            "12006c617465000000000000000000000000000000000000000000000000" +
+                "00000000aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        const val SOURCE_CHANNEL_FRESH_HEX =
+            "120066726573680000000000000000000000000000000000000000000000" +
+                "00000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+
     @OriginalCase("V115SessionMethodsTests::sendChannelData emits correct frame and awaits OK()")
     @OriginalCase("V115SessionMethodsTests::sendChannelData forwards pathLength and pathBytes to the builder()")
     @OriginalCase("V115SessionMethodsTests::setDefaultFloodScope with name and key()")
@@ -124,7 +155,7 @@ class SessionResponseAcceptanceTest {
         val transport = MockTransport()
         transport.setSupportsWriteWithoutResponse(true)
         val configuration = sourcePipelineConfiguration(window = 2)
-        val session = startSourceSession(transport, configuration, sourceSelfInfo(915_000, 125_000, 7, "Test"))
+        val session = startSourceSession(transport, configuration, hex(SOURCE_SELF_INFO_TEST_HEX))
         try {
             val call = backgroundScope.async { session.getChannels(listOf(0u, 1u, 2u, 3u)) }
             runCurrent()
@@ -133,16 +164,16 @@ class SessionResponseAcceptanceTest {
             runCurrent()
             assertEquals("The original fifty-millisecond window must not issue a third read", 3, transport.sentData.size)
             assertFalse(call.isCompleted)
-            transport.simulateReceive(sourceChannel(0, "zero"))
+            transport.simulateReceive(hex(SOURCE_CHANNEL_ZERO_HEX))
             runCurrent()
             assertEquals(4, transport.sentData.size)
             assertEquals(hex("1f02"), transport.sentData.last())
-            transport.simulateReceive(sourceChannel(1, "one"))
+            transport.simulateReceive(hex(SOURCE_CHANNEL_ONE_HEX))
             runCurrent()
             assertEquals(5, transport.sentData.size)
             assertEquals(hex("1f03"), transport.sentData.last())
-            transport.simulateReceive(sourceChannel(2, "two"))
-            transport.simulateReceive(sourceChannel(3, "three"))
+            transport.simulateReceive(hex(SOURCE_CHANNEL_TWO_HEX))
+            transport.simulateReceive(hex(SOURCE_CHANNEL_THREE_HEX))
             runCurrent()
             advanceTimeBy(20)
             runCurrent()
@@ -160,7 +191,7 @@ class SessionResponseAcceptanceTest {
         val transport = MockTransport()
         transport.setSupportsWriteWithoutResponse(true)
         val configuration = sourcePipelineConfiguration(idleTimeout = 0.1)
-        val session = startSourceSession(transport, configuration, sourceSelfInfo(915_000, 125_000, 7, "Test"))
+        val session = startSourceSession(transport, configuration, hex(SOURCE_SELF_INFO_TEST_HEX))
         try {
             val pipeline = backgroundScope.async { session.getChannels(listOf(0u, 1u)) }
             runCurrent()
@@ -168,17 +199,18 @@ class SessionResponseAcceptanceTest {
             pipeline.cancel()
             runCurrent()
             assertTrue(pipeline.isCancelled)
-            transport.simulateReceive(sourceChannel(0, "late", 0xAA))
+            transport.simulateReceive(hex(SOURCE_CHANNEL_LATE_HEX))
             runCurrent()
             val successor = backgroundScope.async { session.getChannel(0u) }
             runCurrent()
             assertEquals("Successor must wait for the old exchange slot", 3, transport.sentData.size)
+            // The source waits for this write; 200 ms is only a deterministic drain allowance.
             advanceTimeBy(200)
             runCurrent()
             assertEquals(4, transport.sentData.size)
             assertEquals(hex("1f00"), transport.sentData.last())
             assertFalse("The late response cannot complete the successor", successor.isCompleted)
-            transport.simulateReceive(sourceChannel(0, "fresh", 0xBB))
+            transport.simulateReceive(hex(SOURCE_CHANNEL_FRESH_HEX))
             runCurrent()
             val result = successor.await()
             assertEquals(0u.toUByte(), result.index)
@@ -861,7 +893,7 @@ class SessionResponseAcceptanceTest {
             val transport = MockTransport()
             val session = startSourceSession(transport,
                 SessionConfiguration(defaultTimeout = if (payloadOnly) 0.2 else 10.0, clientIdentifier = "MCTst"),
-                sourceSelfInfo(915_000, 125_000, 7, if (payloadOnly) "Test" else "Temp"))
+                hex(if (payloadOnly) SOURCE_SELF_INFO_TEST_HEX else SOURCE_SELF_INFO_TEMP_HEX))
             try {
                 assertEquals(hex("01".repeat(32)), session.currentSelfInfo?.publicKey)
                 val started = testScheduler.currentTime
@@ -896,10 +928,9 @@ class SessionResponseAcceptanceTest {
                     assertFalse(importing.isCompleted)
                     assertEquals("Temp", session.currentSelfInfo?.name)
                     assertEquals(hex("01".repeat(32)), session.currentSelfInfo?.publicKey)
-                    val restored = sourceSelfInfo(915_000, 125_000, 7, "Restored").toByteArray()
-                    restored.fill(0x44.toByte(), 4, 36)
+                    val restored = hex(SOURCE_SELF_INFO_RESTORED_HEX)
                     assertEquals(66, restored.size)
-                    transport.simulateReceive(Bytes(restored))
+                    transport.simulateReceive(restored)
                     runCurrent()
                     assertNull(importing.await())
                     assertEquals(hex("44".repeat(32)), session.currentSelfInfo?.publicKey)
@@ -918,7 +949,7 @@ class SessionResponseAcceptanceTest {
     @Test fun originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes() = runTest {
         for (scenario in listOf("disabled-export", "disabled-battery", "error-export")) {
             val transport = MockTransport()
-            val session = startSourceSession(transport, selfInfo = sourceSelfInfo(915_000, 125_000, 7, "Test"))
+            val session = startSourceSession(transport, selfInfo = hex(SOURCE_SELF_INFO_TEST_HEX))
             try {
                 if (scenario == "disabled-battery") {
                     val battery = backgroundScope.async { session.getBattery() }
@@ -1024,7 +1055,7 @@ class SessionResponseAcceptanceTest {
                 SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MCTst",
                     binaryRequestOverallTimeout = if (scenario == "overall") 0.5 else 2.0,
                     binaryRequestRetransmitInterval = 0.05),
-                sourceSelfInfo(915_000, 125_000, 7, "Test"))
+                hex(SOURCE_SELF_INFO_TEST_HEX))
             try {
                 val started = testScheduler.currentTime
                 if (scenario == "overall") {
@@ -1040,6 +1071,7 @@ class SessionResponseAcceptanceTest {
                     assertEquals(hex("1b") + target, transport.sentData.last())
                     transport.simulateReceive(hex("06000102030432000000"))
                     runCurrent()
+                    // The source asserts timeout for a 500 ms budget, not an exact elapsed duration.
                     advanceTimeBy(499)
                     runCurrent()
                     assertFalse(response.isCompleted)

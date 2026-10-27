@@ -19,12 +19,13 @@ class ProtocolRoundTripAcceptanceTest {
     @OriginalCase("RoundTripTests::SelfInfo rejects truncated fixed-width payload()")
     @OriginalCase("RoundTripTests::ContactMessage rejects truncated signature payload()")
     @Test fun originalBoundaryFramesRetainExactSourceInputs() {
-        val contactFrame = Bytes(ByteBuffer.allocate(147).order(ByteOrder.LITTLE_ENDIAN)
-            .put(ByteArray(32) { 0xAA.toByte() }).put(1).put(2).put(3)
-            .put(byteArrayOf(0x11, 0x22, 0x33)).put(ByteArray(61))
-            .put("TestContact".toByteArray(Charsets.UTF_8)).put(ByteArray(21))
-            .putInt(1_704_067_200).putInt(37_774_900).putInt(-122_419_400)
-            .putInt(1_704_067_200).array())
+        val contactFrame = Bytes.fromHex(
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                "aaaa01020311223300000000000000000000000000000000000000000000" +
+                "000000000000000000000000000000000000000000000000000000000000" +
+                "00000000000000000054657374436f6e7461637400000000000000000000" +
+                "000000000000000000000080009265346640023807b4f880009265"
+        )
         assertEquals(147, contactFrame.size)
         val contact = when (val event = Parsers.Contact.parse(contactFrame)) {
             is MeshEvent.Contact -> event.contact
@@ -47,10 +48,10 @@ class ProtocolRoundTripAcceptanceTest {
         assertParseFailure(Parsers.Contact.parse(reservedFrame), reservedFrame,
             "reserved path length encoding")
 
-        val truncatedSelf = Bytes(ByteBuffer.allocate(55).order(ByteOrder.LITTLE_ENDIAN)
-            .put(1).put(20).put(30).put(ByteArray(32) { 0xAA.toByte() })
-            .putInt(0).putInt(0).put(2).put(1).put(0).put(1)
-            .putInt(915_000).putInt(250_000).array())
+        val truncatedSelf = Bytes.fromHex(
+            "01141eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                "aaaaaaaaaa00000000000000000201000138f60d0090d00300"
+        )
         assertEquals(55, truncatedSelf.size)
         assertParseFailure(Parsers.SelfInfo.parse(truncatedSelf), truncatedSelf,
             "SelfInfo response too short")
