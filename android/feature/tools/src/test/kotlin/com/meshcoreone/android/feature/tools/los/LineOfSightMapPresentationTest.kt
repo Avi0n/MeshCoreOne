@@ -1,15 +1,15 @@
 // AndroidOnly: WP-315 deterministic map presentation, viewport and pointer-coordinate acceptance tests.
 package com.meshcoreone.android.feature.tools.los
 
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.IntSize
 import com.meshcoreone.android.core.maps.GeoPoint
 import com.meshcoreone.android.core.maps.MapCamera
 import com.meshcoreone.android.core.maps.MapPinStyle
+import com.meshcoreone.android.core.maps.MapProjectionResult
 import com.meshcoreone.android.core.model.Coordinate
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.junit.Test
 
@@ -81,17 +81,20 @@ class LineOfSightMapPresentationTest {
     }
 
     @Test
-    fun `camera fit adds padding and center pointer round trips through mercator`() {
+    fun `camera fit adds padding`() {
         val fitted = assertNotNull(
             LineOfSightMapPresentation.fit(listOf(Coordinate(40.0, -105.0), Coordinate(41.0, -103.0))),
         )
         assertEquals(1.5, fitted.latitudeSpan)
         assertEquals(3.0, fitted.longitudeSpan)
-        val center = assertNotNull(
-            LineOfSightMapPresentation.coordinateAt(Offset(500f, 250f), IntSize(1000, 500), fitted),
-        )
-        assertEquals(fitted.center.longitude, center.longitude, 1e-12)
-        assertTrue(center.latitude in 40.49..40.51)
         assertNotEquals(LineOfSightMapPresentation.WORLD_CAMERA, fitted)
+    }
+
+    @Test
+    fun `pointer coordinate comes only from a live projection value`() {
+        val value = LineOfSightMapPresentation.coordinateFrom(MapProjectionResult.Value(GeoPoint(40.5, -104.0)))
+        assertEquals(Coordinate(40.5, -104.0), value)
+        listOf(MapProjectionResult.NotReady, MapProjectionResult.OutsideViewport, MapProjectionResult.InvalidCoordinate)
+            .forEach { assertNull(LineOfSightMapPresentation.coordinateFrom(it)) }
     }
 }

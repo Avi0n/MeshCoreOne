@@ -2,8 +2,6 @@
 // PortedFrom: MC1/Views/Tools/LineOfSight/LineOfSightView.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.feature.tools.los
 
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.IntSize
 import com.meshcoreone.android.core.maps.GeoPoint
 import com.meshcoreone.android.core.maps.MapAvailability
 import com.meshcoreone.android.core.maps.MapCamera
@@ -13,17 +11,13 @@ import com.meshcoreone.android.core.maps.MapLineStyle
 import com.meshcoreone.android.core.maps.MapMarker
 import com.meshcoreone.android.core.maps.MapPinStyle
 import com.meshcoreone.android.core.maps.MapPresentationState
+import com.meshcoreone.android.core.maps.MapProjectionResult
 import com.meshcoreone.android.core.maps.MapStyle
 import com.meshcoreone.android.core.model.Coordinate
 import java.util.UUID
-import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.atan
-import kotlin.math.exp
-import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.tan
 
 /**
  * Stable map identities and source-equivalent line/marker rebuilding. Camera is deliberately an
@@ -131,40 +125,15 @@ class LineOfSightMapPresentation(
         }
 
         /**
-         * Converts an unconsumed Compose pointer into the north-up, untilted MapLibre viewport.
-         * Latitude interpolation is Web Mercator rather than linear degrees.
+         * Maps a live native-viewport projection result to a coordinate. Not-ready, outside-viewport and
+         * invalid results select nothing; no coordinate is ever estimated from the reported camera.
          */
-        fun coordinateAt(offset: Offset, size: IntSize, camera: MapCamera): Coordinate? {
-            if (size.width <= 0 || size.height <= 0) return null
-            val x = (offset.x / size.width).coerceIn(0f, 1f).toDouble()
-            val y = (offset.y / size.height).coerceIn(0f, 1f).toDouble()
-            val west = camera.center.longitude - camera.longitudeSpan / 2.0
-            val longitude = normalizeLongitude(west + camera.longitudeSpan * x)
-            val north = min(MAX_MERCATOR_LATITUDE, camera.center.latitude + camera.latitudeSpan / 2.0)
-            val south = max(-MAX_MERCATOR_LATITUDE, camera.center.latitude - camera.latitudeSpan / 2.0)
-            val mercatorY = mercator(north) + (mercator(south) - mercator(north)) * y
-            val latitude = inverseMercator(mercatorY)
-            return runCatching { Coordinate(latitude, longitude) }.getOrNull()
-        }
+        fun coordinateFrom(result: MapProjectionResult<GeoPoint>): Coordinate? =
+            (result as? MapProjectionResult.Value)?.let { runCatching { Coordinate(it.value.latitude, it.value.longitude) }.getOrNull() }
 
         private fun Coordinate.toGeoPoint() = GeoPoint(latitude, longitude)
 
-        private fun mercator(latitude: Double): Double {
-            val radians = latitude * PI / 180.0
-            return ln(tan(PI / 4.0 + radians / 2.0))
-        }
-
-        private fun inverseMercator(value: Double): Double = (2.0 * atan(exp(value)) - PI / 2.0) * 180.0 / PI
-
-        private fun normalizeLongitude(value: Double): Double {
-            var normalized = value
-            while (normalized > 180.0) normalized -= 360.0
-            while (normalized < -180.0) normalized += 360.0
-            return normalized
-        }
-
         private const val FIT_PADDING = 1.5
         private const val MIN_SPAN = 0.01
-        private const val MAX_MERCATOR_LATITUDE = 85.05112878
     }
 }
