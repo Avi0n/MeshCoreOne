@@ -16,7 +16,7 @@ from test_shared_device_runner import completed, record
 
 
 HEAD = "9d2366ba5e6eeeb2e01fda9ad3990c25e6af9928"
-# Coherent reviewed pins, not a native execution result for every family.
+# Immutable regression fixtures, not a native execution result for today's source.
 PINNED_CONFIGURATION = "81dccf57622cdfc90159fbdcb0761110408616c7"
 CURRENT_PRODUCTION = {
     "diagnostics": ("e70d637a75be83921a88b603251a297c74ed2b44", "0cb54d923d8c0a343caf37279012c79380c20412"),
@@ -48,6 +48,31 @@ class LanguageBindingTest(unittest.TestCase):
             "wp": "WP-503", "attempt": binding.CANONICAL,
             "identity": {"session_id": binding.CANONICAL}, "revision": 14,
         }
+
+    def test_historical_regressions_do_not_depend_on_future_checkout_bytes(self):
+        historical_checks = (
+            self.test_diagnostics_specification_matches_original_and_current_committed_git_objects,
+            self.test_diagnostics_current_anchor_is_merged_squash_commit_with_exact_production_tree,
+            self.test_nodes_specification_matches_initial_seven_current_original_pins_and_ancestry,
+            self.test_comparator_original_current_production_oracle_and_helper_git_objects_are_exact,
+            self.test_traz_original_current_git_vectors_and_helpers_are_producer_preservation_not_us_oracle,
+            self.test_los_original_and_current_fixture_pins_preserve_inputs_dependencies_and_full_inventory,
+            self.test_los_current_fixture_synchronizes_only_its_mount_before_unchanged_count_window_and_assertions,
+            self.test_cached_chat_actual_original_fixture_inputs_and_separate_current_delegates_are_pinned,
+            self.test_cold_platform_actual_original_fixtures_deadlines_flags_diagnostics_and_app_provenance_are_unchanged,
+            self.test_fallback_disclosure_fixed_scope_and_actual_reviewed_fixture_harness_provenance,
+        )
+        original_git = binding.git
+
+        def historical_only(*arguments):
+            if any(argument == "HEAD" or argument.startswith("HEAD:") for argument in arguments):
+                raise AssertionError("Historical evidence must not freeze the moving checkout")
+            return original_git(*arguments)
+
+        with patch.object(binding, "git", side_effect=historical_only):
+            for check in historical_checks:
+                with self.subTest(check=check.__name__):
+                    check()
 
     def fake_git(self, *arguments):
         if arguments[0] == "merge-base":
@@ -281,17 +306,13 @@ class LanguageBindingTest(unittest.TestCase):
         spec = binding.DIAGNOSTICS
         anchor, current_blob = CURRENT_PRODUCTION["diagnostics"]
         self.assertEqual((anchor, current_blob), spec.current_production)
-        current_is_ancestor = anchor in binding.git("rev-list", "HEAD").splitlines()
         for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
-                expected = current_blob if path == spec.production and current_is_ancestor else blob
-                self.assertEqual(expected, binding.git("rev-parse", "HEAD:" + path))
-                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
-        if current_is_ancestor:
-            self.assertEqual(current_blob, binding.git("rev-parse", anchor + ":" + spec.production))
-            self.assertEqual("", binding.git("merge-base", "--is-ancestor", spec.producer, anchor))
-        for revision in ("HEAD", spec.producer):
+                expected = current_blob if path == spec.production else blob
+                self.assertEqual(expected, binding.git("rev-parse", anchor + ":" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, anchor))
+        for revision in (anchor, spec.producer):
             body = binding.git("show", revision + ":" + spec.fixture)
             self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
         with self.assertRaises(TypeError):
@@ -301,7 +322,7 @@ class LanguageBindingTest(unittest.TestCase):
         spec = binding.DIAGNOSTICS
         anchor, current_blob = spec.current_production
         self.assertEqual("e70d637a75be83921a88b603251a297c74ed2b44", anchor)
-        self.assertEqual("", binding.git("merge-base", "--is-ancestor", anchor, "HEAD"))
+        self.assertEqual("", binding.git("merge-base", "--is-ancestor", spec.producer, anchor))
         self.assertEqual("0cb54d923d8c0a343caf37279012c79380c20412", current_blob)
         self.assertEqual(current_blob, binding.git("rev-parse", anchor + ":" + spec.production))
 
@@ -525,23 +546,19 @@ class LanguageBindingTest(unittest.TestCase):
         spec = binding.NODES
         anchor, current_blob = CURRENT_PRODUCTION["nodes"]
         self.assertEqual((anchor, current_blob), spec.current_production)
-        current_is_ancestor = anchor in binding.git("rev-list", "HEAD").splitlines()
         initial = "fc9188ab1dc1549be8788cbc3c180c895d5d5def"
         self.assertEqual("", binding.git("merge-base", "--is-ancestor", initial, spec.producer))
-        for revision in (initial, spec.producer, "HEAD"):
+        for revision in (initial, spec.producer, anchor):
             body = binding.git("show", revision + ":" + spec.fixture)
             self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
         for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
-                expected = current_blob if path == spec.production and current_is_ancestor else blob
-                self.assertEqual(expected, binding.git("rev-parse", "HEAD:" + path))
-                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
-        if current_is_ancestor:
-            self.assertEqual(current_blob, binding.git("rev-parse", anchor + ":" + spec.production))
-            self.assertEqual("", binding.git("merge-base", "--is-ancestor", spec.producer, anchor))
+                expected = current_blob if path == spec.production else blob
+                self.assertEqual(expected, binding.git("rev-parse", anchor + ":" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, anchor))
         self.assertEqual("android/feature/nodes/src/main", spec.production)
-        self.assertIn("AndroidManifest.xml", binding.git("ls-tree", "--name-only", "HEAD:" + spec.production))
+        self.assertIn("AndroidManifest.xml", binding.git("ls-tree", "--name-only", anchor + ":" + spec.production))
         with self.assertRaises(TypeError):
             binding.FAMILIES["nodes"] = binding.DIAGNOSTICS
 
@@ -826,17 +843,17 @@ class LanguageBindingTest(unittest.TestCase):
         for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
-                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
-                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
-        for revision in (spec.producer, "HEAD"):
+                self.assertEqual(blob, binding.git("rev-parse", PINNED_CONFIGURATION + ":" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, PINNED_CONFIGURATION))
+        for revision in (spec.producer, PINNED_CONFIGURATION):
             body = binding.git("show", revision + ":" + spec.fixture)
             self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
             self.assertIn("newInstance(Locale.US)", body)
             self.assertNotIn("assertProducerCases", body)
         self.assertEqual("213866562c54c12d1f82f9c397b5cdcac7a4907c",
-                         binding.git("rev-parse", "HEAD:" + spec.production + "/LocalizedCompare.kt"))
+                         binding.git("rev-parse", PINNED_CONFIGURATION + ":" + spec.production + "/LocalizedCompare.kt"))
         supplemental = binding.git(
-            "show", "HEAD:" + spec.fixture.replace("ParityTest.kt", "LocalePreservationTest.kt"),
+            "show", PINNED_CONFIGURATION + ":" + spec.fixture.replace("ParityTest.kt", "LocalePreservationTest.kt"),
         )
         self.assertEqual(2, len(re.findall(r"@Test fun (\w+)\(", supplemental)))
         self.assertTrue(set(spec.methods).isdisjoint(re.findall(r"@Test fun (\w+)\(", supplemental)))
@@ -969,9 +986,9 @@ class LanguageBindingTest(unittest.TestCase):
         for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
-                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
-                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
-        for revision in (spec.producer, "HEAD"):
+                self.assertEqual(blob, binding.git("rev-parse", PINNED_CONFIGURATION + ":" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, PINNED_CONFIGURATION))
+        for revision in (spec.producer, PINNED_CONFIGURATION):
             body = binding.git("show", revision + ":" + spec.fixture)
             self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
             self.assertIn('assertProducerCases("tr-TR")', body)
@@ -1119,9 +1136,9 @@ class LanguageBindingTest(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
                 current_blob = spec.fixture_blob if path == spec.fixture else blob
-                self.assertEqual(current_blob, binding.git("rev-parse", "HEAD:" + path))
-                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
-        for revision in (spec.producer, "HEAD"):
+                self.assertEqual(current_blob, binding.git("rev-parse", PINNED_CONFIGURATION + ":" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, PINNED_CONFIGURATION))
+        for revision in (spec.producer, PINNED_CONFIGURATION):
             body = binding.git("show", revision + ":" + spec.fixture)
             self.assertEqual(spec.fixture_methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
             for fixed in ("UUID(0, 301)", "UUID(0, 302)", "UUID(0, 303)", "latitude = 37.8, longitude = -122.4",
@@ -1130,19 +1147,19 @@ class LanguageBindingTest(unittest.TestCase):
                           "LineOfSightEntry(dependencies", "nativeSavedEndpoint", "assertEndpointState"):
                 self.assertIn(fixed, body)
         retained = json.loads(binding.git(
-            "show", "HEAD:docs/android/evidence/WP-503/device-losendpoints-traversal-integration.json",
+            "show", PINNED_CONFIGURATION + ":docs/android/evidence/WP-503/device-losendpoints-traversal-integration.json",
         ))
         self.assertEqual(spec.original_fixture_blob, retained["audit_fixture_blobs"][spec.fixture])
         for item in retained["source_import"]["exact_producer_files"]:
             if item["path"] == spec.fixture:
                 self.assertEqual(spec.original_fixture_blob, item["producer_blob"])
             else:
-                self.assertEqual(item["producer_blob"], binding.git("rev-parse", "HEAD:" + item["path"]))
+                self.assertEqual(item["producer_blob"], binding.git("rev-parse", PINNED_CONFIGURATION + ":" + item["path"]))
 
     def test_los_current_fixture_synchronizes_only_its_mount_before_unchanged_count_window_and_assertions(self):
         spec = binding.LOS
         original = binding.git("show", spec.producer + ":" + spec.fixture)
-        current = binding.git("show", "HEAD:" + spec.fixture)
+        current = binding.git("show", PINNED_CONFIGURATION + ":" + spec.fixture)
         mount = 'LineOfSightEntry(dependencies, modifier = Modifier.testTag("los-current-fixture"))'
         synchronization = ('compose.onNode(hasTestTag("los-current-fixture")).assertExists()\n'
                            '        fixtureMounted = true\n'
@@ -1336,15 +1353,13 @@ class LanguageBindingTest(unittest.TestCase):
         snapshot = "android/accessibility-tests/src/androidTest/kotlin/com/meshcoreone/android/accessibility/NativeAccessibilityServiceSnapshot.kt"
         self.assertEqual("3dee4f40c5aec6fb0adb1bb406a233fb223b43a4",
                          binding.git("rev-parse", retained + ":" + snapshot))
-        self.assertIn("Public accessibility system snapshot failed", binding.git("show", "HEAD:" + snapshot))
+        self.assertIn("Public accessibility system snapshot failed", binding.git("show", PINNED_CONFIGURATION + ":" + snapshot))
         for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
             with self.subTest(path=path):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
                 self.assertEqual(blob, binding.git("rev-parse", PINNED_CONFIGURATION + ":" + path))
-                if path.startswith("android/accessibility-tests/"):
-                    self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
-                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
-        for revision in (spec.producer, "HEAD"):
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, PINNED_CONFIGURATION))
+        for revision in (spec.producer, PINNED_CONFIGURATION):
             body = binding.git("show", revision + ":" + spec.fixture)
             self.assertEqual(spec.fixture_methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
             for fixed in ("UUID(0, 503001)", "UUID(0, 503002)", "UUID(0, 503100L + index)",
@@ -1553,10 +1568,8 @@ class LanguageBindingTest(unittest.TestCase):
                 for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
                     self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
                     self.assertEqual(blob, binding.git("rev-parse", PINNED_CONFIGURATION + ":" + path))
-                    if path.startswith("android/accessibility-tests/"):
-                        self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
-                    self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
-                body = binding.git("show", "HEAD:" + spec.fixture)
+                    self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, PINNED_CONFIGURATION))
+                body = binding.git("show", PINNED_CONFIGURATION + ":" + spec.fixture)
                 self.assertEqual(body, binding.git("show", spec.producer + ":" + spec.fixture))
                 self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
                 for fixed in ("Stage.values().sumOf", "monitor.addLifecycleCallback",
@@ -1753,9 +1766,9 @@ class LanguageBindingTest(unittest.TestCase):
         for path, producer, blob in ((spec.fixture, spec.producer, spec.fixture_blob), *spec.source_pins):
             with self.subTest(path=path, producer=producer):
                 self.assertEqual(blob, binding.git("rev-parse", producer + ":" + path))
-                self.assertEqual(blob, binding.git("rev-parse", "HEAD:" + path))
-                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, "HEAD"))
-        body = binding.git("show", "HEAD:" + spec.fixture)
+                self.assertEqual(blob, binding.git("rev-parse", spec.producer + ":" + path))
+                self.assertEqual("", binding.git("merge-base", "--is-ancestor", producer, spec.producer))
+        body = binding.git("show", spec.producer + ":" + spec.fixture)
         self.assertEqual(spec.fixture_methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
         for name, historical in binding.FAMILIES.items():
             if name not in (spec.name, "nodes"):
