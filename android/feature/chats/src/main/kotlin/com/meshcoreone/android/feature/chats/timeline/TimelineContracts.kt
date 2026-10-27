@@ -8,7 +8,9 @@ import com.meshcoreone.android.core.model.ChatConversationID
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.MessageStatus
+import com.meshcoreone.android.core.contracts.domain.MessageWindow
 import com.meshcoreone.android.core.contracts.domain.SessionToken
+import java.time.Instant
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 
@@ -30,6 +32,12 @@ sealed interface TimelineConversation {
 interface TimelineDataSource {
     /** Returns a newest database page in chronological order. Offset counts unfiltered database rows. */
     suspend fun fetchMessages(conversation: TimelineConversation, limit: Int, offset: Int): List<MessageDTO>
+
+    /**
+     * Returns the newest chronological window that keeps every row at or after [anchorSortDate] (the oldest loaded
+     * row on a refresh, null on a first open) and at least [floorLimit] rows. `hasMore` reports rows beyond it.
+     */
+    suspend fun fetchMessageWindow(conversation: TimelineConversation, anchorSortDate: Instant?, floorLimit: Int): MessageWindow
     suspend fun fetchMessage(messageId: UUID): MessageDTO?
     suspend fun unreadAnchorMessageId(conversation: TimelineConversation): UUID?
     suspend fun clearUnread(conversation: TimelineConversation)
@@ -83,6 +91,8 @@ interface ChatTimelineDependencies {
     val events: Flow<TimelineEvent>
     val diagnostics: TimelineDiagnostics get() = TimelineDiagnostics { _, _ -> }
     val content: TimelineContent? get() = null
+    /** Sent outgoing reactions render as badges, so the timeline hides them while the database keeps the rows. */
+    fun isHiddenOutgoingReaction(message: MessageDTO): Boolean = false
     fun admissionIdentity(): SessionToken? = null
     fun isCurrentAdmission(identity: SessionToken?): Boolean = true
     suspend fun syncChannelFloodScope(channel: ChannelDTO) = Unit

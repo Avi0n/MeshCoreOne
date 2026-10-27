@@ -19,6 +19,7 @@ import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueService
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.services.reactions.ReactionParser
+import com.meshcoreone.android.core.services.reactions.isHiddenOutgoingReaction
 import com.meshcoreone.android.feature.chats.composer.*
 import com.meshcoreone.android.feature.chats.list.*
 import com.meshcoreone.android.feature.chats.timeline.*
@@ -28,6 +29,7 @@ import com.meshcoreone.android.core.services.contacts.ChannelService
 import com.meshcoreone.android.core.services.messaging.ChatSendQueueService
 import com.meshcoreone.android.core.services.notifications.NotificationService
 import java.time.Clock
+import java.time.Instant
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -339,6 +341,8 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
 
     fun timeline(conversation: TimelineConversation): ChatTimelineDependencies = object : ChatTimelineDependencies {
         private val radio = conversation.id.radioId
+        override fun isHiddenOutgoingReaction(message: MessageDTO) =
+            message.isHiddenOutgoingReaction(isDM = conversation is TimelineConversation.Direct)
         override val content get() = this@AppChatsFeature.content
         override fun admissionIdentity() = container.sessions.current?.takeIf { it.token.radioId == radio }?.token
         override fun isCurrentAdmission(identity: SessionToken?) =
@@ -375,6 +379,15 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
                     )
                     is TimelineConversation.Channel -> store.fetchMessages(
                         conversation.channel.radioId, conversation.channel.index, limit.toLong(), offset.toLong(),
+                    )
+                }
+            override suspend fun fetchMessageWindow(conversation: TimelineConversation, anchorSortDate: Instant?, floorLimit: Int) =
+                when (conversation) {
+                    is TimelineConversation.Direct -> store.fetchMessageWindow(
+                        EntityKey(conversation.contact.radioId, conversation.contact.id), anchorSortDate, floorLimit.toLong(),
+                    )
+                    is TimelineConversation.Channel -> store.fetchMessageWindow(
+                        conversation.channel.radioId, conversation.channel.index, anchorSortDate, floorLimit.toLong(),
                     )
                 }
             override suspend fun fetchMessage(messageId: UUID) = store.fetchMessage(EntityKey(radio, messageId))

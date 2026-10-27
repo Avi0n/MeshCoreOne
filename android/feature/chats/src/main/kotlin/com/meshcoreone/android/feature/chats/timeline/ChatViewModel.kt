@@ -2,6 +2,7 @@
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/Views/Chats/Timeline/ChatTimeline+Paging.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatTimelinePopulator.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1Tests/Views/Chats/ChatViewModelAppendRaceTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.feature.chats.timeline
 
@@ -72,7 +73,7 @@ class ChatViewModel(
                     null
                 }
                 if (generation != openGeneration) return@withLock
-                val ordered = normalize(page)
+                val ordered = normalize(visible(page))
                 val anchor = persistedAnchor
                     ?.takeIf { candidate -> ordered.any { it.id == candidate } }
                     ?: ordered.firstOrNull()?.id?.takeIf { conversation.unreadCount > 0 }
@@ -126,28 +127,29 @@ class ChatViewModel(
     }
 
     /**
-     * Reconnect refreshes keep the loaded window rather than replacing paged-in history with one page.
-     * Open-time unread side effects are intentionally not repeated.
+     * Reconnect refreshes keep the loaded window rather than replacing paged-in history with one page. The
+     * window is anchored at the oldest loaded row, so it catches up newer rows without paging in older ones;
+     * the next older page still comes from an explicit [loadOlder]. Open-time unread side effects are
+     * intentionally not repeated.
      */
     suspend fun refresh() {
         mutableState.update { it.copy(passiveError = null) }
         try {
             operationMutex.withLock {
-                val before = mutableState.value
-                val limit = maxOf(
-                    before.totalFetchedCount + PAGE_SIZE,
+                val anchorSortDate = mutableState.value.messages.minOfOrNull { it.sortDate }
+                val window = dependencies.data.fetchMessageWindow(
+                    conversation,
+                    anchorSortDate,
                     initialPageSize(conversation.unreadCount),
                 )
-                val fetched = dependencies.data.fetchMessages(conversation, limit + 1, 0)
-                val page = fetched.takeLast(limit)
-                val ordered = normalize(page)
+                val ordered = normalize(visible(window.messages))
                 mutableState.update {
                     it.copy(
                         messages = ordered,
                         rows = buildTimelineRows(ordered, unreadAnchorId, zoneId),
                         hasLoadedOnce = true,
-                        hasMoreMessages = fetched.size > limit,
-                        totalFetchedCount = page.size,
+                        hasMoreMessages = window.hasMore,
+                        totalFetchedCount = window.messages.size,
                     )
                 }
             }
@@ -173,7 +175,7 @@ class ChatViewModel(
                 val page = fetched.takeLast(PAGE_SIZE)
                 val existingIds = before.messages.asSequence().map(MessageDTO::id).toHashSet()
                 val older = page.filterNot { it.id in existingIds }
-                val merged = normalize(older + before.messages)
+                val merged = normalize(visible(older) + before.messages)
                 mutableState.update {
                     it.copy(
                         messages = merged,
@@ -347,6 +349,10 @@ class ChatViewModel(
             )
         }
     }
+
+    /** Hidden rows still count toward `totalFetchedCount`, which is an unfiltered database offset. */
+    private fun visible(messages: List<MessageDTO>): List<MessageDTO> =
+        messages.filterNot(dependencies::isHiddenOutgoingReaction)
 
     private fun normalize(messages: List<MessageDTO>): List<MessageDTO> =
         messages.distinctBy(MessageDTO::id).sortedWith(

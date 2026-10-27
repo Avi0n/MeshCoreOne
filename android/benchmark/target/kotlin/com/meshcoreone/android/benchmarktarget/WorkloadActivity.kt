@@ -110,6 +110,8 @@ class WorkloadActivity : ComponentActivity() {
             override val data = object : TimelineDataSource {
                 override suspend fun fetchMessages(conversation: TimelineConversation, limit: Int, offset: Int) =
                     storage.store.fetchMessages(key, limit.toLong(), offset.toLong())
+                override suspend fun fetchMessageWindow(conversation: TimelineConversation, anchorSortDate: Instant?, floorLimit: Int) =
+                    storage.store.fetchMessageWindow(key, anchorSortDate, floorLimit.toLong())
                 override suspend fun fetchMessage(messageId: UUID) =
                     storage.store.fetchMessage(EntityKey(contact.radioId, messageId))
                 override suspend fun unreadAnchorMessageId(conversation: TimelineConversation) =

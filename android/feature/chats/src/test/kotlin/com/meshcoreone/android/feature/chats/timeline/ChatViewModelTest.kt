@@ -11,7 +11,9 @@ import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.model.MessageDirection
 import com.meshcoreone.android.core.model.MessageStatus
 import com.meshcoreone.android.core.model.RadioId
+import com.meshcoreone.android.core.model.SnapshotList
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.contracts.domain.MessageWindow
 import java.time.Instant
 import java.time.ZoneOffset
 import java.util.UUID
@@ -138,6 +140,8 @@ class ChatViewModelTest {
         assertTrue(viewModel.state.value.hasMoreMessages)
         val anchor = TimelineScrollAnchor(viewModel.state.value.messages.first().id, 17)
         viewModel.updateScrollPosition(anchor, isAtLatest = false)
+        // The unloaded oldest row disappears, so the refreshed window reaches the beginning of history.
+        data.messages.removeAt(0)
         val refreshEntered = CompletableDeferred<Unit>()
         val releaseRefresh = CompletableDeferred<Unit>()
         data.beforeFetch = { call, _ ->
@@ -505,15 +509,50 @@ class ChatViewModelTest {
         assertTrue(viewModel.state.value.messages.isEmpty())
     }
 
+    @Test
+    fun `open page and refresh hide outgoing reactions but count them for paging`() = runBlocking {
+        val contact = contact()
+        val reaction = message(contact, 5, MessageDirection.OUTGOING)
+        val rows = List(3) { message(contact, it + 10) }
+        val viewModel = viewModel(contact, FakeData(listOf(reaction) + rows), hidden = { it.id == reaction.id })
+
+        viewModel.open()
+
+        assertEquals(rows.map { it.id }, viewModel.state.value.messages.map { it.id })
+        assertEquals(4, viewModel.state.value.totalFetchedCount)
+        viewModel.refresh()
+        assertEquals(rows.map { it.id }, viewModel.state.value.messages.map { it.id })
+        assertEquals(4, viewModel.state.value.totalFetchedCount)
+        assertFalse(viewModel.state.value.hasMoreMessages)
+    }
+
+    @Test
+    fun `older page hides outgoing reactions and still advances the offset by every stored row`() = runBlocking {
+        val contact = contact()
+        val latest = List(ChatViewModel.PAGE_SIZE) { message(contact, it + 10) }
+        val reaction = message(contact, 2, MessageDirection.OUTGOING)
+        val older = message(contact, 1)
+        val data = FakeData(latest + reaction + older)
+        val viewModel = viewModel(contact, data = data, hidden = { it.id == reaction.id })
+        viewModel.open()
+
+        viewModel.loadOlder()
+
+        assertEquals(listOf(older.id) + latest.map { it.id }, viewModel.state.value.messages.map { it.id })
+        assertEquals(ChatViewModel.PAGE_SIZE + 2, viewModel.state.value.totalFetchedCount)
+        assertFalse(viewModel.state.value.hasMoreMessages)
+    }
+
     private fun viewModel(
         contact: ContactDTO,
         data: FakeData = FakeData(),
         events: MutableSharedFlow<TimelineEvent> = MutableSharedFlow(extraBufferCapacity = 4),
         retry: TimelineRetryService = TimelineRetryService { _, _ -> },
         drafts: MemoryDrafts = MemoryDrafts(),
+        hidden: (MessageDTO) -> Boolean = { false },
     ) = ChatViewModel(
         TimelineConversation.Direct(contact),
-        Dependencies(data, retry, drafts, events),
+        Dependencies(data, retry, drafts, events, hidden),
         scope,
         ZoneOffset.UTC,
     )
@@ -523,7 +562,10 @@ class ChatViewModelTest {
         override val retryService: TimelineRetryService,
         override val draftStore: TimelineDraftStore,
         override val events: MutableSharedFlow<TimelineEvent>,
-    ) : ChatTimelineDependencies
+        private val hidden: (MessageDTO) -> Boolean = { false },
+    ) : ChatTimelineDependencies {
+        override fun isHiddenOutgoingReaction(message: MessageDTO) = hidden(message)
+    }
 
     private class MemoryDrafts : TimelineDraftStore {
         private val values = mutableMapOf<ChatConversationID, String>()
@@ -557,6 +599,21 @@ class ChatViewModelTest {
             val endExclusive = (chronological.size - offset).coerceAtLeast(0)
             val start = (endExclusive - limit).coerceAtLeast(0)
             return chronological.subList(start, endExclusive)
+        }
+
+        override suspend fun fetchMessageWindow(
+            conversation: TimelineConversation,
+            anchorSortDate: Instant?,
+            floorLimit: Int,
+        ): MessageWindow {
+            fetchCalls++
+            beforeFetch(fetchCalls, 0)
+            offsets += 0
+            if (failAtOffset == 0) throw IllegalStateException("database failed")
+            val chronological = messages.sortedBy { it.sortDate }
+            val atAnchor = anchorSortDate?.let { anchor -> chronological.count { it.sortDate >= anchor } } ?: 0
+            val limit = maxOf(floorLimit, atAnchor)
+            return MessageWindow(SnapshotList(chronological.takeLast(limit)), chronological.size > limit)
         }
 
         override suspend fun fetchMessage(messageId: UUID) = messages.firstOrNull { it.id == messageId }
