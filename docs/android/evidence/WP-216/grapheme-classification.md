@@ -120,6 +120,20 @@ Both the canonical visibility extension and the rendering consumer's default
 predicate must agree. These checks do not claim new first-arrival atomicity,
 cache lifecycle behavior, hardware, a UI rendering run or on-device API31 proof.
 
+The mounted fixture allows the real battery bootstrap to finish with its
+3,700-mV firmware response and a live refresh loop before any reaction action.
+It then stops that unrelated monitor, identifies the one cancelled direct child
+of the injected background scope, joins it and asserts completion and inactive
+monitor state. It does not merely inspect cleared monitor fields or cancel the
+App graph. It stops background auto-fetch through the production polling service,
+asserts the real message handlers remain wired and drives that same service's
+`pollAllMessages` explicitly. This also joins its autonomous catch-up so it cannot
+race the fixture's queued frames; it does not replace the consumer. Polling
+asserts both complete `0a` commands; sending asserts exactly one complete
+post-action frame before checking its command and exact payload.
+No unexpected action frame, including a battery query, is filtered out. These
+new isolation assertions remain unexecuted pending the supported guarded run.
+
 The remaining production integration path is
 `android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt`.
 An actual WP-216 `modify` admission at the starting trusted policy returned

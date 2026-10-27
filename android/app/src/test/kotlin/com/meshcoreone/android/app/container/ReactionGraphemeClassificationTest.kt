@@ -25,6 +25,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
@@ -117,12 +118,32 @@ class ReactionGraphemeClassificationTest : RoomProcessTest() {
             }
             val live = assertNotNull(harness.sessions.current)
             assertTrue(live.messagePollingService.hasMessageHandlersWired)
+            val monitor = harness.appState.batteryMonitor
+            harness.eventually("real battery bootstrap completed before reaction assertions") {
+                monitor.deviceBattery?.level == 3700L && !monitor.isBootstrapActive && monitor.isRefreshLoopActive
+            }
+            // stop clears its job handles; retain the child so cancellation is joined, not merely requested.
+            val jobs = assertNotNull(test.backgroundScope.coroutineContext[Job]).children
+                .filter { it.isActive }.toList()
+            monitor.stop()
+            val cancelled = jobs.filter { it.isCancelled }
+            assertEquals(1, cancelled.size, "Stopping the settled monitor cancels its one refresh child")
+            cancelled.single().join()
+            assertTrue(cancelled.single().isCompleted)
+            assertFalse(monitor.isBootstrapActive)
+            assertFalse(monitor.isRefreshLoopActive)
+            live.messagePollingService.stopAutoFetch()
+            assertFalse(live.messagePollingService.isAutoFetching)
+            assertTrue(live.messagePollingService.hasMessageHandlersWired)
             live.channelService.syncChannels(live.token.radioId, 1u, usePipelinedRead = false)
             val channel = store.fetchChannels(live.token.radioId).single()
             assertEquals(secret, channel.secret)
             val peer = ContactDTO(radioId = live.token.radioId, publicKey = peerKey, name = "Bob", lastHeardTimestamp = null)
             store.saveContact(peer)
             body(Mounted(harness, live, peer, channel))
+            assertFalse(monitor.isBootstrapActive)
+            assertFalse(monitor.isRefreshLoopActive)
+            assertFalse(live.messagePollingService.isAutoFetching)
             assertTrue(live.reportedGaps.isEmpty())
             assertTrue(harness.messagingDiagnostics.isEmpty(), harness.messagingDiagnostics.toString())
         } finally {
@@ -185,6 +206,8 @@ class ReactionGraphemeClassificationTest : RoomProcessTest() {
         val target = target(fixture, direct)
         val conversation = if (direct) TimelineConversation.Direct(fixture.contact)
             else TimelineConversation.Channel(fixture.channel)
+        val radio = fixture.harness.links.radios.last()
+        val beforeSend = radio.sent.size
         fixture.harness.container.chatsFeature.react(target, emoji, conversation)
         val expectedStatus = if (direct) MessageStatus.DELIVERED else MessageStatus.SENT
         fixture.harness.eventually("actual App reaction-send committed status") {
@@ -201,7 +224,8 @@ class ReactionGraphemeClassificationTest : RoomProcessTest() {
         assertEquals(if (direct) fixture.contact.id else null, outgoing.contactID)
         assertEquals(if (direct) null else fixture.channel.index, outgoing.channelIndex)
         val commandCode = if (direct) 0x02 else 0x03
-        val frame = fixture.harness.links.radios.last().sent.single { it[0].toInt() == commandCode }
+        val frame = radio.sent.drop(beforeSend).single()
+        assertEquals(commandCode, frame[0].toInt())
         assertEquals(expectedWire, frame.toByteArray().copyOfRange(if (direct) 13 else 7, frame.size).toString(Charsets.UTF_8))
         val classifier = fixture.harness.container.chatsFeature.listFor(target.radioId).reactions
         assertEquals(accepted, if (direct) classifier.isDirectReaction(outgoing.text) else classifier.isChannelReaction(outgoing.text))
@@ -222,11 +246,13 @@ class ReactionGraphemeClassificationTest : RoomProcessTest() {
             Bytes.of(0x11, 20, 0, 0, 0, 0, 0) + le32(timestamp.toLong()) + Bytes.utf8(text)
         }
         val frames = ConcurrentLinkedQueue(listOf(frame))
+        val beforePoll = radio.sent.size
         radio.respond = { command ->
             if (command[0] == 0x0a.toUByte()) listOf(frames.poll() ?: Bytes.of(0x0a)) else previous(command)
         }
         try {
             assertEquals(1L, fixture.live.messagePollingService.pollAllMessages())
+            assertEquals(listOf(Bytes.of(0x0a), Bytes.of(0x0a)), radio.sent.drop(beforePoll))
         } finally {
             radio.respond = previous
         }
