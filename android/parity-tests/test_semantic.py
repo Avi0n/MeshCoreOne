@@ -512,6 +512,35 @@ class SemanticCommandTest(unittest.TestCase):
         self.assertEqual(1, execution["passed"])
         self.assertEqual(before, {path: path.read_bytes() for path in before})
 
+    def test_verify_execution_can_limit_checks_to_selected_runner_directories(self):
+        self.review["groups"][0]["runner_directory"] = "app/build/test-results/testDebugUnitTest"
+        path = self.repo / "android/app/build/test-results/testDebugUnitTest/TEST-Native.xml"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            '<testsuite tests="1" failures="0" errors="0" skipped="0">'
+            '<testcase classname="Native" name="checked()"/></testsuite>',
+            encoding="utf-8",
+        )
+        status, output, errors = self.run_check((
+            "--check", "--verify-execution", "--runner-directory",
+            "app/build/test-results/testDebugUnitTest",
+        ))
+        self.assertEqual(0, status, errors)
+        self.assertEqual(
+            {"app/build/test-results/testDebugUnitTest"},
+            set(json.loads(output)["execution"]),
+        )
+
+    def test_runner_directory_requires_execution_verification(self):
+        output, errors = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
+            status = semantic.main(
+                ("--runner-directory", "app/build/test-results/testDebugUnitTest"),
+                self.repo,
+            )
+        self.assertEqual(2, status)
+        self.assertIn("--runner-directory requires --verify-execution", errors.getvalue())
+
     def test_verify_execution_alone_is_read_only_and_uses_current_runner(self):
         native = self.groups["WP-101"]["families"][0]["native_proposals"][0]
         native["method_or_family_name"] = "renamedCurrent"

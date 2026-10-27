@@ -598,19 +598,34 @@ def bind_reviews(groups, repo=audit.REPO):
     }
 
 
-def verify_execution(bindings, android):
+def verify_execution(bindings, android, runner_directories=None):
     from controller.ci_evidence import require_case_identities
 
+    if runner_directories is None:
+        selected = None
+    elif (
+        not isinstance(runner_directories, (list, tuple, set))
+        or not runner_directories
+        or any(not isinstance(path, str) or not path for path in runner_directories)
+    ):
+        raise PortError("Selected runner directories must be nonempty paths")
+    else:
+        selected = set(runner_directories)
     directories = defaultdict(set)
     for family in bindings["families"]:
-        directories[family["runner_directory"]].add(tuple(family["runner_identity"]))
+        directory = family["runner_directory"]
+        if selected is None or directory in selected:
+            directories[directory].add(tuple(family["runner_identity"]))
+    missing = selected - directories.keys() if selected is not None else set()
+    if missing:
+        raise PortError(f"Selected runner directories have no reviewed identities: {sorted(missing)}")
     if not directories:
-        raise PortError("Zero reviewed runner identities")
+        raise PortError("Zero reviewed runner identities for selected directories")
     return {directory: require_case_identities(repo_path(android, directory), identities)
             for directory, identities in sorted(directories.items())}
 
 
-def generate(check=False, repo=audit.REPO, *, verify=False):
+def generate(check=False, repo=audit.REPO, *, verify=False, runner_directories=None):
     groups = proposals(repo, source_maps=audit.generate(repo) if check else None)
     if not check:
         actual = {path.stem for path in repo_path(repo, GROUP_ROOT).glob("*.json")}
@@ -628,7 +643,7 @@ def generate(check=False, repo=audit.REPO, *, verify=False):
               "candidate_semantically_compared_families": len(bindings["families"]),
               "scope": "actual source/native assertion/input/action bodies; independent semantic review still required"}
     if verify:
-        result["execution"] = verify_execution(bindings, repo / "android")
+        result["execution"] = verify_execution(bindings, repo / "android", runner_directories)
     return result
 
 
@@ -636,9 +651,17 @@ def main(argv=None, repo=audit.REPO):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--verify-execution", action="store_true")
+    parser.add_argument("--runner-directory", action="append")
     args = parser.parse_args(argv)
     try:
-        print(json.dumps(generate(check=args.check or args.verify_execution, repo=repo, verify=args.verify_execution)))
+        if args.runner_directory and not args.verify_execution:
+            raise PortError("--runner-directory requires --verify-execution")
+        print(json.dumps(generate(
+            check=args.check or args.verify_execution,
+            repo=repo,
+            verify=args.verify_execution,
+            runner_directories=args.runner_directory,
+        )))
         return 0
     except (PortError, OSError, ValueError, KeyError) as error:
         print(f"BLOCKED: {error}", file=sys.stderr)

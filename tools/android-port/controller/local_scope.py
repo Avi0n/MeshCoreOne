@@ -581,6 +581,18 @@ def _run_scaffold(repo, plan, environment, output, execute, options, *, trusted_
             sys.executable, str(repo / "android/parity-tests/semantic.py"),
             "--check", "--verify-execution",
         ], repo, environment, output / "parity-family-execution.log")
+    elif "module:app" in plan["scopes"]:
+        from .ci_evidence import WP501_ACCEPTANCE_CASES, require_case_identities
+
+        app_test_results = repo / "android/app/build/test-results/testDebugUnitTest"
+        report["wp501_acceptance_cases"] = require_case_identities(
+            app_test_results, WP501_ACCEPTANCE_CASES,
+        )
+        execute([
+            sys.executable, str(repo / "android/parity-tests/semantic.py"),
+            "--check", "--verify-execution",
+            "--runner-directory", "app/build/test-results/testDebugUnitTest",
+        ], repo, environment, output / "parity-family-execution.log")
     if plan["full_scaffold"] or "module:core/l10n" in plan["scopes"]:
         execute([
             sys.executable, str(repo / "tools/android-port/l10n_convert.py"), "--check",

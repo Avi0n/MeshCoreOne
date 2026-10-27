@@ -324,7 +324,7 @@ class LocalScopeBindingTests(unittest.TestCase):
                                fast.scaffold_options(), trusted_base=base)
         self.assertEqual(self.git("rev-parse", "HEAD"), plan["head"])
         import controller
-        from controller import ci, ci_environment
+        from controller import ci, ci_environment, ci_evidence
         self.write("work/toolchain/environment.json", json.dumps({"java_home": str(self.repo / "fixture-java")}))
         self.write("request.json", json.dumps(plan))
         output = self.repo / "output"
@@ -387,10 +387,18 @@ class LocalScopeBindingTests(unittest.TestCase):
         if failed:
             self.assertEqual(captured["result"], "failure")
             self.assertEqual(captured["failure"]["returncode"], 23)
-        expected = [{
-            "report": directory.relative_to(self.repo).as_posix() + "/TEST-Sync.xml",
-            "index": 0, "class": "SyncTest", "method": "required", "outcome": "passed",
-        } for directory in directories]
+        expected = []
+        for directory in directories:
+            report_path = directory.relative_to(self.repo).as_posix() + "/TEST-Sync.xml"
+            cases = (
+                sorted(ci_evidence.WP501_ACCEPTANCE_CASES)
+                if directory == self.repo / "android/app/build/test-results/testDebugUnitTest"
+                else [("SyncTest", "required")]
+            )
+            expected.extend({
+                "report": report_path, "index": index,
+                "class": classname, "method": name, "outcome": "passed",
+            } for index, (classname, name) in enumerate(cases))
         self.assertEqual(captured["junit_cases"], expected)
         self.assertEqual(
             {key: captured[key] for key in ("base", "head", "tree", "scopes", "tasks")},
@@ -600,6 +608,14 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.write("android/core/services/src/main/kotlin/Sync.kt", "changed fixture")
         return candidate_plan(self.repo, self.head, self.commit())
 
+    def app_plan(self):
+        self.write("android/app/build.gradle.kts", 'plugins { id("mesh.android.application") }\n')
+        self.write("android/app/src/main/kotlin/App.kt", "base")
+        base = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", base)
+        self.write("android/app/src/main/kotlin/App.kt", "changed")
+        return candidate_plan(self.repo, base, self.commit())
+
     @staticmethod
     def requested_gradle_tasks(command):
         tasks = []
@@ -614,7 +630,7 @@ class LocalScopeBindingTests(unittest.TestCase):
 
         def execute(command, repo, environment, log):
             calls.append(command)
-            if graph:
+            if graph and "ANDROID_CI_TASK_GRAPH" in environment:
                 tasks = self.requested_gradle_tasks(command) or plan["tasks"]
                 Path(environment["ANDROID_CI_TASK_GRAPH"]).write_text(json.dumps({
                     "schema_version": 1,
@@ -626,11 +642,24 @@ class LocalScopeBindingTests(unittest.TestCase):
             if emit:
                 directories, lint = report_inputs(self.repo, plan)
                 for directory in directories:
+                    cases = [("SyncTest", "required")]
+                    if (
+                        "module:app" in plan["scopes"]
+                        and directory == self.repo / "android/app/build/test-results/testDebugUnitTest"
+                    ):
+                        from controller.ci_evidence import WP501_ACCEPTANCE_CASES
+
+                        cases = sorted(WP501_ACCEPTANCE_CASES)
+                    test_cases = "".join(
+                        f"<testcase classname='{classname}' name='{name}'>"
+                        + ("<skipped/>" if skipped else "")
+                        + "</testcase>"
+                        for classname, name in cases
+                    )
                     self.write(
                         directory / "TEST-Sync.xml",
-                        "<testsuite tests='1' failures='0' errors='0' skipped='0'>"
-                        "<testcase classname='SyncTest' name='required'>"
-                        + ("<skipped/>" if skipped else "") + "</testcase></testsuite>",
+                        f"<testsuite tests='{len(cases)}' failures='0' errors='0' skipped='0'>"
+                        + test_cases + "</testsuite>",
                     )
                 for module in lint:
                     self.write(f"android/{module}/build/reports/lint-results-debug.xml",
@@ -679,6 +708,55 @@ class LocalScopeBindingTests(unittest.TestCase):
             "report": "android/core/services/build/test-results/test/TEST-Sync.xml",
             "index": 0, "class": "SyncTest", "method": "required", "outcome": "passed",
         }])
+
+    def test_app_scope_checks_required_cases_and_only_app_parity_families(self):
+        from controller import ci_evidence
+
+        plan = self.app_plan()
+        self.assertEqual(plan["scopes"], ["module:app"])
+        output = self.repo / "output"
+        output.mkdir()
+        calls, execute = self.execute_fixture(plan)
+        with patch.object(ci_evidence, "WP501_ACCEPTANCE_CASES", {("SyncTest", "required")}):
+            report = run_scaffold(
+                self.repo, plan, {}, output, execute, [], trusted_base=plan["base"],
+            )
+        self.assertEqual(1, report["wp501_acceptance_cases"]["passed"])
+        self.assertEqual(len(calls), 3)
+        self.assertIn("--verify-execution", calls[2])
+        self.assertEqual(
+            calls[2][calls[2].index("--runner-directory") + 1],
+            "app/build/test-results/testDebugUnitTest",
+        )
+
+    def test_app_scope_rejects_replaced_required_case_without_count_change(self):
+        from controller import ci_evidence
+
+        plan = self.app_plan()
+        output = self.repo / "output"
+        output.mkdir()
+        calls, execute = self.execute_fixture(plan)
+
+        def replace_required_case(command, repo, environment, log):
+            execute(command, repo, environment, log)
+            if ":app:testDebugUnitTest" in command:
+                self.write(
+                    "android/app/build/test-results/testDebugUnitTest/TEST-Sync.xml",
+                    "<testsuite tests='1' failures='0' errors='0' skipped='0'>"
+                    "<testcase classname='SyncTest' name='replacement'/></testsuite>",
+                )
+
+        with patch.object(ci_evidence, "WP501_ACCEPTANCE_CASES", {("SyncTest", "required")}), \
+                self.assertRaisesRegex(PortError, "Missing WP-501 behavioral tests"):
+            run_scaffold(
+                self.repo, plan, {}, output, replace_required_case, [],
+                trusted_base=plan["base"],
+            )
+        cases = collect_named_cases(
+            self.repo, [self.repo / "android/app/build/test-results/testDebugUnitTest"],
+        )
+        self.assertEqual(1, len(cases))
+        self.assertEqual("replacement", cases[0]["method"])
 
     def test_preflight_failure_stops_before_build_and_test_tasks(self):
         plan = self.services_plan()
