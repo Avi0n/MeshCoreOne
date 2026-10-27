@@ -332,7 +332,7 @@ record nor DATA-10's unexecuted status is overwritten. The successor requires
 an admitted diagnostic `:core:runtime:test` run before the full affected
 runtime/model/consumer closure; diagnostic execution alone is not acceptance.
 
-## DATA-08 corruption boundary: deterministic non-loss proof candidate
+## DATA-08 initial corruption boundary candidate (superseded, unexecuted)
 
 The new bounded assignment is `DATA-08` / `D372`, not a rerun of the DATA-01
 and DATA-10 union verified and landed in PR #344. Its clean start is
@@ -395,3 +395,55 @@ The existing declared database `verifyDomainRoomTests` depends on
 guarded affected verification must also include the computed consumer closure,
 compile/lint and graph obligations. No raw Gradle bypass, laptop native run,
 publication or PR is authorized by this source-stage evidence.
+
+## DATA-08 settled pinned-source disposition and corrected candidate
+
+Oversight rejected the unapproved strict-corrupt-projection adaptation and
+directed restoration of the actual pinned reference behavior. A fresh read of
+`RxLogEntry.swift` at `db14559b39d32322b06477c6ae676112f583db50` confirms the
+six failable-conversion defaults and unknown-enum behavior; the pinned
+`RxLogService.loadExistingEntries()` also catches/logs fetch failures and returns
+an empty list. Therefore the earlier service-rethrow proposal and two-service
+support request are withdrawn. The Kotlin service's cancellation propagation
+remains intact. Candidate `8eed0b5e` was not executed or published and its
+strict-failure expectations are superseded in the successor.
+
+`DiagnosticMappings.kt` now projects route/payload through exact-width nullable
+conversion plus source enum defaults, version/path through nullable conversion
+plus zero, optional channel/timestamp through nullable exact conversion, and
+unknown decrypt status to not-applicable. This is a read-only DTO projection,
+not normalization of persisted data. Other checked database values remain
+typed failures. Supported converter admission/evolution advanced the same
+reservation from revision 5 to 6.
+
+The corrected `CorruptRxProjectionTest` has three methods: all six independently
+stored corrupt fields with repeated exact fallback/raw-row/second-radio checks;
+the exact original compound six-value fixture and literal fallback expectations;
+and valid unsigned bounds, negative/overflow widths, unknown enums and retained
+RX payload nibble behavior. No candidate conversion generates the expected six
+fallback values.
+
+The existing App capability admitted
+`android/app/src/test/kotlin/com/meshcoreone/android/app/container/RxLogProjectionConsumerTest.kt`
+with `add-direct-support-wiring`; same-owner evolution advanced revision 6 to 7.
+Its original-family-linked method exercises real Room, `RoomPersistenceStore`,
+the connected `RadioSessionContainer.rxLogService`, the production App
+`ToolsRxLogFeedAdapter` and `RxLogStateHolder.subscribe`. Repeated loads must
+retain the original ID, the six literal fallback values, a healthy max-width
+companion, exact group counts, and all underlying raw rows including a same-ID
+row in a second radio partition. No feature/service production file or test
+dependency was changed.
+
+Two existing `core:data` tests still encode the rejected strict-throw adaptation
+in their first corruption methods. Their exact bounded replacement with the
+source oracle requires the requested trusted support rule; they remain untouched
+until that rule lands and supported admission succeeds. No generic data/services
+authority is inferred. This corrected source batch is **UNEXECUTED**, pending
+complete admitted source integration and one exact-candidate guarded affected
+run; no previous DATA-01/DATA-10 pass is rebound as its acceptance.
+
+Corrected source-stage checks passed: `git diff --check`;
+`python tools\android-port\portmap.py` (1,923 dispositions);
+`python tools\android-port\controller\validate.py` (valid, 1,866 references,
+64 WPs, 178 edges); and
+`python tools\android-port\controller\verification_config.py --check` (valid).
