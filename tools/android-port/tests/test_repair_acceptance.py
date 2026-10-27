@@ -25,6 +25,7 @@ import test_native_review
 PATH = "android/feature/map/src/main/kotlin/com/meshcoreone/android/feature/map/MapEntry.kt"
 TEST = "android/core/maps/src/test/kotlin/com/meshcoreone/android/core/maps/MapTest.kt"
 METHOD = {"path": TEST, "blob_sha": "4" * 40, "id": "keepsListReachable"}
+CONSUMER_TEST = "android/app/src/test/kotlin/com/meshcoreone/android/app/ConsumerTest.kt"
 LOG_STEP = "Run every selected Linux and Android task in one Gradle invocation"
 
 
@@ -500,6 +501,361 @@ class RepairAuthorityTests(unittest.TestCase):
         entries = {p: "6" * 40 for p in required_inputs()}
         entries.update({"docs/android/test-cases.json": "7" * 40, PATH: "5" * 40, TEST: "4" * 40})
         return native, api, prefix, value, scope, staged, entries
+
+    def verification_fixture(self):
+        native, api, prefix, value, scope, staged, entries = self.fixture()
+        scope.update(schema_version=2, kind="landed-wp-verification")
+        scope["paths"] = [{"path": CONSUMER_TEST, "operation": "add-direct-support-wiring",
+                           "capability": "app-build-launcher"}]
+        scope["coverage"][0].update(
+            path=CONSUMER_TEST, modules=["app", "feature/map"],
+            hosted_methods=[{"path": CONSUMER_TEST, "blob_sha": "4" * 40, "id": "keepsListReachable"}],
+            production_bindings={PATH: "5" * 40},
+        )
+        value.pr["changed_paths"] = [CONSUMER_TEST]
+        value.evidence.update(changed_paths=[CONSUMER_TEST], repair_scope=scope)
+        staged["changed_paths"] = [CONSUMER_TEST]
+        entries[CONSUMER_TEST] = "4" * 40
+        api.routes[("GET", prefix + "/pulls/123/files?per_page=100&page=1")] = [
+            {"filename": CONSUMER_TEST, "status": "added"},
+        ]
+        api.routes[("GET", prefix + "/issues/comments/700")]["body"] = SCOPE_MARKER + json.dumps(scope)
+        receipt = json.loads(api.routes[("GET", prefix + "/pulls/123/reviews?per_page=100&page=1")][0]["body"][
+            len(REVIEW_MARKER):
+        ])
+        receipt.update(staging_sha256=digest(staged), evidence=value.evidence)
+        api.routes[("GET", prefix + "/pulls/123/reviews?per_page=100&page=1")][0]["body"] = (
+            REVIEW_MARKER + json.dumps(receipt)
+        )
+        for revision in (MERGE, BASE, HEAD):
+            api.routes[("GET", prefix + f"/contents/{PATH}?ref={revision}")] = {
+                "type": "file", "path": PATH, "sha": "5" * 40,
+            }
+
+        def regular_tree(repo, *arguments):
+            self.assertEqual(arguments[:3], ("ls-tree", "-z", "--full-tree"))
+            self.assertEqual(arguments[4], "--")
+            revision, path = arguments[3], arguments[5]
+            record = api.routes[("GET", prefix + f"/contents/{path}?ref={revision}")]
+            return f"100644 blob {record['sha']}\t{record['path']}\0".encode()
+
+        reader = patch("controller.repair_acceptance.git", side_effect=regular_tree)
+        reader.start()
+        self.addCleanup(reader.stop)
+        return native, api, prefix, value, scope, staged, entries
+
+    def test_verification_git_mode_identity_is_required_even_when_contents_resolves_a_symlink(self):
+        for revision in (MERGE, BASE, HEAD):
+            for kind in ("symlink", "tree", "gitlink", "missing", "truncated", "duplicate", "blob", "path",
+                         "metadata", "missing-object"):
+                native, _, _, value, _, _, _ = self.verification_fixture()
+                valid = f"100644 blob {'5' * 40}\t{PATH}\0".encode()
+                raw = {
+                    "symlink": valid.replace(b"100644", b"120000"),
+                    "tree": valid.replace(b"100644 blob", b"040000 tree"),
+                    "gitlink": valid.replace(b"100644 blob", b"160000 commit"),
+                    "missing": b"",
+                    "truncated": valid[:-1],
+                    "duplicate": valid + valid,
+                    "blob": valid.replace(b"5" * 40, b"6" * 40),
+                    "path": valid.replace(PATH.encode(), TEST.encode()),
+                    "metadata": b"not-git-tree-data\0",
+                    "missing-object": valid,
+                }[kind]
+
+                def read(repo, *arguments):
+                    self.assertEqual(arguments, ("ls-tree", "-z", "--full-tree", arguments[3], "--", PATH))
+                    if arguments[3] != revision:
+                        return valid
+                    if kind == "missing-object":
+                        raise PortError("Git command failed: ls-tree -z")
+                    return raw
+
+                # All Contents metadata remains type=file/path/equal SHA, including the symlink case.
+                with self.subTest(revision=revision, kind=kind), patch(
+                    "controller.repair_acceptance.git", side_effect=read,
+                ), self.assertRaisesRegex(PortError, "regular Git blob|Git command failed"):
+                    authenticated_scope(native, 700, value.binding)
+        native, _, _, value, _, _, _ = self.verification_fixture()
+        for mode in ("100644", "100755"):
+            with self.subTest(regular_mode=mode), patch(
+                "controller.repair_acceptance.git", return_value=f"{mode} blob {'5' * 40}\t{PATH}\0".encode(),
+            ) as reader:
+                authenticated_scope(native, 700, value.binding)
+                self.assertEqual([call.args[4] for call in reader.call_args_list], [MERGE, BASE, HEAD])
+
+    def test_verification_only_scope_authenticates_unchanged_landed_consumer_without_production_edit(self):
+        native, _, _, value, scope, _, _ = self.verification_fixture()
+        self.assertEqual(authenticated_scope(native, 700, value.binding), scope)
+        proof = verify_repair(value, scope, native.manifest, native.policy, None)
+        self.assertFalse(proof["wp_complete"])
+        self.assertFalse(proof["dependency_unlock"])
+        self.assertEqual(proof["modules"], ["app", "feature/map"])
+        for path in ("docs/android/deviations/WP-312.md", "docs/android/evidence/WP-312/consumer.md"):
+            scope["paths"].append({"path": path, "operation": "modify", "capability": "wp-owned"})
+        paths = [entry["path"] for entry in scope["paths"]]
+        validate_scope(scope, value.binding, native.manifest, native.policy, paths, None)
+
+    def test_legacy_production_repair_cannot_be_relabelled_as_verification_without_new_contract(self):
+        native, api, prefix, value, scope, _, _ = self.verification_fixture()
+        scope.update(schema_version=1, kind="landed-wp-repair")
+        api.routes[("GET", prefix + "/issues/comments/700")]["body"] = SCOPE_MARKER + json.dumps(scope)
+        with self.assertRaisesRegex(PortError, "Repair production paths"):
+            authenticated_scope(native, 700, value.binding)
+        with self.assertRaisesRegex(PortError, "repair behavioral coverage"):
+            validate_scope(scope, value.binding, native.manifest, native.policy, [CONSUMER_TEST], None)
+
+    def test_verification_scope_rejects_foreign_stale_or_noncanonical_producer_bindings(self):
+        for kind in ("empty", "missing", "foreign", "malformed", "nonproduction", "merge", "base", "head",
+                     "symlink", "wrong-path", "unmerged", "ancestry", "marker", "repository", "owner",
+                     "source", "comment-author", "issue", "schema", "kind"):
+            native, api, prefix, value, scope, _, _ = self.verification_fixture()
+            coverage = scope["coverage"][0]
+            if kind == "empty":
+                coverage["production_bindings"] = {}
+            elif kind == "missing":
+                del coverage["production_bindings"]
+            elif kind == "foreign":
+                api.routes[("GET", prefix + "/pulls/140/files?per_page=100&page=1")] = [{"filename": TEST}]
+            elif kind == "malformed":
+                coverage["production_bindings"][PATH] = "not-a-blob"
+            elif kind == "nonproduction":
+                coverage["production_bindings"] = {TEST: "4" * 40}
+            elif kind in ("merge", "base", "head", "symlink", "wrong-path"):
+                revision = {"merge": MERGE, "base": BASE}.get(kind, HEAD)
+                record = api.routes[("GET", prefix + f"/contents/{PATH}?ref={revision}")]
+                if kind == "symlink":
+                    record["type"] = "symlink"
+                elif kind == "wrong-path":
+                    record["path"] = TEST
+                else:
+                    record["sha"] = "6" * 40
+            elif kind in ("unmerged", "marker", "repository"):
+                producer = api.routes[("GET", prefix + "/pulls/140")]
+                if kind == "unmerged":
+                    producer["merged"] = False
+                elif kind == "marker":
+                    producer["body"] = "<!-- android-port-wp:WP-201 -->"
+                else:
+                    producer["base"]["repo"]["full_name"] = "foreign/repo"
+            elif kind == "ancestry":
+                api.routes[("GET", prefix + f"/compare/{MERGE}...{BASE}")] = {"status": "diverged"}
+            elif kind == "owner":
+                scope["owner"] = "other"
+            elif kind == "source":
+                scope["binding"]["source_sha"] = "0" * 40
+            elif kind == "schema":
+                scope["schema_version"] = True
+            elif kind == "kind":
+                scope["kind"] = "landed-wp-repair"
+            comment = api.routes[("GET", prefix + "/issues/comments/700")]
+            if kind == "comment-author":
+                comment["user"]["login"] = "candidate"
+            elif kind == "issue":
+                comment["issue_url"] += "0"
+            comment["body"] = SCOPE_MARKER + json.dumps(scope)
+            with self.subTest(kind=kind), self.assertRaises(PortError):
+                authenticated_scope(native, 700, value.binding)
+
+    def test_verification_real_crossmodule_consumers_need_continuity_not_one_producer_authorship(self):
+        native, api, prefix, value, scope, _, _ = self.verification_fixture()
+        consumer = "android/app/src/main/kotlin/com/meshcoreone/android/app/SettingsConsumer.kt"
+        scope["coverage"][0]["production_bindings"][consumer] = "6" * 40
+        for revision in (MERGE, BASE, HEAD):
+            api.routes[("GET", prefix + f"/contents/{consumer}?ref={revision}")] = {
+                "type": "file", "path": consumer, "sha": "6" * 40,
+            }
+        comment = api.routes[("GET", prefix + "/issues/comments/700")]
+        comment["body"] = SCOPE_MARKER + json.dumps(scope)
+        authenticated_scope(native, 700, value.binding)
+        # A second coverage entry cannot borrow another test's producer association.
+        extra = copy.deepcopy(scope["coverage"][0])
+        extra["production_bindings"] = {consumer: "6" * 40}
+        scope["coverage"].append(extra)
+        comment["body"] = SCOPE_MARKER + json.dumps(scope)
+        with self.assertRaisesRegex(PortError, "actual landed producer"):
+            authenticated_scope(native, 700, value.binding)
+
+    def test_verification_path_coverage_modules_and_typed_build_wiring_fail_closed(self):
+        for kind in ("production", "manifest", "resource", "foreign-doc", "controller", "omitted-path",
+                     "omitted-coverage", "consumer-module", "test-module", "missing-bindings",
+                     "invented-capability", "wrong-operation", "wiring-without-tests", "untyped-wiring"):
+            native, _, _, value, scope, _, _ = self.verification_fixture()
+            paths = [CONSUMER_TEST]
+            if kind in ("production", "manifest", "resource", "foreign-doc", "controller"):
+                path = {
+                    "production": "android/app/src/main/kotlin/HiddenProduction.kt",
+                    "manifest": "android/app/src/main/AndroidManifest.xml",
+                    "resource": "android/app/src/main/res/values/strings.xml",
+                    "foreign-doc": "docs/android/deviations/WP-201.md",
+                    "controller": "tools/android-port/controller/native_review.py",
+                }[kind]
+                scope["paths"].append({"path": path, "operation": "add-direct-support-wiring",
+                                       "capability": "app-build-launcher"})
+                if kind in ("foreign-doc", "controller"):
+                    scope["paths"][-1].update(
+                        operation="record-validation-evidence", capability="traceability-validation",
+                    )
+                paths.append(path)
+            elif kind == "omitted-path":
+                paths.append(PATH)
+            elif kind == "omitted-coverage":
+                scope["coverage"] = []
+            elif kind == "consumer-module":
+                scope["coverage"][0]["modules"] = ["app"]
+            elif kind == "test-module":
+                scope["coverage"][0]["modules"] = ["feature/map"]
+            elif kind == "missing-bindings":
+                del scope["coverage"][0]["production_bindings"]
+            elif kind == "invented-capability":
+                scope["paths"][0]["capability"] = "wp-owned"
+            elif kind == "wrong-operation":
+                scope["paths"][0]["operation"] = "guessed-test-operation"
+            else:
+                wiring = "android/app/build.gradle.kts"
+                scope["paths"].append({"path": wiring, "operation": "update-build-or-manifest",
+                                       "capability": "app-build-launcher"})
+                paths.append(wiring)
+                if kind == "wiring-without-tests":
+                    scope["paths"] = scope["paths"][1:]
+                    paths = [wiring]
+                else:
+                    scope["paths"][-1].update(operation="modify", capability="wp-owned")
+            with self.subTest(kind=kind), self.assertRaises(PortError):
+                validate_scope(scope, value.binding, native.manifest, native.policy, paths, None)
+
+        native, _, _, value, scope, _, _ = self.verification_fixture()
+        wiring = "android/app/build.gradle.kts"
+        scope["paths"].append({"path": wiring, "operation": "update-build-or-manifest",
+                               "capability": "app-build-launcher"})
+        scope["coverage"].append({**copy.deepcopy(scope["coverage"][0]), "path": wiring})
+        _, _, modules = validate_scope(scope, value.binding, native.manifest, native.policy,
+                                      [CONSUMER_TEST, wiring], None)
+        self.assertEqual(modules, {"app", "feature/map"})
+        scope["coverage"].pop()
+        with self.assertRaisesRegex(PortError, "Every changed"):
+            validate_scope(scope, value.binding, native.manifest, native.policy, [CONSUMER_TEST, wiring], None)
+
+    def test_verification_methods_must_cover_all_actual_changed_declarations_and_execution(self):
+        native, _, _, _, scope, _, entries = self.verification_fixture()
+        executed = {"app": [{"class": "com.meshcoreone.android.app.ConsumerTest",
+                             "method": "keepsListReachable[31]"}]}
+        source = b"package com.meshcoreone.android.app\n@Test fun keepsListReachable() {}"
+        with patch("controller.staging.object_bytes", return_value=source):
+            validate_hosted_methods(scope, entries, native.manifest.repo, executed)
+        for kind in ("omitted-method", "invented-method", "duplicate", "absent-test", "stale-test",
+                     "stale-consumer", "not-executed", "missing-inventory", "comment-only"):
+            changed, candidate, records, text = copy.deepcopy(scope), dict(entries), copy.deepcopy(executed), source
+            if kind == "omitted-method":
+                text += b"\n@Test fun omittedRequiredMethod() {}"
+            elif kind == "invented-method":
+                changed["coverage"][0]["hosted_methods"][0]["id"] = "notDeclared"
+            elif kind == "duplicate":
+                changed["coverage"][0]["hosted_methods"] *= 2
+            elif kind == "absent-test":
+                candidate.pop(CONSUMER_TEST)
+            elif kind == "stale-test":
+                candidate[CONSUMER_TEST] = "8" * 40
+            elif kind == "stale-consumer":
+                candidate[PATH] = "8" * 40
+            elif kind == "not-executed":
+                records["app"][0]["method"] = "other"
+            elif kind == "missing-inventory":
+                records = {}
+            else:
+                text = b"// @Test\nfun keepsListReachable() {}"
+            with self.subTest(kind=kind), patch("controller.staging.object_bytes", return_value=text), \
+                    self.assertRaises(PortError):
+                validate_hosted_methods(changed, candidate, native.manifest.repo, records)
+
+    def test_verification_native_methods_also_bind_all_declarations_and_production_consumers(self):
+        native, _, _, _, scope, _, entries = self.verification_fixture()
+        path = CONSUMER_TEST.replace("/src/test/", "/src/androidTest/")
+        entry = scope["coverage"][0]
+        identity = "com.meshcoreone.android.app.ConsumerTest#keepsListReachable"
+        entry.update(path=path, hosted_methods=[], native_methods=[identity])
+        entries[path] = "4" * 40
+        source = b"package com.meshcoreone.android.app\n@Test fun keepsListReachable() {}"
+        with patch("controller.staging.object_bytes", return_value=source):
+            validate_hosted_methods(scope, entries, native.manifest.repo, {})
+        with patch("controller.staging.object_bytes", return_value=source + b"\n@Test fun omitted() {}"), \
+                self.assertRaisesRegex(PortError, "every actual"):
+            validate_hosted_methods(scope, entries, native.manifest.repo, {})
+        with self.assertRaisesRegex(PortError, "Missing affected native"):
+            verify_native(native, scope, entries)
+        helper = RepairExecutionTests()
+        raw = helper.transcript([("keepsListReachable", "0")]).replace(
+            "class=NativeTest", "class=com.meshcoreone.android.app.ConsumerTest",
+        ).encode()
+        scope["native"] = [{
+            "revision": MERGE, "transcript": f"docs/android/evidence/WP-503/device-repairs-full-api{api}.txt",
+            "sha256": hashlib.sha256(raw).hexdigest(), "api": api, "methods": [identity],
+            "bindings": {path: "4" * 40, PATH: "5" * 40},
+            "fixture": {"path": path, "blob_sha": "4" * 40},
+            "out_of_scope_failures": {}, "execution": {},
+        } for api in (31, 37)]
+        for observation in scope["native"]:
+            for binding_path, blob in observation["bindings"].items():
+                # The independently retained fixture/source must also exist at the audit revision.
+                native.backend.api.routes[("GET", native.prefix + f"/contents/{binding_path}?ref={MERGE}")] = {"sha": blob}
+        with patch("controller.repair_acceptance.retained_file", return_value=raw), \
+                patch("controller.repair_acceptance.retained_repairs_execution", return_value=BASE):
+            verify_native(native, scope, entries)
+            scope["native"][0]["bindings"].pop(PATH)
+            with self.assertRaisesRegex(PortError, "omits affected production"):
+                verify_native(native, scope, entries)
+
+    def test_verification_only_data_staging_and_native_evaluation_keep_existing_fences(self):
+        native, api, prefix, value, scope, staged, entries = self.verification_fixture()
+        count = {"discovered": 1, "run": 1, "passed": 1, "failed": 0, "errors": 0, "skipped": 0}
+        log = build_log(["feature/map"], suites={"app": count}, unit_test_methods={
+            "app": [{"class": "com.meshcoreone.android.app.ConsumerTest", "method": "keepsListReachable[31]"}],
+            "feature/map": [{"class": "MapTest", "method": name}
+                            for name in ("keepsListReachable", "unrelatedOne", "unrelatedTwo")],
+        })
+
+        def objects(repo, blob):
+            if blob == "4" * 40:
+                return b"package com.meshcoreone.android.app\n@Test fun keepsListReachable() { check(true) }"
+            return json.dumps({"schema_version": 1, "source_sha": value.binding.source_sha, "entries": []}).encode()
+
+        with patch("controller.native_review.stage_review", return_value=staged), \
+                patch("controller.native_review.tree", return_value=entries), \
+                patch("controller.native_review.object_bytes", side_effect=objects), \
+                patch("controller.staging.object_bytes", side_effect=objects), \
+                patch("controller.repair_acceptance.read_job_log", return_value=log):
+            staging = native.stage_repair("WP-312", 123, 700)
+            self.assertEqual(staging["state"], "staged-data-only")
+            self.assertEqual(staging["repair_scope"], scope)
+            actual, result = native.evaluate("WP-312", 123, 90)
+            self.assertFalse(result["wp_complete"])
+            self.assertFalse(result["dependency_unlock"])
+            with self.assertRaisesRegex(PortError, "cannot complete"):
+                verify_completion(actual.pr, actual.evidence, actual.review, actual.approvals,
+                                  actual.binding, native.manifest, native.policy, actual.catalog)
+            for kind in ("current-base", "staging", "hosted-run", "skipped-job", "source-finding", "human-gate"):
+                routes = copy.deepcopy(api.routes)
+                if kind == "current-base":
+                    api.routes[("GET", prefix + "/git/ref/heads/main")]["object"]["sha"] = MERGE
+                elif kind == "staging":
+                    staged["changed_paths"] = [CONSUMER_TEST, PATH]
+                elif kind == "hosted-run":
+                    api.routes[("GET", prefix + "/actions/runs/1")]["head_sha"] = BASE
+                elif kind == "skipped-job":
+                    api.routes[("GET", prefix + "/actions/runs/1/attempts/1/jobs?per_page=100&page=1")][
+                        "jobs"
+                    ][0]["conclusion"] = "skipped"
+                elif kind == "source-finding":
+                    api.routes[("POST", "/graphql")]["data"]["repository"]["pullRequest"]["reviewThreads"]["nodes"] = [
+                        {"isResolved": False},
+                    ]
+                else:
+                    api.routes[("GET", prefix + "/pulls/123")]["labels"] = [{"name": "needs-human"}]
+                with self.subTest(kind=kind), self.assertRaises(PortError):
+                    native.evaluate("WP-312", 123, 90)
+                api.routes = routes
+                staged["changed_paths"] = [CONSUMER_TEST]
+        self.assertFalse(any(call[0] != "GET" and not call[3] for call in api.calls))
 
     def test_authenticated_scope_binds_issue_owner_landed_wp_and_actual_ancestry(self):
         native, api, prefix, value, scope, _, _ = self.fixture()

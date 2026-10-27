@@ -896,6 +896,63 @@ inventory must contain an actually repaired production path; added repair helper
 still need exact typed admissions and behavioral coverage. Legacy title provenance
 does not manufacture a historical completion receipt or alter old reservations.
 
+For **verification-only additions** to an already-landed WP, keep that same
+authenticated issue-comment marker and every field above, but explicitly use
+`schema_version: 2`, `kind: "landed-wp-verification"`. Schema 1 remains the
+production-repair contract; do not manufacture a production edit to satisfy it.
+Each schema-2 coverage entry additionally requires `production_bindings`, a
+nonempty object mapping actual unchanged Android `src/main` consumer paths to
+Git blob SHAs. Each coverage entry must include a path from the canonical merged
+producer's server file inventory; additional real cross-module consumers need
+not have been authored by that same producer. Every bound regular-file identity
+must match at **all three**
+revisions: that producer's merge commit, the exact current base and candidate
+head. Regular-file proof uses the existing trusted local Git reader's exact
+`ls-tree -z --full-tree <immutable-commit> -- <bound-path>` record at every
+revision: one complete record, mode `100644` or `100755`, type `blob`, exact
+path and blob SHA. Missing objects, missing/truncated/duplicate records and any
+mode/type/identity mismatch fail closed. Contents metadata is additionally
+checked, but cannot prove Git mode: GitHub may resolve a repository symlink
+and return its target as `type: file`.
+Foreign producers, missing/changed consumers, stale bindings and symlinks
+cannot establish this continuity. Every bound consumer module must be selected
+alongside the changed test module. Source review must account for the actual
+consumer relationship; a blob match alone is not behavioral acceptance.
+
+Schema 2 permits Kotlin `src/test` / `src/androidTest` changes, the WP's own
+deviation/evidence, and directly necessary module `build.gradle.kts` test wiring
+only when an existing **typed support capability**, not generic `wp-owned`,
+actually admits its path/operation. Wiring requires changed tests in that same
+module, its own complete behavioral coverage and the existing capability
+invariants/validation. This is not a dependency, production-configuration or
+activation waiver; the trusted source review must establish the test-only
+purpose. No production source, resources, manifest, controller, policy or
+unaccounted path can be smuggled through this mode. Server and complete staged
+Git inventories must still exactly match the authenticated scope.
+
+All actual JUnit declarations in each changed test file must be selected:
+hosted methods for unit tests, exact `Class#method` identities for
+instrumentation. Missing, invented or duplicate selections fail. Existing
+immutable test-blob and actual hosted-execution checks still apply; changed
+instrumentation retains both-API native evidence and must bind both its test
+source and the unchanged production consumers. The same trusted staging/profile,
+original source/case families, current-base/head, hosted run/job/count/method
+provenance, findings, separate human gates, protected publication and paused
+no-bypass/activation fences remain mandatory. No scope or staged object mints a
+verdict; both modes return bounded acceptance with `wp_complete: false` and
+`dependency_unlock: false`, never whole-WP acceptance.
+
+Focused source-only verification uses the existing strict runner API (nonzero
+discovery, no failures/errors/skips), not Android/native execution:
+
+```powershell
+$env:PYTHONPATH="$PWD\tools\android-port;$PWD\tools\android-port\tests"
+python -B -c "import unittest; from controller.test_runner import run_suite; raise SystemExit(run_suite(unittest.TestLoader().loadTestsFromNames(['test_repair_acceptance', 'test_native_review', 'test_gate_integration', 'test_gates'])))"
+python .\tools\android-port\controller\verification_config.py --check
+python .\tools\android-port\controller\validate.py
+python .\tools\android-port\controller\workflows.py
+```
+
 `hosted_methods` entries are `{path, blob_sha, id}` for actual Kotlin test methods
 in a selected module's `src/test` tree. The publisher binds them to candidate
 blobs, requires the real successful Linux Android build job and parses its
