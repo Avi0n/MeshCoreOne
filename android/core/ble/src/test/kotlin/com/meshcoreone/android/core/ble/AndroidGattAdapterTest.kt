@@ -84,7 +84,7 @@ abstract class AndroidGattAdapterTest {
         fixture.clock.advanceBy(8.seconds)
         runCurrent()
         fixture.shadow.pause = GattOperationKind.Mtu
-        assertTrue(fixture.shadow.discoverServices())
+        assertTrue(fixture.shadow.completeDiscovery())
         runCurrent()
         assertTrue(fixture.shadow.calls.any { it.startsWith("mtu:") })
         fixture.clock.advanceBy(4.seconds)
