@@ -129,10 +129,11 @@ class SyncCoordinatorTests {
             assertEquals(1, ended.callCount, "onSyncActivityEnded should be called exactly once on error")
         },
         case("Sync activity ends before messages phase") {
-            val coordinator = coordinator()
+            val advancingClock = ReadAdvancingSyncClock(clock)
+            val coordinator = SyncCoordinator(scope, advancingClock)
             val radioId = newRadio()
             val store = SyncInMemoryStore.createTestDataStore(radioId)
-            val tracker = OrderTrackingMessagePollingService(clock)
+            val tracker = OrderTrackingMessagePollingService(advancingClock)
             coordinator.setSyncActivityCallbacks({}, { tracker.recordActivityEnded() }, {})
             coordinator.performFullSync(radioId, store, MockContactService(), MockChannelService(), tracker)
             assertTrue(tracker.activityEndedBeforeMessagePoll, "Activity should end before message polling starts")
