@@ -387,6 +387,39 @@
         "validation": ["generator reproducibility", "affected resource and localization tests"]
       },
       {
+        "id": "wp201-rx-projection-source-regressions",
+        "work_packages": ["WP-201"],
+        "path_rules": [
+          "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
+          "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt"
+        ],
+        "operations": ["restore-rx-projection-source-regressions"],
+        "invariants": [
+          "DATA-08-pinned-PersistenceStoreTests-and-RxLogEntryDTO-db14559b39d32322b06477c6ae676112f583db50-source-baseline-not-new-adaptation",
+          "two-existing-repository-tests-only-first-corruption-method-and-OriginalCase-annotation-unused-import-cleanup-only",
+          "route999-to-flood-payloadMinus1-to-unknown-version5000-to-zero-path400-to-zero-channel9999-to-null-timestampMinus10-to-null",
+          "exact-checked-failable-projection-no-wrapping-clamping-or-defaults-outside-source-approved-fields",
+          "real-RoomPersistenceStore-fetch-retains-entry-id-radio-raw-bytes-healthy-companion-and-nonempty-result",
+          "compound-and-six-isolated-parameter-families-retained-with-independent-absolute-expected-values",
+          "repeated-reads-preserve-entire-stored-raw-row-no-write-delete-recreate-or-spurious-issue-report",
+          "all-other-test-methods-pruning-batching-retention-ordering-and-primary-WP202-provenance-unchanged",
+          "reject-unapproved-strict-corrupt-projection-adaptation-not-expectation-weakening-or-replayed-source-credit",
+          "RxLogService-source-catch-log-empty-list-and-CancellationException-propagation-unchanged-no-service-or-UI-authority",
+          "no-new-test-create-no-test-subtree-no-converter-schema-migration-build-dependency-or-runtime-authority",
+          "same-owner-stored-identity-and-authorization-preserved-no-impersonation-release-recreate-or-ledger-rewrite",
+          "trusted-main-admission-before-consumer-edit-semantic-overlap-serialized-with-current-producer",
+          "original-raw-data-secrets-and-license-obligations-preserved-no-sensitive-generic-logging"
+        ],
+        "validation": [
+          "exact WP201 two-existing-test named-operation positives; generic create modify cross-purpose all-other-WP and sibling denials",
+          "future actual compound and six-isolated source fallbacks through real Room repository with same identities bytes and healthy companion",
+          "future repeated repository reads prove entire raw-row equality no mutation deletion or spurious issues",
+          "future affected declared original-case tests retain all non-corruption methods and nonzero discovery without failure error or skip",
+          "exact complete trusted predecessor object and raw Git-blob equality; no service production or new test admission",
+          "policy fixtures prove admission only not actual Room service UI Android or original-family acceptance"
+        ]
+      },
+      {
         "id": "wp203-backup-post-commit-delivery",
         "work_packages": ["WP-203"],
         "path_rules": [

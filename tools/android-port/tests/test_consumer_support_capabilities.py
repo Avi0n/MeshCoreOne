@@ -13,6 +13,7 @@ from controller.scope_amendment import (
     wp503_accessibility_source_binding_predecessor,
     HOST_SCOPED_JVM_CAPABILITY, host_scoped_jvm_predecessor,
     BACKUP_POST_COMMIT_CAPABILITY, backup_post_commit_predecessor,
+    RX_PROJECTION_REGRESSION_CAPABILITY, rx_projection_regression_predecessor,
 )
 
 
@@ -27,6 +28,134 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
         self.rules = policy()
         self.engine = CapabilityEngine(self.rules)
         self.manifest = test_manifest("WP-000")
+
+    def test_rx_projection_regression_exact_existing_paths_and_named_operation(self):
+        rule = RX_PROJECTION_REGRESSION_CAPABILITY
+        root = "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/"
+        self.assertEqual(rule["id"], "wp201-rx-projection-source-regressions")
+        self.assertEqual(rule["work_packages"], ["WP-201"])
+        self.assertEqual(rule["operations"], ["restore-rx-projection-source-regressions"])
+        self.assertEqual(rule["path_rules"], [
+            root + "RxLogSourceTest.kt", root + "ParityRxMaintenanceOriginalPredicateTest.kt",
+        ])
+        self.assertEqual(next(r for r in self.rules["reservation_policy"]["capabilities"]
+                              if r["id"] == rule["id"]), rule)
+        for path in rule["path_rules"]:
+            with self.subTest(path=path):
+                self.assertTrue((REPO / path).is_file())
+                admitted = self.engine.admit("WP-201", self.manifest.wp("WP-201")["write_paths"],
+                                             path, rule["operations"][0])
+                self.assertEqual(admitted.capability_id, rule["id"])
+                self.assertEqual(admitted.invariants, tuple(rule["invariants"]))
+                self.assertEqual(admitted.validation, tuple(rule["validation"]))
+
+    def test_rx_projection_regression_other_wp_generic_new_test_service_and_sibling_denials(self):
+        operation = "restore-rx-projection-source-regressions"
+        for path in RX_PROJECTION_REGRESSION_CAPABILITY["path_rules"]:
+            for wp in self.manifest.work_packages:
+                if wp != "WP-201":
+                    with self.subTest(path=path, wp=wp), self.assertRaises(PortError):
+                        self.engine.admit(wp, self.manifest.wp(wp)["write_paths"], path, operation)
+            for wrong in ("modify", "create", "delete", "test", "generate", "unknown",
+                          "repair-backup-post-commit-delivery", "persist-active-connection-method"):
+                with self.subTest(path=path, operation=wrong), self.assertRaises(PortError):
+                    self.engine.admit("WP-201", self.manifest.wp("WP-201")["write_paths"], path, wrong)
+            for wrong in (path + ".backup", path.rsplit("/", 1)[0],
+                          path.rsplit("/", 1)[0] + "/OtherTest.kt",
+                          path.replace("/src/test/", "/src/main/"),
+                          path.replace("/src/test/", "/src/androidTest/")):
+                with self.subTest(path=wrong), self.assertRaises(PortError):
+                    self.engine.admit("WP-201", [], wrong, operation)
+            with self.subTest(path=path), self.assertRaises(PortError):
+                CapabilityEngine(rx_projection_regression_predecessor(self.rules)).admit(
+                    "WP-201", [], path, operation,
+                )
+        for wrong in (
+            "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogService.kt",
+            "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogCorruptionBoundaryTest.kt",
+            "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RepositoryTest.kt",
+            "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/DiagnosticMappings.kt",
+        ):
+            for requested in (operation, "create"):
+                with self.subTest(path=wrong, operation=requested), self.assertRaises(PortError):
+                    self.engine.admit("WP-201", [], wrong, requested)
+
+    def test_rx_projection_regression_predecessor_restores_entire_actual_3498_policy(self):
+        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        before = copy.deepcopy(current)
+        original = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "3498dead5e5cad13d71936d95ddd6860b7217c8c:docs/android/automation-policy.json",
+        ]))
+        previous = rx_projection_regression_predecessor(current)
+        self.assertEqual(previous, original)
+        self.assertEqual(rx_projection_regression_predecessor(previous), previous)
+        self.assertEqual(current, before)
+        restored = copy.deepcopy(previous)
+        rules = restored["reservation_policy"]["capabilities"]
+        index = next(i for i, rule in enumerate(rules) if rule["id"] == "wp203-backup-post-commit-delivery")
+        rules.insert(index, copy.deepcopy(RX_PROJECTION_REGRESSION_CAPABILITY))
+        self.assertEqual(restored, current)
+        self.assertEqual(
+            {r["id"]: r for r in previous["reservation_policy"]["capabilities"]},
+            {r["id"]: r for r in current["reservation_policy"]["capabilities"]
+             if r["id"] != RX_PROJECTION_REGRESSION_CAPABILITY["id"]},
+        )
+
+    def test_rx_projection_regression_rejects_mutation_duplicate_move_unknown_and_overlap(self):
+        for field, value in (
+            ("work_packages", ["WP-201", "WP-202"]),
+            ("operations", ["restore-rx-projection-source-regressions", "modify"]),
+            ("path_rules", ["android/core/data/src/test/**"]),
+            ("invariants", RX_PROJECTION_REGRESSION_CAPABILITY["invariants"][:-1]),
+            ("validation", []), ("id", "unregistered-rx-projection-regressions"), ("extra", True),
+        ):
+            changed = copy.deepcopy(self.rules)
+            rule = next(r for r in changed["reservation_policy"]["capabilities"]
+                        if r["id"] == RX_PROJECTION_REGRESSION_CAPABILITY["id"])
+            rule[field] = value
+            with self.subTest(field=field), self.assertRaises(PortError):
+                rx_projection_regression_predecessor(changed)
+        for mode in ("duplicate", "move", "neighbor", "overlap"):
+            changed = copy.deepcopy(self.rules)
+            rules = changed["reservation_policy"]["capabilities"]
+            index = next(i for i, r in enumerate(rules) if r["id"] == RX_PROJECTION_REGRESSION_CAPABILITY["id"])
+            if mode == "duplicate":
+                rules.append(copy.deepcopy(rules[index]))
+            elif mode == "move":
+                rules.insert(0, rules.pop(index))
+            elif mode == "neighbor":
+                rules[index + 1] = None
+            else:
+                extra = copy.deepcopy(rules[index])
+                extra["id"] = "unregistered-overlapping-rx-projection"
+                extra["path_rules"] = ["android/**"]
+                rules.append(extra)
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                rx_projection_regression_predecessor(changed)
+        for malformed in (None, [], {"reservation_policy": None},
+                          {"reservation_policy": {"capabilities": None}}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                rx_projection_regression_predecessor(malformed)
+
+    def test_rx_projection_regression_source_fallback_nonmutation_and_scope_fences(self):
+        text = " ".join(RX_PROJECTION_REGRESSION_CAPABILITY["invariants"]
+                        + RX_PROJECTION_REGRESSION_CAPABILITY["validation"])
+        for fence in (
+            "db14559b39d32322b06477c6ae676112f583db50-source-baseline-not-new-adaptation",
+            "first-corruption-method-and-OriginalCase", "unused-import-cleanup-only",
+            "route999-to-flood", "payloadMinus1-to-unknown", "version5000-to-zero", "path400-to-zero",
+            "channel9999-to-null", "timestampMinus10-to-null", "checked-failable",
+            "real-RoomPersistenceStore", "healthy-companion-and-nonempty", "six-isolated",
+            "independent-absolute", "entire-stored-raw-row-no-write-delete-recreate",
+            "all-other-test-methods", "primary-WP202", "reject-unapproved-strict",
+            "RxLogService-source-catch-log-empty-list", "CancellationException-propagation-unchanged",
+            "no-new-test-create-no-test-subtree", "same-owner-stored-identity",
+            "trusted-main-admission-before-consumer-edit", "no-sensitive-generic-logging",
+            "nonzero discovery", "policy fixtures prove admission only",
+        ):
+            with self.subTest(fence=fence):
+                self.assertIn(fence, text)
 
     def test_backup_post_commit_exact_four_paths_and_named_operation(self):
         rule = BACKUP_POST_COMMIT_CAPABILITY
@@ -80,7 +209,9 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
                 CapabilityEngine(backup_post_commit_predecessor(self.rules)).admit("WP-203", [], path, operation)
 
     def test_backup_post_commit_restores_entire_actual_trusted_base_and_every_existing_rule(self):
-        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        current = rx_projection_regression_predecessor(
+            json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        )
         before = copy.deepcopy(current)
         original = json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show", "610f606ba:docs/android/automation-policy.json",
