@@ -4,6 +4,7 @@ package com.meshcoreone.buildlogic
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -12,6 +13,21 @@ import org.junit.jupiter.api.io.TempDir
 class ModuleGraphTest {
     @TempDir
     lateinit var directory: File
+
+    @Test
+    fun `module snapshots retain evidence and reject mismatched consumers`() {
+        val snapshot = ModuleSnapshot(
+            ":core:model",
+            listOf(ProductionEdge(":core:model", ":core:protocol", "implementation")),
+            setOf("Android artifact fixture"),
+            setOf("example:dynamic:1.+"),
+        )
+        val file = File(directory, "snapshot.json")
+        writeModuleSnapshot(file, snapshot)
+        assertEquals(snapshot, readModuleSnapshot(file))
+        file.writeText("""{"path":":core:model","edges":[[":app",":core:protocol","api"]],"androidEvidence":[],"dynamicDependencies":[]}""")
+        assertFailsWith<IllegalArgumentException> { readModuleSnapshot(file) }
+    }
 
     private fun fixture(vararg paths: String): Map<String, Project> {
         val root = ProjectBuilder.builder().withName("fixture").withProjectDir(directory).build()
