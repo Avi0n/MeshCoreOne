@@ -103,7 +103,7 @@ python docs\android\evidence\WP-216\generate-grapheme-properties.py $gbp $emojiD
 Changing an input's bytes or the existing packaged notice fails closed. These
 commands are source/data reproducibility checks, not Kotlin execution.
 
-## Real consumer obligations and current integration boundary
+## Real consumer obligations and admitted rendering integration
 
 The new App test uses production Room persistence, mounted firmware polling,
 `SyncReactionAdapter`/`ReactionTextParsing`, the actual
@@ -134,14 +134,27 @@ post-action frame before checking its command and exact payload.
 No unexpected action frame, including a battery query, is filtered out. These
 new isolation assertions remain unexecuted pending the supported guarded run.
 
-The remaining production integration path is
+The rendering integration path is
 `android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt`.
-An actual WP-216 `modify` admission at the starting trusted policy returned
-`no trusted path+operation rule`. It is untouched. Its WP-213 stand-in must
-delegate/equivalently reconcile channel parse, DM parse and hash with the
-canonical parser, retaining the existing agreement tests and outgoing failure
-semantics. The coordinator has the exact producer/narrow-rule packet. No shared
-`SwiftTextSemantics.kt` or broader rendering permission is requested.
+Its initial `modify` admission returned `no trusted path+operation rule`; the
+path remained untouched until #357 normally landed at trusted
+`047ecbfb0f8837109a3aa1ff3fd4f522ca868a18`. Fresh admission then succeeded for
+`WP-216 / wp216-reaction-wire-classification /
+reconcile-reaction-wire-classification` on that one existing file. The
+same-identity reservation attempt retained the historical
+source/base/manifest/backend mismatch; no old identity, authorization, lease or
+ledger was rewritten. The exact path had no intervening main edit or unmerged
+producer edit under the matching broad advisory intent.
+
+The adapter now delegates channel parse, DM parse and hash to `ReactionParser`.
+DM results retain the existing `(emoji, messageHash)` Pair shape. WP-213's two
+source-provenance headers, LRU key consumers and the visibility predicate's
+outgoing-only / FAILED-visible rules remain intact. Visibility still uses the
+PocketMesh channel or DM parser, not the broader `isReactionText` classifier
+that also recognizes MeshCoreOpen formats. The original agreement cases and
+all their old corpus are retained. Shared `SwiftTextSemantics.kt` and every
+other rendering production file remain unchanged. This is source integration,
+not executed consumer acceptance.
 
 ## Prepared mandatory identities (not executed discovery)
 
@@ -165,8 +178,12 @@ existing 1,932-record / 3-notice checks. Generation and strict `--check` passed
 against the two official hash-bound inputs. These are precommit source/data
 checks, not a Kotlin or exact-candidate guarded PASS.
 
-**Status:** source work and source-safe checks are not Kotlin acceptance. No
+**Status:** source integration and source-safe checks are not Kotlin acceptance. No
 grapheme heavy job, publication, fresh Swift runtime, real Android ICU/device,
 legal or full-Unicode acceptance has occurred. The final candidate, exact
 supported-trusted-base consumer closure and mandatory XML identities must be
-frozen only after that affected support gate is resolved.
+frozen against the actual installed trusted authority before any guarded job.
+The historical 610f preparation plan selected full-scaffold fallback because
+its diff included later main planner changes. It is not replaced with filtered
+paths or a caller-selected module plan; the coordinator is preparing the
+reviewed supported authority for final planning.
