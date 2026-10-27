@@ -38,9 +38,7 @@ class DomainRoomFixture:
         self.write(".gitignore", "**/build/\n**/Ignored.kt\n")
         for item in self.owned:
             self.write(item["path"], (REPO / item["path"]).read_bytes().replace(b"\r\n", b"\n"))
-        for path in (collector.CONTROL_INPUTS | {
-            "docs/android/evidence/WP-003/software-verification-manifest-amendment-v2.json",
-        }) - {collector.SCHEMA}:
+        for path in collector.CONTROL_INPUTS - {collector.SCHEMA}:
             self.write(path, (REPO / path).read_bytes().replace(b"\r\n", b"\n"))
         self.write("android/core/contracts/build.gradle.kts", "// Fixture-only existing neutral contract runner\n")
         self.write("android/core/contracts/src/test/kotlin/FixtureTest.kt",
