@@ -224,6 +224,7 @@ object AndroidAppContainerFactory {
                     { id -> storage.devicePreferences.observe(id).first() },
                     locationProducing,
                     locationProducing::refreshAuthorization,
+                    currentLocation = { locationProducing.currentLocation },
                 ),
                 offlineMaps = offlineMaps,
                 nodesMessages = UserFacingMessages { failure ->

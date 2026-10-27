@@ -1,5 +1,90 @@
 # WP-404 evidence
 
+## G09 shared-cache source successor: execution NOT RUN
+
+The corrected candidate `3db4cbd567465b9071f4bad8afd5bd2ee90c2f47`,
+tree `2addde0d74fa77e0a47d59b5f49b58fc794a59c0`, completed its one admitted
+diagnosed run with actual OS exit **1**. Guard 351146 selected slot 1; owner
+`local-check:8815a918127140fe931e7ad4b2ff13d4`; report `run-bXmLS7BB` on the
+existing trusted `610f606b` runner. The exact invocation was:
+
+```text
+/ai_cache/meshcoreone/python/3.12.4/bin/python3.12 -B tools/android-port/local/check.py --commit 3db4cbd567465b9071f4bad8afd5bd2ee90c2f47 --affected-base 610f606baaaf38eb2a2b14cb054b18fedba58a1f --parallel-jvm
+```
+
+The previously admitted clean environment and supported guard were unchanged.
+Gradle reported `BUILD FAILED in 21m 35s`; 197 App JUnit files contain
+**1,611 tests: 1,606 passed, 5 failed, 0 errors, 0 skipped**. All 17 mandatory
+`ShortcutAdvertLocationTest` identities were present exactly once: 12 passed
+and these five failed:
+
+| Method | Actual assertion failure |
+| --- | --- |
+| `existingCoarseLocationManagerProducerRefreshesBeforeActualRadioAdvertWithoutPermissionRequest` | Expected `[14,1,7]`; observed `[14,1,20,7]`. |
+| `optedInDeviceGpsIsReadEnabledAndVerifiedBeforeActualAdvertWithoutPhoneLocation` | Expected `[40,41,40,1,7]`; observed `[40,20,41,40,1,20,7]`. |
+| `cancellationDuringPhoneFixPropagatesWithoutLocationWriteOrAdvert` | Same cancellation type/message, different outer exception object identity. |
+| `actualSavedPerDevicePreferencesControlTheRealAdvertAndSurviveStorageReopen` | Expected `[7]`; observed `[20,7]`. |
+| `authorizedPhoneFixIsVerifiedBeforeAdvertForBothReachesWithoutPrompting` | Expected `[14,1,7]`; observed `[14,1,20,7]`. |
+
+`:app:testDebugUnitTest` failed. `:app:compileDebugKotlin`,
+`:app:compileDebugAndroidTestKotlin`, `validateModuleGraph` and
+`runtimeDependencyInventory` executed; `:app:lintDebug` did not complete.
+There is no full-six-task PASS. Actual managed snapshot HEAD/tree matched the
+candidate both **before and after** reading all named JUnit outcomes. Guard
+351146 and its own canonical lock were gone, and
+`/tmp/meshcore-execution-0xn964v1` was absent before snapshot reuse was reported
+safe. The original run/report/log are authoritative; no second result bundle
+or result hash was created.
+
+The source successor keeps the literal complete operation traces. Its fixture
+waits for the real battery bootstrap, executes and asserts a separate actual
+`[0x14]` read, then stops the unrelated periodic monitor and joins the cancelled
+background jobs before taking the advert baseline. Public activity flags and
+an empty cancellation-phase wire trace are asserted. `AppAdvertLocation` does
+not use the battery monitor; the real location producer, settings/session graph,
+radio and advert consumer remain active. No operation frame is filtered or
+discarded, and the original full expected GPS/advert traces remain literal. The
+cancellation oracle requires the exact runtime type/message and the original
+injected cancellation identity in the causal chain, plus zero cache reads,
+radio writes and adverts; it accommodates coroutine stack recovery without a
+production cancellation change.
+
+The same successor adds the actual shared process callback cache and read-only
+factory binding. New API31/API37 producer cases cover initial absence,
+before-resumption publication, replacement, failed/null/denied retention and
+cancelled/late callbacks. New real App/Room/radio cases obtain the prior fix
+through a distinct `RegionResolver`/`LocationService` wrapper, then exercise
+failed or unauthorized advert fallback, both reaches, policy/session revocation
+and declined confirmation. These are authored assertions, **not execution
+evidence**; the successor is **NOT RUN** and G09 is not claimed complete.
+
+Authenticated readback confirmed PR #356 merged at
+`de20d1a6f3ff97068076204504ca7c854044bb77`. Trusted-default `admit` returned
+`wp404-shared-location-producer-cache` for all eight exact paths with operation
+`restore-shared-pre-advert-location-cache`. Same-stored-identity evolution was
+attempted using the existing revision/attempt and rejected because its legacy
+session/branch/worktree differs. That historical receipt and authorization were
+not altered, released or recreated. `AUTOMATION.md` and ADR 006 distinguish that
+advisory tooling collision from a source-edit lock; actual assignment, trusted
+admission and absence of producer semantic overlap permit isolated authoring.
+No runtime, base integration, new actor, heavy retry or publication follows
+from these source/admission receipts.
+
+Local source checks for this successor:
+
+```text
+python -B .\tools\android-port\portmap.py                    PASS
+python -B .\tools\android-port\controller\validate.py        PASS
+git --no-pager diff --check                                PASS
+```
+
+The source inventory preserves all original 17 App method names and adds three
+shared-cache consumer methods (20 total). The native producer class retains its
+11 existing methods and adds three cache methods (14 total), with its existing
+SDK31/SDK37 declaration unchanged. These are source counts, not JUnit discovery,
+compile, SDK-execution or assertion results. Seven changed paths are inside the
+eight-path capability; the test harness support path requires no additional edit.
+
 ## G09 first guarded result: missing test import
 
 The first G09 candidate `8b046e770dc64159f0552b5711714af43d7e09bf`,

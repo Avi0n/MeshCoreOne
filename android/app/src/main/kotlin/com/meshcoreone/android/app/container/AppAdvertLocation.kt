@@ -5,6 +5,7 @@ import com.meshcoreone.android.core.contracts.domain.errors.SettingsServiceExcep
 import com.meshcoreone.android.core.datastore.DevicePreferenceSnapshot
 import com.meshcoreone.android.core.datastore.GPSSource
 import com.meshcoreone.android.core.model.DeviceDTO
+import com.meshcoreone.android.core.services.content.GeoCoordinate
 import com.meshcoreone.android.core.services.content.LocationProducing
 import com.meshcoreone.android.core.services.content.LocationService
 import com.meshcoreone.android.core.services.content.LocationServiceError
@@ -17,6 +18,7 @@ class AppAdvertLocation(
     private val preferences: suspend (UUID) -> DevicePreferenceSnapshot,
     producing: LocationProducing,
     private val refreshAuthorization: () -> Unit = {},
+    private val currentLocation: () -> GeoCoordinate? = { null },
 ) {
     private val location = LocationService(object : LocationProducing by producing {
         override fun requestPermissionIfNeeded(): Nothing =
@@ -41,9 +43,16 @@ class AppAdvertLocation(
             when (source) {
                 GPSSource.PHONE -> {
                     refreshAuthorization()
-                    val fix = location.requestCurrentLocation()
+                    val fix = try {
+                        location.requestCurrentLocation()
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (failure: LocationServiceError) {
+                        report(failure)
+                        currentLocation()
+                    }
                     requireCurrent()
-                    if (gpsSource(device()) == source && device()?.sharesLocationPublicly == true) {
+                    if (fix != null && gpsSource(device()) == source && device()?.sharesLocationPublicly == true) {
                         requireCurrent()
                         settings.setLocationVerified(fix.latitude, fix.longitude)
                     }

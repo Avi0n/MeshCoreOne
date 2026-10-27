@@ -41,8 +41,10 @@ class LocationManagerLocationProducing(
     private var determined = false
     private var closed = false
     private var active: Request? = null
+    private var lastCoordinate: GeoCoordinate? = null
     private val mutableStatus = MutableStateFlow(readStatus())
     override val authorizationStatus: StateFlow<LocationAuthorizationStatus> = mutableStatus.asStateFlow()
+    val currentLocation: GeoCoordinate? get() = synchronized(lock) { lastCoordinate }
 
     private class Request(
         val continuation: CancellableContinuation<GeoCoordinate>,
@@ -168,6 +170,9 @@ class LocationManagerLocationProducing(
         val claimed = synchronized(lock) {
             if (active !== request) false else {
                 active = null
+                if (!closed && request.continuation.isActive) {
+                    result.getOrNull()?.let { lastCoordinate = it }
+                }
                 true
             }
         }

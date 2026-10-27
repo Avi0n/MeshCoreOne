@@ -1,5 +1,6 @@
 // PortedFrom: MC1Tests/Intents/SendAdvertIntentTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1/State/AppState+DeviceActions.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Services/LocationService.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.app.container
 
 import android.Manifest
@@ -7,6 +8,8 @@ import android.app.Application
 import android.content.Context
 import android.location.Location
 import android.location.LocationManager
+import android.os.Looper
+import android.os.SystemClock
 import androidx.test.core.app.ApplicationProvider
 import com.meshcoreone.android.app.content.LocationManagerLocationProducing
 import com.meshcoreone.android.app.content.LocationPermissionRequesting
@@ -17,9 +20,13 @@ import com.meshcoreone.android.core.datastore.MeshCoreStorage
 import com.meshcoreone.android.core.model.DeviceDTO
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.services.content.GeoCoordinate
+import com.meshcoreone.android.core.services.content.GeocodeResult
+import com.meshcoreone.android.core.services.content.Geocoder
 import com.meshcoreone.android.core.services.content.LocationAuthorizationStatus
 import com.meshcoreone.android.core.services.content.LocationProducing
 import com.meshcoreone.android.core.services.content.LocationServiceError
+import com.meshcoreone.android.core.services.content.LocationService
+import com.meshcoreone.android.core.services.content.RegionResolver
 import com.meshcoreone.android.platform.shortcuts.AndroidShortcutText
 import com.meshcoreone.android.platform.shortcuts.ShortcutError
 import com.meshcoreone.android.platform.shortcuts.ShortcutException
@@ -30,9 +37,11 @@ import com.meshcoreone.android.platform.shortcuts.ConfirmationRequest
 import com.meshcoreone.android.platform.shortcuts.ShortcutConfirmationPort
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.time.Duration
 import java.util.UUID
 import kotlin.test.*
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -106,6 +115,21 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
         h.manager.connect(h.target())
         h.eventually("pre-advert fixture READY") { h.manager.connectionState == DeviceConnectionState.READY }
         h.settle()
+        h.eventually("startup battery bootstrap complete") {
+            !h.appState.batteryMonitor.isBootstrapActive && h.appState.batteryMonitor.isRefreshLoopActive
+        }
+        val startup = h.links.radios.single().sent.size
+        h.appState.batteryMonitor.fetchDeviceBattery(assertNotNull(h.sessions.current).batteryServices, h.appState.connectedDevice)
+        assertEquals(listOf(0x14), commands(h, startup), "Complete real startup battery phase before the advert baseline")
+        val monitoringJobs = assertNotNull(test.backgroundScope.coroutineContext[Job]).children.toList()
+        val stopping = h.links.radios.single().sent.size
+        h.appState.batteryMonitor.stop()
+        val cancelled = monitoringJobs.filter { it.isCancelled }
+        assertTrue(cancelled.isNotEmpty(), "Stop must cancel the real background refresh job")
+        cancelled.forEach { it.join() }
+        assertFalse(h.appState.batteryMonitor.isBootstrapActive)
+        assertFalse(h.appState.batteryMonitor.isRefreshLoopActive)
+        assertTrue(commands(h, stopping).isEmpty(), "Joining unrelated polling must not send an action command")
         return h
     }
 
@@ -121,7 +145,8 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
     @Test fun noDeviceAndNonPublicPolicyNeverReadPreferencesOrRefresh() = runTest {
         val preferences = Preferences()
         val producing = Producing()
-        val preparation = AppAdvertLocation(preferences::read, producing)
+        val preparation = AppAdvertLocation(preferences::read, producing,
+            currentLocation = { error("Non-public policy must not read a cached location") })
         assertNull(preparation.gpsSource(null))
         val h = connected(this, preparation)
         try {
@@ -170,7 +195,8 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
     @Test fun defaultOptOutAndOtherDeviceOptInNeverRefreshBeforeEitherReach() = runTest {
         val preferences = Preferences()
         val producing = Producing()
-        val preparation = AppAdvertLocation(preferences::read, producing)
+        val preparation = AppAdvertLocation(preferences::read, producing,
+            currentLocation = { error("Opted-out or foreign-device policy must not read a cached location") })
         val h = connected(this, preparation)
         try {
             val device = share(h)
@@ -315,12 +341,18 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
         val preferences = Preferences()
         val cancelled = CancellationException("pre-advert cancellation")
         val producing = Producing().apply { obtain = { throw cancelled } }
-        val h = connected(this, AppAdvertLocation(preferences::read, producing))
+        var cacheReads = 0
+        val h = connected(this, AppAdvertLocation(preferences::read, producing,
+            currentLocation = { cacheReads++; GeoCoordinate(1.0, 2.0) }))
         try {
             preferences.enable(share(h), GPSSource.PHONE)
             val start = h.links.radios.single().sent.size
-            assertSame(cancelled, assertFailsWith<CancellationException> { AppShortcutRadio(h.container).sendAdvert(false) })
+            val failure = assertFailsWith<CancellationException> { AppShortcutRadio(h.container).sendAdvert(false) }
+            assertEquals(cancelled.javaClass, failure.javaClass)
+            assertEquals(cancelled.message, failure.message)
+            assertTrue(generateSequence<Throwable>(failure) { it.cause }.any { it === cancelled })
             assertTrue(commands(h, start).isEmpty())
+            assertEquals(0, cacheReads)
             assertEquals(0, producing.permissionRequests)
         } finally { h.container.close() }
     }
@@ -392,7 +424,8 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
         var prompts = 0
         val producing = LocationManagerLocationProducing(context, LocationPermissionRequesting { prompts++ })
         val preferences = Preferences()
-        val h = connected(this, AppAdvertLocation(preferences::read, producing, producing::refreshAuthorization))
+        val h = connected(this, AppAdvertLocation(preferences::read, producing, producing::refreshAuthorization,
+            currentLocation = { producing.currentLocation }))
         try {
             preferences.enable(share(h), GPSSource.PHONE)
             val start = h.links.radios.single().sent.size
@@ -421,7 +454,8 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
         val producing = LocationManagerLocationProducing(context, LocationPermissionRequesting { prompts++ })
         assertEquals(LocationAuthorizationStatus.AUTHORIZED_WHEN_IN_USE, producing.authorizationStatus.value)
         val preferences = Preferences()
-        val h = connected(this, AppAdvertLocation(preferences::read, producing, producing::refreshAuthorization))
+        val h = connected(this, AppAdvertLocation(preferences::read, producing, producing::refreshAuthorization,
+            currentLocation = { producing.currentLocation }))
         try {
             preferences.enable(share(h), GPSSource.PHONE)
             shadowOf(context).denyPermissions(Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -429,12 +463,135 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
             AppShortcutRadio(h.container).sendAdvert(false)
             assertEquals(listOf(7), commands(h, start))
             assertEquals(LocationAuthorizationStatus.DENIED, producing.authorizationStatus.value)
+            assertNull(producing.currentLocation)
             assertEquals(0, prompts)
         } finally {
             producing.close()
             h.container.close()
             shadowOf(context).denyPermissions(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
+
+    }
+
+    @Test fun regionResolverFixIsSharedWithAdvertFallbackAfterFailureOrDenialForBothReaches() = runTest {
+        for (denied in listOf(false, true)) {
+            val application = ApplicationProvider.getApplicationContext<Application>()
+            shadowOf(application).grantPermissions(Manifest.permission.ACCESS_COARSE_LOCATION)
+            val manager = assertNotNull(application.getSystemService(LocationManager::class.java))
+            shadowOf(manager).setProviderEnabled(LocationManager.FUSED_PROVIDER, true)
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(11))
+            var prompts = 0
+            val producing = LocationManagerLocationProducing(application, LocationPermissionRequesting { prompts++ })
+            val geocoded = mutableListOf<GeoCoordinate>()
+            val region = RegionResolver(LocationService(producing), object : Geocoder {
+                override suspend fun reverseGeocode(coordinate: GeoCoordinate, preferredLocale: java.util.Locale?): GeocodeResult {
+                    geocoded += coordinate
+                    return GeocodeResult("US", null, null)
+                }
+                override fun cancelGeocode(): Unit = error("No geocode cancellation expected")
+            })
+            var h: ContainerHarness? = null
+            try {
+                assertNull(producing.currentLocation)
+                val resolving = async { region.resolve() }
+                testScheduler.runCurrent()
+                assertFalse(resolving.isCompleted)
+                shadowOf(manager).simulateLocation(Location(LocationManager.FUSED_PROVIDER).apply {
+                    latitude = 37.0
+                    longitude = -122.0
+                    elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+                })
+                assertEquals(GeoCoordinate(37.0, -122.0), producing.currentLocation)
+                assertEquals("US", assertNotNull(resolving.await()).countryCode)
+                assertEquals(listOf(GeoCoordinate(37.0, -122.0)), geocoded)
+                if (denied) shadowOf(application).denyPermissions(Manifest.permission.ACCESS_COARSE_LOCATION)
+                else for (provider in listOf(LocationManager.FUSED_PROVIDER, LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)) {
+                    shadowOf(manager).setProviderEnabled(provider, false)
+                }
+                val preferences = Preferences()
+                val preparation = AppAdvertLocation(preferences::read, producing, producing::refreshAuthorization,
+                    currentLocation = { producing.currentLocation })
+                val radioLocation = RadioLocation()
+                val active = connected(this, preparation, radioLocation)
+                h = active
+                preferences.enable(share(active), GPSSource.PHONE)
+                for (flood in listOf(false, true)) {
+                    val start = active.links.radios.single().sent.size
+                    AppShortcutRadio(active.container).sendAdvert(flood)
+                    assertEquals(listOf(0x0e, 1, 7), commands(active, start))
+                    assertEquals(Bytes.of(0x0e) + le32(37_000_000) + le32(-122_000_000) + le32(0),
+                        active.links.radios.single().sent[start])
+                    assertEquals(if (flood) "0701" else "07", active.links.radios.single().sent.last().hexString)
+                    assertEquals(37_000_000L, radioLocation.latitudeE6)
+                    assertEquals(-122_000_000L, radioLocation.longitudeE6)
+                }
+                assertEquals(GeoCoordinate(37.0, -122.0), producing.currentLocation)
+                assertEquals(0, prompts)
+                assertTrue(store.fetchPendingSends(assertNotNull(active.appState.currentRadioId)).isEmpty())
+            } finally {
+                h?.container?.close()
+                producing.close()
+                shadowOf(application).denyPermissions(Manifest.permission.ACCESS_COARSE_LOCATION)
+            }
+        }
+    }
+
+    @Test fun cachedFallbackRechecksOptOutPublicPolicyAndSessionBeforeAnyWrite() = runTest {
+        for (gate in listOf("opt-out", "private", "session")) {
+            val preferences = Preferences()
+            val producing = Producing()
+            var cacheReads = 0
+            val preparation = AppAdvertLocation(preferences::read, producing,
+                currentLocation = { cacheReads++; GeoCoordinate(37.0, -122.0) })
+            val h = connected(this, preparation)
+            try {
+                val device = share(h)
+                preferences.enable(device, GPSSource.PHONE)
+                producing.obtain = {
+                    when (gate) {
+                        "opt-out" -> preferences.values.remove(device.id)
+                        "private" -> share(h, 0u)
+                        "session" -> assertNotNull(h.sessions.current).tearDown()
+                    }
+                    throw LocationServiceError.RequestFailed("fixture refresh unavailable")
+                }
+                val start = h.links.radios.single().sent.size
+                if (gate == "session") {
+                    assertEquals(ShortcutError.NOT_CONNECTED,
+                        assertFailsWith<ShortcutException> { AppShortcutRadio(h.container).sendAdvert(false) }.error)
+                    assertTrue(commands(h, start).isEmpty())
+                } else {
+                    AppShortcutRadio(h.container).sendAdvert(false)
+                    assertEquals(listOf(7), commands(h, start))
+                }
+                assertEquals(1, cacheReads)
+                assertEquals(1, producing.locationRequests)
+                assertEquals(0, producing.permissionRequests)
+                assertTrue(store.fetchPendingSends(device.radioId).isEmpty())
+            } finally { h.container.close() }
+        }
+    }
+
+    @Test fun declinedFloodDoesNotReadAnAvailableSharedCacheOrStartRefresh() = runTest {
+        val preferences = Preferences()
+        val producing = Producing()
+        var cacheReads = 0
+        val h = connected(this, AppAdvertLocation(preferences::read, producing,
+            currentLocation = { cacheReads++; GeoCoordinate(37.0, -122.0) }))
+        try {
+            preferences.enable(share(h), GPSSource.PHONE)
+            val start = h.links.radios.single().sent.size
+            val flow = AdvertFlow(AppShortcutRadio(h.container), object : ShortcutConfirmationPort {
+                override suspend fun confirm(request: ConfirmationRequest): Boolean = false
+            }, AndroidShortcutText(ApplicationProvider.getApplicationContext<Context>()))
+            assertEquals(AdvertResult.Declined, flow.execute(AdvertReach.FLOOD))
+            assertTrue(commands(h, start).isEmpty())
+            assertTrue(preferences.reads.isEmpty())
+            assertEquals(0, cacheReads)
+            assertEquals(0, producing.locationRequests)
+            assertEquals(0, producing.permissionRequests)
+            assertTrue(store.fetchPendingSends(assertNotNull(h.appState.currentRadioId)).isEmpty())
+        } finally { h.container.close() }
     }
 
     @Test fun actualSavedPerDevicePreferencesControlTheRealAdvertAndSurviveStorageReopen() = runTest {
