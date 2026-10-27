@@ -456,6 +456,48 @@ base also confirmed every non-corruption method and the primary provenance in
 both existing data tests remained unchanged. These are source-stage checks, not
 JVM/Room/App execution evidence.
 
+### DATA-08 first guarded execution and diagnosed App fixture correction
+
+The first admission attempt for `f079c4cb8ea73a705965472be8bdf683c4b2be12`
+was refused with measured JVM capacity fully reserved (exit 1, no JVM started).
+A distinct coordinator-confirmed release event admitted the same candidate
+against trusted execution ancestor
+`610f606baaaf38eb2a2b14cb054b18fedba58a1f`, retaining authoring base
+`a1942a9c40e2cb37c31466cd0bb320d7c2b9eb95`. The unfiltered trusted planner
+included the landed support-policy deltas and selected all 16 affected tasks.
+
+Actual guarded execution failed, exit **1**, at `:app:testDebugUnitTest`; no
+full-plan acceptance is claimed. Source-bound raw XML from the untouched exact
+head/tree showed database **48**, data **436**, and App **1,595** cases: zero
+errors/skips, one App failure. All six mandatory DATA-08 methods were discovered;
+the database three and existing data two passed. The new App method failed
+before its RX predicates at `manager.connect`, with `CancellationException:
+Superseded connection generation`. Captured fixture logs show channel 0 timeout,
+connection loss and all eight channel reads failing during foreground sync.
+The common harness's default `0x1f` response is an error, not a channel frame.
+
+The owned App test now supplies the established neighboring integration-test
+response (`0x12`, requested slot, 48 empty channel bytes) for foreground channel
+queries. It keeps foreground behavior, requires the real graph READY and
+`SyncState.Synced`, and independently asserts all eight requested slots before
+inserting RX fixtures. No RX assertion was removed or weakened; no runtime,
+service, shared harness, schema or production behavior changed. The supported
+same-owner App operation was revalidated idempotently at revision 9 before this
+correction. This diagnosed correction is **UNEXECUTED** pending a new complete
+candidate-bound guarded run.
+
+Authoritative failed-run log:
+`/ai_cache/meshcoreone/repairs/902ae61f/wp201-data08-eaf30961/guarded-f079c4cb-released.log`.
+Original report directory is lane 0 `run-POoMChvT`; exact snapshot
+`repos/8a0a6ab5c1929c5e` was checked before and after raw XML consumption as
+`f079c4cb8ea73a705965472be8bdf683c4b2be12` /
+`4b6eb137ea5873f1ff85485b44217d6092e71e68`.
+The original attached shell was reclaimed, but the log explicitly retained
+`ACTUAL_GUARD_OS_EXIT=1`. Canonical owner absence was independently observed by
+the coordinator; the original temporary cleanup directory was absent at
+consumption. This does not turn the failed run into a pass. Later task-graph
+membership is not proof that remaining lint/check/build tasks executed.
+
 Corrected source-stage checks passed: `git diff --check`;
 `python tools\android-port\portmap.py` (1,923 dispositions);
 `python tools\android-port\controller\validate.py` (valid, 1,866 references,

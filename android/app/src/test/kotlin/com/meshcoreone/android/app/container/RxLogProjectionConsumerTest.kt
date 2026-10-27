@@ -9,6 +9,7 @@ import com.meshcoreone.android.core.model.SnapshotList
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.event.PayloadType
 import com.meshcoreone.android.core.protocol.event.RouteType
+import com.meshcoreone.android.core.services.sync.SyncState
 import com.meshcoreone.android.feature.tools.diagnostics.rxlog.RxLogStateHolder
 import java.util.UUID
 import kotlin.test.assertEquals
@@ -24,9 +25,19 @@ class RxLogProjectionConsumerTest : RoomProcessTest() {
         val holder = RxLogStateHolder(backgroundScope)
         try {
             h.container.foreground.activityStarted()
+            h.links.configureRadio = { radio ->
+                radio.respond = { command ->
+                    if (command[0].toInt() == 0x1f) {
+                        listOf(Bytes.of(0x12, command[1].toInt()) + Bytes(ByteArray(48)))
+                    } else null
+                }
+            }
             h.manager.connect(h.target())
             h.settle()
             h.assertReady()
+            assertEquals(SyncState.Synced, assertNotNull(h.sessions.current).syncCoordinator.state)
+            assertEquals((0..7).toList(), h.links.radios.single().sent
+                .filter { it[0].toInt() == 0x1f }.map { it[1].toInt() })
             val radio = assertNotNull(h.appState.currentRadioId)
             val raw = RxLogEntryEntity(
                 radio.value, UUID(0, 100), StoredInstant.from(EPOCH.plusSeconds(1)), null, null,
