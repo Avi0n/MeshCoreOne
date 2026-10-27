@@ -15,6 +15,7 @@ from controller.scope_amendment import (
     BACKUP_POST_COMMIT_CAPABILITY, backup_post_commit_predecessor,
     RX_PROJECTION_REGRESSION_CAPABILITY, rx_projection_regression_predecessor,
     SHARED_LOCATION_CACHE_CAPABILITY, shared_location_cache_predecessor,
+    REACTION_WIRE_CLASSIFICATION_CAPABILITY, reaction_wire_classification_predecessor,
 )
 
 
@@ -29,6 +30,148 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
         self.rules = policy()
         self.engine = CapabilityEngine(self.rules)
         self.manifest = test_manifest("WP-000")
+
+    def test_reaction_wire_classification_exact_single_path_and_wp216_operation(self):
+        rule = REACTION_WIRE_CLASSIFICATION_CAPABILITY
+        path = "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt"
+        self.assertEqual(rule["id"], "wp216-reaction-wire-classification")
+        self.assertEqual(rule["work_packages"], ["WP-216"])
+        self.assertEqual(rule["operations"], ["reconcile-reaction-wire-classification"])
+        self.assertEqual(rule["path_rules"], [path])
+        self.assertTrue((REPO / path).is_file())
+        self.assertEqual(next(r for r in self.rules["reservation_policy"]["capabilities"]
+                              if r["id"] == rule["id"]), rule)
+        admitted = self.engine.admit("WP-216", self.manifest.wp("WP-216")["write_paths"],
+                                     path, rule["operations"][0])
+        self.assertEqual(admitted.capability_id, rule["id"])
+        self.assertEqual(admitted.invariants, tuple(rule["invariants"]))
+        self.assertEqual(admitted.validation, tuple(rule["validation"]))
+        with self.assertRaises(PortError):
+            CapabilityEngine(reaction_wire_classification_predecessor(self.rules)).admit(
+                "WP-216", self.manifest.wp("WP-216")["write_paths"], path, rule["operations"][0],
+            )
+
+    def test_reaction_wire_classification_other_wp_wrong_operation_and_primary_owner_unchanged(self):
+        path = REACTION_WIRE_CLASSIFICATION_CAPABILITY["path_rules"][0]
+        operation = "reconcile-reaction-wire-classification"
+        for wp in self.manifest.work_packages:
+            if wp != "WP-216":
+                with self.subTest(wp=wp), self.assertRaises(PortError):
+                    self.engine.admit(wp, self.manifest.wp(wp)["write_paths"], path, operation)
+        for wrong in ("modify", "create", "delete", "test", "generate", "unknown",
+                      "add-direct-support-wiring", "restore-shared-pre-advert-location-cache",
+                      "restore-rx-projection-source-regressions"):
+            with self.subTest(operation=wrong), self.assertRaises(PortError):
+                self.engine.admit("WP-216", self.manifest.wp("WP-216")["write_paths"], path, wrong)
+        previous = CapabilityEngine(reaction_wire_classification_predecessor(self.rules))
+        old = previous.admit("WP-213", self.manifest.wp("WP-213")["write_paths"], path, "modify")
+        self.assertEqual(old.capability_id, "wp-owned")
+        self.assertEqual(self.engine.admit("WP-213", self.manifest.wp("WP-213")["write_paths"],
+                                           path, "modify"), old)
+
+    def test_reaction_wire_classification_nearby_production_test_notice_and_traversal_denials(self):
+        path = REACTION_WIRE_CLASSIFICATION_CAPABILITY["path_rules"][0]
+        root = path.rsplit("/", 1)[0]
+        for wrong in (
+            root, path + ".backup", path + "/Other.kt",
+            root + "/SwiftText.kt", root + "/CharacterEmojiDetection.kt",
+            root + "/MessageLRUCache.kt", root + "/OtherReactionWireFormat.kt",
+            path.replace("/src/main/", "/src/test/"),
+            path.replace("/src/main/", "/src/androidTest/"),
+            path.replace("/rendering/", "/reactions/"),
+            "android/app/src/main/assets/licenses/Unicode-License.txt",
+            "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ReactionGraphemeClassificationTest.kt",
+            "android/core/services/build.gradle.kts", "docs/android/deviations/WP-216.md",
+            "../ReactionWireFormat.kt", "/android/core/services/ReactionWireFormat.kt",
+            path.replace("/rendering/", "/rendering/../rendering/"),
+            path.replace("android/core/", "android//core/"),
+        ):
+            with self.subTest(path=wrong), self.assertRaises(PortError):
+                self.engine.admit("WP-216", self.manifest.wp("WP-216")["write_paths"],
+                                  wrong, "reconcile-reaction-wire-classification")
+
+    def test_reaction_wire_classification_predecessor_restores_entire_actual_de20_policy(self):
+        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        before = copy.deepcopy(current)
+        original = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "de20d1a6f3ff97068076204504ca7c854044bb77:docs/android/automation-policy.json",
+        ]))
+        previous = reaction_wire_classification_predecessor(current)
+        self.assertEqual(previous, original)
+        self.assertEqual(reaction_wire_classification_predecessor(previous), previous)
+        self.assertEqual(current, before)
+        restored = copy.deepcopy(previous)
+        rules = restored["reservation_policy"]["capabilities"]
+        index = next(i for i, rule in enumerate(rules) if rule["id"] == "wp404-shared-location-producer-cache")
+        rules.insert(index, copy.deepcopy(REACTION_WIRE_CLASSIFICATION_CAPABILITY))
+        self.assertEqual(restored, current)
+        self.assertEqual(
+            {r["id"]: r for r in previous["reservation_policy"]["capabilities"]},
+            {r["id"]: r for r in current["reservation_policy"]["capabilities"]
+             if r["id"] != REACTION_WIRE_CLASSIFICATION_CAPABILITY["id"]},
+        )
+
+    def test_reaction_wire_classification_rejects_mutation_duplicate_move_overlap_and_malformed_policy(self):
+        for field, value in (
+            ("work_packages", ["WP-216", "WP-213"]), ("work_packages", ["WP-213"]),
+            ("operations", ["reconcile-reaction-wire-classification", "modify"]),
+            ("path_rules", ["android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/**"]),
+            ("invariants", REACTION_WIRE_CLASSIFICATION_CAPABILITY["invariants"][:-1]),
+            ("validation", []), ("id", "unregistered-reaction-wire-classification"), ("extra", True),
+        ):
+            changed = copy.deepcopy(self.rules)
+            rule = next(r for r in changed["reservation_policy"]["capabilities"]
+                        if r["id"] == REACTION_WIRE_CLASSIFICATION_CAPABILITY["id"])
+            rule[field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(PortError):
+                reaction_wire_classification_predecessor(changed)
+        for mode in ("duplicate", "move", "neighbor", "overlap", "unscoped-overlap"):
+            changed = copy.deepcopy(self.rules)
+            rules = changed["reservation_policy"]["capabilities"]
+            index = next(i for i, r in enumerate(rules) if r["id"] == REACTION_WIRE_CLASSIFICATION_CAPABILITY["id"])
+            if mode == "duplicate":
+                rules.append(copy.deepcopy(rules[index]))
+            elif mode == "move":
+                rules.insert(0, rules.pop(index))
+            elif mode == "neighbor":
+                rules[index + 1] = None
+            else:
+                extra = copy.deepcopy(rules[index])
+                extra["id"] = "unregistered-overlapping-reaction-wire"
+                extra["path_rules"] = ["android/**"]
+                if mode == "unscoped-overlap":
+                    del extra["work_packages"]
+                rules.append(extra)
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                reaction_wire_classification_predecessor(changed)
+        for malformed in (None, [], "policy", {"reservation_policy": None},
+                          {"reservation_policy": {"capabilities": None}},
+                          {"reservation_policy": {"capabilities": {}}}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                reaction_wire_classification_predecessor(malformed)
+
+    def test_reaction_wire_classification_source_wire_hash_visibility_and_scope_fences(self):
+        text = " ".join(REACTION_WIRE_CLASSIFICATION_CAPABILITY["invariants"]
+                        + REACTION_WIRE_CLASSIFICATION_CAPABILITY["validation"])
+        for fence in (
+            "db14559b39d32322b06477c6ae676112f583db50", "WP213-primary-provenance",
+            "parse-parseDM-generateMessageHash-only-delegate-to-canonical-ReactionParser",
+            "minimal-equivalent-reconciliation", "local-GB11", "ordinary-doubled-ZWJ",
+            "both-mention-orders", "one-emoji-Character", "DM-emoji-hash-Pair-shape",
+            "no-MeshCoreOpen-classifier-substitution", "CRLF-invalid-hash-rejection",
+            "ASCII-Crockford-case-and-O-I-L-alias-normalization",
+            "SHA256-UTF8-text-LE32-UInt-timestamp-first-five-bytes-eight-Crockford",
+            "MessageLRUCache-channel-DM-keys", "outgoing-only-isDM-routing-FAILED-visible",
+            "ordinary-text-visible", "no-rendering-subtree-global-SwiftText",
+            "no-Unicode-data-notice-policy-dependency-permission-or-legal-acceptance-authority",
+            "same-owner-stored-identity", "trusted-main-admission-before-consumer-edit",
+            "semantic-collision", "no-runtime-installation-cache-ref-default-settings-dispatch",
+            "ReactionWireFormatAgreementTest", "ReactionGraphemeClassificationTest",
+            "nonzero discovery", "policy fixtures prove admission only",
+        ):
+            with self.subTest(fence=fence):
+                self.assertIn(fence, text)
 
     def test_shared_location_cache_exact_eight_paths_and_wp404_operation(self):
         rule = SHARED_LOCATION_CACHE_CAPABILITY
@@ -121,7 +264,9 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
                 self.engine.admit("WP-404", self.manifest.wp("WP-404")["write_paths"], path, operation)
 
     def test_shared_location_cache_predecessor_restores_entire_actual_d2b_policy(self):
-        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        current = reaction_wire_classification_predecessor(
+            json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        )
         before = copy.deepcopy(current)
         original = json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",

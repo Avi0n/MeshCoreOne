@@ -27,6 +27,7 @@ from controller.scope_amendment import (
     backup_post_commit_predecessor,
     rx_projection_regression_predecessor,
     shared_location_cache_predecessor,
+    reaction_wire_classification_predecessor,
 )
 from local import debug_packaging
 
@@ -2157,6 +2158,20 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(current, before)
         self.assertEqual(disposable_predecessor(previous), previous)
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp216-reaction-wire-classification",')
+        end = text.index('      {\n        "id": "wp404-shared-location-producer-cache",', start)
+        text = text[:start] + text[end:]
+        self.assertEqual(json.loads(text), reaction_wire_classification_predecessor(current))
+        self.assertEqual(json.loads(text), json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "de20d1a6f3ff97068076204504ca7c854044bb77:docs/android/automation-policy.json",
+        ])))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=text.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "de20d1a6f3ff97068076204504ca7c854044bb77:docs/android/automation-policy.json",
+        ]).strip())
         start = text.index('      {\n        "id": "wp404-shared-location-producer-cache",')
         end = text.index('      {\n        "id": "wp201-rx-projection-source-regressions",', start)
         text = text[:start] + text[end:]
