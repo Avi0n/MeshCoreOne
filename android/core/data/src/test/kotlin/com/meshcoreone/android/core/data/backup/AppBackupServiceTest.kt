@@ -5,7 +5,12 @@ import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.database.*
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import java.io.ByteArrayInputStream
+import java.util.Base64
+import java.util.zip.Inflater
+import java.util.zip.InflaterInputStream
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.*
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -58,11 +63,44 @@ class AppBackupServiceTest : BackupRoomTest() {
 
     @OriginalCase("AppBackupServiceTests::Export output is smaller than raw JSON for large payloads()")
     @Test fun compressionHasActualRatio() = runBlocking {
-        seed(envelope(devices = listOf(device()), contacts = (1..20).map { contact(publicKey = key(it), id = id(20L + it)) }))
+        val sourceKeys = (0 until 20).map { value ->
+            Bytes(ByteArray(32) { (value % 255 + 1).toByte() } + byteArrayOf((value / 255).toByte()))
+        }
+        assertCompressionPreservesKeys(sourceKeys, 33)
+    }
+
+    // AndroidOnly: WP-203 Canonical native input is supplemental, not the source's 33-byte fixture.
+    @Test fun canonical32ByteContactKeysAlsoRetainCompressionPredicate() = runBlocking {
+        assertCompressionPreservesKeys((1..20).map(::key), 32)
+    }
+
+    private suspend fun assertCompressionPreservesKeys(expectedKeys: List<Bytes>, expectedWidth: Int) {
+        seed(envelope(devices = listOf(device()), contacts = expectedKeys.mapIndexed { index, publicKey ->
+            contact(publicKey = publicKey, id = id(21L + index))
+        }))
         val result = service.export(store)
-        val expanded = result.data.zlibDecompressed(BackupContract.MAX_EXPANDED_BYTES)
+        val inflater = Inflater(true)
+        val expanded = try {
+            InflaterInputStream(ByteArrayInputStream(result.data.toByteArray()), inflater).use { input ->
+                val bytes = input.readNBytes(64 * 1024)
+                assertEquals("The twenty-contact fixture must fit the bounded independent decoder", -1, input.read())
+                assertTrue(inflater.finished())
+                bytes
+            }
+        } finally {
+            inflater.end()
+        }
         assertTrue(expanded.size > result.data.size)
-        assertEquals(20, codec.parseBackup(result.data).contacts.size)
+        val jsonKeys = backupJson.parseToJsonElement(expanded.toString(Charsets.UTF_8)).jsonObject
+            .getValue("contacts").jsonArray.map { it.jsonObject.getValue("publicKey").jsonPrimitive.content }
+        assertEquals(20, jsonKeys.size)
+        assertEquals(expectedKeys.map { Base64.getEncoder().encodeToString(it.toByteArray()) }.toSet(), jsonKeys.toSet())
+        assertTrue(jsonKeys.all { Base64.getDecoder().decode(it).size == expectedWidth })
+        val decoded = codec.parseBackup(result.data)
+        assertEquals(20, decoded.contacts.size)
+        assertEquals(expectedKeys.toSet(), decoded.contacts.map { it.publicKey }.toSet())
+        assertTrue(decoded.contacts.all { it.publicKey.size == expectedWidth })
+        assertEquals(expectedKeys.toSet(), db.contacts().forRadio(RADIO.value).map { it.publicKey }.toSet())
     }
 
     @OriginalCase("AppBackupServiceTests::Envelope contains expected version()")
