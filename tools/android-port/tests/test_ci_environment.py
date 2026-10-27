@@ -82,8 +82,11 @@ class EnvironmentTests(unittest.TestCase):
         self.assertEqual("strict", arguments[arguments.index("--dependency-verification") + 1])
         self.assertNotIn("--rerun-tasks", arguments)
         self.assertIn("--build-cache", arguments)
-        self.assertIn("--parallel", arguments)
         self.assertIn("--max-workers=2", arguments)
+        if stage == "prepare":
+            self.assertNotIn("--parallel", arguments)
+        else:
+            self.assertIn("--parallel", arguments)
         self.assertNotIn("--no-build-cache", arguments)
         return output, state, arguments, observe_identity.call_count
 
@@ -200,6 +203,9 @@ class EnvironmentTests(unittest.TestCase):
             )
             self.assertIn("resolveScaffoldDependencies", arguments)
             self.assertNotIn("verifyScaffoldTests", arguments)
+            self.assertIn("--build-cache", arguments)
+            self.assertIn("--max-workers=2", arguments)
+            self.assertNotIn("--parallel", arguments)
             self.assertIn("--init-script", arguments)
             self.assertTrue(arguments[arguments.index("--init-script") + 1].endswith(
                 "verify_candidate_task_graph.gradle"

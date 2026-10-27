@@ -29,8 +29,10 @@ backup oracle still waits for the Android build that produces its input.
 Ordinary module changes use the exact candidate diff and dependency-consumer
 closure to select module tests, checks and lint; only broad, unclassified or
 build-graph changes retain the full scaffold and APK handoff. Gradle project
-parallelism is bounded to two workers, and plain-console output is streamed to
-the hosted log while the full command log remains available for failure evidence.
+parallelism is bounded to two workers for build/test stages. Dependency-only
+preflight stays serialized because AGP's `androidJdkImage` configuration requires
+an exclusive resolution lock. Plain-console output is streamed to the hosted log
+while the full command log remains available for failure evidence.
 
 Hosted Gradle task-output caching is enabled. Only `:core:data:testDebugUnitTest`
 is explicitly opted into test-result caching; other test tasks retain Gradle's
