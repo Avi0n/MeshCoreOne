@@ -20,6 +20,7 @@ import com.meshcoreone.android.core.services.content.GeoCoordinate
 import com.meshcoreone.android.core.services.content.LocationAuthorizationStatus
 import com.meshcoreone.android.core.services.content.LocationProducing
 import com.meshcoreone.android.core.services.content.LocationServiceError
+import com.meshcoreone.android.platform.shortcuts.AndroidShortcutText
 import com.meshcoreone.android.platform.shortcuts.ShortcutError
 import com.meshcoreone.android.platform.shortcuts.ShortcutException
 import com.meshcoreone.android.platform.shortcuts.AdvertFlow
@@ -238,7 +239,7 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
                     confirmations += request
                     return accepted
                 }
-            }, AndroidShortcutText(ApplicationProvider.getApplicationContext()))
+            }, AndroidShortcutText(ApplicationProvider.getApplicationContext<Context>()))
             val start = h.links.radios.single().sent.size
             assertSame(AdvertResult.Declined, flow.execute(AdvertReach.FLOOD))
             assertTrue(commands(h, start).isEmpty())

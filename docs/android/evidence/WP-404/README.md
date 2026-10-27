@@ -1,12 +1,50 @@
 # WP-404 evidence
 
+## G09 first guarded result: missing test import
+
+The first G09 candidate `8b046e770dc64159f0552b5711714af43d7e09bf`,
+tree `1a672c74345faf00f6ac234082694c76ba6c7853`, ran once on the supported
+new trusted runner at base `610f606baaaf38eb2a2b14cb054b18fedba58a1f`.
+Guard 284038 chose host slot 2 (capacity 3), owner
+`local-check:208c23fb5b154d02974580cee8904270`; original report directory:
+`run-GJTZZppD`. Actual retained OS exit was 1 at
+`2026-10-27T01:52:51Z`; Gradle reported `BUILD FAILED in 8m 26s`.
+This was a test compilation defect, not a capacity failure or policy refusal.
+
+Production `:app:compileDebugKotlin` completed. Test compilation failed at
+`ShortcutAdvertLocationTest.kt:241`: unresolved `AndroidShortcutText`, followed
+by the resulting uninferred `ApplicationProvider` type argument. Unlike the
+earlier wildcard-importing shortcut oracles, this new file's explicit imports
+omitted `platform.shortcuts.AndroidShortcutText`. The correction adds that
+actual production class import and an explicit `<Context>` type argument.
+No production behavior, expected value, assertion, family or method is changed.
+
+No App unit tests executed: the source-bound App JUnit directory and named
+results are absent, so all 17 required methods remain **NOT RUN**, not passed.
+The six-task closure did not complete; lint, Android-test compilation, graph
+and dependency-inventory success are not claimed. Exact snapshot HEAD and tree
+were checked both before and after the report/absence read; the original run
+log remains authoritative. Supported canonical status confirmed the own slot-2
+lock gone, and `/tmp/meshcore-execution-jsn907o4` was removed. Snapshot reuse
+was reported safe only after this truthful closeout.
+
+The corrected successor is the commit containing this section. The 17-method
+inventory and the two original families are unchanged. Its execution remains
+**NOT RUN** pending a separately admitted, diagnosed corrected-candidate run;
+no automatic retry, base/runtime/cache change or publication was performed.
+The cached-currentLocation correspondence remains unresolved regardless of
+future gate-test results; documentation is not approval of that divergence.
+
 ## RADIO-R118-G09: source candidate after merged #350
 
 Repository: `cbattlegear/MeshCoreOne-Android`; owner:
 `platform-integrations-engineer`; START base
 `610f606baaaf38eb2a2b14cb054b18fedba58a1f`, tree
-`ced3cdbdc42cd7d22dc0bd33aef7b3c43e01eb6f`. The exact candidate is the
-commit containing this section, not any earlier #350 candidate. Source remains
+`ced3cdbdc42cd7d22dc0bd33aef7b3c43e01eb6f`. The initial G09 source candidate
+was `8b046e770dc64159f0552b5711714af43d7e09bf`, tree
+`1a672c74345faf00f6ac234082694c76ba6c7853`, not an earlier #350 candidate.
+The source-only execution notes in this section are historical; see the actual
+guarded failure and corrected successor above. Source remains
 `db14559b39d32322b06477c6ae676112f583db50`. Fresh authenticated readback
 confirmed prerequisite PRs #43 (WP-208), #49 (WP-209), #71 (WP-303), and #350
 merged before the clean, authorized fast-forward START.
