@@ -1,5 +1,22 @@
 # WP-109 protocol sweep and executable TCP meshcli
 
+## Current R118 claim reconciliation (#379)
+
+[Claim reconciliation](claim-reconciliation.md) defines the current, bounded
+meaning of the ten `PROTOCOL-R118-G13` mappings: exact source/native assertion
+sites, stimuli, units, actual producers/consumers and evidence not established
+by each case. Read it before using the historical catalog or results below.
+It does not award new original-family, application-consumer or physical-radio
+acceptance, and does not change canonical accounting.
+
+The retained `source-cases.json`, baseline, reports, identities and outcomes
+remain historical records. A historical `passed`, `existing-executed-component`
+or null `native_adaptation` is not proof of a complete consumer flow or every
+behavior suggested by a test title. Current verification is attributed
+separately in the reconciliation and exact-candidate PR/hosted log.
+
+## Historical implementation and execution record
+
 **Implemented candidate; latest root protocol failure remains under repair.**
 The later persistent-documentation head
 `b124814bcd05544498eb0dcd804a5604c0785d3e` failed root

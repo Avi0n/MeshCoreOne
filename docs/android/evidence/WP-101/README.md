@@ -65,3 +65,36 @@ declared Python version. The failed run is not represented as successful.
 invocation. Its protocol validation reparses actual
 JUnit reports and requires at least 84 successful, unskipped cases. Existing
 scaffold-suite counts are not substituted for this new library evidence.
+
+## R118 negative-hop boundary (#375)
+
+The pinned `encodePathLen` source validates hash size, clamps hop count to 63,
+then converts to `UInt8`. A negative hop count traps during that conversion;
+Swift exposes no recoverable error/result contract for it. Android's encoder
+already rejects negative hop counts with `IllegalArgumentException` before
+packing, and `PathEncodingTest` now gives this assertion its own test case,
+separate from invalid hash-size assertions. This is an explicit native
+fail-fast adaptation; it does not change valid bytes, the upper clamp, or claim
+an additional frozen original-family mapping.
+
+The 84-case count above is the historical run for implementation base
+`979dd73b2fc3cb5cbeea07b1c809f5c9283289ee`; it is not the count for the
+negative-hop candidate.
+
+The exact candidate `c095959b62f86c3f649c3a2a64362d5810eb0efa`, based on
+`49fdfe63c10fa4508ed2e8d6a80a3b1288231c52`, passed hosted run
+[40562055617](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/40562055617):
+
+| Hosted check | Result |
+| --- | ---: |
+| Controller and workflow policy | 1,124 passed; 0 failed, errors or skips |
+| `:core:protocol:test` report | 4,717 passed; 0 failed, errors or skips |
+| Android candidate CI | passed |
+
+The scope classifier selected only the protocol build; Swift codec and
+SwiftData backup oracles were skipped as unrelated. This is exact-candidate
+automated verification, not device, radio, iOS or hardware acceptance. Before
+the binding repair merged, the controller check failed on stale WP-503 LoS
+historical pins, and the protocol task was skipped. The repaired source-history
+checks passed on this candidate without changing production or historical
+evidence bytes.

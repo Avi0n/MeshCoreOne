@@ -23,9 +23,7 @@ partial-stage, working-tree, adapter, hook-installation, prepush and full-result
 validation overrides. Ordinary `--stages`, full/manual, adapter and nonblocking
 prepush behavior is unchanged.
 
-The request is derived only after canonical shared Gradle-resource acquisition,
-and passes through the existing native/Gradle/runtime interlock, Linux flock,
-supervisor and owned-child cleanup. Its snapshot stage list, commit and tree
+Its snapshot stage list, commit and tree
 must match the inherited real admission descriptor. The immutable base is
 validated before transport and checked again on return. It does not install or
 upgrade the runtime, clear an incumbent owner, or add another execution route.

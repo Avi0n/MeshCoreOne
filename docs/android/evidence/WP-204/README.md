@@ -1,5 +1,21 @@
 # WP-204 implementation and verification record
 
+## Current DATA-20 reconciliation (#381)
+
+The executing vanity-search cancellation repair is already merged in
+[#345](https://github.com/cbattlegear/MeshCoreOne-Android/pull/345).
+Its exact-head hosted verification discovered and passed both key-generation
+suites, including executing-search, pre-start and entropy-thrown cancellation.
+The relevant production and test files remain unchanged at the reconciliation
+base. See the [current DATA-20 record](active-key-search-cancellation.md#current-reconciliation-381)
+for immutable identities, assertion boundaries and the local execution limitation.
+No new production repair or broader WP-204 acceptance is claimed.
+
+## Historical implementation record
+
+The record below preserves its original candidates, counts and pending work.
+Its status and execution limitations are not a current DATA-20 verdict.
+
 **Status: actual owned unit/source verification passed131/131 after both
 independently reviewed source repairs. Shared checksums/consumer locks and
 module-local test SDK locks are admitted/generated. Historical headcc02 has

@@ -1,5 +1,74 @@
 # WP-108 transport implementation evidence
 
+## R118 timing-contract repair (#376)
+
+Repository: `cbattlegear/MeshCoreOne-Android`; owner: `protocol-porter`.
+Repair branch: `wp108-pending-connect-contract`, dedicated worktree.
+Actual repair session: `37f7ca3e-00c8-4c3d-adc8-3a9ac72e4313`.
+Base: `8defec5919f5d6e0aee15d5305add42589421f05`.
+Swift source/test pin: `db14559b39d32322b06477c6ae676112f583db50`, unchanged.
+The existing WP-101 foundation and its #375 repair are merged prerequisites.
+
+The repair targets `PROTOCOL-R118-G12`, with all four original families:
+
+| Original family | Current discriminating observation |
+| --- | --- |
+| Cancelling connect does not leave it parked | Controlled pending connect at 199/200 virtual ms; cancellation completes under the existing three-second real budget, socket closed once, no blocked IO or reader left; 100 ms callback-suppression interval |
+| Initial connect failure does not notify | Original invalid host; actual typed failure; callback awaited for 100 real ms before disconnect clears its registration |
+| User disconnect does not notify | Both never-connected and established loopback variants; 100 real ms callback observation; real EOF/closed stream and once-only close retained |
+| Idempotent connect does not create another connection | First real accept, redundant connects and 500 ms actual kernel accept timeout; separate extra-connection positive control rejects a queued second accept |
+
+Related coverage adds concurrent callers during a pending connect, then
+successful completion on the same socket, and strengthens the replacement
+handler's late-old-generation failure observation. Existing peer-close
+notification is the positive callback control. Existing mock, framing,
+deadline, IO-failure and lifecycle cases are retained, not replaced by these
+four cases. Production transport bytes and APIs are unchanged.
+
+See the corresponding [adaptation](../../deviations/WP-108.md) for controlled
+versus real-kernel boundaries. This does not claim Apple Network.framework,
+external-network, physical-device/radio, Windows or full-platform-matrix
+execution. Reproducible hosted results stay on the exact candidate's CI log,
+not in another committed result bundle.
+
+### Pre-push execution
+
+Linux, pinned Python 3.12.4 and the existing JDK/SDK installations from
+`/ai_cache/meshcoreone/toolchains/a8c624bc-20261026/environment.json`.
+The declared `ci.py local-inputs` helper supplied an isolated private root;
+no toolchain, dependency, runner or task was added.
+
+From the dedicated worktree, with
+`GRADLE_USER_HOME=/ai_cache/meshcoreone/cache/gradle`:
+
+```sh
+/ai_cache/meshcoreone/python/3.12.4/bin/python3 tools/android-port/controller/ci.py preflight \
+  --state /home/cbattagler/.copilot/session-state/37f7ca3e-00c8-4c3d-adc8-3a9ac72e4313/files/wp108-local-inputs/environment.json \
+  --output /home/cbattagler/.copilot/session-state/37f7ca3e-00c8-4c3d-adc8-3a9ac72e4313/files/wp108-local-check
+/ai_cache/meshcoreone/python/3.12.4/bin/python3 tools/android-port/controller/ci.py run --stage protocol --scope protocol \
+  --state /home/cbattagler/.copilot/session-state/37f7ca3e-00c8-4c3d-adc8-3a9ac72e4313/files/wp108-local-inputs/environment.json \
+  --output /home/cbattagler/.copilot/session-state/37f7ca3e-00c8-4c3d-adc8-3a9ac72e4313/files/wp108-local-check
+```
+
+Result: readiness passed; declared `:core:protocol:test` discovered and ran
+**4,720 tests, all passed; zero failures, errors or skips**. This includes all
+**75 transport cases**: 12 mock, 17 frame codec, 25 TCP contract and 21 TCP IO
+cases. Current XML confirms the 100 ms callback windows and 500 ms listener
+window executed, and the extra-connection positive control failed the
+negative assertion as intended.
+
+Also passed, using the same pinned Python:
+`tools/android-port/controller/validate.py`,
+`tools/android-port/portmap.py`,
+`android/parity-tests/audit.py --check`,
+`android/parity-tests/semantic.py --check`, and `git diff --check`.
+The provenance map accounts for 1,933 Kotlin files; accounting/semantic checks
+are static validation, not additional platform or independent parity proof.
+The final candidate head and authoritative hosted result belong to the PR.
+Historical counts and revisions below describe only the original execution.
+
+## Historical implementation evidence
+
 Repository: `cbattlegear/MeshCoreOne-Android`. Owner: `protocol-porter`.
 Project session: `a61f5311-094f-499d-9e15-6d9d5b40d199`.
 Branch: `cbattlegear-friendly-goggles`, one dedicated owning worktree.

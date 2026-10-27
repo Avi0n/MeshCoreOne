@@ -37,12 +37,16 @@ class OriginalCorrelationCasesTest {
             f.session.stop()
         },
         source("simple commands ignore OK responses with payloads") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(defaultTimeout = 0.2, clientIdentifier = "MCTst"))
+            start(f, expectedAppStart = hex("01032020202020204d43547374"))
             val task = checkedRequest { f.session.factoryReset() }; runCurrent()
             f.transport.ok(7u); runCurrent()
             assertFalse(task.isCompleted)
-            advanceTimeBy(1000); runCurrent()
+            advanceTimeBy(199); runCurrent()
+            assertFalse(task.isCompleted)
+            advanceTimeBy(1); runCurrent()
             assertFailsWith<MeshCoreException.Timeout> { task.await() }
+            assertEquals(200L, testScheduler.currentTime)
             f.session.stop()
         },
         source("simple commands still fail on device errors") {
@@ -90,7 +94,11 @@ class OriginalCorrelationCasesTest {
             f.session.stop()
         },
         source("getContacts succeeds when slow stream keeps making progress") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(
+                defaultTimeout = 10.0, clientIdentifier = "MCTst",
+                contactStreamInactivityTimeout = 1.0, contactStreamHardTimeout = 10.0,
+            ))
+            start(f, expectedAppStart = hex("01032020202020204d43547374"))
             val task = checkedRequest { f.session.getContacts() }; runCurrent()
             assertEquals(hex("04"), f.transport.sent.last())
             f.transport.receive(contactsStart(3)); runCurrent()
@@ -100,11 +108,16 @@ class OriginalCorrelationCasesTest {
             }
             advanceTimeBy(70); f.transport.receive(contactsEnd()); runCurrent()
             assertEquals(listOf("Node 0", "Node 1", "Node 2"), task.await().map { it.advertisedName })
+            assertEquals(280L, testScheduler.currentTime)
             assertFalse(f.session.isContactsDirty)
             f.session.stop()
         },
         source("getContactsReportingTotal surfaces the contactsStart total, not the received count") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(
+                defaultTimeout = 10.0, clientIdentifier = "MCTst",
+                contactStreamInactivityTimeout = 1.0, contactStreamHardTimeout = 10.0,
+            ))
+            start(f, expectedAppStart = hex("01032020202020204d43547374"))
             val task = checkedRequest { f.session.getContactsReportingTotal() }; runCurrent()
             f.transport.receive(contactsStart(3))
             repeat(2) { f.transport.receive(contactPacket(filled(it + 1, 32), "Node $it")) }
@@ -116,7 +129,11 @@ class OriginalCorrelationCasesTest {
             f.session.stop()
         },
         source("getContactsReportingTotal returns a nil total when contactsStart never arrives") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(
+                defaultTimeout = 10.0, clientIdentifier = "MCTst",
+                contactStreamInactivityTimeout = 1.0, contactStreamHardTimeout = 10.0,
+            ))
+            start(f, expectedAppStart = hex("01032020202020204d43547374"))
             val task = checkedRequest { f.session.getContactsReportingTotal() }; runCurrent()
             repeat(2) { f.transport.receive(contactPacket(filled(it + 1, 32), "Node $it")) }
             f.transport.receive(contactsEnd()); runCurrent()
@@ -126,18 +143,28 @@ class OriginalCorrelationCasesTest {
             f.session.stop()
         },
         source("getContacts times out after inactivity before contactsEnd") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(
+                defaultTimeout = 10.0, clientIdentifier = "MCTst",
+                contactStreamInactivityTimeout = 0.08, contactStreamHardTimeout = 1.0,
+            ))
+            start(f, expectedAppStart = hex("01032020202020204d43547374"))
             val task = checkedRequest { f.session.getContacts() }; runCurrent()
             f.transport.receive(contactsStart(1)); runCurrent()
-            advanceTimeBy(200); runCurrent()
+            advanceTimeBy(140); runCurrent()
+            assertFalse(task.isCompleted)
+            // The header changed generation after the first sample; the next unchanged sample is at 160ms.
+            advanceTimeBy(20); runCurrent()
+            assertTrue(task.isCompleted)
             assertFailsWith<MeshCoreException.Timeout> { task.await() }
+            assertEquals(160L, testScheduler.currentTime)
             assertEquals(1L, assertNotNull(f.session.lastContactFetchProgress).reportedTotal)
             assertFalse(assertNotNull(f.session.lastContactFetchProgress).completed)
             assertEquals(0, f.session.core.generation().pending.size)
             f.session.stop()
         },
         source("getContact ignores responses for other public keys") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MCTst"))
+            start(f, expectedAppStart = hex("01032020202020204d43547374"))
             val key = filled(0x11, 32)
             val task = checkedRequest { f.session.getContact(key) }; runCurrent()
             assertEquals(raw(0x1e, key), f.transport.sent.last())
@@ -148,7 +175,8 @@ class OriginalCorrelationCasesTest {
             f.session.stop()
         },
         source("exportContact ignores contact URIs for other public keys") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MCTst"))
+            start(f, expectedAppStart = hex("01032020202020204d43547374"))
             val key = filled(0x11, 32)
             val task = checkedRequest { f.session.exportContact(key) }; runCurrent()
             assertEquals(raw(0x11, key), f.transport.sent.last())
@@ -158,12 +186,16 @@ class OriginalCorrelationCasesTest {
             f.session.stop()
         },
         source("importPrivateKey ignores OK responses with payloads") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(defaultTimeout = 0.2, clientIdentifier = "MCTst"))
+            start(f, expectedAppStart = hex("01032020202020204d43547374"))
             val task = checkedRequest { f.session.importPrivateKey(filled(0x33, 64)) }; runCurrent()
             assertEquals(raw(0x18, filled(0x33, 64)), f.transport.sent.last())
             f.transport.ok(7u); runCurrent()
-            advanceTimeBy(1000); runCurrent()
+            advanceTimeBy(199); runCurrent()
+            assertFalse(task.isCompleted)
+            advanceTimeBy(1); runCurrent()
             assertFailsWith<MeshCoreException.Timeout> { task.await() }
+            assertEquals(200L, testScheduler.currentTime)
             assertEquals(2, f.transport.sent.size)
             f.session.stop()
         },
