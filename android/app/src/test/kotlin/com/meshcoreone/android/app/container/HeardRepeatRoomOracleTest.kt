@@ -1,5 +1,4 @@
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/Services/HeardRepeatsServiceTests.swift@db14559b39d32322b06477c6ae676112f583db50
-// AndroidOnly: WP-216 Real Room transaction and concurrent committed-repeat replay evidence.
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.contracts.domain.EntityKey
