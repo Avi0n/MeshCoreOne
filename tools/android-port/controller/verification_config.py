@@ -237,6 +237,7 @@ def inventory_details_predecessor(details, manifest):
 
 def check_configuration(repo: Path):
     from bootstrap import build_inventory
+    from controller.software_verification import current_amendment
 
     generated, exclusions = build_inventory(repo)
     expected = apply_overlay(generated, repo)
@@ -253,7 +254,7 @@ def check_configuration(repo: Path):
         "policy_amendment": amendment["amendment_id"],
         "translation_scope_removed": is_translation_scope(actual),
         "feature_verification_configured": False, "human_or_dependency_acceptance": False,
-        "software_command_amendment": "WP-003-software-verification-v1",
+        "software_command_amendment": current_amendment(repo)["amendment_id"],
     }
 
 

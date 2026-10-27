@@ -880,8 +880,12 @@
       ],
       "verification": {
         "configured": false,
-        "commands": [],
-        "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        "commands": [
+          ["python", "tools/android-port/controller/ci.py", "preflight"],
+          ["python", "tools/android-port/controller/ci.py", "run", "--stage", "scaffold"],
+          ["python", "tools/android-port/controller/ci.py", "inspect"]
+        ],
+        "blocker": "The software lane executes the current Room-backed persistence repository suite and scaffold consumers. R118 bundle 13/55 in #385 still needs an approved bounded split and explicit concern-to-test/evidence mapping; these general software checks do not accept its nine concerns or 167 original families. Full WP-202 acceptance remains unconfigured."
       }
     },
     {

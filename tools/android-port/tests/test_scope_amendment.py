@@ -45,7 +45,11 @@ from controller.verification_config import (
 )
 from inventory_rules import TRANSLATION_PATHS, exclusion, production_owner
 from controller.model import Manifest
-from controller.software_verification import project as project_software
+from controller.software_verification import project as project_software, transform_next
+
+
+def manifest_before_software_v2(manifest):
+    return Manifest(transform_next(manifest.data, reverse=True), manifest.exclusions, REPO)
 
 
 class TranslationScopeAmendmentTests(unittest.TestCase):
@@ -347,11 +351,10 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
             "git", "-C", str(REPO), "rev-parse",
             "b677fd681533fbbe461a07ddf7fcf237d61885dc:docs/android/automation-policy.json",
         ]).strip())
-        self.assertEqual((REPO / "docs/android/port-manifest.json").read_bytes().replace(b"\r\n", b"\n"),
-                         subprocess.check_output([
-                             "git", "-C", str(REPO), "show",
-                             "b677fd681533fbbe461a07ddf7fcf237d61885dc:docs/android/port-manifest.json",
-                         ]).replace(b"\r\n", b"\n"))
+        self.assertEqual(manifest_before_software_v2(base_manifest()).data, json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "b677fd681533fbbe461a07ddf7fcf237d61885dc:docs/android/port-manifest.json",
+        ])))
         self.assertEqual(content_scope_revisions(base_manifest(), current)["policy_revision"],
                          policy_revision(base_manifest(), current))
 
@@ -418,11 +421,10 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
             "git", "-C", str(REPO), "rev-parse",
             "6b394bbabe2c4210e37bb2c401f2bcb2e1443032:docs/android/automation-policy.json",
         ]).strip())
-        self.assertEqual(json.loads((REPO / "docs/android/port-manifest.json").read_text(encoding="utf-8")),
-                         json.loads(subprocess.check_output([
-                             "git", "-C", str(REPO), "show",
-                             "6b394bbabe2c4210e37bb2c401f2bcb2e1443032:docs/android/port-manifest.json",
-                         ])))
+        self.assertEqual(manifest_before_software_v2(base_manifest()).data, json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "6b394bbabe2c4210e37bb2c401f2bcb2e1443032:docs/android/port-manifest.json",
+        ])))
         self.assertEqual(content_scope_revisions(base_manifest(), current)["policy_revision"],
                          policy_revision(base_manifest(), current))
         self.assertFalse(current["paused"])
@@ -664,7 +666,7 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         ]))
         self.assertEqual(previous, candidate)
         self.assertEqual(rooms_message_actions_predecessor(previous), deployed)
-        self.assertEqual(policy_revision(manifest, deployed),
+        self.assertEqual(policy_revision(manifest_before_software_v2(manifest), deployed),
                          "e8afe0670176107dec414025eeb06f9dc9070c027ad6fb244802cd1f3a0cb9f3")
         self.assertEqual(current, before)
         self.assertEqual(mention_picker_predecessor(previous), previous)
@@ -757,12 +759,10 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
             "git", "-C", str(REPO), "rev-parse",
             "aa4b0b425b3ee58485191c7ede39e69ca8a1acf5:docs/android/automation-policy.json",
         ]).strip())
-        self.assertEqual(subprocess.check_output([
-            "git", "-C", str(REPO), "hash-object", "docs/android/port-manifest.json",
-        ]).strip(), subprocess.check_output([
-            "git", "-C", str(REPO), "rev-parse",
+        self.assertEqual(manifest_before_software_v2(manifest).data, json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
             "aa4b0b425b3ee58485191c7ede39e69ca8a1acf5:docs/android/port-manifest.json",
-        ]).strip())
+        ])))
         self.assertNotEqual(policy_revision(manifest, current), policy_revision(manifest, previous))
         self.assertEqual(content_scope_revisions(manifest, current), {
             "manifest_sha256": manifest.sha256, "policy_revision": policy_revision(manifest, current),
