@@ -2,6 +2,7 @@
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/Mocks/MockChannelService.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/Mocks/MockMessagePollingService.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/Mocks/MockAppStateProvider.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1Services/Tests/MC1ServicesTests/SyncCoordinatorTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.core.services.sync
 
 import com.meshcoreone.android.core.contracts.domain.AppStateProvider
@@ -126,19 +127,25 @@ internal class MockAppStateProvider(@Volatile var stubbedIsInForeground: Boolean
     override suspend fun isInForeground(): Boolean = stubbedIsInForeground
 }
 
-/** Swift `OrderTrackingMessagePollingService`: records activity-ended vs message-poll order. */
+/** Swift `OrderTrackingMessagePollingService`: compares the latest recorded wall timestamps. */
 internal class OrderTrackingMessagePollingService(private val clock: SyncClock) : MockMessagePollingService() {
-    private val events = java.util.Collections.synchronizedList(ArrayList<String>())
+    private val lock = Any()
+    private var activityEndedTime: Instant? = null
+    private var messagePollTime: Instant? = null
 
     fun recordActivityEnded() {
-        events += "ended"
+        synchronized(lock) { activityEndedTime = clock.now() }
     }
 
     val activityEndedBeforeMessagePoll: Boolean
-        get() = synchronized(events) { events.indexOf("ended").let { it >= 0 && it < events.indexOf("poll") } }
+        get() = synchronized(lock) {
+            val ended = activityEndedTime
+            val poll = messagePollTime
+            ended != null && poll != null && ended < poll
+        }
 
     override suspend fun pollAllMessages(): Long {
-        events += "poll"
+        synchronized(lock) { messagePollTime = clock.now() }
         return super.pollAllMessages()
     }
 }
