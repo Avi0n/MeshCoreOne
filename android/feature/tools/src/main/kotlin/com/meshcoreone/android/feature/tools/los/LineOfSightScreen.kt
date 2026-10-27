@@ -57,10 +57,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.stringResource
@@ -76,11 +74,12 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.meshcoreone.android.core.l10n.generated.AppToolsStrings
 import com.meshcoreone.android.core.maps.MapCamera
 import com.meshcoreone.android.core.maps.MapLibreMapSurface
+import com.meshcoreone.android.core.maps.MapProjectionHandle
+import com.meshcoreone.android.core.maps.MapScreenPoint
 import com.meshcoreone.android.core.maps.MapLibreRuntime
 import com.meshcoreone.android.core.model.Coordinate
 import java.text.NumberFormat
@@ -174,12 +173,11 @@ private fun LineOfSightMap(
 ) {
     val accessibilityLabel = stringResource(AppToolsStrings.toolsLineOfSight)
     val resources = LocalContext.current.resources
-    var size by remember { mutableStateOf(IntSize.Zero) }
+    val projection = remember { MapProjectionHandle() }
     val viewConfiguration = LocalViewConfiguration.current
     val presentation = remember(state, camera) { mapPresentation.build(state, camera, labelsEnabled = true) }
     val gestureModifier = Modifier
-        .onSizeChanged { size = it }
-        .pointerInput(camera, size, viewConfiguration) {
+        .pointerInput(projection, viewConfiguration) {
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
                 var moved = false
@@ -191,7 +189,9 @@ private fun LineOfSightMap(
                     if ((change.position - down.position).getDistance() > viewConfiguration.touchSlop) moved = true
                     if (!change.pressed) {
                         if (!moved) {
-                            LineOfSightMapPresentation.coordinateAt(lastPosition, size, camera)?.let { coordinate ->
+                            LineOfSightMapPresentation.coordinateFrom(
+                                projection.coordinateAt(MapScreenPoint(lastPosition.x, lastPosition.y)),
+                            )?.let { coordinate ->
                                 if (change.uptimeMillis - down.uptimeMillis >= viewConfiguration.longPressTimeoutMillis) {
                                     holder.handleMapLongPress(coordinate)
                                 } else {
@@ -212,6 +212,7 @@ private fun LineOfSightMap(
                 labelsEnabled = true,
                 accessibilityLabel = accessibilityLabel,
                 onCameraChanged = onCameraChanged,
+                projection = projection,
                 onMarkerSelected = { marker ->
                     state.repeatersWithLocation.firstOrNull { it.id == marker.id }?.let(holder::toggleContact)
                 },
