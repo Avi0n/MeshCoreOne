@@ -16,6 +16,7 @@ from controller.scope_amendment import (
     RX_PROJECTION_REGRESSION_CAPABILITY, rx_projection_regression_predecessor,
     SHARED_LOCATION_CACHE_CAPABILITY, shared_location_cache_predecessor,
     REACTION_WIRE_CLASSIFICATION_CAPABILITY, reaction_wire_classification_predecessor,
+    SHORTCUT_LIFECYCLE_TEST_CAPABILITY, shortcut_lifecycle_test_predecessor,
 )
 
 
@@ -30,6 +31,182 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
         self.rules = policy()
         self.engine = CapabilityEngine(self.rules)
         self.manifest = test_manifest("WP-000")
+
+    def test_shortcut_lifecycle_exact_wp404_fixture_create_test_and_modify(self):
+        rule = SHORTCUT_LIFECYCLE_TEST_CAPABILITY
+        path = "android/app/src/test/kotlin/com/meshcoreone/android/app/navigation/ShortcutLifecycleConsumerTest.kt"
+        self.assertEqual(rule["id"], "wp404-shortcut-lifecycle-consumer-test")
+        self.assertEqual(rule["work_packages"], ["WP-404"])
+        self.assertEqual(rule["path_rules"], [path])
+        self.assertEqual(rule["operations"], ["create", "test", "modify"])
+        self.assertEqual(next(r for r in self.rules["reservation_policy"]["capabilities"]
+                              if r["id"] == rule["id"]), rule)
+        previous = CapabilityEngine(shortcut_lifecycle_test_predecessor(self.rules))
+        for operation in rule["operations"]:
+            with self.subTest(operation=operation):
+                admitted = self.engine.admit("WP-404", self.manifest.wp("WP-404")["write_paths"],
+                                             path, operation)
+                self.assertEqual(admitted.capability_id, rule["id"])
+                self.assertEqual(admitted.invariants, tuple(rule["invariants"]))
+                self.assertEqual(admitted.validation, tuple(rule["validation"]))
+                with self.assertRaises(PortError):
+                    previous.admit("WP-404", self.manifest.wp("WP-404")["write_paths"], path, operation)
+
+    def test_shortcut_lifecycle_other_wp_and_existing_primary_admissions_unchanged(self):
+        rule = SHORTCUT_LIFECYCLE_TEST_CAPABILITY
+        path = rule["path_rules"][0]
+        isolated = CapabilityEngine({"reservation_policy": {"capabilities": [rule]}})
+        previous = CapabilityEngine(shortcut_lifecycle_test_predecessor(self.rules))
+        for wp in self.manifest.work_packages:
+            if wp == "WP-404":
+                continue
+            for operation in rule["operations"]:
+                with self.subTest(wp=wp, operation=operation):
+                    with self.assertRaises(PortError):
+                        isolated.admit(wp, [], path, operation)
+                    assigned = self.manifest.wp(wp)["write_paths"]
+                    try:
+                        old = previous.admit(wp, assigned, path, operation)
+                    except PortError:
+                        with self.assertRaises(PortError):
+                            self.engine.admit(wp, assigned, path, operation)
+                    else:
+                        self.assertEqual(self.engine.admit(wp, assigned, path, operation), old)
+                        self.assertNotEqual(old.capability_id, rule["id"])
+
+    def test_shortcut_lifecycle_wrong_operations_preserve_old_app_support(self):
+        rule = SHORTCUT_LIFECYCLE_TEST_CAPABILITY
+        path = rule["path_rules"][0]
+        isolated = CapabilityEngine({"reservation_policy": {"capabilities": [rule]}})
+        previous = CapabilityEngine(shortcut_lifecycle_test_predecessor(self.rules))
+        assigned = self.manifest.wp("WP-404")["write_paths"]
+        for operation in (
+            "delete", "generate", "record-evidence", "unknown",
+            "restore-shared-pre-advert-location-cache", "reconcile-reaction-wire-classification",
+            "add-direct-support-wiring", "update-build-or-manifest", "update-launcher-or-composition",
+        ):
+            with self.subTest(operation=operation):
+                with self.assertRaises(PortError):
+                    isolated.admit("WP-404", [], path, operation)
+                try:
+                    old = previous.admit("WP-404", assigned, path, operation)
+                except PortError:
+                    with self.assertRaises(PortError):
+                        self.engine.admit("WP-404", assigned, path, operation)
+                else:
+                    self.assertEqual(old.capability_id, "app-build-launcher")
+                    self.assertEqual(self.engine.admit("WP-404", assigned, path, operation), old)
+
+    def test_shortcut_lifecycle_sibling_production_build_resources_and_traversal_denials(self):
+        rule = SHORTCUT_LIFECYCLE_TEST_CAPABILITY
+        path = rule["path_rules"][0]
+        root = path.rsplit("/", 1)[0]
+        for wrong in (
+            root, path + ".backup", path + "/Other.kt", root + "/OtherTest.kt",
+            root + "/AppShortcutContentTest.kt", root + "/MainActivityTest.kt",
+            path.replace("/navigation/", "/container/"),
+            path.replace("/src/test/", "/src/main/"),
+            path.replace("/src/test/", "/src/androidTest/"),
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppShortcutContent.kt",
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/MainActivity.kt",
+            "android/app/build.gradle.kts", "android/app/src/main/AndroidManifest.xml",
+            "android/app/src/main/res/values/strings.xml",
+            "../ShortcutLifecycleConsumerTest.kt", "/" + path,
+            path.replace("/navigation/", "/navigation/../navigation/"),
+            path.replace("android/app/", "android//app/"),
+        ):
+            for operation in rule["operations"]:
+                with self.subTest(path=wrong, operation=operation), self.assertRaises(PortError):
+                    self.engine.admit("WP-404", self.manifest.wp("WP-404")["write_paths"], wrong, operation)
+
+    def test_shortcut_lifecycle_inverse_restores_entire_actual_61fc_policy_and_roundtrip(self):
+        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        before = copy.deepcopy(current)
+        original = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "61fc048e1780173e2603013a8b6d0233d0d63c3b:docs/android/automation-policy.json",
+        ]))
+        previous = shortcut_lifecycle_test_predecessor(current)
+        self.assertEqual(previous, original)
+        self.assertEqual(shortcut_lifecycle_test_predecessor(previous), previous)
+        self.assertEqual(current, before)
+        restored = copy.deepcopy(previous)
+        rules = restored["reservation_policy"]["capabilities"]
+        index = next(i for i, rule in enumerate(rules) if rule["id"] == "wp216-reaction-wire-classification")
+        rules.insert(index, copy.deepcopy(SHORTCUT_LIFECYCLE_TEST_CAPABILITY))
+        self.assertEqual(restored, current)
+        self.assertEqual(
+            {r["id"]: r for r in previous["reservation_policy"]["capabilities"]},
+            {r["id"]: r for r in current["reservation_policy"]["capabilities"]
+             if r["id"] != SHORTCUT_LIFECYCLE_TEST_CAPABILITY["id"]},
+        )
+        changed = copy.deepcopy(current)
+        changed["reservation_policy"]["capabilities"][0]["invariants"].append("unrelated-drift")
+        self.assertNotEqual(shortcut_lifecycle_test_predecessor(changed), original)
+
+    def test_shortcut_lifecycle_rejects_mutation_duplicate_move_overlap_and_malformed_policy(self):
+        rule = SHORTCUT_LIFECYCLE_TEST_CAPABILITY
+        for field, value in (
+            ("work_packages", ["WP-404", "WP-405"]), ("work_packages", ["WP-405"]),
+            ("operations", ["create", "test", "modify", "delete"]), ("operations", ["test"]),
+            ("path_rules", [rule["path_rules"][0].rsplit("/", 1)[0] + "/**"]),
+            ("path_rules", [rule["path_rules"][0], "android/app/build.gradle.kts"]),
+            ("invariants", rule["invariants"][:-1]), ("validation", []),
+            ("id", "unregistered-shortcut-lifecycle"), ("extra", True),
+        ):
+            changed = copy.deepcopy(self.rules)
+            selected = next(r for r in changed["reservation_policy"]["capabilities"] if r["id"] == rule["id"])
+            selected[field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(PortError):
+                shortcut_lifecycle_test_predecessor(changed)
+        for mode in ("duplicate", "move", "neighbor", "overlap", "unscoped-overlap"):
+            changed = copy.deepcopy(self.rules)
+            rules = changed["reservation_policy"]["capabilities"]
+            index = next(i for i, r in enumerate(rules) if r["id"] == rule["id"])
+            if mode == "duplicate":
+                rules.append(copy.deepcopy(rules[index]))
+            elif mode == "move":
+                rules.insert(0, rules.pop(index))
+            elif mode == "neighbor":
+                rules[index + 1] = None
+            else:
+                extra = copy.deepcopy(rule)
+                extra["id"] = "unregistered-overlap"
+                extra["path_rules"] = ["android/**"]
+                if mode == "unscoped-overlap":
+                    del extra["work_packages"]
+                rules.append(extra)
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                shortcut_lifecycle_test_predecessor(changed)
+        for malformed in (None, [], "policy", {"reservation_policy": None},
+                          {"reservation_policy": {"capabilities": None}},
+                          {"reservation_policy": {"capabilities": {}}}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                shortcut_lifecycle_test_predecessor(malformed)
+
+    def test_shortcut_lifecycle_source_consumer_exclusion_and_authority_fences(self):
+        text = " ".join(SHORTCUT_LIFECYCLE_TEST_CAPABILITY["invariants"]
+                        + SHORTCUT_LIFECYCLE_TEST_CAPABILITY["validation"])
+        for fence in (
+            "db14559b39d32322b06477c6ae676112f583db50", "primary-provenance-unchanged",
+            "single-exact-App-test-fixture-only", "no-production-build-manifest-resources-dependencies-or-wildcards",
+            "AppShortcutContent-LifecycleResumeEffect-ShortcutHost-and-Activity",
+            "real-distinct-Room-containers-null-current-radio",
+            "no-foreign-recipient-or-preowner-lookup-queue-location-permission-radio-effects",
+            "independent-old-new-owner-routing", "stale-disposal-must-not-uninstall-replacement",
+            "confirmation-cancellation-zero-target-effects", "real-ShortcutInfo-independent-pinned-twelve-locale-seven-consumed-key",
+            "original-recipient-single-token-format-and-separate-original-message-no-recursive-substitution",
+            "ColdStart-adaptation-not-BFU-or-background-equivalence",
+            "six-G18-exclusions", "overlapping-publication-lifetime-is-observable-test-seam-not-proven-bug",
+            "no-automatic-pause-clear-policy", "WP405-ChannelJoinFloodScopeApplier-PendingExternalRoute-distinct",
+            "ef87-G09-queue-and-48-mandatory-identities-unchanged", "trusted-main-landing",
+            "fresh-same-owner-admission", "stored-identity-revision-authorization-unchanged",
+            "semantic-collision", "no-runtime-installation-live-guards-refs-source-claims",
+            "complete exact trusted predecessor", "BOTH helpers", "nonzero discovery",
+            "policy fixtures prove admission only",
+        ):
+            with self.subTest(fence=fence):
+                self.assertIn(fence, text)
 
     def test_reaction_wire_classification_exact_single_path_and_wp216_operation(self):
         rule = REACTION_WIRE_CLASSIFICATION_CAPABILITY
@@ -92,6 +269,7 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
 
     def test_reaction_wire_classification_predecessor_restores_entire_actual_de20_policy(self):
         current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        current = shortcut_lifecycle_test_predecessor(current)
         before = copy.deepcopy(current)
         original = json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",

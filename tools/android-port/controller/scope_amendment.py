@@ -786,11 +786,82 @@ REACTION_WIRE_CLASSIFICATION_CAPABILITY = {
 }
 
 
+SHORTCUT_LIFECYCLE_TEST_CAPABILITY = {
+    "id": "wp404-shortcut-lifecycle-consumer-test",
+    "work_packages": ["WP-404"],
+    "path_rules": [
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/navigation/ShortcutLifecycleConsumerTest.kt",
+    ],
+    "operations": ["create", "test", "modify"],
+    "invariants": [
+        "pinned-Intents-seven-families-db14559b39d32322b06477c6ae676112f583db50-primary-provenance-unchanged",
+        "single-exact-App-test-fixture-only-no-production-build-manifest-resources-dependencies-or-wildcards",
+        "actual-AppShortcutContent-LifecycleResumeEffect-ShortcutHost-and-Activity-handoff-not-fake-owner",
+        "real-distinct-Room-containers-null-current-radio-no-foreign-recipient-or-preowner-lookup-queue-location-permission-radio-effects",
+        "independent-old-new-owner-routing-stale-disposal-must-not-uninstall-replacement-and-confirmation-cancellation-zero-target-effects",
+        "real-ShortcutInfo-independent-pinned-twelve-locale-seven-consumed-key-values-not-counts-or-getter-self-comparison",
+        "preserve-original-recipient-single-token-format-and-separate-original-message-no-recursive-substitution",
+        "existing-ColdStart-adaptation-not-BFU-or-background-equivalence-no-new-framework-feature-or-flood-RF-permission",
+        "six-G18-exclusions-foreground-status-advert-reach-map-reach-dialog-background-advert-background-dynamic-send-background-status-unchanged",
+        "overlapping-publication-lifetime-is-observable-test-seam-not-proven-bug-no-automatic-pause-clear-policy",
+        "WP405-ChannelJoinFloodScopeApplier-PendingExternalRoute-distinct-no-same-producer-edit",
+        "existing-WP404-ef87-G09-queue-and-48-mandatory-identities-unchanged-no-replayed-credit",
+        "trusted-main-landing-and-fresh-same-owner-admission-before-future-test-authoring",
+        "stored-identity-revision-authorization-unchanged-no-impersonation-release-recreate-or-private-ledger-edit",
+        "real-semantic-collision-serialize-or-transfer-current-producer",
+        "no-runtime-installation-live-guards-refs-source-claims-settings-schedules-publication-or-merge-authority",
+    ],
+    "validation": [
+        "exact WP404 single-test create test modify positives; other-WP wrong-operation sibling traversal malformed-rule denials",
+        "future ShortcutLifecycleConsumerTest actual mounted lifecycle Activity handoff distinct Room owners stale disposal and cancellation",
+        "future real ShortcutInfo original recipient and separate message against independent pinned twelve-locale seven-key matrix",
+        "future declared affected whole closure exact mandatory source-bound method identities nonzero discovery zero failures errors skips",
+        "strict complete exact trusted predecessor object and raw Git-blob equality in BOTH helpers all older capabilities planner bridges unchanged",
+        "policy fixtures prove admission only not JVM native lifecycle UI RF BFU background or original-family acceptance",
+    ],
+}
+
+
+def shortcut_lifecycle_test_predecessor(policy):
+    """Reverse only the exact WP-404 App lifecycle fixture admission."""
+    if not isinstance(policy, dict):
+        raise PortError("Shortcut lifecycle test amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    CapabilityEngine(result)
+    rules = result["reservation_policy"]["capabilities"]
+    selected = [i for i, rule in enumerate(rules)
+                if rule["id"] == SHORTCUT_LIFECYCLE_TEST_CAPABILITY["id"]]
+    path_matches = [
+        rule for rule in rules
+        if set(rule["operations"]) & set(SHORTCUT_LIFECYCLE_TEST_CAPABILITY["operations"])
+        and ("work_packages" not in rule or "WP-404" in rule["work_packages"])
+        and any(CapabilityEngine._matches(pattern, path)
+                for path in SHORTCUT_LIFECYCLE_TEST_CAPABILITY["path_rules"]
+                for pattern in rule["path_rules"])
+    ]
+    if not selected and not path_matches:
+        return result
+    if len(selected) != 1:
+        raise PortError("Shortcut lifecycle test changed outside the exact single-fixture amendment")
+    index = selected[0]
+    if (
+        rules[index] != SHORTCUT_LIFECYCLE_TEST_CAPABILITY
+        or path_matches != [SHORTCUT_LIFECYCLE_TEST_CAPABILITY]
+        or index == 0 or rules[index - 1].get("id") != "generated-resources"
+        or index + 1 >= len(rules) or rules[index + 1] != REACTION_WIRE_CLASSIFICATION_CAPABILITY
+    ):
+        raise PortError("Shortcut lifecycle test changed outside the exact single-fixture amendment")
+    rules.pop(index)
+    return result
+
+
 def reaction_wire_classification_predecessor(policy):
     """Reverse only the exact WP-216 rendering-wire reconciliation rule."""
     if not isinstance(policy, dict):
         raise PortError("Reaction wire classification amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = shortcut_lifecycle_test_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     reservation = result["reservation_policy"]
