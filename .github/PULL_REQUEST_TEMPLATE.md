@@ -18,14 +18,9 @@
 <!-- Original source/test/resource mapping; deviations, required human/protected-path gates and blockers. -->
 <!-- Include the controller's real android-port-wp marker. Link an existing issue only; no fabricated Closes. -->
 
-## Tested on
-- [ ] iOS [version]
-- [ ] iPadOS [version]
-- [ ] macOS [version]
-
 ## Checklist
 
-- [ ] This PR was discussed with the maintainer either via GitHub issue or other means (Also check if this PR is small enough not to need discussion e.g. typo fix)
+- [ ] This PR was discussed with the maintainer either via GitHub issue or other means or was made by the maintainer. (Also check if this PR is small enough not to need discussion e.g. typo fix)
 - [ ] I have read `CONTRIBUTING.md`
 - [ ] Testing steps are documented above.
 - [ ] This change is not low effort and I took the time to test it
