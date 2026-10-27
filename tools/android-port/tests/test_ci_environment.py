@@ -273,6 +273,16 @@ class EnvironmentTests(unittest.TestCase):
         self.assertIn("WP-203 interop artifacts are not declared Gradle task outputs", script)
         self.assertIn("WP-203 interoperability fixture is not a Gradle task input", script)
 
+    def test_app_tests_reuse_the_worker_jvm_instead_of_forking_for_each_class(self):
+        app_build = (REPO / "android/app/build.gradle.kts").read_text(encoding="utf-8")
+        conventions = (
+            REPO / "android/build-logic/convention/src/main/kotlin/"
+            "com/meshcoreone/buildlogic/BuildConventions.kt"
+        ).read_text(encoding="utf-8")
+        self.assertIn("forkEvery = 0", app_build)
+        self.assertNotIn("forkEvery = 1", app_build)
+        self.assertIn("maxParallelForks = 1", conventions)
+
     def test_resolved_gradle_graph_rejects_all_duplicate_result_task_and_script_families(self):
         from controller.ci import validate_candidate_task_graph
 
