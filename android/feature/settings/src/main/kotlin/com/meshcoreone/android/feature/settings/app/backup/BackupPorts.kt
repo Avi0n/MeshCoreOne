@@ -5,7 +5,12 @@ package com.meshcoreone.android.feature.settings.app.backup
 import java.util.UUID
 import kotlinx.coroutines.flow.StateFlow
 
-/** Export, parse and atomic restore (WP-203 codec/restore behind it). Restore must roll back when cancelled or failed. */
+/**
+ * Export, parse and atomic restore (WP-203 codec/restore behind it).
+ * Pre-commit cancellation/failure rolls back. After commit, finish preference/process effects and
+ * return the committed result despite caller cancellation; genuine completion failures remain explicit.
+ * A committed preference failure retains its receipt and retries preferences only, never the rows.
+ */
 interface BackupEngine {
     suspend fun export(): BackupExport
 

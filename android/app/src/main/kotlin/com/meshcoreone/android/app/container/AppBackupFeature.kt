@@ -57,13 +57,12 @@ internal class AppBackupFeature(
         require(backup is ParsedAppBackup) { "Backup belongs to a different engine" }
         check(committed.value == null) { "A committed backup outcome must be acknowledged before another restore" }
         var completed: UiImport? = null
-        var effectsApplied = false
         try {
             // The store dispatches its own IO. An outer dispatcher hop can discard an already committed result.
             val result = service.importBackup(backup.envelope, store).forUi()
             completed = result
-            withContext(NonCancellable) { restored(result); effectsApplied = true }
-            currentCoroutineContext().ensureActive()
+            // Return the committed result even if the caller cancelled during commit or refresh.
+            withContext(NonCancellable) { restored(result) }
             result
         } catch (failure: CommittedBackupPreferenceException) {
             val result = failure.result.forUi()
@@ -73,12 +72,8 @@ internal class AppBackupFeature(
             throw failure
         } catch (cancelled: CancellationException) {
             val result = completed ?: throw cancelled
-            val failure = IllegalStateException("Backup data committed before cancellation; restored rows were not rolled back", cancelled)
+            val failure = IllegalStateException("Backup data committed; post-restore refresh cancelled", cancelled)
             mutableCommitted.value = CommittedAppBackup(result, failure, null)
-            if (!effectsApplied) {
-                try { withContext(NonCancellable) { restored(result) } }
-                catch (effects: Exception) { failure.addSuppressed(effects) }
-            }
             throw failure
         } catch (problem: Exception) {
             val result = completed ?: throw problem
