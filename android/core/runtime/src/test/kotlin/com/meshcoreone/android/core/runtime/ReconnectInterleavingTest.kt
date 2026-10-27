@@ -93,16 +93,20 @@ class ReconnectInterleavingTest {
                 var teardownEntered = false
                 services.single().beforeTeardown = { teardownEntered = true; release.await() }
                 val failure = backgroundScope.async { manager.handleReconnectionFailure() }
-                runCurrent()
-                assertTrue(teardownEntered)
-                assertFalse(failure.isCompleted)
-                assertEquals(0, lossCount)
                 val successor = target()
-                val connection = backgroundScope.async { manager.connect(successor) }
-                runCurrent()
-                assertEquals(successor.deviceId, manager.activeConnectionAttemptDeviceId)
-                assertFalse(connection.isCompleted)
-                release.complete(Unit)
+                val connection = try {
+                    runCurrent()
+                    assertTrue(teardownEntered)
+                    assertFalse(failure.isCompleted)
+                    assertEquals(0, lossCount)
+                    backgroundScope.async { manager.connect(successor) }.also {
+                        runCurrent()
+                        assertEquals(successor.deviceId, manager.activeConnectionAttemptDeviceId)
+                        assertFalse(it.isCompleted)
+                    }
+                } finally {
+                    release.complete(Unit)
+                }
                 runCurrent()
                 failure.await()
                 connection.await()
@@ -122,15 +126,19 @@ class ReconnectInterleavingTest {
                 var teardownEntered = false
                 services.single().beforeTeardown = { teardownEntered = true; release.await() }
                 val failure = backgroundScope.async { manager.handleReconnectionFailure() }
-                runCurrent()
-                assertTrue(teardownEntered)
-                assertTrue(radios.single().isConnected())
-                assertEquals(0, radios.single().closes)
-                val stop = backgroundScope.async { manager.disconnect() }
-                runCurrent()
-                assertEquals(ConnectionIntent.UserDisconnected, manager.connectionIntent)
-                assertFalse(stop.isCompleted)
-                release.complete(Unit)
+                val stop = try {
+                    runCurrent()
+                    assertTrue(teardownEntered)
+                    assertTrue(radios.single().isConnected())
+                    assertEquals(0, radios.single().closes)
+                    backgroundScope.async { manager.disconnect() }.also {
+                        runCurrent()
+                        assertEquals(ConnectionIntent.UserDisconnected, manager.connectionIntent)
+                        assertFalse(it.isCompleted)
+                    }
+                } finally {
+                    release.complete(Unit)
+                }
                 runCurrent()
                 failure.await()
                 assertTrue(stop.await().isComplete)
@@ -275,12 +283,15 @@ class ReconnectInterleavingTest {
                 var closeEntered = false
                 radios.single().beforeClose = { closeEntered = true; release.await() }
                 val rebuild = backgroundScope.async { manager.rebuildSession(platform.target.deviceId) }
-                runCurrent()
-                assertTrue(closeEntered)
-                assertFalse(rebuild.isCompleted)
-                assertEquals(1, radios.size)
-                assertEquals(0, radios.single().collectors)
-                release.complete(Unit)
+                try {
+                    runCurrent()
+                    assertTrue(closeEntered)
+                    assertFalse(rebuild.isCompleted)
+                    assertEquals(1, radios.size)
+                    assertEquals(0, radios.single().collectors)
+                } finally {
+                    release.complete(Unit)
+                }
                 runCurrent()
                 rebuild.await()
                 val current = manager.snapshot.value
