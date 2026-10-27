@@ -73,6 +73,36 @@ class BackupTransactionTest : BackupRoomTest() {
     }
 
     @OriginalCase("BackupIntegrationTests::Task cancellation after DB commit does not throw and returns a successful result()")
+    @Test fun actualPostCommitCallerCancellationStillDeliversCommittedResultWithoutPreferences() = runBlocking {
+        var task: Job? = null
+        var result: ImportResult? = null
+        var failure: CancellationException? = null
+        var commits = 0
+        var laterCancellationPropagated = false
+        val committed = newService(BackupImportHooks(afterCommit = {
+            assertFalse(db.inTransaction())
+            commits++
+            requireNotNull(task).cancel()
+        }))
+        task = launch(start = CoroutineStart.LAZY) {
+            try {
+                result = committed.importBackup(envelope(devices = listOf(device())), store)
+            } catch (cause: CancellationException) { failure = cause }
+            try { currentCoroutineContext().ensureActive() }
+            catch (_: CancellationException) { laterCancellationPropagated = true }
+        }
+        task.start()
+        task.join()
+        assertEquals(1, commits)
+        assertTrue(task.isCancelled)
+        assertNull(failure)
+        assertEquals(1L, result?.count(BackupModelKind.DEVICES)?.inserted)
+        assertEquals(false, result?.userDefaultsRestored)
+        assertEquals(1, db.devices().all().size)
+        assertFalse(storage.preferences.snapshot().contains(AppStorageKey.hasCompletedOnboarding))
+        assertTrue(laterCancellationPropagated)
+    }
+
     @Test fun actualPostCommitCallerCancellationStillDeliversCommittedResultAndPreferences() = runBlocking {
         var task: Job? = null
         var result: ImportResult? = null
