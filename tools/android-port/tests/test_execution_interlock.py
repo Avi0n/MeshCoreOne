@@ -348,10 +348,10 @@ class ExecutionInterlockTests(unittest.TestCase):
         with patch.object(reserve, "write_runtime") as write, self.assertRaises(PortError):
             reserve.install_runtime(self.root / "installed", self.other, "native-owner", 1.0)
         write.assert_not_called()
-        with patch.object(check, "execution_runtime", return_value=self.other), \
-                patch.object(check, "install_hook_files") as write, self.assertRaises(ValueError):
+        with patch.object(check, "execution_runtime") as runtime, \
+                self.assertRaisesRegex(ValueError, "Automatic pre-push checks have been removed"):
             check.install(self.root, [], None)
-        write.assert_not_called()
+        runtime.assert_not_called()
         self.assertEqual(self.ledger.hard_lock_records(), before)
 
     def test_foreign_or_stale_release_never_changes_payload(self):

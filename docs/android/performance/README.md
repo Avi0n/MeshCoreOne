@@ -117,16 +117,13 @@ python .\tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit 
 The default remains `python,preflight,scaffold,inspect`; the benchmark stage does
 not replace its actual module tests, lint, traceability and APK inspections.
 
-Ordinary feature-branch publication still uses the installed pre-push hook.
-Missing, failed or queued local checks record the exact commit/tree as
-**UNVERIFIED** and do not block normal publication. Advisory checks wait up to
-10 seconds for the shared lane and allow 180 seconds of execution, followed by
-owned-child cleanup while retaining the lane. These are publication latency
-bounds, not Android performance budgets. Full/manual checks remain strict and
-serialized without those advisory deadlines; hosted exact-head verification
-and applicable human/protected gates remain mandatory before merge. Synchronize
-helpers only through the supported reservation runtime installer; never bypass
-the hook or disturb a foreign lane holder.
+Ordinary feature-branch publication does not run a pre-push check. The automatic
+hook is removed; run the relevant declared local tests explicitly instead.
+Missing or failed local verification remains **UNVERIFIED**, not a publication
+block or performance acceptance. Manual checks remain strict and serialized;
+hosted exact-head verification and applicable human/protected gates remain
+mandatory before merge. Synchronize manual-check helpers only through the
+supported reservation runtime installer; do not disturb a foreign lane holder.
 
 ## Device execution and genuine profiles
 

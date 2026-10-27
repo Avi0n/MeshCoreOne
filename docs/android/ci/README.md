@@ -14,6 +14,22 @@ guarded execution; a candidate checkout is not live authority.
 
 ## Candidate execution contract
 
+### Hosted CI latency
+
+Pull-request scope classification compares the PR head with its unique Git
+merge base, while retaining the event's original base and head SHAs in its
+report. Base-only changes no longer widen a PR's selected work. Push and
+merge-group events continue to compare their exact event endpoints; malformed,
+missing or ambiguous history still selects every scope.
+
+The Android build and Swift codec oracle now start as soon as scope selection
+finishes, alongside the independent controller checks. The final required
+`android-ci` gate still waits for every selected result, and the SwiftData
+backup oracle still waits for the Android build that produces its input.
+Hosted Gradle runs enable Gradle's task-output build cache. The versioned cache
+key covers the pinned Gradle/JDK toolchain, dependency locks, verification
+metadata and version catalog; strict dependency verification remains required.
+
 ### Local-only disposable WP-503 guest contract
 
 The successor to published `ad40165c93d1bc21e073f91102971719b078ad02`
@@ -181,12 +197,13 @@ no publication, main/policy/runtime landing or product consumption is authorized
 ### Source-only local/native execution interlock correction
 
 Feature publication does not require a bespoke publication wrapper or credential
-identity policy. The existing complete `local/check.py --pre-push` checker and
-supported immutable-main checker/operator composition remain unchanged, as do
-normal host authentication and nonforce Git publication. Use the full trusted
-checker, not candidate controller code, an empty hook or no-verify. Its actual
-execution admission and exact-candidate UNVERIFIED behavior remain separate from
-hosted CI, findings/freshness and merge acceptance.
+identity policy. Automatic pre-push checks are removed by maintainer direction:
+normal `git push` must not start local checks, remote transport or Gradle-lane
+queues. `local/check.py --install-hook` is retired and fails explicitly.
+Run relevant declared tests explicitly with the supported manual checker.
+Normal host authentication and nonforce Git publication remain unchanged.
+Manual execution admission and exact-candidate UNVERIFIED behavior remain
+separate from hosted CI, findings/freshness and merge acceptance.
 
 The source successor published as `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`
 closes the advisory/manual launcher gap; it does not deploy either candidate
@@ -224,8 +241,8 @@ BEFORE opening a lock namespace. The
 manifest, executing launcher/helpers and loaded Ledger version/source must match
 the canonical runtime; revalidation under actual execution ownership prevents
 installation racing launch. The supported atomic installer already delivers
-helpers before check.py; hook installation now uses the same runtime-install
-interlock and no unnecessary WSL probe. Installation still needs separately
+helpers before check.py; it does not recreate a `pre-push` entrypoint.
+Runtime installation still needs separately
 authorized, quiescent deployment; no install occurs in this source assignment.
 
 The actual `reserve.py install-runtime` CLI resolves the host-controlled

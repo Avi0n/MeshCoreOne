@@ -201,16 +201,29 @@ def changed_paths(repo: Path, base: str, head: str):
     return [line for line in completed.stdout.splitlines() if line]
 
 
+def merge_base(repo: Path, base: str, head: str):
+    completed = subprocess.run(
+        ["git", "-C", str(repo), "merge-base", "--all", base, head],
+        check=True, capture_output=True, text=True,
+    )
+    candidates = completed.stdout.splitlines()
+    if len(candidates) != 1 or not SHA.fullmatch(candidates[0]):
+        raise PortError("PR scope requires exactly one complete Git merge base")
+    return candidates[0]
+
+
 def evaluate(repo: Path, event_name: str, event: dict):
     try:
         pair = endpoints(event_name, event)
         if pair is None:
             return all_scopes("workflow_dispatch", fail_safe=False)
         base, head = pair
-        paths = changed_paths(repo, base, head)
+        diff_base = merge_base(repo, base, head) if event_name == "pull_request" else base
+        paths = changed_paths(repo, diff_base, head)
         return {
             "scopes": classify(paths), "reason": "changed-input-classification",
-            "fail_safe": False, "base": base, "head": head, "paths": paths,
+            "fail_safe": False, "base": base, "head": head,
+            "diff_base": diff_base, "paths": paths,
         }
     except (OSError, PortError, subprocess.SubprocessError, UnicodeError) as error:
         return all_scopes(f"fail-safe: {error}")

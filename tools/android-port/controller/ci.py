@@ -298,6 +298,8 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         "-PscaffoldTestHeap=" + ("256m" if local else "512m"),
         "--project-cache-dir", str(cache), "--quiet",
     ]
+    if not local:
+        options.append("--build-cache")
     if local:
         options.append("-PscaffoldTestJvmArgs=-Xms32m -XX:+UseSerialGC -XX:ActiveProcessorCount=2 -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=32m -XX:MaxMetaspaceSize=256m")
     wrapper = REPO / "android" / ("gradlew.bat" if state["host"] == "windows" else "gradlew")

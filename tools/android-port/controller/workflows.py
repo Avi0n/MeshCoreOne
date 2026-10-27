@@ -82,7 +82,7 @@ def validate_candidate(value: dict, text: str):
     if any(jobs[name].get("runs-on") != "macos-26-intel" for name in ("external-oracle", "backup-oracle")):
         raise PortError("Reference oracles require the supported macOS26 Intel host; do not downgrade runtime or skip oracles")
     if (build.get("runs-on") != "ubuntu-24.04" or "strategy" in build
-            or build.get("needs") != ["scope", "controller"]
+            or build.get("needs") != ["scope"]
             or "needs.scope.outputs" not in build.get("if", "")):
         raise PortError("The selected Linux execution host must be mandatory, dependency-gated and unmatrixed")
     runs = "\n".join(step.get("run", "") for step in build["steps"])
@@ -180,6 +180,8 @@ def validate_candidate(value: dict, text: str):
         job = jobs[name]
         if job.get("if") == "${{ always() }}" or "scope" not in job.get("needs", []):
             raise PortError("Expensive jobs must be scope-selected and use default fail-closed dependencies")
+    if jobs["external-oracle"].get("needs") != ["scope"]:
+        raise PortError("The independent Swift codec oracle must not wait for controller tests")
 
 
 def validate_setup(value: dict, text: str):

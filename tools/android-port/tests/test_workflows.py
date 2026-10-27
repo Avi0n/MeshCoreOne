@@ -31,7 +31,7 @@ class WorkflowTests(unittest.TestCase):
         workflow, text = self.read("android-ci.yml")
         build = workflow["jobs"]["build"]
         self.assertEqual(build["timeout-minutes"], "75")
-        self.assertEqual(build["needs"], ["scope", "controller"])
+        self.assertEqual(build["needs"], ["scope"])
         selected = [step for step in build["steps"] if "ci.py run --stage scaffold" in step.get("run", "")]
         self.assertEqual(len(selected), 1)
         self.assertNotIn("continue-on-error", selected[0])
@@ -234,7 +234,7 @@ class WorkflowTests(unittest.TestCase):
         job = workflow["jobs"]["build"]
         self.assertEqual(TASKS["protocol"], [":core:protocol:test"])
         self.assertEqual(job["runs-on"], "ubuntu-24.04")
-        self.assertEqual(job["needs"], ["scope", "controller"])
+        self.assertEqual(job["needs"], ["scope"])
         self.assertIn("needs.scope.outputs.protocol", job["if"])
         self.assertNotIn("strategy", job)
         self.assertIn("merge_group", workflow["on"])
@@ -254,7 +254,7 @@ class WorkflowTests(unittest.TestCase):
             set(jobs["scope"]["outputs"]), {"controller", "scaffold", "protocol", "backup", "external-oracle"}
         )
         expected = {
-            "external-oracle": ("external-oracle", ["scope", "controller"]),
+            "external-oracle": ("external-oracle", ["scope"]),
             "backup-oracle": ("backup", ["scope", "build"]),
         }
         for job_name, (scope, needs) in expected.items():
@@ -268,10 +268,31 @@ class WorkflowTests(unittest.TestCase):
                 )
                 self.assertNotIn("continue-on-error", jobs[job_name])
                 self.assertNotEqual(jobs[job_name].get("if"), "${{ always() }}")
+        self.assertEqual(jobs["build"]["needs"], ["scope"])
         scope_run = jobs["scope"]["steps"][1]["run"]
         self.assertIn('github.event_name', scope_run)
         self.assertIn('github.event_path', scope_run)
         self.assertIn('$GITHUB_OUTPUT', scope_run)
+
+    def test_gradle_cache_is_namespaced_and_tracks_actual_locks_and_toolchain(self):
+        workflow, _ = self.read("android-ci.yml")
+        cache_steps = [
+            step for step in workflow["jobs"]["build"]["steps"]
+            if step.get("uses", "").startswith("actions/cache@")
+        ]
+        self.assertEqual(len(cache_steps), 1)
+        cache = cache_steps[0]["with"]
+        self.assertEqual(cache["path"], "${{ env.GRADLE_USER_HOME }}")
+        self.assertIn("android-gradle-v2-${{ runner.os }}-", cache["key"])
+        for path in (
+            "android/gradle/dependency-locks/*.lockfile",
+            "android/**/gradle.lockfile",
+            "android/gradle/wrapper/gradle-wrapper.properties",
+            "tools/android-port/controller/toolchain-pins.json",
+        ):
+            self.assertIn(path, cache["key"])
+        self.assertIn("android-gradle-v2-${{ runner.os }}-", cache["restore-keys"])
+        self.assertIn("toolchain-pins.json", cache["restore-keys"])
 
     def test_duplicate_yaml_keys_and_invalid_yaml_are_rejected(self):
         for text in ("jobs: {}\njobs: {}\n", "jobs: ["):
