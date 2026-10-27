@@ -50,6 +50,7 @@ class ReactionWireFormatAgreementTest {
             "\uD83D\uDC4D\u0903\u200D\uD83D\uDC4D",
             "\uD83D\uDC4D\uD83C\uDFFD\u200D\uD83D\uDC4D",
             "\uD83D\uDE00\u200D", "\uD83D\uDE00\u200D\u200D",
+            "\uD83C\uDFFD",
         )
         val boundaries = boundaryEmojis.flatMap { emoji ->
             listOf("@[Node]$emoji\nabcdefgh", "$emoji@[Node]\nabcdefgh", "$emoji\nabcdefgh")

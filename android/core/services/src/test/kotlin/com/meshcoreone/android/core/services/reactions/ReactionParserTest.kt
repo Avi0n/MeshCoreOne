@@ -249,8 +249,19 @@ class ReactionParserTest {
             ).forEach { assertReactionClassification(it, accepted = true) }
         },
         DynamicTest.dynamicTest("WP-216::flags skin tones and emoji in target names retain exact wire fields") {
-            listOf("\uD83C\uDDFA\uD83C\uDDF8", "\uD83D\uDC4D\uD83C\uDFFD", "\uD83C\uDFFD")
+            listOf("\uD83C\uDDFA\uD83C\uDDF8", "\uD83D\uDC4D\uD83C\uDFFD")
                 .forEach { assertReactionClassification(it, accepted = true) }
+            val modifier = "\uD83C\uDFFD"
+            val mentionFirst = "@[Node]$modifier\nabcdefgh"
+            val emojiFirst = "$modifier@[Node]\nabcdefgh"
+            val direct = "$modifier\nabcdefgh"
+            // GB9 joins the modifier to ']', so the pinned Character lookup cannot find that delimiter.
+            assertNull(ReactionParser.parse(mentionFirst))
+            assertFalse(ReactionParser.isReactionText(mentionFirst, isDM = false))
+            assertEquals(ParsedReaction(modifier, "Node", "abcdefgh"), ReactionParser.parse(emojiFirst))
+            assertTrue(ReactionParser.isReactionText(emojiFirst, isDM = false))
+            assertEquals(ParsedDMReaction(modifier, "abcdefgh"), ReactionParser.parseDM(direct))
+            assertTrue(ReactionParser.isReactionText(direct, isDM = true))
             assertEquals(
                 ParsedReaction("\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67", "Node\uD83D\uDD25", "abcdefgh"),
                 ReactionParser.parse("@[Node\uD83D\uDD25]\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67\nABCDEFGH"),

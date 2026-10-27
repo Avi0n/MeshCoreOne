@@ -50,6 +50,37 @@ context remains set from the initial pictograph while subsequent non-Extend
 scalars are consumed. The reaction-local check resets this context; it does not
 replace the shared grapheme engine.
 
+### Standalone modifier and wire-order boundaries
+
+The pinned `ReactionService.swift:95-103` formats channel text as
+`@[sender]emoji\nhash`; the parser does not promise that every arbitrary emoji
+scalar round-trips through that formatter. In `ReactionParser.swift:126-131`,
+the mention-first branch searches for `afterAtBracket.firstIndex(of: "]")`,
+which compares Characters, not individual scalars or substrings.
+
+The same official inputs listed below classify `1F3FB..1F3FF` as GCB=Extend,
+and `1F3F8..1F407` as Emoji. Consequently U+1F3FD joins a preceding U+005D
+closing bracket by GB9. That combined Character is not the literal `"]"`
+Character the pinned parser requires. This is a delimiter-adjacency constraint,
+not a change to the standalone scalar's Emoji property.
+
+| Wire shape, with `M` denoting standalone U+1F3FD | Pinned contract derivation |
+| --- | --- |
+| `@[Node]M\nabcdefgh` | Reject: `]M` is one Character, so no closing-bracket Character is found |
+| `M@[Node]\nabcdefgh` | Accept exact emoji `M`, sender `Node`, hash `abcdefgh`: the leading modifier starts its own Character and the final bracket is unchanged |
+| `M\nabcdefgh` | Accept exact DM emoji `M` and hash `abcdefgh`: the leading modifier is one Character, and newline breaks before the hash |
+
+The latter two branches also use the actual pinned one-Character emoji predicate
+and `Character+EmojiDetection.swift`: the first scalar must have Emoji and be
+above U+238C (or be in a multi-scalar Character). The modifier satisfies those
+conditions; they do not rescue the missing delimiter in the mention-first
+branch. This is static pinned-source plus UAX reasoning, not fresh Swift runtime
+execution. The supplementary test retains the modifier and asserts all three
+orders independently, including both exact parsed fields and positive/negative
+`isReactionText` results. The existing rendering-agreement corpus includes all
+three orders as well. Original flag, combined skin-tone, family-ZWJ and
+emoji-in-name assertions are unchanged.
+
 ## Explicit versioned vendored-data dependency
 
 `ReactionGraphemeProperties.kt` is new vendored property data, not a claim of
@@ -131,8 +162,10 @@ asserts the real message handlers remain wired and drives that same service's
 race the fixture's queued frames; it does not replace the consumer. Polling
 asserts both complete `0a` commands; sending asserts exactly one complete
 post-action frame before checking its command and exact payload.
-No unexpected action frame, including a battery query, is filtered out. These
-new isolation assertions remain unexecuted pending the supported guarded run.
+No unexpected action frame, including a battery query, is filtered out. All nine
+App methods, including these fixture assertions, passed in the original failed
+`be13fc70` guard described below; that is not whole-closure acceptance or
+acceptance of a subsequent candidate.
 
 The rendering integration path is
 `android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/rendering/ReactionWireFormat.kt`.
@@ -153,13 +186,13 @@ outgoing-only / FAILED-visible rules remain intact. Visibility still uses the
 PocketMesh channel or DM parser, not the broader `isReactionText` classifier
 that also recognizes MeshCoreOpen formats. The original agreement cases and
 all their old corpus are retained. Shared `SwiftTextSemantics.kt` and every
-other rendering production file remain unchanged. This is source integration,
-not executed consumer acceptance.
+other rendering production file remain unchanged. Original execution outcomes
+are recorded below; source integration alone does not establish acceptance.
 
-## Prepared mandatory identities (not executed discovery)
+## Mandatory identities and original execution
 
 The source-derived mandatory inventory is 84 distinct identities. This is a
-lower-bound identity obligation inside the eventual full declared consumer
+lower-bound identity obligation inside the full declared consumer
 closure, never a filtered-test substitute for it.
 
 | Class | Mandatory identities |
@@ -178,12 +211,76 @@ existing 1,932-record / 3-notice checks. Generation and strict `--check` passed
 against the two official hash-bound inputs. These are precommit source/data
 checks, not a Kotlin or exact-candidate guarded PASS.
 
-**Status:** source integration and source-safe checks are not Kotlin acceptance. No
-grapheme heavy job, publication, fresh Swift runtime, real Android ICU/device,
-legal or full-Unicode acceptance has occurred. The final candidate, exact
-supported-trusted-base consumer closure and mandatory XML identities must be
-frozen against the actual installed trusted authority before any guarded job.
+### Original guarded candidate: failed, not superseded by preparation
+
+The single authorized original guard used source
+`be13fc702c26bb79549ece96fa75307cf02a82bf`, tree
+`ac5a1284d59abb92adfeee9258263e27512caa06`, and the actual installed clean trusted
+authority `047ecbfb0f8837109a3aa1ff3fd4f522ca868a18`. Its normal checkout-derived
+selection was 40 tasks across 10 consumer modules, stages `python`, `preflight`
+and `scaffold`, with `full_scaffold=false` and reason
+`actual-diff-and-consumer-closure`. No path/module/task filters or fake base were
+used.
+
+From that trusted checkout, the actual command was:
+
+```sh
+/usr/bin/env -i HOME=/home/cbattagler \
+ PATH=/ai_cache/meshcoreone/python/3.12.4/bin:/usr/bin:/bin \
+ LANG=C.UTF-8 PYTHONDONTWRITEBYTECODE=1 \
+ ANDROID_LOCAL_HOME=/ai_cache/meshcoreone/execution/single-shared \
+ ANDROID_LOCAL_PYTHON=/ai_cache/meshcoreone/python/3.12.4/bin/python3.12 \
+ ANDROID_PORT_LEDGER=/ai_cache/meshcoreone/control/android-port-shared.sqlite3 \
+ /ai_cache/meshcoreone/python/3.12.4/bin/python3.12 -B \
+ tools/android-port/local/check.py \
+ --commit be13fc702c26bb79549ece96fa75307cf02a82bf \
+ --affected-base 047ecbfb0f8837109a3aa1ff3fd4f522ca868a18 \
+ --parallel-jvm
+```
+
+**Result: exit 1, whole selected closure FAILED.** Python/controller stages
+reported 15 + 108 + 70 passing tests. Gradle failed at `:core:services:test`
+after 23m51s; that duration is Gradle's report, not a claimed whole-command
+duration. Consumed original source-bound XML showed:
+
+| Selected module | Discovered | Passed | Failed | Errors / skipped |
+| --- | ---: | ---: | ---: | ---: |
+| `app` | 1,617 | 1,617 | 0 | 0 / 0 |
+| `core/data` | 436 | 436 | 0 | 0 / 0 |
+| `core/maps` | 28 | 28 | 0 | 0 / 0 |
+| `core/services` | 2,701 | 2,700 | 1 | 0 / 0 |
+| Total available XML | 4,782 | 4,781 | 1 | 0 / 0 |
+
+The six other selected modules (`core/ui`, `feature/chats`, `feature/map`,
+`feature/nodes`, `feature/remotenodes`, `feature/tools`) had no test XML after
+the abort. Selecting 40 tasks does not mean all 40 completed.
+
+All 84 mandatory identities were present exactly once: 83 passed and one
+failed, with none missing, errored or skipped. The sole failure was
+`ReactionParserTest::WP-216::flags skin tones and emoji in target names retain
+exact wire fields`: its new blanket helper incorrectly expected the
+mention-first standalone U+1F3FD to produce
+`ParsedReaction(emoji=U+1F3FD, targetSender=Node, messageHash=abcdefgh)`, but the
+actual parser returned null. No original 44-family failure occurred. The
+correction above preserves that input and replaces only the supplementary
+uniform-order assumption with the independently derived order-specific
+predicates. Production classification, formatting, hash, visibility and all
+original assertions are unchanged.
+
+The original run's source snapshot remained clean at the exact head/tree and
+all nine committed source blobs matched. Trusted HEAD, origin/main and tree
+also remained unchanged and clean. Readback confirmed owned PID 471621 absent,
+owned temporary execution directory absent and the exact owner's hard-lock
+list empty. Original XML and the original `gradle-scaffold.log` were consumed
+before slot reuse; the installed 047 failure path did not produce normalized
+named-result/scaffold JSON. No replacement CI-result bundle was created,
+uploaded or hashed.
+
 The historical 610f preparation plan selected full-scaffold fallback because
-its diff included later main planner changes. It is not replaced with filtered
-paths or a caller-selected module plan; the coordinator is preparing the
-reviewed supported authority for final planning.
+its diff included later main planner changes; it was not used for this guard.
+
+**Status:** the original 40-task closure remains FAILED. The source-coupled
+test-only correction is unexecuted preparation, requiring a new exact-source
+freeze, protected review and separately allocated guard. No original 84-method
+acceptance transfers to it. No publication, fresh Swift runtime, real Android
+ICU/device, legal or full-Unicode acceptance has occurred.
