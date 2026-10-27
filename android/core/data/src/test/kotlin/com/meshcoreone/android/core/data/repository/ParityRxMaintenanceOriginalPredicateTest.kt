@@ -3,10 +3,8 @@ package com.meshcoreone.android.core.data.repository
 
 import com.meshcoreone.android.core.contracts.domain.PersistenceStoreException
 import com.meshcoreone.android.core.contracts.domain.RxLogRetention
-import com.meshcoreone.android.core.database.DatabaseValueException
 import com.meshcoreone.android.core.database.RxLogEntryEntity
 import com.meshcoreone.android.core.database.StoredInstant
-import com.meshcoreone.android.core.database.toDTO
 import com.meshcoreone.android.core.model.DecryptStatus
 import com.meshcoreone.android.core.model.DeviceDTO
 import com.meshcoreone.android.core.model.RadioId
@@ -21,7 +19,6 @@ import java.time.Instant
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -53,9 +50,8 @@ class ParityRxMaintenanceOriginalPredicateTest : RepositoryTest() {
 
     @OriginalCase(
         "PersistenceStoreTests::RxLogEntryDTO(from:) falls back on out-of-range stored values instead of trapping()",
-        "WP-201-reviewed-typed-corruption-adaptation",
     )
-    @Test fun originalSixCorruptValuesRetainFullRawInputAndSurfaceTypedFieldFailureWithoutFallbackOrMutation() = runTest {
+    @Test fun originalSixCorruptValuesUsePinnedFallbacksAndRetainRawRowsThroughRepositoryReads() = runTest {
         val radio = RadioId(UUID.randomUUID())
         val raw = RxLogEntryEntity(
             radio.value, UUID.randomUUID(), StoredInstant.from(Instant.now()), null, null,
@@ -65,25 +61,66 @@ class ParityRxMaintenanceOriginalPredicateTest : RepositoryTest() {
         )
         db.rxLogs().insert(raw)
 
-        val failure = assertFailsWith<PersistenceStoreException> { store.fetchRxLogEntries(radio) }
-        assertEquals("rx.routeType", assertIs<DatabaseValueException>(failure.cause).field)
-        assertEquals(raw, assertNotNull(db.rxLogs().byId(radio.value, raw.id)))
-        assertEquals(1, issues.size)
-
         val valid = raw.copy(
             routeType = RouteType.FLOOD.rawValue.toLong(), payloadType = PayloadType.UNKNOWN.rawValue.toLong(),
             payloadVersion = 0, pathLength = 0, channelIndex = null, senderTimestamp = null,
         )
-        val isolated = listOf(
-            "rx.routeType" to valid.copy(routeType = 999),
-            "rx.payloadType" to valid.copy(payloadType = -1),
-            "rx.payloadVersion" to valid.copy(payloadVersion = 5000),
-            "rx.pathLength" to valid.copy(pathLength = 400),
-            "rx.channelIndex" to valid.copy(channelIndex = 9999),
-            "rx.senderTimestamp" to valid.copy(senderTimestamp = -10),
+        val healthy = valid.copy(
+            id = UUID.randomUUID(), receivedAt = StoredInstant.from(raw.receivedAt.toInstant().minusSeconds(1)),
+            payloadVersion = 255, pathLength = 255, channelIndex = 255, senderTimestamp = 0xFFFF_FFFFL,
         )
-        for ((field, row) in isolated) {
-            assertEquals(field, assertFailsWith<DatabaseValueException> { row.toDTO() }.field)
+        db.rxLogs().insert(healthy)
+        repeat(2) {
+            val entries = store.fetchRxLogEntries(radio)
+            assertEquals(listOf(raw.id, healthy.id), entries.map { it.id })
+            val dto = entries.first()
+            assertEquals(radio, dto.radioId)
+            assertEquals(RouteType.FLOOD, dto.routeType)
+            assertEquals(PayloadType.UNKNOWN, dto.payloadType)
+            assertEquals(0.toUByte(), dto.payloadVersion)
+            assertEquals(0.toUByte(), dto.pathLength)
+            kotlin.test.assertNull(dto.channelIndex)
+            kotlin.test.assertNull(dto.senderTimestamp)
+            assertEquals(Bytes.EMPTY, dto.pathNodes)
+            assertEquals(Bytes.EMPTY, dto.packetPayload)
+            assertEquals(Bytes.EMPTY, dto.rawPayload)
+            assertEquals("deadbeef", dto.packetHash)
+            assertEquals(255.toUByte(), entries.last().payloadVersion)
+            assertEquals(255.toUByte(), entries.last().pathLength)
+            assertEquals(255.toUByte(), entries.last().channelIndex)
+            assertEquals(UInt.MAX_VALUE, entries.last().senderTimestamp)
+            assertEquals(raw, assertNotNull(db.rxLogs().byId(radio.value, raw.id)))
+            assertEquals(healthy, assertNotNull(db.rxLogs().byId(radio.value, healthy.id)))
+            assertEquals(0, issues.size)
+        }
+        val isolated = listOf(
+            valid.copy(routeType = 999),
+            valid.copy(payloadType = -1),
+            valid.copy(payloadVersion = 5000),
+            valid.copy(pathLength = 400),
+            valid.copy(channelIndex = 9999),
+            valid.copy(senderTimestamp = -10),
+        )
+        for ((index, isolatedRow) in isolated.withIndex()) {
+            val row = isolatedRow.copy(id = UUID.randomUUID())
+            db.rxLogs().insert(row)
+            repeat(2) {
+                val entries = store.fetchRxLogEntries(radio)
+                assertEquals(index + 3, entries.size)
+                val dto = assertNotNull(entries.find { it.id == row.id })
+                assertEquals(radio, dto.radioId)
+                assertEquals(RouteType.FLOOD, dto.routeType)
+                assertEquals(PayloadType.UNKNOWN, dto.payloadType)
+                assertEquals(0.toUByte(), dto.payloadVersion)
+                assertEquals(0.toUByte(), dto.pathLength)
+                kotlin.test.assertNull(dto.channelIndex)
+                kotlin.test.assertNull(dto.senderTimestamp)
+                assertEquals(row, assertNotNull(db.rxLogs().byId(radio.value, row.id)))
+                assertEquals(raw, assertNotNull(db.rxLogs().byId(radio.value, raw.id)))
+                assertEquals(healthy, assertNotNull(db.rxLogs().byId(radio.value, healthy.id)))
+                assertEquals(index.toLong() + 3, db.rxLogs().count(radio.value))
+                assertEquals(0, issues.size)
+            }
         }
     }
 

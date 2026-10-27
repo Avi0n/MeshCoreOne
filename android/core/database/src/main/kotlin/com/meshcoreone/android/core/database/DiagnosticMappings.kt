@@ -28,14 +28,16 @@ fun RxLogEntryDTO.toEntity(): RxLogEntryEntity = RxLogEntryEntity(
 )
 fun RxLogEntryEntity.toDTO(): RxLogEntryDTO = RxLogEntryDTO(
     id, RadioId(radioId), receivedAt.toInstant(), snr, rssi,
-    RouteType.fromRawValue(routeType.ubyte("rx.routeType")) ?: throw DatabaseValueException("rx.routeType", "Unknown raw value $routeType"),
-    PayloadType.fromRawValue(payloadType.ubyte("rx.payloadType")) ?: PayloadType.UNKNOWN,
-    payloadVersion.ubyte("rx.payloadVersion"), transportCode, pathLength.ubyte("rx.pathLength"), pathNodes, packetPayload, rawPayload,
-    packetHash, channelIndex?.ubyte("rx.channelIndex"), channelName,
-    DecryptStatus.fromRawValue(decryptStatus) ?: throw DatabaseValueException("rx.decryptStatus", "Unknown raw value $decryptStatus"),
-    fromContactName, toContactName, senderTimestamp?.uint("rx.senderTimestamp"), regionScope, regionScopeMatches,
+    routeType.rxByteOrNull()?.let(RouteType::fromRawValue) ?: RouteType.FLOOD,
+    payloadType.rxByteOrNull()?.let(PayloadType::fromRawValue) ?: PayloadType.UNKNOWN,
+    payloadVersion.rxByteOrNull() ?: 0u, transportCode, pathLength.rxByteOrNull() ?: 0u, pathNodes, packetPayload, rawPayload,
+    packetHash, channelIndex?.rxByteOrNull(), channelName,
+    DecryptStatus.fromRawValue(decryptStatus) ?: DecryptStatus.NOT_APPLICABLE,
+    fromContactName, toContactName, senderTimestamp?.takeIf { it in 0L..0xFFFF_FFFFL }?.toUInt(), regionScope, regionScopeMatches,
     (payloadTypeBits and 15).toUByte(), null,
 )
+
+private fun Long.rxByteOrNull(): UByte? = takeIf { it in 0L..255L }?.toUByte()
 
 fun DebugLogEntryDTO.toEntity(): DebugLogEntryEntity = DebugLogEntryEntity(id, StoredInstant.from(timestamp), level.rawValue, subsystem, category, message)
 fun DebugLogEntryEntity.toDTO(): DebugLogEntryDTO = DebugLogEntryDTO.fromStored(

@@ -331,3 +331,175 @@ without casts or production changes. It is a separate successor after DATA-10
 record nor DATA-10's unexecuted status is overwritten. The successor requires
 an admitted diagnostic `:core:runtime:test` run before the full affected
 runtime/model/consumer closure; diagnostic execution alone is not acceptance.
+
+## DATA-08 initial corruption boundary candidate (superseded, unexecuted)
+
+The new bounded assignment is `DATA-08` / `D372`, not a rerun of the DATA-01
+and DATA-10 union verified and landed in PR #344. Its clean start is
+`610f606baaaf38eb2a2b14cb054b18fedba58a1f` (tree
+`ced3cdbdc42cd7d22dc0bd33aef7b3c43e01eb6f`). The previous candidate remains in
+history; no reset, amended commit, source-pin change or foreign checkout is used.
+WP-101 PR #6 and WP-106 PR #13 were checked as actually merged and their merge
+commits are ancestors of this start.
+
+The retained grouping artifact's SHA-256 remains
+`62c185ffc08b9c38a37261d810147767b33f2a8ae2131a3a47c0622c660686d1`.
+The pinned original family is
+`PersistenceStoreTests::RxLogEntryDTO(from:) falls back on out-of-range stored values instead of trapping()`.
+Its six stored values are route type `999`, payload type `-1`, payload version
+`5000`, path length `400`, channel index `9999` and sender timestamp `-10`.
+The original assertions expect flood/unknown/zero/zero/nil/nil, respectively.
+
+Current code does not implement that fallback. `DiagnosticMappings.kt`
+rejects each invalid width with `DatabaseValueException.field`.
+`RoomRepositoryContext` reports and wraps the cause as a fetch failure.
+Existing `ParityRxMaintenanceOriginalPredicateTest` tests the combined stored
+row and each isolated converter failure. However, the actual downstream
+`RxLogService.loadExistingEntries()` catches that failure and returns an empty
+list, so the RX history consumer cannot distinguish corruption from a successful
+empty fetch. The historical "reviewed adaptation" annotation/deviation is not
+itself an approval of the source behavior change.
+
+Before any edit, supported `reserve.py admit` accepted the owned database
+converter/test scope as `wp-owned`; same-owner `evolve` advanced the existing
+`fc4b2e79-8993-46ae-b073-9fbad90d7635` reservation from revision 4 to 5 for
+`CorruptRxProjectionTest.kt`, preserving its historical binding and immutable
+authorization context. No production projection policy was changed.
+
+The added Room/SDK31 test candidate isolates all six exact corrupt inputs in
+stored rows, repeats reads and typed field failures, checks every raw column
+remains equal, and verifies a healthy row with the same ID in a second radio
+partition remains readable and unchanged. A second test preserves all six
+corrupt values together and checks the first typed failure repeats without
+deletion, replacement or normalization. These are deterministic safety proofs
+of current native behavior, **not approval or parity credit for replacing the
+original fallback**.
+
+Supported WP-201 `modify` admission actually failed for the existing
+`android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt`
+and
+`android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogService.kt`:
+no trusted path+operation rule. Those files were not edited. The precise
+consumer capability/producer handoff and explicit fallback-versus-typed-failure
+disposition were sent to the coordinator and oversight. The affected completion
+gate remains blocked; unrelated authoring is not paused by this record.
+
+Source checks passed: `git diff --check`;
+`python tools\android-port\portmap.py` (1,922 dispositions);
+`python tools\android-port\controller\validate.py` (valid, 1,866 reference inputs,
+64 WPs, 178 edges); and
+`python tools\android-port\controller\verification_config.py --check` (valid).
+The new tests are **UNEXECUTED**: zero discovery/pass is claimed.
+The existing declared database `verifyDomainRoomTests` depends on
+`testDebugUnitTest`, `:core:model:test` and `:core:contracts:test`; exact-candidate
+guarded affected verification must also include the computed consumer closure,
+compile/lint and graph obligations. No raw Gradle bypass, laptop native run,
+publication or PR is authorized by this source-stage evidence.
+
+## DATA-08 settled pinned-source disposition and corrected candidate
+
+Oversight rejected the unapproved strict-corrupt-projection adaptation and
+directed restoration of the actual pinned reference behavior. A fresh read of
+`RxLogEntry.swift` at `db14559b39d32322b06477c6ae676112f583db50` confirms the
+six failable-conversion defaults and unknown-enum behavior; the pinned
+`RxLogService.loadExistingEntries()` also catches/logs fetch failures and returns
+an empty list. Therefore the earlier service-rethrow proposal and two-service
+support request are withdrawn. The Kotlin service's cancellation propagation
+remains intact. Candidate `8eed0b5e` was not executed or published and its
+strict-failure expectations are superseded in the successor.
+
+`DiagnosticMappings.kt` now projects route/payload through exact-width nullable
+conversion plus source enum defaults, version/path through nullable conversion
+plus zero, optional channel/timestamp through nullable exact conversion, and
+unknown decrypt status to not-applicable. This is a read-only DTO projection,
+not normalization of persisted data. Other checked database values remain
+typed failures. Supported converter admission/evolution advanced the same
+reservation from revision 5 to 6.
+
+The corrected `CorruptRxProjectionTest` has three methods: all six independently
+stored corrupt fields with repeated exact fallback/raw-row/second-radio checks;
+the exact original compound six-value fixture and literal fallback expectations;
+and valid unsigned bounds, negative/overflow widths, unknown enums and retained
+RX payload nibble behavior. No candidate conversion generates the expected six
+fallback values.
+
+The existing App capability admitted
+`android/app/src/test/kotlin/com/meshcoreone/android/app/container/RxLogProjectionConsumerTest.kt`
+with `add-direct-support-wiring`; same-owner evolution advanced revision 6 to 7.
+Its original-family-linked method exercises real Room, `RoomPersistenceStore`,
+the connected `RadioSessionContainer.rxLogService`, the production App
+`ToolsRxLogFeedAdapter` and `RxLogStateHolder.subscribe`. Repeated loads must
+retain the original ID, the six literal fallback values, a healthy max-width
+companion, exact group counts, and all underlying raw rows including a same-ID
+row in a second radio partition. No feature/service production file or test
+dependency was changed.
+
+The exact two-test support rule landed in PR #352 as
+`a1942a9c40e2cb37c31466cd0bb320d7c2b9eb95` and was merged into this branch
+without changing the original repair commits. Supported admission accepted
+`restore-rx-projection-source-regressions` for the two exact existing paths;
+same-owner evolution advanced revision 7 to 8 to 9 without recreating the
+reservation. Only the first corruption methods/annotations and genuinely unused
+imports in `RxLogSourceTest.kt` and `ParityRxMaintenanceOriginalPredicateTest.kt`
+were changed. The actual repository now must return compound and isolated
+fallback rows alongside a healthy max-width companion, repeatedly preserving
+the entire raw entities and producing no spurious issue reports. All other
+methods and the existing primary provenance remain unchanged. No generic
+data/services authority is inferred.
+
+This corrected source batch is **UNEXECUTED**, pending one exact-candidate
+guarded affected run; no previous DATA-01/DATA-10 pass is rebound as acceptance.
+After the two-test integration, `git diff --check`, `portmap.py` (1,923
+dispositions), manifest/configuration validation, `semantic.py --check` and
+`audit.py --check` passed. A byte-for-byte suffix comparison against the trusted
+base also confirmed every non-corruption method and the primary provenance in
+both existing data tests remained unchanged. These are source-stage checks, not
+JVM/Room/App execution evidence.
+
+### DATA-08 first guarded execution and diagnosed App fixture correction
+
+The first admission attempt for `f079c4cb8ea73a705965472be8bdf683c4b2be12`
+was refused with measured JVM capacity fully reserved (exit 1, no JVM started).
+A distinct coordinator-confirmed release event admitted the same candidate
+against trusted execution ancestor
+`610f606baaaf38eb2a2b14cb054b18fedba58a1f`, retaining authoring base
+`a1942a9c40e2cb37c31466cd0bb320d7c2b9eb95`. The unfiltered trusted planner
+included the landed support-policy deltas and selected all 16 affected tasks.
+
+Actual guarded execution failed, exit **1**, at `:app:testDebugUnitTest`; no
+full-plan acceptance is claimed. Source-bound raw XML from the untouched exact
+head/tree showed database **48**, data **436**, and App **1,595** cases: zero
+errors/skips, one App failure. All six mandatory DATA-08 methods were discovered;
+the database three and existing data two passed. The new App method failed
+before its RX predicates at `manager.connect`, with `CancellationException:
+Superseded connection generation`. Captured fixture logs show channel 0 timeout,
+connection loss and all eight channel reads failing during foreground sync.
+The common harness's default `0x1f` response is an error, not a channel frame.
+
+The owned App test now supplies the established neighboring integration-test
+response (`0x12`, requested slot, 48 empty channel bytes) for foreground channel
+queries. It keeps foreground behavior, requires the real graph READY and
+`SyncState.Synced`, and independently asserts all eight requested slots before
+inserting RX fixtures. No RX assertion was removed or weakened; no runtime,
+service, shared harness, schema or production behavior changed. The supported
+same-owner App operation was revalidated idempotently at revision 9 before this
+correction. This diagnosed correction is **UNEXECUTED** pending a new complete
+candidate-bound guarded run.
+
+Authoritative failed-run log:
+`/ai_cache/meshcoreone/repairs/902ae61f/wp201-data08-eaf30961/guarded-f079c4cb-released.log`.
+Original report directory is lane 0 `run-POoMChvT`; exact snapshot
+`repos/8a0a6ab5c1929c5e` was checked before and after raw XML consumption as
+`f079c4cb8ea73a705965472be8bdf683c4b2be12` /
+`4b6eb137ea5873f1ff85485b44217d6092e71e68`.
+The original attached shell was reclaimed, but the log explicitly retained
+`ACTUAL_GUARD_OS_EXIT=1`. Canonical owner absence was independently observed by
+the coordinator; the original temporary cleanup directory was absent at
+consumption. This does not turn the failed run into a pass. Later task-graph
+membership is not proof that remaining lint/check/build tasks executed.
+
+Corrected source-stage checks passed: `git diff --check`;
+`python tools\android-port\portmap.py` (1,923 dispositions);
+`python tools\android-port\controller\validate.py` (valid, 1,866 references,
+64 WPs, 178 edges); and
+`python tools\android-port\controller\verification_config.py --check` (valid).
