@@ -51,6 +51,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -219,6 +220,11 @@ object AndroidAppContainerFactory {
                 draftStore = DraftStore(SharedPreferencesDraftDefaults(application)),
                 mainScope = mainScope,
                 onboardingPlatform = onboardingPlatform,
+                advertLocation = AppAdvertLocation(
+                    { id -> storage.devicePreferences.observe(id).first() },
+                    locationProducing,
+                    locationProducing::refreshAuthorization,
+                ),
                 offlineMaps = offlineMaps,
                 nodesMessages = UserFacingMessages { failure ->
                     UiErrorMapper().message(failure).resolve(application.resources)

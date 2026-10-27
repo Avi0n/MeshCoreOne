@@ -1,5 +1,69 @@
 # WP-404 evidence
 
+## RADIO-R118-G09: source candidate after merged #350
+
+Repository: `cbattlegear/MeshCoreOne-Android`; owner:
+`platform-integrations-engineer`; START base
+`610f606baaaf38eb2a2b14cb054b18fedba58a1f`, tree
+`ced3cdbdc42cd7d22dc0bd33aef7b3c43e01eb6f`. The exact candidate is the
+commit containing this section, not any earlier #350 candidate. Source remains
+`db14559b39d32322b06477c6ae676112f583db50`. Fresh authenticated readback
+confirmed prerequisite PRs #43 (WP-208), #49 (WP-209), #71 (WP-303), and #350
+merged before the clean, authorized fast-forward START.
+
+Retained group RADIO-R118-G09 assigns exactly these original families from
+`MC1Tests/Intents/SendAdvertIntentTests.swift`:
+
+| Original family | Authored native predicates |
+| --- | --- |
+| `gps gate is nil without A device()` | Null device returns no source and performs no preference read; policy-zero device performs no refresh/settings command. |
+| `gps gate respects the per device preference()` | Original default-disabled, enabled/policy-zero, configured-DEVICE/policy-one predicates; foreign device opt-in isolation; real saved per-device preferences control actual advert and survive DataStore reopening. |
+
+`ShortcutAdvertLocationTest` contains 17 mandatory, non-ignored methods. Beyond
+the exact original predicates, they exercise actual App/service/protocol calls:
+DEVICE read/enable/readback before advert; already-enabled GPS without a write;
+PHONE verified coordinates before both reaches; declined flood confirmation with
+zero refresh/wire effects and accepted confirmation with real refresh ordering;
+no-device/disconnected/default/foreign-device/policy-zero gates; all three
+unauthorized statuses without a permission call; typed unavailable location/GPS
+refresh failures retaining the source's best-effort advert behavior; unchanged
+cancellation; opt-out/public-policy changes during a fix; services-only loss
+without stale-session writes; the existing real coarse-permission LocationManager
+callback; actual OS permission revocation re-read; persisted preference reopening.
+Literal firmware command order and coordinate bytes are independent assertions,
+not values computed by the candidate helper. All earlier merged tests remain.
+
+Production changes are limited to `AppAdvertLocation`, `AppShortcutRadio`,
+`AppContainer`, and its real Android factory. The factory reuses the already
+process-owned producer and real `DevicePreferenceStore.observe(id).first()`;
+it never activates a new provider/permission/cache. `ContainerHarness` supplies
+an explicit default-opt-out fixture whose location/prompt methods fail if
+unexpectedly invoked, rather than silently accepting missing production wiring.
+See the companion deviation for the existing absent cached-location operation.
+
+Trusted path/operation admission passed for all six source/test paths and the
+two owned evidence/deviation paths. Automatic same-owner reservation was
+attempted and retained in this session's `wp404-g09-reservation.txt`; the
+historical lease reports a different source/base/manifest/backend. It was not
+released/recreated and no private ledger was edited. This historical advisory
+binding is not a new edit veto under the current policy.
+
+Actual lightweight checks:
+
+```powershell
+python -B .\tools\android-port\portmap.py
+python -B .\tools\android-port\controller\validate.py
+git diff --check
+```
+
+All exited 0 after the source/test integration. These checks do not compile
+Kotlin or prove any G09 assertion passed. Android/JVM tests, lint, packaging
+and the exact affected closure are **NOT RUN** for this new candidate. They
+require the supported guarded remote route, an immutable candidate/declared
+scope and actual capacity admission (maximum three heavy JVM jobs). No laptop
+Gradle, new actor/session, push or PR has been run for G09. #350's successful
+1,597/66 results do not provide G09 execution evidence.
+
 ## Guarded 822d result and bounded fixture corrections
 
 Candidate `822d568de43b1bda5324bbf43896221512ed019c`, tree

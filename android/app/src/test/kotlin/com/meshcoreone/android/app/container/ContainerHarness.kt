@@ -80,6 +80,22 @@ internal class RecordingLifecycle : SessionLifecycleListener {
     override fun tornDown(container: RadioSessionContainer) { tornDown += container }
 }
 
+private fun defaultAdvertLocation() = AppAdvertLocation(
+    preferences = {
+        com.meshcoreone.android.core.datastore.DevicePreferenceSnapshot(
+            false, null, com.meshcoreone.android.core.datastore.GPSSource.PHONE,
+        )
+    },
+    producing = object : com.meshcoreone.android.core.services.content.LocationProducing {
+        override val authorizationStatus = kotlinx.coroutines.flow.MutableStateFlow(
+            com.meshcoreone.android.core.services.content.LocationAuthorizationStatus.NOT_DETERMINED,
+        )
+        override fun requestPermissionIfNeeded(): Unit = error("An opted-out fixture must never prompt for location")
+        override suspend fun requestLocation(): com.meshcoreone.android.core.services.content.GeoCoordinate =
+            error("An opted-out fixture must never request location")
+    },
+)
+
 /** The production [AppContainer] composed over test roles; every connection runs the real service graph. */
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class ContainerHarness(
@@ -99,6 +115,7 @@ internal class ContainerHarness(
     mainScope: CoroutineScope = test.backgroundScope,
     onChannelQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null,
     offlineMaps: com.meshcoreone.android.core.maps.OfflineMapController? = null,
+    advertLocation: AppAdvertLocation = defaultAdvertLocation(),
 ) {
     val scheduler: TestCoroutineScheduler = test.testScheduler
     val links = HarnessLinks(identity)
@@ -142,6 +159,7 @@ internal class ContainerHarness(
             primerFactory = primerFactory,
             chatContent = chatContent,
             offlineMaps = offlineMaps,
+            advertLocation = advertLocation,
         ),
     )
     val manager get() = container.connectionManager
