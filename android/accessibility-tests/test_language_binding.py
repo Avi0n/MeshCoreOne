@@ -19,7 +19,7 @@ HEAD = "9d2366ba5e6eeeb2e01fda9ad3990c25e6af9928"
 # Coherent reviewed pins, not a native execution result for every family.
 PINNED_CONFIGURATION = "81dccf57622cdfc90159fbdcb0761110408616c7"
 CURRENT_PRODUCTION = {
-    "diagnostics": ("1b455921a487fb1655babb0bdd5740ef70f81e69", "0cb54d923d8c0a343caf37279012c79380c20412"),
+    "diagnostics": ("e70d637a75be83921a88b603251a297c74ed2b44", "0cb54d923d8c0a343caf37279012c79380c20412"),
     "nodes": ("86cb805495f565a3eb559af979b71eafb40b8f99", "5cd07a338b508ff09d3e5fd0dbcf121ad1cfdec5"),
 }
 
@@ -296,6 +296,14 @@ class LanguageBindingTest(unittest.TestCase):
             self.assertEqual(spec.methods, tuple(re.findall(r"@Test fun (\w+)\(", body)))
         with self.assertRaises(TypeError):
             binding.FAMILIES["other"] = spec
+
+    def test_diagnostics_current_anchor_is_merged_squash_commit_with_exact_production_tree(self):
+        spec = binding.DIAGNOSTICS
+        anchor, current_blob = spec.current_production
+        self.assertEqual("e70d637a75be83921a88b603251a297c74ed2b44", anchor)
+        self.assertEqual("", binding.git("merge-base", "--is-ancestor", anchor, "HEAD"))
+        self.assertEqual("0cb54d923d8c0a343caf37279012c79380c20412", current_blob)
+        self.assertEqual(current_blob, binding.git("rev-parse", anchor + ":" + spec.production))
 
     def test_diagnostics_every_fixture_helper_production_pin_rejects_candidate_or_original_drift(self):
         spec = binding.DIAGNOSTICS
@@ -1530,7 +1538,7 @@ class LanguageBindingTest(unittest.TestCase):
         expected = expected.replace(
             boundary,
             '\n    current_production=(\n'
-            '        "1b455921a487fb1655babb0bdd5740ef70f81e69",\n'
+            '        "e70d637a75be83921a88b603251a297c74ed2b44",\n'
             '        "0cb54d923d8c0a343caf37279012c79380c20412",\n'
             '    ),\n)\nNODES =',
             1,
