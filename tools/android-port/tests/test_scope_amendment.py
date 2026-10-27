@@ -33,6 +33,8 @@ from controller.scope_amendment import (
     WP503_ACCESSIBILITY_SOURCE_BINDING_CAPABILITIES,
     consumer_support_predecessor,
     host_scoped_jvm_predecessor,
+    backup_post_commit_predecessor,
+    rx_projection_regression_predecessor,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -46,6 +48,28 @@ from controller.software_verification import project as project_software
 class TranslationScopeAmendmentTests(unittest.TestCase):
     def policy_before_room_cleanup_text(self):
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp201-rx-projection-source-regressions",')
+        end = text.index('      {\n        "id": "wp203-backup-post-commit-delivery",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), rx_projection_regression_predecessor(json.loads(text)))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "3498dead5e5cad13d71936d95ddd6860b7217c8c:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
+        start = text.index('      {\n        "id": "wp203-backup-post-commit-delivery",')
+        end = text.index('      {\n        "id": "persistence-schemas",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), backup_post_commit_predecessor(json.loads(text)))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "610f606ba:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
         start = text.index('      {\n        "id": "wp003-host-scoped-jvm-parallelism",')
         end = text.index('      {\n        "id": "disposable-native-guest",', start)
         previous = text[:start] + text[end:]
