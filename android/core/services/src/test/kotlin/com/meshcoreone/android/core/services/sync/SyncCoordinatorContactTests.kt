@@ -1,7 +1,6 @@
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/SyncCoordinatorTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.core.services.sync
 
-import com.meshcoreone.android.core.contracts.domain.ContactServiceProtocol
 import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.contracts.domain.PersistenceStoreProtocol
 import com.meshcoreone.android.core.model.ContactDTO
@@ -12,6 +11,8 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.ContactFlags
 import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.core.protocol.model.MeshContact
+import com.meshcoreone.android.core.services.contacts.ContactService
+import com.meshcoreone.android.core.services.contacts.ContactsFakePreferences
 import java.time.Instant
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.assertEquals
@@ -36,12 +37,8 @@ internal fun meshContact(key: Bytes, name: String, lastModified: Instant = Insta
     0.0, 0.0, lastModified,
 )
 
-/**
- * Factory for the contact service the prune ids run against. Swift runs them against the real
- * `ContactService`; WP-214 runs them against [ReferenceContactService] until WP-303 swaps in WP-209's.
- */
-internal var pruneContactServiceFactory: (FakeContactSession, PersistenceStoreProtocol) -> ContactServiceProtocol =
-    { session, store -> ReferenceContactService(session, store) }
+private fun pruneContactServiceFactory(session: FakeContactSession, store: PersistenceStoreProtocol) =
+    ContactService(session, store, store, null, null, ContactsFakePreferences())
 
 /** Original SyncCoordinatorTests: advert delta sync, watermarks, claims, capacity and prune cases. */
 class SyncCoordinatorContactTests {

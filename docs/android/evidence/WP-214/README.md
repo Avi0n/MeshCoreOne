@@ -1,5 +1,12 @@
 # WP-214 evidence
 
+## Current contact-prune oracle repair
+
+The separately assigned `SM-CONTACT-PRUNE-ORACLE` batch, its eleven original
+families, actual-service/Room mapping and pending execution state are recorded in
+[contact-prune-oracle.md](contact-prune-oracle.md). It starts after merged #349;
+the historical channel/suppression sections below do not claim new-batch acceptance.
+
 ## Inherited WP-201 compile correction (local, unverified)
 
 WP-201 reported an authenticated `:core:runtime:compileTestKotlin` failure in
