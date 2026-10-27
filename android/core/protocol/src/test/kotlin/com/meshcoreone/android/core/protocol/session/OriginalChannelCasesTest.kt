@@ -34,12 +34,20 @@ class OriginalChannelCasesTest {
             f.session.stop()
         },
         original("MeshCoreSessionGetChannelsTests", "dropped writes surface as missing indexes after the idle timeout") {
-            val f = fixture(transport = SessionRadioTransport(true)); start(f)
+            val f = fixture(SessionConfiguration(
+                defaultTimeout = 10.0, clientIdentifier = "MCTst", channelPipelineWindow = 8,
+                channelPipelineIdleTimeout = 0.1, channelPipelineHardTimeout = 5.0,
+                channelPipelinePostDrainGrace = 0.02,
+            ), SessionRadioTransport(true))
+            start(f, expectedAppStart = hex("01032020202020204d43547374"))
             val task = backgroundScope.async { f.session.getChannels(listOf(0u, 1u, 2u, 3u)) }; runCurrent()
             assertEquals(5, f.transport.sent.size)
             f.transport.receive(channelPacket(0, "zero")); f.transport.receive(channelPacket(1, "one"))
             f.transport.receive(channelPacket(3, "three")); runCurrent()
-            advanceTimeBy(200); runCurrent()
+            advanceTimeBy(99); runCurrent()
+            assertFalse(task.isCompleted)
+            advanceTimeBy(1); runCurrent()
+            assertTrue(task.isCompleted)
             assertEquals(listOf<UByte>(0u, 1u, 3u), task.await().received.map { it.index })
             assertEquals(listOf<UByte>(2u), task.await().missing)
             assertEquals(0, f.session.core.generation().pending.size)

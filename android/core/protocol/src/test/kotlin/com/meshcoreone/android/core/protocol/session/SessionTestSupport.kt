@@ -134,10 +134,13 @@ internal fun TestScope.fixture(
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal suspend fun TestScope.start(fixture: SessionFixture, self: Bytes = selfPacket()) {
+internal suspend fun TestScope.start(
+    fixture: SessionFixture, self: Bytes = selfPacket(),
+    expectedAppStart: Bytes = hex("01032020202020204d436f7265"),
+) {
     val task = backgroundScope.async { fixture.session.start() }
     runCurrent()
-    assertEquals(hex("01032020202020204d436f7265"), fixture.transport.sent.last())
+    assertEquals(expectedAppStart, fixture.transport.sent.last())
     fixture.transport.receive(self)
     runCurrent()
     task.await()
