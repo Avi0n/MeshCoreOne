@@ -701,11 +701,101 @@ RX_PROJECTION_REGRESSION_CAPABILITY = {
 }
 
 
+SHARED_LOCATION_CACHE_CAPABILITY = {
+    "id": "wp404-shared-location-producer-cache",
+    "work_packages": ["WP-404"],
+    "path_rules": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/content/LocationManagerLocationProducing.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/content/LocationManagerLocationProducingTest.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppAdvertLocation.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AndroidAppContainerFactory.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ShortcutAdvertLocationTest.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+        "docs/android/deviations/WP-404.md",
+        "docs/android/evidence/WP-404/README.md",
+    ],
+    "operations": ["restore-shared-pre-advert-location-cache"],
+    "invariants": [
+        "pinned-LocationService-and-AppState-DeviceActions-db14559b39d32322b06477c6ae676112f583db50",
+        "WP218-primary-provenance-and-original-families-unchanged-no-impersonated-owner-or-replayed-credit",
+        "one-existing-process-owned-producer-initially-absent-immutable-GeoCoordinate-cache",
+        "genuine-success-published-under-active-request-ownership-lock-before-waiter-resume",
+        "same-producer-cache-shared-across-RegionResolver-and-advert-distinct-LocationService-wrappers",
+        "factory-only-binds-read-only-cache-supplier-retain-existing-producer-RegionResolver-and-process-cleanup",
+        "later-success-replaces-cache-failure-null-fix-and-authorization-denial-retain-prior-success",
+        "cancelled-stale-and-late-callbacks-cannot-publish-successor-fix-preserve-signal-ownership",
+        "genuine-CancellationException-propagates-never-falls-through-to-cached-radio-write-or-advert",
+        "preserve-per-device-auto-update-public-policy-confirmation-no-prompt-live-session-and-current-generation-gates",
+        "no-prior-cache-preserves-best-effort-no-location-write-advert-no-fabricated-default-coordinate",
+        "no-private-wrapper-cache-OS-lastKnown-TTL-persistence-new-provider-permission-or-Google-dependency",
+        "eight-exact-paths-only-no-content-glob-core-API-contract-fake-implementor-build-or-unrelated-WP218-authority",
+        "consumer-docs-only-shared-cache-deviation-and-honest-source-bound-evidence-no-other-feature-repair",
+        "trusted-main-admission-and-actual-frozen-3db4cbd567465b9071f4bad8afd5bd2ee90c2f47-run-closeout-before-product-edit",
+        "same-owner-stored-identity-and-authorization-unchanged-no-release-recreate-or-ledger-rewrite",
+        "real-producer-semantic-collision-stop-and-serialize-or-transfer-with-original-evidence",
+        "policy-only-no-runtime-installation-live-cache-ref-default-settings-dispatch-resource-or-merge-authority",
+        "coordinates-secrets-original-data-and-license-obligations-preserved-no-sensitive-generic-logging",
+    ],
+    "validation": [
+        "exact WP404 eight-path named-operation positives; other-WP wrong-operation sibling traversal and malformed-policy denials",
+        "future native producer API31 and API37 initially absent success-before-resume replacement failure-null-denial retention and cancelled-late-callback races",
+        "future cross-wrapper real RegionResolver-side success seeds same advert cache after failed or unauthorized no-prompt refresh",
+        "future actual App Room radio literal-coordinate write-before-advert and no-cache best-effort no-write assertions",
+        "future opt-out public-policy foreign-device flood-decline session-change and genuine cancellation retain zero forbidden effects",
+        "future affected declared whole closure exact mandatory source-bound method identities and nonzero discovery no failures errors or skips",
+        "exact complete trusted predecessor object and raw Git-blob equality; all old capabilities and planner bridges unchanged",
+        "policy fixtures prove admission only not cache behavior JVM native hardware or original-family acceptance",
+    ],
+}
+
+
+def shared_location_cache_predecessor(policy):
+    """Reverse only the exact WP-404 shared producer-cache support rule."""
+    if not isinstance(policy, dict):
+        raise PortError("Shared location cache amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result["reservation_policy"]
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Shared location cache amendment requires the canonical capability catalog")
+    selected = [i for i, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == SHARED_LOCATION_CACHE_CAPABILITY["id"]]
+    path_matches = [
+        rule for rule in rules
+        if isinstance(rule, dict) and isinstance(rule.get("path_rules"), list)
+        and isinstance(rule.get("operations"), list)
+        and "restore-shared-pre-advert-location-cache" in rule["operations"]
+        and ("work_packages" not in rule or (
+            isinstance(rule["work_packages"], list) and "WP-404" in rule["work_packages"]
+        ))
+        and any(CapabilityEngine._matches(pattern, path)
+                for path in SHARED_LOCATION_CACHE_CAPABILITY["path_rules"]
+                for pattern in rule["path_rules"] if isinstance(pattern, str))
+    ]
+    if not selected and not path_matches:
+        return result
+    if len(selected) != 1:
+        raise PortError("Shared location cache changed outside the exact eight-path amendment")
+    index = selected[0]
+    if (
+        rules[index] != SHARED_LOCATION_CACHE_CAPABILITY
+        or path_matches != [SHARED_LOCATION_CACHE_CAPABILITY]
+        or index == 0 or not isinstance(rules[index - 1], dict)
+        or rules[index - 1].get("id") != "generated-resources"
+        or index + 1 >= len(rules) or rules[index + 1] != RX_PROJECTION_REGRESSION_CAPABILITY
+    ):
+        raise PortError("Shared location cache changed outside the exact eight-path amendment")
+    rules.pop(index)
+    return result
+
+
 def rx_projection_regression_predecessor(policy):
     """Reverse only the exact existing-test source-baseline support rule."""
     if not isinstance(policy, dict):
         raise PortError("RX projection regression amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = shared_location_cache_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     reservation = result["reservation_policy"]
