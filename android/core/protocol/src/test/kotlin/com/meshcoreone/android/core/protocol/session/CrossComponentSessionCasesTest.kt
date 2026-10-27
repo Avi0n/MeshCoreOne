@@ -48,7 +48,8 @@ class CrossComponentSessionCasesTest {
             f.session.stop()
         },
         original("RequestRegionsIntegrationTests", "full two-phase flow returns parsed regions") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "Test"))
+            start(f, expectedAppStart = hex("010320202020202054657374"))
             val contact = testContact()
             val tag = hex("01020304")
             val task = checkedRequest { f.session.requestRegions(contact) }; runCurrent()
@@ -67,8 +68,8 @@ class CrossComponentSessionCasesTest {
             f.session.stop()
         },
         original("RequestRegionsIntegrationTests", "timeout when no binaryResponse arrives") {
-            val f = fixture(SessionConfiguration(clientIdentifier = "MCore", binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null))
-            start(f)
+            val f = fixture(SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "Test", binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null))
+            start(f, expectedAppStart = hex("010320202020202054657374"))
             val contact = testContact()
             val task = checkedRequest { f.session.requestRegions(contact) }; runCurrent()
             f.transport.ok(); runCurrent()
@@ -81,7 +82,8 @@ class CrossComponentSessionCasesTest {
             f.session.stop()
         },
         original("RequestRegionsIntegrationTests", "device error propagates correctly") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "Test"))
+            start(f, expectedAppStart = hex("010320202020202054657374"))
             val contact = testContact()
             val task = checkedRequest { f.session.requestRegions(contact) }; runCurrent()
             f.transport.ok(); runCurrent()
@@ -92,8 +94,8 @@ class CrossComponentSessionCasesTest {
             f.session.stop()
         },
         original("RequestRegionsIntegrationTests", "temporarily sets zero-hop before sending for flood-routed contact") {
-            val f = fixture(SessionConfiguration(clientIdentifier = "MCore", binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null))
-            start(f)
+            val f = fixture(SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "Test", binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null))
+            start(f, expectedAppStart = hex("010320202020202054657374"))
             val contact = testContact()
             val task = checkedRequest { f.session.requestRegions(contact) }; runCurrent()
             val temporary = f.transport.sent.last()
@@ -102,7 +104,7 @@ class CrossComponentSessionCasesTest {
             f.transport.ok(); runCurrent()
             assertEquals(raw(0x39, contact.publicKey + hex("0100")), f.transport.sent.last())
             assertEquals(35, f.transport.sent.last().size)
-            f.transport.receive(sentPacket()); runCurrent()
+            f.transport.receive(sentPacket(timeoutMs = 100)); runCurrent()
             advanceTimeBy(200); runCurrent()
             assertEquals(raw(0x0d, contact.publicKey), f.transport.sent.last())
             f.transport.ok(); runCurrent()
@@ -110,13 +112,13 @@ class CrossComponentSessionCasesTest {
             f.session.stop()
         },
         original("RequestRegionsIntegrationTests", "requestRegions preserves an unmodeled raw type byte in the temp write") {
-            val f = fixture(SessionConfiguration(clientIdentifier = "MCore", binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null))
-            start(f)
-            val contact = testContact(filled(0xcd, 32), 4u)
+            val f = fixture(SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "Test", binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null))
+            start(f, expectedAppStart = hex("010320202020202054657374"))
+            val contact = testContact(filled(0xcd, 32), 4u).copy(id = "r", advertisedName = "Repeater")
             val task = checkedRequest { f.session.requestRegions(contact) }; runCurrent()
             assertEquals(4u.toUByte(), f.transport.sent.last()[33])
             assertEquals(0u.toUByte(), f.transport.sent.last()[35])
-            f.transport.ok(); runCurrent(); f.transport.receive(sentPacket()); runCurrent()
+            f.transport.ok(); runCurrent(); f.transport.receive(sentPacket(timeoutMs = 100)); runCurrent()
             advanceTimeBy(200); runCurrent()
             assertEquals(raw(0x0d, contact.publicKey), f.transport.sent.last())
             f.transport.ok(); runCurrent()
@@ -167,9 +169,10 @@ class CrossComponentSessionCasesTest {
             f.session.stop()
         },
         original("LegacyUpdateContactHardeningTests", "changeContactFlags with a NaN coordinate does not trap and clamps the frame") {
-            val f = fixture(); start(f)
+            val f = fixture(SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "Test"))
+            start(f, expectedAppStart = hex("010320202020202054657374"))
             val contact = testContact(filled(0xab, 32), 1u).copy(
-                advertisedName = "N", lastAdvertisement = Instant.ofEpochSecond(-1),
+                id = "x", advertisedName = "N", lastAdvertisement = Instant.ofEpochSecond(-1),
                 latitude = Double.NaN, longitude = 200.0,
             )
             val task = checkedRequest { f.session.changeContactFlags(contact, ContactFlags(2u)) }; runCurrent()

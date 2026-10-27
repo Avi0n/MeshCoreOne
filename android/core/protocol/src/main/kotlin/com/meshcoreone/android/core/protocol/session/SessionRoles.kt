@@ -33,20 +33,28 @@ interface MessagingSessionOps {
 
 interface ContactSessionOps {
     suspend fun getContacts(since: Instant? = null): List<MeshContact>
+    /** A terminal partial fetch retains its reported total but cannot establish a complete cache baseline. */
     suspend fun getContactsReportingTotal(since: Instant? = null): ContactFetchResult
+    /** Only NOT_FOUND returns null; other device errors propagate with their raw code. */
     suspend fun getContact(publicKey: Bytes): MeshContact?
     suspend fun addContact(contact: MeshContact)
     suspend fun removeContact(publicKey: Bytes)
     suspend fun resetPath(publicKey: Bytes)
     suspend fun sendPathDiscovery(destination: Bytes): MessageSentInfo
     suspend fun shareContact(publicKey: Bytes)
+    /** A requested key must identify the leading key in the exported card, not an embedded payload value. */
     suspend fun exportContact(publicKey: Bytes? = null): String
     suspend fun importContact(cardData: Bytes)
     suspend fun changeContactFlags(contact: MeshContact, flags: ContactFlags)
 }
 
 interface ChannelSessionOps {
+    /**
+     * An unanswered earlier read of this index fails with ConnectionLost/UnresolvedReply before sending.
+     * Recover through the connection owner with a real disconnect/reconnect, not a same-link logical restart.
+     */
     suspend fun getChannel(index: UByte): ChannelInfo
+    /** Missing sent indices remain uncorrelated; preserve unread slots and reconnect before retrying them. */
     suspend fun getChannels(indices: List<UByte>): ChannelFetchResult
     suspend fun setChannel(index: UByte, name: String, secret: Bytes)
 }
