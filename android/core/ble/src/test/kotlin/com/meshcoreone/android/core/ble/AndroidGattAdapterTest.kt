@@ -84,13 +84,15 @@ abstract class AndroidGattAdapterTest {
         fixture.clock.advanceBy(8.seconds)
         runCurrent()
         fixture.shadow.pause = GattOperationKind.Mtu
-        callback.onServicesDiscovered(gatt, BluetoothGatt.GATT_SUCCESS)
+        assertTrue(fixture.shadow.discoverServices())
         runCurrent()
+        assertTrue(fixture.shadow.calls.any { it.startsWith("mtu:") })
         fixture.clock.advanceBy(4.seconds)
         runCurrent()
         fixture.shadow.pause = GattOperationKind.Subscribe
         callback.onMtuChanged(gatt, fixture.shadow.actualMtu, BluetoothGatt.GATT_SUCCESS)
         runCurrent()
+        assertTrue(fixture.shadow.calls.any { it.startsWith("descriptor:") })
         fixture.clock.advanceBy(2_999.milliseconds)
         runCurrent()
         assertFalse(connecting.isCompleted)
