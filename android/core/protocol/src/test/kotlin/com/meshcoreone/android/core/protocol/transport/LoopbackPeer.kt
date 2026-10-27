@@ -6,6 +6,7 @@ import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
+import java.net.SocketTimeoutException
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
@@ -15,6 +16,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 internal class LoopbackPeer : AutoCloseable {
     private val listener = ServerSocket().apply {
@@ -26,6 +28,18 @@ internal class LoopbackPeer : AutoCloseable {
 
     suspend fun accept(): Socket = withContext(Dispatchers.IO) {
         listener.accept().apply { soTimeout = 5_000 }.also { accepted += it }
+    }
+
+    suspend fun assertNoConnectionFor(timeoutMillis: Int) = withContext(Dispatchers.IO) {
+        val previousTimeout = listener.soTimeout
+        listener.soTimeout = timeoutMillis
+        try {
+            assertFailsWith<SocketTimeoutException>("Unexpected TCP connection during the observation window") {
+                listener.accept().also { accepted += it }
+            }
+        } finally {
+            listener.soTimeout = previousTimeout
+        }
     }
 
     override fun close() {

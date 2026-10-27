@@ -10,6 +10,7 @@ import com.meshcoreone.android.core.protocol.transport.tcp.WiFiTransportError
 import com.meshcoreone.android.core.protocol.transport.tcp.WiFiTransportException
 import java.io.IOException
 import java.net.InetSocketAddress
+import java.net.Socket
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -19,6 +20,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -108,12 +110,27 @@ class WiFiTransportTest {
     }
 
     @Test
+    fun `Disconnection handler not called within 100 ms of disconnect before connect`() = socketTest {
+        val notification = CompletableDeferred<Unit>()
+        val transport = WiFiTransport()
+        try {
+            transport.setDisconnectionHandler { notification.complete(Unit) }
+            transport.disconnect()
+            assertNull(withTimeoutOrNull(100) { notification.await() })
+            assertFalse(transport.isConnected())
+        } finally {
+            withContext(NonCancellable) { transport.disconnect() }
+        }
+    }
+
+    @Test
     fun `Disconnection handler not called on user-initiated disconnect`() = socketTest {
         val calls = AtomicInteger()
+        val notification = CompletableDeferred<Unit>()
         val socket = TrackingSocket()
         val transport = WiFiTransport(socketFactory = { socket })
         LoopbackPeer().use { peer ->
-            transport.setDisconnectionHandler { calls.incrementAndGet() }
+            transport.setDisconnectionHandler { calls.incrementAndGet(); notification.complete(Unit) }
             transport.setConnectionInfo("127.0.0.1", peer.port)
             transport.connect()
             val server = peer.accept()
@@ -123,6 +140,7 @@ class WiFiTransportTest {
             transport.disconnect()
             assertTrue(consumed.await().isEmpty())
             assertEquals(-1, server.readEOF())
+            assertNull(withTimeoutOrNull(100) { notification.await() })
             assertEquals(0, calls.get())
             assertEquals(1, socket.closeCalls.get())
         }
@@ -132,11 +150,17 @@ class WiFiTransportTest {
     fun `Disconnection handler not called on initial connect failure`() = socketTest {
         val transport = WiFiTransport()
         val calls = AtomicInteger()
-        transport.setDisconnectionHandler { calls.incrementAndGet() }
-        transport.setConnectionInfo("999.999.999.999", 5000)
-        assertFailsWith<WiFiTransportException> { transport.connect() }
-        transport.disconnect()
-        assertEquals(0, calls.get())
+        val notification = CompletableDeferred<Unit>()
+        try {
+            transport.setDisconnectionHandler { calls.incrementAndGet(); notification.complete(Unit) }
+            transport.setConnectionInfo("999.999.999.999", 5000)
+            assertFailsWith<WiFiTransportException> { transport.connect() }
+            assertNull(withTimeoutOrNull(100) { notification.await() })
+            assertEquals(0, calls.get())
+            assertFalse(transport.isConnected())
+        } finally {
+            withContext(NonCancellable) { transport.disconnect() }
+        }
     }
 
     @Test
@@ -154,6 +178,7 @@ class WiFiTransportTest {
                 val connects = List(8) { async { transport.connect() } }
                 for (connect in connects) connect.await()
                 assertTrue(transport.isConnected())
+                peer.assertNoConnectionFor(500)
                 assertEquals(1, creations.get())
                 assertTrue(socket.tcpNoDelay)
                 transport.send(Bytes.fromHex("1603"))
@@ -163,6 +188,15 @@ class WiFiTransportTest {
                 assertEquals(1, socket.closeCalls.get())
             } finally {
                 withContext(NonCancellable) { transport.disconnect() }
+            }
+        }
+    }
+
+    @Test
+    fun `Idempotence observation rejects an extra real TCP connection`() = socketTest {
+        LoopbackPeer().use { peer ->
+            Socket("127.0.0.1", peer.port).use {
+                assertFailsWith<AssertionError> { peer.assertNoConnectionFor(500) }
             }
         }
     }
