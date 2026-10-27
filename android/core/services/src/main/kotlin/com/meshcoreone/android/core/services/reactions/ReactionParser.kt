@@ -37,6 +37,7 @@ object ReactionParser {
     private const val MENTION_CLOSE = "]"
     private const val SUMMARY_SEPARATOR = ","
     private const val SUMMARY_PAIR_SEPARATOR = ":"
+    private const val ZERO_WIDTH_JOINER = 0x200D
 
     /** Crockford decode table: ASCII code to 5-bit value, -1 when invalid. Case-insensitive; O→0, I/L→1. */
     private val CROCKFORD_DECODE: IntArray = IntArray(ASCII_LIMIT) { code ->
@@ -148,7 +149,38 @@ object ReactionParser {
     /** True when [value] is exactly one emoji `Character`. */
     private fun isReactionEmoji(value: String): Boolean {
         val characters = SwiftText.graphemes(value)
-        return characters.size == 1 && CharacterEmojiDetection.isEmoji(characters[0])
+        return characters.size == 1 && CharacterEmojiDetection.isEmoji(characters[0]) &&
+            preservesEmojiJoinerBoundaries(value)
+    }
+
+    /**
+     * GB11 joins only Extended_Pictographic Extend* ZWJ + Extended_Pictographic.
+     * JDK 21's \X retains the initial pictographic context across non-Extend
+     * scalars, including another ZWJ. Do not mistake the resulting run for one
+     * Swift Character. Trailing ZWJs still attach under GB9 and remain valid.
+     */
+    private fun preservesEmojiJoinerBoundaries(value: String): Boolean {
+        var pictographicPrefix = false
+        var joinerHasPictographicPrefix = false
+        var previousWasJoiner = false
+        var offset = 0
+        while (offset < value.length) {
+            val scalar = value.codePointAt(offset)
+            when {
+                ReactionGraphemeProperties.isExtendedPictographic(scalar) -> {
+                    if (previousWasJoiner && !joinerHasPictographicPrefix) return false
+                    pictographicPrefix = true
+                }
+                ReactionGraphemeProperties.isExtend(scalar) -> Unit
+                else -> {
+                    joinerHasPictographicPrefix = scalar == ZERO_WIDTH_JOINER && pictographicPrefix
+                    pictographicPrefix = false
+                }
+            }
+            previousWasJoiner = scalar == ZERO_WIDTH_JOINER
+            offset += Character.charCount(scalar)
+        }
+        return true
     }
 
     /**
