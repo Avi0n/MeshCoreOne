@@ -99,7 +99,8 @@ PR and authoritative hosted job, not a second reproducible CI-result bundle.
 Full controller/local suites, all-stage fast/Gradle and actual JVM/native/
 hardware/iOS/Android/signing/legal verification are NOT RUN / UNVERIFIED.
 Future existing agreement tests must retain independent pinned oracle and seeded
-channel/DM Pair/hash/cache expectations. The already admitted App test must
+channel/DM Pair/hash/cache expectations. The already admitted
+`com.meshcoreone.android.app.container.ReactionGraphemeClassificationTest` must
 exercise actual ordinary-doubled-ZWJ visibility versus valid reactions,
 direction/routing and FAILED rows. Run the affected declared whole closure with
 exact source-bound mandatory identities and nonzero discovery, not policy-only
@@ -113,3 +114,22 @@ rewritten. Documented read-only readiness remains off/paused, no live
 execution/merge authority. Parent retains protected exact-head review and normal
 merge. Previous #356 publication permission is not reused; no push/PR is
 authorized before a new protected review/publication decision.
+
+## Metadata-only successor before merge
+
+After the one authorized publication of frozen
+`31f077943a9936fa74fd54fb3651e8064128cc31`, parent directly verified the actual
+consumer class/file as `ReactionGraphemeClassificationTest` /
+`ReactionGraphemeClassificationTest.kt` (nine methods), not the App-prefixed
+caption in that candidate. This session could not resolve the shared short
+`a8fe216` revision locally; the identity correction is attributed to the parent's
+direct source read, not claimed as local product execution.
+
+The ordinary successor corrects only the validation caption in policy/constant,
+the caption fence, the actual App negative-path fixture and this scoped doc.
+The single production path, named operation, WP scope, all other invariants,
+old rules and complete-de20 inverse baselines are unchanged. Frozen31f's final
+110 PASS in 15.125s remains historical truth; successor results are distinct.
+This is test-identity metadata drift, not a parser/native failure or expanded
+capability. Merge/publication waits for protected successor review and a NEW
+distinct grant; the consumed31f push grant cannot authorize a second push.

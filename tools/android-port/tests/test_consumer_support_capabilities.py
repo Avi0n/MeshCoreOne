@@ -80,7 +80,7 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
             path.replace("/src/main/", "/src/androidTest/"),
             path.replace("/rendering/", "/reactions/"),
             "android/app/src/main/assets/licenses/Unicode-License.txt",
-            "android/app/src/test/kotlin/com/meshcoreone/android/app/container/AppReactionGraphemeClassificationTest.kt",
+            "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ReactionGraphemeClassificationTest.kt",
             "android/core/services/build.gradle.kts", "docs/android/deviations/WP-216.md",
             "../ReactionWireFormat.kt", "/android/core/services/ReactionWireFormat.kt",
             path.replace("/rendering/", "/rendering/../rendering/"),
@@ -167,7 +167,7 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
             "no-Unicode-data-notice-policy-dependency-permission-or-legal-acceptance-authority",
             "same-owner-stored-identity", "trusted-main-admission-before-consumer-edit",
             "semantic-collision", "no-runtime-installation-cache-ref-default-settings-dispatch",
-            "ReactionWireFormatAgreementTest", "AppReactionGraphemeClassificationTest",
+            "ReactionWireFormatAgreementTest", "ReactionGraphemeClassificationTest",
             "nonzero discovery", "policy fixtures prove admission only",
         ):
             with self.subTest(fence=fence):

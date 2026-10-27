@@ -778,7 +778,7 @@ REACTION_WIRE_CLASSIFICATION_CAPABILITY = {
     "validation": [
         "exact WP216 single-path named-operation positive; all-other-WP wrong-operation sibling traversal and malformed-policy denials",
         "future existing ReactionWireFormatAgreementTest pinned-oracle and seeded channel parse DM Pair hash and MessageLRUCache agreement",
-        "future existing admitted AppReactionGraphemeClassificationTest actual ordinary-doubled-ZWJ visible versus valid reaction and FAILED direction routing",
+        "future existing admitted ReactionGraphemeClassificationTest actual ordinary-doubled-ZWJ visible versus valid reaction and FAILED direction routing",
         "future affected declared whole closure exact mandatory source-bound method identities and nonzero discovery no failures errors or skips",
         "exact complete trusted predecessor object and raw Git-blob equality; every old capability and planner bridge unchanged",
         "policy fixtures prove admission only not GB11 Unicode parser cache UI JVM native or original-family acceptance",
