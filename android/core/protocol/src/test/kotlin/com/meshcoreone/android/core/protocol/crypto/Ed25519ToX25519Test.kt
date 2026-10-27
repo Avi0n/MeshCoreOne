@@ -48,10 +48,6 @@ class Ed25519ToX25519Test {
             assertEquals(KeyFormat.ED25519_PUBLIC, error.format)
             assertEquals(length, error.actual)
         }
-    }
-
-    @Test
-    fun `Conversion rejects malformed 32-byte points with the domain error`() {
         val malformedPoints = listOf(
             Bytes.EMPTY.paddedOrTruncated(32),
             Bytes.of(1).paddedOrTruncated(32),
