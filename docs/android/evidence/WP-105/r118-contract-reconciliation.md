@@ -98,6 +98,13 @@ surfaces, not invented Gradle tasks.
 Initial `python tools\android-port\controller\ci.py preflight --local --output
 <private-session-readiness-directory>` was BLOCKED: explicit toolchain state was
 not supplied (`--state`/`ANDROID_CI_STATE` required). This is not a readiness pass.
+The supported `python tools\android-port\local\check.py --commit HEAD
+--affected-base 8defec5919f5d6e0aee15d5305add42589421f05` was also BLOCKED
+on code candidate `663ffee80`: the shared `gradle-execution` resource was already
+held. No lock was cleared or bypassed, and no Kotlin tests ran locally.
+`git diff --check`, `python tools\android-port\portmap.py`, and
+`python tools\android-port\controller\validate.py` passed. These checks do not
+establish Kotlin compilation or test execution.
 Candidate test execution results are recorded in the PR and authoritative
 exact-commit hosted job/log, not a second committed CI-result bundle.
 
