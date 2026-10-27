@@ -89,7 +89,7 @@ DIAGNOSTICS = FamilySpec(
          "7f24b57c1ab06437435b8938d166a5254fec0894", "8768ee9c2b25fc1a7d43d0442980ff4deabb6d81"),
     ),
     current_production=(
-        "1b455921a487fb1655babb0bdd5740ef70f81e69",
+        "e70d637a75be83921a88b603251a297c74ed2b44",
         "0cb54d923d8c0a343caf37279012c79380c20412",
     ),
 )
