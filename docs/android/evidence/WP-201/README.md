@@ -331,3 +331,67 @@ without casts or production changes. It is a separate successor after DATA-10
 record nor DATA-10's unexecuted status is overwritten. The successor requires
 an admitted diagnostic `:core:runtime:test` run before the full affected
 runtime/model/consumer closure; diagnostic execution alone is not acceptance.
+
+## DATA-08 corruption boundary: deterministic non-loss proof candidate
+
+The new bounded assignment is `DATA-08` / `D372`, not a rerun of the DATA-01
+and DATA-10 union verified and landed in PR #344. Its clean start is
+`610f606baaaf38eb2a2b14cb054b18fedba58a1f` (tree
+`ced3cdbdc42cd7d22dc0bd33aef7b3c43e01eb6f`). The previous candidate remains in
+history; no reset, amended commit, source-pin change or foreign checkout is used.
+WP-101 PR #6 and WP-106 PR #13 were checked as actually merged and their merge
+commits are ancestors of this start.
+
+The retained grouping artifact's SHA-256 remains
+`62c185ffc08b9c38a37261d810147767b33f2a8ae2131a3a47c0622c660686d1`.
+The pinned original family is
+`PersistenceStoreTests::RxLogEntryDTO(from:) falls back on out-of-range stored values instead of trapping()`.
+Its six stored values are route type `999`, payload type `-1`, payload version
+`5000`, path length `400`, channel index `9999` and sender timestamp `-10`.
+The original assertions expect flood/unknown/zero/zero/nil/nil, respectively.
+
+Current code does not implement that fallback. `DiagnosticMappings.kt`
+rejects each invalid width with `DatabaseValueException.field`.
+`RoomRepositoryContext` reports and wraps the cause as a fetch failure.
+Existing `ParityRxMaintenanceOriginalPredicateTest` tests the combined stored
+row and each isolated converter failure. However, the actual downstream
+`RxLogService.loadExistingEntries()` catches that failure and returns an empty
+list, so the RX history consumer cannot distinguish corruption from a successful
+empty fetch. The historical "reviewed adaptation" annotation/deviation is not
+itself an approval of the source behavior change.
+
+Before any edit, supported `reserve.py admit` accepted the owned database
+converter/test scope as `wp-owned`; same-owner `evolve` advanced the existing
+`fc4b2e79-8993-46ae-b073-9fbad90d7635` reservation from revision 4 to 5 for
+`CorruptRxProjectionTest.kt`, preserving its historical binding and immutable
+authorization context. No production projection policy was changed.
+
+The added Room/SDK31 test candidate isolates all six exact corrupt inputs in
+stored rows, repeats reads and typed field failures, checks every raw column
+remains equal, and verifies a healthy row with the same ID in a second radio
+partition remains readable and unchanged. A second test preserves all six
+corrupt values together and checks the first typed failure repeats without
+deletion, replacement or normalization. These are deterministic safety proofs
+of current native behavior, **not approval or parity credit for replacing the
+original fallback**.
+
+Supported WP-201 `modify` admission actually failed for the existing
+`android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt`
+and
+`android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogService.kt`:
+no trusted path+operation rule. Those files were not edited. The precise
+consumer capability/producer handoff and explicit fallback-versus-typed-failure
+disposition were sent to the coordinator and oversight. The affected completion
+gate remains blocked; unrelated authoring is not paused by this record.
+
+Source checks passed: `git diff --check`;
+`python tools\android-port\portmap.py` (1,922 dispositions);
+`python tools\android-port\controller\validate.py` (valid, 1,866 reference inputs,
+64 WPs, 178 edges); and
+`python tools\android-port\controller\verification_config.py --check` (valid).
+The new tests are **UNEXECUTED**: zero discovery/pass is claimed.
+The existing declared database `verifyDomainRoomTests` depends on
+`testDebugUnitTest`, `:core:model:test` and `:core:contracts:test`; exact-candidate
+guarded affected verification must also include the computed consumer closure,
+compile/lint and graph obligations. No raw Gradle bypass, laptop native run,
+publication or PR is authorized by this source-stage evidence.
