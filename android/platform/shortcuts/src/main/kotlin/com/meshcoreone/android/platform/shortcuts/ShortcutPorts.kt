@@ -25,12 +25,15 @@ interface ShortcutRadioPort {
     suspend fun contacts(radioId: RadioId): List<ContactDTO>
     suspend fun channels(radioId: RadioId): List<ChannelDTO>
 
-    /** Durable enqueue only; must throw [ShortcutException] for failures and never claim delivery. */
+    /** Durable enqueue, never delivery; absent services require foreground, other failures use [ShortcutException]. */
     suspend fun queueMessage(recipient: ShortcutRecipient, text: String)
 
     /** Must throw [ShortcutException] for failures; no location permission prompt may be raised. */
     suspend fun sendAdvert(flood: Boolean)
 }
+
+/** The selected radio remains operational, but its connection-owned services disappeared before enqueue. */
+class ShortcutServicesUnavailableException : Exception("Shortcut services require foreground recovery")
 
 sealed interface ConfirmationRequest {
     val prompt: String

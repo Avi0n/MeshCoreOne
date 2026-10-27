@@ -79,4 +79,16 @@ class TargetIdentityTest {
         assertEquals(listOf("Amy", "bob", "One"), targets.map { it.displayName })
         assertEquals(listOf(TargetKind.CONTACT, TargetKind.CONTACT, TargetKind.CHANNEL), targets.map { it.kind })
     }
+
+    @Test
+    fun unnamedChannelStillMakesNamedSameDigestAmbiguous() {
+        val unique = channel(index = 0, name = "Unique", secret = 1)
+        val named = channel(index = 1, name = "Ambiguous", secret = 2)
+        val unnamedDuplicate = channel(index = 2, name = "", secret = 2)
+        val unnamedUnique = channel(index = 3, name = "", secret = 3)
+        val channels = listOf(unique, named, unnamedDuplicate, unnamedUnique)
+        assertEquals(listOf(TargetIdentity.channelId(unique)),
+            SendRouting.buildTargets(emptyList(), channels, "Channel").map { it.id })
+        assertNull(SendRouting.resolveUniqueChannel(TargetIdentity.channelId(named), channels))
+    }
 }

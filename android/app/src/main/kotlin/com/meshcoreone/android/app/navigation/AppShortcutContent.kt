@@ -79,10 +79,7 @@ internal fun AppShortcutContent(container: AppContainer) {
         combine(container.appState.contactsVersion, container.appState.conversationsVersion,
             container.appState.servicesVersion, container.appState.sessionStateChangeCount) { _, _, _, _ -> Unit }.collect {
             try {
-                val current = radio.currentRadioId
-                targets = if (current == null) emptyList() else
-                    radio.contacts(current).filter { it.type == com.meshcoreone.android.core.protocol.model.ContactType.CHAT }.map { TargetIdentity.target(it) } +
-                        radio.channels(current).filter { it.name.isNotEmpty() }.map { TargetIdentity.target(it, text.channelSubtitle) }
+                targets = radio.targets(text.channelSubtitle)
                 if (!ShortcutPublisher(context, text).publish(targets)) {
                     java.util.logging.Logger.getLogger("com.mc1.Shortcuts").warning("System shortcut publication denied or rate limited")
                 }

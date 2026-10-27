@@ -67,6 +67,7 @@ class ConnectionManagerAppPort(
     override val connectedDevice: DeviceDTO? get() = manager.connectedDevice
     override val lastConnectedDeviceId: UUID? get() = cached.deviceId
     override val lastConnectedRadioId: RadioId? get() = cached.radioId
+    val lastConnectedDeviceName: String? get() = cached.deviceName
     override val shouldSuppressDisconnectedPill: Boolean get() = manager.connectionIntent == ConnectionIntent.UserDisconnected
     override val hasSystemPairingRegistry: Boolean get() = platform.hasSystemPairingRegistry
     override val shouldDeferOpportunisticReconnect: Boolean get() = manager.shouldDeferOpportunisticReconnect
