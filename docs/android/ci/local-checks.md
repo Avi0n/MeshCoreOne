@@ -39,6 +39,16 @@ sides of moves remain inputs. Explicit scopes can add obligations, never omit
 changed modules, consumers or required checks. Stale endpoints and malformed
 requests fail; empty diffs, unknown graph expressions, build/dependency/toolchain
 changes and unclassified product inputs widen to the full scaffold.
+An unchanged candidate on a diverged published branch does not need a routine
+rebase: `base` remains the current trusted target, never the older branch point.
+Complete, unreplaced history must establish exactly one common ancestor.
+Obligations include the union of branch-point-to-candidate and
+target-to-candidate changed paths: independently converged branch changes and
+target-only inputs absent from the candidate cannot disappear from selection.
+Normal descendant selection is unchanged. Missing/shallow/replaced/grafted,
+unrelated or ambiguous history and an old candidate that is merely an ancestor
+of the target fail closed. Selection executes the exact candidate tree, not a
+synthetic merge, and does not prove merge compatibility or replace merge checks.
 Every full-scaffold selection retains all four existing stages: Python,
 preflight, scaffold and `inspect` (including APK/alignment inspection). A plan
 that drops inspection is rejected; only narrow no-APK scopes omit that stage.
