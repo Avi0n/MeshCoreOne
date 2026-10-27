@@ -222,11 +222,12 @@ private fun CliScreen(dependencies: ToolsDiagnosticsDependencies, connectionVers
         }
         state.terminal.tabSuggestions?.let { suggestions ->
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                suggestions.forEachIndexed { index, suggestion ->
+                suggestions.forEach { suggestion ->
                     AssistChip(
                         onClick = {
-                            repeat(index + 1) { controller.onTabComplete() }
-                            holder.applySelectedSuggestion()
+                            if (holder.applySuggestion(suggestion)) {
+                                controller.onSelectionChanged(holder.currentInput.length)
+                            }
                         },
                         label = { Text(suggestion) },
                     )
