@@ -19,10 +19,12 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -33,12 +35,21 @@ class WiFiTransportIoTest {
         val transport = WiFiTransport(socketFactory = { socket })
         val scheduled = ScheduledOperations()
         val notifications = AtomicInteger()
+        val notification = CompletableDeferred<Unit>()
         try {
             transport.setConnectionInfo("127.0.0.1", 5000)
-            transport.setDisconnectionHandler { notifications.incrementAndGet() }
+            transport.setDisconnectionHandler { notifications.incrementAndGet(); notification.complete(Unit) }
             val connect = scheduled.scope.async { transport.connect() }
             scheduled.runCurrent()
             socket.connectStarted.await()
+            assertEquals(1, socket.activeBlockingCalls.get())
+            scheduled.advanceBy(199)
+            assertFalse(connect.isCompleted)
+            assertFalse(transport.isConnected())
+            assertFalse(socket.isClosed)
+            scheduled.advanceBy(1)
+            assertFalse(connect.isCompleted)
+            assertFalse(socket.readStarted.isCompleted)
             assertEquals(1, socket.activeBlockingCalls.get())
             val cancellation = CancellationException("caller cancelled connection")
             connect.cancel(cancellation)
@@ -50,12 +61,47 @@ class WiFiTransportIoTest {
             assertTrue(socket.isClosed)
             assertEquals(0, socket.activeBlockingCalls.get())
             assertEquals(1, socket.closeCalls.get())
+            assertNull(withTimeoutOrNull(100) { notification.await() })
             assertEquals(0, notifications.get())
             assertFailsWith<CancellationException> { transport.receivedData().toList() }
         } finally {
             withContext(NonCancellable) { transport.disconnect() }
             scheduled.close()
         }
+    }
+
+    @Test
+    fun `Concurrent connect waits through pending interval and reuses the established socket`() = socketTest {
+        val socket = ControlledSocket(holdConnect = true)
+        val creations = AtomicInteger()
+        val transport = WiFiTransport(socketFactory = { creations.incrementAndGet(); socket })
+        val scheduled = ScheduledOperations()
+        try {
+            transport.setConnectionInfo("127.0.0.1", 5000)
+            val first = scheduled.scope.async { transport.connect() }
+            scheduled.runCurrent()
+            socket.connectStarted.await()
+            val second = scheduled.scope.async { transport.connect() }
+            scheduled.runCurrent()
+            scheduled.advanceBy(200)
+            assertFalse(first.isCompleted)
+            assertFalse(second.isCompleted)
+            assertFalse(transport.isConnected())
+            assertEquals(1, creations.get())
+            socket.releaseConnect()
+            scheduled.await(first)
+            scheduled.await(second)
+            socket.readStarted.await()
+            assertTrue(transport.isConnected())
+            assertEquals(1, creations.get())
+            transport.send(Bytes.of(1))
+            assertEquals(listOf(Bytes.fromHex("3c010001")), socket.frames.toList())
+        } finally {
+            withContext(NonCancellable) { transport.disconnect() }
+            scheduled.close()
+        }
+        assertEquals(1, socket.closeCalls.get())
+        assertEquals(0, socket.activeBlockingCalls.get())
     }
 
     @Test
@@ -454,6 +500,7 @@ class WiFiTransportIoTest {
         })
         val scheduled = ScheduledOperations()
         val newNotifications = AtomicInteger()
+        val newNotification = CompletableDeferred<Unit>()
         LoopbackPeer().use { peer ->
             try {
                 transport.setConnectionInfo("127.0.0.1", peer.port)
@@ -465,11 +512,12 @@ class WiFiTransportIoTest {
                 transport.disconnect()
                 transport.connect()
                 val server = peer.accept()
-                transport.setDisconnectionHandler { newNotifications.incrementAndGet() }
+                transport.setDisconnectionHandler { newNotifications.incrementAndGet(); newNotification.complete(Unit) }
                 assertFailsWith<WiFiTransportException> { scheduled.await(oldSend) }
                 assertTrue(transport.isConnected())
                 transport.send(Bytes.of(2))
                 assertEquals(Bytes.fromHex("3c010002"), Bytes(server.readExactly(4)))
+                assertNull(withTimeoutOrNull(100) { newNotification.await() })
                 assertEquals(0, newNotifications.get())
                 assertEquals(1, oldSocket.closeCalls.get())
             } finally {

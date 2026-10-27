@@ -99,6 +99,8 @@ internal class ControlledSocket(
         }
     }
 
+    fun releaseConnect() = connectRelease.countDown()
+
     fun releaseWrites() = writeRelease.countDown()
 
     fun failRead(failure: IOException) {
