@@ -434,13 +434,27 @@ companion, exact group counts, and all underlying raw rows including a same-ID
 row in a second radio partition. No feature/service production file or test
 dependency was changed.
 
-Two existing `core:data` tests still encode the rejected strict-throw adaptation
-in their first corruption methods. Their exact bounded replacement with the
-source oracle requires the requested trusted support rule; they remain untouched
-until that rule lands and supported admission succeeds. No generic data/services
-authority is inferred. This corrected source batch is **UNEXECUTED**, pending
-complete admitted source integration and one exact-candidate guarded affected
-run; no previous DATA-01/DATA-10 pass is rebound as its acceptance.
+The exact two-test support rule landed in PR #352 as
+`a1942a9c40e2cb37c31466cd0bb320d7c2b9eb95` and was merged into this branch
+without changing the original repair commits. Supported admission accepted
+`restore-rx-projection-source-regressions` for the two exact existing paths;
+same-owner evolution advanced revision 7 to 8 to 9 without recreating the
+reservation. Only the first corruption methods/annotations and genuinely unused
+imports in `RxLogSourceTest.kt` and `ParityRxMaintenanceOriginalPredicateTest.kt`
+were changed. The actual repository now must return compound and isolated
+fallback rows alongside a healthy max-width companion, repeatedly preserving
+the entire raw entities and producing no spurious issue reports. All other
+methods and the existing primary provenance remain unchanged. No generic
+data/services authority is inferred.
+
+This corrected source batch is **UNEXECUTED**, pending one exact-candidate
+guarded affected run; no previous DATA-01/DATA-10 pass is rebound as acceptance.
+After the two-test integration, `git diff --check`, `portmap.py` (1,923
+dispositions), manifest/configuration validation, `semantic.py --check` and
+`audit.py --check` passed. A byte-for-byte suffix comparison against the trusted
+base also confirmed every non-corruption method and the primary provenance in
+both existing data tests remained unchanged. These are source-stage checks, not
+JVM/Room/App execution evidence.
 
 Corrected source-stage checks passed: `git diff --check`;
 `python tools\android-port\portmap.py` (1,923 dispositions);

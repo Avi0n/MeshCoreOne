@@ -2,7 +2,6 @@
 package com.meshcoreone.android.core.data.repository
 
 import com.meshcoreone.android.core.contracts.domain.*
-import com.meshcoreone.android.core.database.DatabaseValueException
 import com.meshcoreone.android.core.database.toEntity
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
@@ -13,15 +12,38 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class RxLogSourceTest : RepositoryTest() {
-    @Test @OriginalCase("PersistenceStoreTests::RxLogEntryDTO(from:) falls back on out-of-range stored values instead of trapping()", "WP-201-reviewed-typed-corruption-adaptation")
-    fun genuineStoredCorruptionIsReportedWithoutReplacingTheRowWithDefaults() = runTest {
+    @Test @OriginalCase("PersistenceStoreTests::RxLogEntryDTO(from:) falls back on out-of-range stored values instead of trapping()")
+    fun storedOutOfRangeValuesUseSourceFallbacksWithoutReplacingOrDroppingEitherRow() = runTest {
         val raw = rx().toEntity().copy(routeType = 999, payloadType = -1, payloadVersion = 5000,
             pathLength = 400, channelIndex = 9999, senderTimestamp = -10)
+        val healthy = rx(receivedAt = AT.minusNanos(1)).copy(
+            payloadVersion = 255u, pathLength = 255u, channelIndex = 255u, senderTimestamp = UInt.MAX_VALUE,
+        ).toEntity()
         db.rxLogs().insert(raw)
-        val failure = assertFailsWith<PersistenceStoreException> { store.fetchRxLogEntries(RADIO_A) }
-        assertEquals("rx.routeType", assertIs<DatabaseValueException>(failure.cause).field)
-        assertEquals(999L, assertNotNull(db.rxLogs().byId(RADIO_A.value, raw.id)).routeType)
-        assertEquals(1, issues.size)
+        db.rxLogs().insert(healthy)
+        repeat(2) {
+            val entries = store.fetchRxLogEntries(RADIO_A)
+            assertEquals(listOf(raw.id, healthy.id), entries.map { it.id })
+            val dto = entries.first()
+            assertEquals(RADIO_A, dto.radioId)
+            assertEquals(com.meshcoreone.android.core.protocol.event.RouteType.FLOOD, dto.routeType)
+            assertEquals(PayloadType.UNKNOWN, dto.payloadType)
+            assertEquals(0.toUByte(), dto.payloadVersion)
+            assertEquals(0.toUByte(), dto.pathLength)
+            assertNull(dto.channelIndex)
+            assertNull(dto.senderTimestamp)
+            assertEquals(Bytes.of(0x42), dto.pathNodes)
+            assertEquals(Bytes.of(0xAB, 0xCD, 0xEF), dto.packetPayload)
+            assertEquals(Bytes.of(0x15, 1, 2, 3), dto.rawPayload)
+            assertEquals(255.toUByte(), entries.last().payloadVersion)
+            assertEquals(255.toUByte(), entries.last().pathLength)
+            assertEquals(255.toUByte(), entries.last().channelIndex)
+            assertEquals(UInt.MAX_VALUE, entries.last().senderTimestamp)
+            assertEquals(raw, assertNotNull(db.rxLogs().byId(RADIO_A.value, raw.id)))
+            assertEquals(healthy, assertNotNull(db.rxLogs().byId(RADIO_A.value, healthy.id)))
+            assertEquals(2L, db.rxLogs().count(RADIO_A.value))
+            assertEquals(0, issues.size)
+        }
     }
 
     @Test @OriginalCase("PersistenceStoreTests::Save and fetch RxLogEntry preserves senderTimestamp()")
