@@ -52,6 +52,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     stubbedFetchContactError = error
   }
 
+  public func setStubbedSaveContactError(_ error: Error?) {
+    stubbedSaveContactError = error
+  }
+
   public func setStubbedTouchContactHeardError(_ error: Error?) {
     stubbedTouchContactHeardError = error
   }
@@ -538,7 +542,22 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       .sorted { ($0.lastMessageDate ?? .distantPast) > ($1.lastMessageDate ?? .distantPast) }
   }
 
+  /// 1-based `fetchContact(id:)` call that throws once. Arms only that read, so a
+  /// later fetch can fail after an earlier read and a successful save.
+  private var failFetchContactIDOnCall: Int?
+  private var fetchContactIDCallCount = 0
+
+  public func failFetchContactID(onCall call: Int) {
+    fetchContactIDCallCount = 0
+    failFetchContactIDOnCall = call
+  }
+
   public func fetchContact(id: UUID) async throws -> ContactDTO? {
+    fetchContactIDCallCount += 1
+    if failFetchContactIDOnCall == fetchContactIDCallCount {
+      failFetchContactIDOnCall = nil
+      throw PersistenceStoreError.contactNotFound
+    }
     if let error = stubbedFetchContactError {
       throw error
     }
@@ -1954,8 +1973,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     inboundHopCountCalls.append((radioID: radioID, publicKey: publicKey, hopCount: hopCount, advertTimestamp: advertTimestamp))
     guard let existing = discoveredNodes.values.first(where: {
       $0.radioID == radioID && $0.publicKey == publicKey
-    }) else { return }
-    guard let adopted = adoptInboundHop(
+    }), let adopted = adoptInboundHop(
       storedHops: existing.inboundHopCount,
       storedTimestamp: existing.inboundHopAdvertTimestamp,
       incomingHops: hopCount,

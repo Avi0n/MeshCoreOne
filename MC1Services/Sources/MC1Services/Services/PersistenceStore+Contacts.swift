@@ -143,7 +143,7 @@ public extension PersistenceStore {
   /// Upserts synced contacts in one transaction and returns the number of frames persisted.
   /// Plausible synced adverts advance Last Heard without changing Discover reception.
   @discardableResult
-  func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) throws -> Int {
+  func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) async throws -> Int {
     guard !frames.isEmpty else { return 0 }
 
     let referenceDate = Date()
@@ -164,6 +164,7 @@ public extension PersistenceStore {
         modelContext.insert(contact)
         byKey[frame.publicKey] = contact
       }
+      applySyncedFavorite(contact, from: frame)
       if AdvertTimestamp.isPlausible(frame.lastAdvertTimestamp, relativeTo: referenceDate) {
         contact.lastHeardTimestamp = max(contact.lastHeardTimestamp, frame.lastAdvertTimestamp)
       }
@@ -171,6 +172,18 @@ public extension PersistenceStore {
 
     try modelContext.save()
     return frames.count
+  }
+
+  /// Contact sync owns the returned radio favourite. Single-frame saves still keep the stored bit.
+  private func applySyncedFavorite(_ contact: Contact, from frame: ContactFrame) {
+    var flags = ContactFlags(rawValue: contact.flags)
+    if ContactFlags(rawValue: frame.flags).contains(.favorite) {
+      flags.insert(.favorite)
+    } else {
+      flags.remove(.favorite)
+    }
+    contact.flags = flags.rawValue
+    contact.isFavorite = flags.contains(.favorite)
   }
 
   /// Save or update a contact from DTO

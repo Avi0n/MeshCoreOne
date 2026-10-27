@@ -316,25 +316,50 @@ struct PersistenceStoreBatchSyncTests {
     #expect(Set(stored.map(\.name)) == ["Alice", "Bob", "Carol"])
   }
 
-  @Test
-  func `batchSaveContacts updates existing rows and preserves favorite bit`() async throws {
+  @Test(arguments: [true, false])
+  func `batchSaveContacts applies the radio favourite to an existing row`(radioFavorite: Bool) async throws {
     let radioID = UUID()
     let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    let seededFlags: UInt8 = radioFavorite ? ContactFlags.telemetryBase.rawValue : ContactFlags.favorite.rawValue
+    let inserted = try await store.saveContact(
+      radioID: radioID,
+      from: contactFrame(0x01, name: "Original", flags: seededFlags)
+    )
+    let radioFlags: UInt8 = radioFavorite
+      ? ContactFlags.favorite.rawValue | ContactFlags.telemetryLocation.rawValue
+      : ContactFlags.telemetryBase.rawValue
 
-    // Seed a favorited contact (flags bit 0 set).
-    _ = try await store.saveContact(radioID: radioID, from: contactFrame(0x01, name: "Original", flags: 0x01))
-
-    // Re-sync with a frame whose flags clear bit 0; update(from:) must keep the favorite.
     let count = try await store.batchSaveContacts(radioID: radioID, from: [
-      contactFrame(0x01, name: "Renamed", flags: 0x00)
+      contactFrame(0x01, name: "Renamed", flags: radioFlags)
     ])
 
     #expect(count == 1)
-    let stored = try await store.fetchContacts(radioID: radioID)
-    #expect(stored.count == 1)
-    let contact = try #require(stored.first)
+    let contact = try #require(try await store.fetchContact(id: inserted.id))
     #expect(contact.name == "Renamed")
+    #expect(contact.id == inserted.id)
+    #expect(contact.isFavorite == radioFavorite)
+    #expect(contact.flags == radioFlags)
+  }
+
+  @Test
+  func `saveContact from a frame preserves an existing favourite`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    let inserted = try await store.saveContact(
+      radioID: radioID,
+      from: contactFrame(0x01, name: "Original", flags: ContactFlags.favorite.rawValue)
+    )
+
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: contactFrame(0x01, name: "Mirrored", flags: ContactFlags.telemetryBase.rawValue)
+    )
+
+    let contact = try #require(try await store.fetchContact(id: inserted.id))
+    #expect(contact.name == "Mirrored")
     #expect(contact.isFavorite)
+    #expect(contact.flags & ContactFlags.favorite.rawValue == ContactFlags.favorite.rawValue)
+    #expect(contact.flags & ContactFlags.telemetryBase.rawValue == ContactFlags.telemetryBase.rawValue)
   }
 
   @Test

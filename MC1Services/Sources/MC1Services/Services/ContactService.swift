@@ -79,6 +79,10 @@ public actor ContactService {
   /// Injected by `ServiceContainer` at construction.
   private let cleanupCoordinator: (any ContactCleanupHandling)?
 
+  /// One gate for contact sync and an explicit favourite command. Both run on the caller's task.
+  /// The blocked-contact lookup stays inside sync, because acquiring again waits for a release that cannot run.
+  private let contactOperationSerializer = RequestResponseSerializer()
+
   /// Multicast broadcaster for sync progress and node-deletion events.
   /// Consumers subscribe via `events()`; finished by `ServiceContainer.tearDown()`.
   private nonisolated let eventBroadcaster = EventBroadcaster<ContactServiceEvent>()
@@ -134,38 +138,44 @@ public actor ContactService {
   ///   - since: Optional date for incremental sync (only contacts modified after this time)
   /// - Returns: Sync result with count and timestamp
   public func syncContacts(radioID: UUID, since: Date? = nil) async throws -> ContactSyncResult {
-    do {
-      let fetchResult = try await session.getContactsReportingTotal(since: since)
-      let meshContacts = fetchResult.contacts
+    try await withContactOperation {
+      do {
+        let fetchResult = try await session.getContactsReportingTotal(since: since)
+        let meshContacts = fetchResult.contacts
 
-      eventBroadcaster.yield(.syncProgress(received: 0, total: meshContacts.count))
+        eventBroadcaster.yield(.syncProgress(received: 0, total: meshContacts.count))
 
-      // Build set of public keys from device for cleanup
-      let devicePublicKeys = Set(meshContacts.map(\.publicKey))
+        // Build set of public keys from device for cleanup
+        let devicePublicKeys = Set(meshContacts.map(\.publicKey))
 
-      // Persist every received contact in a single transaction rather than one
-      // commit per contact; the per-item save was redundant overhead on every sync.
-      let frames = try await reconcileBlockedRemoteCLI(radioID: radioID, contacts: meshContacts)
-      let receivedCount = try await dataStore.batchSaveContacts(radioID: radioID, from: frames)
+        // Persist every received contact in a single transaction rather than one
+        // commit per contact; the per-item save was redundant overhead on every sync.
+        let frames = try await reconcileBlockedRemoteCLI(radioID: radioID, contacts: meshContacts)
+        let receivedCount = try await dataStore.batchSaveContacts(radioID: radioID, from: frames)
 
-      let lastTimestamp = meshContacts
-        .map { UInt32($0.lastModified.timeIntervalSince1970) }
-        .max() ?? 0
+        let lastTimestamp = meshContacts
+          .map { UInt32($0.lastModified.timeIntervalSince1970) }
+          .max() ?? 0
 
-      eventBroadcaster.yield(.syncProgress(received: receivedCount, total: meshContacts.count))
+        eventBroadcaster.yield(.syncProgress(received: receivedCount, total: meshContacts.count))
 
-      // On full sync, remove local contacts that no longer exist on device.
-      if since == nil {
-        try await pruneOrphans(radioID: radioID, devicePublicKeys: devicePublicKeys, reportedTotal: fetchResult.reportedTotal)
+        // On full sync, remove local contacts that no longer exist on device.
+        if since == nil {
+          try await pruneOrphans(
+            radioID: radioID,
+            devicePublicKeys: devicePublicKeys,
+            reportedTotal: fetchResult.reportedTotal
+          )
+        }
+
+        return ContactSyncResult(
+          contactsReceived: receivedCount,
+          lastSyncTimestamp: lastTimestamp,
+          isIncremental: since != nil
+        )
+      } catch let error as MeshCoreError {
+        throw ContactServiceError.sessionError(error)
       }
-
-      return ContactSyncResult(
-        contactsReceived: receivedCount,
-        lastSyncTimestamp: lastTimestamp,
-        isIncremental: since != nil
-      )
-    } catch let error as MeshCoreError {
-      throw ContactServiceError.sessionError(error)
     }
   }
 
@@ -735,78 +745,104 @@ public actor ContactService {
   /// - Throws: `ContactServiceError` if the device update fails.
   @discardableResult
   public func setContactFavorite(_ contactID: UUID, isFavorite: Bool) async throws -> ContactDTO {
-    guard let existing = try await dataStore.fetchContact(id: contactID) else {
-      throw ContactServiceError.contactNotFound
-    }
-
-    // Calculate new flags: set or clear bit 0
-    let newFlags: UInt8 = isFavorite
-      ? existing.flags | ContactFlags.favorite.rawValue
-      : existing.flags & ~ContactFlags.favorite.rawValue
-
-    // Build MeshContact for device update
-    let meshContact = MeshContact(
-      id: existing.publicKey.uppercaseHexString(),
-      publicKey: existing.publicKey,
-      type: ContactType(rawValue: existing.typeRawValue) ?? .chat,
-      flags: ContactFlags(rawValue: existing.flags),
-      outPathLength: existing.outPathLength,
-      outPath: existing.outPath,
-      advertisedName: existing.name,
-      lastAdvertisement: Date(timeIntervalSince1970: TimeInterval(existing.lastAdvertTimestamp)),
-      latitude: existing.latitude,
-      longitude: existing.longitude,
-      lastModified: Date(timeIntervalSince1970: TimeInterval(existing.lastModified))
-    )
-
-    // Push to device and wait for confirmation
-    do {
-      try await session.changeContactFlags(meshContact, flags: ContactFlags(rawValue: newFlags))
-      guard let confirmed = try await session.getContact(publicKey: existing.publicKey) else {
+    try await withContactOperation {
+      guard let existing = try await dataStore.fetchContact(id: contactID) else {
         throw ContactServiceError.contactNotFound
       }
-      guard confirmed.flags.contains(.favorite) == isFavorite else {
-        throw ContactServiceError.invalidResponse
-      }
-    } catch let error as MeshCoreError {
-      throw ContactServiceError.sessionError(error)
-    }
 
-    // Device confirmed - update local storage
-    let updated = ContactDTO(
-      from: Contact(
-        id: existing.id,
-        radioID: existing.radioID,
+      // Calculate new flags: set or clear bit 0
+      let newFlags: UInt8 = isFavorite
+        ? existing.flags | ContactFlags.favorite.rawValue
+        : existing.flags & ~ContactFlags.favorite.rawValue
+
+      // Build MeshContact for device update
+      let meshContact = MeshContact(
+        id: existing.publicKey.uppercaseHexString(),
         publicKey: existing.publicKey,
-        name: existing.name,
-        typeRawValue: existing.typeRawValue,
-        flags: newFlags,
+        type: ContactType(rawValue: existing.typeRawValue) ?? .chat,
+        flags: ContactFlags(rawValue: existing.flags),
         outPathLength: existing.outPathLength,
         outPath: existing.outPath,
-        lastAdvertTimestamp: existing.lastAdvertTimestamp,
+        advertisedName: existing.name,
+        lastAdvertisement: Date(timeIntervalSince1970: TimeInterval(existing.lastAdvertTimestamp)),
         latitude: existing.latitude,
         longitude: existing.longitude,
-        lastModified: existing.lastModified,
-        lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
-        nickname: existing.nickname,
-        isBlocked: existing.isBlocked,
-        isMuted: existing.isMuted,
-        isFavorite: isFavorite,
-        lastMessageDate: existing.lastMessageDate,
-        unreadCount: existing.unreadCount,
-        unreadMentionCount: existing.unreadMentionCount,
-        ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString,
-        avatarImageData: existing.avatarImageData
+        lastModified: Date(timeIntervalSince1970: TimeInterval(existing.lastModified))
       )
-    )
 
-    try await dataStore.saveContact(updated)
-    guard let saved = try await dataStore.fetchContact(id: contactID) else {
-      throw ContactServiceError.contactNotFound
+      // Push to device and wait for confirmation
+      do {
+        try await session.changeContactFlags(meshContact, flags: ContactFlags(rawValue: newFlags))
+        guard let confirmed = try await session.getContact(publicKey: existing.publicKey) else {
+          throw ContactServiceError.contactNotFound
+        }
+        guard confirmed.flags.contains(.favorite) == isFavorite else {
+          throw ContactServiceError.invalidResponse
+        }
+      } catch let error as MeshCoreError {
+        throw ContactServiceError.sessionError(error)
+      }
+
+      // Device confirmed - update local storage
+      let updated = ContactDTO(
+        from: Contact(
+          id: existing.id,
+          radioID: existing.radioID,
+          publicKey: existing.publicKey,
+          name: existing.name,
+          typeRawValue: existing.typeRawValue,
+          flags: newFlags,
+          outPathLength: existing.outPathLength,
+          outPath: existing.outPath,
+          lastAdvertTimestamp: existing.lastAdvertTimestamp,
+          latitude: existing.latitude,
+          longitude: existing.longitude,
+          lastModified: existing.lastModified,
+          lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
+          nickname: existing.nickname,
+          isBlocked: existing.isBlocked,
+          isMuted: existing.isMuted,
+          isFavorite: isFavorite,
+          lastMessageDate: existing.lastMessageDate,
+          unreadCount: existing.unreadCount,
+          unreadMentionCount: existing.unreadMentionCount,
+          ocvPreset: existing.ocvPreset,
+          customOCVArrayString: existing.customOCVArrayString,
+          avatarImageData: existing.avatarImageData
+        )
+      )
+
+      try await dataStore.saveContact(updated)
+      await syncCoordinator?.notifyContactsChanged()
+      guard let saved = try await dataStore.fetchContact(id: contactID) else {
+        throw ContactServiceError.contactNotFound
+      }
+      return saved
     }
-    return saved
   }
+
+  /// Acquires the contact operation gate, runs `operation` on this task, and releases on every exit.
+  /// A cancelled waiter may sit until it acquires, then leaves without reading the radio or the store.
+  private func withContactOperation<T: Sendable>(
+    _ operation: () async throws -> T
+  ) async throws -> T {
+    await contactOperationSerializer.acquire()
+    do {
+      try Task.checkCancellation()
+      let value = try await operation()
+      await contactOperationSerializer.release()
+      return value
+    } catch {
+      await contactOperationSerializer.release()
+      throw error
+    }
+  }
+
+  #if DEBUG
+    func contactOperationWaiterCountForTesting() async -> Int {
+      await contactOperationSerializer.waiterCountForTest
+    }
+  #endif
 
   // MARK: - Telemetry Permissions
 

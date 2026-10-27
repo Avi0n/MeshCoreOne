@@ -285,6 +285,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     stubbedReportsNoTotal = reportsNoTotal
   }
 
+  /// Sets the error `getContactsReportingTotal` throws after its hold releases.
+  public func setGetContactsError(_ error: Error?) {
+    stubbedGetContactsError = error
+  }
+
   /// Sets the self info returned by `currentSelfInfo`, through an isolated setter
   /// for the same actor-isolation reason as `setStubbedContacts`.
   public func setCurrentSelfInfo(_ selfInfo: SelfInfo?) {
