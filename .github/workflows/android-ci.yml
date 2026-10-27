@@ -112,13 +112,15 @@ jobs:
           "ANDROID_CI_WORK=$(Join-Path $root 'work')" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "ANDROID_CI_STATE=$(Join-Path (Join-Path $root 'toolchain') 'environment.json')" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "GRADLE_USER_HOME=$(Join-Path $root 'gradle-home')" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Restore verified Gradle dependency cache
+      - name: Restore verified Gradle and task-output cache
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.GRADLE_USER_HOME }}
-          key: android-gradle-v3-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/gradle/wrapper/gradle-wrapper.jar', 'tools/android-port/controller/toolchain-pins.json') }}-${{ hashFiles('android/gradle/libs.versions.toml', 'android/gradle/verification-metadata.xml', 'android/gradle/dependency-locks/*.lockfile', 'android/**/gradle.lockfile') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          key: android-gradle-v4-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/gradle/wrapper/gradle-wrapper.jar', 'tools/android-port/controller/toolchain-pins.json') }}-${{ hashFiles('android/gradle/libs.versions.toml', 'android/gradle/verification-metadata.xml', 'android/gradle/dependency-locks/*.lockfile', 'android/**/gradle.lockfile') }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            android-gradle-v3-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/gradle/wrapper/gradle-wrapper.jar', 'tools/android-port/controller/toolchain-pins.json') }}-${{ hashFiles('android/gradle/libs.versions.toml', 'android/gradle/verification-metadata.xml', 'android/gradle/dependency-locks/*.lockfile', 'android/**/gradle.lockfile') }}-
+            android-gradle-v4-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/gradle/wrapper/gradle-wrapper.jar', 'tools/android-port/controller/toolchain-pins.json') }}-${{ hashFiles('android/gradle/libs.versions.toml', 'android/gradle/verification-metadata.xml', 'android/gradle/dependency-locks/*.lockfile', 'android/**/gradle.lockfile') }}-
+            android-gradle-v3-${{ runner.os }}-
+            android-gradle-${{ runner.os }}-
       - name: Validate frozen source inputs
         run: |
           python tools/android-port/test_inventory.py --check
@@ -130,28 +132,32 @@ jobs:
         run: python tools/android-port/controller/ci.py provision --root (Split-Path $env:ANDROID_CI_STATE -Parent) --accept-sdk-license
       - name: Check worker readiness
         run: python tools/android-port/controller/ci.py preflight
-      - name: Run every selected Linux and Android task in one Gradle invocation
+      - id: gradle
+        name: Run affected Linux and Android tasks in one Gradle invocation
         env:
           RUN_SCAFFOLD: ${{ needs.scope.outputs.scaffold }}
           RUN_PROTOCOL: ${{ needs.scope.outputs.protocol }}
           RUN_BACKUP: ${{ needs.scope.outputs.backup }}
+          RUN_CONTROLLER: ${{ needs.scope.outputs.controller }}
         run: |
           $scopes = @()
           if ($env:RUN_SCAFFOLD -eq 'true') { $scopes += @('--scope', 'scaffold') }
           if ($env:RUN_PROTOCOL -eq 'true') { $scopes += @('--scope', 'protocol') }
           if ($env:RUN_BACKUP -eq 'true') { $scopes += @('--scope', 'backup') }
-          & python tools/android-port/controller/ci.py run --stage scaffold @scopes
+          $affected = @()
+          if ($env:RUN_CONTROLLER -ne 'true') { $affected = @('--affected-candidate') }
+          & python tools/android-port/controller/ci.py run --stage scaffold @affected @scopes
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Validate localization discovery
-        if: ${{ needs.scope.outputs.scaffold == 'true' }}
+        if: ${{ steps.gradle.outputs.localization == 'true' }}
         run: >-
           python tools/android-port/l10n_convert.py --check
           --verify-android-tests android/core/l10n/build/test-results/testDebugUnitTest
       - name: Inspect exact APK and static alignment
-        if: ${{ needs.scope.outputs.scaffold == 'true' }}
+        if: ${{ steps.gradle.outputs.full_scaffold == 'true' }}
         run: python tools/android-port/controller/ci.py inspect
       - name: Upload inspected debug APK for human testing
-        if: ${{ success() && needs.scope.outputs.scaffold == 'true' }}
+        if: ${{ success() && steps.gradle.outputs.full_scaffold == 'true' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: debug-apk-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}

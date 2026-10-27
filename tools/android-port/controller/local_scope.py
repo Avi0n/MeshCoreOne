@@ -448,7 +448,7 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
 
     try:
         return _run_scaffold(repo, plan, environment, output, owned_execute, options, trusted_base=trusted_base)
-    except (subprocess.CalledProcessError, PortError, OSError, KeyboardInterrupt) as failure:
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, PortError, OSError, KeyboardInterrupt) as failure:
         if started:
             report = {
                 "kind": "local-affected-only", "result": "failure",

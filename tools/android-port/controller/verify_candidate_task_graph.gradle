@@ -2,10 +2,43 @@
 import groovy.json.JsonOutput
 import org.gradle.api.tasks.AbstractExecTask
 
+gradle.beforeProject { project ->
+    project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach { task ->
+        if (task.path == ":core:data:testDebugUnitTest") {
+            def interopOutput = project.layout.buildDirectory.dir("reports/wp203/interop").get().asFile
+            task.outputs.dir(interopOutput)
+            task.outputs.cacheIf("WP-203 test inputs and interop outputs are explicitly declared") { true }
+            task.doFirst {
+                project.delete(interopOutput)
+            }
+            def inputPath = project.providers.gradleProperty("wp203InteropInputDir").orNull
+            task.inputs.dir(inputPath ? project.file(inputPath) : project.file("../testing/fixtures/reference-codec"))
+        }
+    }
+}
+
 gradle.taskGraph.whenReady { graph ->
     def output = System.getenv("ANDROID_CI_TASK_GRAPH")
     if (!output) {
         throw new GradleException("ANDROID_CI_TASK_GRAPH is required")
+    }
+    def backupTests = graph.allTasks.find { it.path == ":core:data:testDebugUnitTest" }
+    if (backupTests) {
+        def expectedOutput = new File(backupTests.project.buildDir, "reports/wp203/interop").canonicalFile
+        if (!backupTests.outputs.files.files.any { it.canonicalFile == expectedOutput }) {
+            throw new GradleException("WP-203 interop artifacts are not declared Gradle task outputs")
+        }
+        def configuredInput = backupTests.project.providers.gradleProperty("wp203InteropInputDir").orNull
+        def expectedInput = (configuredInput
+            ? backupTests.project.file(configuredInput)
+            : backupTests.project.file("../testing/fixtures/reference-codec")).canonicalFile
+        def inputPrefix = expectedInput.path + File.separator
+        if (!backupTests.inputs.files.files.any {
+            def path = it.canonicalFile.path
+            path == expectedInput.path || path.startsWith(inputPrefix)
+        }) {
+            throw new GradleException("WP-203 interoperability fixture is not a Gradle task input")
+        }
     }
     def records = graph.allTasks.collect { task ->
         def command = []

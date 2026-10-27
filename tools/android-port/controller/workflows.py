@@ -85,14 +85,18 @@ def validate_candidate(value: dict, text: str):
             or build.get("needs") != ["scope"]
             or "needs.scope.outputs" not in build.get("if", "")):
         raise PortError("The selected Linux execution host must be mandatory, dependency-gated and unmatrixed")
-    runs = "\n".join(step.get("run", "") for step in build["steps"])
-    stage_runs = [
-        step.get("run", "") for step in build["steps"]
-        if "ci.py run --stage" in step.get("run", "")
-    ]
-    if len(stage_runs) != 1 or "ci.py run --stage scaffold" not in stage_runs[0]:
-        raise PortError("Candidate workflow must use one consolidated scaffold Gradle invocation")
     steps = build["steps"]
+    stage_steps = [step for step in steps if step.get("id") == "gradle"]
+    if len(stage_steps) != 1:
+        raise PortError("Candidate workflow must use one consolidated scaffold Gradle invocation")
+    stage_run = stage_steps[0].get("run", "")
+    if (
+        stage_steps[0].get("env", {}).get("RUN_CONTROLLER") != "${{ needs.scope.outputs.controller }}"
+        or "$affected = @()" not in stage_run
+        or "if ($env:RUN_CONTROLLER -ne 'true') { $affected = @('--affected-candidate') }" not in stage_run
+        or "ci.py run --stage scaffold @affected @scopes" not in stage_run
+    ):
+        raise PortError("Candidate Gradle invocation must use exact affected planning outside controller changes")
     inspections = [
         index for index, step in enumerate(steps)
         if "ci.py inspect" in step.get("run", "")
@@ -104,18 +108,25 @@ def validate_candidate(value: dict, text: str):
     if len(inspections) != 1 or len(apk_uploads) != 1:
         raise PortError("Candidate requires one inspected debug APK handoff")
     inspection, upload = inspections[0], apk_uploads[0]
-    stage = next(index for index, step in enumerate(steps) if "ci.py run --stage scaffold" in step.get("run", ""))
+    stage = steps.index(stage_steps[0])
+    localization_checks = [
+        (index, step) for index, step in enumerate(steps)
+        if step.get("name") == "Validate localization discovery"
+    ]
     if (
         steps[inspection].get("run") != "python tools/android-port/controller/ci.py inspect"
-        or steps[inspection].get("if") != "${{ needs.scope.outputs.scaffold == 'true' }}"
+        or steps[inspection].get("if") != "${{ steps.gradle.outputs.full_scaffold == 'true' }}"
         or steps[inspection].get("continue-on-error")
         or upload != inspection + 1
         or stage >= inspection or "if" in steps[stage] or steps[stage].get("continue-on-error")
+        or len(localization_checks) != 1
+        or localization_checks[0][1].get("if") != "${{ steps.gradle.outputs.localization == 'true' }}"
+        or not stage < localization_checks[0][0] < inspection
     ):
         raise PortError("Debug APK upload must immediately follow successful scaffold APK inspection")
     if steps[upload] != {
         "name": "Upload inspected debug APK for human testing",
-        "if": "${{ success() && needs.scope.outputs.scaffold == 'true' }}",
+        "if": "${{ success() && steps.gradle.outputs.full_scaffold == 'true' }}",
         "uses": "actions/upload-artifact@" + ACTION_PINS["actions/upload-artifact"],
         "with": {
             "name": (

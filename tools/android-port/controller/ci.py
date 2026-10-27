@@ -8,8 +8,10 @@ import os
 import platform
 import re
 import shutil
+import signal
 import subprocess
 import sys
+import threading
 import unittest
 from collections import deque
 from xml.etree.ElementTree import ParseError as ETError
@@ -185,12 +187,58 @@ def print_failed_command_diagnostics(log: Path, failure_reports):
         print_failed_command_log(log)
 
 
-def execute(command: list[str], environment: dict | None, log: Path, *, timeout=1800, failure_reports=None):
+def execute(command: list[str], environment: dict | None, log: Path, *,
+            timeout=1800, failure_reports=None, stream_output=False):
     log.parent.mkdir(parents=True, exist_ok=True)
     print("Executing " + " ".join(str(item) for item in command[:5]), flush=True)
     try:
-        with log.open("w", encoding="utf-8") as stream:
-            result = subprocess.run(command, cwd=REPO, env=environment, stdout=stream, stderr=subprocess.STDOUT, timeout=timeout)
+        if stream_output:
+            with log.open("w", encoding="utf-8") as stream:
+                process = subprocess.Popen(
+                    command, cwd=REPO, env=environment, stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace",
+                    bufsize=1, start_new_session=(os.name != "nt"),
+                )
+                reader_errors = []
+
+                def forward_output():
+                    try:
+                        for line in process.stdout:
+                            if reader_errors:
+                                continue
+                            try:
+                                stream.write(line)
+                                stream.flush()
+                                print(line, end="", flush=True)
+                            except (OSError, UnicodeError) as error:
+                                reader_errors.append(error)
+                    except OSError as error:
+                        reader_errors.append(error)
+                    finally:
+                        process.stdout.close()
+
+                reader = threading.Thread(target=forward_output, name="gradle-output", daemon=True)
+                reader.start()
+                try:
+                    returncode = process.wait(timeout=timeout)
+                except subprocess.TimeoutExpired as timeout_error:
+                    if os.name == "nt":
+                        process.kill()
+                    else:
+                        os.killpg(process.pid, signal.SIGKILL)
+                    process.wait()
+                    reader.join(timeout=10)
+                    raise timeout_error
+                reader.join()
+                if reader_errors:
+                    raise PortError(f"Unable to stream command output: {reader_errors[0]}")
+            result = subprocess.CompletedProcess(command, returncode)
+        else:
+            with log.open("w", encoding="utf-8") as stream:
+                result = subprocess.run(
+                    command, cwd=REPO, env=environment, stdout=stream,
+                    stderr=subprocess.STDOUT, timeout=timeout,
+                )
     except subprocess.TimeoutExpired as timeout_error:
         try:
             print_failed_command_diagnostics(log, failure_reports)
@@ -279,7 +327,15 @@ def preflight(state: dict, output: Path, *, local=False):
     })
 
 
-def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None):
+def write_github_outputs(*, full_scaffold: bool, localization: bool):
+    destination = os.environ.get("GITHUB_OUTPUT")
+    if destination:
+        with Path(destination).open("a", encoding="utf-8", newline="\n") as stream:
+            stream.write(f"full_scaffold={'true' if full_scaffold else 'false'}\n")
+            stream.write(f"localization={'true' if localization else 'false'}\n")
+
+
+def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None, affected_candidate=False):
     dispositions = port_map(load_manifest(REPO))
     print(f"Verified Kotlin source dispositions and pinned provenance: {len(dispositions)} files", flush=True)
     if platform.python_version() != toolchain_lock()["python"]:
@@ -296,10 +352,10 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         "--no-daemon", "--console=plain", "--dependency-verification", "strict",
         "-Pkotlin.compiler.execution.strategy=in-process",
         "-PscaffoldTestHeap=" + ("256m" if local else "512m"),
-        "--project-cache-dir", str(cache), "--quiet",
+        "--project-cache-dir", str(cache),
     ]
     if not local:
-        options.append("--no-build-cache")
+        options.extend(("--build-cache", "--parallel", "--max-workers=2"))
     if local:
         options.append("-PscaffoldTestJvmArgs=-Xms32m -XX:+UseSerialGC -XX:ActiveProcessorCount=2 -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=32m -XX:MaxMetaspaceSize=256m")
     wrapper = REPO / "android" / ("gradlew.bat" if state["host"] == "windows" else "gradlew")
@@ -309,6 +365,43 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         tasks = TASKS[stage]
     else:
         tasks = list(dict.fromkeys(task for scope in selected for task in SCOPED_TASKS[scope]))
+    if affected_candidate:
+        if local or stage != "scaffold" or state["host"] != "linux":
+            raise PortError("Affected candidate selection is available only for hosted Linux scaffold verification")
+        identity = execution_identity()
+        if identity is None:
+            raise PortError("Affected candidate selection requires exact hosted event identity")
+        binding = identity["binding"]
+        base, head = binding["base_sha"], binding["head_sha"]
+        requested = [scope for scope in selected if scope in ("protocol", "backup")]
+        from controller.local_scope import candidate_plan, report_inputs, run_scaffold
+
+        plan = candidate_plan(REPO, base, head, trusted_base=base, checkout=True)
+        if requested:
+            plan = candidate_plan(
+                REPO, base, head, list(dict.fromkeys([*plan["scopes"], *requested])),
+                trusted_base=base, checkout=True,
+            )
+        localization = plan["full_scaffold"] or "module:core/l10n" in plan["scopes"]
+        write_github_outputs(full_scaffold=plan["full_scaffold"], localization=localization)
+
+        def execute_affected(command, cwd, task_environment, log):
+            if cwd != REPO:
+                raise PortError("Affected Gradle command escaped the candidate repository")
+            execute(
+                command, task_environment, log, timeout=3600,
+                failure_reports=lambda: report_inputs(REPO, plan)[0], stream_output=True,
+            )
+
+        report = run_scaffold(
+            REPO, plan, environment, output, execute_affected, options, trusted_base=base,
+        )
+        print(json.dumps({"result": "success", **report}, indent=2))
+        return
+    write_github_outputs(
+        full_scaffold="scaffold" in selected,
+        localization="scaffold" in selected or "core/l10n" in selected,
+    )
     gradle_arguments = [*tasks, *options, "--init-script", str(TASK_GRAPH_GUARD)]
     command = [str(wrapper), "-p", str(project), *gradle_arguments]
     if state["host"] == "windows":
@@ -342,7 +435,8 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
 
     execute(command, environment, output / f"gradle-{stage}.log",
             timeout=3600 if stage in ("scaffold", "protocol") else 1800,
-            failure_reports=report_directories if selected else None)
+            failure_reports=report_directories if selected else None,
+            stream_output=state["host"] != "windows")
     graph = validate_candidate_task_graph(task_graph, tasks)
     if stage == "benchmark":
         from controller.performance import verify_build
@@ -430,6 +524,7 @@ def main(argv=None):
     parser.add_argument("--local", action="store_true", help="Measured shared-host build flags only")
     parser.add_argument("--stage", choices=tuple(TASKS))
     parser.add_argument("--scope", action="append", choices=tuple(SCOPED_TASKS))
+    parser.add_argument("--affected-candidate", action="store_true")
     args = parser.parse_args(argv)
     try:
         if args.command == "provision":
@@ -455,7 +550,10 @@ def main(argv=None):
             elif args.command == "run":
                 if args.stage is None:
                     raise PortError("Exactly one declared --stage is required")
-                run_stage(args.stage, state, output, local=args.local, scopes=args.scope)
+                run_stage(
+                    args.stage, state, output, local=args.local, scopes=args.scope,
+                    affected_candidate=args.affected_candidate,
+                )
             else:
                 inspect(state, output, local=args.local)
         return 0

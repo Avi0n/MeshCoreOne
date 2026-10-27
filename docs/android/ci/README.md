@@ -26,16 +26,24 @@ The Android build and Swift codec oracle now start as soon as scope selection
 finishes, alongside the independent controller checks. The final required
 `android-ci` gate still waits for every selected result, and the SwiftData
 backup oracle still waits for the Android build that produces its input.
-Hosted Gradle retains its distribution and dependency caches, but disables
-task-output caching: the backup test producer writes required interop files as
-a system-property side effect, not a declared task output, so reusing a test
-task result could omit the artifact required by the SwiftData oracle. Re-enable
-task-output caching only after that producer declares and verifies the output.
-The Actions cache key covers the pinned Gradle/JDK toolchain, dependency locks,
-verification metadata and version catalog, then adds the workflow run and
-attempt so each execution can save its refreshed cache. Its restore prefix
-retains the complete toolchain and dependency fingerprint. Strict dependency
-verification remains required.
+Ordinary module changes use the exact candidate diff and dependency-consumer
+closure to select module tests, checks and lint; only broad, unclassified or
+build-graph changes retain the full scaffold and APK handoff. Gradle project
+parallelism is bounded to two workers, and plain-console output is streamed to
+the hosted log while the full command log remains available for failure evidence.
+
+Hosted Gradle task-output caching is enabled. Only `:core:data:testDebugUnitTest`
+is explicitly opted into test-result caching; other test tasks retain Gradle's
+default cache policy. The candidate task-graph init script declares the WP-203
+fixture directory as an input and the interop artifact directory as an output,
+clears stale files when the task executes, and fails closed if either
+declaration is absent from the resolved graph. This lets a cache hit restore the
+actual Kotlin-produced bytes that the SwiftData oracle consumes, rather than
+only reporting the test as up-to-date. The Actions cache key covers the pinned
+Gradle/JDK toolchain, dependency locks, verification metadata and version
+catalog, then adds the workflow run and attempt so each execution can save
+refreshed dependency and build-output caches. Its restore prefixes retain
+compatible prior caches. Strict dependency verification remains required.
 
 ### Local-only disposable WP-503 guest contract
 

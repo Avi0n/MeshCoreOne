@@ -81,9 +81,10 @@ class EnvironmentTests(unittest.TestCase):
         self.assertIn("--dependency-verification", arguments)
         self.assertEqual("strict", arguments[arguments.index("--dependency-verification") + 1])
         self.assertNotIn("--rerun-tasks", arguments)
-        self.assertIn("--no-build-cache", arguments)
-        self.assertNotIn("--build-cache", arguments)
-        self.assertNotIn("--max-workers=1", arguments)
+        self.assertIn("--build-cache", arguments)
+        self.assertIn("--parallel", arguments)
+        self.assertIn("--max-workers=2", arguments)
+        self.assertNotIn("--no-build-cache", arguments)
         return output, state, arguments, observe_identity.call_count
 
     def test_scaffold_selects_android_test_compilation_without_install_or_execution(self):
@@ -203,6 +204,18 @@ class EnvironmentTests(unittest.TestCase):
             self.assertTrue(arguments[arguments.index("--init-script") + 1].endswith(
                 "verify_candidate_task_graph.gradle"
             ))
+
+    def test_backup_interop_task_cache_declares_and_verifies_its_side_effects(self):
+        script = (REPO / "tools/android-port/controller/verify_candidate_task_graph.gradle").read_text(
+            encoding="utf-8",
+        )
+        self.assertIn('task.path == ":core:data:testDebugUnitTest"', script)
+        self.assertIn("task.outputs.cacheIf(", script)
+        self.assertIn('task.outputs.dir(interopOutput)', script)
+        self.assertIn("task.inputs.dir(inputPath ?", script)
+        self.assertIn("task.doFirst", script)
+        self.assertIn("WP-203 interop artifacts are not declared Gradle task outputs", script)
+        self.assertIn("WP-203 interoperability fixture is not a Gradle task input", script)
 
     def test_resolved_gradle_graph_rejects_all_duplicate_result_task_and_script_families(self):
         from controller.ci import validate_candidate_task_graph

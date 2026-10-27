@@ -738,7 +738,11 @@ class LocalScopeBindingTests(unittest.TestCase):
         plan = self.services_plan()
         output = self.repo / "output"
         output.mkdir()
-        for failure in (subprocess.CalledProcessError(1, ["fixture"]), KeyboardInterrupt()):
+        for failure in (
+            subprocess.CalledProcessError(1, ["fixture"]),
+            subprocess.TimeoutExpired(["fixture"], 1),
+            KeyboardInterrupt(),
+        ):
             def execute(*args):
                 raise failure
             with self.subTest(failure=type(failure)), self.assertRaises(type(failure)):
