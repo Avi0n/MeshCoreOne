@@ -803,7 +803,10 @@ class ConnectionManager(
         val state = owner?.let { platform.state(it.target) }
         if (!ownsFailure()) {
             if (owner != null) {
-                val report = closeGeneration(owner, true)
+                val recoveryOwnsLink = synchronized(lock) {
+                    !closed && revision == expectedRevision && retained === owner && active == null
+                }
+                val report = closeGeneration(owner, disconnectPhysical = !recoveryOwnsLink)
                 if (!report.isComplete) reporter.report(RuntimeDiagnostic.Teardown(report))
             }
             return
@@ -825,7 +828,10 @@ class ConnectionManager(
                 lastConnection.persistDisconnectDiagnostic("source=handleReconnectionFailure.preserveBudgetExhausted, failures=$consecutiveRebuildFailures, intent=${intentSummary()}")
             }
             if (!ownsFailure()) return
-            notifyConnectionLost()
+            observer.onConnectionLost()
+            if (ownsFailure() && connectionIntent.wantsConnection && currentTransportType() != TransportType.WIFI) {
+                startReconnectionWatchdog()
+            }
         }
     }
 

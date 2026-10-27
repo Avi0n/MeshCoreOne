@@ -20,6 +20,71 @@ import kotlin.test.*
 class ReconnectInterleavingTest {
     @TestFactory
     fun interleavings() = listOf(
+        nativeCase("an auto-reconnect entry during a suspended failure query retains its physical recovery link") {
+            withFixture {
+                connect()
+                val callbacks = links.single().callbacks!!
+                platform.state = platform.state.copy(autoReconnecting = true, connectedDeviceId = platform.target.deviceId)
+                val release = CompletableDeferred<Unit>()
+                var queryEntered = false
+                platform.onState = {
+                    if (!queryEntered) { queryEntered = true; release.await() }
+                }
+                val failure = backgroundScope.async { manager.handleReconnectionFailure() }
+                runCurrent()
+                assertTrue(queryEntered)
+                assertFalse(failure.isCompleted)
+                assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
+                callbacks.onAutoReconnecting("recovery claimed during query")
+                runCurrent()
+                assertEquals(platform.target.deviceId, manager.activeReconnectDeviceId)
+                assertEquals(DeviceConnectionState.CONNECTING, manager.connectionState)
+                assertEquals(1, autoCount)
+                release.complete(Unit)
+                runCurrent()
+                failure.await()
+                assertEquals(0, radios.single().closes)
+                assertEquals(0, links.single().callbackClosures)
+                assertNotNull(links.single().callbacks)
+                assertEquals(1, services.single().teardowns)
+                assertEquals(0, lossCount)
+                assertFalse(manager.isReconnectionWatchdogRunning)
+                callbacks.onReconnected()
+                runCurrent()
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
+                assertEquals(2, radios.size)
+                assertEquals(1, radios.first().closes)
+                assertEquals(1, services.last().monitoringStarts)
+            }
+        },
+        nativeCase("a loss observer resuming after a newer failed connect cannot rearm the old watchdog") {
+            withFixture {
+                connect()
+                val release = CompletableDeferred<Unit>()
+                var observerEntered = false
+                onLost = { observerEntered = true; release.await() }
+                val failure = backgroundScope.async { manager.handleReconnectionFailure() }
+                runCurrent()
+                assertTrue(observerEntered)
+                assertFalse(failure.isCompleted)
+                assertEquals(1, lossCount)
+                assertFalse(manager.isReconnectionWatchdogRunning)
+                createRadio = { TestRadio().also { it.connectFailure = LinkFailure.AuthenticationFailed() } }
+                val successor = target()
+                assertFailsWith<LinkFailure.AuthenticationFailed> { manager.connect(successor, false, true) }
+                assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
+                assertTrue(manager.connectionIntent.wantsConnection)
+                assertEquals(2, radios.size)
+                assertEquals(1, radios.last().connectionAttempts)
+                assertFalse(manager.isReconnectionWatchdogRunning)
+                release.complete(Unit)
+                runCurrent()
+                failure.await()
+                assertFalse(manager.isReconnectionWatchdogRunning)
+                assertEquals(listOf(successor.deviceId), authFailures)
+                assertEquals(1, lossCount)
+            }
+        },
         nativeCase("reconnection failure suspended in teardown cannot notify loss for a manual successor") {
             withFixture {
                 connect()

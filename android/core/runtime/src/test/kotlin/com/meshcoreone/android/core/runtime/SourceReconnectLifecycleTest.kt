@@ -312,8 +312,13 @@ class SourceReconnectLifecycleTest {
                 connect(); enterAuto(); platform.state = platform.state.copy(autoReconnecting = false)
                 val gate = CompletableDeferred<Unit>(); createRadio = { TestRadio().also { it.beforeSend = { frame -> if (frame[0].toInt() == 1) gate.await() } } }
                 val rebuild = backgroundScope.async { manager.reconnectionCoordinator.handleReconnectionComplete(platform.target.deviceId) }
-                runCurrent(); val closes = radios.sumOf { it.closes }; manager.connect(platform.target, false, true)
+                runCurrent()
+                manager.setConnectionState(DeviceConnectionState.DISCONNECTED)
+                val before = manager.snapshot.value
+                val closes = radios.sumOf { it.closes }; manager.connect(platform.target, false, true)
                 assertEquals(closes, radios.sumOf { it.closes }); assertEquals(2, radios.size)
+                assertEquals(before, manager.snapshot.value)
+                assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
                 assertFalse(rebuild.isCompleted)
                 assertEquals(1, radios.last().frames.count { it[0].toInt() == 1 })
                 assertEquals(platform.target.deviceId, manager.activeReconnectDeviceId)

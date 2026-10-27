@@ -20,7 +20,7 @@ Adoption cases now complete through the installed link callback into a real
 session handshake and service graph, including forced-sync propagation.
 Cancelled adopted attempts are asserted as cancellation, not ignored results.
 
-Eight supplemental `ReconnectInterleavingTest` cases use the real
+Ten supplemental `ReconnectInterleavingTest` cases use the real
 `ConnectionManager` and `MeshCoreSession`, factory-owned test services and
 independently encoded wire replies. Three pin reconnection failure during
 service teardown or preserve-exhaustion diagnostic persistence. A newer manual
@@ -28,6 +28,14 @@ connection or user stop must invalidate that old failure's loss notification
 and watchdog authority. Production now rechecks revision, retained-owner and
 disconnected-state ownership after each of those suspensions. Cleanup still
 finishes; actual typed failures and teardown reports remain observable.
+
+Two review regressions pin the state query and loss observer themselves:
+an auto-reconnect entry during a suspended query keeps the same retained
+physical link/callback route while old logical cleanup finishes; an old observer
+resuming after a newer failed connect cannot rearm its watchdog. The forced tap
+case explicitly publishes DISCONNECTED while the actual rebuild is held, so it
+exercises the break-glass predicate and its rebuild protection, not an earlier
+CONNECTING/CONNECTED deferral.
 
 The other supplemental cases pin successful and failed initial sync, retirement
 inside sync, a suspended WiFi reconnect, and physical-close completion before
@@ -58,7 +66,7 @@ under their existing `android/core/{runtime,connectivity,ble}/src/test/` trees.
 | 12 | `ConnectionManagerPromotionTests` / promoteToReady sets .ready and fires onDeviceSynced on successful sync | Supplemental runtime successful-sync barrier plus unchanged connectivity `ConnectionManagerPromotionTest`: SYNCING and no notification before release, READY/current token/Bluetooth/one synced callback and listener afterward. |
 | 13 | Same suite / promoteToReady skips onDeviceSynced when sync failed | Supplemental runtime failed-sync barrier plus unchanged connectivity case: actual typed initial-sync failure, SYNCING with issue, no synced callback or listener-success path. |
 | 14 | Same suite / promoteToReady suppressed when additionalGuard returns false | Supplemental runtime retirement inside entered sync plus unchanged connectivity generation-guard equivalent: explicit cancellation, no current token/READY/synced callback, one service teardown and no reader. Runtime uses generation currency rather than an arbitrary production test closure. |
-| 15 | `ConnectionManagerReconnectAbandonmentTests` / forceReconnect connect while a session rebuild is in flight for the device defers instead of breaking glass | Runtime `SourceReconnectLifecycleTest`: real replacement AppStart held, reconnect claim and frame independently observed; forced tap adds no close/attempt; released rebuild reaches READY. |
+| 15 | `ConnectionManagerReconnectAbandonmentTests` / forceReconnect connect while a session rebuild is in flight for the device defers instead of breaking glass | Runtime `SourceReconnectLifecycleTest`: real replacement AppStart held, reconnect claim and frame independently observed; DISCONNECTED published before the forced tap, which preserves the complete snapshot with no close/attempt; released rebuild reaches READY. |
 | 16 | Same suite / forceReconnect connect while transport is stuck auto-reconnecting to the same device breaks glass | Same native class: disconnected state, same-device transport auto-reconnect and no coordinator claim; restoration route callback closure witnessed; fresh connect entered and throws typed authentication failure, not an earlier registry rejection. |
 | 17 | Same suite / overlapping health checks on a connected missing stack rebuild once | Same native class: retained-link/missing-graph precondition; real replacement sync entered and suspended; second health call opens no third link; injected initialization failure is logged and cleans the graph while preserving the bounded native link/watchdog policy. |
 | 18 | Same suite / reconnection failure after user disconnect severs a held link and leaves the watchdog stopped | Same native class asserts user stop already closed the actual link before the subsequent failure callback. Supplemental held-link teardown/user-stop race proves that cancellation of an in-progress failure also closes exactly once and cannot notify/rearm afterward. Native user stop closes immediately rather than seeding an impossible retained graph after stop. |
