@@ -193,3 +193,83 @@ holder test or policy changes.
 This correction has not received a new native execution or publication
 grant. The failed candidate and its history remain immutable; all 18 required
 source identities still require complete, source-bound successor verification.
+
+## Second guarded attempt and bounded startup fixture correction
+
+The exact corrective candidate
+`f95bfa1de6fea9dd28284be183abec79be78cc0c`, tree
+`9c093ea72667795d0443a0c9d6cf9943da315a70`, received source approval and a
+distinct single whole-plan execution grant. Its original canonical command was:
+
+```text
+/ai_cache/meshcoreone/python/3.12.4/bin/python3.12 -B tools/android-port/local/check.py --commit f95bfa1de6fea9dd28284be183abec79be78cc0c --affected-base 047ecbfb0f8837109a3aa1ff3fd4f522ca868a18 --parallel-jvm .
+```
+
+The same unchanged trusted runner used the complete validated 31-path plan,
+all 13 requested tasks and all four stages, without caller filters. Python's
+70 controller fixtures and preflight passed. Scaffold failed at the actually
+executed `:app:testDebugUnitTest`; inspect did not run. Guard and attached
+shell both exited 1. Gradle reported BUILD FAILED in 19m44s, with 831
+actionable tasks: 19 executed, 25 from cache and 787 up-to-date.
+
+All four new App methods compiled and were uniquely discovered, but all four
+failed during `h.manager.connect` at line 96, before Synced/channel readiness
+or any restore assertion. Each original XML failure was
+`CancellationException: Superseded connection generation`, with the same
+cause trace through `ConnectionManager.requireCurrent:1404`,
+`establish:582`, `connectAttempt:358` and this test's `restoreSnapshot:96`.
+All four full traces were consumed; there were no suppressed entries and
+XML stdout/stderr were empty. No recorded wire/correlation event in that
+XML proves the initiating cause.
+
+Of the 27 selected report modules, 26 had XML; core/testing was missing and
+did not run. Raw selected XML contained 13,004 cases: 13,000 passing and
+four failing, with zero errors/skips. App contributed 1,625 passing and
+four failing cases. Settings actually executed 296 passing cases, including
+all 12 required holder controls. Model's 166 passing cases were FROM-CACHE,
+including both uniquely matched original model names. Thus all 18 required
+identities were uniquely present: four new App failures, 12 executed holder
+passes and two cached model passes. This is not complete-plan acceptance;
+no passing control result transfers to the successor.
+
+The original log remains at
+`/ai_cache/meshcoreone/repairs/902ae61f/wp201-data09-eaf30961-f95bfa1d/guarded-f95bfa1d-047.log`,
+with original reports in the same lane's slot 1, `run-miPvZbOB`.
+Failed-run XML was consumed directly from the original snapshot, with
+exact source head/tree and clean state checked before and after.
+Own supported lock `local-check:605a3d36064b431c842c4899ab14b30d`,
+guard PID 561338 and `/tmp/meshcore-execution-oe97p3du` were absent after
+closeout. Canonical 047 source, default refs and 47-file runtime were unchanged.
+
+Read-only source diagnosis found a test-local protocol mismatch: this
+fixture advertises repeat support, so real connection startup requests
+allowed repeat frequencies with `0x3c`. Without a local handler the shared
+firmware returned generic OK (`0x00`), not the `AllowedRepeatFreq` reply
+required by the actual session. A pending typed query can time out, emit
+`CorrelationUncertain` and trigger generation recovery; that source-derived
+path is consistent with the observed cancellation, not recorded wire causation.
+
+At the immutable source pin, `PacketCodes.swift` assigns request `0x3c` and
+reply `0x1a`; `MeshCoreSession+DeviceConfig.swift:119-123` matches that typed
+reply, and `Parsers+Network.swift:88-100` accepts an empty range payload.
+The native parser and session match those contracts. The bounded successor
+adds only a local `0x3c` response of `[0x1a]` and asserts exactly one actual
+startup `0x3c` in `radio.sent` before the restore action.
+
+Repeat support remains true; real foreground/connect/Synced/startup-read
+readiness, all eight channel requests and every restore/persistence/failure
+oracle remain unchanged. No production recovery, timeout, cancellation,
+shared harness or default response is modified. Fresh trusted admission
+retained the same owner and evolved revision 10 to 11 by adding the exact
+owned evidence path alongside its existing prefix; identities, historical
+bindings and authorization prose were preserved.
+
+The six declared source-only commands listed above were repeated for this
+correction and all exited 0. Removing the two added Kotlin lines reproduces
+the parent's entire canonical Git/LF test content; all 18 exact source
+identities remain unchanged. This source comparison is not native execution.
+
+This successor is source-only and has not been compiled or run. Fresh
+readiness, complete trusted selection, guarded execution and publication
+remain separately gated. Both failed candidates and their histories remain
+immutable; no DATA-08 or failed-attempt result is successor acceptance.

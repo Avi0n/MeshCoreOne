@@ -152,6 +152,7 @@ class RepeatSnapshotConsumerTest : RoomProcessTest() {
             preset.start()
             h.eventually("production settings observed the persisted snapshot") { preset.state.value.device == before }
             assertTrue(preset.state.value.isRepeatEnabled)
+            assertEquals(1, radio.sent.count { it[0] == 0x3c.toUByte() })
             val actionStart = radio.sent.size
             preset.onRepeatToggled(false)
             h.eventually("repeat restore finished") { firmware.writes.isNotEmpty() && !preset.state.value.isApplyingRepeat }
@@ -226,6 +227,7 @@ class RepeatSnapshotConsumerTest : RoomProcessTest() {
         val writes = mutableListOf<Bytes>()
 
         fun respond(command: Bytes): List<Bytes>? = when (command[0].toInt()) {
+            0x3c -> listOf(Bytes.of(0x1a))
             0x1f -> listOf(Bytes.of(0x12, command[1].toInt()) + Bytes(ByteArray(48)))
             0x01 -> listOf(
                 Bytes.of(5, 1, 22, 22) + key(7) + le32(0) + le32(0) + Bytes.of(0, 0, 2, 0) +
