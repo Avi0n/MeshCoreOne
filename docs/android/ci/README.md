@@ -32,15 +32,15 @@ controller suite is selected separately and does not widen Gradle planning.
 Only broad, unclassified or build-graph changes retain the full scaffold and
 APK handoff. Configuration-resolving tasks (`validateModuleGraph`,
 `runtimeDependencyInventory`, and
-full-scaffold `resolveScaffoldDependencies`) run in a serial Gradle preflight
+full-scaffold `resolveScaffoldDependencies`) run in a parallel Gradle preflight
 before the selected build, test and lint tasks. A preflight failure therefore
 prevents that expensive task graph from starting. The remaining tasks run in a
-separate Gradle invocation with project parallelism capped at eight workers.
-This ordering limits wasted work but does not repair unsafe cross-project
-configuration resolution inside the validators; that build-logic defect is
-owned by WP-002 and remains a separate follow-up.
-Dependency-only `prepare` also stays serialized because AGP's `androidJdkImage`
-configuration requires an exclusive resolution lock. Each invocation streams
+separate Gradle invocation. Both hosted phases and dependency-only `prepare`
+use `--parallel --max-workers=8`. WP-002 now resolves dependencies in
+project-owned tasks, so the former forced one-worker workaround is removed.
+Validation still precedes build/test work to limit wasted work on failures.
+Local invocations retain their caller-selected worker and parallelism options.
+Each invocation streams
 plain-console output to the hosted log and retains a separate full command log
 and resolved task graph for failure evidence. Ctrl-C terminates the streamed
 process group, reaps Gradle and joins its output reader before propagating the

@@ -13,11 +13,25 @@ from unittest.mock import patch
 from controller.errors import PortError
 from controller.local_scope import (
     candidate_plan, collect_named_cases, collect_targeted_reports, report_inputs,
-    run_scaffold, select_paths, validate_plan,
+    run_scaffold, select_paths, validate_plan, validation_preflight_options,
 )
 
 
 class LocalScopeSelectionTests(unittest.TestCase):
+    def test_validation_preserves_hosted_and_local_worker_options_without_overriding_them(self):
+        for options in (
+            ["--parallel", "--max-workers=8"],
+            ["--no-parallel", "--max-workers=4"],
+            ["--parallel", "--max-workers", "8"],
+            [],
+        ):
+            with self.subTest(options=options):
+                actual = validation_preflight_options(options)
+                self.assertEqual(actual, options)
+                self.assertIsNot(actual, options)
+        with self.assertRaisesRegex(PortError, "cannot use Gradle --continue"):
+            validation_preflight_options(["--parallel", "--max-workers=8", "--continue"])
+
     def test_direct_test_then_direct_production_then_consumers_preserves_all_tasks(self):
         modules = {
             "core/data": {"runner": "testDebugUnitTest", "tests": True, "lint": True, "dependencies": []},
@@ -295,7 +309,7 @@ class LocalScopeBindingTests(unittest.TestCase):
                 ["validateModuleGraph", "runtimeDependencyInventory"],
             )
             self.assertNotIn("--parallel", command)
-            self.assertIn("--max-workers=1", command)
+            self.assertIn("--max-workers=4", command)
             self.assertEqual(command[-2:], [
                 "--init-script",
                 str(self.repo / "tools/android-port/controller/verify_candidate_task_graph.gradle"),
@@ -641,8 +655,9 @@ class LocalScopeBindingTests(unittest.TestCase):
         build_tasks = [task for task in plan["tasks"] if task not in preflight_tasks]
         self.assertEqual(len(calls), 2)
         self.assertEqual(self.requested_gradle_tasks(calls[0]), preflight_tasks)
-        self.assertNotIn("--parallel", calls[0])
-        self.assertIn("--max-workers=1", calls[0])
+        self.assertIn("--parallel", calls[0])
+        self.assertIn("--max-workers=8", calls[0])
+        self.assertNotIn("--max-workers=1", calls[0])
         self.assertEqual(self.requested_gradle_tasks(calls[1]), build_tasks)
         self.assertIn(":core:services:test", calls[1])
         self.assertIn(":core:services:check", calls[1])
@@ -688,8 +703,9 @@ class LocalScopeBindingTests(unittest.TestCase):
             self.requested_gradle_tasks(calls[0]),
             ["validateModuleGraph", "runtimeDependencyInventory"],
         )
-        self.assertNotIn("--parallel", calls[0])
-        self.assertIn("--max-workers=1", calls[0])
+        self.assertIn("--parallel", calls[0])
+        self.assertIn("--max-workers=8", calls[0])
+        self.assertNotIn("--max-workers=1", calls[0])
         report = json.loads(text.getvalue())
         self.assertEqual(report["result"], "failure")
         self.assertEqual(report["failure"]["returncode"], 1)

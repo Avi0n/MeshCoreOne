@@ -27,7 +27,7 @@ from controller.ci_evidence import PYTHON_MINIMUMS, collect_lint, collect_suites
 from controller.errors import PortError
 from controller.gates import Binding, policy_revision
 from controller.local_scope import (
-    SCOPED_TASKS, TASKS, serial_preflight_options, split_preflight_tasks,
+    SCOPED_TASKS, TASKS, validation_preflight_options, split_preflight_tasks,
 )
 from controller.model import git, load_manifest
 from controller.module_junit import check_module_tests, module_method_inventory
@@ -365,9 +365,7 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         "--project-cache-dir", str(cache),
     ]
     if not local:
-        options.extend(("--build-cache", "--max-workers=8"))
-        if stage != "prepare":
-            options.append("--parallel")
+        options.extend(("--build-cache", "--parallel", "--max-workers=8"))
     if local:
         options.append("-PscaffoldTestJvmArgs=-Xms32m -XX:+UseSerialGC -XX:ActiveProcessorCount=2 -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=32m -XX:MaxMetaspaceSize=256m")
     wrapper = REPO / "android" / ("gradlew.bat" if state["host"] == "windows" else "gradlew")
@@ -441,7 +439,7 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
     preflight_graph = output / f"gradle-{stage}-preflight-task-graph.json"
     if split_preflight:
         phases = [
-            ("preflight", preflight_tasks, preflight_graph, serial_preflight_options(options)),
+            ("preflight", preflight_tasks, preflight_graph, validation_preflight_options(options)),
             ("build", build_tasks, task_graph, options),
         ]
     else:

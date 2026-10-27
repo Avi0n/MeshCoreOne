@@ -437,44 +437,21 @@ def validate_runtime_scopes(repo, plan):
         )
 
 
-_SERIAL_PREFLIGHT_TASKS = (
+_PREFLIGHT_TASKS = (
     "resolveScaffoldDependencies", "validateModuleGraph", "runtimeDependencyInventory",
 )
 
 
 def split_preflight_tasks(tasks):
-    preflight = [task for task in _SERIAL_PREFLIGHT_TASKS if task in tasks]
-    build = [task for task in tasks if task not in _SERIAL_PREFLIGHT_TASKS]
+    preflight = [task for task in _PREFLIGHT_TASKS if task in tasks]
+    build = [task for task in tasks if task not in _PREFLIGHT_TASKS]
     return preflight, build
 
 
-def serial_preflight_options(options):
-    result = []
-    index = 0
-    has_worker_limit = False
-    while index < len(options):
-        option = options[index]
-        if option == "--parallel":
-            index += 1
-            continue
-        if option == "--continue":
-            raise PortError("Affected scaffold preflight cannot use Gradle --continue")
-        if option == "--max-workers":
-            if index + 1 >= len(options):
-                raise PortError("Malformed Gradle --max-workers option")
-            result.extend(("--max-workers", "1"))
-            has_worker_limit = True
-            index += 2
-            continue
-        if option.startswith("--max-workers="):
-            result.append("--max-workers=1")
-            has_worker_limit = True
-        else:
-            result.append(option)
-        index += 1
-    if not has_worker_limit:
-        result.append("--max-workers=1")
-    return result
+def validation_preflight_options(options):
+    if "--continue" in options:
+        raise PortError("Scaffold preflight cannot use Gradle --continue")
+    return list(options)
 
 
 def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_base):
@@ -544,8 +521,8 @@ def _run_scaffold(repo, plan, environment, output, execute, options, *, trusted_
         raise PortError("Affected scaffold cannot execute a zero-task request")
     preflight_tasks, build_tasks = split_preflight_tasks(plan["tasks"])
     if not preflight_tasks or not build_tasks:
-        raise PortError("Affected scaffold requires serial validation and build/test tasks")
-    preflight_options = serial_preflight_options(options)
+        raise PortError("Affected scaffold requires validation and build/test tasks")
+    preflight_options = validation_preflight_options(options)
     directories, lint = report_inputs(repo, plan)
     preflight_graph = output / "gradle-affected-preflight-task-graph.json"
     build_graph = output / "gradle-affected-task-graph.json"

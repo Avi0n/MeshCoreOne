@@ -107,14 +107,12 @@ class EnvironmentTests(unittest.TestCase):
         self.assertNotIn("--rerun-tasks", arguments)
         self.assertIn("--build-cache", arguments)
         self.assertIn("--max-workers=8", arguments)
-        if stage == "prepare":
-            self.assertNotIn("--parallel", arguments)
-        else:
-            self.assertIn("--parallel", arguments)
+        self.assertIn("--parallel", arguments)
         self.assertNotIn("--no-build-cache", arguments)
         if split_preflight:
-            self.assertNotIn("--parallel", preflight_arguments)
-            self.assertIn("--max-workers=1", preflight_arguments)
+            self.assertIn("--parallel", preflight_arguments)
+            self.assertIn("--max-workers=8", preflight_arguments)
+            self.assertNotIn("--max-workers=1", preflight_arguments)
             self.assertIn("--build-cache", preflight_arguments)
         return output, state, arguments, observe_identity.call_count, preflight_arguments
 
@@ -248,7 +246,7 @@ class EnvironmentTests(unittest.TestCase):
             self.assertNotIn("verifyScaffoldTests", arguments)
             self.assertIn("--build-cache", arguments)
             self.assertIn("--max-workers=8", arguments)
-            self.assertNotIn("--parallel", arguments)
+            self.assertIn("--parallel", arguments)
             self.assertIn("--init-script", arguments)
             self.assertTrue(arguments[arguments.index("--init-script") + 1].endswith(
                 "verify_candidate_task_graph.gradle"

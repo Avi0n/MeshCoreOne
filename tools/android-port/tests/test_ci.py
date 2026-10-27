@@ -323,11 +323,11 @@ class SourceDispositionTests(unittest.TestCase):
 
             def fail_preflight(command, environment, log, **kwargs):
                 if log.name == "gradle-scaffold-preflight.log":
-                    raise PortError("serial graph preflight failed")
+                    raise PortError("graph preflight failed")
                 return original_execute(command, environment, log, **kwargs)
 
             commands.side_effect = fail_preflight
-            with self.assertRaisesRegex(PortError, "serial graph preflight failed"):
+            with self.assertRaisesRegex(PortError, "graph preflight failed"):
                 ci.run_stage("scaffold", state, output)
             self.assertEqual(commands.call_count, 2)
             command, _, log = commands.call_args_list[-1].args
@@ -342,8 +342,9 @@ class SourceDispositionTests(unittest.TestCase):
                 ["resolveScaffoldDependencies", "validateModuleGraph", "runtimeDependencyInventory"],
             )
             self.assertNotIn(":app:assembleDebug", command)
-            self.assertNotIn("--parallel", command)
-            self.assertIn("--max-workers=1", command)
+            self.assertIn("--parallel", command)
+            self.assertIn("--max-workers=8", command)
+            self.assertNotIn("--max-workers=1", command)
             self.assertNotIn('"result": "success"', printed.getvalue())
 
     def test_affected_candidate_preserves_module_closure_and_does_not_promote_scaffold_scope(self):

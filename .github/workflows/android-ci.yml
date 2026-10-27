@@ -134,7 +134,7 @@ jobs:
       - name: Check worker readiness
         run: python tools/android-port/controller/ci.py preflight
       - id: gradle
-        name: Run serial Gradle preflight and Android tasks
+        name: Run parallel Gradle validation and Android tasks
         env:
           RUN_SCAFFOLD: ${{ needs.scope.outputs.scaffold }}
           RUN_PROTOCOL: ${{ needs.scope.outputs.protocol }}
