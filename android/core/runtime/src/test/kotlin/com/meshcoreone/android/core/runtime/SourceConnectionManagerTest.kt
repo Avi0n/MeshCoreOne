@@ -103,7 +103,16 @@ class SourceConnectionManagerTest {
             }
         },
         original("ConnectionManagerSessionTests", "setConnectedDevice sets device") {
-            withFixture { connect(); assertEquals("TestNode", manager.connectedDevice?.nodeName); assertEquals(platform.target.deviceId, manager.connectedDevice?.id) }
+            withFixture {
+                connect()
+                val before = assertNotNull(manager.connectedDevice)
+                val edited = before.copy(nodeName = "TestDevice")
+                assertNotEquals(before.nodeName, edited.nodeName)
+                manager.replaceConnectedDevice(edited)
+                assertEquals(edited, manager.connectedDevice)
+                assertEquals(platform.target.deviceId, manager.connectedDevice?.id)
+                assertEquals(services.single().token, manager.snapshot.value.token)
+            }
         },
         original("ConnectionManagerSessionTests", "setConnectedDevice sets nil") {
             withFixture { connect(); manager.clearConnectedDevice(); assertNull(manager.connectedDevice) }
@@ -130,8 +139,14 @@ class SourceConnectionManagerTest {
                 createRadio = { TestRadio().also { it.beforeSend = { frame -> if (frame[0].toInt() == 1) gate.await() } } }
                 val work = backgroundScope.async { manager.rebuildSession(platform.target.deviceId) }
                 runCurrent(); val count = radios.size
+                assertFalse(work.isCompleted)
+                assertEquals(1, radios.last().frames.count { it[0].toInt() == 1 })
+                val snapshot = manager.snapshot.value
                 manager.connect(platform.target); assertEquals(count, radios.size); assertEquals(platform.target.deviceId, manager.activeReconnectDeviceId)
+                assertEquals(snapshot, manager.snapshot.value)
                 gate.complete(Unit); runCurrent(); work.await()
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
+                assertEquals(1, services.last().monitoringStarts)
             }
         },
         original("ConnectionManagerSessionTests", "handleReconnectionFailure clears state and sets disconnected") {
@@ -144,10 +159,15 @@ class SourceConnectionManagerTest {
         original("ConnectionManagerSessionTests", "checkWiFiConnectionHealth returns early when reconnect in progress") {
             withFixture {
                 val wifi = ConnectionTarget.WiFi("localhost", 5000u); connect(wifi)
-                val gate = CompletableDeferred<Unit>(); createRadio = { TestRadio().also { it.beforeConnect = { gate.await() } } }
+                val gate = CompletableDeferred<Unit>()
+                var connectEntered = false
+                createRadio = { TestRadio().also { it.beforeConnect = { connectEntered = true; gate.await() } } }
                 links.first().callbacks!!.onDisconnected(IllegalStateException("lost")); runCurrent()
+                assertTrue(connectEntered); assertEquals(1, radios.last().connectionAttempts)
                 val count = radios.size; manager.checkWiFiConnectionHealth(); assertEquals(count, radios.size)
                 gate.complete(Unit); runCurrent()
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
+                assertEquals(1, services.last().monitoringStarts)
             }
         },
         original("ConnectionManagerSessionTests", "checkWiFiConnectionHealth returns early when disconnected without intent") {

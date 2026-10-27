@@ -796,8 +796,12 @@ class ConnectionManager(
                 publishLocked(DeviceConnectionState.DISCONNECTED, ConnectionState.Disconnected, null, null)
             }
         }
+        fun ownsFailure(): Boolean = synchronized(lock) {
+            revision == expectedRevision && !closed && active == null &&
+                (retained == null || retained === owner) && connectionState == DeviceConnectionState.DISCONNECTED
+        }
         val state = owner?.let { platform.state(it.target) }
-        if (synchronized(lock) { revision != expectedRevision || closed }) {
+        if (!ownsFailure()) {
             if (owner != null) {
                 val report = closeGeneration(owner, true)
                 if (!report.isComplete) reporter.report(RuntimeDiagnostic.Teardown(report))
@@ -812,6 +816,7 @@ class ConnectionManager(
             if (!report.isComplete) reporter.report(RuntimeDiagnostic.Teardown(report))
             if (!preserve) synchronized(lock) { if (retained === owner) retained = null }
         }
+        if (!ownsFailure()) return
         if (preserve) {
             if (!isReconnectionWatchdogRunning) startReconnectionWatchdog()
             observer.onConnectionLost()
@@ -819,6 +824,7 @@ class ConnectionManager(
             if (connectionIntent.wantsConnection && state != null && (state.connected || state.autoReconnecting)) {
                 lastConnection.persistDisconnectDiagnostic("source=handleReconnectionFailure.preserveBudgetExhausted, failures=$consecutiveRebuildFailures, intent=${intentSummary()}")
             }
+            if (!ownsFailure()) return
             notifyConnectionLost()
         }
     }

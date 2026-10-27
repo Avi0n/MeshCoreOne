@@ -103,6 +103,7 @@ internal class TestRadio : MeshTransport {
     private var inbound = Channel<Bytes>(Channel.UNLIMITED)
     private var connected = false
     var connects = 0
+    var connectionAttempts = 0
     var closes = 0
     var collectors = 0
     var maximumCollectors = 0
@@ -118,6 +119,7 @@ internal class TestRadio : MeshTransport {
     var beforeClose: suspend () -> Unit = {}
     val frames = mutableListOf<Bytes>()
     override suspend fun connect() {
+        connectionAttempts++
         beforeConnect()
         connectFailure?.let { throw it }
         if (!connected) { inbound = Channel(Channel.UNLIMITED); connects++; connected = true }
@@ -179,6 +181,7 @@ internal class TestPlatform : ConnectionPlatform {
     var adopts = 0
     var adoptionSucceeds = false
     var onState: suspend () -> Unit = {}
+    var onAdopt: suspend () -> Unit = {}
     var activationCount = 0
     var activationFailure: Exception? = null
     var onActivate: suspend () -> Unit = {}
@@ -189,7 +192,7 @@ internal class TestPlatform : ConnectionPlatform {
     override suspend fun isRegistered(deviceId: UUID): Boolean = registered
     override suspend fun targetForDevice(deviceId: UUID): ConnectionTarget? =
         if (resolvesTargets) target.copy(deviceId = deviceId) else null
-    override suspend fun adoptSystemLink(target: ConnectionTarget): Boolean { adopts++; return adoptionSucceeds }
+    override suspend fun adoptSystemLink(target: ConnectionTarget): Boolean { adopts++; onAdopt(); return adoptionSucceeds }
     override fun classifyFailure(failure: Throwable): LinkFailure? = failure as? LinkFailure
 }
 
