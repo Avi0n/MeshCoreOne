@@ -14,6 +14,7 @@ from controller.scope_amendment import (
     HOST_SCOPED_JVM_CAPABILITY, host_scoped_jvm_predecessor,
     BACKUP_POST_COMMIT_CAPABILITY, backup_post_commit_predecessor,
     RX_PROJECTION_REGRESSION_CAPABILITY, rx_projection_regression_predecessor,
+    SHARED_LOCATION_CACHE_CAPABILITY, shared_location_cache_predecessor,
 )
 
 
@@ -28,6 +29,181 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
         self.rules = policy()
         self.engine = CapabilityEngine(self.rules)
         self.manifest = test_manifest("WP-000")
+
+    def test_shared_location_cache_exact_eight_paths_and_wp404_operation(self):
+        rule = SHARED_LOCATION_CACHE_CAPABILITY
+        self.assertEqual(rule["id"], "wp404-shared-location-producer-cache")
+        self.assertEqual(rule["work_packages"], ["WP-404"])
+        self.assertEqual(rule["operations"], ["restore-shared-pre-advert-location-cache"])
+        self.assertEqual(rule["path_rules"], [
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/content/LocationManagerLocationProducing.kt",
+            "android/app/src/test/kotlin/com/meshcoreone/android/app/content/LocationManagerLocationProducingTest.kt",
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppAdvertLocation.kt",
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AndroidAppContainerFactory.kt",
+            "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ShortcutAdvertLocationTest.kt",
+            "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+            "docs/android/deviations/WP-404.md",
+            "docs/android/evidence/WP-404/README.md",
+        ])
+        self.assertEqual(next(r for r in self.rules["reservation_policy"]["capabilities"]
+                              if r["id"] == rule["id"]), rule)
+        previous = CapabilityEngine(shared_location_cache_predecessor(self.rules))
+        for path in rule["path_rules"]:
+            with self.subTest(path=path):
+                admitted = self.engine.admit("WP-404", self.manifest.wp("WP-404")["write_paths"],
+                                             path, rule["operations"][0])
+                self.assertEqual(admitted.capability_id, rule["id"])
+                self.assertEqual(admitted.invariants, tuple(rule["invariants"]))
+                self.assertEqual(admitted.validation, tuple(rule["validation"]))
+                with self.assertRaises(PortError):
+                    previous.admit("WP-404", self.manifest.wp("WP-404")["write_paths"],
+                                   path, rule["operations"][0])
+
+    def test_shared_location_cache_other_wp_wrong_operation_and_owned_docs_unchanged(self):
+        operation = "restore-shared-pre-advert-location-cache"
+        previous = CapabilityEngine(shared_location_cache_predecessor(self.rules))
+        isolated = CapabilityEngine({"reservation_policy": {
+            "capabilities": [SHARED_LOCATION_CACHE_CAPABILITY],
+        }})
+        for path in SHARED_LOCATION_CACHE_CAPABILITY["path_rules"]:
+            for wp in self.manifest.work_packages:
+                if wp != "WP-404":
+                    with self.subTest(path=path, wp=wp), self.assertRaises(PortError):
+                        self.engine.admit(wp, self.manifest.wp(wp)["write_paths"], path, operation)
+            for wrong in ("modify", "create", "delete", "test", "generate", "unknown",
+                          "add-direct-support-wiring", "repair-uri-region-normalization",
+                          "repair-backup-post-commit-delivery"):
+                with self.subTest(path=path, operation=wrong), self.assertRaises(PortError):
+                    isolated.admit("WP-404", [], path, wrong)
+                if wrong != "add-direct-support-wiring":
+                    with self.subTest(path=path, operation=wrong), self.assertRaises(PortError):
+                        self.engine.admit("WP-404", [], path, wrong)
+            if path.startswith("android/app/"):
+                with self.subTest(path=path, existing_operation="add-direct-support-wiring"):
+                    old = previous.admit("WP-404", [], path, "add-direct-support-wiring")
+                    self.assertEqual(old.capability_id, "app-build-launcher")
+                    self.assertEqual(self.engine.admit("WP-404", [], path, "add-direct-support-wiring"), old)
+            else:
+                with self.subTest(path=path), self.assertRaises(PortError):
+                    self.engine.admit("WP-404", [], path, "add-direct-support-wiring")
+        for path in SHARED_LOCATION_CACHE_CAPABILITY["path_rules"][-2:]:
+            with self.subTest(path=path):
+                old = previous.admit("WP-404", self.manifest.wp("WP-404")["write_paths"], path, "modify")
+                self.assertEqual(old.capability_id, "wp-owned")
+                self.assertEqual(
+                    self.engine.admit("WP-404", self.manifest.wp("WP-404")["write_paths"], path, "modify"),
+                    old,
+                )
+
+    def test_shared_location_cache_sibling_core_traversal_and_new_provider_denials(self):
+        operation = "restore-shared-pre-advert-location-cache"
+        denied = [
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/content/OtherLocationProducing.kt",
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/content/Geocoder.kt",
+            "android/app/src/test/kotlin/com/meshcoreone/android/app/content/OtherLocationTest.kt",
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppBackupFeature.kt",
+            "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/content/LocationService.kt",
+            "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/content/LocationServiceTest.kt",
+            "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/content/RegionResolverTest.kt",
+            "android/app/build.gradle.kts", "android/app/src/main/AndroidManifest.xml",
+            "docs/android/evidence/WP-404/other.md", "docs/android/deviations/WP-218.md",
+            "../LocationManagerLocationProducing.kt", "/android/app/content/Location.kt",
+            "android/app/../app/content/Location.kt", "android//app/content/Location.kt",
+        ]
+        for path in SHARED_LOCATION_CACHE_CAPABILITY["path_rules"]:
+            denied.extend((
+                path + ".backup", path.rsplit("/", 1)[0], path + "/Other.kt",
+                path.replace("/src/main/", "/src/androidTest/").replace("/src/test/", "/src/androidTest/")
+                if "/src/" in path else path.replace("WP-404", "WP-218"),
+            ))
+        for path in denied:
+            with self.subTest(path=path), self.assertRaises(PortError):
+                self.engine.admit("WP-404", self.manifest.wp("WP-404")["write_paths"], path, operation)
+
+    def test_shared_location_cache_predecessor_restores_entire_actual_d2b_policy(self):
+        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        before = copy.deepcopy(current)
+        original = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "d2b649421ae7f31b2ef94b7dee20894abe658d22:docs/android/automation-policy.json",
+        ]))
+        previous = shared_location_cache_predecessor(current)
+        self.assertEqual(previous, original)
+        self.assertEqual(shared_location_cache_predecessor(previous), previous)
+        self.assertEqual(current, before)
+        restored = copy.deepcopy(previous)
+        rules = restored["reservation_policy"]["capabilities"]
+        index = next(i for i, rule in enumerate(rules) if rule["id"] == "wp201-rx-projection-source-regressions")
+        rules.insert(index, copy.deepcopy(SHARED_LOCATION_CACHE_CAPABILITY))
+        self.assertEqual(restored, current)
+        self.assertEqual(
+            {r["id"]: r for r in previous["reservation_policy"]["capabilities"]},
+            {r["id"]: r for r in current["reservation_policy"]["capabilities"]
+             if r["id"] != SHARED_LOCATION_CACHE_CAPABILITY["id"]},
+        )
+
+    def test_shared_location_cache_rejects_mutation_duplicate_move_overlap_and_malformed_policy(self):
+        for field, value in (
+            ("work_packages", ["WP-404", "WP-218"]), ("work_packages", ["WP-218"]),
+            ("operations", ["restore-shared-pre-advert-location-cache", "modify"]),
+            ("path_rules", ["android/app/src/main/kotlin/com/meshcoreone/android/app/content/**"]),
+            ("invariants", SHARED_LOCATION_CACHE_CAPABILITY["invariants"][:-1]),
+            ("validation", []), ("id", "unregistered-location-cache"), ("extra", True),
+        ):
+            changed = copy.deepcopy(self.rules)
+            rule = next(r for r in changed["reservation_policy"]["capabilities"]
+                        if r["id"] == SHARED_LOCATION_CACHE_CAPABILITY["id"])
+            rule[field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(PortError):
+                shared_location_cache_predecessor(changed)
+        for mode in ("duplicate", "move", "neighbor", "overlap", "unscoped-overlap"):
+            changed = copy.deepcopy(self.rules)
+            rules = changed["reservation_policy"]["capabilities"]
+            index = next(i for i, r in enumerate(rules) if r["id"] == SHARED_LOCATION_CACHE_CAPABILITY["id"])
+            if mode == "duplicate":
+                rules.append(copy.deepcopy(rules[index]))
+            elif mode == "move":
+                rules.insert(0, rules.pop(index))
+            elif mode == "neighbor":
+                rules[index + 1] = None
+            else:
+                extra = copy.deepcopy(rules[index])
+                extra["id"] = "unregistered-overlapping-location-cache"
+                extra["path_rules"] = ["android/**"]
+                if mode == "unscoped-overlap":
+                    del extra["work_packages"]
+                rules.append(extra)
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                shared_location_cache_predecessor(changed)
+        for malformed in (None, [], "policy", {"reservation_policy": None},
+                          {"reservation_policy": {"capabilities": None}},
+                          {"reservation_policy": {"capabilities": {}}}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                shared_location_cache_predecessor(malformed)
+
+    def test_shared_location_cache_source_ownership_lifecycle_privacy_and_evidence_fences(self):
+        text = " ".join(SHARED_LOCATION_CACHE_CAPABILITY["invariants"]
+                        + SHARED_LOCATION_CACHE_CAPABILITY["validation"])
+        for fence in (
+            "db14559b39d32322b06477c6ae676112f583db50", "WP218-primary-provenance",
+            "one-existing-process-owned", "initially-absent-immutable-GeoCoordinate",
+            "genuine-success", "active-request-ownership-lock-before-waiter-resume",
+            "RegionResolver-and-advert-distinct-LocationService-wrappers", "read-only-cache-supplier",
+            "failure-null-fix-and-authorization-denial-retain-prior-success",
+            "cancelled-stale-and-late-callbacks", "preserve-signal-ownership",
+            "CancellationException-propagates-never-falls-through-to-cached-radio-write-or-advert",
+            "per-device-auto-update-public-policy-confirmation-no-prompt-live-session-and-current-generation",
+            "no-prior-cache", "no-fabricated-default-coordinate",
+            "no-private-wrapper-cache-OS-lastKnown-TTL-persistence-new-provider-permission-or-Google-dependency",
+            "no-content-glob-core-API-contract-fake-implementor-build",
+            "3db4cbd567465b9071f4bad8afd5bd2ee90c2f47-run-closeout-before-product-edit",
+            "same-owner-stored-identity", "real-producer-semantic-collision",
+            "no-runtime-installation-live-cache-ref-default-settings-dispatch-resource-or-merge-authority",
+            "API31 and API37", "App Room radio literal-coordinate write-before-advert",
+            "zero forbidden effects", "nonzero discovery", "policy fixtures prove admission only",
+        ):
+            with self.subTest(fence=fence):
+                self.assertIn(fence, text)
 
     def test_rx_projection_regression_exact_existing_paths_and_named_operation(self):
         rule = RX_PROJECTION_REGRESSION_CAPABILITY
@@ -81,7 +257,9 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
                     self.engine.admit("WP-201", [], wrong, requested)
 
     def test_rx_projection_regression_predecessor_restores_entire_actual_3498_policy(self):
-        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        current = shared_location_cache_predecessor(
+            json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        )
         before = copy.deepcopy(current)
         original = json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",

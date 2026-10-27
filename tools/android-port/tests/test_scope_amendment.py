@@ -35,6 +35,7 @@ from controller.scope_amendment import (
     host_scoped_jvm_predecessor,
     backup_post_commit_predecessor,
     rx_projection_regression_predecessor,
+    shared_location_cache_predecessor,
 )
 from controller.verification_config import (
     apply_content_scope, apply_overlay, content_scope_manifest_revision,
@@ -48,6 +49,21 @@ from controller.software_verification import project as project_software
 class TranslationScopeAmendmentTests(unittest.TestCase):
     def policy_before_room_cleanup_text(self):
         text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        start = text.index('      {\n        "id": "wp404-shared-location-producer-cache",')
+        end = text.index('      {\n        "id": "wp201-rx-projection-source-regressions",', start)
+        previous = text[:start] + text[end:]
+        self.assertEqual(json.loads(previous), shared_location_cache_predecessor(json.loads(text)))
+        self.assertEqual(json.loads(previous), json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show",
+            "d2b649421ae7f31b2ef94b7dee20894abe658d22:docs/android/automation-policy.json",
+        ])))
+        self.assertEqual(subprocess.check_output([
+            "git", "-C", str(REPO), "hash-object", "--path=docs/android/automation-policy.json", "--stdin",
+        ], input=previous.encode()).strip(), subprocess.check_output([
+            "git", "-C", str(REPO), "rev-parse",
+            "d2b649421ae7f31b2ef94b7dee20894abe658d22:docs/android/automation-policy.json",
+        ]).strip())
+        text = previous
         start = text.index('      {\n        "id": "wp201-rx-projection-source-regressions",')
         end = text.index('      {\n        "id": "wp203-backup-post-commit-delivery",', start)
         previous = text[:start] + text[end:]
