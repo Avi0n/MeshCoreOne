@@ -360,27 +360,33 @@ class SourceDispositionTests(unittest.TestCase):
                 {"full_scaffold": "false", "localization": "true"},
             ),
         )
-        for scopes, plan, expected_outputs in cases:
-            with self.subTest(scopes=scopes), self.candidate(PORTED) as (commands, printed, output, state):
-                base, head = "1" * 40, "2" * 40
-                identity = {"binding": {"base_sha": base, "head_sha": head}}
-                output.mkdir()
-                output_file = output / "github-output"
-                with (
-                    patch.object(ci, "execution_identity", return_value=identity),
-                    patch("controller.local_scope.candidate_plan", return_value=plan) as planner,
-                    patch("controller.local_scope.run_scaffold", return_value={"result": "success"}) as run,
-                    patch.dict(os.environ, {"GITHUB_OUTPUT": str(output_file)}),
-                ):
-                    ci.run_stage("scaffold", state, output, scopes=scopes, affected_candidate=True)
-                self.assertEqual(run.call_args.args[1], plan)
-                self.assertEqual(planner.call_args.args[3] if len(planner.call_args.args) > 3 else None,
-                                 None if scopes == ["scaffold"] else ["protocol", "module:core/protocol"])
-                self.assertEqual(
-                    dict(line.split("=", 1) for line in output_file.read_text().splitlines()),
-                    expected_outputs,
-                )
-                self.assertNotIn('"result": "failure"', printed.getvalue())
+        for event_name in ("pull_request", "push", "merge_group"):
+            for scopes, plan, expected_outputs in cases:
+                with self.subTest(event=event_name, scopes=scopes), \
+                        self.candidate(PORTED) as (commands, printed, output, state):
+                    base, head = "1" * 40, "2" * 40
+                    identity = {"binding": {"base_sha": base, "head_sha": head}}
+                    output.mkdir()
+                    output_file = output / "github-output"
+                    with (
+                        patch.object(ci, "execution_identity", return_value=identity),
+                        patch("controller.local_scope.candidate_plan", return_value=plan) as planner,
+                        patch("controller.local_scope.run_scaffold", return_value={"result": "success"}) as run,
+                        patch.dict(os.environ, {
+                            "GITHUB_OUTPUT": str(output_file), "GITHUB_EVENT_NAME": event_name,
+                        }),
+                    ):
+                        ci.run_stage("scaffold", state, output, scopes=scopes, affected_candidate=True)
+                    self.assertEqual(run.call_args.args[1], plan)
+                    self.assertEqual(planner.call_args.kwargs["merge_base_only"], event_name == "pull_request")
+                    self.assertEqual(run.call_args.kwargs["merge_base_only"], event_name == "pull_request")
+                    self.assertEqual(planner.call_args.args[3] if len(planner.call_args.args) > 3 else None,
+                                     None if scopes == ["scaffold"] else ["protocol", "module:core/protocol"])
+                    self.assertEqual(
+                        dict(line.split("=", 1) for line in output_file.read_text().splitlines()),
+                        expected_outputs,
+                    )
+                    self.assertNotIn('"result": "failure"', printed.getvalue())
 
     def test_selected_gradle_batch_budget_reaches_executor_and_preserves_timeout_diagnostics(self):
         real_execute = ci.execute

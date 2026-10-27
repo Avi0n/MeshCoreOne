@@ -383,14 +383,17 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
             raise PortError("Affected candidate selection requires exact hosted event identity")
         binding = identity["binding"]
         base, head = binding["base_sha"], binding["head_sha"]
+        merge_base_only = os.environ.get("GITHUB_EVENT_NAME") == "pull_request"
         requested = [scope for scope in selected if scope in ("protocol", "backup")]
         from controller.local_scope import candidate_plan, report_inputs, run_scaffold
 
-        plan = candidate_plan(REPO, base, head, trusted_base=base, checkout=True)
+        plan = candidate_plan(
+            REPO, base, head, trusted_base=base, checkout=True, merge_base_only=merge_base_only,
+        )
         if requested:
             plan = candidate_plan(
                 REPO, base, head, list(dict.fromkeys([*plan["scopes"], *requested])),
-                trusted_base=base, checkout=True,
+                trusted_base=base, checkout=True, merge_base_only=merge_base_only,
             )
         localization = plan["full_scaffold"] or "module:core/l10n" in plan["scopes"]
         write_github_outputs(full_scaffold=plan["full_scaffold"], localization=localization)
@@ -407,7 +410,8 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
             )
 
         report = run_scaffold(
-            REPO, plan, environment, output, execute_affected, options, trusted_base=base,
+            REPO, plan, environment, output, execute_affected, options,
+            trusted_base=base, merge_base_only=merge_base_only,
         )
         print(json.dumps({"result": "success", **report}, indent=2))
         return

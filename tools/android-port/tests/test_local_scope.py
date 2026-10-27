@@ -476,6 +476,32 @@ class LocalScopeBindingTests(unittest.TestCase):
         with self.assertRaisesRegex(PortError, "Stale affected base"):
             validate_plan(self.repo, plan)
 
+    def test_pr_plan_uses_merge_base_diff_without_changing_event_endpoints(self):
+        self.git("checkout", "--quiet", "--detach", self.base)
+        self.write("docs/target-only.md", "trusted target advancement")
+        target = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", target)
+        self.git("checkout", "--quiet", "--detach", self.head)
+        self.write("android/core/services/src/main/kotlin/Sync.kt", "PR candidate")
+        candidate = self.commit()
+
+        pr_plan = candidate_plan(
+            self.repo, target, candidate, trusted_base=target, merge_base_only=True,
+        )
+        self.assertEqual((pr_plan["base"], pr_plan["head"]), (target, candidate))
+        self.assertEqual(
+            pr_plan["paths"],
+            ["android/core/protocol/src/test/kotlin/Frame.kt",
+             "android/core/services/src/main/kotlin/Sync.kt"],
+        )
+        self.assertEqual(
+            validate_plan(self.repo, pr_plan, trusted_base=target, merge_base_only=True),
+            pr_plan,
+        )
+
+        non_pr_plan = candidate_plan(self.repo, target, candidate, trusted_base=target)
+        self.assertIn("docs/target-only.md", non_pr_plan["paths"])
+
     def test_diverged_diff_union_keeps_target_only_and_convergent_branch_changes(self):
         path = "android/core/services/src/test/kotlin/SyncTest.kt"
         self.write(path, "same change independently landed")
@@ -615,6 +641,23 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.git("update-ref", "refs/remotes/origin/main", base)
         self.write("android/app/src/main/kotlin/App.kt", "changed")
         return candidate_plan(self.repo, base, self.commit())
+
+    def test_feature_convention_dependencies_expand_the_affected_consumer_closure(self):
+        for module, plugin in (
+            ("core/contracts", "mesh.jvm.library"),
+            ("core/ui", "mesh.android.library"),
+            ("core/l10n", "mesh.android.library"),
+            ("feature/onboarding", "mesh.android.feature"),
+        ):
+            self.write(f"android/{module}/build.gradle.kts", f'plugins {{ id("{plugin}") }}\n')
+        self.write("android/core/ui/src/main/kotlin/SharedUi.kt", "base")
+        base = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", base)
+        self.write("android/core/ui/src/main/kotlin/SharedUi.kt", "changed")
+        plan = candidate_plan(self.repo, base, self.commit())
+        self.assertEqual(plan["scopes"], ["module:core/ui", "module:feature/onboarding"])
+        self.assertIn(":feature:onboarding:compileDebugKotlin", plan["tasks"])
+        self.assertIn(":feature:onboarding:lintDebug", plan["tasks"])
 
     @staticmethod
     def requested_gradle_tasks(command):

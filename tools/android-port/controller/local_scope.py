@@ -96,6 +96,10 @@ def module_inventory(repo, revision):
         ))
         if jvm == android:
             raise PortError("Unknown module task convention: " + path)
+        convention_dependencies = (
+            {"core/contracts", "core/ui", "core/l10n"}
+            if 'id("mesh.android.feature")' in text else set()
+        )
         modules[module] = {
             "runner": "test" if jvm else "testDebugUnitTest",
             "lint": not jvm,
@@ -104,7 +108,9 @@ def module_inventory(repo, revision):
                 and name.endswith((".kt", ".java"))
                 for source in ("test", "testDebug") for name in paths
             ),
-            "dependencies": sorted({name.lstrip(":").replace(":", "/") for name in references}),
+            "dependencies": sorted(
+                {name.lstrip(":").replace(":", "/") for name in references} | convention_dependencies
+            ),
         }
     if any(dependency not in modules for value in modules.values() for dependency in value["dependencies"]):
         raise PortError("Unclassified module dependency requires full scaffold")
@@ -214,7 +220,9 @@ def select_paths(paths, requested=None, *, modules=None, graph_error=None):
     }
 
 
-def candidate_plan(repo, base, head, requested=None, *, trusted_base=None, checkout=False):
+def candidate_plan(
+    repo, base, head, requested=None, *, trusted_base=None, checkout=False, merge_base_only=False,
+):
     """Bind selection to real endpoints; caller scopes can only add obligations."""
     for label, value in (("base", base), ("head", head)):
         if not isinstance(value, str) or SHA.fullmatch(value) is None:
@@ -254,10 +262,11 @@ def candidate_plan(repo, base, head, requested=None, *, trusted_base=None, check
     ancestor = ancestors[0]
     if ancestor == head and head != base:
         raise PortError("Affected candidate is an ancestor of the trusted target, not a branch candidate")
+    starts = (ancestor,) if merge_base_only else dict.fromkeys((base, ancestor))
     paths = set()
-    # Keep both branch changes already present in the target and target-only
-    # differences absent from the immutable candidate in the obligation set.
-    for start in dict.fromkeys((base, ancestor)):
+    # Non-PR callers retain target and branch changes; PR scopes use only the branch
+    # diff from its merge-base to avoid reclassifying target-only input.
+    for start in starts:
         raw = subprocess.check_output([
             "git", "-C", str(repo), "diff", "--name-only", "--no-renames", "-z", start, head, "--",
         ])
@@ -279,7 +288,7 @@ def candidate_plan(repo, base, head, requested=None, *, trusted_base=None, check
     }
 
 
-def validate_plan(repo, plan, *, trusted_base=None):
+def validate_plan(repo, plan, *, trusted_base=None, merge_base_only=False):
     if not isinstance(plan, dict) or set(plan) != {
         "schema_version", "kind", "base", "head", "tree", "paths",
         "scopes", "tasks", "full_scaffold", "stages", "reason",
@@ -297,7 +306,7 @@ def validate_plan(repo, plan, *, trusted_base=None):
     # all selection from the imported immutable objects, not caller path lists.
     actual = candidate_plan(
         repo, plan["base"], plan["head"], plan["scopes"] or None,
-        trusted_base=trusted_base, checkout=True,
+        trusted_base=trusted_base, checkout=True, merge_base_only=merge_base_only,
     )
     if actual != plan:
         raise PortError("Affected plan differs from actual candidate diff or required obligations")
@@ -454,7 +463,9 @@ def validation_preflight_options(options):
     return list(options)
 
 
-def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_base):
+def run_scaffold(
+    repo, plan, environment, output, execute, options, *, trusted_base, merge_base_only=False,
+):
     """Execute fixed affected tasks through the already-owned local supervisor."""
     started = False
 
@@ -464,7 +475,10 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
         return execute(*arguments)
 
     try:
-        return _run_scaffold(repo, plan, environment, output, owned_execute, options, trusted_base=trusted_base)
+        return _run_scaffold(
+            repo, plan, environment, output, owned_execute, options,
+            trusted_base=trusted_base, merge_base_only=merge_base_only,
+        )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired, PortError, OSError, KeyboardInterrupt) as failure:
         if started:
             report = {
@@ -476,7 +490,7 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
             if isinstance(failure, subprocess.CalledProcessError):
                 report["failure"]["returncode"] = failure.returncode
             try:
-                validate_plan(repo, plan, trusted_base=trusted_base)
+                validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
                 directories, _ = report_inputs(repo, plan)
                 from .module_junit import bounded_directory
 
@@ -500,7 +514,7 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
                     except (PortError, OSError) as error:
                         record.update(status="invalid", error=str(error))
                     report["junit_reports"].append(record)
-                validate_plan(repo, plan, trusted_base=trusted_base)
+                validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
                 report["source_binding"] = "valid"
             except (PortError, OSError, subprocess.SubprocessError) as error:
                 report.update(source_binding="invalid", junit_cases=[], junit_reports=[], evidence_error=str(error))
@@ -511,12 +525,14 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
         raise
 
 
-def _run_scaffold(repo, plan, environment, output, execute, options, *, trusted_base):
+def _run_scaffold(
+    repo, plan, environment, output, execute, options, *, trusted_base, merge_base_only=False,
+):
     from . import ci
     from .ci_evidence import collect_lint, collect_suites, lint_evidence, validate_graph_runtime
     from .module_junit import bounded_directory, check_module_tests
 
-    validate_plan(repo, plan, trusted_base=trusted_base)
+    validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
     if not plan["tasks"]:
         raise PortError("Affected scaffold cannot execute a zero-task request")
     preflight_tasks, build_tasks = split_preflight_tasks(plan["tasks"])
@@ -599,5 +615,5 @@ def _run_scaffold(repo, plan, environment, output, execute, options, *, trusted_
             "--verify-android-tests", str(repo / "android/core/l10n/build/test-results/testDebugUnitTest"),
         ], repo, environment, output / "l10n-junit.log")
     report["junit_cases"] = collect_named_cases(repo, directories) if directories else []
-    validate_plan(repo, plan, trusted_base=trusted_base)
+    validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
     return report
