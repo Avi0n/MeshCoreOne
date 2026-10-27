@@ -12,6 +12,7 @@ from controller.scope_amendment import (
     CONSUMER_SUPPORT_CAPABILITIES, consumer_support_predecessor,
     wp503_accessibility_source_binding_predecessor,
     HOST_SCOPED_JVM_CAPABILITY, host_scoped_jvm_predecessor,
+    BACKUP_POST_COMMIT_CAPABILITY, backup_post_commit_predecessor,
 )
 
 
@@ -26,6 +27,131 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
         self.rules = policy()
         self.engine = CapabilityEngine(self.rules)
         self.manifest = test_manifest("WP-000")
+
+    def test_backup_post_commit_exact_four_paths_and_named_operation(self):
+        rule = BACKUP_POST_COMMIT_CAPABILITY
+        expected = [
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppBackupFeature.kt",
+            "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/BackupRegistrationTest.kt",
+            "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/app/backup/AppBackupStateHolder.kt",
+            "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/app/backup/BackupPorts.kt",
+        ]
+        self.assertEqual(rule["id"], "wp203-backup-post-commit-delivery")
+        self.assertEqual(rule["path_rules"], expected)
+        self.assertEqual(rule["work_packages"], ["WP-203"])
+        self.assertEqual(rule["operations"], ["repair-backup-post-commit-delivery"])
+        self.assertEqual(next(r for r in self.rules["reservation_policy"]["capabilities"]
+                              if r["id"] == rule["id"]), rule)
+        for path in expected:
+            with self.subTest(path=path):
+                admitted = self.engine.admit("WP-203", self.manifest.wp("WP-203")["write_paths"],
+                                             path, rule["operations"][0])
+                self.assertEqual(admitted.capability_id, rule["id"])
+                self.assertEqual(admitted.invariants, tuple(rule["invariants"]))
+                self.assertEqual(admitted.validation, tuple(rule["validation"]))
+
+    def test_backup_post_commit_generic_cross_purpose_other_wp_and_sibling_denials(self):
+        operation = "repair-backup-post-commit-delivery"
+        for path in BACKUP_POST_COMMIT_CAPABILITY["path_rules"]:
+            for wp in self.manifest.work_packages:
+                if wp != "WP-203":
+                    with self.subTest(path=path, wp=wp), self.assertRaises(PortError):
+                        self.engine.admit(wp, self.manifest.wp(wp)["write_paths"], path, operation)
+            for wrong in ("modify", "create", "delete", "test", "generate", "unknown",
+                          "repair-uri-region-normalization", "implement-host-scoped-jvm-lanes"):
+                with self.subTest(path=path, operation=wrong), self.assertRaises(PortError):
+                    self.engine.admit("WP-203", self.manifest.wp("WP-203")["write_paths"], path, wrong)
+            for wrong in (
+                path + ".backup", path.rsplit("/", 1)[0], path.rsplit("/", 1)[0] + "/Other.kt",
+                path.replace("/src/main/", "/src/androidTest/").replace("/src/test/", "/src/androidTest/"),
+            ):
+                with self.subTest(path=wrong), self.assertRaises(PortError):
+                    self.engine.admit("WP-203", [], wrong, operation)
+        for wrong in (
+            "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AndroidAppContainerFactory.kt",
+            "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/RoomProcessTest.kt",
+            "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/app/backup/AppBackupScreen.kt",
+            "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/AppBackupService.kt",
+        ):
+            with self.subTest(path=wrong), self.assertRaises(PortError):
+                self.engine.admit("WP-203", [], wrong, operation)
+        for path in BACKUP_POST_COMMIT_CAPABILITY["path_rules"]:
+            with self.subTest(path=path), self.assertRaises(PortError):
+                CapabilityEngine(backup_post_commit_predecessor(self.rules)).admit("WP-203", [], path, operation)
+
+    def test_backup_post_commit_restores_entire_actual_trusted_base_and_every_existing_rule(self):
+        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        before = copy.deepcopy(current)
+        original = json.loads(subprocess.check_output([
+            "git", "-C", str(REPO), "show", "610f606ba:docs/android/automation-policy.json",
+        ]))
+        previous = backup_post_commit_predecessor(current)
+        self.assertEqual(previous, original)
+        self.assertEqual(backup_post_commit_predecessor(previous), previous)
+        self.assertEqual(current, before)
+        restored = copy.deepcopy(previous)
+        rules = restored["reservation_policy"]["capabilities"]
+        index = next(i for i, rule in enumerate(rules) if rule["id"] == "persistence-schemas")
+        rules.insert(index, copy.deepcopy(BACKUP_POST_COMMIT_CAPABILITY))
+        self.assertEqual(restored, current)
+        self.assertEqual(
+            {r["id"]: r for r in previous["reservation_policy"]["capabilities"]},
+            {r["id"]: r for r in current["reservation_policy"]["capabilities"]
+             if r["id"] != BACKUP_POST_COMMIT_CAPABILITY["id"]},
+        )
+
+    def test_backup_post_commit_rejects_mutation_duplicate_move_unknown_and_overlap(self):
+        for field, value in (
+            ("work_packages", ["WP-203", "WP-407"]),
+            ("operations", ["repair-backup-post-commit-delivery", "modify"]),
+            ("path_rules", ["android/app/**", "android/feature/settings/**"]),
+            ("invariants", BACKUP_POST_COMMIT_CAPABILITY["invariants"][:-1]),
+            ("validation", []), ("id", "unregistered-backup-post-commit"),
+            ("extra", True),
+        ):
+            changed = copy.deepcopy(self.rules)
+            rule = next(r for r in changed["reservation_policy"]["capabilities"]
+                        if r["id"] == BACKUP_POST_COMMIT_CAPABILITY["id"])
+            rule[field] = value
+            with self.subTest(field=field), self.assertRaises(PortError):
+                backup_post_commit_predecessor(changed)
+        for mode in ("duplicate", "move", "neighbor", "overlap"):
+            changed = copy.deepcopy(self.rules)
+            rules = changed["reservation_policy"]["capabilities"]
+            index = next(i for i, r in enumerate(rules) if r["id"] == BACKUP_POST_COMMIT_CAPABILITY["id"])
+            if mode == "duplicate":
+                rules.append(copy.deepcopy(rules[index]))
+            elif mode == "move":
+                rules.insert(0, rules.pop(index))
+            elif mode == "neighbor":
+                rules[index - 1] = None
+            else:
+                extra = copy.deepcopy(rules[index])
+                extra["id"] = "unregistered-overlapping-backup"
+                extra["path_rules"] = ["android/**"]
+                rules.append(extra)
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                backup_post_commit_predecessor(changed)
+        for malformed in (None, [], {"reservation_policy": None},
+                          {"reservation_policy": {"capabilities": None}}):
+            with self.subTest(malformed=malformed), self.assertRaises(PortError):
+                backup_post_commit_predecessor(malformed)
+
+    def test_backup_post_commit_fences_require_real_typed_boundary_and_preserve_identity(self):
+        text = " ".join(BACKUP_POST_COMMIT_CAPABILITY["invariants"] + BACKUP_POST_COMMIT_CAPABILITY["validation"])
+        for fence in (
+            "DATA-05-D149", "db14559b39d32322b06477c6ae676112f583db50",
+            "pre-commit-cancellation-propagates-with-atomic-rollback", "post-commit-cancellation-cannot-convert",
+            "state-holder-preserves-success-after-engine-return", "rethrow-CancellationException",
+            "BackupPorts-contract-doc-only", "once-only", "typed-CommittedBackupPreferenceException",
+            "original-StorageFailure", "preference-only-retry", "no-masked-real-storage-or-refresh-failure",
+            "50MiB-compressed-512MiB-expanded", "real-Room-DataStore", "WP-203-WP-318-WP-407",
+            "same-owner-stored-identity", "no-impersonation-release-recreate-or-ledger-rewrite",
+            "trusted-main-admission-before-consumer-edit", "source-only-no-runtime",
+            "no-generic-sensitive-logging", "nonzero discovery", "not backup or iOS-Android compatibility evidence",
+        ):
+            with self.subTest(fence=fence):
+                self.assertIn(fence, text)
 
     def test_host_scoped_jvm_exact_five_paths_and_named_operation(self):
         expected = [
@@ -73,7 +199,9 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
                               "wire-scoped-local-verification")
 
     def test_host_scoped_jvm_predecessor_restores_entire_actual_a8_policy(self):
-        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        current = backup_post_commit_predecessor(
+            json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        )
         before = copy.deepcopy(current)
         previous = host_scoped_jvm_predecessor(current)
         original = json.loads(subprocess.check_output([
