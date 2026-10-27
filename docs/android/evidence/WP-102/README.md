@@ -10,13 +10,15 @@ check. Previous real failures are retained below.**
 On 2026-10-27 the user approved strict Android Ed25519 point validation as an
 intentional adaptation: wrong lengths raise `InvalidKeyLength`; malformed
 32-byte points raise `InvalidEd25519PublicKey`. The direct conversion test now
-asserts representative malformed-point failures. Existing independent key,
-round-trip, ECDH, and converted-key DM vectors cover the valid path.
+asserts representative malformed-point failures within the original invalid-
+input test method, preserving the pinned test identity. Existing independent
+key, round-trip, ECDH, and converted-key DM vectors cover the valid path.
 
 This follow-up is **not locally verified**. The manifest still has no
 WP-102-specific verification commands; the earlier 885-case evidence below
-belongs to its recorded candidate and does not verify these edits. Exact-head
-hosted protocol CI remains pending.
+belongs to its recorded candidate and does not verify these edits. The
+authoritative exact-head hosted result is recorded in the PR description; no
+second CI-result bundle is stored here.
 
 Repository: `cbattlegear/MeshCoreOne-Android`. Owner: `protocol-porter`.
 Session: `dbffc569-419e-4dcc-ace0-836b58f6435c`.
