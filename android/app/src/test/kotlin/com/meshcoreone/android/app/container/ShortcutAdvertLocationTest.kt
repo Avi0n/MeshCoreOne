@@ -75,7 +75,7 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
         }
     }
 
-    private class RadioLocation {
+    private class RadioLocation(private val advertLocationPolicy: UByte = 0u) {
         var gpsEnabled = false
         var gpsFailure = false
         var latitudeE6 = 0L
@@ -99,7 +99,8 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
             }
             1 -> listOf(
                 Bytes.of(5, 1, 22, 22) + key(7) + le32(latitudeE6) + le32(longitudeE6) +
-                    Bytes.of(0, 0, 2, 0) + le32(915_000) + le32(250_000) + Bytes.of(10, 5) + Bytes.utf8("TestNode"),
+                    Bytes.of(0, advertLocationPolicy.toInt(), 2, 0) +
+                    le32(915_000) + le32(250_000) + Bytes.of(10, 5) + Bytes.utf8("TestNode"),
             )
             else -> null
         }
@@ -511,13 +512,20 @@ class ShortcutAdvertLocationTest : RoomProcessTest() {
                 val preferences = Preferences()
                 val preparation = AppAdvertLocation(preferences::read, producing, producing::refreshAuthorization,
                     currentLocation = { producing.currentLocation })
-                val radioLocation = RadioLocation()
+                val radioLocation = RadioLocation(advertLocationPolicy = 1u)
                 val active = connected(this, preparation, radioLocation)
                 h = active
+                assertEquals(1.toUByte(), assertNotNull(active.appState.connectedDevice).advertLocationPolicy)
                 preferences.enable(share(active), GPSSource.PHONE)
                 for (flood in listOf(false, true)) {
+                    assertEquals(1.toUByte(), assertNotNull(active.appState.connectedDevice).advertLocationPolicy)
                     val start = active.links.radios.single().sent.size
                     AppShortcutRadio(active.container).sendAdvert(flood)
+                    active.eventually("public policy and coordinates retained after verified location readback") {
+                        active.appState.connectedDevice?.let {
+                            it.advertLocationPolicy == 1.toUByte() && it.latitude == 37.0 && it.longitude == -122.0
+                        } == true
+                    }
                     assertEquals(listOf(0x0e, 1, 7), commands(active, start))
                     assertEquals(Bytes.of(0x0e) + le32(37_000_000) + le32(-122_000_000) + le32(0),
                         active.links.radios.single().sent[start])

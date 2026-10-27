@@ -1,6 +1,83 @@
 # WP-404 evidence
 
-## G09 shared-cache source successor: execution NOT RUN
+## G09 ef87 guarded failure and diagnosed fixture correction
+
+The shared-cache candidate `ef87b2292728e283c186cebb9323c83a88054243`,
+tree `8d3037504c3dab9813671b629b5e647d02fda00e`, completed its one admitted
+guarded run with actual OS exit **1**. Guard 460698 selected slot 0; owner
+`local-check:9010af7ecb3c4461a795a343a095e3e2`; original report
+`run-HJr22HVE`. The installed trusted authority was
+`047ecbfb0f8837109a3aa1ff3fd4f522ca868a18`, not the historical six-task
+runner. The exact invocation was:
+
+```text
+/ai_cache/meshcoreone/python/3.12.4/bin/python3.12 -B tools/android-port/local/check.py --commit ef87b2292728e283c186cebb9323c83a88054243 --affected-base 047ecbfb0f8837109a3aa1ff3fd4f522ca868a18 --parallel-jvm .
+```
+
+Its actual conservative plan selected the full 13 tasks and all four stages.
+Python/preflight completed; scaffold failed at `:app:testDebugUnitTest`;
+inspect did not complete. Gradle reported `BUILD FAILED in 23m 24s`.
+App XML contains **1,620 tests: 1,619 passed, 1 failed, 0 errors, 0 skipped**.
+All **48 mandatory identities** were present exactly once: App SDK31
+19 passed/1 failed, native producer SDK31 14 passed, and native producer SDK37
+14 passed. All original 17 App methods passed. This is not a full closure or
+G09 PASS, and no App SDK37 requirement or result is implied.
+
+The sole failure was
+`regionResolverFixIsSharedWithAdvertFallbackAfterFailureOrDenialForBothReaches`:
+at line 521, the complete expected command list `[14,1,7]` was actually `[7]`.
+The XML does not identify the loop iteration. Source diagnosis found an
+inconsistent fixture: `share(active)` made only the live device public, while
+`RadioLocation` still returned private advertisement policy zero in its real
+SelfInfo response. `SettingsService.setLocationVerified` reads that response
+and publishes `DeviceUpdated`; the actual App observer and device editor
+correctly replace the live policy from it. A following advert therefore
+correctly skips the publicly gated location write.
+
+Only these requested aggregate tasks were observed completed:
+`:core:data:verifyBackupTests` and
+`:core:data:verifyPersistenceRepositoryTests` executed;
+`:core:database:testDebugUnitTest` was from cache. The other ten requested
+tasks were not observed completed. The named XML acceptance reader returned 1,
+not PASS. Snapshot HEAD/tree matched the exact candidate before and after the
+complete named-results read and the separate original failure-detail read.
+The guard PID, its supported canonical hard lock and
+`/tmp/meshcore-execution-1zt10sy8` were absent before reuse was reported safe.
+The original run/log/XML remain authoritative; no second results bundle or
+result hash was made.
+
+The corrective commit containing this section changes only the test fixture
+and these owned evidence/deviation notes. The fixture policy remains zero by
+default; only the positive cross-wrapper case configures a public radio before
+connection. It asserts the actual initial public policy, the policy before
+each reach, and public policy plus coordinates after real verified readback.
+The full `[14,1,7]` traces, coordinate bytes, both reaches, failed/denied
+refresh branches, private/opt-out/session/cancellation/decline predicates and
+all 20 App/14 native source method identities remain. No production gate,
+cache behavior or negative fixture default changes.
+
+Fresh trusted path/operation admission passed for the exact test and both
+owned documents under `wp404-shared-location-producer-cache` /
+`restore-shared-pre-advert-location-cache`. The previously refused legacy
+advisory evolution remains historical; no identity, authorization, claim or
+ledger was rewritten. Corrective Android execution is **NOT RUN** pending
+protected source review and a distinct coordinator-issued heavy admission.
+There is no push, publication, hardware result or G18 authoring.
+
+Corrective source-only checks:
+
+```text
+python -B .\tools\android-port\portmap.py                    PASS
+python -B .\tools\android-port\controller\validate.py        PASS
+git --no-pager diff --check                                PASS
+```
+
+An ordered source-method comparison, including Kotlin backtick names, matches
+the predecessor's exact 20 App and 14 native identities. The native producer
+test source and its SDK31/SDK37 declaration are unchanged. These checks are
+not Kotlin compilation, JUnit discovery or corrective execution acceptance.
+
+## Historical shared-cache source submission before the ef87 run
 
 The corrected candidate `3db4cbd567465b9071f4bad8afd5bd2ee90c2f47`,
 tree `2addde0d74fa77e0a47d59b5f49b58fc794a59c0`, completed its one admitted
