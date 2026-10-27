@@ -5,6 +5,19 @@
 APK/notices. Exact-head normal hosted results remain the final publication
 check. Previous real failures are retained below.**
 
+## Issue #371 follow-up
+
+On 2026-10-27 the user approved strict Android Ed25519 point validation as an
+intentional adaptation: wrong lengths raise `InvalidKeyLength`; malformed
+32-byte points raise `InvalidEd25519PublicKey`. The direct conversion test now
+asserts representative malformed-point failures. Existing independent key,
+round-trip, ECDH, and converted-key DM vectors cover the valid path.
+
+This follow-up is **not locally verified**. The manifest still has no
+WP-102-specific verification commands; the earlier 885-case evidence below
+belongs to its recorded candidate and does not verify these edits. Exact-head
+hosted protocol CI remains pending.
+
 Repository: `cbattlegear/MeshCoreOne-Android`. Owner: `protocol-porter`.
 Session: `dbffc569-419e-4dcc-ace0-836b58f6435c`.
 Managed branch: `cbattlegear-legendary-adventure`.
