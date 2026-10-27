@@ -81,8 +81,8 @@ class EnvironmentTests(unittest.TestCase):
         self.assertIn("--dependency-verification", arguments)
         self.assertEqual("strict", arguments[arguments.index("--dependency-verification") + 1])
         self.assertNotIn("--rerun-tasks", arguments)
-        self.assertNotIn("--no-build-cache", arguments)
-        self.assertIn("--build-cache", arguments)
+        self.assertIn("--no-build-cache", arguments)
+        self.assertNotIn("--build-cache", arguments)
         self.assertNotIn("--max-workers=1", arguments)
         return output, state, arguments, observe_identity.call_count
 

@@ -283,7 +283,8 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(len(cache_steps), 1)
         cache = cache_steps[0]["with"]
         self.assertEqual(cache["path"], "${{ env.GRADLE_USER_HOME }}")
-        self.assertIn("android-gradle-v2-${{ runner.os }}-", cache["key"])
+        self.assertIn("android-gradle-v3-${{ runner.os }}-", cache["key"])
+        self.assertIn("${{ github.run_id }}-${{ github.run_attempt }}", cache["key"])
         for path in (
             "android/gradle/dependency-locks/*.lockfile",
             "android/**/gradle.lockfile",
@@ -291,8 +292,11 @@ class WorkflowTests(unittest.TestCase):
             "tools/android-port/controller/toolchain-pins.json",
         ):
             self.assertIn(path, cache["key"])
-        self.assertIn("android-gradle-v2-${{ runner.os }}-", cache["restore-keys"])
+        self.assertIn("android-gradle-v3-${{ runner.os }}-", cache["restore-keys"])
         self.assertIn("toolchain-pins.json", cache["restore-keys"])
+        self.assertIn("android/gradle/dependency-locks/*.lockfile", cache["restore-keys"])
+        self.assertNotIn("${{ github.run_id }}", cache["restore-keys"])
+        self.assertNotIn("${{ github.run_attempt }}", cache["restore-keys"])
 
     def test_duplicate_yaml_keys_and_invalid_yaml_are_rejected(self):
         for text in ("jobs: {}\njobs: {}\n", "jobs: ["):

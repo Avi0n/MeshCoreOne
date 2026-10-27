@@ -116,9 +116,9 @@ jobs:
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.GRADLE_USER_HOME }}
-          key: android-gradle-v2-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/gradle/wrapper/gradle-wrapper.jar', 'tools/android-port/controller/toolchain-pins.json') }}-${{ hashFiles('android/gradle/libs.versions.toml', 'android/gradle/verification-metadata.xml', 'android/gradle/dependency-locks/*.lockfile', 'android/**/gradle.lockfile') }}
+          key: android-gradle-v3-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/gradle/wrapper/gradle-wrapper.jar', 'tools/android-port/controller/toolchain-pins.json') }}-${{ hashFiles('android/gradle/libs.versions.toml', 'android/gradle/verification-metadata.xml', 'android/gradle/dependency-locks/*.lockfile', 'android/**/gradle.lockfile') }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            android-gradle-v2-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/gradle/wrapper/gradle-wrapper.jar', 'tools/android-port/controller/toolchain-pins.json') }}-
+            android-gradle-v3-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/gradle/wrapper/gradle-wrapper.jar', 'tools/android-port/controller/toolchain-pins.json') }}-${{ hashFiles('android/gradle/libs.versions.toml', 'android/gradle/verification-metadata.xml', 'android/gradle/dependency-locks/*.lockfile', 'android/**/gradle.lockfile') }}-
       - name: Validate frozen source inputs
         run: |
           python tools/android-port/test_inventory.py --check

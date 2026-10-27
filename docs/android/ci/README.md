@@ -26,9 +26,16 @@ The Android build and Swift codec oracle now start as soon as scope selection
 finishes, alongside the independent controller checks. The final required
 `android-ci` gate still waits for every selected result, and the SwiftData
 backup oracle still waits for the Android build that produces its input.
-Hosted Gradle runs enable Gradle's task-output build cache. The versioned cache
-key covers the pinned Gradle/JDK toolchain, dependency locks, verification
-metadata and version catalog; strict dependency verification remains required.
+Hosted Gradle retains its distribution and dependency caches, but disables
+task-output caching: the backup test producer writes required interop files as
+a system-property side effect, not a declared task output, so reusing a test
+task result could omit the artifact required by the SwiftData oracle. Re-enable
+task-output caching only after that producer declares and verifies the output.
+The Actions cache key covers the pinned Gradle/JDK toolchain, dependency locks,
+verification metadata and version catalog, then adds the workflow run and
+attempt so each execution can save its refreshed cache. Its restore prefix
+retains the complete toolchain and dependency fingerprint. Strict dependency
+verification remains required.
 
 ### Local-only disposable WP-503 guest contract
 
