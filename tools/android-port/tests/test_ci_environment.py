@@ -212,8 +212,11 @@ class EnvironmentTests(unittest.TestCase):
         self.assertIn('task.path == ":core:data:testDebugUnitTest"', script)
         self.assertIn("task.outputs.cacheIf(", script)
         self.assertIn('task.outputs.dir(interopOutput)', script)
-        self.assertIn("task.inputs.dir(inputPath ?", script)
+        self.assertIn("task.inputs.dir(interopInput)", script)
         self.assertIn("task.doFirst", script)
+        self.assertIn("task.inputs.files.files.any", script)
+        self.assertLess(script.index("task.doFirst {"), script.index("task.inputs.files.files.any"))
+        self.assertLess(script.index("task.inputs.files.files.any"), script.index("gradle.taskGraph.whenReady"))
         self.assertIn("WP-203 interop artifacts are not declared Gradle task outputs", script)
         self.assertIn("WP-203 interoperability fixture is not a Gradle task input", script)
 
