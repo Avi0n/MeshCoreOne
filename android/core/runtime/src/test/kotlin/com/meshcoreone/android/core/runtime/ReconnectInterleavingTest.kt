@@ -12,6 +12,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import org.junit.jupiter.api.TestFactory
 import kotlin.test.*
@@ -55,6 +56,63 @@ class ReconnectInterleavingTest {
                 assertEquals(2, radios.size)
                 assertEquals(1, radios.first().closes)
                 assertEquals(1, services.last().monitoringStarts)
+            }
+        },
+        nativeCase("an exhausted failure cannot reclaim a newer reconnect cycle after its timeout returns to disconnected") {
+            withFixture {
+                connect()
+                val callbacks = links.single().callbacks!!
+                platform.state = platform.state.copy(connected = true)
+                repeat(3) { manager.handleReconnectionFailure() }
+                manager.stopReconnectionWatchdog()
+                assertEquals(3, manager.consecutiveRebuildFailures)
+                val lossesBefore = lossCount
+                platform.state = platform.state.copy(autoReconnecting = true, connectedDeviceId = platform.target.deviceId)
+                val release = CompletableDeferred<Unit>()
+                var queryEntered = false
+                platform.onState = {
+                    if (!queryEntered) { queryEntered = true; release.await() }
+                }
+                val coordinatorBefore = manager.reconnectionCoordinator.reconnectGeneration
+                val failure = backgroundScope.async { manager.handleReconnectionFailure() }
+                try {
+                    runCurrent()
+                    assertTrue(queryEntered)
+                    assertFalse(failure.isCompleted)
+                    assertEquals(4, manager.consecutiveRebuildFailures)
+                    callbacks.onAutoReconnecting("new cycle while exhausted failure is suspended")
+                    runCurrent()
+                    assertTrue(manager.reconnectionCoordinator.reconnectGeneration > coordinatorBefore)
+                    assertEquals(platform.target.deviceId, manager.activeReconnectDeviceId)
+                    assertEquals(DeviceConnectionState.CONNECTING, manager.connectionState)
+                    advanceTimeBy(60_000)
+                    runCurrent()
+                    assertFalse(failure.isCompleted)
+                    assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
+                    assertEquals(lossesBefore + 1, lossCount)
+                    assertEquals(0, radios.single().closes)
+                    assertTrue(manager.isReconnectionWatchdogRunning)
+                } finally {
+                    release.complete(Unit)
+                }
+                val afterTimeout = manager.snapshot.value
+                val watchdogGeneration = manager.reconnectionWatchdogGeneration
+                runCurrent()
+                failure.await()
+                assertEquals(afterTimeout, manager.snapshot.value)
+                assertEquals(watchdogGeneration, manager.reconnectionWatchdogGeneration)
+                assertEquals(lossesBefore + 1, lossCount)
+                assertEquals(0, radios.single().closes)
+                assertEquals(0, links.single().callbackClosures)
+                assertNotNull(links.single().callbacks)
+                assertFalse(last.read().diagnostic.orEmpty().contains("preserveBudgetExhausted"))
+                callbacks.onReconnected()
+                runCurrent()
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
+                assertEquals(2, radios.size)
+                assertEquals(1, radios.first().closes)
+                assertEquals(0, manager.consecutiveRebuildFailures)
+                assertFalse(manager.isReconnectionWatchdogRunning)
             }
         },
         nativeCase("a loss observer resuming after a newer failed connect cannot rearm the old watchdog") {

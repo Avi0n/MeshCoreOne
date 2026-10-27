@@ -785,6 +785,7 @@ class ConnectionManager(
     }
 
     override suspend fun handleReconnectionFailure() {
+        val expectedCoordinator = reconnectionCoordinator.reconnectGeneration
         val expectedRevision = synchronized(lock) { revision }
         val owner = synchronized(lock) {
             if (connectionIntent.wantsConnection) rebuildFailures++
@@ -797,7 +798,8 @@ class ConnectionManager(
             }
         }
         fun ownsFailure(): Boolean = synchronized(lock) {
-            revision == expectedRevision && !closed && active == null &&
+            revision == expectedRevision && reconnectionCoordinator.reconnectGeneration == expectedCoordinator &&
+                !closed && active == null &&
                 (retained == null || retained === owner) && connectionState == DeviceConnectionState.DISCONNECTED
         }
         val state = owner?.let { platform.state(it.target) }

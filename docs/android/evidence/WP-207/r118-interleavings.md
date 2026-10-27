@@ -20,7 +20,7 @@ Adoption cases now complete through the installed link callback into a real
 session handshake and service graph, including forced-sync propagation.
 Cancelled adopted attempts are asserted as cancellation, not ignored results.
 
-Ten supplemental `ReconnectInterleavingTest` cases use the real
+Eleven supplemental `ReconnectInterleavingTest` cases use the real
 `ConnectionManager` and `MeshCoreSession`, factory-owned test services and
 independently encoded wire replies. Three pin reconnection failure during
 service teardown or preserve-exhaustion diagnostic persistence. A newer manual
@@ -29,10 +29,14 @@ and watchdog authority. Production now rechecks revision, retained-owner and
 disconnected-state ownership after each of those suspensions. Cleanup still
 finishes; actual typed failures and teardown reports remain observable.
 
-Two review regressions pin the state query and loss observer themselves:
+Three review regressions pin the state query and loss observer themselves:
 an auto-reconnect entry during a suspended query keeps the same retained
 physical link/callback route while old logical cleanup finishes; an old observer
-resuming after a newer failed connect cannot rearm its watchdog. The forced tap
+resuming after a newer failed connect cannot rearm its watchdog; an exhausted
+failure cannot reclaim authority after a newer coordinator cycle's full
+60-second timeout returns the same retained owner to DISCONNECTED. Failure
+authority includes the monotonic coordinator generation, not just state and
+manager revision. The forced tap
 case explicitly publishes DISCONNECTED while the actual rebuild is held, so it
 exercises the break-glass predicate and its rebuild protection, not an earlier
 CONNECTING/CONNECTED deferral.
