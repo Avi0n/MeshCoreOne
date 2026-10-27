@@ -189,6 +189,24 @@ val partial = AppSettingsStrings.dangerZoneAlertRemoveUnfavoritedPartial(
 
 `RegionalSubdivisionNames` preserves the 59-code localized lookup and genuine
 unknown-code `null` contract, not the wider geographic/radio preset behavior.
+The mounted onboarding consumer is already connected by WP-211's merged
+[regional-label repair](https://github.com/cbattlegear/MeshCoreOne-Android/pull/348).
+`AndroidAppContainerFactory` supplies current `AppLanguages` resources through
+`AppOnboarding` to `ServicesRegionCatalog`, which injects this generated lookup
+into the JVM regional resolver. `RegionStepScreen` uses that catalog for picker
+entries, the selected subdivision row and the detected-region heading. The
+resource provider is evaluated on demand, including API31/32 app-language
+changes; the core service remains Android-free.
+
+The subdivision entry in [`cases.json`](cases.json) binds the original
+59-code/12-locale resource family to those production paths, the app-language
+adapter regressions and the French/German mounted-picker methods running in
+the App suite. Independent expected visible names, country-switch clearing and
+the committed `AU-NT` identity are asserted without applying a radio preset or
+completing onboarding. This closes issue #374's missing consumer correspondence,
+not universal all-locale UI or full-WP acceptance. The map is traceability, not
+an execution result; exact-candidate hosted logs remain authoritative.
+
 `resources.properties` declares English fallback and the owned
 `@xml/l10n_locales` declares all twelve per-app language choices. Actual AGP9.4
 app-merger/APK inspection proved that `android:localeConfig` is rejected from
