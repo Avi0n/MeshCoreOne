@@ -30,6 +30,35 @@ VERIFICATION = {
     },
 }
 MAX_LOG_BYTES = 64 * 1024 * 1024
+ANDROID_MODULE = r"android/((?:core|feature|platform)/[a-z0-9-]+|app)/"
+
+
+def verification_only(scope):
+    version = scope.get("schema_version")
+    if type(version) is not int or (version, scope.get("kind")) not in (
+        (1, "landed-wp-repair"), (2, "landed-wp-verification"),
+    ):
+        raise PortError("Unknown bounded repair scope version/kind")
+    return version == 2
+
+
+def production_bindings(scope):
+    if not isinstance(scope["coverage"], list) or not scope["coverage"]:
+        raise PortError("Verification-only additions require production consumer coverage")
+    bindings = {}
+    for entry in scope["coverage"]:
+        consumers = entry.get("production_bindings") if isinstance(entry, dict) else None
+        if not isinstance(consumers, dict) or not consumers:
+            raise PortError("Every verification-only coverage entry needs unchanged production bindings")
+        for path, blob in consumers.items():
+            if (
+                re.fullmatch(ANDROID_MODULE + r"src/main/.+", git_path(path)) is None
+                or not isinstance(blob, str) or SHA.fullmatch(blob) is None
+                or path in bindings and bindings[path] != blob
+            ):
+                raise PortError("Malformed/conflicting verification-only production binding")
+            bindings[path] = blob
+    return bindings
 
 
 def authenticated_scope(native, comment_id, binding):
@@ -49,9 +78,9 @@ def authenticated_scope(native, comment_id, binding):
         "schema_version", "kind", "binding", "repair_pr", "repair_issue", "landed_pr", "owner",
         "summary", "paths", "acceptance", "coverage", "verification", "native",
     }, label="bounded repair scope")
+    verification = verification_only(scope)
     if (
-        type(scope["schema_version"]) is not int or scope["schema_version"] != 1
-        or scope["kind"] != "landed-wp-repair" or Binding.parse(scope["binding"]) != binding
+        Binding.parse(scope["binding"]) != binding
         or scope["owner"] != native.manifest.wp(binding.work_package)["owner"]
     ):
         raise PortError("Stale repair binding or noncanonical WP owner")
@@ -90,13 +119,25 @@ def authenticated_scope(native, comment_id, binding):
         entry["path"] for entry in scope["paths"]
         if isinstance(entry, dict) and isinstance(entry.get("path"), str) and "/src/main/" in entry["path"]
     } if isinstance(scope["paths"], list) else set()
-    if not repaired_sources or not repaired_sources.intersection(prior_paths):
+    if verification:
+        bindings = production_bindings(scope)
+        if any(not set(entry["production_bindings"]).intersection(prior_paths) for entry in scope["coverage"]):
+            raise PortError("Verification consumer is not accounted for by the actual landed producer")
+        for path, blob in bindings.items():
+            for revision in (landed["merge_commit_sha"], binding.base_sha, binding.head_sha):
+                actual = native.get(f"/contents/{path}?ref={revision}")
+                if actual.get("type") != "file" or actual.get("path") != path or actual.get("sha") != blob:
+                    raise PortError("Verification consumer differs from the landed producer/current base/head")
+    elif not repaired_sources or not repaired_sources.intersection(prior_paths):
         raise PortError("Repair production paths are not accounted for by the actual landed producer")
     nonempty(scope["summary"], "Bounded repair purpose")
     return scope
 
 
 def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
+    verification = verification_only(scope)
+    if verification:
+        production_bindings(scope)
     if (
         Binding.parse(scope["binding"]) != binding
         or binding.source_sha != manifest.data["reference"]["commit"]
@@ -115,15 +156,30 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
     if not isinstance(scope["paths"], list) or not scope["paths"]:
         raise PortError("Missing repair path admissions")
     admitted = {}
+    test_modules, wiring_modules = set(), set()
     for item in scope["paths"]:
         fields(item, {"path", "operation", "capability"}, label="repair path")
         path = git_path(item["path"])
         actual = CapabilityEngine(policy).admit(wp["id"], wp["write_paths"], path, item["operation"])
         if item["capability"] != actual.capability_id or path in admitted:
             raise PortError("Wrong/duplicate trusted repair capability")
+        if verification:
+            test = re.fullmatch(ANDROID_MODULE + r"src/(?:test|androidTest)/.+\.kt", path)
+            wiring = re.fullmatch(ANDROID_MODULE + r"build\.gradle\.kts", path)
+            if test:
+                test_modules.add(test[1])
+            elif wiring and actual.capability_id != "wp-owned":
+                wiring_modules.add(wiring[1])
+            elif not (
+                path == f"docs/android/deviations/{wp['id']}.md"
+                or path.startswith(f"docs/android/evidence/{wp['id']}/")
+            ):
+                raise PortError("Verification-only scope permits tests, typed test build wiring and owned evidence only")
         admitted[path] = item["operation"]
     if set(admitted) != set(changed_paths):
         raise PortError("Repair scope omits or invents changed paths")
+    if verification and (not test_modules or not wiring_modules.issubset(test_modules)):
+        raise PortError("Verification test build wiring requires changed tests in the same module")
     if (
         not isinstance(scope["verification"], list) or scope["verification"] != ["android-scaffold"]
     ):
@@ -147,7 +203,8 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         raise PortError("Stale original-case inventory")
     covered, cases, modules = set(), {}, set()
     for entry in scope["coverage"]:
-        fields(entry, {"path", "source_paths", "cases", "native_methods", "hosted_methods", "adaptation", "modules"},
+        fields(entry, {"path", "source_paths", "cases", "native_methods", "hosted_methods", "adaptation", "modules"}
+               | ({"production_bindings"} if verification else set()),
                label="repair behavioral coverage")
         path = entry["path"]
         if path not in admitted or path in covered:
@@ -196,6 +253,11 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
             if not isinstance(module, str) or re.fullmatch(r"(?:app|(?:core|feature|platform)/[a-z0-9-]+)", module) is None:
                 raise PortError("Invalid affected module")
             modules.add(module)
+        if verification:
+            for consumer in entry["production_bindings"]:
+                module = re.fullmatch(ANDROID_MODULE + r"src/main/.+", consumer)[1]
+                if module not in entry["modules"]:
+                    raise PortError("Verification coverage omits a bound production consumer module")
         match = re.match(r"android/((?:core|feature|platform)/[^/]+|app)/", path)
         if match and match[1] not in entry["modules"]:
             raise PortError("Coverage omits the changed Android module")
@@ -203,6 +265,8 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         path for path in changed_paths
         if path.startswith("android/") and ("/src/main/" in path or "/src/test" in path or "/src/androidTest/" in path)
     }
+    if verification:
+        behavioral = {path for path in changed_paths if path.startswith("android/")}
     if not behavioral or not behavioral.issubset(covered):
         raise PortError("Every changed Android behavior/test path needs explicit scoped coverage")
     if not isinstance(scope["native"], list):
@@ -486,7 +550,27 @@ def _kotlin_junit_methods(text):
 def validate_hosted_methods(scope, candidate_tree, repo, executed):
     from .staging import object_bytes
 
+    verification = verification_only(scope)
     for coverage in scope["coverage"]:
+        if verification:
+            if any(candidate_tree.get(path) != blob for path, blob in coverage["production_bindings"].items()):
+                raise PortError("Verification production consumer does not match candidate source")
+            path = coverage["path"]
+            if "/src/test/" in path or "/src/androidTest/" in path:
+                blob = candidate_tree.get(path)
+                if blob is None:
+                    raise PortError("Verification test source is absent from candidate")
+                text = object_bytes(repo, blob).decode("utf-8")
+                declared = _kotlin_junit_methods(text)
+                if "/src/test/" in path:
+                    identities = [m["id"] for m in coverage["hosted_methods"] if m["path"] == path]
+                else:
+                    package = re.search(r"^\s*package\s+([\w.]+)", text, re.MULTILINE)
+                    test_class = (package[1] + "." if package else "") + path.rsplit("/", 1)[-1][:-3]
+                    identities = [m.removeprefix(test_class + "#") for m in coverage["native_methods"]
+                                  if m.startswith(test_class + "#")]
+                if not declared or len(set(identities)) != len(identities) or set(identities) != declared:
+                    raise PortError("Verification coverage must include every actual changed JUnit method")
         for method in coverage["hosted_methods"]:
             if candidate_tree.get(method["path"]) != method["blob_sha"]:
                 raise PortError("Affected hosted regression does not match candidate test source")
@@ -724,6 +808,11 @@ def verify_native(native, scope, candidate_tree):
             c["path"] for c in scope["coverage"] if set(c["native_methods"]) & set(item["methods"])
             and ("/src/main/" in c["path"] or "/src/androidTest/" in c["path"])
         }
+        if verification_only(scope):
+            needed |= {
+                path for coverage in scope["coverage"] if set(coverage["native_methods"]) & set(item["methods"])
+                for path in coverage["production_bindings"]
+            }
         if not needed.issubset(item["bindings"]):
             raise PortError("Native evidence omits affected production source bindings")
         for path, blob in item["bindings"].items():
