@@ -15,7 +15,44 @@
       "android_class": "com.meshcoreone.android.core.l10n.RegionalSubdivisionLocalizationTest",
       "android_method": "everyCatalogSubdivisionKeyResolvesInEveryLocale",
       "parameters": {"locales": 12, "subdivision_keys": 59, "us": 51, "au": 8},
-      "assertion": "Every lookup resolves nonempty actual source copy, never null, raw key or sentinel; each value also equals the pinned raw source oracle."
+      "assertion": "Every lookup resolves nonempty actual source copy, never null, raw key or sentinel; each value also equals the pinned raw source oracle.",
+      "visible_consumer": {
+        "concern": "PROTOCOL-R118-G14",
+        "issue": 374,
+        "production_repair": {"work_package": "WP-211", "pull_request": 348},
+        "production_chain": [
+          {"path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AndroidAppContainerFactory.kt", "binding": "regionResources supplies AppLanguages.attach(application).resources on each request"},
+          {"path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/AppOnboarding.kt", "binding": "ServicesRegionCatalog receives platform.regionResources"},
+          {"path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/onboarding/OnboardingRegionPresets.kt", "binding": "ServicesRegionCatalog injects RegionalSubdivisionNames.displayName into the JVM SubdivisionNameResolver"},
+          {"path": "android/core/l10n/src/main/kotlin/com/meshcoreone/android/core/l10n/generated/RegionalSubdivisionNames.kt", "binding": "Stable subdivision codes resolve to generated Settings resources in the current app locale"},
+          {"path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/device/RegionalAreas.kt", "binding": "RegionalAreas uses the resolver for localized subdivision names, sorting and selected-region display"},
+          {"path": "android/feature/onboarding/src/main/kotlin/com/meshcoreone/android/feature/onboarding/ui/RegionStepScreen.kt", "binding": "RegionPicker displays catalog.subdivisions and catalog.subdivisionDisplayName; DetectedRegion displays catalog.displayName"}
+        ],
+        "adapter_tests": {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/onboarding/OnboardingRegionPresetAdapterTest.kt",
+          "class": "com.meshcoreone.android.app.container.onboarding.LocalizedRegionCatalogAdapterTest",
+          "methods": [
+            "current API31 app language replaces English labels without recreating the catalog",
+            "resource configuration rather than system locale controls catalog country and subdivision labels"
+          ],
+          "assertions": "French/German/English labels and country/subdivision sorting follow current app resources despite a conflicting US system locale; stable codes, catalog counts, display formatting and unknown-code absence are preserved."
+        },
+        "mounted_tests": {
+          "path": "android/ui-tests/src/test/kotlin/com/meshcoreone/android/uitests/OnboardingRegionPresetComposeTest.kt",
+          "runner_module": "app",
+          "class": "com.meshcoreone.android.uitests.OnboardingRegionPresetComposeTest",
+          "methods": [
+            "frenchRegionalLabelsReachTheMountedPickerWithStableSelectionCodes",
+            "germanRegionalLabelsReachTheMountedPickerWithStableSelectionCodes"
+          ],
+          "independent_expected_labels": {
+            "fr": {"US-CA": "Californie", "US-PA": "Pennsylvanie", "AU-NT": "Territoire du Nord"},
+            "de": {"US-CA": "Kalifornien", "US-PA": "Pennsylvania", "AU-NT": "Nordterritorium"}
+          },
+          "assertions": "Actual visible picker and selected-row labels match independent literals at 200% font scale; changing country clears the previous subdivision, and Continue commits AU-NT without applying a preset or completing onboarding."
+        },
+        "boundary": "The original resource family covers all 59 codes in all 12 locales. Mounted consumer coverage is French and German, not all-locale UI, physical-device, radio or full-WP acceptance. This map identifies existing assertions; it is not an execution result."
+      }
     }
   ],
   "additional_android_families": [
