@@ -33,7 +33,7 @@ resolving tasks (`validateModuleGraph`, `runtimeDependencyInventory`, and
 full-scaffold `resolveScaffoldDependencies`) run in a serial Gradle preflight
 before the selected build, test and lint tasks. A preflight failure therefore
 prevents that expensive task graph from starting. The remaining tasks run in a
-separate Gradle invocation with project parallelism bounded to two workers.
+separate Gradle invocation with project parallelism capped at eight workers.
 This ordering limits wasted work but does not repair unsafe cross-project
 configuration resolution inside the validators; that build-logic defect is
 owned by WP-002 and remains a separate follow-up.
@@ -665,8 +665,9 @@ or cross-PR cache is provided. Candidate Gradle receives only the **unchanged**
 The Windows PowerShell child strips startup-added variables and repeats the
 independent parent preflight before invoking the batch wrapper.
 
-Hosted builds use one worker, in-process Kotlin, a 2GiB build heap and 512MiB
-test heap; these are build-process budgets, not app runtime flags or AI budgets.
+Hosted builds allow up to eight Gradle workers, use in-process Kotlin, a 2GiB
+build heap and 512MiB test heap; these are build-process budgets, not app runtime
+flags or AI budgets.
 The separate local `--local` mode retains measured shared-Windows constraints.
 PyYAML6.0.3 is hash-pinned MIT-licensed CI parsing tooling, not an Android-linked
 dependency. Tool/SDK terms and existing GPLv3/MIT/Apache notices remain distinct

@@ -106,7 +106,7 @@ class EnvironmentTests(unittest.TestCase):
         self.assertEqual("strict", arguments[arguments.index("--dependency-verification") + 1])
         self.assertNotIn("--rerun-tasks", arguments)
         self.assertIn("--build-cache", arguments)
-        self.assertIn("--max-workers=2", arguments)
+        self.assertIn("--max-workers=8", arguments)
         if stage == "prepare":
             self.assertNotIn("--parallel", arguments)
         else:
@@ -247,7 +247,7 @@ class EnvironmentTests(unittest.TestCase):
             self.assertIn("resolveScaffoldDependencies", arguments)
             self.assertNotIn("verifyScaffoldTests", arguments)
             self.assertIn("--build-cache", arguments)
-            self.assertIn("--max-workers=2", arguments)
+            self.assertIn("--max-workers=8", arguments)
             self.assertNotIn("--parallel", arguments)
             self.assertIn("--init-script", arguments)
             self.assertTrue(arguments[arguments.index("--init-script") + 1].endswith(

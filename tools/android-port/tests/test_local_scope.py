@@ -635,7 +635,7 @@ class LocalScopeBindingTests(unittest.TestCase):
         output.mkdir()
         calls, execute = self.execute_fixture(plan)
         report = run_scaffold(self.repo, plan, {}, output, execute,
-                              ["--parallel", "--max-workers=2",
+                              ["--parallel", "--max-workers=8",
                                "--dependency-verification", "strict"], trusted_base=plan["base"])
         preflight_tasks = ["validateModuleGraph", "runtimeDependencyInventory"]
         build_tasks = [task for task in plan["tasks"] if task not in preflight_tasks]
@@ -647,7 +647,7 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.assertIn(":core:services:test", calls[1])
         self.assertIn(":core:services:check", calls[1])
         self.assertIn("--parallel", calls[1])
-        self.assertIn("--max-workers=2", calls[1])
+        self.assertIn("--max-workers=8", calls[1])
         self.assertIn("--init-script", calls[0])
         self.assertIn("--init-script", calls[1])
         self.assertEqual(report["kind"], "local-affected-only")
@@ -680,7 +680,7 @@ class LocalScopeBindingTests(unittest.TestCase):
         with contextlib.redirect_stdout(text), self.assertRaises(subprocess.CalledProcessError) as raised:
             run_scaffold(
                 self.repo, plan, {}, output, fail_preflight,
-                ["--parallel", "--max-workers=2"], trusted_base=plan["base"],
+                ["--parallel", "--max-workers=8"], trusted_base=plan["base"],
             )
         self.assertIs(raised.exception, failure)
         self.assertEqual(len(calls), 1)

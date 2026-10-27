@@ -357,7 +357,7 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         "--project-cache-dir", str(cache),
     ]
     if not local:
-        options.extend(("--build-cache", "--max-workers=2"))
+        options.extend(("--build-cache", "--max-workers=8"))
         if stage != "prepare":
             options.append("--parallel")
     if local:
