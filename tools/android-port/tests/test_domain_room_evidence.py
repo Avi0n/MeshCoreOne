@@ -38,7 +38,9 @@ class DomainRoomFixture:
         self.write(".gitignore", "**/build/\n**/Ignored.kt\n")
         for item in self.owned:
             self.write(item["path"], (REPO / item["path"]).read_bytes().replace(b"\r\n", b"\n"))
-        for path in collector.CONTROL_INPUTS - {collector.SCHEMA}:
+        for path in (collector.CONTROL_INPUTS | {
+            "docs/android/evidence/WP-003/software-verification-manifest-amendment-v2.json",
+        }) - {collector.SCHEMA}:
             self.write(path, (REPO / path).read_bytes().replace(b"\r\n", b"\n"))
         self.write("android/core/contracts/build.gradle.kts", "// Fixture-only existing neutral contract runner\n")
         self.write("android/core/contracts/src/test/kotlin/FixtureTest.kt",
@@ -187,7 +189,7 @@ class DomainRoomEvidenceTests(unittest.TestCase):
 
     def test_exact_content_scope_emits_current_binding_without_rewriting_original_room_receipt(self):
         for revision, manifest_sha, policy_sha in (
-            (None, "977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8",
+            (None, "11120a20d04408b3d21fac09180412df0490cabf1dafb8a3c98fe83e0fad31e4",
              "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20"),
             ("7e2835bad2c03dfb5a088063655f9fc4dbafd00f",
              "fdbce89204ae5e391a2baac1c1aa4910742242b2007d32ac0efb799720cb4958",
