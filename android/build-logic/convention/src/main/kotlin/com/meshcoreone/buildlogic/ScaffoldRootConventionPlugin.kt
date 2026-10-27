@@ -12,38 +12,16 @@ class ScaffoldRootConventionPlugin : Plugin<Project> {
             group = "verification"
             description = "Inspect actual production configurations, artifacts and JVM sources against modules.md."
             notCompatibleWithConfigurationCache("Inspects the fully configured Gradle project dependency model")
-            doLast {
-                verifyLocalCatalogBookkeeping(layout.projectDirectory.file("settings-gradle.lockfile").asFile)
-                val modules = subprojects.filter { it.path in allowedEdges || it.buildFile.isFile }
-                    .map { inspectModule(it, resolveJvmArtifacts = true) }
-                val violations = graphViolations(modules, completeInventory = true)
-                if (violations.isNotEmpty()) throw GradleException(violations.joinToString("\n"))
-                writeGraphReport(layout.buildDirectory.file("reports/scaffold/module-graph.tsv").get().asFile, modules)
-                logger.lifecycle("Module graph verified: ${modules.size} modules; no forbidden production edges or Android JVM leakage")
-            }
         }
         tasks.register("resolveScaffoldDependencies") {
             group = "build setup"
             description = "Resolve configured component graphs for reviewed locks; consumed artifact views supply checksums."
             notCompatibleWithConfigurationCache("Resolves the configured project dependency model")
-            doLast {
-                allprojects.sortedBy { it.path }.forEach { module ->
-                    module.configurations.filter { it.isCanBeResolved }.sortedBy { it.name }.forEach {
-                        resolveDependencyGraph(it)
-                    }
-                }
-            }
         }
         tasks.register("runtimeDependencyInventory") {
             group = "verification"
             description = "Record exact linked-runtime POM license inputs; missing declarations block admission."
             notCompatibleWithConfigurationCache("Resolves current linked artifacts and declared license POMs")
-            doLast {
-                generateRuntimeDependencyInventory(
-                    rootProject,
-                    layout.buildDirectory.file("reports/scaffold/runtime-dependencies.tsv").get().asFile,
-                )
-            }
         }
         tasks.register("verifyScaffoldTests") {
             group = "verification"
@@ -92,6 +70,67 @@ class ScaffoldRootConventionPlugin : Plugin<Project> {
             description = "Lint every Android scaffold module."
         }
         gradle.projectsEvaluated {
+            val modules = subprojects.filter { it.path in allowedEdges || it.buildFile.isFile }
+            val snapshots = modules.map { module ->
+                val destination = module.layout.buildDirectory.file("reports/scaffold/module-snapshot.json")
+                val producer = module.tasks.register("writeScaffoldModuleSnapshot") {
+                    notCompatibleWithConfigurationCache("Inspects this project's configured dependency model")
+                    outputs.file(destination)
+                    outputs.upToDateWhen { false }
+                    doLast {
+                        writeModuleSnapshot(destination.get().asFile, inspectModule(module, resolveJvmArtifacts = true))
+                    }
+                }
+                destination to producer
+            }
+            tasks.named("validateModuleGraph") {
+                dependsOn(snapshots.map { it.second })
+                inputs.files(snapshots.map { it.first })
+                outputs.file(layout.buildDirectory.file("reports/scaffold/module-graph.tsv"))
+                outputs.upToDateWhen { false }
+                doLast {
+                    verifyLocalCatalogBookkeeping(layout.projectDirectory.file("settings-gradle.lockfile").asFile)
+                    val actual = snapshots.map { readModuleSnapshot(it.first.get().asFile) }
+                    val violations = graphViolations(actual, completeInventory = true)
+                    if (violations.isNotEmpty()) throw GradleException(violations.joinToString("\n"))
+                    writeGraphReport(layout.buildDirectory.file("reports/scaffold/module-graph.tsv").get().asFile, actual)
+                    logger.lifecycle("Module graph verified: ${actual.size} modules; no forbidden production edges or Android JVM leakage")
+                }
+            }
+            val resolutionTasks = allprojects.sortedBy { it.path }.map { module ->
+                module.tasks.register("resolveScaffoldProjectDependencies") {
+                    notCompatibleWithConfigurationCache("Resolves this project's configured dependency model")
+                    doLast {
+                        module.configurations.filter { it.isCanBeResolved }.sortedBy { it.name }.forEach {
+                            resolveDependencyGraph(it)
+                        }
+                    }
+                }
+            }
+            tasks.named("resolveScaffoldDependencies") {
+                dependsOn(resolutionTasks)
+            }
+            val application = project(":app")
+            val inventory = application.layout.buildDirectory.file("reports/scaffold/runtime-dependencies.tsv")
+            val inventoryTask = application.tasks.register("writeScaffoldRuntimeDependencyInventory") {
+                notCompatibleWithConfigurationCache("Resolves this project's linked artifacts and license POMs")
+                outputs.file(inventory)
+                outputs.upToDateWhen { false }
+                doLast {
+                    generateRuntimeDependencyInventory(application, inventory.get().asFile)
+                }
+            }
+            tasks.named("runtimeDependencyInventory") {
+                dependsOn(inventoryTask)
+                inputs.file(inventory)
+                outputs.file(layout.buildDirectory.file("reports/scaffold/runtime-dependencies.tsv"))
+                outputs.upToDateWhen { false }
+                doLast {
+                    val destination = layout.buildDirectory.file("reports/scaffold/runtime-dependencies.tsv").get().asFile
+                    destination.parentFile.mkdirs()
+                    inventory.get().asFile.copyTo(destination, overwrite = true)
+                }
+            }
             tasks.named("lintScaffold") {
                 dependsOn(subprojects.filter { it.plugins.hasPlugin("com.android.library") || it.plugins.hasPlugin("com.android.application") }
                     .map { "${it.path}:lintDebug" })

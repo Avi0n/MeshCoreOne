@@ -1,6 +1,8 @@
 // AndroidOnly: WP-002 Inspect real Gradle production dependencies and enforce the draft module contract.
 package com.meshcoreone.buildlogic
 
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
@@ -55,6 +57,33 @@ internal data class ModuleSnapshot(
     val androidEvidence: Set<String>,
     val dynamicDependencies: Set<String>,
 )
+
+internal fun writeModuleSnapshot(destination: File, module: ModuleSnapshot) {
+    destination.parentFile.mkdirs()
+    destination.writeText(JsonOutput.toJson(mapOf(
+        "path" to module.path,
+        "edges" to module.edges.map { listOf(it.consumer, it.producer, it.configuration) },
+        "androidEvidence" to module.androidEvidence.sorted(),
+        "dynamicDependencies" to module.dynamicDependencies.sorted(),
+    )))
+}
+
+internal fun readModuleSnapshot(source: File): ModuleSnapshot {
+    val data = JsonSlurper().parse(source) as? Map<*, *>
+        ?: error("Malformed module snapshot: ${source.path}")
+    val path = data["path"] as? String ?: error("Missing module snapshot path: ${source.path}")
+    fun strings(name: String): Set<String> {
+        val values = data[name] as? List<*> ?: error("Missing $name in ${source.path}")
+        return values.map { it as? String ?: error("Malformed $name in ${source.path}") }.toSet()
+    }
+    val edges = (data["edges"] as? List<*> ?: error("Missing edges in ${source.path}")).map { value ->
+        val parts = value as? List<*> ?: error("Malformed edge in ${source.path}")
+        require(parts.size == 3 && parts.all { it is String }) { "Malformed edge in ${source.path}" }
+        ProductionEdge(parts[0] as String, parts[1] as String, parts[2] as String)
+    }
+    require(edges.all { it.consumer == path }) { "Mismatched module snapshot consumer: ${source.path}" }
+    return ModuleSnapshot(path, edges, strings("androidEvidence"), strings("dynamicDependencies"))
+}
 
 internal fun isProductionConfiguration(name: String): Boolean {
     val lower = name.lowercase()

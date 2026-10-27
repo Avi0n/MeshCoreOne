@@ -37,8 +37,10 @@ internal fun declaredLicenses(pom: File): List<DeclaredLicense> {
 }
 
 internal fun generateRuntimeDependencyInventory(project: Project, destination: File) {
-    val application = project.project(":app")
-    val ids = application.configurations.getByName("debugRuntimeClasspath").incoming.resolutionResult.allComponents
+    require(project.path == ":app") { "Runtime inventory must execute in the application project" }
+    val runtime = project.configurations.getByName("debugRuntimeClasspath")
+    resolveDependencyGraph(runtime)
+    val ids = runtime.incoming.resolutionResult.allComponents
         .mapNotNull { it.id as? ModuleComponentIdentifier }.sortedBy { it.displayName }
     require(ids.isNotEmpty()) { "Zero discovered linked runtime dependencies" }
     val rows = mutableListOf<String>()
