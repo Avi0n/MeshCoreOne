@@ -666,11 +666,88 @@ BACKUP_POST_COMMIT_CAPABILITY = {
 }
 
 
+RX_PROJECTION_REGRESSION_CAPABILITY = {
+    "id": "wp201-rx-projection-source-regressions",
+    "work_packages": ["WP-201"],
+    "path_rules": [
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/ParityRxMaintenanceOriginalPredicateTest.kt",
+    ],
+    "operations": ["restore-rx-projection-source-regressions"],
+    "invariants": [
+        "DATA-08-pinned-PersistenceStoreTests-and-RxLogEntryDTO-db14559b39d32322b06477c6ae676112f583db50-source-baseline-not-new-adaptation",
+        "two-existing-repository-tests-only-first-corruption-method-and-OriginalCase-annotation-unused-import-cleanup-only",
+        "route999-to-flood-payloadMinus1-to-unknown-version5000-to-zero-path400-to-zero-channel9999-to-null-timestampMinus10-to-null",
+        "exact-checked-failable-projection-no-wrapping-clamping-or-defaults-outside-source-approved-fields",
+        "real-RoomPersistenceStore-fetch-retains-entry-id-radio-raw-bytes-healthy-companion-and-nonempty-result",
+        "compound-and-six-isolated-parameter-families-retained-with-independent-absolute-expected-values",
+        "repeated-reads-preserve-entire-stored-raw-row-no-write-delete-recreate-or-spurious-issue-report",
+        "all-other-test-methods-pruning-batching-retention-ordering-and-primary-WP202-provenance-unchanged",
+        "reject-unapproved-strict-corrupt-projection-adaptation-not-expectation-weakening-or-replayed-source-credit",
+        "RxLogService-source-catch-log-empty-list-and-CancellationException-propagation-unchanged-no-service-or-UI-authority",
+        "no-new-test-create-no-test-subtree-no-converter-schema-migration-build-dependency-or-runtime-authority",
+        "same-owner-stored-identity-and-authorization-preserved-no-impersonation-release-recreate-or-ledger-rewrite",
+        "trusted-main-admission-before-consumer-edit-semantic-overlap-serialized-with-current-producer",
+        "original-raw-data-secrets-and-license-obligations-preserved-no-sensitive-generic-logging",
+    ],
+    "validation": [
+        "exact WP201 two-existing-test named-operation positives; generic create modify cross-purpose all-other-WP and sibling denials",
+        "future actual compound and six-isolated source fallbacks through real Room repository with same identities bytes and healthy companion",
+        "future repeated repository reads prove entire raw-row equality no mutation deletion or spurious issues",
+        "future affected declared original-case tests retain all non-corruption methods and nonzero discovery without failure error or skip",
+        "exact complete trusted predecessor object and raw Git-blob equality; no service production or new test admission",
+        "policy fixtures prove admission only not actual Room service UI Android or original-family acceptance",
+    ],
+}
+
+
+def rx_projection_regression_predecessor(policy):
+    """Reverse only the exact existing-test source-baseline support rule."""
+    if not isinstance(policy, dict):
+        raise PortError("RX projection regression amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result["reservation_policy"]
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("RX projection regression amendment requires the canonical capability catalog")
+    selected = [i for i, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == RX_PROJECTION_REGRESSION_CAPABILITY["id"]]
+    path_matches = [
+        rule for rule in rules
+        if isinstance(rule, dict) and isinstance(rule.get("path_rules"), list)
+        and isinstance(rule.get("operations"), list)
+        and "restore-rx-projection-source-regressions" in rule["operations"]
+        and ("work_packages" not in rule or (
+            isinstance(rule["work_packages"], list) and "WP-201" in rule["work_packages"]
+        ))
+        and any(CapabilityEngine._matches(pattern, path)
+                for path in RX_PROJECTION_REGRESSION_CAPABILITY["path_rules"]
+                for pattern in rule["path_rules"] if isinstance(pattern, str))
+    ]
+    if not selected and not path_matches:
+        return result
+    if len(selected) != 1:
+        raise PortError("RX projection capability changed outside the exact two-existing-test amendment")
+    index = selected[0]
+    if (
+        rules[index] != RX_PROJECTION_REGRESSION_CAPABILITY
+        or path_matches != [RX_PROJECTION_REGRESSION_CAPABILITY]
+        or index == 0 or not isinstance(rules[index - 1], dict)
+        or rules[index - 1].get("id") != "generated-resources"
+        or index + 1 >= len(rules) or rules[index + 1] != BACKUP_POST_COMMIT_CAPABILITY
+    ):
+        raise PortError("RX projection capability changed outside the exact two-existing-test amendment")
+    rules.pop(index)
+    return result
+
+
 def backup_post_commit_predecessor(policy):
     """Reverse only the exact WP-203 adapter support rule."""
     if not isinstance(policy, dict):
         raise PortError("Backup post-commit amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = rx_projection_regression_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     reservation = result["reservation_policy"]
