@@ -626,11 +626,94 @@ HOST_SCOPED_JVM_CAPABILITY = {
 }
 
 
+BACKUP_POST_COMMIT_CAPABILITY = {
+    "id": "wp203-backup-post-commit-delivery",
+    "work_packages": ["WP-203"],
+    "path_rules": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppBackupFeature.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/BackupRegistrationTest.kt",
+        "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/app/backup/AppBackupStateHolder.kt",
+        "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/app/backup/BackupPorts.kt",
+    ],
+    "operations": ["repair-backup-post-commit-delivery"],
+    "invariants": [
+        "DATA-05-D149-App-backup-adapter-post-commit-delivery-only-no-unrelated-App-or-backup-feature-authority",
+        "pinned-AppBackupService-swift-db14559b39d32322b06477c6ae676112f583db50-ignore-cancellation-after-database-commit",
+        "pre-commit-cancellation-propagates-with-atomic-rollback-no-success-before-real-commit",
+        "post-commit-cancellation-cannot-convert-committed-success-to-error-or-cancellation-receipt",
+        "state-holder-preserves-success-after-engine-return-when-UI-effects-cancel-rethrow-CancellationException-no-nothing-changed-claim",
+        "BackupPorts-contract-doc-only-pre-commit-rollback-versus-committed-result-and-typed-preference-failure",
+        "existing-restored-process-effects-once-only-no-database-reimport-or-duplicate-effects",
+        "typed-CommittedBackupPreferenceException-retains-committed-result-snapshot-and-original-StorageFailure",
+        "preference-only-retry-and-acknowledgement-guard-preserved-no-masked-real-storage-or-refresh-failure",
+        "envelope-v1-Unix-seconds-Codable-bytes-UUIDs-source-compression-50MiB-compressed-512MiB-expanded-unchanged",
+        "real-Room-DataStore-adapter-regression-not-cancellation-swallowing-or-self-derived-success",
+        "WP-203-WP-318-WP-407-primary-provenance-and-original-test-family-accounting-unchanged-no-replayed-credit",
+        "same-owner-stored-identity-and-authorization-immutable-no-impersonation-release-recreate-or-ledger-rewrite",
+        "trusted-main-admission-before-consumer-edit-semantic-overlap-serialized-with-current-producer",
+        "source-only-no-runtime-installation-lock-resource-settings-dispatch-or-merge-authority",
+        "backup-secrets-original-data-errors-and-license-obligations-preserved-no-generic-sensitive-logging",
+    ],
+    "validation": [
+        "exact WP203 four-path named-operation admission; generic cross-purpose all-other-WP and sibling denials",
+        "future actual pre-commit cancellation rollback versus afterCommit cancellation committed success and once-only process effects",
+        "future actual typed locked-preference committed receipt and preference-only retry retain rows and do not duplicate counts or effects",
+        "future genuine post-restore refresh failure remains explicit and cannot be hidden by cancellation repair",
+        "future actual Room-service-AppBackupStateHolder test retains Success after UI-effect cancellation while pre-return cancellation is Cancelled and rethrown",
+        "declared affected backup and App typed regressions with nonzero discovery and no failures errors or skips",
+        "exact complete predecessor object and raw Git-blob equality; policy fixtures are not backup or iOS-Android compatibility evidence",
+    ],
+}
+
+
+def backup_post_commit_predecessor(policy):
+    """Reverse only the exact WP-203 adapter support rule."""
+    if not isinstance(policy, dict):
+        raise PortError("Backup post-commit amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result["reservation_policy"]
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Backup post-commit amendment requires the canonical capability catalog")
+    selected = [i for i, rule in enumerate(rules)
+                if isinstance(rule, dict) and rule.get("id") == BACKUP_POST_COMMIT_CAPABILITY["id"]]
+    path_matches = [
+        rule for rule in rules
+        if isinstance(rule, dict) and isinstance(rule.get("path_rules"), list)
+        and isinstance(rule.get("operations"), list)
+        and "repair-backup-post-commit-delivery" in rule["operations"]
+        and ("work_packages" not in rule or (
+            isinstance(rule["work_packages"], list) and "WP-203" in rule["work_packages"]
+        ))
+        and any(CapabilityEngine._matches(pattern, path)
+                for path in BACKUP_POST_COMMIT_CAPABILITY["path_rules"]
+                for pattern in rule["path_rules"] if isinstance(pattern, str))
+    ]
+    if not selected and not path_matches:
+        return result
+    if len(selected) != 1:
+        raise PortError("Backup post-commit capability changed outside the exact four-path amendment")
+    index = selected[0]
+    if (
+        rules[index] != BACKUP_POST_COMMIT_CAPABILITY
+        or path_matches != [BACKUP_POST_COMMIT_CAPABILITY]
+        or index == 0 or not isinstance(rules[index - 1], dict)
+        or rules[index - 1].get("id") != "generated-resources"
+        or index + 1 >= len(rules) or not isinstance(rules[index + 1], dict)
+        or rules[index + 1].get("id") != "persistence-schemas"
+    ):
+        raise PortError("Backup post-commit capability changed outside the exact four-path amendment")
+    rules.pop(index)
+    return result
+
+
 def host_scoped_jvm_predecessor(policy):
     """Remove only the exact source-support rule, retaining the complete previous policy."""
     if not isinstance(policy, dict):
         raise PortError("Host-scoped JVM amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = backup_post_commit_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     reservation = result["reservation_policy"]
