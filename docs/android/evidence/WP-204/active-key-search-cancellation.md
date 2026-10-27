@@ -1,5 +1,99 @@
 # WP-204 DATA-20: active vanity-search cancellation
 
+## Current reconciliation (#381)
+
+**Outcome: preserve the already-landed repair; correct stale publication and
+verification wording.** No new failing generator behavior was established.
+The authoring record below remains historical, not the current repair status.
+
+Repository: `cbattlegear/MeshCoreOne-Android`; owner: `data-persistence-engineer`.
+Reconciliation base: `1c1f3b451b25200432ecab09cb41397ae612e4af`.
+Frozen source: `db14559b39d32322b06477c6ae676112f583db50`.
+Manifest SHA256: `977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8`.
+Policy revision: `79f6c46a4192aeeac807d1326126eac57c6db70b36a6f011afe00ca002a48f3b`.
+Session: `37f7ca3e-00c8-4c3d-adc8-3a9ac72e4313`; reservation revision 2,
+trusted `wp-owned` create/modify, no overlapping intents.
+Acceptance references: `DATA-20`, `WP-204-behavior`,
+`WP-204-source-test-parity`; one original family only.
+
+### Landed identity and authoritative execution
+
+The test repair originated in commit
+`4221c4f58fa20fc040b2dfaaf633eb005db0e833` and landed through
+[#345](https://github.com/cbattlegear/MeshCoreOne-Android/pull/345):
+head `d9419e30171e32585e61af0e6d5b121243edaf32`, merge
+`5d59917413d445d7af1fc58f7d5061a796cefa78`. The repair merge and the actual
+WP-003/#4, WP-102/#12 and WP-201/#17 prerequisite merges are ancestors of the
+reconciliation base. The later repair issue #384 is not declared complete.
+
+The [exact-head hosted run 40403656506](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/40403656506)
+succeeded. Its **One Linux Android build** log reports 138 datastore methods
+discovered/run/passed, zero failures/errors/skips, and names all 26
+`KeyGenerationSourceTest` and seven `KeyGenerationBoundaryTest` methods,
+including the three cancellation methods below. These are results for the
+original PR #345 head, not a fresh run of this documentation candidate.
+The hosted result/log is authoritative; no duplicate result bundle is added.
+
+Before publication, `git diff d9419e30171e32585e61af0e6d5b121243edaf32 HEAD --`
+with these three explicit paths confirmed no changes:
+
+- `android/core/datastore/src/main/kotlin/com/meshcoreone/android/core/datastore/KeyGenerationService.kt`
+- `android/core/datastore/src/test/kotlin/com/meshcoreone/android/core/datastore/KeyGenerationSourceTest.kt`
+- `android/core/datastore/src/test/kotlin/com/meshcoreone/android/core/datastore/KeyGenerationBoundaryTest.kt`
+
+The Swift service and test also match their frozen source blobs. Historical
+catalogs, XML, acceptance accounting and retained authoring identities are
+unchanged. This reconciliation changes only three WP-204 documentation files.
+The follow-up PR supplies its exact head, review and current hosted check links.
+
+### Original family and cancellation boundaries
+
+The [frozen original](https://github.com/cbattlegear/MeshCoreOne-Android/blob/db14559b39d32322b06477c6ae676112f583db50/MC1Services/Tests/MC1ServicesTests/Services/KeyGenerationServiceTests.swift#L105-L123),
+`KeyGenerationServiceTests::Cancellation is respected()` (`single`), cancels
+immediately and permits either a completed identity or `CancellationError`.
+It does not itself guarantee that the search started. The stronger native
+executing-loop evidence is retained without rewriting that source contract.
+
+| Native method at the verified PR #345 head | Stimulus and independently observable boundary |
+| --- | --- |
+| [`cancellationStopsAnExecutingVanitySearch`](https://github.com/cbattlegear/MeshCoreOne-Android/blob/d9419e30171e32585e61af0e6d5b121243edaf32/android/core/datastore/src/test/kotlin/com/meshcoreone/android/core/datastore/KeyGenerationSourceTest.kt#L104-L138) | The existing independent RFC8032 seed/public-key vector cannot match `AA`. A second seed request proves one unsuccessful real attempt completed. It cancels the actual search Deferred, requires propagated cancellation with the supplied message, completed/cancelled state, `finally` cleanup, no returned identity and exactly two seed calls. A third call fails immediately; the coroutine-test timeout bounds suspension. |
+| [`cancellationBeforeStartNeverReachesEntropy`](https://github.com/cbattlegear/MeshCoreOne-Android/blob/d9419e30171e32585e61af0e6d5b121243edaf32/android/core/datastore/src/test/kotlin/com/meshcoreone/android/core/datastore/KeyGenerationSourceTest.kt#L93-L102) | Cancel a LAZY launch, join it, require cancelled state and zero seed requests. This remains a separate genuine pre-start case, not the executing-search oracle. |
+| [`cancellationFromEntropyIsNotReclassifiedAsRandomFailure`](https://github.com/cbattlegear/MeshCoreOne-Android/blob/d9419e30171e32585e61af0e6d5b121243edaf32/android/core/datastore/src/test/kotlin/com/meshcoreone/android/core/datastore/KeyGenerationBoundaryTest.kt#L63-L67) | The entropy seam throws `CancellationException`; the service must propagate it rather than report random-generation failure or return an identity. |
+
+The real generator runs the search in owned `withContext(dispatcher)` work,
+checks cancellation before each attempt and periodically yields. The active
+test exercises that loop with `StandardTestDispatcher`, not a replacement
+generator. Its terminal Deferred and `finally` assertions cover the owned
+operation's termination; this is not physical-thread, device or latency evidence.
+The app's `IdentityKeyPort` adapter calls this generator, and
+`RegenerateIdentityStateHolder` cancels its generation job, rethrows cancellation
+and clears busy state in `finally`. Those consumers exist but are not executed
+by these two suites; this record does not grant UI or radio acceptance.
+
+### Current local checks and execution limitation
+
+The installed pinned Python/JDK/SDK passed the declared `ci.py preflight`.
+A requested rerun of the already-declared
+`:core:datastore:testDebugUnitTest` selections for `KeyGenerationSourceTest` and
+`KeyGenerationBoundaryTest` stopped **before Gradle or test execution**:
+`check.execution_runtime` reported a missing installed execution-interlock runtime.
+The supported `reserve.py install-runtime --owner wp204-381-37f7ca3e-runtime`
+retry, using the existing canonical shared ledger, was refused because another
+owner holds a JVM execution lane. No foreign reservation was cleared, replaced
+or treated as stale. **Fresh native tests/build/lint: NOT RUN.**
+
+Pre-push coverage verification therefore uses the actual hosted method discovery
+above plus unchanged relevant implementation/test bytes, not a claimed new local
+pass or an inferred result from an annotation. Current documentation/provenance
+checks are reported separately in the follow-up PR. No new crypto, schema,
+source-family waiver, global parity, platform or hardware acceptance is claimed.
+
+## Historical authoring record
+
+The original unpublished/unverified status, commands and execution hold below
+apply to the authoring candidate at that time. They are retained for audit and
+are superseded by the landed identity and authoritative hosted result above.
+
 Status: **UNVERIFIED local candidate; not published or accepted.**
 
 Repository: `cbattlegear/MeshCoreOne-Android`.
