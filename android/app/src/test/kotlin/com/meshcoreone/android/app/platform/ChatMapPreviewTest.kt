@@ -5,6 +5,7 @@ package com.meshcoreone.android.app.platform
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -264,10 +265,32 @@ class ChatMapPreviewTest : RoomProcessTest() {
             val toggle = context.getString(S.mapPreviewsToggle)
             compose.runOnUiThread { host.setContent { MeshCoreTheme(motionScale = 0f) { AppMapSettings(settings) {} } } }
             compose.onNodeWithContentDescription(toggle).assertIsOn().performClick()
-            compose.waitUntil(10_000) {
-                h.settle()
-                runBlocking { !storage.preferences.get(AppStorageKey.showMapPreviewThumbnails) } &&
-                    compose.onAllNodes(hasContentDescription(toggle) and isOff()).fetchSemanticsNodes().size == 1
+            val observations = mutableListOf<String>()
+            fun jobState(owner: CoroutineScope) = owner.coroutineContext[Job]?.let {
+                "active=${it.isActive},cancelled=${it.isCancelled},completed=${it.isCompleted}"
+            } ?: "MISSING_JOB"
+            try {
+                compose.waitUntil(10_000) {
+                    h.settle()
+                    val stored = runBlocking { storage.preferences.get(AppStorageKey.showMapPreviewThumbnails) }
+                    val observation = "poll=${observations.size + 1},sdk=${Build.VERSION.SDK_INT}," +
+                        "stored=$stored,feature=${settings.preferenceValues.value[AppStorageKey.showMapPreviewThumbnails]}," +
+                        "failure=${settings.failure.value},uiJob={${jobState(h.container.uiScope)}}," +
+                        "fixtureJob={${jobState(scope)}},lifecycle=${host.lifecycle.currentState}," +
+                        "destroyed=${host.isDestroyed},finishing=${host.isFinishing}"
+                    observations += "$observation,offCount=${if (stored) "NOT_QUERIED" else "QUERY_PENDING"}"
+                    !stored &&
+                        compose.onAllNodes(hasContentDescription(toggle) and isOff()).fetchSemanticsNodes().size.let {
+                            observations[observations.lastIndex] = "$observation,offCount=$it"
+                            it == 1
+                        }
+                }
+            } catch (failure: ComposeTimeoutException) {
+                failure.addSuppressed(IllegalStateException(
+                    "WP-317 privacy wait observations (sequential, not atomic):\n" +
+                        observations.joinToString("\n"),
+                ))
+                throw failure
             }
             compose.onNodeWithContentDescription(toggle).assertIsOff()
             assertFalse(storage.preferences.get(AppStorageKey.linkPreviewsEnabled))
