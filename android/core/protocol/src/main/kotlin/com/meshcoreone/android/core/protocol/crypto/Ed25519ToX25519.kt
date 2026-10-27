@@ -6,6 +6,13 @@ import org.bouncycastle.math.ec.rfc7748.X25519Field
 import org.bouncycastle.math.ec.rfc8032.Ed25519
 
 object Ed25519ToX25519 {
+    /**
+     * Converts a canonical Ed25519 public key to the corresponding X25519 public key.
+     *
+     * @throws CryptoException.InvalidKeyLength when the input is not 32 bytes.
+     * @throws CryptoException.InvalidEd25519PublicKey when the input is not a canonical,
+     * non-identity prime-order Ed25519 point.
+     */
     fun convertPublicKey(ed25519PublicKey: Bytes): Bytes {
         ed25519PublicKey.requireKeyFormat(KeyFormat.ED25519_PUBLIC)
         val encoded = ed25519PublicKey.toByteArray()

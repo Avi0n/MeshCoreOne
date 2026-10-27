@@ -48,5 +48,15 @@ class Ed25519ToX25519Test {
             assertEquals(KeyFormat.ED25519_PUBLIC, error.format)
             assertEquals(length, error.actual)
         }
+        val malformedPoints = listOf(
+            Bytes.EMPTY.paddedOrTruncated(32),
+            Bytes.of(1).paddedOrTruncated(32),
+            Bytes.fromHex("edffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f"),
+        )
+        for (point in malformedPoints) {
+            assertFailsWith<CryptoException.InvalidEd25519PublicKey> {
+                Ed25519ToX25519.convertPublicKey(point)
+            }
+        }
     }
 }
