@@ -65,3 +65,19 @@ declared Python version. The failed run is not represented as successful.
 invocation. Its protocol validation reparses actual
 JUnit reports and requires at least 84 successful, unskipped cases. Existing
 scaffold-suite counts are not substituted for this new library evidence.
+
+## R118 negative-hop boundary (#375)
+
+The pinned `encodePathLen` source validates hash size, clamps hop count to 63,
+then converts to `UInt8`. A negative hop count traps during that conversion;
+Swift exposes no recoverable error/result contract for it. Android's encoder
+already rejects negative hop counts with `IllegalArgumentException` before
+packing, and `PathEncodingTest` now gives this assertion its own test case,
+separate from invalid hash-size assertions. This is an explicit native
+fail-fast adaptation; it does not change valid bytes, the upper clamp, or claim
+an additional frozen original-family mapping.
+
+The 84-case count above is the historical run for implementation base
+`979dd73b2fc3cb5cbeea07b1c809f5c9283289ee`. This change splits one existing
+test method, so the exact candidate count must come from its hosted run; no
+new local test execution or candidate result is claimed here.

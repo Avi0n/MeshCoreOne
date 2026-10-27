@@ -93,9 +93,13 @@ class PathEncodingTest {
     }
 
     @Test
-    fun `invalid path arguments fail instead of overflowing a wire byte`() {
+    fun `invalid hash sizes fail before path length packing`() {
         assertFailsWith<IllegalArgumentException> { encodePathLen(0, 1) }
         assertFailsWith<IllegalArgumentException> { encodePathLen(4, 1) }
+    }
+
+    @Test
+    fun `negative hop count is rejected before path length packing`() {
         assertFailsWith<IllegalArgumentException> { encodePathLen(1, -1) }
     }
 }
