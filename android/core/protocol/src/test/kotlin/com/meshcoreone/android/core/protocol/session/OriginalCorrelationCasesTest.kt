@@ -150,13 +150,13 @@ class OriginalCorrelationCasesTest {
             start(f, expectedAppStart = hex("01032020202020204d43547374"))
             val task = checkedRequest { f.session.getContacts() }; runCurrent()
             f.transport.receive(contactsStart(1)); runCurrent()
-            advanceTimeBy(79); runCurrent()
+            advanceTimeBy(140); runCurrent()
             assertFalse(task.isCompleted)
-            advanceTimeBy(1); runCurrent()
+            // The header changed generation after the first sample; the next unchanged sample is at 160ms.
+            advanceTimeBy(20); runCurrent()
             assertTrue(task.isCompleted)
-            advanceTimeBy(60); runCurrent()
             assertFailsWith<MeshCoreException.Timeout> { task.await() }
-            assertEquals(140L, testScheduler.currentTime)
+            assertEquals(160L, testScheduler.currentTime)
             assertEquals(1L, assertNotNull(f.session.lastContactFetchProgress).reportedTotal)
             assertFalse(assertNotNull(f.session.lastContactFetchProgress).completed)
             assertEquals(0, f.session.core.generation().pending.size)

@@ -153,7 +153,7 @@ class R118SessionContractsTest {
             val pipeline = checkedRequest { channels.getChannels(listOf(0u, 1u, 2u)) }; runCurrent()
             f.transport.receive(channelPacket(0, "configured", 0x11))
             f.transport.receive(channelPacket(2, "", 0)); runCurrent()
-            advanceTimeBy(100); runCurrent()
+            advanceTimeBy(200); runCurrent()
             val partial = pipeline.await()
             assertEquals(listOf<UByte>(0u, 2u), partial.received.map { it.index })
             assertEquals(listOf<UByte>(1u), partial.missing)
@@ -186,6 +186,21 @@ class R118SessionContractsTest {
 
     @TestFactory
     fun contactInactivityWindow() = listOf(
+        nativeCase("R118 G10 a stream with no header or progress expires at the original 80ms inactivity tick") {
+            val f = fixture(SessionConfiguration(
+                defaultTimeout = 10.0, clientIdentifier = "MCTst",
+                contactStreamInactivityTimeout = 0.08, contactStreamHardTimeout = 1.0,
+            ))
+            start(f, expectedAppStart = hex("01032020202020204d43547374"))
+            val task = checkedRequest { f.session.getContacts() }; runCurrent()
+            advanceTimeBy(79); runCurrent()
+            assertFalse(task.isCompleted)
+            advanceTimeBy(1); runCurrent()
+            assertTrue(task.isCompleted)
+            assertFailsWith<MeshCoreException.Timeout> { task.await() }
+            assertEquals(80L, testScheduler.currentTime)
+            f.session.stop()
+        },
         nativeCase("R118 G10 one-second inactivity budget resets on actual stream progress") {
             val f = fixture(SessionConfiguration(
                 defaultTimeout = 10.0, clientIdentifier = "MCTst",

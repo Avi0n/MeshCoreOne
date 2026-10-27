@@ -44,7 +44,7 @@ class OriginalChannelCasesTest {
             assertEquals(5, f.transport.sent.size)
             f.transport.receive(channelPacket(0, "zero")); f.transport.receive(channelPacket(1, "one"))
             f.transport.receive(channelPacket(3, "three")); runCurrent()
-            advanceTimeBy(99); runCurrent()
+            advanceTimeBy(199); runCurrent()
             assertFalse(task.isCompleted)
             advanceTimeBy(1); runCurrent()
             assertTrue(task.isCompleted)
