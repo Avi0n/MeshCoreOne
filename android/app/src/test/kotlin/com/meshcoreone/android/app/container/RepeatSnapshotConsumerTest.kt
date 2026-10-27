@@ -95,7 +95,7 @@ class RepeatSnapshotConsumerTest : RoomProcessTest() {
             store.saveDevice(other)
             h.manager.connect(h.target(id))
             h.eventually("foreground sync completed") {
-                h.sessions.current?.syncCoordinator?.syncState?.value == SyncState.Synced &&
+                h.sessions.current?.syncCoordinator?.state == SyncState.Synced &&
                     h.appState.canRunSettingsStartupReads
             }
             h.assertReady()

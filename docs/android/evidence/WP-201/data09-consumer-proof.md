@@ -135,3 +135,61 @@ The documented environment preflight invokes `java -version`; it is deferred
 under the explicit source-only/no-JVM gate rather than reusing old readiness
 as a fresh PASS. No provisioning, native/JVM guard, push or publication has
 been performed for this follow-up.
+
+## First guarded attempt and bounded API correction
+
+The source-stage boundary above is historical. The exact first candidate
+`e8896c2ecbfbd92297784db8fd4d8d502326412c`, tree
+`6937e5cc4894647330b912d82dc6d84950ded333`, subsequently received source
+approval and a distinct single guarded-execution grant. That attempt failed;
+it is not native acceptance.
+
+From the unchanged trusted runner at
+`/ai_cache/meshcoreone/repairs/902ae61f/trusted-runner-047ecbfb`,
+the actual command was:
+
+```text
+/ai_cache/meshcoreone/python/3.12.4/bin/python3.12 -B tools/android-port/local/check.py --commit e8896c2ecbfbd92297784db8fd4d8d502326412c --affected-base 047ecbfb0f8837109a3aa1ff3fd4f522ca868a18 --parallel-jvm .
+```
+
+It used the explicitly isolated canonical environment and the complete actual
+047-derived 31-path plan: full-scaffold fallback, 13 requested tasks and all
+four stages, without caller scope or trusted-base overrides. Python's actual
+70 controller-fixture tests and preflight passed. Scaffold failed at
+`:app:compileDebugUnitTestKotlin`: this new test's line 98 referenced the
+nonexistent `SyncCoordinator.syncState`. Inspect did not run. The guard and
+attached shell both exited 1. Gradle reported 641 actionable tasks:
+28 executed, 16 from cache and 597 up-to-date.
+
+None of the four new App methods compiled or ran. Both exact original model
+cases were uniquely present and passing in the actual `:core:model:test`
+FROM-CACHE XML; none of the 12 existing holder controls ran. Selected-suite
+raw XML and the original task log showed data's 437 and services' 2,705 cases
+from executed tasks, with zero failures/errors/skips; other reached selected
+test tasks were from cache. Thirteen selected suites, including App and
+settings, had no results and did not run. These partial outcomes are not a
+passing complete plan or transferred successor acceptance.
+
+The original log remains at
+`/ai_cache/meshcoreone/repairs/902ae61f/wp201-data09-eaf30961-e8896c2e/guarded-e8896c2e-047.log`.
+Its actual reports are under lane
+`3ef4c5ed8f5cdc142f27b13d76551b492e5a9f8e961211dbe6ae05782b828fcc/1/run-bUDignj8`.
+The installed runner did not harvest failed-run XML. Raw snapshot XML was
+consumed directly while the exact head/tree and clean source were verified
+before and after. The supported owner
+`local-check:64ac6825c1a94300af3711f3eb7c9134` was released; guard PID 541932
+and `/tmp/meshcore-execution-hdbhobjx` were absent. Trusted runner source,
+default refs and its 47-file installed runtime remained unchanged.
+
+The source-only successor corrects only the new test's property access to
+`syncCoordinator.state`. The actual receiver is the existing
+`SessionRegistry.current: RadioSessionContainer?`; its coordinator exposes
+`state: SyncState`, also used by the unchanged foreground channel and RX
+consumer tests. The Synced condition, settings-startup readiness, foreground
+operation, exact eight channel requests and all persistence, identity and
+failure assertions are retained. No production API, shared harness, foreign
+holder test or policy changes.
+
+This correction has not received a new native execution or publication
+grant. The failed candidate and its history remain immutable; all 18 required
+source identities still require complete, source-bound successor verification.
