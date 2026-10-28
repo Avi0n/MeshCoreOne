@@ -301,18 +301,32 @@ class MessageService(
     suspend fun failAllPendingMessages() {
         ownership.check("failAllPendingMessages")
         val ids = synchronized(lock) { pendingAcks.values.filter { !it.isDelivered }.map { it.messageID } }
-        for (id in ids) mutation(id).withLock {
-            if (pendingAck(id)?.isDelivered != false) return@withLock
-            val changed = dataStore.updateMessageStatusUnlessDelivered(key(id), MessageStatus.FAILED)
-            ownership.check("failAllPendingMessages.saved")
-            synchronized(lock) {
-                pendingAcks.remove(id)
-                activeDirectClaims[id]?.let {
-                    if (it.acknowledgement == null) it.retiredWithoutAcknowledgement = true
+        var firstFailure: PersistenceStoreException? = null
+        for (id in ids) {
+            try {
+                mutation(id).withLock {
+                    ownership.check("failAllPendingMessages.entry")
+                    if (pendingAck(id)?.isDelivered != false) return@withLock
+                    val changed = dataStore.updateMessageStatusUnlessDelivered(key(id), MessageStatus.FAILED)
+                    ownership.check("failAllPendingMessages.saved")
+                    synchronized(lock) {
+                        pendingAcks.remove(id)
+                        activeDirectClaims[id]?.let {
+                            if (it.acknowledgement == null) it.retiredWithoutAcknowledgement = true
+                        }
+                    }
+                    if (changed) broadcastFailed(id)
                 }
+                recovered("failPending.$id")
+            } catch (failure: PersistenceStoreException) {
+                if (!ownership.isCurrent) throw failure
+                remember("failPending.$id", failure)
+                val first = firstFailure
+                if (first == null) firstFailure = failure
+                else if (first !== failure) first.addSuppressed(failure)
             }
-            if (changed) broadcastFailed(id)
         }
+        firstFailure?.let { throw it }
     }
 
     suspend fun stopAndFailAllPending() { stopAckExpiryChecking(); failAllPendingMessages() }
