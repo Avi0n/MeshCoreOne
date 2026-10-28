@@ -781,6 +781,32 @@ class RepairExecutionTests(unittest.TestCase):
                 self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
             validate_hosted_methods(scope, candidate, manifest.repo, executed)
 
+    def test_changed_test_inheritance_cannot_hide_inherited_cases(self):
+        manifest, _, _, scope = whole_fixture()
+        helper = TEST.replace("MapTest.kt", "MapFixtures.kt")
+        scope["coverage"].append({
+            "path": helper, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Fixture used by a test.",
+            "modules": ["core/maps"],
+        })
+        sources = {"4" * 40: b"class MapTest { @Test fun keepsListReachable() {} }"}
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        for source in (
+            b"class RequiredCasesTest : BaseCases()",
+            b"class RequiredCasesTest : BaseCases() { @Test fun ownCase() {} }",
+            b"interface RequiredCases : BaseCases",
+            b"class RequiredCasesTest<T>(val value: T) : BaseCases<T>()",
+            b"object RequiredCases : BaseCases()",
+        ):
+            sources["3" * 40] = source
+            with self.subTest(source=source), patch(
+                "controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob],
+            ), self.assertRaisesRegex(PortError, "inherited Kotlin JUnit declarations"):
+                validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+        sources["3" * 40] = b'class MapFixtures { val example = "class Fake : Base()" }'
+        with patch("controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob]):
+            validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+
     def test_interleaved_annotations_and_getter_factories_cannot_hide_as_helpers(self):
         manifest, _, _, scope = whole_fixture()
         helper = TEST.replace("MapTest.kt", "MapFixtures.kt")

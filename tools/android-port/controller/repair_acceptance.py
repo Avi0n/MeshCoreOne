@@ -666,7 +666,7 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
             "methods": inventory, "compiled_test_sources": compiled}
 
 
-def _kotlin_junit_methods(text, declaring_classes=None):
+def _kotlin_junit_methods(text, declaring_classes=None, *, reject_inherited=False):
     def comment(index):
         if text.startswith("//", index):
             end = text.find("\n", index)
@@ -873,6 +873,8 @@ def _kotlin_junit_methods(text, declaring_classes=None):
 
     # A nested annotation inherited from a superclass can shadow even an explicit import.
     inherited_scope = has_inherited_scope()
+    if reject_inherited and inherited_scope:
+        raise PortError("Cannot establish all inherited Kotlin JUnit declarations for changed test source")
     non_test_annotations = {
         name for name, targets in imports.items()
         if not inherited_scope and name not in declared_names
@@ -1006,7 +1008,7 @@ def validate_hosted_methods(scope, candidate_tree, repo, executed, compiled_sour
                 if "/src/androidTest/" not in path:
                     require_compiled(path, blob)
                 text = object_bytes(repo, blob).decode("utf-8")
-                declared = _kotlin_junit_methods(text)
+                declared = _kotlin_junit_methods(text, reject_inherited=True)
                 classes = {}
                 if declared:
                     declared = _kotlin_junit_methods(text, classes)
