@@ -456,6 +456,7 @@ class RepairExecutionTests(unittest.TestCase):
         proof = validate_build_log(build_log([], **report), ["core/protocol"])
         self.assertEqual(proof["methods"]["core/protocol"], methods)
         for change in ({"tasks": TASKS["scaffold"]}, {"protocol_suite": None},
+                       {"unit_test_methods": {}},
                        {"unit_test_methods": {"core/protocol": methods[:1]}}):
             with self.subTest(change=change), self.assertRaises(PortError):
                 validate_build_log(build_log([], **(report | change)), ["core/protocol"])
@@ -532,6 +533,20 @@ class RepairExecutionTests(unittest.TestCase):
                 log = log.replace(LOG_STEP, "A candidate-written summary")
             with self.subTest(kind=kind), self.assertRaises(PortError):
                 validate_build_log(log, modules)
+
+    def test_full_scaffold_requires_module_method_inventory_and_consistent_suite_counts(self):
+        count = {"discovered": 3, "run": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0}
+        methods = [{"class": "ContractTest", "method": f"case{i}"} for i in range(3)]
+        report = {"suites": {"contracts": count}, "unit_test_methods": {"core/contracts": methods}}
+        self.assertEqual(validate_build_log(build_log([], **report), ["core/contracts"])["methods"]["core/contracts"],
+                         methods)
+        for change in (
+            {"unit_test_methods": {}},
+            {"unit_test_methods": {"core/contracts": methods[:1]}},
+            {"module_unit_tests": {"core/contracts": {**count, "passed": 2}}},
+        ):
+            with self.subTest(change=change), self.assertRaises(PortError):
+                validate_build_log(build_log([], **(report | change)), ["core/contracts"])
 
     def test_hosted_method_maps_to_actual_candidate_test_and_verified_module(self):
         manifest, _, _, scope = fixture()

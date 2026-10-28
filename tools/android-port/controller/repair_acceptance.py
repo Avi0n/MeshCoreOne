@@ -629,19 +629,24 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
                 raise PortError("Missing/malformed affected hosted module discovery")
             found = suites.get("contracts" if module == "core/contracts" else module)
         counts(found)
-        if module in inventory:
-            records = inventory[module]
-            if not isinstance(records, list) or len(records) != found["discovered"]:
-                raise PortError("Actual hosted method inventory disagrees with discovered test counts")
-            seen = set()
-            for record in records:
-                fields(record, {"class", "method"}, {"factory"}, label="executed hosted method")
-                if not all(isinstance(item, str) and item for item in record.values()):
-                    raise PortError("Malformed executed hosted method identity")
-                identity = (record["class"], record["method"])
-                if identity in seen:
-                    raise PortError("Duplicate actual hosted method identity")
-                seen.add(identity)
+        if module in ("app", "core/contracts"):
+            duplicate = report.get("module_unit_tests", {})
+            if not isinstance(duplicate, dict) or (
+                module in duplicate and duplicate[module] != found
+            ):
+                raise PortError("Conflicting hosted module discovery counts")
+        records = inventory.get(module)
+        if not isinstance(records, list) or len(records) != found["discovered"]:
+            raise PortError("Actual hosted method inventory disagrees with discovered test counts")
+        seen = set()
+        for record in records:
+            fields(record, {"class", "method"}, {"factory"}, label="executed hosted method")
+            if not all(isinstance(item, str) and item for item in record.values()):
+                raise PortError("Malformed executed hosted method identity")
+            identity = (record["class"], record["method"])
+            if identity in seen:
+                raise PortError("Duplicate actual hosted method identity")
+            seen.add(identity)
     return {"modules": sorted(modules), "positive_discovery": True, "source": "authoritative-hosted-log",
             "methods": inventory}
 

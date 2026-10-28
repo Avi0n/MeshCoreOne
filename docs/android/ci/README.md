@@ -1147,6 +1147,10 @@ fail closed. The candidate cannot redefine the trusted runner, its JUnit/count
 validators, module graph or Android CI workflow. Extra selected tasks must also
 be existing trusted scoped tasks. Hosted adaptations do not imply physical
 TalkBack/radio/OEM/background/upgrade testing.
+Every affected module requires an actual method inventory matching its suite
+counts, including separately collected app and contracts suites. Generic
+support admission also checks the actual module/source-set boundary, so a
+production file cannot qualify as a test through a nested path component.
 
 Each `native` observation supplies `{revision, transcript, sha256, api, methods,
 bindings, fixture, out_of_scope_failures, execution}`. The transcript is fetched at its

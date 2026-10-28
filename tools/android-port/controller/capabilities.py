@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from fnmatch import fnmatchcase
+import re
 
 from .errors import PortError
 from .paths import git_path
@@ -75,6 +76,7 @@ class CapabilityEngine:
             rule for rule in candidates
             if rule is not None and operation in rule["operations"]
             and ("work_packages" not in rule or wp_id in rule["work_packages"])
+            and self._support_path(rule["id"], path)
         ]
         if not candidates:
             raise PortError(
@@ -83,6 +85,15 @@ class CapabilityEngine:
             )
         rule = sorted(candidates, key=lambda value: value["id"])[0]
         return Admission(rule["id"], path, operation, tuple(rule["invariants"]), tuple(rule["validation"]))
+
+    @staticmethod
+    def _support_path(capability_id: str, path: str) -> bool:
+        module = r"android/(?:app|(?:core|feature|platform)/[a-z0-9-]+)"
+        if capability_id == "reviewed-support-consumer":
+            return re.fullmatch(module + r"/src/main/kotlin/.+\.kt", path) is not None
+        if capability_id == "reviewed-support-test":
+            return re.fullmatch(module + r"/src/(?:test|testDebug|androidTest)/kotlin/.+\.kt", path) is not None
+        return True
 
     @staticmethod
     def _assigned_path(allowed: str, requested: str) -> bool:

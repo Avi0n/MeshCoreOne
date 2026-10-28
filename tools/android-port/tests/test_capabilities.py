@@ -82,6 +82,13 @@ class CapabilityReservationTests(unittest.TestCase):
             ("android/core/data/src/test/kotlin/Foo.kt", "delete"),
             ("android/build-logic/src/test/kotlin/Foo.kt", "add-or-update-related-test"),
             ("tools/android-port/controller/engine.py", "modify-related-consumer"),
+            ("android/core/data/src/main/kotlin/nested/src/test/kotlin/Production.kt",
+             "add-or-update-related-test"),
+            ("android/feature/map/src/main/kotlin/nested/src/androidTest/kotlin/Production.kt",
+             "add-or-update-related-test"),
+            ("android/core/data/src/test/kotlin/nested/src/main/kotlin/Test.kt",
+             "modify-related-consumer"),
+            ("android/core/data/nested/src/main/kotlin/Production.kt", "modify-related-consumer"),
         ):
             with self.subTest(path=path, operation=operation), self.assertRaises(PortError):
                 self.engine.admit("WP-208", [], path, operation)
