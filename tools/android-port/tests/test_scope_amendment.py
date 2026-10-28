@@ -24,6 +24,7 @@ from controller.scope_amendment import (
     mention_picker_predecessor, MENTION_PICKER_CAPABILITY,
     message_actions_translation_predecessor, MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY,
     disposable_predecessor,
+    wp210_feature_cli_consumer_predecessor,
     parity_support_predecessor, REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY,
     receive_prefetch_predecessor, RECEIVE_PREFETCH_ADMISSION_CAPABILITY,
     room_cleanup_predecessor,
@@ -45,11 +46,12 @@ from controller.verification_config import (
 )
 from inventory_rules import TRANSLATION_PATHS, exclusion, production_owner
 from controller.model import Manifest
-from controller.software_verification import project as project_software, transform_next
+from controller.software_verification import project as project_software, transform_next, transform_third
 
 
 def manifest_before_software_v2(manifest):
-    return Manifest(transform_next(manifest.data, reverse=True), manifest.exclusions, REPO)
+    before_v3 = transform_third(manifest.data, reverse=True)
+    return Manifest(transform_next(before_v3, reverse=True), manifest.exclusions, REPO)
 
 
 class TranslationScopeAmendmentTests(unittest.TestCase):
@@ -58,7 +60,13 @@ class TranslationScopeAmendmentTests(unittest.TestCase):
         start = text.index('      {\n        "id": "wp404-shortcut-lifecycle-consumer-test",')
         end = text.index('      {\n        "id": "wp216-reaction-wire-classification",', start)
         previous = text[:start] + text[end:]
-        self.assertEqual(json.loads(previous), shortcut_lifecycle_test_predecessor(json.loads(text)))
+        start = previous.index('      {\n        "id": "wp210-feature-cli-consumer-regression",')
+        end = previous.index('      {\n        "id": "wp502-room-failed-event-consumer",', start)
+        previous = previous[:start] + previous[end:]
+        self.assertEqual(
+            json.loads(previous),
+            shortcut_lifecycle_test_predecessor(wp210_feature_cli_consumer_predecessor(json.loads(text))),
+        )
         self.assertEqual(json.loads(previous), json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",
             "61fc048e1780173e2603013a8b6d0233d0d63c3b:docs/android/automation-policy.json",

@@ -368,9 +368,13 @@ class CliTests(unittest.TestCase):
 class ProvenanceTests(unittest.TestCase):
     def temporary_manifest(self, directory):
         from controller.scope_amendment import AMENDMENT_PATH
-        from controller.software_verification import NEXT_RECORD_PATH, RECORD_PATH
+        from controller.software_verification import (
+            CONCERN_BINDING_PATH, NEXT_RECORD_PATH, RECORD_PATH, THIRD_RECORD_PATH,
+        )
 
-        for relative in (AMENDMENT_PATH, RECORD_PATH, NEXT_RECORD_PATH):
+        for relative in (
+            AMENDMENT_PATH, RECORD_PATH, NEXT_RECORD_PATH, THIRD_RECORD_PATH, CONCERN_BINDING_PATH,
+        ):
             amendment = Path(directory) / relative
             amendment.parent.mkdir(parents=True, exist_ok=True)
             amendment.write_bytes((REPO / relative).read_bytes())
