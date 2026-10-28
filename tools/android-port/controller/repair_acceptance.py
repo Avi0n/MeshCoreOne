@@ -749,12 +749,39 @@ def _kotlin_junit_methods(text):
             test_annotations.add(alias)
         if imported in family_annotations:
             family_annotations.add(alias)
-    methods, declaration_positions = {}, {}
+    aliases = {}
     for start, value in enumerate(tokens):
-        if value != "@":
+        if (
+            value != "typealias" or start + 3 >= len(tokens)
+            or not name_token(tokens[start + 1]) or tokens[start + 2] != "="
+        ):
+            continue
+        index, parts = start + 3, []
+        while index < len(tokens) and name_token(tokens[index]):
+            parts.append(tokens[index].strip("`"))
+            index += 1
+            if index >= len(tokens) or tokens[index] != ".":
+                break
+            index += 1
+        if parts:
+            aliases[tokens[start + 1].strip("`")] = ".".join(parts)
+    changed = True
+    while changed:
+        changed = False
+        for alias, target in aliases.items():
+            if target in test_annotations and alias not in test_annotations:
+                test_annotations.add(alias)
+                changed = True
+            if target in family_annotations and alias not in family_annotations:
+                family_annotations.add(alias)
+                changed = True
+    methods, declaration_positions, processed_annotations = {}, {}, set()
+    for start, value in enumerate(tokens):
+        if value != "@" or start in processed_annotations:
             continue
         index, annotations = start, set()
         while index < len(tokens) and tokens[index] == "@":
+            processed_annotations.add(index)
             index += 1
             if index == len(tokens) or not name_token(tokens[index]):
                 break
@@ -784,6 +811,11 @@ def _kotlin_junit_methods(text):
             "suspend", "inline", "tailrec", "external", "infix", "operator", "actual", "expect",
         ):
             index += 1
+        if (
+            annotations and not annotations & (test_annotations | family_annotations)
+            and index < len(tokens) and tokens[index] == "fun"
+        ):
+            raise PortError("Ambiguous Kotlin function annotation; use a recognizable JUnit test declaration")
         if annotations & (test_annotations | family_annotations):
             if index + 2 >= len(tokens) or tokens[index] != "fun" or tokens[index + 2] != "(":
                 raise PortError("Cannot identify annotated Kotlin JUnit test declaration")

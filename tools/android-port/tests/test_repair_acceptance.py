@@ -446,6 +446,30 @@ class RepairExecutionTests(unittest.TestCase):
             with self.assertRaisesRegex(PortError, "did not actually execute"):
                 validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, records)
 
+    def test_kotlin_typealias_tests_and_unknown_function_annotations_cannot_hide_as_helpers(self):
+        from controller.repair_acceptance import _kotlin_junit_methods
+
+        source = """
+            typealias Case = org.junit.jupiter.api.Test
+            typealias Other = Case
+            typealias Family = org.junit.jupiter.api.TestFactory
+            @Other fun normal() {}
+            @Family fun dynamic() {}
+        """
+        self.assertEqual(_kotlin_junit_methods(source), {"normal": "test", "dynamic": "factory"})
+        for source in (
+            "import other.package.Check\n@Check fun hidden() {}",
+            "typealias Check = other.package.Check\n@Check fun hidden() {}",
+            "typealias One = Two\ntypealias Two = One\n@One fun hidden() {}",
+        ):
+            with self.subTest(source=source), self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+                _kotlin_junit_methods(source)
+        manifest, _, _, scope = whole_fixture()
+        source = b"import other.package.Check\n@Check fun hidden() {}"
+        with patch("controller.staging.object_bytes", return_value=source), \
+                self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+            validate_hosted_methods(scope, {PATH: "5" * 40, TEST: "4" * 40}, manifest.repo, {})
+
     def test_full_scaffold_reads_actual_protocol_counts_and_inventory(self):
         from controller.ci import TASKS
         count = {"discovered": 3, "run": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0}

@@ -1137,6 +1137,10 @@ Declaration binding reads attached Kotlin annotations rather than matching throu
 their argument text. Quoted parentheses in `OriginalCase`, escaped/raw strings,
 nested annotation arguments and comments preserve the real `Test`/`org.junit.Test`
 attachment; annotation-like text in comments or literals cannot qualify a method.
+Same-file JUnit typealiases are resolved, including alias chains; an otherwise
+unrecognized annotation attached to a function fails explicitly rather than
+letting a potentially aliased test be classified as a helper. Use a directly
+recognizable JUnit annotation or import alias when that ambiguity is reported.
 The trusted runner now prints actual JUnit class/method identities, including
 SDK/parameter suffixes, in that same hosted log. Selected methods must be present
 in this executed inventory; a source function and green aggregate alone cannot
