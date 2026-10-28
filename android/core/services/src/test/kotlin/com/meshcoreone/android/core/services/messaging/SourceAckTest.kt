@@ -52,7 +52,8 @@ class SourceAckTest {
             assertEquals(MessageStatus.FAILED, h.stored(m.id).status)
             val received = statuses(h.service, events)
             assertTrue(received.filterIsInstance<MessageStatusEvent.Failed>().any { it.messageID == m.id })
-            assertEquals(listOf(MessageStatusEvent.Failed(m.id)), received); h.close()
+            assertEquals(listOf(MessageStatusEvent.Failed(m.id)), received)
+            assertEquals(0, h.service.pendingAckCount); h.close()
         },
         original("MessageServiceACKTests", "ACK timeout keeps message .sent through the grace window so a late ACK can still reconcile") {
             val h = Harness(this, MessageServiceConfig(ackGiveUpWindow = 45.0), sessionTimeout = 5.0); val m = sourceMessage(h)
@@ -117,7 +118,8 @@ class SourceAckTest {
             assertEquals(MessageStatus.FAILED, h.stored(a.id).status); assertEquals(MessageStatus.FAILED, h.stored(b.id).status)
             val failedIDs = statuses(h.service, events).filterIsInstance<MessageStatusEvent.Failed>().map { it.messageID }
             assertEquals(2, failedIDs.size); assertTrue(a.id in failedIDs); assertTrue(b.id in failedIDs)
-            assertEquals(setOf(a.id, b.id), failedIDs.toSet()); h.close()
+            assertEquals(setOf(a.id, b.id), failedIDs.toSet())
+            assertEquals(0, h.service.pendingAckCount); h.close()
         },
         original("MessageServiceACKTests", "failAllPendingMessages does not downgrade or notify on a delivered DB row") {
             val h = Harness(this, sessionTimeout = 5.0); val code = Bytes.of(0xFA, 0x11, 0x77, 0x33)
@@ -126,7 +128,7 @@ class SourceAckTest {
             assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)
             val received = statuses(h.service, events)
             assertFalse(received.filterIsInstance<MessageStatusEvent.Failed>().any { it.messageID == m.id })
-            assertTrue(received.isEmpty()); h.close()
+            assertTrue(received.isEmpty()); assertEquals(0, h.service.pendingAckCount); h.close()
         },
         original("MessageServiceACKTests", "stopAndFailAllPending stops checking and fails all pending") {
             val h = Harness(this, sessionTimeout = 5.0); val m = sourceMessage(h)
