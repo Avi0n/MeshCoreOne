@@ -29,11 +29,17 @@ class SourceReconnectLifecycleTest {
                 val sendGate = CompletableDeferred<Unit>()
                 createRadio = { TestRadio().also { it.beforeSend = { frame -> if (frame[0].toInt() == 1) sendGate.await() } } }
                 val connection = backgroundScope.async { runCatching { manager.connect(platform.target) } }
-                runCurrent(); enterAuto()
+                runCurrent()
+                assertEquals(1, radios.single().frames.count { it[0].toInt() == 1 })
+                assertFalse(connection.isCompleted); assertTrue(services.isEmpty())
+                enterAuto()
                 assertEquals(platform.target.deviceId, manager.reconnectionCoordinator.reconnectingDeviceId)
-                assertNull(manager.activeConnectionAttemptDeviceId?.takeIf { manager.activeReconnectDeviceId == null })
+                assertEquals(platform.target.deviceId, manager.activeReconnectDeviceId)
                 assertEquals(DeviceConnectionState.CONNECTING, manager.connectionState); assertEquals(0, radios.single().closes)
-                sendGate.complete(Unit); runCurrent(); connection.await()
+                sendGate.complete(Unit); runCurrent()
+                assertIs<CancellationException>(connection.await().exceptionOrNull())
+                assertEquals(0, radios.single().collectors); assertTrue(services.isEmpty())
+                assertEquals(1, autoCount)
             }
         },
         original("ConnectionManagerAutoReconnectEntryTests", "entry stands down when a manual connect is in flight for a different device") {
@@ -41,18 +47,29 @@ class SourceReconnectLifecycleTest {
                 connect(); val stale = links.first().callbacks!!
                 val gate = CompletableDeferred<Unit>(); createRadio = { TestRadio().also { it.beforeConnect = { gate.await() } } }
                 val other = target()
-                val connection = backgroundScope.async { runCatching { manager.connect(other) } }
-                runCurrent(); stale.onAutoReconnecting("stale"); runCurrent()
+                val connection = backgroundScope.async { manager.connect(other) }
+                runCurrent()
+                assertFalse(connection.isCompleted); assertEquals(1, radios.last().connectionAttempts)
+                val before = manager.snapshot.value
+                stale.onAutoReconnecting("stale"); runCurrent()
                 assertNull(manager.reconnectionCoordinator.reconnectingDeviceId)
                 assertEquals(other.deviceId, manager.activeConnectionAttemptDeviceId)
+                assertEquals(before, manager.snapshot.value)
+                assertTrue(diagnostics.any { it is RuntimeDiagnostic.StaleCallback && it.operation == "link.autoReconnect" })
                 gate.complete(Unit); runCurrent(); connection.await()
+                assertEquals(other.deviceId, manager.connectedDevice?.id)
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
             }
         },
         original("ConnectionManagerAutoReconnectEntryTests", "entering auto-reconnect while wanting connection notifies the loss once") {
             withFixture {
-                connect(); enterAuto(); runCurrent()
+                connect()
+                assertEquals(0, autoCount); assertEquals(0, services.single().teardowns)
+                enterAuto(); runCurrent()
                 assertEquals(1, autoCount); assertEquals(platform.target.deviceId, manager.activeReconnectDeviceId)
                 assertTrue(order.indexOf("auto-loss") >= 0); assertEquals(1, services.single().teardowns)
+                assertEquals(0, radios.single().collectors)
+                assertEquals(0, radios.single().closes)
             }
         },
         original("ConnectionManagerAutoReconnectEntryTests", "entering auto-reconnect after the user disconnected does not notify the loss") {
@@ -60,16 +77,23 @@ class SourceReconnectLifecycleTest {
                 connect(); val late = links.single().callbacks!!
                 manager.disconnect(); late.onAutoReconnecting("late"); runCurrent()
                 assertEquals(0, autoCount); assertEquals(ConnectionIntent.UserDisconnected, manager.connectionIntent); assertEquals(1, radios.single().closes)
+                assertTrue(diagnostics.any { it is RuntimeDiagnostic.StaleCallback && it.operation == "link.autoReconnect" })
+                assertNull(manager.activeReconnectDeviceId); assertFalse(manager.isReconnectionWatchdogRunning)
             }
         },
         original("ConnectionManagerAutoReconnectEntryTests", "manual-connect stand-down for a different device does not notify the loss") {
             withFixture {
                 connect(); val late = links.single().callbacks!!; val other = target()
                 val gate = CompletableDeferred<Unit>(); createRadio = { TestRadio().also { it.beforeConnect = { gate.await() } } }
-                val work = backgroundScope.async { runCatching { manager.connect(other) } }
-                runCurrent(); late.onAutoReconnecting("old radio"); runCurrent()
+                val work = backgroundScope.async { manager.connect(other) }
+                runCurrent()
+                assertFalse(work.isCompleted); assertEquals(other.deviceId, manager.activeConnectionAttemptDeviceId)
+                late.onAutoReconnecting("old radio"); runCurrent()
                 assertEquals(0, autoCount); assertNull(manager.reconnectionCoordinator.reconnectingDeviceId)
+                assertTrue(diagnostics.any { it is RuntimeDiagnostic.StaleCallback && it.operation == "link.autoReconnect" })
                 gate.complete(Unit); runCurrent(); work.await()
+                assertEquals(other.deviceId, manager.connectedDevice?.id)
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
             }
         },
         original("ConnectionManagerAutoReconnectEntryTests", "connection loss after adoption clears the claim and arms the watchdog") {
@@ -109,19 +133,33 @@ class SourceReconnectLifecycleTest {
             withFixture {
                 connect(); manager.disconnect(RuntimeDisconnectReason.WIFI_RECONNECT_PREP)
                 platform.state = platform.state.copy(systemConnected = true); platform.adoptionSucceeds = true
+                var entered = false
+                platform.onAdopt = { entered = true; assertEquals(DeviceConnectionState.CONNECTING, manager.connectionState) }
                 manager.checkBLEConnectionHealth()
+                assertTrue(entered)
                 assertEquals(1, platform.adopts); assertEquals(DeviceConnectionState.CONNECTING, manager.connectionState)
                 assertTrue(last.read().diagnostic!!.contains("source=checkBLEConnectionHealth.adoptSystemConnectedPeripheral"))
+                assertEquals(0, radios.last().connectionAttempts)
+                links.last().callbacks!!.onReconnected(); runCurrent()
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
+                assertEquals(1, radios.first().closes); assertEquals(1, services.last().monitoringStarts)
             }
         },
         original("ConnectionManagerDisconnectDiagnosticsTests", "manual connect adopts system-connected last device instead of throwing deviceConnectedToOtherApp") {
             withFixture {
                 connect(); manager.disconnect()
                 platform.state = platform.state.copy(systemConnected = true); platform.adoptionSucceeds = true
+                var entered = false
+                platform.onAdopt = { entered = true; assertEquals(DeviceConnectionState.CONNECTING, manager.connectionState) }
                 manager.connect(platform.target, true, true)
+                assertTrue(entered)
                 assertEquals(1, platform.adopts); assertTrue(manager.connectionIntent.wantsConnection)
                 assertEquals(DeviceConnectionState.CONNECTING, manager.connectionState)
                 assertTrue(last.read().diagnostic!!.contains("source=connect(to:).adoptSystemConnectedPeripheral"))
+                assertEquals(0, radios.last().connectionAttempts)
+                links.last().callbacks!!.onReconnected(); runCurrent()
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
+                assertEquals(listOf(true), services.last().syncForces)
             }
         },
         original("ConnectionManagerReconnectAbandonmentTests", "reconnection failure preserves a live link and keeps the watchdog armed") {
@@ -142,6 +180,8 @@ class SourceReconnectLifecycleTest {
         original("ConnectionManagerReconnectAbandonmentTests", "reconnection failure after user disconnect severs a held link and leaves the watchdog stopped") {
             withFixture {
                 connect(); platform.state = platform.state.copy(connected = true); manager.disconnect()
+                assertEquals(1, radios.single().closes)
+                assertEquals(ConnectionIntent.UserDisconnected, manager.connectionIntent)
                 manager.handleReconnectionFailure()
                 assertEquals(1, radios.single().closes); assertFalse(manager.isReconnectionWatchdogRunning)
                 assertEquals(0, manager.consecutiveRebuildFailures)
@@ -187,13 +227,22 @@ class SourceReconnectLifecycleTest {
         },
         original("ConnectionManagerReconnectAbandonmentTests", "watchdog natural exit nils the task and preserve re-arms") {
             withFixture {
-                connect(); manager.startReconnectionWatchdog(); runCurrent()
+                connect()
+                platform.state = platform.state.copy(connected = true)
+                manager.handleReconnectionFailure(); runCurrent()
                 val before = manager.reconnectionWatchdogGeneration
+                assertTrue(manager.isReconnectionWatchdogRunning)
+                assertEquals(0, radios.single().closes)
+                last.persistIntent(ConnectionIntent.UserDisconnected)
+                manager.activate()
+                assertEquals(ConnectionIntent.UserDisconnected, manager.connectionIntent)
+                assertTrue(manager.isReconnectionWatchdogRunning)
+                assertEquals(before, manager.reconnectionWatchdogGeneration)
                 advanceTimeBy(30_000); runCurrent()
                 assertFalse(manager.isReconnectionWatchdogRunning); assertEquals(before, manager.reconnectionWatchdogGeneration)
-                platform.state = platform.state.copy(connected = true); manager.handleReconnectionFailure()
+                connect(); manager.handleReconnectionFailure()
                 assertTrue(manager.isReconnectionWatchdogRunning); assertTrue(manager.reconnectionWatchdogGeneration > before)
-                assertEquals(0, radios.single().closes)
+                assertEquals(1, radios.first().closes); assertEquals(0, radios.last().closes)
             }
         },
         original("ConnectionManagerReconnectAbandonmentTests", "user disconnect does not advance the preserve budget") {
@@ -202,8 +251,12 @@ class SourceReconnectLifecycleTest {
         original("ConnectionManagerReconnectAbandonmentTests", "recordConnectionSuccess refills the preserve budget") {
             withFixture {
                 connect(); platform.state = platform.state.copy(connected = true)
-                repeat(3) { manager.handleReconnectionFailure() }; manager.recordConnectionSuccess()
-                assertEquals(0, manager.consecutiveRebuildFailures); manager.handleReconnectionFailure(); assertEquals(0, radios.single().closes)
+                repeat(4) { manager.handleReconnectionFailure() }
+                assertEquals(4, manager.consecutiveRebuildFailures); assertEquals(1, radios.single().closes)
+                manager.recordConnectionSuccess()
+                assertEquals(0, manager.consecutiveRebuildFailures)
+                manager.handleReconnectionFailure()
+                assertEquals(1, manager.consecutiveRebuildFailures); assertEquals(1, radios.single().closes)
             }
         },
         original("ConnectionManagerReconnectAbandonmentTests", "preserve failure arms a live watchdog without cancel-restarting an existing one") {
@@ -259,27 +312,55 @@ class SourceReconnectLifecycleTest {
                 connect(); enterAuto(); platform.state = platform.state.copy(autoReconnecting = false)
                 val gate = CompletableDeferred<Unit>(); createRadio = { TestRadio().also { it.beforeSend = { frame -> if (frame[0].toInt() == 1) gate.await() } } }
                 val rebuild = backgroundScope.async { manager.reconnectionCoordinator.handleReconnectionComplete(platform.target.deviceId) }
-                runCurrent(); val closes = radios.sumOf { it.closes }; manager.connect(platform.target, false, true)
+                runCurrent()
+                manager.setConnectionState(DeviceConnectionState.DISCONNECTED)
+                val before = manager.snapshot.value
+                val closes = radios.sumOf { it.closes }; manager.connect(platform.target, false, true)
                 assertEquals(closes, radios.sumOf { it.closes }); assertEquals(2, radios.size)
+                assertEquals(before, manager.snapshot.value)
+                assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
+                assertFalse(rebuild.isCompleted)
+                assertEquals(1, radios.last().frames.count { it[0].toInt() == 1 })
+                assertEquals(platform.target.deviceId, manager.activeReconnectDeviceId)
                 gate.complete(Unit); runCurrent(); rebuild.await()
+                assertEquals(DeviceConnectionState.READY, manager.connectionState)
+                assertEquals(1, services.last().monitoringStarts)
             }
         },
         original("ConnectionManagerReconnectAbandonmentTests", "forceReconnect connect while transport is stuck auto-reconnecting to the same device breaks glass") {
             withFixture {
-                connect(); enterAuto(); manager.reconnectionCoordinator.clearReconnectingDevice()
-                manager.setConnectionState(DeviceConnectionState.DISCONNECTED)
-                platform.registryActive = true; platform.registered = false
-                assertFailsWith<ConnectionError.DeviceNotFound> { manager.connect(platform.target, false, true) }
-                assertEquals(1, radios.single().closes); assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
+                platform.state = platform.state.copy(autoReconnecting = true, connectedDeviceId = platform.target.deviceId)
+                assertNull(manager.reconnectionCoordinator.reconnectingDeviceId)
+                assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
+                createRadio = { TestRadio().also { it.connectFailure = LinkFailure.AuthenticationFailed() } }
+                assertFailsWith<LinkFailure.AuthenticationFailed> { manager.connect(platform.target, false, true) }
+                assertEquals(2, links.size)
+                assertEquals(1, links.first().callbackClosures)
+                assertEquals(0, radios.first().connectionAttempts)
+                assertEquals(1, radios.last().connectionAttempts)
+                assertEquals(listOf(platform.target.deviceId), authFailures)
+                assertNull(manager.activeReconnectDeviceId)
+                assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
             }
         },
         original("ConnectionManagerReconnectAbandonmentTests", "overlapping health checks on a connected missing stack rebuild once") {
             withFixture {
                 connect(); platform.state = platform.state.copy(connected = true); manager.handleReconnectionFailure()
-                val gate = CompletableDeferred<Unit>(); createRadio = { TestRadio().also { it.beforeSend = { frame -> if (frame[0].toInt() == 1) gate.await() } } }
+                val gate = CompletableDeferred<Unit>()
+                val failure = ConnectionError.InitializationFailed("health rebuild failed")
+                var syncEntered = false
+                onFactory = { service, _ -> service.beforeSync = { syncEntered = true; gate.await(); throw failure } }
                 val first = backgroundScope.async { manager.checkBLEConnectionHealth() }; runCurrent()
+                assertTrue(syncEntered); assertFalse(first.isCompleted)
+                assertEquals(platform.target.deviceId, manager.activeReconnectDeviceId)
                 manager.checkBLEConnectionHealth(); assertEquals(2, radios.size)
-                gate.complete(Unit); runCurrent(); first.await(); assertEquals(DeviceConnectionState.READY, manager.connectionState)
+                gate.complete(Unit); runCurrent(); first.await()
+                assertEquals(DeviceConnectionState.DISCONNECTED, manager.connectionState)
+                assertEquals(2, manager.consecutiveRebuildFailures)
+                assertEquals(1, radios.first().closes); assertEquals(0, radios.last().closes)
+                assertEquals(1, services.last().teardowns)
+                assertEquals(0, radios.last().collectors); assertTrue(manager.isReconnectionWatchdogRunning)
+                assertTrue(diagnostics.any { it is RuntimeDiagnostic.Failure && it.operation == "health.rebuild" && it.cause === failure })
             }
         },
         original("ConnectionManagerReconnectAbandonmentTests", "coordinator cycle claim blocks health rebuild during retry gap") {

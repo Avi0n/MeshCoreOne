@@ -785,6 +785,7 @@ class ConnectionManager(
     }
 
     override suspend fun handleReconnectionFailure() {
+        val expectedCoordinator = reconnectionCoordinator.reconnectGeneration
         val expectedRevision = synchronized(lock) { revision }
         val owner = synchronized(lock) {
             if (connectionIntent.wantsConnection) rebuildFailures++
@@ -796,10 +797,18 @@ class ConnectionManager(
                 publishLocked(DeviceConnectionState.DISCONNECTED, ConnectionState.Disconnected, null, null)
             }
         }
+        fun ownsFailure(): Boolean = synchronized(lock) {
+            revision == expectedRevision && reconnectionCoordinator.reconnectGeneration == expectedCoordinator &&
+                !closed && active == null &&
+                (retained == null || retained === owner) && connectionState == DeviceConnectionState.DISCONNECTED
+        }
         val state = owner?.let { platform.state(it.target) }
-        if (synchronized(lock) { revision != expectedRevision || closed }) {
+        if (!ownsFailure()) {
             if (owner != null) {
-                val report = closeGeneration(owner, true)
+                val recoveryOwnsLink = synchronized(lock) {
+                    !closed && revision == expectedRevision && retained === owner && active == null
+                }
+                val report = closeGeneration(owner, disconnectPhysical = !recoveryOwnsLink)
                 if (!report.isComplete) reporter.report(RuntimeDiagnostic.Teardown(report))
             }
             return
@@ -812,6 +821,7 @@ class ConnectionManager(
             if (!report.isComplete) reporter.report(RuntimeDiagnostic.Teardown(report))
             if (!preserve) synchronized(lock) { if (retained === owner) retained = null }
         }
+        if (!ownsFailure()) return
         if (preserve) {
             if (!isReconnectionWatchdogRunning) startReconnectionWatchdog()
             observer.onConnectionLost()
@@ -819,7 +829,11 @@ class ConnectionManager(
             if (connectionIntent.wantsConnection && state != null && (state.connected || state.autoReconnecting)) {
                 lastConnection.persistDisconnectDiagnostic("source=handleReconnectionFailure.preserveBudgetExhausted, failures=$consecutiveRebuildFailures, intent=${intentSummary()}")
             }
-            notifyConnectionLost()
+            if (!ownsFailure()) return
+            observer.onConnectionLost()
+            if (ownsFailure() && connectionIntent.wantsConnection && currentTransportType() != TransportType.WIFI) {
+                startReconnectionWatchdog()
+            }
         }
     }
 
