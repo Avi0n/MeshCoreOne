@@ -253,6 +253,7 @@ class MessageService(
         synchronized(lock) { if (pendingAcks[messageID]?.receipt === tracking.receipt) pendingAcks.remove(messageID) }
         recovered("ack.$messageID")
         recovered("ackDelivery")
+        recovered("failPending.$messageID")
     }
 
     suspend fun checkExpiredAcks() {
@@ -295,24 +296,37 @@ class MessageService(
                 }
             }
             if (changed) broadcastFailed(current.messageID)
+            recovered("failPending.${current.messageID}")
         }
     }
 
     suspend fun failAllPendingMessages() {
         ownership.check("failAllPendingMessages")
         val ids = synchronized(lock) { pendingAcks.values.filter { !it.isDelivered }.map { it.messageID } }
+        var firstFailure: PersistenceStoreException? = null
         for (id in ids) mutation(id).withLock {
-            if (pendingAck(id)?.isDelivered != false) return@withLock
-            val changed = dataStore.updateMessageStatusUnlessDelivered(key(id), MessageStatus.FAILED)
-            ownership.check("failAllPendingMessages.saved")
-            synchronized(lock) {
-                pendingAcks.remove(id)
-                activeDirectClaims[id]?.let {
-                    if (it.acknowledgement == null) it.retiredWithoutAcknowledgement = true
+            ownership.check("failAllPendingMessages.entry")
+            try {
+                if (pendingAck(id)?.isDelivered != false) return@withLock
+                val changed = dataStore.updateMessageStatusUnlessDelivered(key(id), MessageStatus.FAILED)
+                ownership.check("failAllPendingMessages.saved")
+                synchronized(lock) {
+                    pendingAcks.remove(id)
+                    activeDirectClaims[id]?.let {
+                        if (it.acknowledgement == null) it.retiredWithoutAcknowledgement = true
+                    }
                 }
+                if (changed) broadcastFailed(id)
+                recovered("failPending.$id")
+            } catch (failure: PersistenceStoreException) {
+                if (!ownership.isCurrent) throw failure
+                remember("failPending.$id", failure)
+                val first = firstFailure
+                if (first == null) firstFailure = failure
+                else if (first !== failure) first.addSuppressed(failure)
             }
-            if (changed) broadcastFailed(id)
         }
+        firstFailure?.let { throw it }
     }
 
     suspend fun stopAndFailAllPending() { stopAckExpiryChecking(); failAllPendingMessages() }
@@ -338,6 +352,7 @@ class MessageService(
                         val changed = dataStore.updateMessageStatusUnlessDelivered(key(messageID), MessageStatus.FAILED)
                         ownership.checkPersistenceCompletion("failMessage.saved")
                         if (notify && changed) broadcastFailed(messageID)
+                        recovered("failPending.$messageID")
                     }
                 }
             } catch (storage: PersistenceStoreException) {

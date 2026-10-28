@@ -6,11 +6,124 @@ Original authoring base: `f2f481d2e7c2a9029808943529c98c98ef879299`.
 Assigned execution base: `3a292b6498e8dcef0c374022a93c8e30c68f5bd5`.
 Branch: `cbattlegear-wp211-regional-label-localization`.
 Source: `db14559b39d32322b06477c6ae676112f583db50` (unchanged).
-Product-verified candidate: `f1e297815e7ceb07d5554663eb5eabb91b3633b1`,
+Locally product-verified candidate: `f1e297815e7ceb07d5554663eb5eabb91b3633b1`,
 tree `d9abe579bd8be8eddc9e8af5b5925bec0061331b`. The subsequent documentation-only
 commit records that exact candidate's result; it is not a separately executed
-product candidate. Unpublished; resolve the documentation head with
-`git rev-parse HEAD`.
+product candidate. Publication subsequently completed in
+[PR #348](https://github.com/cbattlegear/MeshCoreOne-Android/pull/348),
+merged as `1bcf052859dae58dce7dce59aa21d240b0c0b7d0`.
+Its hosted candidate is `479565f4fd14b65615b31147fe76f253d470c81f`;
+the earlier local result is not rebound to that head.
+
+## Issue #391 reconciliation
+
+[Issue #391](https://github.com/cbattlegear/MeshCoreOne-Android/issues/391)
+is the bounded `SM-REGION-LOCALIZATION` preservation handoff, not a new
+reproduction or a request to repeat the whole WP. Investigation base:
+`be5dfd8cb91b3974ece7cffe5a48b8d941970c40`. Owner: `services-porter`;
+current session: `1e97b728-36fd-46fc-8a60-e5e3d8594db3`.
+The original source pin and acceptance IDs below remain unchanged.
+
+The merged repair supplies
+`AndroidAppContainerFactory` -> `OnboardingPlatform.regionResources` ->
+`AppOnboardingFactory` -> `ServicesRegionCatalog` ->
+`RegionalSubdivisionNames` / `RegionalAreas` -> `RegionStepScreen`.
+The factory still obtains `AppLanguages.attach(application).resources` on
+each request. The catalog still injects that resource lookup into
+`SubdivisionNameResolver`, so the real picker, selected-region display and
+sorting do not use the default null resolver. Country ordering is evaluated
+with the current app locale, not the process-frozen system-locale cache.
+
+All four direct original families remain in
+`MC1Services/Tests/MC1ServicesTests/RegionalAreasTests.swift` at the pinned
+source and in `RegionalAreasTest.sourceCases()` at
+`android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/device/RegionalAreasTest.kt`:
+
+| Original family (`RegionalAreasTests::`, single) | Preserved original assertion | Additional actual-consumer coverage |
+| --- | --- | --- |
+| `displayName uses short form for US states()` | `US-CA` displays `California`. | The app-language adapter checks `Californie` / `Kalifornien` / `California`; the French/German mounted picker checks the independent localized literals. |
+| `displayName uses disambiguated form for AU territories()` | `AU-QLD` contains both `Queensland` and `Australia`. | The adapter checks localized `AU-NT` plus its country; mounted French/German flows commit stable `AU-NT` and check its disambiguated display. This supplements, not replaces, the original Queensland case. |
+| `displayName uses short form for Texas()` | `US-TX` displays `Texas`. | The same existing catalog returns `Texas` in French, German and English. Texas is adapter coverage, not an additional mounted selection. |
+| `displayName uses short form for Pennsylvania()` | `US-PA` displays `Pennsylvania`. | The adapter checks `Pennsylvanie` / `Pennsylvania`; both mounted flows select those independent visible literals before changing country. |
+
+The existing core native case
+`subdivision localization is injected without changing stable keys or fallback names`
+also checks a null resolver result falling back to English `Texas`, while an
+unknown code returns null. The localized adapter retains no-subdivision
+country fallback, US/CA short forms, non-US disambiguation, stable counts/IDs
+and unknown-code absence. The mounted flows clear the previous subdivision
+on country change and commit without applying a preset or completing
+onboarding. No assertion, fixture or expected label is changed here.
+
+### Publication, dependency and WP-005 correspondence
+
+The authoritative
+[hosted run 40407316503](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/40407316503)
+is successful at exact head `479565f4fd14b65615b31147fe76f253d470c81f`.
+Its [Linux Android job log](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/40407316503/job/121870159779)
+reports 1,551/1,551 App tests and 25/25 localization tests, zero
+failures/errors/skips, and names all four original families, both
+`LocalizedRegionCatalogAdapterTest` methods and both localized mounted-picker
+methods. This is historical exact-candidate evidence, not execution at this
+documentation head. The existing remote-host results below keep their own
+original bindings. No CI-result bundle is copied, committed or uploaded.
+
+At the investigation base, the catalog adapter, adapter tests, mounted tests,
+core resolver, core regional tests and generated subdivision lookup are
+byte-identical to that hosted candidate. Later changes in the factory and
+onboarding composition concern advertisement location and pairing; their
+current resource-provider bindings above remain intact.
+
+WP-005's [merged PR #427](https://github.com/cbattlegear/MeshCoreOne-Android/pull/427),
+merge `6e27202219d401c9464bdad26131102a312b8867`, already supplies
+the original resource-family correspondence in
+[`docs/android/localization/cases.json`](../../localization/cases.json).
+It maps the same six production paths, two adapter methods, two mounted
+methods and independent French/German labels. All 59 subdivision keys across
+12 resource locales are resource coverage, not all-locale mounted UI coverage.
+No duplicate localization issue or producer change is necessary.
+
+The declared WP-207 prerequisite has a real merged repair,
+[PR #449](https://github.com/cbattlegear/MeshCoreOne-Android/pull/449),
+merge `91194f3d75b28131d297a78ef604367ded13e52c`. Git ancestry confirms
+that merge, #348 and #427 are ancestors of the investigation base; issue
+closure alone is not used as dependency evidence. This reconciliation does
+not mark the macro WP complete or unlock controller dependencies.
+
+### Current authoring and verification boundary
+
+The initial supported `reserve.py claim` attempt for the two existing
+WP-owned documents returned
+`BLOCKED: Existing WP lease is bound to different source/base/manifest/backend`.
+No new receipt was acquired and no historical owner/authorization/binding or
+ledger row was edited. Both exact paths independently passed trusted
+`reserve.py admit --wp WP-211 --path <path> --operation modify` as
+`wp-owned`. Per `AUTOMATION.md`, the historical binding mismatch is advisory,
+not evidence of a live semantic collision or a prohibition on isolated
+capability-admitted documentation edits.
+
+Current read-only checks at the investigation base:
+
+- Git ancestry and six retained producer/test blob comparisons passed;
+  the original Swift test is unchanged from the source pin.
+- `python tools\android-port\controller\validate.py` passed with 1,866
+  tracked reference files, 64 active WPs and 178 edges.
+- `python tools\android-port\portmap.py` passed.
+- `python tools\android-port\l10n_convert.py --check --self-test` passed:
+  74 discovered/passed cases, zero failures/errors/skips, no generated drift.
+
+Local Android readiness is **unverified**. The supported
+`ci.py preflight --local --output <session-files>\wp211-preflight` attempt
+refused execution because explicit state was absent; the direct scaffold
+environment check also rejected non-allowlisted inherited environment
+variables. Neither attempt ran Gradle or product tests, and no environment,
+runtime, installation or execution lock was changed to bypass it.
+This follow-up changes documentation only; fresh exact-head hosted checks
+and automated review control its PR, not the historical product passes.
+The manifest's whole-WP verification remains `configured=false` with
+`commands=[]`; no new Gradle task or whole-WP acceptance binding is invented.
+Physical API31/37, all-locale UI, hardware, signing, release and protected
+human gates are not claimed.
 
 ## Scope and admission
 
@@ -106,7 +219,8 @@ failed first run.
 
 Guard PID139284 exited; subsequent canonical read-only reservation status
 showed no retained own slot2 owner. No ownership row was cleared manually.
-No push or PR occurred. Existing `RegionalAreasTest` families are unchanged.
+No push or PR had occurred at that local-run stage.
+Existing `RegionalAreasTest` families are unchanged.
 No API33+/hardware, native accessibility, signing or release result is claimed.
 
 ## Corrected full supported run
@@ -144,8 +258,9 @@ Guard PID194186 and its owned children exited; the supervisor temporary
 directory was removed. Fresh supported canonical status returned empty claims
 and hard locks. Trusted runner HEAD and origin/main remained at the assigned
 `3a292b64` baseline with a clean worktree. No lock, runtime or ledger mutation
-was performed manually. Publication remains pending a supported route; the
-unsafe installed pre-push hook was not invoked or bypassed.
+was performed manually. Publication was still pending a supported route at
+that local-run stage; the unsafe installed pre-push hook was not invoked or
+bypassed. The later merged publication is recorded above.
 
 This is affected local/remote-host verification, not hosted/cold-cache,
 hardware, signing, native accessibility or human-gate acceptance.
