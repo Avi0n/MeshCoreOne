@@ -26,7 +26,10 @@ class FakeConnectionHost(
     var cleared = 0
     var lastWiFi: Pair<String, UShort>? = null
 
-    override suspend fun startPairing() = onStartPairing()
+    override suspend fun startPairing(): com.meshcoreone.android.feature.onboarding.OnboardingConnectOutcome {
+        onStartPairing()
+        return OnboardingConnectMapping.afterPairing(currentState, ui.value)
+    }
     override suspend fun retryConnect(deviceId: UUID) = onRetry(deviceId)
     override suspend fun connectWiFi(host: String, port: UShort) { lastWiFi = host to port; onWiFi(host, port) }
     override suspend fun clearStaleRegistrations() { cleared++; registeredAccessoryCount = 0 }
@@ -50,4 +53,3 @@ class FakePermissionFacts(
     override fun snapshot() = PermissionSnapshot(sdk, granted, bluetoothEnabled = bluetoothEnabled)
     override fun locationGranted() = location
 }
-

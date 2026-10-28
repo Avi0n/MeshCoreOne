@@ -22,6 +22,7 @@ fun OnboardingGate(
     onboarding: AppOnboarding?,
     shell: @Composable (AppOnboarding?) -> Unit,
 ) {
+    onboarding?.pairingState?.let { SystemPairingSetupHost(it) }
     val completed by (onboarding?.hasCompleted ?: ALWAYS_COMPLETED).collectAsState()
     // Independent of the onboarding screens, which leave composition in the same frame the flag flips.
     LaunchedEffect(onboarding) {

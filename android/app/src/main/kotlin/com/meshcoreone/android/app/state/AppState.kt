@@ -746,6 +746,7 @@ class AppState(private val deps: AppStateDependencies) : MessageEventHost {
     fun cancelSystemPairingSetup() = pairing.cancelSystemPairingSetup()
     fun handleSystemPairingSetupSheetDismissed() = pairing.handleSystemPairingSetupSheetDismissed()
     fun confirmSystemPairingSetup(): Job? = pairing.confirmSystemPairingSetup()
+    suspend fun startDeviceScanAndAwait() = pairing.startDeviceScanAndAwait()
     fun removeFailedPairingAndRetry(): Job? = pairing.removeFailedPairingAndRetry()
     suspend fun retryFailedPairingConnect() = pairing.retryFailedPairingConnect()
 

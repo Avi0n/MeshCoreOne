@@ -91,10 +91,9 @@ class AppStateOnboardingHost(private val container: AppContainer) : OnboardingCo
     override val registeredAccessoryCount: Int get() = container.pairing.pairing.registeredDeviceCount
     override val hasLastConnectedDevice: Boolean get() = container.connectionPort.lastConnectedDeviceId != null
 
-    override suspend fun startPairing() {
-        appState.startDeviceScan().join()
-        // Stale system associations without a saved device block a fresh pairing; onboarding clears them and continues.
-        if (appState.connectionUI.pendingSystemPairingSetup != null) appState.confirmSystemPairingSetup()?.join()
+    override suspend fun startPairing(): com.meshcoreone.android.feature.onboarding.OnboardingConnectOutcome {
+        val completed = appState.startDeviceScanAndAwait()
+        return OnboardingConnectMapping.afterPairing(currentState, ui.value, completed)
     }
 
     override suspend fun retryConnect(deviceId: UUID) {
@@ -141,6 +140,7 @@ class AppOnboarding(
     private val sdkInt: Int,
     /** The first-run gate: true once the persisted completion flag is set. */
     val hasCompleted: StateFlow<Boolean>,
+    val pairingState: com.meshcoreone.android.app.state.AppState? = null,
 ) : OnboardingFeatureDependencies {
     override fun openAppSettings() = settingsOpener()
 
@@ -218,6 +218,7 @@ object AppOnboardingFactory {
             locationReporter = platform.locationReporter,
             sdkInt = platform.sdkInt,
             hasCompleted = platform.flags.hasCompleted,
+            pairingState = container.appState,
         )
     }
 }

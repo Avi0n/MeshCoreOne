@@ -35,7 +35,7 @@ interface OnboardingConnectionHost {
     val hasLastConnectedDevice: Boolean
 
     /** Runs the guided pairing flow to completion (picker, bond, connect, service wiring); failures land in [ui]. */
-    suspend fun startPairing()
+    suspend fun startPairing(): OnboardingConnectOutcome
 
     /** Reconnects a known device, forcing past a stale link; throws the runtime failure. */
     suspend fun retryConnect(deviceId: UUID)
@@ -48,14 +48,18 @@ interface OnboardingConnectionHost {
 
 object OnboardingConnectMapping {
     /** Outcome of a finished fresh-pairing run, from the post-run connection and failure state. */
-    fun afterPairing(state: DeviceConnectionState, ui: ConnectionUiSnapshot): OnboardingConnectOutcome = when {
+    fun afterPairing(
+        state: DeviceConnectionState,
+        ui: ConnectionUiSnapshot,
+        completed: Boolean = true,
+    ): OnboardingConnectOutcome = when {
         ui.otherAppWarningDeviceId != null -> OnboardingConnectOutcome.Failed(
             UiText.Resource(AppLocalizableStrings.alertCouldNotConnectOtherAppMessage), ui.otherAppWarningDeviceId,
         )
         ui.showingConnectionFailedAlert -> OnboardingConnectOutcome.Failed(
             ui.connectionFailedMessage ?: UiText.Resource(AppLocalizableStrings.errorBleDeviceConnectedToOtherApp),
         )
-        state.isConnected -> OnboardingConnectOutcome.Connected
+        completed && state.isConnected -> OnboardingConnectOutcome.Connected
         else -> OnboardingConnectOutcome.Cancelled
     }
 
@@ -84,9 +88,8 @@ class AppOnboardingPairingPort(
     override suspend fun pairNewDevice(): OnboardingConnectOutcome {
         if (host.isPairingActive) return OnboardingConnectOutcome.Ignored
         host.consumeFailure()
-        host.startPairing()
+        val outcome = host.startPairing()
         registered.value = host.registeredAccessoryCount
-        val outcome = OnboardingConnectMapping.afterPairing(host.currentState, host.ui.value)
         if (outcome is OnboardingConnectOutcome.Failed) host.consumeFailure()
         return outcome
     }

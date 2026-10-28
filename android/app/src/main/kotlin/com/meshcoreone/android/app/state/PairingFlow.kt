@@ -16,7 +16,12 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Guided pairing and system-registry setup flow (Swift `AppState+DeviceActions`). The system-registry
@@ -40,9 +45,38 @@ class PairingFlow(
         private set
     @Volatile var isFreshPairingForegroundRetry: Boolean = false
         private set
+    private var setupConfirmationJob: Job? = null
+    private var foregroundRetryJob: Job? = null
+    private var foregroundPairingJob: Job? = null
+    private var freshPairingCompletion = 0L
+
+    /** Returns true only after a fresh pairing completed; an existing live radio is not consent or success. */
+    suspend fun startDeviceScanAndAwait(): Boolean {
+        val completionBefore = freshPairingCompletion
+        val scan = startDeviceScan()
+        try {
+            scan.join()
+            ui.state.first {
+                !it.isBusy && it.pendingSystemPairingSetup == null && it.queuedSystemPairingSetup == null &&
+                    !it.shouldCompleteFreshPairingOnForeground
+            }
+            return freshPairingCompletion != completionBefore
+        } catch (cancelled: CancellationException) {
+            withContext(NonCancellable) {
+                scan.cancelAndJoin()
+                setupConfirmationJob?.cancelAndJoin()
+                foregroundRetryJob?.cancelAndJoin()
+                foregroundPairingJob?.cancelAndJoin()
+                cancelSystemPairingSetup()
+                ui.isBusy = false
+            }
+            throw cancelled
+        }
+    }
 
     /** Start device scan/pairing. Returns the flow's job so callers and tests can await completion. */
     fun startDeviceScan(): Job {
+        if (ui.pendingSystemPairingSetup != null || isConfirmingSystemPairingSetup) return scope.launch {}
         ui.hideDisconnectedPill()
         ui.failedPairingDeviceId = null
         ui.isBusy = true
@@ -62,12 +96,12 @@ class PairingFlow(
                     completeFreshPairing()
                 }
             } finally {
-                ui.isBusy = false
                 if (ui.pendingSystemPairingSetup == null && ui.queuedSystemPairingSetup == null &&
                     !ui.shouldCompleteFreshPairingOnForeground
                 ) {
                     connection.isPairingFlowActive = false
                 }
+                ui.isBusy = false
             }
         }
     }
@@ -92,11 +126,14 @@ class PairingFlow(
     }
 
     fun cancelSystemPairingSetup() {
-        ui.pendingSystemPairingSetup = null
-        ui.queuedSystemPairingSetup = null
+        foregroundRetryJob?.cancel()
+        foregroundRetryJob = null
+        foregroundPairingJob?.cancel()
         ui.shouldCompleteFreshPairingOnForeground = false
         isFreshPairingForegroundRetry = false
         connection.isPairingFlowActive = false
+        ui.queuedSystemPairingSetup = null
+        ui.pendingSystemPairingSetup = null
     }
 
     fun handleSystemPairingSetupSheetDismissed() {
@@ -107,12 +144,13 @@ class PairingFlow(
 
     /** Forgets the pending associations, then opens the picker. Pending clears first so the system prompt is the only dialog. */
     fun confirmSystemPairingSetup(): Job? {
+        if (isConfirmingSystemPairingSetup) return null
         val prompt = ui.pendingSystemPairingSetup ?: return null
         isConfirmingSystemPairingSetup = true
         connection.isPairingFlowActive = true
         ui.shouldShowPickerOnForeground = false
-        ui.pendingSystemPairingSetup = null
         ui.isBusy = true
+        ui.pendingSystemPairingSetup = null
         return scope.launch {
             try {
                 withPairingFlowErrorHandling {
@@ -120,11 +158,11 @@ class PairingFlow(
                     completeFreshPairing()
                 }
             } finally {
-                ui.isBusy = false
                 isConfirmingSystemPairingSetup = false
                 if (!ui.shouldCompleteFreshPairingOnForeground) connection.isPairingFlowActive = false
+                ui.isBusy = false
             }
-        }
+        }.also { setupConfirmationJob = it }
     }
 
     private suspend fun completeFreshPairing() {
@@ -134,6 +172,7 @@ class PairingFlow(
         connection.pairNewDevice()
         wireServices()
         onFreshPairingCompleted()
+        freshPairingCompletion++
     }
 
     private suspend fun withPairingFlowErrorHandling(work: suspend () -> Unit) {
@@ -171,24 +210,27 @@ class PairingFlow(
     private fun scheduleFreshPairingOnForeground() {
         ui.shouldCompleteFreshPairingOnForeground = true
         connection.isPairingFlowActive = true
-        scope.launch {
+        foregroundRetryJob?.cancel()
+        foregroundRetryJob = scope.launch {
             clock.sleep(freshPairingForegroundRetryDelay)
             resumeFreshPairingIfNeeded()
         }
     }
 
-    suspend fun resumeFreshPairingIfNeeded() {
-        if (!ui.shouldCompleteFreshPairingOnForeground) return
+    suspend fun resumeFreshPairingIfNeeded() = coroutineScope {
+        if (!ui.shouldCompleteFreshPairingOnForeground) return@coroutineScope
+        foregroundPairingJob = coroutineContext[Job]
+        ui.isBusy = true
         ui.shouldCompleteFreshPairingOnForeground = false
         isFreshPairingForegroundRetry = true
-        ui.isBusy = true
         connection.isPairingFlowActive = true
         try {
             withPairingFlowErrorHandling { completeFreshPairing() }
         } finally {
-            ui.isBusy = false
+            foregroundPairingJob = null
             isFreshPairingForegroundRetry = false
             if (!ui.shouldCompleteFreshPairingOnForeground) connection.isPairingFlowActive = false
+            ui.isBusy = false
         }
     }
 

@@ -52,6 +52,7 @@ internal class FakeConnectionPort : AppConnectionPort {
     var removeFailure: Exception? = null
     var lastRemoved: UUID? = null
     var connectFailure: Exception? = null
+    var beforePicker: suspend () -> Unit = {}
 
     override suspend fun activate() { calls += "activate" }
     override suspend fun appDidEnterBackground() { calls += "background" }
@@ -71,6 +72,7 @@ internal class FakeConnectionPort : AppConnectionPort {
     }
     override suspend fun pairNewDevice() {
         pickerCalls += 1
+        beforePicker()
         pickerOutcomes.removeFirstOrNull()?.invoke()
     }
     override suspend fun systemAccessoriesMissingDeviceRecord(): List<SystemPairedAccessory> = paired.toList()

@@ -224,8 +224,11 @@ internal class HarnessPairingService : DevicePairingService {
     val removed = mutableListOf<UUID>()
     var removeCalls = 0
     var removeFailure: Exception? = null
+    var discovery: suspend () -> UUID = {
+        throw com.meshcoreone.android.core.connectivity.pairing.DevicePairingError.Cancelled()
+    }
     override suspend fun activate() = Unit
-    override suspend fun discoverDevice(): UUID = throw com.meshcoreone.android.core.connectivity.pairing.DevicePairingError.Cancelled()
+    override suspend fun discoverDevice(): UUID = discovery()
     override fun isDeviceConnectable(id: UUID): Boolean = true
     override fun registeredDeviceInfos(): List<RegisteredDevice> = registered.map { RegisteredDevice(it.key, it.value) }
     override suspend fun removeDevice(id: UUID) {

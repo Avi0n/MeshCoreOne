@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import com.meshcoreone.android.app.navigation.NavigationCoordinator
 import com.meshcoreone.android.core.contracts.AppTab
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
@@ -44,7 +45,10 @@ class OnboardingGateTest {
 
     @After fun closeHost() { host.pause().stop().destroy() }
 
-    private fun onboarding(flags: WriteBehindOnboardingFlags): AppOnboarding {
+    private fun onboarding(
+        flags: WriteBehindOnboardingFlags,
+        pairingState: com.meshcoreone.android.app.state.AppState? = null,
+    ): AppOnboarding {
         val scope = CoroutineScope(Dispatchers.Unconfined)
         val host = FakeConnectionHost()
         val demoStore = HashMap<String, Boolean>()
@@ -60,6 +64,7 @@ class OnboardingGateTest {
             region = AppOnboardingRegionPort(ServicesRegionCatalog(), MutableStateFlow<RegionSelection?>(null), {}, null),
             presets = AppOnboardingPresetPort(FakeRadio(), scope),
             settingsOpener = {}, locationReporter = null, sdkInt = 34, hasCompleted = flags.hasCompleted,
+            pairingState = pairingState,
         )
     }
 
@@ -94,5 +99,28 @@ class OnboardingGateTest {
     @Test fun `no bindings shows the shell and never a fake flow`() {
         showGate(NavigationCoordinator(), null)
         compose.onNodeWithTag("shell").assertIsDisplayed()
+    }
+
+    @Test fun `consent is mounted above both onboarding and the completed shell`() {
+        val scope = CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.Main.immediate)
+        try {
+            val state = com.meshcoreone.android.app.container.appStateOf(scope)
+            state.connectionUI.pendingSystemPairingSetup =
+                com.meshcoreone.android.core.connectivity.pairing.SystemPairingSetupPrompt(
+                    listOf(com.meshcoreone.android.core.connectivity.pairing.SystemPairedAccessory(
+                        java.util.UUID.randomUUID(), "Leftover radio",
+                    )),
+                )
+            val flags = flags(completed = false)
+            showGate(NavigationCoordinator(), onboarding(flags, state))
+            compose.onNodeWithTag("system-pairing-setup").assertIsDisplayed()
+            compose.onNodeWithTag("shell").assertDoesNotExist()
+            compose.runOnUiThread { OnboardingState(flags).completeOnboarding() }
+            compose.waitForIdle()
+            compose.onNodeWithTag("shell").assertExists()
+            compose.onNodeWithTag("system-pairing-setup").assertIsDisplayed()
+            compose.onNodeWithTag("system-pairing-cancel").performClick()
+            compose.onNodeWithTag("system-pairing-setup").assertDoesNotExist()
+        } finally { scope.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
     }
 }
