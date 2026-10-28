@@ -352,6 +352,7 @@ class MessageService(
                         val changed = dataStore.updateMessageStatusUnlessDelivered(key(messageID), MessageStatus.FAILED)
                         ownership.checkPersistenceCompletion("failMessage.saved")
                         if (notify && changed) broadcastFailed(messageID)
+                        recovered("failPending.$messageID")
                     }
                 }
             } catch (storage: PersistenceStoreException) {

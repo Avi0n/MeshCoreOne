@@ -7,6 +7,7 @@ import com.meshcoreone.android.core.contracts.domain.*
 import com.meshcoreone.android.core.contracts.domain.errors.*
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.protocol.config.MeshCoreException
 import com.meshcoreone.android.core.protocol.model.CommandCode
 import kotlin.test.*
 import kotlinx.coroutines.*
@@ -32,14 +33,14 @@ class RecoveryPolicyTest {
             assertEquals(MessageStatus.FAILED, h.stored(later.id).status)
             assertSame(tracking, h.service.pendingAck(first.id))
             assertNull(h.service.pendingAck(later.id))
-            assertEquals(listOf(MessageStatusEvent.Failed(later.id)), observed)
+            assertEquals(listOf<MessageStatusEvent>(MessageStatusEvent.Failed(later.id)), observed)
             assertTrue(h.diagnostics.any { it is MessagingDiagnostic.Failure &&
                 it.operation == "ackExpiry.${first.id}" && it.cause === fault })
             h.store.before = null
             h.service.checkExpiredAcks(); h.service.checkExpiredAcks(); runCurrent()
             assertEquals(MessageStatus.FAILED, h.stored(first.id).status)
             assertEquals(0, h.service.pendingAckCount)
-            assertEquals(listOf(MessageStatusEvent.Failed(later.id), MessageStatusEvent.Failed(first.id)), observed)
+            assertEquals(listOf<MessageStatusEvent>(MessageStatusEvent.Failed(later.id), MessageStatusEvent.Failed(first.id)), observed)
             assertTrue(h.service.close().isComplete); h.close()
         },
         native("fail all diagnoses each failed write continues later entries and retries retained tracking") {
@@ -69,7 +70,7 @@ class RecoveryPolicyTest {
             }
             assertEquals(MessageStatus.FAILED, h.stored(messages[2].id).status)
             assertNull(h.service.pendingAck(messages[2].id))
-            assertEquals(listOf(MessageStatusEvent.Failed(messages[2].id)), observed)
+            assertEquals(listOf<MessageStatusEvent>(MessageStatusEvent.Failed(messages[2].id)), observed)
             h.store.before = null
             h.service.failAllPendingMessages(); h.service.failAllPendingMessages(); runCurrent()
             assertEquals(0, h.service.pendingAckCount)
@@ -122,7 +123,7 @@ class RecoveryPolicyTest {
             assertEquals(2, writes)
             assertEquals(MessageStatus.FAILED, h.stored(message.id).status)
             assertEquals(0, h.service.pendingAckCount)
-            assertEquals(listOf(MessageStatusEvent.Failed(message.id)), observed)
+            assertEquals(listOf<MessageStatusEvent>(MessageStatusEvent.Failed(message.id)), observed)
             assertTrue(h.service.close().isComplete); h.close()
         },
         native("cancelling fail all keeps uncommitted tracking and does not fail later entries") {
@@ -192,7 +193,7 @@ class RecoveryPolicyTest {
             assertEquals(MessageStatus.DELIVERED, h.stored(message.id).status)
             assertEquals(250u, h.stored(message.id).roundTripTime)
             assertEquals(0, h.service.pendingAckCount)
-            assertEquals(listOf(MessageStatusEvent.StatusResolved(message.id, MessageStatus.DELIVERED, 250u)), observed)
+            assertEquals(listOf<MessageStatusEvent>(MessageStatusEvent.StatusResolved(message.id, MessageStatus.DELIVERED, 250u)), observed)
             assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)
             assertTrue(h.service.close().isComplete); h.close()
         },
@@ -246,7 +247,7 @@ class RecoveryPolicyTest {
             assertTrue(h.diagnostics.any { it is MessagingDiagnostic.Failure &&
                 it.operation == "failPending.${message.id}" && it.cause === fault })
             h.store.faults.clear()
-            val expected = if (recovery == "ACK") {
+            val expected: MessageStatusEvent = if (recovery == "ACK") {
                 h.transport.pushAck(tracking.ackCodes.first(), 250u); runCurrent()
                 MessageStatusEvent.StatusResolved(message.id, MessageStatus.DELIVERED, 250u)
             } else {
@@ -259,6 +260,50 @@ class RecoveryPolicyTest {
             assertEquals(0, h.service.pendingAckCount)
             assertEquals(listOf(expected), observed)
             h.service.failAllPendingMessages()
+            assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)
+            assertTrue(h.service.close().isComplete); h.close()
+        }
+    } + listOf(false, true).map { cancelSend ->
+        native("fail-all storage failure resolves through ${if (cancelSend) "send cancellation" else "terminal send error"}") {
+            val h = Harness(this); h.start(); h.transport.directError = 5u
+            val entered = CompletableDeferred<Unit>(); val release = CompletableDeferred<Unit>()
+            h.transport.beforeReply = {
+                if (it[0] == CommandCode.SEND_MESSAGE.rawValue) { entered.complete(Unit); release.await() }
+            }
+            val observed = mutableListOf<MessageStatusEvent>()
+            observe(h, observed)
+            val sending = backgroundScope.async {
+                try {
+                    h.service.sendDirectMessage("failed fail-all during send", h.contact)
+                    null
+                } catch (failure: MessageServiceException) { failure }
+            }
+            entered.await()
+            val message = h.store.messages.values.single()
+            val fault = storageFailure()
+            h.store.faults["updateMessageStatusUnlessDelivered"] = fault
+            try {
+                assertSame(fault, assertFailsWith<PersistenceStoreException> { h.service.failAllPendingMessages() })
+                assertEquals(1, h.service.pendingAckCount)
+                assertEquals(MessageStatus.PENDING, h.stored(message.id).status)
+                h.store.faults.clear()
+                if (cancelSend) {
+                    sending.cancelAndJoin()
+                    assertTrue(sending.isCancelled)
+                } else {
+                    release.complete(Unit)
+                    val failure = assertNotNull(sending.await())
+                    val underlying = assertIs<MessageServiceError.SessionError>(failure.error).underlying
+                    assertEquals(5u.toUByte(), assertIs<MeshCoreException.DeviceError>(underlying).code)
+                }
+            } finally {
+                h.store.faults.clear()
+                release.complete(Unit)
+            }
+            runCurrent()
+            assertEquals(MessageStatus.FAILED, h.stored(message.id).status)
+            assertEquals(0, h.service.pendingAckCount)
+            assertEquals(listOf<MessageStatusEvent>(MessageStatusEvent.Failed(message.id)), observed)
             assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)
             assertTrue(h.service.close().isComplete); h.close()
         }
