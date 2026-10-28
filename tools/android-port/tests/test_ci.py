@@ -30,6 +30,13 @@ MIXED = PORTED + (
 
 
 class SourceDispositionTests(unittest.TestCase):
+    def test_source_capture_limits_dependency_traversal_to_the_test_project(self):
+        guard = ci.TASK_GRAPH_GUARD.read_text(encoding="utf-8")
+        self.assertIn(
+            "if (dependency.project == task.project && dependencies.add(dependency)) visit(dependency)",
+            guard,
+        )
+
     def test_dynamic_lineage_binds_only_real_unique_junit_case_identities(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = prepare_test_lineage(Path(temporary))

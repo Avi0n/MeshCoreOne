@@ -12,7 +12,7 @@ gradle.beforeProject { project ->
                 def visit
                 visit = { current ->
                     current.taskDependencies.getDependencies(current).each { dependency ->
-                        if (dependencies.add(dependency)) visit(dependency)
+                        if (dependency.project == task.project && dependencies.add(dependency)) visit(dependency)
                     }
                 }
                 visit(task)
