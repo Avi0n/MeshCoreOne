@@ -928,6 +928,11 @@ software checks do not establish whole-WP or device acceptance. Missing or faile
 local checks are reported as unverified, not a feature-branch publication block;
 use the exact-candidate hosted result where available.
 
+For an unconfigured WP with no commands, the generated worker prompt also lists
+the preflight, scaffold and inspect commands already declared by WP-003. The
+prompt fails explicitly if that shared lane is missing or unconfigured; it does
+not invent a Gradle task or change the WP's whole-acceptance status.
+
 The authorized human coordinator first posts one structured scope comment on
 the **existing repair issue**, not on an invented tracking issue. Its body is
 `<!-- android-port-repair-scope-v1 -->` followed by strict JSON with these fields:

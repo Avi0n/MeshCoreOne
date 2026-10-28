@@ -15,7 +15,7 @@ from fixtures import BASE, HEAD, NOW, REPO, base_manifest, policy, settings, tes
 from controller.dispatch import ledger_snapshot, main
 from controller.errors import PortError
 from controller.ledger import Ledger
-from controller.model import REFERENCE_SHA, validate_manifest
+from controller.model import Manifest, REFERENCE_SHA, validate_manifest
 from controller.paths import git_path
 from controller.render import cloud_payload, input_page, issue_payload, local_payload, render
 from controller.test_runner import run_suite
@@ -187,6 +187,31 @@ class CliTests(unittest.TestCase):
         self.assertIn("does not by itself block an already-assigned", prompt)
         self.assertIn("existing declared affected or scaffold checks", prompt)
         self.assertIn("exact-candidate hosted checks", prompt)
+        self.assertIn("Project-wide declared software lane (not whole-WP or device acceptance)", prompt)
+        for command in (
+            ["python", "tools/android-port/controller/ci.py", "preflight"],
+            ["python", "tools/android-port/controller/ci.py", "run", "--stage", "scaffold"],
+            ["python", "tools/android-port/controller/ci.py", "inspect"],
+        ):
+            self.assertIn(json.dumps(command), prompt)
+            self.assertIn(command, manifest.wp("WP-003")["verification"]["commands"])
+
+    def test_unconfigured_wp_prompt_rejects_missing_project_software_commands(self):
+        original = base_manifest()
+        for kind in ("unconfigured", "missing-command", "malformed-commands"):
+            data = copy.deepcopy(original.data)
+            ci = next(wp for wp in data["work_packages"] if wp["id"] == "WP-003")
+            if kind == "unconfigured":
+                ci["verification"]["configured"] = False
+            elif kind == "missing-command":
+                ci["verification"]["commands"].remove(
+                    ["python", "tools/android-port/controller/ci.py", "run", "--stage", "scaffold"]
+                )
+            else:
+                ci["verification"]["commands"] = None
+            manifest = Manifest(data, original.exclusions, original.repo)
+            with self.subTest(kind=kind), self.assertRaisesRegex(PortError, "software verification lane"):
+                render(manifest, policy(), "WP-207")
 
     def test_repair_preview_targets_existing_only_not_another_assignment(self):
         result, output, _ = self.command(["cloud", "--wp", "WP-101", "--repair-feedback", "bounded fix"])

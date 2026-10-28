@@ -10,6 +10,23 @@ def marker(wp_id: str) -> str:
     return f"<!-- android-port-wp:{wp_id} -->"
 
 
+def declared_software_lane(manifest: Manifest) -> list[list[str]]:
+    ci = "tools/android-port/controller/ci.py"
+    required = [
+        ["python", ci, "preflight"],
+        ["python", ci, "run", "--stage", "scaffold"],
+        ["python", ci, "inspect"],
+    ]
+    verification = manifest.wp("WP-003")["verification"]
+    if (
+        not isinstance(verification, dict) or verification.get("configured") is not True
+        or not isinstance(verification.get("commands"), list)
+        or any(command not in verification["commands"] for command in required)
+    ):
+        raise PortError("The declared project-wide software verification lane is missing or unconfigured")
+    return [command.copy() for command in required]
+
+
 def input_page(manifest: Manifest, wp_id: str, page: int, page_size: int,
                expected_manifest_sha: str, expected_source_sha: str,
                primary_only=False, kind=None) -> dict:
@@ -83,6 +100,12 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
     if not inputs:
         lines.append(wp["android_only_reason"])
     input_end = len(lines)
+    software_lane = []
+    if not wp["verification"]["configured"] and not wp["verification"]["commands"]:
+        software_lane = [
+            "Project-wide declared software lane (not whole-WP or device acceptance):",
+            json.dumps(declared_software_lane(manifest), ensure_ascii=True),
+        ]
     lines.extend([
         "",
         "## Observable acceptance (file/header coverage is not feature completion)",
@@ -90,6 +113,7 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
         "",
         "## Verification",
         json.dumps(wp["verification"], ensure_ascii=True),
+        *software_lane,
         "An unconfigured whole-WP verification entry blocks automated whole-WP dispatch and completion; "
         "it does not by itself block an already-assigned, capability-admitted bounded repair. "
         "Use the existing declared affected or scaffold checks for its actual candidate and applicable "
