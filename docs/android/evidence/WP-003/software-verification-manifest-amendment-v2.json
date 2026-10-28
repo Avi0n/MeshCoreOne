@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "amendment_id": "WP-003-software-verification-v2",
+  "owner": "android-build-engineer",
+  "base_sha": "598f8683e775599ef2d8efd587a5574cc259090c",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "capability_id": "traceability-validation",
+  "operation": "add-or-update-validator-rule",
+  "authorization": "User-directed issue #441: bind the existing WP-202 software lane without granting source-family, package-split, or whole-WP acceptance.",
+  "previous_manifest_sha256": "977b9e91259cca64ffe10f17c96891e60608793827183350ccc81e2412a150d8",
+  "current_manifest_sha256": "11120a20d04408b3d21fac09180412df0490cabf1dafb8a3c98fe83e0fad31e4",
+  "scope": "Existing software checks only. The command lane runs actual scaffold tests including the Room-backed persistence repository suite; WP-202 acceptance remains unconfigured until bounded concern-to-test mapping is approved.",
+  "work_packages": [
+    {
+      "id": "WP-202",
+      "previous": {
+        "configured": false,
+        "commands": [],
+        "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+      },
+      "current": {
+        "configured": false,
+        "commands": [
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "preflight"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "run",
+            "--stage",
+            "scaffold"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "inspect"
+          ]
+        ],
+        "blocker": "The software lane executes the current Room-backed persistence repository suite and scaffold consumers. R118 bundle 13/55 in #385 still needs an approved bounded split and explicit concern-to-test/evidence mapping; these general software checks do not accept its nine concerns or 167 original families. Full WP-202 acceptance remains unconfigured."
+      }
+    }
+  ],
+  "limitations": [
+    "This exact delta binds only the existing software command lane; configured remains false.",
+    "No WP-202 source/test package split, original-family disposition, new task selector, human approval, device result, or whole-WP acceptance is granted.",
+    "Historical WP-202 case counts and test results remain bound to their original candidate heads."
+  ]
+}
