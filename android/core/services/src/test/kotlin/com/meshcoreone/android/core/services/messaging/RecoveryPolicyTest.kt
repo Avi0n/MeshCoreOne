@@ -195,7 +195,39 @@ class RecoveryPolicyTest {
             assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)
             assertTrue(queue.shutdown().isComplete); h.close()
         },
-    )
+    ) + listOf("ACK", "expiry").map { recovery ->
+        native("fail-all storage failure resolves through $recovery with complete teardown") {
+            val h = Harness(this); h.start(); h.service.startEventMonitoring()
+            val message = h.service.sendDirectMessage("recover fail-all through $recovery", h.contact)
+            val tracking = assertNotNull(h.service.pendingAck(message.id))
+            val observed = mutableListOf<MessageStatusEvent>()
+            observe(h, observed)
+            val fault = storageFailure()
+            h.store.faults["updateMessageStatusUnlessDelivered"] = fault
+            assertSame(fault, assertFailsWith<PersistenceStoreException> { h.service.failAllPendingMessages() })
+            assertSame(tracking, h.service.pendingAck(message.id))
+            assertEquals(MessageStatus.SENT, h.stored(message.id).status)
+            assertTrue(observed.isEmpty())
+            assertTrue(h.diagnostics.any { it is MessagingDiagnostic.Failure &&
+                it.operation == "failPending.${message.id}" && it.cause === fault })
+            h.store.faults.clear()
+            val expected = if (recovery == "ACK") {
+                h.transport.pushAck(tracking.ackCodes.first(), 250u); runCurrent()
+                MessageStatusEvent.StatusResolved(message.id, MessageStatus.DELIVERED, 250u)
+            } else {
+                h.clock.offset += 60_000
+                h.service.checkExpiredAcks(); runCurrent()
+                MessageStatusEvent.Failed(message.id)
+            }
+            assertEquals(if (recovery == "ACK") MessageStatus.DELIVERED else MessageStatus.FAILED,
+                h.stored(message.id).status)
+            assertEquals(0, h.service.pendingAckCount)
+            assertEquals(listOf(expected), observed)
+            h.service.failAllPendingMessages()
+            assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)
+            assertTrue(h.service.close().isComplete); h.close()
+        }
+    }
 
     private fun TestScope.observe(h: Harness, observed: MutableList<MessageStatusEvent>): Job {
         val subscription = h.service.statusEvents()

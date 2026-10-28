@@ -43,11 +43,14 @@ retained, not renamed into supplemental coverage.
 | CM-08: failAllPendingMessages fails all non-delivered and broadcasts .failed | Both original rows commit FAILED, exactly their two identities notify, and tracking becomes empty. Supplemental multi-error sweep retains failed entries, processes the later healthy entry, throws aggregate failure, then reconciles retained entries on retry. |
 | CM-08: failAllPendingMessages does not downgrade or notify on a delivered DB row | DELIVERED remains unchanged, no failed event, stale undelivered tracking retires. Confirmed but not yet committed ACKs remain retained for reconciliation rather than being failed. |
 
-`RecoveryPolicyTest` adds eight production-path cases: expiry error isolation/
+`RecoveryPolicyTest` adds ten production-path cases: expiry error isolation/
 retry; fail-all two-error isolation/aggregate/retry; unreconciled teardown cause;
 cancelled fail-all; successor ownership during a suspended write; real raw ACK
 delivery after a storage fault; failed hydration retry/success latch; and
-observer cancellation during a shared hydration load.
+observer cancellation during a shared hydration load; and fail-all persistence
+failure followed independently by ACK delivery or expiry. Both latter paths
+must retire tracking, emit exactly the authoritative status, avoid another wire
+send and produce a complete teardown report with the recovered diagnostic gone.
 
 These are deterministic real MessageService/ChatSendQueueService/MeshCoreSession
 tests with RecordingStore. They do not prove physical persistence. Unchanged

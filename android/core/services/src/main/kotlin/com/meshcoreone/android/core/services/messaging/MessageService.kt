@@ -253,6 +253,7 @@ class MessageService(
         synchronized(lock) { if (pendingAcks[messageID]?.receipt === tracking.receipt) pendingAcks.remove(messageID) }
         recovered("ack.$messageID")
         recovered("ackDelivery")
+        recovered("failPending.$messageID")
     }
 
     suspend fun checkExpiredAcks() {
@@ -295,6 +296,7 @@ class MessageService(
                 }
             }
             if (changed) broadcastFailed(current.messageID)
+            recovered("failPending.${current.messageID}")
         }
     }
 
