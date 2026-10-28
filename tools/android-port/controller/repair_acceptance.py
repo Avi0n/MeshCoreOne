@@ -807,6 +807,7 @@ def _kotlin_junit_methods(text, declaring_classes=None):
         "kotlin.Suppress", "kotlin.OptIn", "kotlin.jvm.JvmStatic", "kotlin.jvm.Synchronized",
         "androidx.compose.runtime.Composable", "org.robolectric.annotation.Implementation",
         "org.junit.runners.Parameterized.Parameters",
+        "org.junit.Rule", "org.junit.ClassRule",
     }
     imports = {}
     def name_token(value):
@@ -877,6 +878,18 @@ def _kotlin_junit_methods(text, declaring_classes=None):
         if not inherited_scope and name not in declared_names
         and len(targets) == 1 and next(iter(targets)) in known_non_tests
     }
+    for index, value in enumerate(tokens):
+        if value != "@" or index + 2 >= len(tokens) or tokens[index + 2] != ":":
+            continue
+        site = tokens[index + 1]
+        if site == "file":
+            continue
+        name = tokens[index + 3].strip("`") if index + 3 < len(tokens) else ""
+        if (site == "get" and name in non_test_annotations
+                and imports[name] in ({"org.junit.Rule"}, {"org.junit.ClassRule"})
+                and (index + 4 >= len(tokens) or tokens[index + 4] != ".")):
+            continue
+        raise PortError("Ambiguous Kotlin use-site annotation in hosted test source")
     aliases = {}
     for start, value in enumerate(tokens):
         if (
@@ -904,6 +917,10 @@ def _kotlin_junit_methods(text, declaring_classes=None):
                 family_annotations.add(alias)
                 changed = True
     methods, declaration_positions, processed_annotations = {}, {}, set()
+    modifiers = {
+        "public", "internal", "private", "protected", "final", "open", "abstract", "override",
+        "suspend", "inline", "tailrec", "external", "infix", "operator", "actual", "expect",
+    }
     for start, value in enumerate(tokens):
         if (
             value != "@" or start in processed_annotations
@@ -911,7 +928,10 @@ def _kotlin_junit_methods(text, declaring_classes=None):
         ):
             continue
         index, annotations = start, set()
-        while index < len(tokens) and tokens[index] == "@":
+        while index < len(tokens) and (tokens[index] == "@" or tokens[index] in modifiers):
+            if tokens[index] in modifiers:
+                index += 1
+                continue
             processed_annotations.add(index)
             index += 1
             if index == len(tokens) or not name_token(tokens[index]):
@@ -937,18 +957,13 @@ def _kotlin_junit_methods(text, declaring_classes=None):
                     index += 1
                 if stack:
                     raise PortError("Unclosed Kotlin annotation in hosted test source")
-        while index < len(tokens) and tokens[index] in (
-            "public", "internal", "private", "protected", "final", "open", "abstract", "override",
-            "suspend", "inline", "tailrec", "external", "infix", "operator", "actual", "expect",
-        ):
-            index += 1
         if (
             annotations and not annotations & (test_annotations | family_annotations)
             and not annotations.issubset(non_test_annotations)
-            and index < len(tokens) and tokens[index] == "fun"
+            and index < len(tokens) and tokens[index] in ("fun", "val", "var")
         ):
             unknown = ", ".join(sorted(annotations - non_test_annotations))
-            raise PortError(f"Ambiguous Kotlin function annotation ({unknown}); "
+            raise PortError(f"Ambiguous Kotlin function annotation or property annotation ({unknown}); "
                             "use a recognizable JUnit test declaration")
         if annotations & (test_annotations | family_annotations):
             if index + 2 >= len(tokens) or tokens[index] != "fun" or tokens[index + 2] != "(":

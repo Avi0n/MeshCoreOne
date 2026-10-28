@@ -541,7 +541,7 @@ class RepairExecutionTests(unittest.TestCase):
             _kotlin_junit_methods(source)
         real = REPO / "android" / "app" / "src" / "test" / "kotlin" / "com" / "meshcoreone" / "android" / \
             "wp316diagnostic" / "DisconnectedCliTest.kt"
-        with self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+        with self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation|use-site"):
             _kotlin_junit_methods(real.read_text(encoding="utf-8"))
         for source in (
             "import other.Check as Before\n@Before fun hidden() {}",
@@ -563,9 +563,17 @@ class RepairExecutionTests(unittest.TestCase):
             "import org.junit.Before as Setup\nclass T { @Setup fun setup() {} }",
             "import org.junit.Before\nclass T(val x: Int) { @Before fun setup() {} }",
             "import org.junit.Before\nclass T<X : Base> { @Before fun setup() {} }",
+            "import org.junit.Rule\nclass T { @get:Rule val rule = example }",
         ):
             with self.subTest(source=source):
                 self.assertEqual(_kotlin_junit_methods(source), {})
+        for source in (
+            "import other.Rule\nclass T { @get:Rule val rule = example }",
+            "import org.junit.Rule\nclass T : Parent() { @get:Rule val rule = example }",
+            "import org.junit.Rule\nclass T { annotation class Rule; @get:Rule val rule = example }",
+        ):
+            with self.subTest(source=source), self.assertRaisesRegex(PortError, "use-site"):
+                _kotlin_junit_methods(source)
 
     def test_full_scaffold_reads_actual_protocol_counts_and_inventory(self):
         from controller.ci import TASKS
@@ -772,6 +780,27 @@ class RepairExecutionTests(unittest.TestCase):
         with patch("controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob]), \
                 self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
             validate_hosted_methods(scope, candidate, manifest.repo, executed)
+
+    def test_interleaved_annotations_and_getter_factories_cannot_hide_as_helpers(self):
+        manifest, _, _, scope = whole_fixture()
+        helper = TEST.replace("MapTest.kt", "MapFixtures.kt")
+        scope["coverage"].append({
+            "path": helper, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Fixture used by a test.",
+            "modules": ["core/maps"],
+        })
+        sources = {"4" * 40: b"class MapTest { @Test fun keepsListReachable() {} }"}
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        for source in (
+            b'import other.Case\nclass MapFixtures { @Case public @Suppress("unused") fun omitted() {} }',
+            b'class MapFixtures { @get:TestFactory val hidden get() = emptyList<Any>() }',
+            b'class MapFixtures { @Case val hidden get() = emptyList<Any>() }',
+        ):
+            sources["3" * 40] = source
+            with self.subTest(source=source), patch(
+                "controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob],
+            ), self.assertRaisesRegex(PortError, "Ambiguous Kotlin|use-site"):
+                validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
 
     def test_hosted_method_accepts_quoted_annotation_arguments_without_treating_them_as_syntax(self):
         manifest, _, _, scope = fixture()
