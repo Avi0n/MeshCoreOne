@@ -61,6 +61,25 @@ def production_bindings(scope):
     return bindings
 
 
+def scoped_candidate_sources(scope):
+    sources = {}
+
+    def add(path, blob):
+        if path in sources and sources[path] != blob:
+            raise PortError("Conflicting scoped candidate source identities")
+        sources[path] = blob
+
+    for entry in scope["coverage"]:
+        for method in entry["hosted_methods"]:
+            add(method["path"], method["blob_sha"])
+        for path, blob in entry.get("production_bindings", {}).items():
+            add(path, blob)
+    for observation in scope["native"]:
+        for path, blob in observation["bindings"].items():
+            add(path, blob)
+    return sources
+
+
 def authenticated_scope(native, comment_id, binding):
     positive_integer(comment_id, "Repair scope comment ID")
     comment = native.get(f"/issues/comments/{comment_id}")

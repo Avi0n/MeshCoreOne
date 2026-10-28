@@ -64,7 +64,7 @@ def record(repo: Path, side: str, path: str, blob: str):
 
 
 def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *,
-                 path_operations=None, additional_original_paths=None):
+                 path_operations=None, additional_original_paths=None, additional_candidate_sources=None):
     if any(not isinstance(value, str) or SHA.fullmatch(value) is None for value in (trusted_base, candidate)):
         raise PortError("Reviewer staging requires exact immutable base/head SHAs")
     base_tree, candidate_tree = tree(repo, trusted_base), tree(repo, candidate)
@@ -123,6 +123,17 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *,
         for side, entries in (("base-data", base_tree), ("candidate-data", candidate_tree)):
             if path in entries:
                 append(side, path, entries[path])
+    if additional_candidate_sources is not None:
+        if not isinstance(additional_candidate_sources, dict) or not all(
+            isinstance(path, str) and isinstance(blob, str) and SHA.fullmatch(blob)
+            for path, blob in additional_candidate_sources.items()
+        ):
+            raise PortError("Malformed scoped candidate inputs")
+        for path, blob in sorted(additional_candidate_sources.items()):
+            if candidate_tree.get(path) != blob:
+                raise PortError("Scoped candidate source differs from the immutable candidate")
+            if path not in changed:
+                append("candidate-data", path, blob)
     originals = {entry["path"]: entry for entry in manifest.inputs(wp_id)}
     if additional_original_paths is not None:
         if not isinstance(additional_original_paths, set) or not all(

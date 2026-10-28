@@ -17,7 +17,7 @@ from controller.native_review import REVIEW_MARKER
 from controller.repair_acceptance import (
     SCOPE_MARKER, authenticated_scope, instrumentation_results, validate_build_log,
     validate_hosted_methods, validate_scope, verify_native, verify_repair,
-    retained_repairs_execution,
+    retained_repairs_execution, scoped_candidate_sources,
 )
 from controller.schema import digest, load_json
 import test_native_review
@@ -105,6 +105,16 @@ def build_log(modules, **changes):
 
 
 class RepairContractTests(unittest.TestCase):
+    def test_scoped_candidate_sources_include_consumer_tests_and_native_bindings_without_conflicts(self):
+        _, _, _, scope = fixture()
+        scope["coverage"][0]["production_bindings"] = {PATH: "5" * 40}
+        scope["native"] = [{"bindings": {PATH: "5" * 40, CONSUMER_TEST: "6" * 40}}]
+        self.assertEqual(scoped_candidate_sources(scope),
+                         {TEST: "4" * 40, PATH: "5" * 40, CONSUMER_TEST: "6" * 40})
+        scope["native"][0]["bindings"][PATH] = "7" * 40
+        with self.assertRaisesRegex(PortError, "Conflicting"):
+            scoped_candidate_sources(scope)
+
     def test_scoped_repair_and_whole_wp_accept_explicit_cross_owner_cases_without_transferring_ownership(self):
         source = "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift"
         original_catalog = load_json(REPO / "docs" / "android" / "test-cases.json")
@@ -896,8 +906,10 @@ class RepairAuthorityTests(unittest.TestCase):
                 else:
                     native.stage_repair("WP-312", 123, 700)
                 self.assertIn(source, stage.call_args.kwargs["additional_original_paths"])
+                self.assertEqual(stage.call_args.kwargs["additional_candidate_sources"], {TEST: "4" * 40})
                 native.evaluate("WP-312", 123, 90)
                 self.assertIn(source, stage.call_args.kwargs["additional_original_paths"])
+                self.assertEqual(stage.call_args.kwargs["additional_candidate_sources"], {TEST: "4" * 40})
                 self.assertEqual(stage.call_count, 2)
                 staged["fixture_original"] = "changed"
                 with self.assertRaisesRegex(PortError, "complete trusted-profile"):

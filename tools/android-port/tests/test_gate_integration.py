@@ -81,7 +81,7 @@ class PublisherTests(unittest.TestCase):
 
 class StagingTests(unittest.TestCase):
     def staged_fixture(self, wp_id="WP-003", *, replace_reviewer=False, additional_original_paths=None,
-                       reference_override=None):
+                       reference_override=None, additional_candidate_sources=None):
         from controller import staging
 
         head = git(REPO, "rev-parse", "HEAD").decode().strip()
@@ -100,7 +100,8 @@ class StagingTests(unittest.TestCase):
             return b"fixture-only complete diff; not a live PR\n" if arguments[0] == "diff" else reader(repo, maximum, *arguments)
 
         with patch("controller.staging.tree", side_effect=[original, candidate, reference]), patch("controller.staging.bounded_git", side_effect=read):
-            return stage_review(REPO, wp_id, head, HEAD, additional_original_paths=additional_original_paths)
+            return stage_review(REPO, wp_id, head, HEAD, additional_original_paths=additional_original_paths,
+                                additional_candidate_sources=additional_candidate_sources)
 
     def test_fixture_candidate_staging_uses_actual_trusted_git_profile_skills_and_source(self):
         result = self.staged_fixture()
@@ -127,6 +128,22 @@ class StagingTests(unittest.TestCase):
         ):
             with self.subTest(paths=paths), self.assertRaises(PortError):
                 self.staged_fixture(additional_original_paths=paths, reference_override=override)
+
+    def test_scoped_unchanged_candidate_test_is_in_the_staging_digest(self):
+        source = "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlerTests.kt"
+        head = git(REPO, "rev-parse", "HEAD").decode().strip()
+        blob = tree(REPO, head)[source]
+        baseline = self.staged_fixture()
+        staged = self.staged_fixture(additional_candidate_sources={source: blob})
+        records = [item for item in staged["files"]
+                   if item["side"] == "candidate-data" and item["path"] == source]
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["blob_sha"], blob)
+        self.assertIn("SyncCoordinatorMessageHandlerTests", records[0]["content"])
+        self.assertNotEqual(digest(staged), digest(baseline))
+        for sources in ({source: "0" * 40}, {"unknown/Test.kt": blob}, {source: "bad"}, [source]):
+            with self.subTest(sources=sources), self.assertRaises(PortError):
+                self.staged_fixture(additional_candidate_sources=sources)
 
     def test_candidate_reviewer_replacement_cannot_grant_execute_or_publish_authority(self):
         result = self.staged_fixture("WP-000", replace_reviewer=True)

@@ -1037,6 +1037,8 @@ the assignment, and the original source retains its primary owner. Every affecte
 module must be selected, including typed-capability-admitted support files.
 The staging and receipt revalidation paths include each selected cross-owner
 source's pinned bytes in the immutable reviewer inputs and staging digest.
+Referenced candidate test methods, unchanged production consumers and native
+source bindings are likewise staged at their exact candidate blob identities.
 The actual merged producer must be an ancestor of the current base and have
 the canonical WP marker or legacy `[WP-xxx] ` title. Its actual server path
 inventory must contain an actually repaired production path; added repair helpers
