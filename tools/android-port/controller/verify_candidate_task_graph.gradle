@@ -6,8 +6,13 @@ gradle.beforeProject { project ->
     project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach { task ->
         def lineageFile = System.getenv("ANDROID_CI_TEST_LINEAGE")
         def sourcesFile = System.getenv("ANDROID_CI_TEST_SOURCES")
+        def observedTask = task.path in [":app:testDebugUnitTest", ":core:ui:testDebugUnitTest"]
+        def observe = { phase ->
+            if (observedTask) task.logger.quiet("WP003_TEST_INPUTS|${task.path}|${phase}")
+        }
         if (sourcesFile) {
             task.doFirst {
+                observe("START")
                 def dependencies = [] as Set
                 def visit
                 visit = { current ->
@@ -16,6 +21,7 @@ gradle.beforeProject { project ->
                     }
                 }
                 visit(task)
+                observe("DEPENDENCIES")
                 def classDirs = task.testClassesDirs.files.collect { it.canonicalFile } as Set
                 def androidRoot = task.project.rootProject.projectDir.canonicalFile.toPath()
                 def sources = [] as Set
@@ -35,10 +41,26 @@ gradle.beforeProject { project ->
                         }
                     }
                 }
+                observe("SOURCES")
                 synchronized (gradle) {
                     new File(sourcesFile).append(JsonOutput.toJson([
                         task: task.path, sources: sources.sort { a, b -> a.path <=> b.path },
                     ]) + "\n", "UTF-8")
+                }
+                observe("END")
+            }
+        }
+        if (observedTask) {
+            task.beforeSuite { descriptor ->
+                def name = descriptor.className ?: descriptor.name
+                if (name ==~ /[A-Za-z_$][A-Za-z0-9_$.]*/) {
+                    task.logger.quiet("WP003_TEST_SUITE|${task.path}|${name}|START")
+                }
+            }
+            task.afterSuite { descriptor, result ->
+                def name = descriptor.className ?: descriptor.name
+                if (name ==~ /[A-Za-z_$][A-Za-z0-9_$.]*/) {
+                    task.logger.quiet("WP003_TEST_SUITE|${task.path}|${name}|END|${result.resultType}")
                 }
             }
         }
