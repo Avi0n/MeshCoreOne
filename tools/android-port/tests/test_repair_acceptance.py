@@ -470,6 +470,38 @@ class RepairExecutionTests(unittest.TestCase):
                 self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
             validate_hosted_methods(scope, {PATH: "5" * 40, TEST: "4" * 40}, manifest.repo, {})
 
+    def test_junit_lifecycle_and_standard_helper_annotations_are_not_tests(self):
+        from controller.repair_acceptance import _kotlin_junit_methods
+
+        source = """
+            import org.junit.Before as Setup
+            import org.junit.After
+            import org.junit.runners.Parameterized
+            import org.robolectric.annotation.Implementation
+            import androidx.compose.runtime.Composable
+            import kotlin.test.*
+            typealias SetupAlias = Setup
+            @Suppress("DEPRECATION") @SetupAlias fun before() {}
+            @After fun after() {}
+            @BeforeTest fun beforeKotlin() {}
+            @OptIn(Experimental::class) fun helper() {}
+            @Synchronized @Implementation fun shadow() {}
+            @Parameterized.Parameters fun data() {}
+            @Composable fun content() {}
+            @Test fun actual() {}
+        """
+        self.assertEqual(_kotlin_junit_methods(source), {"actual": "test"})
+        real = REPO / "android" / "app" / "src" / "test" / "kotlin" / "com" / "meshcoreone" / "android" / \
+            "wp316diagnostic" / "DisconnectedCliTest.kt"
+        self.assertTrue(_kotlin_junit_methods(real.read_text(encoding="utf-8")))
+        for source in (
+            "import other.Check as Before\n@Before fun hidden() {}",
+            "typealias Before = other.Check\n@Before fun hidden() {}",
+            "@Before fun hidden() {}",
+        ):
+            with self.subTest(source=source), self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+                _kotlin_junit_methods(source)
+
     def test_full_scaffold_reads_actual_protocol_counts_and_inventory(self):
         from controller.ci import TASKS
         count = {"discovered": 3, "run": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0}

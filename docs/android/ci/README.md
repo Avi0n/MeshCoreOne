@@ -1141,6 +1141,9 @@ Same-file JUnit typealiases are resolved, including alias chains; an otherwise
 unrecognized annotation attached to a function fails explicitly rather than
 letting a potentially aliased test be classified as a helper. Use a directly
 recognizable JUnit annotation or import alias when that ambiguity is reported.
+Imported JUnit/Kotlin lifecycle, Compose helper and Robolectric shadow
+annotations, and standard Kotlin `OptIn`, `Suppress`, `JvmStatic` and
+`Synchronized`, are recognized as non-test annotations.
 The trusted runner now prints actual JUnit class/method identities, including
 SDK/parameter suffixes, in that same hosted log. Selected methods must be present
 in this executed inventory; a source function and green aggregate alone cannot

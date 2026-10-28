@@ -727,6 +727,17 @@ def _kotlin_junit_methods(text):
         "RepeatedTest", "org.junit.jupiter.api.RepeatedTest",
         "TestTemplate", "org.junit.jupiter.api.TestTemplate",
     }
+    known_non_tests = {
+        "org.junit.Before", "org.junit.After", "org.junit.BeforeClass", "org.junit.AfterClass",
+        "org.junit.jupiter.api.BeforeEach", "org.junit.jupiter.api.AfterEach",
+        "org.junit.jupiter.api.BeforeAll", "org.junit.jupiter.api.AfterAll",
+        "kotlin.test.BeforeTest", "kotlin.test.AfterTest",
+        "kotlin.Suppress", "kotlin.OptIn", "kotlin.jvm.JvmStatic", "kotlin.jvm.Synchronized",
+        "androidx.compose.runtime.Composable", "org.robolectric.annotation.Implementation",
+        "org.junit.runners.Parameterized.Parameters",
+    }
+    non_test_annotations = known_non_tests | {"Suppress", "OptIn", "JvmStatic", "Synchronized"}
+    imports, wildcard_imports = {}, set()
     def name_token(value):
         return identifier.fullmatch(value) is not None or (
             value.startswith("`") and value.endswith("`") and len(value) > 2
@@ -742,13 +753,35 @@ def _kotlin_junit_methods(text):
             if index >= len(tokens) or tokens[index] != ".":
                 break
             index += 1
-        if index + 1 >= len(tokens) or tokens[index] != "as" or not name_token(tokens[index + 1]):
+        if index < len(tokens) and tokens[index] == "*":
+            wildcard_imports.add(".".join(parts))
             continue
-        imported, alias = ".".join(parts), tokens[index + 1].strip("`")
+        imported = ".".join(parts)
+        if not parts:
+            continue
+        alias = (
+            tokens[index + 1].strip("`")
+            if index + 1 < len(tokens) and tokens[index] == "as" and name_token(tokens[index + 1])
+            else parts[-1]
+        )
+        imports.setdefault(alias, set()).add(imported)
         if imported in test_annotations:
             test_annotations.add(alias)
         if imported in family_annotations:
             family_annotations.add(alias)
+    for imported in known_non_tests:
+        short = imported.rsplit(".", 1)[-1]
+        if imported.rsplit(".", 1)[0] in wildcard_imports and short not in imports:
+            non_test_annotations.add(short)
+    for alias, targets in imports.items():
+        non_test_annotations.discard(alias)
+        if len(targets) == 1 and next(iter(targets)) in known_non_tests:
+            non_test_annotations.add(alias)
+        if len(targets) == 1:
+            target = next(iter(targets))
+            for known in known_non_tests:
+                if known.startswith(target + "."):
+                    non_test_annotations.add(alias + known[len(target):])
     aliases = {}
     for start, value in enumerate(tokens):
         if (
@@ -765,6 +798,8 @@ def _kotlin_junit_methods(text):
             index += 1
         if parts:
             aliases[tokens[start + 1].strip("`")] = ".".join(parts)
+    for alias in aliases:
+        non_test_annotations.discard(alias)
     changed = True
     while changed:
         changed = False
@@ -775,9 +810,15 @@ def _kotlin_junit_methods(text):
             if target in family_annotations and alias not in family_annotations:
                 family_annotations.add(alias)
                 changed = True
+            if target in non_test_annotations and alias not in non_test_annotations:
+                non_test_annotations.add(alias)
+                changed = True
     methods, declaration_positions, processed_annotations = {}, {}, set()
     for start, value in enumerate(tokens):
-        if value != "@" or start in processed_annotations:
+        if (
+            value != "@" or start in processed_annotations
+            or start > 0 and tokens[start - 1] in ("this", "super", "return", "break", "continue")
+        ):
             continue
         index, annotations = start, set()
         while index < len(tokens) and tokens[index] == "@":
@@ -813,9 +854,12 @@ def _kotlin_junit_methods(text):
             index += 1
         if (
             annotations and not annotations & (test_annotations | family_annotations)
+            and not annotations.issubset(non_test_annotations)
             and index < len(tokens) and tokens[index] == "fun"
         ):
-            raise PortError("Ambiguous Kotlin function annotation; use a recognizable JUnit test declaration")
+            unknown = ", ".join(sorted(annotations - non_test_annotations))
+            raise PortError(f"Ambiguous Kotlin function annotation ({unknown}); "
+                            "use a recognizable JUnit test declaration")
         if annotations & (test_annotations | family_annotations):
             if index + 2 >= len(tokens) or tokens[index] != "fun" or tokens[index + 2] != "(":
                 raise PortError("Cannot identify annotated Kotlin JUnit test declaration")
