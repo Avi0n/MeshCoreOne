@@ -8,9 +8,7 @@ struct RegionPickerSheet: View {
   @State private var regionName = ""
   @State private var isDownloading = false
   @State private var errorMessage: String?
-  @State private var includeTopo = false
   @State private var baseMaximumZoom = OfflineMapLayer.base.defaultMaximumZoom
-  @State private var topographyMaximumZoom = OfflineMapLayer.topo.defaultMaximumZoom
   @State private var selectionBounds: MLNCoordinateBounds?
   @State private var selectionBoundsProvider: (() -> MLNCoordinateBounds?)?
   @State private var availableBytes: Int64?
@@ -29,9 +27,7 @@ struct RegionPickerSheet: View {
           selectionMap
           RegionPickerBottomCard(
             regionName: $regionName,
-            includeTopo: $includeTopo,
             baseMaximumZoom: $baseMaximumZoom,
-            topographyMaximumZoom: $topographyMaximumZoom,
             nameIsFocused: $nameIsFocused,
             downloadSummary: downloadSummary,
             exceedsAvailableSpace: exceedsAvailableSpace,
@@ -99,7 +95,7 @@ struct RegionPickerSheet: View {
   }
 
   private var options: OfflineMapDownloadOptions {
-    OfflineMapDownloadOptions(baseMaximumZoom: baseMaximumZoom, topographyMaximumZoom: includeTopo ? topographyMaximumZoom : nil)
+    OfflineMapDownloadOptions(baseMaximumZoom: baseMaximumZoom, topographyMaximumZoom: nil)
   }
 
   private var downloadSummary: OfflineMapDownloadPolicy.Summary? {

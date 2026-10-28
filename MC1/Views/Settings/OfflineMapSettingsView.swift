@@ -126,20 +126,22 @@ private struct OfflinePackRow: View {
         HStack {
           ProgressView(value: pack.completedFraction)
 
-          Button(
-            pack.isPaused
-              ? L10n.Settings.OfflineMaps.resume
-              : L10n.Settings.OfflineMaps.pause,
-            systemImage: pack.isPaused ? "play.fill" : "pause.fill"
-          ) {
-            if pack.isPaused {
-              appState.offlineMapService.resumePack(pack)
-            } else {
-              appState.offlineMapService.pausePack(pack)
+          if pack.layer != .topo {
+            Button(
+              pack.isPaused
+                ? L10n.Settings.OfflineMaps.resume
+                : L10n.Settings.OfflineMaps.pause,
+              systemImage: pack.isPaused ? "play.fill" : "pause.fill"
+            ) {
+              if pack.isPaused {
+                appState.offlineMapService.resumePack(pack)
+              } else {
+                appState.offlineMapService.pausePack(pack)
+              }
             }
+            .labelStyle(.iconOnly)
+            .buttonStyle(.borderless)
           }
-          .labelStyle(.iconOnly)
-          .buttonStyle(.borderless)
         }
       }
     }

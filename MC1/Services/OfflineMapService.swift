@@ -186,7 +186,8 @@ final class OfflineMapService {
     bounds: MLNCoordinateBounds,
     options: OfflineMapDownloadOptions
   ) async throws {
-    guard options.requests.allSatisfy({ $0.layer.selectableMaximumZoom.contains($0.maximumZoom) }) else {
+    guard options.topographyMaximumZoom == nil,
+          OfflineMapLayer.base.selectableMaximumZoom.contains(options.baseMaximumZoom) else {
       throw OfflineMapError.invalidDetail
     }
     let summary = OfflineMapDownloadPolicy.summary(in: bounds, options: options)
@@ -300,8 +301,8 @@ final class OfflineMapService {
 
   private func permitsResume(_ pack: MLNOfflinePack) -> Bool {
     let metadata = try? JSONDecoder().decode(OfflinePackMetadata.self, from: pack.context)
-    guard metadata?.layer != .topo,
-          let region = pack.region as? MLNTilePyramidOfflineRegion else { return true }
+    guard metadata?.layer != .topo else { return false }
+    guard let region = pack.region as? MLNTilePyramidOfflineRegion else { return true }
     guard OfflineMapDownloadPolicy.permits(region.bounds, minZoom: region.minimumZoomLevel, maxZoom: region.maximumZoomLevel) else {
       errorMessage = L10n.Settings.OfflineMaps.Error.providerLimitExceeded
       return false
