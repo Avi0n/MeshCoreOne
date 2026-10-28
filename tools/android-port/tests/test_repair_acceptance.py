@@ -362,8 +362,10 @@ class RepairExecutionTests(unittest.TestCase):
         })
         executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
         with patch("controller.staging.object_bytes", return_value=b"""
+            class MapTest {
             @Test fun keepsListReachable() { check(true) }
             @Test fun anotherCase() { check(true) }
+            }
         """), self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
 
@@ -380,9 +382,9 @@ class RepairExecutionTests(unittest.TestCase):
             class OtherTest { @Test fun keepsListReachable() {} }
         """
         with patch("controller.staging.object_bytes", return_value=source), \
-                self.assertRaisesRegex(PortError, "duplicate JUnit method name"):
+                self.assertRaisesRegex(PortError, "declaring class|duplicate JUnit method name"):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
-        source = b"@OriginalCase(\"one\") @Test fun keepsListReachable() {}"
+        source = b"class MapTest { @OriginalCase(\"one\") @Test fun keepsListReachable() {} }"
         with patch("controller.staging.object_bytes", return_value=source):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
 
@@ -399,19 +401,25 @@ class RepairExecutionTests(unittest.TestCase):
         validate_scope(scope, value.binding, manifest, rules, [PATH, helper], value.catalog)
         sources = {
             "3" * 40: b"package com.meshcoreone.android.core.maps\nobject MapFixtures {}",
-            "4" * 40: b"package com.meshcoreone.android.core.maps\n@Test fun keepsListReachable() {}",
+            "4" * 40: b"package com.meshcoreone.android.core.maps\nclass MapTest { @Test fun keepsListReachable() {} }",
         }
         executed = {"core/maps": [{"class": "com.meshcoreone.android.core.maps.MapTest",
                                     "method": "keepsListReachable"}]}
         with patch("controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob]):
             validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
-            sources["3" * 40] += b"\n@Test fun omitted() {}"
+            sources["3" * 40] = b"package com.meshcoreone.android.core.maps\nclass MapFixtures { @Test fun omitted() {} }"
             with self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
+                validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            sources["3" * 40] = (
+                b"package com.meshcoreone.android.core.maps\n"
+                b"class MapFixtures { @Suppress fun omitted() {} }"
+            )
+            with self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
                 validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
             for annotation in ("@org.junit.jupiter.api.Test", "@kotlin.test.Test", "@org.junit.Test",
                                "@org.junit.jupiter.api.TestFactory"):
                 sources["3" * 40] = (
-                    "package com.meshcoreone.android.core.maps\n" + annotation + " fun omitted() {}"
+                    "package com.meshcoreone.android.core.maps\nclass MapFixtures { " + annotation + " fun omitted() {} }"
                 ).encode()
                 with self.subTest(annotation=annotation), self.assertRaisesRegex(
                     PortError, "every actual changed JUnit method",
@@ -436,7 +444,7 @@ class RepairExecutionTests(unittest.TestCase):
             ):
                 sources["3" * 40] = (
                     "package com.meshcoreone.android.core.maps\n" + imported + "\n"
-                    + annotation + " internal fun omitted() {}"
+                    + "class MapFixtures { " + annotation + " internal fun omitted() {} }"
                 ).encode()
                 with self.subTest(imported=imported), self.assertRaisesRegex(
                     PortError, "every actual changed JUnit method",
@@ -446,7 +454,7 @@ class RepairExecutionTests(unittest.TestCase):
     def test_dynamic_factory_requires_actual_child_bound_to_its_own_factory(self):
         manifest, _, _, scope = whole_fixture()
         scope["coverage"][0]["hosted_methods"][0]["id"] = "parameterFamily"
-        source = b"@TestFactory fun parameterFamily() {}"
+        source = b"class MapTest { @TestFactory fun parameterFamily() {} }"
         with patch("controller.staging.object_bytes", return_value=source):
             records = {"core/maps": [{"class": "MapTest", "method": "actual child",
                                        "factory": "parameterFamily"}]}
@@ -462,7 +470,7 @@ class RepairExecutionTests(unittest.TestCase):
     def test_aliased_dynamic_factory_uses_its_actual_executed_child(self):
         manifest, _, _, scope = whole_fixture()
         scope["coverage"][0]["hosted_methods"][0]["id"] = "parameterFamily"
-        source = b"import org.junit.jupiter.api.TestFactory as Factory; // preserved alias\n@Factory fun parameterFamily() {}"
+        source = b"import org.junit.jupiter.api.TestFactory as Factory; // preserved alias\nclass MapTest { @Factory fun parameterFamily() {} }"
         records = {"core/maps": [{"class": "MapTest", "method": "actual child", "factory": "parameterFamily"}]}
         with patch("controller.staging.object_bytes", return_value=source):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, records)
@@ -489,7 +497,7 @@ class RepairExecutionTests(unittest.TestCase):
             with self.subTest(source=source), self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
                 _kotlin_junit_methods(source)
         manifest, _, _, scope = whole_fixture()
-        source = b"import other.package.Check\n@Check fun hidden() {}"
+        source = b"import other.package.Check\nclass MapTest { @Check fun hidden() {} }"
         with patch("controller.staging.object_bytes", return_value=source), \
                 self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
             validate_hosted_methods(scope, {PATH: "5" * 40, TEST: "4" * 40}, manifest.repo, {})
@@ -509,7 +517,7 @@ class RepairExecutionTests(unittest.TestCase):
         source = 'val s = "@[Test]"; /* @[Test] */ @Test fun executed() {}'
         self.assertEqual(_kotlin_junit_methods(source), {"executed": "test"})
 
-    def test_junit_lifecycle_and_standard_helper_annotations_are_not_tests(self):
+    def test_unresolved_lifecycle_and_helper_annotations_fail_closed(self):
         from controller.repair_acceptance import _kotlin_junit_methods
 
         source = """
@@ -520,26 +528,44 @@ class RepairExecutionTests(unittest.TestCase):
             import androidx.compose.runtime.Composable
             import kotlin.test.*
             typealias SetupAlias = Setup
-            @Suppress("DEPRECATION") @SetupAlias fun before() {}
-            @After fun after() {}
-            @BeforeTest fun beforeKotlin() {}
-            @OptIn(Experimental::class) fun helper() {}
-            @Synchronized @Implementation fun shadow() {}
-            @Parameterized.Parameters fun data() {}
-            @Composable fun content() {}
+            @kotlin.Suppress("DEPRECATION") fun before() {}
+            @org.junit.After fun after() {}
+            @kotlin.test.BeforeTest fun beforeKotlin() {}
+            @kotlin.OptIn(Experimental::class) fun helper() {}
+            @kotlin.jvm.Synchronized @org.robolectric.annotation.Implementation fun shadow() {}
+            @org.junit.runners.Parameterized.Parameters fun data() {}
+            @androidx.compose.runtime.Composable fun content() {}
             @Test fun actual() {}
         """
-        self.assertEqual(_kotlin_junit_methods(source), {"actual": "test"})
+        with self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+            _kotlin_junit_methods(source)
         real = REPO / "android" / "app" / "src" / "test" / "kotlin" / "com" / "meshcoreone" / "android" / \
             "wp316diagnostic" / "DisconnectedCliTest.kt"
-        self.assertTrue(_kotlin_junit_methods(real.read_text(encoding="utf-8")))
+        with self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+            _kotlin_junit_methods(real.read_text(encoding="utf-8"))
         for source in (
             "import other.Check as Before\n@Before fun hidden() {}",
             "typealias Before = other.Check\n@Before fun hidden() {}",
             "@Before fun hidden() {}",
+            "@Suppress(\"reason\") fun hidden() {}",
+            "import org.junit.Before\nclass Base { annotation class Before }\n"
+            "class T : Base() { @Before fun hidden() {} }",
+            "import org.junit.Before\nclass T { annotation class Before; @Before fun hidden() {} }",
+            "import org.junit.Before\nclass T(val x: Int) : Base() { @Before fun hidden() {} }",
+            "import org.junit.Before\nclass T<X : Base> : Parent() { @Before fun hidden() {} }",
+            "typealias Alias = kotlin.Suppress\n@Alias(\"x\") fun hidden() {}",
+            "@org.junit.Before fun hidden() {}",
         ):
             with self.subTest(source=source), self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
                 _kotlin_junit_methods(source)
+        for source in (
+            "import org.junit.Before\nclass T { @Before fun setup() {} }",
+            "import org.junit.Before as Setup\nclass T { @Setup fun setup() {} }",
+            "import org.junit.Before\nclass T(val x: Int) { @Before fun setup() {} }",
+            "import org.junit.Before\nclass T<X : Base> { @Before fun setup() {} }",
+        ):
+            with self.subTest(source=source):
+                self.assertEqual(_kotlin_junit_methods(source), {})
 
     def test_full_scaffold_reads_actual_protocol_counts_and_inventory(self):
         from controller.ci import TASKS
@@ -651,7 +677,7 @@ class RepairExecutionTests(unittest.TestCase):
     def test_hosted_method_maps_to_actual_candidate_test_and_verified_module(self):
         manifest, _, _, scope = fixture()
         executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable[31]"}]}
-        with patch("controller.staging.object_bytes", return_value=b"@Test fun keepsListReachable() { assertTrue(true) }"):
+        with patch("controller.staging.object_bytes", return_value=b"class MapTest { @Test fun keepsListReachable() { assertTrue(true) } }"):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
 
         for kind in ("blob", "method", "module"):
@@ -661,7 +687,7 @@ class RepairExecutionTests(unittest.TestCase):
             with patch("controller.staging.object_bytes", return_value=b"fun different() {}"), self.assertRaises(PortError):
                 validate_hosted_methods(changed, {TEST: "5" * 40 if kind == "blob" else "4" * 40}, manifest.repo, executed)
         for inventory in ({}, {"core/maps": [{"class": "MapTest", "method": "unrelated"}]}):
-            with patch("controller.staging.object_bytes", return_value=b"@Test fun keepsListReachable() {}"), self.assertRaises(PortError):
+            with patch("controller.staging.object_bytes", return_value=b"class MapTest { @Test fun keepsListReachable() {} }"), self.assertRaises(PortError):
                 validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, inventory)
 
     def test_hosted_method_must_be_in_a_real_module_test_source_set(self):
@@ -683,13 +709,69 @@ class RepairExecutionTests(unittest.TestCase):
         scope["coverage"][0]["hosted_methods"][0]["path"] = ignored
         candidate = {TEST: "4" * 40, ignored: "4" * 40}
         executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
-        with patch("controller.staging.object_bytes", return_value=b"@Test fun keepsListReachable() {}"):
+        with patch("controller.staging.object_bytes", return_value=b"class MapTest { @Test fun keepsListReachable() {} }"):
             for sources in ({}, {"core/maps": {TEST: "4" * 40}},
                             {"core/maps": {ignored: "5" * 40}}):
                 with self.subTest(sources=sources), self.assertRaisesRegex(PortError, "not compiled"):
                     validate_hosted_methods(scope, candidate, manifest.repo, executed, sources)
             validate_hosted_methods(scope, candidate, manifest.repo, executed,
                                     {"core/maps": {ignored: "4" * 40}})
+
+    def test_hosted_method_requires_actual_declaring_class_and_package(self):
+        manifest, _, _, scope = fixture()
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        for source in (
+            b"class IgnoredTest { @Test fun keepsListReachable() {} }",
+            b"class MapTest { class Nested { @Test fun keepsListReachable() {} } }",
+            b"class MapTest { fun outer() { @Test fun keepsListReachable() {} } }",
+            b'class Other { val s = "class MapTest {"; @Test fun keepsListReachable() {} }',
+        ):
+            with self.subTest(source=source), patch("controller.staging.object_bytes", return_value=source), \
+                    self.assertRaisesRegex(PortError, "declaring class|did not actually execute"):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+        for source in (
+            b"class MapTest : Parent() { @Test fun keepsListReachable() {} }",
+            b'val s = """\npackage fake\n"""\nclass MapTest { @Test fun keepsListReachable() {} }',
+        ):
+            with patch("controller.staging.object_bytes", return_value=source):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+        source = b"package real; class DifferentName { @Test fun keepsListReachable() {} }"
+        with patch("controller.staging.object_bytes", return_value=source):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo,
+                                    {"core/maps": [{"class": "real.DifferentName", "method": "keepsListReachable"}]})
+
+    def test_execution_from_another_compiled_file_cannot_credit_wrong_class(self):
+        manifest, _, _, scope = fixture()
+        other = TEST.replace("MapTest.kt", "ActualMapTest.kt")
+        candidate = {TEST: "4" * 40, other: "6" * 40}
+        sources = {
+            "4" * 40: b"class IgnoredTest { @Test fun keepsListReachable() {} }",
+            "6" * 40: b"class MapTest { @Test fun keepsListReachable() {} }",
+        }
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        with patch("controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob]), \
+                self.assertRaisesRegex(PortError, "did not actually execute"):
+            validate_hosted_methods(scope, candidate, manifest.repo, executed)
+
+    def test_same_package_alias_cannot_hide_a_changed_helper_test(self):
+        manifest, _, _, scope = whole_fixture()
+        helper = TEST.replace("MapTest.kt", "MapFixtures.kt")
+        aliases = TEST.replace("MapTest.kt", "Aliases.kt")
+        scope["coverage"].append({
+            "path": helper, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Fixture used by a test.",
+            "modules": ["core/maps"],
+        })
+        sources = {
+            "3" * 40: b"package sample\nclass MapFixtures { @Suppress fun omitted() {} }",
+            "4" * 40: b"package sample\nclass MapTest { @Test fun keepsListReachable() {} }",
+            "6" * 40: b"package sample\ntypealias Suppress = org.junit.Test",
+        }
+        candidate = {helper: "3" * 40, TEST: "4" * 40, aliases: "6" * 40}
+        executed = {"core/maps": [{"class": "sample.MapTest", "method": "keepsListReachable"}]}
+        with patch("controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob]), \
+                self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+            validate_hosted_methods(scope, candidate, manifest.repo, executed)
 
     def test_hosted_method_accepts_quoted_annotation_arguments_without_treating_them_as_syntax(self):
         manifest, _, _, scope = fixture()
@@ -705,7 +787,7 @@ class RepairExecutionTests(unittest.TestCase):
             '@Test\n@OriginalCase("${"nested ()"}")',
             '@Test /* outer /* @NotTest ) */ still comment */\n@OriginalCase("case()")',
         ):
-            source = (annotations + "\nfun keepsListReachable() {}").encode()
+            source = ("class MapTest {\n" + annotations + "\nfun keepsListReachable() {} }").encode()
             with self.subTest(annotations=annotations), patch(
                 "controller.staging.object_bytes", return_value=source,
             ):
@@ -713,8 +795,8 @@ class RepairExecutionTests(unittest.TestCase):
 
         for quotes in (4, 5):
             source = (
-                'val ordinary = """content' + '"' * quotes
-                + '\n@Test fun keepsListReachable() {}'
+                'class MapTest { val ordinary = """content' + '"' * quotes
+                + '\n@Test fun keepsListReachable() {} }'
             ).encode()
             with self.subTest(closing_quotes=quotes), patch(
                 "controller.staging.object_bytes", return_value=source,
@@ -725,7 +807,7 @@ class RepairExecutionTests(unittest.TestCase):
         scope["coverage"][0]["hosted_methods"][0]["id"] = "older page preserves anchor"
         executed["core/maps"][0]["method"] = "older page preserves anchor[31]"
         with patch("controller.staging.object_bytes", return_value=(
-            b'@Test @OriginalCase("case()") internal fun `older page preserves anchor`() {}'
+            b'class MapTest { @Test @OriginalCase("case()") internal fun `older page preserves anchor`() {} }'
         )):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
 
@@ -761,7 +843,7 @@ class RepairExecutionTests(unittest.TestCase):
             '@OriginalCase("""""literal @Test()""""")',
             '@OriginalCase("${"literal @Test()"}")',
         ):
-            source = (prefix + "\nfun keepsListReachable() {}").encode()
+            source = ("class MapTest {\n" + prefix + "\nfun keepsListReachable() {} }").encode()
             with self.subTest(prefix=prefix), patch(
                 "controller.staging.object_bytes", return_value=source,
             ), self.assertRaisesRegex(PortError, "JUnit test declaration"):
@@ -1223,7 +1305,7 @@ class RepairAuthorityTests(unittest.TestCase):
 
         def objects(repo, blob):
             if blob == "4" * 40:
-                return b"@Test fun keepsListReachable() { check(true) }"
+                return b"class MapTest { @Test fun keepsListReachable() { check(true) } }"
             return catalog
 
         with patch("controller.native_review.stage_review", return_value=staged), \
@@ -1446,14 +1528,14 @@ class RepairAuthorityTests(unittest.TestCase):
         native, _, _, _, scope, _, entries = self.verification_fixture()
         executed = {"app": [{"class": "com.meshcoreone.android.app.ConsumerTest",
                              "method": "keepsListReachable[31]"}]}
-        source = b"package com.meshcoreone.android.app\n@Test fun keepsListReachable() {}"
+        source = b"package com.meshcoreone.android.app\nclass ConsumerTest { @Test fun keepsListReachable() {} }"
         with patch("controller.staging.object_bytes", return_value=source):
             validate_hosted_methods(scope, entries, native.manifest.repo, executed)
         for kind in ("omitted-method", "invented-method", "duplicate", "absent-test", "stale-test",
                      "stale-consumer", "not-executed", "missing-inventory", "comment-only"):
             changed, candidate, records, text = copy.deepcopy(scope), dict(entries), copy.deepcopy(executed), source
             if kind == "omitted-method":
-                text += b"\n@Test fun omittedRequiredMethod() {}"
+                text = text[:-1] + b"\n@Test fun omittedRequiredMethod() {} }"
             elif kind == "invented-method":
                 changed["coverage"][0]["hosted_methods"][0]["id"] = "notDeclared"
             elif kind == "duplicate":
@@ -1481,10 +1563,10 @@ class RepairAuthorityTests(unittest.TestCase):
         identity = "com.meshcoreone.android.app.ConsumerTest#keepsListReachable"
         entry.update(path=path, hosted_methods=[], native_methods=[identity])
         entries[path] = "4" * 40
-        source = b"package com.meshcoreone.android.app\n@Test fun keepsListReachable() {}"
+        source = b"package com.meshcoreone.android.app\nclass ConsumerTest { @Test fun keepsListReachable() {} }"
         with patch("controller.staging.object_bytes", return_value=source):
             validate_hosted_methods(scope, entries, native.manifest.repo, {})
-        with patch("controller.staging.object_bytes", return_value=source + b"\n@Test fun omitted() {}"), \
+        with patch("controller.staging.object_bytes", return_value=source[:-1] + b"\n@Test fun omitted() {} }"), \
                 self.assertRaisesRegex(PortError, "every actual"):
             validate_hosted_methods(scope, entries, native.manifest.repo, {})
         with self.assertRaisesRegex(PortError, "Missing affected native"):
@@ -1522,7 +1604,7 @@ class RepairAuthorityTests(unittest.TestCase):
 
         def objects(repo, blob):
             if blob == "4" * 40:
-                return b"package com.meshcoreone.android.app\n@Test fun keepsListReachable() { check(true) }"
+                return b"package com.meshcoreone.android.app\nclass ConsumerTest { @Test fun keepsListReachable() { check(true) } }"
             return json.dumps({"schema_version": 1, "source_sha": value.binding.source_sha, "entries": []}).encode()
 
         with patch("controller.native_review.stage_review", return_value=staged), \
@@ -1591,7 +1673,7 @@ class RepairAuthorityTests(unittest.TestCase):
     def test_native_transport_evaluates_bounded_repair_with_real_hosted_log_contract(self):
         native, api, _, value, _, staged, entries = self.fixture()
         def objects(repo, blob):
-            return b"@Test fun keepsListReachable() { check(true) }" if blob == "4" * 40 else (
+            return b"class MapTest { @Test fun keepsListReachable() { check(true) } }" if blob == "4" * 40 else (
                 json.dumps({"schema_version": 1, "source_sha": value.binding.source_sha, "entries": []}).encode()
             )
         with patch("controller.native_review.stage_review", return_value=staged), \
@@ -1630,7 +1712,7 @@ class RepairAuthorityTests(unittest.TestCase):
             api.routes[("PATCH", prefix + f"/check-runs/{check_id}")] = {}
         def objects(repo, blob):
             if blob == "4" * 40:
-                return b"@Test fun keepsListReachable() { check(true) }"
+                return b"class MapTest { @Test fun keepsListReachable() { check(true) } }"
             return json.dumps({"schema_version": 1, "source_sha": value.binding.source_sha, "entries": []}).encode()
         with patch("controller.native_review.stage_review", return_value=staged), \
                 patch("controller.native_review.tree", return_value=entries), \

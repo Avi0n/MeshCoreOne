@@ -666,7 +666,7 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
             "methods": inventory, "compiled_test_sources": compiled}
 
 
-def _kotlin_junit_methods(text):
+def _kotlin_junit_methods(text, declaring_classes=None):
     def comment(index):
         if text.startswith("//", index):
             end = text.find("\n", index)
@@ -741,6 +741,57 @@ def _kotlin_junit_methods(text):
         ):
             raise PortError("Grouped Kotlin annotations are not supported in hosted test sources")
 
+    class_bodies = {}
+    if declaring_classes is not None:
+        package = ""
+        for index, value in enumerate(tokens):
+            if value != "package" or index and tokens[index - 1] == ".":
+                continue
+            parts, cursor = [], index + 1
+            while cursor < len(tokens) and re.fullmatch(r"[^\W\d]\w*", tokens[cursor]):
+                parts.append(tokens[cursor])
+                cursor += 1
+                if cursor >= len(tokens) or tokens[cursor] != ".":
+                    break
+                cursor += 1
+            if not parts or package:
+                raise PortError("Cannot establish Kotlin package identity")
+            package = ".".join(parts)
+        for start, value in enumerate(tokens):
+            if value != "class" or start and tokens[start - 1] in (".", ":"):
+                continue
+            if start + 1 >= len(tokens) or not re.fullmatch(r"[^\W\d]\w*", tokens[start + 1]):
+                continue
+            name, index, nesting = tokens[start + 1], start + 2, []
+            while index < len(tokens):
+                current = tokens[index]
+                if not nesting and current == "{":
+                    class_bodies[index] = name
+                    break
+                if not nesting and current in (
+                    "class", "object", "interface", "fun", "val", "var", "typealias", ";", "=", "by",
+                ):
+                    break
+                if current in ("(", "[", "{"):
+                    nesting.append(current)
+                elif current in (")", "]", "}"):
+                    if not nesting or nesting.pop() != {")": "(", "]": "[", "}": "{"}[current]:
+                        break
+                index += 1
+
+        def verify_declaring_class(position):
+            stack = []
+            for index, value in enumerate(tokens[:position]):
+                if value == "{":
+                    stack.append(class_bodies.get(index))
+                elif value == "}":
+                    if not stack:
+                        raise PortError("Unbalanced Kotlin scope in hosted test source")
+                    stack.pop()
+            if len(stack) != 1 or stack[0] is None:
+                raise PortError("Cannot establish actual declaring class for hosted JUnit method")
+            return (package + "." if package else "") + stack[0]
+
     test_annotations = {"Test", "org.junit.Test", "org.junit.jupiter.api.Test", "kotlin.test.Test"}
     family_annotations = {
         "TestFactory", "org.junit.jupiter.api.TestFactory",
@@ -757,8 +808,7 @@ def _kotlin_junit_methods(text):
         "androidx.compose.runtime.Composable", "org.robolectric.annotation.Implementation",
         "org.junit.runners.Parameterized.Parameters",
     }
-    non_test_annotations = known_non_tests | {"Suppress", "OptIn", "JvmStatic", "Synchronized"}
-    imports, wildcard_imports = {}, set()
+    imports = {}
     def name_token(value):
         return identifier.fullmatch(value) is not None or (
             value.startswith("`") and value.endswith("`") and len(value) > 2
@@ -775,7 +825,6 @@ def _kotlin_junit_methods(text):
                 break
             index += 1
         if index < len(tokens) and tokens[index] == "*":
-            wildcard_imports.add(".".join(parts))
             continue
         imported = ".".join(parts)
         if not parts:
@@ -790,19 +839,44 @@ def _kotlin_junit_methods(text):
             test_annotations.add(alias)
         if imported in family_annotations:
             family_annotations.add(alias)
-    for imported in known_non_tests:
-        short = imported.rsplit(".", 1)[-1]
-        if imported.rsplit(".", 1)[0] in wildcard_imports and short not in imports:
-            non_test_annotations.add(short)
-    for alias, targets in imports.items():
-        non_test_annotations.discard(alias)
-        if len(targets) == 1 and next(iter(targets)) in known_non_tests:
-            non_test_annotations.add(alias)
-        if len(targets) == 1:
-            target = next(iter(targets))
-            for known in known_non_tests:
-                if known.startswith(target + "."):
-                    non_test_annotations.add(alias + known[len(target):])
+    declared_names = {
+        tokens[index + 1].strip("`")
+        for index, value in enumerate(tokens[:-1])
+        if value in ("class", "interface", "object", "typealias")
+        and name_token(tokens[index + 1])
+    }
+    def has_inherited_scope():
+        for start, value in enumerate(tokens):
+            if value not in ("class", "interface", "object") or (
+                start and tokens[start - 1] in (".", ":")
+            ):
+                continue
+            index, nesting = start + 1, []
+            while index < len(tokens):
+                current = tokens[index]
+                if not nesting:
+                    if current == ":":
+                        return True
+                    if current in ("{", "}", ";", "=", "class", "object", "interface",
+                                   "fun", "val", "var", "typealias"):
+                        break
+                if current in ("(", "[", "<", "{"):
+                    nesting.append(current)
+                elif current in (")", "]", ">", "}"):
+                    if not nesting or nesting.pop() != {")": "(", "]": "[", ">": "<", "}": "{"}[current]:
+                        return True
+                index += 1
+            if nesting:
+                return True
+        return False
+
+    # A nested annotation inherited from a superclass can shadow even an explicit import.
+    inherited_scope = has_inherited_scope()
+    non_test_annotations = {
+        name for name, targets in imports.items()
+        if not inherited_scope and name not in declared_names
+        and len(targets) == 1 and next(iter(targets)) in known_non_tests
+    }
     aliases = {}
     for start, value in enumerate(tokens):
         if (
@@ -819,8 +893,6 @@ def _kotlin_junit_methods(text):
             index += 1
         if parts:
             aliases[tokens[start + 1].strip("`")] = ".".join(parts)
-    for alias in aliases:
-        non_test_annotations.discard(alias)
     changed = True
     while changed:
         changed = False
@@ -830,9 +902,6 @@ def _kotlin_junit_methods(text):
                 changed = True
             if target in family_annotations and alias not in family_annotations:
                 family_annotations.add(alias)
-                changed = True
-            if target in non_test_annotations and alias not in non_test_annotations:
-                non_test_annotations.add(alias)
                 changed = True
     methods, declaration_positions, processed_annotations = {}, {}, set()
     for start, value in enumerate(tokens):
@@ -892,6 +961,8 @@ def _kotlin_junit_methods(text):
                 raise PortError("Ambiguous JUnit test and factory declaration")
             declaration_positions[name] = index
             methods[name] = kind
+            if declaring_classes is not None:
+                declaring_classes[name] = verify_declaring_class(index)
     return methods
 
 
@@ -921,13 +992,18 @@ def validate_hosted_methods(scope, candidate_tree, repo, executed, compiled_sour
                     require_compiled(path, blob)
                 text = object_bytes(repo, blob).decode("utf-8")
                 declared = _kotlin_junit_methods(text)
+                classes = {}
+                if declared:
+                    declared = _kotlin_junit_methods(text, classes)
                 if "/src/test/" in path or "/src/testDebug/" in path:
                     identities = [m["id"] for m in coverage["hosted_methods"] if m["path"] == path]
                 else:
-                    package = re.search(r"^\s*package\s+([\w.]+)", text, re.MULTILINE)
-                    test_class = (package[1] + "." if package else "") + path.rsplit("/", 1)[-1][:-3]
-                    identities = [m.removeprefix(test_class + "#") for m in coverage["native_methods"]
-                                  if m.startswith(test_class + "#")]
+                    source_classes = set(classes.values())
+                    identities = [m.rsplit("#", 1)[-1] for m in coverage["native_methods"]
+                                  if m.rpartition("#")[0] in source_classes]
+                    if any(m not in {test_class + "#" + name for name, test_class in classes.items()}
+                           for m in coverage["native_methods"] if m.rpartition("#")[0] in source_classes):
+                        raise PortError("Native coverage method does not match its actual declaring class")
                 helper = (scope.get("kind") == "whole-wp" and "/src/androidTest/" not in path
                           and not declared and coverage["hosted_methods"])
                 if (not declared and not helper) or len(set(identities)) != len(identities) or set(identities) != set(declared):
@@ -940,12 +1016,12 @@ def validate_hosted_methods(scope, candidate_tree, repo, executed, compiled_sour
             if module is None or module[1] not in coverage["modules"]:
                 raise PortError("Affected hosted test is outside the verified module")
             text = object_bytes(repo, method["blob_sha"]).decode("utf-8")
-            package = re.search(r"^\s*package\s+([\w.]+)", text, re.MULTILINE)
-            test_class = (package[1] + "." if package else "") + method["path"].rsplit("/", 1)[-1][:-3]
-            declarations = _kotlin_junit_methods(text)
+            classes = {}
+            declarations = _kotlin_junit_methods(text, classes)
             kind = declarations.get(method["id"])
             if kind is None:
                 raise PortError("Hosted method lacks its actual candidate JUnit test declaration")
+            test_class = classes[method["id"]]
             records = executed.get(module[1])
             if not isinstance(records, list) or not records:
                 raise PortError("Actual hosted method inventory is missing; counts alone cannot prove selected execution")
