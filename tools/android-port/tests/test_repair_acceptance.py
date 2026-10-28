@@ -553,6 +553,7 @@ class RepairExecutionTests(unittest.TestCase):
         executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable[31]"}]}
         with patch("controller.staging.object_bytes", return_value=b"@Test fun keepsListReachable() { assertTrue(true) }"):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
         for kind in ("blob", "method", "module"):
             changed = copy.deepcopy(scope)
             if kind == "module":
@@ -562,6 +563,18 @@ class RepairExecutionTests(unittest.TestCase):
         for inventory in ({}, {"core/maps": [{"class": "MapTest", "method": "unrelated"}]}):
             with patch("controller.staging.object_bytes", return_value=b"@Test fun keepsListReachable() {}"), self.assertRaises(PortError):
                 validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, inventory)
+
+    def test_hosted_method_must_be_in_a_real_module_test_source_set(self):
+        manifest, rules, value, scope = fixture()
+        for path in (
+            "android/core/maps/src/main/kotlin/nested/src/test/kotlin/MapTest.kt",
+            "android/core/maps/nested/src/test/kotlin/MapTest.kt",
+            "android/core/maps/src/testFixtures/kotlin/MapTest.kt",
+        ):
+            altered = copy.deepcopy(scope)
+            altered["coverage"][0]["hosted_methods"][0]["path"] = path
+            with self.subTest(path=path), self.assertRaisesRegex(PortError, "actual immutable test source"):
+                validate_scope(altered, value.binding, manifest, rules, [PATH], None)
 
     def test_hosted_method_accepts_quoted_annotation_arguments_without_treating_them_as_syntax(self):
         manifest, _, _, scope = fixture()

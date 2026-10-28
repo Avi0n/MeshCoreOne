@@ -344,7 +344,8 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
             for method in entry["hosted_methods"]:
                 fields(method, {"path", "blob_sha", "id"}, label="affected hosted test method")
                 if (
-                    "/src/test" not in git_path(method["path"])
+                    re.fullmatch(ANDROID_MODULE + r"src/(?:test|testDebug)/kotlin/.+\.kt",
+                                 git_path(method["path"])) is None
                     or not isinstance(method["blob_sha"], str) or SHA.fullmatch(method["blob_sha"]) is None
                 ):
                     raise PortError("Affected hosted test must bind an actual immutable test source")
