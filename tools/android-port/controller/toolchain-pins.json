@@ -6,7 +6,7 @@
   "gradle_distribution_sha256": "bafd5ce9cfaea0fbccfdc8439a1ac42fbd4cd9c89dc9a988228d8a2639a58e6c",
   "gradle_wrapper_sha256": "238e777fcddd7e34f9708186085def2abd6e08e658505b38718d79d74c21abd5",
   "sdk_metadata_url": "https://dl.google.com/android/repository/repository2-3.xml",
-  "sdk_metadata_observed_sha256": "c9e2f9e8b118dcc9c5584904ea27cbcefb217a5807029cedadfaa0b2f842fa8d",
+  "sdk_metadata_observed_sha256": "7f45763e14191a24fea15d28d5f416e8ca53f39a5d6402fb81888a2aec6a058e",
   "sdk_license_id": "android-sdk-license",
   "sdk_license_sha1": "9002c006f4b8d9a16e715a9fa4df30ddb8abf9d9",
   "sdk_license_sha256": "de5fa465e908e7f098e718082f013135b9a36ee706d032cf510f4f1153424b2a",
@@ -32,11 +32,11 @@
     {
       "id": "platforms;android-37.2",
       "host": "all",
-      "url": "https://dl.google.com/android/repository/platform-37.2_r01.zip",
-      "size": 68056472,
-      "sha256": "916410633df92a98da56aa7c87a1955f865f4d3b888373660794ef8173f72972",
-      "sha1": "4bec12a02162ff6852df50b5fcf8ee762b050966",
-      "revision": "1.0.0"
+      "url": "https://dl.google.com/android/repository/platform-37.2_r02.zip",
+      "size": 68094624,
+      "sha256": "17af98ec1427a1fed9ea278184aba71e53b87eca103655602f9fc64ef11ea4d3",
+      "sha1": "d52b3062af96f7c4dfdca5a479cd1db33ae83762",
+      "revision": "2.0.0"
     },
     {
       "id": "build-tools;37.0.0",

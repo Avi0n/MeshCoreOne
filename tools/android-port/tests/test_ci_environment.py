@@ -560,7 +560,7 @@ class EnvironmentTests(unittest.TestCase):
             directory = Path(temporary)
             state = self.state(directory)
             for path, package_id, revision in (
-                ("platforms/android-37.2", "platforms;android-37.2", (1, 0, 0)),
+                ("platforms/android-37.2", "platforms;android-37.2", (2, 0, 0)),
                 ("build-tools/37.0.0", "build-tools;37.0.0", (37, 0, 0)),
                 ("cmdline-tools/23.0", "cmdline-tools;23.0", (23, 0, 0)),
             ):
@@ -577,3 +577,9 @@ class EnvironmentTests(unittest.TestCase):
             execute.assert_called_once()
             self.assertTrue(execute.call_args.args[0][1].endswith("check_environment.py"))
             self.assertFalse(load_json(directory / "evidence" / "sdk-inventory.json")["cli_bootstrap_executed"])
+            platform_metadata = directory / "sdk/platforms/android-37.2/package.xml"
+            root = ET.parse(platform_metadata).getroot()
+            root.find("localPackage/revision/major").text = "1"
+            platform_metadata.write_bytes(ET.tostring(root))
+            with patch("controller.ci.execute"), self.assertRaisesRegex(PortError, "revision mismatch"):
+                preflight(state, directory / "stale-evidence")

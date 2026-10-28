@@ -311,7 +311,7 @@ def preflight(state: dict, output: Path, *, local=False):
     script = REPO / "android" / "scaffold" / "check_environment.py"
     execute([sys.executable, str(script)], environment, output / "preflight.log", timeout=60)
     packages = [
-        ("platforms/android-37.2", "platforms;android-37.2", (1, 0, 0)),
+        ("platforms/android-37.2", "platforms;android-37.2", (2, 0, 0)),
         ("build-tools/37.0.0", "build-tools;37.0.0", (37, 0, 0)),
     ]
     if not local:
