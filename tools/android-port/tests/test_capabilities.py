@@ -111,17 +111,32 @@ class CapabilityReservationTests(unittest.TestCase):
         self.assertEqual(routine_support_predecessor(actual), actual)
         for field in ("path_rules", "operations", "invariants", "validation"):
             altered = copy.deepcopy(self.rules)
-            altered["reservation_policy"]["capabilities"][0][field] = (
+            rule = next(rule for rule in altered["reservation_policy"]["capabilities"]
+                        if rule["id"] == "reviewed-support-consumer")
+            rule[field] = (
                 ["MC1/**"] if field == "path_rules" else []
             )
             with self.subTest(field=field), self.assertRaises(PortError):
                 routine_support_predecessor(altered)
         extended = copy.deepcopy(current)
-        extra = copy.deepcopy(extended["reservation_policy"]["capabilities"][0])
+        extra = copy.deepcopy(extended["reservation_policy"]["capabilities"][-1])
         extra["id"] = "reviewed-support-new-fixture"
         extra["path_rules"] = ["tools/android-port/tests/*.py"]
-        extended["reservation_policy"]["capabilities"].insert(0, extra)
+        extended["reservation_policy"]["capabilities"].append(extra)
         self.assertEqual(routine_support_predecessor(extended), actual)
+        duplicate = copy.deepcopy(current)
+        duplicate["reservation_policy"]["capabilities"].append(
+            copy.deepcopy(duplicate["reservation_policy"]["capabilities"][-1])
+        )
+        with self.assertRaises(PortError):
+            routine_support_predecessor(duplicate)
+        reordered = copy.deepcopy(current)
+        rules = reordered["reservation_policy"]["capabilities"]
+        rules.insert(0, rules.pop())
+        with self.assertRaises(PortError):
+            routine_support_predecessor(reordered)
+        self.assertEqual(current["reservation_policy"]["capabilities"][0]["id"],
+                         "wp003-host-scoped-jvm-parallelism")
 
     def test_wp502_failed_event_exact_two_paths_operation_and_existing_app_adapter_support(self):
         rule = ROOM_FAILED_EVENT_CAPABILITY
@@ -215,7 +230,7 @@ class CapabilityReservationTests(unittest.TestCase):
         validator_rule = rules["wp503-accessibility-source-binding"]
         regression_rule = rules["wp503-accessibility-source-binding-regression"]
         self.assertEqual(
-            self.rules["reservation_policy"]["capabilities"][-2:],
+            routine_support_predecessor(self.rules)["reservation_policy"]["capabilities"][-2:],
             [validator_rule, regression_rule],
         )
         self.assertEqual(validator_rule["work_packages"], ["WP-503"])

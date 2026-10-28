@@ -235,6 +235,50 @@ class RepairExecutionTests(unittest.TestCase):
         """), self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
 
+    def test_whole_scope_helper_requires_executed_consumer_without_hiding_test_declarations(self):
+        manifest, rules, value, scope = whole_fixture()
+        helper = TEST.replace("MapTest.kt", "MapFixtures.kt")
+        scope["paths"].append({"path": helper, "operation": "add-or-update-related-test",
+                               "capability": "reviewed-support-test"})
+        scope["coverage"].append({
+            "path": helper, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Fixture consumed by unit test.",
+            "modules": ["core/maps"],
+        })
+        validate_scope(scope, value.binding, manifest, rules, [PATH, helper], value.catalog)
+        sources = {
+            "3" * 40: b"package com.meshcoreone.android.core.maps\nobject MapFixtures {}",
+            "4" * 40: b"package com.meshcoreone.android.core.maps\n@Test fun keepsListReachable() {}",
+        }
+        executed = {"core/maps": [{"class": "com.meshcoreone.android.core.maps.MapTest",
+                                    "method": "keepsListReachable"}]}
+        with patch("controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob]):
+            validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            sources["3" * 40] += b"\n@Test fun omitted() {}"
+            with self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
+                validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+
+    def test_dynamic_factory_never_counts_as_an_unrelated_junit_method(self):
+        manifest, _, _, scope = whole_fixture()
+        source = b"@Test fun keepsListReachable() {}\n@TestFactory fun parameterFamily() {}"
+        with patch("controller.staging.object_bytes", return_value=source), \
+                self.assertRaisesRegex(PortError, "Dynamic JUnit test factories"):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo,
+                                    {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]})
+
+    def test_full_scaffold_reads_actual_protocol_counts_and_inventory(self):
+        from controller.ci import TASKS
+        count = {"discovered": 3, "run": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0}
+        methods = [{"class": "ProtocolTest", "method": f"case{i}"} for i in range(3)]
+        report = {"tasks": TASKS["scaffold"] + TASKS["protocol"], "protocol_suite": count,
+                  "unit_test_methods": {"core/protocol": methods}}
+        proof = validate_build_log(build_log([], **report), ["core/protocol"])
+        self.assertEqual(proof["methods"]["core/protocol"], methods)
+        for change in ({"tasks": TASKS["scaffold"]}, {"protocol_suite": None},
+                       {"unit_test_methods": {"core/protocol": methods[:1]}}):
+            with self.subTest(change=change), self.assertRaises(PortError):
+                validate_build_log(build_log([], **(report | change)), ["core/protocol"])
+
     def test_change_scoped_hosted_report_uses_exact_trusted_candidate_plan(self):
         counts = {"discovered": 1, "run": 1, "passed": 1, "failed": 0, "errors": 0, "skipped": 0}
         plan = {

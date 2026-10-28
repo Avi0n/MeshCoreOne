@@ -316,6 +316,9 @@ class SourceDispositionTests(unittest.TestCase):
             self.assertEqual(result["scopes"], ["protocol"])
             self.assertEqual(result["protocol_suite"]["discovered"], 84)
             self.assertEqual(result["protocol_suite"]["passed"], 84)
+            self.assertEqual(len(result["unit_test_methods"]["core/protocol"]), 84)
+            self.assertIn({"class": "Fixture", "method": "case0"},
+                          result["unit_test_methods"]["core/protocol"])
 
     def test_scaffold_preflight_failure_does_not_launch_expensive_gradle_tasks(self):
         with self.candidate(PORTED) as (commands, printed, output, state):

@@ -923,7 +923,7 @@ Existing semantic overlap is still serialized or transferred.
 
 Future additive `reviewed-support-` rules can be reviewed as ordinary policy
 changes without rehashing every historical verification amendment. They must
-be a unique leading block with nonempty path, operation, invariant and
+be a unique trailing block with nonempty path, operation, invariant and
 validation lists and bounded non-reference path roots. Historical policy and
 manifest projections remain unchanged. Admission uses only the merged trusted
 base: a candidate rule cannot authorize its own edits before review and merge,
@@ -935,9 +935,13 @@ For an Android app, core, feature or platform module WP with an empty,
 unconfigured verification entry, the controller can use the declared WP-003
 software lane without a per-WP verification amendment. This permits dispatch
 only after the normal foundation, dependency, budget, identity and activation
-checks. Original-case inventory production, non-module work, and WPs with
-explicitly partially configured commands or other substantive blockers do not
-inherit this contract. No schedule or controller activation is implied.
+checks. Original-case inventory production, non-module work, WPs without primary-owned
+source inputs, and WPs with explicitly partially configured commands or other
+substantive blockers do not inherit this contract. Protocol WPs also remain
+ineligible: the current hosted JUnit XML lacks a trustworthy link between a
+dynamic child and its `@TestFactory` source. The controller rejects those
+factories rather than attributing unrelated executed cases to them. No
+schedule or controller activation is implied.
 
 The shared lane is a way to execute checks, not proof of parity. Whole-WP
 completion uses hosted evidence schema `4`, containing all normal schema-2

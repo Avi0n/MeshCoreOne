@@ -263,8 +263,11 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
                 ):
                     raise PortError("Affected hosted test must bind an actual immutable test source")
                 nonempty(method["id"], "Affected hosted method ID")
-        if "/src/test" in path and not any(method["path"] == path for method in entry["hosted_methods"]):
+        if (not whole_wp and "/src/test" in path
+                and not any(method["path"] == path for method in entry["hosted_methods"])):
             raise PortError("Changed unit-test sources need their own actual hosted method execution")
+        if whole_wp and "/src/test" in path and not entry["hosted_methods"]:
+            raise PortError("Changed unit-test sources or helpers need actual hosted method execution")
         if "/src/androidTest/" in path and not entry["native_methods"]:
             raise PortError("Changed instrumentation needs actual retained native-method execution")
         for case in entry["cases"]:
@@ -523,10 +526,15 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
     if not isinstance(inventory, dict):
         raise PortError("Malformed authoritative hosted method inventory")
     for module in modules:
-        suites = report.get("suites" if module in ("app", "core/contracts") else "module_unit_tests")
-        if not isinstance(suites, dict):
-            raise PortError("Missing/malformed affected hosted module discovery")
-        found = suites.get("contracts" if module == "core/contracts" else module)
+        if module == "core/protocol":
+            if ":core:protocol:test" not in tasks:
+                raise PortError("Protocol discovery requires the declared protocol test task")
+            found = report.get("protocol_suite")
+        else:
+            suites = report.get("suites" if module in ("app", "core/contracts") else "module_unit_tests")
+            if not isinstance(suites, dict):
+                raise PortError("Missing/malformed affected hosted module discovery")
+            found = suites.get("contracts" if module == "core/contracts" else module)
         counts(found)
         if module in inventory:
             records = inventory[module]
@@ -645,6 +653,8 @@ def _kotlin_junit_methods(text):
                     raise PortError("Unclosed Kotlin annotation in hosted test source")
         if index < len(tokens) and tokens[index] in ("public", "internal"):
             index += 1
+        if annotations & {"TestFactory", "org.junit.jupiter.api.TestFactory"}:
+            raise PortError("Dynamic JUnit test factories require source-bound execution evidence")
         if (
             annotations & {"Test", "org.junit.Test"}
             and index + 2 < len(tokens)
@@ -677,7 +687,9 @@ def validate_hosted_methods(scope, candidate_tree, repo, executed):
                     test_class = (package[1] + "." if package else "") + path.rsplit("/", 1)[-1][:-3]
                     identities = [m.removeprefix(test_class + "#") for m in coverage["native_methods"]
                                   if m.startswith(test_class + "#")]
-                if not declared or len(set(identities)) != len(identities) or set(identities) != declared:
+                helper = (scope.get("kind") == "whole-wp" and "/src/androidTest/" not in path
+                          and not declared and coverage["hosted_methods"])
+                if (not declared and not helper) or len(set(identities)) != len(identities) or set(identities) != declared:
                     raise PortError("Verification coverage must include every actual changed JUnit method")
         for method in coverage["hosted_methods"]:
             if candidate_tree.get(method["path"]) != method["blob_sha"]:

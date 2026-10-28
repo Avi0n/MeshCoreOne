@@ -20,6 +20,8 @@ REVIEW_POLICY = {
         "android/**/signing*", "android/**/keystore*", "**/*license*", "**/*LICENSE*", "**/*legal*",
     ],
 }
+
+
 def routine_support_predecessor(policy):
     """Project reviewed additive capability extensions back to the historical policy."""
     if not isinstance(policy, dict):
@@ -34,8 +36,8 @@ def routine_support_predecessor(policy):
     prefix = "reviewed-support-"
     selected = [rule for rule in rules if isinstance(rule, dict)
                 and isinstance(rule.get("id"), str) and rule["id"].startswith(prefix)]
-    if rules[:len(selected)] != selected or len({rule["id"] for rule in selected}) != len(selected):
-        raise PortError("Reviewed support capabilities must be unique and precede the historical catalog")
+    if (selected and rules[-len(selected):] != selected) or len({rule["id"] for rule in selected}) != len(selected):
+        raise PortError("Reviewed support capabilities must be unique and follow the historical catalog")
     for rule in selected:
         if set(rule) not in (
             {"id", "path_rules", "operations", "invariants", "validation"},
@@ -68,7 +70,8 @@ def routine_support_predecessor(policy):
                 or any(char in path[len(root):].split("/")[0] for char in "*?[")
             ):
                 raise PortError("Reviewed support capability requires a bounded non-reference path")
-    del rules[:len(selected)]
+    if selected:
+        del rules[-len(selected):]
     return result
 
 
@@ -878,7 +881,7 @@ def shortcut_lifecycle_test_predecessor(policy):
     """Reverse only the exact WP-404 App lifecycle fixture admission."""
     if not isinstance(policy, dict):
         raise PortError("Shortcut lifecycle test amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = routine_support_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     CapabilityEngine(result)
@@ -1082,7 +1085,7 @@ def host_scoped_jvm_predecessor(policy):
     """Remove only the exact source-support rule, retaining the complete previous policy."""
     if not isinstance(policy, dict):
         raise PortError("Host-scoped JVM amendment requires a policy object")
-    result = backup_post_commit_predecessor(routine_support_predecessor(policy))
+    result = backup_post_commit_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     reservation = result["reservation_policy"]

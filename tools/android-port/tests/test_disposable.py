@@ -14,7 +14,7 @@ import types
 import unittest
 from unittest.mock import patch
 
-from fixtures import BASE, NOW, REPO, policy
+from fixtures import BASE, NOW, REPO, historical_policy_text, policy
 from controller.capabilities import CapabilityEngine
 from controller.disposable import ADAPTER, OPERATION, RESOURCE, PrivateGuest, trusted_guest
 from controller.errors import PortError
@@ -2158,7 +2158,7 @@ class DisposableGuestTests(unittest.TestCase):
         self.assertEqual(disposable_predecessor(current), previous)
         self.assertEqual(current, before)
         self.assertEqual(disposable_predecessor(previous), previous)
-        text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        text = historical_policy_text()
         start = text.index('      {\n        "id": "wp404-shortcut-lifecycle-consumer-test",')
         end = text.index('      {\n        "id": "wp216-reaction-wire-classification",', start)
         text = text[:start] + text[end:]

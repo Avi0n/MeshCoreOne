@@ -17,6 +17,7 @@ from controller.scope_amendment import (
     SHARED_LOCATION_CACHE_CAPABILITY, shared_location_cache_predecessor,
     REACTION_WIRE_CLASSIFICATION_CAPABILITY, reaction_wire_classification_predecessor,
     SHORTCUT_LIFECYCLE_TEST_CAPABILITY, shortcut_lifecycle_test_predecessor,
+    routine_support_predecessor,
 )
 
 
@@ -134,10 +135,11 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
         rules = restored["reservation_policy"]["capabilities"]
         index = next(i for i, rule in enumerate(rules) if rule["id"] == "wp216-reaction-wire-classification")
         rules.insert(index, copy.deepcopy(SHORTCUT_LIFECYCLE_TEST_CAPABILITY))
-        self.assertEqual(restored, current)
+        historical_current = routine_support_predecessor(current)
+        self.assertEqual(restored, historical_current)
         self.assertEqual(
             {r["id"]: r for r in previous["reservation_policy"]["capabilities"]},
-            {r["id"]: r for r in current["reservation_policy"]["capabilities"]
+            {r["id"]: r for r in historical_current["reservation_policy"]["capabilities"]
              if r["id"] != SHORTCUT_LIFECYCLE_TEST_CAPABILITY["id"]},
         )
         changed = copy.deepcopy(current)

@@ -322,13 +322,13 @@ class StateTests(unittest.TestCase):
 
     def test_empty_verification_entry_uses_shared_lane_without_waiving_dependencies(self):
         with patch.object(self.controller, "completed") as completed:
-            wp = self.controller.require_ready("WP-102")
+            wp = self.controller.require_ready("WP-312")
             self.assertFalse(wp["verification"]["configured"])
             self.assertFalse(wp["verification"]["commands"])
             self.assertEqual(completed.call_count, len(wp["depends_on"]))
         self.manifest.wp("WP-003")["verification"]["commands"] = []
         with self.assertRaisesRegex(PortError, "software verification lane"):
-            self.controller.require_ready("WP-102")
+            self.controller.require_ready("WP-312")
         with self.assertRaisesRegex(PortError, "supervised"):
             self.controller.require_ready("WP-003")
 
@@ -340,6 +340,12 @@ class StateTests(unittest.TestCase):
     def test_inventory_nonmodule_and_release_wps_do_not_inherit_the_android_module_contract(self):
         for wp_id in ("WP-004", "WP-006", "WP-503", "WP-505", "WP-506"):
             with self.subTest(wp_id=wp_id), self.assertRaisesRegex(PortError, "verification contract"):
+                self.controller.require_ready(wp_id)
+
+    def test_shared_contract_rejects_empty_source_ownership_and_unbound_dynamic_factories(self):
+        for wp_id, error in (("WP-407", "no primary-owned source"),
+                             ("WP-102", "dynamic test-factory")):
+            with self.subTest(wp_id=wp_id), self.assertRaisesRegex(PortError, error):
                 self.controller.require_ready(wp_id)
 
     def test_missing_dependency_is_not_replaced_by_closed_issue(self):
