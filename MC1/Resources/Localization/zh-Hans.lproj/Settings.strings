@@ -1879,8 +1879,7 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "已达到此下载的瓦片数量限制。";
 
-/* TODO: translate */
-"offlineMaps.error.providerLimitExceeded" = "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.";
+"offlineMaps.error.providerLimitExceeded" = "请降低精细度或选择更小的区域，以免超出地图提供商的下载限制。";
 
 /* Pause download button */
 "offlineMaps.pause" = "暂停";
@@ -1909,6 +1908,29 @@
 
 /* Layers section header */
 "offlineMaps.layers" = "图层";
+
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "基础地图精细度";
+
+"offlineMaps.topographyDetail" = "地形精细度";
+
+"offlineMaps.detail.explanation" = "精细度越高，占用的存储空间越多，下载时间也越长。降低精细度可以让您保存更大的区域。";
+
+"offlineMaps.detail.value" = "%@（缩放 %@）";
+
+"offlineMaps.detail.overview" = "概览";
+
+"offlineMaps.detail.regional" = "地区";
+
+"offlineMaps.detail.local" = "城区";
+
+"offlineMaps.detail.detailed" = "精细";
+
+"offlineMaps.storageRemediation" = "请降低精细度或选择更小的区域，使下载大小不超过设备的可用存储空间。";
+
+"offlineMaps.startingDownload" = "正在开始下载…";
+
+"offlineMaps.error.invalidDetail" = "请选择受支持的地图精细度。";
 
 /* Include layers prompt */
 /* No network available */

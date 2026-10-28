@@ -5352,6 +5352,8 @@ public enum L10n {
       public static let roomMessages = L10n.tr("Settings", "notifications.roomMessages", fallback: "Room Messages")
     }
     public enum OfflineMaps {
+      /// Offline map download detail
+      public static let baseDetail = L10n.tr("Settings", "offlineMaps.baseDetail", fallback: "Base map detail")
       /// Cancel button
       public static let cancel = L10n.tr("Settings", "offlineMaps.cancel", fallback: "Cancel")
       /// Status when pack download is complete
@@ -5390,21 +5392,45 @@ public enum L10n {
       public static let regionName = L10n.tr("Settings", "offlineMaps.regionName", fallback: "Region Name")
       /// Resume download button
       public static let resume = L10n.tr("Settings", "offlineMaps.resume", fallback: "Resume")
+      /// Starting download…
+      public static let startingDownload = L10n.tr("Settings", "offlineMaps.startingDownload", fallback: "Starting download…")
       /// Section header for storage info
       public static let storage = L10n.tr("Settings", "offlineMaps.storage", fallback: "Storage")
       /// Storage section footer
       public static let storageFooter = L10n.tr("Settings", "offlineMaps.storageFooter", fallback: "Includes map data and internal indexes. Total may be larger than the sum of individual downloads.")
+      /// Reduce detail or select a smaller area to fit the available storage.
+      public static let storageRemediation = L10n.tr("Settings", "offlineMaps.storageRemediation", fallback: "Reduce detail or select a smaller area to fit the available storage.")
       /// Label for total storage used
       public static let storageUsed = L10n.tr("Settings", "offlineMaps.storageUsed", fallback: "Storage Used")
       /// Navigation title for offline maps settings
       public static let title = L10n.tr("Settings", "offlineMaps.title", fallback: "Offline Maps")
+      /// Topography detail
+      public static let topographyDetail = L10n.tr("Settings", "offlineMaps.topographyDetail", fallback: "Topography detail")
       /// Fallback name for unknown region
       public static let unknownRegion = L10n.tr("Settings", "offlineMaps.unknownRegion", fallback: "Unknown Region")
+      public enum Detail {
+        /// Detailed
+        public static let detailed = L10n.tr("Settings", "offlineMaps.detail.detailed", fallback: "Detailed")
+        /// More detail uses more storage and takes longer to download. Lower detail lets you save larger areas.
+        public static let explanation = L10n.tr("Settings", "offlineMaps.detail.explanation", fallback: "More detail uses more storage and takes longer to download. Lower detail lets you save larger areas.")
+        /// Local
+        public static let local = L10n.tr("Settings", "offlineMaps.detail.local", fallback: "Local")
+        /// Overview
+        public static let overview = L10n.tr("Settings", "offlineMaps.detail.overview", fallback: "Overview")
+        /// Regional
+        public static let regional = L10n.tr("Settings", "offlineMaps.detail.regional", fallback: "Regional")
+        /// %@ (zoom %@)
+        public static func value(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Settings", "offlineMaps.detail.value", String(describing: p1), String(describing: p2), fallback: "%@ (zoom %@)")
+        }
+      }
       public enum Error {
         /// Error: insufficient disk space
         public static let insufficientDiskSpace = L10n.tr("Settings", "offlineMaps.error.insufficientDiskSpace", fallback: "Not enough storage space. At least 100 MB is required.")
+        /// Choose a supported map detail level.
+        public static let invalidDetail = L10n.tr("Settings", "offlineMaps.error.invalidDetail", fallback: "Choose a supported map detail level.")
         /// The selected area exceeds the offline map provider limit.
-        public static let providerLimitExceeded = L10n.tr("Settings", "offlineMaps.error.providerLimitExceeded", fallback: "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.")
+        public static let providerLimitExceeded = L10n.tr("Settings", "offlineMaps.error.providerLimitExceeded", fallback: "Reduce detail or select a smaller area to stay within the map provider's download limit.")
         /// Error: tile limit reached
         public static let tileLimitReached = L10n.tr("Settings", "offlineMaps.error.tileLimitReached", fallback: "The download tile limit has been reached.")
       }

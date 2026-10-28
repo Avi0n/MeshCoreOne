@@ -14,12 +14,20 @@ enum OfflineMapLayer: String, Codable {
     }
   }
 
-  var maxDownloadZoom: Double {
+  var selectableMaximumZoom: ClosedRange<Int> {
     switch self {
-    case .base: 14
-    case .topo: 17
+    case .base: Self.minimumSelectableZoom...Self.baseMaximumZoom
+    case .topo: Self.minimumSelectableZoom...Self.topographyMaximumZoom
     }
   }
+
+  var defaultMaximumZoom: Int {
+    selectableMaximumZoom.upperBound
+  }
+
+  private static let minimumSelectableZoom = 0
+  private static let baseMaximumZoom = 14
+  private static let topographyMaximumZoom = 16
 
   var styleURL: URL? {
     switch self {

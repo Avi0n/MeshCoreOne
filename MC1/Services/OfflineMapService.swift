@@ -184,16 +184,20 @@ final class OfflineMapService {
   func downloadRegion(
     name: String,
     bounds: MLNCoordinateBounds,
-    layers: Set<OfflineMapLayer>
+    options: OfflineMapDownloadOptions
   ) async throws {
-    if layers.contains(.base), !OfflineMapDownloadPolicy.permits(bounds) {
+    guard options.requests.allSatisfy({ $0.layer.selectableMaximumZoom.contains($0.maximumZoom) }) else {
+      throw OfflineMapError.invalidDetail
+    }
+    let summary = OfflineMapDownloadPolicy.summary(in: bounds, options: options)
+    if !summary.permitsDownload {
       throw OfflineMapError.providerLimitExceeded
     }
     let values = try URL.documentsDirectory.resourceValues(
       forKeys: [.volumeAvailableCapacityForImportantUsageKey]
     )
     if let available = values.volumeAvailableCapacityForImportantUsage,
-       available < Self.minimumDiskSpaceBytes {
+       available < Self.minimumDiskSpaceBytes || summary.estimatedBytes > available {
       throw OfflineMapError.insufficientDiskSpace
     }
 
@@ -201,7 +205,7 @@ final class OfflineMapService {
     let now = Date.now
 
     var pendingPacks: [(region: MLNTilePyramidOfflineRegion, context: Data)] = []
-    for layer in layers {
+    for (layer, maximumZoom) in options.requests {
       guard let styleURL = layer.styleURL else {
         throw OfflineMapError.missingStyleResource(layer)
       }
@@ -209,7 +213,7 @@ final class OfflineMapService {
         styleURL: styleURL,
         bounds: bounds,
         fromZoomLevel: Double(OfflineMapDownloadPolicy.minimumZoom),
-        toZoomLevel: layer.maxDownloadZoom
+        toZoomLevel: Double(maximumZoom)
       )
       let metadata = OfflinePackMetadata(name: name, createdAt: now, layer: layer)
       let context = try encoder.encode(metadata)
@@ -298,7 +302,7 @@ final class OfflineMapService {
     let metadata = try? JSONDecoder().decode(OfflinePackMetadata.self, from: pack.context)
     guard metadata?.layer != .topo,
           let region = pack.region as? MLNTilePyramidOfflineRegion else { return true }
-    guard OfflineMapDownloadPolicy.permits(region.bounds) else {
+    guard OfflineMapDownloadPolicy.permits(region.bounds, minZoom: region.minimumZoomLevel, maxZoom: region.maximumZoomLevel) else {
       errorMessage = L10n.Settings.OfflineMaps.Error.providerLimitExceeded
       return false
     }

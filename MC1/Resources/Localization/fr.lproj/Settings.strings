@@ -1879,8 +1879,7 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "La limite de tuiles pour ce téléchargement a été atteinte.";
 
-/* TODO: translate */
-"offlineMaps.error.providerLimitExceeded" = "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.";
+"offlineMaps.error.providerLimitExceeded" = "Réduisez le niveau de détail ou sélectionnez une zone plus petite pour rester dans la limite de téléchargement du fournisseur de cartes.";
 
 /* Pause download button */
 "offlineMaps.pause" = "Suspendre";
@@ -1909,6 +1908,29 @@
 
 /* Layers section header */
 "offlineMaps.layers" = "Couches";
+
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Détail de la carte de base";
+
+"offlineMaps.topographyDetail" = "Détail de la topographie";
+
+"offlineMaps.detail.explanation" = "Un niveau de détail plus élevé utilise plus de stockage et prend plus de temps à télécharger. Un niveau de détail plus faible vous permet d'enregistrer des zones plus grandes.";
+
+"offlineMaps.detail.value" = "%@ (zoom %@)";
+
+"offlineMaps.detail.overview" = "Vue d'ensemble";
+
+"offlineMaps.detail.regional" = "Régional";
+
+"offlineMaps.detail.local" = "Local";
+
+"offlineMaps.detail.detailed" = "Détaillé";
+
+"offlineMaps.storageRemediation" = "Réduisez le niveau de détail ou sélectionnez une zone plus petite pour que le téléchargement tienne dans l'espace de stockage disponible.";
+
+"offlineMaps.startingDownload" = "Démarrage du téléchargement…";
+
+"offlineMaps.error.invalidDetail" = "Choisissez un niveau de détail cartographique pris en charge.";
 
 /* Include layers prompt */
 /* No network available */

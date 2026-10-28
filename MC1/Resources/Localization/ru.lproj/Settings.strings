@@ -1879,8 +1879,7 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Достигнут лимит тайлов для этой загрузки.";
 
-/* TODO: translate */
-"offlineMaps.error.providerLimitExceeded" = "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.";
+"offlineMaps.error.providerLimitExceeded" = "Уменьшите детализацию или выберите меньшую область, чтобы уложиться в лимит загрузки поставщика карт.";
 
 /* Pause download button */
 "offlineMaps.pause" = "Пауза";
@@ -1909,6 +1908,29 @@
 
 /* Layers section header */
 "offlineMaps.layers" = "Слои";
+
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Детализация базовой карты";
+
+"offlineMaps.topographyDetail" = "Детализация топографии";
+
+"offlineMaps.detail.explanation" = "Более высокая детализация занимает больше места в хранилище и дольше загружается. Меньшая детализация позволяет загрузить области большего размера.";
+
+"offlineMaps.detail.value" = "%@ (масштаб %@)";
+
+"offlineMaps.detail.overview" = "Обзорный";
+
+"offlineMaps.detail.regional" = "Региональный";
+
+"offlineMaps.detail.local" = "Местный";
+
+"offlineMaps.detail.detailed" = "Детальный";
+
+"offlineMaps.storageRemediation" = "Уменьшите детализацию или выберите меньшую область, чтобы хватило места в хранилище.";
+
+"offlineMaps.startingDownload" = "Начало загрузки…";
+
+"offlineMaps.error.invalidDetail" = "Выберите поддерживаемый уровень детализации карты.";
 
 /* Include layers prompt */
 /* No network available */

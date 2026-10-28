@@ -1879,8 +1879,7 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Досягнуто ліміт тайлів для цього завантаження.";
 
-/* TODO: translate */
-"offlineMaps.error.providerLimitExceeded" = "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.";
+"offlineMaps.error.providerLimitExceeded" = "Зменште деталізацію або виберіть меншу область, щоб не перевищити ліміт завантаження постачальника карти.";
 
 /* Pause download button */
 "offlineMaps.pause" = "Пауза";
@@ -1909,6 +1908,29 @@
 
 /* Layers section header */
 "offlineMaps.layers" = "Шари";
+
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Деталізація базової карти";
+
+"offlineMaps.topographyDetail" = "Деталізація топографії";
+
+"offlineMaps.detail.explanation" = "Більша деталізація використовує більше сховища та завантажується довше. Менша деталізація дозволяє зберегти більші області.";
+
+"offlineMaps.detail.value" = "%@ (масштаб %@)";
+
+"offlineMaps.detail.overview" = "Огляд";
+
+"offlineMaps.detail.regional" = "Регіональний";
+
+"offlineMaps.detail.local" = "Місцевий";
+
+"offlineMaps.detail.detailed" = "Детальний";
+
+"offlineMaps.storageRemediation" = "Зменште деталізацію або виберіть меншу область, щоб вистачило вільного місця у сховищі.";
+
+"offlineMaps.startingDownload" = "Початок завантаження…";
+
+"offlineMaps.error.invalidDetail" = "Оберіть підтримуваний рівень деталізації карти.";
 
 /* Include layers prompt */
 /* No network available */

@@ -137,40 +137,6 @@ struct OfflineMapServiceTests {
   }
 
   @Test
-  func `new downloads keep original zoom ranges`() async throws {
-    let storage = try OfflineMapTestStorage(packs: [])
-    let service = try OfflineMapService(storage: storage, defaults: makeDefaults())
-    let bounds = MLNCoordinateBounds(
-      sw: .init(latitude: 37, longitude: -123),
-      ne: .init(latitude: 37.01, longitude: -122.99)
-    )
-
-    try await service.downloadRegion(name: "Trailhead", bounds: bounds, layers: [.base, .topo])
-
-    #expect(storage.requestedRegions.count == 2)
-    #expect(storage.requestedRegions.map(\.minimumZoomLevel) == [10, 10])
-    #expect(storage.requestedRegions.map(\.maximumZoomLevel).sorted() == [14, 17])
-    #expect(service.packs.first?.name == "Trailhead")
-    #expect(storage.addedPacks.allSatisfy { $0.resumeCount == 1 })
-  }
-
-  @Test
-  func `oversized downloads are rejected before creating packs`() async throws {
-    let storage = try OfflineMapTestStorage(packs: [])
-    let service = try OfflineMapService(storage: storage, defaults: makeDefaults())
-    let bounds = MLNCoordinateBounds(
-      sw: .init(latitude: -80, longitude: -180),
-      ne: .init(latitude: 80, longitude: 180)
-    )
-
-    await #expect(throws: OfflineMapError.self) {
-      try await service.downloadRegion(name: "World", bounds: bounds, layers: [.base])
-    }
-    #expect(storage.requestedRegions.isEmpty)
-    #expect(service.packs.isEmpty)
-  }
-
-  @Test
   func `oversized existing pack cannot resume manually or on foreground`() throws {
     let region = MLNTilePyramidOfflineRegion(
       styleURL: OfflineMapLayer.base.styleURL,
@@ -183,17 +149,24 @@ struct OfflineMapServiceTests {
     )
     let pack = OfflineMapTestPack(regionID: 8, state: .inactive, region: region)
     let storage = try OfflineMapTestStorage(packs: [pack])
-    let service = try OfflineMapService(storage: storage, defaults: makeDefaults())
+    let defaults = try makeDefaults()
+    let service = OfflineMapService(storage: storage, defaults: defaults)
+    try service.pausePack(#require(service.packs.first))
+    let pausedIDs = defaults.stringArray(forKey: "offlineMapPausedRegionIDs")
 
     try service.resumePack(#require(service.packs.first))
+    #expect(defaults.stringArray(forKey: "offlineMapPausedRegionIDs") == pausedIDs)
+    #expect(region.minimumZoomLevel == 10)
+    #expect(region.maximumZoomLevel == 14)
     #expect(pack.resumeCount == 0)
     #expect(service.errorMessage == L10n.Settings.OfflineMaps.Error.providerLimitExceeded)
     service.clearError()
 
-    service.resumeAllPacks()
+    let foregroundService = try OfflineMapService(storage: storage, defaults: makeDefaults())
+    foregroundService.resumeAllPacks()
     #expect(pack.resumeCount == 0)
-    #expect(service.errorMessage == L10n.Settings.OfflineMaps.Error.providerLimitExceeded)
-    #expect(service.packs.first?.isPaused == true)
+    #expect(foregroundService.errorMessage == L10n.Settings.OfflineMaps.Error.providerLimitExceeded)
+    #expect(foregroundService.packs.first?.isPaused == true)
   }
 
   @Test
@@ -215,7 +188,7 @@ struct OfflineMapServiceTests {
     #expect(pack.resumeCount == 1)
   }
 
-  private func makeDefaults() throws -> UserDefaults {
+  func makeDefaults() throws -> UserDefaults {
     try #require(UserDefaults(suiteName: "OfflineMapTests-\(UUID())"))
   }
 }

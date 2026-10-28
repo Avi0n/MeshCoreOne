@@ -1879,8 +1879,7 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Osiągnięto limit kafelków dla tego pobierania.";
 
-/* TODO: translate */
-"offlineMaps.error.providerLimitExceeded" = "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.";
+"offlineMaps.error.providerLimitExceeded" = "Zmniejsz szczegółowość lub wybierz mniejszy obszar, aby nie przekroczyć limitu pobierania dostawcy map.";
 
 /* Pause download button */
 "offlineMaps.pause" = "Wstrzymaj";
@@ -1909,6 +1908,29 @@
 
 /* Layers section header */
 "offlineMaps.layers" = "Warstwy";
+
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Szczegółowość mapy bazowej";
+
+"offlineMaps.topographyDetail" = "Szczegółowość topografii";
+
+"offlineMaps.detail.explanation" = "Większa szczegółowość zajmuje więcej miejsca, a pobieranie trwa dłużej. Mniejsza szczegółowość pozwala zapisać większe obszary.";
+
+"offlineMaps.detail.value" = "%@ (zoom %@)";
+
+"offlineMaps.detail.overview" = "Przeglądowa";
+
+"offlineMaps.detail.regional" = "Regionalna";
+
+"offlineMaps.detail.local" = "Lokalna";
+
+"offlineMaps.detail.detailed" = "Szczegółowa";
+
+"offlineMaps.storageRemediation" = "Zmniejsz szczegółowość lub wybierz mniejszy obszar, aby wystarczyło wolnego miejsca.";
+
+"offlineMaps.startingDownload" = "Rozpoczynanie pobierania…";
+
+"offlineMaps.error.invalidDetail" = "Wybierz obsługiwany poziom szczegółowości mapy.";
 
 /* Include layers prompt */
 /* No network available */

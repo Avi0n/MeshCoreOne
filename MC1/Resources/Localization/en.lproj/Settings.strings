@@ -1885,7 +1885,7 @@
 "offlineMaps.error.tileLimitReached" = "The download tile limit has been reached.";
 
 /* The selected area exceeds the offline map provider limit. */
-"offlineMaps.error.providerLimitExceeded" = "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.";
+"offlineMaps.error.providerLimitExceeded" = "Reduce detail or select a smaller area to stay within the map provider's download limit.";
 
 /* Pause download button */
 "offlineMaps.pause" = "Pause";
@@ -1914,6 +1914,29 @@
 
 /* Layers section header */
 "offlineMaps.layers" = "Layers";
+
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Base map detail";
+
+"offlineMaps.topographyDetail" = "Topography detail";
+
+"offlineMaps.detail.explanation" = "More detail uses more storage and takes longer to download. Lower detail lets you save larger areas.";
+
+"offlineMaps.detail.value" = "%@ (zoom %@)";
+
+"offlineMaps.detail.overview" = "Overview";
+
+"offlineMaps.detail.regional" = "Regional";
+
+"offlineMaps.detail.local" = "Local";
+
+"offlineMaps.detail.detailed" = "Detailed";
+
+"offlineMaps.storageRemediation" = "Reduce detail or select a smaller area to fit the available storage.";
+
+"offlineMaps.startingDownload" = "Starting download…";
+
+"offlineMaps.error.invalidDetail" = "Choose a supported map detail level.";
 
 /* Include layers prompt */
 /* No network available */

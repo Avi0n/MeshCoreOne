@@ -1877,8 +1877,7 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Foi atingido o limite de mosaicos de transferência.";
 
-/* TODO: translate */
-"offlineMaps.error.providerLimitExceeded" = "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.";
+"offlineMaps.error.providerLimitExceeded" = "Reduza o detalhe ou selecione uma área menor para ficar dentro do limite de transferência do fornecedor do mapa.";
 
 /* Pause download button */
 "offlineMaps.pause" = "Pausa";
@@ -1907,6 +1906,29 @@
 
 /* Layers section header */
 "offlineMaps.layers" = "Camadas";
+
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Detalhe do mapa base";
+
+"offlineMaps.topographyDetail" = "Detalhe da topografia";
+
+"offlineMaps.detail.explanation" = "Mais detalhe usa mais armazenamento e demora mais a transferir. Menos detalhe permite guardar áreas maiores.";
+
+"offlineMaps.detail.value" = "%@ (zoom %@)";
+
+"offlineMaps.detail.overview" = "Visão geral";
+
+"offlineMaps.detail.regional" = "Regional";
+
+"offlineMaps.detail.local" = "Local";
+
+"offlineMaps.detail.detailed" = "Detalhado";
+
+"offlineMaps.storageRemediation" = "Reduza o detalhe ou selecione uma área menor para caber no armazenamento disponível.";
+
+"offlineMaps.startingDownload" = "A iniciar a transferência…";
+
+"offlineMaps.error.invalidDetail" = "Escolha um nível de detalhe suportado do mapa.";
 
 /* Include layers prompt */
 /* No network available */
