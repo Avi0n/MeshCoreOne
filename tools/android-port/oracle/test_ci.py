@@ -186,8 +186,9 @@ class FoundationWorkflowTests(unittest.TestCase):
                      else "${{ needs.scope.outputs." + scope + " == 'true' }}"),
                 )
                 self.assertIn("scope", job["needs"])
-        self.assertIn("controller", self.workflow["jobs"]["build"]["needs"])
-        self.assertIn("build", self.workflow["jobs"]["backup-oracle"]["needs"])
+        self.assertEqual(self.workflow["jobs"]["build"]["needs"], ["scope"])
+        self.assertEqual(self.workflow["jobs"]["external-oracle"]["needs"], ["scope"])
+        self.assertEqual(self.workflow["jobs"]["backup-oracle"]["needs"], ["scope", "build"])
 
     def test_privilege_and_action_pin_mutations_fail(self):
         for kind in ("token", "action", "checkout"):

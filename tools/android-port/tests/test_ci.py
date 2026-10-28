@@ -4,6 +4,7 @@ import contextlib
 from dataclasses import replace
 import io
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -316,6 +317,77 @@ class SourceDispositionTests(unittest.TestCase):
             self.assertEqual(result["protocol_suite"]["discovered"], 84)
             self.assertEqual(result["protocol_suite"]["passed"], 84)
 
+    def test_scaffold_preflight_failure_does_not_launch_expensive_gradle_tasks(self):
+        with self.candidate(PORTED) as (commands, printed, output, state):
+            original_execute = commands.side_effect
+
+            def fail_preflight(command, environment, log, **kwargs):
+                if log.name == "gradle-scaffold-preflight.log":
+                    raise PortError("graph preflight failed")
+                return original_execute(command, environment, log, **kwargs)
+
+            commands.side_effect = fail_preflight
+            with self.assertRaisesRegex(PortError, "graph preflight failed"):
+                ci.run_stage("scaffold", state, output)
+            self.assertEqual(commands.call_count, 2)
+            command, _, log = commands.call_args_list[-1].args
+            self.assertEqual(log.name, "gradle-scaffold-preflight.log")
+            tasks = []
+            for argument in command[3:]:
+                if argument.startswith("-"):
+                    break
+                tasks.append(argument)
+            self.assertEqual(
+                tasks,
+                ["resolveScaffoldDependencies", "validateModuleGraph", "runtimeDependencyInventory"],
+            )
+            self.assertNotIn(":app:assembleDebug", command)
+            self.assertIn("--parallel", command)
+            self.assertIn("--max-workers=8", command)
+            self.assertNotIn("--max-workers=1", command)
+            self.assertNotIn('"result": "success"', printed.getvalue())
+
+    def test_affected_candidate_preserves_module_closure_and_does_not_promote_scaffold_scope(self):
+        cases = (
+            (
+                ["protocol"],
+                {"scopes": ["protocol", "module:core/protocol"], "full_scaffold": False},
+                {"full_scaffold": "false", "localization": "false"},
+            ),
+            (
+                ["scaffold"],
+                {"scopes": ["module:core/l10n"], "full_scaffold": False},
+                {"full_scaffold": "false", "localization": "true"},
+            ),
+        )
+        for event_name in ("pull_request", "push", "merge_group"):
+            for scopes, plan, expected_outputs in cases:
+                with self.subTest(event=event_name, scopes=scopes), \
+                        self.candidate(PORTED) as (commands, printed, output, state):
+                    base, head = "1" * 40, "2" * 40
+                    identity = {"binding": {"base_sha": base, "head_sha": head}}
+                    output.mkdir()
+                    output_file = output / "github-output"
+                    with (
+                        patch.object(ci, "execution_identity", return_value=identity),
+                        patch("controller.local_scope.candidate_plan", return_value=plan) as planner,
+                        patch("controller.local_scope.run_scaffold", return_value={"result": "success"}) as run,
+                        patch.dict(os.environ, {
+                            "GITHUB_OUTPUT": str(output_file), "GITHUB_EVENT_NAME": event_name,
+                        }),
+                    ):
+                        ci.run_stage("scaffold", state, output, scopes=scopes, affected_candidate=True)
+                    self.assertEqual(run.call_args.args[1], plan)
+                    self.assertEqual(planner.call_args.kwargs["merge_base_only"], event_name == "pull_request")
+                    self.assertEqual(run.call_args.kwargs["merge_base_only"], event_name == "pull_request")
+                    self.assertEqual(planner.call_args.args[3] if len(planner.call_args.args) > 3 else None,
+                                     None if scopes == ["scaffold"] else ["protocol", "module:core/protocol"])
+                    self.assertEqual(
+                        dict(line.split("=", 1) for line in output_file.read_text().splitlines()),
+                        expected_outputs,
+                    )
+                    self.assertNotIn('"result": "failure"', printed.getvalue())
+
     def test_selected_gradle_batch_budget_reaches_executor_and_preserves_timeout_diagnostics(self):
         real_execute = ci.execute
         for outcome in ("success", "timeout"):
@@ -327,18 +399,43 @@ class SourceDispositionTests(unittest.TestCase):
                     graph_fixture(command, environment, log, **kwargs)
                     return real_execute(command, environment, log, **kwargs)
 
+                class FixtureProcess:
+                    def __init__(self):
+                        self.stdout = io.StringIO("actual selected batch progress\n")
+                        self.pid = 12345
+                        self.wait_count = 0
+                        self.killed = False
+
+                    def poll(self):
+                        return -9 if self.killed else None
+
+                    def kill(self):
+                        self.killed = True
+
+                    def wait(self, timeout=None):
+                        if timeout is not None:
+                            self.assert_timeout(timeout)
+                            if outcome == "timeout":
+                                self.wait_count += 1
+                                raise failure
+                        self.wait_count += 1
+                        return 0
+
+                    @staticmethod
+                    def assert_timeout(timeout):
+                        if timeout != 3600:
+                            raise AssertionError(f"Unexpected Gradle timeout: {timeout}")
+
+                process = FixtureProcess()
+
                 def run(command, **kwargs):
-                    if command[0].endswith("gradlew"):
-                        self.assertEqual(kwargs["timeout"], 3600)
-                        kwargs["stdout"].write("actual selected batch progress\n")
-                        if outcome == "timeout":
-                            raise failure
-                    else:
-                        self.assertEqual(kwargs["timeout"], 60)
+                    self.assertEqual(kwargs["timeout"], 60)
                     return ci.subprocess.CompletedProcess(command, 0)
 
                 commands.side_effect = execute
                 with patch.object(ci.subprocess, "run", side_effect=run), \
+                        patch.object(ci.subprocess, "Popen", return_value=process), \
+                        patch.object(ci.os, "killpg", create=True) as kill_group, \
                         contextlib.redirect_stderr(io.StringIO()) as diagnostics:
                     if outcome == "timeout":
                         with self.assertRaises(ci.subprocess.TimeoutExpired) as raised:
@@ -351,7 +448,74 @@ class SourceDispositionTests(unittest.TestCase):
                     else:
                         ci.run_stage("scaffold", state, output, scopes=self.protocol_selection())
                         self.assertIn('"passed": 84', printed.getvalue())
+                if outcome == "timeout":
+                    if ci.os.name != "nt":
+                        kill_group.assert_called_once_with(process.pid, ci.signal.SIGKILL)
+                    else:
+                        self.assertTrue(process.killed)
                 self.assertEqual((output / "gradle-scaffold.log").read_text(), "actual selected batch progress\n")
+
+    def test_streamed_gradle_keyboard_interrupt_kills_process_tree_and_reaps_reader(self):
+        class FixtureProcess:
+            def __init__(self):
+                self.stdout = io.StringIO("interrupted progress\n")
+                self.pid = 12345
+                self.wait_count = 0
+                self.killed = False
+
+            def poll(self):
+                return -9 if self.killed else None
+
+            def kill(self):
+                self.killed = True
+
+            def wait(self, timeout=None):
+                self.wait_count += 1
+                if timeout is not None:
+                    raise KeyboardInterrupt
+                return -9
+
+        process = FixtureProcess()
+
+        def kill_group(pid, sig):
+            self.assertEqual((pid, sig), (process.pid, ci.signal.SIGKILL))
+            process.killed = True
+
+        with tempfile.TemporaryDirectory() as temporary:
+            log = Path(temporary) / "gradle.log"
+            with patch.object(ci.subprocess, "Popen", return_value=process), \
+                    patch.object(ci.os, "killpg", side_effect=kill_group, create=True) as kill, \
+                    contextlib.redirect_stdout(io.StringIO()) as output:
+                with self.assertRaises(KeyboardInterrupt):
+                    ci.execute(["fixture-gradle"], {}, log, timeout=3600, stream_output=True)
+
+            if ci.os.name != "nt":
+                kill.assert_called_once_with(process.pid, ci.signal.SIGKILL)
+            else:
+                self.assertTrue(process.killed)
+            self.assertEqual(process.wait_count, 2)
+            self.assertTrue(process.stdout.closed)
+            self.assertIn("interrupted progress", output.getvalue())
+            self.assertEqual(log.read_text(), "interrupted progress\n")
+
+    def test_streamed_gradle_output_is_written_live_and_retained_in_the_command_log(self):
+        class FixtureProcess:
+            stdout = io.StringIO("configuration complete\n:core:protocol:test\n")
+
+            @staticmethod
+            def wait(timeout=None):
+                return 0
+
+        with tempfile.TemporaryDirectory() as temporary:
+            log = Path(temporary) / "gradle.log"
+            with patch.object(ci.subprocess, "Popen", return_value=FixtureProcess()), \
+                    contextlib.redirect_stdout(io.StringIO()) as output:
+                ci.execute(
+                    ["fixture-gradle"], {}, log, timeout=3600, stream_output=True,
+                )
+            self.assertIn("configuration complete", output.getvalue())
+            self.assertIn(":core:protocol:test", output.getvalue())
+            self.assertEqual(log.read_text(), "configuration complete\n:core:protocol:test\n")
 
     def test_extended_batch_budget_keeps_task_graph_guard_and_benchmark_budget(self):
         for stage in ("scaffold", "benchmark"):

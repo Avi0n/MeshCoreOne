@@ -1,4 +1,4 @@
-"""AndroidOnly: WP-003 Architecture-neutral local verification and nonblocking pre-push hook."""
+"""AndroidOnly: WP-003 Explicit architecture-neutral local verification."""
 
 import argparse
 import hashlib
@@ -407,40 +407,10 @@ def run_adapter(repo, revision, state_path, *, completion=None, token=None, admi
 
 
 def install(repo, prefix, distribution):
-    ledger = execution_runtime(repo)
-    from controller.errors import PortError
-
-    try:
-        with ledger.hard_lock("installed-git-common-runtime", f"hook-install:{uuid.uuid4().hex}",
-                              {"hook_source": str(Path(__file__).resolve())}, time.time()):
-            install_hook_files(repo, distribution)
-    except PortError as error:
-        raise ValueError(str(error)) from error
-
-
-def install_hook_files(repo, distribution):
-    hooks = Path(capture(["git", "-C", str(repo), "rev-parse", "--path-format=absolute", "--git-path", "hooks"]))
-    hooks.mkdir(parents=True, exist_ok=True)
-    hook = hooks / "pre-push"
-    marker = "# MeshCore One fast local pre-push"
-    if hook.exists() and marker not in hook.read_text(encoding="utf-8"):
-        raise ValueError("Existing pre-push hook must be integrated explicitly")
-    installed = hooks / "meshcore-local"
-    installed.mkdir(exist_ok=True)
-    for source in Path(__file__).resolve().parent.iterdir():
-        if source.is_file() and source.suffix in (".py", ".sh"):
-            (installed / ("test_check.py" if source.name == "hook_test.py" else source.name)).write_bytes(
-                source.read_bytes().replace(b"\r\n", b"\n")
-            )
-    (installed / "config.json").write_text(json.dumps({"distribution": distribution}), encoding="utf-8")
-    python = (shutil.which("python") or sys.executable).replace("\\", "/")
-    hook.write_text(
-        "#!/bin/sh\n" + marker + "\n"
-        'hooks=$(git rev-parse --path-format=absolute --git-path hooks) || exit 1\n'
-        f'exec "{python}" "$hooks/meshcore-local/check.py" --pre-push "$@"\n',
-        encoding="utf-8", newline="\n",
+    raise ValueError(
+        "Automatic pre-push checks have been removed; "
+        "run local/check.py --commit HEAD explicitly instead"
     )
-    hook.chmod(0o755)
 
 
 def main(argv=None):
@@ -460,6 +430,8 @@ def main(argv=None):
     parser.add_argument("remote", nargs="*")
     args = parser.parse_args(argv)
     try:
+        if args.install_hook:
+            install(None, [], args.distribution)
         stages = list(ALL_STAGES) if args.stages == "all" else args.stages.split(",")
         if not stages or len(stages) != len(set(stages)) or set(stages) - (set(ALL_STAGES) | OPTIONAL_STAGES):
             raise ValueError("Unknown, empty or duplicate stage")
@@ -482,9 +454,6 @@ def main(argv=None):
             commit, tree = binding(repo, args.commit)
             validate_result(args.validate_result, commit, tree)
             print(f"Merge verification valid for {commit} ({tree}).")
-            return 0
-        if args.install_hook:
-            install(repo, [], args.distribution)
             return 0
         for commit in commits:
             try:

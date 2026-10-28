@@ -3,11 +3,16 @@
 ## Decision
 
 Feature branches and pull requests may be published from every processor and host.
-The pre-push fast check is an optimization, not a publication gate. If the
-configured runner is unavailable or fails, the hook exits successfully, records
-the exact commit and tree as `verification-pending`, and prints
-`UNVERIFIED CANDIDATE — merge verification still required`. It never emits a
-passing receipt for that candidate.
+Automatic pre-push checks are removed by maintainer direction. `git push` must
+not start local verification, remote transport or a shared Gradle-lane wait.
+The former `--install-hook` command fails explicitly instead of reinstalling
+the hook. Run the relevant declared local tests explicitly; missing local
+verification remains UNVERIFIED, not a passing receipt or a publication block.
+
+Existing installations must remove the MeshCore One `pre-push` entrypoint from
+the effective Git hooks directory. For linked worktrees the default entrypoint
+is shared in the common Git directory. Preserve unrelated hooks, manual-check
+helpers, execution ownership and any already-running checks.
 
 The exact-commit hosted job result and log are the authoritative record for
 reproducible automated checks. The repository does not retain or aggregate a

@@ -96,6 +96,10 @@ def module_inventory(repo, revision):
         ))
         if jvm == android:
             raise PortError("Unknown module task convention: " + path)
+        convention_dependencies = (
+            {"core/contracts", "core/ui", "core/l10n"}
+            if 'id("mesh.android.feature")' in text else set()
+        )
         modules[module] = {
             "runner": "test" if jvm else "testDebugUnitTest",
             "lint": not jvm,
@@ -104,7 +108,9 @@ def module_inventory(repo, revision):
                 and name.endswith((".kt", ".java"))
                 for source in ("test", "testDebug") for name in paths
             ),
-            "dependencies": sorted({name.lstrip(":").replace(":", "/") for name in references}),
+            "dependencies": sorted(
+                {name.lstrip(":").replace(":", "/") for name in references} | convention_dependencies
+            ),
         }
     if any(dependency not in modules for value in modules.values() for dependency in value["dependencies"]):
         raise PortError("Unclassified module dependency requires full scaffold")
@@ -214,7 +220,9 @@ def select_paths(paths, requested=None, *, modules=None, graph_error=None):
     }
 
 
-def candidate_plan(repo, base, head, requested=None, *, trusted_base=None, checkout=False):
+def candidate_plan(
+    repo, base, head, requested=None, *, trusted_base=None, checkout=False, merge_base_only=False,
+):
     """Bind selection to real endpoints; caller scopes can only add obligations."""
     for label, value in (("base", base), ("head", head)):
         if not isinstance(value, str) or SHA.fullmatch(value) is None:
@@ -254,10 +262,11 @@ def candidate_plan(repo, base, head, requested=None, *, trusted_base=None, check
     ancestor = ancestors[0]
     if ancestor == head and head != base:
         raise PortError("Affected candidate is an ancestor of the trusted target, not a branch candidate")
+    starts = (ancestor,) if merge_base_only else dict.fromkeys((base, ancestor))
     paths = set()
-    # Keep both branch changes already present in the target and target-only
-    # differences absent from the immutable candidate in the obligation set.
-    for start in dict.fromkeys((base, ancestor)):
+    # Non-PR callers retain target and branch changes; PR scopes use only the branch
+    # diff from its merge-base to avoid reclassifying target-only input.
+    for start in starts:
         raw = subprocess.check_output([
             "git", "-C", str(repo), "diff", "--name-only", "--no-renames", "-z", start, head, "--",
         ])
@@ -279,7 +288,7 @@ def candidate_plan(repo, base, head, requested=None, *, trusted_base=None, check
     }
 
 
-def validate_plan(repo, plan, *, trusted_base=None):
+def validate_plan(repo, plan, *, trusted_base=None, merge_base_only=False):
     if not isinstance(plan, dict) or set(plan) != {
         "schema_version", "kind", "base", "head", "tree", "paths",
         "scopes", "tasks", "full_scaffold", "stages", "reason",
@@ -297,7 +306,7 @@ def validate_plan(repo, plan, *, trusted_base=None):
     # all selection from the imported immutable objects, not caller path lists.
     actual = candidate_plan(
         repo, plan["base"], plan["head"], plan["scopes"] or None,
-        trusted_base=trusted_base, checkout=True,
+        trusted_base=trusted_base, checkout=True, merge_base_only=merge_base_only,
     )
     if actual != plan:
         raise PortError("Affected plan differs from actual candidate diff or required obligations")
@@ -437,7 +446,26 @@ def validate_runtime_scopes(repo, plan):
         )
 
 
-def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_base):
+_PREFLIGHT_TASKS = (
+    "resolveScaffoldDependencies", "validateModuleGraph", "runtimeDependencyInventory",
+)
+
+
+def split_preflight_tasks(tasks):
+    preflight = [task for task in _PREFLIGHT_TASKS if task in tasks]
+    build = [task for task in tasks if task not in _PREFLIGHT_TASKS]
+    return preflight, build
+
+
+def validation_preflight_options(options):
+    if "--continue" in options:
+        raise PortError("Scaffold preflight cannot use Gradle --continue")
+    return list(options)
+
+
+def run_scaffold(
+    repo, plan, environment, output, execute, options, *, trusted_base, merge_base_only=False,
+):
     """Execute fixed affected tasks through the already-owned local supervisor."""
     started = False
 
@@ -447,8 +475,11 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
         return execute(*arguments)
 
     try:
-        return _run_scaffold(repo, plan, environment, output, owned_execute, options, trusted_base=trusted_base)
-    except (subprocess.CalledProcessError, PortError, OSError, KeyboardInterrupt) as failure:
+        return _run_scaffold(
+            repo, plan, environment, output, owned_execute, options,
+            trusted_base=trusted_base, merge_base_only=merge_base_only,
+        )
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, PortError, OSError, KeyboardInterrupt) as failure:
         if started:
             report = {
                 "kind": "local-affected-only", "result": "failure",
@@ -459,7 +490,7 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
             if isinstance(failure, subprocess.CalledProcessError):
                 report["failure"]["returncode"] = failure.returncode
             try:
-                validate_plan(repo, plan, trusted_base=trusted_base)
+                validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
                 directories, _ = report_inputs(repo, plan)
                 from .module_junit import bounded_directory
 
@@ -483,7 +514,7 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
                     except (PortError, OSError) as error:
                         record.update(status="invalid", error=str(error))
                     report["junit_reports"].append(record)
-                validate_plan(repo, plan, trusted_base=trusted_base)
+                validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
                 report["source_binding"] = "valid"
             except (PortError, OSError, subprocess.SubprocessError) as error:
                 report.update(source_binding="invalid", junit_cases=[], junit_reports=[], evidence_error=str(error))
@@ -494,16 +525,23 @@ def run_scaffold(repo, plan, environment, output, execute, options, *, trusted_b
         raise
 
 
-def _run_scaffold(repo, plan, environment, output, execute, options, *, trusted_base):
+def _run_scaffold(
+    repo, plan, environment, output, execute, options, *, trusted_base, merge_base_only=False,
+):
     from . import ci
     from .ci_evidence import collect_lint, collect_suites, lint_evidence, validate_graph_runtime
     from .module_junit import bounded_directory, check_module_tests
 
-    validate_plan(repo, plan, trusted_base=trusted_base)
+    validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
     if not plan["tasks"]:
         raise PortError("Affected scaffold cannot execute a zero-task request")
+    preflight_tasks, build_tasks = split_preflight_tasks(plan["tasks"])
+    if not preflight_tasks or not build_tasks:
+        raise PortError("Affected scaffold requires validation and build/test tasks")
+    preflight_options = validation_preflight_options(options)
     directories, lint = report_inputs(repo, plan)
-    graph = output / "gradle-affected-task-graph.json"
+    preflight_graph = output / "gradle-affected-preflight-task-graph.json"
+    build_graph = output / "gradle-affected-task-graph.json"
     reports = [
         repo / "android" / module / "build/reports/lint-results-debug.xml" for module in lint
     ] + [
@@ -519,18 +557,30 @@ def _run_scaffold(repo, plan, environment, output, execute, options, *, trusted_
             raise PortError("Linked previous report cannot become current evidence")
         if report.exists():
             report.unlink()
-    if graph.is_symlink():
-        raise PortError("Linked resolved task graph")
-    graph.unlink(missing_ok=True)
-    environment = {**environment, "ANDROID_CI_TASK_GRAPH": str(graph)}
-    execute([
-        str(repo / "android/gradlew"), "-p", str(repo / "android"), *plan["tasks"], *options,
-        "--init-script", str(repo / "tools/android-port/controller/verify_candidate_task_graph.gradle"),
-    ], repo, environment, output / "gradle-scaffold.log")
+    for graph in (preflight_graph, build_graph):
+        if graph.is_symlink():
+            raise PortError("Linked resolved task graph")
+        graph.unlink(missing_ok=True)
+    init_script = str(repo / "tools/android-port/controller/verify_candidate_task_graph.gradle")
+    graph_summaries = {}
+    for phase, tasks, graph, log, gradle_options in (
+        ("preflight", preflight_tasks, preflight_graph, "gradle-affected-preflight.log", preflight_options),
+        ("build", build_tasks, build_graph, "gradle-scaffold.log", options),
+    ):
+        phase_environment = {**environment, "ANDROID_CI_TASK_GRAPH": str(graph)}
+        execute([
+            str(repo / "android/gradlew"), "-p", str(repo / "android"), *tasks, *gradle_options,
+            "--init-script", init_script,
+        ], repo, phase_environment, output / log)
+        graph_summaries[phase] = ci.validate_candidate_task_graph(graph, tasks)
     report = {
         "kind": "local-affected-only", "base": plan["base"], "head": plan["head"], "tree": plan["tree"],
         "scopes": plan["scopes"], "tasks": plan["tasks"],
-        "resolved_task_graph": ci.validate_candidate_task_graph(graph, plan["tasks"]),
+        "resolved_task_graph": {
+            "tasks": sum(summary["tasks"] for summary in graph_summaries.values()),
+            "result": "no-duplicate-ci-evidence",
+            "phases": graph_summaries,
+        },
         "suites": collect_targeted_reports(repo, plan["scopes"]),
         "lint": {
             module: lint_evidence(repo / "android" / module / "build/reports/lint-results-debug.xml")
@@ -547,11 +597,23 @@ def _run_scaffold(repo, plan, environment, output, execute, options, *, trusted_
             sys.executable, str(repo / "android/parity-tests/semantic.py"),
             "--check", "--verify-execution",
         ], repo, environment, output / "parity-family-execution.log")
+    elif "module:app" in plan["scopes"]:
+        from .ci_evidence import WP501_ACCEPTANCE_CASES, require_case_identities
+
+        app_test_results = repo / "android/app/build/test-results/testDebugUnitTest"
+        report["wp501_acceptance_cases"] = require_case_identities(
+            app_test_results, WP501_ACCEPTANCE_CASES,
+        )
+        execute([
+            sys.executable, str(repo / "android/parity-tests/semantic.py"),
+            "--check", "--verify-execution",
+            "--runner-directory", "app/build/test-results/testDebugUnitTest",
+        ], repo, environment, output / "parity-family-execution.log")
     if plan["full_scaffold"] or "module:core/l10n" in plan["scopes"]:
         execute([
             sys.executable, str(repo / "tools/android-port/l10n_convert.py"), "--check",
             "--verify-android-tests", str(repo / "android/core/l10n/build/test-results/testDebugUnitTest"),
         ], repo, environment, output / "l10n-junit.log")
     report["junit_cases"] = collect_named_cases(repo, directories) if directories else []
-    validate_plan(repo, plan, trusted_base=trusted_base)
+    validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
     return report

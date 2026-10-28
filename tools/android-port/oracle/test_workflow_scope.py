@@ -1,4 +1,5 @@
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -68,6 +69,62 @@ class WorkflowScopeTests(unittest.TestCase):
         self.assertFalse(result["fail_safe"])
         self.assertEqual(result["paths"], paths)
         self.assertEqual((result["base"], result["head"]), (BASE, HEAD))
+        self.assertEqual(result["diff_base"], BASE)
+
+    def test_pull_request_scope_ignores_base_only_changes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary)
+
+            def git(*args):
+                return subprocess.run(
+                    ["git", "-C", str(repo), *args],
+                    check=True, capture_output=True, text=True,
+                ).stdout.strip()
+
+            git("init", "--quiet", "-b", "main")
+            git("config", "user.email", "scope-test@example.invalid")
+            git("config", "user.name", "Scope Test")
+            (repo / "README.md").write_text("common\n", encoding="utf-8")
+            git("add", "README.md")
+            git("commit", "--quiet", "-m", "common")
+            common = git("rev-parse", "HEAD")
+
+            git("checkout", "--quiet", "-b", "feature")
+            feature_path = Path("android/core/protocol/src/main/kotlin/Protocol.kt")
+            (repo / feature_path).parent.mkdir(parents=True)
+            (repo / feature_path).write_text("feature\n", encoding="utf-8")
+            git("add", str(feature_path))
+            git("commit", "--quiet", "-m", "protocol change")
+            head = git("rev-parse", "HEAD")
+
+            git("checkout", "--quiet", "main")
+            base_only_path = Path("android/app/src/main/kotlin/App.kt")
+            (repo / base_only_path).parent.mkdir(parents=True)
+            (repo / base_only_path).write_text("base only\n", encoding="utf-8")
+            git("add", str(base_only_path))
+            git("commit", "--quiet", "-m", "base-only app change")
+            base = git("rev-parse", "HEAD")
+
+            result = evaluate(repo, "pull_request", {"pull_request": {
+                "base": {"sha": base}, "head": {"sha": head},
+            }})
+
+        self.assertFalse(result["fail_safe"])
+        self.assertEqual((result["base"], result["head"], result["diff_base"]), (base, head, common))
+        self.assertEqual(result["paths"], ["android/core/protocol/src/main/kotlin/Protocol.kt"])
+        self.assertEqual(result["scopes"], {
+            "controller": False, "scaffold": False, "protocol": True,
+            "backup": False, "external-oracle": False,
+        })
+
+    def test_pull_request_merge_base_failure_selects_all_scopes(self):
+        with patch("oracle.workflow_scope.merge_base",
+                   side_effect=subprocess.CalledProcessError(1, ["git", "merge-base"])):
+            result = evaluate(Path.cwd(), "pull_request", {"pull_request": {
+                "base": {"sha": BASE}, "head": {"sha": HEAD},
+            }})
+        self.assertTrue(result["fail_safe"])
+        self.assertEqual(result["scopes"], {scope: True for scope in SCOPES})
 
     def test_known_native_core_modules_select_scaffold(self):
         for module in ("ble", "connectivity", "data", "datastore", "l10n", "runtime", "ui"):

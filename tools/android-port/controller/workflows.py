@@ -75,6 +75,12 @@ def validate_candidate(value: dict, text: str):
     if set(jobs) != {"scope", "controller", "build", "external-oracle", "backup-oracle", "android-ci"}:
         raise PortError("Missing/unknown mandatory CI job")
     gate = jobs["android-ci"]
+    scope_outputs = jobs["scope"].get("outputs", {})
+    if (
+        scope_outputs.get("controller") != "${{ steps.changed.outputs.controller }}"
+        or scope_outputs.get("accessibility-suite") != "${{ steps.changed.outputs.accessibility-suite }}"
+    ):
+        raise PortError("Diff-derived controller scope and committed accessibility-suite selection must remain separate")
     if (gate.get("name") != "android-ci" or gate.get("if") != "${{ always() }}"
             or gate.get("needs") != ["scope", "controller", "build", "external-oracle", "backup-oracle"]):
         raise PortError("android-ci must always report every selected build outcome")
@@ -82,17 +88,37 @@ def validate_candidate(value: dict, text: str):
     if any(jobs[name].get("runs-on") != "macos-26-intel" for name in ("external-oracle", "backup-oracle")):
         raise PortError("Reference oracles require the supported macOS26 Intel host; do not downgrade runtime or skip oracles")
     if (build.get("runs-on") != "ubuntu-24.04" or "strategy" in build
-            or build.get("needs") != ["scope", "controller"]
+            or build.get("needs") != ["scope"]
             or "needs.scope.outputs" not in build.get("if", "")):
         raise PortError("The selected Linux execution host must be mandatory, dependency-gated and unmatrixed")
-    runs = "\n".join(step.get("run", "") for step in build["steps"])
-    stage_runs = [
-        step.get("run", "") for step in build["steps"]
-        if "ci.py run --stage" in step.get("run", "")
-    ]
-    if len(stage_runs) != 1 or "ci.py run --stage scaffold" not in stage_runs[0]:
-        raise PortError("Candidate workflow must use one consolidated scaffold Gradle invocation")
     steps = build["steps"]
+    stage_steps = [step for step in steps if step.get("id") == "gradle"]
+    if len(stage_steps) != 1:
+        raise PortError("Candidate workflow must use one consolidated scaffold Gradle invocation")
+    stage_run = stage_steps[0].get("run", "")
+    if (
+        stage_steps[0].get("env", {}).get("RUN_CONTROLLER") != "${{ needs.scope.outputs.controller }}"
+        or "$affected = @()" not in stage_run
+        or "if ($env:RUN_CONTROLLER -ne 'true') { $affected = @('--affected-candidate') }" not in stage_run
+        or "ci.py run --stage scaffold @affected @scopes" not in stage_run
+    ):
+        raise PortError("Candidate Gradle invocation must use exact affected planning outside controller changes")
+    selected_controller = (
+        "${{ needs.scope.outputs.controller == 'true' || "
+        "needs.scope.outputs.accessibility-suite == 'true' }}"
+    )
+    unselected_controller = (
+        "${{ needs.scope.outputs.controller != 'true' && "
+        "needs.scope.outputs.accessibility-suite != 'true' }}"
+    )
+    controller_steps = jobs["controller"]["steps"]
+    selected_steps = [step for step in controller_steps if step.get("name") != "No controller inputs selected"]
+    unselected_steps = [step for step in controller_steps if step.get("name") == "No controller inputs selected"]
+    if (
+        not selected_steps or any(step.get("if") != selected_controller for step in selected_steps)
+        or len(unselected_steps) != 1 or unselected_steps[0].get("if") != unselected_controller
+    ):
+        raise PortError("Controller execution must honor either diff-selected inputs or the mandatory accessibility suite")
     inspections = [
         index for index, step in enumerate(steps)
         if "ci.py inspect" in step.get("run", "")
@@ -104,18 +130,25 @@ def validate_candidate(value: dict, text: str):
     if len(inspections) != 1 or len(apk_uploads) != 1:
         raise PortError("Candidate requires one inspected debug APK handoff")
     inspection, upload = inspections[0], apk_uploads[0]
-    stage = next(index for index, step in enumerate(steps) if "ci.py run --stage scaffold" in step.get("run", ""))
+    stage = steps.index(stage_steps[0])
+    localization_checks = [
+        (index, step) for index, step in enumerate(steps)
+        if step.get("name") == "Validate localization discovery"
+    ]
     if (
         steps[inspection].get("run") != "python tools/android-port/controller/ci.py inspect"
-        or steps[inspection].get("if") != "${{ needs.scope.outputs.scaffold == 'true' }}"
+        or steps[inspection].get("if") != "${{ steps.gradle.outputs.full_scaffold == 'true' }}"
         or steps[inspection].get("continue-on-error")
         or upload != inspection + 1
         or stage >= inspection or "if" in steps[stage] or steps[stage].get("continue-on-error")
+        or len(localization_checks) != 1
+        or localization_checks[0][1].get("if") != "${{ steps.gradle.outputs.localization == 'true' }}"
+        or not stage < localization_checks[0][0] < inspection
     ):
         raise PortError("Debug APK upload must immediately follow successful scaffold APK inspection")
     if steps[upload] != {
         "name": "Upload inspected debug APK for human testing",
-        "if": "${{ success() && needs.scope.outputs.scaffold == 'true' }}",
+        "if": "${{ success() && steps.gradle.outputs.full_scaffold == 'true' }}",
         "uses": "actions/upload-artifact@" + ACTION_PINS["actions/upload-artifact"],
         "with": {
             "name": (
@@ -168,7 +201,7 @@ def validate_candidate(value: dict, text: str):
         step for step in jobs["controller"]["steps"] if "controller/test_runner.py" in step.get("run", "")
     ]
     if (
-        len(runners) != 1 or runners[0].get("if") != "${{ needs.scope.outputs.controller == 'true' }}"
+        len(runners) != 1 or runners[0].get("if") != selected_controller
         or runners[0].get("continue-on-error")
         or [
             line for line in runners[0].get("run", "").splitlines()
@@ -180,6 +213,8 @@ def validate_candidate(value: dict, text: str):
         job = jobs[name]
         if job.get("if") == "${{ always() }}" or "scope" not in job.get("needs", []):
             raise PortError("Expensive jobs must be scope-selected and use default fail-closed dependencies")
+    if jobs["external-oracle"].get("needs") != ["scope"]:
+        raise PortError("The independent Swift codec oracle must not wait for controller tests")
 
 
 def validate_setup(value: dict, text: str):

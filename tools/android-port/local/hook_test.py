@@ -496,19 +496,31 @@ assert importlib.util.find_spec('controller.jvm_lanes') is None
                 with self.assertRaises(ValueError):
                     check.validate_result(result, "a" * 40, "b" * 40)
 
-    def test_existing_hook_is_preserved(self):
+    def test_retired_installer_preserves_existing_hooks_without_launching_checks(self):
         with tempfile.TemporaryDirectory() as temporary:
             hooks = Path(temporary)
             hook = hooks / "pre-push"
             hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
-            ledger = Ledger(hooks / "ledger.sqlite3", "fixture/repository")
-            with patch("check.capture", return_value=str(hooks)), \
-                 patch.object(check, "execution_runtime", return_value=ledger), \
+            with patch.object(check, "execution_runtime") as runtime, \
                  patch("check.subprocess.run") as run:
-                run.return_value.returncode = 1
-                with self.assertRaisesRegex(ValueError, "Existing pre-push"):
+                with self.assertRaisesRegex(ValueError, "Automatic pre-push checks have been removed"):
                     check.install(hooks, ["wsl"], None)
+            runtime.assert_not_called()
+            run.assert_not_called()
             self.assertEqual(hook.read_text(encoding="utf-8"), "#!/bin/sh\nexit 1\n")
+
+    def test_retired_installer_cli_cannot_recreate_hook_or_start_transport(self):
+        for options in (["--install-hook"], ["--install-hook", "--pre-push"]):
+            with self.subTest(options=options), \
+                 patch.object(check, "capture") as capture, \
+                 patch.object(check, "run_owned") as run, \
+                 patch.object(check, "transport") as transport, \
+                 contextlib.redirect_stderr(io.StringIO()) as error:
+                self.assertEqual(check.main(options), 1)
+            self.assertIn("Automatic pre-push checks have been removed", error.getvalue())
+            capture.assert_not_called()
+            run.assert_not_called()
+            transport.assert_not_called()
 
 
 class AffectedRunnerTests(unittest.TestCase):

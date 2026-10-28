@@ -31,11 +31,13 @@ class WorkflowTests(unittest.TestCase):
         workflow, text = self.read("android-ci.yml")
         build = workflow["jobs"]["build"]
         self.assertEqual(build["timeout-minutes"], "75")
-        self.assertEqual(build["needs"], ["scope", "controller"])
-        selected = [step for step in build["steps"] if "ci.py run --stage scaffold" in step.get("run", "")]
+        self.assertEqual(build["needs"], ["scope"])
+        selected = [step for step in build["steps"] if step.get("id") == "gradle"]
         self.assertEqual(len(selected), 1)
         self.assertNotIn("continue-on-error", selected[0])
         self.assertIn("exit $LASTEXITCODE", selected[0]["run"])
+        self.assertIn("$affected = @()", selected[0]["run"])
+        self.assertIn("--affected-candidate", selected[0]["run"])
         self.assertEqual(workflow["jobs"]["android-ci"]["if"], "${{ always() }}")
         validate_candidate(workflow, text)
 
@@ -48,7 +50,8 @@ class WorkflowTests(unittest.TestCase):
                      if step.get("name") == "Upload inspected debug APK for human testing")
         upload = steps[index]
         self.assertEqual(steps[index - 1]["run"], "python tools/android-port/controller/ci.py inspect")
-        self.assertEqual(upload["if"], "${{ success() && needs.scope.outputs.scaffold == 'true' }}")
+        self.assertEqual(steps[index - 1]["if"], "${{ steps.gradle.outputs.full_scaffold == 'true' }}")
+        self.assertEqual(upload["if"], "${{ success() && steps.gradle.outputs.full_scaffold == 'true' }}")
         self.assertEqual(upload["with"], {
             "name": "debug-apk-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}",
             "path": "android/app/build/outputs/apk/debug/app-debug.apk",
@@ -87,11 +90,10 @@ class WorkflowTests(unittest.TestCase):
             elif mode == "conditional-inspect":
                 steps[index - 1]["if"] = "${{ false }}"
             elif mode == "build-after-inspect":
-                stage = next(i for i, step in enumerate(steps)
-                             if "ci.py run --stage scaffold" in step.get("run", ""))
+                stage = next(i for i, step in enumerate(steps) if step.get("id") == "gradle")
                 steps.append(steps.pop(stage))
             elif mode in ("conditional-build", "ignored-build"):
-                stage = next(step for step in steps if "ci.py run --stage scaffold" in step.get("run", ""))
+                stage = next(step for step in steps if step.get("id") == "gradle")
                 if mode == "conditional-build":
                     stage["if"] = "${{ false }}"
                 else:
@@ -99,7 +101,7 @@ class WorkflowTests(unittest.TestCase):
             elif mode == "controller-upload":
                 changed["jobs"]["controller"]["steps"].append(steps.pop(index))
             elif mode == "always":
-                upload["if"] = "${{ always() && needs.scope.outputs.scaffold == 'true' }}"
+                upload["if"] = "${{ always() && steps.gradle.outputs.full_scaffold == 'true' }}"
             elif mode == "protocol-only":
                 upload["if"] = "${{ success() && needs.scope.outputs.protocol == 'true' }}"
             elif mode == "unconditional":
@@ -151,7 +153,10 @@ class WorkflowTests(unittest.TestCase):
             runner["run"],
         )
         self.assertNotIn("continue-on-error", runner)
-        self.assertEqual(runner["if"], "${{ needs.scope.outputs.controller == 'true' }}")
+        self.assertEqual(
+            runner["if"],
+            "${{ needs.scope.outputs.controller == 'true' || needs.scope.outputs.accessibility-suite == 'true' }}",
+        )
 
     def test_controller_includes_actual_native_runner_suite_with_strict_positive_discovery(self):
         workflow, text = self.read("android-ci.yml")
@@ -234,7 +239,7 @@ class WorkflowTests(unittest.TestCase):
         job = workflow["jobs"]["build"]
         self.assertEqual(TASKS["protocol"], [":core:protocol:test"])
         self.assertEqual(job["runs-on"], "ubuntu-24.04")
-        self.assertEqual(job["needs"], ["scope", "controller"])
+        self.assertEqual(job["needs"], ["scope"])
         self.assertIn("needs.scope.outputs.protocol", job["if"])
         self.assertNotIn("strategy", job)
         self.assertIn("merge_group", workflow["on"])
@@ -251,10 +256,18 @@ class WorkflowTests(unittest.TestCase):
         workflow, _ = self.read("android-ci.yml")
         jobs = workflow["jobs"]
         self.assertEqual(
-            set(jobs["scope"]["outputs"]), {"controller", "scaffold", "protocol", "backup", "external-oracle"}
+            set(jobs["scope"]["outputs"]),
+            {"controller", "accessibility-suite", "scaffold", "protocol", "backup", "external-oracle"},
         )
+        self.assertEqual(jobs["scope"]["outputs"]["controller"], "${{ steps.changed.outputs.controller }}")
+        self.assertEqual(
+            jobs["scope"]["outputs"]["accessibility-suite"],
+            "${{ steps.changed.outputs.accessibility-suite }}",
+        )
+        gradle = next(step for step in jobs["build"]["steps"] if step.get("id") == "gradle")
+        self.assertEqual(gradle["env"]["RUN_CONTROLLER"], "${{ needs.scope.outputs.controller }}")
         expected = {
-            "external-oracle": ("external-oracle", ["scope", "controller"]),
+            "external-oracle": ("external-oracle", ["scope"]),
             "backup-oracle": ("backup", ["scope", "build"]),
         }
         for job_name, (scope, needs) in expected.items():
@@ -268,10 +281,36 @@ class WorkflowTests(unittest.TestCase):
                 )
                 self.assertNotIn("continue-on-error", jobs[job_name])
                 self.assertNotEqual(jobs[job_name].get("if"), "${{ always() }}")
+        self.assertEqual(jobs["build"]["needs"], ["scope"])
         scope_run = jobs["scope"]["steps"][1]["run"]
         self.assertIn('github.event_name', scope_run)
         self.assertIn('github.event_path', scope_run)
         self.assertIn('$GITHUB_OUTPUT', scope_run)
+
+    def test_gradle_cache_is_namespaced_and_tracks_actual_locks_and_toolchain(self):
+        workflow, _ = self.read("android-ci.yml")
+        cache_steps = [
+            step for step in workflow["jobs"]["build"]["steps"]
+            if step.get("uses", "").startswith("actions/cache@")
+        ]
+        self.assertEqual(len(cache_steps), 1)
+        cache = cache_steps[0]["with"]
+        self.assertEqual(cache["path"], "${{ env.GRADLE_USER_HOME }}")
+        self.assertIn("android-gradle-v4-${{ runner.os }}-", cache["key"])
+        self.assertIn("${{ github.run_id }}-${{ github.run_attempt }}", cache["key"])
+        for path in (
+            "android/gradle/dependency-locks/*.lockfile",
+            "android/**/gradle.lockfile",
+            "android/gradle/wrapper/gradle-wrapper.properties",
+            "tools/android-port/controller/toolchain-pins.json",
+        ):
+            self.assertIn(path, cache["key"])
+        self.assertIn("android-gradle-v4-${{ runner.os }}-", cache["restore-keys"])
+        self.assertIn("android-gradle-v3-${{ runner.os }}-", cache["restore-keys"])
+        self.assertIn("toolchain-pins.json", cache["restore-keys"])
+        self.assertIn("android/gradle/dependency-locks/*.lockfile", cache["restore-keys"])
+        self.assertNotIn("${{ github.run_id }}", cache["restore-keys"])
+        self.assertNotIn("${{ github.run_attempt }}", cache["restore-keys"])
 
     def test_duplicate_yaml_keys_and_invalid_yaml_are_rejected(self):
         for text in ("jobs: {}\njobs: {}\n", "jobs: ["):
@@ -280,10 +319,16 @@ class WorkflowTests(unittest.TestCase):
 
     def test_required_ci_allows_scope_filters_but_preserves_merge_and_gate_contract(self):
         original, text = self.read("android-ci.yml")
-        build_runs = [step["run"] for step in original["jobs"]["build"]["steps"] if "run" in step]
-        gradle_runs = [run for run in build_runs if "ci.py run --stage" in run]
+        gradle_runs = [
+            step["run"] for step in original["jobs"]["build"]["steps"] if step.get("id") == "gradle"
+        ]
         self.assertEqual(len(gradle_runs), 1)
-        self.assertIn("ci.py run --stage scaffold", gradle_runs[0])
+        self.assertEqual(
+            next(step for step in original["jobs"]["build"]["steps"] if step.get("id") == "gradle")["run"],
+            gradle_runs[0],
+        )
+        self.assertIn("$affected = @()", gradle_runs[0])
+        self.assertIn("ci.py run --stage scaffold @affected @scopes", gradle_runs[0])
         self.assertNotIn(":convention:test", text)
         scoped = copy.deepcopy(original)
         scoped["on"]["pull_request"]["paths"] = ["android/**", "tools/android-port/**"]
@@ -340,7 +385,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn("wp109-invocation", text)
         self.assertNotIn("raw-retention", text)
         controller = (REPO / "tools/android-port/controller/ci.py").read_text(encoding="utf-8")
-        self.assertIn("validate_candidate_task_graph(task_graph, tasks)", controller)
+        self.assertIn("validate_candidate_task_graph(graph_path, phase_tasks)", controller)
         self.assertIn("--init-script", controller)
 
     def test_cloud_setup_supported_single_job_and_only_supported_properties(self):

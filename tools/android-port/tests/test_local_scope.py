@@ -13,11 +13,25 @@ from unittest.mock import patch
 from controller.errors import PortError
 from controller.local_scope import (
     candidate_plan, collect_named_cases, collect_targeted_reports, report_inputs,
-    run_scaffold, select_paths, validate_plan,
+    run_scaffold, select_paths, validate_plan, validation_preflight_options,
 )
 
 
 class LocalScopeSelectionTests(unittest.TestCase):
+    def test_validation_preserves_hosted_and_local_worker_options_without_overriding_them(self):
+        for options in (
+            ["--parallel", "--max-workers=8"],
+            ["--no-parallel", "--max-workers=4"],
+            ["--parallel", "--max-workers", "8"],
+            [],
+        ):
+            with self.subTest(options=options):
+                actual = validation_preflight_options(options)
+                self.assertEqual(actual, options)
+                self.assertIsNot(actual, options)
+        with self.assertRaisesRegex(PortError, "cannot use Gradle --continue"):
+            validation_preflight_options(["--parallel", "--max-workers=8", "--continue"])
+
     def test_direct_test_then_direct_production_then_consumers_preserves_all_tasks(self):
         modules = {
             "core/data": {"runner": "testDebugUnitTest", "tests": True, "lint": True, "dependencies": []},
@@ -287,9 +301,17 @@ class LocalScopeBindingTests(unittest.TestCase):
             pass
 
         def execute(command, repo, environment, log):
-            self.assertEqual(command, [
+            self.assertEqual(command[:3], [
                 str(self.repo / "android/gradlew"), "-p", str(self.repo / "android"),
-                *plan["tasks"], *fast.scaffold_options(), "--init-script",
+            ])
+            self.assertEqual(
+                self.requested_gradle_tasks(command),
+                ["validateModuleGraph", "runtimeDependencyInventory"],
+            )
+            self.assertNotIn("--parallel", command)
+            self.assertIn("--max-workers=4", command)
+            self.assertEqual(command[-2:], [
+                "--init-script",
                 str(self.repo / "tools/android-port/controller/verify_candidate_task_graph.gradle"),
             ])
             raise CapturedExecution
@@ -302,7 +324,7 @@ class LocalScopeBindingTests(unittest.TestCase):
                                fast.scaffold_options(), trusted_base=base)
         self.assertEqual(self.git("rev-parse", "HEAD"), plan["head"])
         import controller
-        from controller import ci, ci_environment
+        from controller import ci, ci_environment, ci_evidence
         self.write("work/toolchain/environment.json", json.dumps({"java_home": str(self.repo / "fixture-java")}))
         self.write("request.json", json.dumps(plan))
         output = self.repo / "output"
@@ -326,7 +348,7 @@ class LocalScopeBindingTests(unittest.TestCase):
             self.write("android/build/reports/scaffold/module-graph.tsv",
                        "consumer\tproducer\tconfiguration\n:core:runtime\t:core:data\timplementation\n"
                        ":app\t:core:data\timplementation\n:app\t:core:runtime\timplementation\n")
-            if failed:
+            if failed and "validateModuleGraph" not in self.requested_gradle_tasks(command):
                 raise failure
 
         text = io.StringIO()
@@ -349,8 +371,11 @@ class LocalScopeBindingTests(unittest.TestCase):
                 self.assertIs(raised.exception, failure)
             else:
                 fast.main()
-        self.assertEqual(len(calls), 1)
-        self.assertEqual(calls[0][3:3 + len(plan["tasks"])], plan["tasks"])
+        self.assertEqual(len(calls), 2)
+        preflight_tasks = ["validateModuleGraph", "runtimeDependencyInventory"]
+        build_tasks = [task for task in plan["tasks"] if task not in preflight_tasks]
+        self.assertEqual(self.requested_gradle_tasks(calls[0]), preflight_tasks)
+        self.assertEqual(self.requested_gradle_tasks(calls[1]), build_tasks)
         self.assertIn('"kind": "local-affected-only"', text.getvalue())
         if failed:
             self.assertNotIn("AFFECTED SNAPSHOT CHECKS COMPLETE", text.getvalue())
@@ -362,10 +387,18 @@ class LocalScopeBindingTests(unittest.TestCase):
         if failed:
             self.assertEqual(captured["result"], "failure")
             self.assertEqual(captured["failure"]["returncode"], 23)
-        expected = [{
-            "report": directory.relative_to(self.repo).as_posix() + "/TEST-Sync.xml",
-            "index": 0, "class": "SyncTest", "method": "required", "outcome": "passed",
-        } for directory in directories]
+        expected = []
+        for directory in directories:
+            report_path = directory.relative_to(self.repo).as_posix() + "/TEST-Sync.xml"
+            cases = (
+                sorted(ci_evidence.WP501_ACCEPTANCE_CASES)
+                if directory == self.repo / "android/app/build/test-results/testDebugUnitTest"
+                else [("SyncTest", "required")]
+            )
+            expected.extend({
+                "report": report_path, "index": index,
+                "class": classname, "method": name, "outcome": "passed",
+            } for index, (classname, name) in enumerate(cases))
         self.assertEqual(captured["junit_cases"], expected)
         self.assertEqual(
             {key: captured[key] for key in ("base", "head", "tree", "scopes", "tasks")},
@@ -418,7 +451,16 @@ class LocalScopeBindingTests(unittest.TestCase):
         output.mkdir()
         calls, execute = self.execute_fixture(plan)
         report = run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=plan["base"])
-        self.assertEqual(calls[0][3:3 + len(plan["tasks"])], plan["tasks"])
+        self.assertEqual(
+            self.requested_gradle_tasks(calls[0]),
+            ["validateModuleGraph", "runtimeDependencyInventory"],
+        )
+        self.assertEqual(
+            self.requested_gradle_tasks(calls[1]),
+            [task for task in plan["tasks"] if task not in {
+                "validateModuleGraph", "runtimeDependencyInventory",
+            }],
+        )
         self.assertEqual(report["base"], plan["base"])
         self.assertEqual(report["head"], plan["head"])
         self.assertEqual(report["tree"], plan["tree"])
@@ -433,6 +475,32 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.git("update-ref", "refs/remotes/origin/main", plan["head"])
         with self.assertRaisesRegex(PortError, "Stale affected base"):
             validate_plan(self.repo, plan)
+
+    def test_pr_plan_uses_merge_base_diff_without_changing_event_endpoints(self):
+        self.git("checkout", "--quiet", "--detach", self.base)
+        self.write("docs/target-only.md", "trusted target advancement")
+        target = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", target)
+        self.git("checkout", "--quiet", "--detach", self.head)
+        self.write("android/core/services/src/main/kotlin/Sync.kt", "PR candidate")
+        candidate = self.commit()
+
+        pr_plan = candidate_plan(
+            self.repo, target, candidate, trusted_base=target, merge_base_only=True,
+        )
+        self.assertEqual((pr_plan["base"], pr_plan["head"]), (target, candidate))
+        self.assertEqual(
+            pr_plan["paths"],
+            ["android/core/protocol/src/test/kotlin/Frame.kt",
+             "android/core/services/src/main/kotlin/Sync.kt"],
+        )
+        self.assertEqual(
+            validate_plan(self.repo, pr_plan, trusted_base=target, merge_base_only=True),
+            pr_plan,
+        )
+
+        non_pr_plan = candidate_plan(self.repo, target, candidate, trusted_base=target)
+        self.assertIn("docs/target-only.md", non_pr_plan["paths"])
 
     def test_diverged_diff_union_keeps_target_only_and_convergent_branch_changes(self):
         path = "android/core/services/src/test/kotlin/SyncTest.kt"
@@ -566,27 +634,75 @@ class LocalScopeBindingTests(unittest.TestCase):
         self.write("android/core/services/src/main/kotlin/Sync.kt", "changed fixture")
         return candidate_plan(self.repo, self.head, self.commit())
 
+    def app_plan(self):
+        self.write("android/app/build.gradle.kts", 'plugins { id("mesh.android.application") }\n')
+        self.write("android/app/src/main/kotlin/App.kt", "base")
+        base = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", base)
+        self.write("android/app/src/main/kotlin/App.kt", "changed")
+        return candidate_plan(self.repo, base, self.commit())
+
+    def test_feature_convention_dependencies_expand_the_affected_consumer_closure(self):
+        for module, plugin in (
+            ("core/contracts", "mesh.jvm.library"),
+            ("core/ui", "mesh.android.library"),
+            ("core/l10n", "mesh.android.library"),
+            ("feature/onboarding", "mesh.android.feature"),
+        ):
+            self.write(f"android/{module}/build.gradle.kts", f'plugins {{ id("{plugin}") }}\n')
+        self.write("android/core/ui/src/main/kotlin/SharedUi.kt", "base")
+        base = self.commit()
+        self.git("update-ref", "refs/remotes/origin/main", base)
+        self.write("android/core/ui/src/main/kotlin/SharedUi.kt", "changed")
+        plan = candidate_plan(self.repo, base, self.commit())
+        self.assertEqual(plan["scopes"], ["module:core/ui", "module:feature/onboarding"])
+        self.assertIn(":feature:onboarding:compileDebugKotlin", plan["tasks"])
+        self.assertIn(":feature:onboarding:lintDebug", plan["tasks"])
+
+    @staticmethod
+    def requested_gradle_tasks(command):
+        tasks = []
+        for argument in command[3:]:
+            if argument.startswith("-"):
+                break
+            tasks.append(argument)
+        return tasks
+
     def execute_fixture(self, plan, *, emit=True, graph=True, skipped=False):
         calls = []
 
         def execute(command, repo, environment, log):
             calls.append(command)
-            if graph:
+            if graph and "ANDROID_CI_TASK_GRAPH" in environment:
+                tasks = self.requested_gradle_tasks(command) or plan["tasks"]
                 Path(environment["ANDROID_CI_TASK_GRAPH"]).write_text(json.dumps({
                     "schema_version": 1,
                     "tasks": [{
                         "path": task if task.startswith(":") else ":" + task,
                         "type": "fixture", "command": [],
-                    } for task in plan["tasks"]],
+                    } for task in tasks],
                 }), encoding="utf-8")
             if emit:
                 directories, lint = report_inputs(self.repo, plan)
                 for directory in directories:
+                    cases = [("SyncTest", "required")]
+                    if (
+                        "module:app" in plan["scopes"]
+                        and directory == self.repo / "android/app/build/test-results/testDebugUnitTest"
+                    ):
+                        from controller.ci_evidence import WP501_ACCEPTANCE_CASES
+
+                        cases = sorted(WP501_ACCEPTANCE_CASES)
+                    test_cases = "".join(
+                        f"<testcase classname='{classname}' name='{name}'>"
+                        + ("<skipped/>" if skipped else "")
+                        + "</testcase>"
+                        for classname, name in cases
+                    )
                     self.write(
                         directory / "TEST-Sync.xml",
-                        "<testsuite tests='1' failures='0' errors='0' skipped='0'>"
-                        "<testcase classname='SyncTest' name='required'>"
-                        + ("<skipped/>" if skipped else "") + "</testcase></testsuite>",
+                        f"<testsuite tests='{len(cases)}' failures='0' errors='0' skipped='0'>"
+                        + test_cases + "</testsuite>",
                     )
                 for module in lint:
                     self.write(f"android/{module}/build/reports/lint-results-debug.xml",
@@ -605,17 +721,115 @@ class LocalScopeBindingTests(unittest.TestCase):
         output.mkdir()
         calls, execute = self.execute_fixture(plan)
         report = run_scaffold(self.repo, plan, {}, output, execute,
-                              ["--dependency-verification", "strict"], trusted_base=plan["base"])
-        self.assertEqual(len(calls), 1)
-        self.assertIn(":core:services:test", calls[0])
-        self.assertIn(":core:services:check", calls[0])
+                              ["--parallel", "--max-workers=8",
+                               "--dependency-verification", "strict"], trusted_base=plan["base"])
+        preflight_tasks = ["validateModuleGraph", "runtimeDependencyInventory"]
+        build_tasks = [task for task in plan["tasks"] if task not in preflight_tasks]
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(self.requested_gradle_tasks(calls[0]), preflight_tasks)
+        self.assertIn("--parallel", calls[0])
+        self.assertIn("--max-workers=8", calls[0])
+        self.assertNotIn("--max-workers=1", calls[0])
+        self.assertEqual(self.requested_gradle_tasks(calls[1]), build_tasks)
+        self.assertIn(":core:services:test", calls[1])
+        self.assertIn(":core:services:check", calls[1])
+        self.assertIn("--parallel", calls[1])
+        self.assertIn("--max-workers=8", calls[1])
         self.assertIn("--init-script", calls[0])
+        self.assertIn("--init-script", calls[1])
         self.assertEqual(report["kind"], "local-affected-only")
+        self.assertEqual(
+            report["resolved_task_graph"]["phases"]["preflight"]["tasks"],
+            len(preflight_tasks),
+        )
+        self.assertEqual(
+            report["resolved_task_graph"]["phases"]["build"]["tasks"],
+            len(build_tasks),
+        )
         self.assertEqual(report["suites"]["core/services"]["passed"], 1)
         self.assertEqual(report["junit_cases"], [{
             "report": "android/core/services/build/test-results/test/TEST-Sync.xml",
             "index": 0, "class": "SyncTest", "method": "required", "outcome": "passed",
         }])
+
+    def test_app_scope_checks_required_cases_and_only_app_parity_families(self):
+        from controller import ci_evidence
+
+        plan = self.app_plan()
+        self.assertEqual(plan["scopes"], ["module:app"])
+        output = self.repo / "output"
+        output.mkdir()
+        calls, execute = self.execute_fixture(plan)
+        with patch.object(ci_evidence, "WP501_ACCEPTANCE_CASES", {("SyncTest", "required")}):
+            report = run_scaffold(
+                self.repo, plan, {}, output, execute, [], trusted_base=plan["base"],
+            )
+        self.assertEqual(1, report["wp501_acceptance_cases"]["passed"])
+        self.assertEqual(len(calls), 3)
+        self.assertIn("--verify-execution", calls[2])
+        self.assertEqual(
+            calls[2][calls[2].index("--runner-directory") + 1],
+            "app/build/test-results/testDebugUnitTest",
+        )
+
+    def test_app_scope_rejects_replaced_required_case_without_count_change(self):
+        from controller import ci_evidence
+
+        plan = self.app_plan()
+        output = self.repo / "output"
+        output.mkdir()
+        calls, execute = self.execute_fixture(plan)
+
+        def replace_required_case(command, repo, environment, log):
+            execute(command, repo, environment, log)
+            if ":app:testDebugUnitTest" in command:
+                self.write(
+                    "android/app/build/test-results/testDebugUnitTest/TEST-Sync.xml",
+                    "<testsuite tests='1' failures='0' errors='0' skipped='0'>"
+                    "<testcase classname='SyncTest' name='replacement'/></testsuite>",
+                )
+
+        with patch.object(ci_evidence, "WP501_ACCEPTANCE_CASES", {("SyncTest", "required")}), \
+                self.assertRaisesRegex(PortError, "Missing WP-501 behavioral tests"):
+            run_scaffold(
+                self.repo, plan, {}, output, replace_required_case, [],
+                trusted_base=plan["base"],
+            )
+        cases = collect_named_cases(
+            self.repo, [self.repo / "android/app/build/test-results/testDebugUnitTest"],
+        )
+        self.assertEqual(1, len(cases))
+        self.assertEqual("replacement", cases[0]["method"])
+
+    def test_preflight_failure_stops_before_build_and_test_tasks(self):
+        plan = self.services_plan()
+        output = self.repo / "output"
+        output.mkdir()
+        calls, delegate = self.execute_fixture(plan, emit=False)
+        failure = subprocess.CalledProcessError(1, ["fixture-gradle"])
+
+        def fail_preflight(*arguments):
+            delegate(*arguments)
+            raise failure
+
+        text = io.StringIO()
+        with contextlib.redirect_stdout(text), self.assertRaises(subprocess.CalledProcessError) as raised:
+            run_scaffold(
+                self.repo, plan, {}, output, fail_preflight,
+                ["--parallel", "--max-workers=8"], trusted_base=plan["base"],
+            )
+        self.assertIs(raised.exception, failure)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(
+            self.requested_gradle_tasks(calls[0]),
+            ["validateModuleGraph", "runtimeDependencyInventory"],
+        )
+        self.assertIn("--parallel", calls[0])
+        self.assertIn("--max-workers=8", calls[0])
+        self.assertNotIn("--max-workers=1", calls[0])
+        report = json.loads(text.getvalue())
+        self.assertEqual(report["result"], "failure")
+        self.assertEqual(report["failure"]["returncode"], 1)
 
     def test_named_cases_preserve_every_parameter_duplicate_and_actual_outcome(self):
         directory = self.repo / "android/core/services/build/test-results/test"
@@ -654,7 +868,16 @@ class LocalScopeBindingTests(unittest.TestCase):
         output.mkdir()
         calls, execute = self.execute_fixture(plan)
         report = run_scaffold(self.repo, plan, {}, output, execute, [], trusted_base=base)
-        self.assertEqual(calls[0][3:3 + len(plan["tasks"])], plan["tasks"])
+        self.assertEqual(
+            self.requested_gradle_tasks(calls[0]),
+            ["validateModuleGraph", "runtimeDependencyInventory"],
+        )
+        self.assertEqual(
+            self.requested_gradle_tasks(calls[1]),
+            [task for task in plan["tasks"] if task not in {
+                "validateModuleGraph", "runtimeDependencyInventory",
+            }],
+        )
         self.assertEqual(report["suites"], {})
         self.assertEqual(report["junit_cases"], [])
         self.assertEqual(set(report["lint"]), {"core/transport"})
@@ -738,7 +961,11 @@ class LocalScopeBindingTests(unittest.TestCase):
         plan = self.services_plan()
         output = self.repo / "output"
         output.mkdir()
-        for failure in (subprocess.CalledProcessError(1, ["fixture"]), KeyboardInterrupt()):
+        for failure in (
+            subprocess.CalledProcessError(1, ["fixture"]),
+            subprocess.TimeoutExpired(["fixture"], 1),
+            KeyboardInterrupt(),
+        ):
             def execute(*args):
                 raise failure
             with self.subTest(failure=type(failure)), self.assertRaises(type(failure)):

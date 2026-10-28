@@ -14,6 +14,52 @@ guarded execution; a candidate checkout is not live authority.
 
 ## Candidate execution contract
 
+### Hosted CI latency
+
+Pull-request scope classification compares the PR head with its unique Git
+merge base, while retaining the event's original base and head SHAs in its
+report. Base-only changes no longer widen a PR's selected work. Push and
+merge-group events continue to compare their exact event endpoints; malformed,
+missing or ambiguous history still selects every scope.
+
+The Android build and Swift codec oracle now start as soon as scope selection
+finishes, alongside the independent controller checks. The final required
+`android-ci` gate still waits for every selected result, and the SwiftData
+backup oracle still waits for the Android build that produces its input.
+Ordinary module changes use the exact candidate diff and dependency-consumer
+closure to select module tests, checks and lint; the committed accessibility
+controller suite is selected separately and does not widen Gradle planning.
+Only broad, unclassified or build-graph changes retain the full scaffold and
+APK handoff. Configuration-resolving tasks (`validateModuleGraph`,
+`runtimeDependencyInventory`, and
+full-scaffold `resolveScaffoldDependencies`) run in a parallel Gradle preflight
+before the selected build, test and lint tasks. A preflight failure therefore
+prevents that expensive task graph from starting. The remaining tasks run in a
+separate Gradle invocation. Both hosted phases and dependency-only `prepare`
+use `--parallel --max-workers=8`. WP-002 now resolves dependencies in
+project-owned tasks, so the former forced one-worker workaround is removed.
+Validation still precedes build/test work to limit wasted work on failures.
+Local invocations retain their caller-selected worker and parallelism options.
+Each invocation streams
+plain-console output to the hosted log and retains a separate full command log
+and resolved task graph for failure evidence. Ctrl-C terminates the streamed
+process group, reaps Gradle and joins its output reader before propagating the
+interrupt.
+
+Hosted Gradle task-output caching is enabled. Only `:core:data:testDebugUnitTest`
+is explicitly eligible for test-result caching; all other Gradle `Test` tasks
+are explicitly denied cache eligibility until their external inputs and side
+effects are accounted for. The candidate task-graph init script declares the WP-203
+fixture directory as an input and the interop artifact directory as an output,
+clears stale files when the task executes, and fails closed if either
+declaration is absent from the resolved graph. This lets a cache hit restore the
+actual Kotlin-produced bytes that the SwiftData oracle consumes, rather than
+only reporting the test as up-to-date. The Actions cache key covers the pinned
+Gradle/JDK toolchain, dependency locks, verification metadata and version
+catalog, then adds the workflow run and attempt so each execution can save
+refreshed dependency and build-output caches. Its restore prefixes retain
+compatible prior caches. Strict dependency verification remains required.
+
 ### Local-only disposable WP-503 guest contract
 
 The successor to published `ad40165c93d1bc21e073f91102971719b078ad02`
@@ -181,12 +227,13 @@ no publication, main/policy/runtime landing or product consumption is authorized
 ### Source-only local/native execution interlock correction
 
 Feature publication does not require a bespoke publication wrapper or credential
-identity policy. The existing complete `local/check.py --pre-push` checker and
-supported immutable-main checker/operator composition remain unchanged, as do
-normal host authentication and nonforce Git publication. Use the full trusted
-checker, not candidate controller code, an empty hook or no-verify. Its actual
-execution admission and exact-candidate UNVERIFIED behavior remain separate from
-hosted CI, findings/freshness and merge acceptance.
+identity policy. Automatic pre-push checks are removed by maintainer direction:
+normal `git push` must not start local checks, remote transport or Gradle-lane
+queues. `local/check.py --install-hook` is retired and fails explicitly.
+Run relevant declared tests explicitly with the supported manual checker.
+Normal host authentication and nonforce Git publication remain unchanged.
+Manual execution admission and exact-candidate UNVERIFIED behavior remain
+separate from hosted CI, findings/freshness and merge acceptance.
 
 The source successor published as `aa4b0b425b3ee58485191c7ede39e69ca8a1acf5`
 closes the advisory/manual launcher gap; it does not deploy either candidate
@@ -224,8 +271,8 @@ BEFORE opening a lock namespace. The
 manifest, executing launcher/helpers and loaded Ledger version/source must match
 the canonical runtime; revalidation under actual execution ownership prevents
 installation racing launch. The supported atomic installer already delivers
-helpers before check.py; hook installation now uses the same runtime-install
-interlock and no unnecessary WSL probe. Installation still needs separately
+helpers before check.py; it does not recreate a `pre-push` entrypoint.
+Runtime installation still needs separately
 authorized, quiescent deployment; no install occurs in this source assignment.
 
 The actual `reserve.py install-runtime` CLI resolves the host-controlled
@@ -623,8 +670,9 @@ or cross-PR cache is provided. Candidate Gradle receives only the **unchanged**
 The Windows PowerShell child strips startup-added variables and repeats the
 independent parent preflight before invoking the batch wrapper.
 
-Hosted builds use one worker, in-process Kotlin, a 2GiB build heap and 512MiB
-test heap; these are build-process budgets, not app runtime flags or AI budgets.
+Hosted builds allow up to eight Gradle workers, use in-process Kotlin, a 2GiB
+build heap and 512MiB test heap; these are build-process budgets, not app runtime
+flags or AI budgets.
 The separate local `--local` mode retains measured shared-Windows constraints.
 PyYAML6.0.3 is hash-pinned MIT-licensed CI parsing tooling, not an Android-linked
 dependency. Tool/SDK terms and existing GPLv3/MIT/Apache notices remain distinct

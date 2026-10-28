@@ -133,9 +133,8 @@ def main():
             selection = candidate_suite(args.repo, args.candidate_event_name, load_json(args.candidate_event_path))
             print(json.dumps(selection))
             if args.scope_output is not None:
-                if selection["selected"]:
-                    with args.scope_output.open("a", encoding="utf-8", newline="\n") as stream:
-                        stream.write("controller=true\n")
+                with args.scope_output.open("a", encoding="utf-8", newline="\n") as stream:
+                    stream.write(f"accessibility-suite={str(selection['selected']).lower()}\n")
                 return 0
             if selection["selected"]:
                 directories.append(args.repo / NATIVE_SUITE)

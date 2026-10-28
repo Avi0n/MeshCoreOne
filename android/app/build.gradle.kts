@@ -189,7 +189,7 @@ tasks.withType<Test>().configureEach {
         rootProject.layout.projectDirectory.dir("core/testing/fixtures/reference-codec").asFile.absolutePath)
     dependsOn(prepareAppPlatformSdks)
     systemProperty("wp502ScreenshotDirectory", rootProject.file("screenshot-tests/build/screens").absolutePath)
-    forkEvery = 1
+    forkEvery = 0
     jvmArgumentProviders.add(ContentPlatformSdkArguments(
         layout.buildDirectory.dir("platform-sdks"),
     ))

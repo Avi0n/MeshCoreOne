@@ -8,8 +8,10 @@ import os
 import platform
 import re
 import shutil
+import signal
 import subprocess
 import sys
+import threading
 import unittest
 from collections import deque
 from xml.etree.ElementTree import ParseError as ETError
@@ -24,7 +26,9 @@ from controller.ci_environment import REPO, candidate_environment, host_name, to
 from controller.ci_evidence import PYTHON_MINIMUMS, collect_lint, collect_suites, counts, read_xml, suite_counts, validate_graph_runtime
 from controller.errors import PortError
 from controller.gates import Binding, policy_revision
-from controller.local_scope import SCOPED_TASKS, TASKS
+from controller.local_scope import (
+    SCOPED_TASKS, TASKS, validation_preflight_options, split_preflight_tasks,
+)
 from controller.model import git, load_manifest
 from controller.module_junit import check_module_tests, module_method_inventory
 from controller.provision import provision
@@ -185,12 +189,66 @@ def print_failed_command_diagnostics(log: Path, failure_reports):
         print_failed_command_log(log)
 
 
-def execute(command: list[str], environment: dict | None, log: Path, *, timeout=1800, failure_reports=None):
+def terminate_streamed_process(process, reader):
+    if os.name == "nt":
+        if process.poll() is None:
+            process.kill()
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    process.wait()
+    reader.join(timeout=10)
+
+
+def execute(command: list[str], environment: dict | None, log: Path, *,
+            timeout=1800, failure_reports=None, stream_output=False):
     log.parent.mkdir(parents=True, exist_ok=True)
     print("Executing " + " ".join(str(item) for item in command[:5]), flush=True)
     try:
-        with log.open("w", encoding="utf-8") as stream:
-            result = subprocess.run(command, cwd=REPO, env=environment, stdout=stream, stderr=subprocess.STDOUT, timeout=timeout)
+        if stream_output:
+            with log.open("w", encoding="utf-8") as stream:
+                process = subprocess.Popen(
+                    command, cwd=REPO, env=environment, stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace",
+                    bufsize=1, start_new_session=(os.name != "nt"),
+                )
+                reader_errors = []
+
+                def forward_output():
+                    try:
+                        for line in process.stdout:
+                            if reader_errors:
+                                continue
+                            try:
+                                stream.write(line)
+                                stream.flush()
+                                print(line, end="", flush=True)
+                            except (OSError, UnicodeError) as error:
+                                reader_errors.append(error)
+                    except OSError as error:
+                        reader_errors.append(error)
+                    finally:
+                        process.stdout.close()
+
+                reader = threading.Thread(target=forward_output, name="gradle-output", daemon=True)
+                reader.start()
+                try:
+                    returncode = process.wait(timeout=timeout)
+                    reader.join()
+                except (subprocess.TimeoutExpired, KeyboardInterrupt):
+                    terminate_streamed_process(process, reader)
+                    raise
+                if reader_errors:
+                    raise PortError(f"Unable to stream command output: {reader_errors[0]}")
+            result = subprocess.CompletedProcess(command, returncode)
+        else:
+            with log.open("w", encoding="utf-8") as stream:
+                result = subprocess.run(
+                    command, cwd=REPO, env=environment, stdout=stream,
+                    stderr=subprocess.STDOUT, timeout=timeout,
+                )
     except subprocess.TimeoutExpired as timeout_error:
         try:
             print_failed_command_diagnostics(log, failure_reports)
@@ -279,7 +337,15 @@ def preflight(state: dict, output: Path, *, local=False):
     })
 
 
-def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None):
+def write_github_outputs(*, full_scaffold: bool, localization: bool):
+    destination = os.environ.get("GITHUB_OUTPUT")
+    if destination:
+        with Path(destination).open("a", encoding="utf-8", newline="\n") as stream:
+            stream.write(f"full_scaffold={'true' if full_scaffold else 'false'}\n")
+            stream.write(f"localization={'true' if localization else 'false'}\n")
+
+
+def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None, affected_candidate=False):
     dispositions = port_map(load_manifest(REPO))
     print(f"Verified Kotlin source dispositions and pinned provenance: {len(dispositions)} files", flush=True)
     if platform.python_version() != toolchain_lock()["python"]:
@@ -296,8 +362,10 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         "--no-daemon", "--console=plain", "--dependency-verification", "strict",
         "-Pkotlin.compiler.execution.strategy=in-process",
         "-PscaffoldTestHeap=" + ("256m" if local else "512m"),
-        "--project-cache-dir", str(cache), "--quiet",
+        "--project-cache-dir", str(cache),
     ]
+    if not local:
+        options.extend(("--build-cache", "--parallel", "--max-workers=8"))
     if local:
         options.append("-PscaffoldTestJvmArgs=-Xms32m -XX:+UseSerialGC -XX:ActiveProcessorCount=2 -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=32m -XX:MaxMetaspaceSize=256m")
     wrapper = REPO / "android" / ("gradlew.bat" if state["host"] == "windows" else "gradlew")
@@ -307,18 +375,50 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         tasks = TASKS[stage]
     else:
         tasks = list(dict.fromkeys(task for scope in selected for task in SCOPED_TASKS[scope]))
-    gradle_arguments = [*tasks, *options, "--init-script", str(TASK_GRAPH_GUARD)]
-    command = [str(wrapper), "-p", str(project), *gradle_arguments]
-    if state["host"] == "windows":
-        shell = shutil.which("pwsh", path=environment.get("PATH"))
-        if shell is None:
-            raise PortError("Windows batch execution requires the hosted/local PowerShell 7 input")
-        invocation = output / f"gradle-{stage}-invocation.json"
-        write_json(invocation, {"wrapper": str(wrapper), "project": str(project), "arguments": gradle_arguments})
-        command = [
-            shell, "-NoLogo", "-NoProfile", "-NonInteractive", "-File",
-            str(Path(__file__).with_name("gradle_windows.ps1")), "-InvocationFile", str(invocation),
-        ]
+    if affected_candidate:
+        if local or stage != "scaffold" or state["host"] != "linux":
+            raise PortError("Affected candidate selection is available only for hosted Linux scaffold verification")
+        identity = execution_identity()
+        if identity is None:
+            raise PortError("Affected candidate selection requires exact hosted event identity")
+        binding = identity["binding"]
+        base, head = binding["base_sha"], binding["head_sha"]
+        merge_base_only = os.environ.get("GITHUB_EVENT_NAME") == "pull_request"
+        requested = [scope for scope in selected if scope in ("protocol", "backup")]
+        from controller.local_scope import candidate_plan, report_inputs, run_scaffold
+
+        plan = candidate_plan(
+            REPO, base, head, trusted_base=base, checkout=True, merge_base_only=merge_base_only,
+        )
+        if requested:
+            plan = candidate_plan(
+                REPO, base, head, list(dict.fromkeys([*plan["scopes"], *requested])),
+                trusted_base=base, checkout=True, merge_base_only=merge_base_only,
+            )
+        localization = plan["full_scaffold"] or "module:core/l10n" in plan["scopes"]
+        write_github_outputs(full_scaffold=plan["full_scaffold"], localization=localization)
+
+        def execute_affected(command, cwd, task_environment, log):
+            if cwd != REPO:
+                raise PortError("Affected Gradle command escaped the candidate repository")
+            execute(
+                command, task_environment, log, timeout=3600,
+                failure_reports=(
+                    None if "preflight" in log.name else lambda: report_inputs(REPO, plan)[0]
+                ),
+                stream_output=True,
+            )
+
+        report = run_scaffold(
+            REPO, plan, environment, output, execute_affected, options,
+            trusted_base=base, merge_base_only=merge_base_only,
+        )
+        print(json.dumps({"result": "success", **report}, indent=2))
+        return
+    write_github_outputs(
+        full_scaffold="scaffold" in selected,
+        localization="scaffold" in selected or "core/l10n" in selected,
+    )
     from controller.ci_evidence import SUITES
     from controller.module_junit import REPORT_LOCATIONS, module_sources
 
@@ -338,10 +438,62 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
                 )
         return sorted(directories)
 
-    execute(command, environment, output / f"gradle-{stage}.log",
+    preflight_tasks, build_tasks = split_preflight_tasks(tasks)
+    split_preflight = bool(preflight_tasks and build_tasks)
+    preflight_graph = output / f"gradle-{stage}-preflight-task-graph.json"
+    if split_preflight:
+        phases = [
+            ("preflight", preflight_tasks, preflight_graph, validation_preflight_options(options)),
+            ("build", build_tasks, task_graph, options),
+        ]
+    else:
+        phases = [("build", tasks, task_graph, options)]
+    for _, _, graph_path, _ in phases:
+        if graph_path.is_symlink():
+            raise PortError("Linked resolved task graph")
+        graph_path.unlink(missing_ok=True)
+
+    shell = None
+    if state["host"] == "windows":
+        shell = shutil.which("pwsh", path=environment.get("PATH"))
+        if shell is None:
+            raise PortError("Windows batch execution requires the hosted/local PowerShell 7 input")
+
+    graph_summaries = {}
+    for phase, phase_tasks, graph_path, phase_options in phases:
+        phase_environment = {**environment, "ANDROID_CI_TASK_GRAPH": str(graph_path)}
+        gradle_arguments = [
+            *phase_tasks, *phase_options, "--init-script", str(TASK_GRAPH_GUARD),
+        ]
+        command = [str(wrapper), "-p", str(project), *gradle_arguments]
+        if shell is not None:
+            invocation_name = (
+                f"gradle-{stage}-preflight-invocation.json" if phase == "preflight"
+                else f"gradle-{stage}-invocation.json"
+            )
+            invocation = output / invocation_name
+            write_json(invocation, {
+                "wrapper": str(wrapper), "project": str(project), "arguments": gradle_arguments,
+            })
+            command = [
+                shell, "-NoLogo", "-NoProfile", "-NonInteractive", "-File",
+                str(Path(__file__).with_name("gradle_windows.ps1")), "-InvocationFile", str(invocation),
+            ]
+        log_name = f"gradle-{stage}-preflight.log" if phase == "preflight" else f"gradle-{stage}.log"
+        execute(
+            command, phase_environment, output / log_name,
             timeout=3600 if stage in ("scaffold", "protocol") else 1800,
-            failure_reports=report_directories if selected else None)
-    graph = validate_candidate_task_graph(task_graph, tasks)
+            failure_reports=report_directories if selected and phase != "preflight" else None,
+            stream_output=state["host"] != "windows",
+        )
+        graph_summaries[phase] = validate_candidate_task_graph(graph_path, phase_tasks)
+    graph = (
+        next(iter(graph_summaries.values())) if len(graph_summaries) == 1 else {
+            "tasks": sum(summary["tasks"] for summary in graph_summaries.values()),
+            "result": "no-duplicate-ci-evidence",
+            "phases": graph_summaries,
+        }
+    )
     if stage == "benchmark":
         from controller.performance import verify_build
         print(json.dumps(verify_build(REPO, Path(state["android_home"]), environment), indent=2))
@@ -428,6 +580,7 @@ def main(argv=None):
     parser.add_argument("--local", action="store_true", help="Measured shared-host build flags only")
     parser.add_argument("--stage", choices=tuple(TASKS))
     parser.add_argument("--scope", action="append", choices=tuple(SCOPED_TASKS))
+    parser.add_argument("--affected-candidate", action="store_true")
     args = parser.parse_args(argv)
     try:
         if args.command == "provision":
@@ -453,7 +606,10 @@ def main(argv=None):
             elif args.command == "run":
                 if args.stage is None:
                     raise PortError("Exactly one declared --stage is required")
-                run_stage(args.stage, state, output, local=args.local, scopes=args.scope)
+                run_stage(
+                    args.stage, state, output, local=args.local, scopes=args.scope,
+                    affected_candidate=args.affected_candidate,
+                )
             else:
                 inspect(state, output, local=args.local)
         return 0
