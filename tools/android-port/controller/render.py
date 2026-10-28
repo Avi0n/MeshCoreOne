@@ -59,11 +59,14 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
         "Do not launch additional agents/factories/sessions, alter repository settings, activate schedules, "
         "merge, sign/publish releases, or edit read-only Swift.",
         "Read PORTING_PLAN.md, the three relevant .github/skills and trusted instructions.",
-        "All writes require the shared lease below; no catalog/manifest/container/schema exceptions.",
-        "A missing prerequisite/verification/contract or ambiguous live identity is BLOCKED, not a stub.",
+        "Assignment authorizes ordinary work and directly necessary support edits inside trusted capabilities. "
+        "Automatically attempt advisory reservation bookkeeping; a historical claim mismatch alone is not "
+        "an edit lock. Unknown path/operation capabilities and unresolved live overlaps remain blockers.",
+        "A missing actual prerequisite or contract, or an ambiguous live identity, is BLOCKED, not a stub.",
         "",
         "## Exact allowed writes",
         *[f"- {path}" for path in wp["write_paths"]],
+        "Directly necessary support paths may also be admitted by trusted path+operation capability rules.",
         "",
         "## Exact pinned inputs (primary ownership or read-only cross-reference)",
     ]
@@ -87,6 +90,13 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
         "",
         "## Verification",
         json.dumps(wp["verification"], ensure_ascii=True),
+        "An unconfigured whole-WP verification entry blocks automated whole-WP dispatch and completion; "
+        "it does not by itself block an already-assigned, capability-admitted bounded repair. "
+        "Use the existing declared affected or scaffold checks for its actual candidate and applicable "
+        "acceptance; do not require a separate WP-003 binding or issue solely for an empty macro entry. "
+        "Those checks do not prove whole-WP or device acceptance.",
+        "Missing or failed local checks leave the candidate unverified but do not prevent feature-branch "
+        "publication; report their outcomes and use the exact-candidate hosted checks.",
         "Port every in-scope original case/parameter family from the independently approved WP-004 catalog; "
         "account for exact user-approved exclusions without claiming passing tests/features.",
         "Message translation is removed, not deferred or a future build/release requirement. "

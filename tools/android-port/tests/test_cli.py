@@ -169,6 +169,24 @@ class CliTests(unittest.TestCase):
             self.assertIn("Exact allowed writes", prompt)
             self.assertIn("original case/parameter family", prompt)
             self.assertIn("not a stub", prompt)
+            self.assertIn("historical claim mismatch alone is not an edit lock", prompt)
+            self.assertIn("does not by itself block an already-assigned", prompt)
+            self.assertIn("do not require a separate WP-003 binding or issue solely", prompt)
+            self.assertIn("do not prove whole-WP or device acceptance", prompt)
+            self.assertIn("do not prevent feature-branch publication", prompt)
+            self.assertNotIn("All writes require the shared lease", prompt)
+
+    def test_unconfigured_wp_prompt_distinguishes_bounded_repairs_from_completion(self):
+        manifest = base_manifest()
+        wp = manifest.wp("WP-207")
+        self.assertFalse(wp["verification"]["configured"])
+        self.assertFalse(wp["verification"]["commands"])
+        prompt = render(manifest, policy(), "WP-207")
+        self.assertIn('"configured": false', prompt)
+        self.assertIn("blocks automated whole-WP dispatch and completion", prompt)
+        self.assertIn("does not by itself block an already-assigned", prompt)
+        self.assertIn("existing declared affected or scaffold checks", prompt)
+        self.assertIn("exact-candidate hosted checks", prompt)
 
     def test_repair_preview_targets_existing_only_not_another_assignment(self):
         result, output, _ = self.command(["cloud", "--wp", "WP-101", "--repair-feedback", "bounded fix"])

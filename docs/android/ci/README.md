@@ -919,6 +919,15 @@ default-branch publisher, but returns `acceptance_kind: "bounded-repair"`,
 deliberately rejected by full-WP gates and completion/accounting. Existing
 whole-WP manifest verification stays unchanged, including unconfigured WPs.
 
+An empty or unconfigured whole-WP verification entry does not by itself prevent
+an already-assigned, capability-admitted bounded repair from using the existing
+declared affected or scaffold checks. It is not a reason to require a new WP-003
+binding or tracking issue before that repair can start. The repair still needs
+its actual prerequisites, acceptance evidence and applicable gates; its passing
+software checks do not establish whole-WP or device acceptance. Missing or failed
+local checks are reported as unverified, not a feature-branch publication block;
+use the exact-candidate hosted result where available.
+
 The authorized human coordinator first posts one structured scope comment on
 the **existing repair issue**, not on an invented tracking issue. Its body is
 `<!-- android-port-repair-scope-v1 -->` followed by strict JSON with these fields:
