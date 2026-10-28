@@ -36,6 +36,10 @@ class SourceDispositionTests(unittest.TestCase):
             "if (dependency.project == task.project && dependencies.add(dependency)) visit(dependency)",
             guard,
         )
+        self.assertGreater(guard.index("current.taskDependencies.getDependencies(current)"),
+                           guard.index("gradle.taskGraph.whenReady"))
+        self.assertIn("def dependencies = testDependencies[task]", guard)
+        self.assertIn("Missing precomputed test compiler dependencies", guard)
         self.assertIn('":app:testDebugUnitTest", ":core:ui:testDebugUnitTest"', guard)
         for marker in ('observe("START")', 'observe("DEPENDENCIES")',
                        'observe("SOURCES")', 'observe("END")', "WP003_TEST_SUITE|"):

@@ -2,6 +2,8 @@
 import groovy.json.JsonOutput
 import org.gradle.api.tasks.AbstractExecTask
 
+def testDependencies = new IdentityHashMap()
+
 gradle.beforeProject { project ->
     project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach { task ->
         def lineageFile = System.getenv("ANDROID_CI_TEST_LINEAGE")
@@ -13,14 +15,10 @@ gradle.beforeProject { project ->
         if (sourcesFile) {
             task.doFirst {
                 observe("START")
-                def dependencies = [] as Set
-                def visit
-                visit = { current ->
-                    current.taskDependencies.getDependencies(current).each { dependency ->
-                        if (dependency.project == task.project && dependencies.add(dependency)) visit(dependency)
-                    }
+                def dependencies = testDependencies[task]
+                if (dependencies == null) {
+                    throw new GradleException("Missing precomputed test compiler dependencies: ${task.path}")
                 }
-                visit(task)
                 observe("DEPENDENCIES")
                 def classDirs = task.testClassesDirs.files.collect { it.canonicalFile } as Set
                 def androidRoot = task.project.rootProject.projectDir.canonicalFile.toPath()
@@ -113,6 +111,19 @@ gradle.beforeProject { project ->
 }
 
 gradle.taskGraph.whenReady { graph ->
+    if (System.getenv("ANDROID_CI_TEST_SOURCES")) {
+        graph.allTasks.findAll { it instanceof org.gradle.api.tasks.testing.Test }.each { task ->
+            def dependencies = [] as Set
+            def visit
+            visit = { current ->
+                current.taskDependencies.getDependencies(current).each { dependency ->
+                    if (dependency.project == task.project && dependencies.add(dependency)) visit(dependency)
+                }
+            }
+            visit(task)
+            testDependencies[task] = dependencies
+        }
+    }
     def output = System.getenv("ANDROID_CI_TASK_GRAPH")
     if (!output) {
         throw new GradleException("ANDROID_CI_TASK_GRAPH is required")
