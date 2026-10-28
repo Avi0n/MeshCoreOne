@@ -129,7 +129,8 @@ class PublisherTests(unittest.TestCase):
 
 class StagingTests(unittest.TestCase):
     def staged_fixture(self, wp_id="WP-003", *, replace_reviewer=False, additional_original_paths=None,
-                       reference_override=None, additional_candidate_sources=None):
+                       reference_override=None, additional_candidate_sources=None,
+                       additional_retained_sources=None, retained_override=None):
         from controller import staging
 
         head = git(REPO, "rev-parse", "HEAD").decode().strip()
@@ -142,14 +143,21 @@ class StagingTests(unittest.TestCase):
         reference = tree(REPO, REFERENCE_SHA)
         if reference_override:
             reference.update(reference_override)
+        retained = dict(original)
+        if retained_override:
+            retained.update(retained_override)
         reader = staging.bounded_git
 
         def read(repo, maximum, *arguments):
             return b"fixture-only complete diff; not a live PR\n" if arguments[0] == "diff" else reader(repo, maximum, *arguments)
 
-        with patch("controller.staging.tree", side_effect=[original, candidate, reference]), patch("controller.staging.bounded_git", side_effect=read):
+        trees = [original, candidate, reference]
+        if isinstance(additional_retained_sources, dict):
+            trees.extend(retained for _ in {key[0] for key in additional_retained_sources if isinstance(key, tuple)})
+        with patch("controller.staging.tree", side_effect=trees), patch("controller.staging.bounded_git", side_effect=read):
             return stage_review(REPO, wp_id, head, HEAD, additional_original_paths=additional_original_paths,
-                                additional_candidate_sources=additional_candidate_sources)
+                                additional_candidate_sources=additional_candidate_sources,
+                                additional_retained_sources=additional_retained_sources)
 
     def test_fixture_candidate_staging_uses_actual_trusted_git_profile_skills_and_source(self):
         result = self.staged_fixture()
@@ -192,6 +200,24 @@ class StagingTests(unittest.TestCase):
         for sources in ({source: "0" * 40}, {"unknown/Test.kt": blob}, {source: "bad"}, [source]):
             with self.subTest(sources=sources), self.assertRaises(PortError):
                 self.staged_fixture(additional_candidate_sources=sources)
+
+    def test_retained_native_fixture_uses_observation_revision_not_candidate(self):
+        head = git(REPO, "rev-parse", "HEAD").decode().strip()
+        entries = tree(REPO, head)
+        path = "tools/android-port/controller/gates.py"
+        blob = entries["tools/android-port/controller/staging.py"]
+        self.assertNotEqual(entries[path], blob)
+        baseline = self.staged_fixture()
+        sources = {(head, path): blob}
+        staged = self.staged_fixture(additional_retained_sources=sources, retained_override={path: blob})
+        record = next(item for item in staged["files"] if item["side"] == "retained-native")
+        self.assertEqual((record["revision"], record["path"], record["blob_sha"]), (head, path, blob))
+        self.assertIn("Immutable trusted-base reviewer inputs", record["content"])
+        self.assertNotEqual(digest(staged), digest(baseline))
+        for invalid in ({(head, path): "0" * 40}, {(head, "unknown/Test.kt"): blob},
+                        {("HEAD", path): blob}, {path: blob}, [(head, path)]):
+            with self.subTest(sources=invalid), self.assertRaises(PortError):
+                self.staged_fixture(additional_retained_sources=invalid)
 
     def test_candidate_reviewer_replacement_cannot_grant_execute_or_publish_authority(self):
         result = self.staged_fixture("WP-000", replace_reviewer=True)

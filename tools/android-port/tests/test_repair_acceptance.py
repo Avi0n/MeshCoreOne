@@ -17,7 +17,7 @@ from controller.native_review import REVIEW_MARKER
 from controller.repair_acceptance import (
     COMPRESSED_SCOPE_MARKER, SCOPE_MARKER, authenticated_scope, instrumentation_results, validate_build_log,
     validate_hosted_methods, validate_scope, verify_native, verify_repair,
-    retained_repairs_execution, scoped_candidate_sources,
+    retained_repairs_execution, scoped_candidate_sources, scoped_retained_sources,
 )
 from controller.schema import digest, load_json
 from controller.publication import encode_structured_body
@@ -109,12 +109,25 @@ class RepairContractTests(unittest.TestCase):
     def test_scoped_candidate_sources_include_consumer_tests_and_native_bindings_without_conflicts(self):
         _, _, _, scope = fixture()
         scope["coverage"][0]["production_bindings"] = {PATH: "5" * 40}
+        scope["producer_bindings"] = {PATH: "5" * 40}
         scope["native"] = [{"bindings": {PATH: "5" * 40, CONSUMER_TEST: "6" * 40}}]
         self.assertEqual(scoped_candidate_sources(scope),
                          {TEST: "4" * 40, PATH: "5" * 40, CONSUMER_TEST: "6" * 40})
         scope["native"][0]["bindings"][PATH] = "7" * 40
         with self.assertRaisesRegex(PortError, "Conflicting"):
             scoped_candidate_sources(scope)
+
+    def test_scoped_retained_fixtures_bind_each_observation_and_reject_conflicts(self):
+        _, _, _, scope = fixture()
+        item = {"revision": BASE, "fixture": {"path": TEST, "blob_sha": "4" * 40}}
+        scope["native"] = [item, copy.deepcopy(item)]
+        self.assertEqual(scoped_retained_sources(scope), {(BASE, TEST): "4" * 40})
+        scope["native"][1]["fixture"]["blob_sha"] = "6" * 40
+        with self.assertRaisesRegex(PortError, "Conflicting"):
+            scoped_retained_sources(scope)
+        scope["native"][1]["revision"] = HEAD
+        self.assertEqual(scoped_retained_sources(scope),
+                         {(BASE, TEST): "4" * 40, (HEAD, TEST): "6" * 40})
 
     def test_scoped_repair_and_whole_wp_accept_explicit_cross_owner_cases_without_transferring_ownership(self):
         source = "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift"
@@ -881,6 +894,55 @@ class RepairAuthorityTests(unittest.TestCase):
         self.addCleanup(reader.stop)
         return native, api, prefix, value, scope, staged, entries
 
+    def test_support_only_repair_binds_unchanged_landed_producer_without_editing_it(self):
+        native, api, prefix, value, scope, _, _ = self.fixture()
+        consumer = "android/app/src/main/kotlin/com/meshcoreone/android/app/Consumer.kt"
+        scope["paths"] = [{"path": consumer, "operation": "modify-related-consumer",
+                           "capability": "reviewed-support-consumer"}]
+        scope["coverage"][0].update(path=consumer, modules=["app", "core/maps"])
+        scope["producer_bindings"] = {PATH: "5" * 40}
+        comment = api.routes[("GET", prefix + "/issues/comments/700")]
+        for revision in (BASE, HEAD):
+            api.routes[("GET", prefix + f"/contents/{PATH}?ref={revision}")] = {
+                "type": "file", "path": PATH, "sha": "5" * 40,
+            }
+
+        def bind(value):
+            comment["body"] = SCOPE_MARKER + json.dumps(value)
+            return authenticated_scope(native, 700, value_binding)
+
+        value_binding = value.binding
+        valid = f"100644 blob {'5' * 40}\t{PATH}\0".encode()
+        with patch("controller.repair_acceptance.git", return_value=valid):
+            self.assertEqual(bind(scope), scope)
+            validate_scope(scope, value_binding, native.manifest, native.policy, [consumer], None)
+            self.assertEqual(scoped_candidate_sources(scope), {TEST: "4" * 40, PATH: "5" * 40})
+            for kind in ("missing", "foreign", "bad-sha", "not-landed", "empty", "test-only"):
+                altered = copy.deepcopy(scope)
+                if kind == "missing":
+                    altered.pop("producer_bindings")
+                elif kind == "foreign":
+                    altered["producer_bindings"] = {consumer: "5" * 40}
+                elif kind == "bad-sha":
+                    altered["producer_bindings"] = {PATH: "bad"}
+                elif kind == "not-landed":
+                    api.routes[("GET", prefix + "/pulls/140/files?per_page=100&page=1")] = []
+                elif kind == "test-only":
+                    altered["paths"][0]["path"] = CONSUMER_TEST
+                else:
+                    altered["producer_bindings"] = {}
+                with self.subTest(kind=kind), self.assertRaises(PortError):
+                    bind(altered)
+                api.routes[("GET", prefix + "/pulls/140/files?per_page=100&page=1")] = [{"filename": PATH}]
+        for raw in (b"", valid.replace(b"100644", b"120000"), valid.replace(b"5" * 40, b"6" * 40)):
+            with self.subTest(raw=raw), patch("controller.repair_acceptance.git", return_value=raw), \
+                    self.assertRaises(PortError):
+                bind(scope)
+        altered = copy.deepcopy(scope)
+        altered["coverage"][0]["source_paths"] = ["MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift"]
+        with self.assertRaisesRegex(PortError, "primary-owned original source"):
+            validate_scope(altered, value_binding, native.manifest, native.policy, [consumer], None)
+
     def test_scoped_cross_owner_sources_are_staged_again_for_receipt_validation(self):
         source = "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift"
         definition = next(entry for entry in load_json(REPO / "docs" / "android" / "test-cases.json")["entries"]
@@ -898,6 +960,12 @@ class RepairAuthorityTests(unittest.TestCase):
             catalog["entries"].append(copy.deepcopy(definition))
             scope["coverage"][0]["source_paths"].append(source)
             scope["coverage"][0]["cases"].append({"path": source, **case})
+            scope["native"] = [{
+                "revision": BASE, "transcript": "docs/android/evidence/WP-503/fixture.txt",
+                "sha256": "a" * 64, "api": 31, "methods": ["NativeTest#affected"],
+                "bindings": {PATH: "5" * 40}, "fixture": {"path": CONSUMER_TEST, "blob_sha": "8" * 40},
+                "out_of_scope_failures": {}, "execution": {},
+            }]
             evidence = copy.deepcopy(value.evidence)
             evidence["verification_scope" if whole else "repair_scope"] = scope
             evidence["source_tests"].append({
@@ -926,10 +994,16 @@ class RepairAuthorityTests(unittest.TestCase):
                 else:
                     native.stage_repair("WP-312", 123, 700)
                 self.assertIn(source, stage.call_args.kwargs["additional_original_paths"])
-                self.assertEqual(stage.call_args.kwargs["additional_candidate_sources"], {TEST: "4" * 40})
+                self.assertEqual(stage.call_args.kwargs["additional_candidate_sources"],
+                                 {TEST: "4" * 40, PATH: "5" * 40})
+                self.assertEqual(stage.call_args.kwargs["additional_retained_sources"],
+                                 {(BASE, CONSUMER_TEST): "8" * 40})
                 native.evaluate("WP-312", 123, 90)
                 self.assertIn(source, stage.call_args.kwargs["additional_original_paths"])
-                self.assertEqual(stage.call_args.kwargs["additional_candidate_sources"], {TEST: "4" * 40})
+                self.assertEqual(stage.call_args.kwargs["additional_candidate_sources"],
+                                 {TEST: "4" * 40, PATH: "5" * 40})
+                self.assertEqual(stage.call_args.kwargs["additional_retained_sources"],
+                                 {(BASE, CONSUMER_TEST): "8" * 40})
                 self.assertEqual(stage.call_count, 2)
                 staged["fixture_original"] = "changed"
                 with self.assertRaisesRegex(PortError, "complete trusted-profile"):

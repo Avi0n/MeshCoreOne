@@ -1053,6 +1053,16 @@ The staging and receipt revalidation paths include each selected cross-owner
 source's pinned bytes in the immutable reviewer inputs and staging digest.
 Referenced candidate test methods, unchanged production consumers and native
 source bindings are likewise staged at their exact candidate blob identities.
+Each retained native fixture is also staged from its immutable observation
+revision, with its revision and blob identity included in the staging digest;
+it need not be the same fixture as the one at the candidate head.
+When a production repair changes only admitted support consumers rather than
+the landed WP's own producer, the schema-1 scope may add `producer_bindings`:
+`{<primary-owned producer path>: <unchanged base/head Git blob>}`. Each producer
+must be a regular Kotlin production file in the actual landed WP PR, and the
+coverage must map a primary-owned original source. Its current bytes are staged
+for review. This avoids a needless producer edit without allowing test-only work
+to bypass the separate verification-only contract or claiming WP completion.
 Large scope comments can use the same bounded encoder with `SCOPE_MARKER` and
 `COMPRESSED_SCOPE_MARKER` from `controller.repair_acceptance`; the comment
 author and PR/issue binding are authenticated identically.

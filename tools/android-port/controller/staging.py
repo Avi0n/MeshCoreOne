@@ -64,7 +64,8 @@ def record(repo: Path, side: str, path: str, blob: str):
 
 
 def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *,
-                 path_operations=None, additional_original_paths=None, additional_candidate_sources=None):
+                 path_operations=None, additional_original_paths=None, additional_candidate_sources=None,
+                 additional_retained_sources=None):
     if any(not isinstance(value, str) or SHA.fullmatch(value) is None for value in (trusted_base, candidate)):
         raise PortError("Reviewer staging requires exact immutable base/head SHAs")
     base_tree, candidate_tree = tree(repo, trusted_base), tree(repo, candidate)
@@ -74,11 +75,13 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *,
         raise PortError("Candidate removed the canonical manifest")
     staged, size = [], 0
 
-    def append(side, path, blob):
+    def append(side, path, blob, revision=None):
         nonlocal size
         if len(staged) >= MAX_STAGE_FILES:
             raise PortError("Complete reviewer inputs exceed the file bound; never truncate")
         item = record(repo, side, path, blob)
+        if revision is not None:
+            item["revision"] = revision
         size += item["size_bytes"]
         if size > MAX_STAGE_BYTES:
             raise PortError("Complete reviewer inputs exceed the byte bound; never truncate")
@@ -134,6 +137,21 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *,
                 raise PortError("Scoped candidate source differs from the immutable candidate")
             if path not in changed:
                 append("candidate-data", path, blob)
+    if additional_retained_sources is not None:
+        if not isinstance(additional_retained_sources, dict) or not all(
+            isinstance(key, tuple) and len(key) == 2
+            and all(isinstance(part, str) for part in key)
+            and SHA.fullmatch(key[0]) and isinstance(blob, str) and SHA.fullmatch(blob)
+            for key, blob in additional_retained_sources.items()
+        ):
+            raise PortError("Malformed retained native fixture inputs")
+        revisions = {}
+        for (revision, path), blob in sorted(additional_retained_sources.items()):
+            if revision not in revisions:
+                revisions[revision] = tree(repo, revision)
+            if revisions[revision].get(path) != blob:
+                raise PortError("Retained native fixture differs from its immutable observation revision")
+            append("retained-native", path, blob, revision)
     originals = {entry["path"]: entry for entry in manifest.inputs(wp_id)}
     if additional_original_paths is not None:
         if not isinstance(additional_original_paths, set) or not all(

@@ -56,7 +56,7 @@ class NativeReview:
         return self.backend.api.request("GET", self.prefix + path)
 
     def stage_repair(self, wp_id, number, scope_comment_id):
-        from .repair_acceptance import authenticated_scope, scoped_candidate_sources, validate_scope
+        from .repair_acceptance import authenticated_scope, scoped_candidate_sources, scoped_retained_sources, validate_scope
 
         positive_integer(number, "Repair PR")
         pr = self.get(f"/pulls/{number}")
@@ -84,13 +84,14 @@ class NativeReview:
         operations, cases, _ = validate_scope(scope, binding, self.manifest, self.policy, sorted(changed), catalog)
         staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations,
                               additional_original_paths={path for path, _, _ in cases},
-                              additional_candidate_sources=scoped_candidate_sources(scope))
+                              additional_candidate_sources=scoped_candidate_sources(scope),
+                              additional_retained_sources=scoped_retained_sources(scope))
         return {"staging": staged, "staging_sha256": digest(staged), "repair_scope": scope,
                 "repair_scope_sha256": digest(scope), "state": "staged-data-only",
                 "scope_comment_id": scope_comment_id, "authoritative": False}
 
     def stage_whole(self, wp_id, number, scope):
-        from .repair_acceptance import scoped_candidate_sources, validate_scope
+        from .repair_acceptance import scoped_candidate_sources, scoped_retained_sources, validate_scope
         from .verification import require_shared_whole_lane
 
         positive_integer(number, "Implementation PR")
@@ -122,7 +123,8 @@ class NativeReview:
         operations, cases, _ = validate_scope(scope, binding, self.manifest, self.policy, sorted(changed), catalog)
         staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations,
                               additional_original_paths={path for path, _, _ in cases},
-                              additional_candidate_sources=scoped_candidate_sources(scope))
+                              additional_candidate_sources=scoped_candidate_sources(scope),
+                              additional_retained_sources=scoped_retained_sources(scope))
         return {"staging": staged, "staging_sha256": digest(staged), "verification_scope": scope,
                 "verification_scope_sha256": digest(scope), "state": "staged-data-only", "authoritative": False}
 
@@ -257,7 +259,7 @@ class NativeReview:
             raise PortError("Stale binding or unsupported native review method/schema")
         scope = None
         if repair:
-            from .repair_acceptance import authenticated_scope, scoped_candidate_sources, validate_scope
+            from .repair_acceptance import authenticated_scope, scoped_candidate_sources, scoped_retained_sources, validate_scope
 
             scope = authenticated_scope(self, receipt["scope_comment_id"], binding)
             if scope["repair_pr"] != number:
@@ -271,9 +273,10 @@ class NativeReview:
             )
             staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations,
                                   additional_original_paths={path for path, _, _ in cases},
-                                  additional_candidate_sources=scoped_candidate_sources(scope))
+                                  additional_candidate_sources=scoped_candidate_sources(scope),
+                                  additional_retained_sources=scoped_retained_sources(scope))
         elif whole:
-            from .repair_acceptance import scoped_candidate_sources, validate_scope
+            from .repair_acceptance import scoped_candidate_sources, scoped_retained_sources, validate_scope
 
             scope = receipt["evidence"].get("verification_scope")
             if not isinstance(scope, dict) or scope.get("kind") != "whole-wp":
@@ -289,7 +292,8 @@ class NativeReview:
             )
             staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations,
                                   additional_original_paths={path for path, _, _ in cases},
-                                  additional_candidate_sources=scoped_candidate_sources(scope))
+                                  additional_candidate_sources=scoped_candidate_sources(scope),
+                                  additional_retained_sources=scoped_retained_sources(scope))
         else:
             staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha)
         if receipt["staging_sha256"] != digest(staged):

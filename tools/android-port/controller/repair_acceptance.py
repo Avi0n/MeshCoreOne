@@ -17,7 +17,7 @@ from .gates import (
     protected_paths, validate_approval, validate_review,
 )
 from .model import SHA, git
-from .paths import git_path
+from .paths import git_path, permits
 from .publication import bounded_output, decode_structured_body
 from .render import marker
 from .schema import decode_json, digest, fields, nonempty, positive_integer
@@ -62,6 +62,23 @@ def production_bindings(scope):
     return bindings
 
 
+def repair_producer_bindings(scope, manifest):
+    bindings = scope.get("producer_bindings", {})
+    if not isinstance(bindings, dict) or ("producer_bindings" in scope and not bindings):
+        raise PortError("Malformed repair producer bindings")
+    if not bindings:
+        return bindings
+    wp = manifest.wp(scope["binding"]["work_package"])
+    for path, blob in bindings.items():
+        if (
+            re.fullmatch(ANDROID_MODULE + r"src/main/.+\.kt", git_path(path)) is None
+            or not permits(wp["write_paths"], path)
+            or not isinstance(blob, str) or SHA.fullmatch(blob) is None
+        ):
+            raise PortError("Repair producer must be a primary-owned Android source with an exact blob")
+    return bindings
+
+
 def scoped_candidate_sources(scope):
     sources = {}
 
@@ -75,9 +92,22 @@ def scoped_candidate_sources(scope):
             add(method["path"], method["blob_sha"])
         for path, blob in entry.get("production_bindings", {}).items():
             add(path, blob)
+    for path, blob in scope.get("producer_bindings", {}).items():
+        add(path, blob)
     for observation in scope["native"]:
         for path, blob in observation["bindings"].items():
             add(path, blob)
+    return sources
+
+
+def scoped_retained_sources(scope):
+    sources = {}
+    for observation in scope["native"]:
+        fixture = observation["fixture"]
+        key = (observation["revision"], fixture["path"])
+        if key in sources and sources[key] != fixture["blob_sha"]:
+            raise PortError("Conflicting retained native fixture identities")
+        sources[key] = fixture["blob_sha"]
     return sources
 
 
@@ -93,8 +123,10 @@ def authenticated_scope(native, comment_id, binding):
     fields(scope, {
         "schema_version", "kind", "binding", "repair_pr", "repair_issue", "landed_pr", "owner",
         "summary", "paths", "acceptance", "coverage", "verification", "native",
-    }, label="bounded repair scope")
+    }, optional={"producer_bindings"}, label="bounded repair scope")
     verification = verification_only(scope)
+    if verification and "producer_bindings" in scope:
+        raise PortError("Verification-only scopes use production bindings, not repair producer bindings")
     if (
         Binding.parse(scope["binding"]) != binding
         or scope["owner"] != native.manifest.wp(binding.work_package)["owner"]
@@ -169,8 +201,24 @@ def authenticated_scope(native, comment_id, binding):
                 actual = native.get(f"/contents/{path}?ref={revision}")
                 if actual.get("type") != "file" or actual.get("path") != path or actual.get("sha") != blob:
                     raise PortError("Verification consumer differs from the landed producer/current base/head")
-    elif not repaired_sources or not repaired_sources.intersection(prior_paths):
-        raise PortError("Repair production paths are not accounted for by the actual landed producer")
+    else:
+        bindings = repair_producer_bindings(scope, native.manifest)
+        if not repaired_sources:
+            raise PortError("Repair production paths are missing; test-only work requires verification-only scope")
+        if not repaired_sources.intersection(prior_paths) and not bindings:
+            raise PortError("Repair production paths require a changed or explicitly bound landed producer source")
+        if bindings.keys() - prior_paths:
+            raise PortError("Repair producer binding is not accounted for by the actual landed producer")
+        for path, blob in bindings.items():
+            for revision in (binding.base_sha, binding.head_sha):
+                entry = git(native.manifest.repo, "ls-tree", "-z", "--full-tree", revision, "--", path)
+                if entry not in {
+                    f"{mode} blob {blob}\t{path}\0".encode("utf-8") for mode in ("100644", "100755")
+                }:
+                    raise PortError("Repair producer lacks an unchanged regular Git blob at base and head")
+                actual = native.get(f"/contents/{path}?ref={revision}")
+                if actual.get("type") != "file" or actual.get("path") != path or actual.get("sha") != blob:
+                    raise PortError("Repair producer differs from the current base/head")
     nonempty(scope["summary"], "Bounded repair purpose")
     return scope
 
@@ -189,6 +237,8 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         or binding.manifest_sha256 != manifest.sha256 or binding.policy_revision != policy_revision(manifest, policy)
     ):
         raise PortError("Stale bounded repair scope")
+    if not verification and not whole_wp:
+        repair_producer_bindings(scope, manifest)
     if (
         not isinstance(changed_paths, list) or not changed_paths
         or not all(isinstance(path, str) for path in changed_paths)
@@ -247,6 +297,15 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
     if not isinstance(scope["coverage"], list) or not scope["coverage"]:
         raise PortError("Missing changed-path behavioral coverage")
     owned = {entry["path"]: entry for entry in manifest.inputs(wp["id"], False) if entry["exclusion"] is None}
+    if scope.get("producer_bindings") and (
+        set(scope["producer_bindings"]) & set(changed_paths)
+        or not any(
+            isinstance(entry, dict) and isinstance(entry.get("source_paths"), list)
+            and set(path for path in entry["source_paths"] if isinstance(path, str)) & owned.keys()
+            for entry in scope["coverage"]
+        )
+    ):
+        raise PortError("Bound unchanged producers require coverage of a primary-owned original source")
     original_inputs = {entry["path"]: entry for entry in manifest.data["inventory"] if entry["exclusion"] is None}
     catalog_entries = {e["path"]: e for e in catalog["entries"]} if catalog else {}
     if catalog and (catalog.get("schema_version") != 1 or catalog.get("source_sha") != binding.source_sha):
