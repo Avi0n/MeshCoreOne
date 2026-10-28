@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "amendment_id": "WP-003-software-verification-v3",
+  "owner": "android-build-engineer",
+  "base_sha": "a9b30473e1285c55ada38a191f808563aca57005",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "capability_id": "traceability-validation",
+  "operation": "add-or-update-validator-rule",
+  "authorization": "User-directed issue #451: give WP-210 an executable candidate software lane and bounded consumer-test admission while keeping its full acceptance gate closed.",
+  "previous_manifest_sha256": "11120a20d04408b3d21fac09180412df0490cabf1dafb8a3c98fe83e0fad31e4",
+  "current_manifest_sha256": "625c5fa1731138889a5fee131f27f667577b816563d796936557d06534eae5b8",
+  "scope": "Bind the existing strict scaffold software lane, bounded feature-consumer test path, and exact concern-to-family identities from #387. Native acceptance and full WP-210 completion remain pending.",
+  "concern_family_binding": {
+    "path": "docs/android/evidence/WP-003/wp210-concern-family-binding.json",
+    "sha256": "12dff6ac3a7fceb00d1a34d256581fdb890814183c90d0d9f99a87268c7dd023"
+  },
+  "verification_binding": {
+    "commands": [
+      ["python", "tools/android-port/controller/ci.py", "preflight"],
+      ["python", "tools/android-port/controller/ci.py", "run", "--stage", "scaffold"],
+      ["python", "tools/android-port/controller/ci.py", "inspect"]
+    ],
+    "checks": [
+      {
+        "id": "WP210-SW-01",
+        "identity": "controller.ci:preflight",
+        "evidence": "Exact pinned Python, Gradle wrapper, JDK/SDK inventory and worker readiness; no provisioning fallback."
+      },
+      {
+        "id": "WP210-SW-02",
+        "identity": "controller.ci:run_stage(scaffold)",
+        "tasks": [
+          "verifyScaffoldTests",
+          "verifyRoomSchema",
+          "validateModuleGraph",
+          "runtimeDependencyInventory",
+          "resolveScaffoldDependencies",
+          ":app:assembleDebug",
+          ":app:compileDebugAndroidTestKotlin",
+          "lintScaffold"
+        ],
+        "junit_suites": [
+          {"name": "build-logic", "minimum_cases": 31},
+          {"name": "contracts", "minimum_cases": 4},
+          {"name": "app", "minimum_cases": 10},
+          {"name": "room-verification", "minimum_cases": 2}
+        ],
+        "evidence": "Strict resolved task graph, nonzero passing suites and active-module tests, semantic-family execution, lint, license/module reports and actual method inventories; zero, skipped, failed or malformed evidence fails."
+      },
+      {
+        "id": "WP210-SW-03",
+        "identity": "controller.ci:inspect",
+        "evidence": "Inspect the actual debug APK and statically verify 16-KiB native alignment; no device/runtime claim."
+      }
+    ],
+    "hosted_check_names": [
+      {
+        "workflow": ".github/workflows/android-ci.yml",
+        "job": "controller",
+        "name": "Controller and workflow policy"
+      },
+      {
+        "workflow": ".github/workflows/android-ci.yml",
+        "job": "build",
+        "name": "One Linux Android build"
+      }
+    ]
+  },
+  "work_packages": [
+    {
+      "id": "WP-210",
+      "previous": {
+        "configured": false,
+        "commands": [],
+        "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+      },
+      "current": {
+        "configured": false,
+        "commands": [
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "preflight"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "run",
+            "--stage",
+            "scaffold"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "inspect"
+          ]
+        ],
+        "blocker": "The existing strict scaffold software lane is executable for current candidates. The 110-family R118 concern mapping is bound for traceability, but this lane does not establish candidate assertions through production consumers, post-device-add cancellation accounting, deterministic lifecycle ownership, hardware/platform behavior, or full WP-210 acceptance. Keep configured=false until #387 supplies candidate-bound feature and native evidence; do not unlock dependencies from this lane alone."
+      }
+    }
+  ],
+  "concerns": [
+    {
+      "id": "WP210-CM-03",
+      "original_families": 104,
+      "decision": "Keep feature-local mirrors; require tests to invoke the actual feature consumer and compare pinned observable behavior. Do not consolidate modules or count core-helper tests as mirror execution.",
+      "consumer_test_path": "android/feature/remotenodes/src/test/kotlin/com/meshcoreone/android/feature/remotenodes/cli/RemoteNodeCLIConsumerParityTest.kt"
+    },
+    {
+      "id": "WP210-CM-07",
+      "original_families": 1,
+      "decision": "A quiet stop is normal completion; service-originated RemoteNodeError.Cancelled remains distinguishable from caller CancellationException, which must propagate."
+    },
+    {
+      "id": "WP210-CM-09",
+      "original_families": 3,
+      "decision": "Exercise actual NodeConfig conversion and production settings-adapter boundaries, preserving source bytes and no-op behavior; fakes and planner-only checks are not equivalent."
+    },
+    {
+      "id": "WP210-CM-10",
+      "original_families": 1,
+      "decision": "Report applied progress once the irreversible device add succeeds, before local reconciliation; propagate caller cancellation, require retry/reconciliation to establish device state before another add, and never claim rollback."
+    },
+    {
+      "id": "WP210-CM-13",
+      "original_families": 1,
+      "decision": "Verify owned-task shutdown and completion deterministically. GC/WeakReference polling is not a pass criterion and no JVM collectibility claim is required."
+    }
+  ],
+  "family_identity": {
+    "catalog_manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+    "catalogs": [
+      {
+        "work_package": "WP-209",
+        "path": "docs/android/parity/groups/WP-209.json",
+        "blob_sha": "0d4eb5b5cbafb269bcb40548d073e1404fc9b2c1",
+        "primary_families": 28
+      },
+      {
+        "work_package": "WP-210",
+        "path": "docs/android/parity/groups/WP-210.json",
+        "blob_sha": "41c10397edc4c96b17604de8fdfc365ea2dcad60",
+        "primary_families": 82
+      }
+    ],
+    "key_fields": [
+      "source_path",
+      "case_id",
+      "parameter_family",
+      "declaration_sha256"
+    ],
+    "limitation": "The binding preserves the exact issue-listed identities and current primary-owner catalogs. It is traceability only; Android candidate assertions, consumer equivalence and WP-210 acceptance remain pending #387."
+  },
+  "limitations": [
+    "This exact delta binds only the existing software command lane and one exact feature consumer test path; configured remains false.",
+    "No original family is newly credited, no user-visible partial result is claimed implemented, and no whole-WP, device, hardware, or platform acceptance is granted.",
+    "No dispatch, schedule, repository setting, or protected gate is changed."
+  ]
+}

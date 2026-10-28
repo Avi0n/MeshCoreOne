@@ -40,6 +40,8 @@ FIXED_INPUTS = (
     "docs/android/scope-amendments/translation-removal.json",
     "docs/android/evidence/WP-003/software-verification-manifest-amendment.json",
     "docs/android/evidence/WP-003/software-verification-manifest-amendment-v2.json",
+    "docs/android/evidence/WP-003/software-verification-manifest-amendment-v3.json",
+    "docs/android/evidence/WP-003/wp210-concern-family-binding.json",
     "android/scaffold/environment-allowlist.json", "android/scaffold/check_environment.py",
     "android/scaffold/inspect_apk.py", "android/scaffold/sync_notices.py",
     "android/gradlew", "android/gradlew.bat", "android/settings.gradle.kts",

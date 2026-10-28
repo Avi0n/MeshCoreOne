@@ -10,6 +10,7 @@ from controller.capabilities import CapabilityEngine
 from controller.errors import PortError
 from controller.scope_amendment import (
     CONSUMER_SUPPORT_CAPABILITIES, consumer_support_predecessor,
+    WP210_FEATURE_CLI_CONSUMER_CAPABILITY, wp210_feature_cli_consumer_predecessor,
     wp503_accessibility_source_binding_predecessor,
     HOST_SCOPED_JVM_CAPABILITY, host_scoped_jvm_predecessor,
     BACKUP_POST_COMMIT_CAPABILITY, backup_post_commit_predecessor,
@@ -126,7 +127,8 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
             "git", "-C", str(REPO), "show",
             "61fc048e1780173e2603013a8b6d0233d0d63c3b:docs/android/automation-policy.json",
         ]))
-        previous = shortcut_lifecycle_test_predecessor(current)
+        current_without_wp210 = wp210_feature_cli_consumer_predecessor(current)
+        previous = shortcut_lifecycle_test_predecessor(current_without_wp210)
         self.assertEqual(previous, original)
         self.assertEqual(shortcut_lifecycle_test_predecessor(previous), previous)
         self.assertEqual(current, before)
@@ -134,15 +136,17 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
         rules = restored["reservation_policy"]["capabilities"]
         index = next(i for i, rule in enumerate(rules) if rule["id"] == "wp216-reaction-wire-classification")
         rules.insert(index, copy.deepcopy(SHORTCUT_LIFECYCLE_TEST_CAPABILITY))
-        self.assertEqual(restored, current)
+        self.assertEqual(restored, current_without_wp210)
         self.assertEqual(
             {r["id"]: r for r in previous["reservation_policy"]["capabilities"]},
-            {r["id"]: r for r in current["reservation_policy"]["capabilities"]
+            {r["id"]: r for r in current_without_wp210["reservation_policy"]["capabilities"]
              if r["id"] != SHORTCUT_LIFECYCLE_TEST_CAPABILITY["id"]},
         )
         changed = copy.deepcopy(current)
         changed["reservation_policy"]["capabilities"][0]["invariants"].append("unrelated-drift")
-        self.assertNotEqual(shortcut_lifecycle_test_predecessor(changed), original)
+        self.assertNotEqual(
+            shortcut_lifecycle_test_predecessor(wp210_feature_cli_consumer_predecessor(changed)), original,
+        )
 
     def test_shortcut_lifecycle_rejects_mutation_duplicate_move_overlap_and_malformed_policy(self):
         rule = SHORTCUT_LIFECYCLE_TEST_CAPABILITY
@@ -275,6 +279,7 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
 
     def test_reaction_wire_classification_predecessor_restores_entire_actual_de20_policy(self):
         current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        current = wp210_feature_cli_consumer_predecessor(current)
         current = shortcut_lifecycle_test_predecessor(current)
         before = copy.deepcopy(current)
         original = json.loads(subprocess.check_output([
@@ -969,6 +974,50 @@ class ConsumerSupportCapabilityTests(unittest.TestCase):
                     wp = rule["work_packages"][0]
                     with self.subTest(rule=rule["id"], operation=other["operations"]), self.assertRaises(PortError):
                         self.engine.admit(wp, self.manifest.wp(wp)["write_paths"], path, other["operations"][0])
+
+    def test_wp210_feature_consumer_capability_is_exact_and_reversible(self):
+        rule = WP210_FEATURE_CLI_CONSUMER_CAPABILITY
+        path = rule["path_rules"][0]
+        self.assertEqual(next(
+            item for item in self.rules["reservation_policy"]["capabilities"] if item["id"] == rule["id"]
+        ), rule)
+        previous = CapabilityEngine(wp210_feature_cli_consumer_predecessor(self.rules))
+        for operation in rule["operations"]:
+            admitted = self.engine.admit(
+                "WP-210", self.manifest.wp("WP-210")["write_paths"], path, operation,
+            )
+            self.assertEqual(admitted.capability_id, rule["id"])
+            with self.assertRaises(PortError):
+                previous.admit("WP-210", self.manifest.wp("WP-210")["write_paths"], path, operation)
+        for operation in ("delete", "generate", "unknown"):
+            with self.subTest(operation=operation), self.assertRaises(PortError):
+                self.engine.admit("WP-210", self.manifest.wp("WP-210")["write_paths"], path, operation)
+        for wrong in (
+            path + ".backup",
+            path.rsplit("/", 1)[0] + "/Other.kt",
+            path.replace("/src/test/", "/src/main/"),
+            path.replace("/src/test/", "/src/androidTest/"),
+        ):
+            with self.subTest(path=wrong), self.assertRaises(PortError):
+                self.engine.admit("WP-210", self.manifest.wp("WP-210")["write_paths"], wrong, "create")
+        isolated = CapabilityEngine({"reservation_policy": {"capabilities": [rule]}})
+        for wp in self.manifest.work_packages:
+            if wp == "WP-210":
+                continue
+            for operation in rule["operations"]:
+                with self.subTest(wp=wp, operation=operation), self.assertRaises(PortError):
+                    isolated.admit(wp, [], path, operation)
+                try:
+                    prior = self.engine.admit(wp, self.manifest.wp(wp)["write_paths"], path, operation)
+                except PortError:
+                    continue
+                self.assertNotEqual(prior.capability_id, rule["id"])
+        policy_text = " ".join(rule["invariants"] + rule["validation"])
+        for fence in (
+            "real-feature-local-mirrors", "copied-algorithms", "WP313-primary",
+            "admission only",
+        ):
+            self.assertIn(fence, policy_text)
 
     def test_generic_operations_and_nearby_paths_fail_closed(self):
         for rule in CONSUMER_SUPPORT_CAPABILITIES:
