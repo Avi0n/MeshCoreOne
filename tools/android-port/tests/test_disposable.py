@@ -29,6 +29,7 @@ from controller.scope_amendment import (
     shared_location_cache_predecessor,
     reaction_wire_classification_predecessor,
     shortcut_lifecycle_test_predecessor,
+    wp210_feature_cli_consumer_predecessor,
 )
 from local import debug_packaging
 
@@ -2162,7 +2163,13 @@ class DisposableGuestTests(unittest.TestCase):
         start = text.index('      {\n        "id": "wp404-shortcut-lifecycle-consumer-test",')
         end = text.index('      {\n        "id": "wp216-reaction-wire-classification",', start)
         text = text[:start] + text[end:]
-        self.assertEqual(json.loads(text), shortcut_lifecycle_test_predecessor(current))
+        start = text.index('      {\n        "id": "wp210-feature-cli-consumer-regression",')
+        end = text.index('      {\n        "id": "wp502-room-failed-event-consumer",', start)
+        text = text[:start] + text[end:]
+        self.assertEqual(
+            json.loads(text),
+            shortcut_lifecycle_test_predecessor(wp210_feature_cli_consumer_predecessor(current)),
+        )
         self.assertEqual(json.loads(text), json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",
             "61fc048e1780173e2603013a8b6d0233d0d63c3b:docs/android/automation-policy.json",
