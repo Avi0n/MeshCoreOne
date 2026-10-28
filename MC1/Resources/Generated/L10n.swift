@@ -5372,12 +5372,18 @@ public enum L10n {
       public static let emptyTitle = L10n.tr("Settings", "offlineMaps.emptyTitle", fallback: "No Offline Maps")
       /// Estimated download size
       public static func estimatedSize(_ p1: Any) -> String {
-        return L10n.tr("Settings", "offlineMaps.estimatedSize", String(describing: p1), fallback: "Estimated size: ~%@")
+        return L10n.tr("Settings", "offlineMaps.estimatedSize", String(describing: p1), fallback: "Approximate saved map size: ~%@")
       }
+      /// Uncertainty shown beside saved map size estimates, including when a warning is visible.
+      public static let estimateUncertainty = L10n.tr("Settings", "offlineMaps.estimateUncertainty", fallback: "Actual size may be much larger or smaller, depending on the area and detail.")
       /// Download exceeds available storage
       public static let exceedsStorage = L10n.tr("Settings", "offlineMaps.exceedsStorage", fallback: "Not enough storage on this device. Zoom in to select a smaller area.")
       /// Large tile download warning
       public static let largeTileWarning = L10n.tr("Settings", "offlineMaps.largeTileWarning", fallback: "Large download area. This may take a while and use significant storage.")
+      /// Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size.
+      public static func layerEstimate(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Settings", "offlineMaps.layerEstimate", String(describing: p1), String(describing: p2), fallback: "%@: ~%@")
+      }
       /// Layers section header
       public static let layers = L10n.tr("Settings", "offlineMaps.layers", fallback: "Layers")
       /// No network available
@@ -5397,7 +5403,7 @@ public enum L10n {
       /// Section header for storage info
       public static let storage = L10n.tr("Settings", "offlineMaps.storage", fallback: "Storage")
       /// Storage section footer
-      public static let storageFooter = L10n.tr("Settings", "offlineMaps.storageFooter", fallback: "Includes map data and internal indexes. Total may be larger than the sum of individual downloads.")
+      public static let storageFooter = L10n.tr("Settings", "offlineMaps.storageFooter", fallback: "Includes shared map data and database indexes. Region sizes do not add up to this total.")
       /// Reduce detail or select a smaller area to fit the available storage.
       public static let storageRemediation = L10n.tr("Settings", "offlineMaps.storageRemediation", fallback: "Reduce detail or select a smaller area to fit the available storage.")
       /// Label for total storage used

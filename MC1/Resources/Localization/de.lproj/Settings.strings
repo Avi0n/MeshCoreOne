@@ -1890,8 +1890,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Pausiert";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "Die tatsächliche Größe kann je nach Bereich und Detailstufe deutlich größer oder kleiner sein.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Geschätzte Größe: ~%@";
+"offlineMaps.estimatedSize" = "Ungefähre Größe der gespeicherten Karte: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Großes Downloadgebiet. Dies kann eine Weile dauern und erheblichen Speicherplatz beanspruchen.";
@@ -1937,7 +1943,7 @@
 "offlineMaps.noNetwork" = "Zum Herunterladen von Karten ist eine Internetverbindung erforderlich.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Umfasst Kartendaten und interne Indizes. Der Gesamtspeicher kann größer sein als die Summe der einzelnen Downloads.";
+"offlineMaps.storageFooter" = "Umfasst gemeinsam genutzte Kartendaten und Datenbankindizes. Die Regionsgrößen ergeben zusammen nicht diesen Gesamtwert.";
 
 // MARK: - Backup & Restore
 

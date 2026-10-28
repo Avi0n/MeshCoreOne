@@ -5,12 +5,12 @@ import Testing
 
 struct OfflineMapDownloadPolicyTests {
   @Test(arguments: [
-    (OfflineMapLayer.base, 0.0, 2, Int64(520_000)),
-    (.base, 5, 12, 620_000),
-    (.base, 14, 21, 915_000),
-    (.topo, 0, 1, 510_000),
-    (.topo, 5, 6, 560_000),
-    (.topo, 16, 17, 820_000),
+    (OfflineMapLayer.base, 0.0, 2, Int64(6_555_752)),
+    (.base, 5, 12, 6_655_752),
+    (.base, 14, 21, 6_950_752),
+    (.topo, 0, 1, 10222),
+    (.topo, 5, 6, 60222),
+    (.topo, 16, 17, 320_222),
   ])
   func `source ranges and byte coefficients match native source levels`(
     layer: OfflineMapLayer, maximum: Double, tiles: Int, bytes: Int64
@@ -21,14 +21,14 @@ struct OfflineMapDownloadPolicyTests {
   }
 
   @Test(arguments: [
-    (OfflineMapLayer.base, 10.25, 12.5, 3, Int64(585_000)),
-    (.topo, 10.25, 12.5, 4, 595_000),
-    (.base, 10, 14, 5, 755_000),
-    (.topo, 10, 17, 7, 715_000),
-    (.base, 0, 17, 21, 915_000),
-    (.topo, 0, 17, 17, 820_000),
-    (.base, 15, 17, 0, 500_000),
-    (.topo, 17, 17, 0, 500_000),
+    (OfflineMapLayer.base, 10.25, 12.5, 3, Int64(6_620_752)),
+    (.topo, 10.25, 12.5, 4, 95222),
+    (.base, 10, 14, 5, 6_790_752),
+    (.topo, 10, 17, 7, 215_222),
+    (.base, 0, 17, 21, 6_950_752),
+    (.topo, 0, 17, 17, 320_222),
+    (.base, 15, 17, 0, 6_535_752),
+    (.topo, 17, 17, 0, 222),
   ])
   func `stored source ranges intersect without normalizing camera zoom`(
     layer: OfflineMapLayer, minimum: Double, maximum: Double, tiles: Int, bytes: Int64
@@ -43,12 +43,19 @@ struct OfflineMapDownloadPolicyTests {
     let base = OfflineMapDownloadPolicy.summary(in: tinyBounds, options: .init(baseMaximumZoom: 14, topographyMaximumZoom: nil))
     let overview = OfflineMapDownloadPolicy.summary(in: tinyBounds, options: .init(baseMaximumZoom: 14, topographyMaximumZoom: 0))
     let detailed = OfflineMapDownloadPolicy.summary(in: tinyBounds, options: .init(baseMaximumZoom: 14, topographyMaximumZoom: 16))
+    #expect(base.layers.map(\.layer) == [.base])
+    #expect(detailed.layers.map(\.layer) == [.base, .topo])
+    #expect(base.layers.first?.estimatedTileBytes == 415_000)
+    #expect(base.layers.first?.supportingResourceBytes == 6_535_752)
+    #expect(detailed.layers.first?.estimatedBytes == base.estimatedBytes)
+    #expect(detailed.layers.last?.estimatedTileBytes == 320_000)
+    #expect(detailed.layers.last?.supportingResourceBytes == 222)
     #expect(base.baseTileCount == 21)
     #expect(overview.baseTileCount == 21)
     #expect(detailed.baseTileCount == 21)
-    #expect(base.estimatedBytes == 915_000)
-    #expect(overview.estimatedBytes == 1_425_000)
-    #expect(detailed.estimatedBytes == 1_735_000)
+    #expect(base.estimatedBytes == 6_950_752)
+    #expect(overview.estimatedBytes == 6_960_974)
+    #expect(detailed.estimatedBytes == 7_270_974)
   }
 
   @Test(arguments: [
@@ -66,7 +73,7 @@ struct OfflineMapDownloadPolicyTests {
     let world = bounds(south: -90, west: -540, north: 90, east: 540)
     let summary = OfflineMapDownloadPolicy.summary(in: world, minZoom: 0, maxZoom: 0, layer: .base)
     #expect(summary.tileCount == 5)
-    #expect(summary.estimatedBytes == 550_000)
+    #expect(summary.estimatedBytes == 6_585_752)
   }
 
   @Test

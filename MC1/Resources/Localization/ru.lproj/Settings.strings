@@ -1890,8 +1890,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Приостановлено";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "Фактический размер может быть намного больше или меньше в зависимости от области и детализации.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Примерный размер: ~%@";
+"offlineMaps.estimatedSize" = "Примерный размер сохранённой карты: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Большая область загрузки. Это может занять время и потребовать значительного объёма памяти.";
@@ -1937,7 +1943,7 @@
 "offlineMaps.noNetwork" = "Для загрузки карт требуется подключение к интернету.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Включает данные карты и внутренние индексы. Общий объём может превышать сумму отдельных загрузок.";
+"offlineMaps.storageFooter" = "Включает данные карты, общие для регионов, и индексы базы данных. Размеры регионов не складываются в этот общий объём.";
 
 // MARK: - Backup & Restore
 

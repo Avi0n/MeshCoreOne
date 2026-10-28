@@ -33,7 +33,7 @@ struct RegionPickerSheet: View {
             baseMaximumZoom: $baseMaximumZoom,
             topographyMaximumZoom: $topographyMaximumZoom,
             nameIsFocused: $nameIsFocused,
-            estimatedDownloadBytes: downloadSummary?.estimatedBytes,
+            downloadSummary: downloadSummary,
             exceedsAvailableSpace: exceedsAvailableSpace,
             exceedsProviderLimit: exceedsProviderLimit,
             isNetworkAvailable: appState.offlineMapService.isNetworkAvailable,

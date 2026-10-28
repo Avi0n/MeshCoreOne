@@ -1890,8 +1890,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Gepauzeerd";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "De werkelijke grootte kan veel groter of kleiner zijn, afhankelijk van het gebied en het detail.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Geschatte grootte: ~%@";
+"offlineMaps.estimatedSize" = "Geschatte grootte van de opgeslagen kaart: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Groot downloadgebied. Dit kan even duren en aanzienlijke opslagruimte gebruiken.";
@@ -1937,7 +1943,7 @@
 "offlineMaps.noNetwork" = "Een internetverbinding is vereist om kaarten te downloaden.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Omvat kaartgegevens en interne indexen. Het totaal kan groter zijn dan de som van de afzonderlijke downloads.";
+"offlineMaps.storageFooter" = "Omvat gedeelde kaartgegevens en database-indexen. De groottes van de regio's tellen niet op tot dit totaal.";
 
 // MARK: - Backup & Restore
 

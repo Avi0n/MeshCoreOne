@@ -5,16 +5,39 @@ enum OfflineMapDownloadPolicy {
   static let minimumZoom = 0
   static let maximumBaseTiles = 3000
   private static let defaultBytesPerTile: Int64 = 10000
-  private static let packOverheadBytes: Int64 = 500_000
+  // Supporting resources are downloaded for the style even when no source zooms intersect.
+  private static let baseSupportingResourceBytes: Int64 = 6_535_752
+  private static let topographySupportingResourceBytes: Int64 = 222
   private static let mapTileSize = 512.0
   private static let mercatorLatitudeLimit = 85.0511287798066
   private static let fullLongitudeSpan = 360.0
   private static let halfLongitudeSpan = fullLongitudeSpan / 2
 
-  struct Summary {
+  struct LayerEstimate {
+    let layer: OfflineMapLayer
     let tileCount: Int
-    let baseTileCount: Int
-    let estimatedBytes: Int64
+    let estimatedTileBytes: Int64
+    let supportingResourceBytes: Int64
+
+    var estimatedBytes: Int64 {
+      estimatedTileBytes + supportingResourceBytes
+    }
+  }
+
+  struct Summary {
+    let layers: [LayerEstimate]
+
+    var tileCount: Int {
+      layers.reduce(0) { $0 + $1.tileCount }
+    }
+
+    var baseTileCount: Int {
+      layers.filter { $0.layer == .base }.reduce(0) { $0 + $1.tileCount }
+    }
+
+    var estimatedBytes: Int64 {
+      layers.reduce(0) { $0 + $1.estimatedBytes }
+    }
 
     var permitsDownload: Bool {
       baseTileCount <= OfflineMapDownloadPolicy.maximumBaseTiles
@@ -41,23 +64,26 @@ enum OfflineMapDownloadPolicy {
   )
 
   static func summary(in bounds: MLNCoordinateBounds, options: OfflineMapDownloadOptions) -> Summary {
-    options.requests.reduce(Summary(tileCount: 0, baseTileCount: 0, estimatedBytes: 0)) { total, request in
-      let layer = summary(in: bounds, minZoom: Double(minimumZoom), maxZoom: Double(request.maximumZoom), layer: request.layer)
-      return Summary(
-        tileCount: total.tileCount + layer.tileCount,
-        baseTileCount: total.baseTileCount + layer.baseTileCount,
-        estimatedBytes: total.estimatedBytes + layer.estimatedBytes
-      )
-    }
+    Summary(layers: options.requests.map { request in
+      layerEstimate(in: bounds, minZoom: Double(minimumZoom), maxZoom: Double(request.maximumZoom), layer: request.layer)
+    })
   }
 
   static func summary(in bounds: MLNCoordinateBounds, minZoom: Double, maxZoom: Double, layer: OfflineMapLayer) -> Summary {
+    Summary(layers: [layerEstimate(in: bounds, minZoom: minZoom, maxZoom: maxZoom, layer: layer)])
+  }
+
+  private static func layerEstimate(in bounds: MLNCoordinateBounds, minZoom: Double, maxZoom: Double, layer: OfflineMapLayer) -> LayerEstimate {
     let sources = switch layer {
     case .base: [openMapTiles, naturalEarth]
     case .topo: [openTopoMap]
     }
+    let supportingBytes = switch layer {
+    case .base: baseSupportingResourceBytes
+    case .topo: topographySupportingResourceBytes
+    }
     var count = 0
-    var bytes = packOverheadBytes
+    var bytes: Int64 = 0
     for source in sources {
       // Match MapLibre’s source zoom conversion so estimates and provider limits count the tiles it downloads.
       let offset = log2(mapTileSize / source.tileSize)
@@ -70,7 +96,7 @@ enum OfflineMapDownloadPolicy {
         bytes += Int64(tiles) * (source.bytesPerTile[zoom] ?? defaultBytesPerTile)
       }
     }
-    return Summary(tileCount: count, baseTileCount: layer == .base ? count : 0, estimatedBytes: bytes)
+    return LayerEstimate(layer: layer, tileCount: count, estimatedTileBytes: bytes, supportingResourceBytes: supportingBytes)
   }
 
   static func permits(_ bounds: MLNCoordinateBounds, minZoom: Double = Double(minimumZoom), maxZoom: Double = Double(OfflineMapLayer.base.defaultMaximumZoom)) -> Bool {

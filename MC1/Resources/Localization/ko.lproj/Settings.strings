@@ -1895,8 +1895,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "일시 정지됨";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: 약 %@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "실제 크기는 영역과 상세도에 따라 예상보다 훨씬 크거나 작을 수 있습니다.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "예상 크기: 약 %@";
+"offlineMaps.estimatedSize" = "저장될 지도의 대략적인 크기: 약 %@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "다운로드 영역이 큽니다. 시간이 오래 걸리고 저장 공간을 많이 사용할 수 있습니다.";
@@ -1942,7 +1948,7 @@
 "offlineMaps.noNetwork" = "지도를 다운로드하려면 인터넷 연결이 필요합니다.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "지도 데이터와 내부 인덱스가 포함됩니다. 합계는 개별 다운로드의 합보다 클 수 있습니다.";
+"offlineMaps.storageFooter" = "여러 지역이 함께 쓰는 지도 데이터와 데이터베이스 인덱스가 포함됩니다. 지역별 크기를 모두 더해도 이 합계가 되지 않습니다.";
 
 // MARK: - Backup & Restore
 

@@ -1890,8 +1890,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "已暂停";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@：~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "实际大小可能远大于或远小于预计值，具体取决于您选择的区域和精细度。";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "预计大小：~%@";
+"offlineMaps.estimatedSize" = "预计保存的地图大小：~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "下载区域较大，可能需要较长时间并占用大量存储空间。";
@@ -1937,7 +1943,7 @@
 "offlineMaps.noNetwork" = "下载地图需要互联网连接。";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "包括地图数据和内部索引。总大小可能超过各项下载的总和。";
+"offlineMaps.storageFooter" = "包括各区域共用的地图数据和数据库索引。各区域的大小相加不等于此总数。";
 
 // MARK: - Backup & Restore
 

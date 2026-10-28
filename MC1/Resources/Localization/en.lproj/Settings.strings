@@ -1896,8 +1896,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Paused";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "Actual size may be much larger or smaller, depending on the area and detail.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Estimated size: ~%@";
+"offlineMaps.estimatedSize" = "Approximate saved map size: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Large download area. This may take a while and use significant storage.";
@@ -1943,7 +1949,7 @@
 "offlineMaps.noNetwork" = "An internet connection is required to download maps.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Includes map data and internal indexes. Total may be larger than the sum of individual downloads.";
+"offlineMaps.storageFooter" = "Includes shared map data and database indexes. Region sizes do not add up to this total.";
 
 // MARK: - Backup & Restore
 

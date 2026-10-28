@@ -6,7 +6,7 @@ struct RegionPickerBottomCard: View {
   @Binding var baseMaximumZoom: Int
   @Binding var topographyMaximumZoom: Int
   @FocusState.Binding var nameIsFocused: Bool
-  let estimatedDownloadBytes: Int64?
+  let downloadSummary: OfflineMapDownloadPolicy.Summary?
   let exceedsAvailableSpace: Bool
   let exceedsProviderLimit: Bool
   let isNetworkAvailable: Bool
@@ -20,6 +20,8 @@ struct RegionPickerBottomCard: View {
   private static let contentSpacing: CGFloat = 12
   private static let cornerRadius: CGFloat = 12
   private static let bottomPadding: CGFloat = 4
+  private static let estimateMinimumScale: CGFloat = 0.5
+  private static let estimateLineLimit = 2
 
   @State private var contentHeight: CGFloat = 0
 
@@ -83,9 +85,23 @@ struct RegionPickerBottomCard: View {
 
   private var footerContent: some View {
     VStack(alignment: .leading, spacing: Self.contentSpacing) {
-      if let bytes = estimatedDownloadBytes {
-        Text(L10n.Settings.OfflineMaps.estimatedSize(bytes.formatted(.byteCount(style: .file))))
-          .foregroundStyle(.secondary)
+      if let summary = downloadSummary {
+        VStack(alignment: .leading) {
+          Text(L10n.Settings.OfflineMaps.estimatedSize(summary.estimatedBytes.formatted(.byteCount(style: .file))))
+            .lineLimit(Self.estimateLineLimit, reservesSpace: true)
+            .minimumScaleFactor(Self.estimateMinimumScale)
+          ForEach([OfflineMapLayer.base, .topo], id: \.self) { layer in
+            if let estimate = summary.layers.first(where: { $0.layer == layer }) {
+              layerEstimateRow(layer: layer, bytes: estimate.estimatedBytes)
+            } else {
+              layerEstimateRow(layer: layer, bytes: summary.estimatedBytes)
+                .hidden()
+                .accessibilityHidden(true)
+            }
+          }
+          Text(L10n.Settings.OfflineMaps.estimateUncertainty)
+        }
+        .foregroundStyle(.secondary)
       }
 
       // Stable warning space prevents validation changes from resizing the selected map area.
@@ -98,6 +114,12 @@ struct RegionPickerBottomCard: View {
       }
     }
     .font(.caption)
+  }
+
+  private func layerEstimateRow(layer: OfflineMapLayer, bytes: Int64) -> some View {
+    Text(L10n.Settings.OfflineMaps.layerEstimate(layer.label, bytes.formatted(.byteCount(style: .file))))
+      .lineLimit(Self.estimateLineLimit, reservesSpace: true)
+      .minimumScaleFactor(Self.estimateMinimumScale)
   }
 
   private var warningMessages: [String] {
@@ -124,7 +146,7 @@ struct RegionPickerBottomCard: View {
     } else if exceedsAvailableSpace {
       Text(L10n.Settings.OfflineMaps.storageRemediation)
         .foregroundStyle(.orange)
-    } else if let bytes = estimatedDownloadBytes, bytes > Self.largeDownloadThreshold {
+    } else if let bytes = downloadSummary?.estimatedBytes, bytes > Self.largeDownloadThreshold {
       Text(L10n.Settings.OfflineMaps.largeTileWarning)
         .foregroundStyle(.orange)
     } else {
