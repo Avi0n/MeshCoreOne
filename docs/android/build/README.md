@@ -16,10 +16,12 @@ minSdk **31**, targetSdk **37**, build-tools **37.0.0**. The application is
 `com.meshcoreone.android`; debug adds `.debug`.
 
 Provide licensed installations, not a committed `local.properties`, SDK, JDK,
-keystore or private path. SDK IDs are `platforms;android-37.2` revision1 and
+keystore or private path. SDK IDs are `platforms;android-37.2` revision2 and
 `build-tools;37.0.0`; do not substitute the assumed `platforms;android-37`.
 Command-line tools23 use the Android CLI with `--no-metrics`. Provisioning and
 license acceptance are human/environment responsibilities, not done by this scaffold.
+The WP-003 toolchain lock and controller preflight must be updated in coordination
+before this revision can be provisioned and validated by the hosted build.
 
 In a fresh PowerShell process at the repository root:
 
