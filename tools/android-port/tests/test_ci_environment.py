@@ -488,35 +488,6 @@ class EnvironmentTests(unittest.TestCase):
             verify()
         self.assertIn("hosts ['linux', 'linux'] (2 total archives, 2 matching host)", str(error.exception))
 
-    def test_platform_drift_diagnostic_hashes_publisher_archive_without_accepting_it(self):
-        lock = copy.deepcopy(toolchain_lock())
-        terms, content = b"fixture SDK terms", b"fixture platform archive"
-        lock["sdk_license_sha256"] = hashlib.sha256(terms).hexdigest()
-        record = next(a for a in lock["archives"] if a["id"] == "platforms;android-37.2")
-        repository = ET.Element("repository")
-        ET.SubElement(repository, "license", {"id": lock["sdk_license_id"]}).text = terms.decode()
-        package = ET.SubElement(repository, "remotePackage", {"path": record["id"]})
-        revision = ET.SubElement(package, "revision")
-        ET.SubElement(revision, "major").text = "2"
-        archive = ET.SubElement(ET.SubElement(package, "archives"), "archive")
-        complete = ET.SubElement(archive, "complete")
-        for key, value in (("url", "platform-37.2_r02.zip"), ("size", len(content)), ("checksum", hashlib.sha1(content).hexdigest())):
-            ET.SubElement(complete, key).text = str(value)
-        data = ET.tostring(repository)
-        with patch("urllib.request.urlopen", return_value=io.BytesIO(content)) as fetch:
-            with self.assertRaises(PortError) as error:
-                sdk_metadata(lock, [record], data)
-        self.assertIn(hashlib.sha256(content).hexdigest(), str(error.exception))
-        self.assertIn(hashlib.sha256(data).hexdigest(), str(error.exception))
-        self.assertEqual(fetch.call_args.args[0].full_url, "https://dl.google.com/android/repository/platform-37.2_r02.zip")
-        complete.find("url").text = "../bad.zip"
-        with patch("urllib.request.urlopen") as fetch, self.assertRaisesRegex(PortError, "unexpected archive"):
-            sdk_metadata(lock, [record], ET.tostring(repository))
-        fetch.assert_not_called()
-        complete.find("url").text = "platform-37.2_r02.zip"
-        with patch("urllib.request.urlopen", return_value=io.BytesIO(b"wrong")), self.assertRaisesRegex(PortError, "size/SHA-1 mismatch"):
-            sdk_metadata(lock, [record], ET.tostring(repository))
-
     def test_both_host_installers_extract_verified_archives_without_executing_or_downloading_cli_helpers(self):
         for host in ("windows", "linux"):
             with self.subTest(host=host), tempfile.TemporaryDirectory() as temporary:

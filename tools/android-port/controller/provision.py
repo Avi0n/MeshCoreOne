@@ -4,7 +4,6 @@ import copy
 import hashlib
 import io
 import os
-import re
 import stat
 import tarfile
 import urllib.error
@@ -18,36 +17,6 @@ from .errors import PortError
 
 MAX_METADATA_BYTES = 8 * 1024 * 1024
 MAX_EXPANDED_BYTES = 2 * 1024 * 1024 * 1024
-
-
-def platform_drift_details(archive, data: bytes):
-    complete = archive.find("complete")
-    if complete is None:
-        raise PortError("SDK platform drift diagnostic: missing complete archive")
-    name = complete.findtext("url", "")
-    size_text = complete.findtext("size", "")
-    sha1 = complete.findtext("checksum", "")
-    if not re.fullmatch(r"platform-37\.2_r[0-9]+\.zip", name) or not re.fullmatch(r"[0-9]{1,9}", size_text):
-        raise PortError("SDK platform drift diagnostic: unexpected archive name or size")
-    size = int(size_text)
-    if size < 1 or size > 128 * 1024 * 1024 or not re.fullmatch(r"[0-9a-f]{40}", sha1):
-        raise PortError("SDK platform drift diagnostic: invalid archive size or SHA-1")
-    url = "https://dl.google.com/android/repository/" + name
-    digest, supplementary, count = hashlib.sha256(), hashlib.sha1(), 0
-    request = urllib.request.Request(url, headers={"User-Agent": "MeshCoreOne-isolated-CI"})
-    with urllib.request.urlopen(request, timeout=90) as response:
-        while chunk := response.read(1024 * 1024):
-            count += len(chunk)
-            if count > size:
-                raise PortError("SDK platform drift diagnostic: archive exceeds published size")
-            digest.update(chunk)
-            supplementary.update(chunk)
-    if count != size or supplementary.hexdigest() != sha1:
-        raise PortError("SDK platform drift diagnostic: publisher size/SHA-1 mismatch")
-    return (
-        f"publisher archive {url!r}, size {size}, sha1 {sha1}, sha256 {digest.hexdigest()}, "
-        f"metadata sha256 {hashlib.sha256(data).hexdigest()}"
-    )
 
 
 def safe_member(name: str):
@@ -133,14 +102,11 @@ def sdk_metadata(lock: dict, selected: list[dict], data: bytes):
         ]
         if revision != record["revision"] or len(archives) != 1:
             hosts = [a.findtext("host-os", "all")[:80] for a in all_archives[:16]]
-            details = ""
-            if record["id"] == "platforms;android-37.2" and revision != record["revision"] and len(archives) == 1:
-                details = "; " + platform_drift_details(archives[0], data)
             raise PortError(
                 f"SDK revision/host changed from the protected archive lock for {record['id']!r}: "
                 f"expected revision {record['revision']!r}, host {record['host']!r}; "
                 f"observed revision {revision[:120]!r}, hosts {hosts!r} "
-                f"({len(all_archives)} total archives, {len(archives)} matching host){details}"
+                f"({len(all_archives)} total archives, {len(archives)} matching host)"
             )
         complete = archives[0].find("complete")
         if (
