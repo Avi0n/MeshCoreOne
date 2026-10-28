@@ -445,6 +445,49 @@ class EnvironmentTests(unittest.TestCase):
             with self.subTest(data=data), self.assertRaises(PortError):
                 sdk_metadata(lock, [], data)
 
+    def test_sdk_revision_and_host_mismatches_identify_package_without_accepting_drift(self):
+        lock = copy.deepcopy(toolchain_lock())
+        terms = b"fixture SDK terms"
+        lock["sdk_license_sha256"] = hashlib.sha256(terms).hexdigest()
+        record = next(a for a in lock["archives"] if a["id"] == "build-tools;37.0.0" and a["host"] == "linux")
+        repository = ET.Element("repository")
+        ET.SubElement(repository, "license", {"id": lock["sdk_license_id"]}).text = terms.decode()
+        package = ET.SubElement(repository, "remotePackage", {"path": record["id"]})
+        revision = ET.SubElement(package, "revision")
+        for part, value in zip(("major", "minor", "micro"), record["revision"].split("."), strict=True):
+            ET.SubElement(revision, part).text = value
+        archive_list = ET.SubElement(package, "archives")
+        archive = ET.SubElement(archive_list, "archive")
+        host = ET.SubElement(archive, "host-os")
+        host.text = record["host"]
+        complete = ET.SubElement(archive, "complete")
+        for key, value in (("url", record["url"].rsplit("/", 1)[1]), ("size", record["size"]), ("checksum", record["sha1"])):
+            ET.SubElement(complete, key).text = str(value)
+
+        def verify():
+            return sdk_metadata(lock, [record], ET.tostring(repository))
+
+        self.assertIsNotNone(verify())
+        revision.find("major").text = "38"
+        with self.assertRaises(PortError) as error:
+            verify()
+        self.assertIn("'build-tools;37.0.0'", str(error.exception))
+        self.assertIn("expected revision '37.0.0', host 'linux'", str(error.exception))
+        self.assertIn("observed revision '38.0.0', hosts ['linux'] (1 total archives, 1 matching host)", str(error.exception))
+
+        revision.find("major").text = "37"
+        host.text = "windows\nunexpected"
+        with self.assertRaises(PortError) as error:
+            verify()
+        self.assertIn(r"hosts ['windows\nunexpected'] (1 total archives, 0 matching host)", str(error.exception))
+        self.assertNotIn("\n", str(error.exception))
+
+        host.text = "linux"
+        archive_list.append(copy.deepcopy(archive))
+        with self.assertRaises(PortError) as error:
+            verify()
+        self.assertIn("hosts ['linux', 'linux'] (2 total archives, 2 matching host)", str(error.exception))
+
     def test_both_host_installers_extract_verified_archives_without_executing_or_downloading_cli_helpers(self):
         for host in ("windows", "linux"):
             with self.subTest(host=host), tempfile.TemporaryDirectory() as temporary:
