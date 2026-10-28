@@ -117,6 +117,8 @@ class ControlledGattShadow : ShadowBluetoothGatt() {
     var throwOnDisconnect = false
     var throwOnClose = false
 
+    fun completeDiscovery(): Boolean = super.discoverServices()
+
     @Implementation
     override fun discoverServices(): Boolean {
         calls.add("discover")

@@ -1401,6 +1401,10 @@
     },
     {
       "suite": "AndroidGattAdapterTest",
+      "method": "cancelled native writes require a fresh GATT and reject old completion callbacks"
+    },
+    {
+      "suite": "AndroidGattAdapterTest",
       "method": "connection status eight is HCI timeout with or without an active write"
     },
     {
@@ -1429,6 +1433,14 @@
     },
     {
       "suite": "AndroidGattAdapterTest",
+      "method": "native RSSI refresh never infers a radio identity from a reused address"
+    },
+    {
+      "suite": "AndroidGattAdapterTest",
+      "method": "native acknowledged and command writes retain the half second timeout backstop"
+    },
+    {
+      "suite": "AndroidGattAdapterTest",
       "method": "native adapter absence is a distinct unavailable capability"
     },
     {
@@ -1438,6 +1450,14 @@
     {
       "suite": "AndroidGattAdapterTest",
       "method": "native no callback MTU times out and all receiver registrations are removed"
+    },
+    {
+      "suite": "AndroidGattAdapterTest",
+      "method": "native non authentication write errors preserve status and typed write recovery"
+    },
+    {
+      "suite": "AndroidGattAdapterTest",
+      "method": "native reconnect bounds every discovery stage without silently rearming"
     },
     {
       "suite": "AndroidGattAdapterTest",
@@ -1889,11 +1909,23 @@
     },
     {
       "suite": "BleWriteTest",
+      "method": "cancelling a dynamic pacing wait preserves the live link and cancels its sleeper"
+    },
+    {
+      "suite": "BleWriteTest",
       "method": "cancelling a queued send does not cancel the unrelated active write"
     },
     {
       "suite": "BleWriteTest",
       "method": "concurrent writes are serialized through completion not just initial calls"
+    },
+    {
+      "suite": "BleWriteTest",
+      "method": "disconnect terminates a dynamic pacing wait before its deadline"
+    },
+    {
+      "suite": "BleWriteTest",
+      "method": "duplicate ACK cannot replace the accepted callback pacing snapshot"
     },
     {
       "suite": "BleWriteTest",
@@ -1905,7 +1937,23 @@
     },
     {
       "suite": "BleWriteTest",
+      "method": "generation pacing update enforces independent 25 and 60 millisecond boundaries"
+    },
+    {
+      "suite": "BleWriteTest",
+      "method": "invalid pacing durations do not mutate the valid live policy"
+    },
+    {
+      "suite": "BleWriteTest",
       "method": "larger unverified firmware frames fail before issuing or truncating"
+    },
+    {
+      "suite": "BleWriteTest",
+      "method": "pacing captures the policy and time at ACK rather than continuation resumption"
+    },
+    {
+      "suite": "BleWriteTest",
+      "method": "pacing updates reject disconnected and stale connection generations"
     },
     {
       "suite": "BleWriteTest",
@@ -1913,7 +1961,15 @@
     },
     {
       "suite": "BleWriteTest",
+      "method": "positive policy update leaves the previous ACK deadline unchanged"
+    },
+    {
+      "suite": "BleWriteTest",
       "method": "queued old generation send cannot write to a rapid reconnection"
+    },
+    {
+      "suite": "BleWriteTest",
+      "method": "replacement connection resets both dynamic policy and previous ACK deadline"
     },
     {
       "suite": "BleWriteTest",
@@ -1922,6 +1978,10 @@
     {
       "suite": "BleWriteTest",
       "method": "unverified without response falls back to acknowledged send"
+    },
+    {
+      "suite": "BleWriteTest",
+      "method": "verified commands bypass dynamic pacing but unverified commands remain acknowledged"
     },
     {
       "suite": "BleWriteTest",
@@ -1946,6 +2006,14 @@
     {
       "suite": "BleWriteTest",
       "method": "write readiness timeout is exactly five seconds and invalidates its GATT"
+    },
+    {
+      "suite": "BleWriteTest",
+      "method": "zero policy bypasses a previous ACK deadline"
+    },
+    {
+      "suite": "BleWriteTest",
+      "method": "zero update does not wake an already parked source pacing sleep"
     }
   ],
   "inherited_adapter_runtime_suites": [
