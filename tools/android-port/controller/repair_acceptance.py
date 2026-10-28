@@ -642,9 +642,24 @@ def _kotlin_junit_methods(text):
         "RepeatedTest", "org.junit.jupiter.api.RepeatedTest",
         "TestTemplate", "org.junit.jupiter.api.TestTemplate",
     }
-    for imported, alias in re.findall(
-        r"(?m)^\s*import\s+([\w.]+)\s+as\s+([A-Za-z_]\w*)\s*$", text,
-    ):
+    def name_token(value):
+        return identifier.fullmatch(value) is not None or (
+            value.startswith("`") and value.endswith("`") and len(value) > 2
+        )
+
+    for start, value in enumerate(tokens):
+        if value != "import":
+            continue
+        index, parts = start + 1, []
+        while index < len(tokens) and name_token(tokens[index]):
+            parts.append(tokens[index].strip("`"))
+            index += 1
+            if index >= len(tokens) or tokens[index] != ".":
+                break
+            index += 1
+        if index + 1 >= len(tokens) or tokens[index] != "as" or not name_token(tokens[index + 1]):
+            continue
+        imported, alias = ".".join(parts), tokens[index + 1].strip("`")
         if imported in test_annotations:
             test_annotations.add(alias)
         if imported in family_annotations:
@@ -656,12 +671,12 @@ def _kotlin_junit_methods(text):
         index, annotations = start, set()
         while index < len(tokens) and tokens[index] == "@":
             index += 1
-            if index == len(tokens) or identifier.fullmatch(tokens[index]) is None:
+            if index == len(tokens) or not name_token(tokens[index]):
                 break
-            name = tokens[index]
+            name = tokens[index].strip("`")
             index += 1
-            while index + 1 < len(tokens) and tokens[index] == "." and identifier.fullmatch(tokens[index + 1]):
-                name += "." + tokens[index + 1]
+            while index + 1 < len(tokens) and tokens[index] == "." and name_token(tokens[index + 1]):
+                name += "." + tokens[index + 1].strip("`")
                 index += 2
             annotations.add(name)
             if index < len(tokens) and tokens[index] == "(":
@@ -679,13 +694,14 @@ def _kotlin_junit_methods(text):
                     index += 1
                 if stack:
                     raise PortError("Unclosed Kotlin annotation in hosted test source")
-        if index < len(tokens) and tokens[index] in ("public", "internal"):
-            index += 1
-        if (
-            annotations & (test_annotations | family_annotations)
-            and index + 2 < len(tokens)
-            and tokens[index] == "fun" and tokens[index + 2] == "("
+        while index < len(tokens) and tokens[index] in (
+            "public", "internal", "private", "protected", "final", "open", "abstract", "override",
+            "suspend", "inline", "tailrec", "external", "infix", "operator", "actual", "expect",
         ):
+            index += 1
+        if annotations & (test_annotations | family_annotations):
+            if index + 2 >= len(tokens) or tokens[index] != "fun" or tokens[index + 2] != "(":
+                raise PortError("Cannot identify annotated Kotlin JUnit test declaration")
             name = tokens[index + 1].strip("`")
             kind = "factory" if annotations & family_annotations else "test"
             if name in methods and methods[name] != kind:

@@ -80,8 +80,9 @@ class NativeReview:
             changed.add(item["filename"])
             if item.get("status") == "renamed":
                 changed.add(item["previous_filename"])
-        operations, _, _ = validate_scope(scope, binding, self.manifest, self.policy, sorted(changed), catalog)
-        staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations)
+        operations, cases, _ = validate_scope(scope, binding, self.manifest, self.policy, sorted(changed), catalog)
+        staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations,
+                              additional_original_paths={path for path, _, _ in cases})
         return {"staging": staged, "staging_sha256": digest(staged), "repair_scope": scope,
                 "repair_scope_sha256": digest(scope), "state": "staged-data-only",
                 "scope_comment_id": scope_comment_id, "authoritative": False}
@@ -116,8 +117,9 @@ class NativeReview:
             changed.add(item["filename"])
             if item.get("status") == "renamed":
                 changed.add(item["previous_filename"])
-        operations, _, _ = validate_scope(scope, binding, self.manifest, self.policy, sorted(changed), catalog)
-        staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations)
+        operations, cases, _ = validate_scope(scope, binding, self.manifest, self.policy, sorted(changed), catalog)
+        staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations,
+                              additional_original_paths={path for path, _, _ in cases})
         return {"staging": staged, "staging_sha256": digest(staged), "verification_scope": scope,
                 "verification_scope_sha256": digest(scope), "state": "staged-data-only", "authoritative": False}
 
@@ -261,10 +263,11 @@ class NativeReview:
             catalog = decode_json(object_bytes(
                 self.manifest.repo, entries["docs/android/test-cases.json"],
             ).decode("utf-8"))
-            operations, _, _ = validate_scope(
+            operations, cases, _ = validate_scope(
                 scope, binding, self.manifest, self.policy, receipt["evidence"].get("changed_paths"), catalog,
             )
-            staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations)
+            staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations,
+                                  additional_original_paths={path for path, _, _ in cases})
         elif whole:
             from .repair_acceptance import validate_scope
 
@@ -277,10 +280,11 @@ class NativeReview:
             catalog = decode_json(object_bytes(
                 self.manifest.repo, entries["docs/android/test-cases.json"],
             ).decode("utf-8"))
-            operations, _, _ = validate_scope(
+            operations, cases, _ = validate_scope(
                 scope, binding, self.manifest, self.policy, receipt["evidence"].get("changed_paths"), catalog,
             )
-            staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations)
+            staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations,
+                                  additional_original_paths={path for path, _, _ in cases})
         else:
             staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha)
         if receipt["staging_sha256"] != digest(staged):

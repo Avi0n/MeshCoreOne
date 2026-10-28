@@ -359,12 +359,22 @@ class RepairExecutionTests(unittest.TestCase):
                     PortError, "every actual changed JUnit method",
                 ):
                     validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
-            sources["3" * 40] = (
-                b"package com.meshcoreone.android.core.maps\n"
-                b"import org.junit.jupiter.api.Test as Check\n@Check fun omitted() {}"
-            )
-            with self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
-                validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            for imported, annotation in (
+                ("import org.junit.jupiter.api.Test as Check // reason", "@Check"),
+                ("import org.junit.jupiter.api.Test as Check;", "@Check"),
+                ("import org.junit.jupiter.api.Test /* reason */ as Check", "@Check"),
+                ("import org.junit.jupiter.api.TestFactory as `family test`", "@`family test`"),
+                ("import org.junit.jupiter.params.ParameterizedTest as Param; // reason", "@Param"),
+                ("import org.junit.jupiter.api.RepeatedTest as Repeat /* reason */", "@Repeat"),
+            ):
+                sources["3" * 40] = (
+                    "package com.meshcoreone.android.core.maps\n" + imported + "\n"
+                    + annotation + " internal fun omitted() {}"
+                ).encode()
+                with self.subTest(imported=imported), self.assertRaisesRegex(
+                    PortError, "every actual changed JUnit method",
+                ):
+                    validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
 
     def test_dynamic_factory_requires_actual_child_bound_to_its_own_factory(self):
         manifest, _, _, scope = whole_fixture()
@@ -381,6 +391,17 @@ class RepairExecutionTests(unittest.TestCase):
             ):
                 with self.subTest(record=record), self.assertRaisesRegex(PortError, "did not actually execute"):
                     validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, {"core/maps": [record]})
+
+    def test_aliased_dynamic_factory_uses_its_actual_executed_child(self):
+        manifest, _, _, scope = whole_fixture()
+        scope["coverage"][0]["hosted_methods"][0]["id"] = "parameterFamily"
+        source = b"import org.junit.jupiter.api.TestFactory as Factory; // preserved alias\n@Factory fun parameterFamily() {}"
+        records = {"core/maps": [{"class": "MapTest", "method": "actual child", "factory": "parameterFamily"}]}
+        with patch("controller.staging.object_bytes", return_value=source):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, records)
+            records["core/maps"][0]["factory"] = "other"
+            with self.assertRaisesRegex(PortError, "did not actually execute"):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, records)
 
     def test_full_scaffold_reads_actual_protocol_counts_and_inventory(self):
         from controller.ci import TASKS
@@ -829,6 +850,58 @@ class RepairAuthorityTests(unittest.TestCase):
         reader.start()
         self.addCleanup(reader.stop)
         return native, api, prefix, value, scope, staged, entries
+
+    def test_scoped_cross_owner_sources_are_staged_again_for_receipt_validation(self):
+        source = "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift"
+        definition = next(entry for entry in load_json(REPO / "docs" / "android" / "test-cases.json")["entries"]
+                          if entry["path"] == source)
+        case = definition["cases"][0]
+        for whole in (False, True):
+            native, api, prefix, value, scope, staged, entries = self.fixture()
+            if whole:
+                manifest, rules, value, scope = whole_fixture()
+                native.manifest, native.policy = manifest, rules
+                native.backend.manifest, native.backend.policy = manifest, rules
+            catalog = copy.deepcopy(value.catalog) if whole else {
+                "schema_version": 1, "source_sha": value.binding.source_sha, "entries": [],
+            }
+            catalog["entries"].append(copy.deepcopy(definition))
+            scope["coverage"][0]["source_paths"].append(source)
+            scope["coverage"][0]["cases"].append({"path": source, **case})
+            evidence = copy.deepcopy(value.evidence)
+            evidence["verification_scope" if whole else "repair_scope"] = scope
+            evidence["source_tests"].append({
+                "path": source, "blob_sha": definition["blob_sha"],
+                "cases": [{**case, "result": "PASS", "evidence": [evidence["acceptance"][0]["evidence"][0]]}],
+            })
+            staged["fixture_original"] = source
+            receipt = {
+                "schema_version": 3 if whole else 2, "binding": asdict(value.binding),
+                "method": "authenticated-coordinator-read-only", "staging_sha256": digest(staged),
+                "evidence": evidence, "review": value.review, "approvals": [],
+            }
+            if not whole:
+                receipt["scope_comment_id"] = 700
+                api.routes[("GET", prefix + "/issues/comments/700")]["body"] = SCOPE_MARKER + json.dumps(scope)
+            api.routes[("GET", prefix + "/pulls/123/reviews?per_page=100&page=1")][0]["body"] = (
+                REVIEW_MARKER + json.dumps(receipt)
+            )
+            with self.subTest(whole=whole), \
+                    patch("controller.native_review.stage_review", return_value=staged) as stage, \
+                    patch("controller.native_review.tree", return_value=entries), \
+                    patch("controller.native_review.object_bytes", return_value=json.dumps(catalog).encode()), \
+                    patch.object(native, "verify_repair_execution"):
+                if whole:
+                    native.stage_whole("WP-312", 123, scope)
+                else:
+                    native.stage_repair("WP-312", 123, 700)
+                self.assertIn(source, stage.call_args.kwargs["additional_original_paths"])
+                native.evaluate("WP-312", 123, 90)
+                self.assertIn(source, stage.call_args.kwargs["additional_original_paths"])
+                self.assertEqual(stage.call_count, 2)
+                staged["fixture_original"] = "changed"
+                with self.assertRaisesRegex(PortError, "complete trusted-profile"):
+                    native.evaluate("WP-312", 123, 90)
 
     def test_scope_can_live_on_the_repair_pr_without_a_bookkeeping_issue(self):
         native, api, prefix, value, scope, _, _ = self.fixture()

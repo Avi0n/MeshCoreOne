@@ -1035,6 +1035,8 @@ must account for every selected parameter family. Independent source review
 must establish the relevance and completeness of cross-owner families against
 the assignment, and the original source retains its primary owner. Every affected
 module must be selected, including typed-capability-admitted support files.
+The staging and receipt revalidation paths include each selected cross-owner
+source's pinned bytes in the immutable reviewer inputs and staging digest.
 The actual merged producer must be an ancestor of the current base and have
 the canonical WP marker or legacy `[WP-xxx] ` title. Its actual server path
 inventory must contain an actually repaired production path; added repair helpers

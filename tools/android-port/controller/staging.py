@@ -63,7 +63,8 @@ def record(repo: Path, side: str, path: str, blob: str):
     }
 
 
-def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *, path_operations=None):
+def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *,
+                 path_operations=None, additional_original_paths=None):
     if any(not isinstance(value, str) or SHA.fullmatch(value) is None for value in (trusted_base, candidate)):
         raise PortError("Reviewer staging requires exact immutable base/head SHAs")
     base_tree, candidate_tree = tree(repo, trusted_base), tree(repo, candidate)
@@ -122,7 +123,20 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *, p
         for side, entries in (("base-data", base_tree), ("candidate-data", candidate_tree)):
             if path in entries:
                 append(side, path, entries[path])
-    for entry in manifest.inputs(wp_id):
+    originals = {entry["path"]: entry for entry in manifest.inputs(wp_id)}
+    if additional_original_paths is not None:
+        if not isinstance(additional_original_paths, set) or not all(
+            isinstance(path, str) for path in additional_original_paths
+        ):
+            raise PortError("Malformed scoped original inputs")
+        allowed = {
+            entry["path"]: entry for entry in data["inventory"]
+            if entry["kind"] in ("test", "support") and entry["exclusion"] is None
+        }
+        if additional_original_paths - allowed.keys():
+            raise PortError("Unknown or excluded scoped original input")
+        originals.update({path: allowed[path] for path in sorted(additional_original_paths)})
+    for entry in originals.values():
         if reference_tree.get(entry["path"]) != entry["blob_sha"]:
             raise PortError("Staged original input changed from the pinned source")
         append("pinned-reference", entry["path"], entry["blob_sha"])
