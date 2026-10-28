@@ -227,6 +227,7 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
     if not isinstance(scope["coverage"], list) or not scope["coverage"]:
         raise PortError("Missing changed-path behavioral coverage")
     owned = {entry["path"]: entry for entry in manifest.inputs(wp["id"], False) if entry["exclusion"] is None}
+    original_inputs = {entry["path"]: entry for entry in manifest.data["inventory"] if entry["exclusion"] is None}
     catalog_entries = {e["path"]: e for e in catalog["entries"]} if catalog else {}
     if catalog and (catalog.get("schema_version") != 1 or catalog.get("source_sha") != binding.source_sha):
         raise PortError("Stale original-case inventory")
@@ -242,11 +243,17 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         if (
             not isinstance(entry["source_paths"], list) or not entry["source_paths"]
             or not all(isinstance(path, str) for path in entry["source_paths"])
-            or any(p not in owned for p in entry["source_paths"])
+            or any(p not in original_inputs for p in entry["source_paths"])
         ):
-            raise PortError("Repair source mapping is unowned, excluded, or empty")
+            raise PortError("Repair source mapping is unknown, excluded, or empty")
         if any(not isinstance(entry[key], list) for key in ("cases", "native_methods", "hosted_methods")):
             raise PortError("Malformed repair original/native families")
+        foreign_sources = set(entry["source_paths"]) - owned.keys()
+        if foreign_sources - {
+            case["path"] for case in entry["cases"]
+            if isinstance(case, dict) and isinstance(case.get("path"), str)
+        }:
+            raise PortError("Cross-owner source mappings require explicit original case families")
         if not entry["cases"] and not entry["native_methods"] and not entry["hosted_methods"]:
             raise PortError("No original case or explicit native adaptation covers this change")
         if whole_wp and entry["cases"] and not entry["native_methods"] and not entry["hosted_methods"]:
@@ -273,11 +280,12 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         for case in entry["cases"]:
             fields(case, {"path", "id", "parameter_family"}, label="affected original case")
             definition = catalog_entries.get(case["path"])
-            original = owned.get(case["path"])
+            original = original_inputs.get(case["path"])
             if (
                 definition is None or original is None or original["kind"] not in ("test", "support")
                 or definition["blob_sha"] != original["blob_sha"] or not definition["has_assertions"]
                 or {"id": case["id"], "parameter_family": case["parameter_family"]} not in definition["cases"]
+                or (case["path"] not in owned and case["path"] not in entry["source_paths"])
             ):
                 raise PortError("Affected original case/family is unknown, excluded, or has stale provenance")
             cases[(case["path"], case["id"], case["parameter_family"])] = original["blob_sha"]
@@ -316,7 +324,7 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
                 raise PortError("Whole-WP scope requires the complete pinned original-case inventory")
             for case in definition.get("cases", []):
                 expected_cases.add((path, case["id"], case["parameter_family"]))
-        if set(cases) != expected_cases:
+        if not expected_cases.issubset(cases):
             raise PortError("Whole-WP scope must map every original case and parameter family")
     if not isinstance(scope["native"], list):
         raise PortError("Malformed retained native evidence references")

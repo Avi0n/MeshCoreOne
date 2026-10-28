@@ -8,7 +8,7 @@ import unittest
 from dataclasses import asdict, replace
 from unittest.mock import patch
 
-from fixtures import BASE, HEAD, MERGE, base_manifest, bundle, policy
+from fixtures import BASE, HEAD, MERGE, REPO, base_manifest, bundle, policy
 from controller.engine import GateBundle
 from controller.errors import PortError
 from controller.gates import Binding, policy_revision, verify_completion, verify_pr_gates
@@ -19,7 +19,7 @@ from controller.repair_acceptance import (
     validate_hosted_methods, validate_scope, verify_native, verify_repair,
     retained_repairs_execution,
 )
-from controller.schema import digest
+from controller.schema import digest, load_json
 import test_native_review
 
 PATH = "android/feature/map/src/main/kotlin/com/meshcoreone/android/feature/map/MapEntry.kt"
@@ -105,6 +105,99 @@ def build_log(modules, **changes):
 
 
 class RepairContractTests(unittest.TestCase):
+    def test_scoped_repair_and_whole_wp_accept_explicit_cross_owner_cases_without_transferring_ownership(self):
+        source = "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift"
+        original_catalog = load_json(REPO / "docs" / "android" / "test-cases.json")
+        definition = next(entry for entry in original_catalog["entries"] if entry["path"] == source)
+        wanted = {
+            "channel save with undecryptable RX harvests no extras and still broadcasts",
+            "duplicate channel receive with unknown path does not save a second message",
+            "inbound DM stamps contact lastHeard",
+            "inbound channel message does not stamp lastHeard on a contact",
+            "live channel receive with undecryptable RX does not copy regionScope onto Message",
+            "refreshBlockedContactsCache does not cache non-blocked contacts",
+            "refreshBlockedContactsCache loads blocked contacts by name",
+            "refreshBlockedContactsCache replaces previous cache",
+            "same-path duplicate channel receive inserts nothing",
+        }
+        cases = [case for case in definition["cases"] if case["id"].removeprefix(
+            "SyncCoordinatorMessageHandlerTests::"
+        ).removesuffix("()") in wanted]
+        self.assertEqual(len(cases), 9)
+        self.assertGreater(len(definition["cases"]), len(cases))
+        for whole in (False, True):
+            manifest, rules, value, scope = whole_fixture() if whole else fixture()
+            original = next(entry for entry in manifest.data["inventory"] if entry["path"] == source)
+            self.assertEqual(original["primary_owner"], "WP-214")
+            catalog = copy.deepcopy(value.catalog) if whole else {
+                "schema_version": 1, "source_sha": value.binding.source_sha, "entries": [],
+            }
+            catalog["entries"].append(copy.deepcopy(definition))
+            scope["coverage"][0]["source_paths"].append(source)
+            scope["coverage"][0]["cases"].extend({"path": source, **case} for case in cases)
+            evidence = copy.deepcopy(value.evidence)
+            evidence["verification_scope" if whole else "repair_scope"] = scope
+            evidence["source_tests"].append({
+                "path": source, "blob_sha": original["blob_sha"],
+                "cases": [{**case, "result": "PASS", "evidence": [evidence["acceptance"][0]["evidence"][0]]}
+                          for case in cases],
+            })
+            value = replace(value, evidence=evidence, catalog=catalog)
+            if whole:
+                verify_pr_gates(value.pr, evidence, value.review, [], value.binding, manifest, rules, catalog)
+                missing_primary_scope = copy.deepcopy(scope)
+                missing_primary_scope["coverage"][0]["cases"] = [
+                    case for case in missing_primary_scope["coverage"][0]["cases"] if case["path"] == source
+                ]
+                missing_primary_evidence = copy.deepcopy(evidence)
+                missing_primary_evidence["verification_scope"] = missing_primary_scope
+                missing_primary_evidence["source_tests"] = [
+                    result for result in evidence["source_tests"] if result["path"] == source
+                ]
+                with self.assertRaises(PortError):
+                    verify_pr_gates(value.pr, missing_primary_evidence, value.review, [], value.binding,
+                                    manifest, rules, catalog)
+            else:
+                self.assertFalse(verify_repair(value, scope, manifest, rules, catalog)["wp_complete"])
+            self.assertEqual(original["primary_owner"], "WP-214")
+            for kind in ("missing-reference", "unmapped-source", "unknown-source", "excluded-source",
+                         "unknown-case", "missing-result", "missing-family", "stale-source", "malformed-cases"):
+                altered_scope, altered_evidence = copy.deepcopy(scope), copy.deepcopy(evidence)
+                if kind == "missing-reference":
+                    altered_scope["coverage"][0]["source_paths"].remove(source)
+                elif kind == "unmapped-source":
+                    altered_scope["coverage"][0]["cases"] = [
+                        case for case in altered_scope["coverage"][0]["cases"] if case["path"] != source
+                    ]
+                elif kind == "unknown-source":
+                    altered_scope["coverage"][0]["source_paths"].append("unknown/Source.swift")
+                elif kind == "excluded-source":
+                    excluded = next(entry["path"] for entry in manifest.data["inventory"]
+                                    if entry["exclusion"] is not None)
+                    altered_scope["coverage"][0]["source_paths"].append(excluded)
+                elif kind == "unknown-case":
+                    altered_scope["coverage"][0]["cases"][-1]["id"] = "not in inventory"
+                elif kind == "missing-result":
+                    altered_evidence["source_tests"] = [
+                        result for result in altered_evidence["source_tests"] if result["path"] != source
+                    ]
+                elif kind == "missing-family":
+                    next(result for result in altered_evidence["source_tests"]
+                         if result["path"] == source)["cases"].pop()
+                elif kind == "malformed-cases":
+                    altered_scope["coverage"][0]["cases"] = None
+                else:
+                    next(result for result in altered_evidence["source_tests"]
+                         if result["path"] == source)["blob_sha"] = "0" * 40
+                altered_evidence["verification_scope" if whole else "repair_scope"] = altered_scope
+                altered = replace(value, evidence=altered_evidence)
+                with self.subTest(whole=whole, kind=kind), self.assertRaises(PortError):
+                    if whole:
+                        verify_pr_gates(altered.pr, altered_evidence, altered.review, [], altered.binding,
+                                        manifest, rules, catalog)
+                    else:
+                        verify_repair(altered, altered_scope, manifest, rules, catalog)
+
     def test_shared_whole_scope_requires_complete_cases_and_actual_methods(self):
         manifest, rules, value, scope = whole_fixture()
         verify_pr_gates(value.pr, value.evidence, value.review, [], value.binding, manifest, rules, value.catalog)

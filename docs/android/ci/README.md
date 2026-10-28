@@ -958,11 +958,14 @@ fields plus `verification_scope`. The scope is a JSON object with:
 | `verification`, `native` | Exactly `["android-scaffold"]` and the required retained native observations, or `[]` when none apply |
 
 Use the case, method, and module shapes described in the bounded-repair section
-below. Scope coverage must map every nonexcluded original case and parameter
-family to an actual hosted or native test method; at least one hosted test
+below. Scope coverage must map every primary-owned, nonexcluded original case
+and parameter family to an actual hosted or native test method; at least one hosted test
 method must execute. Changed unit and instrumentation files must account for
 all their JUnit declarations. Source review must verify that the mapped tests
 actually exercise the claimed behavior; method names alone are not parity.
+Directly relevant cross-owner original cases can also be explicitly mapped as
+described below; each mapped family requires its own passing evidence and does
+not transfer source ownership or replace any primary-owned family.
 The trusted verifier checks the exact successful hosted job, current task plan,
 nonzero method discovery, source blob identities, retained native evidence,
 complete acceptance, independent review and any applicable human gates.
@@ -1024,9 +1027,13 @@ and all other gates still apply. Its body is
 | `verification` | Exactly `["android-scaffold"]`, mapping to the existing declared strict scaffold runner, not a guessed Gradle task |
 | `native` | Explicit immutable independently retained native observations, or `[]` when affected behavior has a reviewed hosted native adaptation |
 
-Coverage source paths must belong to the canonical WP and be nonexcluded.
-Coverage `cases` items are `{path, id, parameter_family}` from the trusted frozen catalog;
-the receipt must account for every selected parameter family. Every affected
+Coverage source paths must be nonexcluded pinned inputs. A cross-owner source
+must appear in the same coverage entry as at least one explicitly mapped
+original case from that source. Coverage `cases` items are
+`{path, id, parameter_family}` from the trusted frozen catalog; the receipt
+must account for every selected parameter family. Independent source review
+must establish the relevance and completeness of cross-owner families against
+the assignment, and the original source retains its primary owner. Every affected
 module must be selected, including typed-capability-admitted support files.
 The actual merged producer must be an ancestor of the current base and have
 the canonical WP marker or legacy `[WP-xxx] ` title. Its actual server path

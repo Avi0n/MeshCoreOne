@@ -149,15 +149,25 @@ def validate_review(review: dict, binding: Binding, wp: dict, artifacts: set[str
     _acceptance(review["acceptance"], wp, artifacts, "parity acceptance")
 
 
-def validate_cases(evidence: dict, manifest: Manifest, wp: dict, catalog: dict | None, artifacts: set[str]):
+def validate_cases(evidence: dict, manifest: Manifest, wp: dict, catalog: dict | None, artifacts: set[str],
+                   extra_cases: set[tuple[str, str, str]] | None = None):
     originals = {
         e["path"]: e for e in manifest.inputs(wp["id"], cross_references=False)
         if e["kind"] in ("test", "support") and e["exclusion"] is None
     }
+    extra_cases = extra_cases or set()
+    extra_paths = {path for path, _, _ in extra_cases}
+    extra_originals = {
+        e["path"]: e for e in manifest.data["inventory"]
+        if e["path"] in extra_paths and e["kind"] in ("test", "support") and e["exclusion"] is None
+    }
+    if extra_paths - (originals.keys() | extra_originals.keys()):
+        raise PortError("Unknown or excluded cross-owner original cases")
+    accepted_originals = originals | extra_originals
     results = evidence["source_tests"]
     if not isinstance(results, list):
         raise PortError("Malformed original-test evidence")
-    if not originals:
+    if not accepted_originals:
         if results:
             raise PortError("Unknown original-test results")
         return
@@ -176,7 +186,7 @@ def validate_cases(evidence: dict, manifest: Manifest, wp: dict, catalog: dict |
             raise PortError("Malformed original-case definition")
         if entry["has_assertions"] and not entry["cases"]:
             raise PortError("Zero-test original-case inventory")
-        if entry["path"] in originals and entry["path"].endswith("Tests.swift") and not entry["has_assertions"]:
+        if entry["path"] in accepted_originals and entry["path"].endswith("Tests.swift") and not entry["has_assertions"]:
             raise PortError("Original test suite cannot be reclassified as zero-test support")
         ids = set()
         for case in entry["cases"]:
@@ -191,10 +201,10 @@ def validate_cases(evidence: dict, manifest: Manifest, wp: dict, catalog: dict |
     for result in results:
         fields(result, {"path", "blob_sha", "cases"}, label="original-test result")
         path = result["path"]
-        if path in found or path not in originals or path not in registered:
+        if path in found or path not in accepted_originals or path not in registered:
             raise PortError("Duplicate, unknown or uninventoried original-test result")
         found.add(path)
-        original = originals[path]
+        original = accepted_originals[path]
         definition = registered[path]
         if result["blob_sha"] != original["blob_sha"] or definition["blob_sha"] != original["blob_sha"]:
             raise PortError("Original-test blob provenance mismatch")
@@ -211,11 +221,18 @@ def validate_cases(evidence: dict, manifest: Manifest, wp: dict, catalog: dict |
                 raise PortError("Missing original-case evidence")
             if any(p not in artifacts for p in case["evidence"]):
                 raise PortError("Unknown original-case artifact")
-        expected = {(c["id"], c["parameter_family"]) for c in definition["cases"]}
+        expected = (
+            {(c["id"], c["parameter_family"]) for c in definition["cases"]}
+            if path in originals else
+            {(case_id, family) for case_path, case_id, family in extra_cases if case_path == path}
+        )
+        registered_cases = {(c["id"], c["parameter_family"]) for c in definition["cases"]}
+        if not expected.issubset(registered_cases):
+            raise PortError("Unknown cross-owner original case")
         if cases != expected:
             raise PortError("Missing/unknown original cases or parameter families")
-    if found != originals.keys():
-        raise PortError(f"Missing original-test results: {sorted(originals.keys() - found)}")
+    if found != accepted_originals.keys():
+        raise PortError(f"Missing original-test results: {sorted(accepted_originals.keys() - found)}")
 
 
 def validate_evidence(evidence: dict, binding: Binding, manifest: Manifest, policy: dict, catalog=None):
@@ -231,13 +248,15 @@ def validate_evidence(evidence: dict, binding: Binding, manifest: Manifest, poli
         scope = evidence["verification_scope"]
         if not isinstance(scope, dict) or scope.get("kind") != "whole-wp":
             raise PortError("Missing complete whole-WP verification scope")
-        validate_scope(scope, binding, manifest, policy, evidence["changed_paths"], catalog)
+        _, scoped_cases, _ = validate_scope(scope, binding, manifest, policy, evidence["changed_paths"], catalog)
         artifacts |= {
             f"https://github.com/{binding.repository}/blob/{item['revision']}/{item['transcript']}"
             for item in scope["native"]
         }
         _acceptance(evidence["acceptance"], wp, artifacts, "implementation acceptance")
-        validate_cases(evidence, manifest, wp, catalog, artifacts)
+        owned_paths = {entry["path"] for entry in manifest.inputs(wp["id"], False)}
+        validate_cases(evidence, manifest, wp, catalog, artifacts,
+                       {case for case in scoped_cases if case[0] not in owned_paths})
         return artifacts, runs
     fields(evidence, set(asdict(binding)) | {
         "schema_version", "runs", "acceptance", "source_tests", "changed_paths",
