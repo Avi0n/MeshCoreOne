@@ -529,7 +529,10 @@ def _run_scaffold(
     repo, plan, environment, output, execute, options, *, trusted_base, merge_base_only=False,
 ):
     from . import ci
-    from .ci_evidence import collect_lint, collect_suites, lint_evidence, validate_graph_runtime
+    from .ci_evidence import (
+        bind_test_lineage, collect_lint, collect_suites, lint_evidence,
+        prepare_test_lineage, read_test_lineage, validate_graph_runtime,
+    )
     from .module_junit import bounded_directory, check_module_tests
 
     validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
@@ -562,12 +565,14 @@ def _run_scaffold(
             raise PortError("Linked resolved task graph")
         graph.unlink(missing_ok=True)
     init_script = str(repo / "tools/android-port/controller/verify_candidate_task_graph.gradle")
+    lineage_path = prepare_test_lineage(output)
     graph_summaries = {}
     for phase, tasks, graph, log, gradle_options in (
         ("preflight", preflight_tasks, preflight_graph, "gradle-affected-preflight.log", preflight_options),
         ("build", build_tasks, build_graph, "gradle-scaffold.log", options),
     ):
-        phase_environment = {**environment, "ANDROID_CI_TASK_GRAPH": str(graph)}
+        phase_environment = {**environment, "ANDROID_CI_TASK_GRAPH": str(graph),
+                             "ANDROID_CI_TEST_LINEAGE": str(lineage_path)}
         execute([
             str(repo / "android/gradlew"), "-p", str(repo / "android"), *tasks, *gradle_options,
             "--init-script", init_script,
@@ -615,5 +620,15 @@ def _run_scaffold(
             "--verify-android-tests", str(repo / "android/core/l10n/build/test-results/testDebugUnitTest"),
         ], repo, environment, output / "l10n-junit.log")
     report["junit_cases"] = collect_named_cases(repo, directories) if directories else []
+    inventory, runners = {}, {}
+    for case in report["junit_cases"]:
+        match = re.fullmatch(r"android/((?:core|feature|platform)/[^/]+|app)/build/test-results/([^/]+)/TEST-[^/]+\.xml",
+                             case["report"])
+        if match:
+            if match[1] in runners and runners[match[1]] != match[2]:
+                raise PortError("Ambiguous selected JUnit runners")
+            runners[match[1]] = match[2]
+            inventory.setdefault(match[1], []).append(case)
+    bind_test_lineage(inventory, read_test_lineage(lineage_path), runners)
     validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
     return report

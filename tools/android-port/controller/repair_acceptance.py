@@ -488,7 +488,8 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
             raise PortError("Missing affected hosted method inventory")
         inventory = {module: [] for module in modules}
         for case in cases:
-            fields(case, {"report", "index", "class", "method", "outcome"}, label="affected hosted method")
+            fields(case, {"report", "index", "class", "method", "outcome"},
+                   {"factory"}, label="affected hosted method")
             path = git_path(case["report"])
             match = re.fullmatch(ANDROID_MODULE + r"build/test-results/[^/]+/TEST-[^/]+\.xml", path)
             if (
@@ -496,6 +497,8 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
                 or type(case["index"]) is not int or case["index"] < 0
                 or not isinstance(case["class"], str) or not case["class"]
                 or not isinstance(case["method"], str) or not case["method"]
+                or ("factory" in case and
+                    (not isinstance(case["factory"], str) or not case["factory"]))
                 or case["outcome"] != "passed"
             ):
                 raise PortError("Malformed, failed or skipped affected hosted method")
@@ -503,7 +506,10 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
                 continue
             module = match[1]
             if module in inventory:
-                inventory[module].append({"class": case["class"], "method": case["method"]})
+                record = {"class": case["class"], "method": case["method"]}
+                if "factory" in case:
+                    record["factory"] = case["factory"]
+                inventory[module].append(record)
         for module in modules:
             found = counts(suites.get(module))
             records = inventory[module]
@@ -542,7 +548,7 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
                 raise PortError("Actual hosted method inventory disagrees with discovered test counts")
             seen = set()
             for record in records:
-                fields(record, {"class", "method"}, label="executed hosted method")
+                fields(record, {"class", "method"}, {"factory"}, label="executed hosted method")
                 if not all(isinstance(item, str) and item for item in record.values()):
                     raise PortError("Malformed executed hosted method identity")
                 identity = (record["class"], record["method"])
@@ -621,7 +627,21 @@ def _kotlin_junit_methods(text):
             tokens.append(match[0])
             index = match.end()
 
-    methods = set()
+    test_annotations = {"Test", "org.junit.Test", "org.junit.jupiter.api.Test", "kotlin.test.Test"}
+    family_annotations = {
+        "TestFactory", "org.junit.jupiter.api.TestFactory",
+        "ParameterizedTest", "org.junit.jupiter.params.ParameterizedTest",
+        "RepeatedTest", "org.junit.jupiter.api.RepeatedTest",
+        "TestTemplate", "org.junit.jupiter.api.TestTemplate",
+    }
+    for imported, alias in re.findall(
+        r"(?m)^\s*import\s+([\w.]+)\s+as\s+([A-Za-z_]\w*)\s*$", text,
+    ):
+        if imported in test_annotations:
+            test_annotations.add(alias)
+        if imported in family_annotations:
+            family_annotations.add(alias)
+    methods = {}
     for start, value in enumerate(tokens):
         if value != "@":
             continue
@@ -653,14 +673,16 @@ def _kotlin_junit_methods(text):
                     raise PortError("Unclosed Kotlin annotation in hosted test source")
         if index < len(tokens) and tokens[index] in ("public", "internal"):
             index += 1
-        if annotations & {"TestFactory", "org.junit.jupiter.api.TestFactory"}:
-            raise PortError("Dynamic JUnit test factories require source-bound execution evidence")
         if (
-            annotations & {"Test", "org.junit.Test"}
+            annotations & (test_annotations | family_annotations)
             and index + 2 < len(tokens)
             and tokens[index] == "fun" and tokens[index + 2] == "("
         ):
-            methods.add(tokens[index + 1].strip("`"))
+            name = tokens[index + 1].strip("`")
+            kind = "factory" if annotations & family_annotations else "test"
+            if name in methods and methods[name] != kind:
+                raise PortError("Ambiguous JUnit test and factory declaration")
+            methods[name] = kind
     return methods
 
 
@@ -689,7 +711,7 @@ def validate_hosted_methods(scope, candidate_tree, repo, executed):
                                   if m.startswith(test_class + "#")]
                 helper = (scope.get("kind") == "whole-wp" and "/src/androidTest/" not in path
                           and not declared and coverage["hosted_methods"])
-                if (not declared and not helper) or len(set(identities)) != len(identities) or set(identities) != declared:
+                if (not declared and not helper) or len(set(identities)) != len(identities) or set(identities) != set(declared):
                     raise PortError("Verification coverage must include every actual changed JUnit method")
         for method in coverage["hosted_methods"]:
             if candidate_tree.get(method["path"]) != method["blob_sha"]:
@@ -700,18 +722,26 @@ def validate_hosted_methods(scope, candidate_tree, repo, executed):
             text = object_bytes(repo, method["blob_sha"]).decode("utf-8")
             package = re.search(r"^\s*package\s+([\w.]+)", text, re.MULTILINE)
             test_class = (package[1] + "." if package else "") + method["path"].rsplit("/", 1)[-1][:-3]
-            if method["id"] not in _kotlin_junit_methods(text):
+            declarations = _kotlin_junit_methods(text)
+            kind = declarations.get(method["id"])
+            if kind is None:
                 raise PortError("Hosted method lacks its actual candidate JUnit test declaration")
             records = executed.get(module[1])
             if not isinstance(records, list) or not records:
                 raise PortError("Actual hosted method inventory is missing; counts alone cannot prove selected execution")
             for record in records:
-                fields(record, {"class", "method"}, label="executed hosted method")
+                fields(record, {"class", "method"}, {"factory"}, label="executed hosted method")
                 if not all(isinstance(item, str) and item for item in record.values()):
                     raise PortError("Malformed executed hosted method identity")
             if not any(
-                record["class"] == test_class
-                and (record["method"] == method["id"] or record["method"].startswith(method["id"] + "["))
+                record["class"] == test_class and (
+                    (kind == "factory" and record.get("factory") == method["id"])
+                    or (kind == "test" and "factory" not in record and (
+                        record["method"] in (method["id"], method["id"] + "()")
+                        or record["method"].startswith(method["id"] + "[")
+                        or record["method"].startswith(method["id"] + "()[")
+                    ))
+                )
                 for record in records
             ):
                 raise PortError("Selected hosted method did not actually execute; filtered/excluded tests are not accepted")

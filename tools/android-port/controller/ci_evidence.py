@@ -1,6 +1,7 @@
 """AndroidOnly: WP-003 Complete, nonzero scaffold reports and exact-run aggregation."""
 
 import csv
+import json
 import re
 import zipfile
 import xml.etree.ElementTree as ET
@@ -281,6 +282,60 @@ def suite_case_ids(directory: Path):
          for path in directory.glob("TEST-*.xml") for case in read_xml(path).findall("testcase")),
         key=lambda case: (case["class"], case["method"]),
     )
+
+
+def prepare_test_lineage(output: Path):
+    output.mkdir(parents=True, exist_ok=True)
+    path = output / "gradle-test-lineage.jsonl"
+    if path.is_symlink() or (path.exists() and not path.is_file()):
+        raise PortError("Unsafe temporary test lineage path")
+    path.write_text("", encoding="utf-8")
+    return path
+
+
+def read_test_lineage(path: Path):
+    if not path.is_file() or path.is_symlink() or path.stat().st_size > 32 * 1024 * 1024:
+        raise PortError("Missing or unsafe temporary test lineage")
+    records, seen = [], set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            record = json.loads(line)
+        except (ValueError, TypeError) as error:
+            raise PortError("Malformed dynamic test lineage") from error
+        fields(record, {"task", "class", "method", "factory", "descriptor"}, label="dynamic test lineage")
+        if (
+            not all(isinstance(value, str) and value for value in record.values())
+            or re.fullmatch(r":[a-zA-Z0-9_-]+(?::[a-zA-Z0-9_-]+)*", record["task"]) is None
+            or re.fullmatch(re.escape(record["factory"]) + r"\([^()\r\n]*\)(?:\[\d+\])+", record["descriptor"]) is None
+        ):
+            raise PortError("Malformed dynamic test lineage identity")
+        key = (record["task"], record["class"], record["method"])
+        if key in seen:
+            raise PortError("Duplicate dynamic test lineage identity")
+        seen.add(key)
+        records.append(record)
+    return records
+
+
+def bind_test_lineage(inventory, lineage, runners):
+    index = {}
+    for module, records in inventory.items():
+        for record in records:
+            key = (module, record["class"], record["method"])
+            if key in index:
+                raise PortError("Duplicate JUnit identity while binding dynamic test lineage")
+            index[key] = record
+    for item in lineage:
+        segments = item["task"].lstrip(":").split(":")
+        module = "/".join(segments[:-1])
+        if module not in inventory:
+            continue
+        if runners.get(module) != segments[-1]:
+            raise PortError("Dynamic test lineage task disagrees with the selected JUnit runner")
+        target = index.get((module, item["class"], item["method"]))
+        if target is None or "factory" in target:
+            raise PortError("Dynamic test lineage does not match exactly one executed JUnit case")
+        target["factory"] = item["factory"]
 
 
 def failed_case_report(directories):

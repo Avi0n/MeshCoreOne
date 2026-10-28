@@ -937,11 +937,12 @@ software lane without a per-WP verification amendment. This permits dispatch
 only after the normal foundation, dependency, budget, identity and activation
 checks. Original-case inventory production, non-module work, WPs without primary-owned
 source inputs, and WPs with explicitly partially configured commands or other
-substantive blockers do not inherit this contract. Protocol WPs also remain
-ineligible: the current hosted JUnit XML lacks a trustworthy link between a
-dynamic child and its `@TestFactory` source. The controller rejects those
-factories rather than attributing unrelated executed cases to them. No
-schedule or controller activation is implied.
+substantive blockers do not inherit this contract. For JUnit dynamic and
+parameterized families, the Gradle listener captures actual successful
+test-descriptor ancestry during the selected run and binds each child to the
+matching JUnit case, task and source declaration. A missing or ambiguous
+family binding fails acceptance; ordinary case counts are not a substitute.
+No schedule or controller activation is implied.
 
 The shared lane is a way to execute checks, not proof of parity. Whole-WP
 completion uses hosted evidence schema `4`, containing all normal schema-2

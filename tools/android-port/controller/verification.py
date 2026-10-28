@@ -16,8 +16,6 @@ def require_shared_whole_lane(manifest: Manifest, wp: dict):
         raise PortError("This non-module or original-inventory WP requires its own verification contract")
     if not any(entry["exclusion"] is None for entry in manifest.inputs(wp["id"], False)):
         raise PortError("This WP has no primary-owned source inputs for the shared verification contract")
-    if any(path.startswith("android/core/protocol/") for path in wp["write_paths"]):
-        raise PortError("Protocol WPs require dynamic test-factory execution evidence not supplied by the shared contract")
     return declared_software_lane(manifest)
 
 

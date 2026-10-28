@@ -257,14 +257,37 @@ class RepairExecutionTests(unittest.TestCase):
             sources["3" * 40] += b"\n@Test fun omitted() {}"
             with self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
                 validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            for annotation in ("@org.junit.jupiter.api.Test", "@kotlin.test.Test", "@org.junit.Test",
+                               "@org.junit.jupiter.api.TestFactory"):
+                sources["3" * 40] = (
+                    "package com.meshcoreone.android.core.maps\n" + annotation + " fun omitted() {}"
+                ).encode()
+                with self.subTest(annotation=annotation), self.assertRaisesRegex(
+                    PortError, "every actual changed JUnit method",
+                ):
+                    validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            sources["3" * 40] = (
+                b"package com.meshcoreone.android.core.maps\n"
+                b"import org.junit.jupiter.api.Test as Check\n@Check fun omitted() {}"
+            )
+            with self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
+                validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
 
-    def test_dynamic_factory_never_counts_as_an_unrelated_junit_method(self):
+    def test_dynamic_factory_requires_actual_child_bound_to_its_own_factory(self):
         manifest, _, _, scope = whole_fixture()
-        source = b"@Test fun keepsListReachable() {}\n@TestFactory fun parameterFamily() {}"
-        with patch("controller.staging.object_bytes", return_value=source), \
-                self.assertRaisesRegex(PortError, "Dynamic JUnit test factories"):
-            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo,
-                                    {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]})
+        scope["coverage"][0]["hosted_methods"][0]["id"] = "parameterFamily"
+        source = b"@TestFactory fun parameterFamily() {}"
+        with patch("controller.staging.object_bytes", return_value=source):
+            records = {"core/maps": [{"class": "MapTest", "method": "actual child",
+                                       "factory": "parameterFamily"}]}
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, records)
+            for record in (
+                {"class": "MapTest", "method": "actual child"},
+                {"class": "MapTest", "method": "actual child", "factory": "otherFamily"},
+                {"class": "OtherTest", "method": "actual child", "factory": "parameterFamily"},
+            ):
+                with self.subTest(record=record), self.assertRaisesRegex(PortError, "did not actually execute"):
+                    validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, {"core/maps": [record]})
 
     def test_full_scaffold_reads_actual_protocol_counts_and_inventory(self):
         from controller.ci import TASKS
@@ -272,6 +295,7 @@ class RepairExecutionTests(unittest.TestCase):
         methods = [{"class": "ProtocolTest", "method": f"case{i}"} for i in range(3)]
         report = {"tasks": TASKS["scaffold"] + TASKS["protocol"], "protocol_suite": count,
                   "unit_test_methods": {"core/protocol": methods}}
+        methods[0]["factory"] = "vectorFamily"
         proof = validate_build_log(build_log([], **report), ["core/protocol"])
         self.assertEqual(proof["methods"]["core/protocol"], methods)
         for change in ({"tasks": TASKS["scaffold"]}, {"protocol_suite": None},
@@ -292,6 +316,7 @@ class RepairExecutionTests(unittest.TestCase):
             "junit_cases": [{
                 "report": "android/core/maps/build/test-results/testDebugUnitTest/TEST-MapTest.xml",
                 "index": 0, "class": "MapTest", "method": "keepsListReachable", "outcome": "passed",
+                "factory": "affectedFamily",
             }],
         }
         step = "Run parallel Gradle validation and Android tasks"
@@ -301,6 +326,7 @@ class RepairExecutionTests(unittest.TestCase):
 
         proof = validate_build_log(log_for(report), ["core/maps"], plan_for_scopes=lambda scopes: plan)
         self.assertEqual(proof["methods"]["core/maps"][0]["method"], "keepsListReachable")
+        self.assertEqual(proof["methods"]["core/maps"][0]["factory"], "affectedFamily")
         for kind in ("missing-plan", "wrong-tasks", "stale-head", "zero", "skipped", "duplicate",
                      "wrong-step", "missing-method"):
             altered = copy.deepcopy(report)

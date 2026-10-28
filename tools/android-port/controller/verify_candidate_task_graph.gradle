@@ -4,6 +4,29 @@ import org.gradle.api.tasks.AbstractExecTask
 
 gradle.beforeProject { project ->
     project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach { task ->
+        def lineageFile = System.getenv("ANDROID_CI_TEST_LINEAGE")
+        if (lineageFile) {
+            task.afterTest { descriptor, result ->
+                def match = descriptor.name =~ /^(.+)\(([^()]*)\)((?:\[\d+\])+)$/
+                if (result.resultType == org.gradle.api.tasks.testing.TestResult.ResultType.SUCCESS && match.matches()) {
+                    def factory = match.group(1)
+                    def parentName = factory + "(" + match.group(2) + ")"
+                    def parent = descriptor.parent
+                    while (parent && !(parent.name == parentName && parent.className == descriptor.className)) {
+                        parent = parent.parent
+                    }
+                    if (parent) {
+                        def record = [
+                            task: task.path, class: descriptor.className,
+                            method: descriptor.displayName, factory: factory, descriptor: descriptor.name,
+                        ]
+                        synchronized (gradle) {
+                            new File(lineageFile).append(JsonOutput.toJson(record) + "\n", "UTF-8")
+                        }
+                    }
+                }
+            }
+        }
         task.outputs.cacheIf("Only WP-203 test inputs and interop outputs are explicitly declared") {
             task.path == ":core:data:testDebugUnitTest"
         }

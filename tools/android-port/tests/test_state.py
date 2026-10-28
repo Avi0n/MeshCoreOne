@@ -342,11 +342,11 @@ class StateTests(unittest.TestCase):
             with self.subTest(wp_id=wp_id), self.assertRaisesRegex(PortError, "verification contract"):
                 self.controller.require_ready(wp_id)
 
-    def test_shared_contract_rejects_empty_source_ownership_and_unbound_dynamic_factories(self):
-        for wp_id, error in (("WP-407", "no primary-owned source"),
-                             ("WP-102", "dynamic test-factory")):
-            with self.subTest(wp_id=wp_id), self.assertRaisesRegex(PortError, error):
-                self.controller.require_ready(wp_id)
+    def test_shared_contract_rejects_empty_source_ownership_and_admits_protocol(self):
+        with self.assertRaisesRegex(PortError, "no primary-owned source"):
+            self.controller.require_ready("WP-407")
+        with patch.object(self.controller, "completed"):
+            self.assertEqual(self.controller.require_ready("WP-102")["id"], "WP-102")
 
     def test_missing_dependency_is_not_replaced_by_closed_issue(self):
         self.manifest.wp("WP-101")["depends_on"] = ["WP-004"]

@@ -752,6 +752,22 @@ class LocalScopeBindingTests(unittest.TestCase):
             "index": 0, "class": "SyncTest", "method": "required", "outcome": "passed",
         }])
 
+    def test_executor_binds_dynamic_lineage_to_selected_task_and_xml_case(self):
+        plan = self.services_plan()
+        output = self.repo / "output"
+        output.mkdir()
+        _, execute = self.execute_fixture(plan)
+        event = {"task": ":core:services:test", "class": "SyncTest", "method": "required",
+                 "factory": "originalFamily", "descriptor": "originalFamily()[1]"}
+
+        def capture(command, repo, environment, log):
+            execute(command, repo, environment, log)
+            if ":core:services:test" in command:
+                Path(environment["ANDROID_CI_TEST_LINEAGE"]).write_text(json.dumps(event) + "\n", encoding="utf-8")
+
+        report = run_scaffold(self.repo, plan, {}, output, capture, [], trusted_base=plan["base"])
+        self.assertEqual(report["junit_cases"][0]["factory"], "originalFamily")
+
     def test_app_scope_checks_required_cases_and_only_app_parity_families(self):
         from controller import ci_evidence
 
