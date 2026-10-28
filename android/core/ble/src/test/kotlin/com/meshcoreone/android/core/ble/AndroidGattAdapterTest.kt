@@ -16,6 +16,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Looper
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import java.time.Instant
 import java.util.UUID
 import kotlin.concurrent.thread
 import kotlin.test.assertEquals
@@ -23,8 +24,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runCurrent
@@ -36,6 +40,209 @@ import org.robolectric.shadows.ShadowBluetoothAdapter
 import org.robolectric.shadows.ShadowBluetoothGatt
 
 abstract class AndroidGattAdapterTest {
+    @Test fun `native reconnect bounds every discovery stage without silently rearming`() = runTest {
+        for (stage in listOf(GattOperationKind.DiscoverServices, GattOperationKind.Mtu, GattOperationKind.Subscribe)) {
+            val fixture = AndroidGattFixture()
+            fixture.transport.connect()
+            fixture.transport.disconnect()
+            fixture.configure = { it.pause = stage }
+            val connecting = async {
+                assertFailsWith<BleTransportException> { fixture.transport.connect(BleConnectMode.Reconnect) }
+            }
+            runCurrent()
+            fixture.clock.advanceBy(14_999.milliseconds)
+            runCurrent()
+            assertFalse(connecting.isCompleted, stage.name)
+            fixture.clock.advanceBy(1.milliseconds)
+            runCurrent()
+            val failure = connecting.await()
+            assertEquals(BleError.ConnectionTimeout, failure.error)
+            assertEquals(stage, failure.operation)
+            assertEquals(BleRecovery.RetryWithNewConnection, failure.recovery)
+            assertEquals(BlePhase.Idle, fixture.transport.diagnostics.value.phase)
+            assertEquals(2L, fixture.transport.diagnostics.value.generation)
+            assertEquals(0, fixture.clock.sleeperCount)
+            assertTrue(fixture.gatts.all { Shadow.extract<ControlledGattShadow>(it).closeCount == 1 })
+            assertFalse(Shadows.shadowOf(fixture.application).hasReceiverForIntent(Intent(BluetoothDevice.ACTION_BOND_STATE_CHANGED)))
+            val calls = fixture.shadow.calls.toList()
+            fixture.clock.advanceBy((24 * 60 * 60).seconds)
+            runCurrent()
+            assertEquals(2, fixture.gatts.size)
+            assertEquals(calls, fixture.shadow.calls)
+        }
+
+        val fixture = AndroidGattFixture()
+        fixture.transport.connect()
+        fixture.transport.disconnect()
+        fixture.configure = { it.pause = GattOperationKind.DiscoverServices }
+        val connecting = async {
+            assertFailsWith<BleTransportException> { fixture.transport.connect(BleConnectMode.Reconnect) }
+        }
+        runCurrent()
+        val gatt = fixture.gatt
+        val callback = requireNotNull(fixture.shadow.gattCallback)
+        fixture.clock.advanceBy(8.seconds)
+        runCurrent()
+        fixture.shadow.pause = GattOperationKind.Mtu
+        assertTrue(fixture.shadow.completeDiscovery())
+        runCurrent()
+        assertTrue(fixture.shadow.calls.any { it.startsWith("mtu:") })
+        fixture.clock.advanceBy(4.seconds)
+        runCurrent()
+        fixture.shadow.pause = GattOperationKind.Subscribe
+        callback.onMtuChanged(gatt, fixture.shadow.actualMtu, BluetoothGatt.GATT_SUCCESS)
+        runCurrent()
+        assertTrue(fixture.shadow.calls.any { it.startsWith("descriptor:") })
+        fixture.clock.advanceBy(2_999.milliseconds)
+        runCurrent()
+        assertFalse(connecting.isCompleted)
+        fixture.clock.advanceBy(1.milliseconds)
+        runCurrent()
+        val failure = connecting.await()
+        assertEquals(BleError.ConnectionTimeout, failure.error)
+        assertEquals(GattOperationKind.Subscribe, failure.operation)
+        assertEquals(BlePhase.Idle, fixture.transport.diagnostics.value.phase)
+        assertEquals(2L, fixture.transport.diagnostics.value.generation)
+        assertEquals(0, fixture.clock.sleeperCount)
+        assertEquals(1, fixture.shadow.closeCount)
+    }
+
+    @Test fun `cancelled native writes require a fresh GATT and reject old completion callbacks`() = runTest {
+        for (command in listOf(false, true)) {
+            val fixture = AndroidGattFixture()
+            fixture.transport.connect()
+            fixture.verifyFirmware(commands = true)
+            fixture.shadow.pause = GattOperationKind.Write
+            val sending = async {
+                if (command) fixture.transport.sendWithoutResponse(Bytes.of(0x16, 0x03))
+                else fixture.transport.send(Bytes.of(0x16, 0x03))
+            }
+            runCurrent()
+            val oldGatt = fixture.gatt
+            val oldShadow = fixture.shadow
+            val oldCallback = requireNotNull(oldShadow.gattCallback)
+            assertEquals(1, oldShadow.writes.size)
+            assertEquals(
+                if (command) BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE else BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT,
+                oldShadow.writeTypes.single(),
+            )
+            sending.cancelAndJoin()
+            assertFailsWith<CancellationException> { sending.await() }
+            assertFalse(fixture.transport.isConnected())
+            assertEquals(1, oldShadow.closeCount)
+            assertEquals(0, fixture.clock.sleeperCount)
+            fixture.transport.connect(BleConnectMode.Reconnect)
+            assertEquals(2, fixture.gatts.size)
+            assertFalse(fixture.transport.supportsWriteWithoutResponse())
+            assertEquals(20, fixture.transport.diagnostics.value.maximumCommandBytes)
+            fixture.shadow.pause = GattOperationKind.Write
+            val replacement = async { fixture.transport.send(Bytes.of(0x16, 0x04)) }
+            runCurrent()
+            oldCallback.onCharacteristicWrite(oldGatt, fixture.tx, 0)
+            oldCallback.onConnectionStateChange(oldGatt, 0, BluetoothProfile.STATE_DISCONNECTED)
+            runCurrent()
+            assertFalse(replacement.isCompleted)
+            assertTrue(fixture.transport.isConnected())
+            assertTrue(fixture.transport.diagnostics.value.rejectedCallbacks >= 2)
+            requireNotNull(fixture.shadow.gattCallback).onCharacteristicWrite(fixture.gatt, fixture.tx, 0)
+            runCurrent()
+            replacement.await()
+            fixture.transport.disconnect()
+            assertTrue(fixture.gatts.all { Shadow.extract<ControlledGattShadow>(it).closeCount == 1 })
+        }
+    }
+
+    @Test fun `native acknowledged and command writes retain the half second timeout backstop`() = runTest {
+        for (command in listOf(false, true)) {
+            val fixture = AndroidGattFixture(BleConfiguration(timeouts = BleTimeouts(write = 500.milliseconds)))
+            fixture.transport.connect()
+            fixture.verifyFirmware(commands = true)
+            fixture.shadow.pause = GattOperationKind.Write
+            val sending = async {
+                assertFailsWith<BleTransportException> {
+                    if (command) fixture.transport.sendWithoutResponse(Bytes.of(0x16, 0x03))
+                    else fixture.transport.send(Bytes.of(0x16, 0x03))
+                }
+            }
+            runCurrent()
+            assertEquals(1, fixture.shadow.writes.size)
+            val callback = requireNotNull(fixture.shadow.gattCallback)
+            fixture.clock.advanceBy(499.milliseconds)
+            runCurrent()
+            assertFalse(sending.isCompleted)
+            assertEquals(0, fixture.shadow.closeCount)
+            fixture.clock.advanceBy(1.milliseconds)
+            runCurrent()
+            val failure = sending.await()
+            assertEquals(BleError.OperationTimeout, failure.error)
+            assertEquals(GattOperationKind.Write, failure.operation)
+            assertEquals(BleRecovery.RetryWithNewConnection, failure.recovery)
+            assertFalse(fixture.transport.isConnected())
+            assertEquals(1, fixture.shadow.closeCount)
+            assertEquals(0, fixture.clock.sleeperCount)
+            callback.onCharacteristicWrite(fixture.gatt, fixture.tx, 0)
+            assertFalse(fixture.transport.isConnected())
+            assertEquals(1, fixture.gatts.size)
+            assertEquals(1, fixture.shadow.closeCount)
+        }
+    }
+
+    @Test fun `native RSSI refresh never infers a radio identity from a reused address`() = runTest {
+        val fixture = AndroidGattFixture()
+        val firstRadio = UUID.fromString("11111111-1111-1111-1111-111111111111")
+        val secondRadio = UUID.fromString("22222222-2222-2222-2222-222222222222")
+        val refreshes = mutableListOf<BondRefresh>()
+        fixture.transport.setBondRefreshedHandler { refreshes.add(it) }
+        fixture.transport.recordBondVerification(firstRadio, Instant.EPOCH)
+        fixture.transport.connect()
+        val firstGeneration = fixture.transport.diagnostics.value.generation
+        val address = fixture.gatt.device.address
+        assertEquals(-50, fixture.transport.readRssi())
+        assertEquals(Instant.EPOCH, fixture.transport.bondVerification(firstRadio))
+        assertTrue(refreshes.isEmpty())
+        fixture.transport.setAppSessionLive(firstGeneration, firstRadio)
+        fixture.transport.readRssi()
+        val firstRefresh = refreshes.single()
+        assertEquals(firstRadio, firstRefresh.radioId)
+        assertTrue(fixture.transport.isBondRefreshCurrent(firstRefresh))
+        fixture.transport.disconnect()
+        assertFalse(fixture.transport.isBondRefreshCurrent(firstRefresh))
+        fixture.transport.connect(BleConnectMode.Reconnect)
+        assertEquals(address, fixture.gatt.device.address)
+        assertEquals(-50, fixture.transport.readRssi())
+        assertEquals(1, refreshes.size)
+        assertEquals(firstRefresh.verifiedAt, fixture.transport.bondVerification(firstRadio))
+        assertEquals(
+            BleError.StaleGeneration(firstGeneration, fixture.transport.diagnostics.value.generation),
+            assertFailsWith<BleTransportException> {
+                fixture.transport.setAppSessionLive(firstGeneration, firstRadio)
+            }.error,
+        )
+        fixture.transport.recordBondVerification(secondRadio, Instant.EPOCH)
+        fixture.transport.setAppSessionLive(fixture.transport.diagnostics.value.generation, secondRadio)
+        fixture.transport.readRssi()
+        assertEquals(listOf(firstRadio, secondRadio), refreshes.map { it.radioId })
+        assertEquals(firstRefresh.verifiedAt, fixture.transport.bondVerification(firstRadio))
+        assertTrue(fixture.transport.isBondRefreshCurrent(refreshes.last()))
+        fixture.transport.disconnect()
+    }
+
+    @Test fun `native non authentication write errors preserve status and typed write recovery`() = runTest {
+        for (status in listOf(3, 133)) {
+            val fixture = AndroidGattFixture()
+            fixture.transport.connect()
+            fixture.shadow.status = status
+            val failure = assertFailsWith<BleTransportException> { fixture.transport.send(Bytes.of(0x16, 0x03)) }
+            assertEquals(BleError.WriteError("gatt.status.$status"), failure.error)
+            assertEquals(GattOperationKind.Write, failure.operation)
+            assertEquals(status, failure.status)
+            assertEquals(GattStatusDomain.Att, failure.statusDomain)
+            assertEquals(BleRecovery.RetryWithNewConnection, failure.recovery)
+            assertFalse(fixture.transport.isConnected())
+            assertEquals(1, fixture.shadow.closeCount)
+        }
+    }
+
     @Test fun `modern platform entry points reject unsupported actual API levels before invoking them`() = runTest {
         val fixture = AndroidGattFixture()
         fixture.transport.connect()

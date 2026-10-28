@@ -32,6 +32,14 @@ for explicit reconnect discovery and 5 seconds for writes/RSSI callbacks after
 their queue admission. Queued RSSI work does not consume its callback deadline.
 Deadlines and write pacing use an injectable monotonic `BleClock`.
 
+The maintainer-approved R118 contract retains this single-attempt, fresh-GATT
+safety boundary, not CoreBluetooth standing reconnect or same-link restoration.
+Automatic retry/background hosting and durable bond-refresh consumers remain
+WP-207 integration work in [issue #390](https://github.com/cbattlegear/MeshCoreOne-Android/issues/390).
+RSSI is owner-requested and cannot infer a persistent radio identity from an
+address. The [R118 reconciliation](../../../docs/android/evidence/WP-205/r118-contract-reconciliation.md)
+separates native adapter assertions, approved differences and outstanding consumer/device proof.
+
 ## Bytes and capability safety
 
 NUS service/TX-write/RX-notify UUIDs match the pinned source. Discovery validates
