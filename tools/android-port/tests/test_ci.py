@@ -30,16 +30,13 @@ MIXED = PORTED + (
 
 
 class SourceDispositionTests(unittest.TestCase):
-    def test_source_capture_limits_dependency_traversal_to_the_test_project(self):
+    def test_source_capture_uses_completed_same_project_graph_compilers(self):
         guard = ci.TASK_GRAPH_GUARD.read_text(encoding="utf-8")
-        self.assertIn(
-            "if (dependency.project == task.project && dependencies.add(dependency)) visit(dependency)",
-            guard,
-        )
-        self.assertGreater(guard.index("current.taskDependencies.getDependencies(current)"),
-                           guard.index("gradle.taskGraph.whenReady"))
-        self.assertIn("def dependencies = testDependencies[task]", guard)
-        self.assertIn("Missing precomputed test compiler dependencies", guard)
+        self.assertNotIn("taskDependencies.getDependencies", guard)
+        self.assertIn("graphTasks = graph.allTasks", guard)
+        self.assertIn("candidate.project == task.project", guard)
+        self.assertIn("candidate.outputs.files.files.any { classDirs.contains(it.canonicalFile) }", guard)
+        self.assertIn("!it.state.executed || it.state.failure != null", guard)
         self.assertIn('":app:testDebugUnitTest", ":core:ui:testDebugUnitTest"', guard)
         for marker in ('observe("START")', 'observe("DEPENDENCIES")',
                        'observe("SOURCES")', 'observe("END")', "WP003_TEST_SUITE|"):
