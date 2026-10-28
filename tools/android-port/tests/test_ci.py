@@ -36,6 +36,7 @@ class SourceDispositionTests(unittest.TestCase):
         self.assertIn("graphTasks = graph.allTasks", guard)
         self.assertIn("candidate.project == task.project", guard)
         self.assertIn("candidate.outputs.files.files.any { classDirs.contains(it.canonicalFile) }", guard)
+        self.assertIn("Overlapping Kotlin test compiler outputs", guard)
         self.assertIn("!it.state.executed || it.state.failure != null", guard)
         self.assertIn('":app:testDebugUnitTest", ":core:ui:testDebugUnitTest"', guard)
         for marker in ('observe("START")', 'observe("DEPENDENCIES")',

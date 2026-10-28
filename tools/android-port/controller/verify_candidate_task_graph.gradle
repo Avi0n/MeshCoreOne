@@ -23,6 +23,14 @@ gradle.beforeProject { project ->
                         candidate.class.name.startsWith("org.jetbrains.kotlin.gradle.tasks.KotlinCompile") &&
                         candidate.outputs.files.files.any { classDirs.contains(it.canonicalFile) }
                 }
+                def matchedOutputs = [] as Set
+                compilers.each { compiler ->
+                    compiler.outputs.files.files.findAll { classDirs.contains(it.canonicalFile) }.each { output ->
+                        if (!matchedOutputs.add(output.canonicalFile)) {
+                            throw new GradleException("Overlapping Kotlin test compiler outputs: ${task.path}")
+                        }
+                    }
+                }
                 if (compilers.any { !it.state.executed || it.state.failure != null }) {
                     throw new GradleException("Test compiler did not complete before source observation: ${task.path}")
                 }
