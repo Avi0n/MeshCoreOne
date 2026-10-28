@@ -1877,6 +1877,9 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "È stato raggiunto il limite di tile scaricabili.";
 
+/* TODO: translate */
+"offlineMaps.error.providerLimitExceeded" = "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.";
+
 /* Pause download button */
 "offlineMaps.pause" = "Pausa";
 

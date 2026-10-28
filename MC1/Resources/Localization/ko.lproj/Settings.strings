@@ -1884,6 +1884,9 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "다운로드 타일 한도에 도달했습니다.";
 
+/* TODO: translate */
+"offlineMaps.error.providerLimitExceeded" = "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.";
+
 /* Pause download button */
 "offlineMaps.pause" = "일시 정지";
 

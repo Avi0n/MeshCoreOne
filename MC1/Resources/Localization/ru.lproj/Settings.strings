@@ -1879,6 +1879,9 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Достигнут лимит тайлов для этой загрузки.";
 
+/* TODO: translate */
+"offlineMaps.error.providerLimitExceeded" = "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.";
+
 /* Pause download button */
 "offlineMaps.pause" = "Пауза";
 

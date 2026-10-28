@@ -50,6 +50,7 @@ struct MC1MapView: UIViewRepresentable {
   let onMapTap: ((CLLocationCoordinate2D) -> Void)?
   var onMapLongPress: ((CLLocationCoordinate2D) -> Void)?
   let onCameraRegionChange: ((MKCoordinateRegion) -> Void)?
+  var onMapGeometryChange: ((MLNMapView) -> Void)?
 
   /// Optional features
   var isStyleLoaded: Binding<Bool> = .constant(true)
@@ -127,6 +128,7 @@ struct MC1MapView: UIViewRepresentable {
     coordinator.onMapTap = onMapTap
     coordinator.onMapLongPress = onMapLongPress
     coordinator.onCameraRegionChange = onCameraRegionChange
+    coordinator.onMapGeometryChange = onMapGeometryChange
     coordinator.viewportSnapshotProvider = viewportSnapshotProvider
     coordinator.onViewportReady = onViewportReady
     coordinator.onViewportCapture = onViewportCapture
@@ -215,6 +217,12 @@ struct MC1MapView: UIViewRepresentable {
   /// Maximum absolute latitude MapLibre's `mbgl::LatLng` accepts; it throws an
   /// uncaught `std::domain_error` (aborting the app) for any value beyond ±90.
   private static let latitudeLimit = 90.0
+
+  static func selectionBounds(in mapView: MLNMapView, padding: CGFloat) -> MLNCoordinateBounds? {
+    guard mapView.bounds.width > padding * 2, mapView.bounds.height > padding * 2 else { return nil }
+    let selectionRect = mapView.bounds.insetBy(dx: padding, dy: padding)
+    return mapView.convert(selectionRect, toCoordinateBoundsFrom: mapView)
+  }
 
   func updateCameraRegion(in mapView: MLNMapView, coordinator: Coordinator) {
     if viewportSnapshotProvider != nil, !coordinator.isStyleLoaded { return }
@@ -364,6 +372,7 @@ extension MC1MapView {
     var onMapTap: ((CLLocationCoordinate2D) -> Void)?
     var onMapLongPress: ((CLLocationCoordinate2D) -> Void)?
     var onCameraRegionChange: ((MKCoordinateRegion) -> Void)?
+    var onMapGeometryChange: ((MLNMapView) -> Void)?
     var viewportSnapshotProvider: (() -> MapViewportSnapshot?)?
     var onViewportReady: (() -> Void)?
     var onViewportCapture: ((MapViewportSnapshot) -> Void)?
@@ -444,6 +453,21 @@ extension MC1MapView {
 
     // MARK: - Region changes
 
+    func mapViewDidFinishRenderingFrame(_ mapView: MLNMapView, fullyRendered: Bool) {
+      reportMapGeometry()
+    }
+
+    private func reportMapGeometry() {
+      guard !isDismantled, onMapGeometryChange != nil else { return }
+      if isUpdatingFromSwiftUI {
+        DispatchQueue.main.async { [weak self] in
+          self?.reportMapGeometry()
+        }
+      } else {
+        onMapGeometryChange?(mapView)
+      }
+    }
+
     func restoreViewportIfNeeded() {
       guard !isDismantled, isStyleLoaded, !hasInitializedViewport,
             let viewport = viewportSnapshotProvider?() else { return }
@@ -489,6 +513,7 @@ extension MC1MapView {
 
     func mapView(_ mapView: MLNMapView, regionDidChangeWith reason: MLNCameraChangeReason, animated: Bool) {
       isUserInteracting = false
+      reportMapGeometry()
       let isUserGesture = !reason.isDisjoint(with: Self.userGestureReasons)
       if isUserGesture {
         userCameraDidChange()

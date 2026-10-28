@@ -148,6 +148,15 @@ struct SettingsView: View {
     }
     .modifier(SettingsEditorPresenter(presentation: editorPresentation))
     .modifier(SettingsBackupPresenter(presentation: currentBackupPresentation))
+    .errorAlert(Binding(
+      get: {
+        guard appState.navigation.selectedTab == AppTab.settings.rawValue,
+              appState.navigation.selectedSetting == .maps,
+              nestedPath.last == .offlineMaps else { return nil }
+        return appState.offlineMapService.errorMessage
+      },
+      set: { _ in appState.offlineMapService.clearError() }
+    ))
   }
 
   private func prepareBackupPresentation() {

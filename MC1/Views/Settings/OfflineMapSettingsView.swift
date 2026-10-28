@@ -1,4 +1,3 @@
-import MapKit
 import MapLibre
 import MC1Services
 import SwiftUI
@@ -7,7 +6,6 @@ struct OfflineMapSettingsView: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @State private var showingRegionPicker = false
-  @State private var errorMessage: String?
 
   var body: some View {
     Group {
@@ -41,13 +39,6 @@ struct OfflineMapSettingsView: View {
     .sheet(isPresented: $showingRegionPicker) {
       RegionPickerSheet()
     }
-    .onChange(of: appState.offlineMapService.lastPackError) { _, newValue in
-      if let newValue {
-        errorMessage = newValue
-        appState.offlineMapService.clearLastPackError()
-      }
-    }
-    .errorAlert($errorMessage)
   }
 }
 
@@ -162,14 +153,11 @@ private struct RegionPickerSheet: View {
   @Environment(\.dismiss) private var dismiss
 
   @State private var regionName = ""
-  @State private var cameraRegion: MKCoordinateRegion?
   @State private var isDownloading = false
   @State private var errorMessage: String?
-  @State private var mapSize: CGSize = .zero
   @State private var includeTopo = false
-  @State private var isStyleLoaded = false
-  @State private var debouncedRegion: MKCoordinateRegion?
-  @State private var debounceTask: Task<Void, Never>?
+  @State private var selectionBounds: MLNCoordinateBounds?
+  @State private var selectionBoundsProvider: (() -> MLNCoordinateBounds?)?
   @State private var availableBytes: Int64?
 
   private static let selectionPadding: CGFloat = 40
@@ -187,20 +175,12 @@ private struct RegionPickerSheet: View {
           isInteractive: true,
           showsScale: false,
           isNorthLocked: true,
-          cameraRegion: $cameraRegion,
+          cameraRegion: .constant(nil),
           cameraRegionVersion: 0,
           onPointTap: nil,
           onMapTap: nil,
-          onCameraRegionChange: { region in
-            cameraRegion = region
-            debounceTask?.cancel()
-            debounceTask = Task {
-              try? await Task.sleep(for: .milliseconds(200))
-              guard !Task.isCancelled else { return }
-              debouncedRegion = region
-            }
-          },
-          isStyleLoaded: $isStyleLoaded
+          onCameraRegionChange: nil,
+          onMapGeometryChange: updateSelectionBounds
         )
 
         // Selection rectangle overlay
@@ -208,11 +188,6 @@ private struct RegionPickerSheet: View {
           .strokeBorder(Color.accentColor, lineWidth: 2)
           .padding(Self.selectionPadding)
           .allowsHitTesting(false)
-      }
-      .onGeometryChange(for: CGSize.self) { proxy in
-        proxy.size
-      } action: { newValue in
-        mapSize = newValue
       }
       .navigationTitle(L10n.Settings.OfflineMaps.pickRegion)
       .navigationBarTitleDisplayMode(.inline)
@@ -227,7 +202,7 @@ private struct RegionPickerSheet: View {
             downloadRegion()
           }
           .disabled(
-            regionName.isEmpty || isDownloading || exceedsAvailableSpace
+            regionName.isEmpty || isDownloading || exceedsAvailableSpace || exceedsProviderLimit
               || !appState.offlineMapService.isNetworkAvailable
               || selectionBounds == nil
           )
@@ -239,13 +214,12 @@ private struct RegionPickerSheet: View {
           includeTopo: $includeTopo,
           estimatedDownloadBytes: estimatedDownloadBytes,
           exceedsAvailableSpace: exceedsAvailableSpace,
+          exceedsProviderLimit: exceedsProviderLimit,
           isNetworkAvailable: appState.offlineMapService.isNetworkAvailable
         )
       }
       .errorAlert($errorMessage)
       .onAppear { refreshAvailableBytes() }
-      .onChange(of: debouncedRegion?.center.latitude) { _, _ in refreshAvailableBytes() }
-      .onChange(of: debouncedRegion?.center.longitude) { _, _ in refreshAvailableBytes() }
     }
   }
 
@@ -259,9 +233,17 @@ private struct RegionPickerSheet: View {
 
   private var estimatedDownloadBytes: Int64? {
     guard let bounds = selectionBounds else { return nil }
-    return selectedLayers.reduce(Int64(0)) { total, layer in
-      total + OfflineMapService.estimatedDownloadSize(bounds: bounds, minZoom: 10, maxZoom: Int(layer.maxDownloadZoom), layer: layer)
+    return estimatedDownloadBytes(for: bounds)
+  }
+
+  private func estimatedDownloadBytes(for bounds: MLNCoordinateBounds) -> Int64 {
+    selectedLayers.reduce(Int64(0)) { total, layer in
+      total + OfflineMapService.estimatedDownloadSize(bounds: bounds, minZoom: OfflineMapDownloadPolicy.minimumZoom, maxZoom: Int(layer.maxDownloadZoom), layer: layer)
     }
+  }
+
+  private var exceedsProviderLimit: Bool {
+    selectionBounds.map { !OfflineMapDownloadPolicy.permits($0) } ?? false
   }
 
   private var exceedsAvailableSpace: Bool {
@@ -279,32 +261,33 @@ private struct RegionPickerSheet: View {
 
   // MARK: - Bounds
 
-  private var selectionBounds: MLNCoordinateBounds? {
-    guard let region = debouncedRegion,
-          mapSize.width > 0, mapSize.height > 0 else { return nil }
-
-    let lonFraction = Self.selectionPadding / (mapSize.width / 2)
-    let latFraction = Self.selectionPadding / (mapSize.height / 2)
-
-    let latInset = region.span.latitudeDelta * latFraction
-    let lonInset = region.span.longitudeDelta * lonFraction
-
-    return MLNCoordinateBounds(
-      sw: CLLocationCoordinate2D(
-        latitude: region.center.latitude - (region.span.latitudeDelta / 2 - latInset),
-        longitude: region.center.longitude - (region.span.longitudeDelta / 2 - lonInset)
-      ),
-      ne: CLLocationCoordinate2D(
-        latitude: region.center.latitude + (region.span.latitudeDelta / 2 - latInset),
-        longitude: region.center.longitude + (region.span.longitudeDelta / 2 - lonInset)
-      )
-    )
+  private func updateSelectionBounds(_ mapView: MLNMapView) {
+    let bounds = MC1MapView.selectionBounds(in: mapView, padding: Self.selectionPadding)
+    if let bounds, let selectionBounds,
+       MLNCoordinateBoundsEqualToCoordinateBounds(bounds, selectionBounds) { return }
+    if bounds == nil, selectionBounds == nil { return }
+    selectionBoundsProvider = { [weak mapView] in
+      guard let mapView else { return nil }
+      return MC1MapView.selectionBounds(in: mapView, padding: Self.selectionPadding)
+    }
+    selectionBounds = bounds
   }
 
   // MARK: - Download
 
   private func downloadRegion() {
-    guard let bounds = selectionBounds else { return }
+    guard !isDownloading, !regionName.isEmpty,
+          appState.offlineMapService.isNetworkAvailable,
+          let bounds = selectionBoundsProvider?() else { return }
+    guard OfflineMapDownloadPolicy.permits(bounds) else {
+      errorMessage = L10n.Settings.OfflineMaps.Error.providerLimitExceeded
+      return
+    }
+    refreshAvailableBytes()
+    if let availableBytes, estimatedDownloadBytes(for: bounds) > availableBytes {
+      errorMessage = L10n.Settings.OfflineMaps.exceedsStorage
+      return
+    }
     isDownloading = true
 
     let layers = selectedLayers
@@ -332,6 +315,7 @@ private struct RegionPickerBottomCard: View {
   @Binding var includeTopo: Bool
   let estimatedDownloadBytes: Int64?
   let exceedsAvailableSpace: Bool
+  let exceedsProviderLimit: Bool
   let isNetworkAvailable: Bool
 
   /// Warn when estimated download exceeds 500 MB.
@@ -388,6 +372,10 @@ private struct RegionPickerBottomCard: View {
             .foregroundStyle(.red)
         }
         .font(.caption)
+      } else if exceedsProviderLimit {
+        Text(L10n.Settings.OfflineMaps.Error.providerLimitExceeded)
+          .foregroundStyle(.red)
+          .font(.caption)
       } else if let bytes = estimatedDownloadBytes {
         let isLarge = bytes > Self.largeDownloadThreshold
 

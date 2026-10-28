@@ -5403,6 +5403,8 @@ public enum L10n {
       public enum Error {
         /// Error: insufficient disk space
         public static let insufficientDiskSpace = L10n.tr("Settings", "offlineMaps.error.insufficientDiskSpace", fallback: "Not enough storage space. At least 100 MB is required.")
+        /// The selected area exceeds the offline map provider limit.
+        public static let providerLimitExceeded = L10n.tr("Settings", "offlineMaps.error.providerLimitExceeded", fallback: "This area exceeds the map provider’s download limit. Zoom in to select a smaller area.")
         /// Error: tile limit reached
         public static let tileLimitReached = L10n.tr("Settings", "offlineMaps.error.tileLimitReached", fallback: "The download tile limit has been reached.")
       }
