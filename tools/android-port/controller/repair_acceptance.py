@@ -18,11 +18,12 @@ from .gates import (
 )
 from .model import SHA, git
 from .paths import git_path
-from .publication import bounded_output
+from .publication import bounded_output, decode_structured_body
 from .render import marker
 from .schema import decode_json, digest, fields, nonempty, positive_integer
 
 SCOPE_MARKER = "<!-- android-port-repair-scope-v1 -->\n"
+COMPRESSED_SCOPE_MARKER = "<!-- android-port-repair-scope-zlib-v1 -->\n"
 VERIFICATION = {
     "android-scaffold": {
         "command": ["python", "tools/android-port/controller/ci.py", "run", "--stage", "scaffold"],
@@ -86,9 +87,9 @@ def authenticated_scope(native, comment_id, binding):
     if comment.get("id") != comment_id:
         raise PortError("Repair scope comment identity does not match")
     body = bounded_output(comment.get("body"))
-    if not body.startswith(SCOPE_MARKER):
+    if not body.startswith((SCOPE_MARKER, COMPRESSED_SCOPE_MARKER)):
         raise PortError("Missing explicit bounded repair scope")
-    scope = decode_json(body[len(SCOPE_MARKER):])
+    scope = decode_structured_body(body, SCOPE_MARKER, COMPRESSED_SCOPE_MARKER)
     fields(scope, {
         "schema_version", "kind", "binding", "repair_pr", "repair_issue", "landed_pr", "owner",
         "summary", "paths", "acceptance", "coverage", "verification", "native",
@@ -683,7 +684,7 @@ def _kotlin_junit_methods(text):
             test_annotations.add(alias)
         if imported in family_annotations:
             family_annotations.add(alias)
-    methods = {}
+    methods, declaration_positions = {}, {}
     for start, value in enumerate(tokens):
         if value != "@":
             continue
@@ -723,8 +724,11 @@ def _kotlin_junit_methods(text):
                 raise PortError("Cannot identify annotated Kotlin JUnit test declaration")
             name = tokens[index + 1].strip("`")
             kind = "factory" if annotations & family_annotations else "test"
+            if name in declaration_positions and declaration_positions[name] != index:
+                raise PortError("Ambiguous duplicate JUnit method name in candidate test source")
             if name in methods and methods[name] != kind:
                 raise PortError("Ambiguous JUnit test and factory declaration")
+            declaration_positions[name] = index
             methods[name] = kind
     return methods
 

@@ -18,13 +18,14 @@ from controller.errors import PortError
 from controller.gates import Binding, policy_revision, verify_pr_gates
 from controller.ledger import Identity
 from controller.model import Manifest, git, tree
-from controller.publication import bounded_output
+from controller.publication import bounded_output, decode_structured_body
 from controller.render import marker
 from controller.schema import decode_json, digest, fields, positive_integer
 from controller.settings import Settings
 from controller.staging import object_bytes, stage_review
 
 REVIEW_MARKER = "<!-- android-port-native-review-v1 -->\n"
+COMPRESSED_REVIEW_MARKER = "<!-- android-port-native-review-zlib-v1 -->\n"
 RESULT_MARKER = "<!-- android-port-native-gates-v1 -->\n"
 WORKFLOW_PATH = ".github/workflows/android-parity-review.yml"
 CI_PATH = ".github/workflows/android-ci.yml"
@@ -235,10 +236,10 @@ class NativeReview:
             or actual.get("commit_id") != binding.head_sha
             or actual.get("user", {}).get("type") != "User"
             or actual.get("user", {}).get("login") not in self.policy["review_policy"]["authorized_coordinators"]
-            or not body.startswith(REVIEW_MARKER)
+            or not body.startswith((REVIEW_MARKER, COMPRESSED_REVIEW_MARKER))
         ):
             raise PortError("Missing authenticated exact-head coordinator read-only review receipt")
-        receipt = decode_json(body[len(REVIEW_MARKER):])
+        receipt = decode_structured_body(body, REVIEW_MARKER, COMPRESSED_REVIEW_MARKER)
         if not isinstance(receipt, dict):
             raise PortError("Native source receipt must be a complete object")
         repair = receipt.get("schema_version") == 2

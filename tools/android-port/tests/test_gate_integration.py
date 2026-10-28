@@ -1,8 +1,11 @@
 """AndroidOnly: WP-003 Trusted staging, output caps and real-fact negative fixtures."""
 
 import copy
+import base64
+import hashlib
 import json
 import unittest
+import zlib
 from dataclasses import asdict
 from unittest.mock import patch
 
@@ -12,12 +15,57 @@ from controller.gate_runtime import capabilities
 from controller.gates import Binding
 from controller.historical import import_historical_receipt, migration_proposal
 from controller.model import REFERENCE_SHA, git, tree
-from controller.publication import CHECK_OUTPUT_LIMIT, GATE_MARKER, bounded_output, decode_bundle, encode_bundle, prepare_output, require_publisher
+from controller.publication import (
+    CHECK_OUTPUT_LIMIT, GATE_MARKER, STRUCTURED_INPUT_LIMIT, bounded_output, decode_bundle,
+    decode_structured_body, encode_bundle, encode_structured_body, prepare_output, require_publisher,
+)
 from controller.schema import digest
 from controller.staging import require_reviewer, stage_review
 
 
 class PublisherTests(unittest.TestCase):
+    def test_compressed_structured_receipt_preserves_real_large_original_families(self):
+        manifest = base_manifest()
+        catalog = json.loads((REPO / "docs" / "android" / "test-cases.json").read_text(encoding="utf-8"))
+        registered = {entry["path"]: entry for entry in catalog["entries"]}
+        originals = [registered[entry["path"]] for entry in manifest.inputs("WP-307", False)
+                     if entry["kind"] in ("test", "support") and entry["exclusion"] is None
+                     and entry["path"] in registered]
+        scope_cases = [{"path": entry["path"], **case} for entry in originals for case in entry["cases"]]
+        results = [{"path": entry["path"], "blob_sha": entry["blob_sha"],
+                    "cases": [{**case, "result": "PASS",
+                               "evidence": ["https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/123/attempts/1"]}
+                              for case in entry["cases"]]} for entry in originals]
+        payload = {"coverage": [{"cases": scope_cases}], "source_tests": results}
+        self.assertEqual(len(scope_cases), 334)
+        self.assertGreater(len(json.dumps(payload).encode("utf-8")), CHECK_OUTPUT_LIMIT)
+        encoded = encode_structured_body(payload, "plain\n", "compressed\n")
+        self.assertTrue(encoded.startswith("compressed\n"))
+        self.assertLessEqual(len(encoded.encode("utf-8")), CHECK_OUTPUT_LIMIT)
+        self.assertEqual(decode_structured_body(encoded, "plain\n", "compressed\n"), payload)
+        small = encode_structured_body({"ok": True}, "plain\n", "compressed\n")
+        self.assertTrue(small.startswith("plain\n"))
+        self.assertEqual(decode_structured_body(small, "plain\n", "compressed\n"), {"ok": True})
+
+    def test_compressed_structured_receipts_fail_closed_for_invalid_or_oversized_input(self):
+        pack = lambda raw: "compressed\n" + base64.b64encode(zlib.compress(raw)).decode("ascii")
+        for body in (
+            "wrong\n{}",
+            "compressed\nnot-base64!",
+            "compressed\n" + base64.b64encode(zlib.compress(b"{}")[:-1]).decode("ascii"),
+            "compressed\n" + base64.b64encode(zlib.compress(b"{}") + b"junk").decode("ascii"),
+            pack(b"\xff"),
+            pack(b'{"duplicate":1,"duplicate":2}'),
+            pack(b"x" * (STRUCTURED_INPUT_LIMIT + 1)),
+        ):
+            with self.subTest(body=body[:40]), self.assertRaises(PortError):
+                decode_structured_body(body, "plain\n", "compressed\n")
+        noise = "".join(hashlib.sha256(str(i).encode()).hexdigest() for i in range(3000))
+        with self.assertRaises(PortError):
+            encode_structured_body({"noise": noise}, "plain\n", "compressed\n")
+        with self.assertRaises(PortError):
+            encode_structured_body({"value": "x" * STRUCTURED_INPUT_LIMIT}, "plain\n", "compressed\n")
+
     def payload(self):
         value = bundle(test_manifest("WP-000"), policy())
         return {

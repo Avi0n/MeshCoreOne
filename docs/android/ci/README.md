@@ -824,7 +824,7 @@ then use the existing staging command with the actual WP and current base/head:
 python .\tools\android-port\controller\gate_runtime.py stage --wp WP-xxx --trusted-base <40-hex-base> --candidate <40-hex-head> --output <private-staged-input.json>
 ```
 
-The review body must start exactly with
+The plain review body starts exactly with
 `<!-- android-port-native-review-v1 -->` followed by a newline and one JSON object:
 
 ```json
@@ -846,7 +846,17 @@ Record a real review using GitHub's supported REST API
 fabrication of the verdict. The authenticated reviewer must be a human GitHub
 `User` in the trusted policy's `authorized_coordinators`; the coordinator can also
 be the PR author. The receipt must fit the complete 65,535-byte/character bound.
-Oversized receipts block; there is no unverified attachment or truncation fallback.
+To retain a complete larger receipt within that bound, encode the exact JSON as
+bounded zlib/base64 using the trusted helper. The resulting review body uses
+`<!-- android-port-native-review-zlib-v1 -->`; its decoded JSON is checked by
+the same validator and authenticated exact-head reviewer. No attachment,
+truncation or second CI result is involved. Both the compressed body and the
+expanded JSON have strict size limits; exceeding either still blocks.
+
+```powershell
+$env:PYTHONPATH=(Resolve-Path .\tools\android-port).Path
+python -c "import sys; from pathlib import Path; from controller.schema import load_json; from controller.publication import encode_structured_body; from controller.native_review import REVIEW_MARKER, COMPRESSED_REVIEW_MARKER; Path(sys.argv[2]).write_text(encode_structured_body(load_json(Path(sys.argv[1])), REVIEW_MARKER, COMPRESSED_REVIEW_MARKER), encoding='utf-8')" <private-receipt.json> <private-review-body.txt>
+```
 
 Hosted acceptance schema v2 has `schema_version: 2`, all seven binding fields,
 `changed_paths`, `acceptance` and `source_tests` with their existing complete
@@ -942,6 +952,10 @@ parameterized families, the Gradle listener captures actual successful
 test-descriptor ancestry during the selected run and binds each child to the
 matching JUnit case, task and source declaration. A missing or ambiguous
 family binding fails acceptance; ordinary case counts are not a substitute.
+Duplicate test method names in one source file currently fail closed because
+the scope's method identity does not distinguish their declaring classes;
+give those Android test methods distinct names rather than claiming one
+execution covers multiple declarations.
 No schedule or controller activation is implied.
 
 The shared lane is a way to execute checks, not proof of parity. Whole-WP
@@ -1039,6 +1053,9 @@ The staging and receipt revalidation paths include each selected cross-owner
 source's pinned bytes in the immutable reviewer inputs and staging digest.
 Referenced candidate test methods, unchanged production consumers and native
 source bindings are likewise staged at their exact candidate blob identities.
+Large scope comments can use the same bounded encoder with `SCOPE_MARKER` and
+`COMPRESSED_SCOPE_MARKER` from `controller.repair_acceptance`; the comment
+author and PR/issue binding are authenticated identically.
 The actual merged producer must be an ancestor of the current base and have
 the canonical WP marker or legacy `[WP-xxx] ` title. Its actual server path
 inventory must contain an actually repaired production path; added repair helpers

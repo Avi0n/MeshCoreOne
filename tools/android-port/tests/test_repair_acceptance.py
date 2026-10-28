@@ -15,11 +15,12 @@ from controller.gates import Binding, policy_revision, verify_completion, verify
 from controller.ledger import Identity
 from controller.native_review import REVIEW_MARKER
 from controller.repair_acceptance import (
-    SCOPE_MARKER, authenticated_scope, instrumentation_results, validate_build_log,
+    COMPRESSED_SCOPE_MARKER, SCOPE_MARKER, authenticated_scope, instrumentation_results, validate_build_log,
     validate_hosted_methods, validate_scope, verify_native, verify_repair,
     retained_repairs_execution, scoped_candidate_sources,
 )
 from controller.schema import digest, load_json
+from controller.publication import encode_structured_body
 import test_native_review
 
 PATH = "android/feature/map/src/main/kotlin/com/meshcoreone/android/feature/map/MapEntry.kt"
@@ -336,6 +337,25 @@ class RepairExecutionTests(unittest.TestCase):
             @Test fun keepsListReachable() { check(true) }
             @Test fun anotherCase() { check(true) }
         """), self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
+    def test_duplicate_test_names_in_distinct_classes_cannot_share_one_execution(self):
+        manifest, _, _, scope = whole_fixture()
+        scope["coverage"].append({
+            "path": TEST, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Actual unit tests.",
+            "modules": ["core/maps"],
+        })
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        source = b"""
+            class MapTest { @Test fun keepsListReachable() {} }
+            class OtherTest { @Test fun keepsListReachable() {} }
+        """
+        with patch("controller.staging.object_bytes", return_value=source), \
+                self.assertRaisesRegex(PortError, "duplicate JUnit method name"):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+        source = b"@OriginalCase(\"one\") @Test fun keepsListReachable() {}"
+        with patch("controller.staging.object_bytes", return_value=source):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
 
     def test_whole_scope_helper_requires_executed_consumer_without_hiding_test_declarations(self):
@@ -939,6 +959,17 @@ class RepairAuthorityTests(unittest.TestCase):
                 authenticated_scope(native, 700, value.binding)
             route["pull_request"] = {}
             comment["issue_url"] = f"https://api.github.com/repos/{native.policy['repository']}/issues/123"
+
+    def test_compressed_scope_remains_bound_to_the_actual_author_and_pr(self):
+        native, api, prefix, value, scope, _, _ = self.fixture()
+        scope["summary"] += "x" * 70000
+        comment = api.routes[("GET", prefix + "/issues/comments/700")]
+        comment["body"] = encode_structured_body(scope, SCOPE_MARKER, COMPRESSED_SCOPE_MARKER)
+        self.assertTrue(comment["body"].startswith(COMPRESSED_SCOPE_MARKER))
+        self.assertEqual(authenticated_scope(native, 700, value.binding), scope)
+        comment["user"] = {"login": "unregistered", "type": "User"}
+        with self.assertRaises(PortError):
+            authenticated_scope(native, 700, value.binding)
 
     def test_pr_author_can_propose_scope_without_impersonating_coordinator(self):
         native, api, prefix, value, scope, _, _ = self.fixture()
