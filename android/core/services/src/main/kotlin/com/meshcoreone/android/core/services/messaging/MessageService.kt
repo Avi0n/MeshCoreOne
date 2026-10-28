@@ -304,21 +304,19 @@ class MessageService(
         ownership.check("failAllPendingMessages")
         val ids = synchronized(lock) { pendingAcks.values.filter { !it.isDelivered }.map { it.messageID } }
         var firstFailure: PersistenceStoreException? = null
-        for (id in ids) {
+        for (id in ids) mutation(id).withLock {
+            ownership.check("failAllPendingMessages.entry")
             try {
-                mutation(id).withLock {
-                    ownership.check("failAllPendingMessages.entry")
-                    if (pendingAck(id)?.isDelivered != false) return@withLock
-                    val changed = dataStore.updateMessageStatusUnlessDelivered(key(id), MessageStatus.FAILED)
-                    ownership.check("failAllPendingMessages.saved")
-                    synchronized(lock) {
-                        pendingAcks.remove(id)
-                        activeDirectClaims[id]?.let {
-                            if (it.acknowledgement == null) it.retiredWithoutAcknowledgement = true
-                        }
+                if (pendingAck(id)?.isDelivered != false) return@withLock
+                val changed = dataStore.updateMessageStatusUnlessDelivered(key(id), MessageStatus.FAILED)
+                ownership.check("failAllPendingMessages.saved")
+                synchronized(lock) {
+                    pendingAcks.remove(id)
+                    activeDirectClaims[id]?.let {
+                        if (it.acknowledgement == null) it.retiredWithoutAcknowledgement = true
                     }
-                    if (changed) broadcastFailed(id)
                 }
+                if (changed) broadcastFailed(id)
                 recovered("failPending.$id")
             } catch (failure: PersistenceStoreException) {
                 if (!ownership.isCurrent) throw failure

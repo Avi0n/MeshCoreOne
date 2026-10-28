@@ -90,6 +90,41 @@ class RecoveryPolicyTest {
             assertFalse(report.isComplete); assertTrue(report.issues.any { it.cause === fault })
             h.close()
         },
+        native("overlapping fail-all retry observes failure accounting before taking the mutation lock") {
+            val h = Harness(this); h.start()
+            val message = h.message(); h.service.installPendingAck(h.tracking(message))
+            val fault = storageFailure()
+            val entered = CompletableDeferred<Unit>(); val release = CompletableDeferred<Unit>()
+            var writes = 0
+            h.store.before = {
+                if (it == "updateMessageStatusUnlessDelivered") {
+                    if (writes++ == 0) {
+                        entered.complete(Unit); release.await(); throw fault
+                    }
+                    assertTrue(h.diagnostics.any { diagnostic -> diagnostic is MessagingDiagnostic.Failure &&
+                        diagnostic.operation == "failPending.${message.id}" && diagnostic.cause === fault })
+                }
+            }
+            val observed = mutableListOf<MessageStatusEvent>()
+            observe(h, observed)
+            val failed = backgroundScope.async {
+                assertFailsWith<PersistenceStoreException> { h.service.failAllPendingMessages() }
+            }
+            entered.await()
+            // Resume the mutex waiter inline at unlock, before an outer catch could record the failure.
+            val retry = backgroundScope.async(UnconfinedTestDispatcher(testScheduler)) {
+                h.service.failAllPendingMessages()
+            }
+            try {
+                assertFalse(retry.isCompleted)
+            } finally { release.complete(Unit) }
+            assertSame(fault, failed.await()); retry.await(); runCurrent()
+            assertEquals(2, writes)
+            assertEquals(MessageStatus.FAILED, h.stored(message.id).status)
+            assertEquals(0, h.service.pendingAckCount)
+            assertEquals(listOf(MessageStatusEvent.Failed(message.id)), observed)
+            assertTrue(h.service.close().isComplete); h.close()
+        },
         native("cancelling fail all keeps uncommitted tracking and does not fail later entries") {
             val h = Harness(this); h.start()
             val first = h.message(); val later = h.message()
