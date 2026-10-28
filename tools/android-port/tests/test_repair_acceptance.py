@@ -16,7 +16,7 @@ from controller.ledger import Identity
 from controller.native_review import REVIEW_MARKER
 from controller.repair_acceptance import (
     COMPRESSED_SCOPE_MARKER, SCOPE_MARKER, authenticated_scope, instrumentation_results, validate_build_log,
-    validate_hosted_methods, validate_scope, verify_native, verify_repair,
+    validate_hosted_methods as validate_compiled_hosted_methods, validate_scope, verify_native, verify_repair,
     retained_repairs_execution, scoped_candidate_sources, scoped_retained_sources,
 )
 from controller.schema import digest, load_json
@@ -28,6 +28,17 @@ TEST = "android/core/maps/src/test/kotlin/com/meshcoreone/android/core/maps/MapT
 METHOD = {"path": TEST, "blob_sha": "4" * 40, "id": "keepsListReachable"}
 CONSUMER_TEST = "android/app/src/test/kotlin/com/meshcoreone/android/app/ConsumerTest.kt"
 LOG_STEP = "Run every selected Linux and Android task in one Gradle invocation"
+
+
+def validate_hosted_methods(scope, candidate_tree, repo, executed, compiled_sources=None):
+    if compiled_sources is None:
+        compiled_sources = {}
+        for path, blob in candidate_tree.items():
+            parts = path.split("/")
+            if len(parts) > 3 and parts[0] == "android":
+                module = parts[1] if parts[1] == "app" else "/".join(parts[1:3])
+                compiled_sources.setdefault(module, {})[path] = blob
+    return validate_compiled_hosted_methods(scope, candidate_tree, repo, executed, compiled_sources)
 
 
 def fixture():
@@ -97,9 +108,13 @@ def build_log(modules, **changes):
     count = {"discovered": 3, "run": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0}
     report = {"stage": "scaffold", "result": "success", "strict_verification": True,
               "tasks": TASKS["scaffold"], "module_unit_tests": {m: copy.deepcopy(count) for m in modules},
+              "compiled_test_sources": {m: {} for m in [*modules, "core/protocol", "core/contracts", "app"]},
               "unit_test_methods": {m: [{"class": "MapTest", "method": name}
                                       for name in ("keepsListReachable", "unrelatedOne", "unrelatedTwo")]
                                     for m in modules}}
+    if "core/maps" in report["compiled_test_sources"]:
+        report["compiled_test_sources"]["core/maps"][TEST] = "4" * 40
+    report["compiled_test_sources"]["app"][CONSUMER_TEST] = "4" * 40
     report.update(changes)
     return "\n".join(f"One Linux Android build\t{LOG_STEP}\t2026-10-19T00:00:00Z {line}"
                      for line in json.dumps(report, indent=2).splitlines())
@@ -527,6 +542,7 @@ class RepairExecutionTests(unittest.TestCase):
             "kind": "local-affected-only", "result": "success", **plan,
             "resolved_task_graph": {"result": "no-duplicate-ci-evidence"},
             "suites": {"core/maps": counts},
+            "compiled_test_sources": {"core/maps": {TEST: "4" * 40}},
             "junit_cases": [{
                 "report": "android/core/maps/build/test-results/testDebugUnitTest/TEST-MapTest.xml",
                 "index": 0, "class": "MapTest", "method": "keepsListReachable", "outcome": "passed",
@@ -542,7 +558,7 @@ class RepairExecutionTests(unittest.TestCase):
         self.assertEqual(proof["methods"]["core/maps"][0]["method"], "keepsListReachable")
         self.assertEqual(proof["methods"]["core/maps"][0]["factory"], "affectedFamily")
         for kind in ("missing-plan", "wrong-tasks", "stale-head", "zero", "skipped", "duplicate",
-                     "wrong-step", "missing-method"):
+                     "wrong-step", "missing-method", "missing-sources", "wrong-source-blob"):
             altered = copy.deepcopy(report)
             provider = lambda scopes: plan
             if kind == "missing-plan":
@@ -559,6 +575,10 @@ class RepairExecutionTests(unittest.TestCase):
                 altered["junit_cases"].append(copy.deepcopy(altered["junit_cases"][0]))
             elif kind == "missing-method":
                 altered["junit_cases"] = []
+            elif kind == "missing-sources":
+                altered.pop("compiled_test_sources")
+            elif kind == "wrong-source-blob":
+                altered["compiled_test_sources"]["core/maps"][TEST] = "not-a-blob"
             log = log_for(altered)
             if kind == "wrong-step":
                 log = log.replace(step, "A candidate-written summary")
@@ -631,6 +651,21 @@ class RepairExecutionTests(unittest.TestCase):
             altered["coverage"][0]["hosted_methods"][0]["path"] = path
             with self.subTest(path=path), self.assertRaisesRegex(PortError, "actual immutable test source"):
                 validate_scope(altered, value.binding, manifest, rules, [PATH], None)
+
+    def test_hosted_method_requires_exact_compiled_source_for_selected_task(self):
+        manifest, _, _, original = fixture()
+        scope = copy.deepcopy(original)
+        ignored = TEST.replace("/src/test/", "/src/testDebug/")
+        scope["coverage"][0]["hosted_methods"][0]["path"] = ignored
+        candidate = {TEST: "4" * 40, ignored: "4" * 40}
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        with patch("controller.staging.object_bytes", return_value=b"@Test fun keepsListReachable() {}"):
+            for sources in ({}, {"core/maps": {TEST: "4" * 40}},
+                            {"core/maps": {ignored: "5" * 40}}):
+                with self.subTest(sources=sources), self.assertRaisesRegex(PortError, "not compiled"):
+                    validate_hosted_methods(scope, candidate, manifest.repo, executed, sources)
+            validate_hosted_methods(scope, candidate, manifest.repo, executed,
+                                    {"core/maps": {ignored: "4" * 40}})
 
     def test_hosted_method_accepts_quoted_annotation_arguments_without_treating_them_as_syntax(self):
         manifest, _, _, scope = fixture()

@@ -544,6 +544,20 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
     if len(reports) != 1:
         raise PortError("Missing/ambiguous actual scaffold report in authoritative hosted log")
     report = reports[0]
+    compiled = report.get("compiled_test_sources")
+    if not isinstance(compiled, dict):
+        raise PortError("Missing compiled test source inventory")
+    for module in modules:
+        sources = compiled.get(module)
+        if not isinstance(sources, dict):
+            raise PortError("Missing compiled test sources for verified module: " + module)
+        for path, blob in sources.items():
+            if (
+                not isinstance(path, str) or not path.startswith("android/")
+                or git_path(path) != path or not path.endswith(".kt")
+                or not isinstance(blob, str) or SHA.fullmatch(blob) is None
+            ):
+                raise PortError("Malformed compiled test source inventory")
     if report.get("kind") == "local-affected-only":
         scopes = report.get("scopes")
         if (
@@ -605,7 +619,7 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
             if len(records) != found["discovered"] or len(identities) != len(records):
                 raise PortError("Affected hosted methods disagree with discovered test counts")
         return {"modules": sorted(modules), "positive_discovery": True,
-                "source": "authoritative-hosted-log", "methods": inventory}
+                "source": "authoritative-hosted-log", "methods": inventory, "compiled_test_sources": compiled}
     from .ci import SCOPED_TASKS, TASKS
 
     tasks = report.get("tasks")
@@ -649,7 +663,7 @@ def validate_build_log(log, modules, *, plan_for_scopes=None):
                 raise PortError("Duplicate actual hosted method identity")
             seen.add(identity)
     return {"modules": sorted(modules), "positive_discovery": True, "source": "authoritative-hosted-log",
-            "methods": inventory}
+            "methods": inventory, "compiled_test_sources": compiled}
 
 
 def _kotlin_junit_methods(text):
@@ -874,10 +888,18 @@ def _kotlin_junit_methods(text):
     return methods
 
 
-def validate_hosted_methods(scope, candidate_tree, repo, executed):
+def validate_hosted_methods(scope, candidate_tree, repo, executed, compiled_sources):
     from .staging import object_bytes
 
     verification = verification_only(scope)
+
+    def require_compiled(path, blob):
+        module = re.match(r"android/((?:core|feature|platform)/[^/]+|app)/", path)
+        if (module is None or not isinstance(compiled_sources, dict)
+                or not isinstance(compiled_sources.get(module[1]), dict)
+                or compiled_sources[module[1]].get(path) != blob):
+            raise PortError("Hosted test source was not compiled for the selected test task")
+
     for coverage in scope["coverage"]:
         if verification:
             if any(candidate_tree.get(path) != blob for path, blob in coverage["production_bindings"].items()):
@@ -888,6 +910,8 @@ def validate_hosted_methods(scope, candidate_tree, repo, executed):
                 blob = candidate_tree.get(path)
                 if blob is None:
                     raise PortError("Verification test source is absent from candidate")
+                if "/src/androidTest/" not in path:
+                    require_compiled(path, blob)
                 text = object_bytes(repo, blob).decode("utf-8")
                 declared = _kotlin_junit_methods(text)
                 if "/src/test/" in path or "/src/testDebug/" in path:
@@ -904,6 +928,7 @@ def validate_hosted_methods(scope, candidate_tree, repo, executed):
         for method in coverage["hosted_methods"]:
             if candidate_tree.get(method["path"]) != method["blob_sha"]:
                 raise PortError("Affected hosted regression does not match candidate test source")
+            require_compiled(method["path"], method["blob_sha"])
             module = re.match(r"android/((?:core|feature|platform)/[^/]+|app)/", method["path"])
             if module is None or module[1] not in coverage["modules"]:
                 raise PortError("Affected hosted test is outside the verified module")

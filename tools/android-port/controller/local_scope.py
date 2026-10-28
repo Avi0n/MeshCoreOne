@@ -531,7 +531,7 @@ def _run_scaffold(
     from . import ci
     from .ci_evidence import (
         bind_test_lineage, collect_lint, collect_suites, lint_evidence,
-        prepare_test_lineage, read_test_lineage, validate_graph_runtime,
+        prepare_test_lineage, prepare_test_sources, read_test_lineage, read_test_sources, validate_graph_runtime,
     )
     from .module_junit import bounded_directory, check_module_tests
 
@@ -566,13 +566,15 @@ def _run_scaffold(
         graph.unlink(missing_ok=True)
     init_script = str(repo / "tools/android-port/controller/verify_candidate_task_graph.gradle")
     lineage_path = prepare_test_lineage(output)
+    sources_path = prepare_test_sources(output)
     graph_summaries = {}
     for phase, tasks, graph, log, gradle_options in (
         ("preflight", preflight_tasks, preflight_graph, "gradle-affected-preflight.log", preflight_options),
         ("build", build_tasks, build_graph, "gradle-scaffold.log", options),
     ):
         phase_environment = {**environment, "ANDROID_CI_TASK_GRAPH": str(graph),
-                             "ANDROID_CI_TEST_LINEAGE": str(lineage_path)}
+                             "ANDROID_CI_TEST_LINEAGE": str(lineage_path),
+                             "ANDROID_CI_TEST_SOURCES": str(sources_path)}
         execute([
             str(repo / "android/gradlew"), "-p", str(repo / "android"), *tasks, *gradle_options,
             "--init-script", init_script,
@@ -630,5 +632,6 @@ def _run_scaffold(
             runners[match[1]] = match[2]
             inventory.setdefault(match[1], []).append(case)
     bind_test_lineage(inventory, read_test_lineage(lineage_path), runners)
+    report["compiled_test_sources"] = read_test_sources(sources_path, runners)
     validate_plan(repo, plan, trusted_base=trusted_base, merge_base_only=merge_base_only)
     return report

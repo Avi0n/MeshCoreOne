@@ -293,6 +293,54 @@ def prepare_test_lineage(output: Path):
     return path
 
 
+def prepare_test_sources(output: Path):
+    output.mkdir(parents=True, exist_ok=True)
+    path = output / "gradle-test-sources.jsonl"
+    if path.is_symlink() or (path.exists() and not path.is_file()):
+        raise PortError("Unsafe temporary compiled test source path")
+    path.write_text("", encoding="utf-8")
+    return path
+
+
+def read_test_sources(path: Path, runners):
+    from .paths import git_path
+
+    if not path.is_file() or path.is_symlink() or path.stat().st_size > 32 * 1024 * 1024:
+        raise PortError("Missing or unsafe compiled test source inventory")
+    result = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            record = json.loads(line)
+        except (ValueError, TypeError) as error:
+            raise PortError("Malformed compiled test source inventory") from error
+        fields(record, {"task", "sources"}, label="compiled test source inventory")
+        if not isinstance(record["task"], str) or re.fullmatch(
+            r":[a-zA-Z0-9_-]+(?::[a-zA-Z0-9_-]+)*", record["task"]
+        ) is None or not isinstance(record["sources"], list):
+            raise PortError("Malformed compiled test source task")
+        segments = record["task"].lstrip(":").split(":")
+        module = "/".join(segments[:-1])
+        if module not in runners:
+            continue
+        if runners[module] != segments[-1]:
+            continue
+        if module in result:
+            raise PortError("Duplicate selected compiled test source task")
+        sources = {}
+        for item in record["sources"]:
+            fields(item, {"path", "blob"}, label="compiled test source")
+            source = git_path(item["path"])
+            if (
+                not source.startswith("android/") or not source.endswith(".kt")
+                or not isinstance(item["blob"], str) or re.fullmatch(r"[0-9a-f]{40}", item["blob"]) is None
+                or source in sources
+            ):
+                raise PortError("Malformed or duplicate compiled test source")
+            sources[source] = item["blob"]
+        result[module] = sources
+    return result
+
+
 def read_test_lineage(path: Path):
     if not path.is_file() or path.is_symlink() or path.stat().st_size > 32 * 1024 * 1024:
         raise PortError("Missing or unsafe temporary test lineage")

@@ -1,6 +1,7 @@
 """AndroidOnly: WP-003 Validate live CI reports without checked-in result bundles."""
 
 import ast
+import json
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
@@ -11,6 +12,8 @@ from controller.ci_evidence import (
     counts,
     failed_case_report,
     lint_evidence,
+    prepare_test_sources,
+    read_test_sources,
     suite_counts,
     suite_case_ids,
     validate_graph_runtime,
@@ -40,6 +43,28 @@ def junit_report(path: Path, tests=1, failures=0, errors=0, skipped=0):
 
 
 class LiveReportTests(unittest.TestCase):
+    def test_compiled_test_sources_are_bound_to_the_selected_runner(self):
+        source = "android/core/protocol/src/test/kotlin/ProbeTest.kt"
+        with tempfile.TemporaryDirectory() as temporary:
+            path = prepare_test_sources(Path(temporary))
+            runners = {"core/protocol": "test"}
+            def write(records):
+                path.write_text("".join(json.dumps(record) + "\n" for record in records), encoding="utf-8")
+            record = {"task": ":core:protocol:test", "sources": [{"path": source, "blob": "a" * 40}]}
+            other = {"task": ":core:protocol:testDebugUnitTest", "sources": []}
+            write([other, record])
+            self.assertEqual(read_test_sources(path, runners), {"core/protocol": {source: "a" * 40}})
+            for records in (
+                [record, record],
+                [{"task": ":core:protocol:test", "sources": [record["sources"][0]] * 2}],
+                [{"task": ":core:protocol:test", "sources": [{"path": "../bad.kt", "blob": "a" * 40}]}],
+                [{"task": ":core:protocol:test", "sources": [{"path": source, "blob": "not-a-blob"}]}],
+            ):
+                with self.subTest(records=records):
+                    write(records)
+                    with self.assertRaises(PortError):
+                        read_test_sources(path, runners)
+
     def test_failed_hosted_logs_keep_all_real_identities_and_actual_totals(self):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)

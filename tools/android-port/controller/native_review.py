@@ -420,7 +420,8 @@ class NativeReview:
                 trusted_base=value.binding.base_sha, merge_base_only=True,
             ),
         )
-        validate_hosted_methods(scope, candidate_tree, self.manifest.repo, execution["methods"])
+        validate_hosted_methods(scope, candidate_tree, self.manifest.repo, execution["methods"],
+                                execution["compiled_test_sources"])
         verify_native(self, scope, candidate_tree)
 
     def bundle(self, wp_id, identity):

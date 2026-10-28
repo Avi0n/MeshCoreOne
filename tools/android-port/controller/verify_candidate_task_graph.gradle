@@ -5,6 +5,43 @@ import org.gradle.api.tasks.AbstractExecTask
 gradle.beforeProject { project ->
     project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach { task ->
         def lineageFile = System.getenv("ANDROID_CI_TEST_LINEAGE")
+        def sourcesFile = System.getenv("ANDROID_CI_TEST_SOURCES")
+        if (sourcesFile) {
+            task.doFirst {
+                def dependencies = [] as Set
+                def visit
+                visit = { current ->
+                    current.taskDependencies.getDependencies(current).each { dependency ->
+                        if (dependencies.add(dependency)) visit(dependency)
+                    }
+                }
+                visit(task)
+                def classDirs = task.testClassesDirs.files.collect { it.canonicalFile } as Set
+                def androidRoot = task.project.rootProject.projectDir.canonicalFile.toPath()
+                def sources = [] as Set
+                dependencies.findAll { dependency ->
+                    dependency.class.name.startsWith("org.jetbrains.kotlin.gradle.tasks.KotlinCompile") &&
+                        dependency.outputs.files.files.any { classDirs.contains(it.canonicalFile) }
+                }.each { compiler ->
+                    compiler.sources.files.each { source ->
+                        def absolute = source.toPath().toAbsolutePath().normalize()
+                        if (absolute.startsWith(androidRoot) && source.isFile() && source.name.endsWith(".kt")) {
+                            def relative = "android/" + androidRoot.relativize(absolute).toString().replace("\\", "/")
+                            def bytes = source.bytes
+                            def sha = java.security.MessageDigest.getInstance("SHA-1")
+                            sha.update(("blob " + bytes.length + "\u0000").getBytes("UTF-8"))
+                            def blob = sha.digest(bytes).encodeHex().toString()
+                            sources.add([path: relative, blob: blob])
+                        }
+                    }
+                }
+                synchronized (gradle) {
+                    new File(sourcesFile).append(JsonOutput.toJson([
+                        task: task.path, sources: sources.sort { a, b -> a.path <=> b.path },
+                    ]) + "\n", "UTF-8")
+                }
+            }
+        }
         if (lineageFile) {
             task.afterTest { descriptor, result ->
                 def match = descriptor.name =~ /^(.+)\(([^()]*)\)((?:\[\d+\])+)$/
