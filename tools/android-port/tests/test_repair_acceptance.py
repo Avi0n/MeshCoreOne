@@ -417,6 +417,15 @@ class RepairExecutionTests(unittest.TestCase):
                     PortError, "every actual changed JUnit method",
                 ):
                     validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            for annotation in ("@[Test]", "@[org.junit.jupiter.api.Test]", "@[Test Factory]",
+                               "@[/* comment */ Test]", "@file:[Suppress(\"x\")]"):
+                sources["3" * 40] = (
+                    "package com.meshcoreone.android.core.maps\n" + annotation + " fun omitted() {}"
+                ).encode()
+                with self.subTest(annotation=annotation), self.assertRaisesRegex(
+                    PortError, "Grouped Kotlin annotations",
+                ):
+                    validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
             for imported, annotation in (
                 ("import org.junit.jupiter.api.Test as Check // reason", "@Check"),
                 ("import org.junit.jupiter.api.Test as Check;", "@Check"),
@@ -484,6 +493,21 @@ class RepairExecutionTests(unittest.TestCase):
         with patch("controller.staging.object_bytes", return_value=source), \
                 self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
             validate_hosted_methods(scope, {PATH: "5" * 40, TEST: "4" * 40}, manifest.repo, {})
+
+    def test_grouped_annotations_fail_closed_without_rejecting_literals_or_comments(self):
+        from controller.repair_acceptance import _kotlin_junit_methods
+
+        for source in (
+            "@[Test] fun omitted() {}",
+            "@[org.junit.jupiter.api.Test Suppress(\"reason\")] fun omitted() {}",
+            "import org.junit.jupiter.api.Test as Check\n@[Check] fun omitted() {}",
+            "@file:[Suppress(\"reason\")]",
+            "@get:[Suppress(\"reason\")] val value = 1",
+        ):
+            with self.subTest(source=source), self.assertRaisesRegex(PortError, "Grouped Kotlin annotations"):
+                _kotlin_junit_methods(source)
+        source = 'val s = "@[Test]"; /* @[Test] */ @Test fun executed() {}'
+        self.assertEqual(_kotlin_junit_methods(source), {"executed": "test"})
 
     def test_junit_lifecycle_and_standard_helper_annotations_are_not_tests(self):
         from controller.repair_acceptance import _kotlin_junit_methods

@@ -734,6 +734,13 @@ def _kotlin_junit_methods(text):
             tokens.append(match[0])
             index = match.end()
 
+    for index, value in enumerate(tokens):
+        if value == "@" and (
+            index + 1 < len(tokens) and tokens[index + 1] == "["
+            or index + 3 < len(tokens) and tokens[index + 2:index + 4] == [":", "["]
+        ):
+            raise PortError("Grouped Kotlin annotations are not supported in hosted test sources")
+
     test_annotations = {"Test", "org.junit.Test", "org.junit.jupiter.api.Test", "kotlin.test.Test"}
     family_annotations = {
         "TestFactory", "org.junit.jupiter.api.TestFactory",
