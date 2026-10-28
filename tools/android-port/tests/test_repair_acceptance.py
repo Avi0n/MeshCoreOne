@@ -56,6 +56,40 @@ def fixture():
     return manifest, rules, replace(value, evidence=evidence, review=review, approvals=[]), scope
 
 
+def whole_fixture():
+    manifest, rules, value, repair = fixture()
+    full = bundle(manifest, rules, "WP-312", changed_paths=[PATH], merged=False)
+    originals = {
+        entry["path"] for entry in manifest.inputs("WP-312", False)
+        if entry["kind"] in ("test", "support") and entry["exclusion"] is None
+    }
+    catalog = copy.deepcopy(full.catalog)
+    catalog["entries"] = [entry for entry in catalog["entries"] if entry["path"] in originals]
+    scope = {
+        "schema_version": 3, "kind": "whole-wp", "binding": asdict(value.binding),
+        "owner": repair["owner"], "paths": copy.deepcopy(repair["paths"]),
+        "acceptance": copy.deepcopy(manifest.wp("WP-312")["acceptance"]),
+        "coverage": copy.deepcopy(repair["coverage"]), "verification": ["android-scaffold"], "native": [],
+    }
+    scope["coverage"][0]["cases"] = [
+        {"path": entry["path"], **case} for entry in catalog["entries"] for case in entry["cases"]
+    ]
+    url = f"https://github.com/{rules['repository']}/actions/runs/1/attempts/1"
+    acceptance = [{"id": entry["id"], "result": "PASS", "evidence": [url]} for entry in scope["acceptance"]]
+    results = [copy.deepcopy(result) for result in full.evidence["source_tests"] if result["path"] in originals]
+    for result in results:
+        for case in result["cases"]:
+            case["evidence"] = [url]
+    evidence = {
+        "schema_version": 4, **asdict(value.binding), "changed_paths": [PATH],
+        "runs": [{"check": "android-ci", "run_id": 1, "run_attempt": 1}],
+        "retained_artifacts": [], "acceptance": acceptance, "source_tests": results,
+        "verification_scope": scope,
+    }
+    review = {**value.review, "acceptance": acceptance, "human_gate_required": False}
+    return manifest, rules, replace(value, evidence=evidence, review=review, catalog=catalog), scope
+
+
 def build_log(modules, **changes):
     from controller.ci import TASKS
 
@@ -71,6 +105,35 @@ def build_log(modules, **changes):
 
 
 class RepairContractTests(unittest.TestCase):
+    def test_shared_whole_scope_requires_complete_cases_and_actual_methods(self):
+        manifest, rules, value, scope = whole_fixture()
+        verify_pr_gates(value.pr, value.evidence, value.review, [], value.binding, manifest, rules, value.catalog)
+        for kind in ("missing-case", "missing-method", "acceptance", "empty-coverage", "foreign-path",
+                     "bad-kind", "configured"):
+            manifest, rules, value, scope = whole_fixture()
+            if kind == "missing-case":
+                scope["coverage"][0]["cases"].pop()
+            elif kind == "missing-method":
+                scope["coverage"][0]["hosted_methods"] = []
+            elif kind == "acceptance":
+                scope["acceptance"].pop()
+            elif kind == "empty-coverage":
+                scope["coverage"] = []
+            elif kind == "foreign-path":
+                scope["paths"][0]["path"] = "tools/android-port/controller/engine.py"
+            elif kind == "bad-kind":
+                scope["kind"] = "landed-wp-repair"
+            else:
+                data = copy.deepcopy(manifest.data)
+                next(w for w in data["work_packages"] if w["id"] == "WP-312")["verification"]["commands"] = [
+                    ["python", "special"]
+                ]
+                from controller.model import Manifest
+                manifest = Manifest(data, manifest.exclusions, manifest.repo)
+            with self.subTest(kind=kind), self.assertRaises(PortError):
+                verify_pr_gates(value.pr, value.evidence, value.review, [], value.binding, manifest, rules,
+                                value.catalog)
+
     def test_unconfigured_whole_wp_can_have_strict_bounded_acceptance_without_completion(self):
         manifest, rules, value, scope = fixture()
         self.assertFalse(manifest.wp("WP-312")["verification"]["configured"])
@@ -158,6 +221,66 @@ class RepairContractTests(unittest.TestCase):
 
 
 class RepairExecutionTests(unittest.TestCase):
+    def test_whole_scope_accounts_for_every_changed_unit_test_declaration(self):
+        manifest, _, _, scope = whole_fixture()
+        scope["coverage"].append({
+            "path": TEST, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Actual unit tests.",
+            "modules": ["core/maps"],
+        })
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        with patch("controller.staging.object_bytes", return_value=b"""
+            @Test fun keepsListReachable() { check(true) }
+            @Test fun anotherCase() { check(true) }
+        """), self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
+    def test_change_scoped_hosted_report_uses_exact_trusted_candidate_plan(self):
+        counts = {"discovered": 1, "run": 1, "passed": 1, "failed": 0, "errors": 0, "skipped": 0}
+        plan = {
+            "base": BASE, "head": HEAD, "tree": "8" * 40, "scopes": ["module:core/maps"],
+            "tasks": [":core:maps:testDebugUnitTest", "validateModuleGraph", "runtimeDependencyInventory"],
+        }
+        report = {
+            "kind": "local-affected-only", "result": "success", **plan,
+            "resolved_task_graph": {"result": "no-duplicate-ci-evidence"},
+            "suites": {"core/maps": counts},
+            "junit_cases": [{
+                "report": "android/core/maps/build/test-results/testDebugUnitTest/TEST-MapTest.xml",
+                "index": 0, "class": "MapTest", "method": "keepsListReachable", "outcome": "passed",
+            }],
+        }
+        step = "Run parallel Gradle validation and Android tasks"
+        def log_for(value):
+            return "\n".join(f"One Linux Android build\t{step}\t2026-10-19T00:00:00Z {line}"
+                             for line in json.dumps(value, indent=2).splitlines())
+
+        proof = validate_build_log(log_for(report), ["core/maps"], plan_for_scopes=lambda scopes: plan)
+        self.assertEqual(proof["methods"]["core/maps"][0]["method"], "keepsListReachable")
+        for kind in ("missing-plan", "wrong-tasks", "stale-head", "zero", "skipped", "duplicate",
+                     "wrong-step", "missing-method"):
+            altered = copy.deepcopy(report)
+            provider = lambda scopes: plan
+            if kind == "missing-plan":
+                provider = None
+            elif kind == "wrong-tasks":
+                altered["tasks"] = [":fake:test"]
+            elif kind == "stale-head":
+                altered["head"] = "0" * 40
+            elif kind == "zero":
+                altered["suites"]["core/maps"] = {key: 0 for key in counts}
+            elif kind == "skipped":
+                altered["junit_cases"][0]["outcome"] = "skipped"
+            elif kind == "duplicate":
+                altered["junit_cases"].append(copy.deepcopy(altered["junit_cases"][0]))
+            elif kind == "missing-method":
+                altered["junit_cases"] = []
+            log = log_for(altered)
+            if kind == "wrong-step":
+                log = log.replace(step, "A candidate-written summary")
+            with self.subTest(kind=kind), self.assertRaises(PortError):
+                validate_build_log(log, ["core/maps"], plan_for_scopes=provider)
+
     def test_authoritative_hosted_report_requires_nonzero_successful_affected_modules(self):
         modules = ["feature/map", "core/maps"]
         self.assertTrue(validate_build_log(build_log(modules), modules)["positive_discovery"])
@@ -543,6 +666,93 @@ class RepairAuthorityTests(unittest.TestCase):
         reader.start()
         self.addCleanup(reader.stop)
         return native, api, prefix, value, scope, staged, entries
+
+    def test_scope_can_live_on_the_repair_pr_without_a_bookkeeping_issue(self):
+        native, api, prefix, value, scope, _, _ = self.fixture()
+        scope["repair_issue"] = scope["repair_pr"]
+        scope["acceptance"][0]["id"] = "repair-123-list"
+        comment = api.routes[("GET", prefix + "/issues/comments/700")]
+        comment["issue_url"] = f"https://api.github.com/repos/{native.policy['repository']}/issues/123"
+        comment["body"] = SCOPE_MARKER + json.dumps(scope)
+        api.routes[("GET", prefix + "/issues/123")] = {"number": 123, "pull_request": {}}
+        self.assertEqual(authenticated_scope(native, 700, value.binding), scope)
+        validate_scope(scope, value.binding, native.manifest, native.policy, [PATH], None)
+        for kind in ("different-pr", "issue-misrepresented", "comment-on-other-issue"):
+            altered = copy.deepcopy(scope)
+            route = api.routes[("GET", prefix + "/issues/123")]
+            if kind == "different-pr":
+                altered["repair_pr"] = 124
+            elif kind == "issue-misrepresented":
+                route.pop("pull_request")
+            else:
+                comment["issue_url"] = f"https://api.github.com/repos/{native.policy['repository']}/issues/224"
+            comment["body"] = SCOPE_MARKER + json.dumps(altered)
+            with self.subTest(kind=kind), self.assertRaises(PortError):
+                authenticated_scope(native, 700, value.binding)
+            route["pull_request"] = {}
+            comment["issue_url"] = f"https://api.github.com/repos/{native.policy['repository']}/issues/123"
+
+    def test_pr_author_can_propose_scope_without_impersonating_coordinator(self):
+        native, api, prefix, value, scope, _, _ = self.fixture()
+        scope["repair_issue"] = scope["repair_pr"]
+        scope["acceptance"][0]["id"] = "repair-123-list"
+        comment = api.routes[("GET", prefix + "/issues/comments/700")]
+        comment.update(
+            user={"id": 42, "type": "Bot", "login": "worker[bot]"},
+            issue_url=f"https://api.github.com/repos/{native.policy['repository']}/issues/123",
+            body=SCOPE_MARKER + json.dumps(scope),
+        )
+        api.routes[("GET", prefix + "/issues/123")] = {"number": 123, "pull_request": {}}
+        pr = api.routes[("GET", prefix + "/pulls/123")]
+        pr["user"] = {"id": 42, "type": "Bot", "login": "worker[bot]"}
+        self.assertEqual(authenticated_scope(native, 700, value.binding), scope)
+        for author in ({"id": 43, "type": "Bot"}, {"id": 42, "type": "User"}, {"type": "Bot"}, {}):
+            comment["user"] = author
+            with self.subTest(author=author), self.assertRaises(PortError):
+                authenticated_scope(native, 700, value.binding)
+
+    def test_whole_scope_requires_actual_hosted_job_and_test_method(self):
+        native, api, prefix, _, _, staged, entries = self.fixture()
+        manifest, rules, value, scope = whole_fixture()
+        native.manifest, native.policy = manifest, rules
+        native.backend.manifest, native.backend.policy = manifest, rules
+        receipt = {
+            "schema_version": 3, "binding": asdict(value.binding), "method": "authenticated-coordinator-read-only",
+            "staging_sha256": digest(staged), "evidence": value.evidence, "review": value.review,
+            "approvals": [],
+        }
+        source_review = api.routes[("GET", prefix + "/pulls/123/reviews?per_page=100&page=1")][0]
+        source_review["body"] = REVIEW_MARKER + json.dumps(receipt)
+        catalog = json.dumps(value.catalog).encode()
+
+        def objects(repo, blob):
+            if blob == "4" * 40:
+                return b"@Test fun keepsListReachable() { check(true) }"
+            return catalog
+
+        with patch("controller.native_review.stage_review", return_value=staged), \
+                patch("controller.native_review.tree", return_value=entries), \
+                patch("controller.native_review.object_bytes", side_effect=objects), \
+                patch("controller.staging.object_bytes", side_effect=objects), \
+                patch("controller.repair_acceptance.read_job_log",
+                      return_value=build_log(["core/maps"])):
+            prepared = native.stage_whole("WP-312", 123, scope)
+            self.assertFalse(prepared["authoritative"])
+            accepted, result = native.evaluate("WP-312", 123, 90)
+            self.assertEqual(accepted.evidence["schema_version"], 4)
+            self.assertNotIn("acceptance_kind", result)
+            job = api.routes[("GET", prefix + "/actions/runs/1/attempts/1/jobs?per_page=100&page=1")]["jobs"][0]
+            job["conclusion"] = "skipped"
+            with self.assertRaisesRegex(PortError, "missing/skipped/failed"):
+                native.evaluate("WP-312", 123, 90)
+            job["conclusion"] = "success"
+            with patch("controller.repair_acceptance.read_job_log", return_value=build_log(
+                ["feature/map", "core/maps"], unit_test_methods={
+                    "feature/map": [{"class": "MapTest", "method": "unrelated"}] * 3,
+                    "core/maps": [{"class": "MapTest", "method": "unrelated"}] * 3,
+                },
+            )), self.assertRaises(PortError):
+                native.evaluate("WP-312", 123, 90)
 
     def test_verification_git_mode_identity_is_required_even_when_contents_resolves_a_symlink(self):
         for revision in (MERGE, BASE, HEAD):

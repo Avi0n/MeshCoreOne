@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -84,6 +85,41 @@ class NativeReview:
         return {"staging": staged, "staging_sha256": digest(staged), "repair_scope": scope,
                 "repair_scope_sha256": digest(scope), "state": "staged-data-only",
                 "scope_comment_id": scope_comment_id, "authoritative": False}
+
+    def stage_whole(self, wp_id, number, scope):
+        from .repair_acceptance import validate_scope
+        from .verification import require_shared_whole_lane
+
+        positive_integer(number, "Implementation PR")
+        pr = self.get(f"/pulls/{number}")
+        base = self.backend.current_base()
+        if (
+            pr.get("state") != "open" or pr.get("draft") is not False or pr.get("merged") is not False
+            or pr.get("base", {}).get("sha") != base or marker(wp_id) not in (pr.get("body") or "")
+            or pr.get("base", {}).get("repo", {}).get("full_name") != self.policy["repository"]
+            or pr.get("base", {}).get("ref") != self.policy["default_branch"]
+        ):
+            raise PortError("Whole-WP staging requires the canonical ready current-base PR")
+        wp = self.manifest.wp(wp_id)
+        require_shared_whole_lane(self.manifest, wp)
+        binding = Binding(self.policy["repository"], wp_id, base, pr.get("head", {}).get("sha"),
+                          self.manifest.data["reference"]["commit"], self.manifest.sha256,
+                          policy_revision(self.manifest, self.policy))
+        if not isinstance(scope, dict) or scope.get("kind") != "whole-wp":
+            raise PortError("Missing complete whole-WP verification scope")
+        entries = tree(self.manifest.repo, base)
+        if "docs/android/test-cases.json" not in entries:
+            raise PortError("Missing trusted original-case inventory")
+        catalog = decode_json(object_bytes(self.manifest.repo, entries["docs/android/test-cases.json"]).decode("utf-8"))
+        changed = set()
+        for item in self.backend.pages(f"{self.prefix}/pulls/{number}/files"):
+            changed.add(item["filename"])
+            if item.get("status") == "renamed":
+                changed.add(item["previous_filename"])
+        operations, _, _ = validate_scope(scope, binding, self.manifest, self.policy, sorted(changed), catalog)
+        staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations)
+        return {"staging": staged, "staging_sha256": digest(staged), "verification_scope": scope,
+                "verification_scope_sha256": digest(scope), "state": "staged-data-only", "authoritative": False}
 
     def workflow_run(self, run_id, attempt, path, head, events, *, completed=True, review_identity=None):
         positive_integer(run_id, "Actions run ID")
@@ -202,15 +238,16 @@ class NativeReview:
         if not isinstance(receipt, dict):
             raise PortError("Native source receipt must be a complete object")
         repair = receipt.get("schema_version") == 2
+        whole = receipt.get("schema_version") == 3
         fields(receipt, {"schema_version", "binding", "method", "staging_sha256",
                          "review", "evidence", "approvals"} | ({"scope_comment_id"} if repair else set()),
                label="native source receipt")
         if (
-            type(receipt["schema_version"]) is not int or receipt["schema_version"] not in (1, 2)
+            type(receipt["schema_version"]) is not int or receipt["schema_version"] not in (1, 2, 3)
             or receipt["method"] != "authenticated-coordinator-read-only"
             or Binding.parse(receipt["binding"]) != binding
             or not isinstance(receipt["evidence"], dict)
-            or receipt["evidence"].get("schema_version") != (3 if repair else 2)
+            or receipt["evidence"].get("schema_version") != (3 if repair else 4 if whole else 2)
         ):
             raise PortError("Stale binding or unsupported native review method/schema")
         scope = None
@@ -221,6 +258,22 @@ class NativeReview:
             if scope["repair_pr"] != number:
                 raise PortError("Repair scope belongs to another PR")
             entries = tree(self.manifest.repo, base)
+            catalog = decode_json(object_bytes(
+                self.manifest.repo, entries["docs/android/test-cases.json"],
+            ).decode("utf-8"))
+            operations, _, _ = validate_scope(
+                scope, binding, self.manifest, self.policy, receipt["evidence"].get("changed_paths"), catalog,
+            )
+            staged = stage_review(self.manifest.repo, wp_id, base, binding.head_sha, path_operations=operations)
+        elif whole:
+            from .repair_acceptance import validate_scope
+
+            scope = receipt["evidence"].get("verification_scope")
+            if not isinstance(scope, dict) or scope.get("kind") != "whole-wp":
+                raise PortError("Missing complete whole-WP verification scope")
+            entries = tree(self.manifest.repo, base)
+            if "docs/android/test-cases.json" not in entries:
+                raise PortError("Missing trusted original-case inventory")
             catalog = decode_json(object_bytes(
                 self.manifest.repo, entries["docs/android/test-cases.json"],
             ).decode("utf-8"))
@@ -252,9 +305,9 @@ class NativeReview:
         GitHubGateAuthority(self.backend, self.manifest, self.policy).validate_server_acceptance(
             receipt["approvals"], reviews, binding,
         )
-        if not repair:
+        if not repair and not whole:
             catalog = None
-        if not repair and any(e["kind"] in ("test", "support") and e["exclusion"] is None
+        if not repair and not whole and any(e["kind"] in ("test", "support") and e["exclusion"] is None
                for e in self.manifest.inputs(wp_id, False)):
             entries = tree(self.manifest.repo, base)
             catalog = decode_json(object_bytes(
@@ -293,8 +346,8 @@ class NativeReview:
         ):
             raise PortError("Latest Android check disagrees with authoritative successful Actions run")
         candidate_tree = tree(self.manifest.repo, binding.head_sha)
-        if repair:
-            self.verify_repair_execution(value, scope, run, candidate_tree)
+        if repair or whole:
+            self.verify_repair_execution(value, scope, run, candidate_tree, whole=whole)
         for item in value.evidence["retained_artifacts"]:
             if (
                 item["path"] not in candidate_tree
@@ -307,9 +360,10 @@ class NativeReview:
             result.update(acceptance_kind="bounded-repair", wp_complete=False, dependency_unlock=False)
         return value, result
 
-    def verify_repair_execution(self, value, scope, run, candidate_tree):
+    def verify_repair_execution(self, value, scope, run, candidate_tree, *, whole=False):
         from .repair_acceptance import (
-            VERIFICATION, read_job_log, validate_build_log, validate_hosted_methods, verify_native, verify_repair,
+            VERIFICATION, read_job_log, validate_build_log, validate_hosted_methods, validate_scope,
+            verify_native, verify_repair,
         )
         from .runtime_inputs import required_inputs
 
@@ -331,9 +385,27 @@ class NativeReview:
             or selected[0].get("conclusion") != "success"
         ):
             raise PortError("Declared affected Android verification was missing/skipped/failed")
-        proof = verify_repair(value, scope, self.manifest, self.policy, value.catalog)
+        if whole:
+            validate_scope(
+                scope, value.binding, self.manifest, self.policy, value.pr["changed_paths"], value.catalog,
+            )
+            modules = sorted({
+                match[1]
+                for entry in scope["coverage"] for method in entry["hosted_methods"]
+                if (match := re.match(
+                    r"android/((?:core|feature|platform)/[^/]+|app)/", method["path"],
+                ))
+            })
+        else:
+            modules = verify_repair(value, scope, self.manifest, self.policy, value.catalog)["modules"]
+        from .local_scope import candidate_plan
+
         execution = validate_build_log(
-            read_job_log(self, positive_integer(selected[0].get("id"), "Build job ID")), proof["modules"],
+            read_job_log(self, positive_integer(selected[0].get("id"), "Build job ID")), modules,
+            plan_for_scopes=lambda scopes: candidate_plan(
+                self.manifest.repo, value.binding.base_sha, value.binding.head_sha, scopes,
+                trusted_base=value.binding.base_sha, merge_base_only=True,
+            ),
         )
         validate_hosted_methods(scope, candidate_tree, self.manifest.repo, execution["methods"])
         verify_native(self, scope, candidate_tree)
@@ -425,13 +497,14 @@ class NativeReview:
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("inspect", "publish", "stage-repair"))
+    parser.add_argument("command", choices=("inspect", "publish", "stage-repair", "stage-whole"))
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[3])
     parser.add_argument("--trusted-base", required=True)
     parser.add_argument("--wp", required=True)
     parser.add_argument("--pr", required=True, type=int)
     parser.add_argument("--review-id", type=int)
     parser.add_argument("--scope-comment-id", type=int)
+    parser.add_argument("--scope", type=Path)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
     try:
@@ -445,15 +518,26 @@ def main(argv=None):
         native = NativeReview(backend, manifest, policy)
         if backend.current_base() != args.trusted_base:
             raise PortError("Trusted base advanced; stage and review the current candidate again")
-        if args.command == "stage-repair":
+        if args.command in ("stage-repair", "stage-whole"):
             if (
-                args.scope_comment_id is None or args.output is None or not args.output.is_absolute()
+                args.output is None or not args.output.is_absolute()
                 or args.output.resolve().is_relative_to(args.repo.resolve())
+                or args.command == "stage-repair" and args.scope_comment_id is None
+                or args.command == "stage-whole" and (
+                    args.scope is None or not args.scope.is_absolute()
+                    or args.scope.resolve().is_relative_to(args.repo.resolve())
+                )
             ):
-                raise PortError("Repair staging requires scope-comment ID and a private absolute output outside the repository")
+                raise PortError("Staging requires its scope and a private absolute output outside the repository")
             from .ci_environment import write_json
 
-            staged = native.stage_repair(args.wp, args.pr, args.scope_comment_id)
+            if args.command == "stage-repair":
+                staged = native.stage_repair(args.wp, args.pr, args.scope_comment_id)
+            else:
+                if args.scope.stat().st_size > 4 * 1024 * 1024:
+                    raise PortError("Whole-WP scope exceeds the bounded input size")
+                scope = decode_json(args.scope.read_text(encoding="utf-8"))
+                staged = native.stage_whole(args.wp, args.pr, scope)
             write_json(args.output, staged)
             result = {"state": "staged-data-only", "staging_sha256": staged["staging_sha256"],
                       "authoritative": False}

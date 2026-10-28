@@ -4,27 +4,11 @@ from .errors import PortError
 from .gates import policy_revision
 from .model import Manifest
 from .schema import digest, positive_integer
+from .verification import declared_software_lane
 
 
 def marker(wp_id: str) -> str:
     return f"<!-- android-port-wp:{wp_id} -->"
-
-
-def declared_software_lane(manifest: Manifest) -> list[list[str]]:
-    ci = "tools/android-port/controller/ci.py"
-    required = [
-        ["python", ci, "preflight"],
-        ["python", ci, "run", "--stage", "scaffold"],
-        ["python", ci, "inspect"],
-    ]
-    verification = manifest.wp("WP-003")["verification"]
-    if (
-        not isinstance(verification, dict) or verification.get("configured") is not True
-        or not isinstance(verification.get("commands"), list)
-        or any(command not in verification["commands"] for command in required)
-    ):
-        raise PortError("The declared project-wide software verification lane is missing or unconfigured")
-    return [command.copy() for command in required]
 
 
 def input_page(manifest: Manifest, wp_id: str, page: int, page_size: int,
@@ -84,6 +68,9 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
         "## Exact allowed writes",
         *[f"- {path}" for path in wp["write_paths"]],
         "Directly necessary support paths may also be admitted by trusted path+operation capability rules.",
+        "For directly related cross-owner Kotlin support, use modify-related-consumer for existing "
+        "production consumers or add-or-update-related-test for tests. These do not admit unrelated "
+        "work, deleted tests, build configuration, or an unresolved semantic overlap.",
         "",
         "## Exact pinned inputs (primary ownership or read-only cross-reference)",
     ]
@@ -114,8 +101,12 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
         "## Verification",
         json.dumps(wp["verification"], ensure_ascii=True),
         *software_lane,
-        "An unconfigured whole-WP verification entry blocks automated whole-WP dispatch and completion; "
-        "it does not by itself block an already-assigned, capability-admitted bounded repair. "
+        "An empty verification entry for an eligible Android module WP can use the shared whole-WP "
+        "contract; it does not by itself block dispatch or an already-assigned, capability-admitted bounded repair. "
+        "Original-inventory, non-module, release and explicitly partially configured WPs still require "
+        "their specific verification contract. For full-WP completion use the schema-4 verification scope "
+        "and native review schema 3 documented in docs/android/ci/README.md: cover every acceptance "
+        "and original case family, and bind actual hosted methods and required native/human evidence. "
         "Use the existing declared affected or scaffold checks for its actual candidate and applicable "
         "acceptance; do not require a separate WP-003 binding or issue solely for an empty macro entry. "
         "Those checks do not prove whole-WP or device acceptance.",

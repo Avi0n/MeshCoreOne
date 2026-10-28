@@ -36,7 +36,7 @@ ANDROID_MODULE = r"android/((?:core|feature|platform)/[a-z0-9-]+|app)/"
 def verification_only(scope):
     version = scope.get("schema_version")
     if type(version) is not int or (version, scope.get("kind")) not in (
-        (1, "landed-wp-repair"), (2, "landed-wp-verification"),
+        (1, "landed-wp-repair"), (2, "landed-wp-verification"), (3, "whole-wp"),
     ):
         raise PortError("Unknown bounded repair scope version/kind")
     return version == 2
@@ -64,12 +64,8 @@ def production_bindings(scope):
 def authenticated_scope(native, comment_id, binding):
     positive_integer(comment_id, "Repair scope comment ID")
     comment = native.get(f"/issues/comments/{comment_id}")
-    if (
-        comment.get("id") != comment_id
-        or comment.get("user", {}).get("type") != "User"
-        or comment.get("user", {}).get("login") not in native.policy["review_policy"]["authorized_coordinators"]
-    ):
-        raise PortError("Repair scope is not an authenticated authorized coordinator comment")
+    if comment.get("id") != comment_id:
+        raise PortError("Repair scope comment identity does not match")
     body = bounded_output(comment.get("body"))
     if not body.startswith(SCOPE_MARKER):
         raise PortError("Missing explicit bounded repair scope")
@@ -86,13 +82,33 @@ def authenticated_scope(native, comment_id, binding):
         raise PortError("Stale repair binding or noncanonical WP owner")
     for key in ("repair_pr", "repair_issue", "landed_pr"):
         positive_integer(scope[key], key)
+    author = comment.get("user")
+    coordinator = (
+        isinstance(author, dict) and author.get("type") == "User"
+        and author.get("login") in native.policy["review_policy"]["authorized_coordinators"]
+    )
+    if not coordinator:
+        if scope["repair_issue"] != scope["repair_pr"]:
+            raise PortError("An issue scope requires an authenticated authorized coordinator")
+        pr = native.get(f"/pulls/{scope['repair_pr']}")
+        owner = pr.get("user")
+        if (
+            pr.get("number") != scope["repair_pr"] or not isinstance(author, dict)
+            or not isinstance(owner, dict) or author.get("type") not in ("User", "Bot")
+            or owner.get("type") != author["type"]
+            or type(author.get("id")) is not int or author["id"] < 1
+            or owner.get("id") != author["id"]
+        ):
+            raise PortError("PR scope must be authored by the actual PR author or authorized coordinator")
     if comment.get("issue_url") != (
         f"https://api.github.com/repos/{binding.repository}/issues/{scope['repair_issue']}"
     ):
         raise PortError("Scope comment is not on its original repair issue")
     issue = native.get(f"/issues/{scope['repair_issue']}")
-    if issue.get("number") != scope["repair_issue"] or "pull_request" in issue:
-        raise PortError("Repair issue does not exist or is a PR")
+    if issue.get("number") != scope["repair_issue"] or (
+        ("pull_request" in issue) != (scope["repair_issue"] == scope["repair_pr"])
+    ):
+        raise PortError("Repair scope must be on its own issue or the repair PR")
     landed = native.get(f"/pulls/{scope['landed_pr']}")
     if (
         landed.get("number") != scope["landed_pr"] or scope["landed_pr"] == scope["repair_pr"]
@@ -141,6 +157,10 @@ def authenticated_scope(native, comment_id, binding):
 
 def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
     verification = verification_only(scope)
+    whole_wp = scope.get("kind") == "whole-wp"
+    if whole_wp:
+        fields(scope, {"schema_version", "kind", "binding", "owner", "paths", "acceptance", "coverage",
+                       "verification", "native"}, label="whole-WP verification scope")
     if verification:
         production_bindings(scope)
     if (
@@ -169,7 +189,7 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         if item["capability"] != actual.capability_id or path in admitted:
             raise PortError("Wrong/duplicate trusted repair capability")
         if verification:
-            test = re.fullmatch(ANDROID_MODULE + r"src/(?:test|androidTest)/.+\.kt", path)
+            test = re.fullmatch(ANDROID_MODULE + r"src/(?:test|testDebug|androidTest)/.+\.kt", path)
             wiring = re.fullmatch(ANDROID_MODULE + r"build\.gradle\.kts", path)
             if test:
                 test_modules.add(test[1])
@@ -191,15 +211,19 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         raise PortError("Unknown or missing declared affected verification")
     if not isinstance(scope["acceptance"], list) or not scope["acceptance"]:
         raise PortError("Missing bounded repair acceptance criteria")
-    acceptance = []
-    for entry in scope["acceptance"]:
-        fields(entry, {"id", "description"}, label="repair criterion")
-        if not isinstance(entry["id"], str) or re.fullmatch(
-            rf"repair-{scope['repair_issue']}-[a-z0-9-]+", entry["id"],
-        ) is None or entry["id"] in acceptance:
-            raise PortError("Repair criteria must be unique issue-scoped IDs, not whole-WP acceptance")
-        nonempty(entry["description"], "Repair criterion")
-        acceptance.append(entry["id"])
+    if whole_wp:
+        if scope["acceptance"] != wp["acceptance"]:
+            raise PortError("Whole-WP scope must retain the complete original acceptance")
+    else:
+        acceptance = []
+        for entry in scope["acceptance"]:
+            fields(entry, {"id", "description"}, label="repair criterion")
+            if not isinstance(entry["id"], str) or re.fullmatch(
+                rf"repair-{scope['repair_issue']}-[a-z0-9-]+", entry["id"],
+            ) is None or entry["id"] in acceptance:
+                raise PortError("Repair criteria must be unique issue-scoped IDs, not whole-WP acceptance")
+            nonempty(entry["description"], "Repair criterion")
+            acceptance.append(entry["id"])
     if not isinstance(scope["coverage"], list) or not scope["coverage"]:
         raise PortError("Missing changed-path behavioral coverage")
     owned = {entry["path"]: entry for entry in manifest.inputs(wp["id"], False) if entry["exclusion"] is None}
@@ -225,6 +249,8 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
             raise PortError("Malformed repair original/native families")
         if not entry["cases"] and not entry["native_methods"] and not entry["hosted_methods"]:
             raise PortError("No original case or explicit native adaptation covers this change")
+        if whole_wp and entry["cases"] and not entry["native_methods"] and not entry["hosted_methods"]:
+            raise PortError("Whole-WP original cases require actual hosted or native test methods")
         if entry["native_methods"] or entry["hosted_methods"]:
             nonempty(entry["adaptation"], "Original-to-native adaptation rationale")
             if any(not isinstance(method, str) or not method for method in entry["native_methods"]):
@@ -274,6 +300,21 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         behavioral = {path for path in changed_paths if path.startswith("android/")}
     if not behavioral or not behavioral.issubset(covered):
         raise PortError("Every changed Android behavior/test path needs explicit scoped coverage")
+    if whole_wp:
+        if not any(entry["hosted_methods"] for entry in scope["coverage"]):
+            raise PortError("Whole-WP verification requires at least one executed hosted test method")
+        original_tests = {
+            path: entry for path, entry in owned.items() if entry["kind"] in ("test", "support")
+        }
+        expected_cases = set()
+        for path, original in original_tests.items():
+            definition = catalog_entries.get(path)
+            if definition is None or definition.get("blob_sha") != original["blob_sha"]:
+                raise PortError("Whole-WP scope requires the complete pinned original-case inventory")
+            for case in definition.get("cases", []):
+                expected_cases.add((path, case["id"], case["parameter_family"]))
+        if set(cases) != expected_cases:
+            raise PortError("Whole-WP scope must map every original case and parameter family")
     if not isinstance(scope["native"], list):
         raise PortError("Malformed retained native evidence references")
     for item in scope["native"]:
@@ -387,12 +428,15 @@ def read_job_log(native, job_id):
         process.stdout.close()
 
 
-def validate_build_log(log, modules):
+def validate_build_log(log, modules, *, plan_for_scopes=None):
     lines = []
     for line in log.splitlines():
         # gh emits job, step and timestamp columns; only the authoritative run step is evidence.
         columns = line.split("\t", 2)
-        if len(columns) == 3 and columns[1] == "Run every selected Linux and Android task in one Gradle invocation":
+        if len(columns) == 3 and columns[1] in (
+            "Run every selected Linux and Android task in one Gradle invocation",
+            "Run parallel Gradle validation and Android tasks",
+        ):
             lines.append(re.sub(r"^\S+\s?", "", columns[2]))
     text = "\n".join(lines)
     reports = []
@@ -402,11 +446,69 @@ def validate_build_log(log, modules):
             value = decode_json(text[match.start():match.start() + length])
         except json.JSONDecodeError:
             continue
-        if isinstance(value, dict) and value.get("stage") == "scaffold":
+        if isinstance(value, dict) and (
+            value.get("stage") == "scaffold" or value.get("kind") == "local-affected-only"
+        ):
             reports.append(value)
     if len(reports) != 1:
         raise PortError("Missing/ambiguous actual scaffold report in authoritative hosted log")
     report = reports[0]
+    if report.get("kind") == "local-affected-only":
+        scopes = report.get("scopes")
+        if (
+            plan_for_scopes is None or not isinstance(scopes, list) or not scopes
+            or not all(isinstance(scope, str) and scope for scope in scopes)
+            or len(set(scopes)) != len(scopes)
+        ):
+            raise PortError("Affected hosted evidence requires the trusted exact-candidate task plan")
+        plan = plan_for_scopes(scopes)
+        if (
+            report.get("result") != "success"
+            or any(report.get(key) != plan[key] for key in ("base", "head", "tree", "scopes", "tasks"))
+            or not isinstance(report.get("resolved_task_graph"), dict)
+            or report["resolved_task_graph"].get("result") != "no-duplicate-ci-evidence"
+        ):
+            raise PortError("Hosted affected verification disagrees with the trusted candidate plan")
+        suites = {}
+        for key in ("suites", "scaffold_suites", "module_unit_tests"):
+            part = report.get(key, {})
+            if not isinstance(part, dict):
+                raise PortError("Malformed affected hosted suite inventory")
+            for name, value in part.items():
+                if key == "scaffold_suites" and name == "contracts":
+                    name = "core/contracts"
+                if name in suites and suites[name] != value:
+                    raise PortError("Conflicting affected hosted suite inventories")
+                suites[name] = value
+        cases = report.get("junit_cases")
+        if not isinstance(cases, list) or not cases:
+            raise PortError("Missing affected hosted method inventory")
+        inventory = {module: [] for module in modules}
+        for case in cases:
+            fields(case, {"report", "index", "class", "method", "outcome"}, label="affected hosted method")
+            path = git_path(case["report"])
+            match = re.fullmatch(ANDROID_MODULE + r"build/test-results/[^/]+/TEST-[^/]+\.xml", path)
+            if (
+                re.fullmatch(r"android/.+/build/test-results/[^/]+/TEST-[^/]+\.xml", path) is None
+                or type(case["index"]) is not int or case["index"] < 0
+                or not isinstance(case["class"], str) or not case["class"]
+                or not isinstance(case["method"], str) or not case["method"]
+                or case["outcome"] != "passed"
+            ):
+                raise PortError("Malformed, failed or skipped affected hosted method")
+            if match is None:
+                continue
+            module = match[1]
+            if module in inventory:
+                inventory[module].append({"class": case["class"], "method": case["method"]})
+        for module in modules:
+            found = counts(suites.get(module))
+            records = inventory[module]
+            identities = {(record["class"], record["method"]) for record in records}
+            if len(records) != found["discovered"] or len(identities) != len(records):
+                raise PortError("Affected hosted methods disagree with discovered test counts")
+        return {"modules": sorted(modules), "positive_discovery": True,
+                "source": "authoritative-hosted-log", "methods": inventory}
     from .ci import SCOPED_TASKS, TASKS
 
     tasks = report.get("tasks")
@@ -421,10 +523,10 @@ def validate_build_log(log, modules):
     if not isinstance(inventory, dict):
         raise PortError("Malformed authoritative hosted method inventory")
     for module in modules:
-        suites = report.get("suites" if module == "app" else "module_unit_tests")
+        suites = report.get("suites" if module in ("app", "core/contracts") else "module_unit_tests")
         if not isinstance(suites, dict):
             raise PortError("Missing/malformed affected hosted module discovery")
-        found = suites.get(module)
+        found = suites.get("contracts" if module == "core/contracts" else module)
         counts(found)
         if module in inventory:
             records = inventory[module]
@@ -560,14 +662,15 @@ def validate_hosted_methods(scope, candidate_tree, repo, executed):
         if verification:
             if any(candidate_tree.get(path) != blob for path, blob in coverage["production_bindings"].items()):
                 raise PortError("Verification production consumer does not match candidate source")
+        if verification or scope.get("kind") == "whole-wp":
             path = coverage["path"]
-            if "/src/test/" in path or "/src/androidTest/" in path:
+            if "/src/test/" in path or "/src/testDebug/" in path or "/src/androidTest/" in path:
                 blob = candidate_tree.get(path)
                 if blob is None:
                     raise PortError("Verification test source is absent from candidate")
                 text = object_bytes(repo, blob).decode("utf-8")
                 declared = _kotlin_junit_methods(text)
-                if "/src/test/" in path:
+                if "/src/test/" in path or "/src/testDebug/" in path:
                     identities = [m["id"] for m in coverage["hosted_methods"] if m["path"] == path]
                 else:
                     package = re.search(r"^\s*package\s+([\w.]+)", text, re.MULTILINE)

@@ -114,6 +114,7 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *, p
 
         if not isinstance(path_operations, dict) or set(path_operations) != set(changed):
             raise PortError("Repair admissions must explain every changed path")
+        CapabilityEngine.validate_support_changes(path_operations, base_tree, candidate_tree)
         for path in changed:
             CapabilityEngine(policy).admit(wp_id, wp["write_paths"], path, path_operations[path])
     audit = integrity(data, candidate_data, policy, changed)

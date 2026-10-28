@@ -74,6 +74,58 @@
     },
     "capabilities": [
       {
+        "id": "reviewed-support-consumer",
+        "path_rules": [
+          "android/app/src/main/kotlin/*.kt",
+          "android/core/*/src/main/kotlin/*.kt",
+          "android/feature/*/src/main/kotlin/*.kt",
+          "android/platform/*/src/main/kotlin/*.kt"
+        ],
+        "operations": ["modify-related-consumer"],
+        "invariants": [
+          "only-directly-necessary-existing-consumer-behavior-for-the-assigned-work-package",
+          "no-unrelated-feature-build-configuration-resource-or-release-changes",
+          "preserve-original-cases-and-consumer-contracts-without-weakening-tests",
+          "actual-semantic-overlap-serializes-or-transfers-to-the-current-producer",
+          "trusted-base-admission-and-exact-candidate-review-before-merge"
+        ],
+        "validation": [
+          "affected original cases and consumer regressions with positive actual hosted discovery",
+          "trusted review establishes necessity and preserves existing behavior",
+          "unknown paths operations and unresolved semantic overlaps fail closed"
+        ]
+      },
+      {
+        "id": "reviewed-support-test",
+        "path_rules": [
+          "android/app/src/test/kotlin/*.kt",
+          "android/app/src/testDebug/kotlin/*.kt",
+          "android/app/src/androidTest/kotlin/*.kt",
+          "android/core/*/src/test/kotlin/*.kt",
+          "android/core/*/src/testDebug/kotlin/*.kt",
+          "android/core/*/src/androidTest/kotlin/*.kt",
+          "android/feature/*/src/test/kotlin/*.kt",
+          "android/feature/*/src/testDebug/kotlin/*.kt",
+          "android/feature/*/src/androidTest/kotlin/*.kt",
+          "android/platform/*/src/test/kotlin/*.kt",
+          "android/platform/*/src/testDebug/kotlin/*.kt",
+          "android/platform/*/src/androidTest/kotlin/*.kt"
+        ],
+        "operations": ["add-or-update-related-test"],
+        "invariants": [
+          "only-tests-directly-necessary-to-the-assigned-work-package",
+          "do-not-remove-disable-or-weaken-existing-cases-or-assertions",
+          "no-production-build-configuration-resource-or-release-changes",
+          "actual-semantic-overlap-serializes-or-transfers-to-the-current-producer",
+          "trusted-base-admission-and-exact-candidate-review-before-merge"
+        ],
+        "validation": [
+          "actual affected hosted test methods execute with positive discovery",
+          "instrumentation requires actual native-method-evidence",
+          "trusted review establishes necessity and preserves existing cases"
+        ]
+      },
+      {
         "id": "wp003-host-scoped-jvm-parallelism",
         "work_packages": ["WP-003"],
         "path_rules": [

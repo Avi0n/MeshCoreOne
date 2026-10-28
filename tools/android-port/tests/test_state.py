@@ -314,11 +314,33 @@ class StateTests(unittest.TestCase):
             self.controller.observe("WP-101", "attempt-1", Observation(Identity(session_id="session-1"), "completed", False, True))
         self.assertNotEqual(self.ledger.get("WP-101")["state"], "completed")
 
-    def test_supervised_and_unconfigured_targets_cannot_auto_dispatch(self):
+    def test_supervised_and_missing_prerequisites_cannot_auto_dispatch(self):
         for wp_id in ("WP-000", "WP-001", "WP-002", "WP-003", "WP-102"):
             with self.subTest(wp_id=wp_id), self.assertRaises(PortError):
                 self.controller.launch(wp_id, NOW)
         self.assertFalse(self.backend.launches)
+
+    def test_empty_verification_entry_uses_shared_lane_without_waiving_dependencies(self):
+        with patch.object(self.controller, "completed") as completed:
+            wp = self.controller.require_ready("WP-102")
+            self.assertFalse(wp["verification"]["configured"])
+            self.assertFalse(wp["verification"]["commands"])
+            self.assertEqual(completed.call_count, len(wp["depends_on"]))
+        self.manifest.wp("WP-003")["verification"]["commands"] = []
+        with self.assertRaisesRegex(PortError, "software verification lane"):
+            self.controller.require_ready("WP-102")
+        with self.assertRaisesRegex(PortError, "supervised"):
+            self.controller.require_ready("WP-003")
+
+    def test_explicit_partial_software_lane_does_not_remove_substantive_blocker(self):
+        with patch.object(self.controller, "completed"):
+            with self.assertRaisesRegex(PortError, "approved bounded split"):
+                self.controller.require_ready("WP-202")
+
+    def test_inventory_nonmodule_and_release_wps_do_not_inherit_the_android_module_contract(self):
+        for wp_id in ("WP-004", "WP-006", "WP-503", "WP-505", "WP-506"):
+            with self.subTest(wp_id=wp_id), self.assertRaisesRegex(PortError, "verification contract"):
+                self.controller.require_ready(wp_id)
 
     def test_missing_dependency_is_not_replaced_by_closed_issue(self):
         self.manifest.wp("WP-101")["depends_on"] = ["WP-004"]

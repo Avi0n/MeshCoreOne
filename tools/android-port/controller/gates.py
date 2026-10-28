@@ -221,6 +221,24 @@ def validate_cases(evidence: dict, manifest: Manifest, wp: dict, catalog: dict |
 def validate_evidence(evidence: dict, binding: Binding, manifest: Manifest, policy: dict, catalog=None):
     if isinstance(evidence, dict) and evidence.get("schema_version") == 2:
         return validate_hosted_evidence(evidence, binding, manifest, catalog)
+    if isinstance(evidence, dict) and evidence.get("schema_version") == 4:
+        from .repair_acceptance import validate_scope
+        from .verification import require_shared_whole_lane
+
+        wp = manifest.wp(binding.work_package)
+        require_shared_whole_lane(manifest, wp)
+        artifacts, runs = hosted_references(evidence, binding, schema_version=4, extra_fields=("verification_scope",))
+        scope = evidence["verification_scope"]
+        if not isinstance(scope, dict) or scope.get("kind") != "whole-wp":
+            raise PortError("Missing complete whole-WP verification scope")
+        validate_scope(scope, binding, manifest, policy, evidence["changed_paths"], catalog)
+        artifacts |= {
+            f"https://github.com/{binding.repository}/blob/{item['revision']}/{item['transcript']}"
+            for item in scope["native"]
+        }
+        _acceptance(evidence["acceptance"], wp, artifacts, "implementation acceptance")
+        validate_cases(evidence, manifest, wp, catalog, artifacts)
+        return artifacts, runs
     fields(evidence, set(asdict(binding)) | {
         "schema_version", "runs", "acceptance", "source_tests", "changed_paths",
     }, label="acceptance evidence")

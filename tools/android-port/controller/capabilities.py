@@ -101,6 +101,17 @@ class CapabilityEngine:
         ]
         return result
 
+    @staticmethod
+    def validate_support_changes(path_operations: dict, base_tree: dict, candidate_tree: dict):
+        """Bind shared support operations to the actual immutable base and candidate."""
+        for path, operation in path_operations.items():
+            if operation == "modify-related-consumer" and (
+                path not in base_tree or path not in candidate_tree
+            ):
+                raise PortError("Related consumer support may modify existing files only")
+            if operation == "add-or-update-related-test" and path not in candidate_tree:
+                raise PortError("Related test support cannot delete a test")
+
     def overlap_report(self, records: list[dict]) -> list[dict]:
         report = []
         for index, left in enumerate(records):

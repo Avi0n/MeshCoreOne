@@ -146,6 +146,8 @@ class GitHubGateAuthority:
         evidence = payload["evidence"]
         if not isinstance(evidence, dict) or not isinstance(evidence.get("runs"), list):
             raise PortError("Malformed trusted CI evidence")
+        if evidence.get("schema_version") == 4:
+            raise PortError("Shared whole-WP verification requires native hosted-log authority")
         validate_evidence(evidence, binding, self.manifest, self.policy, payload["catalog"])
         for run in evidence["runs"]:
             check = latest.get(run.get("check"))
