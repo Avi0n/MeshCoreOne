@@ -42,6 +42,20 @@ mirrors. Two query-hint cases retain the original core test's inline predicate;
 they are not evidence of a mounted settings consumer. Hosted discovery and
 execution are required before crediting any of these vectors.
 
+Additional tests exercise the real contact-frame conversion functions for the
+unmodeled type byte, and the actual AppContainer node-config/settings adapter
+over a fake firmware transport for other-parameter byte preservation and no-op
+commit elision. A mounted Settings test injects a second-contact persistence
+failure while the first contact is saved through real Room; it checks the
+partial warning and both acknowledged radio writes. These tests are not physical
+radio evidence, and exact-candidate execution remains pending.
+
+An unchanged radio contact is currently skipped on retry before any local
+save is attempted. If its earlier local save failed and sync has not repaired
+the row, retry can therefore report completion while that row remains absent.
+The appropriate retry-versus-sync behavior is not established by the original
+partial-warning decision and remains unresolved.
+
 Additional native tests distinguish an explicit stop of a parked keep-alive,
 the quiet result of a domain cancellation during a tick, and propagation of
 caller cancellation from a parked tick. They exercise the service with fake

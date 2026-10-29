@@ -13,6 +13,8 @@ import com.meshcoreone.android.core.protocol.crypto.Ed25519Crypto
 import com.meshcoreone.android.core.protocol.model.MeshContact
 import com.meshcoreone.android.core.protocol.model.PathEncoding
 import com.meshcoreone.android.core.protocol.parser.Parsers
+import com.meshcoreone.android.core.services.contacts.toContactFrame
+import com.meshcoreone.android.core.services.contacts.toMeshContact
 import java.security.SecureRandom
 import java.time.Instant
 import kotlin.test.*
@@ -457,6 +459,27 @@ class NodeConfigImportPlannerTest {
                 val meshContact = nodeConfigMeshContact(id = "m", publicKey = nodeConfigBytes(0xAB, 32), type = type, typeRawValue = raw.toUByte(), advertisedName = "M")
                 assertEquals(raw.toUByte(), NodeConfigService.buildContactConfig(meshContact).type)
             }
+        },
+    )
+
+    @TestFactory
+    fun realContactConversionCases() = nodeConfigNativeCases(
+        "actual contact conversions preserve the unmodeled type byte through export" to {
+            val frame = com.meshcoreone.android.core.model.ContactFrame(
+                publicKey = nodeConfigBytes(0xAB, 32), type = com.meshcoreone.android.core.protocol.model.ContactType.CHAT,
+                flags = 0u, outPathLength = 0xFFu, outPath = Bytes.EMPTY, name = "FutureType", lastAdvertTimestamp = 0u,
+                latitude = 0.0, longitude = 0.0, lastModified = 0u, typeRawValue = 0x04u,
+            )
+            val meshContact = frame.toMeshContact()
+            assertEquals(0x04u.toUByte(), meshContact.typeRawValue)
+            assertEquals(0x04u.toUByte(), meshContact.toContactFrame().typeRawValue)
+            assertEquals(0x04u.toUByte(), meshContact.nodeConfigContactFrame().typeRawValue)
+            val dto = com.meshcoreone.android.core.model.ContactDTO.fromFrame(
+                com.meshcoreone.android.core.model.RadioId(java.util.UUID.randomUUID()), frame,
+            )
+            assertEquals(0x04u.toUByte(), dto.typeRawValue)
+            assertEquals(0x04u.toUByte(), dto.toContactFrame().typeRawValue)
+            assertEquals(0x04u.toUByte(), NodeConfigService.buildContactConfig(meshContact).type)
         },
     )
 

@@ -116,6 +116,7 @@ internal class ContainerHarness(
     onChannelQueryAccounting: ((ChannelQueryAccountingEvent) -> Unit)? = null,
     offlineMaps: com.meshcoreone.android.core.maps.OfflineMapController? = null,
     advertLocation: AppAdvertLocation = defaultAdvertLocation(),
+    persistenceOverride: com.meshcoreone.android.core.contracts.domain.PersistenceStoreProtocol = store,
 ) {
     val scheduler: TestCoroutineScheduler = test.testScheduler
     val links = HarnessLinks(identity)
@@ -130,7 +131,7 @@ internal class ContainerHarness(
     val draftStore = DraftStore(MemoryDraftDefaults())
     val container = AppContainer(
         AppContainerDependencies(
-            store = store,
+            store = persistenceOverride,
             passwords = MemoryVault(),
             connectionPreferences = preferences,
             connectivity = newConnectivity(pairing) { foregroundCalls += it },
