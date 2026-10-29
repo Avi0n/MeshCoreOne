@@ -10,6 +10,14 @@ propagates; a local-save failure stops the import. Normal subsequent sync may
 reconcile the local row. This is a bounded CM-10 repair, not full WP-210 or
 issue acceptance.
 
+After a confirmed local save, the contact-change notification is completed
+even if a later contact save fails or the caller cancels. A notification
+failure is retained as a suppressed exception on the original import failure.
+This post-commit notification does not make an unconfirmed local save successful.
+The specific localized local-save failure copy requested in PR review is blocked
+by the missing trusted resource capability recorded in #465; the current generic
+fallback remains misleading and must be fixed before this candidate is accepted.
+
 The candidate adds a service-flow test for the device-add boundary, both
 failure types, no later contact write and a retry that observes the unchanged
 contact on the fake radio. App tests connect the actual settings state holder
@@ -27,6 +35,12 @@ that the shared utility removes or rejects. This discrepancy was reported to
 the active WP-213 stream in #395; its product criterion and any shared edit
 remain unresolved. These tests have not been independently established as
 passing until the exact-candidate hosted job runs them with positive discovery.
+
+The candidate also ports the 49 protocol CLI, 11 service CLI, 12 node-settings
+parser and four command-rewriter original families to the remote-node feature
+mirrors. Two query-hint cases retain the original core test's inline predicate;
+they are not evidence of a mounted settings consumer. Hosted discovery and
+execution are required before crediting any of these vectors.
 
 Additional native tests distinguish an explicit stop of a parked keep-alive,
 the quiet result of a domain cancellation during a tick, and propagation of

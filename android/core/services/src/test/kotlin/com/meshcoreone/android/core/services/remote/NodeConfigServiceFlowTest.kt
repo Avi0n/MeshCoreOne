@@ -29,6 +29,8 @@ class NodeConfigServiceFlowTest {
         val session: NodeConfigFakeSession = NodeConfigFakeSession(),
         saveFailure: Exception? = null,
         cancelCallerOnSave: Boolean = false,
+        saveFailureAfter: Int = 0,
+        notificationFailure: Exception? = null,
     ) {
         private val lock = Any()
         private val channelWrites = mutableListOf<Pair<RadioId, String>>()
@@ -40,11 +42,13 @@ class NodeConfigServiceFlowTest {
             session, settings,
             { radioId, index, name, _ -> synchronized(lock) { channelWrites += radioId to "$index:$name" } },
             NodeConfigContactSaver { radioId, frame ->
-                if (cancelCallerOnSave) kotlinx.coroutines.currentCoroutineContext().cancel()
-                saveFailure?.let { throw it }
+                if (synchronized(lock) { saved.size >= saveFailureAfter }) {
+                    if (cancelCallerOnSave) kotlinx.coroutines.currentCoroutineContext().cancel()
+                    saveFailure?.let { throw it }
+                }
                 synchronized(lock) { saved += radioId to frame }
             },
-            { notifications++ },
+            { notifications++; notificationFailure?.let { throw it } },
             NodeConfigLogger.NONE,
         )
     }
@@ -183,6 +187,49 @@ class NodeConfigServiceFlowTest {
             }
             assertEquals(listOf("First"), harness.session.addedContacts.map { it.advertisedName })
             assertEquals(listOf(ImportProgress(ImportStep.Contact("First"), 1, 2)), progress)
+        },
+        "a later failed save notifies already committed contacts and preserves the failure" to {
+            val harness = Harness(NodeConfigFakeSettings(deviceInfo()), saveFailure = IllegalStateException("db"), saveFailureAfter = 1)
+            val config = MeshCoreNodeConfig(
+                contacts = SnapshotList.of(contactConfig("cd".repeat(32), "First"), contactConfig("ef".repeat(32), "Second")),
+            )
+            val failure = assertFailsWith<NodeConfigContactSaveFailure> {
+                harness.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID()))
+            }
+            assertIs<IllegalStateException>(failure.cause)
+            assertEquals(listOf("First"), harness.savedFrames.map { it.second.name })
+            assertEquals(listOf("First", "Second"), harness.session.addedContacts.map { it.advertisedName })
+            assertEquals(1, harness.notifications)
+        },
+        "a notification failure is retained on the original partial import failure" to {
+            val notificationError = IllegalStateException("notify")
+            val harness = Harness(
+                NodeConfigFakeSettings(deviceInfo()), saveFailure = IllegalStateException("db"),
+                saveFailureAfter = 1, notificationFailure = notificationError,
+            )
+            val config = MeshCoreNodeConfig(
+                contacts = SnapshotList.of(contactConfig("cd".repeat(32), "First"), contactConfig("ef".repeat(32), "Second")),
+            )
+            val failure = assertFailsWith<NodeConfigContactSaveFailure> {
+                harness.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID()))
+            }
+            assertSame(notificationError, failure.suppressed.single())
+            assertEquals(1, harness.notifications)
+        },
+        "caller cancellation after a saved contact still notifies it" to {
+            val harness = Harness(
+                NodeConfigFakeSettings(deviceInfo()), saveFailure = CancellationException("stop"),
+                cancelCallerOnSave = true, saveFailureAfter = 1,
+            )
+            val config = MeshCoreNodeConfig(
+                contacts = SnapshotList.of(contactConfig("cd".repeat(32), "First"), contactConfig("ef".repeat(32), "Second")),
+            )
+            val importing = kotlinx.coroutines.coroutineScope {
+                async { harness.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID())) }
+            }
+            assertFailsWith<CancellationException> { importing.await() }
+            assertEquals(listOf("First"), harness.savedFrames.map { it.second.name })
+            assertEquals(1, harness.notifications)
         },
         "a malformed section rejects the whole import before any device write" to {
             val harness = Harness(NodeConfigFakeSettings(deviceInfo()))

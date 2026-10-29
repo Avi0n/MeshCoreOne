@@ -11,8 +11,10 @@ import com.meshcoreone.android.core.protocol.command.PacketBuilder
 import com.meshcoreone.android.core.protocol.model.MeshContact
 import com.meshcoreone.android.core.protocol.model.SelfInfo
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 
 // MARK: - Post-Identity Resolution (testable seam)
 
@@ -141,13 +143,35 @@ internal suspend fun executeConfigImport(
         logger.info("Set channel ${write.index}: ${write.name}")
     }
 
-    for (contact in plan.contactRecords) {
-        checkCancellation()
-        writers.addContact(effectiveRadioId, contact) { progress(ImportStep.Contact(contact.advertisedName)) }
-        logger.info("Imported contact: ${contact.advertisedName}")
+    var savedContacts = 0
+    var contactFailure: Throwable? = null
+    try {
+        for (contact in plan.contactRecords) {
+            checkCancellation()
+            writers.addContact(effectiveRadioId, contact) { progress(ImportStep.Contact(contact.advertisedName)) }
+            savedContacts++
+            logger.info("Imported contact: ${contact.advertisedName}")
+        }
+    } catch (failure: Throwable) {
+        contactFailure = failure
+        throw failure
+    } finally {
+        if (sections.contacts && (contactFailure == null || savedContacts > 0)) {
+            try {
+                if (savedContacts > 0) {
+                    withContext(NonCancellable) { notifyContactsChanged() }
+                } else {
+                    notifyContactsChanged()
+                }
+            } catch (notificationFailure: Throwable) {
+                val original = contactFailure
+                if (original == null) throw notificationFailure
+                if (original !== notificationFailure) original.addSuppressed(notificationFailure)
+                logger.error("Could not notify contacts changed after partial import: ${notificationFailure.javaClass.name}")
+            }
+        }
     }
-    // Refresh contacts before the radio step so a later radio failure cannot suppress the UI update.
-    if (sections.contacts) notifyContactsChanged()
+    checkCancellation()
 
     // Radio goes last (minimizes mesh isolation on BLE disconnect); params and TX power gate separately.
     plan.radioSettings?.let { radio ->
