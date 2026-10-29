@@ -1,0 +1,149 @@
+"""AndroidOnly: WP-000 Bounded contact-import recovery resource admission."""
+
+import copy
+import json
+import subprocess
+import unittest
+
+from fixtures import REPO, historical_policy_text, policy, test_manifest
+from controller.capabilities import CapabilityEngine
+from controller.errors import PortError
+from controller.scope_amendment import (
+    CONTACT_IMPORT_LOCALIZATION_CAPABILITY,
+    routine_support_predecessor,
+)
+
+
+BASE = "2d1d19fb73adcad1e8ff725fb33a0c9b04dfee98"
+ROOT = "android/feature/settings/src/main/res/"
+LOCALES = ("values", "values-de", "values-es", "values-fr", "values-it", "values-ko",
+           "values-nl", "values-pl", "values-pt", "values-ru", "values-uk", "values-b+zh+Hans")
+OPERATION = "add-or-update-contact-import-recovery-copy"
+
+
+class ContactImportLocalizationCapabilityTests(unittest.TestCase):
+    def setUp(self):
+        self.policy = policy()
+        self.engine = CapabilityEngine(self.policy)
+        self.manifest = test_manifest("WP-000")
+        self.rule = CONTACT_IMPORT_LOCALIZATION_CAPABILITY
+
+    def test_exact_twelve_paths_and_single_wp_semantic_operation(self):
+        self.assertEqual(self.rule["path_rules"], [ROOT + locale + "/strings.xml" for locale in LOCALES])
+        self.assertEqual(self.rule["work_packages"], ["WP-210"])
+        self.assertEqual(self.rule["operations"], [OPERATION])
+        self.assertEqual(self.policy["reservation_policy"]["capabilities"][-1], self.rule)
+        for path in self.rule["path_rules"]:
+            admitted = self.engine.admit("WP-210", self.manifest.wp("WP-210")["write_paths"], path, OPERATION)
+            self.assertEqual(admitted.capability_id, self.rule["id"])
+            self.assertEqual(admitted.invariants, tuple(self.rule["invariants"]))
+            self.assertEqual(admitted.validation, tuple(self.rule["validation"]))
+
+    def test_every_other_wp_denied_and_primary_owner_unchanged(self):
+        before = copy.deepcopy(self.policy)
+        before["reservation_policy"]["capabilities"].pop()
+        previous = CapabilityEngine(before)
+        for wp in self.manifest.work_packages:
+            assigned = self.manifest.wp(wp)["write_paths"]
+            for path in self.rule["path_rules"]:
+                if wp != "WP-210":
+                    with self.subTest(wp=wp, path=path), self.assertRaises(PortError):
+                        self.engine.admit(wp, assigned, path, OPERATION)
+                for operation in ("create", "modify", "test", "generate", "delete"):
+                    try:
+                        old = previous.admit(wp, assigned, path, operation)
+                    except PortError:
+                        with self.assertRaises(PortError):
+                            self.engine.admit(wp, assigned, path, operation)
+                    else:
+                        self.assertEqual(self.engine.admit(wp, assigned, path, operation), old)
+
+    def test_wrong_operations_nearby_paths_and_reference_denied(self):
+        for path in self.rule["path_rules"]:
+            for operation in ("create", "modify", "delete", "test", "generate",
+                              "modify-related-consumer", "add-or-update-related-test", "unknown"):
+                with self.subTest(path=path, operation=operation), self.assertRaises(PortError):
+                    self.engine.admit("WP-210", [], path, operation)
+        for path in (
+            ROOT.rstrip("/"), ROOT + "values", ROOT + "values/strings.xml.backup",
+            ROOT + "values/other.xml", ROOT + "values-en/strings.xml",
+            ROOT + "values-ja/strings.xml", ROOT + "values-zh/strings.xml",
+            ROOT + "values/../values/strings.xml", ROOT + "values//strings.xml",
+            "/" + ROOT + "values/strings.xml", "../" + ROOT + "values/strings.xml",
+            ROOT.replace("settings", "onboarding") + "values/strings.xml",
+            "android/core/l10n/src/main/res/values/l10n_strings.xml",
+            "android/feature/settings/build.gradle.kts",
+            "android/feature/settings/src/main/AndroidManifest.xml",
+            "MC1/Localizable.xcstrings", "docs/android/localization/exclusions.json",
+        ):
+            with self.subTest(path=path), self.assertRaises(PortError):
+                self.engine.admit("WP-210", [], path, OPERATION)
+
+    def test_existing_consumer_and_test_admissions_remain_separate(self):
+        root = "android/feature/settings/src/"
+        package = "kotlin/com/meshcoreone/android/feature/settings/app/nodeconfig/"
+        for path, operation, capability in (
+            (root + "main/" + package + "ResourceNodeConfigMessages.kt",
+             "modify-related-consumer", "reviewed-support-consumer"),
+            (root + "test/" + package + "ResourceNodeConfigMessagesTest.kt",
+             "add-or-update-related-test", "reviewed-support-test"),
+        ):
+            self.assertEqual(self.engine.admit("WP-210", [], path, operation).capability_id, capability)
+            with self.assertRaises(PortError):
+                self.engine.admit("WP-210", [], path, OPERATION)
+
+    def test_complete_predecessor_object_and_raw_blob_unchanged(self):
+        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        untouched = copy.deepcopy(current)
+        original_text = subprocess.check_output(
+            ["git", "-C", str(REPO), "show", BASE + ":docs/android/automation-policy.json"],
+            encoding="utf-8",
+        )
+        previous = copy.deepcopy(current)
+        self.assertEqual(previous["reservation_policy"]["capabilities"].pop(), self.rule)
+        self.assertEqual(previous, json.loads(original_text))
+        current_text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        marker = '      },\n      {\n        "id": "' + self.rule["id"] + '"'
+        start = current_text.index(marker)
+        end = current_text.index("    ]\n  },", start)
+        self.assertEqual(current_text[:start] + "      }\n" + current_text[end:], original_text)
+        self.assertEqual(routine_support_predecessor(current), routine_support_predecessor(previous))
+        self.assertEqual(json.loads(historical_policy_text()), routine_support_predecessor(current))
+        self.assertEqual(current, untouched)
+
+    def test_mutated_duplicate_reordered_and_malformed_rule_fails_closed(self):
+        for field, value in (
+            ("path_rules", [ROOT + "**"]), ("work_packages", ["WP-210", "WP-318"]),
+            ("operations", [OPERATION, "modify"]), ("invariants", self.rule["invariants"][:-1]),
+            ("validation", []), ("extra", True),
+        ):
+            changed = copy.deepcopy(self.policy)
+            changed["reservation_policy"]["capabilities"][-1][field] = value
+            with self.subTest(field=field), self.assertRaises(PortError):
+                routine_support_predecessor(changed)
+        for mode in ("duplicate", "reordered"):
+            changed = copy.deepcopy(self.policy)
+            rules = changed["reservation_policy"]["capabilities"]
+            if mode == "duplicate":
+                rules.append(copy.deepcopy(self.rule))
+            else:
+                rules.insert(0, rules.pop())
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                routine_support_predecessor(changed)
+
+    def test_localization_failure_and_authority_obligations_are_retained(self):
+        text = " ".join(self.rule["invariants"] + self.rule["validation"])
+        for required in (
+            "node_config_contact_save_failed", "all-twelve-supported-locales",
+            "confirmed-radio-contact-acceptance", "failed-local-save", "retry-import",
+            "configImportFailedPartial", "db14559b39d32322b06477c6ae676112f583db50",
+            "generated-l10n-bytes", "WP210-deviations", "not-fabricated-Swift-source-map",
+            "WP318-primary-consumer", "WP005-localization", "semantic-overlap-serialize-or-transfer",
+            "trusted-main-landing", "fresh-same-owner-admission", "immutable-authorization",
+            "no-release-recreate-or-private-ledger-edits", "no-feature-acceptance",
+            "ResourceNodeConfigMessages", "NodeConfigContactSaveFailure", "partial true and false",
+            "ordinary radio failure and cancellation", "mounted partial-import flow",
+            "positive hosted method discovery", "zero failures errors or skips",
+        ):
+            with self.subTest(required=required):
+                self.assertIn(required, text)
