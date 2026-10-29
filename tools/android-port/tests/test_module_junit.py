@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from controller.errors import PortError
-from controller.module_junit import check_module_tests, module_sources
+from controller.module_junit import check_module_tests, module_method_inventory, module_sources
 from test_ci_evidence import junit_report
 
 
@@ -58,6 +58,13 @@ class ModuleJUnitTests(unittest.TestCase):
         self.assertEqual(result["core/model"]["passed"], 3)
         self.assertEqual(result["core/database"]["passed"], 3)
         self.assertFalse((self.root / "evidence").exists())
+
+    def test_method_inventory_includes_separately_collected_contracts_and_app(self):
+        self.report("app", runner="testDebugUnitTest")
+        self.report("core/contracts")
+        inventory = module_method_inventory(self.repo, check_module_tests(self.repo))
+        self.assertEqual(set(inventory), {"app", "core/contracts", "core/model", "core/database"})
+        self.assertEqual(len(inventory["core/contracts"]), 3)
 
     def test_missing_or_ambiguous_runner_rejects(self):
         database = self.repo / "android/core/database/build/test-results/testDebugUnitTest/TEST-fixture.xml"

@@ -4,6 +4,7 @@ from .errors import PortError
 from .gates import policy_revision
 from .model import Manifest
 from .schema import digest, positive_integer
+from .verification import declared_software_lane
 
 
 def marker(wp_id: str) -> str:
@@ -59,11 +60,17 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
         "Do not launch additional agents/factories/sessions, alter repository settings, activate schedules, "
         "merge, sign/publish releases, or edit read-only Swift.",
         "Read PORTING_PLAN.md, the three relevant .github/skills and trusted instructions.",
-        "All writes require the shared lease below; no catalog/manifest/container/schema exceptions.",
-        "A missing prerequisite/verification/contract or ambiguous live identity is BLOCKED, not a stub.",
+        "Assignment authorizes ordinary work and directly necessary support edits inside trusted capabilities. "
+        "Automatically attempt advisory reservation bookkeeping; a historical claim mismatch alone is not "
+        "an edit lock. Unknown path/operation capabilities and unresolved live overlaps remain blockers.",
+        "A missing actual prerequisite or contract, or an ambiguous live identity, is BLOCKED, not a stub.",
         "",
         "## Exact allowed writes",
         *[f"- {path}" for path in wp["write_paths"]],
+        "Directly necessary support paths may also be admitted by trusted path+operation capability rules.",
+        "For directly related cross-owner Kotlin support, use modify-related-consumer for existing "
+        "production consumers or add-or-update-related-test for tests. These do not admit unrelated "
+        "work, deleted tests, build configuration, or an unresolved semantic overlap.",
         "",
         "## Exact pinned inputs (primary ownership or read-only cross-reference)",
     ]
@@ -80,6 +87,12 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
     if not inputs:
         lines.append(wp["android_only_reason"])
     input_end = len(lines)
+    software_lane = []
+    if not wp["verification"]["configured"] and not wp["verification"]["commands"]:
+        software_lane = [
+            "Project-wide declared software lane (not whole-WP or device acceptance):",
+            json.dumps(declared_software_lane(manifest), ensure_ascii=True),
+        ]
     lines.extend([
         "",
         "## Observable acceptance (file/header coverage is not feature completion)",
@@ -87,6 +100,18 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
         "",
         "## Verification",
         json.dumps(wp["verification"], ensure_ascii=True),
+        *software_lane,
+        "An empty verification entry for an eligible Android module WP can use the shared whole-WP "
+        "contract; it does not by itself block dispatch or an already-assigned, capability-admitted bounded repair. "
+        "Original-inventory, non-module, release and explicitly partially configured WPs still require "
+        "their specific verification contract. For full-WP completion use the schema-4 verification scope "
+        "and native review schema 3 documented in docs/android/ci/README.md: cover every acceptance "
+        "and original case family, and bind actual hosted methods and required native/human evidence. "
+        "Use the existing declared affected or scaffold checks for its actual candidate and applicable "
+        "acceptance; do not require a separate WP-003 binding or issue solely for an empty macro entry. "
+        "Those checks do not prove whole-WP or device acceptance.",
+        "Missing or failed local checks leave the candidate unverified but do not prevent feature-branch "
+        "publication; report their outcomes and use the exact-candidate hosted checks.",
         "Port every in-scope original case/parameter family from the independently approved WP-004 catalog; "
         "account for exact user-approved exclusions without claiming passing tests/features.",
         "Message translation is removed, not deferred or a future build/release requirement. "

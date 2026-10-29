@@ -17,12 +17,13 @@ from .gates import (
     protected_paths, validate_approval, validate_review,
 )
 from .model import SHA, git
-from .paths import git_path
-from .publication import bounded_output
+from .paths import git_path, permits
+from .publication import bounded_output, decode_structured_body
 from .render import marker
 from .schema import decode_json, digest, fields, nonempty, positive_integer
 
 SCOPE_MARKER = "<!-- android-port-repair-scope-v1 -->\n"
+COMPRESSED_SCOPE_MARKER = "<!-- android-port-repair-scope-zlib-v1 -->\n"
 VERIFICATION = {
     "android-scaffold": {
         "command": ["python", "tools/android-port/controller/ci.py", "run", "--stage", "scaffold"],
@@ -36,7 +37,7 @@ ANDROID_MODULE = r"android/((?:core|feature|platform)/[a-z0-9-]+|app)/"
 def verification_only(scope):
     version = scope.get("schema_version")
     if type(version) is not int or (version, scope.get("kind")) not in (
-        (1, "landed-wp-repair"), (2, "landed-wp-verification"),
+        (1, "landed-wp-repair"), (2, "landed-wp-verification"), (3, "whole-wp"),
     ):
         raise PortError("Unknown bounded repair scope version/kind")
     return version == 2
@@ -61,24 +62,71 @@ def production_bindings(scope):
     return bindings
 
 
+def repair_producer_bindings(scope, manifest):
+    bindings = scope.get("producer_bindings", {})
+    if not isinstance(bindings, dict) or ("producer_bindings" in scope and not bindings):
+        raise PortError("Malformed repair producer bindings")
+    if not bindings:
+        return bindings
+    wp = manifest.wp(scope["binding"]["work_package"])
+    for path, blob in bindings.items():
+        if (
+            re.fullmatch(ANDROID_MODULE + r"src/main/.+\.kt", git_path(path)) is None
+            or not permits(wp["write_paths"], path)
+            or not isinstance(blob, str) or SHA.fullmatch(blob) is None
+        ):
+            raise PortError("Repair producer must be a primary-owned Android source with an exact blob")
+    return bindings
+
+
+def scoped_candidate_sources(scope):
+    sources = {}
+
+    def add(path, blob):
+        if path in sources and sources[path] != blob:
+            raise PortError("Conflicting scoped candidate source identities")
+        sources[path] = blob
+
+    for entry in scope["coverage"]:
+        for method in entry["hosted_methods"]:
+            add(method["path"], method["blob_sha"])
+        for path, blob in entry.get("production_bindings", {}).items():
+            add(path, blob)
+    for path, blob in scope.get("producer_bindings", {}).items():
+        add(path, blob)
+    for observation in scope["native"]:
+        for path, blob in observation["bindings"].items():
+            add(path, blob)
+    return sources
+
+
+def scoped_retained_sources(scope):
+    sources = {}
+    for observation in scope["native"]:
+        fixture = observation["fixture"]
+        key = (observation["revision"], fixture["path"])
+        if key in sources and sources[key] != fixture["blob_sha"]:
+            raise PortError("Conflicting retained native fixture identities")
+        sources[key] = fixture["blob_sha"]
+    return sources
+
+
 def authenticated_scope(native, comment_id, binding):
     positive_integer(comment_id, "Repair scope comment ID")
     comment = native.get(f"/issues/comments/{comment_id}")
-    if (
-        comment.get("id") != comment_id
-        or comment.get("user", {}).get("type") != "User"
-        or comment.get("user", {}).get("login") not in native.policy["review_policy"]["authorized_coordinators"]
-    ):
-        raise PortError("Repair scope is not an authenticated authorized coordinator comment")
+    if comment.get("id") != comment_id:
+        raise PortError("Repair scope comment identity does not match")
     body = bounded_output(comment.get("body"))
-    if not body.startswith(SCOPE_MARKER):
+    if not body.startswith((SCOPE_MARKER, COMPRESSED_SCOPE_MARKER)):
         raise PortError("Missing explicit bounded repair scope")
-    scope = decode_json(body[len(SCOPE_MARKER):])
+    scope = decode_structured_body(body, SCOPE_MARKER, COMPRESSED_SCOPE_MARKER)
     fields(scope, {
         "schema_version", "kind", "binding", "repair_pr", "repair_issue", "landed_pr", "owner",
         "summary", "paths", "acceptance", "coverage", "verification", "native",
-    }, label="bounded repair scope")
+    }, optional={"producer_bindings"}, label="bounded repair scope")
     verification = verification_only(scope)
+    if verification and "producer_bindings" in scope:
+        raise PortError("Verification-only scopes use production bindings, not repair producer bindings")
     if (
         Binding.parse(scope["binding"]) != binding
         or scope["owner"] != native.manifest.wp(binding.work_package)["owner"]
@@ -86,13 +134,33 @@ def authenticated_scope(native, comment_id, binding):
         raise PortError("Stale repair binding or noncanonical WP owner")
     for key in ("repair_pr", "repair_issue", "landed_pr"):
         positive_integer(scope[key], key)
+    author = comment.get("user")
+    coordinator = (
+        isinstance(author, dict) and author.get("type") == "User"
+        and author.get("login") in native.policy["review_policy"]["authorized_coordinators"]
+    )
+    if not coordinator:
+        if scope["repair_issue"] != scope["repair_pr"]:
+            raise PortError("An issue scope requires an authenticated authorized coordinator")
+        pr = native.get(f"/pulls/{scope['repair_pr']}")
+        owner = pr.get("user")
+        if (
+            pr.get("number") != scope["repair_pr"] or not isinstance(author, dict)
+            or not isinstance(owner, dict) or author.get("type") not in ("User", "Bot")
+            or owner.get("type") != author["type"]
+            or type(author.get("id")) is not int or author["id"] < 1
+            or owner.get("id") != author["id"]
+        ):
+            raise PortError("PR scope must be authored by the actual PR author or authorized coordinator")
     if comment.get("issue_url") != (
         f"https://api.github.com/repos/{binding.repository}/issues/{scope['repair_issue']}"
     ):
         raise PortError("Scope comment is not on its original repair issue")
     issue = native.get(f"/issues/{scope['repair_issue']}")
-    if issue.get("number") != scope["repair_issue"] or "pull_request" in issue:
-        raise PortError("Repair issue does not exist or is a PR")
+    if issue.get("number") != scope["repair_issue"] or (
+        ("pull_request" in issue) != (scope["repair_issue"] == scope["repair_pr"])
+    ):
+        raise PortError("Repair scope must be on its own issue or the repair PR")
     landed = native.get(f"/pulls/{scope['landed_pr']}")
     if (
         landed.get("number") != scope["landed_pr"] or scope["landed_pr"] == scope["repair_pr"]
@@ -133,14 +201,34 @@ def authenticated_scope(native, comment_id, binding):
                 actual = native.get(f"/contents/{path}?ref={revision}")
                 if actual.get("type") != "file" or actual.get("path") != path or actual.get("sha") != blob:
                     raise PortError("Verification consumer differs from the landed producer/current base/head")
-    elif not repaired_sources or not repaired_sources.intersection(prior_paths):
-        raise PortError("Repair production paths are not accounted for by the actual landed producer")
+    else:
+        bindings = repair_producer_bindings(scope, native.manifest)
+        if not repaired_sources:
+            raise PortError("Repair production paths are missing; test-only work requires verification-only scope")
+        if not repaired_sources.intersection(prior_paths) and not bindings:
+            raise PortError("Repair production paths require a changed or explicitly bound landed producer source")
+        if bindings.keys() - prior_paths:
+            raise PortError("Repair producer binding is not accounted for by the actual landed producer")
+        for path, blob in bindings.items():
+            for revision in (binding.base_sha, binding.head_sha):
+                entry = git(native.manifest.repo, "ls-tree", "-z", "--full-tree", revision, "--", path)
+                if entry not in {
+                    f"{mode} blob {blob}\t{path}\0".encode("utf-8") for mode in ("100644", "100755")
+                }:
+                    raise PortError("Repair producer lacks an unchanged regular Git blob at base and head")
+                actual = native.get(f"/contents/{path}?ref={revision}")
+                if actual.get("type") != "file" or actual.get("path") != path or actual.get("sha") != blob:
+                    raise PortError("Repair producer differs from the current base/head")
     nonempty(scope["summary"], "Bounded repair purpose")
     return scope
 
 
 def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
     verification = verification_only(scope)
+    whole_wp = scope.get("kind") == "whole-wp"
+    if whole_wp:
+        fields(scope, {"schema_version", "kind", "binding", "owner", "paths", "acceptance", "coverage",
+                       "verification", "native"}, label="whole-WP verification scope")
     if verification:
         production_bindings(scope)
     if (
@@ -149,6 +237,8 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         or binding.manifest_sha256 != manifest.sha256 or binding.policy_revision != policy_revision(manifest, policy)
     ):
         raise PortError("Stale bounded repair scope")
+    if not verification and not whole_wp:
+        repair_producer_bindings(scope, manifest)
     if (
         not isinstance(changed_paths, list) or not changed_paths
         or not all(isinstance(path, str) for path in changed_paths)
@@ -169,7 +259,7 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         if item["capability"] != actual.capability_id or path in admitted:
             raise PortError("Wrong/duplicate trusted repair capability")
         if verification:
-            test = re.fullmatch(ANDROID_MODULE + r"src/(?:test|androidTest)/.+\.kt", path)
+            test = re.fullmatch(ANDROID_MODULE + r"src/(?:test|testDebug|androidTest)/.+\.kt", path)
             wiring = re.fullmatch(ANDROID_MODULE + r"build\.gradle\.kts", path)
             if test:
                 test_modules.add(test[1])
@@ -191,18 +281,32 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         raise PortError("Unknown or missing declared affected verification")
     if not isinstance(scope["acceptance"], list) or not scope["acceptance"]:
         raise PortError("Missing bounded repair acceptance criteria")
-    acceptance = []
-    for entry in scope["acceptance"]:
-        fields(entry, {"id", "description"}, label="repair criterion")
-        if not isinstance(entry["id"], str) or re.fullmatch(
-            rf"repair-{scope['repair_issue']}-[a-z0-9-]+", entry["id"],
-        ) is None or entry["id"] in acceptance:
-            raise PortError("Repair criteria must be unique issue-scoped IDs, not whole-WP acceptance")
-        nonempty(entry["description"], "Repair criterion")
-        acceptance.append(entry["id"])
+    if whole_wp:
+        if scope["acceptance"] != wp["acceptance"]:
+            raise PortError("Whole-WP scope must retain the complete original acceptance")
+    else:
+        acceptance = []
+        for entry in scope["acceptance"]:
+            fields(entry, {"id", "description"}, label="repair criterion")
+            if not isinstance(entry["id"], str) or re.fullmatch(
+                rf"repair-{scope['repair_issue']}-[a-z0-9-]+", entry["id"],
+            ) is None or entry["id"] in acceptance:
+                raise PortError("Repair criteria must be unique issue-scoped IDs, not whole-WP acceptance")
+            nonempty(entry["description"], "Repair criterion")
+            acceptance.append(entry["id"])
     if not isinstance(scope["coverage"], list) or not scope["coverage"]:
         raise PortError("Missing changed-path behavioral coverage")
     owned = {entry["path"]: entry for entry in manifest.inputs(wp["id"], False) if entry["exclusion"] is None}
+    if scope.get("producer_bindings") and (
+        set(scope["producer_bindings"]) & set(changed_paths)
+        or not any(
+            isinstance(entry, dict) and isinstance(entry.get("source_paths"), list)
+            and set(path for path in entry["source_paths"] if isinstance(path, str)) & owned.keys()
+            for entry in scope["coverage"]
+        )
+    ):
+        raise PortError("Bound unchanged producers require coverage of a primary-owned original source")
+    original_inputs = {entry["path"]: entry for entry in manifest.data["inventory"] if entry["exclusion"] is None}
     catalog_entries = {e["path"]: e for e in catalog["entries"]} if catalog else {}
     if catalog and (catalog.get("schema_version") != 1 or catalog.get("source_sha") != binding.source_sha):
         raise PortError("Stale original-case inventory")
@@ -218,13 +322,21 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         if (
             not isinstance(entry["source_paths"], list) or not entry["source_paths"]
             or not all(isinstance(path, str) for path in entry["source_paths"])
-            or any(p not in owned for p in entry["source_paths"])
+            or any(p not in original_inputs for p in entry["source_paths"])
         ):
-            raise PortError("Repair source mapping is unowned, excluded, or empty")
+            raise PortError("Repair source mapping is unknown, excluded, or empty")
         if any(not isinstance(entry[key], list) for key in ("cases", "native_methods", "hosted_methods")):
             raise PortError("Malformed repair original/native families")
+        foreign_sources = set(entry["source_paths"]) - owned.keys()
+        if foreign_sources - {
+            case["path"] for case in entry["cases"]
+            if isinstance(case, dict) and isinstance(case.get("path"), str)
+        }:
+            raise PortError("Cross-owner source mappings require explicit original case families")
         if not entry["cases"] and not entry["native_methods"] and not entry["hosted_methods"]:
             raise PortError("No original case or explicit native adaptation covers this change")
+        if whole_wp and entry["cases"] and not entry["native_methods"] and not entry["hosted_methods"]:
+            raise PortError("Whole-WP original cases require actual hosted or native test methods")
         if entry["native_methods"] or entry["hosted_methods"]:
             nonempty(entry["adaptation"], "Original-to-native adaptation rationale")
             if any(not isinstance(method, str) or not method for method in entry["native_methods"]):
@@ -232,23 +344,28 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
             for method in entry["hosted_methods"]:
                 fields(method, {"path", "blob_sha", "id"}, label="affected hosted test method")
                 if (
-                    "/src/test" not in git_path(method["path"])
+                    re.fullmatch(ANDROID_MODULE + r"src/(?:test|testDebug)/kotlin/.+\.kt",
+                                 git_path(method["path"])) is None
                     or not isinstance(method["blob_sha"], str) or SHA.fullmatch(method["blob_sha"]) is None
                 ):
                     raise PortError("Affected hosted test must bind an actual immutable test source")
                 nonempty(method["id"], "Affected hosted method ID")
-        if "/src/test" in path and not any(method["path"] == path for method in entry["hosted_methods"]):
+        if (not whole_wp and "/src/test" in path
+                and not any(method["path"] == path for method in entry["hosted_methods"])):
             raise PortError("Changed unit-test sources need their own actual hosted method execution")
+        if whole_wp and "/src/test" in path and not entry["hosted_methods"]:
+            raise PortError("Changed unit-test sources or helpers need actual hosted method execution")
         if "/src/androidTest/" in path and not entry["native_methods"]:
             raise PortError("Changed instrumentation needs actual retained native-method execution")
         for case in entry["cases"]:
             fields(case, {"path", "id", "parameter_family"}, label="affected original case")
             definition = catalog_entries.get(case["path"])
-            original = owned.get(case["path"])
+            original = original_inputs.get(case["path"])
             if (
                 definition is None or original is None or original["kind"] not in ("test", "support")
                 or definition["blob_sha"] != original["blob_sha"] or not definition["has_assertions"]
                 or {"id": case["id"], "parameter_family": case["parameter_family"]} not in definition["cases"]
+                or (case["path"] not in owned and case["path"] not in entry["source_paths"])
             ):
                 raise PortError("Affected original case/family is unknown, excluded, or has stale provenance")
             cases[(case["path"], case["id"], case["parameter_family"])] = original["blob_sha"]
@@ -274,6 +391,21 @@ def validate_scope(scope, binding, manifest, policy, changed_paths, catalog):
         behavioral = {path for path in changed_paths if path.startswith("android/")}
     if not behavioral or not behavioral.issubset(covered):
         raise PortError("Every changed Android behavior/test path needs explicit scoped coverage")
+    if whole_wp:
+        if not any(entry["hosted_methods"] for entry in scope["coverage"]):
+            raise PortError("Whole-WP verification requires at least one executed hosted test method")
+        original_tests = {
+            path: entry for path, entry in owned.items() if entry["kind"] in ("test", "support")
+        }
+        expected_cases = set()
+        for path, original in original_tests.items():
+            definition = catalog_entries.get(path)
+            if definition is None or definition.get("blob_sha") != original["blob_sha"]:
+                raise PortError("Whole-WP scope requires the complete pinned original-case inventory")
+            for case in definition.get("cases", []):
+                expected_cases.add((path, case["id"], case["parameter_family"]))
+        if not expected_cases.issubset(cases):
+            raise PortError("Whole-WP scope must map every original case and parameter family")
     if not isinstance(scope["native"], list):
         raise PortError("Malformed retained native evidence references")
     for item in scope["native"]:
@@ -387,12 +519,15 @@ def read_job_log(native, job_id):
         process.stdout.close()
 
 
-def validate_build_log(log, modules):
+def validate_build_log(log, modules, *, plan_for_scopes=None):
     lines = []
     for line in log.splitlines():
         # gh emits job, step and timestamp columns; only the authoritative run step is evidence.
         columns = line.split("\t", 2)
-        if len(columns) == 3 and columns[1] == "Run every selected Linux and Android task in one Gradle invocation":
+        if len(columns) == 3 and columns[1] in (
+            "Run every selected Linux and Android task in one Gradle invocation",
+            "Run parallel Gradle validation and Android tasks",
+        ):
             lines.append(re.sub(r"^\S+\s?", "", columns[2]))
     text = "\n".join(lines)
     reports = []
@@ -402,11 +537,89 @@ def validate_build_log(log, modules):
             value = decode_json(text[match.start():match.start() + length])
         except json.JSONDecodeError:
             continue
-        if isinstance(value, dict) and value.get("stage") == "scaffold":
+        if isinstance(value, dict) and (
+            value.get("stage") == "scaffold" or value.get("kind") == "local-affected-only"
+        ):
             reports.append(value)
     if len(reports) != 1:
         raise PortError("Missing/ambiguous actual scaffold report in authoritative hosted log")
     report = reports[0]
+    compiled = report.get("compiled_test_sources")
+    if not isinstance(compiled, dict):
+        raise PortError("Missing compiled test source inventory")
+    for module in modules:
+        sources = compiled.get(module)
+        if not isinstance(sources, dict):
+            raise PortError("Missing compiled test sources for verified module: " + module)
+        for path, blob in sources.items():
+            if (
+                not isinstance(path, str) or not path.startswith("android/")
+                or git_path(path) != path or not path.endswith(".kt")
+                or not isinstance(blob, str) or SHA.fullmatch(blob) is None
+            ):
+                raise PortError("Malformed compiled test source inventory")
+    if report.get("kind") == "local-affected-only":
+        scopes = report.get("scopes")
+        if (
+            plan_for_scopes is None or not isinstance(scopes, list) or not scopes
+            or not all(isinstance(scope, str) and scope for scope in scopes)
+            or len(set(scopes)) != len(scopes)
+        ):
+            raise PortError("Affected hosted evidence requires the trusted exact-candidate task plan")
+        plan = plan_for_scopes(scopes)
+        if (
+            report.get("result") != "success"
+            or any(report.get(key) != plan[key] for key in ("base", "head", "tree", "scopes", "tasks"))
+            or not isinstance(report.get("resolved_task_graph"), dict)
+            or report["resolved_task_graph"].get("result") != "no-duplicate-ci-evidence"
+        ):
+            raise PortError("Hosted affected verification disagrees with the trusted candidate plan")
+        suites = {}
+        for key in ("suites", "scaffold_suites", "module_unit_tests"):
+            part = report.get(key, {})
+            if not isinstance(part, dict):
+                raise PortError("Malformed affected hosted suite inventory")
+            for name, value in part.items():
+                if key == "scaffold_suites" and name == "contracts":
+                    name = "core/contracts"
+                if name in suites and suites[name] != value:
+                    raise PortError("Conflicting affected hosted suite inventories")
+                suites[name] = value
+        cases = report.get("junit_cases")
+        if not isinstance(cases, list) or not cases:
+            raise PortError("Missing affected hosted method inventory")
+        inventory = {module: [] for module in modules}
+        for case in cases:
+            fields(case, {"report", "index", "class", "method", "outcome"},
+                   {"factory"}, label="affected hosted method")
+            path = git_path(case["report"])
+            match = re.fullmatch(ANDROID_MODULE + r"build/test-results/[^/]+/TEST-[^/]+\.xml", path)
+            if (
+                re.fullmatch(r"android/.+/build/test-results/[^/]+/TEST-[^/]+\.xml", path) is None
+                or type(case["index"]) is not int or case["index"] < 0
+                or not isinstance(case["class"], str) or not case["class"]
+                or not isinstance(case["method"], str) or not case["method"]
+                or ("factory" in case and
+                    (not isinstance(case["factory"], str) or not case["factory"]))
+                or case["outcome"] != "passed"
+            ):
+                raise PortError("Malformed, failed or skipped affected hosted method")
+            if match is None:
+                continue
+            module = match[1]
+            if module in inventory:
+                record = {"class": case["class"], "method": case["method"]}
+                if "factory" in case:
+                    record["factory"] = case["factory"]
+                inventory[module].append(record)
+        for module in modules:
+            found = counts(suites.get(module))
+            records = inventory[module]
+            identities = {(record["class"], record["method"]) for record in records}
+            if len(records) != found["discovered"] or len(identities) != len(records):
+                raise PortError("Affected hosted methods disagree with discovered test counts")
+        return {"modules": sorted(modules), "positive_discovery": True,
+                "source": "authoritative-hosted-log", "methods": inventory, "compiled_test_sources": compiled}
     from .ci import SCOPED_TASKS, TASKS
 
     tasks = report.get("tasks")
@@ -421,29 +634,39 @@ def validate_build_log(log, modules):
     if not isinstance(inventory, dict):
         raise PortError("Malformed authoritative hosted method inventory")
     for module in modules:
-        suites = report.get("suites" if module == "app" else "module_unit_tests")
-        if not isinstance(suites, dict):
-            raise PortError("Missing/malformed affected hosted module discovery")
-        found = suites.get(module)
+        if module == "core/protocol":
+            if ":core:protocol:test" not in tasks:
+                raise PortError("Protocol discovery requires the declared protocol test task")
+            found = report.get("protocol_suite")
+        else:
+            suites = report.get("suites" if module in ("app", "core/contracts") else "module_unit_tests")
+            if not isinstance(suites, dict):
+                raise PortError("Missing/malformed affected hosted module discovery")
+            found = suites.get("contracts" if module == "core/contracts" else module)
         counts(found)
-        if module in inventory:
-            records = inventory[module]
-            if not isinstance(records, list) or len(records) != found["discovered"]:
-                raise PortError("Actual hosted method inventory disagrees with discovered test counts")
-            seen = set()
-            for record in records:
-                fields(record, {"class", "method"}, label="executed hosted method")
-                if not all(isinstance(item, str) and item for item in record.values()):
-                    raise PortError("Malformed executed hosted method identity")
-                identity = (record["class"], record["method"])
-                if identity in seen:
-                    raise PortError("Duplicate actual hosted method identity")
-                seen.add(identity)
+        if module in ("app", "core/contracts"):
+            duplicate = report.get("module_unit_tests", {})
+            if not isinstance(duplicate, dict) or (
+                module in duplicate and duplicate[module] != found
+            ):
+                raise PortError("Conflicting hosted module discovery counts")
+        records = inventory.get(module)
+        if not isinstance(records, list) or len(records) != found["discovered"]:
+            raise PortError("Actual hosted method inventory disagrees with discovered test counts")
+        seen = set()
+        for record in records:
+            fields(record, {"class", "method"}, {"factory"}, label="executed hosted method")
+            if not all(isinstance(item, str) and item for item in record.values()):
+                raise PortError("Malformed executed hosted method identity")
+            identity = (record["class"], record["method"])
+            if identity in seen:
+                raise PortError("Duplicate actual hosted method identity")
+            seen.add(identity)
     return {"modules": sorted(modules), "positive_discovery": True, "source": "authoritative-hosted-log",
-            "methods": inventory}
+            "methods": inventory, "compiled_test_sources": compiled}
 
 
-def _kotlin_junit_methods(text):
+def _kotlin_junit_methods(text, declaring_classes=None, *, reject_inherited=False):
     def comment(index):
         if text.startswith("//", index):
             end = text.find("\n", index)
@@ -511,19 +734,214 @@ def _kotlin_junit_methods(text):
             tokens.append(match[0])
             index = match.end()
 
-    methods = set()
+    for index, value in enumerate(tokens):
+        if value == "@" and (
+            index + 1 < len(tokens) and tokens[index + 1] == "["
+            or index + 3 < len(tokens) and tokens[index + 2:index + 4] == [":", "["]
+        ):
+            raise PortError("Grouped Kotlin annotations are not supported in hosted test sources")
+
+    class_bodies = {}
+    if declaring_classes is not None:
+        package = ""
+        for index, value in enumerate(tokens):
+            if value != "package" or index and tokens[index - 1] == ".":
+                continue
+            parts, cursor = [], index + 1
+            while cursor < len(tokens) and re.fullmatch(r"[^\W\d]\w*", tokens[cursor]):
+                parts.append(tokens[cursor])
+                cursor += 1
+                if cursor >= len(tokens) or tokens[cursor] != ".":
+                    break
+                cursor += 1
+            if not parts or package:
+                raise PortError("Cannot establish Kotlin package identity")
+            package = ".".join(parts)
+        for start, value in enumerate(tokens):
+            if value != "class" or start and tokens[start - 1] in (".", ":"):
+                continue
+            if start + 1 >= len(tokens) or not re.fullmatch(r"[^\W\d]\w*", tokens[start + 1]):
+                continue
+            name, index, nesting = tokens[start + 1], start + 2, []
+            while index < len(tokens):
+                current = tokens[index]
+                if not nesting and current == "{":
+                    class_bodies[index] = name
+                    break
+                if not nesting and current in (
+                    "class", "object", "interface", "fun", "val", "var", "typealias", ";", "=", "by",
+                ):
+                    break
+                if current in ("(", "[", "{"):
+                    nesting.append(current)
+                elif current in (")", "]", "}"):
+                    if not nesting or nesting.pop() != {")": "(", "]": "[", "}": "{"}[current]:
+                        break
+                index += 1
+
+        def verify_declaring_class(position):
+            stack = []
+            for index, value in enumerate(tokens[:position]):
+                if value == "{":
+                    stack.append(class_bodies.get(index))
+                elif value == "}":
+                    if not stack:
+                        raise PortError("Unbalanced Kotlin scope in hosted test source")
+                    stack.pop()
+            if len(stack) != 1 or stack[0] is None:
+                raise PortError("Cannot establish actual declaring class for hosted JUnit method")
+            return (package + "." if package else "") + stack[0]
+
+    test_annotations = {"Test", "org.junit.Test", "org.junit.jupiter.api.Test", "kotlin.test.Test"}
+    family_annotations = {
+        "TestFactory", "org.junit.jupiter.api.TestFactory",
+        "ParameterizedTest", "org.junit.jupiter.params.ParameterizedTest",
+        "RepeatedTest", "org.junit.jupiter.api.RepeatedTest",
+        "TestTemplate", "org.junit.jupiter.api.TestTemplate",
+    }
+    known_non_tests = {
+        "org.junit.Before", "org.junit.After", "org.junit.BeforeClass", "org.junit.AfterClass",
+        "org.junit.jupiter.api.BeforeEach", "org.junit.jupiter.api.AfterEach",
+        "org.junit.jupiter.api.BeforeAll", "org.junit.jupiter.api.AfterAll",
+        "kotlin.test.BeforeTest", "kotlin.test.AfterTest",
+        "kotlin.Suppress", "kotlin.OptIn", "kotlin.jvm.JvmStatic", "kotlin.jvm.Synchronized",
+        "androidx.compose.runtime.Composable", "org.robolectric.annotation.Implementation",
+        "org.junit.runners.Parameterized.Parameters",
+        "org.junit.Rule", "org.junit.ClassRule",
+    }
+    imports = {}
+    def name_token(value):
+        return identifier.fullmatch(value) is not None or (
+            value.startswith("`") and value.endswith("`") and len(value) > 2
+        )
+
     for start, value in enumerate(tokens):
-        if value != "@":
+        if value != "import":
+            continue
+        index, parts = start + 1, []
+        while index < len(tokens) and name_token(tokens[index]):
+            parts.append(tokens[index].strip("`"))
+            index += 1
+            if index >= len(tokens) or tokens[index] != ".":
+                break
+            index += 1
+        if index < len(tokens) and tokens[index] == "*":
+            continue
+        imported = ".".join(parts)
+        if not parts:
+            continue
+        alias = (
+            tokens[index + 1].strip("`")
+            if index + 1 < len(tokens) and tokens[index] == "as" and name_token(tokens[index + 1])
+            else parts[-1]
+        )
+        imports.setdefault(alias, set()).add(imported)
+        if imported in test_annotations:
+            test_annotations.add(alias)
+        if imported in family_annotations:
+            family_annotations.add(alias)
+    declared_names = {
+        tokens[index + 1].strip("`")
+        for index, value in enumerate(tokens[:-1])
+        if value in ("class", "interface", "object", "typealias")
+        and name_token(tokens[index + 1])
+    }
+    def has_inherited_scope():
+        for start, value in enumerate(tokens):
+            if value not in ("class", "interface", "object") or (
+                start and tokens[start - 1] in (".", ":")
+            ):
+                continue
+            index, nesting = start + 1, []
+            while index < len(tokens):
+                current = tokens[index]
+                if not nesting:
+                    if current == ":":
+                        return True
+                    if current in ("{", "}", ";", "=", "class", "object", "interface",
+                                   "fun", "val", "var", "typealias"):
+                        break
+                if current in ("(", "[", "<", "{"):
+                    nesting.append(current)
+                elif current in (")", "]", ">", "}"):
+                    if not nesting or nesting.pop() != {")": "(", "]": "[", ">": "<", "}": "{"}[current]:
+                        return True
+                index += 1
+            if nesting:
+                return True
+        return False
+
+    # A nested annotation inherited from a superclass can shadow even an explicit import.
+    inherited_scope = has_inherited_scope()
+    if reject_inherited and inherited_scope:
+        raise PortError("Cannot establish all inherited Kotlin JUnit declarations for changed test source")
+    non_test_annotations = {
+        name for name, targets in imports.items()
+        if not inherited_scope and name not in declared_names
+        and len(targets) == 1 and next(iter(targets)) in known_non_tests
+    }
+    for index, value in enumerate(tokens):
+        if value != "@" or index + 2 >= len(tokens) or tokens[index + 2] != ":":
+            continue
+        site = tokens[index + 1]
+        if site == "file":
+            continue
+        name = tokens[index + 3].strip("`") if index + 3 < len(tokens) else ""
+        if (site == "get" and name in non_test_annotations
+                and imports[name] in ({"org.junit.Rule"}, {"org.junit.ClassRule"})
+                and (index + 4 >= len(tokens) or tokens[index + 4] != ".")):
+            continue
+        raise PortError("Ambiguous Kotlin use-site annotation in hosted test source")
+    aliases = {}
+    for start, value in enumerate(tokens):
+        if (
+            value != "typealias" or start + 3 >= len(tokens)
+            or not name_token(tokens[start + 1]) or tokens[start + 2] != "="
+        ):
+            continue
+        index, parts = start + 3, []
+        while index < len(tokens) and name_token(tokens[index]):
+            parts.append(tokens[index].strip("`"))
+            index += 1
+            if index >= len(tokens) or tokens[index] != ".":
+                break
+            index += 1
+        if parts:
+            aliases[tokens[start + 1].strip("`")] = ".".join(parts)
+    changed = True
+    while changed:
+        changed = False
+        for alias, target in aliases.items():
+            if target in test_annotations and alias not in test_annotations:
+                test_annotations.add(alias)
+                changed = True
+            if target in family_annotations and alias not in family_annotations:
+                family_annotations.add(alias)
+                changed = True
+    methods, declaration_positions, processed_annotations = {}, {}, set()
+    modifiers = {
+        "public", "internal", "private", "protected", "final", "open", "abstract", "override",
+        "suspend", "inline", "tailrec", "external", "infix", "operator", "actual", "expect",
+    }
+    for start, value in enumerate(tokens):
+        if (
+            value != "@" or start in processed_annotations
+            or start > 0 and tokens[start - 1] in ("this", "super", "return", "break", "continue")
+        ):
             continue
         index, annotations = start, set()
-        while index < len(tokens) and tokens[index] == "@":
+        while index < len(tokens) and (tokens[index] == "@" or tokens[index] in modifiers):
+            if tokens[index] in modifiers:
+                index += 1
+                continue
+            processed_annotations.add(index)
             index += 1
-            if index == len(tokens) or identifier.fullmatch(tokens[index]) is None:
+            if index == len(tokens) or not name_token(tokens[index]):
                 break
-            name = tokens[index]
+            name = tokens[index].strip("`")
             index += 1
-            while index + 1 < len(tokens) and tokens[index] == "." and identifier.fullmatch(tokens[index + 1]):
-                name += "." + tokens[index + 1]
+            while index + 1 < len(tokens) and tokens[index] == "." and name_token(tokens[index + 1]):
+                name += "." + tokens[index + 1].strip("`")
                 index += 2
             annotations.add(name)
             if index < len(tokens) and tokens[index] == "(":
@@ -541,62 +959,102 @@ def _kotlin_junit_methods(text):
                     index += 1
                 if stack:
                     raise PortError("Unclosed Kotlin annotation in hosted test source")
-        if index < len(tokens) and tokens[index] in ("public", "internal"):
-            index += 1
         if (
-            annotations & {"Test", "org.junit.Test"}
-            and index + 2 < len(tokens)
-            and tokens[index] == "fun" and tokens[index + 2] == "("
+            annotations and not annotations & (test_annotations | family_annotations)
+            and not annotations.issubset(non_test_annotations)
+            and index < len(tokens) and tokens[index] in ("fun", "val", "var")
         ):
-            methods.add(tokens[index + 1].strip("`"))
+            unknown = ", ".join(sorted(annotations - non_test_annotations))
+            raise PortError(f"Ambiguous Kotlin function annotation or property annotation ({unknown}); "
+                            "use a recognizable JUnit test declaration")
+        if annotations & (test_annotations | family_annotations):
+            if index + 2 >= len(tokens) or tokens[index] != "fun" or tokens[index + 2] != "(":
+                raise PortError("Cannot identify annotated Kotlin JUnit test declaration")
+            name = tokens[index + 1].strip("`")
+            kind = "factory" if annotations & family_annotations else "test"
+            if name in declaration_positions and declaration_positions[name] != index:
+                raise PortError("Ambiguous duplicate JUnit method name in candidate test source")
+            if name in methods and methods[name] != kind:
+                raise PortError("Ambiguous JUnit test and factory declaration")
+            declaration_positions[name] = index
+            methods[name] = kind
+            if declaring_classes is not None:
+                declaring_classes[name] = verify_declaring_class(index)
     return methods
 
 
-def validate_hosted_methods(scope, candidate_tree, repo, executed):
+def validate_hosted_methods(scope, candidate_tree, repo, executed, compiled_sources):
     from .staging import object_bytes
 
     verification = verification_only(scope)
+
+    def require_compiled(path, blob):
+        module = re.match(r"android/((?:core|feature|platform)/[^/]+|app)/", path)
+        if (module is None or not isinstance(compiled_sources, dict)
+                or not isinstance(compiled_sources.get(module[1]), dict)
+                or compiled_sources[module[1]].get(path) != blob):
+            raise PortError("Hosted test source was not compiled for the selected test task")
+
     for coverage in scope["coverage"]:
         if verification:
             if any(candidate_tree.get(path) != blob for path, blob in coverage["production_bindings"].items()):
                 raise PortError("Verification production consumer does not match candidate source")
+        if verification or scope.get("kind") == "whole-wp":
             path = coverage["path"]
-            if "/src/test/" in path or "/src/androidTest/" in path:
+            if "/src/test/" in path or "/src/testDebug/" in path or "/src/androidTest/" in path:
                 blob = candidate_tree.get(path)
                 if blob is None:
                     raise PortError("Verification test source is absent from candidate")
+                if "/src/androidTest/" not in path:
+                    require_compiled(path, blob)
                 text = object_bytes(repo, blob).decode("utf-8")
-                declared = _kotlin_junit_methods(text)
-                if "/src/test/" in path:
+                declared = _kotlin_junit_methods(text, reject_inherited=True)
+                classes = {}
+                if declared:
+                    declared = _kotlin_junit_methods(text, classes)
+                if "/src/test/" in path or "/src/testDebug/" in path:
                     identities = [m["id"] for m in coverage["hosted_methods"] if m["path"] == path]
                 else:
-                    package = re.search(r"^\s*package\s+([\w.]+)", text, re.MULTILINE)
-                    test_class = (package[1] + "." if package else "") + path.rsplit("/", 1)[-1][:-3]
-                    identities = [m.removeprefix(test_class + "#") for m in coverage["native_methods"]
-                                  if m.startswith(test_class + "#")]
-                if not declared or len(set(identities)) != len(identities) or set(identities) != declared:
+                    source_classes = set(classes.values())
+                    identities = [m.rsplit("#", 1)[-1] for m in coverage["native_methods"]
+                                  if m.rpartition("#")[0] in source_classes]
+                    if any(m not in {test_class + "#" + name for name, test_class in classes.items()}
+                           for m in coverage["native_methods"] if m.rpartition("#")[0] in source_classes):
+                        raise PortError("Native coverage method does not match its actual declaring class")
+                helper = (scope.get("kind") == "whole-wp" and "/src/androidTest/" not in path
+                          and not declared and coverage["hosted_methods"])
+                if (not declared and not helper) or len(set(identities)) != len(identities) or set(identities) != set(declared):
                     raise PortError("Verification coverage must include every actual changed JUnit method")
         for method in coverage["hosted_methods"]:
             if candidate_tree.get(method["path"]) != method["blob_sha"]:
                 raise PortError("Affected hosted regression does not match candidate test source")
+            require_compiled(method["path"], method["blob_sha"])
             module = re.match(r"android/((?:core|feature|platform)/[^/]+|app)/", method["path"])
             if module is None or module[1] not in coverage["modules"]:
                 raise PortError("Affected hosted test is outside the verified module")
             text = object_bytes(repo, method["blob_sha"]).decode("utf-8")
-            package = re.search(r"^\s*package\s+([\w.]+)", text, re.MULTILINE)
-            test_class = (package[1] + "." if package else "") + method["path"].rsplit("/", 1)[-1][:-3]
-            if method["id"] not in _kotlin_junit_methods(text):
+            classes = {}
+            declarations = _kotlin_junit_methods(text, classes)
+            kind = declarations.get(method["id"])
+            if kind is None:
                 raise PortError("Hosted method lacks its actual candidate JUnit test declaration")
+            test_class = classes[method["id"]]
             records = executed.get(module[1])
             if not isinstance(records, list) or not records:
                 raise PortError("Actual hosted method inventory is missing; counts alone cannot prove selected execution")
             for record in records:
-                fields(record, {"class", "method"}, label="executed hosted method")
+                fields(record, {"class", "method"}, {"factory"}, label="executed hosted method")
                 if not all(isinstance(item, str) and item for item in record.values()):
                     raise PortError("Malformed executed hosted method identity")
             if not any(
-                record["class"] == test_class
-                and (record["method"] == method["id"] or record["method"].startswith(method["id"] + "["))
+                record["class"] == test_class and (
+                    (kind == "factory" and record.get("factory") == method["id"])
+                    or (kind == "test" and "factory" not in record and (
+                        record["method"] in (method["id"], method["id"] + "()")
+                        or record["method"].startswith(method["id"] + "[")
+                        or record["method"].startswith(method["id"] + "()[")
+                    ))
+                )
                 for record in records
             ):
                 raise PortError("Selected hosted method did not actually execute; filtered/excluded tests are not accepted")

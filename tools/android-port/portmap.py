@@ -34,23 +34,27 @@ WP_302_SCOPE_APPROVAL = {
 }
 
 def capability_support_admitted(manifest, wp_id, relative):
-    if not (
-        relative.startswith((
-            "android/app/src/main/kotlin/",
-            "android/app/src/test/kotlin/",
-            "android/app/src/androidTest/kotlin/",
-        ))
-        and relative.endswith(".kt")
-    ):
+    if not relative.startswith("android/") or not relative.endswith(".kt"):
         return False
     policy = load_json(manifest.repo / "docs" / "android" / "automation-policy.json", 512 * 1024)
-    admission = CapabilityEngine(policy).admit(
-        wp_id,
-        manifest.wp(wp_id)["write_paths"],
-        relative,
-        "add-direct-support-wiring",
-    )
-    return admission.capability_id == "app-build-launcher"
+    engine = CapabilityEngine(policy)
+    assigned = manifest.wp(wp_id)["write_paths"]
+    if "/src/main/kotlin/" in relative:
+        operations = ("modify-related-consumer",)
+    elif any(f"/src/{source}/kotlin/" in relative for source in ("test", "testDebug", "androidTest")):
+        operations = ("add-or-update-related-test",)
+    else:
+        return False
+    if relative.startswith("android/app/src/"):
+        operations += ("add-direct-support-wiring",)
+    for operation in operations:
+        try:
+            admission = engine.admit(wp_id, assigned, relative, operation)
+        except PortError:
+            continue
+        if admission.capability_id in ("reviewed-support-consumer", "reviewed-support-test", "app-build-launcher"):
+            return True
+    return False
 
 
 def navigation_scope_admitted(manifest, relative):

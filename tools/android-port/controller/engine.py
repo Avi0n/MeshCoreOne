@@ -11,6 +11,7 @@ from .model import Manifest, SHA
 from .render import issue_payload
 from .settings import Settings
 from .schema import digest, positive_integer
+from .verification import require_shared_whole_lane
 
 
 @dataclass(frozen=True)
@@ -113,7 +114,7 @@ class Controller:
         if wp["supervised"]:
             raise PortError(f"{wp_id} is supervised bootstrap work; never automatically dispatched")
         if not wp["verification"]["configured"] or not wp["verification"]["commands"]:
-            raise PortError(wp["verification"]["blocker"] or "Target verification commands are missing")
+            require_shared_whole_lane(self.manifest, wp)
         self.require_foundation()
         for dependency in wp["depends_on"]:
             self.completed(dependency)

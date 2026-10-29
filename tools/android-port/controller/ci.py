@@ -23,7 +23,7 @@ if __package__ in (None, ""):
 
 from controller.apk_alignment import inspect_alignment
 from controller.ci_environment import REPO, candidate_environment, host_name, toolchain_lock, verify_wrapper, write_json
-from controller.ci_evidence import PYTHON_MINIMUMS, collect_lint, collect_suites, counts, read_xml, suite_counts, validate_graph_runtime
+from controller.ci_evidence import PYTHON_MINIMUMS, bind_test_lineage, collect_lint, collect_suites, counts, prepare_test_lineage, prepare_test_sources, read_test_lineage, read_test_sources, read_xml, suite_case_ids, suite_counts, validate_graph_runtime
 from controller.errors import PortError
 from controller.gates import Binding, policy_revision
 from controller.local_scope import (
@@ -311,7 +311,7 @@ def preflight(state: dict, output: Path, *, local=False):
     script = REPO / "android" / "scaffold" / "check_environment.py"
     execute([sys.executable, str(script)], environment, output / "preflight.log", timeout=60)
     packages = [
-        ("platforms/android-37.2", "platforms;android-37.2", (1, 0, 0)),
+        ("platforms/android-37.2", "platforms;android-37.2", (2, 0, 0)),
         ("build-tools/37.0.0", "build-tools;37.0.0", (37, 0, 0)),
     ]
     if not local:
@@ -415,6 +415,10 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         )
         print(json.dumps({"result": "success", **report}, indent=2))
         return
+    lineage_path = prepare_test_lineage(output)
+    sources_path = prepare_test_sources(output)
+    environment["ANDROID_CI_TEST_LINEAGE"] = str(lineage_path)
+    environment["ANDROID_CI_TEST_SOURCES"] = str(sources_path)
     write_github_outputs(
         full_scaffold="scaffold" in selected,
         localization="scaffold" in selected or "core/l10n" in selected,
@@ -512,6 +516,7 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
     if "protocol" in selected:
         source = REPO / "android" / "core" / "protocol" / "build" / "test-results" / "test"
         report["protocol_suite"] = suite_counts(source, 84)
+        report.setdefault("unit_test_methods", {})["core/protocol"] = suite_case_ids(source)
     if "backup" in selected:
         report["backup_suites"] = {
             "data": suite_counts(REPO / "android/core/data/build/test-results/testDebugUnitTest", 1),
@@ -521,6 +526,20 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         report["foundation_suite"] = suite_counts(
             REPO / "android/core/testing/build/test-results/testDebugUnitTest", 1
         )
+    inventory = report.get("unit_test_methods", {})
+    from controller.module_junit import REPORT_LOCATIONS
+
+    runners = {}
+    for module in inventory:
+        locations = [
+            relative for relative in REPORT_LOCATIONS
+            if any((REPO / "android" / module / relative).glob("TEST-*.xml"))
+        ]
+        if len(locations) != 1:
+            raise PortError("Missing or ambiguous selected JUnit runner: " + module)
+        runners[module] = Path(locations[0]).name
+    bind_test_lineage(inventory, read_test_lineage(lineage_path), runners)
+    report["compiled_test_sources"] = read_test_sources(sources_path, runners)
     print(json.dumps(report, indent=2))
 
 

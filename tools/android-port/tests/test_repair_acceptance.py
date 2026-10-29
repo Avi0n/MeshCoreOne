@@ -8,18 +8,19 @@ import unittest
 from dataclasses import asdict, replace
 from unittest.mock import patch
 
-from fixtures import BASE, HEAD, MERGE, base_manifest, bundle, policy
+from fixtures import BASE, HEAD, MERGE, REPO, base_manifest, bundle, policy
 from controller.engine import GateBundle
 from controller.errors import PortError
 from controller.gates import Binding, policy_revision, verify_completion, verify_pr_gates
 from controller.ledger import Identity
 from controller.native_review import REVIEW_MARKER
 from controller.repair_acceptance import (
-    SCOPE_MARKER, authenticated_scope, instrumentation_results, validate_build_log,
-    validate_hosted_methods, validate_scope, verify_native, verify_repair,
-    retained_repairs_execution,
+    COMPRESSED_SCOPE_MARKER, SCOPE_MARKER, authenticated_scope, instrumentation_results, validate_build_log,
+    validate_hosted_methods as validate_compiled_hosted_methods, validate_scope, verify_native, verify_repair,
+    retained_repairs_execution, scoped_candidate_sources, scoped_retained_sources,
 )
-from controller.schema import digest
+from controller.schema import digest, load_json
+from controller.publication import encode_structured_body
 import test_native_review
 
 PATH = "android/feature/map/src/main/kotlin/com/meshcoreone/android/feature/map/MapEntry.kt"
@@ -27,6 +28,17 @@ TEST = "android/core/maps/src/test/kotlin/com/meshcoreone/android/core/maps/MapT
 METHOD = {"path": TEST, "blob_sha": "4" * 40, "id": "keepsListReachable"}
 CONSUMER_TEST = "android/app/src/test/kotlin/com/meshcoreone/android/app/ConsumerTest.kt"
 LOG_STEP = "Run every selected Linux and Android task in one Gradle invocation"
+
+
+def validate_hosted_methods(scope, candidate_tree, repo, executed, compiled_sources=None):
+    if compiled_sources is None:
+        compiled_sources = {}
+        for path, blob in candidate_tree.items():
+            parts = path.split("/")
+            if len(parts) > 3 and parts[0] == "android":
+                module = parts[1] if parts[1] == "app" else "/".join(parts[1:3])
+                compiled_sources.setdefault(module, {})[path] = blob
+    return validate_compiled_hosted_methods(scope, candidate_tree, repo, executed, compiled_sources)
 
 
 def fixture():
@@ -56,21 +68,204 @@ def fixture():
     return manifest, rules, replace(value, evidence=evidence, review=review, approvals=[]), scope
 
 
+def whole_fixture():
+    manifest, rules, value, repair = fixture()
+    full = bundle(manifest, rules, "WP-312", changed_paths=[PATH], merged=False)
+    originals = {
+        entry["path"] for entry in manifest.inputs("WP-312", False)
+        if entry["kind"] in ("test", "support") and entry["exclusion"] is None
+    }
+    catalog = copy.deepcopy(full.catalog)
+    catalog["entries"] = [entry for entry in catalog["entries"] if entry["path"] in originals]
+    scope = {
+        "schema_version": 3, "kind": "whole-wp", "binding": asdict(value.binding),
+        "owner": repair["owner"], "paths": copy.deepcopy(repair["paths"]),
+        "acceptance": copy.deepcopy(manifest.wp("WP-312")["acceptance"]),
+        "coverage": copy.deepcopy(repair["coverage"]), "verification": ["android-scaffold"], "native": [],
+    }
+    scope["coverage"][0]["cases"] = [
+        {"path": entry["path"], **case} for entry in catalog["entries"] for case in entry["cases"]
+    ]
+    url = f"https://github.com/{rules['repository']}/actions/runs/1/attempts/1"
+    acceptance = [{"id": entry["id"], "result": "PASS", "evidence": [url]} for entry in scope["acceptance"]]
+    results = [copy.deepcopy(result) for result in full.evidence["source_tests"] if result["path"] in originals]
+    for result in results:
+        for case in result["cases"]:
+            case["evidence"] = [url]
+    evidence = {
+        "schema_version": 4, **asdict(value.binding), "changed_paths": [PATH],
+        "runs": [{"check": "android-ci", "run_id": 1, "run_attempt": 1}],
+        "retained_artifacts": [], "acceptance": acceptance, "source_tests": results,
+        "verification_scope": scope,
+    }
+    review = {**value.review, "acceptance": acceptance, "human_gate_required": False}
+    return manifest, rules, replace(value, evidence=evidence, review=review, catalog=catalog), scope
+
+
 def build_log(modules, **changes):
     from controller.ci import TASKS
 
     count = {"discovered": 3, "run": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0}
     report = {"stage": "scaffold", "result": "success", "strict_verification": True,
               "tasks": TASKS["scaffold"], "module_unit_tests": {m: copy.deepcopy(count) for m in modules},
+              "compiled_test_sources": {m: {} for m in [*modules, "core/protocol", "core/contracts", "app"]},
               "unit_test_methods": {m: [{"class": "MapTest", "method": name}
                                       for name in ("keepsListReachable", "unrelatedOne", "unrelatedTwo")]
                                     for m in modules}}
+    if "core/maps" in report["compiled_test_sources"]:
+        report["compiled_test_sources"]["core/maps"][TEST] = "4" * 40
+    report["compiled_test_sources"]["app"][CONSUMER_TEST] = "4" * 40
     report.update(changes)
     return "\n".join(f"One Linux Android build\t{LOG_STEP}\t2026-10-19T00:00:00Z {line}"
                      for line in json.dumps(report, indent=2).splitlines())
 
 
 class RepairContractTests(unittest.TestCase):
+    def test_scoped_candidate_sources_include_consumer_tests_and_native_bindings_without_conflicts(self):
+        _, _, _, scope = fixture()
+        scope["coverage"][0]["production_bindings"] = {PATH: "5" * 40}
+        scope["producer_bindings"] = {PATH: "5" * 40}
+        scope["native"] = [{"bindings": {PATH: "5" * 40, CONSUMER_TEST: "6" * 40}}]
+        self.assertEqual(scoped_candidate_sources(scope),
+                         {TEST: "4" * 40, PATH: "5" * 40, CONSUMER_TEST: "6" * 40})
+        scope["native"][0]["bindings"][PATH] = "7" * 40
+        with self.assertRaisesRegex(PortError, "Conflicting"):
+            scoped_candidate_sources(scope)
+
+    def test_scoped_retained_fixtures_bind_each_observation_and_reject_conflicts(self):
+        _, _, _, scope = fixture()
+        item = {"revision": BASE, "fixture": {"path": TEST, "blob_sha": "4" * 40}}
+        scope["native"] = [item, copy.deepcopy(item)]
+        self.assertEqual(scoped_retained_sources(scope), {(BASE, TEST): "4" * 40})
+        scope["native"][1]["fixture"]["blob_sha"] = "6" * 40
+        with self.assertRaisesRegex(PortError, "Conflicting"):
+            scoped_retained_sources(scope)
+        scope["native"][1]["revision"] = HEAD
+        self.assertEqual(scoped_retained_sources(scope),
+                         {(BASE, TEST): "4" * 40, (HEAD, TEST): "6" * 40})
+
+    def test_scoped_repair_and_whole_wp_accept_explicit_cross_owner_cases_without_transferring_ownership(self):
+        source = "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift"
+        original_catalog = load_json(REPO / "docs" / "android" / "test-cases.json")
+        definition = next(entry for entry in original_catalog["entries"] if entry["path"] == source)
+        wanted = {
+            "channel save with undecryptable RX harvests no extras and still broadcasts",
+            "duplicate channel receive with unknown path does not save a second message",
+            "inbound DM stamps contact lastHeard",
+            "inbound channel message does not stamp lastHeard on a contact",
+            "live channel receive with undecryptable RX does not copy regionScope onto Message",
+            "refreshBlockedContactsCache does not cache non-blocked contacts",
+            "refreshBlockedContactsCache loads blocked contacts by name",
+            "refreshBlockedContactsCache replaces previous cache",
+            "same-path duplicate channel receive inserts nothing",
+        }
+        cases = [case for case in definition["cases"] if case["id"].removeprefix(
+            "SyncCoordinatorMessageHandlerTests::"
+        ).removesuffix("()") in wanted]
+        self.assertEqual(len(cases), 9)
+        self.assertGreater(len(definition["cases"]), len(cases))
+        for whole in (False, True):
+            manifest, rules, value, scope = whole_fixture() if whole else fixture()
+            original = next(entry for entry in manifest.data["inventory"] if entry["path"] == source)
+            self.assertEqual(original["primary_owner"], "WP-214")
+            catalog = copy.deepcopy(value.catalog) if whole else {
+                "schema_version": 1, "source_sha": value.binding.source_sha, "entries": [],
+            }
+            catalog["entries"].append(copy.deepcopy(definition))
+            scope["coverage"][0]["source_paths"].append(source)
+            scope["coverage"][0]["cases"].extend({"path": source, **case} for case in cases)
+            evidence = copy.deepcopy(value.evidence)
+            evidence["verification_scope" if whole else "repair_scope"] = scope
+            evidence["source_tests"].append({
+                "path": source, "blob_sha": original["blob_sha"],
+                "cases": [{**case, "result": "PASS", "evidence": [evidence["acceptance"][0]["evidence"][0]]}
+                          for case in cases],
+            })
+            value = replace(value, evidence=evidence, catalog=catalog)
+            if whole:
+                verify_pr_gates(value.pr, evidence, value.review, [], value.binding, manifest, rules, catalog)
+                missing_primary_scope = copy.deepcopy(scope)
+                missing_primary_scope["coverage"][0]["cases"] = [
+                    case for case in missing_primary_scope["coverage"][0]["cases"] if case["path"] == source
+                ]
+                missing_primary_evidence = copy.deepcopy(evidence)
+                missing_primary_evidence["verification_scope"] = missing_primary_scope
+                missing_primary_evidence["source_tests"] = [
+                    result for result in evidence["source_tests"] if result["path"] == source
+                ]
+                with self.assertRaises(PortError):
+                    verify_pr_gates(value.pr, missing_primary_evidence, value.review, [], value.binding,
+                                    manifest, rules, catalog)
+            else:
+                self.assertFalse(verify_repair(value, scope, manifest, rules, catalog)["wp_complete"])
+            self.assertEqual(original["primary_owner"], "WP-214")
+            for kind in ("missing-reference", "unmapped-source", "unknown-source", "excluded-source",
+                         "unknown-case", "missing-result", "missing-family", "stale-source", "malformed-cases"):
+                altered_scope, altered_evidence = copy.deepcopy(scope), copy.deepcopy(evidence)
+                if kind == "missing-reference":
+                    altered_scope["coverage"][0]["source_paths"].remove(source)
+                elif kind == "unmapped-source":
+                    altered_scope["coverage"][0]["cases"] = [
+                        case for case in altered_scope["coverage"][0]["cases"] if case["path"] != source
+                    ]
+                elif kind == "unknown-source":
+                    altered_scope["coverage"][0]["source_paths"].append("unknown/Source.swift")
+                elif kind == "excluded-source":
+                    excluded = next(entry["path"] for entry in manifest.data["inventory"]
+                                    if entry["exclusion"] is not None)
+                    altered_scope["coverage"][0]["source_paths"].append(excluded)
+                elif kind == "unknown-case":
+                    altered_scope["coverage"][0]["cases"][-1]["id"] = "not in inventory"
+                elif kind == "missing-result":
+                    altered_evidence["source_tests"] = [
+                        result for result in altered_evidence["source_tests"] if result["path"] != source
+                    ]
+                elif kind == "missing-family":
+                    next(result for result in altered_evidence["source_tests"]
+                         if result["path"] == source)["cases"].pop()
+                elif kind == "malformed-cases":
+                    altered_scope["coverage"][0]["cases"] = None
+                else:
+                    next(result for result in altered_evidence["source_tests"]
+                         if result["path"] == source)["blob_sha"] = "0" * 40
+                altered_evidence["verification_scope" if whole else "repair_scope"] = altered_scope
+                altered = replace(value, evidence=altered_evidence)
+                with self.subTest(whole=whole, kind=kind), self.assertRaises(PortError):
+                    if whole:
+                        verify_pr_gates(altered.pr, altered_evidence, altered.review, [], altered.binding,
+                                        manifest, rules, catalog)
+                    else:
+                        verify_repair(altered, altered_scope, manifest, rules, catalog)
+
+    def test_shared_whole_scope_requires_complete_cases_and_actual_methods(self):
+        manifest, rules, value, scope = whole_fixture()
+        verify_pr_gates(value.pr, value.evidence, value.review, [], value.binding, manifest, rules, value.catalog)
+        for kind in ("missing-case", "missing-method", "acceptance", "empty-coverage", "foreign-path",
+                     "bad-kind", "configured"):
+            manifest, rules, value, scope = whole_fixture()
+            if kind == "missing-case":
+                scope["coverage"][0]["cases"].pop()
+            elif kind == "missing-method":
+                scope["coverage"][0]["hosted_methods"] = []
+            elif kind == "acceptance":
+                scope["acceptance"].pop()
+            elif kind == "empty-coverage":
+                scope["coverage"] = []
+            elif kind == "foreign-path":
+                scope["paths"][0]["path"] = "tools/android-port/controller/engine.py"
+            elif kind == "bad-kind":
+                scope["kind"] = "landed-wp-repair"
+            else:
+                data = copy.deepcopy(manifest.data)
+                next(w for w in data["work_packages"] if w["id"] == "WP-312")["verification"]["commands"] = [
+                    ["python", "special"]
+                ]
+                from controller.model import Manifest
+                manifest = Manifest(data, manifest.exclusions, manifest.repo)
+            with self.subTest(kind=kind), self.assertRaises(PortError):
+                verify_pr_gates(value.pr, value.evidence, value.review, [], value.binding, manifest, rules,
+                                value.catalog)
+
     def test_unconfigured_whole_wp_can_have_strict_bounded_acceptance_without_completion(self):
         manifest, rules, value, scope = fixture()
         self.assertFalse(manifest.wp("WP-312")["verification"]["configured"])
@@ -158,6 +353,296 @@ class RepairContractTests(unittest.TestCase):
 
 
 class RepairExecutionTests(unittest.TestCase):
+    def test_whole_scope_accounts_for_every_changed_unit_test_declaration(self):
+        manifest, _, _, scope = whole_fixture()
+        scope["coverage"].append({
+            "path": TEST, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Actual unit tests.",
+            "modules": ["core/maps"],
+        })
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        with patch("controller.staging.object_bytes", return_value=b"""
+            class MapTest {
+            @Test fun keepsListReachable() { check(true) }
+            @Test fun anotherCase() { check(true) }
+            }
+        """), self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
+    def test_duplicate_test_names_in_distinct_classes_cannot_share_one_execution(self):
+        manifest, _, _, scope = whole_fixture()
+        scope["coverage"].append({
+            "path": TEST, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Actual unit tests.",
+            "modules": ["core/maps"],
+        })
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        source = b"""
+            class MapTest { @Test fun keepsListReachable() {} }
+            class OtherTest { @Test fun keepsListReachable() {} }
+        """
+        with patch("controller.staging.object_bytes", return_value=source), \
+                self.assertRaisesRegex(PortError, "declaring class|duplicate JUnit method name"):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+        source = b"class MapTest { @OriginalCase(\"one\") @Test fun keepsListReachable() {} }"
+        with patch("controller.staging.object_bytes", return_value=source):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
+    def test_whole_scope_helper_requires_executed_consumer_without_hiding_test_declarations(self):
+        manifest, rules, value, scope = whole_fixture()
+        helper = TEST.replace("MapTest.kt", "MapFixtures.kt")
+        scope["paths"].append({"path": helper, "operation": "add-or-update-related-test",
+                               "capability": "reviewed-support-test"})
+        scope["coverage"].append({
+            "path": helper, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Fixture consumed by unit test.",
+            "modules": ["core/maps"],
+        })
+        validate_scope(scope, value.binding, manifest, rules, [PATH, helper], value.catalog)
+        sources = {
+            "3" * 40: b"package com.meshcoreone.android.core.maps\nobject MapFixtures {}",
+            "4" * 40: b"package com.meshcoreone.android.core.maps\nclass MapTest { @Test fun keepsListReachable() {} }",
+        }
+        executed = {"core/maps": [{"class": "com.meshcoreone.android.core.maps.MapTest",
+                                    "method": "keepsListReachable"}]}
+        with patch("controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob]):
+            validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            sources["3" * 40] = b"package com.meshcoreone.android.core.maps\nclass MapFixtures { @Test fun omitted() {} }"
+            with self.assertRaisesRegex(PortError, "every actual changed JUnit method"):
+                validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            sources["3" * 40] = (
+                b"package com.meshcoreone.android.core.maps\n"
+                b"class MapFixtures { @Suppress fun omitted() {} }"
+            )
+            with self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+                validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            for annotation in ("@org.junit.jupiter.api.Test", "@kotlin.test.Test", "@org.junit.Test",
+                               "@org.junit.jupiter.api.TestFactory"):
+                sources["3" * 40] = (
+                    "package com.meshcoreone.android.core.maps\nclass MapFixtures { " + annotation + " fun omitted() {} }"
+                ).encode()
+                with self.subTest(annotation=annotation), self.assertRaisesRegex(
+                    PortError, "every actual changed JUnit method",
+                ):
+                    validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            for annotation in ("@[Test]", "@[org.junit.jupiter.api.Test]", "@[Test Factory]",
+                               "@[/* comment */ Test]", "@file:[Suppress(\"x\")]"):
+                sources["3" * 40] = (
+                    "package com.meshcoreone.android.core.maps\n" + annotation + " fun omitted() {}"
+                ).encode()
+                with self.subTest(annotation=annotation), self.assertRaisesRegex(
+                    PortError, "Grouped Kotlin annotations",
+                ):
+                    validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+            for imported, annotation in (
+                ("import org.junit.jupiter.api.Test as Check // reason", "@Check"),
+                ("import org.junit.jupiter.api.Test as Check;", "@Check"),
+                ("import org.junit.jupiter.api.Test /* reason */ as Check", "@Check"),
+                ("import org.junit.jupiter.api.TestFactory as `family test`", "@`family test`"),
+                ("import org.junit.jupiter.params.ParameterizedTest as Param; // reason", "@Param"),
+                ("import org.junit.jupiter.api.RepeatedTest as Repeat /* reason */", "@Repeat"),
+            ):
+                sources["3" * 40] = (
+                    "package com.meshcoreone.android.core.maps\n" + imported + "\n"
+                    + "class MapFixtures { " + annotation + " internal fun omitted() {} }"
+                ).encode()
+                with self.subTest(imported=imported), self.assertRaisesRegex(
+                    PortError, "every actual changed JUnit method",
+                ):
+                    validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+
+    def test_dynamic_factory_requires_actual_child_bound_to_its_own_factory(self):
+        manifest, _, _, scope = whole_fixture()
+        scope["coverage"][0]["hosted_methods"][0]["id"] = "parameterFamily"
+        source = b"class MapTest { @TestFactory fun parameterFamily() {} }"
+        with patch("controller.staging.object_bytes", return_value=source):
+            records = {"core/maps": [{"class": "MapTest", "method": "actual child",
+                                       "factory": "parameterFamily"}]}
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, records)
+            for record in (
+                {"class": "MapTest", "method": "actual child"},
+                {"class": "MapTest", "method": "actual child", "factory": "otherFamily"},
+                {"class": "OtherTest", "method": "actual child", "factory": "parameterFamily"},
+            ):
+                with self.subTest(record=record), self.assertRaisesRegex(PortError, "did not actually execute"):
+                    validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, {"core/maps": [record]})
+
+    def test_aliased_dynamic_factory_uses_its_actual_executed_child(self):
+        manifest, _, _, scope = whole_fixture()
+        scope["coverage"][0]["hosted_methods"][0]["id"] = "parameterFamily"
+        source = b"import org.junit.jupiter.api.TestFactory as Factory; // preserved alias\nclass MapTest { @Factory fun parameterFamily() {} }"
+        records = {"core/maps": [{"class": "MapTest", "method": "actual child", "factory": "parameterFamily"}]}
+        with patch("controller.staging.object_bytes", return_value=source):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, records)
+            records["core/maps"][0]["factory"] = "other"
+            with self.assertRaisesRegex(PortError, "did not actually execute"):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, records)
+
+    def test_kotlin_typealias_tests_and_unknown_function_annotations_cannot_hide_as_helpers(self):
+        from controller.repair_acceptance import _kotlin_junit_methods
+
+        source = """
+            typealias Case = org.junit.jupiter.api.Test
+            typealias Other = Case
+            typealias Family = org.junit.jupiter.api.TestFactory
+            @Other fun normal() {}
+            @Family fun dynamic() {}
+        """
+        self.assertEqual(_kotlin_junit_methods(source), {"normal": "test", "dynamic": "factory"})
+        for source in (
+            "import other.package.Check\n@Check fun hidden() {}",
+            "typealias Check = other.package.Check\n@Check fun hidden() {}",
+            "typealias One = Two\ntypealias Two = One\n@One fun hidden() {}",
+        ):
+            with self.subTest(source=source), self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+                _kotlin_junit_methods(source)
+        manifest, _, _, scope = whole_fixture()
+        source = b"import other.package.Check\nclass MapTest { @Check fun hidden() {} }"
+        with patch("controller.staging.object_bytes", return_value=source), \
+                self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+            validate_hosted_methods(scope, {PATH: "5" * 40, TEST: "4" * 40}, manifest.repo, {})
+
+    def test_grouped_annotations_fail_closed_without_rejecting_literals_or_comments(self):
+        from controller.repair_acceptance import _kotlin_junit_methods
+
+        for source in (
+            "@[Test] fun omitted() {}",
+            "@[org.junit.jupiter.api.Test Suppress(\"reason\")] fun omitted() {}",
+            "import org.junit.jupiter.api.Test as Check\n@[Check] fun omitted() {}",
+            "@file:[Suppress(\"reason\")]",
+            "@get:[Suppress(\"reason\")] val value = 1",
+        ):
+            with self.subTest(source=source), self.assertRaisesRegex(PortError, "Grouped Kotlin annotations"):
+                _kotlin_junit_methods(source)
+        source = 'val s = "@[Test]"; /* @[Test] */ @Test fun executed() {}'
+        self.assertEqual(_kotlin_junit_methods(source), {"executed": "test"})
+
+    def test_unresolved_lifecycle_and_helper_annotations_fail_closed(self):
+        from controller.repair_acceptance import _kotlin_junit_methods
+
+        source = """
+            import org.junit.Before as Setup
+            import org.junit.After
+            import org.junit.runners.Parameterized
+            import org.robolectric.annotation.Implementation
+            import androidx.compose.runtime.Composable
+            import kotlin.test.*
+            typealias SetupAlias = Setup
+            @kotlin.Suppress("DEPRECATION") fun before() {}
+            @org.junit.After fun after() {}
+            @kotlin.test.BeforeTest fun beforeKotlin() {}
+            @kotlin.OptIn(Experimental::class) fun helper() {}
+            @kotlin.jvm.Synchronized @org.robolectric.annotation.Implementation fun shadow() {}
+            @org.junit.runners.Parameterized.Parameters fun data() {}
+            @androidx.compose.runtime.Composable fun content() {}
+            @Test fun actual() {}
+        """
+        with self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+            _kotlin_junit_methods(source)
+        real = REPO / "android" / "app" / "src" / "test" / "kotlin" / "com" / "meshcoreone" / "android" / \
+            "wp316diagnostic" / "DisconnectedCliTest.kt"
+        with self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation|use-site"):
+            _kotlin_junit_methods(real.read_text(encoding="utf-8"))
+        for source in (
+            "import other.Check as Before\n@Before fun hidden() {}",
+            "typealias Before = other.Check\n@Before fun hidden() {}",
+            "@Before fun hidden() {}",
+            "@Suppress(\"reason\") fun hidden() {}",
+            "import org.junit.Before\nclass Base { annotation class Before }\n"
+            "class T : Base() { @Before fun hidden() {} }",
+            "import org.junit.Before\nclass T { annotation class Before; @Before fun hidden() {} }",
+            "import org.junit.Before\nclass T(val x: Int) : Base() { @Before fun hidden() {} }",
+            "import org.junit.Before\nclass T<X : Base> : Parent() { @Before fun hidden() {} }",
+            "typealias Alias = kotlin.Suppress\n@Alias(\"x\") fun hidden() {}",
+            "@org.junit.Before fun hidden() {}",
+        ):
+            with self.subTest(source=source), self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+                _kotlin_junit_methods(source)
+        for source in (
+            "import org.junit.Before\nclass T { @Before fun setup() {} }",
+            "import org.junit.Before as Setup\nclass T { @Setup fun setup() {} }",
+            "import org.junit.Before\nclass T(val x: Int) { @Before fun setup() {} }",
+            "import org.junit.Before\nclass T<X : Base> { @Before fun setup() {} }",
+            "import org.junit.Rule\nclass T { @get:Rule val rule = example }",
+        ):
+            with self.subTest(source=source):
+                self.assertEqual(_kotlin_junit_methods(source), {})
+        for source in (
+            "import other.Rule\nclass T { @get:Rule val rule = example }",
+            "import org.junit.Rule\nclass T : Parent() { @get:Rule val rule = example }",
+            "import org.junit.Rule\nclass T { annotation class Rule; @get:Rule val rule = example }",
+        ):
+            with self.subTest(source=source), self.assertRaisesRegex(PortError, "use-site"):
+                _kotlin_junit_methods(source)
+
+    def test_full_scaffold_reads_actual_protocol_counts_and_inventory(self):
+        from controller.ci import TASKS
+        count = {"discovered": 3, "run": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0}
+        methods = [{"class": "ProtocolTest", "method": f"case{i}"} for i in range(3)]
+        report = {"tasks": TASKS["scaffold"] + TASKS["protocol"], "protocol_suite": count,
+                  "unit_test_methods": {"core/protocol": methods}}
+        methods[0]["factory"] = "vectorFamily"
+        proof = validate_build_log(build_log([], **report), ["core/protocol"])
+        self.assertEqual(proof["methods"]["core/protocol"], methods)
+        for change in ({"tasks": TASKS["scaffold"]}, {"protocol_suite": None},
+                       {"unit_test_methods": {}},
+                       {"unit_test_methods": {"core/protocol": methods[:1]}}):
+            with self.subTest(change=change), self.assertRaises(PortError):
+                validate_build_log(build_log([], **(report | change)), ["core/protocol"])
+
+    def test_change_scoped_hosted_report_uses_exact_trusted_candidate_plan(self):
+        counts = {"discovered": 1, "run": 1, "passed": 1, "failed": 0, "errors": 0, "skipped": 0}
+        plan = {
+            "base": BASE, "head": HEAD, "tree": "8" * 40, "scopes": ["module:core/maps"],
+            "tasks": [":core:maps:testDebugUnitTest", "validateModuleGraph", "runtimeDependencyInventory"],
+        }
+        report = {
+            "kind": "local-affected-only", "result": "success", **plan,
+            "resolved_task_graph": {"result": "no-duplicate-ci-evidence"},
+            "suites": {"core/maps": counts},
+            "compiled_test_sources": {"core/maps": {TEST: "4" * 40}},
+            "junit_cases": [{
+                "report": "android/core/maps/build/test-results/testDebugUnitTest/TEST-MapTest.xml",
+                "index": 0, "class": "MapTest", "method": "keepsListReachable", "outcome": "passed",
+                "factory": "affectedFamily",
+            }],
+        }
+        step = "Run parallel Gradle validation and Android tasks"
+        def log_for(value):
+            return "\n".join(f"One Linux Android build\t{step}\t2026-10-19T00:00:00Z {line}"
+                             for line in json.dumps(value, indent=2).splitlines())
+
+        proof = validate_build_log(log_for(report), ["core/maps"], plan_for_scopes=lambda scopes: plan)
+        self.assertEqual(proof["methods"]["core/maps"][0]["method"], "keepsListReachable")
+        self.assertEqual(proof["methods"]["core/maps"][0]["factory"], "affectedFamily")
+        for kind in ("missing-plan", "wrong-tasks", "stale-head", "zero", "skipped", "duplicate",
+                     "wrong-step", "missing-method", "missing-sources", "wrong-source-blob"):
+            altered = copy.deepcopy(report)
+            provider = lambda scopes: plan
+            if kind == "missing-plan":
+                provider = None
+            elif kind == "wrong-tasks":
+                altered["tasks"] = [":fake:test"]
+            elif kind == "stale-head":
+                altered["head"] = "0" * 40
+            elif kind == "zero":
+                altered["suites"]["core/maps"] = {key: 0 for key in counts}
+            elif kind == "skipped":
+                altered["junit_cases"][0]["outcome"] = "skipped"
+            elif kind == "duplicate":
+                altered["junit_cases"].append(copy.deepcopy(altered["junit_cases"][0]))
+            elif kind == "missing-method":
+                altered["junit_cases"] = []
+            elif kind == "missing-sources":
+                altered.pop("compiled_test_sources")
+            elif kind == "wrong-source-blob":
+                altered["compiled_test_sources"]["core/maps"][TEST] = "not-a-blob"
+            log = log_for(altered)
+            if kind == "wrong-step":
+                log = log.replace(step, "A candidate-written summary")
+            with self.subTest(kind=kind), self.assertRaises(PortError):
+                validate_build_log(log, ["core/maps"], plan_for_scopes=provider)
+
     def test_authoritative_hosted_report_requires_nonzero_successful_affected_modules(self):
         modules = ["feature/map", "core/maps"]
         self.assertTrue(validate_build_log(build_log(modules), modules)["positive_discovery"])
@@ -183,11 +668,26 @@ class RepairExecutionTests(unittest.TestCase):
             with self.subTest(kind=kind), self.assertRaises(PortError):
                 validate_build_log(log, modules)
 
+    def test_full_scaffold_requires_module_method_inventory_and_consistent_suite_counts(self):
+        count = {"discovered": 3, "run": 3, "passed": 3, "failed": 0, "errors": 0, "skipped": 0}
+        methods = [{"class": "ContractTest", "method": f"case{i}"} for i in range(3)]
+        report = {"suites": {"contracts": count}, "unit_test_methods": {"core/contracts": methods}}
+        self.assertEqual(validate_build_log(build_log([], **report), ["core/contracts"])["methods"]["core/contracts"],
+                         methods)
+        for change in (
+            {"unit_test_methods": {}},
+            {"unit_test_methods": {"core/contracts": methods[:1]}},
+            {"module_unit_tests": {"core/contracts": {**count, "passed": 2}}},
+        ):
+            with self.subTest(change=change), self.assertRaises(PortError):
+                validate_build_log(build_log([], **(report | change)), ["core/contracts"])
+
     def test_hosted_method_maps_to_actual_candidate_test_and_verified_module(self):
         manifest, _, _, scope = fixture()
         executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable[31]"}]}
-        with patch("controller.staging.object_bytes", return_value=b"@Test fun keepsListReachable() { assertTrue(true) }"):
+        with patch("controller.staging.object_bytes", return_value=b"class MapTest { @Test fun keepsListReachable() { assertTrue(true) } }"):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+
         for kind in ("blob", "method", "module"):
             changed = copy.deepcopy(scope)
             if kind == "module":
@@ -195,8 +695,138 @@ class RepairExecutionTests(unittest.TestCase):
             with patch("controller.staging.object_bytes", return_value=b"fun different() {}"), self.assertRaises(PortError):
                 validate_hosted_methods(changed, {TEST: "5" * 40 if kind == "blob" else "4" * 40}, manifest.repo, executed)
         for inventory in ({}, {"core/maps": [{"class": "MapTest", "method": "unrelated"}]}):
-            with patch("controller.staging.object_bytes", return_value=b"@Test fun keepsListReachable() {}"), self.assertRaises(PortError):
+            with patch("controller.staging.object_bytes", return_value=b"class MapTest { @Test fun keepsListReachable() {} }"), self.assertRaises(PortError):
                 validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, inventory)
+
+    def test_hosted_method_must_be_in_a_real_module_test_source_set(self):
+        manifest, rules, value, scope = fixture()
+        for path in (
+            "android/core/maps/src/main/kotlin/nested/src/test/kotlin/MapTest.kt",
+            "android/core/maps/nested/src/test/kotlin/MapTest.kt",
+            "android/core/maps/src/testFixtures/kotlin/MapTest.kt",
+        ):
+            altered = copy.deepcopy(scope)
+            altered["coverage"][0]["hosted_methods"][0]["path"] = path
+            with self.subTest(path=path), self.assertRaisesRegex(PortError, "actual immutable test source"):
+                validate_scope(altered, value.binding, manifest, rules, [PATH], None)
+
+    def test_hosted_method_requires_exact_compiled_source_for_selected_task(self):
+        manifest, _, _, original = fixture()
+        scope = copy.deepcopy(original)
+        ignored = TEST.replace("/src/test/", "/src/testDebug/")
+        scope["coverage"][0]["hosted_methods"][0]["path"] = ignored
+        candidate = {TEST: "4" * 40, ignored: "4" * 40}
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        with patch("controller.staging.object_bytes", return_value=b"class MapTest { @Test fun keepsListReachable() {} }"):
+            for sources in ({}, {"core/maps": {TEST: "4" * 40}},
+                            {"core/maps": {ignored: "5" * 40}}):
+                with self.subTest(sources=sources), self.assertRaisesRegex(PortError, "not compiled"):
+                    validate_hosted_methods(scope, candidate, manifest.repo, executed, sources)
+            validate_hosted_methods(scope, candidate, manifest.repo, executed,
+                                    {"core/maps": {ignored: "4" * 40}})
+
+    def test_hosted_method_requires_actual_declaring_class_and_package(self):
+        manifest, _, _, scope = fixture()
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        for source in (
+            b"class IgnoredTest { @Test fun keepsListReachable() {} }",
+            b"class MapTest { class Nested { @Test fun keepsListReachable() {} } }",
+            b"class MapTest { fun outer() { @Test fun keepsListReachable() {} } }",
+            b'class Other { val s = "class MapTest {"; @Test fun keepsListReachable() {} }',
+        ):
+            with self.subTest(source=source), patch("controller.staging.object_bytes", return_value=source), \
+                    self.assertRaisesRegex(PortError, "declaring class|did not actually execute"):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+        for source in (
+            b"class MapTest : Parent() { @Test fun keepsListReachable() {} }",
+            b'val s = """\npackage fake\n"""\nclass MapTest { @Test fun keepsListReachable() {} }',
+        ):
+            with patch("controller.staging.object_bytes", return_value=source):
+                validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
+        source = b"package real; class DifferentName { @Test fun keepsListReachable() {} }"
+        with patch("controller.staging.object_bytes", return_value=source):
+            validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo,
+                                    {"core/maps": [{"class": "real.DifferentName", "method": "keepsListReachable"}]})
+
+    def test_execution_from_another_compiled_file_cannot_credit_wrong_class(self):
+        manifest, _, _, scope = fixture()
+        other = TEST.replace("MapTest.kt", "ActualMapTest.kt")
+        candidate = {TEST: "4" * 40, other: "6" * 40}
+        sources = {
+            "4" * 40: b"class IgnoredTest { @Test fun keepsListReachable() {} }",
+            "6" * 40: b"class MapTest { @Test fun keepsListReachable() {} }",
+        }
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        with patch("controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob]), \
+                self.assertRaisesRegex(PortError, "did not actually execute"):
+            validate_hosted_methods(scope, candidate, manifest.repo, executed)
+
+    def test_same_package_alias_cannot_hide_a_changed_helper_test(self):
+        manifest, _, _, scope = whole_fixture()
+        helper = TEST.replace("MapTest.kt", "MapFixtures.kt")
+        aliases = TEST.replace("MapTest.kt", "Aliases.kt")
+        scope["coverage"].append({
+            "path": helper, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Fixture used by a test.",
+            "modules": ["core/maps"],
+        })
+        sources = {
+            "3" * 40: b"package sample\nclass MapFixtures { @Suppress fun omitted() {} }",
+            "4" * 40: b"package sample\nclass MapTest { @Test fun keepsListReachable() {} }",
+            "6" * 40: b"package sample\ntypealias Suppress = org.junit.Test",
+        }
+        candidate = {helper: "3" * 40, TEST: "4" * 40, aliases: "6" * 40}
+        executed = {"core/maps": [{"class": "sample.MapTest", "method": "keepsListReachable"}]}
+        with patch("controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob]), \
+                self.assertRaisesRegex(PortError, "Ambiguous Kotlin function annotation"):
+            validate_hosted_methods(scope, candidate, manifest.repo, executed)
+
+    def test_changed_test_inheritance_cannot_hide_inherited_cases(self):
+        manifest, _, _, scope = whole_fixture()
+        helper = TEST.replace("MapTest.kt", "MapFixtures.kt")
+        scope["coverage"].append({
+            "path": helper, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Fixture used by a test.",
+            "modules": ["core/maps"],
+        })
+        sources = {"4" * 40: b"class MapTest { @Test fun keepsListReachable() {} }"}
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        for source in (
+            b"class RequiredCasesTest : BaseCases()",
+            b"class RequiredCasesTest : BaseCases() { @Test fun ownCase() {} }",
+            b"interface RequiredCases : BaseCases",
+            b"class RequiredCasesTest<T>(val value: T) : BaseCases<T>()",
+            b"object RequiredCases : BaseCases()",
+        ):
+            sources["3" * 40] = source
+            with self.subTest(source=source), patch(
+                "controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob],
+            ), self.assertRaisesRegex(PortError, "inherited Kotlin JUnit declarations"):
+                validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+        sources["3" * 40] = b'class MapFixtures { val example = "class Fake : Base()" }'
+        with patch("controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob]):
+            validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
+
+    def test_interleaved_annotations_and_getter_factories_cannot_hide_as_helpers(self):
+        manifest, _, _, scope = whole_fixture()
+        helper = TEST.replace("MapTest.kt", "MapFixtures.kt")
+        scope["coverage"].append({
+            "path": helper, "source_paths": scope["coverage"][0]["source_paths"], "cases": [],
+            "native_methods": [], "hosted_methods": [METHOD], "adaptation": "Fixture used by a test.",
+            "modules": ["core/maps"],
+        })
+        sources = {"4" * 40: b"class MapTest { @Test fun keepsListReachable() {} }"}
+        executed = {"core/maps": [{"class": "MapTest", "method": "keepsListReachable"}]}
+        for source in (
+            b'import other.Case\nclass MapFixtures { @Case public @Suppress("unused") fun omitted() {} }',
+            b'class MapFixtures { @get:TestFactory val hidden get() = emptyList<Any>() }',
+            b'class MapFixtures { @Case val hidden get() = emptyList<Any>() }',
+        ):
+            sources["3" * 40] = source
+            with self.subTest(source=source), patch(
+                "controller.staging.object_bytes", side_effect=lambda repo, blob: sources[blob],
+            ), self.assertRaisesRegex(PortError, "Ambiguous Kotlin|use-site"):
+                validate_hosted_methods(scope, {helper: "3" * 40, TEST: "4" * 40}, manifest.repo, executed)
 
     def test_hosted_method_accepts_quoted_annotation_arguments_without_treating_them_as_syntax(self):
         manifest, _, _, scope = fixture()
@@ -212,7 +842,7 @@ class RepairExecutionTests(unittest.TestCase):
             '@Test\n@OriginalCase("${"nested ()"}")',
             '@Test /* outer /* @NotTest ) */ still comment */\n@OriginalCase("case()")',
         ):
-            source = (annotations + "\nfun keepsListReachable() {}").encode()
+            source = ("class MapTest {\n" + annotations + "\nfun keepsListReachable() {} }").encode()
             with self.subTest(annotations=annotations), patch(
                 "controller.staging.object_bytes", return_value=source,
             ):
@@ -220,8 +850,8 @@ class RepairExecutionTests(unittest.TestCase):
 
         for quotes in (4, 5):
             source = (
-                'val ordinary = """content' + '"' * quotes
-                + '\n@Test fun keepsListReachable() {}'
+                'class MapTest { val ordinary = """content' + '"' * quotes
+                + '\n@Test fun keepsListReachable() {} }'
             ).encode()
             with self.subTest(closing_quotes=quotes), patch(
                 "controller.staging.object_bytes", return_value=source,
@@ -232,7 +862,7 @@ class RepairExecutionTests(unittest.TestCase):
         scope["coverage"][0]["hosted_methods"][0]["id"] = "older page preserves anchor"
         executed["core/maps"][0]["method"] = "older page preserves anchor[31]"
         with patch("controller.staging.object_bytes", return_value=(
-            b'@Test @OriginalCase("case()") internal fun `older page preserves anchor`() {}'
+            b'class MapTest { @Test @OriginalCase("case()") internal fun `older page preserves anchor`() {} }'
         )):
             validate_hosted_methods(scope, {TEST: "4" * 40}, manifest.repo, executed)
 
@@ -268,7 +898,7 @@ class RepairExecutionTests(unittest.TestCase):
             '@OriginalCase("""""literal @Test()""""")',
             '@OriginalCase("${"literal @Test()"}")',
         ):
-            source = (prefix + "\nfun keepsListReachable() {}").encode()
+            source = ("class MapTest {\n" + prefix + "\nfun keepsListReachable() {} }").encode()
             with self.subTest(prefix=prefix), patch(
                 "controller.staging.object_bytes", return_value=source,
             ), self.assertRaisesRegex(PortError, "JUnit test declaration"):
@@ -544,6 +1174,219 @@ class RepairAuthorityTests(unittest.TestCase):
         self.addCleanup(reader.stop)
         return native, api, prefix, value, scope, staged, entries
 
+    def test_support_only_repair_binds_unchanged_landed_producer_without_editing_it(self):
+        native, api, prefix, value, scope, _, _ = self.fixture()
+        consumer = "android/app/src/main/kotlin/com/meshcoreone/android/app/Consumer.kt"
+        scope["paths"] = [{"path": consumer, "operation": "modify-related-consumer",
+                           "capability": "reviewed-support-consumer"}]
+        scope["coverage"][0].update(path=consumer, modules=["app", "core/maps"])
+        scope["producer_bindings"] = {PATH: "5" * 40}
+        comment = api.routes[("GET", prefix + "/issues/comments/700")]
+        for revision in (BASE, HEAD):
+            api.routes[("GET", prefix + f"/contents/{PATH}?ref={revision}")] = {
+                "type": "file", "path": PATH, "sha": "5" * 40,
+            }
+
+        def bind(value):
+            comment["body"] = SCOPE_MARKER + json.dumps(value)
+            return authenticated_scope(native, 700, value_binding)
+
+        value_binding = value.binding
+        valid = f"100644 blob {'5' * 40}\t{PATH}\0".encode()
+        with patch("controller.repair_acceptance.git", return_value=valid):
+            self.assertEqual(bind(scope), scope)
+            validate_scope(scope, value_binding, native.manifest, native.policy, [consumer], None)
+            self.assertEqual(scoped_candidate_sources(scope), {TEST: "4" * 40, PATH: "5" * 40})
+            for kind in ("missing", "foreign", "bad-sha", "not-landed", "empty", "test-only"):
+                altered = copy.deepcopy(scope)
+                if kind == "missing":
+                    altered.pop("producer_bindings")
+                elif kind == "foreign":
+                    altered["producer_bindings"] = {consumer: "5" * 40}
+                elif kind == "bad-sha":
+                    altered["producer_bindings"] = {PATH: "bad"}
+                elif kind == "not-landed":
+                    api.routes[("GET", prefix + "/pulls/140/files?per_page=100&page=1")] = []
+                elif kind == "test-only":
+                    altered["paths"][0]["path"] = CONSUMER_TEST
+                else:
+                    altered["producer_bindings"] = {}
+                with self.subTest(kind=kind), self.assertRaises(PortError):
+                    bind(altered)
+                api.routes[("GET", prefix + "/pulls/140/files?per_page=100&page=1")] = [{"filename": PATH}]
+        for raw in (b"", valid.replace(b"100644", b"120000"), valid.replace(b"5" * 40, b"6" * 40)):
+            with self.subTest(raw=raw), patch("controller.repair_acceptance.git", return_value=raw), \
+                    self.assertRaises(PortError):
+                bind(scope)
+        altered = copy.deepcopy(scope)
+        altered["coverage"][0]["source_paths"] = ["MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift"]
+        with self.assertRaisesRegex(PortError, "primary-owned original source"):
+            validate_scope(altered, value_binding, native.manifest, native.policy, [consumer], None)
+
+    def test_scoped_cross_owner_sources_are_staged_again_for_receipt_validation(self):
+        source = "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift"
+        definition = next(entry for entry in load_json(REPO / "docs" / "android" / "test-cases.json")["entries"]
+                          if entry["path"] == source)
+        case = definition["cases"][0]
+        for whole in (False, True):
+            native, api, prefix, value, scope, staged, entries = self.fixture()
+            if whole:
+                manifest, rules, value, scope = whole_fixture()
+                native.manifest, native.policy = manifest, rules
+                native.backend.manifest, native.backend.policy = manifest, rules
+            catalog = copy.deepcopy(value.catalog) if whole else {
+                "schema_version": 1, "source_sha": value.binding.source_sha, "entries": [],
+            }
+            catalog["entries"].append(copy.deepcopy(definition))
+            scope["coverage"][0]["source_paths"].append(source)
+            scope["coverage"][0]["cases"].append({"path": source, **case})
+            scope["native"] = [{
+                "revision": BASE, "transcript": "docs/android/evidence/WP-503/fixture.txt",
+                "sha256": "a" * 64, "api": 31, "methods": ["NativeTest#affected"],
+                "bindings": {PATH: "5" * 40}, "fixture": {"path": CONSUMER_TEST, "blob_sha": "8" * 40},
+                "out_of_scope_failures": {}, "execution": {},
+            }]
+            evidence = copy.deepcopy(value.evidence)
+            evidence["verification_scope" if whole else "repair_scope"] = scope
+            evidence["source_tests"].append({
+                "path": source, "blob_sha": definition["blob_sha"],
+                "cases": [{**case, "result": "PASS", "evidence": [evidence["acceptance"][0]["evidence"][0]]}],
+            })
+            staged["fixture_original"] = source
+            receipt = {
+                "schema_version": 3 if whole else 2, "binding": asdict(value.binding),
+                "method": "authenticated-coordinator-read-only", "staging_sha256": digest(staged),
+                "evidence": evidence, "review": value.review, "approvals": [],
+            }
+            if not whole:
+                receipt["scope_comment_id"] = 700
+                api.routes[("GET", prefix + "/issues/comments/700")]["body"] = SCOPE_MARKER + json.dumps(scope)
+            api.routes[("GET", prefix + "/pulls/123/reviews?per_page=100&page=1")][0]["body"] = (
+                REVIEW_MARKER + json.dumps(receipt)
+            )
+            with self.subTest(whole=whole), \
+                    patch("controller.native_review.stage_review", return_value=staged) as stage, \
+                    patch("controller.native_review.tree", return_value=entries), \
+                    patch("controller.native_review.object_bytes", return_value=json.dumps(catalog).encode()), \
+                    patch.object(native, "verify_repair_execution"):
+                if whole:
+                    native.stage_whole("WP-312", 123, scope)
+                else:
+                    native.stage_repair("WP-312", 123, 700)
+                self.assertIn(source, stage.call_args.kwargs["additional_original_paths"])
+                self.assertEqual(stage.call_args.kwargs["additional_candidate_sources"],
+                                 {TEST: "4" * 40, PATH: "5" * 40})
+                self.assertEqual(stage.call_args.kwargs["additional_retained_sources"],
+                                 {(BASE, CONSUMER_TEST): "8" * 40})
+                native.evaluate("WP-312", 123, 90)
+                self.assertIn(source, stage.call_args.kwargs["additional_original_paths"])
+                self.assertEqual(stage.call_args.kwargs["additional_candidate_sources"],
+                                 {TEST: "4" * 40, PATH: "5" * 40})
+                self.assertEqual(stage.call_args.kwargs["additional_retained_sources"],
+                                 {(BASE, CONSUMER_TEST): "8" * 40})
+                self.assertEqual(stage.call_count, 2)
+                staged["fixture_original"] = "changed"
+                with self.assertRaisesRegex(PortError, "complete trusted-profile"):
+                    native.evaluate("WP-312", 123, 90)
+
+    def test_scope_can_live_on_the_repair_pr_without_a_bookkeeping_issue(self):
+        native, api, prefix, value, scope, _, _ = self.fixture()
+        scope["repair_issue"] = scope["repair_pr"]
+        scope["acceptance"][0]["id"] = "repair-123-list"
+        comment = api.routes[("GET", prefix + "/issues/comments/700")]
+        comment["issue_url"] = f"https://api.github.com/repos/{native.policy['repository']}/issues/123"
+        comment["body"] = SCOPE_MARKER + json.dumps(scope)
+        api.routes[("GET", prefix + "/issues/123")] = {"number": 123, "pull_request": {}}
+        self.assertEqual(authenticated_scope(native, 700, value.binding), scope)
+        validate_scope(scope, value.binding, native.manifest, native.policy, [PATH], None)
+        for kind in ("different-pr", "issue-misrepresented", "comment-on-other-issue"):
+            altered = copy.deepcopy(scope)
+            route = api.routes[("GET", prefix + "/issues/123")]
+            if kind == "different-pr":
+                altered["repair_pr"] = 124
+            elif kind == "issue-misrepresented":
+                route.pop("pull_request")
+            else:
+                comment["issue_url"] = f"https://api.github.com/repos/{native.policy['repository']}/issues/224"
+            comment["body"] = SCOPE_MARKER + json.dumps(altered)
+            with self.subTest(kind=kind), self.assertRaises(PortError):
+                authenticated_scope(native, 700, value.binding)
+            route["pull_request"] = {}
+            comment["issue_url"] = f"https://api.github.com/repos/{native.policy['repository']}/issues/123"
+
+    def test_compressed_scope_remains_bound_to_the_actual_author_and_pr(self):
+        native, api, prefix, value, scope, _, _ = self.fixture()
+        scope["summary"] += "x" * 70000
+        comment = api.routes[("GET", prefix + "/issues/comments/700")]
+        comment["body"] = encode_structured_body(scope, SCOPE_MARKER, COMPRESSED_SCOPE_MARKER)
+        self.assertTrue(comment["body"].startswith(COMPRESSED_SCOPE_MARKER))
+        self.assertEqual(authenticated_scope(native, 700, value.binding), scope)
+        comment["user"] = {"login": "unregistered", "type": "User"}
+        with self.assertRaises(PortError):
+            authenticated_scope(native, 700, value.binding)
+
+    def test_pr_author_can_propose_scope_without_impersonating_coordinator(self):
+        native, api, prefix, value, scope, _, _ = self.fixture()
+        scope["repair_issue"] = scope["repair_pr"]
+        scope["acceptance"][0]["id"] = "repair-123-list"
+        comment = api.routes[("GET", prefix + "/issues/comments/700")]
+        comment.update(
+            user={"id": 42, "type": "Bot", "login": "worker[bot]"},
+            issue_url=f"https://api.github.com/repos/{native.policy['repository']}/issues/123",
+            body=SCOPE_MARKER + json.dumps(scope),
+        )
+        api.routes[("GET", prefix + "/issues/123")] = {"number": 123, "pull_request": {}}
+        pr = api.routes[("GET", prefix + "/pulls/123")]
+        pr["user"] = {"id": 42, "type": "Bot", "login": "worker[bot]"}
+        self.assertEqual(authenticated_scope(native, 700, value.binding), scope)
+        for author in ({"id": 43, "type": "Bot"}, {"id": 42, "type": "User"}, {"type": "Bot"}, {}):
+            comment["user"] = author
+            with self.subTest(author=author), self.assertRaises(PortError):
+                authenticated_scope(native, 700, value.binding)
+
+    def test_whole_scope_requires_actual_hosted_job_and_test_method(self):
+        native, api, prefix, _, _, staged, entries = self.fixture()
+        manifest, rules, value, scope = whole_fixture()
+        native.manifest, native.policy = manifest, rules
+        native.backend.manifest, native.backend.policy = manifest, rules
+        receipt = {
+            "schema_version": 3, "binding": asdict(value.binding), "method": "authenticated-coordinator-read-only",
+            "staging_sha256": digest(staged), "evidence": value.evidence, "review": value.review,
+            "approvals": [],
+        }
+        source_review = api.routes[("GET", prefix + "/pulls/123/reviews?per_page=100&page=1")][0]
+        source_review["body"] = REVIEW_MARKER + json.dumps(receipt)
+        catalog = json.dumps(value.catalog).encode()
+
+        def objects(repo, blob):
+            if blob == "4" * 40:
+                return b"class MapTest { @Test fun keepsListReachable() { check(true) } }"
+            return catalog
+
+        with patch("controller.native_review.stage_review", return_value=staged), \
+                patch("controller.native_review.tree", return_value=entries), \
+                patch("controller.native_review.object_bytes", side_effect=objects), \
+                patch("controller.staging.object_bytes", side_effect=objects), \
+                patch("controller.repair_acceptance.read_job_log",
+                      return_value=build_log(["core/maps"])):
+            prepared = native.stage_whole("WP-312", 123, scope)
+            self.assertFalse(prepared["authoritative"])
+            accepted, result = native.evaluate("WP-312", 123, 90)
+            self.assertEqual(accepted.evidence["schema_version"], 4)
+            self.assertNotIn("acceptance_kind", result)
+            job = api.routes[("GET", prefix + "/actions/runs/1/attempts/1/jobs?per_page=100&page=1")]["jobs"][0]
+            job["conclusion"] = "skipped"
+            with self.assertRaisesRegex(PortError, "missing/skipped/failed"):
+                native.evaluate("WP-312", 123, 90)
+            job["conclusion"] = "success"
+            with patch("controller.repair_acceptance.read_job_log", return_value=build_log(
+                ["feature/map", "core/maps"], unit_test_methods={
+                    "feature/map": [{"class": "MapTest", "method": "unrelated"}] * 3,
+                    "core/maps": [{"class": "MapTest", "method": "unrelated"}] * 3,
+                },
+            )), self.assertRaises(PortError):
+                native.evaluate("WP-312", 123, 90)
+
     def test_verification_git_mode_identity_is_required_even_when_contents_resolves_a_symlink(self):
         for revision in (MERGE, BASE, HEAD):
             for kind in ("symlink", "tree", "gitlink", "missing", "truncated", "duplicate", "blob", "path",
@@ -740,14 +1583,14 @@ class RepairAuthorityTests(unittest.TestCase):
         native, _, _, _, scope, _, entries = self.verification_fixture()
         executed = {"app": [{"class": "com.meshcoreone.android.app.ConsumerTest",
                              "method": "keepsListReachable[31]"}]}
-        source = b"package com.meshcoreone.android.app\n@Test fun keepsListReachable() {}"
+        source = b"package com.meshcoreone.android.app\nclass ConsumerTest { @Test fun keepsListReachable() {} }"
         with patch("controller.staging.object_bytes", return_value=source):
             validate_hosted_methods(scope, entries, native.manifest.repo, executed)
         for kind in ("omitted-method", "invented-method", "duplicate", "absent-test", "stale-test",
                      "stale-consumer", "not-executed", "missing-inventory", "comment-only"):
             changed, candidate, records, text = copy.deepcopy(scope), dict(entries), copy.deepcopy(executed), source
             if kind == "omitted-method":
-                text += b"\n@Test fun omittedRequiredMethod() {}"
+                text = text[:-1] + b"\n@Test fun omittedRequiredMethod() {} }"
             elif kind == "invented-method":
                 changed["coverage"][0]["hosted_methods"][0]["id"] = "notDeclared"
             elif kind == "duplicate":
@@ -775,10 +1618,10 @@ class RepairAuthorityTests(unittest.TestCase):
         identity = "com.meshcoreone.android.app.ConsumerTest#keepsListReachable"
         entry.update(path=path, hosted_methods=[], native_methods=[identity])
         entries[path] = "4" * 40
-        source = b"package com.meshcoreone.android.app\n@Test fun keepsListReachable() {}"
+        source = b"package com.meshcoreone.android.app\nclass ConsumerTest { @Test fun keepsListReachable() {} }"
         with patch("controller.staging.object_bytes", return_value=source):
             validate_hosted_methods(scope, entries, native.manifest.repo, {})
-        with patch("controller.staging.object_bytes", return_value=source + b"\n@Test fun omitted() {}"), \
+        with patch("controller.staging.object_bytes", return_value=source[:-1] + b"\n@Test fun omitted() {} }"), \
                 self.assertRaisesRegex(PortError, "every actual"):
             validate_hosted_methods(scope, entries, native.manifest.repo, {})
         with self.assertRaisesRegex(PortError, "Missing affected native"):
@@ -816,7 +1659,7 @@ class RepairAuthorityTests(unittest.TestCase):
 
         def objects(repo, blob):
             if blob == "4" * 40:
-                return b"package com.meshcoreone.android.app\n@Test fun keepsListReachable() { check(true) }"
+                return b"package com.meshcoreone.android.app\nclass ConsumerTest { @Test fun keepsListReachable() { check(true) } }"
             return json.dumps({"schema_version": 1, "source_sha": value.binding.source_sha, "entries": []}).encode()
 
         with patch("controller.native_review.stage_review", return_value=staged), \
@@ -885,7 +1728,7 @@ class RepairAuthorityTests(unittest.TestCase):
     def test_native_transport_evaluates_bounded_repair_with_real_hosted_log_contract(self):
         native, api, _, value, _, staged, entries = self.fixture()
         def objects(repo, blob):
-            return b"@Test fun keepsListReachable() { check(true) }" if blob == "4" * 40 else (
+            return b"class MapTest { @Test fun keepsListReachable() { check(true) } }" if blob == "4" * 40 else (
                 json.dumps({"schema_version": 1, "source_sha": value.binding.source_sha, "entries": []}).encode()
             )
         with patch("controller.native_review.stage_review", return_value=staged), \
@@ -924,7 +1767,7 @@ class RepairAuthorityTests(unittest.TestCase):
             api.routes[("PATCH", prefix + f"/check-runs/{check_id}")] = {}
         def objects(repo, blob):
             if blob == "4" * 40:
-                return b"@Test fun keepsListReachable() { check(true) }"
+                return b"class MapTest { @Test fun keepsListReachable() { check(true) } }"
             return json.dumps({"schema_version": 1, "source_sha": value.binding.source_sha, "entries": []}).encode()
         with patch("controller.native_review.stage_review", return_value=staged), \
                 patch("controller.native_review.tree", return_value=entries), \

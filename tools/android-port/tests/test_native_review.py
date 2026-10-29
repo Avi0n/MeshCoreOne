@@ -15,7 +15,10 @@ from controller.errors import PortError
 from controller.engine import Controller
 from controller.gates import merge_decision, validate_evidence, verify_completion, verify_pr_gates
 from controller.ledger import Identity, Ledger
-from controller.native_review import CI_PATH, RESULT_MARKER, REVIEW_MARKER, WORKFLOW_PATH, NativeReview, main
+from controller.native_review import (
+    CI_PATH, COMPRESSED_REVIEW_MARKER, RESULT_MARKER, REVIEW_MARKER, WORKFLOW_PATH, NativeReview, main,
+)
+from controller.publication import encode_structured_body
 from controller.render import marker
 from controller.schema import digest
 from controller.workflows import parse_yaml, validate_publisher
@@ -131,6 +134,17 @@ class NativeReviewTests(unittest.TestCase):
                                 actual.binding, native.manifest, native.policy)
         self.assertIsNone(proof["approval_id"])
         self.assertEqual(proof["ci_run_ids"], [1])
+
+    def test_compressed_authenticated_receipt_retains_the_same_review_and_binding(self):
+        native, api, prefix, value = self.fixture()
+        review = self.reviews(api, prefix)[0]
+        receipt = json.loads(review["body"][len(REVIEW_MARKER):])
+        receipt["review"]["summary"] = "reviewed " + "x" * 70000
+        review["body"] = encode_structured_body(receipt, REVIEW_MARKER, COMPRESSED_REVIEW_MARKER)
+        self.assertTrue(review["body"].startswith(COMPRESSED_REVIEW_MARKER))
+        actual, _ = native.evaluate("WP-003", 123, 90)
+        self.assertEqual(actual.binding, value.binding)
+        self.assertEqual(actual.review["summary"], receipt["review"]["summary"])
 
     def test_authority_reconciles_native_checks_without_invented_application_ids(self):
         native, api, _, value = self.fixture()

@@ -824,7 +824,7 @@ then use the existing staging command with the actual WP and current base/head:
 python .\tools\android-port\controller\gate_runtime.py stage --wp WP-xxx --trusted-base <40-hex-base> --candidate <40-hex-head> --output <private-staged-input.json>
 ```
 
-The review body must start exactly with
+The plain review body starts exactly with
 `<!-- android-port-native-review-v1 -->` followed by a newline and one JSON object:
 
 ```json
@@ -846,7 +846,17 @@ Record a real review using GitHub's supported REST API
 fabrication of the verdict. The authenticated reviewer must be a human GitHub
 `User` in the trusted policy's `authorized_coordinators`; the coordinator can also
 be the PR author. The receipt must fit the complete 65,535-byte/character bound.
-Oversized receipts block; there is no unverified attachment or truncation fallback.
+To retain a complete larger receipt within that bound, encode the exact JSON as
+bounded zlib/base64 using the trusted helper. The resulting review body uses
+`<!-- android-port-native-review-zlib-v1 -->`; its decoded JSON is checked by
+the same validator and authenticated exact-head reviewer. No attachment,
+truncation or second CI result is involved. Both the compressed body and the
+expanded JSON have strict size limits; exceeding either still blocks.
+
+```powershell
+$env:PYTHONPATH=(Resolve-Path .\tools\android-port).Path
+python -c "import sys; from pathlib import Path; from controller.schema import load_json; from controller.publication import encode_structured_body; from controller.native_review import REVIEW_MARKER, COMPRESSED_REVIEW_MARKER; Path(sys.argv[2]).write_text(encode_structured_body(load_json(Path(sys.argv[1])), REVIEW_MARKER, COMPRESSED_REVIEW_MARKER), encoding='utf-8')" <private-receipt.json> <private-review-body.txt>
+```
 
 Hosted acceptance schema v2 has `schema_version: 2`, all seven binding fields,
 `changed_paths`, `acceptance` and `source_tests` with their existing complete
@@ -910,34 +920,152 @@ Native completion validates the server PR's actual merged head/merge commit and
 first-parent base for both a normal merge and the existing REST adapter's squash
 strategy; it never invents a second parent for a squash commit.
 
+### Reviewed support capabilities
+
+The trusted base admits `modify-related-consumer` for existing Kotlin
+production consumers and `add-or-update-related-test` for directly necessary
+Kotlin unit or instrumentation tests in app/core/feature/platform modules.
+These operations do not authorize unrelated work, test deletion or production
+file creation, build files, resources or release behavior. Exact Git trees
+enforce the existing-consumer/no-deletion boundaries during staging; the
+trusted review establishes necessity and detects weakened assertions.
+Existing semantic overlap is still serialized or transferred.
+
+Future additive `reviewed-support-` rules can be reviewed as ordinary policy
+changes without rehashing every historical verification amendment. They must
+be a unique trailing block with nonempty path, operation, invariant and
+validation lists and bounded non-reference path roots. Historical policy and
+manifest projections remain unchanged. Admission uses only the merged trusted
+base: a candidate rule cannot authorize its own edits before review and merge,
+and receipts remain bound to the exact policy revision.
+
+### Shared whole-WP verification for Android modules
+
+For an Android app, core, feature or platform module WP with an empty,
+unconfigured verification entry, the controller can use the declared WP-003
+software lane without a per-WP verification amendment. This permits dispatch
+only after the normal foundation, dependency, budget, identity and activation
+checks. Original-case inventory production, non-module work, WPs without primary-owned
+source inputs, and WPs with explicitly partially configured commands or other
+substantive blockers do not inherit this contract. For JUnit dynamic and
+parameterized families, the Gradle listener captures actual successful
+test-descriptor ancestry during the selected run and binds each child to the
+matching JUnit case, task and source declaration. A missing or ambiguous
+family binding fails acceptance; ordinary case counts are not a substitute.
+Duplicate test method names in one source file currently fail closed because
+the scope's method identity does not distinguish their declaring classes;
+give those Android test methods distinct names rather than claiming one
+execution covers multiple declarations.
+No schedule or controller activation is implied.
+
+The shared lane is a way to execute checks, not proof of parity. Whole-WP
+completion uses hosted evidence schema `4`, containing all normal schema-2
+fields plus `verification_scope`. The scope is a JSON object with:
+
+| Field | Required meaning |
+| --- | --- |
+| `schema_version`, `kind` | `3`, `"whole-wp"` |
+| `binding`, `owner` | Exact repository/WP/base/head/source/manifest/policy binding and canonical owner |
+| `paths` | Every actual changed path as `{path, operation, capability}`, admitted by the trusted base policy |
+| `acceptance` | The complete, unchanged manifest acceptance list |
+| `coverage` | One `{path, source_paths, cases, native_methods, hosted_methods, adaptation, modules}` per changed Android behavior/test path |
+| `verification`, `native` | Exactly `["android-scaffold"]` and the required retained native observations, or `[]` when none apply |
+
+Use the case, method, and module shapes described in the bounded-repair section
+below. Scope coverage must map every primary-owned, nonexcluded original case
+and parameter family to an actual hosted or native test method; at least one hosted test
+method must execute. Changed unit and instrumentation files must account for
+all their JUnit declarations. Source review must verify that the mapped tests
+actually exercise the claimed behavior; method names alone are not parity.
+Directly relevant cross-owner original cases can also be explicitly mapped as
+described below; each mapped family requires its own passing evidence and does
+not transfer source ownership or replace any primary-owned family.
+The trusted verifier checks the exact successful hosted job, current task plan,
+nonzero method discovery, source blob identities, retained native evidence,
+complete acceptance, independent review and any applicable human gates.
+Integration tests may execute in a different selected module than the changed
+consumer; the changed module must still be in the trusted affected build plan.
+
+Place the scope JSON in a private file outside the repository and stage the
+exact ready PR using the deployed trusted base:
+
+```powershell
+python .\tools\android-port\controller\native_review.py stage-whole --trusted-base <current-main-sha> --wp WP-xxx --pr <number> --scope <private-absolute-scope-path> --output <private-absolute-output-path>
+```
+
+The staged output is data-only. The existing authenticated coordinator review
+receipt uses native review schema `3` with the normal binding, staging digest,
+review and approvals; its evidence is schema `4` and embeds the same scope.
+The default-branch publisher and subsequent completion checks revalidate the
+hosted run. This does not bypass reviewer authentication or human, device,
+hardware, legal or release gates, and no CI-result bundle is retained.
+
 ### Change-scoped acceptance for an already-landed WP repair
 
 An open repair of an already-landed WP is not a request to complete that entire
 WP again. The bounded path uses the same authenticated source reviewer and
 default-branch publisher, but returns `acceptance_kind: "bounded-repair"`,
 `wp_complete: false` and `dependency_unlock: false`. Evidence schema 3 is
-deliberately rejected by full-WP gates and completion/accounting. Existing
-whole-WP manifest verification stays unchanged, including unconfigured WPs.
+deliberately rejected by full-WP gates and completion/accounting. It never
+replaces the shared or specifically configured whole-WP contract.
 
-The authorized human coordinator first posts one structured scope comment on
-the **existing repair issue**, not on an invented tracking issue. Its body is
+An empty or unconfigured whole-WP verification entry does not by itself prevent
+an already-assigned, capability-admitted bounded repair from using the existing
+declared affected or scaffold checks. It is not a reason to require a new WP-003
+binding or tracking issue before that repair can start. The repair still needs
+its actual prerequisites, acceptance evidence and applicable gates; its passing
+software checks do not establish whole-WP or device acceptance. Missing or failed
+local checks are reported as unverified, not a feature-branch publication block;
+use the exact-candidate hosted result where available.
+
+For an unconfigured WP with no commands, the generated worker prompt also lists
+the preflight, scaffold and inspect commands already declared by WP-003. The
+prompt fails explicitly if that shared lane is missing or unconfigured; the
+commands alone do not establish whole-WP acceptance.
+
+A structured scope comment can be posted by the actual PR author directly on
+the repair PR, or by the authorized coordinator on that PR or an existing
+repair issue. No separate bookkeeping issue is needed. The scope is untrusted
+input, not a review or authorization; the authenticated coordinator review
+and all other gates still apply. Its body is
 `<!-- android-port-repair-scope-v1 -->` followed by strict JSON with these fields:
 
 | Field | Required meaning |
 | --- | --- |
 | `schema_version`, `kind` | `1`, `"landed-wp-repair"` |
 | `binding` | Exact seven-field repository/WP/current-base/head/source/manifest/policy binding used by native reviews |
-| `repair_pr`, `repair_issue`, `landed_pr`, `owner`, `summary` | Actual PR/issue/merged producer, canonical manifest owner, bounded original issue scope |
+| `repair_pr`, `repair_issue`, `landed_pr`, `owner`, `summary` | Actual repair PR, issue or that same PR number, merged producer, canonical manifest owner and bounded scope |
 | `paths` | Every server-reported changed path, including both rename paths: `{path, operation, capability}` admitted by trusted typed rules |
-| `acceptance` | Nonempty issue-specific `{id, description}` criteria; do not reuse whole-WP criterion IDs |
+| `acceptance` | Nonempty `{id, description}` criteria, with IDs beginning `repair-<repair_issue>-`; do not reuse whole-WP criterion IDs |
 | `coverage` | `{path, modules, source_paths, cases, native_methods, hosted_methods, adaptation}` for each changed Android behavior/test file |
 | `verification` | Exactly `["android-scaffold"]`, mapping to the existing declared strict scaffold runner, not a guessed Gradle task |
 | `native` | Explicit immutable independently retained native observations, or `[]` when affected behavior has a reviewed hosted native adaptation |
 
-Coverage source paths must belong to the canonical WP and be nonexcluded.
-Coverage `cases` items are `{path, id, parameter_family}` from the trusted frozen catalog;
-the receipt must account for every selected parameter family. Every affected
+Coverage source paths must be nonexcluded pinned inputs. A cross-owner source
+must appear in the same coverage entry as at least one explicitly mapped
+original case from that source. Coverage `cases` items are
+`{path, id, parameter_family}` from the trusted frozen catalog; the receipt
+must account for every selected parameter family. Independent source review
+must establish the relevance and completeness of cross-owner families against
+the assignment, and the original source retains its primary owner. Every affected
 module must be selected, including typed-capability-admitted support files.
+The staging and receipt revalidation paths include each selected cross-owner
+source's pinned bytes in the immutable reviewer inputs and staging digest.
+Referenced candidate test methods, unchanged production consumers and native
+source bindings are likewise staged at their exact candidate blob identities.
+Each retained native fixture is also staged from its immutable observation
+revision, with its revision and blob identity included in the staging digest;
+it need not be the same fixture as the one at the candidate head.
+When a production repair changes only admitted support consumers rather than
+the landed WP's own producer, the schema-1 scope may add `producer_bindings`:
+`{<primary-owned producer path>: <unchanged base/head Git blob>}`. Each producer
+must be a regular Kotlin production file in the actual landed WP PR, and the
+coverage must map a primary-owned original source. Its current bytes are staged
+for review. This avoids a needless producer edit without allowing test-only work
+to bypass the separate verification-only contract or claiming WP completion.
+Large scope comments can use the same bounded encoder with `SCOPE_MARKER` and
+`COMPRESSED_SCOPE_MARKER` from `controller.repair_acceptance`; the comment
+author and PR/issue binding are authenticated identically.
 The actual merged producer must be an ancestor of the current base and have
 the canonical WP marker or legacy `[WP-xxx] ` title. Its actual server path
 inventory must contain an actually repaired production path; added repair helpers
@@ -1009,6 +1137,13 @@ Declaration binding reads attached Kotlin annotations rather than matching throu
 their argument text. Quoted parentheses in `OriginalCase`, escaped/raw strings,
 nested annotation arguments and comments preserve the real `Test`/`org.junit.Test`
 attachment; annotation-like text in comments or literals cannot qualify a method.
+Same-file JUnit typealiases are resolved, including alias chains; an otherwise
+unrecognized annotation attached to a function fails explicitly rather than
+letting a potentially aliased test be classified as a helper. Use a directly
+recognizable JUnit annotation or import alias when that ambiguity is reported.
+Imported JUnit/Kotlin lifecycle, Compose helper and Robolectric shadow
+annotations, and standard Kotlin `OptIn`, `Suppress`, `JvmStatic` and
+`Synchronized`, are recognized as non-test annotations.
 The trusted runner now prints actual JUnit class/method identities, including
 SDK/parameter suffixes, in that same hosted log. Selected methods must be present
 in this executed inventory; a source function and green aggregate alone cannot
@@ -1019,6 +1154,10 @@ fail closed. The candidate cannot redefine the trusted runner, its JUnit/count
 validators, module graph or Android CI workflow. Extra selected tasks must also
 be existing trusted scoped tasks. Hosted adaptations do not imply physical
 TalkBack/radio/OEM/background/upgrade testing.
+Every affected module requires an actual method inventory matching its suite
+counts, including separately collected app and contracts suites. Generic
+support admission also checks the actual module/source-set boundary, so a
+production file cannot qualify as a test through a nested path component.
 
 Each `native` observation supplies `{revision, transcript, sha256, api, methods,
 bindings, fixture, out_of_scope_failures, execution}`. The transcript is fetched at its

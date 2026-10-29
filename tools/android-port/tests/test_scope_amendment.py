@@ -6,7 +6,7 @@ import subprocess
 import unittest
 from unittest.mock import patch
 
-from fixtures import REPO, base_manifest
+from fixtures import REPO, base_manifest, historical_policy_text
 from bootstrap import build_inventory
 from controller.errors import PortError
 from controller.gates import policy_revision, validate_cases
@@ -54,7 +54,7 @@ def manifest_before_software_v2(manifest):
 
 class TranslationScopeAmendmentTests(unittest.TestCase):
     def policy_before_room_cleanup_text(self):
-        text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        text = historical_policy_text()
         start = text.index('      {\n        "id": "wp404-shortcut-lifecycle-consumer-test",')
         end = text.index('      {\n        "id": "wp216-reaction-wire-classification",', start)
         previous = text[:start] + text[end:]

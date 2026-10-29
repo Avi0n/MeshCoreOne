@@ -20,6 +20,61 @@ REVIEW_POLICY = {
         "android/**/signing*", "android/**/keystore*", "**/*license*", "**/*LICENSE*", "**/*legal*",
     ],
 }
+
+
+def routine_support_predecessor(policy):
+    """Project reviewed additive capability extensions back to the historical policy."""
+    if not isinstance(policy, dict):
+        raise PortError("Routine support amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result["reservation_policy"]
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Routine support amendment requires the canonical capability catalog")
+    prefix = "reviewed-support-"
+    selected = [rule for rule in rules if isinstance(rule, dict)
+                and isinstance(rule.get("id"), str) and rule["id"].startswith(prefix)]
+    if (selected and rules[-len(selected):] != selected) or len({rule["id"] for rule in selected}) != len(selected):
+        raise PortError("Reviewed support capabilities must be unique and follow the historical catalog")
+    for rule in selected:
+        if set(rule) not in (
+            {"id", "path_rules", "operations", "invariants", "validation"},
+            {"id", "path_rules", "operations", "invariants", "validation", "work_packages"},
+        ):
+            raise PortError("Malformed reviewed support capability fields")
+        if rule["id"] == prefix:
+            raise PortError("Reviewed support capability requires a distinct ID")
+        for key in ("path_rules", "operations", "invariants", "validation"):
+            values = rule[key]
+            if (
+                not isinstance(values, list) or not values
+                or not all(isinstance(value, str) and value for value in values)
+                or len(set(values)) != len(values)
+            ):
+                raise PortError(f"Malformed reviewed support capability {key}")
+        if "work_packages" in rule and (
+            not isinstance(rule["work_packages"], list) or not rule["work_packages"]
+            or not all(isinstance(wp, str) and wp for wp in rule["work_packages"])
+            or len(set(rule["work_packages"])) != len(rule["work_packages"])
+        ):
+            raise PortError("Malformed reviewed support capability work_packages")
+        for path in rule["path_rules"]:
+            roots = ("android/", "tools/android-port/", "docs/android/")
+            root = next((value for value in roots if path.startswith(value)), None)
+            parts = path.split("/")
+            if (
+                root is None or "\\" in path or any(part in ("", ".", "..") for part in parts)
+                or not path[len(root):].split("/")[0]
+                or any(char in path[len(root):].split("/")[0] for char in "*?[")
+            ):
+                raise PortError("Reviewed support capability requires a bounded non-reference path")
+    if selected:
+        del rules[-len(selected):]
+    return result
+
+
 DISPOSABLE_CAPABILITY = {
     "id": "disposable-native-guest",
     "work_packages": ["WP-503"],
@@ -826,7 +881,7 @@ def shortcut_lifecycle_test_predecessor(policy):
     """Reverse only the exact WP-404 App lifecycle fixture admission."""
     if not isinstance(policy, dict):
         raise PortError("Shortcut lifecycle test amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = routine_support_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     CapabilityEngine(result)

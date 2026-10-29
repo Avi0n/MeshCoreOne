@@ -18,6 +18,7 @@ from controller.scope_amendment import (
     ROOM_CLEANUP_CAPABILITY, room_cleanup_predecessor,
     BUBBLE_CONSUMER_CAPABILITY, bubble_consumer_predecessor,
     ROOM_FAILED_EVENT_CAPABILITY, room_failed_event_predecessor,
+    routine_support_predecessor,
 )
 from portmap import capability_support_admitted
 
@@ -62,6 +63,87 @@ class CapabilityReservationTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="meshcore-capability-tests-")
         self.addCleanup(self.temporary.cleanup)
         self.ledger = Ledger(Path(self.temporary.name) / "ledger.sqlite", self.rules["repository"])
+
+    def test_related_support_is_shared_but_path_and_operation_bounded(self):
+        for wp in ("WP-208", "WP-213", "WP-501"):
+            for path, operation, capability in (
+                ("android/core/data/src/test/kotlin/RoomTest.kt", "add-or-update-related-test",
+                 "reviewed-support-test"),
+                ("android/core/data/src/testDebug/kotlin/RoomTest.kt", "add-or-update-related-test",
+                 "reviewed-support-test"),
+                (ROOM_RENDERER, "modify-related-consumer", "reviewed-support-consumer"),
+            ):
+                with self.subTest(wp=wp, path=path):
+                    self.assertEqual(self.engine.admit(wp, [], path, operation).capability_id, capability)
+        for path, operation in (
+            ("android/core/data/build.gradle.kts", "modify-related-consumer"),
+            ("android/core/data/src/main/kotlin/Foo.kt", "add-or-update-related-test"),
+            ("android/core/data/src/test/kotlin/Foo.kt", "modify-related-consumer"),
+            ("android/core/data/src/test/kotlin/Foo.kt", "delete"),
+            ("android/build-logic/src/test/kotlin/Foo.kt", "add-or-update-related-test"),
+            ("tools/android-port/controller/engine.py", "modify-related-consumer"),
+            ("android/core/data/src/main/kotlin/nested/src/test/kotlin/Production.kt",
+             "add-or-update-related-test"),
+            ("android/feature/map/src/main/kotlin/nested/src/androidTest/kotlin/Production.kt",
+             "add-or-update-related-test"),
+            ("android/core/data/src/test/kotlin/nested/src/main/kotlin/Test.kt",
+             "modify-related-consumer"),
+            ("android/core/data/nested/src/main/kotlin/Production.kt", "modify-related-consumer"),
+        ):
+            with self.subTest(path=path, operation=operation), self.assertRaises(PortError):
+                self.engine.admit("WP-208", [], path, operation)
+
+    def test_related_support_checks_actual_base_and_candidate(self):
+        consumer = "android/feature/chats/src/main/kotlin/Consumer.kt"
+        test = "android/core/data/src/test/kotlin/RoomTest.kt"
+        operations = {consumer: "modify-related-consumer", test: "add-or-update-related-test"}
+        CapabilityEngine.validate_support_changes(operations, {consumer: "base"}, {consumer: "head", test: "head"})
+        for base, head in (
+            ({}, {consumer: "head", test: "head"}),
+            ({consumer: "base"}, {test: "head"}),
+            ({consumer: "base", test: "base"}, {consumer: "head"}),
+        ):
+            with self.subTest(base=base, head=head), self.assertRaises(PortError):
+                CapabilityEngine.validate_support_changes(operations, base, head)
+
+    def test_related_support_preserves_and_checks_historical_policy(self):
+        current = json.loads((REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8"))
+        historical = routine_support_predecessor(current)
+        actual = json.loads(subprocess.check_output(
+            ["git", "-C", str(REPO), "show",
+             "a9b30473e1285c55ada38a191f808563aca57005:docs/android/automation-policy.json"],
+            encoding="utf-8",
+        ))
+        self.assertEqual(historical, actual)
+        self.assertEqual(routine_support_predecessor(actual), actual)
+        for field in ("path_rules", "operations", "invariants", "validation"):
+            altered = copy.deepcopy(self.rules)
+            rule = next(rule for rule in altered["reservation_policy"]["capabilities"]
+                        if rule["id"] == "reviewed-support-consumer")
+            rule[field] = (
+                ["MC1/**"] if field == "path_rules" else []
+            )
+            with self.subTest(field=field), self.assertRaises(PortError):
+                routine_support_predecessor(altered)
+        extended = copy.deepcopy(current)
+        extra = copy.deepcopy(extended["reservation_policy"]["capabilities"][-1])
+        extra["id"] = "reviewed-support-new-fixture"
+        extra["path_rules"] = ["tools/android-port/tests/*.py"]
+        extended["reservation_policy"]["capabilities"].append(extra)
+        self.assertEqual(routine_support_predecessor(extended), actual)
+        duplicate = copy.deepcopy(current)
+        duplicate["reservation_policy"]["capabilities"].append(
+            copy.deepcopy(duplicate["reservation_policy"]["capabilities"][-1])
+        )
+        with self.assertRaises(PortError):
+            routine_support_predecessor(duplicate)
+        reordered = copy.deepcopy(current)
+        rules = reordered["reservation_policy"]["capabilities"]
+        rules.insert(0, rules.pop())
+        with self.assertRaises(PortError):
+            routine_support_predecessor(reordered)
+        self.assertEqual(current["reservation_policy"]["capabilities"][0]["id"],
+                         "wp003-host-scoped-jvm-parallelism")
 
     def test_wp502_failed_event_exact_two_paths_operation_and_existing_app_adapter_support(self):
         rule = ROOM_FAILED_EVENT_CAPABILITY
@@ -155,7 +237,7 @@ class CapabilityReservationTests(unittest.TestCase):
         validator_rule = rules["wp503-accessibility-source-binding"]
         regression_rule = rules["wp503-accessibility-source-binding-regression"]
         self.assertEqual(
-            self.rules["reservation_policy"]["capabilities"][-2:],
+            routine_support_predecessor(self.rules)["reservation_policy"]["capabilities"][-2:],
             [validator_rule, regression_rule],
         )
         self.assertEqual(validator_rule["work_packages"], ["WP-503"])
@@ -1069,12 +1151,28 @@ class CapabilityReservationTests(unittest.TestCase):
         for path in (
             "android/app/src/test/resources/Fixture.kt",
             "android/app/src/test/kotlin/Fixture.json",
-            "android/feature/map/src/test/kotlin/Fixture.kt",
             "android/app/src/unapproved/kotlin/Fixture.kt",
             "secrets/Fixture.kt",
         ):
             with self.subTest(path=path):
                 self.assertFalse(capability_support_admitted(manifest, "WP-313", path))
+
+    def test_related_cross_owner_tests_have_traceability_admission(self):
+        manifest = test_manifest("WP-208")
+        for path in (
+            "android/core/data/src/test/kotlin/RoomTest.kt",
+            "android/feature/chats/src/androidTest/kotlin/ConsumerTest.kt",
+            "android/feature/chats/src/main/kotlin/Consumer.kt",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(capability_support_admitted(manifest, "WP-208", path))
+        for path in (
+            "android/core/data/src/test/resources/RoomTest.kt",
+            "android/core/data/src/main/resources/Consumer.kt",
+            "android/build-logic/src/test/kotlin/PolicyTest.kt",
+        ):
+            with self.subTest(path=path):
+                self.assertFalse(capability_support_admitted(manifest, "WP-208", path))
 
     def test_scope_evolution_is_same_owner_idempotent_and_stale_cas_is_safe(self):
         wp = self.manifest.wp("WP-101")
