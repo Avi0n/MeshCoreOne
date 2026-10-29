@@ -451,15 +451,20 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     autoAddConfig & AutoAddConfig.overwriteOldestBit != 0
   }
 
-  /// Whether the device supports auto-add configuration (v1.12+)
-  /// Devices with older firmware only support manualAddContacts toggle
+  private static let autoAddConfigMinimumFirmwareVersion: UInt8 = 9
+  private static let autoAddMaxHopsMinimumFirmwareVersion: UInt8 = 10
+
+  /// Whether the device supports auto-add configuration beyond the manualAddContacts toggle.
+  /// Code 8 covers 1.10 through 1.12, so a 1.12 version string still counts before code 9.
   public var supportsAutoAddConfig: Bool {
-    firmwareVersionString.isAtLeast(major: 1, minor: 12)
+    firmwareVersion >= Self.autoAddConfigMinimumFirmwareVersion
+      || firmwareVersionString.isAtLeast(major: 1, minor: 12)
   }
 
-  /// Whether the device supports auto-add max hops (v1.14+)
+  /// Whether the device supports auto-add max hops (code 10 or version 1.14).
   public var supportsAutoAddMaxHops: Bool {
-    firmwareVersionString.isAtLeast(major: 1, minor: 14)
+    firmwareVersion >= Self.autoAddMaxHopsMinimumFirmwareVersion
+      || firmwareVersionString.isAtLeast(major: 1, minor: 14)
   }
 
   /// Whether the trace command honors a per-trace hash size in its flags byte,
