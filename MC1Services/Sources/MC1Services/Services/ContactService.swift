@@ -79,8 +79,8 @@ public actor ContactService {
   /// Injected by `ServiceContainer` at construction.
   private let cleanupCoordinator: (any ContactCleanupHandling)?
 
-  /// One gate for contact sync and an explicit favourite command. Both run on the caller's task.
-  /// The blocked-contact lookup stays inside sync, because acquiring again waits for a release that cannot run.
+  /// One gate for contact sync and commands that read or write a radio contact.
+  /// A cancelled waiter leaves without a command. Firmware can still change a contact between the fresh read and the update.
   private let contactOperationSerializer = RequestResponseSerializer()
 
   /// Multicast broadcaster for sync progress and node-deletion events.
@@ -295,6 +295,20 @@ public actor ContactService {
     contact: ContactFrame,
     radioIDAtInsert: (@MainActor () -> UUID?)? = nil
   ) async throws {
+    try await withContactOperation {
+      try await addOrUpdateContactOwned(
+        radioID: radioID,
+        contact: contact,
+        radioIDAtInsert: radioIDAtInsert
+      )
+    }
+  }
+
+  private func addOrUpdateContactOwned(
+    radioID: UUID,
+    contact: ContactFrame,
+    radioIDAtInsert: (@MainActor () -> UUID?)?
+  ) async throws {
     do {
       let meshContact = contact.toMeshContact()
       try await session.addContact(meshContact)
@@ -334,6 +348,20 @@ public actor ContactService {
   }
 
   func removeContact(radioID: UUID, publicKey: Data, deferDeletionUpdates: Bool) async throws -> UUID? {
+    try await withContactOperation {
+      try await removeContactOwned(
+        radioID: radioID,
+        publicKey: publicKey,
+        deferDeletionUpdates: deferDeletionUpdates
+      )
+    }
+  }
+
+  private func removeContactOwned(
+    radioID: UUID,
+    publicKey: Data,
+    deferDeletionUpdates: Bool
+  ) async throws -> UUID? {
     if await isProtectedVContact(radioID: radioID, publicKey: publicKey) {
       logger.info("removeContact ignored for ZephCore V-contact (remove disabled)")
       return nil
@@ -375,6 +403,20 @@ public actor ContactService {
   }
 
   func removeLocalContact(contactID: UUID, publicKey: Data, deferDeletionUpdates: Bool) async throws -> UUID? {
+    try await withContactOperation {
+      try await removeLocalContactOwned(
+        contactID: contactID,
+        publicKey: publicKey,
+        deferDeletionUpdates: deferDeletionUpdates
+      )
+    }
+  }
+
+  private func removeLocalContactOwned(
+    contactID: UUID,
+    publicKey: Data,
+    deferDeletionUpdates: Bool
+  ) async throws -> UUID? {
     if let contact = try? await dataStore.fetchContact(id: contactID),
        await isProtectedVContact(radioID: contact.radioID, publicKey: publicKey) {
       logger.info("removeLocalContact ignored for ZephCore V-contact (remove disabled)")
@@ -430,20 +472,26 @@ public actor ContactService {
   ///   - radioID: The device ID
   ///   - publicKey: The contact's 32-byte public key
   public func resetPath(radioID: UUID, publicKey: Data) async throws {
+    try await withContactOperation {
+      try await resetPathOwned(radioID: radioID, publicKey: publicKey)
+    }
+  }
+
+  private func resetPathOwned(radioID: UUID, publicKey: Data) async throws {
     do {
       try await session.resetPath(publicKey: publicKey)
-
-      // Update local contact to show flood routing
-      if let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) {
-        let frame = contact.floodedContactFrame(asOf: UInt32(Date().timeIntervalSince1970))
-        _ = try await dataStore.saveContact(radioID: radioID, from: frame)
-      }
     } catch let error as MeshCoreError {
       if case let .deviceError(code) = error, code == ProtocolError.notFound.rawValue {
         throw ContactServiceError.contactNotFound
       }
       throw ContactServiceError.sessionError(error)
     }
+    _ = try await dataStore.updateContactRoute(
+      radioID: radioID,
+      publicKey: publicKey,
+      outPathLength: PacketBuilder.floodPathSentinel,
+      outPath: Data()
+    )
   }
 
   // MARK: - Path Discovery
@@ -473,28 +521,64 @@ public actor ContactService {
   ///   - path: The path data (repeater hashes)
   ///   - pathLength: Encoded path length byte (0xFF for flood, 0 for direct, >0 for routed)
   public func setPath(radioID: UUID, publicKey: Data, path: Data, pathLength: UInt8) async throws {
-    // Get current contact to preserve other fields
-    guard let existingContact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) else {
+    try await withContactOperation {
+      try await setPathOwned(radioID: radioID, publicKey: publicKey, path: path, pathLength: pathLength)
+    }
+  }
+
+  /// Writes the caller's path onto the current radio contact and mirrors only that path locally.
+  private func setPathOwned(
+    radioID: UUID,
+    publicKey: Data,
+    path: Data,
+    pathLength: UInt8
+  ) async throws {
+    guard try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) != nil else {
       throw ContactServiceError.contactNotFound
     }
+    let radio: MeshContact
+    do {
+      guard let fetched = try await session.getContact(publicKey: publicKey) else {
+        throw ContactServiceError.contactNotFound
+      }
+      radio = fetched
+    } catch let error as ContactServiceError {
+      throw error
+    } catch let error as MeshCoreError {
+      throw ContactServiceError.sessionError(error)
+    }
 
-    // `type` alone coerces an unmodeled byte to chat. Length 0 stays direct.
-    let updatedFrame = ContactFrame(
-      publicKey: existingContact.publicKey,
-      type: existingContact.type,
-      typeRawValue: existingContact.typeRawValue,
-      flags: existingContact.flags,
+    let updated = MeshContact(
+      id: radio.id,
+      publicKey: radio.publicKey,
+      type: radio.type,
+      typeRawValue: radio.typeRawValue,
+      flags: radio.flags,
       outPathLength: pathLength,
       outPath: path,
-      name: existingContact.name,
-      lastAdvertTimestamp: existingContact.lastAdvertTimestamp,
-      latitude: existingContact.latitude,
-      longitude: existingContact.longitude,
-      lastModified: UInt32(Date().timeIntervalSince1970)
+      advertisedName: radio.advertisedName,
+      lastAdvertisement: radio.lastAdvertisement,
+      latitude: radio.latitude,
+      longitude: radio.longitude,
+      lastModified: radio.lastModified
     )
-
-    // Send update to device
-    try await addOrUpdateContact(radioID: radioID, contact: updatedFrame)
+    do {
+      try await session.addContact(updated)
+    } catch let error as MeshCoreError {
+      if case let .deviceError(code) = error, code == ProtocolError.tableFull.rawValue {
+        throw ContactServiceError.contactTableFull
+      }
+      throw ContactServiceError.sessionError(error)
+    }
+    guard try await dataStore.updateContactRoute(
+      radioID: radioID,
+      publicKey: publicKey,
+      outPathLength: pathLength,
+      outPath: path
+    ) != nil else {
+      throw ContactServiceError.contactNotFound
+    }
+    await syncCoordinator?.notifyContactsChanged()
   }
 
   // MARK: - Share Contact
@@ -559,10 +643,12 @@ public actor ContactService {
   /// Import a contact from card data
   /// - Parameter cardData: The contact card data
   public func importContact(cardData: Data) async throws {
-    do {
-      try await session.importContact(cardData: cardData)
-    } catch let error as MeshCoreError {
-      throw ContactServiceError.sessionError(error)
+    try await withContactOperation {
+      do {
+        try await session.importContact(cardData: cardData)
+      } catch let error as MeshCoreError {
+        throw ContactServiceError.sessionError(error)
+      }
     }
   }
 
@@ -592,85 +678,68 @@ public actor ContactService {
     isBlocked: Bool? = nil,
     isFavorite: Bool? = nil
   ) async throws {
+    try await withContactOperation {
+      try await updateContactPreferencesOwned(
+        contactID: contactID,
+        nickname: nickname,
+        isBlocked: isBlocked,
+        isFavorite: isFavorite
+      )
+    }
+  }
+
+  private func updateContactPreferencesOwned(
+    contactID: UUID,
+    nickname: String?,
+    isBlocked: Bool?,
+    isFavorite: Bool?
+  ) async throws {
     guard let existing = try await dataStore.fetchContact(id: contactID) else {
       throw ContactServiceError.contactNotFound
     }
 
-    // nil => leave unchanged; empty/whitespace => clear; otherwise trim and set.
-    let resolvedNickname: String?
+    let nicknameUpdate: ContactNicknameUpdate
     if let nickname {
       let trimmed = nickname.trimmingCharacters(in: .whitespacesAndNewlines)
-      resolvedNickname = trimmed.isEmpty ? nil : trimmed
+      nicknameUpdate = trimmed.isEmpty ? .clear : .set(trimmed)
     } else {
-      resolvedNickname = existing.nickname
+      nicknameUpdate = .unchanged
     }
 
-    // Check blocking state transitions
-    let isBeingBlocked = isBlocked == true && !existing.isBlocked
-    let isBeingUnblocked = isBlocked == false && existing.isBlocked
+    let becomingBlocked = isBlocked == true && !existing.isBlocked
+    if becomingBlocked {
+      try await revokeRemoteCLIIfRadioAllows(publicKey: existing.publicKey)
+    }
 
-    var flags = existing.flags
-    // Blocking also revokes remote CLI so a blocked peer cannot send `cliCommand`.
-    if isBeingBlocked, ContactFlags(rawValue: flags).contains(.remoteCLIAllowed) {
-      flags = flags & ~ContactFlags.remoteCLIAllowed.rawValue
-      let meshContact = MeshContact(
-        id: existing.publicKey.uppercaseHexString(),
-        publicKey: existing.publicKey,
-        type: ContactType(rawValue: existing.typeRawValue) ?? .chat,
-        flags: ContactFlags(rawValue: existing.flags),
-        outPathLength: existing.outPathLength,
-        outPath: existing.outPath,
-        advertisedName: existing.name,
-        lastAdvertisement: Date(timeIntervalSince1970: TimeInterval(existing.lastAdvertTimestamp)),
-        latitude: existing.latitude,
-        longitude: existing.longitude,
-        lastModified: Date(timeIntervalSince1970: TimeInterval(existing.lastModified))
+    let commit: ContactPreferenceCommit
+    do {
+      commit = try await dataStore.updateContactLocalPreferences(
+        contactID: contactID,
+        nickname: nicknameUpdate,
+        isBlocked: isBlocked,
+        isFavorite: isFavorite,
+        clearRemoteCLI: becomingBlocked
       )
-      do {
-        try await session.changeContactFlags(meshContact, flags: ContactFlags(rawValue: flags))
-      } catch let error as MeshCoreError {
-        throw ContactServiceError.sessionError(error)
-      }
+    } catch let error as PersistenceStoreError {
+      throw mapStoreError(error)
     }
 
-    // Create updated DTO preserving existing values
-    let updated = ContactDTO(
-      from: Contact(
-        id: existing.id,
-        radioID: existing.radioID,
-        publicKey: existing.publicKey,
-        name: existing.name,
-        typeRawValue: existing.typeRawValue,
-        flags: flags,
-        outPathLength: existing.outPathLength,
-        outPath: existing.outPath,
-        lastAdvertTimestamp: existing.lastAdvertTimestamp,
-        latitude: existing.latitude,
-        longitude: existing.longitude,
-        lastModified: existing.lastModified,
-        lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
-        nickname: resolvedNickname,
-        isBlocked: isBlocked ?? existing.isBlocked,
-        isMuted: existing.isMuted,
-        isFavorite: isFavorite ?? existing.isFavorite,
-        lastMessageDate: existing.lastMessageDate,
-        unreadCount: isBeingBlocked ? 0 : existing.unreadCount,
-        unreadMentionCount: existing.unreadMentionCount,
-        ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString,
-        avatarImageData: existing.avatarImageData
+    switch commit.blockTransition {
+    case .blocked:
+      await cleanupCoordinator?.handleCleanup(
+        contactID: contactID,
+        reason: .blocked,
+        publicKey: commit.contact.publicKey
       )
-    )
-
-    try await dataStore.saveContact(updated)
-
-    // Trigger cleanup for blocking state changes
-    if isBeingBlocked {
-      await cleanupCoordinator?.handleCleanup(contactID: contactID, reason: .blocked, publicKey: existing.publicKey)
-    } else if isBeingUnblocked {
-      await cleanupCoordinator?.handleCleanup(contactID: contactID, reason: .unblocked, publicKey: existing.publicKey)
+    case .unblocked:
+      await cleanupCoordinator?.handleCleanup(
+        contactID: contactID,
+        reason: .unblocked,
+        publicKey: commit.contact.publicKey
+      )
+    case .none:
+      break
     }
-
     await syncCoordinator?.notifyContactsChanged()
   }
 
@@ -684,39 +753,15 @@ public actor ContactService {
     preset: String,
     customArray: String?
   ) async throws {
-    guard let existing = try await dataStore.fetchContact(id: contactID) else {
-      throw ContactServiceError.contactNotFound
-    }
-
-    let updated = ContactDTO(
-      from: Contact(
-        id: existing.id,
-        radioID: existing.radioID,
-        publicKey: existing.publicKey,
-        name: existing.name,
-        typeRawValue: existing.typeRawValue,
-        flags: existing.flags,
-        outPathLength: existing.outPathLength,
-        outPath: existing.outPath,
-        lastAdvertTimestamp: existing.lastAdvertTimestamp,
-        latitude: existing.latitude,
-        longitude: existing.longitude,
-        lastModified: existing.lastModified,
-        lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
-        nickname: existing.nickname,
-        isBlocked: existing.isBlocked,
-        isMuted: existing.isMuted,
-        isFavorite: existing.isFavorite,
-        lastMessageDate: existing.lastMessageDate,
-        unreadCount: existing.unreadCount,
-        unreadMentionCount: existing.unreadMentionCount,
-        ocvPreset: preset,
-        customOCVArrayString: customArray,
-        avatarImageData: existing.avatarImageData
+    do {
+      _ = try await dataStore.updateContactOCVSettings(
+        contactID: contactID,
+        preset: preset,
+        customArray: customArray
       )
-    )
-
-    try await dataStore.saveContact(updated)
+    } catch let error as PersistenceStoreError {
+      throw mapStoreError(error)
+    }
   }
 
   /// Updates a contact's locally stored profile picture.
@@ -724,11 +769,11 @@ public actor ContactService {
   ///   - contactID: The contact's ID
   ///   - imageData: Compressed JPEG data for the new avatar, or `nil` to remove it
   public func updateContactAvatar(contactID: UUID, imageData: Data?) async throws {
-    guard let existing = try await dataStore.fetchContact(id: contactID) else {
-      throw ContactServiceError.contactNotFound
+    do {
+      _ = try await dataStore.updateContactAvatar(contactID: contactID, imageData: imageData)
+    } catch let error as PersistenceStoreError {
+      throw mapStoreError(error)
     }
-
-    try await dataStore.saveContact(existing.with(avatarImageData: imageData))
     await syncCoordinator?.notifyContactsChanged()
   }
 
@@ -749,74 +794,31 @@ public actor ContactService {
       guard let existing = try await dataStore.fetchContact(id: contactID) else {
         throw ContactServiceError.contactNotFound
       }
-
-      // Calculate new flags: set or clear bit 0
-      let newFlags: UInt8 = isFavorite
-        ? existing.flags | ContactFlags.favorite.rawValue
-        : existing.flags & ~ContactFlags.favorite.rawValue
-
-      // Build MeshContact for device update
-      let meshContact = MeshContact(
-        id: existing.publicKey.uppercaseHexString(),
+      try await writeOwnedRadioFlags(
         publicKey: existing.publicKey,
-        type: ContactType(rawValue: existing.typeRawValue) ?? .chat,
-        flags: ContactFlags(rawValue: existing.flags),
-        outPathLength: existing.outPathLength,
-        outPath: existing.outPath,
-        advertisedName: existing.name,
-        lastAdvertisement: Date(timeIntervalSince1970: TimeInterval(existing.lastAdvertTimestamp)),
-        latitude: existing.latitude,
-        longitude: existing.longitude,
-        lastModified: Date(timeIntervalSince1970: TimeInterval(existing.lastModified))
+        mask: ContactFlags.favorite.rawValue,
+        granted: isFavorite
       )
-
-      // Push to device and wait for confirmation
       do {
-        try await session.changeContactFlags(meshContact, flags: ContactFlags(rawValue: newFlags))
         guard let confirmed = try await session.getContact(publicKey: existing.publicKey) else {
           throw ContactServiceError.contactNotFound
         }
         guard confirmed.flags.contains(.favorite) == isFavorite else {
           throw ContactServiceError.invalidResponse
         }
+      } catch let error as ContactServiceError {
+        throw error
       } catch let error as MeshCoreError {
         throw ContactServiceError.sessionError(error)
       }
 
-      // Device confirmed - update local storage
-      let updated = ContactDTO(
-        from: Contact(
-          id: existing.id,
-          radioID: existing.radioID,
-          publicKey: existing.publicKey,
-          name: existing.name,
-          typeRawValue: existing.typeRawValue,
-          flags: newFlags,
-          outPathLength: existing.outPathLength,
-          outPath: existing.outPath,
-          lastAdvertTimestamp: existing.lastAdvertTimestamp,
-          latitude: existing.latitude,
-          longitude: existing.longitude,
-          lastModified: existing.lastModified,
-          lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
-          nickname: existing.nickname,
-          isBlocked: existing.isBlocked,
-          isMuted: existing.isMuted,
-          isFavorite: isFavorite,
-          lastMessageDate: existing.lastMessageDate,
-          unreadCount: existing.unreadCount,
-          unreadMentionCount: existing.unreadMentionCount,
-          ocvPreset: existing.ocvPreset,
-          customOCVArrayString: existing.customOCVArrayString,
-          avatarImageData: existing.avatarImageData
-        )
-      )
-
-      try await dataStore.saveContact(updated)
-      await syncCoordinator?.notifyContactsChanged()
-      guard let saved = try await dataStore.fetchContact(id: contactID) else {
-        throw ContactServiceError.contactNotFound
+      let saved: ContactDTO
+      do {
+        saved = try await dataStore.updateContactFavorite(contactID: contactID, isFavorite: isFavorite)
+      } catch let error as PersistenceStoreError {
+        throw mapStoreError(error)
       }
+      await syncCoordinator?.notifyContactsChanged()
       return saved
     }
   }
@@ -844,6 +846,57 @@ public actor ContactService {
     }
   #endif
 
+  /// Applies `mask` on the radio's current flags and writes that contact back.
+  /// Carried-forward fields come from the radio record, including its raw type and path.
+  private func writeOwnedRadioFlags(publicKey: Data, mask: UInt8, granted: Bool) async throws {
+    let radio: MeshContact
+    do {
+      guard let fetched = try await session.getContact(publicKey: publicKey) else {
+        throw ContactServiceError.contactNotFound
+      }
+      radio = fetched
+    } catch let error as ContactServiceError {
+      throw error
+    } catch let error as MeshCoreError {
+      throw ContactServiceError.sessionError(error)
+    }
+    let newFlags: UInt8 = granted
+      ? radio.flags.rawValue | mask
+      : radio.flags.rawValue & ~mask
+    do {
+      try await session.changeContactFlags(radio, flags: ContactFlags(rawValue: newFlags))
+    } catch let error as MeshCoreError {
+      throw ContactServiceError.sessionError(error)
+    }
+  }
+
+  /// Clears remote CLI on the radio when the live record allows it.
+  /// A missing radio contact is not recreated; the local block can still proceed.
+  private func revokeRemoteCLIIfRadioAllows(publicKey: Data) async throws {
+    let radio: MeshContact?
+    do {
+      radio = try await session.getContact(publicKey: publicKey)
+    } catch let error as MeshCoreError {
+      throw ContactServiceError.sessionError(error)
+    }
+    guard let radio, radio.flags.contains(.remoteCLIAllowed) else { return }
+    let cleared = radio.flags.rawValue & ~ContactFlags.remoteCLIAllowed.rawValue
+    do {
+      try await session.changeContactFlags(radio, flags: ContactFlags(rawValue: cleared))
+    } catch let error as MeshCoreError {
+      throw ContactServiceError.sessionError(error)
+    }
+  }
+
+  private func mapStoreError(_ error: PersistenceStoreError) -> Error {
+    switch error {
+    case .contactNotFound:
+      ContactServiceError.contactNotFound
+    default:
+      error
+    }
+  }
+
   // MARK: - Telemetry Permissions
 
   /// Whether a contact has telemetry permission flags set (bits 1-3).
@@ -860,67 +913,21 @@ public actor ContactService {
   ///   - granted: Whether to grant telemetry permissions.
   /// - Throws: `ContactServiceError` if the device update fails.
   public func setTelemetryPermissions(_ contactID: UUID, granted: Bool) async throws {
-    guard let existing = try await dataStore.fetchContact(id: contactID) else {
-      throw ContactServiceError.contactNotFound
-    }
-
-    // Set or clear bits 1-3, preserving bit 0 (favourite)
-    let newFlags: UInt8 = granted
-      ? existing.flags | 0x0E
-      : existing.flags & ~0x0E
-
-    // Build MeshContact for device update
-    let meshContact = MeshContact(
-      id: existing.publicKey.uppercaseHexString(),
-      publicKey: existing.publicKey,
-      type: ContactType(rawValue: existing.typeRawValue) ?? .chat,
-      flags: ContactFlags(rawValue: existing.flags),
-      outPathLength: existing.outPathLength,
-      outPath: existing.outPath,
-      advertisedName: existing.name,
-      lastAdvertisement: Date(timeIntervalSince1970: TimeInterval(existing.lastAdvertTimestamp)),
-      latitude: existing.latitude,
-      longitude: existing.longitude,
-      lastModified: Date(timeIntervalSince1970: TimeInterval(existing.lastModified))
-    )
-
-    // Push to device and wait for confirmation
-    do {
-      try await session.changeContactFlags(meshContact, flags: ContactFlags(rawValue: newFlags))
-    } catch let error as MeshCoreError {
-      throw ContactServiceError.sessionError(error)
-    }
-
-    // Device confirmed - update local storage
-    let updated = ContactDTO(
-      from: Contact(
-        id: existing.id,
-        radioID: existing.radioID,
+    try await withContactOperation {
+      guard let existing = try await dataStore.fetchContact(id: contactID) else {
+        throw ContactServiceError.contactNotFound
+      }
+      try await writeOwnedRadioFlags(
         publicKey: existing.publicKey,
-        name: existing.name,
-        typeRawValue: existing.typeRawValue,
-        flags: newFlags,
-        outPathLength: existing.outPathLength,
-        outPath: existing.outPath,
-        lastAdvertTimestamp: existing.lastAdvertTimestamp,
-        latitude: existing.latitude,
-        longitude: existing.longitude,
-        lastModified: existing.lastModified,
-        lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
-        nickname: existing.nickname,
-        isBlocked: existing.isBlocked,
-        isMuted: existing.isMuted,
-        isFavorite: existing.isFavorite,
-        lastMessageDate: existing.lastMessageDate,
-        unreadCount: existing.unreadCount,
-        unreadMentionCount: existing.unreadMentionCount,
-        ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString,
-        avatarImageData: existing.avatarImageData
+        mask: ContactFlags.telemetryAll.rawValue,
+        granted: granted
       )
-    )
-
-    try await dataStore.saveContact(updated)
+      do {
+        _ = try await dataStore.updateContactTelemetryPermissions(contactID: contactID, granted: granted)
+      } catch let error as PersistenceStoreError {
+        throw mapStoreError(error)
+      }
+    }
   }
 
   // MARK: - Remote CLI Permission
@@ -932,64 +939,21 @@ public actor ContactService {
 
   /// Grants or revokes remote CLI on a contact. Other flag bits are preserved.
   public func setRemoteCLIAllowed(_ contactID: UUID, granted: Bool) async throws {
-    guard let existing = try await dataStore.fetchContact(id: contactID) else {
-      throw ContactServiceError.contactNotFound
-    }
-
-    let newFlags: UInt8 = granted
-      ? existing.flags | ContactFlags.remoteCLIAllowed.rawValue
-      : existing.flags & ~ContactFlags.remoteCLIAllowed.rawValue
-
-    let meshContact = MeshContact(
-      id: existing.publicKey.uppercaseHexString(),
-      publicKey: existing.publicKey,
-      type: ContactType(rawValue: existing.typeRawValue) ?? .chat,
-      flags: ContactFlags(rawValue: existing.flags),
-      outPathLength: existing.outPathLength,
-      outPath: existing.outPath,
-      advertisedName: existing.name,
-      lastAdvertisement: Date(timeIntervalSince1970: TimeInterval(existing.lastAdvertTimestamp)),
-      latitude: existing.latitude,
-      longitude: existing.longitude,
-      lastModified: Date(timeIntervalSince1970: TimeInterval(existing.lastModified))
-    )
-
-    do {
-      try await session.changeContactFlags(meshContact, flags: ContactFlags(rawValue: newFlags))
-    } catch let error as MeshCoreError {
-      throw ContactServiceError.sessionError(error)
-    }
-
-    let updated = ContactDTO(
-      from: Contact(
-        id: existing.id,
-        radioID: existing.radioID,
+    try await withContactOperation {
+      guard let existing = try await dataStore.fetchContact(id: contactID) else {
+        throw ContactServiceError.contactNotFound
+      }
+      try await writeOwnedRadioFlags(
         publicKey: existing.publicKey,
-        name: existing.name,
-        typeRawValue: existing.typeRawValue,
-        flags: newFlags,
-        outPathLength: existing.outPathLength,
-        outPath: existing.outPath,
-        lastAdvertTimestamp: existing.lastAdvertTimestamp,
-        latitude: existing.latitude,
-        longitude: existing.longitude,
-        lastModified: existing.lastModified,
-        lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
-        nickname: existing.nickname,
-        isBlocked: existing.isBlocked,
-        isMuted: existing.isMuted,
-        isFavorite: existing.isFavorite,
-        isPinned: existing.isPinned,
-        lastMessageDate: existing.lastMessageDate,
-        unreadCount: existing.unreadCount,
-        unreadMentionCount: existing.unreadMentionCount,
-        ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString,
-        avatarImageData: existing.avatarImageData
+        mask: ContactFlags.remoteCLIAllowed.rawValue,
+        granted: granted
       )
-    )
-
-    try await dataStore.saveContact(updated)
+      do {
+        _ = try await dataStore.updateContactRemoteCLIPermission(contactID: contactID, granted: granted)
+      } catch let error as PersistenceStoreError {
+        throw mapStoreError(error)
+      }
+    }
   }
 
   // MARK: - Favorites Migration
@@ -1048,6 +1012,107 @@ public actor ContactService {
 
     return migratedCount
   }
+
+  /// Pushes a local contact onto a radio that does not have it, using flood routing.
+  /// An existing radio contact is left alone so a stale local frame cannot replace it.
+  public func healAbsentRadioContact(radioID: UUID, publicKey: Data) async throws -> Bool {
+    try await withContactOperation {
+      let alreadyPresent: Bool
+      do {
+        alreadyPresent = try await session.getContact(publicKey: publicKey) != nil
+      } catch let error as MeshCoreError {
+        throw ContactServiceError.sessionError(error)
+      }
+      if alreadyPresent { return false }
+
+      guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) else {
+        throw ContactServiceError.contactNotFound
+      }
+      let frame = contact.floodedContactFrame(asOf: UInt32(Date().timeIntervalSince1970))
+      do {
+        try await session.addContact(frame.toMeshContact())
+      } catch let error as MeshCoreError {
+        if case let .deviceError(code) = error, code == ProtocolError.tableFull.rawValue {
+          throw ContactServiceError.contactTableFull
+        }
+        throw ContactServiceError.sessionError(error)
+      }
+      _ = try await dataStore.updateContactRoute(
+        radioID: radioID,
+        publicKey: publicKey,
+        outPathLength: PacketBuilder.floodPathSentinel,
+        outPath: Data()
+      )
+      return true
+    }
+  }
+
+  /// Explicit contact import. The supplied record replaces the radio contact and the
+  /// local radio fields. A local save failure does not hide a successful radio write.
+  public func importRadioContact(radioID: UUID, contact: MeshContact) async throws {
+    try await withContactOperation {
+      do {
+        try await session.addContact(contact)
+      } catch let error as MeshCoreError {
+        if case let .deviceError(code) = error, code == ProtocolError.tableFull.rawValue {
+          throw ContactServiceError.contactTableFull
+        }
+        throw ContactServiceError.sessionError(error)
+      }
+      do {
+        _ = try await dataStore.saveContact(radioID: radioID, from: contact.toContactFrame())
+      } catch {
+        logger.error(
+          "Contact added to device but local save failed; next sync will reconcile: \(error.localizedDescription)"
+        )
+      }
+    }
+  }
+
+  /// Reads the radio contact and stores only its out path on the existing local row.
+  public func mirrorObservedRoute(radioID: UUID, publicKey: Data) async throws -> UInt8? {
+    try await withContactOperation {
+      let radio: MeshContact?
+      do {
+        radio = try await session.getContact(publicKey: publicKey)
+      } catch let error as MeshCoreError {
+        throw ContactServiceError.sessionError(error)
+      }
+      guard let radio else { return nil }
+      _ = try await dataStore.updateContactRoute(
+        radioID: radioID,
+        publicKey: publicKey,
+        outPathLength: radio.outPathLength,
+        outPath: radio.outPath
+      )
+      return radio.outPathLength
+    }
+  }
+
+  /// One region target: fresh radio contact when one exists, otherwise the anonymous
+  /// target. A local row whose radio contact is gone is not written back.
+  func ownedRegionQuery(
+    target: MeshContact,
+    radioID: UUID,
+    query: @Sendable (MeshContact) async throws -> [String]
+  ) async throws -> [String] {
+    try await withContactOperation {
+      let radio: MeshContact?
+      do {
+        radio = try await session.getContact(publicKey: target.publicKey)
+      } catch let error as MeshCoreError {
+        throw ContactServiceError.sessionError(error)
+      }
+      if let radio {
+        return try await query(radio)
+      }
+      let hasLocal = try await dataStore.fetchContact(radioID: radioID, publicKey: target.publicKey) != nil
+      if hasLocal {
+        throw ContactServiceError.contactNotFound
+      }
+      return try await query(target)
+    }
+  }
 }
 
 // MARK: - ContactServiceProtocol Conformance
@@ -1055,6 +1120,8 @@ public actor ContactService {
 extension ContactService: ContactServiceProtocol {
   // Already implements syncContacts(radioID:since:) -> ContactSyncResult
 }
+
+extension ContactService: ContactRadioOwning {}
 
 // MARK: - MeshContact Extensions
 

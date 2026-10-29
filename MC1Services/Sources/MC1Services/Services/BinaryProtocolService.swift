@@ -32,7 +32,8 @@ public actor BinaryProtocolService {
   // MARK: - Properties
 
   private let session: any DiagnosticsSessionOps & SessionEventStreaming & ContactSessionOps
-  private let dataStore: any PersistenceStoreProtocol
+  private let radioID: UUID
+  private let contactRadio: any ContactRadioOwning
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "BinaryProtocol")
 
   /// Handler for status responses (from push notifications)
@@ -51,10 +52,12 @@ public actor BinaryProtocolService {
 
   public init(
     session: any DiagnosticsSessionOps & SessionEventStreaming & ContactSessionOps,
-    dataStore: any PersistenceStoreProtocol
+    radioID: UUID,
+    contactRadio: any ContactRadioOwning
   ) {
     self.session = session
-    self.dataStore = dataStore
+    self.radioID = radioID
+    self.contactRadio = contactRadio
   }
 
   deinit {
@@ -242,7 +245,7 @@ public actor BinaryProtocolService {
       )
       let firstTimeout = error
       do {
-        try await session.resetPath(publicKey: publicKey)
+        try await contactRadio.resetPath(radioID: radioID, publicKey: publicKey)
       } catch is CancellationError {
         throw CancellationError()
       } catch {

@@ -244,10 +244,12 @@ public final class ServiceContainer {
       dataStore: dataStore,
       heardRepeatsService: heardRepeatsService
     )
+    let contactRadioOwner = ContactRadioOwner()
     remoteNodeService = RemoteNodeService(
       session: session,
       dataStore: dataStore,
-      keychainService: keychainService
+      keychainService: keychainService,
+      contactRadioOwner: contactRadioOwner
     )
     let cleanupCoordinator = ContactCleanupCoordinator(
       dataStore: dataStore,
@@ -262,6 +264,7 @@ public final class ServiceContainer {
       syncCoordinator: syncCoordinator,
       cleanupCoordinator: cleanupCoordinator
     )
+    contactRadioOwner.bind(contactService)
     messageService = MessageService(
       session: session,
       dataStore: dataStore,
@@ -281,7 +284,11 @@ public final class ServiceContainer {
       appStateProvider: appStateProvider
     )
     messagePollingService = MessagePollingService(session: session, dataStore: dataStore)
-    binaryProtocolService = BinaryProtocolService(session: session, dataStore: dataStore)
+    binaryProtocolService = BinaryProtocolService(
+      session: session,
+      radioID: radioID,
+      contactRadio: contactService
+    )
     debugLogBuffer = DebugLogBuffer(dataStore: dataStore)
     DebugLogBuffer.shared = debugLogBuffer
     reactionService = ReactionService()
@@ -290,7 +297,8 @@ public final class ServiceContainer {
       settingsService: settingsService,
       channelService: channelService,
       dataStore: dataStore,
-      syncCoordinator: syncCoordinator
+      syncCoordinator: syncCoordinator,
+      contactRadio: contactService
     )
     nodeSnapshotService = NodeSnapshotService(dataStore: dataStore)
 

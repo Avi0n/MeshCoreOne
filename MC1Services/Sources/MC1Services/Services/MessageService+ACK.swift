@@ -75,7 +75,17 @@ public extension MessageService {
         now.timeIntervalSince(tracking.sentAt) > max(window, tracking.timeout)
     }
 
-    for (messageID, _) in expiredEntries {
+    for (messageID, snapshot) in expiredEntries {
+      #if DEBUG
+        if let gate = ackExpiryWriteGateForTesting {
+          await gate(messageID)
+        }
+      #endif
+      guard let current = pendingAcks[messageID],
+            !current.isDelivered,
+            current.sentAt == snapshot.sentAt,
+            now.timeIntervalSince(current.sentAt) > max(window, current.timeout) else { continue }
+
       let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
       guard let removed = pendingAcks.removeValue(forKey: messageID),
             !removed.isDelivered, didFail else { continue }

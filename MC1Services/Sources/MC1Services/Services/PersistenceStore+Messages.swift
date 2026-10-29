@@ -813,6 +813,84 @@ public extension PersistenceStore {
     return message.heardRepeats
   }
 
+  func admitIncomingPath(
+    messageID: UUID,
+    pathNodes: Data,
+    pathLength: UInt8,
+    snr: Double?,
+    rssi: Int?,
+    receivedAt: Date,
+    rxLogEntryID: UUID?
+  ) throws -> IncomingPathAdmission {
+    guard let message = try fetchMessageModel(id: messageID) else { return .missingParent }
+    if message.pathNodes == nil {
+      message.pathNodes = pathNodes
+      message.pathLength = pathLength
+      try modelContext.save()
+      return .adoptedCanonical
+    }
+    if message.pathNodes == pathNodes {
+      return .unchanged
+    }
+    if let rxLogEntryID, try messageRepeatExists(rxLogEntryID: rxLogEntryID) {
+      return .unchanged
+    }
+    let existing = try fetchMessageRepeats(messageID: messageID)
+    if existing.contains(where: { $0.pathNodes == pathNodes }) {
+      return .unchanged
+    }
+    let repeatDTO = MessageRepeatDTO(
+      messageID: messageID,
+      receivedAt: receivedAt,
+      pathNodes: pathNodes,
+      pathLength: pathLength,
+      snr: snr,
+      rssi: rssi,
+      rxLogEntryID: rxLogEntryID
+    )
+    modelContext.insert(MessageRepeat(dto: repeatDTO, message: message))
+    message.heardRepeats += 1
+    try modelContext.save()
+    return .recordedExtra(message.heardRepeats)
+  }
+
+  func admitSentEcho(
+    messageID: UUID,
+    receivedAt: Date,
+    pathNodes: Data,
+    pathLength: UInt8,
+    snr: Double?,
+    rssi: Int?,
+    rxLogEntryID: UUID?
+  ) throws -> Int? {
+    guard let message = try fetchMessageModel(id: messageID) else {
+      throw PersistenceStoreError.messageNotFound
+    }
+    if let rxLogEntryID, try messageRepeatExists(rxLogEntryID: rxLogEntryID) {
+      return nil
+    }
+    let repeatDTO = MessageRepeatDTO(
+      messageID: messageID,
+      receivedAt: receivedAt,
+      pathNodes: pathNodes,
+      pathLength: pathLength,
+      snr: snr,
+      rssi: rssi,
+      rxLogEntryID: rxLogEntryID
+    )
+    modelContext.insert(MessageRepeat(dto: repeatDTO, message: message))
+    message.heardRepeats += 1
+    try modelContext.save()
+    return message.heardRepeats
+  }
+
+  private func fetchMessageModel(id: UUID) throws -> Message? {
+    let targetID = id
+    var descriptor = FetchDescriptor<Message>(predicate: #Predicate { $0.id == targetID })
+    descriptor.fetchLimit = 1
+    return try modelContext.fetch(descriptor).first
+  }
+
   /// Writes `pathNodes` and `pathLength` only when the column is still nil.
   func adoptIncomingPathIfUnknown(id: UUID, pathNodes: Data, pathLength: UInt8) throws -> Bool {
     let targetID = id
@@ -844,6 +922,30 @@ public extension PersistenceStore {
   }
 
   // MARK: - Reactions
+
+  func admitReaction(_ dto: ReactionDTO) throws -> ReactionAdmission? {
+    let messageID = dto.messageID
+    let messagePredicate = #Predicate<Message> { $0.id == messageID }
+    var messageDescriptor = FetchDescriptor(predicate: messagePredicate)
+    messageDescriptor.fetchLimit = 1
+    guard let message = try modelContext.fetch(messageDescriptor).first else { return nil }
+
+    let senderName = dto.senderName
+    let emoji = dto.emoji
+    let existsPredicate = #Predicate<Reaction> {
+      $0.messageID == messageID && $0.senderName == senderName && $0.emoji == emoji
+    }
+    let inserted = try modelContext.fetchCount(FetchDescriptor(predicate: existsPredicate)) == 0
+    if inserted {
+      modelContext.insert(Reaction(dto: dto))
+      try modelContext.save()
+    }
+    let reactions = try fetchReactions(for: messageID, limit: ReactionParser.summaryRowLimit)
+    let summary = ReactionParser.buildSummary(from: reactions)
+    message.reactionSummary = summary
+    try modelContext.save()
+    return ReactionAdmission(messageID: messageID, summary: summary, inserted: inserted)
+  }
 
   /// Saves a new reaction
   func saveReaction(_ dto: ReactionDTO) throws {

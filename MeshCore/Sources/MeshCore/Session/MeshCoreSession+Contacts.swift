@@ -340,6 +340,7 @@ public extension MeshCoreSession {
   func updateContact(
     publicKey: Data,
     type: ContactType,
+    typeRawValue: UInt8? = nil,
     flags: ContactFlags,
     outPathLength: UInt8,
     outPath: Data,
@@ -350,7 +351,7 @@ public extension MeshCoreSession {
   ) async throws {
     var data = Data([CommandCode.updateContact.rawValue])
     data.append(publicKey.prefix(PacketBuilder.publicKeySize))
-    data.append(type.rawValue)
+    data.append(typeRawValue ?? type.rawValue)
     data.append(flags.rawValue)
     data.append(outPathLength)
 
@@ -406,6 +407,7 @@ public extension MeshCoreSession {
     try await updateContact(
       publicKey: contact.publicKey,
       type: contact.type,
+      typeRawValue: contact.typeRawValue,
       flags: contact.flags,
       outPathLength: pathLength,
       outPath: path,
@@ -428,6 +430,7 @@ public extension MeshCoreSession {
     try await updateContact(
       publicKey: contact.publicKey,
       type: contact.type,
+      typeRawValue: contact.typeRawValue,
       flags: flags,
       outPathLength: contact.outPathLength,
       outPath: contact.outPath,

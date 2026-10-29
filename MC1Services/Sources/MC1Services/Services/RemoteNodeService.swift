@@ -19,6 +19,7 @@ public actor RemoteNodeService {
   let session: any RemoteAccessSessionOps & SessionEventStreaming & ContactSessionOps
   let dataStore: any PersistenceStoreProtocol
   let keychainService: KeychainService
+  let contactRadioOwner: ContactRadioOwner
   let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
   let auditLogger = CommandAuditLogger()
 
@@ -112,16 +113,27 @@ public actor RemoteNodeService {
     eventBroadcaster.finish()
   }
 
+  #if DEBUG
+    /// Pauses before the store reads or creates a session.
+    var roomReuseHoldForTesting: (@Sendable () async -> Void)?
+
+    func setRoomReuseHoldForTesting(_ hold: (@Sendable () async -> Void)?) {
+      roomReuseHoldForTesting = hold
+    }
+  #endif
+
   // MARK: - Initialization
 
   init(
     session: any RemoteAccessSessionOps & SessionEventStreaming & ContactSessionOps,
     dataStore: any PersistenceStoreProtocol,
-    keychainService: KeychainService
+    keychainService: KeychainService,
+    contactRadioOwner: ContactRadioOwner = ContactRadioOwner()
   ) {
     self.session = session
     self.dataStore = dataStore
     self.keychainService = keychainService
+    self.contactRadioOwner = contactRadioOwner
   }
 
   deinit {
@@ -264,37 +276,6 @@ public actor RemoteNodeService {
 
   // MARK: - Session Management
 
-  /// Create a session DTO for a contact, optionally preserving data from an existing session.
-  private func makeSessionDTO(
-    radioID: UUID,
-    contact: ContactDTO,
-    role: RemoteNodeRole,
-    preserving existing: RemoteNodeSessionDTO? = nil
-  ) -> RemoteNodeSessionDTO {
-    RemoteNodeSessionDTO(
-      id: existing?.id ?? UUID(),
-      radioID: radioID,
-      publicKey: contact.publicKey,
-      name: contact.displayName,
-      role: role,
-      latitude: contact.latitude,
-      longitude: contact.longitude,
-      isConnected: false,
-      permissionLevel: existing?.permissionLevel ?? .guest,
-      lastConnectedDate: existing?.lastConnectedDate,
-      lastBatteryMillivolts: existing?.lastBatteryMillivolts,
-      lastUptimeSeconds: existing?.lastUptimeSeconds,
-      lastNoiseFloor: existing?.lastNoiseFloor,
-      unreadCount: existing?.unreadCount ?? 0,
-      notificationLevel: existing?.notificationLevel ?? .all,
-      isPinned: existing?.isPinned ?? false,
-      lastRxAirtimeSeconds: existing?.lastRxAirtimeSeconds,
-      neighborCount: existing?.neighborCount ?? 0,
-      lastSyncTimestamp: existing?.lastSyncTimestamp ?? 0,
-      lastMessageDate: existing?.lastMessageDate
-    )
-  }
-
   /// Create a new session for a remote node.
   public func createSession(
     radioID: UUID,
@@ -309,28 +290,22 @@ public actor RemoteNodeService {
     }
 
     let pubKeyHex = contact.publicKey.prefix(6).map { String(format: "%02x", $0) }.joined()
-
-    let existing = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
-      .first { $0.publicKey == contact.publicKey }
-
-    if let existing {
-      logger.info("createSession: reusing existing session \(existing.id) for \(pubKeyHex), isConnected=\(existing.isConnected)")
-    } else {
-      logger.info("createSession: creating new session for \(pubKeyHex)")
-    }
-
-    let dto = makeSessionDTO(radioID: radioID, contact: contact, role: role, preserving: existing)
-
-    try await dataStore.saveRemoteNodeSessionDTO(dto)
-
-    try await dataStore.cleanupDuplicateRemoteNodeSessions(publicKey: contact.publicKey, keepID: dto.id)
-
-    guard let saved = try await dataStore.fetchRemoteNodeSession(id: dto.id) else {
-      logger.error("createSession: failed to fetch saved session for \(pubKeyHex)")
-      throw RemoteNodeError.sessionNotFound
-    }
-
-    logger.info("createSession: saved session \(saved.id) for \(pubKeyHex)")
+    #if DEBUG
+      if let hold = roomReuseHoldForTesting {
+        await hold()
+      }
+    #endif
+    let saved = try await dataStore.reuseOrCreateRemoteNodeSession(
+      RoomSessionPresentation(
+        radioID: radioID,
+        publicKey: contact.publicKey,
+        name: contact.displayName,
+        role: role,
+        latitude: contact.latitude,
+        longitude: contact.longitude
+      )
+    )
+    logger.info("createSession: saved session \(saved.id) for \(pubKeyHex), isConnected=\(saved.isConnected)")
     return saved
   }
 

@@ -747,6 +747,185 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     contacts[dto.id] = dto
   }
 
+  public func insertContactIfAbsent(
+    radioID: UUID,
+    from frame: ContactFrame
+  ) async throws -> (id: UUID, isNew: Bool) {
+    if let existing = contacts.values.first(where: { $0.radioID == radioID && $0.publicKey == frame.publicKey }) {
+      return (id: existing.id, isNew: false)
+    }
+    let contact = ContactDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: frame.publicKey,
+      name: frame.name,
+      typeRawValue: frame.typeRawValue,
+      flags: frame.flags,
+      outPathLength: frame.outPathLength,
+      outPath: frame.outPath,
+      lastAdvertTimestamp: frame.lastAdvertTimestamp,
+      latitude: frame.latitude,
+      longitude: frame.longitude,
+      lastModified: frame.lastModified,
+      lastHeardTimestamp: nil,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: (frame.flags & ContactFlags.favorite.rawValue) != 0,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    contacts[contact.id] = contact
+    return (id: contact.id, isNew: true)
+  }
+
+  public func updateContactLocalPreferences(
+    contactID: UUID,
+    nickname: ContactNicknameUpdate,
+    isBlocked: Bool?,
+    isFavorite: Bool?,
+    clearRemoteCLI: Bool
+  ) async throws -> ContactPreferenceCommit {
+    guard var contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    switch nickname {
+    case .unchanged:
+      break
+    case .clear:
+      contact = replacing(contact, nickname: .some(nil))
+    case let .set(value):
+      contact = replacing(contact, nickname: .some(value))
+    }
+    var blockTransition = ContactPreferenceCommit.BlockTransition.none
+    if let isBlocked {
+      if isBlocked, !contact.isBlocked {
+        blockTransition = .blocked
+        contact = replacing(contact, isBlocked: true, unreadCount: 0)
+      } else if !isBlocked, contact.isBlocked {
+        blockTransition = .unblocked
+        contact = replacing(contact, isBlocked: false)
+      } else {
+        contact = replacing(contact, isBlocked: isBlocked)
+      }
+    }
+    if let isFavorite {
+      contact = replacing(contact, isFavorite: isFavorite)
+    }
+    if clearRemoteCLI {
+      contact = replacing(
+        contact,
+        flags: contact.flags & ~ContactFlags.remoteCLIAllowed.rawValue
+      )
+    }
+    contacts[contactID] = contact
+    return ContactPreferenceCommit(contact: contact, blockTransition: blockTransition)
+  }
+
+  public func updateContactOCVSettings(
+    contactID: UUID,
+    preset: String,
+    customArray: String?
+  ) async throws -> ContactDTO {
+    guard let contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    let updated = replacing(contact, ocvPreset: preset, customOCVArrayString: .some(customArray))
+    contacts[contactID] = updated
+    return updated
+  }
+
+  public func updateContactAvatar(contactID: UUID, imageData: Data?) async throws -> ContactDTO {
+    guard let contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    let updated = replacing(contact, avatarImageData: .some(imageData))
+    contacts[contactID] = updated
+    return updated
+  }
+
+  public func updateContactFavorite(contactID: UUID, isFavorite: Bool) async throws -> ContactDTO {
+    if let error = stubbedSaveContactError {
+      throw error
+    }
+    guard let contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    let flags = isFavorite
+      ? contact.flags | ContactFlags.favorite.rawValue
+      : contact.flags & ~ContactFlags.favorite.rawValue
+    let updated = replacing(contact, flags: flags, isFavorite: isFavorite)
+    contacts[contactID] = updated
+    return updated
+  }
+
+  public func updateContactTelemetryPermissions(contactID: UUID, granted: Bool) async throws -> ContactDTO {
+    guard let contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    let flags = granted
+      ? contact.flags | ContactFlags.telemetryAll.rawValue
+      : contact.flags & ~ContactFlags.telemetryAll.rawValue
+    let updated = replacing(contact, flags: flags)
+    contacts[contactID] = updated
+    return updated
+  }
+
+  public func updateContactRemoteCLIPermission(contactID: UUID, granted: Bool) async throws -> ContactDTO {
+    guard let contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    let flags = granted
+      ? contact.flags | ContactFlags.remoteCLIAllowed.rawValue
+      : contact.flags & ~ContactFlags.remoteCLIAllowed.rawValue
+    let updated = replacing(contact, flags: flags)
+    contacts[contactID] = updated
+    return updated
+  }
+
+  public func updateContactRoute(
+    radioID: UUID,
+    publicKey: Data,
+    outPathLength: UInt8,
+    outPath: Data
+  ) async throws -> ContactDTO? {
+    guard let match = contacts.values.first(where: { $0.radioID == radioID && $0.publicKey == publicKey }) else {
+      return nil
+    }
+    let updated = replacing(match, outPathLength: outPathLength, outPath: outPath)
+    contacts[match.id] = updated
+    return updated
+  }
+
+  private func replacing(
+    _ contact: ContactDTO,
+    flags: UInt8? = nil,
+    outPathLength: UInt8? = nil,
+    outPath: Data? = nil,
+    nickname: String?? = nil,
+    isBlocked: Bool? = nil,
+    isFavorite: Bool? = nil,
+    unreadCount: Int? = nil,
+    ocvPreset: String? = nil,
+    customOCVArrayString: String?? = nil,
+    avatarImageData: Data?? = nil
+  ) -> ContactDTO {
+    ContactDTO(
+      id: contact.id,
+      radioID: contact.radioID,
+      publicKey: contact.publicKey,
+      name: contact.name,
+      typeRawValue: contact.typeRawValue,
+      flags: flags ?? contact.flags,
+      outPathLength: outPathLength ?? contact.outPathLength,
+      outPath: outPath ?? contact.outPath,
+      lastAdvertTimestamp: contact.lastAdvertTimestamp,
+      latitude: contact.latitude,
+      longitude: contact.longitude,
+      lastModified: contact.lastModified,
+      lastHeardTimestamp: contact.lastHeardTimestamp,
+      nickname: nickname ?? contact.nickname,
+      isBlocked: isBlocked ?? contact.isBlocked,
+      isMuted: contact.isMuted,
+      isFavorite: isFavorite ?? contact.isFavorite,
+      isPinned: contact.isPinned,
+      lastMessageDate: contact.lastMessageDate,
+      unreadCount: unreadCount ?? contact.unreadCount,
+      unreadMentionCount: contact.unreadMentionCount,
+      ocvPreset: ocvPreset ?? contact.ocvPreset,
+      customOCVArrayString: customOCVArrayString ?? contact.customOCVArrayString,
+      avatarImageData: avatarImageData ?? contact.avatarImageData
+    )
+  }
+
   public func deleteContact(id: UUID) async throws {
     deletedContactIDs.append(id)
     if let error = stubbedDeleteContactError {
@@ -1611,6 +1790,72 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     0 // Stub
   }
 
+  public func admitIncomingPath(
+    messageID: UUID,
+    pathNodes: Data,
+    pathLength: UInt8,
+    snr: Double?,
+    rssi: Int?,
+    receivedAt: Date,
+    rxLogEntryID: UUID?
+  ) async throws -> IncomingPathAdmission {
+    guard var message = messages[messageID] else { return .missingParent }
+    if message.pathNodes == nil {
+      message.pathNodes = pathNodes
+      message.pathLength = pathLength
+      messages[messageID] = message
+      return .adoptedCanonical
+    }
+    if message.pathNodes == pathNodes { return .unchanged }
+    if let rxLogEntryID, repeatRows.contains(where: { $0.rxLogEntryID == rxLogEntryID }) {
+      return .unchanged
+    }
+    if repeatRows.contains(where: { $0.messageID == messageID && $0.pathNodes == pathNodes }) {
+      return .unchanged
+    }
+    repeatRows.append(MessageRepeatDTO(
+      messageID: messageID,
+      receivedAt: receivedAt,
+      pathNodes: pathNodes,
+      pathLength: pathLength,
+      snr: snr,
+      rssi: rssi,
+      rxLogEntryID: rxLogEntryID
+    ))
+    message.heardRepeats += 1
+    messages[messageID] = message
+    return .recordedExtra(message.heardRepeats)
+  }
+
+  public func admitSentEcho(
+    messageID: UUID,
+    receivedAt: Date,
+    pathNodes: Data,
+    pathLength: UInt8,
+    snr: Double?,
+    rssi: Int?,
+    rxLogEntryID: UUID?
+  ) async throws -> Int? {
+    guard var message = messages[messageID] else { throw PersistenceStoreError.messageNotFound }
+    if let rxLogEntryID, repeatRows.contains(where: { $0.rxLogEntryID == rxLogEntryID }) {
+      return nil
+    }
+    repeatRows.append(MessageRepeatDTO(
+      messageID: messageID,
+      receivedAt: receivedAt,
+      pathNodes: pathNodes,
+      pathLength: pathLength,
+      snr: snr,
+      rssi: rssi,
+      rxLogEntryID: rxLogEntryID
+    ))
+    message.heardRepeats += 1
+    messages[messageID] = message
+    return message.heardRepeats
+  }
+
+  private var repeatRows: [MessageRepeatDTO] = []
+
   public func adoptIncomingPathIfUnknown(id: UUID, pathNodes: Data, pathLength: UInt8) async throws -> Bool {
     guard var message = messages[id] else { return false }
     if message.pathNodes != nil { return false }
@@ -1734,6 +1979,109 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     devices[dto.radioID] = dto
   }
 
+  public func updateDeviceNodeName(radioID: UUID, name: String) async throws {
+    try mutateDevice(radioID) { $0.nodeName = name }
+  }
+
+  public func updateDeviceCoordinates(radioID: UUID, latitude: Double, longitude: Double) async throws {
+    try mutateDevice(radioID) {
+      $0.latitude = latitude
+      $0.longitude = longitude
+    }
+  }
+
+  public func updateDeviceRadio(
+    radioID: UUID,
+    frequency: UInt32,
+    bandwidth: UInt32,
+    spreadingFactor: UInt8,
+    codingRate: UInt8,
+    appliedRadioPresetID: String?
+  ) async throws {
+    try mutateDevice(radioID) {
+      $0.frequency = frequency
+      $0.bandwidth = bandwidth
+      $0.spreadingFactor = spreadingFactor
+      $0.codingRate = codingRate
+      $0.appliedRadioPresetID = appliedRadioPresetID
+    }
+  }
+
+  public func updateDeviceTxPower(radioID: UUID, txPower: Int8) async throws {
+    try mutateDevice(radioID) { $0.txPower = txPower }
+  }
+
+  public func updateDeviceObservation(radioID: UUID, mapped: DeviceDTO) async throws {
+    try mutateDevice(radioID) { device in
+      device.publicKey = mapped.publicKey
+      device.nodeName = mapped.nodeName
+      device.latitude = mapped.latitude
+      device.longitude = mapped.longitude
+      device.frequency = mapped.frequency
+      device.bandwidth = mapped.bandwidth
+      device.spreadingFactor = mapped.spreadingFactor
+      device.codingRate = mapped.codingRate
+      device.txPower = mapped.txPower
+      device.manualAddContacts = mapped.manualAddContacts
+      device.multiAcks = mapped.multiAcks
+      device.telemetryModeBase = mapped.telemetryModeBase
+      device.telemetryModeLoc = mapped.telemetryModeLoc
+      device.telemetryModeEnv = mapped.telemetryModeEnv
+      device.advertLocationPolicy = mapped.advertLocationPolicy
+      device.appliedRadioPresetID = mapped.appliedRadioPresetID
+    }
+  }
+
+  public func updateDeviceOtherParams(radioID: UUID, intent: OtherParamsIntent) async throws {
+    try mutateDevice(radioID) { device in
+      if let manualAddContacts = intent.manualAddContacts {
+        device.manualAddContacts = manualAddContacts
+      }
+      if let telemetryModeBase = intent.telemetryModeBase {
+        device.telemetryModeBase = telemetryModeBase
+      }
+      if let telemetryModeLocation = intent.telemetryModeLocation {
+        device.telemetryModeLoc = telemetryModeLocation
+      }
+      if let telemetryModeEnvironment = intent.telemetryModeEnvironment {
+        device.telemetryModeEnv = telemetryModeEnvironment
+      }
+      if let advertisementLocationPolicy = intent.advertisementLocationPolicy {
+        device.advertLocationPolicy = advertisementLocationPolicy
+      }
+      if let multiAcks = intent.multiAcks {
+        device.multiAcks = multiAcks
+      }
+    }
+  }
+
+  public func updateDeviceClientRepeat(radioID: UUID, enabled: Bool) async throws {
+    try mutateDevice(radioID) { $0.clientRepeat = enabled }
+  }
+
+  public func updateDevicePathHashMode(radioID: UUID, mode: UInt8) async throws {
+    try mutateDevice(radioID) { $0.pathHashMode = mode }
+  }
+
+  public func updateDeviceAutoAdd(radioID: UUID, config: UInt8, maxHops: UInt8) async throws {
+    try mutateDevice(radioID) {
+      $0.autoAddConfig = config
+      $0.autoAddMaxHops = maxHops
+    }
+  }
+
+  public func updateDeviceDefaultFloodScopeName(radioID: UUID, name: String?) async throws {
+    try mutateDevice(radioID) { $0.defaultFloodScopeName = name }
+  }
+
+  private func mutateDevice(_ radioID: UUID, _ body: (inout DeviceDTO) -> Void) throws {
+    guard var device = devices[radioID] else {
+      throw PersistenceStoreError.deviceNotFound
+    }
+    body(&device)
+    devices[radioID] = device
+  }
+
   // MARK: - Room Session State
 
   public var remoteNodeSessions: [UUID: RemoteNodeSessionDTO] = [:]
@@ -1767,6 +2115,54 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public func saveRemoteNodeSessionDTO(_ dto: RemoteNodeSessionDTO) async throws {
     savedRemoteNodeSessions.append(dto)
     remoteNodeSessions[dto.id] = dto
+  }
+
+  public func reuseOrCreateRemoteNodeSession(
+    _ presentation: RoomSessionPresentation
+  ) async throws -> RemoteNodeSessionDTO {
+    let matches = remoteNodeSessions.values
+      .filter { $0.radioID == presentation.radioID && $0.publicKey == presentation.publicKey }
+      .sorted { $0.name < $1.name }
+    if let existing = matches.first {
+      let updated = RemoteNodeSessionDTO(
+        id: existing.id,
+        radioID: existing.radioID,
+        publicKey: presentation.publicKey,
+        name: presentation.name,
+        role: presentation.role,
+        latitude: presentation.latitude,
+        longitude: presentation.longitude,
+        isConnected: false,
+        permissionLevel: existing.permissionLevel,
+        lastConnectedDate: existing.lastConnectedDate,
+        lastBatteryMillivolts: existing.lastBatteryMillivolts,
+        lastUptimeSeconds: existing.lastUptimeSeconds,
+        lastNoiseFloor: existing.lastNoiseFloor,
+        unreadCount: existing.unreadCount,
+        notificationLevel: existing.notificationLevel,
+        isPinned: existing.isPinned,
+        lastRxAirtimeSeconds: existing.lastRxAirtimeSeconds,
+        neighborCount: existing.neighborCount,
+        lastSyncTimestamp: existing.lastSyncTimestamp,
+        lastMessageDate: existing.lastMessageDate
+      )
+      remoteNodeSessions[existing.id] = updated
+      for duplicate in matches.dropFirst() {
+        remoteNodeSessions.removeValue(forKey: duplicate.id)
+      }
+      return updated
+    }
+    let created = RemoteNodeSessionDTO(
+      radioID: presentation.radioID,
+      publicKey: presentation.publicKey,
+      name: presentation.name,
+      role: presentation.role,
+      latitude: presentation.latitude,
+      longitude: presentation.longitude,
+      isConnected: false
+    )
+    remoteNodeSessions[created.id] = created
+    return created
   }
 
   public func updateRemoteNodeSessionConnection(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel) async throws {
@@ -2041,6 +2437,25 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public func saveReaction(_ dto: ReactionDTO) async throws {
     savedReactions.append(dto)
     reactions[dto.messageID, default: []].append(dto)
+  }
+
+  public func admitReaction(_ dto: ReactionDTO) async throws -> ReactionAdmission? {
+    guard var message = messages[dto.messageID] else { return nil }
+    let existing = reactions[dto.messageID] ?? []
+    let inserted = !existing.contains { $0.senderName == dto.senderName && $0.emoji == dto.emoji }
+    if inserted {
+      savedReactions.append(dto)
+      reactions[dto.messageID, default: []].append(dto)
+    }
+    let limited = Array(
+      (reactions[dto.messageID] ?? [])
+        .sorted { $0.receivedAt > $1.receivedAt }
+        .prefix(ReactionParser.summaryRowLimit)
+    )
+    let summary = ReactionParser.buildSummary(from: limited)
+    message.reactionSummary = summary
+    messages[dto.messageID] = message
+    return ReactionAdmission(messageID: dto.messageID, summary: summary, inserted: inserted)
   }
 
   public func reactionExists(messageID: UUID, senderName: String, emoji: String) async throws -> Bool {

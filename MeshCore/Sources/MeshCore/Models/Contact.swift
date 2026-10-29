@@ -45,19 +45,8 @@ public struct MeshContact: Sendable, Identifiable, Equatable {
   /// The type identifier for the contact.
   public let type: ContactType
 
-  /// The raw 1-byte type value as it appears on the wire.
-  ///
-  /// Normally equal to `type.rawValue`. Preserved separately so a contact carrying a
-  /// type byte not yet modeled by ``ContactType`` (e.g. from newer firmware or an
-  /// imported config) survives instead of being coerced to `.chat`. The byte round-trips
-  /// through OTA decode, the local cache, config export, and the config-import /
-  /// contact-add device write (``addContact`` encodes via ``PacketBuilder/updateContact(_:)``).
-  ///
-  /// Two honest exclusions: `changeContactPath` and `changeContactFlags` re-coerce the type
-  /// on a user-initiated path/flag edit (they encode through the typed
-  /// `updateContact(publicKey:type:…)` overload), and `lastModified` is restamped by the
-  /// firmware on receipt because the frame is under 148 bytes — so "verbatim" covers the
-  /// type byte, not the device-side advert/modified timestamps.
+  /// Preserves unrecognized wire type bytes through storage, export, and radio updates.
+  /// `type` may fall back to `.chat`; forwarding this byte retains the original value.
   public let typeRawValue: UInt8
 
   /// The operational flags for the contact.

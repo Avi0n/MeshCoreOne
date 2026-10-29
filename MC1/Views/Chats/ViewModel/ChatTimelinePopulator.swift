@@ -20,7 +20,6 @@ enum ChatTimelinePopulator {
   struct ReactionIndexingContext {
     let reactionService: ReactionService
     let scope: ReactionIndexScope
-    let rebakeRow: @MainActor (UUID) -> Void
   }
 
   /// Populates `writer`'s coordinator and bakes render items. Owns the
@@ -135,16 +134,14 @@ enum ChatTimelinePopulator {
     }
   }
 
-  /// Indexes a freshly fetched page for reaction matching and persists any
-  /// pending reactions that now have their target, applying refreshed
-  /// summaries through `writer` and a single-row rebake.
+  /// Indexes reaction targets and persists pending matches.
+  /// Reloads committed rows so older summaries cannot overwrite the timeline.
   static func indexMessagesForReactions(
     _ fetchedMessages: [MessageDTO],
     scope: ReactionIndexScope,
     reactionService: ReactionService,
     dataStore: DataStore,
-    writer: ChatTimelineWriter,
-    rebakeRow: @MainActor (UUID) -> Void
+    writer: ChatTimelineWriter
   ) async {
     switch scope {
     case let .channel(channel, localNodeName):
@@ -181,8 +178,7 @@ enum ChatTimelinePopulator {
             reactionDTO,
             reactionService: reactionService,
             dataStore: dataStore,
-            writer: writer,
-            rebakeRow: rebakeRow
+            writer: writer
           )
         }
       }
@@ -210,8 +206,7 @@ enum ChatTimelinePopulator {
             reactionDTO,
             reactionService: reactionService,
             dataStore: dataStore,
-            writer: writer,
-            rebakeRow: rebakeRow
+            writer: writer
           )
         }
       }
@@ -222,8 +217,7 @@ enum ChatTimelinePopulator {
     _ reaction: ReactionDTO,
     reactionService: ReactionService,
     dataStore: DataStore,
-    writer: ChatTimelineWriter,
-    rebakeRow: @MainActor (UUID) -> Void
+    writer: ChatTimelineWriter
   ) async {
     let exists = try? await dataStore.reactionExists(
       messageID: reaction.messageID,
@@ -236,8 +230,7 @@ enum ChatTimelinePopulator {
       reaction,
       using: dataStore
     ) {
-      writer.update(messageID: result.messageID) { $0.reactionSummary = result.summary }
-      rebakeRow(result.messageID)
+      writer.enqueueReload(messageID: result.messageID)
     }
   }
 }

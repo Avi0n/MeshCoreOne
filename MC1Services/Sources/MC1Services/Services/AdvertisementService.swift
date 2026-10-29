@@ -375,7 +375,7 @@ public actor AdvertisementService {
         return nil
       }
       let frame = meshContact.toContactFrame()
-      let saveResult = try await dataStore.saveContact(radioID: radioID, from: frame)
+      let saveResult = try await dataStore.insertContactIfAbsent(radioID: radioID, from: frame)
       // Stamp phone recency before the returned DTO is read so a debounce-window
       // insert is not prune-eligible under a stale radio lastModified.
       let receivedAt = pendingAdvertReceiveTimes[publicKey] ?? Date()

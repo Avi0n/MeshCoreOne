@@ -3,7 +3,7 @@ import Foundation
 /// Configuration struct for device "other params" settings.
 ///
 /// Used by granular configuration setters to implement read-modify-write pattern.
-public struct OtherParamsConfig: Sendable {
+public struct OtherParamsConfig: Sendable, Equatable {
   public var manualAddContacts: Bool
   public var telemetryModeBase: UInt8
   public var telemetryModeLocation: UInt8

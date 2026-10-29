@@ -369,11 +369,7 @@ public extension ConnectionManager {
     matching predicate: (ContactDTO) -> Bool,
     onRemove: ((_ contact: ContactDTO) -> Void)? = nil
   ) async throws -> RemoveUnfavoritedResult {
-    guard let radioID = connectedDevice?.radioID else {
-      throw ConnectionError.notConnected
-    }
-
-    guard let services else {
+    guard let radioID = connectedDevice?.radioID, let services else {
       throw ConnectionError.notConnected
     }
 
@@ -493,8 +489,159 @@ public extension ConnectionManager {
       }
     }
     connectedDevice = updated
+    let radioID = updated.radioID
     Task {
-      try? await services?.dataStore.saveDevice(updated)
+      let store = services?.dataStore
+      try? await store?.updateDeviceNodeName(radioID: radioID, name: updated.nodeName)
+      try? await store?.updateDeviceCoordinates(
+        radioID: radioID,
+        latitude: updated.latitude,
+        longitude: updated.longitude
+      )
+      try? await store?.updateDeviceRadio(
+        radioID: radioID,
+        frequency: updated.frequency,
+        bandwidth: updated.bandwidth,
+        spreadingFactor: updated.spreadingFactor,
+        codingRate: updated.codingRate,
+        appliedRadioPresetID: updated.appliedRadioPresetID
+      )
+      try? await store?.updateDeviceTxPower(radioID: radioID, txPower: updated.txPower)
+      try? await store?.updateDeviceOtherParams(
+        radioID: radioID,
+        intent: OtherParamsIntent(
+          manualAddContacts: updated.manualAddContacts,
+          telemetryModeBase: updated.telemetryModeBase,
+          telemetryModeLocation: updated.telemetryModeLoc,
+          telemetryModeEnvironment: updated.telemetryModeEnv,
+          advertisementLocationPolicy: updated.advertLocationPolicy,
+          multiAcks: updated.multiAcks
+        )
+      )
+    }
+  }
+
+  /// Persists one refresh onto the existing row, then publishes it on the live device.
+  /// A missing row is left missing. A replaced producer does not update a successor.
+  func applyDeviceObservation(_ info: MeshCore.SelfInfo, from producer: ServiceContainer) async {
+    guard services === producer, let device = connectedDevice else { return }
+    let radio = NodeConfigService.buildRadioSettings(from: info)
+    var mapped = device.updating(from: info)
+    mapped.frequency = radio.frequency
+    mapped.bandwidth = radio.bandwidth
+    mapped.spreadingFactor = radio.spreadingFactor
+    mapped.codingRate = radio.codingRate
+    mapped.txPower = radio.txPower
+    mapped.appliedRadioPresetID = catalogID(
+      for: SettingsEvent.RadioChange(
+        frequencyKHz: radio.frequency,
+        bandwidthHz: radio.bandwidth,
+        spreadingFactor: radio.spreadingFactor,
+        codingRate: radio.codingRate,
+        catalogStamp: .reconcile
+      ),
+      on: device
+    )
+    let snapshotID = device.id
+    let radioID = device.radioID
+    let store = producer.dataStore
+    do {
+      try await store.updateDeviceObservation(radioID: radioID, mapped: mapped)
+    } catch {
+      logger.error("Failed to persist device observation: \(error.localizedDescription)")
+      return
+    }
+    // The row write used the captured radio. Live state updates only if that device is still current.
+    guard services === producer, let current = connectedDevice, current.id == snapshotID else { return }
+    connectedDevice = current.applyingRefresh(mapped)
+  }
+
+  func applyNodeName(_ name: String) async {
+    guard let device = connectedDevice else { return }
+    connectedDevice = device.copy { $0.nodeName = name }
+    try? await services?.dataStore.updateDeviceNodeName(radioID: device.radioID, name: name)
+  }
+
+  func applyCoordinates(latitude: Double, longitude: Double) async {
+    guard let device = connectedDevice else { return }
+    connectedDevice = device.copy {
+      $0.latitude = latitude
+      $0.longitude = longitude
+    }
+    try? await services?.dataStore.updateDeviceCoordinates(
+      radioID: device.radioID,
+      latitude: latitude,
+      longitude: longitude
+    )
+  }
+
+  func applyRadio(_ change: SettingsEvent.RadioChange) async {
+    guard let device = connectedDevice else { return }
+    let presetID = catalogID(for: change, on: device)
+    connectedDevice = device.copy {
+      $0.frequency = change.frequencyKHz
+      $0.bandwidth = change.bandwidthHz
+      $0.spreadingFactor = change.spreadingFactor
+      $0.codingRate = change.codingRate
+      $0.appliedRadioPresetID = presetID
+    }
+    try? await services?.dataStore.updateDeviceRadio(
+      radioID: device.radioID,
+      frequency: change.frequencyKHz,
+      bandwidth: change.bandwidthHz,
+      spreadingFactor: change.spreadingFactor,
+      codingRate: change.codingRate,
+      appliedRadioPresetID: presetID
+    )
+  }
+
+  func applyTxPower(_ power: Int8) async {
+    guard let device = connectedDevice else { return }
+    connectedDevice = device.copy { $0.txPower = power }
+    try? await services?.dataStore.updateDeviceTxPower(radioID: device.radioID, txPower: power)
+  }
+
+  func applyOtherParams(_ intent: OtherParamsIntent) async {
+    guard let device = connectedDevice else { return }
+    connectedDevice = device.copy {
+      if let manualAddContacts = intent.manualAddContacts {
+        $0.manualAddContacts = manualAddContacts
+      }
+      if let telemetryModeBase = intent.telemetryModeBase {
+        $0.telemetryModeBase = telemetryModeBase
+      }
+      if let telemetryModeLocation = intent.telemetryModeLocation {
+        $0.telemetryModeLoc = telemetryModeLocation
+      }
+      if let telemetryModeEnvironment = intent.telemetryModeEnvironment {
+        $0.telemetryModeEnv = telemetryModeEnvironment
+      }
+      if let advertisementLocationPolicy = intent.advertisementLocationPolicy {
+        $0.advertLocationPolicy = advertisementLocationPolicy
+      }
+      if let multiAcks = intent.multiAcks {
+        $0.multiAcks = multiAcks
+      }
+    }
+    try? await services?.dataStore.updateDeviceOtherParams(radioID: device.radioID, intent: intent)
+  }
+
+  private func catalogID(for change: SettingsEvent.RadioChange, on device: DeviceDTO) -> String? {
+    switch change.catalogStamp {
+    case let .set(id):
+      return id
+    case .reconcile:
+      if device.clientRepeat { return device.appliedRadioPresetID }
+      let matches = RadioPresets.matchingPresets(
+        frequencyKHz: change.frequencyKHz,
+        bandwidthKHz: change.bandwidthHz,
+        spreadingFactor: change.spreadingFactor,
+        codingRate: change.codingRate
+      )
+      if let current = device.appliedRadioPresetID, matches.contains(where: { $0.id == current }) {
+        return current
+      }
+      return nil
     }
   }
 
@@ -515,7 +662,15 @@ public extension ConnectionManager {
     connectedDevice = updated
 
     Task {
-      do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist auto-add config: \(error)") }
+      do {
+        try await services?.dataStore.updateDeviceAutoAdd(
+          radioID: updated.radioID,
+          config: config.bitmask,
+          maxHops: config.maxHops
+        )
+      } catch {
+        logger.error("Failed to persist auto-add config: \(error)")
+      }
     }
   }
 
@@ -527,7 +682,11 @@ public extension ConnectionManager {
     connectedDevice = updated
 
     Task {
-      do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist client repeat state: \(error)") }
+      do {
+        try await services?.dataStore.updateDeviceClientRepeat(radioID: updated.radioID, enabled: enabled)
+      } catch {
+        logger.error("Failed to persist client repeat state: \(error)")
+      }
     }
   }
 
@@ -539,7 +698,11 @@ public extension ConnectionManager {
     connectedDevice = updated
 
     Task {
-      do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist path hash mode: \(error)") }
+      do {
+        try await services?.dataStore.updateDevicePathHashMode(radioID: updated.radioID, mode: mode)
+      } catch {
+        logger.error("Failed to persist path hash mode: \(error)")
+      }
     }
   }
 
@@ -551,7 +714,11 @@ public extension ConnectionManager {
     connectedDevice = updated
 
     Task {
-      do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist default flood scope: \(error)") }
+      do {
+        try await services?.dataStore.updateDeviceDefaultFloodScopeName(radioID: updated.radioID, name: name)
+      } catch {
+        logger.error("Failed to persist default flood scope: \(error)")
+      }
     }
   }
 

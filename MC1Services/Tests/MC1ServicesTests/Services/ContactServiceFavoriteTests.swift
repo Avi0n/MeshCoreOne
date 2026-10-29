@@ -71,7 +71,7 @@ struct ContactServiceFavoriteTests {
 
     let updated = try await service.setContactFavorite(contact.id, isFavorite: requestedFavorite)
 
-    #expect(await session.getContactPublicKeys == [contact.publicKey])
+    #expect(await session.getContactPublicKeys == [contact.publicKey, contact.publicKey])
     #expect(await session.changeContactFlagsCalls.count == 1)
     #expect(await session.changeContactFlagsCalls.first?.flags == confirmed.flags)
     let saved = try #require(await store.contacts[contact.id])
@@ -139,6 +139,7 @@ struct ContactServiceFavoriteTests {
   func `radio failure publishes no contact invalidation`() async throws {
     let coordinator = SyncCoordinator()
     let (service, store, session, contact) = try await makeService(coordinator: coordinator)
+    await session.setStubbedContact(radioContact(contact, isFavorite: false), for: contact.publicKey)
     await session.setChangeContactFlagsHold { throw MeshCoreError.timeout }
 
     let observed = try await storedFavoritesOnContactChange(
@@ -213,7 +214,7 @@ struct ContactServiceFavoriteTests {
       await #expect {
         try await service.setContactFavorite(contact.id, isFavorite: true)
       } throws: { error in
-        guard let error = error as? PersistenceStoreError, case .contactNotFound = error else { return false }
+        guard case ContactServiceError.contactNotFound = error else { return false }
         return true
       }
     }
@@ -223,11 +224,11 @@ struct ContactServiceFavoriteTests {
   }
 
   @Test
-  func `fetch failure after save still publishes the committed favorite`() async throws {
+  func `committed favorite publishes without a second contact fetch`() async throws {
     let coordinator = SyncCoordinator()
     let (service, store, session, contact) = try await makeService(coordinator: coordinator)
     await session.setStubbedContact(radioContact(contact, isFavorite: true), for: contact.publicKey)
-    // Call 1 reads the row. Call 2 is the post-save fetch.
+    // The pre-write read is call 1. A later fetch is not part of the commit.
     await store.failFetchContactID(onCall: 2)
 
     let observed = try await storedFavoritesOnContactChange(
@@ -235,12 +236,8 @@ struct ContactServiceFavoriteTests {
       store: store,
       contactID: contact.id
     ) {
-      await #expect {
-        try await service.setContactFavorite(contact.id, isFavorite: true)
-      } throws: { error in
-        guard let error = error as? PersistenceStoreError, case .contactNotFound = error else { return false }
-        return true
-      }
+      let updated = try await service.setContactFavorite(contact.id, isFavorite: true)
+      #expect(updated.isFavorite)
     }
 
     #expect(observed == [true])

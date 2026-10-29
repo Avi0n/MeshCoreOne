@@ -10,6 +10,12 @@ public actor SettingsService {
   private let session: any ConfigurationSessionOps
   let logger = PersistentLogger(subsystem: "com.mc1", category: "SettingsService")
 
+  /// Orders radio-parameter writes, path-hash work that belongs to a preset, and publication.
+  let radioSerializer = RequestResponseSerializer()
+
+  /// Orders a coordinate read-modify-write so one axis cannot restore a stale sibling.
+  let coordinateSerializer = RequestResponseSerializer()
+
   // Event stream subscriber. The subscription ID lets a replaced subscriber's
   // onTermination distinguish itself from the subscriber that replaced it.
   var eventContinuation: AsyncStream<SettingsEvent>.Continuation?
@@ -59,15 +65,18 @@ public actor SettingsService {
 
   // MARK: - Radio Settings
 
-  /// Apply a radio preset to the device
+  /// Apply a radio preset to the device.
+  /// The RF owner stays held through the optional path-hash write.
   public func applyRadioPreset(_ preset: RadioPreset) async throws {
-    try await setRadioParams(
-      frequencyKHz: preset.frequencyKHz,
-      bandwidthKHz: preset.bandwidthHz,
-      spreadingFactor: preset.spreadingFactor,
-      codingRate: preset.codingRate
-    )
-    try await applyPresetPathHashIfNeeded(preset)
+    try await radioSerializer.withSerialization { [self] in
+      try await writeRadioParams(
+        frequencyKHz: preset.frequencyKHz,
+        bandwidthKHz: preset.bandwidthHz,
+        spreadingFactor: preset.spreadingFactor,
+        codingRate: preset.codingRate
+      )
+      try await applyPresetPathHashIfNeeded(preset)
+    }
   }
 
   func applyPresetPathHashIfNeeded(_ preset: RadioPreset) async throws {
@@ -88,6 +97,25 @@ public actor SettingsService {
   /// The `bandwidthKHz` name is preserved for source compatibility despite the value
   /// actually being in Hz; do not pass `Int(62.5)` here.
   public func setRadioParams(
+    frequencyKHz: UInt32,
+    bandwidthKHz: UInt32,
+    spreadingFactor: UInt8,
+    codingRate: UInt8,
+    clientRepeat: Bool? = nil
+  ) async throws {
+    try await radioSerializer.withSerialization { [self] in
+      try await writeRadioParams(
+        frequencyKHz: frequencyKHz,
+        bandwidthKHz: bandwidthKHz,
+        spreadingFactor: spreadingFactor,
+        codingRate: codingRate,
+        clientRepeat: clientRepeat
+      )
+    }
+  }
+
+  /// Sends one radio tuple. The caller already holds `radioSerializer`.
+  func writeRadioParams(
     frequencyKHz: UInt32,
     bandwidthKHz: UInt32,
     spreadingFactor: UInt8,
@@ -202,6 +230,15 @@ public actor SettingsService {
         advertisementLocationPolicy: advertLocationPolicyRaw,
         multiAcks: multiAcks
       )
+    } catch let error as MeshCoreError {
+      throw SettingsServiceError.sessionError(error)
+    }
+  }
+
+  /// Merges a partial other-params intent inside the session serializer.
+  func applyOtherParams(_ intent: OtherParamsIntent) async throws {
+    do {
+      try await session.applyOtherParams(intent)
     } catch let error as MeshCoreError {
       throw SettingsServiceError.sessionError(error)
     }
@@ -325,11 +362,17 @@ public actor SettingsService {
     eventContinuation?.yield(.allowedRepeatFreqUpdated(ranges))
   }
 
-  /// Refresh device info from the device and notify observers.
-  /// Use this instead of `setLocationVerified` when the device already has correct coordinates (e.g. from its own GPS).
+  /// Reads self info while holding the RF owner and publishes that observation.
+  /// A failed read publishes nothing. Scoped writes keep their own events.
   public func refreshDeviceInfo() async throws {
+    try await radioSerializer.withSerialization { [self] in
+      try await publishDeviceObservation()
+    }
+  }
+
+  private func publishDeviceObservation() async throws {
     let selfInfo = try await getSelfInfo()
-    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
+    eventContinuation?.yield(.deviceObserved(selfInfo))
   }
 
   /// Set auto-add configuration on device

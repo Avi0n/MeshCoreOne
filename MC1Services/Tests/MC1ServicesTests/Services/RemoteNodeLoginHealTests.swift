@@ -30,7 +30,8 @@ struct RemoteNodeLoginHealTests {
       .success(MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000))
     ])
 
-    let service = RemoteNodeService(session: session, dataStore: dataStore, keychainService: KeychainService())
+    let wired = WiredLoginService(session: session, dataStore: dataStore)
+    let service = wired.service
 
     _ = try await service.sendLoginHealingIfNeeded(
       publicKey: Self.publicKey,
@@ -71,7 +72,8 @@ struct RemoteNodeLoginHealTests {
       .success(MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 5000))
     ])
 
-    let service = RemoteNodeService(session: session, dataStore: dataStore, keychainService: KeychainService())
+    let wired = WiredLoginService(session: session, dataStore: dataStore)
+    let service = wired.service
 
     _ = try await service.sendLoginHealingIfNeeded(
       publicKey: Self.publicKey,
@@ -101,7 +103,8 @@ struct RemoteNodeLoginHealTests {
       .failure(MeshCoreError.deviceError(code: ProtocolError.tableFull.rawValue))
     ])
 
-    let service = RemoteNodeService(session: session, dataStore: dataStore, keychainService: KeychainService())
+    let wired = WiredLoginService(session: session, dataStore: dataStore)
+    let service = wired.service
 
     let thrown = await #expect(throws: MeshCoreError.self) {
       _ = try await service.sendLoginHealingIfNeeded(
@@ -136,7 +139,8 @@ struct RemoteNodeLoginHealTests {
       .failure(MeshCoreError.deviceError(code: ProtocolError.notFound.rawValue))
     ])
 
-    let service = RemoteNodeService(session: session, dataStore: dataStore, keychainService: KeychainService())
+    let wired = WiredLoginService(session: session, dataStore: dataStore)
+    let service = wired.service
 
     let thrown = await #expect(throws: MeshCoreError.self) {
       _ = try await service.sendLoginHealingIfNeeded(
@@ -172,7 +176,8 @@ struct RemoteNodeLoginHealTests {
     ])
     await session.setAddContactError(MeshCoreError.deviceError(code: ProtocolError.tableFull.rawValue))
 
-    let service = RemoteNodeService(session: session, dataStore: dataStore, keychainService: KeychainService())
+    let wired = WiredLoginService(session: session, dataStore: dataStore)
+    let service = wired.service
 
     let thrown = await #expect(throws: RemoteNodeError.self) {
       _ = try await service.sendLoginHealingIfNeeded(
@@ -200,7 +205,8 @@ struct RemoteNodeLoginHealTests {
       .failure(MeshCoreError.deviceError(code: ProtocolError.notFound.rawValue))
     ])
 
-    let service = RemoteNodeService(session: session, dataStore: dataStore, keychainService: KeychainService())
+    let wired = WiredLoginService(session: session, dataStore: dataStore)
+    let service = wired.service
 
     let thrown = await #expect(throws: RemoteNodeError.self) {
       _ = try await service.sendLoginHealingIfNeeded(
@@ -239,7 +245,8 @@ struct RemoteNodeLoginHealTests {
     ])
     await session.setAddContactError(MeshCoreError.deviceError(code: ProtocolError.tableFull.rawValue))
 
-    let service = RemoteNodeService(session: session, dataStore: dataStore, keychainService: KeychainService())
+    let wired = WiredLoginService(session: session, dataStore: dataStore)
+    let service = wired.service
 
     let thrown = await #expect(throws: RemoteNodeError.self) {
       _ = try await service.login(sessionID: remoteSession.id, password: "")
@@ -250,5 +257,29 @@ struct RemoteNodeLoginHealTests {
     }
     #expect(await session.sendLoginInvocations.count == 1)
     #expect(await session.addContactInvocations.count == 1)
+  }
+}
+
+/// Keeps `ContactService` alive for the login heal path. The service owner is weak
+/// so production cleanup cannot form a retain cycle.
+private final class WiredLoginService: @unchecked Sendable {
+  let service: RemoteNodeService
+  let contacts: ContactService
+
+  init(session: MockMeshCoreSession, dataStore: PersistenceStore) {
+    let owner = ContactRadioOwner()
+    contacts = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+    owner.bind(contacts)
+    service = RemoteNodeService(
+      session: session,
+      dataStore: dataStore,
+      keychainService: KeychainService(),
+      contactRadioOwner: owner
+    )
   }
 }

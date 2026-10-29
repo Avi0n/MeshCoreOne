@@ -204,6 +204,158 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
+  @discardableResult
+  func insertContactIfAbsent(radioID: UUID, from frame: ContactFrame) throws -> (id: UUID, isNew: Bool) {
+    let targetRadioID = radioID
+    let targetKey = frame.publicKey
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID && contact.publicKey == targetKey
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    if let existing = try modelContext.fetch(descriptor).first {
+      return (id: existing.id, isNew: false)
+    }
+
+    let contact = Contact(radioID: radioID, from: frame)
+    modelContext.insert(contact)
+    try modelContext.save()
+    return (id: contact.id, isNew: true)
+  }
+
+  func updateContactLocalPreferences(
+    contactID: UUID,
+    nickname: ContactNicknameUpdate,
+    isBlocked: Bool?,
+    isFavorite: Bool?,
+    clearRemoteCLI: Bool
+  ) throws -> ContactPreferenceCommit {
+    let contact = try requiredContact(id: contactID)
+
+    switch nickname {
+    case .unchanged:
+      break
+    case .clear:
+      contact.nickname = nil
+    case let .set(value):
+      contact.nickname = value
+    }
+
+    var blockTransition = ContactPreferenceCommit.BlockTransition.none
+    if let isBlocked {
+      if isBlocked, !contact.isBlocked {
+        blockTransition = .blocked
+        contact.unreadCount = 0
+      } else if !isBlocked, contact.isBlocked {
+        blockTransition = .unblocked
+      }
+      contact.isBlocked = isBlocked
+    }
+    if let isFavorite {
+      contact.isFavorite = isFavorite
+    }
+    if clearRemoteCLI {
+      contact.flags = contact.flags & ~ContactFlags.remoteCLIAllowed.rawValue
+    }
+
+    try modelContext.save()
+    return ContactPreferenceCommit(
+      contact: ContactDTO(from: contact),
+      blockTransition: blockTransition
+    )
+  }
+
+  func updateContactOCVSettings(
+    contactID: UUID,
+    preset: String,
+    customArray: String?
+  ) throws -> ContactDTO {
+    let contact = try requiredContact(id: contactID)
+    contact.ocvPreset = preset
+    contact.customOCVArrayString = customArray
+    try modelContext.save()
+    return ContactDTO(from: contact)
+  }
+
+  func updateContactAvatar(contactID: UUID, imageData: Data?) throws -> ContactDTO {
+    let contact = try requiredContact(id: contactID)
+    contact.avatarImageData = imageData
+    try modelContext.save()
+    return ContactDTO(from: contact)
+  }
+
+  func updateContactFavorite(contactID: UUID, isFavorite: Bool) throws -> ContactDTO {
+    let contact = try requiredContact(id: contactID)
+    contact.flags = flagsApplying(
+      mask: ContactFlags.favorite.rawValue,
+      granted: isFavorite,
+      to: contact.flags
+    )
+    contact.isFavorite = isFavorite
+    try modelContext.save()
+    return ContactDTO(from: contact)
+  }
+
+  func updateContactTelemetryPermissions(contactID: UUID, granted: Bool) throws -> ContactDTO {
+    let contact = try requiredContact(id: contactID)
+    contact.flags = flagsApplying(
+      mask: ContactFlags.telemetryAll.rawValue,
+      granted: granted,
+      to: contact.flags
+    )
+    try modelContext.save()
+    return ContactDTO(from: contact)
+  }
+
+  func updateContactRemoteCLIPermission(contactID: UUID, granted: Bool) throws -> ContactDTO {
+    let contact = try requiredContact(id: contactID)
+    contact.flags = flagsApplying(
+      mask: ContactFlags.remoteCLIAllowed.rawValue,
+      granted: granted,
+      to: contact.flags
+    )
+    try modelContext.save()
+    return ContactDTO(from: contact)
+  }
+
+  func updateContactRoute(
+    radioID: UUID,
+    publicKey: Data,
+    outPathLength: UInt8,
+    outPath: Data
+  ) throws -> ContactDTO? {
+    let targetRadioID = radioID
+    let targetKey = publicKey
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID && contact.publicKey == targetKey
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    guard let contact = try modelContext.fetch(descriptor).first else { return nil }
+    contact.outPathLength = Int(outPathLength)
+    contact.outPath = outPath
+    try modelContext.save()
+    return ContactDTO(from: contact)
+  }
+
+  private func flagsApplying(mask: UInt8, granted: Bool, to flags: UInt8) -> UInt8 {
+    granted ? (flags | mask) : (flags & ~mask)
+  }
+
+  private func requiredContact(id: UUID) throws -> Contact {
+    let targetID = id
+    let predicate = #Predicate<Contact> { contact in
+      contact.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    guard let contact = try modelContext.fetch(descriptor).first else {
+      throw PersistenceStoreError.contactNotFound
+    }
+    return contact
+  }
+
   /// Sets the local chat pin. Does not change the radio favorite flag.
   func setContactPinned(_ contactID: UUID, isPinned: Bool) throws {
     let targetID = contactID

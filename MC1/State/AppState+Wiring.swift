@@ -38,19 +38,28 @@ extension AppState {
     }
   }
 
-  /// Consume settings service event stream.
-  /// Updates connectedDevice when settings are changed via SettingsService.
+  /// Updates connectedDevice from the settings stream of this container.
+  /// Events are ignored once `services` no longer points at that container.
   func wireSettingsEventStream(services: ServiceContainer) async {
     settingsEventsTask?.cancel()
     let events = await services.settingsService.events()
+    let producer = services
     settingsEventsTask = Task { [weak self] in
       for await event in events {
-        guard let self else { return }
+        guard let self, self.connectionManager.services === producer else { return }
         switch event {
-        case let .deviceUpdated(selfInfo, appliedRadioPresetID):
-          await MainActor.run {
-            self.connectionManager.updateDevice(from: selfInfo, appliedRadioPresetID: appliedRadioPresetID)
-          }
+        case let .nameUpdated(name):
+          await self.connectionManager.applyNodeName(name)
+        case let .coordinatesUpdated(latitude, longitude):
+          await self.connectionManager.applyCoordinates(latitude: latitude, longitude: longitude)
+        case let .deviceObserved(info):
+          await self.connectionManager.applyDeviceObservation(info, from: producer)
+        case let .radioUpdated(change):
+          await self.connectionManager.applyRadio(change)
+        case let .txPowerUpdated(power):
+          await self.connectionManager.applyTxPower(power)
+        case let .otherParamsUpdated(intent):
+          await self.connectionManager.applyOtherParams(intent)
         case let .autoAddConfigUpdated(config):
           await MainActor.run {
             self.connectionManager.updateAutoAddConfig(config)

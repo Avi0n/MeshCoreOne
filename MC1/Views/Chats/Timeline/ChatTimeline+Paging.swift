@@ -38,10 +38,7 @@ extension ChatTimeline {
     let context = reactions.map { indexing in
       ChatTimelinePopulator.ReactionIndexingContext(
         reactionService: indexing.service,
-        scope: indexing.scope,
-        rebakeRow: { [weak self] messageID in
-          self?.rebakeRow(messageID)
-        }
+        scope: indexing.scope
       )
     }
     guard let coordinator else { return .unavailable }
@@ -86,8 +83,7 @@ extension ChatTimeline {
         scope: context.scope,
         reactionService: context.reactionService,
         dataStore: dataStore,
-        writer: writer,
-        rebakeRow: context.rebakeRow
+        writer: writer
       )
     }
     return outcome
@@ -102,8 +98,7 @@ extension ChatTimeline {
   /// history, or unbound). Fetch errors throw after the spinner retires.
   @discardableResult
   func loadOlder() async throws -> [MessageDTO] {
-    guard let coordinator, let writer, let conversation else { return [] }
-    guard let dataStore = dataStoreProvider() else { return [] }
+    guard let coordinator, let writer, let conversation, let dataStore = dataStoreProvider() else { return [] }
     do {
       return try await writer.performWindowOperation {
         try Task.checkCancellation()

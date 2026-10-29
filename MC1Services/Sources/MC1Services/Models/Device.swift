@@ -696,6 +696,28 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     return OCVPreset.liIon.ocvArray
   }
 
+  /// Copies one refresh onto this device. Device ID, Radio ID, and local metadata stay.
+  public func applyingRefresh(_ mapped: DeviceDTO) -> DeviceDTO {
+    copy {
+      $0.publicKey = mapped.publicKey
+      $0.nodeName = mapped.nodeName
+      $0.latitude = mapped.latitude
+      $0.longitude = mapped.longitude
+      $0.frequency = mapped.frequency
+      $0.bandwidth = mapped.bandwidth
+      $0.spreadingFactor = mapped.spreadingFactor
+      $0.codingRate = mapped.codingRate
+      $0.txPower = mapped.txPower
+      $0.manualAddContacts = mapped.manualAddContacts
+      $0.multiAcks = mapped.multiAcks
+      $0.telemetryModeBase = mapped.telemetryModeBase
+      $0.telemetryModeLoc = mapped.telemetryModeLoc
+      $0.telemetryModeEnv = mapped.telemetryModeEnv
+      $0.advertLocationPolicy = mapped.advertLocationPolicy
+      $0.appliedRadioPresetID = mapped.appliedRadioPresetID
+    }
+  }
+
   /// Returns a new DeviceDTO with settings updated from SelfInfo.
   /// Used after device settings are changed via SettingsService.
   public func updating(from selfInfo: MeshCore.SelfInfo) -> DeviceDTO {

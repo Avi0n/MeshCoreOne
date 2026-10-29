@@ -467,14 +467,22 @@ extension MessageService {
       if attempts == config.floodAfter, !isFloodMode {
         logger.info("Resetting path to flood after \(attempts) failed attempts")
         do {
-          try await session.resetPath(publicKey: publicKey)
+          if let contactService {
+            try await contactService.resetPath(radioID: radioID, publicKey: publicKey)
+          } else {
+            try await session.resetPath(publicKey: publicKey)
+            _ = try await dataStore.updateContactRoute(
+              radioID: radioID,
+              publicKey: publicKey,
+              outPathLength: PacketBuilder.floodPathSentinel,
+              outPath: Data()
+            )
+          }
           isFloodMode = true
 
-          // Notify UI of routing change and save updated contact
-          if let updatedContact = try await session.getContact(publicKey: publicKey) {
-            _ = try await dataStore.saveContact(radioID: radioID, from: updatedContact.toContactFrame())
+          if try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) != nil {
+            statusEventBroadcaster.yield(.routingChanged(contactID: contactID, isFlood: true))
           }
-          statusEventBroadcaster.yield(.routingChanged(contactID: contactID, isFlood: true))
         } catch {
           logger.warning("Failed to reset path: \(error.localizedDescription), continuing...")
           // Continue anyway - device might handle it
@@ -601,21 +609,27 @@ extension MessageService {
     initialPathLength: UInt8
   ) async {
     do {
-      // Fetch fresh contact state from device
-      guard let updatedContact = try await session.getContact(publicKey: publicKey) else {
+      let newPathLength: UInt8?
+      if let contactService {
+        newPathLength = try await contactService.mirrorObservedRoute(radioID: radioID, publicKey: publicKey)
+      } else if let updatedContact = try await session.getContact(publicKey: publicKey) {
+        _ = try await dataStore.updateContactRoute(
+          radioID: radioID,
+          publicKey: publicKey,
+          outPathLength: updatedContact.outPathLength,
+          outPath: updatedContact.outPath
+        )
+        newPathLength = updatedContact.outPathLength
+      } else {
+        newPathLength = nil
+      }
+      guard let newPathLength else {
         logger.info("Contact not found in device contacts after retry")
         return
       }
 
-      // Check if routing changed
-      let newPathLength = updatedContact.outPathLength
       if newPathLength != initialPathLength {
         logger.info("Routing changed for contact \(contactID): \(initialPathLength) -> \(newPathLength)")
-
-        // Save updated contact to database
-        _ = try await dataStore.saveContact(radioID: radioID, from: updatedContact.toContactFrame())
-
-        // Notify UI of routing change
         let isNowFlood = newPathLength == PacketBuilder.floodPathSentinel
         statusEventBroadcaster.yield(.routingChanged(contactID: contactID, isFlood: isNowFlood))
       }
