@@ -147,8 +147,9 @@ class CapabilityEngine:
                     )
                     if original != candidate:
                         raise PortError("Contact import recovery cannot change unrelated resource entries")
-            english = messages[paths[0]]
-            if any(message == english for path, message in messages.items() if path != paths[0]):
+            english = " ".join(messages[paths[0]].split())
+            if any(" ".join(message.split()) == english
+                   for path, message in messages.items() if path != paths[0]):
                 raise PortError("Contact import recovery requires explicit localized copy, not English fallback")
 
     @staticmethod

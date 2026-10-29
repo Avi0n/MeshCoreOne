@@ -224,6 +224,19 @@ class ContactImportLocalizationCapabilityTests(unittest.TestCase):
                 CapabilityEngine.validate_support_changes(
                     {path: OPERATION}, base, candidate, read_blob=blobs.__getitem__)
 
+    def test_formatting_only_English_fallback_is_rejected(self):
+        for formatted in (
+            b" Localized fixture 0 ", b"\nLocalized fixture 0\n",
+            b"Localized   fixture\t0", b"\n  Localized\n    fixture 0  \n",
+        ):
+            base, candidate, blobs = self.resource_fixture()
+            english, translated = self.rule["path_rules"][0], self.rule["path_rules"][-1]
+            blobs[candidate[translated]] = blobs[candidate[english]].replace(b"Localized fixture 0", formatted)
+            with self.subTest(formatted=formatted), self.assertRaisesRegex(PortError, "English fallback"):
+                CapabilityEngine.validate_support_changes(
+                    {english: OPERATION, translated: OPERATION},
+                    base, candidate, read_blob=blobs.__getitem__)
+
     def test_resource_validation_requires_immutable_reader_and_exact_paths(self):
         base, candidate, blobs = self.resource_fixture()
         path = self.rule["path_rules"][0]
