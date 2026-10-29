@@ -360,6 +360,18 @@ class NodeConfigImportPlannerTest {
             val existing = deviceStored(plan(contactSections, contacts = listOf(config)).contactRecords.single(), Instant.ofEpochSecond(9999))
             assertEquals(1, plan(contactSections, contacts = listOf(config), existingContacts = mapOf(existing.id to existing)).contactRecords.size)
         },
+        "Unchanged deduplicated contacts reconcile the actual device copy in import order" to {
+            val matching = contact(name = "Existing", publicKey = pubKeyHexA, lastModified = 100u)
+            val device = recordFor(matching).copy(lastAdvertisement = Instant.ofEpochSecond(777))
+            val result = plan(
+                contactSections,
+                contacts = listOf(matching, matching, contact(name = "New", publicKey = pubKeyHexB)),
+                existingContacts = mapOf(device.id to device),
+            )
+            assertEquals(listOf(false, true), result.contactActions.map { it.writeDevice })
+            assertSame(device, result.contactActions.first().contact)
+            assertEquals(listOf("New"), result.contactRecords.map { it.advertisedName })
+        },
     )
 
     private fun encoderContact(

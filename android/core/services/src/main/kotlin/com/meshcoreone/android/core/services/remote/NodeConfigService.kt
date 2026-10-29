@@ -135,24 +135,29 @@ class NodeConfigService(
             setTxPower = { settingsService.setTxPower(it) },
             setChannel = { id, write -> channelService.setChannelWithSecret(id, write.index, write.name, write.secret) },
             addContact = { id, contact, onDeviceAdded -> addContact(id, contact, onDeviceAdded) },
+            saveContact = { id, contact -> saveContact(id, contact) },
         )
     }
 
     /**
      * The device add is irreversible. Report it before attempting the local save so failures and
-     * cancellation leave the consumer aware of the partial import. Later sync can reconcile the row.
+     * cancellation leave the consumer aware of the partial import.
      */
     private suspend fun addContact(radioId: RadioId, contact: MeshContact, onDeviceAdded: () -> Unit) {
         session.addContact(contact)
         onDeviceAdded()
+        saveContact(radioId, contact)
+    }
+
+    private suspend fun saveContact(radioId: RadioId, contact: MeshContact) {
         try {
             contactSaver.saveContact(radioId, contact.nodeConfigContactFrame())
         } catch (error: CancellationException) {
             currentCoroutineContext().ensureActive()
-            logger.error("Contact was added to the device but local save failed: ${error.javaClass.simpleName}")
+            logger.error("Contact exists on the device but local save failed: ${error.javaClass.simpleName}")
             throw NodeConfigContactSaveFailure(error)
         } catch (error: Exception) {
-            logger.error("Contact was added to the device but local save failed: ${error.javaClass.simpleName}")
+            logger.error("Contact exists on the device but local save failed: ${error.javaClass.simpleName}")
             throw NodeConfigContactSaveFailure(error)
         }
     }

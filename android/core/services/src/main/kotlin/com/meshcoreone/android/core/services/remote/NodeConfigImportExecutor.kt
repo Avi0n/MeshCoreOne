@@ -46,6 +46,7 @@ internal data class ConfigImportWriters(
     val setTxPower: suspend (Byte) -> Unit,
     val setChannel: suspend (radioId: RadioId, write: ConfigImportPlan.ChannelWrite) -> Unit,
     val addContact: suspend (radioId: RadioId, contact: MeshContact, onDeviceAdded: () -> Unit) -> Unit,
+    val saveContact: suspend (radioId: RadioId, contact: MeshContact) -> Unit,
 )
 
 // MARK: - Pref/radio diff gates (testable seam)
@@ -146,11 +147,15 @@ internal suspend fun executeConfigImport(
     var savedContacts = 0
     var contactFailure: Throwable? = null
     try {
-        for (contact in plan.contactRecords) {
+        for ((contact, writeDevice) in plan.contactActions) {
             checkCancellation()
-            writers.addContact(effectiveRadioId, contact) { progress(ImportStep.Contact(contact.advertisedName)) }
+            if (writeDevice) {
+                writers.addContact(effectiveRadioId, contact) { progress(ImportStep.Contact(contact.advertisedName)) }
+            } else {
+                writers.saveContact(effectiveRadioId, contact)
+            }
             savedContacts++
-            logger.info("Imported contact: ${contact.advertisedName}")
+            logger.info(if (writeDevice) "Imported contact: ${contact.advertisedName}" else "Reconciled local contact: ${contact.advertisedName}")
         }
     } catch (failure: Throwable) {
         contactFailure = failure

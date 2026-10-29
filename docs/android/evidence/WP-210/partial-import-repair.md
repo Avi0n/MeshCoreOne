@@ -6,8 +6,10 @@ Owner: `services-porter`. Session: `de168179112148fe9957f9e8b3519804`.
 
 The maintainer selected a partial-import warning when cancellation or a local
 save failure follows a confirmed device contact add. Caller cancellation
-propagates; a local-save failure stops the import. Normal subsequent sync may
-reconcile the local row. This is a bounded CM-10 repair, not full WP-210 or
+propagates; a local-save failure stops the import. A retry reconciles unchanged
+contacts from the actual radio record into local storage without another radio
+write, in deduplicated import order. Local-only saves do not emit device-write
+progress. This is a bounded CM-10 repair, not full WP-210 or
 issue acceptance.
 
 After a confirmed local save, the contact-change notification is completed
@@ -19,11 +21,11 @@ by the missing trusted resource capability recorded in #465; the current generic
 fallback remains misleading and must be fixed before this candidate is accepted.
 
 The candidate adds a service-flow test for the device-add boundary, both
-failure types, no later contact write and a retry that observes the unchanged
-contact on the fake radio. App tests connect the actual settings state holder
-to the real import service through a test adapter, fake radio and failing or
-cancelled contact saver. They do not prove mounted production wiring or real
-Room behavior. The teardown test separately checks cancellation of a parked
+failure types, no later contact write, failed and successful local-only retry,
+device-record advertisement time, notification, and cancellation on retry. App
+tests connect the actual settings state holder to the real import service through
+a test adapter, fake radio and failing or cancelled contact saver. The teardown
+test separately checks cancellation of a parked
 keep-alive and completion of an event subscriber; the original GC-dependent
 case remains present.
 
@@ -47,14 +49,9 @@ unmodeled type byte, and the actual AppContainer node-config/settings adapter
 over a fake firmware transport for other-parameter byte preservation and no-op
 commit elision. A mounted Settings test injects a second-contact persistence
 failure while the first contact is saved through real Room; it checks the
-partial warning and both acknowledged radio writes. These tests are not physical
-radio evidence, and exact-candidate execution remains pending.
-
-An unchanged radio contact is currently skipped on retry before any local
-save is attempted. If its earlier local save failed and sync has not repaired
-the row, retry can therefore report completion while that row remains absent.
-The appropriate retry-versus-sync behavior is not established by the original
-partial-warning decision and remains unresolved.
+partial warning, both acknowledged radio writes, and local-only retry preserving
+local fields. These tests are not physical radio evidence, and exact-candidate
+execution remains pending.
 
 Additional native tests distinguish an explicit stop of a parked keep-alive,
 the quiet result of a domain cancellation during a tick, and propagation of

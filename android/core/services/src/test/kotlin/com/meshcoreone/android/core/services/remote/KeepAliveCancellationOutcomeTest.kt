@@ -14,6 +14,8 @@ import org.junit.jupiter.api.TestFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class KeepAliveCancellationOutcomeTest {
@@ -61,12 +63,23 @@ class KeepAliveCancellationOutcomeTest {
             val service = RemoteNodeService(
                 RemoteCoreFakeSession(clock), store, RemoteCoreFakePasswordStore(), this, clock,
             )
-            val caller = async { service.performKeepAliveTick(key, remote.publicKey, 1) }
+            var returned: KeepAliveTick? = null
+            var thrown: kotlinx.coroutines.CancellationException? = null
+            val caller = async {
+                try {
+                    returned = service.performKeepAliveTick(key, remote.publicKey, 1)
+                } catch (error: kotlinx.coroutines.CancellationException) {
+                    thrown = error
+                    throw error
+                }
+            }
             try {
                 entered.await()
                 caller.cancelAndJoin()
                 assertTrue(caller.isCancelled)
                 assertFailsWith<kotlinx.coroutines.CancellationException> { caller.await() }
+                assertNotNull(thrown, "The tick itself must propagate caller cancellation")
+                assertNull(returned, "A cancelled tick must not return a quiet result")
                 assertTrue(checkNotNull(backing.session(key)).isConnected)
             } finally {
                 service.close()

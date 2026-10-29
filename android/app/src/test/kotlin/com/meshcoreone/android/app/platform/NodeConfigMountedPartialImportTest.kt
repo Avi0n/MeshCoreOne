@@ -26,6 +26,7 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.CommandCode
 import com.meshcoreone.android.core.services.remote.NodeConfigJson
 import com.meshcoreone.android.feature.settings.app.nodeconfig.NodeConfigDocuments
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -43,9 +44,10 @@ class NodeConfigMountedPartialImportTest : RoomProcessTest() {
     fun acknowledgedContactWithFailedLocalSaveShowsPartialWarning() = runTest {
         val firstKey = requireNotNull(Bytes.parseHex("cd".repeat(32)))
         val secondKey = requireNotNull(Bytes.parseHex("ef".repeat(32)))
+        val failSecondSave = AtomicBoolean(true)
         val persistence = object : PersistenceStoreProtocol by store {
             override suspend fun saveContact(radioId: RadioId, frame: ContactFrame): ContactSaveResult {
-                if (frame.publicKey == secondKey) throw IllegalStateException("local save failed")
+                if (frame.publicKey == secondKey && failSecondSave.get()) throw IllegalStateException("local save failed")
                 return store.saveContact(radioId, frame)
             }
         }
@@ -103,6 +105,20 @@ class NodeConfigMountedPartialImportTest : RoomProcessTest() {
             assertEquals(2, radio.sent.drop(beforeImport).count { it[0] == CommandCode.UPDATE_CONTACT.rawValue })
             assertNotNull(store.fetchContact(node.token.radioId, firstKey))
             assertNull(store.fetchContact(node.token.radioId, secondKey))
+
+            val first = requireNotNull(store.fetchContact(node.token.radioId, firstKey))
+            store.saveContact(first.copy(isFavorite = true, nickname = "Local nickname"))
+            failSecondSave.set(false)
+            val beforeRetry = radio.sent.size
+            compose.onNodeWithText(context.getString(S.configImportApplyButtonAdd)).performScrollTo().performClick()
+            harness.eventually("retry confirmation") { holder.importState.value.confirmation }
+            compose.onAllNodesWithText(context.getString(S.configImportApplyButtonAdd)).onLast().performClick()
+            harness.eventually("retry completion") { holder.importState.value.complete }
+            assertEquals(0, radio.sent.drop(beforeRetry).count { it[0] == CommandCode.UPDATE_CONTACT.rawValue })
+            assertNotNull(store.fetchContact(node.token.radioId, secondKey))
+            val retained = requireNotNull(store.fetchContact(node.token.radioId, firstKey))
+            assertTrue(retained.isFavorite)
+            assertEquals("Local nickname", retained.nickname)
         } finally {
             compose.runOnUiThread { context.setContent {} }
             harness.container.close()

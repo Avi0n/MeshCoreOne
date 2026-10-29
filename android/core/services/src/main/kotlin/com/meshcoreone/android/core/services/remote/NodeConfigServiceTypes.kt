@@ -66,7 +66,7 @@ sealed class NodeConfigServiceError(message: String) : Exception(message), Sourc
         }
 }
 
-/** A contact was accepted by the radio but its local persistence did not complete. */
+/** A contact is present on the radio but its local persistence did not complete. */
 class NodeConfigContactSaveFailure(cause: Throwable) :
     Exception(null, cause)
 

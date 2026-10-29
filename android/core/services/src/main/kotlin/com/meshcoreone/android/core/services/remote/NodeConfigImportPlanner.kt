@@ -33,11 +33,14 @@ internal data class ConfigImportPlan(
     val channelWrites: List<ChannelWrite> = emptyList(),
     /** True when any write replaces an already-configured slot whose name/secret differs. */
     val channelsOverwriteExisting: Boolean = false,
-    /** Validated, deduplicated contact records ready to write (raw type byte preserved). */
-    val contactRecords: List<MeshContact> = emptyList(),
+    /** Deduplicated contacts in import order, including device copies needing local reconciliation. */
+    val contactActions: List<ContactAction> = emptyList(),
 ) {
     data class Coordinate(val latitude: Double, val longitude: Double)
     data class ChannelWrite(val index: UByte, val name: String, val secret: Bytes)
+    data class ContactAction(val contact: MeshContact, val writeDevice: Boolean)
+
+    val contactRecords: List<MeshContact> get() = contactActions.filter { it.writeDevice }.map { it.contact }
 }
 
 /**
@@ -74,7 +77,7 @@ internal fun planConfigImport(
     }
     val contacts = config.contacts
     if (sections.contacts && contacts != null) {
-        plan = plan.copy(contactRecords = planContactRecords(contacts, maxContacts, existingContacts))
+        plan = plan.copy(contactActions = planContactRecords(contacts, maxContacts, existingContacts))
     }
     return plan
 }
@@ -197,14 +200,14 @@ private class KeyedContact(val config: MeshCoreNodeConfig.ContactConfig, val pub
 
 /**
  * Validates and deduplicates contacts (newest `last_modified` wins, ties go to the later entry),
- * enforces remaining device capacity (keys already on the device consume no slot), and drops records
- * the device already stores byte-for-byte.
+ * enforces remaining device capacity (keys already on the device consume no slot), and reconciles
+ * unchanged device records locally without writing them back to the radio.
  */
 private fun planContactRecords(
     contacts: List<MeshCoreNodeConfig.ContactConfig>,
     maxContacts: Int,
     existingContacts: Map<String, MeshContact>,
-): List<MeshContact> {
+): List<ConfigImportPlan.ContactAction> {
     val byKey = HashMap<String, KeyedContact>()
     val order = mutableListOf<String>()
     for (contact in contacts) {
@@ -222,11 +225,15 @@ private fun planContactRecords(
     val availableSlots = maxContacts - existingContacts.size
     if (newKeyCount > availableSlots) throw NodeConfigServiceError.ContactCapacityExceeded(newKeyCount, availableSlots)
 
-    return order.mapNotNull { key ->
+    return order.map { key ->
         val entry = checkNotNull(byKey[key])
         val record = buildContactRecord(entry.config, entry.publicKey, key)
         val deviceCopy = existingContacts[key]
-        if (deviceCopy != null && persistedContactFieldsMatch(deviceCopy, record)) null else record
+        if (deviceCopy != null && persistedContactFieldsMatch(deviceCopy, record)) {
+            ConfigImportPlan.ContactAction(deviceCopy, writeDevice = false)
+        } else {
+            ConfigImportPlan.ContactAction(record, writeDevice = true)
+        }
     }
 }
 

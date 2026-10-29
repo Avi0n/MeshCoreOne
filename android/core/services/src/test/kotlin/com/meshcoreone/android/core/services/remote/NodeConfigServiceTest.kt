@@ -405,6 +405,7 @@ internal class NodeConfigExecuteSpy {
                 step("addContact:${contact.advertisedName}")
                 added()
             },
+            saveContact = { _, contact -> step("saveContact:${contact.advertisedName}") },
         )
     }
 }
