@@ -11,11 +11,11 @@ if __package__ in (None, ""):
 from controller.errors import PortError
 
 ACTION_PINS = {
-    "actions/cache": "5a3ec84eff668545956fd18022155c47e93e2684",
+    "actions/cache": "caa296126883cff596d87d8935842f9db880ef25",
     "actions/checkout": "d23441a48e516b6c34aea4fa41551a30e30af803",
     "actions/setup-python": "ece7cb06caefa5fff74198d8649806c4678c61a1",
     "actions/upload-artifact": "b7c566a772e6b6bfb58ed0dc250532a479d7789f",
-    "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
+    "actions/download-artifact": "37930b1c2abaa49bbe596cd826c3c89aef350131",
 }
 TRUSTED_WORKFLOWS = (
     "android-port-dispatch.yml",
