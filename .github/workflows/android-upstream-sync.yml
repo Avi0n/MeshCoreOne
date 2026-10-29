@@ -47,7 +47,7 @@ jobs:
         run: python tools/android-port/resync.py --self-test --output $env:UPSTREAM_TEST_REPORT
       - name: Keep exact discovered assertion counts as data
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: upstream-fixtures-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/upstream-fixtures
@@ -86,7 +86,7 @@ jobs:
           --candidate "$UPSTREAM_CANDIDATE_COMMIT" --output "$UPSTREAM_REPORT_PATH"
       - name: Retain the complete data-only review proposal, including blocked new inputs
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: upstream-proposals-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/upstream-proposals
