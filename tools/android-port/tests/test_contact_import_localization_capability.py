@@ -4,6 +4,7 @@ import copy
 import json
 import subprocess
 import unittest
+from unittest.mock import patch
 
 from fixtures import REPO, historical_policy_text, policy, test_manifest
 from controller.capabilities import CapabilityEngine
@@ -147,3 +148,109 @@ class ContactImportLocalizationCapabilityTests(unittest.TestCase):
         ):
             with self.subTest(required=required):
                 self.assertIn(required, text)
+
+    def resource_fixture(self):
+        base, candidate, blobs = {}, {}, {}
+        for index, path in enumerate(self.rule["path_rules"]):
+            base[path], candidate[path] = f"base-{index}", f"candidate-{index}"
+            blobs[base[path]] = b'<resources><string name="existing">Keep me</string></resources>'
+            blobs[candidate[path]] = (
+                '<resources><string name="existing">Keep me</string>'
+                f'<string name="node_config_contact_save_failed">Localized fixture {index}</string>'
+                '</resources>'
+            ).encode()
+        return base, candidate, blobs
+
+    def test_immutable_resource_validation_accepts_create_and_update_with_formatting(self):
+        base, candidate, blobs = self.resource_fixture()
+        operations = dict.fromkeys(candidate, OPERATION)
+        CapabilityEngine.validate_support_changes(operations, base, candidate, read_blob=blobs.__getitem__)
+        for path in base:
+            blobs[base[path]] = blobs[candidate[path]].replace(b"Localized fixture", b"Old fixture")
+        CapabilityEngine.validate_support_changes(operations, base, candidate, read_blob=blobs.__getitem__)
+        for path in candidate:
+            blobs[candidate[path]] = blobs[candidate[path]].replace(b"><", b">\n  <")
+        CapabilityEngine.validate_support_changes(operations, base, candidate, read_blob=blobs.__getitem__)
+        for path in candidate:
+            blobs[candidate[path]] = blobs[candidate[path]].replace(b'<string name="existing">Keep me</string>', b"")
+        CapabilityEngine.validate_support_changes(operations, {}, candidate, read_blob=blobs.__getitem__)
+
+    def test_resource_deletion_unrelated_edits_and_missing_locale_are_rejected(self):
+        for mode in ("delete", "edit", "remove", "add", "reorder", "root", "omit-locale", "English"):
+            base, candidate, blobs = self.resource_fixture()
+            path = self.rule["path_rules"][0]
+            operations = {path: OPERATION}
+            if mode == "delete":
+                del candidate[path]
+            elif mode == "omit-locale":
+                del candidate[self.rule["path_rules"][-1]]
+            elif mode == "English":
+                blobs[candidate[self.rule["path_rules"][-1]]] = blobs[candidate[path]]
+            elif mode == "edit":
+                blobs[candidate[path]] = blobs[candidate[path]].replace(b"Keep me", b"Changed")
+            elif mode == "remove":
+                blobs[candidate[path]] = blobs[candidate[path]].replace(
+                    b'<string name="existing">Keep me</string>', b"")
+            elif mode == "add":
+                blobs[candidate[path]] = blobs[candidate[path]].replace(
+                    b"</resources>", b'<string name="extra">Extra</string></resources>')
+            elif mode == "root":
+                blobs[candidate[path]] = blobs[candidate[path]].replace(
+                    b"<resources>", b'<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/*">')
+            else:
+                extra = b'<string-array name="array"><item>A</item><item>B</item></string-array>'
+                blobs[base[path]] = blobs[base[path]].replace(b"</resources>", extra + b"</resources>")
+                blobs[candidate[path]] = blobs[candidate[path]].replace(b"<resources>", b"<resources>" + extra)
+            with self.subTest(mode=mode), self.assertRaises(PortError):
+                CapabilityEngine.validate_support_changes(operations, base, candidate, read_blob=blobs.__getitem__)
+
+    def test_invalid_missing_duplicate_nonstring_and_nontranslatable_copy_are_rejected(self):
+        for xml in (
+            b"<resources>", b"\xff", b"<wrong/>", b"<resources>stray text</resources>",
+            b'<!DOCTYPE resources [<!ENTITY x "expanded">]><resources/>',
+            b"<resources/>",
+            b'<resources><string name="node_config_contact_save_failed"/></resources>',
+            b'<resources><string name="node_config_contact_save_failed"> </string></resources>',
+            b'<resources><plurals name="node_config_contact_save_failed"><item quantity="one">A</item></plurals></resources>',
+            b'<resources><string name="node_config_contact_save_failed" translatable="false">A</string></resources>',
+            b'<resources><string name="node_config_contact_save_failed"><b>A</b></string></resources>',
+            b'<resources><string name="node_config_contact_save_failed">A</string>'
+            b'<string name="node_config_contact_save_failed">B</string></resources>',
+        ):
+            base, candidate, blobs = self.resource_fixture()
+            path = self.rule["path_rules"][0]
+            blobs[candidate[path]] = xml
+            with self.subTest(xml=xml), self.assertRaises(PortError):
+                CapabilityEngine.validate_support_changes(
+                    {path: OPERATION}, base, candidate, read_blob=blobs.__getitem__)
+
+    def test_resource_validation_requires_immutable_reader_and_exact_paths(self):
+        base, candidate, blobs = self.resource_fixture()
+        path = self.rule["path_rules"][0]
+        with self.assertRaises(PortError):
+            CapabilityEngine.validate_support_changes({path: OPERATION}, base, candidate)
+        with self.assertRaises(PortError):
+            CapabilityEngine.validate_support_changes(
+                {"android/app/src/main/res/values/strings.xml": OPERATION},
+                base, candidate, read_blob=blobs.__getitem__)
+
+    def test_staging_supplies_bounded_immutable_git_blob_reader(self):
+        from controller.model import git, tree
+        from controller.staging import stage_review
+
+        head = git(REPO, "rev-parse", "HEAD").decode().strip()
+        entries = tree(REPO, head)
+        path = "docs/android/automation-policy.json"
+        expected = git(REPO, "cat-file", "blob", entries[path])
+
+        def validate(operations, base, candidate, *, read_blob):
+            self.assertEqual(operations, {})
+            self.assertEqual(base, entries)
+            self.assertEqual(candidate, entries)
+            self.assertEqual(read_blob(entries[path]), expected)
+            raise PortError("fixture stopped after actual immutable reader verification")
+
+        with patch.object(CapabilityEngine, "validate_support_changes", side_effect=validate) as check:
+            with self.assertRaisesRegex(PortError, "fixture stopped"):
+                stage_review(REPO, "WP-000", head, head, path_operations={})
+            check.assert_called_once()

@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from fnmatch import fnmatchcase
 import re
+import xml.etree.ElementTree as ET
 
 from .errors import PortError
 from .paths import git_path
@@ -113,7 +114,8 @@ class CapabilityEngine:
         return result
 
     @staticmethod
-    def validate_support_changes(path_operations: dict, base_tree: dict, candidate_tree: dict):
+    def validate_support_changes(path_operations: dict, base_tree: dict, candidate_tree: dict, *,
+                                 read_blob=None):
         """Bind shared support operations to the actual immutable base and candidate."""
         for path, operation in path_operations.items():
             if operation == "modify-related-consumer" and (
@@ -122,6 +124,69 @@ class CapabilityEngine:
                 raise PortError("Related consumer support may modify existing files only")
             if operation == "add-or-update-related-test" and path not in candidate_tree:
                 raise PortError("Related test support cannot delete a test")
+        resources = {
+            path for path, operation in path_operations.items()
+            if operation == "add-or-update-contact-import-recovery-copy"
+        }
+        if resources:
+            from .scope_amendment import CONTACT_IMPORT_LOCALIZATION_CAPABILITY
+
+            paths = CONTACT_IMPORT_LOCALIZATION_CAPABILITY["path_rules"]
+            if resources - set(paths) or read_blob is None:
+                raise PortError("Contact import recovery requires exact paths and an immutable blob reader")
+            messages = {}
+            for path in paths:
+                if path not in candidate_tree:
+                    raise PortError("Contact import recovery cannot delete or omit a supported locale resource")
+                candidate, message = CapabilityEngine._contact_import_resource(read_blob(candidate_tree[path]))
+                messages[path] = message
+                if path in resources:
+                    original = (
+                        CapabilityEngine._contact_import_resource(read_blob(base_tree[path]), required=False)[0]
+                        if path in base_tree else ("resources", (), ())
+                    )
+                    if original != candidate:
+                        raise PortError("Contact import recovery cannot change unrelated resource entries")
+            english = messages[paths[0]]
+            if any(message == english for path, message in messages.items() if path != paths[0]):
+                raise PortError("Contact import recovery requires explicit localized copy, not English fallback")
+
+    @staticmethod
+    def _contact_import_resource(data: bytes, *, required=True):
+        key = "node_config_contact_save_failed"
+        try:
+            text = data.decode("utf-8")
+            if "<!DOCTYPE" in text.upper() or "<!ENTITY" in text.upper():
+                raise PortError("Contact import resource cannot contain DTD or entity declarations")
+            root = ET.fromstring(text)
+        except (UnicodeError, ET.ParseError) as error:
+            raise PortError("Contact import recovery requires valid UTF-8 resource XML") from error
+        if root.tag != "resources" or (root.text or "").strip() or any(
+            (child.tail or "").strip() for child in root
+        ):
+            raise PortError("Contact import recovery requires a resources root without stray text")
+        selected = [child for child in root if child.get("name") == key]
+        if len(selected) > 1 or (required and not selected):
+            raise PortError("Contact import recovery requires exactly one recovery string")
+        message = None
+        if selected:
+            value = selected[0]
+            if (
+                value.tag != "string" or value.attrib != {"name": key}
+                or len(value) or not (value.text or "").strip()
+            ):
+                raise PortError("Contact import recovery must be a nonempty, translatable plain string")
+            message = value.text
+
+        def entry(node):
+            return (node.tag, tuple(sorted(node.attrib.items())), node.text,
+                    tuple((entry(child), child.tail) for child in node))
+
+        return (
+            (root.tag, tuple(sorted(root.attrib.items())),
+             tuple(entry(child) for child in root if child.get("name") != key)),
+            message,
+        )
 
     def overlap_report(self, records: list[dict]) -> list[dict]:
         report = []
