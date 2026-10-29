@@ -28,6 +28,12 @@ the active WP-213 stream in #395; its product criterion and any shared edit
 remain unresolved. These tests have not been independently established as
 passing until the exact-candidate hosted job runs them with positive discovery.
 
+Additional native tests distinguish an explicit stop of a parked keep-alive,
+the quiet result of a domain cancellation during a tick, and propagation of
+caller cancellation from a parked tick. They exercise the service with fake
+session/store collaborators and check that its connected row is not marked
+disconnected. Their exact-candidate execution remains pending.
+
 The exact candidate's hosted CI result and log are authoritative for actual
 test execution and discovery. The local preflight could not run Android tests:
 `python tools/android-port/controller/ci.py preflight` reported missing explicit
