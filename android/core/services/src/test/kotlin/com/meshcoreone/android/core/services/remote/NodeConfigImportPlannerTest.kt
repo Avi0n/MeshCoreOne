@@ -13,6 +13,8 @@ import com.meshcoreone.android.core.protocol.crypto.Ed25519Crypto
 import com.meshcoreone.android.core.protocol.model.MeshContact
 import com.meshcoreone.android.core.protocol.model.PathEncoding
 import com.meshcoreone.android.core.protocol.parser.Parsers
+import com.meshcoreone.android.core.services.contacts.toContactFrame
+import com.meshcoreone.android.core.services.contacts.toMeshContact
 import java.security.SecureRandom
 import java.time.Instant
 import kotlin.test.*
@@ -336,8 +338,14 @@ class NodeConfigImportPlannerTest {
                 "coords" to base.copy(latitude = "48.0"), "lastModified" to base.copy(lastModified = 2000u),
             )
             for ((label, variant) in variants) {
-                assertEquals(1, plan(contactSections, contacts = listOf(variant), existingContacts = mapOf(existing.id to existing)).contactRecords.size,
-                    "A $label diff must still write the contact")
+                val result = plan(contactSections, contacts = listOf(variant), existingContacts = mapOf(existing.id to existing))
+                if (label == "lastModified") {
+                    // Approved Android adaptation: reconcile a timestamp-only difference locally.
+                    assertTrue(result.contactRecords.isEmpty())
+                    assertSame(existing, result.contactActions.single().contact)
+                } else {
+                    assertEquals(1, result.contactRecords.size, "A $label diff must still write the contact")
+                }
             }
         },
         "A name differing only past the firmware field width is treated as equal and dropped" to {
@@ -356,7 +364,22 @@ class NodeConfigImportPlannerTest {
         "A contact the firmware re-stamped is re-emitted, not dropped (skip is safe-fail)" to {
             val config = contact(name = "Bravo", publicKey = pubKeyHexA, latitude = "47.5", longitude = "-122.5", lastModified = 1000u, outPath = "aabb", pathHashMode = 0u)
             val existing = deviceStored(plan(contactSections, contacts = listOf(config)).contactRecords.single(), Instant.ofEpochSecond(9999))
-            assertEquals(1, plan(contactSections, contacts = listOf(config), existingContacts = mapOf(existing.id to existing)).contactRecords.size)
+            // The original case name is retained for source traceability; Android deliberately reconciles instead.
+            val result = plan(contactSections, contacts = listOf(config), existingContacts = mapOf(existing.id to existing))
+            assertTrue(result.contactRecords.isEmpty())
+            assertSame(existing, result.contactActions.single().contact)
+        },
+        "Unchanged deduplicated contacts reconcile the actual device copy in import order" to {
+            val matching = contact(name = "Existing", publicKey = pubKeyHexA, lastModified = 100u)
+            val device = recordFor(matching).copy(lastAdvertisement = Instant.ofEpochSecond(777))
+            val result = plan(
+                contactSections,
+                contacts = listOf(matching, matching, contact(name = "New", publicKey = pubKeyHexB)),
+                existingContacts = mapOf(device.id to device),
+            )
+            assertEquals(listOf(false, true), result.contactActions.map { it.writeDevice })
+            assertSame(device, result.contactActions.first().contact)
+            assertEquals(listOf("New"), result.contactRecords.map { it.advertisedName })
         },
     )
 
@@ -457,6 +480,27 @@ class NodeConfigImportPlannerTest {
                 val meshContact = nodeConfigMeshContact(id = "m", publicKey = nodeConfigBytes(0xAB, 32), type = type, typeRawValue = raw.toUByte(), advertisedName = "M")
                 assertEquals(raw.toUByte(), NodeConfigService.buildContactConfig(meshContact).type)
             }
+        },
+    )
+
+    @TestFactory
+    fun realContactConversionCases() = nodeConfigNativeCases(
+        "actual contact conversions preserve the unmodeled type byte through export" to {
+            val frame = com.meshcoreone.android.core.model.ContactFrame(
+                publicKey = nodeConfigBytes(0xAB, 32), type = com.meshcoreone.android.core.protocol.model.ContactType.CHAT,
+                flags = 0u, outPathLength = 0xFFu, outPath = Bytes.EMPTY, name = "FutureType", lastAdvertTimestamp = 0u,
+                latitude = 0.0, longitude = 0.0, lastModified = 0u, typeRawValue = 0x04u,
+            )
+            val meshContact = frame.toMeshContact()
+            assertEquals(0x04u.toUByte(), meshContact.typeRawValue)
+            assertEquals(0x04u.toUByte(), meshContact.toContactFrame().typeRawValue)
+            assertEquals(0x04u.toUByte(), meshContact.nodeConfigContactFrame().typeRawValue)
+            val dto = com.meshcoreone.android.core.model.ContactDTO.fromFrame(
+                com.meshcoreone.android.core.model.RadioId(java.util.UUID.randomUUID()), frame,
+            )
+            assertEquals(0x04u.toUByte(), dto.typeRawValue)
+            assertEquals(0x04u.toUByte(), dto.toContactFrame().typeRawValue)
+            assertEquals(0x04u.toUByte(), NodeConfigService.buildContactConfig(meshContact).type)
         },
     )
 

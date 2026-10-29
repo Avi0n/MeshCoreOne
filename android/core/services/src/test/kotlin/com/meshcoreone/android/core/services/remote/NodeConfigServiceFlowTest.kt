@@ -27,8 +27,10 @@ class NodeConfigServiceFlowTest {
     private class Harness(
         val settings: NodeConfigFakeSettings,
         val session: NodeConfigFakeSession = NodeConfigFakeSession(),
-        saveFailure: Exception? = null,
+        var saveFailure: Exception? = null,
         cancelCallerOnSave: Boolean = false,
+        saveFailureAfter: Int = 0,
+        notificationFailure: Exception? = null,
     ) {
         private val lock = Any()
         private val channelWrites = mutableListOf<Pair<RadioId, String>>()
@@ -40,11 +42,13 @@ class NodeConfigServiceFlowTest {
             session, settings,
             { radioId, index, name, _ -> synchronized(lock) { channelWrites += radioId to "$index:$name" } },
             NodeConfigContactSaver { radioId, frame ->
-                if (cancelCallerOnSave) kotlinx.coroutines.currentCoroutineContext().cancel()
-                saveFailure?.let { throw it }
+                if (synchronized(lock) { saved.size >= saveFailureAfter }) {
+                    if (cancelCallerOnSave) kotlinx.coroutines.currentCoroutineContext().cancel()
+                    saveFailure?.let { throw it }
+                }
                 synchronized(lock) { saved += radioId to frame }
             },
-            { notifications++ },
+            { notifications++; notificationFailure?.let { throw it } },
             NodeConfigLogger.NONE,
         )
     }
@@ -131,22 +135,186 @@ class NodeConfigServiceFlowTest {
             assertTrue("importPrivateKey:64" in harness.settings.calls)
             assertFalse(harness.settings.calls.any { it.startsWith("setNodeName") }, "An unchanged name is not rewritten")
         },
-        "a local contact-save failure or store-internal timeout is logged; the import's own cancellation propagates" to {
+        "a local contact-save failure stops after reporting the device add; caller cancellation propagates" to {
             val failing = Harness(NodeConfigFakeSettings(deviceInfo()), saveFailure = IllegalStateException("db"))
             val config = MeshCoreNodeConfig(contacts = SnapshotList.of(contactConfig("cd".repeat(32), "C")))
-            failing.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID()))
+            val failedProgress = mutableListOf<ImportProgress>()
+            val failure = assertFailsWith<NodeConfigContactSaveFailure> {
+                failing.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID())) {
+                    failedProgress += it
+                }
+            }
+            assertIs<IllegalStateException>(failure.cause)
             assertEquals(1, failing.session.addedContacts.size)
-            // Swift logs every save error; a CancellationException the store raised while the import is live is one.
+            assertEquals(listOf(ImportProgress(ImportStep.Contact("C"), 1, 1)), failedProgress)
+            assertEquals(0, failing.notifications)
+            // Retry uses the actual device copy, including the volatile advertisement time.
+            failing.session.contacts = failing.session.addedContacts.map {
+                it.copy(lastAdvertisement = Instant.ofEpochSecond(777), lastModified = Instant.ofEpochSecond(999))
+            }
+            assertFailsWith<NodeConfigContactSaveFailure> {
+                failing.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID()))
+            }
+            assertEquals(1, failing.session.addedContacts.size)
+            assertTrue(failing.savedFrames.isEmpty())
+            failing.saveFailure = null
+            val retryRadio = RadioId(UUID.randomUUID())
+            val retryProgress = mutableListOf<ImportProgress>()
+            failing.service.importConfig(config, ConfigSections(contacts = true), retryRadio) { retryProgress += it }
+            assertEquals(1, failing.session.addedContacts.size)
+            assertEquals(retryRadio, failing.savedFrames.single().first)
+            assertEquals(777u, failing.savedFrames.single().second.lastAdvertTimestamp)
+            assertEquals(999u, failing.savedFrames.single().second.lastModified)
+            assertTrue(retryProgress.isEmpty(), "Local reconciliation must not report a device write")
+            assertEquals(1, failing.notifications)
             val timedOut = Harness(NodeConfigFakeSettings(deviceInfo()), saveFailure = CancellationException("store timeout"))
-            timedOut.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID()))
+            val timeout = assertFailsWith<NodeConfigContactSaveFailure> {
+                timedOut.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID()))
+            }
+            assertIs<CancellationException>(timeout.cause)
             assertEquals(1, timedOut.session.addedContacts.size)
             val cancelled = Harness(
                 NodeConfigFakeSettings(deviceInfo()), saveFailure = CancellationException("stop"), cancelCallerOnSave = true,
             )
+            val progress = mutableListOf<ImportProgress>()
             val importing = kotlinx.coroutines.coroutineScope {
-                async { cancelled.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID())) }
+                async {
+                    cancelled.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID())) {
+                        progress += it
+                    }
+                }
             }
             assertFailsWith<CancellationException> { importing.await() }
+            assertEquals(listOf("C"), cancelled.session.addedContacts.map { it.advertisedName })
+            assertEquals(listOf(ImportProgress(ImportStep.Contact("C"), 1, 1)), progress)
+            assertTrue(cancelled.savedFrames.isEmpty())
+        },
+        "a failed local save stops before a second contact is added" to {
+            val harness = Harness(NodeConfigFakeSettings(deviceInfo()), saveFailure = IllegalStateException("db"))
+            val config = MeshCoreNodeConfig(
+                contacts = SnapshotList.of(contactConfig("cd".repeat(32), "First"), contactConfig("ef".repeat(32), "Second")),
+            )
+            val progress = mutableListOf<ImportProgress>()
+            assertFailsWith<NodeConfigContactSaveFailure> {
+                harness.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID())) {
+                    progress += it
+                }
+            }
+            assertEquals(listOf("First"), harness.session.addedContacts.map { it.advertisedName })
+            assertEquals(listOf(ImportProgress(ImportStep.Contact("First"), 1, 2)), progress)
+        },
+        "caller cancellation takes precedence over an ordinary save error" to {
+            val harness = Harness(
+                NodeConfigFakeSettings(deviceInfo()), saveFailure = IllegalStateException("db"),
+                cancelCallerOnSave = true,
+            )
+            val config = MeshCoreNodeConfig(contacts = SnapshotList.of(contactConfig("cd".repeat(32), "C")))
+            var observed: Exception? = null
+            val importing = kotlinx.coroutines.coroutineScope {
+                async {
+                    try {
+                        harness.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID()))
+                    } catch (error: Exception) {
+                        observed = error
+                        throw error
+                    }
+                }
+            }
+            assertFailsWith<CancellationException> { importing.await() }
+            assertIs<CancellationException>(observed)
+            assertEquals(1, harness.session.addedContacts.size)
+            assertTrue(harness.savedFrames.isEmpty())
+            assertEquals(0, harness.notifications)
+        },
+        "a later failed save notifies already committed contacts and preserves the failure" to {
+            val harness = Harness(NodeConfigFakeSettings(deviceInfo()), saveFailure = IllegalStateException("db"), saveFailureAfter = 1)
+            val config = MeshCoreNodeConfig(
+                contacts = SnapshotList.of(contactConfig("cd".repeat(32), "First"), contactConfig("ef".repeat(32), "Second")),
+            )
+            val failure = assertFailsWith<NodeConfigContactSaveFailure> {
+                harness.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID()))
+            }
+            assertIs<IllegalStateException>(failure.cause)
+            assertEquals(listOf("First"), harness.savedFrames.map { it.second.name })
+            assertEquals(listOf("First", "Second"), harness.session.addedContacts.map { it.advertisedName })
+            assertEquals(1, harness.notifications)
+        },
+        "a notification failure is retained on the original partial import failure" to {
+            val notificationError = IllegalStateException("notify")
+            val harness = Harness(
+                NodeConfigFakeSettings(deviceInfo()), saveFailure = IllegalStateException("db"),
+                saveFailureAfter = 1, notificationFailure = notificationError,
+            )
+            val config = MeshCoreNodeConfig(
+                contacts = SnapshotList.of(contactConfig("cd".repeat(32), "First"), contactConfig("ef".repeat(32), "Second")),
+            )
+            val failure = assertFailsWith<NodeConfigContactSaveFailure> {
+                harness.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID()))
+            }
+            val suppressed = assertIs<IllegalStateException>(failure.suppressed.single())
+            assertEquals("notify", suppressed.message)
+            assertTrue(suppressed === notificationError || suppressed.cause === notificationError)
+            assertEquals(1, harness.notifications)
+        },
+        "cancellation during a local-only retry stops without a radio write" to {
+            val config = MeshCoreNodeConfig(contacts = SnapshotList.of(contactConfig("cd".repeat(32), "C")))
+            val first = Harness(NodeConfigFakeSettings(deviceInfo()))
+            first.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID()))
+            val cancelling = Harness(
+                NodeConfigFakeSettings(deviceInfo()), NodeConfigFakeSession(contacts = first.session.addedContacts),
+                saveFailure = CancellationException("stop"), cancelCallerOnSave = true,
+            )
+            val progress = mutableListOf<ImportProgress>()
+            val importing = kotlinx.coroutines.coroutineScope {
+                async {
+                    cancelling.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID())) {
+                        progress += it
+                    }
+                }
+            }
+            assertFailsWith<CancellationException> { importing.await() }
+            assertTrue(cancelling.session.addedContacts.isEmpty())
+            assertTrue(cancelling.savedFrames.isEmpty())
+            assertTrue(progress.isEmpty())
+            assertEquals(0, cancelling.notifications)
+        },
+        "a reconciled contact is notified if a later radio contact save fails" to {
+            val first = Harness(NodeConfigFakeSettings(deviceInfo()))
+            val firstConfig = contactConfig("cd".repeat(32), "First")
+            first.service.importConfig(
+                MeshCoreNodeConfig(contacts = SnapshotList.of(firstConfig)),
+                ConfigSections(contacts = true), RadioId(UUID.randomUUID()),
+            )
+            val retry = Harness(
+                NodeConfigFakeSettings(deviceInfo()), NodeConfigFakeSession(contacts = first.session.addedContacts),
+                saveFailure = IllegalStateException("db"), saveFailureAfter = 1,
+            )
+            val progress = mutableListOf<ImportProgress>()
+            val config = MeshCoreNodeConfig(contacts = SnapshotList.of(firstConfig, contactConfig("ef".repeat(32), "Second")))
+            assertFailsWith<NodeConfigContactSaveFailure> {
+                retry.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID())) {
+                    progress += it
+                }
+            }
+            assertEquals(listOf("First"), retry.savedFrames.map { it.second.name })
+            assertEquals(listOf("Second"), retry.session.addedContacts.map { it.advertisedName })
+            assertEquals(listOf(ImportProgress(ImportStep.Contact("Second"), 1, 1)), progress)
+            assertEquals(1, retry.notifications)
+        },
+        "caller cancellation after a saved contact still notifies it" to {
+            val harness = Harness(
+                NodeConfigFakeSettings(deviceInfo()), saveFailure = CancellationException("stop"),
+                cancelCallerOnSave = true, saveFailureAfter = 1,
+            )
+            val config = MeshCoreNodeConfig(
+                contacts = SnapshotList.of(contactConfig("cd".repeat(32), "First"), contactConfig("ef".repeat(32), "Second")),
+            )
+            val importing = kotlinx.coroutines.coroutineScope {
+                async { harness.service.importConfig(config, ConfigSections(contacts = true), RadioId(UUID.randomUUID())) }
+            }
+            assertFailsWith<CancellationException> { importing.await() }
+            assertEquals(listOf("First"), harness.savedFrames.map { it.second.name })
+            assertEquals(1, harness.notifications)
         },
         "a malformed section rejects the whole import before any device write" to {
             val harness = Harness(NodeConfigFakeSettings(deviceInfo()))

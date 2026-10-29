@@ -134,25 +134,32 @@ class NodeConfigService(
             },
             setTxPower = { settingsService.setTxPower(it) },
             setChannel = { id, write -> channelService.setChannelWithSecret(id, write.index, write.name, write.secret) },
-            addContact = { id, contact -> addContact(id, contact) },
+            addContact = { id, contact, onDeviceAdded -> addContact(id, contact, onDeviceAdded) },
+            saveContact = { id, contact -> saveContact(id, contact) },
         )
     }
 
     /**
-     * The device add is the irreversible change; the local row is an idempotent upsert the next sync
-     * reconciles, so a save failure is logged rather than masking that the contact landed.
-     * Cancellation of this import is rethrown, never swallowed; a CancellationException the store raised
-     * itself (an internal timeout) while the import is still active is an ordinary failure, as in Swift.
+     * The device add is irreversible. Report it before attempting the local save so failures and
+     * cancellation leave the consumer aware of the partial import.
      */
-    private suspend fun addContact(radioId: RadioId, contact: MeshContact) {
+    private suspend fun addContact(radioId: RadioId, contact: MeshContact, onDeviceAdded: () -> Unit) {
         session.addContact(contact)
+        onDeviceAdded()
+        saveContact(radioId, contact)
+    }
+
+    private suspend fun saveContact(radioId: RadioId, contact: MeshContact) {
         try {
             contactSaver.saveContact(radioId, contact.nodeConfigContactFrame())
         } catch (error: CancellationException) {
             currentCoroutineContext().ensureActive()
-            logger.error("Contact added to device but local save failed; next sync will reconcile: $error")
+            logger.error("Contact exists on the device but local save failed: ${error.javaClass.simpleName}")
+            throw NodeConfigContactSaveFailure(error)
         } catch (error: Exception) {
-            logger.error("Contact added to device but local save failed; next sync will reconcile: ${error.message}")
+            currentCoroutineContext().ensureActive()
+            logger.error("Contact exists on the device but local save failed: ${error.javaClass.simpleName}")
+            throw NodeConfigContactSaveFailure(error)
         }
     }
 

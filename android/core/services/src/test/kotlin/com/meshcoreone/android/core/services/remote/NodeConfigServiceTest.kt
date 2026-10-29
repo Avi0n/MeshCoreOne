@@ -271,8 +271,11 @@ class NodeConfigServiceTest {
         },
         "A local-save failure after the device add still reports the contact as applied" to {
             val spy = NodeConfigExecuteSpy()
-            // Models the production closure swallowing a post-device-add local save failure.
-            val writers = spy.writers().copy(addContact = { _, contact -> spy.record("addContact:${contact.advertisedName}") })
+            // Preserve the source case's writer fixture; Android's actual save-failure policy is tested separately.
+            val writers = spy.writers().copy(addContact = { _, contact, added ->
+                spy.record("addContact:${contact.advertisedName}")
+                added()
+            })
             execute(executePlan(), executeSections, spy, writers)
             assertTrue(ImportStep.Contact("C1") in spy.progress)
         },
@@ -346,6 +349,18 @@ class NodeConfigServiceTest {
         },
     )
 
+    @TestFactory
+    fun nativeCases() = nodeConfigNativeCases(
+        "a failed device contact add does not report a confirmed contact" to {
+            val spy = NodeConfigExecuteSpy()
+            val plan = executePlan().copy(importPrivateKey = null, nodeName = null, channelWrites = emptyList())
+            assertFailsWith<NodeConfigServiceError> {
+                execute(plan, ConfigSections(contacts = true), spy, spy.writers(throwOn = { it.startsWith("addContact") }))
+            }
+            assertTrue(spy.progress.isEmpty())
+        },
+    )
+
     private fun serviceWith(settings: NodeConfigFakeSettings) = NodeConfigService(
         NodeConfigFakeSession(), settings, { _, _, _, _ -> }, NodeConfigContactSaver { _, _ -> }, null, NodeConfigLogger.NONE,
     )
@@ -386,7 +401,11 @@ internal class NodeConfigExecuteSpy {
             setRadioParams = { step("setRadioParams") },
             setTxPower = { step("setTxPower") },
             setChannel = { _, write -> step("setChannel:${write.name}") },
-            addContact = { _, contact -> step("addContact:${contact.advertisedName}") },
+            addContact = { _, contact, added ->
+                step("addContact:${contact.advertisedName}")
+                added()
+            },
+            saveContact = { _, contact -> step("saveContact:${contact.advertisedName}") },
         )
     }
 }

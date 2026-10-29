@@ -11,8 +11,10 @@ import com.meshcoreone.android.core.protocol.command.PacketBuilder
 import com.meshcoreone.android.core.protocol.model.MeshContact
 import com.meshcoreone.android.core.protocol.model.SelfInfo
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 
 // MARK: - Post-Identity Resolution (testable seam)
 
@@ -43,7 +45,8 @@ internal data class ConfigImportWriters(
     val setRadioParams: suspend (MeshCoreNodeConfig.RadioSettings) -> Unit,
     val setTxPower: suspend (Byte) -> Unit,
     val setChannel: suspend (radioId: RadioId, write: ConfigImportPlan.ChannelWrite) -> Unit,
-    val addContact: suspend (radioId: RadioId, contact: MeshContact) -> Unit,
+    val addContact: suspend (radioId: RadioId, contact: MeshContact, onDeviceAdded: () -> Unit) -> Unit,
+    val saveContact: suspend (radioId: RadioId, contact: MeshContact) -> Unit,
 )
 
 // MARK: - Pref/radio diff gates (testable seam)
@@ -69,8 +72,8 @@ internal fun txPowerNeedsWrite(radio: MeshCoreNodeConfig.RadioSettings, current:
 /**
  * Executes a validated plan in safe order: identity (so a key import can reassign the radio id before
  * channels/contacts are keyed by it), then position, other params, channels, contacts, and radio
- * last. Progress for a step is emitted only after its write succeeds, so "no progress" reliably
- * means "nothing was written".
+ * last. Contact progress is emitted when the device confirms the add, before the local save,
+ * so cancellation during that save cannot hide the already-applied device change.
  */
 internal suspend fun executeConfigImport(
     plan: ConfigImportPlan,
@@ -141,15 +144,39 @@ internal suspend fun executeConfigImport(
         logger.info("Set channel ${write.index}: ${write.name}")
     }
 
-    for (contact in plan.contactRecords) {
-        checkCancellation()
-        // addContact throws only when the device add failed; a local-save failure is logged inside.
-        writers.addContact(effectiveRadioId, contact)
-        progress(ImportStep.Contact(contact.advertisedName))
-        logger.info("Imported contact: ${contact.advertisedName}")
+    var savedContacts = 0
+    var contactFailure: Throwable? = null
+    try {
+        for ((contact, writeDevice) in plan.contactActions) {
+            checkCancellation()
+            if (writeDevice) {
+                writers.addContact(effectiveRadioId, contact) { progress(ImportStep.Contact(contact.advertisedName)) }
+            } else {
+                writers.saveContact(effectiveRadioId, contact)
+            }
+            savedContacts++
+            logger.info(if (writeDevice) "Imported contact: ${contact.advertisedName}" else "Reconciled local contact: ${contact.advertisedName}")
+        }
+    } catch (failure: Throwable) {
+        contactFailure = failure
+        throw failure
+    } finally {
+        if (sections.contacts && (contactFailure == null || savedContacts > 0)) {
+            try {
+                if (savedContacts > 0) {
+                    withContext(NonCancellable) { notifyContactsChanged() }
+                } else {
+                    notifyContactsChanged()
+                }
+            } catch (notificationFailure: Throwable) {
+                val original = contactFailure
+                if (original == null) throw notificationFailure
+                if (original !== notificationFailure) original.addSuppressed(notificationFailure)
+                logger.error("Could not notify contacts changed after partial import: ${notificationFailure.javaClass.name}")
+            }
+        }
     }
-    // Refresh contacts before the radio step so a later radio failure cannot suppress the UI update.
-    if (sections.contacts) notifyContactsChanged()
+    checkCancellation()
 
     // Radio goes last (minimizes mesh isolation on BLE disconnect); params and TX power gate separately.
     plan.radioSettings?.let { radio ->

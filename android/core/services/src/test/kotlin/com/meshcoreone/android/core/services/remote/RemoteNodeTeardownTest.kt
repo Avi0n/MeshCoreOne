@@ -13,12 +13,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.yield
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlin.test.fail
 
 /**
@@ -84,6 +86,38 @@ class RemoteNodeTeardownTest {
             val weakService = startKeepAliveAndForget(fixture, remoteSession.id, remoteSession.publicKey)
             remoteCoreAwait("keep-alive never parked in its interval sleep") { fixture.clock.sleeperCount == 1 }
             awaitCollected("keep-alive task must not keep the service alive", weakService)
+        },
+    )
+
+    @TestFactory
+    fun nativeCases(): List<DynamicTest> = listOf(
+        remoteCoreNative("close cancels the parked keep-alive and finishes event subscribers") {
+            val fixture = Fixture(this)
+            fixture.transport.connect()
+            val service = fixture.service()
+            try {
+                val remoteSession = remoteCoreSession(fixture.radioId)
+                fixture.store.saveRemoteNodeSessionDTO(remoteSession)
+                fixture.store.saveContact(remoteCoreContact(fixture.radioId, remoteSession.publicKey, outPathLength = 0xFFu))
+                val events = service.events()
+                val collected = async { events.toList() }
+                val key = EntityKey(fixture.radioId, remoteSession.id)
+                service.startSessionKeepAlive(key, remoteSession.publicKey)
+                remoteCoreAwait("keep-alive never parked") { fixture.clock.sleeperCount == 1 }
+                val keepAlive = checkNotNull(service.keepAliveTasks[key])
+
+                service.close()
+                keepAlive.join()
+
+                assertTrue(keepAlive.isCancelled)
+                assertEquals(0, fixture.clock.sleeperCount)
+                assertTrue(service.keepAliveTasks.isEmpty())
+                assertTrue(collected.await().isEmpty())
+            } finally {
+                service.close()
+                fixture.serviceScope.cancel()
+                fixture.session.stop()
+            }
         },
     )
 
