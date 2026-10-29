@@ -1,0 +1,3 @@
+<resources>
+    <string name="node_config_contact_save_failed">무전기가 연락처를 수락했지만 로컬에 저장하지 못했습니다. 가져오기를 다시 시도하세요.</string>
+</resources>

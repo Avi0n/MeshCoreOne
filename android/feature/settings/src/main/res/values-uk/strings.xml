@@ -1,0 +1,3 @@
+<resources>
+    <string name="node_config_contact_save_failed">Радіопристрій прийняв контакт, але не вдалося зберегти його локально. Повторіть імпорт.</string>
+</resources>

@@ -26,6 +26,7 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.CommandCode
 import com.meshcoreone.android.core.services.remote.NodeConfigJson
 import com.meshcoreone.android.feature.settings.app.nodeconfig.NodeConfigDocuments
+import com.meshcoreone.android.feature.settings.R
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -99,8 +100,11 @@ class NodeConfigMountedPartialImportTest : RoomProcessTest() {
             compose.onAllNodesWithText(context.getString(S.configImportApplyButtonAdd)).onLast().performClick()
             harness.eventually("partial import warning") { holder.importState.value.error != null }
             val error = requireNotNull(holder.importState.value.error)
-            val suffix = S.configImportFailedPartial(context.resources, "CAUSE").substringAfter("CAUSE")
-            assertTrue(error.endsWith(suffix))
+            val recovery = context.getString(R.string.node_config_contact_save_failed)
+            assertEquals(S.configImportFailedPartial(context.resources, recovery), error)
+            val progress = requireNotNull(holder.importState.value.progress)
+            assertEquals(2, progress.current)
+            assertEquals(2, progress.total)
             compose.onNodeWithText(error).performScrollTo().assertIsDisplayed()
             assertEquals(2, radio.sent.drop(beforeImport).count { it[0] == CommandCode.UPDATE_CONTACT.rawValue })
             assertNotNull(store.fetchContact(node.token.radioId, firstKey))
