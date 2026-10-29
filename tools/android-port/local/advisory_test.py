@@ -67,6 +67,21 @@ class AdvisoryLauncherTests(unittest.TestCase):
         raise ValueError("Real process fixtures require isolated Linux; no automatic WSL fallback")
 
     @contextlib.contextmanager
+    def capture_process_stderr(self):
+        with tempfile.TemporaryFile(mode="w+b") as captured:
+            saved_fd = os.dup(2)
+            try:
+                sys.stderr.flush()
+                os.dup2(captured.fileno(), 2)
+                yield captured
+            finally:
+                sys.stderr.flush()
+                try:
+                    os.dup2(saved_fd, 2)
+                finally:
+                    os.close(saved_fd)  
+
+    @contextlib.contextmanager
     def fixture(self, fast_source):
         with tempfile.TemporaryDirectory(prefix="meshcore-advisory-test-") as temporary:
             root = Path(temporary)
@@ -296,8 +311,16 @@ class AdvisoryLauncherTests(unittest.TestCase):
         if self.native():
             return
         with self.fixture("raise RuntimeError('Explicit fixture verification failure')\n") as (_, repo, _, _, _):
-            with contextlib.redirect_stderr(io.StringIO()) as errors:
-                self.assertEqual(check.main([]), 1)
+            with self.capture_process_stderr() as child_errors:
+                with contextlib.redirect_stderr(io.StringIO()) as errors:
+                    self.assertEqual(check.main([]), 1)
+
+                child_errors.seek(0)
+                self.assertIn(
+                    b"Explicit fixture verification failure",
+                    child_errors.read(),
+                )
+
             self.assertIn("BLOCKED", errors.getvalue())
             self.assertFalse(check.pending_file(repo).exists())
             self.assertEqual(check.execution_runtime(repo).hard_lock_records(), [])

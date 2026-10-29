@@ -335,7 +335,7 @@ class WorkflowTests(unittest.TestCase):
         validate_candidate(scoped, text)
         cached = copy.deepcopy(original)
         cached["jobs"]["build"]["steps"].append({
-            "uses": "actions/cache@5a3ec84eff668545956fd18022155c47e93e2684",
+            "uses": "actions/cache@caa296126883cff596d87d8935842f9db880ef25",
             "with": {"path": "~/.gradle/caches", "key": "gradle-read-only-fixture"},
         })
         validate_candidate(cached, text)
