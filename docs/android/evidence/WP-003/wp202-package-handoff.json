@@ -1,0 +1,1601 @@
+{
+  "schema_version": 1,
+  "issue": 441,
+  "repair_issue": 385,
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-202",
+  "owner": "data-persistence-engineer",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "inventory_baseline_commit": "61fc863172e9248f3ba913acefeb6fd2354d2580",
+  "catalog_manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "catalogs": [
+    {
+      "work_package": "WP-201",
+      "path": "docs/android/parity/groups/WP-201.json",
+      "blob_sha": "53bf93947a7e8d56975d53f6c2d4bbe2c33e3b9b",
+      "family_count": 114
+    },
+    {
+      "work_package": "WP-202",
+      "path": "docs/android/parity/groups/WP-202.json",
+      "blob_sha": "1ee2aca83c619b949af479edab3dc68758172af2",
+      "family_count": 208
+    },
+    {
+      "work_package": "WP-208",
+      "path": "docs/android/parity/groups/WP-208.json",
+      "blob_sha": "959abe2cdd47c60a528ea6ae806d7b8c52d1e124",
+      "family_count": 128
+    },
+    {
+      "work_package": "WP-209",
+      "path": "docs/android/parity/groups/WP-209.json",
+      "blob_sha": "0d4eb5b5cbafb269bcb40548d073e1404fc9b2c1",
+      "family_count": 176
+    }
+  ],
+  "handoff": {
+    "method_pr": 456,
+    "method_revision": "2d1d19fb73adcad1e8ff725fb33a0c9b04dfee98",
+    "software_lane_pr": 450,
+    "software_lane_revision": "9eb5b343254a655e49c34134afeec294ca623df1",
+    "status": "bounded-planning-contract-not-execution-or-acceptance",
+    "manifest_contract": "The existing WP-202 manifest owner, write paths, WP-201 dependency and acceptance items remain authoritative. These 16 repair packages partition issue #385, not the macro WP or its complete primary inventory. They are not new dispatchable WPs or a full-WP verification amendment.",
+    "verification": "Use the existing WP-202 preflight/scaffold/inspect commands and immutable trusted-base change-scoped selection. Verification scope is android-scaffold. Do not copy Gradle selectors, check identities, suite minima or runtime evidence into this static handoff.",
+    "checks": "Resolve current required_checks from automation-policy.json and the exact hosted task plan/results. Positive discovered/run counts and zero mandatory failures/errors/skips are required. No historical run or cache warmth establishes current acceptance.",
+    "candidate_scope": "For each actual repair PR use the authenticated landed-wp-repair or landed-wp-verification contract, with exact base/head/tree/source/manifest/policy, changed paths and typed admissions, production consumer blobs, selected original families and executed methods. If a package is split across PRs, use new repair-<actual-issue-or-PR>- criterion IDs and retain these package IDs as traceability.",
+    "family_projection": "Project source_path to coverage.cases.path, case_id to coverage.cases.id, retain parameter_family and include source_path in coverage.source_paths. Validate declaration_sha256 against the pinned catalog and source blob against test-cases.json. Preserve every original input, assertion-bearing helper and parameter family.",
+    "admission": "Use WP-202 manifest paths for primary repository implementation/tests/evidence. For directly related cross-owner Kotlin consumers/tests use reviewed-support-consumer/modify-related-consumer and reviewed-support-test/add-or-update-related-test, with same-owner scope evolution and unchanged primary source ownership. Unknown paths or semantic overlap still fail closed.",
+    "execution": "No worker, session, schedule or fleet activation. A later assigned producer uses one dedicated worktree/branch/PR per bounded candidate. WP-201 requires real merged prerequisite evidence, not an issue's closed state. support_producers names coordination and actual landed producer continuity, not new macro-WP dependency edges or a requirement to complete downstream WPs before this repair.",
+    "completion": "Each package requires independent parity review of real assertions and relevant decisions. Bounded acceptance is wp_complete:false and dependency_unlock:false. Full WP-202 remains configured:false; this handoff cannot complete WP-202."
+  },
+  "cm02_decision": {
+    "status": "maintainer-approved-boundary-only",
+    "issue_comment_url": "https://github.com/cbattlegear/MeshCoreOne-Android/issues/441#issuecomment-6453153281",
+    "criterion": "Real Room-backed repository through the production coordinator, asserting persisted state and consumer-visible outcomes; no mounted App/UI flow is required.",
+    "limitations": "No substitute seam, helper-only assertion, source reachability or historical pass establishes the required integration. DATA-02 still requires its own actual user-flow boundary."
+  },
+  "support_tracking": [
+    {
+      "issue": 384,
+      "work_package": "WP-201",
+      "need": "Verify real merged persistence-model/restore-contract evidence before dependent work; closure alone does not unlock it."
+    },
+    {
+      "issue": 382,
+      "work_package": "WP-203",
+      "need": "Reachable legacy/import policy and actual backup export sentinel/codec evidence remain with the backup producer."
+    },
+    {
+      "issue": 452,
+      "work_package": "WP-003",
+      "need": "Reconcile WP-208 recovery real-store support with the current producer; do not duplicate or overwrite its semantic work."
+    },
+    {
+      "issue": 389,
+      "work_package": "WP-209",
+      "need": "Preserve landed contact adverse-stimulus and fixture-precondition repairs; revalidate actual merged producer bytes."
+    },
+    {
+      "issue": 393,
+      "work_package": "WP-212",
+      "need": "Coordinate real RX-ingestion timing and prune evidence; explicit-prune coverage is not automatic flush/prune proof."
+    },
+    {
+      "issue": 399,
+      "work_package": "WP-303",
+      "need": "Coordinate process-graph/activation consumer wiring and preserve process-owned persistence."
+    },
+    {
+      "issue": 402,
+      "work_package": "WP-307",
+      "need": "Coordinate the actual block-and-delete user journey rather than infer it from repository predicates."
+    }
+  ],
+  "packages": [
+    {
+      "id": "WP-202-DATA-02",
+      "concern": "DATA-02",
+      "title": "Sender-name deletion journey",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-data-02",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-307"
+      ],
+      "required_evidence": "Exercise the actual block-and-delete caller through the repository. Preserve named-sender matching, radio scope, DMs, nil names and dependent pending/reaction rows. A repository predicate alone does not establish a reachable user journey.",
+      "pending_decision": "Resolve the intended block-and-delete caller with its producer; absence of a caller is not evidence that the repository predicate is wrong.",
+      "status": "pending-evidence-and-decision",
+      "families": [
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/BlockedSenderMessageDeletionTests.swift",
+          "case_id": "BlockedSenderMessageDeletionTests::Deletes all channel messages from a named sender()",
+          "parameter_family": "single",
+          "declaration_sha256": "abbe80563da7cd142ba1a98480be16e5791bd72bfe72f7860da0fbd8993d8d16"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/BlockedSenderMessageDeletionTests.swift",
+          "case_id": "BlockedSenderMessageDeletionTests::Deletes reactions associated with deleted channel messages()",
+          "parameter_family": "single",
+          "declaration_sha256": "89010eca29e044dfde0f567cd325c34c01052c8dbe4fdde656cb7721ce399608"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/BlockedSenderMessageDeletionTests.swift",
+          "case_id": "BlockedSenderMessageDeletionTests::Does not delete DMs from the same sender()",
+          "parameter_family": "single",
+          "declaration_sha256": "78486d07a47816e9309ecb593cff02e93650c6c59ba8a9e629d8e5d491154a32"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/BlockedSenderMessageDeletionTests.swift",
+          "case_id": "BlockedSenderMessageDeletionTests::No-op when sender has no messages()",
+          "parameter_family": "single",
+          "declaration_sha256": "576a88f7c6d456e0fbcc66aa56aa1c90bbe3b0c279d86f65b9412343ac0dbba1"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/BlockedSenderMessageDeletionTests.swift",
+          "case_id": "BlockedSenderMessageDeletionTests::Preserves messages with nil senderNodeName()",
+          "parameter_family": "single",
+          "declaration_sha256": "b9196ff027bbbfd5a4f88eab99aa01ba165e898f7ac591fb6773314d13e09335"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/BlockedSenderMessageDeletionTests.swift",
+          "case_id": "BlockedSenderMessageDeletionTests::Scopes deletion to the specified device()",
+          "parameter_family": "single",
+          "declaration_sha256": "de275aac7ab560eef599561568b9648d7fa94d0f475e01588000ee242e3339c4"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "case_id": "PersistenceStoreTests::deleteChannelMessages(fromSender:) cascades PendingSends and spares other senders()",
+          "parameter_family": "single",
+          "declaration_sha256": "1a0141f11fc728c9a7c7b5ac289b90a1c784f10d2774f2587c56891941e16a18"
+        }
+      ],
+      "original_families": 7
+    },
+    {
+      "id": "WP-202-DATA-03",
+      "concern": "DATA-03",
+      "title": "Active-device consumer",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-data-03",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-207",
+        "WP-303"
+      ],
+      "required_evidence": "Drive the production activation consumer with two saved radios and assert one active row plus the observed active identity. Do not change ordinary saveDevice into a global deactivation operation.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "case_id": "PersistenceStoreTests::Set active device()",
+          "parameter_family": "single",
+          "declaration_sha256": "19b0734b82985ea9afa8410949d7bd7df6750a4d91833a3cf333e0600632b71e"
+        }
+      ],
+      "original_families": 1
+    },
+    {
+      "id": "WP-202-DATA-04",
+      "concern": "DATA-04",
+      "title": "Orphan ACK recovery",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-data-04",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-208"
+      ],
+      "required_evidence": "Reach the production recovery path with matching and nonmatching ACK codes, radios and statuses; assert only the intended outgoing sent DM qualifies and that the consumer acts on the result.",
+      "pending_decision": "Retain the existing sent-versus-other-status predicate or obtain a reviewed recovery alternative; a missing consumer is not an approved deletion.",
+      "status": "pending-evidence-and-decision",
+      "families": [
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "case_id": "PersistenceStoreTests::hasOutgoingSentDM flags a stuck .sent DM by ackCode and ignores other rows()",
+          "parameter_family": "single",
+          "declaration_sha256": "663ad0d662a28477baa79a6702be5fce5631794879c5b3d4d6a93cb0054a2e13"
+        }
+      ],
+      "original_families": 1
+    },
+    {
+      "id": "WP-202-DATA-06",
+      "concern": "DATA-06",
+      "title": "Reachable legacy-data migration",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-data-06",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-201",
+        "WP-203",
+        "WP-204"
+      ],
+      "required_evidence": "Disposition all 18 original migration families individually against reachable legacy/import inputs, their mutation and idempotence/guard assertions. Exercise the real supported import or migration path for retained data consequences.",
+      "pending_decision": "Approve the native-v1/legacy-import boundary and each Apple-historical exclusion; existing adaptation proposals and a fresh schema are not approval or migration execution.",
+      "status": "pending-evidence-and-decision",
+      "families": [
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ChannelFloodScopeMigrationTests.swift",
+          "case_id": "ChannelFloodScopeMigrationTests::Migration is idempotent \u2014 second run is a no-op()",
+          "parameter_family": "single",
+          "declaration_sha256": "8f6d628b1b42508d9b85bbbb36e9d13399a74a76de89550698616b5bc7a5732b"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ChannelFloodScopeMigrationTests.swift",
+          "case_id": "ChannelFloodScopeMigrationTests::Mixed rows migrate correctly in one pass()",
+          "parameter_family": "single",
+          "declaration_sha256": "f8087835dd8e4172c3338da8bba1050c3896ddbcf74ef3581a1b7a014252a5d0"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ChannelFloodScopeMigrationTests.swift",
+          "case_id": "ChannelFloodScopeMigrationTests::Nil regionScope with inherit mode stays at .inherit (corrective)()",
+          "parameter_family": "single",
+          "declaration_sha256": "77b1932f945132e9254bd0cea665ea4793896c1a235bf09b470525561a0faafd"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ChannelFloodScopeMigrationTests.swift",
+          "case_id": "ChannelFloodScopeMigrationTests::Non-nil regionScope with inherit mode is promoted to .specific()",
+          "parameter_family": "single",
+          "declaration_sha256": "0926dc4a7401d6ab3fa0e2a31165d10af62c40d220336f4893d745c37a103f3e"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ChannelFloodScopeMigrationTests.swift",
+          "case_id": "ChannelFloodScopeMigrationTests::Post-migration writes to .allRegions are not clobbered by a re-run()",
+          "parameter_family": "single",
+          "declaration_sha256": "0fca0a064021c6180071da20aa36af07305d5a46b23e51da006557365c435f09"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/RadioIDMigrationTests.swift",
+          "case_id": "RadioIDMigrationTests::Existing dedup key is not overwritten()",
+          "parameter_family": "single",
+          "declaration_sha256": "53c1ff9726f20fbdf8a082527b8cc01f655f3bd755a9424e3ef698cfd5dd6f06"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/RadioIDMigrationTests.swift",
+          "case_id": "RadioIDMigrationTests::Incoming message with nil dedup key stays nil()",
+          "parameter_family": "single",
+          "declaration_sha256": "a070d6d987ddd605ee7a979c215f982b7e858ac5021410c874c30760e6c29481"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/RadioIDMigrationTests.swift",
+          "case_id": "RadioIDMigrationTests::Migration backfills lastConnectedRadioID from lastConnectedDeviceID()",
+          "parameter_family": "single",
+          "declaration_sha256": "68834af6f6569b4b59573044c63c10422cc14bf60c97aa9156e0fa99b363bfad"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/RadioIDMigrationTests.swift",
+          "case_id": "RadioIDMigrationTests::Migration propagates new radioID from Device to all children()",
+          "parameter_family": "single",
+          "declaration_sha256": "87363b62894ad18f2d4e10247ca87b2f4406d813fcf31941af58b6a49e1fa26b"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/RadioIDMigrationTests.swift",
+          "case_id": "RadioIDMigrationTests::Outgoing DM with nil dedup key gets backfilled()",
+          "parameter_family": "single",
+          "declaration_sha256": "11023208ed1a60a16ffa71101eb9104611e57f5027a189b6a10127042f201750"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/RadioIDMigrationTests.swift",
+          "case_id": "RadioIDMigrationTests::UserDefaults guard prevents re-run()",
+          "parameter_family": "single",
+          "declaration_sha256": "61eb0fe6810b2ed144aa9fdafcb8084551ecf7be0111ae49de7a2e7e16a3f5dd"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/RepeaterUnreadMigrationTests.swift",
+          "case_id": "RepeaterUnreadMigrationTests::Migration is idempotent \u2014 second run is a no-op()",
+          "parameter_family": "single",
+          "declaration_sha256": "70e33f33e3e9864ef9bf410f9da976a045d03b04f066b4e613ea921598c6abbd"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/RepeaterUnreadMigrationTests.swift",
+          "case_id": "RepeaterUnreadMigrationTests::Repeater contact unread is zeroed; chat contact untouched()",
+          "parameter_family": "single",
+          "declaration_sha256": "57b50b06635fd1769b2222bce160a531a5da3a139315d62b097827ac9b21b0a5"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/RepeaterUnreadMigrationTests.swift",
+          "case_id": "RepeaterUnreadMigrationTests::Repeater-role session unread is zeroed; room session untouched()",
+          "parameter_family": "single",
+          "declaration_sha256": "fea26a2240de9a2dc0d151c8b333538965855bd4f35b5a70e73ab70e16d943d0"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/SortDateBackfillMigrationTests.swift",
+          "case_id": "SortDateBackfillMigrationTests::Migration is idempotent \u2014 second run is a no-op()",
+          "parameter_family": "single",
+          "declaration_sha256": "2c2edfe3239b386447b84c40c3751bd53f8c82290e5b4146c4a2361a615c8caf"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/SortDateBackfillMigrationTests.swift",
+          "case_id": "SortDateBackfillMigrationTests::Pre-existing rows get sortDate backfilled to createdAt()",
+          "parameter_family": "single",
+          "declaration_sha256": "8d52c49873e8ec995fd26e35462fa4e19d1846028edff5085e0c47961a89b0f5"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/SortDateResetMigrationTests.swift",
+          "case_id": "SortDateResetMigrationTests::Reset is idempotent \u2014 second run is a no-op()",
+          "parameter_family": "single",
+          "declaration_sha256": "e139d41a46aaf7b55543bc9f7df86c9842afd73221f16ac1c146c6a0eb7fbd4d"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/SortDateResetMigrationTests.swift",
+          "case_id": "SortDateResetMigrationTests::Reset re-normalizes a send-time sortDate back to createdAt()",
+          "parameter_family": "single",
+          "declaration_sha256": "fa556d3283c165c8946273af879780cbccde81556e4a2f13c0e2758091d12cbb"
+        }
+      ],
+      "original_families": 18
+    },
+    {
+      "id": "WP-202-DATA-07",
+      "concern": "DATA-07",
+      "title": "Radio-keyed pending deletion",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-data-07",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-208"
+      ],
+      "required_evidence": "Use equal message UUIDs on two radios through the real repository and pending-send consumer. Prove the intended deletion and preserved other-radio rows, including retry rows and atomicity.",
+      "pending_decision": "Explicitly review the radio-isolation adaptation against the source UUID-only deletion contract; do not broaden deletion silently.",
+      "status": "pending-evidence-and-decision",
+      "families": [
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift",
+          "case_id": "PendingSendPersistenceTests::deletePendingSendsForMessage removes every row matching the messageID()",
+          "parameter_family": "single",
+          "declaration_sha256": "b5ec9f2b93242a0eb9d4d7d9e2a2498fb20bd5473661bd260588077dcd9ea29a"
+        }
+      ],
+      "original_families": 1
+    },
+    {
+      "id": "WP-202-DATA-12",
+      "concern": "DATA-12",
+      "title": "Channel setter transaction",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-data-12",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-209"
+      ],
+      "required_evidence": "Call the real repository setter for inherit/all/specific scope with name and raw mode checks, missing-row behavior and failure/rollback assertions. DAO SQL alone does not prove the repository transaction.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-201",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ChannelFloodScopeTests.swift",
+          "case_id": "ChannelFloodScopeTests::setChannelFloodScope updates existing channel atomically()",
+          "parameter_family": "single",
+          "declaration_sha256": "a6f36eac2f3b74e32a22325c084e30414a249bbe8037d25e0927ccdc92cb1d87"
+        }
+      ],
+      "original_families": 1
+    },
+    {
+      "id": "WP-202-DATA-13",
+      "concern": "DATA-13",
+      "title": "Signed export sentinels",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-data-13",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-203"
+      ],
+      "required_evidence": "Seed real Room contact and discovered-node Int8 -1 fixtures, invoke the production backup export snapshot and assert both UInt8 255 values and retained identity. Reopen/projection tests do not establish exporter or bidirectional codec compatibility.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/DiscoveredNodeUnsignedFetchTests.swift",
+          "case_id": "DiscoveredNodeUnsignedFetchTests::Backup export of a leftover Contact Int8 flood sentinel (-1)()",
+          "parameter_family": "single",
+          "declaration_sha256": "4ecc50d65f343d4746ee7c549a1baf35ee0daf77151f5141b08a0d11e57f7756"
+        },
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/DiscoveredNodeUnsignedFetchTests.swift",
+          "case_id": "DiscoveredNodeUnsignedFetchTests::Backup export of a leftover Int8 flood sentinel (-1)()",
+          "parameter_family": "single",
+          "declaration_sha256": "d54b212c1b85e309440c977f99f9173f7ccd7ed2467e39e4ff4e99ab10745e54"
+        }
+      ],
+      "original_families": 2
+    },
+    {
+      "id": "WP-202-DATA-21",
+      "concern": "DATA-21",
+      "title": "Automatic RX flush and prune",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-data-21",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-212"
+      ],
+      "required_evidence": "Drive the production process-owned repository scope with a deterministic clock: batch threshold, one-second partial flush, buffered-read visibility, deferred prune threshold and close/cancellation. Observe automatic jobs; explicit flush/prune calls alone are insufficient.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-202",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "case_id": "PersistenceStoreTests::RX log prune is deferred until threshold is exceeded()",
+          "parameter_family": "single",
+          "declaration_sha256": "d9793ffd8adb12b550feb7e5d4a022494c51e1c18865071bfb58b0cfe091019b"
+        }
+      ],
+      "original_families": 1
+    },
+    {
+      "id": "WP-202-CM-02-advert-deletion",
+      "concern": "CM-02",
+      "title": "Advertisement deletion and revival",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-cm-02-advert-deletion",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-209"
+      ],
+      "required_evidence": "Exercise queued/immediate 0x8F deletion, revival, failed flush/requeue and stop/join races through the production advertisement coordinator backed by real Room. Assert persisted children and consumer-visible events.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::0x80 during 0x8F flush hop does not delete the revived contact()",
+          "parameter_family": "single",
+          "declaration_sha256": "63ecb5816a8796222105bb7aa51513998bbead71a49c0ee695a34c3597f4532d"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::background 0x80 then 0x8F flush still deletes the contact()",
+          "parameter_family": "single",
+          "declaration_sha256": "d8f626ae8accf5104b7ffd83a468a95d08bfcd331b83db65b4924f18c29e0045"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::background 0x8F queues key and does not deleteContact()",
+          "parameter_family": "single",
+          "declaration_sha256": "5d053236fa62746fc4a5ce6b0b746d495a46b7df420323a39b2a711318db99b2"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::contact deleted after the commit returns stays tracked for the round()",
+          "parameter_family": "single",
+          "declaration_sha256": "ae795e50bf6e342f92b580e45714591dd740ad2baa59985d7b7ba0a9fd5ea1cb"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::contactDeleted removes pending key before sync runs()",
+          "parameter_family": "single",
+          "declaration_sha256": "019e918381f901d12e26dfe167ce1e2eb7438e4e9982f14bf693eb871ef5f864"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::failed 0x8F flush does not re-queue a key revived during the hop()",
+          "parameter_family": "single",
+          "declaration_sha256": "c85f9257878089b43f9e367fd26bc5efb321c182b21293b848ea8e69d79a67d4"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::failed 0x8F flush re-queues keys()",
+          "parameter_family": "single",
+          "declaration_sha256": "5c4d3d460bb8970bac3cea87ae25c3cb1a1983fa9bd7352550e77b2c77f727ef"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::failed immediate 0x8F re-queues key for flush()",
+          "parameter_family": "single",
+          "declaration_sha256": "3124b39c2af498e5845d96916be6da482178cbaf8c225db852c9a1dcd83448e9"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::flush does not clear skip set before deleteContacts()",
+          "parameter_family": "single",
+          "declaration_sha256": "a459341cb6f190688557d41616c3e2c47744abb6dec5e7ea70138e334235b65f"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::handleReturnToForeground flushes queued 0x8F deletes once()",
+          "parameter_family": "single",
+          "declaration_sha256": "ff06461221376c16ec6cc94d6512adc38e4bf4cda626ffa9da41ba03066f0223"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::re-advert after background 0x8F clears pendingDeletedKeys()",
+          "parameter_family": "single",
+          "declaration_sha256": "dbfcbef4cdd66d32c8a38a7d0ab26e37cb90685843f7904368e4eebc7951fa15"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::reconcile skips a contact the radio deleted this round()",
+          "parameter_family": "single",
+          "declaration_sha256": "3e09c8f35a7d19da2a9cc677b7ec820f96a0a4ccb23c39b7264753ec469f624b"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::reconcile skips deleted contact after mid-handler 0x8F()",
+          "parameter_family": "single",
+          "declaration_sha256": "67a3e0210aabb2c515124bad1925430487624741ebf5a15c48f9755f487c0e04"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::stop drains deletions queued during a foreground flush(nextRevived : Bool)",
+          "parameter_family": "arguments-sha256:686d396cf1c772abf737316e4912b7348403cda5e498bb470634bbad4ce981ad",
+          "declaration_sha256": "765c86ec411f046a42a91d6c569224bd21c85b42e7760bb11b58c25bbb066124"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::stop joins foreground deletion flush before finishing events(storeFails : Bool)",
+          "parameter_family": "arguments-sha256:686d396cf1c772abf737316e4912b7348403cda5e498bb470634bbad4ce981ad",
+          "declaration_sha256": "1d8f344549fbc491ac734d3653a4eceabea183eab8301d86bb379afb543b4e39"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::stopEventMonitoring flushes 0x8F parked on isInForeground hop()",
+          "parameter_family": "single",
+          "declaration_sha256": "f88f49b3335ccedb04236aa265a236e88ae0e53e64b26ec8cd0ee1ab3cb779c3"
+        }
+      ],
+      "original_families": 16
+    },
+    {
+      "id": "WP-202-CM-02-advert-scheduling",
+      "concern": "CM-02",
+      "title": "Advertisement scheduling and retry",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-cm-02-advert-scheduling",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-209"
+      ],
+      "required_evidence": "Exercise foreground/background scheduling, backoff, caps, rearming, stale generations and shutdown through the production advertisement coordinator backed by real Room, with deterministic time and observable outcomes.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::armed round that backgrounds before fire does not invoke handler()",
+          "parameter_family": "single",
+          "declaration_sha256": "dff5d2f7ca834805d4a9fa9676e6acab6a822fcacde0fd68fa31b5d2e5354fe9"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::background 0x80 records key and does not invoke deltaSyncHandler()",
+          "parameter_family": "single",
+          "declaration_sha256": "04d6469af53b0fcefbebdb5ea2cfd254b600aedd1aa444a683b5c2b2d7661199"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::background 0x81 records path key and does not invoke handler()",
+          "parameter_family": "single",
+          "declaration_sha256": "aee9f9cc9720cdc5c39eb034c12039618ef97cf63bb0ed98209d247665c5c4d7"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::burst of adverts coalesces to one handler call()",
+          "parameter_family": "single",
+          "declaration_sha256": "574da335e5dd5bb8b386990f962c247ed45480f9d892de11104747d3de8fb3ad"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::busy outcome does not stamp min-interval when backoff is non-zero()",
+          "parameter_family": "single",
+          "declaration_sha256": "d18c2290f13888ea7c73ed7ecea8356112fa51077342e653a77ed39ac0b9c057"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::busy rounds keep their keys past the failure cap()",
+          "parameter_family": "single",
+          "declaration_sha256": "2d1fa48573e5af6741c6f3d5dbbf22d04e7b56c1eee64ebd438cfefb4015ab90"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::capped failure round restores escalateToFullRefetch()",
+          "parameter_family": "single",
+          "declaration_sha256": "6e4d6178476e1c827a73b87746e6ef9b43a002fb47d70b6d0540ad90bddeeb0d"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::capped failure round restores pathSyncPending()",
+          "parameter_family": "single",
+          "declaration_sha256": "6078ecfde6b9e89ec8a9d607805b8af4febb3a4ccc4f232fd758a77d06ba9c81"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::empty schedule with no pending work does not call the handler()",
+          "parameter_family": "single",
+          "declaration_sha256": "84d6950a92591b710321f7aa2a348188a46e6284b98138b0288e2d32e0d707f1"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::finishRound with stale generation leaves the new task registered()",
+          "parameter_family": "single",
+          "declaration_sha256": "4b409baf0790f9bf8d80d0026bcfd2464c207456e23d4cd89390f4ccdc4edeb7"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::fresh advert during the capped failing round re-arms and drains()",
+          "parameter_family": "single",
+          "declaration_sha256": "549a796f79ba3343e277a259d090459ae72568bea03eeff65fad94a30b1279c4"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::handleReturnToForeground drains keys recorded while backgrounded()",
+          "parameter_family": "single",
+          "declaration_sha256": "1c0a03e0b99959cb5da0488c4155abf85425add9cee696f2894bfce51920b1da"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::handler failure remerges keys and retries()",
+          "parameter_family": "single",
+          "declaration_sha256": "c13efc715a30be639838496aa62e73798ed972dfc787107fe35c6e0dd7d2d8ee"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::min interval delays second delta sync after success()",
+          "parameter_family": "single",
+          "declaration_sha256": "306d0603c40c085e3c92f1703aa4ea733ecee3ca5f5219a1cffaa8de03896768"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::nil handler leaves keys pending for later install()",
+          "parameter_family": "single",
+          "declaration_sha256": "5423066aaf1fb84bdb8cfa80ece8419ae6ac53f8ea8c6d5f48bf8511fa61f503"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::notReady outcome drops drained keys without reschedule or budget spend()",
+          "parameter_family": "single",
+          "declaration_sha256": "7224fa5bbb5994784787639db41acce4deb932bbb8960118cedf2e2d28c23179"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::repeated failures stop the retry loop()",
+          "parameter_family": "single",
+          "declaration_sha256": "2d1fa666306e2d4ddfc18e95583f5b2474124b99e184c70d957365eec4b3d758"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::setDeltaSyncHandler nil then reinstall still syncs pending keys()",
+          "parameter_family": "single",
+          "declaration_sha256": "b0c2c04a58b89520b7d84856cd14f793453322d94c7e733559741b9be54125c2"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::setDeltaSyncHandler re-arms owed full refetch with empty pending keys()",
+          "parameter_family": "single",
+          "declaration_sha256": "985425397a0779daea304015a9c234e69a48a599d15a8a1284e1b56fca9142b7"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::stop during isInForeground hop does not invoke handler()",
+          "parameter_family": "single",
+          "declaration_sha256": "e5c5418dbce9003f4369c48ff33bd74b2dd9f6a68955360fe757c92bc7ddd548"
+        }
+      ],
+      "original_families": 20
+    },
+    {
+      "id": "WP-202-CM-02-advert-contact",
+      "concern": "CM-02",
+      "title": "Advertisement contact reconciliation",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-cm-02-advert-contact",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-209"
+      ],
+      "required_evidence": "Exercise contact materialization, path updates, recency/prune, orphan adoption, notifications and rollback through the production advertisement coordinator backed by real Room. Preserve source failure/cancellation and parameter families.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::0x8A then 0x80 for same key notifies from each path()",
+          "parameter_family": "single",
+          "declaration_sha256": "029548b141dc60eb7075bf2c598298afcf6d63c7fa50adac8b599549da1a7e41"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::adopting orphaned DMs emits conversationsChanged()",
+          "parameter_family": "single",
+          "declaration_sha256": "fa5b57ec100657d2e0f4adb191345faccc89c78fe7aa325564c7945f29973ff8"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::adopting orphaned DMs emits orphanDirectMessagesAdopted with the contact()",
+          "parameter_family": "single",
+          "declaration_sha256": "7f5607c0337df10c52ac941f53d7f47589605be64b6fed0618979c3b0a306656"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::advert retries touch once then drops key when both fail()",
+          "parameter_family": "single",
+          "declaration_sha256": "956f980e9b57a3006b3611cf2bc123597ba4194ec49e24ad8d43eed410f6705f"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::contact lookup failure does not escalate to full refetch()",
+          "parameter_family": "single",
+          "declaration_sha256": "6c6ae35e577a1ed64fdeb8424c7877f812998c5844d2aaf5fd774981070c97d7"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::delta round with no adoption does not emit conversationsChanged()",
+          "parameter_family": "single",
+          "declaration_sha256": "a560fec168c4e5bbb09b418ca583a48b32fa2e80347e3f65c613909ab4f5c55f"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::dropped background adverts retain phone recency(outcome : AdvertContactSyncOutcome)",
+          "parameter_family": "arguments-sha256:64c894adabc73580b7a3392408557d16c03a04ee2d99e97907fcd345b2586133",
+          "declaration_sha256": "a7ab2064995dc6700c4ca193eeeff9ca361637913fcfc8ad9ce3cc25502f0883"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::favorite contact with stale recency does not match stale-node prune()",
+          "parameter_family": "single",
+          "declaration_sha256": "ea7d5e17fa652d091e693561e60d131d960face4cfaf2f7b7d8c24a4e098fdef"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::fresh lastHeard protects contact with old lastModified from prune()",
+          "parameter_family": "single",
+          "declaration_sha256": "86deabcc8c9adeab1a0fea2b1c811d80a094593efd81a2a676b098a9cbd16bf8"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::isSyncingContacts defers handler until cleared()",
+          "parameter_family": "single",
+          "declaration_sha256": "6b984c55b310cd701e2c1660442d25a1951fa4a3f05a4960ba83586df9324c69"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::materializeContactForPendingAdvert creates contact for unique pending key()",
+          "parameter_family": "single",
+          "declaration_sha256": "ac78d1a4daa096672a8c911572cd63bdc8e519a7c35ede10fc3e140b9c24413b"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::materializeContactForPendingAdvert returns nil on multi-match prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "59c02338a371f62438a7f81a73dd17e6b01a7affb8df95fb23e2386db13ab853"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::materializeContactForPendingAdvert returns nil without pending match()",
+          "parameter_family": "single",
+          "declaration_sha256": "1514083ae3c93a084cc104a290c0091a8f69dd7f5350354c0f7ae3d156b6db84"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::materializeContactForPendingAdvert still works while backgrounded()",
+          "parameter_family": "single",
+          "declaration_sha256": "56169c462d6454511ba1537a77407596deb62638b465efc7397c352a08b11b1b"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::pathUpdate cancel after save does not cascade-delete messages()",
+          "parameter_family": "single",
+          "declaration_sha256": "85d6d94205b3eb855cf6eeb91065ac21dd2ccb42cc8b5474991bb877377f2178"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::pathUpdate deferred by contact sync still runs()",
+          "parameter_family": "single",
+          "declaration_sha256": "d923fbce1189671fc0103ddad883e2041722c5f52f992f73ed769e7207f7d2b5"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::pathUpdate for known contact does not escalate when incremental refreshes lastModified()",
+          "parameter_family": "single",
+          "declaration_sha256": "50bb0f3188236528e269c23cf8f4b6f0d5d3f9f0cdaab832912ecf9db23b4d59"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::pathUpdate for known contact escalates when incremental leaves lastModified unchanged()",
+          "parameter_family": "single",
+          "declaration_sha256": "a37cfb03c1f9bd9a9bf49cbede52cb0502ae757a366dee02720c2463f3ab25ab"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::pathUpdate only triggers handler without Discover row()",
+          "parameter_family": "single",
+          "declaration_sha256": "059843a07717b99c6fa5158552cbad372a07d86a4002e5602457b6bbea9c45a1"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::re-created contact with a surviving Discover row notifies again()",
+          "parameter_family": "single",
+          "declaration_sha256": "eb765f353b2e22f7451cda98637589115ccefbeda2f2ca6f6060f728d6f871d8"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::rolled back key does not escalate to a full refetch()",
+          "parameter_family": "single",
+          "declaration_sha256": "34bb59aefd564030f361988b0cbe9681fec51a955de46ba857dd1a5589c66207"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::setSyncingContacts false re-arms owed full refetch with empty pending keys()",
+          "parameter_family": "single",
+          "declaration_sha256": "f11d435fa3defefcdf4f43a2f5f2852a8b482a7bc56db95511b31339cfec482e"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::setSyncingContacts false while backgrounded does not invoke handler()",
+          "parameter_family": "single",
+          "declaration_sha256": "da17f7c098345fd803cf9505c032249ac4b4a90c59ca365b06d9756b891b364d"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::snapshot fetch failure does not invent new-contact notifications()",
+          "parameter_family": "single",
+          "declaration_sha256": "9ddf23f4830bfdf3a2948d09e54501036b5b953047939b2ae9db75ac52b10310"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::snapshot fetch failure still adopts orphaned DMs for drained keys()",
+          "parameter_family": "single",
+          "declaration_sha256": "9c0d9c86c75e88844a1e98586bd3967092e1eaa6d6163be9cd9ef32b54d2eb04"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::stop during handler still stamps drained lastHeard()",
+          "parameter_family": "single",
+          "declaration_sha256": "ca628a862635d37c6e7e97e1ecceb672f5c44fa0d34cb956cae50c369808580b"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::stopEventMonitoring stamps lastHeard for background 0x80()",
+          "parameter_family": "single",
+          "declaration_sha256": "35fa8ff93076b9a43abeb12f3fa2c522c282245da1fe8dc9cc5a9b5d253d9f5d"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::teardown mid-handler prevents reconcile writes()",
+          "parameter_family": "single",
+          "declaration_sha256": "bb00139af0a4d926c2620aed5374920dc4f5b811ca09746e54ebf357b8ffc6e7"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::touch failure does not announce a known contact as new()",
+          "parameter_family": "single",
+          "declaration_sha256": "955ff76385d66ac6fa66eb36302beddff8bc6a6d95607375606b00cddf3869af"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::unknown key advert yields newContactDiscovered once after handler persists()",
+          "parameter_family": "single",
+          "declaration_sha256": "b572cfd1d53e3cd76f29a6eff4f642ea2e7ae62b266cecf102c0098c350d26b6"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/AdvertisementServiceTests.swift",
+          "case_id": "AdvertisementServiceTests::unknown key missing after success escalates to fullRefetch once()",
+          "parameter_family": "single",
+          "declaration_sha256": "8b571708b8f856ba0326fa8c3403b2d47645503a5292fe69ebeda10b4f7e9db0"
+        }
+      ],
+      "original_families": 31
+    },
+    {
+      "id": "WP-202-CM-02-channel",
+      "concern": "CM-02",
+      "title": "Channel coordinator persistence",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-cm-02-channel",
+      "depends_on_packages": [
+        "WP-202-DATA-12"
+      ],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-209"
+      ],
+      "required_evidence": "Exercise serial/pipelined reads, reconciliation, stalled/failed reads, secret changes and slot callbacks through the production channel coordinator with real Room, asserting persisted slots/messages and callback outcomes.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChannelServicePipelineTests.swift",
+          "case_id": "ChannelServicePipelineTests::a dropped write is reconciled with a serial read and persisted()",
+          "parameter_family": "single",
+          "declaration_sha256": "213d7fec7674a86c4d2f82452138627620dd0c934d205ecb688ea76e0194adba"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChannelServicePipelineTests.swift",
+          "case_id": "ChannelServicePipelineTests::a mid-drain stall persists only read slots and never deletes an unread configured slot()",
+          "parameter_family": "single",
+          "declaration_sha256": "23d47169d63064df5e6a8d76fb10f4143f3111671d5cec8998590a2d87d3eb52"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChannelServicePipelineTests.swift",
+          "case_id": "ChannelServicePipelineTests::a transport send failure mid-pipeline throws and persists nothing()",
+          "parameter_family": "single",
+          "declaration_sha256": "67d95c3018dc9f0b61c1f2f70fd952c9cc519a2109294955d277519708ef01fa"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChannelServicePipelineTests.swift",
+          "case_id": "ChannelServicePipelineTests::pipelined sync persists non-contiguous configured channels to their own slots()",
+          "parameter_family": "single",
+          "declaration_sha256": "df192355e5a0d5b6631c28e4a516d988b43f5648de0fd94a8c7ddcac356115da"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChannelServicePipelineTests.swift",
+          "case_id": "ChannelServicePipelineTests::reconcile circuit breaker opens after consecutive failures and never deletes unread slots()",
+          "parameter_family": "single",
+          "declaration_sha256": "df54883f5bf3a39712803e24cf62a83588d93841f91a6d5e284744e52afbb5d9"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChannelServicePipelineTests.swift",
+          "case_id": "ChannelServicePipelineTests::serial path (usePipelinedRead: false) still syncs via acknowledged reads()",
+          "parameter_family": "single",
+          "declaration_sha256": "a3020be0253b1566d31065b11e3b92c857591bf89e9f076cc1708ebe384e1e8b"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChannelServiceTests.swift",
+          "case_id": "ChannelServiceTests::clearChannel deletes the row and its messages, then fires the slot handler()",
+          "parameter_family": "single",
+          "declaration_sha256": "a472553e72f366aa7945a62b4f309baa8130767ee04aa9d6d54d1e6a52588e9d"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChannelServiceTests.swift",
+          "case_id": "ChannelServiceTests::setChannel fires the slot handler on a new secret and not on a same-secret rename or first insert()",
+          "parameter_family": "single",
+          "declaration_sha256": "fdad76a927ab56829783c3b4b9071fd36b8135de66181970bf2e24ff5a56a1a6"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChannelServiceTests.swift",
+          "case_id": "ChannelServiceTests::syncChannels fires the slot handler for vacated and secret-changed slots, not first sightings()",
+          "parameter_family": "single",
+          "declaration_sha256": "18da9e04cad67c34e9cb8b38cef74b119d2fd85a4a34b30b2c9751a3f1723d39"
+        }
+      ],
+      "original_families": 9
+    },
+    {
+      "id": "WP-202-CM-02-contact",
+      "concern": "CM-02",
+      "title": "Contact coordinator persistence",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-cm-02-contact",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-209"
+      ],
+      "required_evidence": "Exercise full/incremental/manual sync, orphan pruning, advert claim races and raw-type-preserving resetPath through the production contact coordinator with real Room. Retain interruption/cancellation and consumer-visible outcomes.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ContactServiceSyncTests.swift",
+          "case_id": "ContactServiceSyncTests::Full sync persists all device contacts and prunes locals not on device()",
+          "parameter_family": "single",
+          "declaration_sha256": "b42f4434145186fd491c24318fd911af536829f2841fd1e0e8111f175c7a2386"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ContactServiceSyncTests.swift",
+          "case_id": "ContactServiceSyncTests::Full sync prunes true orphans but keeps the ZephCore V-contact()",
+          "parameter_family": "single",
+          "declaration_sha256": "5f1e9c328ea0e32c8c2aab9d4c0022d126d6af7d68637a7e9f3c6367cdeb79b7"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ContactServiceSyncTests.swift",
+          "case_id": "ContactServiceSyncTests::Incremental sync upserts without pruning unseen locals()",
+          "parameter_family": "single",
+          "declaration_sha256": "d764ddee0edfcaf79a671557425851e390e0f08287360b8b127ecb475b7d5291"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ContactServiceSyncTests.swift",
+          "case_id": "ContactServiceSyncTests::Manual refresh claim is atomic so a racing advert delta returns busy()",
+          "parameter_family": "single",
+          "declaration_sha256": "abd56cb46653f931ab29decac631024d833ffd0735f76678ac28bcf04de958a8"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ContactServiceSyncTests.swift",
+          "case_id": "ContactServiceSyncTests::Manual refresh surfaces syncInterrupted when the advert claim wait times out()",
+          "parameter_family": "single",
+          "declaration_sha256": "a337a401a26f9cbe388372c47e3ddb0dbf6168ea2d40b756a22c3fef7d0a6be2"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ContactServiceSyncTests.swift",
+          "case_id": "ContactServiceSyncTests::Manual refresh waits for an in-flight advert delta sync()",
+          "parameter_family": "single",
+          "declaration_sha256": "2cfb04652bfce427644ebf2d402631a2833a6fc4e66b519a4c55acff2f7ed91d"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ContactServiceTests.swift",
+          "case_id": "ContactServiceTests::resetPath flood-routes the contact while preserving an unmodeled type byte()",
+          "parameter_family": "single",
+          "declaration_sha256": "31f043c8963ff153e5d5f8417995c39e778623efa5c6907c2975bfb09ac0305a"
+        }
+      ],
+      "original_families": 7
+    },
+    {
+      "id": "WP-202-CM-02-queue",
+      "concern": "CM-02",
+      "title": "Durable send queue integration",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-cm-02-queue",
+      "depends_on_packages": [
+        "WP-202-DATA-07"
+      ],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-208"
+      ],
+      "required_evidence": "Exercise production queue hydration/restart, radio and sequence selection, attempt persistence, ready triggers, parked retries and terminal/transient outcomes against real Room. Assert persisted rows and downstream send/events, not a substitute persistence port.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceAttemptCountTests.swift",
+          "case_id": "ChatSendQueueServiceAttemptCountTests::bump failure parks envelope, preserves row, does not call sendPendingDirectMessage()",
+          "parameter_family": "single",
+          "declaration_sha256": "cf485467697c761bc97684c293e7ef390fc8d9240a161f8f35eb20e21a5baa6c"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceAttemptCountTests.swift",
+          "case_id": "ChatSendQueueServiceAttemptCountTests::fresh send: row with attemptCount=0 first drain uses fresh timestamp()",
+          "parameter_family": "single",
+          "declaration_sha256": "aa34257797c468d02f7d26543ba746115ed5b56f676efb474f47dcfe712405ff"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceAttemptCountTests.swift",
+          "case_id": "ChatSendQueueServiceAttemptCountTests::process restart: row with attemptCount=1 rehydrates with preserveTimestamp=true()",
+          "parameter_family": "single",
+          "declaration_sha256": "75801c774bb62d89a3f0a4df2fbd309786db1c3f8b21e5be00e5519f5d724c7e"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::Channel fetchChannel failure counter is per-envelope and does not cascade()",
+          "parameter_family": "single",
+          "declaration_sha256": "e82c786d62b76924f20797a80aab35ea0c2099e336e24ca631e0675ec326b80e"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::Terminal DM send error broadcasts .failed exactly once()",
+          "parameter_family": "single",
+          "declaration_sha256": "ea29ee37e95308c70994095a23b74e7854e22f5701c349d45cdbe8a3363c2e30"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::Transient DM send error must not broadcast .failed()",
+          "parameter_family": "single",
+          "declaration_sha256": "2dd4231de4d73bbde265a685436596bf686f67d5ab752a13630a3e2295bf93d3"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::channel drain parks deviceError(2) below disambiguateAfterAttempts()",
+          "parameter_family": "single",
+          "declaration_sha256": "b612facf2c45d3ac9c2746e3fbe03ffa7ca0656600f20d68621390d4dd434aa5"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::channel drain treats deviceError(2) as terminal when fetchChannel confirms the channel is gone()",
+          "parameter_family": "single",
+          "declaration_sha256": "219e07683360138e42bd7b1365c60a171663f8f1878ffd05504b7f3f1e6fbc09"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::connection-state ramp fires the trigger exactly once()",
+          "parameter_family": "single",
+          "declaration_sha256": "5001cb3a7715a9087f0b7a7c74a58133e601483d40b8cad24e2183b8cd3c661e"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::drain bounded wait re-attempts after transportWaitTimeout expires()",
+          "parameter_family": "single",
+          "declaration_sha256": "9753b1730317a7ecb548b73481a7b091f63560463483166aa9f63c5227d44cd7"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::hydrate fetch returns rows in sequence order()",
+          "parameter_family": "single",
+          "declaration_sha256": "1afe4af501a629ab5854427998913951650a0f69e50ebfee146042826e727b4c"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::hydrate processes only the service's own radio rows()",
+          "parameter_family": "single",
+          "declaration_sha256": "fbb4d98d09925a5de7ffc02dc8ad25ce647f94aa4ec1828a910b87cab69ada5b"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::hydrate replays persisted PendingSend rows and drains them()",
+          "parameter_family": "single",
+          "declaration_sha256": "0240248c8166066c3dab9a48b170f4a586856f74cf0d7751fffec1e241c6ab8c"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::hydrate runs once per service instance()",
+          "parameter_family": "single",
+          "declaration_sha256": "0e99168f62d9e3e58ffe735512c349dd5912440a266b8a4092f697894e71f0df"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::observeConnectionState fires the trigger for an already-ready initial state()",
+          "parameter_family": "single",
+          "declaration_sha256": "3ed2892294eb98edf58bc6329d9a6a920fe4244337ab995c888f1d6ca260464e"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::observeConnectionState keeps a drain parked through .connected and wakes it on .ready()",
+          "parameter_family": "single",
+          "declaration_sha256": "2abe02ff3f9ff6ec43cfbe59a26c287e9059bb9e30205eba3065b86acfb417bb"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/ChatSendQueueServiceTests.swift",
+          "case_id": "ChatSendQueueServiceTests::transient send error preserves the persisted row while parked on the trigger()",
+          "parameter_family": "single",
+          "declaration_sha256": "21e79cd376fce8dcd1396dc967f393faa9d22475d81a69d072e7dc51b84ee5ab"
+        }
+      ],
+      "original_families": 17
+    },
+    {
+      "id": "WP-202-CM-02-ack",
+      "concern": "CM-02",
+      "title": "ACK coordinator persistence",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-cm-02-ack",
+      "depends_on_packages": [
+        "WP-202-DATA-04"
+      ],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-208"
+      ],
+      "required_evidence": "Exercise production ACK reconciliation, listener/send/checker races, per-attempt/grace timing, late ACKs, failure and stop paths with real Room. Assert persisted status, RTT/contact updates and exact consumer events.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::ACK within grace window reconciles .sent \u2192 .delivered via the in-memory pending entry()",
+          "parameter_family": "single",
+          "declaration_sha256": "ad8af0dfb714f3c746c13bf589975f487a2e5fdecb0ed6f412e60637a1bfb11e"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::checkExpiredAcks does not broadcast failure when DB stays delivered()",
+          "parameter_family": "single",
+          "declaration_sha256": "a3b01bdbae34c9093012ef317088173da5961daf33d850649a1fc33fa826b6e5"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::checkExpiredAcks fails a DM after max(ackGiveUpWindow, per-attempt timeout); the window is the floor()",
+          "parameter_family": "single",
+          "declaration_sha256": "045197a93f91d610ae7a61931ea7143db193b118ca49beef54d3d2fceb5fd5b0"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::checkExpiredAcks honors a per-attempt timeout longer than the give-up window (slow preset)()",
+          "parameter_family": "single",
+          "declaration_sha256": "c7347998d5e691f903e1b4c73bd2ad1be30c12d55aacf7368378f6313684cf1b"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::checkExpiredAcks marks expired ACK as failed()",
+          "parameter_family": "single",
+          "declaration_sha256": "18db1350b0ddc19dc1a6601812d961f9890ad57789b65ca75413c4169f5513a4"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::failAllPendingMessages does not downgrade or notify on a delivered DB row()",
+          "parameter_family": "single",
+          "declaration_sha256": "79cbca212a2263aaa85158ed76398d0b9ac0adce4e87d8cd3951f5df9a33ce4f"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::failAllPendingMessages fails all non-delivered and broadcasts .failed()",
+          "parameter_family": "single",
+          "declaration_sha256": "d06f25b3dbe735956d6abe5d5e530a0202d1f58d95d620f54e81dbacc5616ecc"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::failMessageAndRethrow removes pendingAcks entry and rethrows()",
+          "parameter_family": "single",
+          "declaration_sha256": "230652c096a26669083eaadb024768b1053033b5a213955fddcfe220cb197d6c"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::finalizeSend broadcasts .statusResolved when in-loop waitForEvent wins the ACK race()",
+          "parameter_family": "single",
+          "declaration_sha256": "e1e0e8b70f8274aa5de6dd867e3ed7b7cb48c8a8406b00ca3765f0bbe467abd0"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::finalizeSend delivered branch writes .delivered, updates contact, yields .statusResolved, removes entry()",
+          "parameter_family": "single",
+          "declaration_sha256": "06ea4a284014fba0c32e5dd4b3685f1cd1eb6810fe788930630039fae1489ff5"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::finalizeSend nil branch over an already-.failed row leaves it .failed()",
+          "parameter_family": "single",
+          "declaration_sha256": "e0d8013843f7a015390d0181e8c8992b51177c6eca279a463804388b98ea24ef"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::finalizeSend nil branch skips the DB write when the listener already delivered()",
+          "parameter_family": "single",
+          "declaration_sha256": "25844b0ddeb6c17bebe12b75865e7986c1cf8ae641995730b7fc023e8b9f44ac"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::finalizeSend nil branch yields .statusResolved(.sent) from a non-terminal row and gates off on a terminal one()",
+          "parameter_family": "single",
+          "declaration_sha256": "0674aa81639a979651305bb1eaca5e1b879b6946e921373d6475dfa14b3c0318"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::finalizeSend preserves roundTripTime after listener-won delivery()",
+          "parameter_family": "single",
+          "declaration_sha256": "0927a3d3ed3e18981007c948210fd8b01d3bebb05d92a78cecc0f9131d1b1411"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::handleAcknowledgement leaves roundTripTime nil when firmware does not supply tripTime()",
+          "parameter_family": "single",
+          "declaration_sha256": "d4e1c5a9b559d91dcaaeebc3ac5dcdc1ad32cc1c4e44729131ea9f20b372bfe0"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::handleAcknowledgement matches any CRC accumulated across retry attempts()",
+          "parameter_family": "single",
+          "declaration_sha256": "8622e9e75062963ca9ed32d1fe0938cc1475508358e166a2825d6237bdc36cdd"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::handleAcknowledgement updates contact lastMessageDate on late ACK()",
+          "parameter_family": "single",
+          "declaration_sha256": "4161f91871402868ba173a35cc2f450232c61dd5d5dfd9f4b5f895a0928ba8d2"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::handleAcknowledgement uses firmware tripTime when provided()",
+          "parameter_family": "single",
+          "declaration_sha256": "d794d76f30deef41087c234b5a7edb6fd9e4aed0913673ec10a671aafe11642c"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::late ACK after the row is already .failed with no live entry stays .failed()",
+          "parameter_family": "single",
+          "declaration_sha256": "d283371aafaf3fc3d2316732d028991359ef1d87380498c130a9e21a44748697"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::late ACK landing in the checker's await-gap cannot flip a just-failed row to .delivered()",
+          "parameter_family": "single",
+          "declaration_sha256": "02ac771cd2851102a14638144fe652359d30bf9c0bb0521f7fd36732e545daa3"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceACKTests.swift",
+          "case_id": "MessageServiceACKTests::stopAndFailAllPending stops checking and fails all pending()",
+          "parameter_family": "single",
+          "declaration_sha256": "a9ead879e47dee38c7e486d3c3161e23b8ea08c346f9e32eca064b04ba1342c7"
+        }
+      ],
+      "original_families": 21
+    },
+    {
+      "id": "WP-202-CM-02-send",
+      "concern": "CM-02",
+      "title": "Send coordinator persistence",
+      "owner": "data-persistence-engineer",
+      "acceptance_id": "repair-385-cm-02-send",
+      "depends_on_packages": [],
+      "requires_verified_merged": [
+        "WP-201"
+      ],
+      "support_producers": [
+        "WP-208"
+      ],
+      "required_evidence": "Exercise production send/resend and pending creation against real Room before transport actions; preserve delivered terminal rows, retry exhaustion, counts/timestamps and error/cancellation/event outcomes.",
+      "pending_decision": null,
+      "status": "pending-evidence",
+      "families": [
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::a genuine send exception still fails the DM through the outer catch()",
+          "parameter_family": "single",
+          "declaration_sha256": "599b6c896e5ee6242a426640dd229f7ed7ccabfdf5da7757927e4aacfefc24ec"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::checkExpiredAcks cannot fail a DM while its retry loop is still inside waitForEvent()",
+          "parameter_family": "single",
+          "declaration_sha256": "b8d25d5dacb16ce4aed3b97f9aba975074e977a0300833358fdd41ca63538c01"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::checkExpiredAcks respects a slow-preset per-attempt timeout that exceeds a tiny give-up window()",
+          "parameter_family": "single",
+          "declaration_sha256": "90ded8ddb281c9da1dc9672b0f1931bc95ba2beb6d23946f2bd9a4a9d5d29518"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::createPendingChannelMessage saves to dataStore with pending status()",
+          "parameter_family": "single",
+          "declaration_sha256": "f38af9f14fb8228465c291e8428f5188eac40acaf46c3beacadd5966e4f2ae17"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::createPendingMessage stamps lastMessageDate so a first DM appears in the chat list before any send succeeds()",
+          "parameter_family": "single",
+          "declaration_sha256": "df2099df931eec574ecb3c7d5acb8dcdb518aa35340967353cfd504f8aa247cd"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::failMessageAndRethrow does not downgrade a delivered DB row()",
+          "parameter_family": "single",
+          "declaration_sha256": "09d7382822aa35e192e6d32aea777a7c97de4a5fd4a26adb62ad579494a25fb2"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::finalizeSend exhaustion does not downgrade a delivered DB row()",
+          "parameter_family": "single",
+          "declaration_sha256": "fad02d180cd0b210d461148b0157e571747324f8f236ba76787c76535feb2bac"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::resendChannelMessage writes .sent before broadcasting .resent and refreshes counts()",
+          "parameter_family": "single",
+          "declaration_sha256": "d3b754994c61030459af7258abd384f19101b9da58d9ed5899ac0ce4533fcd49"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::resendDirectMessage increments sendCount and broadcasts .resent on a successful resend()",
+          "parameter_family": "single",
+          "declaration_sha256": "1c95800185eafe5a58453bb72acc19dc528cd34401b6c3e5b6f9ecf9b889a5fa"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::retry exhaustion leaves the DM .sent with its pending entry alive, never prematurely .failed()",
+          "parameter_family": "single",
+          "declaration_sha256": "ab10b2f202baedd140d30027b94c0bbe201f039607463cc0c0a143b79a0ed7de"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::sendChannelMessage saves message to dataStore before send attempt()",
+          "parameter_family": "single",
+          "declaration_sha256": "f7be057433940980457c6e8cdb03d18a23cd18c782d7d04cf3b8bdb9a74dc63e"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::sendDirectMessage saves message to dataStore before send attempt()",
+          "parameter_family": "single",
+          "declaration_sha256": "52507226c8c89b819355c4a8dd25d2c444b489e969b3d070c583069d4edbc829"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::sendPendingChannelMessage sets failed status on send error()",
+          "parameter_family": "single",
+          "declaration_sha256": "dbe0bb97a2ac83a6f43d27125dc85fb8b28a5e55de8f2b7160480fb1369bb2fc"
+        },
+        {
+          "primary_owner": "WP-208",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift",
+          "case_id": "MessageServiceSendTests::sendPendingDirectMessage does not bump sendCount or broadcast .resent on first send()",
+          "parameter_family": "single",
+          "declaration_sha256": "234af2379df175779cad5183b9e39cb0dd0c210ce80773cd2a7a756c8a38bf4f"
+        }
+      ],
+      "original_families": 14
+    }
+  ],
+  "limitations": [
+    "Generated identity map: issue #385 exact stable keys joined to pinned semantic catalogs; no test assertions or outcomes are generated.",
+    "Merge approves this bounded handoff specification only. Pending product/adaptation decisions remain pending and require the appropriate maintainer/producer.",
+    "No original case is excluded, counted as passing, transferred to another primary owner or credited twice.",
+    "The manifest, software command overlays, protected review policy, dispatch state and historical authorization/receipts are unchanged."
+  ]
+}

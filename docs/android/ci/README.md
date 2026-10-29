@@ -1002,6 +1002,28 @@ hardware, legal or release gates, and no CI-result bundle is retained.
 
 ### Change-scoped acceptance for an already-landed WP repair
 
+The [WP-202 handoff](../evidence/WP-003/wp202-package-handoff.json) applies this
+existing contract to issue #385: 16 bounded packages partition its nine concerns
+and 167 exact original families, retaining all four primary source owners.
+CM-02 is split by production coordinator boundary, including separate advert
+deletion, scheduling and contact reconciliation packages. Each package names
+its acceptance ID, prerequisites, required assertions and unresolved decisions.
+The maintainer-approved CM-02 criterion is real Room through the production
+coordinator with persisted and consumer-visible outcomes; no mounted App/UI
+flow is required. DATA-02's separate actual user-flow requirement is unchanged.
+
+These are repair packages within WP-202, not new macro WPs or dispatch jobs.
+PR #450 already bound the software commands, and PR #456 supplied this reusable
+bounded-repair/verification route. No additional frozen manifest mutation,
+WP-specific task/check selector or controller activation is needed to propose
+an assigned bounded candidate. The existing partially configured WP-202 entry
+still **does not** inherit shared whole-WP completion. Its manifest blocker
+remains historical context for full acceptance, not a prohibition on this repair
+route. The static handoff is neither an authenticated candidate scope nor
+execution evidence: the actual producer must supply the exact current bindings,
+admissions, executed methods, independent review and applicable decisions.
+Do not treat support issue closure or this handoff's merge as dependency unlock.
+
 An open repair of an already-landed WP is not a request to complete that entire
 WP again. The bounded path uses the same authenticated source reviewer and
 default-branch publisher, but returns `acceptance_kind: "bounded-repair"`,

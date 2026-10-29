@@ -137,6 +137,124 @@ class SoftwareVerificationTests(unittest.TestCase):
         self.assertFalse(result["human_or_dependency_acceptance"])
 
 
+class WP202PackageHandoffTests(unittest.TestCase):
+    def binding(self):
+        return load_json(REPO / "docs/android/evidence/WP-003/wp202-package-handoff.json")
+
+    def test_exact_issue_partition_retains_all_families_and_primary_owners(self):
+        binding = self.binding()
+        self.assertEqual(digest(binding),
+                         "71defdd4aefd302aa64b923dc3fbdde92e6574de4dbc22229c8a57bfdd38fddf")
+        manifest = base_manifest()
+        self.assertEqual(binding["source_sha"], manifest.data["reference"]["commit"])
+        self.assertEqual((binding["issue"], binding["repair_issue"]), (441, 385))
+        inventory = {entry["path"]: entry for entry in manifest.data["inventory"]}
+        originals = load_json(REPO / "docs/android/test-cases.json")
+        self.assertEqual(originals["source_sha"], binding["source_sha"])
+        cases = {entry["path"]: entry for entry in originals["entries"]}
+        groups = {}
+        for catalog in binding["catalogs"]:
+            group = load_json(REPO / catalog["path"])
+            self.assertEqual(
+                git(REPO, "rev-parse", f"HEAD:{catalog['path']}").decode().strip(),
+                catalog["blob_sha"],
+            )
+            self.assertEqual(group["source_sha"], binding["source_sha"])
+            self.assertEqual(group["manifest_sha256"], binding["catalog_manifest_sha256"])
+            self.assertEqual(group["owner"], catalog["work_package"])
+            self.assertEqual(len(group["families"]), catalog["family_count"])
+            groups[catalog["work_package"]] = group["families"]
+        keys, counts, owners = set(), {}, {}
+        for package in binding["packages"]:
+            self.assertGreater(package["original_families"], 0)
+            self.assertEqual(len(package["families"]), package["original_families"])
+            concern = package["concern"]
+            counts[concern] = counts.get(concern, 0) + len(package["families"])
+            for family in package["families"]:
+                key = tuple(family[name] for name in ("source_path", "case_id", "parameter_family"))
+                self.assertNotIn(key, keys)
+                keys.add(key)
+                owner = family["primary_owner"]
+                owners[owner] = owners.get(owner, 0) + 1
+                matches = [candidate for candidate in groups[owner] if all(
+                    candidate[name] == family[name]
+                    for name in ("source_path", "case_id", "parameter_family", "declaration_sha256")
+                )]
+                self.assertEqual(len(matches), 1, key)
+                source = family["source_path"]
+                self.assertEqual(inventory[source]["primary_owner"], owner)
+                self.assertIsNone(inventory[source]["exclusion"])
+                self.assertEqual(matches[0]["source_blob_sha"], inventory[source]["blob_sha"])
+                self.assertEqual(cases[source]["blob_sha"], inventory[source]["blob_sha"])
+                self.assertIn({"id": family["case_id"], "parameter_family": family["parameter_family"]},
+                              cases[source]["cases"])
+        self.assertEqual(len(keys), 167)
+        self.assertEqual(digest(sorted(keys)),
+                         "1afa2cc171c96206f15a4bba74f8593db43236df0eea2c1aba074481757f7f5f")
+        self.assertEqual(counts, {
+            "DATA-02": 7, "DATA-03": 1, "DATA-04": 1, "DATA-06": 18, "DATA-07": 1,
+            "DATA-12": 1, "DATA-13": 2, "DATA-21": 1, "CM-02": 135,
+        })
+        self.assertEqual(owners, {"WP-201": 1, "WP-202": 31, "WP-208": 52, "WP-209": 83})
+
+    def test_bounded_packages_have_unique_acceptance_and_acyclic_real_prerequisites(self):
+        binding = self.binding()
+        packages = binding["packages"]
+        ids = {package["id"] for package in packages}
+        self.assertEqual(len(ids), 16)
+        self.assertEqual(len({package["acceptance_id"] for package in packages}), 16)
+        remaining = {package["id"]: set(package["depends_on_packages"]) for package in packages}
+        manifest = base_manifest()
+        for package in packages:
+            self.assertEqual(package["owner"], manifest.wp("WP-202")["owner"])
+            self.assertTrue(package["acceptance_id"].startswith("repair-385-"))
+            self.assertTrue(package["required_evidence"])
+            self.assertEqual(package["requires_verified_merged"], manifest.wp("WP-202")["depends_on"])
+            for producer in package["support_producers"]:
+                manifest.wp(producer)
+            self.assertLessEqual(remaining[package["id"]], ids - {package["id"]})
+            self.assertEqual(package["status"], "pending-evidence-and-decision"
+                             if package["pending_decision"] else "pending-evidence")
+        while remaining:
+            ready = {key for key, dependencies in remaining.items() if not dependencies}
+            self.assertTrue(ready, "Package dependencies contain a cycle")
+            remaining = {key: dependencies - ready for key, dependencies in remaining.items()
+                         if key not in ready}
+        pending = {package["concern"] for package in packages if package["pending_decision"]}
+        self.assertEqual(pending, {"DATA-02", "DATA-04", "DATA-06", "DATA-07"})
+        self.assertEqual(binding["cm02_decision"]["status"], "maintainer-approved-boundary-only")
+        self.assertEqual(binding["cm02_decision"]["issue_comment_url"],
+                         "https://github.com/cbattlegear/MeshCoreOne-Android/issues/441"
+                         "#issuecomment-6453153281")
+
+    def test_existing_lane_and_support_rules_need_no_dispatch_or_manifest_amendment(self):
+        binding = self.binding()
+        manifest = base_manifest()
+        wp = manifest.wp("WP-202")
+        self.assertFalse(wp["verification"]["configured"])
+        self.assertEqual(wp["verification"]["commands"], declared_software_lane(manifest))
+        self.assertEqual(binding["handoff"]["method_pr"], 456)
+        self.assertEqual(binding["handoff"]["status"],
+                         "bounded-planning-contract-not-execution-or-acceptance")
+        policy = load_json(REPO / "docs/android/automation-policy.json")
+        engine = CapabilityEngine(policy)
+        paths = (
+            ("android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/"
+             "repository/ChannelRepository.kt", "modify", "wp-owned"),
+            ("android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/"
+             "contacts/ChannelService.kt", "modify-related-consumer", "reviewed-support-consumer"),
+            ("android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/"
+             "messaging/MessagingRoomIntegrationTest.kt",
+             "add-or-update-related-test", "reviewed-support-test"),
+        )
+        for path, operation, capability in paths:
+            with self.subTest(path=path):
+                self.assertEqual(engine.admit(wp["id"], wp["write_paths"], path, operation).capability_id,
+                                 capability)
+        self.assertEqual(policy["dispatch_mode"], "off")
+        self.assertFalse(policy["activation_approved"])
+
+
 class WP210ConcernMappingTests(unittest.TestCase):
     def binding(self):
         return load_json(REPO / "docs/android/evidence/WP-003/wp210-concern-family-binding.json")
