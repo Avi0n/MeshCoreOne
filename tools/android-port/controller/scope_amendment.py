@@ -21,6 +21,48 @@ REVIEW_POLICY = {
     ],
 }
 
+CONTACT_IMPORT_LOCALIZATION_CAPABILITY = {
+    "id": "reviewed-support-contact-import-localization",
+    "work_packages": ["WP-210"],
+    "path_rules": [
+        "android/feature/settings/src/main/res/values/strings.xml",
+        "android/feature/settings/src/main/res/values-de/strings.xml",
+        "android/feature/settings/src/main/res/values-es/strings.xml",
+        "android/feature/settings/src/main/res/values-fr/strings.xml",
+        "android/feature/settings/src/main/res/values-it/strings.xml",
+        "android/feature/settings/src/main/res/values-ko/strings.xml",
+        "android/feature/settings/src/main/res/values-nl/strings.xml",
+        "android/feature/settings/src/main/res/values-pl/strings.xml",
+        "android/feature/settings/src/main/res/values-pt/strings.xml",
+        "android/feature/settings/src/main/res/values-ru/strings.xml",
+        "android/feature/settings/src/main/res/values-uk/strings.xml",
+        "android/feature/settings/src/main/res/values-b+zh+Hans/strings.xml",
+    ],
+    "operations": ["add-or-update-contact-import-recovery-copy"],
+    "invariants": [
+        "only-AndroidOnly-WP210-node_config_contact_save_failed-string-create-or-update-no-other-key-edit-or-file-deletion",
+        "all-twelve-supported-locales-explicit-copy-no-English-disguised-as-localized-coverage",
+        "distinguish-confirmed-radio-contact-acceptance-from-failed-local-save-do-not-claim-rollback-or-full-import-success",
+        "recovery-explains-retry-import-without-reset-delete-or-duplicate-radio-write-promises",
+        "retain-existing-configImportFailedPartial-warning-and-progress-semantics",
+        "preserve-pinned-db14559b39d32322b06477c6ae676112f583db50-source-catalog-and-generated-l10n-bytes",
+        "new-Android-only-copy-documented-in-WP210-deviations-not-fabricated-Swift-source-map-or-original-case-credit",
+        "WP318-primary-consumer-and-WP005-localization-ownership-unchanged-semantic-overlap-serialize-or-transfer-current-producer",
+        "consumer-and-tests-use-separate-existing-reviewed-support-admission-no-build-dependency-manifest-provider-or-release-authority",
+        "trusted-main-landing-and-fresh-same-owner-admission-before-product-edit-immutable-authorization-no-release-recreate-or-private-ledger-edits",
+        "policy-admission-only-no-feature-acceptance-runtime-installation-dispatch-settings-schedules-or-merge-authority",
+    ],
+    "validation": [
+        "exact WP210 twelve-resource named-operation positives and other-WP wrong-operation sibling traversal malformed-rule denials",
+        "exact predecessor equals complete trusted policy object and raw Git blob with all previous capabilities and gates unchanged",
+        "future exact-candidate XML resource tests assert new key and distinct translated acceptance-save-failure-retry copy in every supported locale and preserve unrelated entries",
+        "future ResourceNodeConfigMessages tests use actual NodeConfigContactSaveFailure for partial true and false retain partial warning and distinguish ordinary radio failure and cancellation",
+        "future mounted partial-import flow retains acknowledged progress and retry behavior through actual settings adapter",
+        "future affected declared localization-resource settings and App test closures with positive hosted method discovery zero failures errors or skips",
+        "policy fixtures prove admission only not Android resource compilation UI flow localization quality or WP210 WP318 acceptance",
+    ],
+}
+
 
 def routine_support_predecessor(policy):
     """Project reviewed additive capability extensions back to the historical policy."""
@@ -39,6 +81,11 @@ def routine_support_predecessor(policy):
     if (selected and rules[-len(selected):] != selected) or len({rule["id"] for rule in selected}) != len(selected):
         raise PortError("Reviewed support capabilities must be unique and follow the historical catalog")
     for rule in selected:
+        if (
+            rule["id"] == CONTACT_IMPORT_LOCALIZATION_CAPABILITY["id"]
+            and rule != CONTACT_IMPORT_LOCALIZATION_CAPABILITY
+        ):
+            raise PortError("Contact import localization changed outside the exact reviewed amendment")
         if set(rule) not in (
             {"id", "path_rules", "operations", "invariants", "validation"},
             {"id", "path_rules", "operations", "invariants", "validation", "work_packages"},
