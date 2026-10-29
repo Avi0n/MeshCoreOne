@@ -43,7 +43,7 @@ internal data class ConfigImportWriters(
     val setRadioParams: suspend (MeshCoreNodeConfig.RadioSettings) -> Unit,
     val setTxPower: suspend (Byte) -> Unit,
     val setChannel: suspend (radioId: RadioId, write: ConfigImportPlan.ChannelWrite) -> Unit,
-    val addContact: suspend (radioId: RadioId, contact: MeshContact) -> Unit,
+    val addContact: suspend (radioId: RadioId, contact: MeshContact, onDeviceAdded: () -> Unit) -> Unit,
 )
 
 // MARK: - Pref/radio diff gates (testable seam)
@@ -69,8 +69,8 @@ internal fun txPowerNeedsWrite(radio: MeshCoreNodeConfig.RadioSettings, current:
 /**
  * Executes a validated plan in safe order: identity (so a key import can reassign the radio id before
  * channels/contacts are keyed by it), then position, other params, channels, contacts, and radio
- * last. Progress for a step is emitted only after its write succeeds, so "no progress" reliably
- * means "nothing was written".
+ * last. Contact progress is emitted when the device confirms the add, before the local save,
+ * so cancellation during that save cannot hide the already-applied device change.
  */
 internal suspend fun executeConfigImport(
     plan: ConfigImportPlan,
@@ -143,9 +143,7 @@ internal suspend fun executeConfigImport(
 
     for (contact in plan.contactRecords) {
         checkCancellation()
-        // addContact throws only when the device add failed; a local-save failure is logged inside.
-        writers.addContact(effectiveRadioId, contact)
-        progress(ImportStep.Contact(contact.advertisedName))
+        writers.addContact(effectiveRadioId, contact) { progress(ImportStep.Contact(contact.advertisedName)) }
         logger.info("Imported contact: ${contact.advertisedName}")
     }
     // Refresh contacts before the radio step so a later radio failure cannot suppress the UI update.

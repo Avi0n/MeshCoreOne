@@ -66,6 +66,10 @@ sealed class NodeConfigServiceError(message: String) : Exception(message), Sourc
         }
 }
 
+/** A contact was accepted by the radio but its local persistence did not complete. */
+class NodeConfigContactSaveFailure(cause: Throwable) :
+    Exception(null, cause)
+
 /** One-for-one projection of [RadioField] onto its neutral payload mirror. */
 private fun RadioField.toFaultField(): NodeConfigRadioField = when (this) {
     RadioField.FREQUENCY -> NodeConfigRadioField.FREQUENCY
