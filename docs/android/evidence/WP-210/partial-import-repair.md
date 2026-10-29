@@ -19,6 +19,15 @@ Room behavior. The teardown test separately checks cancellation of a parked
 keep-alive and completion of an event subscriber; the original GC-dependent
 case remains present.
 
+The candidate also ports the 15 contact-share and 13 hashtag original vector
+families to the feature-local implementations, with message normalization and
+link-tokenization consumer coverage. The channel-sheet validator and sanitizer
+pass those original ASCII inputs, but they accept non-ASCII letters or digits
+that the shared utility removes or rejects. This discrepancy was reported to
+the active WP-213 stream in #395; its product criterion and any shared edit
+remain unresolved. These tests have not been independently established as
+passing until the exact-candidate hosted job runs them with positive discovery.
+
 The exact candidate's hosted CI result and log are authoritative for actual
 test execution and discovery. The local preflight could not run Android tests:
 `python tools/android-port/controller/ci.py preflight` reported missing explicit
