@@ -1,0 +1,875 @@
+{
+  "schema_version": 1,
+  "issue": {
+    "number": 387,
+    "repository": "cbattlegear/MeshCoreOne-Android",
+    "url": "https://github.com/cbattlegear/MeshCoreOne-Android/issues/387"
+  },
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "inventory_baseline_commit": "61fc863172e9248f3ba913acefeb6fd2354d2580",
+  "catalog_manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "catalogs": [
+    {
+      "work_package": "WP-209",
+      "path": "docs/android/parity/groups/WP-209.json",
+      "blob_sha": "0d4eb5b5cbafb269bcb40548d073e1404fc9b2c1",
+      "family_count": 176
+    },
+    {
+      "work_package": "WP-210",
+      "path": "docs/android/parity/groups/WP-210.json",
+      "blob_sha": "41c10397edc4c96b17604de8fdfc365ea2dcad60",
+      "family_count": 290
+    }
+  ],
+  "assignment_basis": "Bind the 110 exact stable keys published in issue #387 to their unique WP-209/WP-210 source-family declarations. Assign the six named cancellation, node-config, post-device-add and teardown cases to their corresponding concerns; CM-03 is the exact remainder required by its declared 104-family count. This is supervised traceability, not parity acceptance.",
+  "handoff": {
+    "method_revision": "2d1d19fb73adcad1e8ff725fb33a0c9b04dfee98",
+    "method_pr": 456,
+    "status": "planning-only-not-an-authenticated-scope-or-acceptance-receipt",
+    "verification": "Use the shared declared software lane and immutable change-scoped task selection from the trusted base. Do not copy scaffold tasks, check identities or suite minima into a WP-specific manifest amendment.",
+    "admission": "Use existing reviewed support capabilities for actual cross-owner consumers and tests; preserve primary ownership and evolve the actual same-owner reservation. No WP-210-specific capability is added.",
+    "case_projection": "For each selected family, map source_path to path, case_id to id and retain parameter_family in coverage.cases. Include cross-owner source_path in coverage.source_paths. Validate declaration_sha256 against the pinned group and the original source blob against test-cases.json.",
+    "candidate_binding": "The WP-210 owner must supply the actual base/head/source/manifest/policy, changed paths and capabilities, production consumer blobs, executed hosted methods and applicable retained native evidence through the generalized authenticated scope and review contract. This static map supplies none of those execution facts.",
+    "completion_boundary": "A bounded repair is not whole-WP completion. Whole-WP acceptance also requires every primary-owned case and acceptance item, prerequisites and applicable native/human gates; these 110 selected families are not the complete WP-210 inventory."
+  },
+  "acceptance_criteria": [
+    {
+      "concern": "CM-03",
+      "status": "pending-evidence-and-maintainer-decision",
+      "required_evidence": "Run pinned vectors through the actual selected feature-local consumer, retaining independently tested core helpers. Core-helper tests, copied algorithms or source reachability alone do not witness feature-mirror execution.",
+      "pending_decision": "Confirm whether separate feature mirrors are intentional and approve their consumer-level equivalence strategy; this mapping does not choose consolidation or continued duplication."
+    },
+    {
+      "concern": "CM-07",
+      "status": "pending-evidence-and-maintainer-decision",
+      "required_evidence": "Discriminate normal quiet stop, service-originated RemoteNodeError.Cancelled and structured caller CancellationException. Mandatory caller cancellation must propagate.",
+      "pending_decision": "Approve the outward Android cancellation contract without equating quiet return, typed domain failure and cancelled-parent propagation."
+    },
+    {
+      "concern": "CM-09",
+      "status": "pending-evidence",
+      "required_evidence": "Exercise real NodeConfig conversion and the production SettingsService adapter for raw-byte preservation and no-op imports. Retain downstream packet assertions; fake ports or planner-only checks are insufficient.",
+      "pending_decision": null
+    },
+    {
+      "concern": "CM-10",
+      "status": "pending-evidence-and-maintainer-decision",
+      "required_evidence": "Witness both caller cancellation during the suspending contactSaver and ordinary local-save failure after successful session.addContact, preserve caller cancellation and account for the applied device write. Prove safe retry/reconciliation without claiming rollback or blindly repeating an irreversible add.",
+      "pending_decision": "Approve the user-visible applied/partial/uncertain outcome and reconciliation behavior when device application succeeds before local persistence or progress reporting."
+    },
+    {
+      "concern": "CM-13",
+      "status": "pending-evidence-and-maintainer-decision",
+      "required_evidence": "Demonstrate deterministic owned-task cancellation/join and callback-retention behavior on the required supported runtime. System.gc, yield loops and WeakReference timing alone are not pass/fail criteria.",
+      "pending_decision": "Approve the observable Kotlin lifecycle/retention equivalent and required supported-runtime evidence; immediate ARC deallocation is not assumed to be JVM collectibility."
+    }
+  ],
+  "concerns": [
+    {
+      "id": "CM-03",
+      "original_families": 104,
+      "families": [
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::extractShares finds multiple tokens amid plain text()",
+          "parameter_family": "single",
+          "declaration_sha256": "661d6ab57cf235ccc0003474b7eb9f8d24f1bd9403ca5b3bb61df191a8ddcb6f"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::extractShares returns empty when there are no tokens()",
+          "parameter_family": "single",
+          "declaration_sha256": "ce76719ddf2e08c14205f1394de780175c8ee1e3e4de5fb6232cceda89b5288b"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::formatShare emits uppercase hex()",
+          "parameter_family": "single",
+          "declaration_sha256": "a3a0b150508b16530b4a3f7b5f14a94c7713205dabcf4ae3373bc2a9cc8bbfcd"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::formatShare then parseShare round-trips for every contact type(type : ContactType)",
+          "parameter_family": "arguments-sha256:1fab374a3c6bd80dda0246418d7416d1fde4082bf5cf55fd30053972395a259e",
+          "declaration_sha256": "f2ca15e1b21dddcb0e9c75f52de39539b50cbfc3a47d8922602768ffa7653e93"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare preserves a colon inside the name()",
+          "parameter_family": "single",
+          "declaration_sha256": "b5bc1717c049d13b38dd3b71b4483a1349f32348c2fc1b694fa2c1ec252afd00"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare preserves a newline inside the name()",
+          "parameter_family": "single",
+          "declaration_sha256": "1d589eb915d7425e40aef2fd925c940e93f118bf2506f1dc21864ee98c2742f8"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare preserves an RTL-override character in the name()",
+          "parameter_family": "single",
+          "declaration_sha256": "6a7e1e2fdf8aa7a39f538fbc3d7e43d72b5784a0dce4c42c6dc2385737b31eb0"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare rejects a 63-char (short) public key()",
+          "parameter_family": "single",
+          "declaration_sha256": "d63bcf50d76e47307046007a9a85f0937b0ec9d96a9aa9806684bfb809e20152"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare rejects a token missing the name field()",
+          "parameter_family": "single",
+          "declaration_sha256": "561ba48049aacbdfbd8583109328d9ba62f42848c77c2b5e206b574965d42579"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare rejects a token missing type and name()",
+          "parameter_family": "single",
+          "declaration_sha256": "bda968f3c361ab70732e83600aecb2ab11f110c9be6445a61058a19f56fe66fb"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare rejects an empty name()",
+          "parameter_family": "single",
+          "declaration_sha256": "0256f8a8cf5f4cb6075162c01cb07406fe9ab1f07123e88ab21c4c8fa5b8e9ce"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare rejects non-hex characters in the public key()",
+          "parameter_family": "single",
+          "declaration_sha256": "ee95bd6afef6a9efb483cbbff6b0a357c98aaaa1731e1731c61ac215d96b1e5f"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare rejects out-of-range and overflowing type values without trapping(typeDigits : String)",
+          "parameter_family": "arguments-sha256:b98c4e9858ea4013aeaf6c5ad230a93771cbbec343b24cd985cb2ae9d8615b16",
+          "declaration_sha256": "8523b7ad45691d60e205777aa944b0cbaff275ead3ca2b90326acf39bf181571"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare round-trips a 1000-character name()",
+          "parameter_family": "single",
+          "declaration_sha256": "7bf9136d99d9f19c54234b725983a24b2ae458798dd9aea7ef34de9682a21d57"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/ContactShareUtilitiesTests.swift",
+          "case_id": "ContactShareUtilitiesTests::parseShare round-trips a name containing '>' to its stripped form()",
+          "parameter_family": "single",
+          "declaration_sha256": "af7d6c41ddcbc49f4dd2e481b7928a40a7736865aa84b3ce69d1ae6c2ed04c9f"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::Clock sync outcomes classify OK, clock-ahead, generic error, and unexpected text()",
+          "parameter_family": "single",
+          "declaration_sha256": "9ac889cd43e9fe9df0591e27e361123eec2d3ce19f6ac67af0b353680cc8179e"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::Firmware clock response parses to the exact UTC date()",
+          "parameter_family": "single",
+          "declaration_sha256": "122b9ed4aec986f1f94324d59e280e12bd1b42290214539d8ba2d8c6a51c163c"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::Non-clock text returns nil()",
+          "parameter_family": "single",
+          "declaration_sha256": "7c85ce3357e7171cbea64d9a6c6d22f36a107b0ac473d2c629127a7e246dd6a7"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::Owner info wire and display forms round-trip()",
+          "parameter_family": "single",
+          "declaration_sha256": "c8b223dd9b5dc15764776f89fda8e499b3296cf19eac2578ba3207fdd623661c"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::Password change succeeds on OK or the firmware echo, fails otherwise()",
+          "parameter_family": "single",
+          "declaration_sha256": "a29923e886366ef1cb1f7619bdee6cde8b3be237bc1622d395e4159c8c6c3f17"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::a bare double is ambiguous when both coordinates are unanswered()",
+          "parameter_family": "single",
+          "declaration_sha256": "af24c945182228e2f159996d20e726aa4a5cfc35556f1c2438084a5b3a37b7af"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::clock drift is node minus reference and nil when the text has no clock()",
+          "parameter_family": "single",
+          "declaration_sha256": "ff9913c9f004d8c89ede416eda8a9e097565ba15902cc73d2328f30c98e7c9e5"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::clock response text is extracted from a bare clock line and from an OK sync line()",
+          "parameter_family": "single",
+          "declaration_sha256": "722da3b5b85a6ea9ef42ed5bd755d56986753f1a9402315384de01ae0ff63789"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::empty and free-form query sets recover nothing()",
+          "parameter_family": "single",
+          "declaration_sha256": "3aca0c2c04156f5f9fc20a736b4e5f0dbf175d9f690579fe495038965e49e567"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::late reply recovers for the single unanswered query it parses for()",
+          "parameter_family": "single",
+          "declaration_sha256": "b9a65c91436bd73ff954ec0d002ddb2d97207c5296d8a9ddbaad0671f80f43e0"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::query-independent shapes are never recovered()",
+          "parameter_family": "single",
+          "declaration_sha256": "2d527094c2568caa41000c88abed1de5bd63c481c39799d6d2f550bd48e08523"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/NodeSettingsResponseParserTests.swift",
+          "case_id": "NodeSettingsResponseParserTests::radio CSV never recovers as TX power()",
+          "parameter_family": "single",
+          "declaration_sha256": "ef8d3b9bfd8ea4474514c43296168297433be178736f98de3a865aa0132e58e0"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::Bare integer parses as TX power()",
+          "parameter_family": "single",
+          "declaration_sha256": "8a5ee782f34e62d649d75765e125048b1a0854d8bea7d0bb235eebb2a4050c3b"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::Clock reply parses as device time only for the clock query()",
+          "parameter_family": "single",
+          "declaration_sha256": "7f98586a12fb47ebda84e2d437b72bd2d430ca1918f1acc2a849941527758dba"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::Echoed wire prefix splits into prefix and body()",
+          "parameter_family": "single",
+          "declaration_sha256": "4c6ef75389ee6a23414ab8984ecdb9fa0d615c150bb19ce2d55160780e74f929"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::Free-form and action commands accept any reply()",
+          "parameter_family": "single",
+          "declaration_sha256": "9be839b6ff4ed6f5c62edb94f5c01b3213f3d2cb44d1f45f003f888cd91a6ba9"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::Multi-line body survives prefix splitting()",
+          "parameter_family": "single",
+          "declaration_sha256": "78ad91a2054f2e7f42b58c69b5bfa9e8a7e120c20b5747db1d8eba63682928e0"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::Ordinary reply text is not mistaken for a wire prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "704325c000ba3ac190082e4e4282b4fbf987dc7f0189e733a5837f2aad02c296"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::Radio CSV never parses as TX power()",
+          "parameter_family": "single",
+          "declaration_sha256": "b78341af982a878eb6b3e8c4daa509934c02f25148bcaa8ba15a57b5b5e32607"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::Radio CSV parses only for the radio query()",
+          "parameter_family": "single",
+          "declaration_sha256": "caf0a0f643ce236551891dd639392b00b77178557d4d920fb19a6796a4f35603"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::Structured get queries accept their own shape and errors()",
+          "parameter_family": "single",
+          "declaration_sha256": "6a73a986e3709fba5c446534ecedf09deb183f246121eb2a2c36d33b1a337d66"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::Structured get queries reject replies of the wrong shape()",
+          "parameter_family": "single",
+          "declaration_sha256": "e21b514fb9c2f2b24aa2c6307321f19fca341f1abb981c5415991d19eeab797d"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::ZephCore adaptive power annotation reads the max ceiling()",
+          "parameter_family": "single",
+          "declaration_sha256": "dd610956b63f12204a08d818f734a9a1bb8cb1617c4dede80c12e80c1668214f"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/RemoteCLICommandRewriterTests.swift",
+          "case_id": "RemoteCLICommandRewriterTests::clock sync becomes time with the host epoch()",
+          "parameter_family": "single",
+          "declaration_sha256": "ff34751aef2ad778036b3e9ec4b868ebf33a856be5eafe5cfe5c74157c544ec2"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/RemoteCLICommandRewriterTests.swift",
+          "case_id": "RemoteCLICommandRewriterTests::clock sync match is case and whitespace insensitive(command : String)",
+          "parameter_family": "arguments-sha256:9e26f2610326cbc5e2c6199121fd4256114e7b30c3353fe1ea3c42c3b447d35e",
+          "declaration_sha256": "e2a62c379ea32680612a14cfe4235986e0ec3efbe7bde6ab5b58c64a1b4a8065"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/RemoteCLICommandRewriterTests.swift",
+          "case_id": "RemoteCLICommandRewriterTests::other commands are left unchanged(command : String)",
+          "parameter_family": "arguments-sha256:28ae3192b1933cf448885446c43c69ccd26cfde92c858632004d888189fbd986",
+          "declaration_sha256": "538a81622eec5b0226fbb5dd8e43bb0cf831fab444437cf97defae9591b6db1e"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/RemoteCLICommandRewriterTests.swift",
+          "case_id": "RemoteCLICommandRewriterTests::pre epoch dates saturate to zero()",
+          "parameter_family": "single",
+          "declaration_sha256": "c2606eb0046aaaa7516618e436ece5b7ec21ecd7fa9494dca2f62830a0f6d2a6"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::extractHashtags accepts uppercase hashtags()",
+          "parameter_family": "single",
+          "declaration_sha256": "a828d36b06722f5fa97038415dce270d16ded2d058fc32a8d9955b797dad485e"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::extractHashtags excludes hashtags inside URLs()",
+          "parameter_family": "single",
+          "declaration_sha256": "e7d8d051ec64544cf139568d571499b6066caf95da073506a5d611b030f37596"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::extractHashtags finds multiple hashtags()",
+          "parameter_family": "single",
+          "declaration_sha256": "0386357ba4642b29362bb464ba0d656cde1d2125d683c383b77c8f8d8794a360"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::extractHashtags finds single hashtag()",
+          "parameter_family": "single",
+          "declaration_sha256": "192db2235a14612c6bd061452d5a8c7f3666bcfd0354c410dd8a2b15c832b829"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::extractHashtags handles adjacent hashtags()",
+          "parameter_family": "single",
+          "declaration_sha256": "fa17a513d37996fc65dffd57cc69e97f3a5ab66d1301af30a420b42b27df2b07"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::extractHashtags handles hashtag at end with punctuation()",
+          "parameter_family": "single",
+          "declaration_sha256": "23b87a3eda152c7efe5827f91fd3c82329b27365949be100bd9995c361611553"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::extractHashtags returns empty for no hashtags()",
+          "parameter_family": "single",
+          "declaration_sha256": "540eac9a1e1648c12886a640a048b72559f0745d0f33896de8f72cb414409912"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::hashtag pattern matches valid hashtags(text : String)",
+          "parameter_family": "arguments-sha256:f4f231224a3d5a9f4ffafd8b45edd8fba81efee586deb3a6110961018bc22ced",
+          "declaration_sha256": "2a76af1dde9bbf50aebb37e6a7b3a52d313aab16c4dfe6267add920ac89cbfe5"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::hashtag pattern rejects invalid hashtags(text : String)",
+          "parameter_family": "arguments-sha256:20d677134ed0e8ee30494ddcd70a7723768e5550f37c825ed632491d27647a29",
+          "declaration_sha256": "023f4a6866d67eab3ce9496f674b004c607e53c075be81244a5c8d826cb510c1"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::isValidHashtagName accepts valid names()",
+          "parameter_family": "single",
+          "declaration_sha256": "dc33b97b4d869e97e9eda33ef553e9a3b95fc7033e91ea0e48faf3730b430f22"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::isValidHashtagName rejects invalid names()",
+          "parameter_family": "single",
+          "declaration_sha256": "a0510f6f9cfd3cb2d33c546774caadb5c2f325adbd2a6703819cfe8c9a27897e"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::normalizeHashtagName lowercases and strips prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "3c5346a2211d091214a0a2ac146f3bcd67b9d7b916dd3a32508933f3f2827eff"
+        },
+        {
+          "primary_owner": "WP-209",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Utilities/HashtagUtilitiesTests.swift",
+          "case_id": "HashtagUtilitiesTests::sanitizeHashtagNameInput lowercases and strips invalid characters()",
+          "parameter_family": "single",
+          "declaration_sha256": "d0912eba73e02bca28958152e662cf7a833dff4c859465f2f5401d8a63149579"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse ZephCore tx power with apc off suffix()",
+          "parameter_family": "single",
+          "declaration_sha256": "08988af3c2ffb45fde73e4ce3f68cc441b98b27535e1b2ad13c576ff54cf15c2"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse ZephCore tx power with apc on uses configured ceiling()",
+          "parameter_family": "single",
+          "declaration_sha256": "ed4fbec51b29e766c8addacafafd81d4a023f15225a1dd36c4571b1e667def62"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse advert interval with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "0abee9b2c6e76d8bd6eb9ddf0c8a773441b9a4442c1f97a3662076e2560a6f4c"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse advert interval without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "be2145dd5f9626ded51d7c0985beb4de9279c3576218cd684c080c0485aa866f"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse device time requires the clock query()",
+          "parameter_family": "single",
+          "declaration_sha256": "4b662844d8edc15c1b439f90e179104fb07a7e1e85e80efb5e1b7500b3b6847c"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse device time with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "7aef2b1ea2b2f1c5657988ee4d45996422d2a8f2fa0a6bc72c22069829e16356"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse device time without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "a7ae7e3ea53727b8676f2c86d3ef90339ec521829a1e4aee16e67766c49e6115"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse empty after strip()",
+          "parameter_family": "single",
+          "declaration_sha256": "bc63b5b3a2e1ffa25940000ece8b0e7ba7d31b085e4ed3629780c09e86af11be"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse error with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "a3afb90f6e7357d3de4aef9fc056ad3fda28e834e3a202a25a050bd7385da969"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse error without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "ca31988d48674a4ff2a061bbac17ef169d030cb067cc61be6eb169e5db83cf7d"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse flood advert interval with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "b3b66f26a92a9307a17721596d6ed806635c0fdbc9ddd1f39ecab12b003222c3"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse flood advert interval without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "a0d2f4c4f2292d69d3f35d1294bf3be634a581ee30084836762451e97c5044f3"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse flood max with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "31f26cf3bdabbc102598b98df4d3f4b03088ced59e3f2ce61c4df1b46fdfbb7c"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse flood max without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "caac09a3cc8c60e7ac8be8598b58f6e5e8146b52bc03787aefe96796ad5ec139"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse greater than in content not stripped()",
+          "parameter_family": "single",
+          "declaration_sha256": "40fbbacf1f9c9faf0aea66f52c932720f903ea22e5e109f4c0ec9bc6d74226e7"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse just prompt()",
+          "parameter_family": "single",
+          "declaration_sha256": "1b038d3c82b2fd29cfea5e53e273e7e2e8c6580574b466e6d5a57ba702ce5207"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse latitude with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "a2adfa01f881dbdc6a4769b33214f7f10d8f7f098360185f7aed469638e4e828"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse latitude without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "7d167c1998ac0b8272077c599aa5f8c0e2387c51d098e2caa71df4a94194f090"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse longitude with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "a25152a4813aa2c9fa41856d1a3042923134e1b3c145a354152d14d33a276208"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse longitude without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "987e17276d32c7ea022a28f0cdc62b47a5111983f2219282f684ed83fda45061"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse multiple greater than only first stripped()",
+          "parameter_family": "single",
+          "declaration_sha256": "62a92939eecbd523230a3e6664cedb145d70885e28b93d43d026390c614cdb5c"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse name with colon and slash()",
+          "parameter_family": "single",
+          "declaration_sha256": "f6efde8d3054b54bdc9317c78a2fb4d8013d09443038aa202718b8a06f14a134"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse name with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "e0cbcc9336c331807367478e773dd31b60fc3d6582d067d7d9c2e6c8c660f953"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse name without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "6bba50c1cc8a082b0c8ab924055cb72b241a7f08ffbee8e8509590b1c7420a04"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse no prompt prefix still works()",
+          "parameter_family": "single",
+          "declaration_sha256": "403eeae9a97cbad03f284c204a2d876c2a9316791bde15f75a2d6a16d02b30c5"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse ok with message clock set()",
+          "parameter_family": "single",
+          "declaration_sha256": "3acc19a5ecee1678fd668a64f1ab0fe8fec989bc26a5d28bca5c916f01097bd4"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse ok with message with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "1c4e2932533edeef4cc3e4690ecf1faf8a60ad98db8cfbbf3c87ddaf59af5160"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse owner info bare prompt()",
+          "parameter_family": "single",
+          "declaration_sha256": "e311e851b175ae51bb60ef9248d7f8597c9aaef8e7b2753bf51a5db07848c225"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse owner info empty()",
+          "parameter_family": "single",
+          "declaration_sha256": "cb806bb63c8e0f71f45b46aa041616f3baa6b164b72a35dcdabf96e2d3d6d44a"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse owner info plain text()",
+          "parameter_family": "single",
+          "declaration_sha256": "b96c2f071ae9a19e91b6f8ec3fc365a4e29bd4f2556f3d79143bcf6c04d6aed3"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse owner info single line()",
+          "parameter_family": "single",
+          "declaration_sha256": "d6818ee0d5dc638eea39d4bb89158a5a451f5dea822888e10d3055b6c99c9f81"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse owner info with colon and slash()",
+          "parameter_family": "single",
+          "declaration_sha256": "bfa2d71441bad8da00fddb2c57baddc90be44e032747eb5c8598971313b35a66"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse owner info with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "401abfd8552018d495794713fc9ac6dd1ae0b9ddc94b37afe7eb81da36473643"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse prompt prefix strips prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "3adfb7564688a12b1ff5b83fa4ac9899e977f05959119ac28740783bc80e6a7a"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse prompt prefix with whitespace()",
+          "parameter_family": "single",
+          "declaration_sha256": "75b237e2003d0dc44fb92817c782096868a5a7038becc007c4eafc433a6545d9"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse radio with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "88e30437a7e5cb5dd2ef00fba756cd6c43b8cb3013c6891694905130bd12dfbd"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse radio without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "64ead3e718ea9d0476af8e447beb43d1fceefcf244b52db342dfa08fa8edec53"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse repeat mode off with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "eecff56665ca35b3d6e6968df03438aff5d6e84a10e286e65261ce961f3200be"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse repeat mode on with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "ad1b75a4831f175c8f276317aeaa7c12c65b4d17d9fe4542cc7f221c391df576"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse repeat mode without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "e4e9615851151ff813405af54ab4c1d9c53747bfef9a165a97e03881e2c9a968"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse tx power with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "080c050450419781043d8e7269de35967b84bf19f487511a3eaee732d6a2ce02"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse tx power without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "9d76f4e0196ddfbf40b648dda8057e45ba863f1dc7d790632523dc29d3068a2c"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse unknown command with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "7d726d0af695af2921ded63150e38e755e6b2b88a4be459257fa4f5fcfd23592"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse version non standard format with query hint()",
+          "parameter_family": "single",
+          "declaration_sha256": "37fd779d3b465f1192c086425c936450483a513dc5089d6fe4988673c5b4edae"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse version short format with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "5ba4b53330afd491fb7383886ecdd419204ee3d9961072c3d5dbda2ad91b100a"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse version with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "1f5748b6eb618ff7d68d4a96b4979dbfdfaa74576c21ec594b35c2c33ad4a200"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::parse version without prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "c6a5e878ddcabd8b04f0de114c60fe56b53fd56ce12e3d42374c1937f4bacac1"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::query hint matching longitude with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "604988cd67cea8d4ae17a5ba18ba598bdf039d54a1b1c2301f0f94bbf2c2726d"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Tests/Protocol/CLIResponseTests.swift",
+          "case_id": "CLIResponseTests::query hint matching repeat mode with prompt prefix()",
+          "parameter_family": "single",
+          "declaration_sha256": "13eb89014ddeb8c71ec5e4d61c6a785a99655af997b976a413a374c5c57d174c"
+        }
+      ]
+    },
+    {
+      "id": "CM-07",
+      "original_families": 1,
+      "families": [
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/RemoteNodeKeepAliveTests.swift",
+          "case_id": "RemoteNodeKeepAliveTests::CancellationError stops the loop quietly()",
+          "parameter_family": "single",
+          "declaration_sha256": "9da5772a1f84b70a5786afccc105b725cca68f1bbdee324950e749843b7b6190"
+        }
+      ]
+    },
+    {
+      "id": "CM-09",
+      "original_families": 3,
+      "families": [
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NodeConfigImportPlannerTests.swift",
+          "case_id": "ContactTypeBytePreservationTests::ContactFrame \u2194 MeshContact \u2194 Contact/ContactDTO and export all keep 0x04()",
+          "parameter_family": "single",
+          "declaration_sha256": "d85e35966a56b866986716919c43a9819f1e8f27a48720e7aac62a2f3db2e635"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NodeConfigServiceTests.swift",
+          "case_id": "NodeConfigImportOtherParamsLiveTests::importOtherParams forwards an unmodeled advert_loc_policy byte to the device verbatim()",
+          "parameter_family": "single",
+          "declaration_sha256": "7cfee7c95d3b82ca215851ef0902b0366d211f8a991c95d5d3b29f491f9ac433"
+        },
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NodeConfigServiceTests.swift",
+          "case_id": "NodeConfigImportOtherParamsLiveTests::importOtherParams whose merge matches the device sends no setOtherParams commit()",
+          "parameter_family": "single",
+          "declaration_sha256": "d919a2b358d1184c0e6ef7188005e5d0304c51e6313d71a9ac96544c4023fb15"
+        }
+      ]
+    },
+    {
+      "id": "CM-10",
+      "original_families": 1,
+      "families": [
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/NodeConfigServiceTests.swift",
+          "case_id": "NodeConfigServiceTests::A local-save failure after the device add still reports the contact as applied()",
+          "parameter_family": "single",
+          "declaration_sha256": "96e651325033f614b350068d5abc4edd420fa1e042860b4f6cb3d70bde9b3ee0"
+        }
+      ]
+    },
+    {
+      "id": "CM-13",
+      "original_families": 1,
+      "families": [
+        {
+          "primary_owner": "WP-210",
+          "source_path": "MC1Services/Tests/MC1ServicesTests/Services/RemoteNodeTeardownTests.swift",
+          "case_id": "RemoteNodeTeardownTests::keep-alive loop does not retain the service after the last strong reference is dropped()",
+          "parameter_family": "single",
+          "declaration_sha256": "30475374c39115d4bc63dde38da3acd270737497745b1aa8e95e27913a63b0ac"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Issue-family identity and owner mapping only; no Android assertion, consumer equivalence, hardware/runtime outcome or WP-210 acceptance is credited.",
+    "Preserve WP-209 primary ownership for its 28 cross-work-package families; WP-210 primary ownership remains for its 82 families.",
+    "Full WP-210 acceptance and any product/human decision approval remain supervised and candidate-bound."
+  ]
+}

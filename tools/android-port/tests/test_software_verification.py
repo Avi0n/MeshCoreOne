@@ -6,14 +6,17 @@ from dataclasses import asdict, replace
 from unittest.mock import patch
 
 from fixtures import REPO, base_manifest
+from controller.capabilities import CapabilityEngine
 from controller.errors import PortError
 from controller.gates import Binding, policy_revision, validate_evidence
+from controller.model import git
 from controller.schema import digest, load_json
 from controller.software_verification import (
     amendment, apply, current_amendment, next_amendment, project, transform, transform_next,
 )
 from controller.scope_amendment import current_revisions, project_translation_scope
 from controller.verification_config import check_configuration, content_scope_predecessor
+from controller.verification import declared_software_lane, require_shared_whole_lane
 
 
 class SoftwareVerificationTests(unittest.TestCase):
@@ -132,3 +135,100 @@ class SoftwareVerificationTests(unittest.TestCase):
         self.assertEqual(result["software_command_amendment"], current_amendment()["amendment_id"])
         self.assertFalse(result["feature_verification_configured"])
         self.assertFalse(result["human_or_dependency_acceptance"])
+
+
+class WP210ConcernMappingTests(unittest.TestCase):
+    def binding(self):
+        return load_json(REPO / "docs/android/evidence/WP-003/wp210-concern-family-binding.json")
+
+    def test_exact_issue_family_map_retains_pinned_identity_and_primary_ownership(self):
+        binding = self.binding()
+        original = {key: value for key, value in binding.items()
+                    if key not in ("handoff", "acceptance_criteria")}
+        self.assertEqual(digest(original),
+                         "12dff6ac3a7fceb00d1a34d256581fdb890814183c90d0d9f99a87268c7dd023")
+        manifest = base_manifest()
+        self.assertEqual(binding["source_sha"], manifest.data["reference"]["commit"])
+        self.assertEqual(binding["issue"]["number"], 387)
+        self.assertEqual(
+            [(entry["id"], entry["original_families"]) for entry in binding["concerns"]],
+            [("CM-03", 104), ("CM-07", 1), ("CM-09", 3), ("CM-10", 1), ("CM-13", 1)],
+        )
+        inventory = {entry["path"]: entry for entry in manifest.data["inventory"]}
+        original_cases = load_json(REPO / "docs/android/test-cases.json")
+        self.assertEqual(original_cases["source_sha"], binding["source_sha"])
+        cases = {entry["path"]: entry for entry in original_cases["entries"]}
+        groups = {}
+        for catalog in binding["catalogs"]:
+            group = load_json(REPO / catalog["path"])
+            self.assertEqual(
+                git(REPO, "rev-parse", f"HEAD:{catalog['path']}").decode().strip(),
+                catalog["blob_sha"],
+            )
+            self.assertEqual(group["source_sha"], binding["source_sha"])
+            self.assertEqual(group["manifest_sha256"], binding["catalog_manifest_sha256"])
+            self.assertEqual(group["owner"], catalog["work_package"])
+            self.assertEqual(len(group["families"]), catalog["family_count"])
+            groups[catalog["work_package"]] = group["families"]
+        keys, owner_counts = set(), {"WP-209": 0, "WP-210": 0}
+        key_fields = ("source_path", "case_id", "parameter_family", "declaration_sha256")
+        for concern in binding["concerns"]:
+            self.assertEqual(len(concern["families"]), concern["original_families"])
+            for family in concern["families"]:
+                key = tuple(family[name] for name in key_fields)
+                self.assertNotIn(key, keys)
+                keys.add(key)
+                owner = family["primary_owner"]
+                owner_counts[owner] += 1
+                self.assertEqual(
+                    sum(all(candidate[name] == family[name] for name in key_fields)
+                        for candidate in groups[owner]), 1, key,
+                )
+                source = family["source_path"]
+                self.assertEqual(inventory[source]["primary_owner"], owner)
+                self.assertIsNone(inventory[source]["exclusion"])
+                self.assertEqual(cases[source]["blob_sha"], inventory[source]["blob_sha"])
+                self.assertIn(
+                    {"id": family["case_id"], "parameter_family": family["parameter_family"]},
+                    cases[source]["cases"],
+                )
+        self.assertEqual(len(keys), 110)
+        self.assertEqual(owner_counts, {"WP-209": 28, "WP-210": 82})
+
+    def test_criteria_remain_pending_and_map_to_every_concern(self):
+        binding = self.binding()
+        criteria = binding["acceptance_criteria"]
+        self.assertEqual([entry["concern"] for entry in criteria],
+                         [entry["id"] for entry in binding["concerns"]])
+        for criterion in criteria:
+            with self.subTest(concern=criterion["concern"]):
+                self.assertTrue(criterion["required_evidence"])
+                if criterion["concern"] == "CM-09":
+                    self.assertEqual(criterion["status"], "pending-evidence")
+                    self.assertIsNone(criterion["pending_decision"])
+                else:
+                    self.assertEqual(criterion["status"], "pending-evidence-and-maintainer-decision")
+                    self.assertTrue(criterion["pending_decision"])
+        handoff = binding["handoff"]
+        self.assertEqual(handoff["method_pr"], 456)
+        self.assertEqual(handoff["status"],
+                         "planning-only-not-an-authenticated-scope-or-acceptance-receipt")
+        self.assertIn("not the complete WP-210 inventory", handoff["completion_boundary"])
+
+    def test_current_shared_lane_and_consumer_capability_need_no_wp210_amendment(self):
+        manifest = base_manifest()
+        wp = manifest.wp("WP-210")
+        self.assertIs(wp["verification"]["configured"], False)
+        self.assertEqual(wp["verification"]["commands"], [])
+        self.assertEqual(require_shared_whole_lane(manifest, wp), declared_software_lane(manifest))
+        policy = load_json(REPO / "docs/android/automation-policy.json")
+        engine = CapabilityEngine(policy)
+        path = ("android/feature/remotenodes/src/test/kotlin/com/meshcoreone/android/"
+                "feature/remotenodes/cli/RemoteNodeCLIConsumerParityTest.kt")
+        admission = engine.admit(wp["id"], wp["write_paths"], path, "add-or-update-related-test")
+        self.assertEqual(admission.capability_id, "reviewed-support-test")
+        for operation in ("create", "test", "modify"):
+            with self.subTest(operation=operation), self.assertRaises(PortError):
+                engine.admit(wp["id"], wp["write_paths"], path, operation)
+        self.assertNotIn("wp210-feature-cli-consumer-regression",
+                         [rule["id"] for rule in policy["reservation_policy"]["capabilities"]])
