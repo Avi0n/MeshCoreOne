@@ -72,7 +72,7 @@ class NodeConfigMountedPartialImportTest : RoomProcessTest() {
             val radio = harness.links.radios.single()
             radio.respond = { packet ->
                 if (packet[0] == CommandCode.UPDATE_CONTACT.rawValue) {
-                    radio.knownContacts += Bytes.of(3) + packet.slice(1, packet.size) + Bytes.of(0)
+                    radio.knownContacts += Bytes.of(3) + packet.slice(1, 144) + Bytes.of(0xE7, 0x03, 0, 0)
                     listOf(Bytes.of(0))
                 } else {
                     null
@@ -115,7 +115,7 @@ class NodeConfigMountedPartialImportTest : RoomProcessTest() {
             compose.onAllNodesWithText(context.getString(S.configImportApplyButtonAdd)).onLast().performClick()
             harness.eventually("retry completion") { holder.importState.value.complete }
             assertEquals(0, radio.sent.drop(beforeRetry).count { it[0] == CommandCode.UPDATE_CONTACT.rawValue })
-            assertNotNull(store.fetchContact(node.token.radioId, secondKey))
+            assertEquals(999u, requireNotNull(store.fetchContact(node.token.radioId, secondKey)).lastModified)
             val retained = requireNotNull(store.fetchContact(node.token.radioId, firstKey))
             assertTrue(retained.isFavorite)
             assertEquals("Local nickname", retained.nickname)

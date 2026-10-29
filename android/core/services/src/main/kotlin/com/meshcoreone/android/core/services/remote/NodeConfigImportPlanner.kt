@@ -239,16 +239,15 @@ private fun planContactRecords(
 
 /**
  * True when the device copy already stores exactly what [record] would write: the add-frame fields
- * the firmware persists, names at the firmware field width, coordinates as stored integers;
- * `lastAdvertisement` is excluded (volatile).
+ * the firmware persists, names at the firmware field width, coordinates as stored integers.
+ * The volatile advertisement timestamp and firmware-restamped last-modified timestamp are excluded.
  */
 private fun persistedContactFieldsMatch(existing: MeshContact, record: MeshContact): Boolean {
     val width = ProtocolLimits.MAX_USABLE_NAME_BYTES
     if (existing.typeRawValue != record.typeRawValue || existing.flags != record.flags ||
         existing.outPathLength != record.outPathLength ||
         !NodeConfigSwiftText.canonicallyEqual(existing.advertisedName.utf8Prefix(width), record.advertisedName.utf8Prefix(width)) ||
-        existing.outPath.prefix(existing.pathByteLength) != record.outPath.prefix(record.pathByteLength) ||
-        NodeConfigSwiftText.truncatedEpochSeconds(existing.lastModified) != NodeConfigSwiftText.truncatedEpochSeconds(record.lastModified)
+        existing.outPath.prefix(existing.pathByteLength) != record.outPath.prefix(record.pathByteLength)
     ) return false
     return PacketBuilder.scaledCoordinate(existing.latitude, PacketBuilder.LATITUDE_RANGE) ==
         PacketBuilder.scaledCoordinate(record.latitude, PacketBuilder.LATITUDE_RANGE) &&

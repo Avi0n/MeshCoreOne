@@ -8,7 +8,10 @@ The maintainer selected a partial-import warning when cancellation or a local
 save failure follows a confirmed device contact add. Caller cancellation
 propagates; a local-save failure stops the import. A retry reconciles unchanged
 contacts from the actual radio record into local storage without another radio
-write, in deduplicated import order. Local-only saves do not emit device-write
+write, in deduplicated import order. At the maintainer's direction, a
+firmware-restamped `lastModified` is ignored for device-write deduplication;
+this also skips intentional timestamp-only imports, unlike Swift. The actual
+radio timestamp is retained locally. Local-only saves do not emit device-write
 progress. This is a bounded CM-10 repair, not full WP-210 or
 issue acceptance.
 

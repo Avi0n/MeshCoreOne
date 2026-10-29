@@ -338,8 +338,14 @@ class NodeConfigImportPlannerTest {
                 "coords" to base.copy(latitude = "48.0"), "lastModified" to base.copy(lastModified = 2000u),
             )
             for ((label, variant) in variants) {
-                assertEquals(1, plan(contactSections, contacts = listOf(variant), existingContacts = mapOf(existing.id to existing)).contactRecords.size,
-                    "A $label diff must still write the contact")
+                val result = plan(contactSections, contacts = listOf(variant), existingContacts = mapOf(existing.id to existing))
+                if (label == "lastModified") {
+                    // Approved Android adaptation: reconcile a timestamp-only difference locally.
+                    assertTrue(result.contactRecords.isEmpty())
+                    assertSame(existing, result.contactActions.single().contact)
+                } else {
+                    assertEquals(1, result.contactRecords.size, "A $label diff must still write the contact")
+                }
             }
         },
         "A name differing only past the firmware field width is treated as equal and dropped" to {
@@ -358,7 +364,10 @@ class NodeConfigImportPlannerTest {
         "A contact the firmware re-stamped is re-emitted, not dropped (skip is safe-fail)" to {
             val config = contact(name = "Bravo", publicKey = pubKeyHexA, latitude = "47.5", longitude = "-122.5", lastModified = 1000u, outPath = "aabb", pathHashMode = 0u)
             val existing = deviceStored(plan(contactSections, contacts = listOf(config)).contactRecords.single(), Instant.ofEpochSecond(9999))
-            assertEquals(1, plan(contactSections, contacts = listOf(config), existingContacts = mapOf(existing.id to existing)).contactRecords.size)
+            // The original case name is retained for source traceability; Android deliberately reconciles instead.
+            val result = plan(contactSections, contacts = listOf(config), existingContacts = mapOf(existing.id to existing))
+            assertTrue(result.contactRecords.isEmpty())
+            assertSame(existing, result.contactActions.single().contact)
         },
         "Unchanged deduplicated contacts reconcile the actual device copy in import order" to {
             val matching = contact(name = "Existing", publicKey = pubKeyHexA, lastModified = 100u)

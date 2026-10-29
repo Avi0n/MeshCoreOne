@@ -157,6 +157,7 @@ class NodeConfigService(
             logger.error("Contact exists on the device but local save failed: ${error.javaClass.simpleName}")
             throw NodeConfigContactSaveFailure(error)
         } catch (error: Exception) {
+            currentCoroutineContext().ensureActive()
             logger.error("Contact exists on the device but local save failed: ${error.javaClass.simpleName}")
             throw NodeConfigContactSaveFailure(error)
         }
