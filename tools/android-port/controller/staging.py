@@ -63,7 +63,9 @@ def record(repo: Path, side: str, path: str, blob: str):
     }
 
 
-def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *, path_operations=None):
+def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *,
+                 path_operations=None, additional_original_paths=None, additional_candidate_sources=None,
+                 additional_retained_sources=None):
     if any(not isinstance(value, str) or SHA.fullmatch(value) is None for value in (trusted_base, candidate)):
         raise PortError("Reviewer staging requires exact immutable base/head SHAs")
     base_tree, candidate_tree = tree(repo, trusted_base), tree(repo, candidate)
@@ -73,11 +75,13 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *, p
         raise PortError("Candidate removed the canonical manifest")
     staged, size = [], 0
 
-    def append(side, path, blob):
+    def append(side, path, blob, revision=None):
         nonlocal size
         if len(staged) >= MAX_STAGE_FILES:
             raise PortError("Complete reviewer inputs exceed the file bound; never truncate")
         item = record(repo, side, path, blob)
+        if revision is not None:
+            item["revision"] = revision
         size += item["size_bytes"]
         if size > MAX_STAGE_BYTES:
             raise PortError("Complete reviewer inputs exceed the byte bound; never truncate")
@@ -114,6 +118,7 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *, p
 
         if not isinstance(path_operations, dict) or set(path_operations) != set(changed):
             raise PortError("Repair admissions must explain every changed path")
+        CapabilityEngine.validate_support_changes(path_operations, base_tree, candidate_tree)
         for path in changed:
             CapabilityEngine(policy).admit(wp_id, wp["write_paths"], path, path_operations[path])
     audit = integrity(data, candidate_data, policy, changed)
@@ -121,7 +126,46 @@ def stage_review(repo: Path, wp_id: str, trusted_base: str, candidate: str, *, p
         for side, entries in (("base-data", base_tree), ("candidate-data", candidate_tree)):
             if path in entries:
                 append(side, path, entries[path])
-    for entry in manifest.inputs(wp_id):
+    if additional_candidate_sources is not None:
+        if not isinstance(additional_candidate_sources, dict) or not all(
+            isinstance(path, str) and isinstance(blob, str) and SHA.fullmatch(blob)
+            for path, blob in additional_candidate_sources.items()
+        ):
+            raise PortError("Malformed scoped candidate inputs")
+        for path, blob in sorted(additional_candidate_sources.items()):
+            if candidate_tree.get(path) != blob:
+                raise PortError("Scoped candidate source differs from the immutable candidate")
+            if path not in changed:
+                append("candidate-data", path, blob)
+    if additional_retained_sources is not None:
+        if not isinstance(additional_retained_sources, dict) or not all(
+            isinstance(key, tuple) and len(key) == 2
+            and all(isinstance(part, str) for part in key)
+            and SHA.fullmatch(key[0]) and isinstance(blob, str) and SHA.fullmatch(blob)
+            for key, blob in additional_retained_sources.items()
+        ):
+            raise PortError("Malformed retained native fixture inputs")
+        revisions = {}
+        for (revision, path), blob in sorted(additional_retained_sources.items()):
+            if revision not in revisions:
+                revisions[revision] = tree(repo, revision)
+            if revisions[revision].get(path) != blob:
+                raise PortError("Retained native fixture differs from its immutable observation revision")
+            append("retained-native", path, blob, revision)
+    originals = {entry["path"]: entry for entry in manifest.inputs(wp_id)}
+    if additional_original_paths is not None:
+        if not isinstance(additional_original_paths, set) or not all(
+            isinstance(path, str) for path in additional_original_paths
+        ):
+            raise PortError("Malformed scoped original inputs")
+        allowed = {
+            entry["path"]: entry for entry in data["inventory"]
+            if entry["kind"] in ("test", "support") and entry["exclusion"] is None
+        }
+        if additional_original_paths - allowed.keys():
+            raise PortError("Unknown or excluded scoped original input")
+        originals.update({path: allowed[path] for path in sorted(additional_original_paths)})
+    for entry in originals.values():
         if reference_tree.get(entry["path"]) != entry["blob_sha"]:
             raise PortError("Staged original input changed from the pinned source")
         append("pinned-reference", entry["path"], entry["blob_sha"])

@@ -6,7 +6,7 @@ import subprocess
 import unittest
 from unittest.mock import patch
 
-from fixtures import REPO, base_manifest
+from fixtures import REPO, base_manifest, historical_policy_text
 from bootstrap import build_inventory
 from controller.errors import PortError
 from controller.gates import policy_revision, validate_cases
@@ -24,7 +24,6 @@ from controller.scope_amendment import (
     mention_picker_predecessor, MENTION_PICKER_CAPABILITY,
     message_actions_translation_predecessor, MESSAGE_ACTIONS_TRANSLATION_REMOVAL_CAPABILITY,
     disposable_predecessor,
-    wp210_feature_cli_consumer_predecessor,
     parity_support_predecessor, REPEAT_ROW_FALLBACK_CAPABILITY, CHANNEL_OPEN_FLOOD_SCOPE_CAPABILITY,
     receive_prefetch_predecessor, RECEIVE_PREFETCH_ADMISSION_CAPABILITY,
     room_cleanup_predecessor,
@@ -46,27 +45,20 @@ from controller.verification_config import (
 )
 from inventory_rules import TRANSLATION_PATHS, exclusion, production_owner
 from controller.model import Manifest
-from controller.software_verification import project as project_software, transform_next, transform_third
+from controller.software_verification import project as project_software, transform_next
 
 
 def manifest_before_software_v2(manifest):
-    before_v3 = transform_third(manifest.data, reverse=True)
-    return Manifest(transform_next(before_v3, reverse=True), manifest.exclusions, REPO)
+    return Manifest(transform_next(manifest.data, reverse=True), manifest.exclusions, REPO)
 
 
 class TranslationScopeAmendmentTests(unittest.TestCase):
     def policy_before_room_cleanup_text(self):
-        text = (REPO / "docs/android/automation-policy.json").read_text(encoding="utf-8")
+        text = historical_policy_text()
         start = text.index('      {\n        "id": "wp404-shortcut-lifecycle-consumer-test",')
         end = text.index('      {\n        "id": "wp216-reaction-wire-classification",', start)
         previous = text[:start] + text[end:]
-        start = previous.index('      {\n        "id": "wp210-feature-cli-consumer-regression",')
-        end = previous.index('      {\n        "id": "wp502-room-failed-event-consumer",', start)
-        previous = previous[:start] + previous[end:]
-        self.assertEqual(
-            json.loads(previous),
-            shortcut_lifecycle_test_predecessor(wp210_feature_cli_consumer_predecessor(json.loads(text))),
-        )
+        self.assertEqual(json.loads(previous), shortcut_lifecycle_test_predecessor(json.loads(text)))
         self.assertEqual(json.loads(previous), json.loads(subprocess.check_output([
             "git", "-C", str(REPO), "show",
             "61fc048e1780173e2603013a8b6d0233d0d63c3b:docs/android/automation-policy.json",

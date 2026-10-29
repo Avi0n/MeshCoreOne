@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 from fixtures import base_manifest
 from controller import ci
+from controller.ci_evidence import bind_test_lineage, prepare_test_lineage, read_test_lineage
 from controller.errors import PortError
 from oracle.workflow_scope import classify
 
@@ -29,6 +30,47 @@ MIXED = PORTED + (
 
 
 class SourceDispositionTests(unittest.TestCase):
+    def test_source_capture_uses_completed_same_project_graph_compilers(self):
+        guard = ci.TASK_GRAPH_GUARD.read_text(encoding="utf-8")
+        self.assertNotIn("taskDependencies.getDependencies", guard)
+        self.assertIn("graphTasks = graph.allTasks", guard)
+        self.assertIn("candidate.project == task.project", guard)
+        self.assertIn("candidate.outputs.files.files.any { classDirs.contains(it.canonicalFile) }", guard)
+        self.assertIn("Overlapping Kotlin test compiler outputs", guard)
+        self.assertIn("!it.state.executed || it.state.failure != null", guard)
+        self.assertIn('":app:testDebugUnitTest", ":core:ui:testDebugUnitTest"', guard)
+        for marker in ('observe("START")', 'observe("DEPENDENCIES")',
+                       'observe("SOURCES")', 'observe("END")', "WP003_TEST_SUITE|"):
+            self.assertIn(marker, guard)
+
+    def test_dynamic_lineage_binds_only_real_unique_junit_case_identities(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = prepare_test_lineage(Path(temporary))
+            entry = {"task": ":core:protocol:test", "class": "Fixture", "method": "child",
+                     "factory": "family", "descriptor": "family(String)[2][1]"}
+            inventory = {"core/protocol": [{"class": "Fixture", "method": "child"}]}
+            path.write_text(json.dumps(entry) + "\n", encoding="utf-8")
+            runners = {"core/protocol": "test"}
+            bind_test_lineage(inventory, read_test_lineage(path), runners)
+            self.assertEqual(inventory["core/protocol"][0]["factory"], "family")
+            for kind in ("missing-child", "duplicate-event", "wrong-descriptor", "wrong-task", "malformed"):
+                altered = dict(entry)
+                if kind == "missing-child":
+                    altered["method"] = "not-in-report"
+                elif kind == "wrong-descriptor":
+                    altered["descriptor"] = "other()[1]"
+                elif kind == "wrong-task":
+                    altered["task"] = ":core:protocol:testDebugUnitTest"
+                text = json.dumps(altered) + "\n"
+                if kind == "duplicate-event":
+                    text += text
+                elif kind == "malformed":
+                    text = "{not-json}\n"
+                path.write_text(text, encoding="utf-8")
+                with self.subTest(kind=kind), self.assertRaises(PortError):
+                    bind_test_lineage({"core/protocol": [{"class": "Fixture", "method": "child"}]},
+                                      read_test_lineage(path), runners)
+
     def test_timeout_retains_fixed_observations_before_tail_without_inventing_method_completion(self):
         markers = ["WP501_PATH_RECENCY|TASK|:app:compileDebugUnitTestKotlin|END"]
         for (tag, name), methods in ci.WP501_OBSERVATION_METHODS.items():
@@ -316,6 +358,9 @@ class SourceDispositionTests(unittest.TestCase):
             self.assertEqual(result["scopes"], ["protocol"])
             self.assertEqual(result["protocol_suite"]["discovered"], 84)
             self.assertEqual(result["protocol_suite"]["passed"], 84)
+            self.assertEqual(len(result["unit_test_methods"]["core/protocol"]), 84)
+            self.assertIn({"class": "Fixture", "method": "case0"},
+                          result["unit_test_methods"]["core/protocol"])
 
     def test_scaffold_preflight_failure_does_not_launch_expensive_gradle_tasks(self):
         with self.candidate(PORTED) as (commands, printed, output, state):

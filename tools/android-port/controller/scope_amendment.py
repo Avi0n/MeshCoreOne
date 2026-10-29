@@ -20,6 +20,61 @@ REVIEW_POLICY = {
         "android/**/signing*", "android/**/keystore*", "**/*license*", "**/*LICENSE*", "**/*legal*",
     ],
 }
+
+
+def routine_support_predecessor(policy):
+    """Project reviewed additive capability extensions back to the historical policy."""
+    if not isinstance(policy, dict):
+        raise PortError("Routine support amendment requires a policy object")
+    result = copy.deepcopy(policy)
+    if "reservation_policy" not in result:
+        return result
+    reservation = result["reservation_policy"]
+    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
+    if not isinstance(rules, list):
+        raise PortError("Routine support amendment requires the canonical capability catalog")
+    prefix = "reviewed-support-"
+    selected = [rule for rule in rules if isinstance(rule, dict)
+                and isinstance(rule.get("id"), str) and rule["id"].startswith(prefix)]
+    if (selected and rules[-len(selected):] != selected) or len({rule["id"] for rule in selected}) != len(selected):
+        raise PortError("Reviewed support capabilities must be unique and follow the historical catalog")
+    for rule in selected:
+        if set(rule) not in (
+            {"id", "path_rules", "operations", "invariants", "validation"},
+            {"id", "path_rules", "operations", "invariants", "validation", "work_packages"},
+        ):
+            raise PortError("Malformed reviewed support capability fields")
+        if rule["id"] == prefix:
+            raise PortError("Reviewed support capability requires a distinct ID")
+        for key in ("path_rules", "operations", "invariants", "validation"):
+            values = rule[key]
+            if (
+                not isinstance(values, list) or not values
+                or not all(isinstance(value, str) and value for value in values)
+                or len(set(values)) != len(values)
+            ):
+                raise PortError(f"Malformed reviewed support capability {key}")
+        if "work_packages" in rule and (
+            not isinstance(rule["work_packages"], list) or not rule["work_packages"]
+            or not all(isinstance(wp, str) and wp for wp in rule["work_packages"])
+            or len(set(rule["work_packages"])) != len(rule["work_packages"])
+        ):
+            raise PortError("Malformed reviewed support capability work_packages")
+        for path in rule["path_rules"]:
+            roots = ("android/", "tools/android-port/", "docs/android/")
+            root = next((value for value in roots if path.startswith(value)), None)
+            parts = path.split("/")
+            if (
+                root is None or "\\" in path or any(part in ("", ".", "..") for part in parts)
+                or not path[len(root):].split("/")[0]
+                or any(char in path[len(root):].split("/")[0] for char in "*?[")
+            ):
+                raise PortError("Reviewed support capability requires a bounded non-reference path")
+    if selected:
+        del rules[-len(selected):]
+    return result
+
+
 DISPOSABLE_CAPABILITY = {
     "id": "disposable-native-guest",
     "work_packages": ["WP-503"],
@@ -41,7 +96,7 @@ DISPOSABLE_CAPABILITY = {
 
 def disposable_predecessor(policy):
     """Reverse only the exact disposable resource/capability pair."""
-    result = parity_support_predecessor(wp210_feature_cli_consumer_predecessor(policy))
+    result = parity_support_predecessor(policy)
     if not isinstance(result, dict):
         raise PortError("Disposable amendment requires a policy object")
     reservation = result.get("reservation_policy")
@@ -585,77 +640,6 @@ CONSUMER_SUPPORT_CAPABILITIES = [
 ]
 
 
-WP210_FEATURE_CLI_CONSUMER_CAPABILITY = {
-    "id": "wp210-feature-cli-consumer-regression",
-    "work_packages": ["WP-210"],
-    "path_rules": [
-        "android/feature/remotenodes/src/test/kotlin/com/meshcoreone/android/feature/remotenodes/cli/RemoteNodeCLIConsumerParityTest.kt",
-    ],
-    "operations": ["create", "test", "modify"],
-    "invariants": [
-        "pinned-RemoteCLICommandRewriter-and-NodeSettingsResponseParser-db14559b39d32322b06477c6ae676112f583db50",
-        "single-exact-WP210-test-file-only-no-feature-production-test-helper-or-build-path-authority",
-        "invoke-real-feature-local-mirrors-and-actual-consumer-not-core-helper-proxies-or-copied-algorithms",
-        "retain-independent-core-service-tests-and-compare-observable-output-error-and-cancellation-contracts",
-        "preserve-WP313-primary-production-provenance-and-no-feature-consolidation",
-        "original-family-identities-derive-from-pinned-source-path-case-id-parameter-family-and-declaration-digest",
-        "policy-admission-does-not-credit-any-original-family-or-assert-consumer-equivalence",
-        "no-translation-provider-license-network-or-product-scope-expansion",
-        "trusted-main-admission-before-test-edit-and-same-owner-reservation-evolution",
-        "semantic-overlap-serialize-or-transfer-current-producer",
-    ],
-    "validation": [
-        "exact WP210 single-file create test modify admissions; reject every other WP, operation, sibling, production and generated path",
-        "future feature-module tests invoke actual RemoteCLICommandRewriter and NodeSettingsResponseParser and compare pinned behavior without copying implementation",
-        "affected declared remotenodes module verification with exact discovered test identities, nonzero discovery, and zero failures errors or skips",
-        "prove existing core-service source-family tests remain distinct; capability tests establish admission only, not product parity",
-    ],
-}
-
-
-def wp210_feature_cli_consumer_predecessor(policy):
-    """Reverse only the exact WP-210 feature-consumer test admission."""
-    if not isinstance(policy, dict):
-        raise PortError("WP-210 feature-consumer amendment requires a policy object")
-    result = copy.deepcopy(policy)
-    reservation = result.get("reservation_policy")
-    if reservation is None:
-        return result
-    rules = reservation.get("capabilities") if isinstance(reservation, dict) else None
-    if not isinstance(rules, list):
-        raise PortError("WP-210 feature-consumer amendment requires the canonical capability catalog")
-    selected = [
-        index for index, rule in enumerate(rules)
-        if isinstance(rule, dict) and rule.get("id") == WP210_FEATURE_CLI_CONSUMER_CAPABILITY["id"]
-    ]
-    path_matches = [
-        rule for rule in rules
-        if isinstance(rule, dict)
-        and isinstance(rule.get("path_rules"), list)
-        and isinstance(rule.get("operations"), list)
-        and any(
-            operation in rule["operations"] and CapabilityEngine._matches(pattern, path)
-            for operation in WP210_FEATURE_CLI_CONSUMER_CAPABILITY["operations"]
-            for path in WP210_FEATURE_CLI_CONSUMER_CAPABILITY["path_rules"]
-            for pattern in rule["path_rules"] if isinstance(pattern, str)
-        )
-    ]
-    if not selected and not path_matches:
-        return result
-    index = selected[0] if selected else -1
-    if (
-        selected != [index] or rules[index] != WP210_FEATURE_CLI_CONSUMER_CAPABILITY
-        or path_matches != [WP210_FEATURE_CLI_CONSUMER_CAPABILITY]
-        or index == 0 or not isinstance(rules[index - 1], dict)
-        or rules[index - 1].get("id") != "wp-owned"
-        or index + 1 >= len(rules) or not isinstance(rules[index + 1], dict)
-        or rules[index + 1].get("id") != "wp502-room-failed-event-consumer"
-    ):
-        raise PortError("WP-210 feature-consumer capability changed outside the exact bounded amendment")
-    rules.pop(index)
-    return result
-
-
 HOST_SCOPED_JVM_CAPABILITY = {
     "id": "wp003-host-scoped-jvm-parallelism",
     "work_packages": ["WP-003"],
@@ -897,7 +881,7 @@ def shortcut_lifecycle_test_predecessor(policy):
     """Reverse only the exact WP-404 App lifecycle fixture admission."""
     if not isinstance(policy, dict):
         raise PortError("Shortcut lifecycle test amendment requires a policy object")
-    result = copy.deepcopy(policy)
+    result = routine_support_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     CapabilityEngine(result)
@@ -932,7 +916,7 @@ def reaction_wire_classification_predecessor(policy):
     """Reverse only the exact WP-216 rendering-wire reconciliation rule."""
     if not isinstance(policy, dict):
         raise PortError("Reaction wire classification amendment requires a policy object")
-    result = shortcut_lifecycle_test_predecessor(wp210_feature_cli_consumer_predecessor(policy))
+    result = shortcut_lifecycle_test_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     reservation = result["reservation_policy"]
@@ -1101,7 +1085,7 @@ def host_scoped_jvm_predecessor(policy):
     """Remove only the exact source-support rule, retaining the complete previous policy."""
     if not isinstance(policy, dict):
         raise PortError("Host-scoped JVM amendment requires a policy object")
-    result = backup_post_commit_predecessor(wp210_feature_cli_consumer_predecessor(policy))
+    result = backup_post_commit_predecessor(policy)
     if "reservation_policy" not in result:
         return result
     reservation = result["reservation_policy"]
@@ -1183,7 +1167,7 @@ def consumer_support_predecessor(policy):
     """Reverse only the complete exact consumer-support block; preserve all other policy bytes."""
     if not isinstance(policy, dict):
         raise PortError("Consumer support amendment requires a policy object")
-    result = wp210_feature_cli_consumer_predecessor(policy)
+    result = copy.deepcopy(policy)
     if "reservation_policy" not in result:
         return result
     reservation = result["reservation_policy"]

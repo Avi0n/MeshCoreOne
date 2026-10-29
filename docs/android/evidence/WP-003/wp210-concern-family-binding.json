@@ -23,6 +23,48 @@
     }
   ],
   "assignment_basis": "Bind the 110 exact stable keys published in issue #387 to their unique WP-209/WP-210 source-family declarations. Assign the six named cancellation, node-config, post-device-add and teardown cases to their corresponding concerns; CM-03 is the exact remainder required by its declared 104-family count. This is supervised traceability, not parity acceptance.",
+  "handoff": {
+    "method_revision": "2d1d19fb73adcad1e8ff725fb33a0c9b04dfee98",
+    "method_pr": 456,
+    "status": "planning-only-not-an-authenticated-scope-or-acceptance-receipt",
+    "verification": "Use the shared declared software lane and immutable change-scoped task selection from the trusted base. Do not copy scaffold tasks, check identities or suite minima into a WP-specific manifest amendment.",
+    "admission": "Use existing reviewed support capabilities for actual cross-owner consumers and tests; preserve primary ownership and evolve the actual same-owner reservation. No WP-210-specific capability is added.",
+    "case_projection": "For each selected family, map source_path to path, case_id to id and retain parameter_family in coverage.cases. Include cross-owner source_path in coverage.source_paths. Validate declaration_sha256 against the pinned group and the original source blob against test-cases.json.",
+    "candidate_binding": "The WP-210 owner must supply the actual base/head/source/manifest/policy, changed paths and capabilities, production consumer blobs, executed hosted methods and applicable retained native evidence through the generalized authenticated scope and review contract. This static map supplies none of those execution facts.",
+    "completion_boundary": "A bounded repair is not whole-WP completion. Whole-WP acceptance also requires every primary-owned case and acceptance item, prerequisites and applicable native/human gates; these 110 selected families are not the complete WP-210 inventory."
+  },
+  "acceptance_criteria": [
+    {
+      "concern": "CM-03",
+      "status": "pending-evidence-and-maintainer-decision",
+      "required_evidence": "Run pinned vectors through the actual selected feature-local consumer, retaining independently tested core helpers. Core-helper tests, copied algorithms or source reachability alone do not witness feature-mirror execution.",
+      "pending_decision": "Confirm whether separate feature mirrors are intentional and approve their consumer-level equivalence strategy; this mapping does not choose consolidation or continued duplication."
+    },
+    {
+      "concern": "CM-07",
+      "status": "pending-evidence-and-maintainer-decision",
+      "required_evidence": "Discriminate normal quiet stop, service-originated RemoteNodeError.Cancelled and structured caller CancellationException. Mandatory caller cancellation must propagate.",
+      "pending_decision": "Approve the outward Android cancellation contract without equating quiet return, typed domain failure and cancelled-parent propagation."
+    },
+    {
+      "concern": "CM-09",
+      "status": "pending-evidence",
+      "required_evidence": "Exercise real NodeConfig conversion and the production SettingsService adapter for raw-byte preservation and no-op imports. Retain downstream packet assertions; fake ports or planner-only checks are insufficient.",
+      "pending_decision": null
+    },
+    {
+      "concern": "CM-10",
+      "status": "pending-evidence-and-maintainer-decision",
+      "required_evidence": "Witness cancellation or local-save failure after successful session.addContact, preserve caller cancellation and account for the applied device write. Prove safe retry/reconciliation without claiming rollback or blindly repeating an irreversible add.",
+      "pending_decision": "Approve the user-visible applied/partial/uncertain outcome and reconciliation behavior when device application succeeds before local persistence or progress reporting."
+    },
+    {
+      "concern": "CM-13",
+      "status": "pending-evidence-and-maintainer-decision",
+      "required_evidence": "Demonstrate deterministic owned-task cancellation/join and callback-retention behavior on the required supported runtime. System.gc, yield loops and WeakReference timing alone are not pass/fail criteria.",
+      "pending_decision": "Approve the observable Kotlin lifecycle/retention equivalent and required supported-runtime evidence; immediate ARC deallocation is not assumed to be JVM collectibility."
+    }
+  ],
   "concerns": [
     {
       "id": "CM-03",

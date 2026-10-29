@@ -43,7 +43,7 @@ def check_environment():
         raise ValueError("Build JDK must be the declared 21.0.12.1 candidate")
     sdk = Path(sdk_home)
     for relative, package, revision in (
-        ("platforms/android-37.2", "platforms;android-37.2", (1, 0, 0)),
+        ("platforms/android-37.2", "platforms;android-37.2", (2, 0, 0)),
         ("build-tools/37.0.0", "build-tools;37.0.0", (37, 0, 0)),
     ):
         metadata = ET.parse(sdk / relative / "package.xml").getroot()

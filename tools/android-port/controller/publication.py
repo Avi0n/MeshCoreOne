@@ -1,6 +1,9 @@
 """AndroidOnly: WP-003 Bounded publisher encoding, not a candidate PASS authority."""
 
+import base64
+import binascii
 import json
+import zlib
 
 from .errors import PortError
 from .gates import Binding
@@ -8,6 +11,7 @@ from .schema import decode_json, fields
 
 GATE_MARKER = "<!-- android-port-gate-bundle-v1 -->\n"
 CHECK_OUTPUT_LIMIT = 65535
+STRUCTURED_INPUT_LIMIT = 16 * 1024 * 1024
 BUNDLE_FIELDS = {"schema_version", "binding", "evidence", "review", "approvals", "catalog"}
 
 
@@ -15,6 +19,34 @@ def bounded_output(value: str):
     if not isinstance(value, str) or len(value) > CHECK_OUTPUT_LIMIT or len(value.encode("utf-8")) > CHECK_OUTPUT_LIMIT:
         raise PortError("Checks output exceeds the complete 65,535-character/UTF-8-byte publication bound")
     return value
+
+
+def encode_structured_body(value, marker: str, compressed_marker: str):
+    raw = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    if len(raw) > STRUCTURED_INPUT_LIMIT:
+        raise PortError("Structured receipt exceeds the expanded input bound")
+    plain = marker + raw.decode("utf-8")
+    if len(plain.encode("utf-8")) <= CHECK_OUTPUT_LIMIT:
+        return bounded_output(plain)
+    encoded = base64.b64encode(zlib.compress(raw, 9)).decode("ascii")
+    return bounded_output(compressed_marker + encoded)
+
+
+def decode_structured_body(body: str, marker: str, compressed_marker: str):
+    bounded_output(body)
+    if body.startswith(marker):
+        return decode_json(body[len(marker):])
+    if not body.startswith(compressed_marker):
+        raise PortError("Missing structured receipt marker")
+    try:
+        compressed = base64.b64decode(body[len(compressed_marker):], validate=True)
+        decoder = zlib.decompressobj()
+        raw = decoder.decompress(compressed, STRUCTURED_INPUT_LIMIT + 1)
+        if len(raw) > STRUCTURED_INPUT_LIMIT or not decoder.eof or decoder.unused_data or decoder.unconsumed_tail:
+            raise PortError("Compressed receipt exceeds its bound or is incomplete")
+        return decode_json(raw.decode("utf-8"))
+    except (binascii.Error, zlib.error, UnicodeError) as error:
+        raise PortError("Malformed compressed structured receipt") from error
 
 
 def validate_bundle_shape(payload: dict):

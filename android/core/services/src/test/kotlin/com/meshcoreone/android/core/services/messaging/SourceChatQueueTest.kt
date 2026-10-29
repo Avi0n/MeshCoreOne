@@ -12,6 +12,7 @@ import com.meshcoreone.android.core.protocol.model.CommandCode
 import java.util.UUID
 import kotlin.test.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.TestFactory
 
@@ -27,6 +28,12 @@ class SourceChatQueueTest {
         original("ChatSendQueueServiceTests", "transient send error preserves the persisted row while parked on the trigger") {
             val h = failingDM(this); val m = h.message(MessageStatus.PENDING); h.pending(m); val q = h.queue()
             startDrain(h, q)
+            val before = h.store.fetchPendingSends(RADIO).single()
+            val deletions = h.store.calls.count { it == "deletePendingSendsForMessage" }
+            advanceTimeBy(200); runCurrent()
+            assertEquals(before, h.store.fetchPendingSends(RADIO).single())
+            assertEquals(deletions, h.store.calls.count { it == "deletePendingSendsForMessage" })
+            assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)
             assertEquals(1, h.store.fetchPendingSends(RADIO).size); assertEquals(MessageStatus.PENDING, h.stored(m.id).status)
             q.shutdown(); h.close()
         },
@@ -112,8 +119,11 @@ class SourceChatQueueTest {
             val h = Harness(this); val q = h.queue()
             h.store.insertPendingSendAssigningSequence(PendingSendDTO.fromEnvelope(DirectMessageEnvelope(UUID.randomUUID(), UUID.randomUUID()), RADIO))
             q.hydrate(); runCurrent(); q.awaitDrainCompletion(); assertTrue(h.store.fetchPendingSends(RADIO).isEmpty())
+            val reads = h.store.calls.count { it == "fetchPendingSends" }
             val kept = PendingSendDTO.fromEnvelope(DirectMessageEnvelope(UUID.randomUUID(), UUID.randomUUID()), RADIO)
             h.store.insertPendingSendAssigningSequence(kept); q.hydrate(); runCurrent()
+            q.awaitDrainCompletion()
+            assertEquals(reads, h.store.calls.count { it == "fetchPendingSends" })
             assertEquals(kept.messageID, h.store.fetchPendingSends(RADIO).single().messageID); q.shutdown(); h.close()
         },
         original("ChatSendQueueServiceTests", "ChatSendQueueServiceError.notConnected description is non-empty") {
@@ -121,10 +131,24 @@ class SourceChatQueueTest {
             assertTrue(assertNotNull(error.message).isNotEmpty()); assertEquals(ChatSendQueueServiceError.NotConnected, error.error)
         },
         original("ChatSendQueueServiceTests", "Transient DM send error must not broadcast .failed") {
-            val h = failingDM(this); val m = h.message(MessageStatus.PENDING); h.pending(m); val events = h.service.statusEvents()
+            val h = Harness(this, MessageServiceConfig(poolBackoff = PoolBackoffConfig(attemptCap = 2, baseDelay = 0.01)))
+            h.start(); h.transport.directError = 3u
+            val m = h.message(MessageStatus.PENDING); h.pending(m); val events = h.service.statusEvents()
+            val observed = mutableListOf<MessageStatusEvent>()
+            val consumer = backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                events.events.collect {
+                    assertEquals(h.token, it.token)
+                    assertFalse(it.event is MessageStatusEvent.Failed)
+                    observed += it.event
+                }
+            }
             val q = h.queue(); startDrain(h, q)
-            assertFalse(statuses(h.service, events).any { it is MessageStatusEvent.Failed })
-            assertEquals(MessageStatus.PENDING, h.stored(m.id).status); q.shutdown(); h.close()
+            advanceTimeBy(300); runCurrent()
+            assertEquals(3, h.sends(CommandCode.SEND_MESSAGE).size)
+            assertFalse(observed.any { it is MessageStatusEvent.Failed })
+            assertEquals(1L, h.store.fetchPendingSends(RADIO).single().attemptCount)
+            assertEquals(MessageStatus.PENDING, h.stored(m.id).status)
+            consumer.cancelAndJoin(); q.shutdown(); h.close()
         },
         original("ChatSendQueueServiceTests", "Terminal DM send error broadcasts .failed exactly once") {
             val h = failingDM(this); h.transport.directError = 5u
@@ -141,6 +165,8 @@ class SourceChatQueueTest {
         original("ChatSendQueueServiceTests", "observeConnectionState keeps a drain parked through .connected and wakes it on .ready") {
             val h = failingDM(this); val m = h.message(MessageStatus.PENDING); h.pending(m); val q = h.queue()
             startDrain(h, q); h.signals.set(h.token, DeviceConnectionState.CONNECTED); runCurrent()
+            advanceTimeBy(1000); runCurrent()
+            assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)
             assertEquals(1L, h.store.fetchPendingSends(RADIO).single().attemptCount)
             h.signals.set(h.token, DeviceConnectionState.READY); runCurrent()
             assertEquals(2L, h.store.fetchPendingSends(RADIO).single().attemptCount); q.shutdown(); h.close()

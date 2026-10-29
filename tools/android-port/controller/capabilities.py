@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from fnmatch import fnmatchcase
+import re
 
 from .errors import PortError
 from .paths import git_path
@@ -75,6 +76,7 @@ class CapabilityEngine:
             rule for rule in candidates
             if rule is not None and operation in rule["operations"]
             and ("work_packages" not in rule or wp_id in rule["work_packages"])
+            and self._support_path(rule["id"], path)
         ]
         if not candidates:
             raise PortError(
@@ -83,6 +85,15 @@ class CapabilityEngine:
             )
         rule = sorted(candidates, key=lambda value: value["id"])[0]
         return Admission(rule["id"], path, operation, tuple(rule["invariants"]), tuple(rule["validation"]))
+
+    @staticmethod
+    def _support_path(capability_id: str, path: str) -> bool:
+        module = r"android/(?:app|(?:core|feature|platform)/[a-z0-9-]+)"
+        if capability_id == "reviewed-support-consumer":
+            return re.fullmatch(module + r"/src/main/kotlin/.+\.kt", path) is not None
+        if capability_id == "reviewed-support-test":
+            return re.fullmatch(module + r"/src/(?:test|testDebug|androidTest)/kotlin/.+\.kt", path) is not None
+        return True
 
     @staticmethod
     def _assigned_path(allowed: str, requested: str) -> bool:
@@ -100,6 +111,17 @@ class CapabilityEngine:
             for operation in sorted(set(operations))
         ]
         return result
+
+    @staticmethod
+    def validate_support_changes(path_operations: dict, base_tree: dict, candidate_tree: dict):
+        """Bind shared support operations to the actual immutable base and candidate."""
+        for path, operation in path_operations.items():
+            if operation == "modify-related-consumer" and (
+                path not in base_tree or path not in candidate_tree
+            ):
+                raise PortError("Related consumer support may modify existing files only")
+            if operation == "add-or-update-related-test" and path not in candidate_tree:
+                raise PortError("Related test support cannot delete a test")
 
     def overlap_report(self, records: list[dict]) -> list[dict]:
         report = []

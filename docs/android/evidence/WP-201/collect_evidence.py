@@ -52,8 +52,6 @@ CONTROL_INPUTS = {
     "tools/android-port/controller/software_verification.py",
     "docs/android/evidence/WP-003/software-verification-manifest-amendment.json",
     "docs/android/evidence/WP-003/software-verification-manifest-amendment-v2.json",
-    "docs/android/evidence/WP-003/software-verification-manifest-amendment-v3.json",
-    "docs/android/evidence/WP-003/wp210-concern-family-binding.json",
 }
 TEXT_SUFFIXES = {".swift", ".kt", ".java", ".kts", ".py", ".json", ".xml", ".md", ".txt", ".properties", ".lockfile"}
 

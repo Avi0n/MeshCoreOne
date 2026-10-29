@@ -1,8 +1,11 @@
 """AndroidOnly: WP-003 Trusted staging, output caps and real-fact negative fixtures."""
 
 import copy
+import base64
+import hashlib
 import json
 import unittest
+import zlib
 from dataclasses import asdict
 from unittest.mock import patch
 
@@ -12,11 +15,57 @@ from controller.gate_runtime import capabilities
 from controller.gates import Binding
 from controller.historical import import_historical_receipt, migration_proposal
 from controller.model import REFERENCE_SHA, git, tree
-from controller.publication import CHECK_OUTPUT_LIMIT, GATE_MARKER, bounded_output, decode_bundle, encode_bundle, prepare_output, require_publisher
+from controller.publication import (
+    CHECK_OUTPUT_LIMIT, GATE_MARKER, STRUCTURED_INPUT_LIMIT, bounded_output, decode_bundle,
+    decode_structured_body, encode_bundle, encode_structured_body, prepare_output, require_publisher,
+)
+from controller.schema import digest
 from controller.staging import require_reviewer, stage_review
 
 
 class PublisherTests(unittest.TestCase):
+    def test_compressed_structured_receipt_preserves_real_large_original_families(self):
+        manifest = base_manifest()
+        catalog = json.loads((REPO / "docs" / "android" / "test-cases.json").read_text(encoding="utf-8"))
+        registered = {entry["path"]: entry for entry in catalog["entries"]}
+        originals = [registered[entry["path"]] for entry in manifest.inputs("WP-307", False)
+                     if entry["kind"] in ("test", "support") and entry["exclusion"] is None
+                     and entry["path"] in registered]
+        scope_cases = [{"path": entry["path"], **case} for entry in originals for case in entry["cases"]]
+        results = [{"path": entry["path"], "blob_sha": entry["blob_sha"],
+                    "cases": [{**case, "result": "PASS",
+                               "evidence": ["https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/123/attempts/1"]}
+                              for case in entry["cases"]]} for entry in originals]
+        payload = {"coverage": [{"cases": scope_cases}], "source_tests": results}
+        self.assertEqual(len(scope_cases), 334)
+        self.assertGreater(len(json.dumps(payload).encode("utf-8")), CHECK_OUTPUT_LIMIT)
+        encoded = encode_structured_body(payload, "plain\n", "compressed\n")
+        self.assertTrue(encoded.startswith("compressed\n"))
+        self.assertLessEqual(len(encoded.encode("utf-8")), CHECK_OUTPUT_LIMIT)
+        self.assertEqual(decode_structured_body(encoded, "plain\n", "compressed\n"), payload)
+        small = encode_structured_body({"ok": True}, "plain\n", "compressed\n")
+        self.assertTrue(small.startswith("plain\n"))
+        self.assertEqual(decode_structured_body(small, "plain\n", "compressed\n"), {"ok": True})
+
+    def test_compressed_structured_receipts_fail_closed_for_invalid_or_oversized_input(self):
+        pack = lambda raw: "compressed\n" + base64.b64encode(zlib.compress(raw)).decode("ascii")
+        for body in (
+            "wrong\n{}",
+            "compressed\nnot-base64!",
+            "compressed\n" + base64.b64encode(zlib.compress(b"{}")[:-1]).decode("ascii"),
+            "compressed\n" + base64.b64encode(zlib.compress(b"{}") + b"junk").decode("ascii"),
+            pack(b"\xff"),
+            pack(b'{"duplicate":1,"duplicate":2}'),
+            pack(b"x" * (STRUCTURED_INPUT_LIMIT + 1)),
+        ):
+            with self.subTest(body=body[:40]), self.assertRaises(PortError):
+                decode_structured_body(body, "plain\n", "compressed\n")
+        noise = "".join(hashlib.sha256(str(i).encode()).hexdigest() for i in range(3000))
+        with self.assertRaises(PortError):
+            encode_structured_body({"noise": noise}, "plain\n", "compressed\n")
+        with self.assertRaises(PortError):
+            encode_structured_body({"value": "x" * STRUCTURED_INPUT_LIMIT}, "plain\n", "compressed\n")
+
     def payload(self):
         value = bundle(test_manifest("WP-000"), policy())
         return {
@@ -79,7 +128,9 @@ class PublisherTests(unittest.TestCase):
 
 
 class StagingTests(unittest.TestCase):
-    def staged_fixture(self, wp_id="WP-003", *, replace_reviewer=False):
+    def staged_fixture(self, wp_id="WP-003", *, replace_reviewer=False, additional_original_paths=None,
+                       reference_override=None, additional_candidate_sources=None,
+                       additional_retained_sources=None, retained_override=None):
         from controller import staging
 
         head = git(REPO, "rev-parse", "HEAD").decode().strip()
@@ -90,13 +141,23 @@ class StagingTests(unittest.TestCase):
         else:
             candidate["tools/android-port/controller/fixture-data.py"] = original["tools/android-port/controller/gates.py"]
         reference = tree(REPO, REFERENCE_SHA)
+        if reference_override:
+            reference.update(reference_override)
+        retained = dict(original)
+        if retained_override:
+            retained.update(retained_override)
         reader = staging.bounded_git
 
         def read(repo, maximum, *arguments):
             return b"fixture-only complete diff; not a live PR\n" if arguments[0] == "diff" else reader(repo, maximum, *arguments)
 
-        with patch("controller.staging.tree", side_effect=[original, candidate, reference]), patch("controller.staging.bounded_git", side_effect=read):
-            return stage_review(REPO, wp_id, head, HEAD)
+        trees = [original, candidate, reference]
+        if isinstance(additional_retained_sources, dict):
+            trees.extend(retained for _ in {key[0] for key in additional_retained_sources if isinstance(key, tuple)})
+        with patch("controller.staging.tree", side_effect=trees), patch("controller.staging.bounded_git", side_effect=read):
+            return stage_review(REPO, wp_id, head, HEAD, additional_original_paths=additional_original_paths,
+                                additional_candidate_sources=additional_candidate_sources,
+                                additional_retained_sources=additional_retained_sources)
 
     def test_fixture_candidate_staging_uses_actual_trusted_git_profile_skills_and_source(self):
         result = self.staged_fixture()
@@ -105,6 +166,58 @@ class StagingTests(unittest.TestCase):
         self.assertEqual(result["reviewer"]["tools"], ["read", "search"])
         self.assertTrue(result["candidate_content_is_untrusted_data"])
         self.assertEqual(len([f for f in result["files"] if f["side"] == "trusted-base"]), 7)
+
+    def test_scoped_cross_owner_original_is_pinned_and_in_the_staging_digest(self):
+        source = "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift"
+        baseline = self.staged_fixture()
+        staged = self.staged_fixture(additional_original_paths={source})
+        records = [item for item in staged["files"]
+                   if item["side"] == "pinned-reference" and item["path"] == source]
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["blob_sha"], "879f8b0a4337fdcec2a56c93cc4e77457aa35e9e")
+        self.assertIn("SyncCoordinatorMessageHandlerTests", records[0]["content"])
+        self.assertNotEqual(digest(staged), digest(baseline))
+        for paths, override in (
+            ({"unknown/Test.swift"}, None),
+            ({source}, {source: "0" * 40}),
+            (["not-a-set"], None),
+        ):
+            with self.subTest(paths=paths), self.assertRaises(PortError):
+                self.staged_fixture(additional_original_paths=paths, reference_override=override)
+
+    def test_scoped_unchanged_candidate_test_is_in_the_staging_digest(self):
+        source = "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlerTests.kt"
+        head = git(REPO, "rev-parse", "HEAD").decode().strip()
+        blob = tree(REPO, head)[source]
+        baseline = self.staged_fixture()
+        staged = self.staged_fixture(additional_candidate_sources={source: blob})
+        records = [item for item in staged["files"]
+                   if item["side"] == "candidate-data" and item["path"] == source]
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["blob_sha"], blob)
+        self.assertIn("SyncCoordinatorMessageHandlerTests", records[0]["content"])
+        self.assertNotEqual(digest(staged), digest(baseline))
+        for sources in ({source: "0" * 40}, {"unknown/Test.kt": blob}, {source: "bad"}, [source]):
+            with self.subTest(sources=sources), self.assertRaises(PortError):
+                self.staged_fixture(additional_candidate_sources=sources)
+
+    def test_retained_native_fixture_uses_observation_revision_not_candidate(self):
+        head = git(REPO, "rev-parse", "HEAD").decode().strip()
+        entries = tree(REPO, head)
+        path = "tools/android-port/controller/gates.py"
+        blob = entries["tools/android-port/controller/staging.py"]
+        self.assertNotEqual(entries[path], blob)
+        baseline = self.staged_fixture()
+        sources = {(head, path): blob}
+        staged = self.staged_fixture(additional_retained_sources=sources, retained_override={path: blob})
+        record = next(item for item in staged["files"] if item["side"] == "retained-native")
+        self.assertEqual((record["revision"], record["path"], record["blob_sha"]), (head, path, blob))
+        self.assertIn("Immutable trusted-base reviewer inputs", record["content"])
+        self.assertNotEqual(digest(staged), digest(baseline))
+        for invalid in ({(head, path): "0" * 40}, {(head, "unknown/Test.kt"): blob},
+                        {("HEAD", path): blob}, {path: blob}, [(head, path)]):
+            with self.subTest(sources=invalid), self.assertRaises(PortError):
+                self.staged_fixture(additional_retained_sources=invalid)
 
     def test_candidate_reviewer_replacement_cannot_grant_execute_or_publish_authority(self):
         result = self.staged_fixture("WP-000", replace_reviewer=True)

@@ -1185,12 +1185,8 @@
       ],
       "verification": {
         "configured": false,
-        "commands": [
-          ["python", "tools/android-port/controller/ci.py", "preflight"],
-          ["python", "tools/android-port/controller/ci.py", "run", "--stage", "scaffold"],
-          ["python", "tools/android-port/controller/ci.py", "inspect"]
-        ],
-        "blocker": "The existing strict scaffold software lane is executable for current candidates. The 110-family R118 concern mapping is bound for traceability, but this lane does not establish candidate assertions through production consumers, post-device-add cancellation accounting, deterministic lifecycle ownership, hardware/platform behavior, or full WP-210 acceptance. Keep configured=false until #387 supplies candidate-bound feature and native evidence; do not unlock dependencies from this lane alone."
+        "commands": [],
+        "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
       }
     },
     {

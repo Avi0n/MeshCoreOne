@@ -1,4 +1,5 @@
 import copy
+import json
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -27,6 +28,21 @@ def base_manifest():
     if _BASE_MANIFEST is None:
         _BASE_MANIFEST = load_manifest(REPO)
     return _BASE_MANIFEST
+
+
+def historical_policy_text():
+    from controller.scope_amendment import routine_support_predecessor
+
+    text = (REPO / "docs" / "android" / "automation-policy.json").read_text(encoding="utf-8")
+    marker = '      },\n      {\n        "id": "reviewed-support-'
+    if marker not in text:
+        return text
+    start = text.index(marker)
+    end = text.index('    ]\n  },', start)
+    projected = text[:start] + '      }\n' + text[end:]
+    if json.loads(projected) != routine_support_predecessor(json.loads(text)):
+        raise ValueError("Text and object historical policy projections differ")
+    return projected
 
 
 def policy(backend="local"):

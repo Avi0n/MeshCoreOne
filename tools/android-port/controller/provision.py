@@ -92,15 +92,22 @@ def sdk_metadata(lock: dict, selected: list[dict], data: bytes):
             continue
         packages = root.findall(f"remotePackage[@path='{record['id']}']")
         if len(packages) != 1:
-            raise PortError("Missing/duplicate exact SDK package")
+            raise PortError(f"Missing/duplicate exact SDK package {record['id']!r}: found {len(packages)}")
         package = packages[0]
         revision = ".".join(package.findtext(f"revision/{part}", "0") for part in ("major", "minor", "micro"))
+        all_archives = package.findall("archives/archive")
         archives = [
-            a for a in package.findall("archives/archive")
+            a for a in all_archives
             if a.findtext("host-os", "all") == record["host"]
         ]
         if revision != record["revision"] or len(archives) != 1:
-            raise PortError("SDK revision/host changed from the protected archive lock")
+            hosts = [a.findtext("host-os", "all")[:80] for a in all_archives[:16]]
+            raise PortError(
+                f"SDK revision/host changed from the protected archive lock for {record['id']!r}: "
+                f"expected revision {record['revision']!r}, host {record['host']!r}; "
+                f"observed revision {revision[:120]!r}, hosts {hosts!r} "
+                f"({len(all_archives)} total archives, {len(archives)} matching host)"
+            )
         complete = archives[0].find("complete")
         if (
             complete is None or complete.findtext("url") != record["url"].rsplit("/", 1)[1]

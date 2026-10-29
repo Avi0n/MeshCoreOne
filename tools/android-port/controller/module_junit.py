@@ -63,7 +63,10 @@ def check_module_tests(repo: Path):
 def module_method_inventory(repo: Path, modules):
     from .ci_evidence import SUITES, suite_case_ids
 
-    result = {"app": suite_case_ids(repo / "android" / SUITES["app"][0])}
+    result = {
+        "app": suite_case_ids(repo / "android" / SUITES["app"][0]),
+        "core/contracts": suite_case_ids(repo / "android" / SUITES["contracts"][0]),
+    }
     for module in modules:
         locations = [
             repo / "android" / module / relative for relative in REPORT_LOCATIONS
