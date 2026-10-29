@@ -1,0 +1,3 @@
+<resources>
+    <string name="node_config_contact_save_failed">Das Funkgerät hat den Kontakt angenommen, aber er konnte nicht lokal gespeichert werden. Versuche den Import erneut.</string>
+</resources>

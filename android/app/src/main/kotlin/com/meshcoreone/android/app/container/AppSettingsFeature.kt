@@ -15,6 +15,7 @@ import com.meshcoreone.android.feature.settings.device.*
 import com.meshcoreone.android.feature.settings.device.GeneratedIdentity
 import com.meshcoreone.android.feature.settings.app.nodeconfig.*
 import com.meshcoreone.android.core.services.remote.NodeConfigJson
+import com.meshcoreone.android.core.services.remote.NodeConfigContactSaveFailure
 import com.meshcoreone.android.core.services.remote.NodeConfigService
 import com.meshcoreone.android.core.services.remote.ImportStep
 import com.meshcoreone.android.core.l10n.generated.AppSettingsStrings as S
@@ -132,7 +133,7 @@ class AppSettingsFeature private constructor(
         }, object : NodeConfigCodec {
             override fun decode(bytes: ByteArray) = NodeConfigJson.decode(bytes)
             override fun encode(config: MeshCoreNodeConfig) = NodeConfigJson.encodeToBytes(config)
-        }, ResourceNodeConfigMessages(resources)).also { configHolder = it }
+        }, ResourceNodeConfigMessages(resources, { it is NodeConfigContactSaveFailure })).also { configHolder = it }
 
     val catalog = object : RadioCatalogPort {
         private fun RadioPreset.option() = RadioPresetOption(id, name, region.rawValue, repeatSectionHeader)

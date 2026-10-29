@@ -1,0 +1,3 @@
+<resources>
+    <string name="node_config_contact_save_failed">La radio ha accettato il contatto, ma non è stato possibile salvarlo in locale. Riprova l’importazione.</string>
+</resources>

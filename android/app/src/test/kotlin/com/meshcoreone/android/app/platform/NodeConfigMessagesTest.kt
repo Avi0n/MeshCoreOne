@@ -2,10 +2,14 @@
 package com.meshcoreone.android.app.platform
 
 import android.content.res.Resources
+import android.content.res.Configuration
 import androidx.test.core.app.ApplicationProvider
 import com.meshcoreone.android.core.contracts.domain.errors.*
 import com.meshcoreone.android.core.l10n.generated.AppSettingsStrings as S
+import com.meshcoreone.android.core.services.remote.NodeConfigContactSaveFailure
+import com.meshcoreone.android.feature.settings.R
 import com.meshcoreone.android.feature.settings.app.nodeconfig.ResourceNodeConfigMessages
+import java.util.Locale
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,7 +20,9 @@ import org.robolectric.annotation.Config
 @Config(sdk = [31], application = android.app.Application::class)
 class NodeConfigMessagesTest {
     private val resources: Resources get() = ApplicationProvider.getApplicationContext<android.app.Application>().resources
-    private val messages get() = ResourceNodeConfigMessages(resources)
+    private fun messagesFor(resources: Resources) =
+        ResourceNodeConfigMessages(resources, { it is NodeConfigContactSaveFailure })
+    private val messages get() = messagesFor(resources)
     private class Fault(override val sourceServiceFault: SourceServiceFault) : Exception(), SourceServiceFaultCarrier
 
     @Test
@@ -71,5 +77,35 @@ class NodeConfigMessagesTest {
         val failure = java.io.IOException("Synthetic failure")
         assertEquals(messages.error(failure), messages.failed(failure, false))
         assertEquals(S.configImportFailedPartial(resources, messages.error(failure)), messages.failed(failure, true))
+    }
+
+    @Test fun actualContactSaveFailureUsesLocalizedRecoveryForEverySupportedLocale() {
+        val expected = mapOf(
+            "en" to "The radio accepted the contact, but it could not be saved locally. Retry the import.",
+            "de" to "Das Funkgerät hat den Kontakt angenommen, aber er konnte nicht lokal gespeichert werden. Versuche den Import erneut.",
+            "es" to "La radio aceptó el contacto, pero no se pudo guardar localmente. Vuelve a intentar la importación.",
+            "fr" to "La radio a accepté le contact, mais il n’a pas pu être enregistré localement. Réessayez l’importation.",
+            "it" to "La radio ha accettato il contatto, ma non è stato possibile salvarlo in locale. Riprova l’importazione.",
+            "ko" to "무전기가 연락처를 수락했지만 로컬에 저장하지 못했습니다. 가져오기를 다시 시도하세요.",
+            "nl" to "De radio heeft het contact geaccepteerd, maar het kon niet lokaal worden opgeslagen. Probeer het importeren opnieuw.",
+            "pl" to "Radio przyjęło kontakt, ale nie udało się go zapisać lokalnie. Ponów importowanie.",
+            "pt" to "O rádio aceitou o contacto, mas não foi possível guardá-lo localmente. Tente importar novamente.",
+            "ru" to "Радиоустройство приняло контакт, но не удалось сохранить его локально. Повторите импорт.",
+            "uk" to "Радіопристрій прийняв контакт, але не вдалося зберегти його локально. Повторіть імпорт.",
+            "zh-Hans" to "电台已接受该联系人，但无法在本地保存。请重试导入。",
+        )
+        val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+        val failure = NodeConfigContactSaveFailure(IllegalStateException("store"))
+        for ((language, copy) in expected) {
+            val configuration = Configuration(context.resources.configuration).apply { setLocale(Locale.forLanguageTag(language)) }
+            val localized = context.createConfigurationContext(configuration).resources
+            val mapped = messagesFor(localized)
+            assertEquals(language, copy, localized.getString(R.string.node_config_contact_save_failed))
+            assertEquals(language, copy, mapped.failed(failure, false))
+            assertEquals(language, S.configImportFailedPartial(localized, copy), mapped.failed(failure, true))
+            assertNotEquals(language, copy, mapped.failed(java.io.IOException("Radio error"), false))
+            assertEquals(language, localized.getString(S.configImportCancelled), mapped.cancelled(false))
+            assertEquals(language, localized.getString(S.configImportCancelledPartial), mapped.cancelled(true))
+        }
     }
 }

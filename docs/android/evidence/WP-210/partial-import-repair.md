@@ -19,9 +19,13 @@ After a confirmed local save, the contact-change notification is completed
 even if a later contact save fails or the caller cancels. A notification
 failure is retained as a suppressed exception on the original import failure.
 This post-commit notification does not make an unconfirmed local save successful.
-The specific localized local-save failure copy requested in PR review is blocked
-by the missing trusted resource capability recorded in #465; the current generic
-fallback remains misleading and must be fixed before this candidate is accepted.
+The follow-up candidate adds localized local-save failure and retry copy after
+the resource capability in #465 landed. The app adapter classifies the actual
+service failure for `ResourceNodeConfigMessages` without a feature-to-services
+dependency; the partial warning remains unchanged. Tests assert all twelve
+localized strings and actual failure mapping with and without progress, and the
+mounted Room flow asserts the message, acknowledged progress and retry. Their
+exact-candidate hosted execution is required before crediting this follow-up.
 
 The candidate adds a service-flow test for the device-add boundary, both
 failure types, no later contact write, failed and successful local-only retry,

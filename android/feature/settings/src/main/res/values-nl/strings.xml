@@ -1,0 +1,3 @@
+<resources>
+    <string name="node_config_contact_save_failed">De radio heeft het contact geaccepteerd, maar het kon niet lokaal worden opgeslagen. Probeer het importeren opnieuw.</string>
+</resources>
