@@ -594,6 +594,63 @@ struct CLIToolViewModelLocalCommandsTests {
     #expect(await mock.runCliCommandCalls.isEmpty)
   }
 
+  @Test(arguments: [
+    ("get radio.rxps", "> balanced"),
+    ("set radio.rxps balanced", "OK - on,level=2"),
+  ])
+  func `v14 radio rxps reaches runCliCommand with the firmware reply`(line: String, reply: String) async {
+    let mock = MockConfigurationSession()
+    await mock.setCLIReply(reply)
+    let device = makeDevice(firmwareVersion: 14).copy { $0.firmwareVersionString = "PowerSaving18" }
+    let viewModel = makeViewModel(mock: mock, device: device)
+
+    await run(viewModel, line)
+
+    #expect(await mock.runCliCommandCalls == [line])
+    #expect(await mock.setCustomVarCalls.isEmpty)
+    #expect(await mock.readCount == 0)
+    #expect(lastResponse(viewModel) == reply)
+    #expect(!viewModel.isWaitingForResponse)
+  }
+
+  @Test
+  func `v13 radio rxps stays on custom variables`() async {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 13))
+
+    await run(viewModel, "get radio.rxps")
+    #expect(await mock.runCliCommandCalls.isEmpty)
+    #expect(await mock.readCount == 1)
+
+    await run(viewModel, "set radio.rxps balanced")
+    #expect(await mock.runCliCommandCalls.isEmpty)
+    let calls = await mock.setCustomVarCalls
+    #expect(calls.count == 1)
+    #expect(calls.first?.key == "radio.rxps")
+    #expect(calls.first?.value == "balanced")
+  }
+
+  @Test(arguments: [
+    ("_radio.rxps", "radio.rxps"),
+    ("mykey", "mykey"),
+  ])
+  func `v14 custom variables stay off radio cli`(typedKey: String, storedKey: String) async {
+    let mock = MockConfigurationSession()
+    let device = makeDevice(firmwareVersion: 14).copy { $0.firmwareVersionString = "PowerSaving18" }
+    let viewModel = makeViewModel(mock: mock, device: device)
+    let value = "kept"
+
+    await run(viewModel, "set \(typedKey) \(value)")
+    await run(viewModel, "get \(typedKey)")
+
+    let calls = await mock.setCustomVarCalls
+    #expect(calls.count == 1)
+    #expect(calls.first?.key == storedKey)
+    #expect(calls.first?.value == value)
+    #expect(lastResponse(viewModel) == "> \(value)")
+    #expect(await mock.runCliCommandCalls.isEmpty)
+  }
+
   @Test
   func `v14 poweroff prompts and yes powers off once`() async {
     let probe = PowerOffProbe()
