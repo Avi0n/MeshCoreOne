@@ -36,6 +36,11 @@ Swift/Kotlin and Compose skills as applicable. Installation is not fleet activat
   typed errors, cancellation and consumer behavior; no silent failure, dropped data or fake success.
 - Use only actual declared verification commands; fail on missing/malformed/zero-test evidence.
   Never claim iOS, Android, hardware, license or signing verification that did not occur.
+- Before local verification, follow `docs/android/ci/local-checks.md` for host-specific readiness
+  and Windows recovery commands. Reuse a valid same-host toolchain state, use the pinned Python
+  and a fresh absolute output directory, and configure the actual session launch environment.
+  Windows state does not configure WSL or remote hosts. Missing inputs are not failed tests;
+  SDK-license acceptance, runtime deployment and retained execution-owner recovery remain separate gates.
 - The exact-commit hosted job result and log are authoritative for reproducible automated checks; do not
   commit, upload, hash, or revalidate a second CI-result bundle. Retain only non-reproducible hardware,
   device, signing, release, human, or legal evidence.

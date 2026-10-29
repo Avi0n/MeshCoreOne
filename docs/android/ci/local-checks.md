@@ -1,4 +1,144 @@
-# WP-003 affected local verification
+# Local verification and readiness recovery
+
+## Session startup and failure diagnosis
+
+Run commands from the current session's repository root, not another worktree.
+First identify where the command actually executes: native Windows, WSL or a remote
+Linux worker. Tool installations, state files and environment variables belong to
+that execution host. A hosted setup job, an installed Android Studio or a running
+agent does not establish local readiness.
+
+The controller requires the Python version in
+`tools/android-port/controller/toolchain-pins.json`, a same-host `environment.json`
+supplied by `--state` or `ANDROID_CI_STATE`, and an absolute per-run output directory
+supplied by `--output`, `ANDROID_CI_WORK` or `ANDROID_CI_OUTPUT`. Prefer explicit
+arguments in automation. Reuse valid existing state before provisioning anything.
+Do not hand-edit state, pins, package metadata or checks to turn a failure green.
+
+| Failure | Required action |
+| --- | --- |
+| `Explicit --state/ANDROID_CI_STATE is required` | Locate the provisioned same-host state and pass it explicitly, or declare verified existing installations with `local-inputs` below. |
+| `Explicit absolute --output/ANDROID_CI_WORK directory is required` | Allocate a fresh absolute output directory for this run; do not share one between workers. |
+| Exact Python, Java or SDK revision mismatch | Select the pinned interpreter and actual matching installations. If tools are missing/outdated, use the reviewed provisioner below rather than changing the pins. |
+| Missing, old or mismatched installed execution runtime | Report the exact runtime blocker for separately authorized, quiescent deployment. Do not install/upgrade it as an incidental test repair. |
+| Native/Gradle ownership collision or unproven child cleanup | Retain the incumbent receipt and recovery inputs; the actual owner must prove cleanup and release through the supported path. Never force-release or infer idleness. |
+
+The suffix `failed cloud setup is not readiness` explains the missing-state guard;
+it does not establish that a cloud setup job failed. A readiness refusal means the
+requested product tests did not run, not that those tests failed. Report the exact
+blocker and unverified candidate honestly; it does not prohibit feature-branch
+publication or replace exact-candidate hosted merge verification.
+
+## Windows-native readiness setup
+
+These commands configure native Windows controller readiness, not WSL builds.
+They create private tooling outside the checkout and leave Android Studio's SDK
+unchanged. Do not run installation commands automatically merely because this
+guide exists: installing tools requires the user's setup authorization, and SDK
+license acceptance requires their explicit acceptance of the pinned terms.
+
+### 1. Select the pinned Python and install isolated verification dependencies
+
+Run in PowerShell from the current worktree root. If the version check fails,
+install/select the required Python first; do not continue with a different version.
+
+```powershell
+$pins = Get-Content .\tools\android-port\controller\toolchain-pins.json -Raw |
+  ConvertFrom-Json
+$actualPython = python -c "import platform; print(platform.python_version())"
+if ($LASTEXITCODE -ne 0 -or $actualPython -ne $pins.python) {
+  throw "Select Python $($pins.python) before continuing."
+}
+
+$venv = Join-Path $env:LOCALAPPDATA 'MeshCoreOne\verification-venv'
+python -m venv $venv
+if ($LASTEXITCODE -ne 0) { throw 'Python environment creation failed' }
+$py = Join-Path $venv 'Scripts\python.exe'
+$venvPython = & $py -c "import platform; print(platform.python_version())"
+if ($LASTEXITCODE -ne 0 -or $venvPython -ne $pins.python) {
+  throw "The verification environment must use Python $($pins.python)."
+}
+
+& $py -m pip install --require-hashes --no-deps --only-binary=:all: `
+  -r .\tools\android-port\controller\requirements-ci.txt
+if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
+```
+
+### 2. Select or provision a matching Windows toolchain
+
+If a valid Windows state already exists, set `$state` to its absolute path and skip
+provisioning. If exact matching JDK/SDK installations exist but have no state, use
+`ci.py local-inputs --root <absolute-private-root> --jdk <absolute-JDK-home>
+--sdk <absolute-SDK-home>`. The resulting `<absolute-private-root>\environment.json`
+only declares those installations; it does not install or validate them.
+
+Otherwise, after explicit user acceptance of the pinned Android SDK license,
+run the following. The provisioner requires a new absolute directory, verifies
+first-party archives and installs the currently pinned JDK and SDK packages.
+It does not deploy the shared execution runtime or start Gradle/native work.
+Do not keep reprovisioning on network, checksum, metadata or license drift:
+preserve the failure and report the concrete blocker.
+
+```powershell
+$root = Join-Path $env:LOCALAPPDATA (
+  'MeshCoreOne\toolchains\' + [guid]::NewGuid().ToString('N')
+)
+& $py .\tools\android-port\controller\ci.py provision `
+  --root $root `
+  --accept-sdk-license
+if ($LASTEXITCODE -ne 0) { throw 'Toolchain provisioning failed' }
+$state = Join-Path $root 'environment.json'
+```
+
+### 3. Persist the state location and verify readiness
+
+```powershell
+[Environment]::SetEnvironmentVariable('ANDROID_CI_STATE', $state, 'User')
+$env:ANDROID_CI_STATE = $state
+
+$output = Join-Path $env:TEMP (
+  'MeshCoreOne-preflight-' + [guid]::NewGuid().ToString('N')
+)
+& $py .\tools\android-port\controller\ci.py preflight `
+  --local `
+  --state $state `
+  --output $output
+if ($LASTEXITCODE -ne 0) { throw 'Windows readiness verification failed' }
+```
+
+Fully quit and relaunch the Copilot desktop app, then start/restart the relevant
+sessions so they inherit the persisted state location. Already-running processes
+do not automatically receive it. A PowerShell-profile-only export does not
+configure an app launched outside that shell.
+
+In later PowerShell processes, reconstruct the interpreter path with
+`$py = Join-Path $env:LOCALAPPDATA 'MeshCoreOne\verification-venv\Scripts\python.exe'`
+and use `$env:ANDROID_CI_STATE` or an explicit `--state` argument. Allocate a fresh
+`$output` for every run. Do not persist one shared run-output directory.
+Successful preflight proves current Windows input readiness only, not Android
+test execution, device acceptance or hosted verification.
+
+## WSL and remote workers are separate execution hosts
+
+The supported `local/check.py` launcher transports Windows requests into WSL.
+Its Linux runner reads `$ANDROID_LOCAL_HOME/toolchain/environment.json`, defaulting
+to `$HOME/meshcoreone-work/toolchain/environment.json`, and uses
+`ANDROID_LOCAL_PYTHON`, defaulting to `$HOME/meshcoreone-work/venv312/bin/python`
+when `ANDROID_LOCAL_HOME` is unset. Configure actual Linux installations and
+the reviewed execution runtime for that path; Windows `ANDROID_CI_STATE` cannot
+satisfy it. The launcher creates its own per-run report directory.
+
+For direct controller preflight on a remote Linux worker, select that host's
+pinned Python and pass its Linux state and a fresh absolute output directory.
+Configure the actual non-interactive worker/session launch environment, not just
+an unrelated interactive SSH shell. Never copy Windows paths into Linux state
+or assume exports in one SSH connection reach another running session.
+
+Neither Windows readiness nor Linux configuration authorizes bypassing the
+interlocked launcher with direct Gradle, deploying an execution runtime, clearing
+an incumbent owner, changing repository settings or activating automation.
+
+## Affected local verification
 
 Source work for `LOCAL-CHANGE-SCOPED-VERIFICATION` remains separate from trusted
 runtime deployment and native/Gradle lane recovery. An installed legacy runtime
