@@ -55,7 +55,7 @@
     {
       "concern": "CM-10",
       "status": "pending-evidence-and-maintainer-decision",
-      "required_evidence": "Witness cancellation or local-save failure after successful session.addContact, preserve caller cancellation and account for the applied device write. Prove safe retry/reconciliation without claiming rollback or blindly repeating an irreversible add.",
+      "required_evidence": "Witness both caller cancellation during the suspending contactSaver and ordinary local-save failure after successful session.addContact, preserve caller cancellation and account for the applied device write. Prove safe retry/reconciliation without claiming rollback or blindly repeating an irreversible add.",
       "pending_decision": "Approve the user-visible applied/partial/uncertain outcome and reconciliation behavior when device application succeeds before local persistence or progress reporting."
     },
     {
