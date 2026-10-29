@@ -3,7 +3,8 @@
 from dataclasses import dataclass
 from fnmatch import fnmatchcase
 import re
-import xml.etree.ElementTree as ET
+from xml.dom import Node, minidom
+from xml.parsers.expat import ExpatError
 
 from .errors import PortError
 from .paths import git_path
@@ -143,14 +144,50 @@ class CapabilityEngine:
                 if path in resources:
                     original = (
                         CapabilityEngine._contact_import_resource(read_blob(base_tree[path]), required=False)[0]
-                        if path in base_tree else ("resources", (), ())
+                        if path in base_tree else CapabilityEngine._contact_import_resource(
+                            b"<resources/>", required=False
+                        )[0]
                     )
                     if original != candidate:
                         raise PortError("Contact import recovery cannot change unrelated resource entries")
-            english = " ".join(messages[paths[0]].split())
-            if any(" ".join(message.split()) == english
+            english = CapabilityEngine._android_copy_comparison(messages[paths[0]])
+            if any(CapabilityEngine._android_copy_comparison(message) == english
                    for path, message in messages.items() if path != paths[0]):
                 raise PortError("Contact import recovery requires explicit localized copy, not English fallback")
+
+    @staticmethod
+    def _android_copy_comparison(message: str):
+        escapes = {"n": "\n", "t": "\t", "r": "\r", "\\": "\\",
+                   "'": "'", '"': '"', "@": "@", "?": "?"}
+        decoded, index, quoted = [], 0, False
+        while index < len(message):
+            char = message[index]
+            if char == '"':
+                quoted = not quoted
+            elif char == "\\":
+                index += 1
+                if index == len(message):
+                    raise PortError("Contact import recovery has an incomplete Android string escape")
+                char = message[index]
+                if char == "u":
+                    digits = message[index + 1:index + 5]
+                    if re.fullmatch(r"[0-9a-fA-F]{4}", digits) is None:
+                        raise PortError("Contact import recovery has an invalid Android Unicode escape")
+                    decoded.append(chr(int(digits, 16)))
+                    index += 4
+                elif char in escapes:
+                    decoded.append(escapes[char])
+                else:
+                    raise PortError("Contact import recovery has an unsupported Android string escape")
+            else:
+                decoded.append(char)
+            index += 1
+        if quoted:
+            raise PortError("Contact import recovery has an unmatched Android string quote")
+        normalized = " ".join("".join(decoded).split())
+        if not normalized:
+            raise PortError("Contact import recovery requires nonempty Android string content")
+        return normalized
 
     @staticmethod
     def _contact_import_resource(data: bytes, *, required=True):
@@ -159,35 +196,42 @@ class CapabilityEngine:
             text = data.decode("utf-8")
             if "<!DOCTYPE" in text.upper() or "<!ENTITY" in text.upper():
                 raise PortError("Contact import resource cannot contain DTD or entity declarations")
-            root = ET.fromstring(text)
-        except (UnicodeError, ET.ParseError) as error:
+            document = minidom.parseString(text)
+        except (UnicodeError, ExpatError) as error:
             raise PortError("Contact import recovery requires valid UTF-8 resource XML") from error
-        if root.tag != "resources" or (root.text or "").strip() or any(
-            (child.tail or "").strip() for child in root
+        root = document.documentElement
+        if root.tagName != "resources" or any(
+            child.nodeType == Node.TEXT_NODE and child.data.strip() for child in root.childNodes
         ):
             raise PortError("Contact import recovery requires a resources root without stray text")
-        selected = [child for child in root if child.get("name") == key]
+        selected = [child for child in root.childNodes
+                    if child.nodeType == Node.ELEMENT_NODE and child.getAttribute("name") == key]
         if len(selected) > 1 or (required and not selected):
             raise PortError("Contact import recovery requires exactly one recovery string")
         message = None
         if selected:
             value = selected[0]
             if (
-                value.tag != "string" or value.attrib != {"name": key}
-                or len(value) or not (value.text or "").strip()
+                value.tagName != "string" or dict(value.attributes.items()) != {"name": key}
+                or any(child.nodeType != Node.TEXT_NODE for child in value.childNodes)
+                or not "".join(child.data for child in value.childNodes).strip()
             ):
                 raise PortError("Contact import recovery must be a nonempty, translatable plain string")
-            message = value.text
+            message = "".join(child.data for child in value.childNodes)
 
         def entry(node):
-            return (node.tag, tuple(sorted(node.attrib.items())), node.text,
-                    tuple((entry(child), child.tail) for child in node))
+            children = [
+                child for child in node.childNodes
+                if not (node is root and (
+                    child in selected
+                    or (child.nodeType == Node.TEXT_NODE and not child.data.strip())
+                ))
+            ]
+            return (node.nodeType, node.nodeName, node.nodeValue,
+                    tuple(sorted(node.attributes.items())) if node.attributes else (),
+                    tuple(entry(child) for child in children))
 
-        return (
-            (root.tag, tuple(sorted(root.attrib.items())),
-             tuple(entry(child) for child in root if child.get("name") != key)),
-            message,
-        )
+        return entry(document), message
 
     def overlap_report(self, records: list[dict]) -> list[dict]:
         report = []

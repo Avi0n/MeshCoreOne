@@ -228,6 +228,8 @@ class ContactImportLocalizationCapabilityTests(unittest.TestCase):
         for formatted in (
             b" Localized fixture 0 ", b"\nLocalized fixture 0\n",
             b"Localized   fixture\t0", b"\n  Localized\n    fixture 0  \n",
+            b'"Localized fixture 0"', b'" Localized   fixture 0 "',
+            b'Localized\\nfixture\\t0', b'\\u004cocalized fixture 0',
         ):
             base, candidate, blobs = self.resource_fixture()
             english, translated = self.rule["path_rules"][0], self.rule["path_rules"][-1]
@@ -236,6 +238,40 @@ class ContactImportLocalizationCapabilityTests(unittest.TestCase):
                 CapabilityEngine.validate_support_changes(
                     {english: OPERATION, translated: OPERATION},
                     base, candidate, read_blob=blobs.__getitem__)
+
+    def test_android_quoting_and_escapes_compare_decoded_values(self):
+        for source, expected in (
+            ('"Quoted text"', "Quoted text"), (r"Don\'t retry", "Don't retry"),
+            (r"Contact \"name\"", 'Contact "name"'), (r"Path\\name", "Path\\name"),
+            (r"\@contact \?help", "@contact ?help"),
+        ):
+            with self.subTest(source=source):
+                self.assertEqual(CapabilityEngine._android_copy_comparison(source), expected)
+        for source in ('"Unclosed', "Incomplete\\", r"\u12", r"\uXXXX", r"\x41", '""', '" "', r"\n\t"):
+            with self.subTest(source=source), self.assertRaises(PortError):
+                CapabilityEngine._android_copy_comparison(source)
+
+    def test_unrelated_notices_comments_and_processing_instructions_are_preserved(self):
+        for marker in (b"<!-- Copyright notice -->", b"<?localization preserve?>"):
+            for position in ("before", "inside", "after"):
+                base, candidate, blobs = self.resource_fixture()
+                path = self.rule["path_rules"][0]
+
+                def insert(xml):
+                    if position == "before":
+                        return marker + xml
+                    if position == "after":
+                        return xml + marker
+                    return xml.replace(b"<resources>", b"<resources>" + marker)
+
+                blobs[base[path]] = insert(blobs[base[path]])
+                with self.subTest(marker=marker, position=position):
+                    with self.assertRaisesRegex(PortError, "unrelated resource"):
+                        CapabilityEngine.validate_support_changes(
+                            {path: OPERATION}, base, candidate, read_blob=blobs.__getitem__)
+                    blobs[candidate[path]] = insert(blobs[candidate[path]])
+                    CapabilityEngine.validate_support_changes(
+                        {path: OPERATION}, base, candidate, read_blob=blobs.__getitem__)
 
     def test_resource_validation_requires_immutable_reader_and_exact_paths(self):
         base, candidate, blobs = self.resource_fixture()
