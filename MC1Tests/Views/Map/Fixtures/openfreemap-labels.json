@@ -1,0 +1,57 @@
+{
+  "capturedAt": "2026-10-29",
+  "styles": {
+    "liberty": {
+      "sourceURL": "https://tiles.openfreemap.org/styles/liberty",
+      "nameLayerIDs": ["waterway_line_label", "water_name_point_label", "water_name_line_label", "poi_r20", "poi_r7", "poi_r1", "poi_transit", "highway-name-path", "highway-name-minor", "highway-name-major", "airport", "label_other", "label_village", "label_town", "label_state", "label_city", "label_city_capital", "label_country_3", "label_country_2", "label_country_1"],
+      "layers": [
+        {"id": "road_one_way_arrow", "source-layer": "transportation", "text-field": null},
+        {"id": "road_one_way_arrow_opposite", "source-layer": "transportation", "text-field": null},
+        {"id": "waterway_line_label", "source-layer": "waterway", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], " ", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "water_name_point_label", "source-layer": "water_name", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "water_name_line_label", "source-layer": "water_name", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], " ", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "poi_r20", "source-layer": "poi", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "poi_r7", "source-layer": "poi", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "poi_r1", "source-layer": "poi", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "poi_transit", "source-layer": "poi", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "highway-name-path", "source-layer": "transportation_name", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], " ", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "highway-name-minor", "source-layer": "transportation_name", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], " ", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "highway-name-major", "source-layer": "transportation_name", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], " ", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "highway-shield-non-us", "source-layer": "transportation_name", "text-field": ["to-string", ["get", "ref"]]},
+        {"id": "highway-shield-us-interstate", "source-layer": "transportation_name", "text-field": ["to-string", ["get", "ref"]]},
+        {"id": "road_shield_us", "source-layer": "transportation_name", "text-field": ["to-string", ["get", "ref"]]},
+        {"id": "airport", "source-layer": "aerodrome_label", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "label_other", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "label_village", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "label_town", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "label_state", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "label_city", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "label_city_capital", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "label_country_3", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "label_country_2", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "label_country_1", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]}
+      ]
+    },
+    "dark": {
+      "sourceURL": "https://tiles.openfreemap.org/styles/dark",
+      "nameLayerIDs": ["water_name", "highway_name_other", "place_other", "place_suburb", "place_village", "place_town", "place_city", "place_city_large", "place_state", "place_country_other", "place_country_minor", "place_country_major"],
+      "layers": [
+        {"id": "water_name", "source-layer": "water_name", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "road_oneway", "source-layer": "transportation", "text-field": null},
+        {"id": "road_oneway_opposite", "source-layer": "transportation", "text-field": null},
+        {"id": "highway_name_other", "source-layer": "transportation_name", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], " ", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "highway_name_motorway", "source-layer": "transportation_name", "text-field": ["to-string", ["get", "ref"]]},
+        {"id": "place_other", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "place_suburb", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "place_village", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "place_town", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "place_city", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "place_city_large", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "place_state", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "place_country_other", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "place_country_minor", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]},
+        {"id": "place_country_major", "source-layer": "place", "text-field": ["case", ["has", "name:nonlatin"], ["concat", ["get", "name:latin"], "\n", ["get", "name:nonlatin"]], ["coalesce", ["get", "name_en"], ["get", "name"]]]}
+      ]
+    }
+  }
+}

@@ -411,6 +411,10 @@ extension MC1MapView {
     // MARK: - Style loading
 
     func mapView(_ mapView: MLNMapView, didFinishLoading style: MLNStyle) {
+      MapLabelLocalizer.localize(
+        style.layers,
+        languageCode: Bundle.main.preferredLocalizations.first ?? MapLabelLocalizer.defaultLanguageCode
+      )
       isStyleLoaded = true
       restoreViewportIfNeeded()
       setIsStyleLoaded?(true)
