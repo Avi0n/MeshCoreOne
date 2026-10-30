@@ -2462,17 +2462,16 @@ struct AdvertisementServiceTests {
 
     let key = makePublicKey(seed: 0xA5)
     let storedPath = Data([0xAB, 0xCD])
-    _ = try await store.saveContact(
-      radioID: radioID,
-      from: makeContactFrame(
-        publicKey: key,
-        name: "PathPeer",
-        type: .repeater,
-        lastModified: 1_700_000_100,
-        outPathLength: PacketBuilder.floodPathSentinel,
-        outPath: storedPath
-      )
+    let frame = makeContactFrame(
+      publicKey: key,
+      name: "PathPeer",
+      type: .repeater,
+      lastModified: 1_700_000_100,
+      outPathLength: PacketBuilder.floodPathSentinel,
+      outPath: storedPath
     )
+    _ = try await store.saveContact(radioID: radioID, from: frame)
+    await session.seedRadioContact(frame.toMeshContact())
 
     await startMonitoring(service, session: session)
     let events = service.events()
@@ -2514,15 +2513,14 @@ struct AdvertisementServiceTests {
     let session = MockMeshCoreSession()
     let service = makeService(session: session, store: store)
     let key = makePublicKey(seed: 0xA7)
-    _ = try await store.saveContact(
-      radioID: radioID,
-      from: makeContactFrame(
-        publicKey: key,
-        name: "DirectPeer",
-        outPathLength: PacketBuilder.floodPathSentinel,
-        outPath: Data([0xAB])
-      )
+    let frame = makeContactFrame(
+      publicKey: key,
+      name: "DirectPeer",
+      outPathLength: PacketBuilder.floodPathSentinel,
+      outPath: Data([0xAB])
     )
+    _ = try await store.saveContact(radioID: radioID, from: frame)
+    await session.seedRadioContact(frame.toMeshContact())
 
     await startMonitoring(service, session: session)
     let events = service.events()
@@ -2601,15 +2599,14 @@ struct AdvertisementServiceTests {
     let service = makeService(session: session, store: store)
     let key = makePublicKey(seed: 0xA9)
     let storedPath = Data([0xAB, 0xCD])
-    _ = try await store.saveContact(
-      radioID: radioID,
-      from: makeContactFrame(
-        publicKey: key,
-        name: "RejectedPeer",
-        outPathLength: PacketBuilder.floodPathSentinel,
-        outPath: storedPath
-      )
+    let frame = makeContactFrame(
+      publicKey: key,
+      name: "RejectedPeer",
+      outPathLength: PacketBuilder.floodPathSentinel,
+      outPath: storedPath
     )
+    _ = try await store.saveContact(radioID: radioID, from: frame)
+    await session.seedRadioContact(frame.toMeshContact())
     await session.failNextAddContact(MeshCoreError.timeout)
 
     await startMonitoring(service, session: session)

@@ -163,8 +163,7 @@ struct LocationSettingsSection: View {
   }
 
   private func loadDeviceGPSState() async {
-    guard appState.canRunSettingsStartupReads else { return }
-    guard let settingsService = appState.services?.settingsService else { return }
+    guard appState.canRunSettingsStartupReads, let settingsService = appState.services?.settingsService else { return }
     do {
       let state = try await settingsService.getDeviceGPSState()
       deviceHasGPS = state.isSupported
@@ -266,7 +265,7 @@ struct LocationSettingsSection: View {
     isSaving = true
     Task {
       do {
-        try await applyShareLocationPolicy(policy, using: device, settingsService: settingsService)
+        try await applyShareLocationPolicy(policy, settingsService: settingsService)
         retryAlert.reset()
       } catch let error as SettingsServiceError where error.isRetryable {
         shareLocation = !share
@@ -333,14 +332,13 @@ struct LocationSettingsSection: View {
           device.advertLocationPolicyMode == .share,
           let settingsService = appState.services?.settingsService else { return }
 
-    try await applyShareLocationPolicy(.prefs, using: device, settingsService: settingsService)
+    try await applyShareLocationPolicy(.prefs, settingsService: settingsService)
   }
 
   private func applyShareLocationPolicy(
     _ policy: AdvertLocationPolicy,
-    using device: DeviceDTO,
     settingsService: SettingsService
   ) async throws {
-    _ = try await settingsService.setOtherParamsVerified(from: device, advertLocationPolicy: policy)
+    try await settingsService.setOtherParamsVerified(advertLocationPolicy: policy)
   }
 }

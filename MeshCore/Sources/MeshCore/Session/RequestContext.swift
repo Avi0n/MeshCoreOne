@@ -16,7 +16,10 @@ public actor RequestResponseSerializer {
   private var isRequestInFlight = false
   private var waiters: [CheckedContinuation<Void, Never>] = []
 
-  var waiterCountForTest: Int {
+  /// ContactService lives outside MeshCore, and the memberwise initializer is internal.
+  public init() {}
+
+  public var waiterCountForTest: Int {
     waiters.count
   }
 

@@ -159,26 +159,27 @@ public extension RemoteNodeService {
   /// Pushes the local contact to the radio's contact table with flood routing, then reconciles the
   /// local row so keep-alive routing agrees with the radio.
   private func addLocalContactToRadio(publicKey: Data, radioID: UUID) async throws {
-    guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) else {
+    guard let owner = contactRadioOwner.resolve() else {
       throw RemoteNodeError.contactNotFound
     }
-    let frame = contact.floodedContactFrame(asOf: UInt32(Date().timeIntervalSince1970))
+    let healed: Bool
     do {
-      try await session.addContact(frame.toMeshContact())
-    } catch let error as MeshCoreError {
-      guard case let .deviceError(code) = error, code == ProtocolError.tableFull.rawValue else {
+      healed = try await owner.healAbsentRadioContact(radioID: radioID, publicKey: publicKey)
+    } catch let error as ContactServiceError {
+      switch error {
+      case .contactNotFound:
+        throw RemoteNodeError.contactNotFound
+      case .contactTableFull:
+        throw RemoteNodeError.radioContactsFull
+      case let .sessionError(sessionError):
+        throw sessionError
+      default:
         throw error
       }
-      throw RemoteNodeError.radioContactsFull
     }
-    // The radio is healed; failing to sync the local row is a bookkeeping issue that must not
-    // abort the login retry. Keep-alive routing self-corrects on the next contact refresh.
-    do {
-      _ = try await dataStore.saveContact(radioID: radioID, from: frame)
-    } catch {
-      logger.warning("Re-added contact to radio but failed to sync local row: \(error)")
+    if healed {
+      logger.info("Re-added missing contact to radio during login")
     }
-    logger.info("Re-added missing contact to radio during login")
   }
 
   /// Handle login result push from device.

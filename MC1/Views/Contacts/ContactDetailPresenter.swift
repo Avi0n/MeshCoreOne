@@ -92,9 +92,6 @@ struct ContactDetailPresenter: ViewModifier {
       .sheet(item: binding(\.activeSheet, fallback: nil), onDismiss: { state?.presentPendingSheet() }) { active in
         activeSheet(active)
       }
-      .sheet(isPresented: binding(\.showRepeaterAdminAuth, fallback: false), onDismiss: { state?.presentAdminSession() }) {
-        adminAuthenticationSheet
-      }
       .sheet(isPresented: binding(\.showQRShareSheet, fallback: false)) {
         if let state, state.hasPresentationOwnership {
           ContactQRShareSheet(

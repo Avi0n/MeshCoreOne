@@ -1,4 +1,5 @@
 import Foundation
+import MeshCore
 import SwiftData
 
 public extension PersistenceStore {
@@ -137,6 +138,115 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
+  func updateDeviceNodeName(radioID: UUID, name: String) throws {
+    try updateExistingDevice(radioID: radioID) { $0.nodeName = name }
+  }
+
+  func updateDeviceCoordinates(radioID: UUID, latitude: Double, longitude: Double) throws {
+    try updateExistingDevice(radioID: radioID) {
+      $0.latitude = latitude
+      $0.longitude = longitude
+    }
+  }
+
+  func updateDeviceRadio(
+    radioID: UUID,
+    frequency: UInt32,
+    bandwidth: UInt32,
+    spreadingFactor: UInt8,
+    codingRate: UInt8,
+    appliedRadioPresetID: String?
+  ) throws {
+    try updateExistingDevice(radioID: radioID) {
+      $0.frequency = frequency
+      $0.bandwidth = bandwidth
+      $0.spreadingFactor = spreadingFactor
+      $0.codingRate = codingRate
+      $0.appliedRadioPresetID = appliedRadioPresetID
+    }
+  }
+
+  func updateDeviceTxPower(radioID: UUID, txPower: Int8) throws {
+    try updateExistingDevice(radioID: radioID) { $0.txPower = txPower }
+  }
+
+  func updateDeviceObservation(radioID: UUID, mapped: DeviceDTO) throws {
+    try updateExistingDevice(radioID: radioID) { device in
+      device.publicKey = mapped.publicKey
+      device.nodeName = mapped.nodeName
+      device.latitude = mapped.latitude
+      device.longitude = mapped.longitude
+      device.frequency = mapped.frequency
+      device.bandwidth = mapped.bandwidth
+      device.spreadingFactor = mapped.spreadingFactor
+      device.codingRate = mapped.codingRate
+      device.txPower = mapped.txPower
+      device.manualAddContacts = mapped.manualAddContacts
+      device.multiAcks = mapped.multiAcks
+      device.telemetryModeBase = mapped.telemetryModeBase
+      device.telemetryModeLoc = mapped.telemetryModeLoc
+      device.telemetryModeEnv = mapped.telemetryModeEnv
+      device.advertLocationPolicy = mapped.advertLocationPolicy
+      device.appliedRadioPresetID = mapped.appliedRadioPresetID
+    }
+  }
+
+  func updateDeviceOtherParams(radioID: UUID, intent: OtherParamsIntent) throws {
+    try updateExistingDevice(radioID: radioID) { device in
+      if let manualAddContacts = intent.manualAddContacts {
+        device.manualAddContacts = manualAddContacts
+      }
+      if let telemetryModeBase = intent.telemetryModeBase {
+        device.telemetryModeBase = telemetryModeBase
+      }
+      if let telemetryModeLocation = intent.telemetryModeLocation {
+        device.telemetryModeLoc = telemetryModeLocation
+      }
+      if let telemetryModeEnvironment = intent.telemetryModeEnvironment {
+        device.telemetryModeEnv = telemetryModeEnvironment
+      }
+      if let advertisementLocationPolicy = intent.advertisementLocationPolicy {
+        device.advertLocationPolicy = advertisementLocationPolicy
+      }
+      if let multiAcks = intent.multiAcks {
+        device.multiAcks = multiAcks
+      }
+    }
+  }
+
+  func updateDeviceClientRepeat(radioID: UUID, enabled: Bool) throws {
+    try updateExistingDevice(radioID: radioID) { $0.clientRepeat = enabled }
+  }
+
+  func updateDevicePathHashMode(radioID: UUID, mode: UInt8) throws {
+    try updateExistingDevice(radioID: radioID) { $0.pathHashMode = mode }
+  }
+
+  func updateDeviceAutoAdd(radioID: UUID, config: UInt8, maxHops: UInt8) throws {
+    try updateExistingDevice(radioID: radioID) {
+      $0.autoAddConfig = config
+      $0.autoAddMaxHops = maxHops
+    }
+  }
+
+  func updateDeviceDefaultFloodScopeName(radioID: UUID, name: String?) throws {
+    try updateExistingDevice(radioID: radioID) { $0.defaultFloodScopeName = name }
+  }
+
+  private func updateExistingDevice(radioID: UUID, _ body: (Device) -> Void) throws {
+    let targetRadioID = radioID
+    let predicate = #Predicate<Device> { device in
+      device.radioID == targetRadioID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    guard let device = try modelContext.fetch(descriptor).first else {
+      throw PersistenceStoreError.deviceNotFound
+    }
+    body(device)
+    try modelContext.save()
+  }
+
   /// Adds a known region to a device if not already present
   func addDeviceKnownRegion(radioID: UUID, region: String) throws {
     let targetRadioID = radioID
@@ -206,10 +316,7 @@ public extension PersistenceStore {
         if case let .bluetooth(id, _) = method { return id == peripheralID }
         return false
       }
-    }) else {
-      return nil
-    }
-    guard device.connectionMethods.contains(where: \.isWiFi) else {
+    }), device.connectionMethods.contains(where: \.isWiFi) else {
       return nil
     }
     device.connectionMethods = device.connectionMethods.filter { !$0.isBluetooth }

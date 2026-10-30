@@ -1879,6 +1879,8 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "De tegellimiet voor deze download is bereikt.";
 
+"offlineMaps.error.providerLimitExceeded" = "Kies minder detail of selecteer een kleiner gebied om binnen de downloadlimiet van de kaartaanbieder te blijven.";
+
 /* Pause download button */
 "offlineMaps.pause" = "Pauzeren";
 
@@ -1888,8 +1890,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Gepauzeerd";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "De werkelijke grootte kan veel groter of kleiner zijn, afhankelijk van het gebied en het detail.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Geschatte grootte: ~%@";
+"offlineMaps.estimatedSize" = "Geschatte grootte van de opgeslagen kaart: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Groot downloadgebied. Dit kan even duren en aanzienlijke opslagruimte gebruiken.";
@@ -1907,12 +1915,35 @@
 /* Layers section header */
 "offlineMaps.layers" = "Kaartlagen";
 
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Detail basiskaart";
+
+"offlineMaps.topographyDetail" = "Detail topografie";
+
+"offlineMaps.detail.explanation" = "Meer detail gebruikt meer opslag en het downloaden duurt langer. Met minder detail kun je grotere gebieden opslaan.";
+
+"offlineMaps.detail.value" = "%@ (zoom %@)";
+
+"offlineMaps.detail.overview" = "Overzicht";
+
+"offlineMaps.detail.regional" = "Regionaal";
+
+"offlineMaps.detail.local" = "Lokaal";
+
+"offlineMaps.detail.detailed" = "Gedetailleerd";
+
+"offlineMaps.storageRemediation" = "Kies minder detail of selecteer een kleiner gebied, zodat de download in de beschikbare opslagruimte past.";
+
+"offlineMaps.startingDownload" = "Download starten…";
+
+"offlineMaps.error.invalidDetail" = "Kies een ondersteund detailniveau voor de kaart.";
+
 /* Include layers prompt */
 /* No network available */
 "offlineMaps.noNetwork" = "Een internetverbinding is vereist om kaarten te downloaden.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Omvat kaartgegevens en interne indexen. Het totaal kan groter zijn dan de som van de afzonderlijke downloads.";
+"offlineMaps.storageFooter" = "Omvat gedeelde kaartgegevens en database-indexen. De groottes van de regio's tellen niet op tot dit totaal.";
 
 // MARK: - Backup & Restore
 

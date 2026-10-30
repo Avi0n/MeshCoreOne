@@ -30,9 +30,6 @@ final class ContactDetailState {
   var activeSheet: ActiveSheet?
   var pendingSheet: ActiveSheet?
   var pendingSheetContext: OperationContext?
-  var showRepeaterAdminAuth = false
-  var adminSession: RemoteNodeSessionDTO?
-  var adminSessionContext: OperationContext?
   var showQRShareSheet = false
   var showFullMap = false
   var isPinging = false
@@ -170,8 +167,7 @@ final class ContactDetailState {
 
   func setActive(_ active: Bool, appState: AppState) {
     reconcileOperationContext()
-    guard hasPresentationOwnership else { return }
-    guard isActive != active || (active && activityServicesVersion != appState.servicesVersion) else { return }
+    guard hasPresentationOwnership, isActive != active || (active && activityServicesVersion != appState.servicesVersion) else { return }
     isActive = active
     activityTask?.cancel()
     activityTask = nil
@@ -270,7 +266,6 @@ final class ContactDetailState {
     cropRequest = nil
     pendingCropImage = nil
     showRoomJoinSheet = false
-    showRepeaterAdminAuth = false
     showQRShareSheet = false
     showFullMap = false
     showAvatarPhotosPicker = false

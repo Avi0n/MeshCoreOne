@@ -116,8 +116,7 @@ extension ChatViewModel {
 
   /// Delete a single message
   func deleteMessage(_ message: MessageDTO) async {
-    guard connectionStateProvider() == .ready else { return }
-    guard let dataStore else { return }
+    guard connectionStateProvider() == .ready, let dataStore else { return }
 
     do {
       try await dataStore.deleteMessage(id: message.id)
@@ -143,9 +142,8 @@ extension ChatViewModel {
     }
   }
 
-  /// Clears a direct conversation by dropping its messages and last-message date (a local
-  /// SwiftData write, no radio command). Throws `ConversationActionError.notConnected` rather
-  /// than returning silently so the caller can roll back the optimistic hide and surface an error.
+  /// Deletes a DM's messages and clears its last-message date.
+  /// Throws when disconnected so the caller can restore the hidden row.
   func deleteDirectConversation(for contact: ContactDTO) async throws {
     guard connectionStateProvider() == .ready, let dataStore else {
       throw ConversationActionError.notConnected
@@ -153,7 +151,18 @@ extension ChatViewModel {
 
     try await dataStore.deleteMessagesForContact(contactID: contact.id)
     try await dataStore.clearUnreadCount(contactID: contact.id)
-    try await dataStore.updateContactLastMessage(contactID: contact.id, date: nil)
+    do {
+      // Unread clearing is committed, so a failed date write must still notify.
+      defer {
+        if currentRadioIDProvider() == contact.radioID, self.dataStore === dataStore {
+          syncCoordinator?.notifyConversationsChanged()
+        }
+      }
+      #if DEBUG
+        conversationMutationPostSaveHook?()
+      #endif
+      try await dataStore.updateContactLastMessage(contactID: contact.id, date: nil)
+    }
     await notificationService?.updateBadgeCount()
   }
 }

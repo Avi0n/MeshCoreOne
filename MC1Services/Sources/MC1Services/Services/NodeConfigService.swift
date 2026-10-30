@@ -90,6 +90,7 @@ public actor NodeConfigService {
   private let settingsService: SettingsService
   private let channelService: ChannelService
   private let dataStore: any PersistenceStoreProtocol
+  private let contactRadio: (any ContactRadioOwning)?
   /// Injected by `ServiceContainer` at construction.
   private weak var syncCoordinator: SyncCoordinator?
   private let logger = Logger(subsystem: "com.mc1", category: "NodeConfigService")
@@ -102,13 +103,15 @@ public actor NodeConfigService {
     settingsService: SettingsService,
     channelService: ChannelService,
     dataStore: any PersistenceStoreProtocol,
-    syncCoordinator: SyncCoordinator?
+    syncCoordinator: SyncCoordinator?,
+    contactRadio: (any ContactRadioOwning)? = nil
   ) {
     self.session = session
     self.settingsService = settingsService
     self.channelService = channelService
     self.dataStore = dataStore
     self.syncCoordinator = syncCoordinator
+    self.contactRadio = contactRadio
   }
 
   /// Wires a late-bound callback that fires after `importIdentity` succeeds.
@@ -220,6 +223,7 @@ public actor NodeConfigService {
     let channels = channelService
     let session = session
     let store = dataStore
+    let contactRadio = contactRadio
     let logger = logger
     let callback = onPostIdentityImport
     return ConfigImportWriters(
@@ -232,11 +236,7 @@ public actor NodeConfigService {
         try await resolveEffectiveRadioID(original: $0, didImportPrivateKey: $1, callback: callback)
       },
       setRadioParams: { radio in
-        // bandwidthKHz parameter actually takes Hz (misnomer); pass directly.
-        try await settings.setRadioParams(
-          frequencyKHz: radio.frequency, bandwidthKHz: radio.bandwidth,
-          spreadingFactor: radio.spreadingFactor, codingRate: radio.codingRate
-        )
+        try await settings.applyImportedRadioParams(radio)
       },
       setTxPower: { try await settings.setTxPower($0) },
       setChannel: { radioID, write in
@@ -245,6 +245,10 @@ public actor NodeConfigService {
         )
       },
       addContact: { radioID, contact in
+        if let contactRadio {
+          try await contactRadio.importRadioContact(radioID: radioID, contact: contact)
+          return
+        }
         try await session.addContact(contact)
         // The device add is the irreversible change. The local row is an idempotent
         // (radioID, publicKey) upsert that the next contacts sync reconciles, so a save
@@ -386,41 +390,17 @@ public actor NodeConfigService {
     return channels
   }
 
-  /// Merges imported other-settings with current device values for fields not in the import.
-  /// `advertisementType` is neither exported nor imported here (firmware-managed); `setOtherParams`
-  /// does not accept it.
+  /// Sends only the other-settings fields present in the import.
+  /// `advertisementType` is neither exported nor imported here (firmware-managed).
   func importOtherParams(_ imported: MeshCoreNodeConfig.OtherSettings) async throws {
-    let current = try await settingsService.getSelfInfo()
-
-    let manualAdd = imported.manualAddContacts ?? (current.manualAddContacts ? 1 : 0)
-    let advertPolicy = imported.advertLocationPolicy ?? current.advertisementLocationPolicy
-    let telBase = imported.telemetryModeBase ?? current.telemetryModeBase
-    let telLocation = imported.telemetryModeLocation ?? current.telemetryModeLocation
-    let telEnvironment = imported.telemetryModeEnvironment ?? current.telemetryModeEnvironment
-    let multiAcks = imported.multiAcks ?? current.multiAcks
-
-    // Skip the write entirely when the merged result matches every current value: setOtherParams
-    // commits the whole /new_prefs blob synchronously, so a no-op merge is a vulnerable flash
-    // write for nothing.
-    let currentManualAdd: UInt8 = current.manualAddContacts ? 1 : 0
-    if manualAdd == currentManualAdd,
-       advertPolicy == current.advertisementLocationPolicy,
-       telBase == current.telemetryModeBase,
-       telLocation == current.telemetryModeLocation,
-       telEnvironment == current.telemetryModeEnvironment,
-       multiAcks == current.multiAcks {
-      return
-    }
-
-    // Pass the policy as a raw byte rather than a typed enum so a value the app doesn't model is
-    // sent verbatim instead of coerced to `.none`. The firmware stores this byte without clamping
-    // and only special-cases the zero value, so any non-zero policy the app doesn't yet model is
-    // persisted as-is and behaves as "share location".
-    try await settingsService.setOtherParams(
-      autoAddContacts: manualAdd == 0,
-      telemetryModes: TelemetryModes(base: telBase, location: telLocation, environment: telEnvironment),
-      advertLocationPolicyRaw: advertPolicy,
-      multiAcks: multiAcks
+    // Named fields are merged inside the session serializer, so a missing key is not filled from a snapshot taken before admission.
+    try await settingsService.setOtherParamsVerified(
+      autoAddContacts: imported.manualAddContacts.map { $0 == 0 },
+      telemetryModeBase: imported.telemetryModeBase,
+      telemetryModeLocation: imported.telemetryModeLocation,
+      telemetryModeEnvironment: imported.telemetryModeEnvironment,
+      advertLocationPolicyRaw: imported.advertLocationPolicy,
+      multiAcks: imported.multiAcks
     )
   }
 }
@@ -453,8 +433,8 @@ func resolveEffectiveRadioID(
 /// `NodeConfigService` builds these from its services; tests build spies, so the destructive-path
 /// sequencing can be exercised without a live `MeshCoreSession`.
 struct ConfigImportWriters {
-  /// Reads the device's current state so the pref/radio writes below can be diff-gated against
-  /// it; a read, not a commit, so eliding redundant pref commits dwarfs its cost.
+  /// Reads device state for the name, position, and TX diff gates.
+  /// Radio comparison happens when `setRadioParams` runs, under the RF owner.
   let getSelfInfo: @Sendable () async throws -> SelfInfo
   let importPrivateKey: @Sendable (Data) async throws -> Void
   let setNodeName: @Sendable (String) async throws -> Void
@@ -469,14 +449,8 @@ struct ConfigImportWriters {
 
 // MARK: - Pref/radio diff gates (testable seam)
 
-/// Whether each pref/radio write in a plan actually differs from the device's current `SelfInfo`.
-/// Re-importing an unchanged config would otherwise fire an immediate, full-`/new_prefs` commit per
-/// pref; these four gates (node name, position, radio params, TX power) elide the ones the device
-/// already holds. The fifth pref commit, other-params, gates itself inside `importOtherParams`, where
-/// the imported-`??`-current merge it depends on lives. Computed once per import from a freshly-read
-/// `SelfInfo` so a value the user changed on the device since export still writes.
-///
-/// Pure and synchronous so the per-setter decisions can be asserted against a `SelfInfo` fixture.
+/// Name, position, and TX use the import's initial observation.
+/// RF comparison runs after admission to its operation owner.
 func nodeNameNeedsWrite(_ name: String, current: SelfInfo) -> Bool {
   // Compare the truncated name the device actually stores: setNodeName truncates to the firmware
   // field width before writing, so a longer name whose stored bytes already match must not re-commit.
@@ -532,9 +506,8 @@ func executeConfigImport(
     guard !Task.isCancelled else { throw CancellationError() }
   }
 
-  // Read current device state once so the pref/radio writes below can be diff-gated against it.
-  // Only fetched when a section that carries a savePrefs commit is present; otherParams gates
-  // itself inside `importOtherParams` (where the merge lives), so it is not a trigger here.
+  // Name, position, and TX compare against this read. Radio compares again after the RF owner
+  // admits this import, so a newer RF write is not skipped from the earlier snapshot.
   let needsPrefState = plan.nodeName != nil || plan.position != nil || plan.radioSettings != nil
   let prefState = needsPrefState ? try await writers.getSelfInfo() : nil
 
@@ -602,16 +575,11 @@ func executeConfigImport(
     await notifyContactsChanged()
   }
 
-  // Radio goes last (minimizes mesh isolation on BLE disconnect). Params and TX power are gated
-  // independently: a change to only one re-commits only the pref it touched.
+  // Radio goes last (minimizes mesh isolation on BLE disconnect). The RF writer owns the
+  // compare. TX power stays a separate step, gated on the earlier read.
   if let radio = plan.radioSettings {
     try checkCancellation()
-    if prefState.map({ radioParamsNeedWrite(radio, current: $0) }) ?? true {
-      try await writers.setRadioParams(radio)
-      logger.info("Set radio params")
-    } else {
-      logger.info("Skipped radio params (unchanged)")
-    }
+    try await writers.setRadioParams(radio)
     progress(.radioParameters)
 
     try checkCancellation()
@@ -621,7 +589,7 @@ func executeConfigImport(
       } catch {
         // Params already retuned the node; flag that power did not follow so the failure
         // isn't mistaken for "radio unchanged."
-        logger.error("Radio params applied but TX power did not: \(error.localizedDescription)")
+        logger.error("Radio step finished but TX power did not: \(error.localizedDescription)")
         throw error
       }
       logger.info("Set TX power: \(radio.txPower)")

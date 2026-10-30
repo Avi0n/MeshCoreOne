@@ -44,7 +44,7 @@ public actor MessageService {
 
   /// Contact service for path management (optional - retry with reset requires this).
   /// Injected by `ServiceContainer` at construction.
-  private let contactService: ContactService?
+  let contactService: ContactService?
 
   /// In-flight messages awaiting ACK, keyed by messageID.
   ///
@@ -52,6 +52,16 @@ public actor MessageService {
   /// CRCs accumulated across retry attempts, so a late ACK from any attempt
   /// can still mark the message delivered.
   var pendingAcks: [UUID: PendingAck] = [:]
+
+  #if DEBUG
+    /// Runs before each expired entry's status write. A renewal of a later
+    /// candidate can land while the checker is still on an earlier one.
+    var ackExpiryWriteGateForTesting: (@Sendable (UUID) async -> Void)?
+
+    func setAckExpiryWriteGateForTesting(_ gate: (@Sendable (UUID) async -> Void)?) {
+      ackExpiryWriteGateForTesting = gate
+    }
+  #endif
 
   /// Multicast broadcaster for outbound-message lifecycle events.
   ///

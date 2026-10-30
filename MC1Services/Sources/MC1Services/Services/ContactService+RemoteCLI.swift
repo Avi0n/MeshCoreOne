@@ -38,7 +38,7 @@ extension ContactService {
       if let index {
         frames[index] = frame
       } else {
-        _ = try await dataStore.saveContact(radioID: radioID, from: frame)
+        _ = try await dataStore.batchSaveContacts(radioID: radioID, from: [frame])
       }
     }
 

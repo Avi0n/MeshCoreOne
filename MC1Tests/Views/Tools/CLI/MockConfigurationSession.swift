@@ -29,6 +29,10 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   private(set) var setCoordinatesCalls: [(latitude: Double, longitude: Double)] = []
   private(set) var setOtherParamsCalls: [(manualAddContacts: Bool, multiAcks: UInt8?)] = []
   private(set) var setCustomVarCalls: [(key: String, value: String)] = []
+  private(set) var operationTrace: [String] = []
+  private var acceptCustomVarWrites = true
+  private var latitudeAfterGPSOff: Double?
+  private var longitudeAfterGPSOff: Double?
   private(set) var runCliCommandCalls: [String] = []
   /// The command parked by `holdNextCLIReply()`, until `releaseHeldCLIReply()`.
   private(set) var heldCLICommand: String?
@@ -140,6 +144,7 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   // MARK: - Device Info
 
   func sendAppStart() async throws -> SelfInfo {
+    operationTrace.append("sendAppStart")
     readCount += 1
     return selfInfo
   }
@@ -174,6 +179,7 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   }
 
   func setCoordinates(latitude: Double, longitude: Double) async throws {
+    operationTrace.append("setCoordinates")
     setCoordinatesCalls.append((latitude, longitude))
     guard !suppressWrites else { return }
     selfInfo = patched(latitude: latitude, longitude: longitude)
@@ -212,7 +218,46 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   ) async throws {
     setOtherParamsCalls.append((manualAddContacts, multiAcks))
     guard !suppressWrites else { return }
-    selfInfo = patched(multiAcks: multiAcks ?? selfInfo.multiAcks, manualAddContacts: manualAddContacts)
+    selfInfo = patched(
+      multiAcks: multiAcks ?? selfInfo.multiAcks,
+      manualAddContacts: manualAddContacts,
+      telemetryModeEnvironment: telemetryModeEnvironment,
+      telemetryModeLocation: telemetryModeLocation,
+      telemetryModeBase: telemetryModeBase,
+      advertisementLocationPolicy: advertisementLocationPolicy
+    )
+  }
+
+  private var applyOtherParamsHold: (@Sendable () async throws -> Void)?
+  private var nextApplyOtherParamsError: Error?
+
+  func setApplyOtherParamsHold(_ hold: (@Sendable () async throws -> Void)?) {
+    applyOtherParamsHold = hold
+  }
+
+  func failNextApplyOtherParams(_ error: Error) {
+    nextApplyOtherParamsError = error
+  }
+
+  private(set) var appliedOtherParamsIntents: [OtherParamsIntent] = []
+
+  func applyOtherParams(_ intent: OtherParamsIntent) async throws {
+    appliedOtherParamsIntents.append(intent)
+    if let error = nextApplyOtherParamsError {
+      nextApplyOtherParamsError = nil
+      throw error
+    }
+    try await applyOtherParamsHold?()
+    guard !intent.isEmpty, !suppressWrites else { return }
+    let updated = intent.applied(to: OtherParamsConfig(from: selfInfo))
+    selfInfo = patched(
+      multiAcks: updated.multiAcks,
+      manualAddContacts: updated.manualAddContacts,
+      telemetryModeEnvironment: updated.telemetryModeEnvironment,
+      telemetryModeLocation: updated.telemetryModeLocation,
+      telemetryModeBase: updated.telemetryModeBase,
+      advertisementLocationPolicy: updated.advertisementLocationPolicy
+    )
   }
 
   /// Make the next `setPathHashMode` throw `MeshCoreError.deviceError(code:)`.
@@ -220,8 +265,15 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     nextSetPathHashModeErrorCode = code
   }
 
+  private var pathHashModeHold: (@Sendable () async throws -> Void)?
+
+  func setPathHashModeHold(_ hold: (@Sendable () async throws -> Void)?) {
+    pathHashModeHold = hold
+  }
+
   func setPathHashMode(_ mode: UInt8) async throws {
     setPathHashModeCalls.append(mode)
+    try await pathHashModeHold?()
     if let code = nextSetPathHashModeErrorCode {
       nextSetPathHashModeErrorCode = nil
       throw MeshCoreError.deviceError(code: code)
@@ -276,7 +328,17 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     nextGetCustomVarsErrorCode = code
   }
 
+  func setCoordinatesAfterGPSOff(latitude: Double? = nil, longitude: Double? = nil) {
+    if let latitude { latitudeAfterGPSOff = latitude }
+    if let longitude { longitudeAfterGPSOff = longitude }
+  }
+
+  func setAcceptCustomVarWrites(_ accept: Bool) {
+    acceptCustomVarWrites = accept
+  }
+
   func getCustomVars() async throws -> [String: String] {
+    operationTrace.append("getCustomVars")
     readCount += 1
     if let code = nextGetCustomVarsErrorCode {
       nextGetCustomVarsErrorCode = nil
@@ -286,13 +348,17 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   }
 
   func setCustomVar(key: String, value: String) async throws {
+    operationTrace.append("setCustomVar(\(key),\(value))")
     setCustomVarCalls.append((key, value))
     if let code = nextSetCustomVarErrorCode {
       nextSetCustomVarErrorCode = nil
       throw MeshCoreError.deviceError(code: code)
     }
-    guard !suppressWrites else { return }
+    guard acceptCustomVarWrites, !suppressWrites else { return }
     customVars[key] = value
+    if key == "gps", value == "0" {
+      selfInfo = patched(latitude: latitudeAfterGPSOff, longitude: longitudeAfterGPSOff)
+    }
   }
 
   func runCliCommand(_ command: String) async throws -> String {
@@ -391,6 +457,10 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     longitude: Double? = nil,
     multiAcks: UInt8? = nil,
     manualAddContacts: Bool? = nil,
+    telemetryModeEnvironment: UInt8? = nil,
+    telemetryModeLocation: UInt8? = nil,
+    telemetryModeBase: UInt8? = nil,
+    advertisementLocationPolicy: UInt8? = nil,
     radioFrequency: Double? = nil,
     radioBandwidth: Double? = nil,
     radioSpreadingFactor: UInt8? = nil,
@@ -405,10 +475,10 @@ actor MockConfigurationSession: ConfigurationSessionOps {
       latitude: latitude ?? selfInfo.latitude,
       longitude: longitude ?? selfInfo.longitude,
       multiAcks: multiAcks ?? selfInfo.multiAcks,
-      advertisementLocationPolicy: selfInfo.advertisementLocationPolicy,
-      telemetryModeEnvironment: selfInfo.telemetryModeEnvironment,
-      telemetryModeLocation: selfInfo.telemetryModeLocation,
-      telemetryModeBase: selfInfo.telemetryModeBase,
+      advertisementLocationPolicy: advertisementLocationPolicy ?? selfInfo.advertisementLocationPolicy,
+      telemetryModeEnvironment: telemetryModeEnvironment ?? selfInfo.telemetryModeEnvironment,
+      telemetryModeLocation: telemetryModeLocation ?? selfInfo.telemetryModeLocation,
+      telemetryModeBase: telemetryModeBase ?? selfInfo.telemetryModeBase,
       manualAddContacts: manualAddContacts ?? selfInfo.manualAddContacts,
       radioFrequency: radioFrequency ?? selfInfo.radioFrequency,
       radioBandwidth: radioBandwidth ?? selfInfo.radioBandwidth,

@@ -106,7 +106,6 @@ struct ContactDetailStateTests {
     state.completeAvatarCrop(UIImage())
     state.presentPendingCropIfReady()
     state.presentPendingSheet()
-    state.presentAdminSession()
     state.close()
     state.updateContact(refreshed(contact, nickname: "Late refresh"))
     state.setActive(true, appState: appState)

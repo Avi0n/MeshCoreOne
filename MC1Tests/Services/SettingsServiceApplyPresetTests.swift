@@ -27,11 +27,11 @@ struct SettingsServiceApplyPresetTests {
       return false
     })
     let catalog = try #require(events.firstIndex {
-      if case let .deviceUpdated(_, id) = $0 { return id == "hu" }
+      if case let .radioUpdated(change) = $0, change.catalogStamp == .set("hu") { return true }
       return false
     })
     #expect(pathHash < catalog)
-    #expect(await collector.deviceUpdatedCount == 1)
+    #expect(await collector.radioCount == 1)
   }
 
   @Test
@@ -50,9 +50,8 @@ struct SettingsServiceApplyPresetTests {
     #expect(await mock.setRadioCalls.count == 1)
     #expect(await mock.setPathHashModeCalls == [1])
 
-    try await service.refreshDeviceInfo()
-    try await waitUntil("refreshDeviceInfo flushes the event stream") {
-      await collector.deviceUpdatedCount >= 1
+    try await waitUntil("failed hash publishes the radio change without a catalog id") {
+      await collector.radioCount >= 1
     }
     #expect(await collector.catalogIDs.isEmpty)
   }
@@ -73,7 +72,7 @@ struct SettingsServiceApplyPresetTests {
     try await waitUntil("apply should publish the catalog id") {
       await collector.catalogIDs == ["us-ca"]
     }
-    #expect(await collector.deviceUpdatedCount == 1)
+    #expect(await collector.radioCount == 1)
   }
 
   @Test
@@ -82,11 +81,16 @@ struct SettingsServiceApplyPresetTests {
     let mock = MockConfigurationSession(firmwareVersion: 9)
     let service = SettingsService(session: mock)
     let preset = try #require(RadioPresets.all.first(where: { $0.id == "hu" }))
+    let (collector, collectTask) = await collectSettingsEvents(from: service)
+    defer { collectTask.cancel() }
 
     _ = try await service.applyRadioPresetVerified(preset)
 
     #expect(await mock.setRadioCalls.count == 1)
     #expect(await mock.setPathHashModeCalls.isEmpty)
+    try await waitUntil("v9 still stamps the catalog id") {
+      await collector.catalogIDs == ["hu"]
+    }
   }
 }
 
@@ -99,14 +103,14 @@ private actor SettingsEventCollector {
 
   var catalogIDs: [String] {
     events.compactMap { event in
-      guard case let .deviceUpdated(_, id) = event else { return nil }
+      guard case let .radioUpdated(change) = event, case let .set(id) = change.catalogStamp else { return nil }
       return id
     }
   }
 
-  var deviceUpdatedCount: Int {
+  var radioCount: Int {
     events.reduce(into: 0) { count, event in
-      if case .deviceUpdated = event { count += 1 }
+      if case .radioUpdated = event { count += 1 }
     }
   }
 }

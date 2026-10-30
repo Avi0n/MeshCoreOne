@@ -1879,6 +1879,8 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Досягнуто ліміт тайлів для цього завантаження.";
 
+"offlineMaps.error.providerLimitExceeded" = "Зменште деталізацію або виберіть меншу область, щоб не перевищити ліміт завантаження постачальника карти.";
+
 /* Pause download button */
 "offlineMaps.pause" = "Пауза";
 
@@ -1888,8 +1890,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Призупинено";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "Фактичний розмір може бути значно більшим або меншим залежно від області та рівня деталізації.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Орієнтовний розмір: ~%@";
+"offlineMaps.estimatedSize" = "Орієнтовний розмір збереженої карти: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Велика область завантаження. Це може зайняти час і потребувати значного обсягу пам'яті.";
@@ -1907,12 +1915,35 @@
 /* Layers section header */
 "offlineMaps.layers" = "Шари";
 
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Деталізація базової карти";
+
+"offlineMaps.topographyDetail" = "Деталізація топографії";
+
+"offlineMaps.detail.explanation" = "Більша деталізація використовує більше сховища та завантажується довше. Менша деталізація дозволяє зберегти більші області.";
+
+"offlineMaps.detail.value" = "%@ (масштаб %@)";
+
+"offlineMaps.detail.overview" = "Огляд";
+
+"offlineMaps.detail.regional" = "Регіональний";
+
+"offlineMaps.detail.local" = "Місцевий";
+
+"offlineMaps.detail.detailed" = "Детальний";
+
+"offlineMaps.storageRemediation" = "Зменште деталізацію або виберіть меншу область, щоб вистачило вільного місця у сховищі.";
+
+"offlineMaps.startingDownload" = "Початок завантаження…";
+
+"offlineMaps.error.invalidDetail" = "Оберіть підтримуваний рівень деталізації карти.";
+
 /* Include layers prompt */
 /* No network available */
 "offlineMaps.noNetwork" = "Для завантаження карт потрібне з'єднання з інтернетом.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Включає дані карти та внутрішні індекси. Загальний обсяг може перевищувати суму окремих завантажень.";
+"offlineMaps.storageFooter" = "Включає спільні дані карти та індекси бази даних. Розміри регіонів у сумі не дорівнюють цьому загальному обсягу.";
 
 // MARK: - Backup & Restore
 

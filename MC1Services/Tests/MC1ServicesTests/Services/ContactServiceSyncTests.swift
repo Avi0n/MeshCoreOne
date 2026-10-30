@@ -13,6 +13,7 @@ struct ContactServiceSyncTests {
   private func meshContact(
     _ keyByte: UInt8,
     name: String,
+    flags: ContactFlags = [],
     lastAdvertisement: Date = Date(timeIntervalSince1970: 0),
     lastModified: Date = Date(timeIntervalSince1970: 0)
   ) -> MeshContact {
@@ -21,7 +22,7 @@ struct ContactServiceSyncTests {
       id: key.uppercaseHexString(),
       publicKey: key,
       type: .chat,
-      flags: ContactFlags(rawValue: 0),
+      flags: flags,
       outPathLength: 0,
       outPath: Data(),
       advertisedName: name,
@@ -60,15 +61,15 @@ struct ContactServiceSyncTests {
     #expect(try await store.fetchDiscoveredNodes(radioID: radioID).isEmpty)
   }
 
-  private func contactFrame(_ keyByte: UInt8, name: String) -> ContactFrame {
-    contactFrame(key: publicKey(keyByte), name: name)
+  private func contactFrame(_ keyByte: UInt8, name: String, flags: UInt8 = 0) -> ContactFrame {
+    contactFrame(key: publicKey(keyByte), name: name, flags: flags)
   }
 
-  private func contactFrame(key: Data, name: String) -> ContactFrame {
+  private func contactFrame(key: Data, name: String, flags: UInt8 = 0) -> ContactFrame {
     ContactFrame(
       publicKey: key,
       type: .chat,
-      flags: 0,
+      flags: flags,
       outPathLength: 0,
       outPath: Data(),
       name: name,
@@ -150,6 +151,34 @@ struct ContactServiceSyncTests {
 
     let stored = try await store.fetchContacts(radioID: radioID)
     #expect(Set(stored.map(\.name)) == ["Alice", "Existing"])
+  }
+
+  @Test(arguments: [true, false])
+  func `full and incremental sync apply the radio favourite to an existing row`(
+    radioFavorite: Bool
+  ) async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    let seededFlags: UInt8 = radioFavorite ? 0 : ContactFlags.favorite.rawValue
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: contactFrame(0xAA, name: "Existing", flags: seededFlags)
+    )
+    let session = MockMeshCoreSession()
+    let flags = ContactFlags(rawValue: radioFavorite ? ContactFlags.favorite.rawValue : 0)
+    await session.setStubbedContacts([meshContact(0xAA, name: "Existing", flags: flags)])
+    let service = ContactService(session: session, dataStore: store, syncCoordinator: nil, cleanupCoordinator: nil)
+
+    _ = try await service.syncContacts(radioID: radioID, since: nil)
+    let full = try #require(try await store.fetchContact(radioID: radioID, publicKey: publicKey(0xAA)))
+    #expect(full.isFavorite == radioFavorite)
+    #expect(full.flags & ContactFlags.favorite.rawValue == flags.rawValue)
+
+    try await store.saveContact(full.with(isFavorite: !radioFavorite))
+    _ = try await service.syncContacts(radioID: radioID, since: Date(timeIntervalSince1970: 100))
+    let incremental = try #require(try await store.fetchContact(radioID: radioID, publicKey: publicKey(0xAA)))
+    #expect(incremental.isFavorite == radioFavorite)
+    #expect(incremental.flags & ContactFlags.favorite.rawValue == flags.rawValue)
   }
 
   @Test
@@ -313,6 +342,118 @@ struct ContactServiceSyncTests {
 
     await gated.release()
     _ = await advertTask.value
+  }
+
+  @Test
+  func `omitted blocked contact adopts the radio favourite and batch Last Heard`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let blockedKey = publicKey(0xAA)
+    let listedKey = publicKey(0xBB)
+    let listedModified: UInt32 = 1_700_000_100
+    let advert: UInt32 = 1_700_000_000
+    let blocked = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: blockedKey,
+      name: "Blocked",
+      lastHeardTimestamp: 1_600_000_000,
+      nickname: "Local Nick",
+      isBlocked: true,
+      isFavorite: false
+    )
+    try await store.saveContact(blocked)
+
+    let liveFlags: ContactFlags = [.favorite, .telemetryBase, .remoteCLIAllowed]
+    let omittedModified = Date(timeIntervalSince1970: 1_800_000_000)
+    let live = MeshContact(
+      id: blockedKey.uppercaseHexString(),
+      publicKey: blockedKey,
+      type: .chat,
+      flags: liveFlags,
+      outPathLength: 0,
+      outPath: Data(),
+      advertisedName: "Radio Blocked",
+      lastAdvertisement: Date(timeIntervalSince1970: TimeInterval(advert)),
+      latitude: 0,
+      longitude: 0,
+      lastModified: omittedModified
+    )
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([
+      meshContact(
+        0xBB,
+        name: "Listed",
+        lastModified: Date(timeIntervalSince1970: TimeInterval(listedModified))
+      )
+    ])
+    await session.setStubbedContact(live, for: blockedKey)
+    let service = ContactService(session: session, dataStore: store, syncCoordinator: nil, cleanupCoordinator: nil)
+
+    let result = try await service.syncContacts(
+      radioID: radioID,
+      since: Date(timeIntervalSince1970: 100)
+    )
+
+    #expect(result.contactsReceived == 1)
+    #expect(result.isIncremental)
+    #expect(result.lastSyncTimestamp == listedModified)
+    #expect(await session.getContactPublicKeys == [blockedKey])
+    let revoked = try #require(await session.addContactInvocations.last?.contact.flags)
+    #expect(revoked.contains(.remoteCLIAllowed) == false)
+    #expect(revoked.contains(.favorite))
+    #expect(revoked.contains(.telemetryBase))
+
+    let stored = try #require(try await store.fetchContact(id: blocked.id))
+    var expectedFlags = liveFlags
+    expectedFlags.remove(.remoteCLIAllowed)
+    #expect(stored.flags == expectedFlags.rawValue)
+    #expect(stored.isFavorite)
+    #expect(stored.lastHeardTimestamp == advert)
+    #expect(stored.isBlocked)
+    #expect(stored.nickname == "Local Nick")
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: listedKey)?.name == "Listed")
+    #expect(try await store.fetchDiscoveredNodes(radioID: radioID).isEmpty)
+  }
+
+  @Test
+  func `an omitted blocked contact does not complete a full snapshot`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let blockedKey = publicKey(0xAA)
+    let listedKey = publicKey(0xBB)
+    let listedModified: UInt32 = 1_700_000_100
+    try await store.saveContact(ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: blockedKey,
+      name: "Blocked",
+      isBlocked: true,
+      isFavorite: true
+    ))
+    let live = meshContact(
+      0xAA,
+      name: "Radio Blocked",
+      flags: [.favorite, .telemetryBase, .remoteCLIAllowed],
+      lastModified: Date(timeIntervalSince1970: 1_800_000_000)
+    )
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([
+      meshContact(
+        0xBB,
+        name: "Listed",
+        lastModified: Date(timeIntervalSince1970: TimeInterval(listedModified))
+      )
+    ])
+    await session.setStubbedReportedTotal(1)
+    await session.setStubbedContact(live, for: blockedKey)
+    let service = ContactService(session: session, dataStore: store, syncCoordinator: nil, cleanupCoordinator: nil)
+
+    let result = try await service.syncContacts(radioID: radioID)
+
+    #expect(result.contactsReceived == 1)
+    #expect(result.lastSyncTimestamp == listedModified)
+    #expect(await session.addContactInvocations.count == 1)
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: blockedKey) == nil)
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: listedKey)?.name == "Listed")
   }
 }
 

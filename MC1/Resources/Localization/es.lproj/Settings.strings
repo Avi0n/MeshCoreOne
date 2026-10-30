@@ -1879,6 +1879,8 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Se ha alcanzado el límite de mosaicos de descarga.";
 
+"offlineMaps.error.providerLimitExceeded" = "Reduzca el detalle o seleccione un área más pequeña para no superar el límite de descarga del proveedor del mapa.";
+
 /* Pause download button */
 "offlineMaps.pause" = "Pausar";
 
@@ -1888,8 +1890,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "En pausa";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "El tamaño real puede ser mucho mayor o menor, según el área y el detalle.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Tamaño estimado: ~%@";
+"offlineMaps.estimatedSize" = "Tamaño aproximado del mapa guardado: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Área de descarga grande. Esto puede tardar un tiempo y usar bastante almacenamiento.";
@@ -1907,12 +1915,35 @@
 /* Layers section header */
 "offlineMaps.layers" = "Capas";
 
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Detalle del mapa base";
+
+"offlineMaps.topographyDetail" = "Detalle de la topografía";
+
+"offlineMaps.detail.explanation" = "Más detalle usa más almacenamiento y tarda más en descargarse. Menos detalle le permite guardar áreas más grandes.";
+
+"offlineMaps.detail.value" = "%@ (zoom %@)";
+
+"offlineMaps.detail.overview" = "Vista general";
+
+"offlineMaps.detail.regional" = "Regional";
+
+"offlineMaps.detail.local" = "Local";
+
+"offlineMaps.detail.detailed" = "Detallado";
+
+"offlineMaps.storageRemediation" = "Reduzca el detalle o seleccione un área más pequeña para que quepa en el almacenamiento disponible.";
+
+"offlineMaps.startingDownload" = "Iniciando descarga…";
+
+"offlineMaps.error.invalidDetail" = "Elija un nivel de detalle de mapa compatible.";
+
 /* Include layers prompt */
 /* No network available */
 "offlineMaps.noNetwork" = "Se requiere conexión a internet para descargar mapas.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Incluye datos del mapa e índices internos. El total puede ser mayor que la suma de las descargas individuales.";
+"offlineMaps.storageFooter" = "Incluye datos del mapa compartidos e índices de la base de datos. Los tamaños de las regiones no suman este total.";
 
 // MARK: - Backup & Restore
 

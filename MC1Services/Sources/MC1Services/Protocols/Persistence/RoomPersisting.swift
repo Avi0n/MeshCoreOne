@@ -19,8 +19,12 @@ public protocol RoomPersisting: Actor {
   /// Fetch all connected sessions for re-authentication after BLE reconnection
   func fetchConnectedRemoteNodeSessions() async throws -> [RemoteNodeSessionDTO]
 
-  /// Save or update a remote node session
+  /// Save or update a remote node session. Backup import uses this full upsert.
   func saveRemoteNodeSessionDTO(_ dto: RemoteNodeSessionDTO) async throws
+
+  /// Applies contact presentation and the login reset (`isConnected = false`) to the current session for this radio and key.
+  /// Other stored fields stay. Inserts one row when none exists and drops same-radio duplicates.
+  func reuseOrCreateRemoteNodeSession(_ presentation: RoomSessionPresentation) async throws -> RemoteNodeSessionDTO
 
   /// Update session connection state
   func updateRemoteNodeSessionConnection(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel) async throws

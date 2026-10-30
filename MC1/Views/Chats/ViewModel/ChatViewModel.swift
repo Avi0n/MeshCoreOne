@@ -109,6 +109,8 @@ final class ChatViewModel {
 
     /// Test-only hook before a queued command waits for its predecessor.
     @ObservationIgnored var readStateBeforePredecessorInterleaveHook: (@MainActor () async -> Void)?
+
+    @ObservationIgnored var conversationMutationPostSaveHook: (@MainActor () -> Void)?
   #endif
 
   // MARK: - Conversation Cache Storage
@@ -486,8 +488,7 @@ final class ChatViewModel {
   }
 
   private func bindCoordinator(registry: ChatCoordinatorRegistry?, conversation: ChatConversationType?) {
-    guard let conversation else { return }
-    guard let registry else { return }
+    guard let conversation, let registry else { return }
     let resolved = registry.coordinator(for: conversation.coordinatorID)
     // The timeline owns both the rebuild hooks and the write capability,
     // installed as one atomic act. An `.interactive` bind always succeeds

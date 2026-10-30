@@ -250,6 +250,18 @@ public extension MeshCoreSession {
     try await sendSimpleCommand(PacketBuilder.setAutoAddConfig(config))
   }
 
+  /// Merges supplied fields into the current record while this session holds the
+  /// other-params serializer. Callers do not read siblings before admission.
+  func applyOtherParams(_ intent: OtherParamsIntent) async throws {
+    guard !intent.isEmpty else { return }
+    try await otherParamsSerializer.withSerialization { [self] in
+      let current = try await currentOtherParams()
+      let updated = intent.applied(to: current)
+      guard updated != current else { return }
+      try await applyOtherParams(updated)
+    }
+  }
+
   /// Holds configuration ownership through the read, write, and cache refresh so
   /// another full or granular setter cannot revert an acknowledged change.
   private func mutateOtherParams(
@@ -351,9 +363,9 @@ public extension MeshCoreSession {
   func powerOff() async throws -> Bool {
     switch await exchangePowerOff() {
     case .submitted(.silence):
-      return true
+      true
     case .submitted(.stillOn):
-      return false
+      false
     case let .submitted(.rejected(code)):
       throw MeshCoreError.deviceError(code: code)
     case .submitted(.sendFailed), .notSubmitted(.notConnected):

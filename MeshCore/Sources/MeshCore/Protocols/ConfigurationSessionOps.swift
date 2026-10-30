@@ -103,6 +103,10 @@ public protocol ConfigurationSessionOps: Actor {
     multiAcks: UInt8?
   ) async throws
 
+  /// Merges `intent` into the current other-params record inside the config serializer.
+  /// An empty intent sends no command. A result equal to the current record sends none either.
+  func applyOtherParams(_ intent: OtherParamsIntent) async throws
+
   /// Sets the device PIN for administrative access.
   ///
   /// - Parameter pin: 4-digit PIN as a 32-bit unsigned integer.

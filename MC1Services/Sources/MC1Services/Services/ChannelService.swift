@@ -128,6 +128,14 @@ public actor ChannelService {
   /// Tracks whether a sync operation is in progress
   private var isSyncing = false
 
+  /// Orders sync, retry, and slot writes through occupancy commit.
+  /// Reads stay outside the gate so a later mutation can finish before an older observation is saved.
+  private let channelOperationSerializer = RequestResponseSerializer()
+
+  /// Counts acknowledged radio writes and clears, even if their local save fails.
+  /// Observations captured before a later acknowledgment are discarded at commit.
+  private var slotMutationEpoch: [UInt8: UInt64] = [:]
+
   // MARK: - Initialization
 
   init(
@@ -240,10 +248,7 @@ public actor ChannelService {
       return try await syncChannelsPipelined(radioID: radioID, maxChannels: maxChannels)
     }
 
-    var syncErrors: [ChannelSyncError] = []
-    var configured: [ChannelInfo] = []
-    var unconfiguredIndices: [UInt8] = []
-    var emptyNameWithSecretIndices: [UInt8] = []
+    var observation = ChannelSyncObservation()
 
     // Circuit breaker state
     var consecutiveTimeouts = 0
@@ -255,7 +260,7 @@ public actor ChannelService {
         logger.error("Circuit breaker open: \(consecutiveTimeouts) consecutive timeouts, aborting sync")
         // Mark remaining channels as failed
         for remaining in index..<maxChannels {
-          syncErrors.append(ChannelSyncError(
+          observation.syncErrors.append(ChannelSyncError(
             index: remaining,
             errorType: .circuitBreaker,
             description: "Skipped due to circuit breaker"
@@ -264,26 +269,16 @@ public actor ChannelService {
         break
       }
 
+      let epoch = slotEpoch(index)
       do {
         if let channelInfo = try await fetchChannel(index: index) {
-          configured.append(channelInfo)
+          observation.recordConfigured(channelInfo, epoch: epoch)
           consecutiveTimeouts = 0 // Reset on success
-          if channelInfo.name.isEmpty {
-            emptyNameWithSecretIndices.append(index)
-          }
         } else {
           // Channel not configured on device - mark its slot for stale-entry cleanup
           consecutiveTimeouts = 0 // Not-found is not a timeout
-          unconfiguredIndices.append(index)
+          observation.recordUnconfigured(index, epoch: epoch)
         }
-      } catch let error as ChannelServiceError {
-        let syncError = classifyError(error, forIndex: index)
-        consecutiveTimeouts = nextConsecutiveFailureCount(
-          after: syncError,
-          currentCount: consecutiveTimeouts
-        )
-        logger.warning("Failed to sync channel \(index): \(syncError.description)")
-        syncErrors.append(syncError)
       } catch {
         let syncError = classifyError(error, forIndex: index)
         consecutiveTimeouts = nextConsecutiveFailureCount(
@@ -291,20 +286,17 @@ public actor ChannelService {
           currentCount: consecutiveTimeouts
         )
         logger.warning("Failed to sync channel \(index): \(syncError.description)")
-        syncErrors.append(syncError)
+        observation.syncErrors.append(syncError)
       }
     }
 
     // Persist the whole pass in a single transaction. Indices skipped by the circuit breaker
     // are left in neither list, so they are untouched.
-    return await finalizeChannelSync(
+    return try await commitObservedSync(
       radioID: radioID,
-      maxChannels: maxChannels,
-      configured: configured,
-      unconfiguredIndices: unconfiguredIndices,
-      emptyNameWithSecretIndices: emptyNameWithSecretIndices,
-      syncErrors: syncErrors,
-      pipelined: false
+      observation: observation,
+      pipelined: false,
+      pruneBeyond: maxChannels
     )
   }
 
@@ -314,23 +306,22 @@ public actor ChannelService {
   /// single-transaction persist match the serial path so an index that could not be read lands
   /// in neither the configured nor the unconfigured list and is therefore never deleted.
   private func syncChannelsPipelined(radioID: UUID, maxChannels: UInt8) async throws -> ChannelSyncResult {
-    var syncErrors: [ChannelSyncError] = []
-    var configured: [ChannelInfo] = []
-    var unconfiguredIndices: [UInt8] = []
-    var emptyNameWithSecretIndices: [UInt8] = []
+    var observation = ChannelSyncObservation()
+    var epochsAtRead: [UInt8: UInt64] = [:]
+    for index in 0..<maxChannels {
+      epochsAtRead[index] = slotEpoch(index)
+    }
 
     // A hard send failure (e.g. disconnect mid-send) throws here, aborting the round with
     // nothing persisted; an idle stall returns a partial set to reconcile rather than throwing.
     let (received, missing) = try await session.getChannels(indices: Array(0..<maxChannels))
 
     for info in received {
+      let epoch = epochsAtRead[info.index] ?? 0
       if Self.isChannelConfigured(name: info.name, secret: info.secret) {
-        configured.append(info)
-        if info.name.isEmpty {
-          emptyNameWithSecretIndices.append(info.index)
-        }
+        observation.recordConfigured(info, epoch: epoch)
       } else {
-        unconfiguredIndices.append(info.index)
+        observation.recordUnconfigured(info.index, epoch: epoch)
       }
     }
 
@@ -343,7 +334,7 @@ public actor ChannelService {
       if consecutiveTimeouts >= circuitBreakerThreshold {
         logger.error("Reconcile circuit breaker open: \(consecutiveTimeouts) consecutive timeouts, stopping reconcile")
         for remaining in missing.drop(while: { $0 != index }) {
-          syncErrors.append(ChannelSyncError(
+          observation.syncErrors.append(ChannelSyncError(
             index: remaining,
             errorType: .circuitBreaker,
             description: "Skipped due to circuit breaker"
@@ -352,16 +343,14 @@ public actor ChannelService {
         break
       }
 
+      let epoch = slotEpoch(index)
       do {
         if let channelInfo = try await fetchChannel(index: index) {
-          configured.append(channelInfo)
+          observation.recordConfigured(channelInfo, epoch: epoch)
           consecutiveTimeouts = 0
-          if channelInfo.name.isEmpty {
-            emptyNameWithSecretIndices.append(index)
-          }
         } else {
           consecutiveTimeouts = 0
-          unconfiguredIndices.append(index)
+          observation.recordUnconfigured(index, epoch: epoch)
         }
       } catch {
         let syncError = classifyError(error, forIndex: index)
@@ -370,33 +359,61 @@ public actor ChannelService {
           currentCount: consecutiveTimeouts
         )
         logger.warning("Reconcile failed for channel \(index): \(syncError.description)")
-        syncErrors.append(syncError)
+        observation.syncErrors.append(syncError)
       }
     }
 
-    return await finalizeChannelSync(
+    return try await commitObservedSync(
       radioID: radioID,
-      maxChannels: maxChannels,
-      configured: configured,
-      unconfiguredIndices: unconfiguredIndices,
-      emptyNameWithSecretIndices: emptyNameWithSecretIndices,
-      syncErrors: syncErrors,
-      pipelined: true
+      observation: observation,
+      pipelined: true,
+      pruneBeyond: maxChannels
     )
   }
 
-  /// Persists a completed channel-read pass in a single transaction and reports the result.
-  /// Shared by the serial and pipelined paths so their classification-to-persist tail cannot
-  /// drift: it upserts configured channels, deletes stale rows at unconfigured slots, prunes
-  /// orphans beyond capacity, and never touches an index that landed in neither list.
+  /// Drops observations captured before a later acknowledged write or clear.
+  /// Commits the remaining observations under channel ownership so they cannot be superseded again.
+  private func commitObservedSync(
+    radioID: UUID,
+    observation: ChannelSyncObservation,
+    pipelined: Bool,
+    pruneBeyond: UInt8?
+  ) async throws -> ChannelSyncResult {
+    try await withChannelOperation {
+      let current = self.slotMutationEpoch
+      func stillCurrent(_ index: UInt8) -> Bool {
+        observation.observedEpoch[index] == (current[index] ?? 0)
+      }
+      let keptConfigured = observation.configured.filter { stillCurrent($0.index) }
+      let keptUnconfigured = observation.unconfiguredIndices.filter(stillCurrent)
+      let keptEmpty = observation.emptyNameWithSecretIndices.filter { index in
+        keptConfigured.contains { $0.index == index }
+      }
+      if pruneBeyond == nil, keptConfigured.isEmpty {
+        return ChannelSyncResult(channelsSynced: 0, errors: observation.syncErrors)
+      }
+      return await self.finalizeChannelSync(
+        radioID: radioID,
+        configured: keptConfigured,
+        unconfiguredIndices: keptUnconfigured,
+        emptyNameWithSecretIndices: keptEmpty,
+        syncErrors: observation.syncErrors,
+        pipelined: pipelined,
+        pruneBeyond: pruneBeyond
+      )
+    }
+  }
+
+  /// Commits observed slots and optional capacity pruning while the caller holds channel ownership.
+  /// Unobserved slots within capacity stay untouched because they have no authoritative result.
   private func finalizeChannelSync(
     radioID: UUID,
-    maxChannels: UInt8,
     configured: [ChannelInfo],
     unconfiguredIndices: [UInt8],
     emptyNameWithSecretIndices: [UInt8],
     syncErrors: [ChannelSyncError],
-    pipelined: Bool
+    pipelined: Bool,
+    pruneBeyond: UInt8?
   ) async -> ChannelSyncResult {
     var syncErrors = syncErrors
 
@@ -415,7 +432,7 @@ public actor ChannelService {
         radioID: radioID,
         configured: configured,
         unconfiguredIndices: unconfiguredIndices,
-        pruneBeyond: maxChannels
+        pruneBeyond: pruneBeyond
       )
     } catch {
       logger.error("Channel batch persist failed: \(error.localizedDescription)")
@@ -474,8 +491,7 @@ public actor ChannelService {
     // Brief delay before retry to allow transient issues to resolve
     try await Task.sleep(for: .milliseconds(500))
 
-    var syncErrors: [ChannelSyncError] = []
-    var configured: [ChannelInfo] = []
+    var observation = ChannelSyncObservation()
 
     // Circuit breaker for retry (stricter threshold than initial sync)
     var consecutiveTimeouts = 0
@@ -488,7 +504,7 @@ public actor ChannelService {
         // Mark remaining channels as failed
         let remainingIndices = indices.drop(while: { $0 != index })
         for remaining in remainingIndices {
-          syncErrors.append(ChannelSyncError(
+          observation.syncErrors.append(ChannelSyncError(
             index: remaining,
             errorType: .circuitBreaker,
             description: "Skipped due to retry circuit breaker"
@@ -497,9 +513,10 @@ public actor ChannelService {
         break
       }
 
+      let epoch = slotEpoch(index)
       do {
         if let channelInfo = try await fetchChannel(index: index) {
-          configured.append(channelInfo)
+          observation.recordConfigured(channelInfo, epoch: epoch)
           consecutiveTimeouts = 0 // Reset on success
           logger.info("Retry succeeded for channel \(index)")
         } else {
@@ -512,43 +529,18 @@ public actor ChannelService {
           currentCount: consecutiveTimeouts
         )
         logger.warning("Retry failed for channel \(index): \(syncError.description)")
-        syncErrors.append(syncError)
+        observation.syncErrors.append(syncError)
       }
     }
 
-    // Nothing recovered: skip the persist round-trip and the handler notification.
-    guard !configured.isEmpty else {
-      return ChannelSyncResult(channelsSynced: 0, errors: syncErrors)
-    }
-
-    // Upsert the recovered channels in one transaction. Retry only re-fetches previously
-    // failed slots, so it never deletes unconfigured slots or prunes by capacity.
-    let priorChannels = await (try? dataStore.fetchChannels(radioID: radioID)) ?? []
-    do {
-      let allChannels = try await dataStore.batchSaveChannels(
-        radioID: radioID,
-        configured: configured,
-        unconfiguredIndices: [],
-        pruneBeyond: nil
-      )
-      let changedSlots = secretChangedIndices(prior: priorChannels, configured: configured)
-      if !changedSlots.isEmpty {
-        await slotOccupantChangedHandler?(radioID, changedSlots)
-      }
-      await rxLogService?.updateChannels(from: allChannels)
-    } catch {
-      logger.error("Retry batch persist failed: \(error.localizedDescription)")
-      for info in configured {
-        syncErrors.append(ChannelSyncError(
-          index: info.index,
-          errorType: .databaseError,
-          description: "Retry persist failed: \(error.localizedDescription)"
-        ))
-      }
-      return ChannelSyncResult(channelsSynced: 0, errors: syncErrors)
-    }
-
-    return ChannelSyncResult(channelsSynced: configured.count, errors: syncErrors)
+    // Retry only re-fetches previously failed slots, so it never deletes unconfigured
+    // slots or prunes by capacity. A superseded read is dropped inside the commit.
+    return try await commitObservedSync(
+      radioID: radioID,
+      observation: observation,
+      pipelined: false,
+      pruneBeyond: nil
+    )
   }
 
   /// Fetches a single channel from the device with retry logic for transient BLE failures.
@@ -628,7 +620,14 @@ public actor ChannelService {
     name: String,
     passphrase: String
   ) async throws {
-    try await writeChannel(radioID: radioID, index: index, name: name, secret: Self.hashSecret(passphrase))
+    try await withChannelOperation {
+      try await self.writeChannel(
+        radioID: radioID,
+        index: index,
+        name: name,
+        secret: Self.hashSecret(passphrase)
+      )
+    }
   }
 
   /// Sets a channel with a pre-computed secret (for advanced use cases).
@@ -646,17 +645,20 @@ public actor ChannelService {
     guard Self.validateSecret(secret) else {
       throw ChannelServiceError.secretHashingFailed
     }
-    try await writeChannel(radioID: radioID, index: index, name: name, secret: secret)
+    try await withChannelOperation {
+      try await self.writeChannel(radioID: radioID, index: index, name: name, secret: secret)
+    }
   }
 
-  /// Writes the channel to the radio, mirrors it locally, and notifies the slot
-  /// handler when an existing occupant's secret changed.
+  /// Writes and mirrors under the caller's channel ownership.
+  /// Notifies the slot handler when an existing occupant's secret changes.
   private func writeChannel(radioID: UUID, index: UInt8, name: String, secret: Data) async throws {
     let truncatedName = name.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes)
     let prior = try await dataStore.fetchChannel(radioID: radioID, index: index)
 
     do {
       try await session.setChannel(index: index, name: truncatedName, secret: secret)
+      noteSlotMutation(index)
 
       let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
       _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
@@ -678,34 +680,36 @@ public actor ChannelService {
   ///   - radioID: The device UUID
   ///   - index: The channel index
   public func clearChannel(radioID: UUID, index: UInt8) async throws {
-    // Get channel ID before clearing, so we can reliably delete it
-    // (fetching after setChannelWithSecret may not find the empty-named channel)
-    let channelToDelete = try await dataStore.fetchChannel(radioID: radioID, index: index)
+    try await withChannelOperation {
+      // Capture the existing row before clearing, since an empty slot may not be fetched afterward.
+      let channelToDelete = try await self.dataStore.fetchChannel(radioID: radioID, index: index)
 
-    // Set empty name and zero secret to clear on device
-    do {
-      try await session.setChannel(
-        index: index,
-        name: "",
-        secret: Data(repeating: 0, count: ProtocolLimits.channelSecretSize)
-      )
-    } catch let error as MeshCoreError {
-      throw ChannelServiceError.sessionError(error)
+      // Set empty name and zero secret to clear on device
+      do {
+        try await self.session.setChannel(
+          index: index,
+          name: "",
+          secret: Data(repeating: 0, count: ProtocolLimits.channelSecretSize)
+        )
+      } catch let error as MeshCoreError {
+        throw ChannelServiceError.sessionError(error)
+      }
+      self.noteSlotMutation(index)
+
+      // deleteChannel wipes the slot's messages with the row in one transaction; with
+      // no row left to delete, wipe the messages directly.
+      if let channel = channelToDelete {
+        try await self.dataStore.deleteChannel(id: channel.id)
+      } else {
+        try await self.dataStore.deleteMessagesForChannel(radioID: radioID, channelIndex: index)
+      }
+
+      await self.slotOccupantChangedHandler?(radioID, [index])
+
+      // Refresh the decryption cache with the updated channel list
+      let channels = try await self.dataStore.fetchChannels(radioID: radioID)
+      await self.rxLogService?.updateChannels(from: channels)
     }
-
-    // deleteChannel wipes the slot's messages with the row in one transaction; with
-    // no row left to delete, wipe the messages directly.
-    if let channel = channelToDelete {
-      try await dataStore.deleteChannel(id: channel.id)
-    } else {
-      try await dataStore.deleteMessagesForChannel(radioID: radioID, channelIndex: index)
-    }
-
-    await slotOccupantChangedHandler?(radioID, [index])
-
-    // Refresh the decryption cache with the updated channel list
-    let channels = try await dataStore.fetchChannels(radioID: radioID)
-    await rxLogService?.updateChannels(from: channels)
   }
 
   /// Clears all messages for a channel without deleting the channel itself.
@@ -784,6 +788,57 @@ public actor ChannelService {
   /// with a different secret) so the main actor can drop per-slot state.
   public func setSlotOccupantChangedHandler(_ handler: @escaping @Sendable (UUID, Set<UInt8>) async -> Void) {
     slotOccupantChangedHandler = handler
+  }
+
+  /// One sync or retry pass. `observedEpoch` is the slot count captured before that index was read.
+  private struct ChannelSyncObservation {
+    var configured: [ChannelInfo] = []
+    var unconfiguredIndices: [UInt8] = []
+    var emptyNameWithSecretIndices: [UInt8] = []
+    var observedEpoch: [UInt8: UInt64] = [:]
+    var syncErrors: [ChannelSyncError] = []
+
+    mutating func recordConfigured(_ info: ChannelInfo, epoch: UInt64) {
+      configured.append(info)
+      observedEpoch[info.index] = epoch
+      if info.name.isEmpty {
+        emptyNameWithSecretIndices.append(info.index)
+      }
+    }
+
+    mutating func recordUnconfigured(_ index: UInt8, epoch: UInt64) {
+      unconfiguredIndices.append(index)
+      observedEpoch[index] = epoch
+    }
+  }
+
+  private func slotEpoch(_ index: UInt8) -> UInt64 {
+    slotMutationEpoch[index] ?? 0
+  }
+
+  private func noteSlotMutation(_ index: UInt8) {
+    slotMutationEpoch[index, default: 0] += 1
+  }
+
+  /// Acquires the channel operation gate, runs `operation` on this task, and releases on every exit.
+  /// A cancelled waiter may sit until it acquires, then leaves without a command or a store write.
+  private func withChannelOperation<T: Sendable>(
+    _ operation: () async throws -> T
+  ) async throws -> T {
+    await channelOperationSerializer.acquire()
+    do {
+      try Task.checkCancellation()
+      let value = try await operation()
+      await channelOperationSerializer.release()
+      return value
+    } catch {
+      await channelOperationSerializer.release()
+      throw error
+    }
+  }
+
+  func channelOperationWaiterCountForTesting() async -> Int {
+    await channelOperationSerializer.waiterCountForTest
   }
 
   /// Indices whose configured secret differs from the locally stored row. Slots with

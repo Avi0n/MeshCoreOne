@@ -1879,6 +1879,8 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Das Kachel-Limit für diesen Download wurde erreicht.";
 
+"offlineMaps.error.providerLimitExceeded" = "Verringern Sie die Detailstufe oder wählen Sie einen kleineren Bereich, um das Download-Limit des Kartenanbieters einzuhalten.";
+
 /* Pause download button */
 "offlineMaps.pause" = "Pausieren";
 
@@ -1888,8 +1890,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Pausiert";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "Die tatsächliche Größe kann je nach Bereich und Detailstufe deutlich größer oder kleiner sein.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Geschätzte Größe: ~%@";
+"offlineMaps.estimatedSize" = "Ungefähre Größe der gespeicherten Karte: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Großes Downloadgebiet. Dies kann eine Weile dauern und erheblichen Speicherplatz beanspruchen.";
@@ -1907,12 +1915,35 @@
 /* Layers section header */
 "offlineMaps.layers" = "Kartenebenen";
 
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Basiskarten-Detailstufe";
+
+"offlineMaps.topographyDetail" = "Topografie-Detailstufe";
+
+"offlineMaps.detail.explanation" = "Eine höhere Detailstufe beansprucht mehr Speicher, und das Herunterladen dauert länger. Mit einer niedrigeren Detailstufe können Sie größere Bereiche speichern.";
+
+"offlineMaps.detail.value" = "%@ (Zoom %@)";
+
+"offlineMaps.detail.overview" = "Übersicht";
+
+"offlineMaps.detail.regional" = "Regional";
+
+"offlineMaps.detail.local" = "Lokal";
+
+"offlineMaps.detail.detailed" = "Detailliert";
+
+"offlineMaps.storageRemediation" = "Verringern Sie die Detailstufe oder wählen Sie einen kleineren Bereich, damit der verfügbare Speicher ausreicht.";
+
+"offlineMaps.startingDownload" = "Herunterladen wird gestartet…";
+
+"offlineMaps.error.invalidDetail" = "Wählen Sie eine unterstützte Detailstufe.";
+
 /* Include layers prompt */
 /* No network available */
 "offlineMaps.noNetwork" = "Zum Herunterladen von Karten ist eine Internetverbindung erforderlich.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Umfasst Kartendaten und interne Indizes. Der Gesamtspeicher kann größer sein als die Summe der einzelnen Downloads.";
+"offlineMaps.storageFooter" = "Umfasst gemeinsam genutzte Kartendaten und Datenbankindizes. Die Regionsgrößen ergeben zusammen nicht diesen Gesamtwert.";
 
 // MARK: - Backup & Restore
 
