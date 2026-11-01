@@ -160,8 +160,7 @@ struct MessagePathMapView: View {
       .ignoresSafeArea()
 
       VStack(spacing: 0) {
-        HStack {
-          Spacer()
+        MapToolboxPlacement(pinsToBottom: false) {
           MapControlsToolbar(
             onLocationTap: centerOnUserLocation,
             isCenteredOnUser: isCenteredOnUser,
@@ -252,8 +251,7 @@ struct MessagePathMapView: View {
 
   /// Frames the selected path once after style load. Later path taps leave the camera.
   private func completeInitialFitIfNeeded() {
-    guard !hasInitiallyFit, isStyleLoaded else { return }
-    guard !canvas.selectedCoordinates.isEmpty else { return }
+    guard !hasInitiallyFit, isStyleLoaded, !canvas.selectedCoordinates.isEmpty else { return }
     // Camera edge padding uses the measured capsule bar; fitting first puts the path under the pills.
     if showsArrivalCapsules, capsuleBarHeight == 0 { return }
     hasInitiallyFit = true

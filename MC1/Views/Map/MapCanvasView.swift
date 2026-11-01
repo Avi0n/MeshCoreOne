@@ -62,9 +62,7 @@ struct MapCanvasView: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
       .padding(.top)
 
-      // Floating controls
-      VStack {
-        Spacer()
+      MapToolboxPlacement(followsVerticalBar: false) {
         MapCanvasControls(
           isNorthLocked: $isNorthLocked,
           showLabels: $showLabels,
@@ -104,24 +102,21 @@ private struct MapCanvasControls: View {
   let onCenterAll: () -> Void
 
   var body: some View {
-    HStack {
-      Spacer()
-      MapControlsToolbar(
-        onLocationTap: onLocationTap,
-        isCenteredOnUser: isCenteredOnUser,
-        isNorthLocked: $isNorthLocked,
-        showLabels: $showLabels,
-        clusteringEnabled: $clusteringEnabled,
-        mapStyleSelection: $mapStyleSelection,
-        viewportBounds: viewportBounds,
-        filter: filter
-      ) {
-        CenterAllButton(
-          isEmpty: centerAllEmpty,
-          onClearSelection: onClearSelection,
-          onCenterAll: onCenterAll
-        )
-      }
+    MapControlsToolbar(
+      onLocationTap: onLocationTap,
+      isCenteredOnUser: isCenteredOnUser,
+      isNorthLocked: $isNorthLocked,
+      showLabels: $showLabels,
+      clusteringEnabled: $clusteringEnabled,
+      mapStyleSelection: $mapStyleSelection,
+      viewportBounds: viewportBounds,
+      filter: filter
+    ) {
+      CenterAllButton(
+        isEmpty: centerAllEmpty,
+        onClearSelection: onClearSelection,
+        onCenterAll: onCenterAll
+      )
     }
   }
 }

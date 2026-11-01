@@ -57,34 +57,9 @@ struct LineOfSightMapView: View {
       )
       .ignoresSafeArea()
 
-      VStack {
-        Spacer()
-        HStack {
-          Spacer()
-          MapControlsToolbar(
-            onLocationTap: {
-              Task {
-                if let location = try? await appState.locationService.requestCurrentLocation() {
-                  viewModel.setCameraRegion(MKCoordinateRegion(
-                    center: location.coordinate,
-                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                  ))
-                  isCenteredOnUser = true
-                }
-              }
-            },
-            isCenteredOnUser: isCenteredOnUser,
-            isNorthLocked: $isNorthLocked,
-            showLabels: $showLabels,
-            clusteringEnabled: $clusteringEnabled,
-            mapStyleSelection: $mapStyleSelection,
-            viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds()
-          ) {
-            EmptyView()
-          }
-        }
+      MapToolboxPlacement(bottomPadding: mapOverlayBottomPadding) {
+        mapControls
       }
-      .padding(.bottom, mapOverlayBottomPadding)
     }
     .onAppear {
       viewModel.mountMapRenderer(rendererID)
@@ -95,6 +70,30 @@ struct LineOfSightMapView: View {
     }
     .onChange(of: showLabels) { _, newValue in
       viewModel.showLabels = newValue
+    }
+  }
+
+  private var mapControls: some View {
+    MapControlsToolbar(
+      onLocationTap: {
+        Task {
+          if let location = try? await appState.locationService.requestCurrentLocation() {
+            viewModel.setCameraRegion(MKCoordinateRegion(
+              center: location.coordinate,
+              span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            ))
+            isCenteredOnUser = true
+          }
+        }
+      },
+      isCenteredOnUser: isCenteredOnUser,
+      isNorthLocked: $isNorthLocked,
+      showLabels: $showLabels,
+      clusteringEnabled: $clusteringEnabled,
+      mapStyleSelection: $mapStyleSelection,
+      viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds()
+    ) {
+      EmptyView()
     }
   }
 }
