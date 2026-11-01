@@ -14,6 +14,25 @@ struct DebugLogBufferTests {
   /// `pruneIfDue` stamps cutoff with `Date()` at call time; the test reads it a tick later.
   private static let pruneCutoffSlack: TimeInterval = 2
 
+  /// The on-path tests below exercise the queue/drain/flush behavior that predates
+  /// the collection gate; that behavior is reachable only when collection is on, so
+  /// each pins the key true and restores the captured value afterward.
+  private static let collectionKey = AppStorageKey.collectDebugLogs.rawValue
+
+  private func enableCollectionForTesting() -> Any? {
+    let captured = UserDefaults.standard.object(forKey: Self.collectionKey)
+    UserDefaults.standard.set(true, forKey: Self.collectionKey)
+    return captured
+  }
+
+  private func restoreCollection(_ captured: Any?) {
+    if let captured {
+      UserDefaults.standard.set(captured, forKey: Self.collectionKey)
+    } else {
+      UserDefaults.standard.removeObject(forKey: Self.collectionKey)
+    }
+  }
+
   private func makeBuffer() async throws -> DebugLogBuffer {
     let container = try PersistenceStore.createContainer(inMemory: true)
     let store = PersistenceStore(modelContainer: container)
@@ -102,6 +121,8 @@ struct DebugLogBufferTests {
   /// pending entries into its own buffer.
   @Test
   func `entries logged before shared is assigned are drained in order once a buffer is set`() async {
+    let captured = enableCollectionForTesting()
+    defer { restoreCollection(captured) }
     let store = MockPersistenceStore()
     let buffer = DebugLogBuffer(dataStore: store)
 
@@ -128,6 +149,8 @@ struct DebugLogBufferTests {
   /// relaunch) can't grow the queue without bound.
   @Test
   func `pending queue drops oldest entries once the bound is exceeded`() async {
+    let captured = enableCollectionForTesting()
+    defer { restoreCollection(captured) }
     let store = MockPersistenceStore()
     let buffer = DebugLogBuffer(dataStore: store)
     let overflow = 3
@@ -250,6 +273,8 @@ struct DebugLogBufferTests {
   /// reports the other batch as lost.
   @Test
   func `dropped entries during save failures are reported once the store recovers`() async throws {
+    let captured = enableCollectionForTesting()
+    defer { restoreCollection(captured) }
     let store = GatedDebugLogStore()
     let buffer = DebugLogBuffer(dataStore: store)
 
@@ -274,6 +299,8 @@ struct DebugLogBufferTests {
   /// forward and the next successful save reports it in full.
   @Test
   func `a failed summary save carries the dropped count forward to the next successful save`() async throws {
+    let captured = enableCollectionForTesting()
+    defer { restoreCollection(captured) }
     let store = GatedDebugLogStore()
     let buffer = DebugLogBuffer(dataStore: store)
 
@@ -352,6 +379,8 @@ struct DebugLogBufferTests {
 
   @Test
   func `hourly prune is skipped when last prune is within pruneInterval`() async {
+    let captured = enableCollectionForTesting()
+    defer { restoreCollection(captured) }
     let store = RecordingDebugLogStore()
     let buffer = DebugLogBuffer(dataStore: store)
     await buffer.setLastPruneForTesting(Date())
@@ -366,6 +395,8 @@ struct DebugLogBufferTests {
 
   @Test
   func `hourly prune runs when last prune is older than pruneInterval`() async {
+    let captured = enableCollectionForTesting()
+    defer { restoreCollection(captured) }
     let store = RecordingDebugLogStore()
     let buffer = DebugLogBuffer(dataStore: store)
     await buffer.setLastPruneForTesting(Date().addingTimeInterval(-DebugLogRetention.pruneInterval))
@@ -379,6 +410,8 @@ struct DebugLogBufferTests {
 
   @Test
   func `hourly prune retries on the next flush after a failed prune`() async {
+    let captured = enableCollectionForTesting()
+    defer { restoreCollection(captured) }
     let store = RecordingDebugLogStore()
     await store.setPruneShouldFail(true)
     let buffer = DebugLogBuffer(dataStore: store)

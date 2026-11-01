@@ -746,6 +746,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Esto eliminará todos los registros de depuración almacenados. Los archivos de registro exportados no se verán afectados.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Recopilar registros de depuración";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "No se recopilan registros de depuración locales.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Desactivar recopilación";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Desactivar recopilación";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Esto eliminará todos los registros de depuración almacenados y dejará de recopilarlos. Los archivos de registro exportados no se verán afectados.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Error al crear archivo de exportación";
 

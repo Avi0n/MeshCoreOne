@@ -746,6 +746,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Cela supprimera tous les journaux de débogage stockés. Les fichiers de journaux exportés ne seront pas affectés.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Collecter les journaux de débogage";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Les journaux de débogage locaux ne sont pas collectés.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Désactiver la collecte";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Désactiver la collecte";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Cela supprimera tous les journaux de débogage stockés et arrêtera leur collecte. Les fichiers de journaux exportés ne seront pas affectés.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Échec de la création du fichier d'exportation";
 

@@ -7,34 +7,59 @@ struct DiagnosticsSection: View {
   @Environment(\.appTheme) private var theme
   @Binding var exportedFile: ExportedLogFile?
   let isSidebar: Bool
+  @AppStorage(AppStorageKey.collectDebugLogs.rawValue) private var collectLogs = false
   @State private var isExporting = false
   @State private var showingClearLogsAlert = false
-  @State private var errorMessage: String?
+  @State private var showingDisableCollectionAlert = false
+  @State private var presentedErrorMessage: String?
+  /// Same string as `presentedErrorMessage`, kept on this view value so it is
+  /// still readable after `disableCollection(using:)` suspends. The alert binds
+  /// the state property, which is written in the same assignment.
+  private let errorRecord = ErrorRecord()
+
+  var errorMessage: String? {
+    errorRecord.text
+  }
+
+  @MainActor
+  private final class ErrorRecord {
+    var text: String?
+  }
 
   var body: some View {
     Section {
-      Button {
-        exportLogs()
-      } label: {
-        HStack {
-          TintedLabel(L10n.Settings.Diagnostics.exportLogs, systemImage: "square.and.arrow.up")
-          Spacer()
-          if isExporting {
-            ProgressView()
+      Toggle(isOn: collectionBinding) {
+        TintedLabel(L10n.Settings.Diagnostics.collectLogs, systemImage: "doc.text.magnifyingglass")
+      }
+
+      if collectLogs {
+        Button {
+          exportLogs()
+        } label: {
+          HStack {
+            TintedLabel(L10n.Settings.Diagnostics.exportLogs, systemImage: "square.and.arrow.up")
+            Spacer()
+            if isExporting {
+              ProgressView()
+            }
           }
         }
-      }
-      .disabled(isExporting)
+        .disabled(isExporting)
 
-      Button(role: .destructive) {
-        showingClearLogsAlert = true
-      } label: {
-        Label(L10n.Settings.Diagnostics.clearLogs, systemImage: "trash")
+        Button(role: .destructive) {
+          showingClearLogsAlert = true
+        } label: {
+          Label(L10n.Settings.Diagnostics.clearLogs, systemImage: "trash")
+        }
       }
     } header: {
       Text(L10n.Settings.Diagnostics.header)
     } footer: {
-      Text(L10n.Settings.Diagnostics.footer)
+      if collectLogs {
+        Text(L10n.Settings.Diagnostics.footer)
+      } else {
+        Text(L10n.Settings.Diagnostics.Footer.disabled)
+      }
     }
     .themedRowBackground(theme, flatten: isSidebar)
     .alert(L10n.Settings.Diagnostics.Alert.Clear.title, isPresented: $showingClearLogsAlert) {
@@ -45,7 +70,54 @@ struct DiagnosticsSection: View {
     } message: {
       Text(L10n.Settings.Diagnostics.Alert.Clear.message)
     }
-    .errorAlert($errorMessage)
+    .alert(L10n.Settings.Diagnostics.Alert.Disable.title, isPresented: $showingDisableCollectionAlert) {
+      Button(L10n.Localizable.Common.cancel, role: .cancel) {}
+      Button(L10n.Settings.Diagnostics.Alert.Disable.confirm, role: .destructive) {
+        let dataStore = appState.connectionManager.persistenceStore
+        Task { await disableCollection(using: dataStore) }
+      }
+    } message: {
+      Text(L10n.Settings.Diagnostics.Alert.Disable.message)
+    }
+    .errorAlert($presentedErrorMessage)
+  }
+
+  /// Turning off raises the confirm alert and does not write the key. Confirm
+  /// calls `disableCollection`, which sets the key false until it returns. This
+  /// view writes the key true only when that call throws. Turning on during the
+  /// wipe does not write the key.
+  private var collectionBinding: Binding<Bool> {
+    Binding(
+      get: { collectLogs },
+      set: { setCollectionEnabled($0) }
+    )
+  }
+
+  func setCollectionEnabled(_ isOn: Bool) {
+    if isOn {
+      DebugLogBuffer.enableCollection()
+    } else {
+      showingDisableCollectionAlert = true
+    }
+  }
+
+  /// Confirm action for the disable alert. On success the service already left
+  /// the key false, so this does not write it. On throw the service left the
+  /// key false and left the rows; this turns the key back on and sets
+  /// `errorMessage`.
+  func disableCollection(using dataStore: any DebugLogPersisting) async {
+    let record = errorRecord
+    do {
+      try await DebugLogBuffer.disableCollection(persistenceStore: dataStore)
+    } catch {
+      collectLogs = true
+      setErrorMessage(error.userFacingMessage, record: record)
+    }
+  }
+
+  private func setErrorMessage(_ message: String, record: ErrorRecord) {
+    record.text = message
+    presentedErrorMessage = message
   }
 
   private func exportLogs() {
@@ -59,7 +131,7 @@ struct DiagnosticsSection: View {
       ) {
         exportedFile = ExportedLogFile(url: url)
       } else {
-        errorMessage = L10n.Settings.Diagnostics.Error.exportFailed
+        setErrorMessage(L10n.Settings.Diagnostics.Error.exportFailed, record: errorRecord)
       }
       isExporting = false
     }
@@ -72,7 +144,7 @@ struct DiagnosticsSection: View {
       do {
         try await dataStore.clearDebugLogEntries()
       } catch {
-        errorMessage = error.userFacingMessage
+        setErrorMessage(error.userFacingMessage, record: errorRecord)
       }
     }
   }

@@ -746,6 +746,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "这将删除所有存储的调试日志。导出的日志文件不会受到影响。";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "收集调试日志";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "不收集本地调试日志。";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "停用收集";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "停用收集";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "这将删除所有存储的调试日志并停止收集。导出的日志文件不会受到影响。";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "创建导出文件失败";
 

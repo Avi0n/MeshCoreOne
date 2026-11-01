@@ -735,6 +735,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "This will delete all stored debug logs. Exported log files will not be affected.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Collect Debug Logs";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Local debug logs are not collected.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Disable Collection";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Disable Collection";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "This will delete all stored debug logs and stop collecting them. Exported log files will not be affected.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Failed to create export file";
 

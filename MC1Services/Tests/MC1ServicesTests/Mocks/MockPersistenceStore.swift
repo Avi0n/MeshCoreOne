@@ -64,6 +64,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     stubbedDeleteContactError = error
   }
 
+  public func setStubbedDebugLogError(_ error: Error?) {
+    stubbedDebugLogError = error
+  }
+
   // MARK: - Message Operations
 
   public func isDuplicateMessage(deduplicationKey: String, radioID: UUID) async throws -> Bool {

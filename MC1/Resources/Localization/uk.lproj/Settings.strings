@@ -746,6 +746,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Це видалить усі збережені журнали налагодження. Експортовані файли журналів не будуть зачеплені.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Збирати журнали налагодження";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Локальні журнали налагодження не збираються.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Вимкнути збір";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Вимкнути збір";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Це видалить усі збережені журнали налагодження та припинить їх збір. Експортовані файли журналів не будуть зачеплені.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Не вдалося створити файл експорту";
 

@@ -746,6 +746,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Это удалит все сохранённые отладочные логи. Экспортированные файлы логов не будут затронуты.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Собирать отладочные логи";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Локальные отладочные логи не собираются.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Отключить сбор";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Отключить сбор";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Это удалит все сохранённые отладочные логи и прекратит их сбор. Экспортированные файлы логов не будут затронуты.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Не удалось создать файл экспорта";
 

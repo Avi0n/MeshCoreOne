@@ -745,6 +745,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Questo eliminerà tutti i log di debug archiviati. I file di log già esportati non saranno interessati.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Raccogli log di debug";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "I log di debug locali non vengono raccolti.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Disattiva raccolta";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Disattiva raccolta";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Questo eliminerà tutti i log di debug archiviati e ne interromperà la raccolta. I file di log già esportati non saranno interessati.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Impossibile creare il file di esportazione";
 

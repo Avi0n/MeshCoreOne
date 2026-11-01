@@ -746,6 +746,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Dit verwijdert alle opgeslagen debuglogboeken. Geëxporteerde logbestanden worden niet beïnvloed.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Debuglogboeken verzamelen";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Lokale debuglogboeken worden niet verzameld.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Verzamelen uitschakelen";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Verzamelen uitschakelen";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Dit verwijdert alle opgeslagen debuglogboeken en stopt met het verzamelen ervan. Geëxporteerde logbestanden worden niet beïnvloed.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Kan exportbestand niet maken";
 

@@ -746,6 +746,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Alle gespeicherten Debug-Protokolle werden gelöscht. Exportierte Protokolldateien bleiben unberührt.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Debug-Protokolle erfassen";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Lokale Debug-Protokolle werden nicht erfasst.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Erfassung deaktivieren";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Erfassung deaktivieren";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Alle gespeicherten Debug-Protokolle werden gelöscht und die Erfassung beendet. Exportierte Protokolldateien bleiben unberührt.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Exportdatei konnte nicht erstellt werden";
 

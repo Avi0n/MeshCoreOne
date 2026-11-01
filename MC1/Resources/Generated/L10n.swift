@@ -5012,6 +5012,8 @@ public enum L10n {
     public enum Diagnostics {
       /// Button to clear debug logs
       public static let clearLogs = L10n.tr("Settings", "diagnostics.clearLogs", fallback: "Clear Debug Logs")
+      /// Toggle to enable collecting local debug logs
+      public static let collectLogs = L10n.tr("Settings", "diagnostics.collectLogs", fallback: "Collect Debug Logs")
       /// Button to export debug logs
       public static let exportLogs = L10n.tr("Settings", "diagnostics.exportLogs", fallback: "Export Debug Logs")
       /// Footer explaining log export
@@ -5027,10 +5029,22 @@ public enum L10n {
           /// Alert title for clear logs confirmation
           public static let title = L10n.tr("Settings", "diagnostics.alert.clear.title", fallback: "Clear Debug Logs")
         }
+        public enum Disable {
+          /// Button to confirm disabling collection
+          public static let confirm = L10n.tr("Settings", "diagnostics.alert.disable.confirm", fallback: "Disable Collection")
+          /// Alert message for disabling collection
+          public static let message = L10n.tr("Settings", "diagnostics.alert.disable.message", fallback: "This will delete all stored debug logs and stop collecting them. Exported log files will not be affected.")
+          /// Alert title for disabling collection
+          public static let title = L10n.tr("Settings", "diagnostics.alert.disable.title", fallback: "Disable Collection")
+        }
       }
       public enum Error {
         /// Error when export fails
         public static let exportFailed = L10n.tr("Settings", "diagnostics.error.exportFailed", fallback: "Failed to create export file")
+      }
+      public enum Footer {
+        /// Footer shown when debug log collection is off
+        public static let disabled = L10n.tr("Settings", "diagnostics.footer.disabled", fallback: "Local debug logs are not collected.")
       }
     }
     public enum DirectMessages {
