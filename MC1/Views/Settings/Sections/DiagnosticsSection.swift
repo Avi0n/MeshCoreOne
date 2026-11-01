@@ -12,9 +12,7 @@ struct DiagnosticsSection: View {
   @State private var showingClearLogsAlert = false
   @State private var showingDisableCollectionAlert = false
   @State private var presentedErrorMessage: String?
-  /// Same string as `presentedErrorMessage`, kept on this view value so it is
-  /// still readable after `disableCollection(using:)` suspends. The alert binds
-  /// the state property, which is written in the same assignment.
+  /// Same text as `presentedErrorMessage`, kept here so it stays readable after `disableCollection(using:)` suspends.
   private let errorRecord = ErrorRecord()
 
   var errorMessage: String? {
@@ -82,10 +80,7 @@ struct DiagnosticsSection: View {
     .errorAlert($presentedErrorMessage)
   }
 
-  /// Turning off raises the confirm alert and does not write the key. Confirm
-  /// calls `disableCollection`, which sets the key false until it returns. This
-  /// view writes the key true only when that call throws. Turning on during the
-  /// wipe does not write the key.
+  /// Off raises the confirm alert and does not write the key. On calls `enableCollection`, which leaves the key false while a disable is in progress.
   private var collectionBinding: Binding<Bool> {
     Binding(
       get: { collectLogs },
@@ -101,10 +96,7 @@ struct DiagnosticsSection: View {
     }
   }
 
-  /// Confirm action for the disable alert. On success the service already left
-  /// the key false, so this does not write it. On throw the service left the
-  /// key false and left the rows; this turns the key back on and sets
-  /// `errorMessage`.
+  /// On success the key is already false. On throw, turns it back on and sets `errorMessage`.
   func disableCollection(using dataStore: any DebugLogPersisting) async {
     let record = errorRecord
     do {

@@ -4,19 +4,14 @@ import os
 /// Actor for buffering debug log entries and flushing to persistence.
 /// Provides batched saves for performance and backpressure handling.
 public actor DebugLogBuffer {
-  /// The current shared buffer and the entries recorded while none exists, behind
-  /// one lock so `record` and the `shared` setter are atomic with respect to each
-  /// other: an entry either reaches the current buffer or waits in `pending` for
-  /// the next assignment to drain; it can't fall between the two.
+  /// `record` and the `shared` setter share this lock, so an entry reaches the current buffer or waits in `pending`.
   private struct SharedState {
     var buffer: DebugLogBuffer?
     var pending: [DebugLogEntryDTO] = []
   }
 
   private static let sharedState = OSAllocatedUnfairLock<SharedState>(initialState: SharedState())
-  /// Depth of `disableCollection` calls in progress. The key write that turns
-  /// collection off and a turn-on both happen under this lock, so a toggle
-  /// during the wipe cannot land true.
+  /// In-progress `disableCollection` calls. The off write and `enableCollection` share this lock, so a turn-on during the wipe cannot land true.
   private struct CollectionDisable {
     var depth = 0
   }
@@ -24,21 +19,12 @@ public actor DebugLogBuffer {
   private static let collectionDisable = OSAllocatedUnfairLock(initialState: CollectionDisable())
   static let maxPendingEntries = 500
 
-  /// Opt-in gate for persisted debug-log collection. Read fresh on every `record`
-  /// so it works off the main actor and at early launch, before the first
-  /// connection creates a buffer. A missing key means off (opt-in), matching both
-  /// fresh installs and upgrades from any prior version. The app target writes it
-  /// via `@AppStorage`; MC1Services only reads it, so this shares the app's
-  /// standard `UserDefaults` domain.
+  /// Missing `collectDebugLogs` reads as off. Checked on every `record` from `UserDefaults.standard`, the domain `@AppStorage` writes.
   nonisolated static var isCollectionEnabled: Bool {
     UserDefaults.standard.bool(forKey: AppStorageKey.collectDebugLogs.rawValue)
   }
 
-  /// Shared buffer instance for app-wide logging. Reassigned on every connection
-  /// from `ServiceContainer.init` while `PersistentLogger` records from arbitrary
-  /// actors. Assigning a buffer atomically takes every entry recorded while none
-  /// existed (early launch, CoreBluetooth state restoration, background relaunch,
-  /// between connections) and delivers them to the new buffer in record order.
+  /// Reassigned from `ServiceContainer.init` while `PersistentLogger` records from other actors. Assignment drains `pending` in record order.
   public static var shared: DebugLogBuffer? {
     get { sharedState.withLock { $0.buffer } }
     set {
@@ -57,11 +43,8 @@ public actor DebugLogBuffer {
     }
   }
 
-  /// Single entry point for app-wide log delivery: hands `entry` to the current
-  /// shared buffer, or queues it (bounded, oldest dropped first) until one is
-  /// assigned. When collection is off, drops the entry before any queueing, buffer
-  /// handoff, or `Task` creation. Entries already in `pending` or `buffer` are not
-  /// discarded by a mere read of the setting; only `disableCollection` discards them.
+  /// Hands `entry` to the shared buffer, or queues it (oldest dropped past the bound) until one is assigned.
+  /// Drops it when collection is off. Only `disableCollection` discards entries already queued.
   static func record(_ entry: DebugLogEntryDTO) {
     let buffer = sharedState.withLock { state -> DebugLogBuffer? in
       guard isCollectionEnabled else { return nil }
@@ -76,8 +59,7 @@ public actor DebugLogBuffer {
     Task { await buffer.append(entry) }
   }
 
-  /// Turns collection on unless `disableCollection` owns it. A turn-on that
-  /// loses the race with a disable in progress leaves the key false.
+  /// Turns collection on unless `disableCollection` is in progress, which leaves the key false.
   public static func enableCollection() {
     let allowed = collectionDisable.withLock { $0.depth == 0 }
     guard allowed else { return }
@@ -88,12 +70,9 @@ public actor DebugLogBuffer {
     }
   }
 
-  /// Owns collection from the write that sets the key false until this returns.
-  /// Waits out a save already inside `saveDebugLogEntries`, drops whatever that
-  /// save put back in memory, then deletes rows. The save cannot finish after
-  /// the delete. A throw leaves the key false and the rows that could not be
-  /// deleted; the caller turns the key back on. The depth returns to zero
-  /// before this returns, including on throw.
+  /// Sets the key false and holds it until this returns, including on throw.
+  /// Waits out an in-flight `saveDebugLogEntries`, drops memory, then deletes rows, so that save cannot finish after the delete.
+  /// A throw leaves the key false and the rows; the caller turns the key back on.
   public static func disableCollection(persistenceStore: any DebugLogPersisting) async throws {
     beginCollectionDisable()
     defer { endCollectionDisable() }
@@ -120,8 +99,7 @@ public actor DebugLogBuffer {
     }
   }
 
-  /// Empties the pending queue so tests can exercise the no-buffer window from a
-  /// known state.
+  /// Empties `pending` so a test starts from the no-buffer window.
   static func resetPendingStateForTesting() {
     sharedState.withLock { $0.pending = [] }
   }
@@ -136,20 +114,14 @@ public actor DebugLogBuffer {
   /// repeat the connect-time `pruneDebugLogEntries` on this store.
   private var lastPrune = Date()
 
-  /// Entries lost since the last successful save, to a save failure or the requeue
-  /// cap. Reported as a synthesized log entry on the next successful save, since
-  /// those windows are otherwise invisible in the persisted log itself.
+  /// Entries lost since the last successful save. The next successful save reports them, because that window is otherwise invisible.
   private var droppedEntryCount = 0
 
-  /// Guards `persistDropSummaryIfNeeded` against reentrancy: `flushBuffer` runs
-  /// concurrently with itself via `flushNow`'s unstructured task, and two flushes
-  /// succeeding together must not persist duplicate summaries.
+  /// `flushBuffer` can overlap itself through `flushNow`. Two successes must not persist two drop summaries.
   private var isPersistingDropSummary = false
 
-  /// `flushBuffer` calls that have passed the collection gate and not yet
-  /// returned. `disableCollection` waits for this to hit zero before it
-  /// deletes rows, so a save already inside `saveDebugLogEntries` cannot
-  /// finish after that delete.
+  /// `flushBuffer` calls past the collection gate that have not returned.
+  /// `disableCollection` waits for zero before deleting rows, so an in-flight save cannot finish after the delete.
   private var persistsInFlight = 0
   private var persistIdleWaiters: [CheckedContinuation<Void, Never>] = []
 
@@ -194,9 +166,7 @@ public actor DebugLogBuffer {
     buffer = []
   }
 
-  /// Waits out saves already in flight, then drops memory. Called only after
-  /// the collection key is false, so a flush that starts during the wait
-  /// does not publish.
+  /// Waits out in-flight saves, then drops memory. The key is already false, so a flush started during the wait does not publish.
   private func relinquishForDisable() async {
     flushTask?.cancel()
     flushTask = nil
@@ -295,11 +265,8 @@ public actor DebugLogBuffer {
     }
   }
 
-  /// Persists a summary of entries dropped since the last successful save. Left
-  /// uncounted on failure so the loss carries forward to the next attempt instead
-  /// of being silently reset. Snapshots the count before the save because the
-  /// actor is reentrant across that await: drops recorded while the save is
-  /// suspended must survive, so only the reported amount is subtracted on success.
+  /// Reports drops since the last successful save, and leaves the count on failure so the loss carries forward.
+  /// Snapshots the count before the save. The actor is reentrant across that await, so only the reported amount is subtracted.
   private func persistDropSummaryIfNeeded() async {
     guard droppedEntryCount > 0, !isPersistingDropSummary else { return }
     isPersistingDropSummary = true

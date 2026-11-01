@@ -759,7 +759,7 @@
 "diagnostics.alert.disable.confirm" = "Erfassung deaktivieren";
 
 /* Alert message for disabling collection */
-"diagnostics.alert.disable.message" = "Alle gespeicherten Debug-Protokolle werden gelöscht und die Erfassung beendet. Exportierte Protokolldateien bleiben unberührt.";
+"diagnostics.alert.disable.message" = "Alle gespeicherten Debug-Protokolle werden gelöscht und die Erfassung wird beendet. Exportierte Protokolldateien bleiben unberührt.";
 
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Exportdatei konnte nicht erstellt werden";

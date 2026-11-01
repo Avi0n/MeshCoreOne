@@ -63,9 +63,7 @@ public enum AppStorageKey: String {
   /// hardware still shows the current release's notes once. Registering it would
   /// suppress the sheet on a genuinely new device.
   case lastShownWhatsNewVersion
-  /// Intentionally device-local: not registered in BackupUserDefaults so a foreign
-  /// phone's "on" can't silently turn on log collection after restore. Absent means
-  /// off (opt-in), matching the fresh-install default.
+  /// Left out of `BackupUserDefaults`, so a restored on value cannot enable collection. A missing key stays off.
   case collectDebugLogs
 
   // Notification toggles read by NotificationPreferences and

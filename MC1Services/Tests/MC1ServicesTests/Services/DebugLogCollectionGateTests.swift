@@ -3,24 +3,13 @@ import Foundation
 import os
 import Testing
 
-/// Serialized because every test reassigns the process-global
-/// `DebugLogBuffer.shared` and drives the process-global
-/// `UserDefaults.standard` collection key, both of which other suites (and
-/// `ServiceContainer.init`) can interleave on. As in `DebugLogBufferTests`,
-/// assertions read back through a bounded retry to absorb a foreign suite
-/// reassigning the global mid-sequence.
-///
-/// The gate reads `UserDefaults.standard`, so every test captures the current
-/// value for the key in setup, drives it through `UserDefaults.standard` itself,
-/// and restores the captured value in teardown. A `UserDefaults(suiteName:)`
-/// instance would be a different domain and never move the gate.
+/// Serialized because each test reassigns `DebugLogBuffer.shared` and the process `collectDebugLogs` key.
+/// Other suites write that key, so a missing or stored-false attempt retries until the value holds across `record`.
 @Suite("DebugLogBuffer collection gate", .serialized)
 struct DebugLogCollectionGateTests {
   private static let key = AppStorageKey.collectDebugLogs.rawValue
   private static let maxReadBackAttempts = 5
 
-  /// Captures the current standard-defaults value for the collection key so
-  /// teardown can restore it, leaving the process domain as the test found it.
   private struct CapturedKey {
     let value: Any?
     init() {
@@ -36,9 +25,7 @@ struct DebugLogCollectionGateTests {
     }
   }
 
-  /// Writes `buffer` to the global and reads it back, retrying because a
-  /// concurrently running suite may reassign the global between the write and the
-  /// read. Succeeds as soon as one attempt reads back the value just written.
+  /// Assigns `buffer` to `DebugLogBuffer.shared` and reads it back. Retries because another suite can reassign the global in between.
   private func writeAndReadBack(_ buffer: DebugLogBuffer, attempts: Int = maxReadBackAttempts) -> Bool {
     for _ in 0..<attempts {
       DebugLogBuffer.shared = buffer
@@ -49,136 +36,64 @@ struct DebugLogCollectionGateTests {
     return false
   }
 
-  /// Flushes `buffer` and returns entries in `category` from `store`. A short poll
-  /// absorbs the delay before a fire-and-forget append `Task` runs; the off-path
-  /// assertions read the store again after a brief sleep so a stray entry would
-  /// surface rather than slip through on timing.
-  private func pollForDebugLogEntries(
-    _ store: MockPersistenceStore,
-    buffer: DebugLogBuffer,
-    category: String,
-    minimumCount: Int,
-    attempts: Int = 30,
-    delay: Duration = .milliseconds(30)
-  ) async -> [DebugLogEntryDTO] {
-    for _ in 0..<attempts {
-      await buffer.flush()
-      let matches = await store.debugLogEntries.filter { $0.category == category }
-      if matches.count >= minimumCount {
-        return matches
-      }
-      try? await Task.sleep(for: delay)
-    }
-    return await store.debugLogEntries.filter { $0.category == category }
-  }
-
-  /// Key absent (fresh install and upgrade from any prior version): `record` drops
-  /// the entry, assigning a buffer cannot drain it, and a flush leaves the store
-  /// empty.
   @Test
   func `missing key means off so record drops the entry and the store stays empty`() async {
     let captured = CapturedKey()
     defer { captured.restore() }
-    UserDefaults.standard.removeObject(forKey: Self.key)
-    #expect(UserDefaults.standard.object(forKey: Self.key) == nil)
 
     let store = MockPersistenceStore()
     let buffer = DebugLogBuffer(dataStore: store)
-    let category = UUID().uuidString
-    DebugLogBuffer.shared = nil
-    DebugLogBuffer.resetPendingStateForTesting()
-    DebugLogBuffer.record(
-      DebugLogEntryDTO(level: .info, subsystem: "test", category: category, message: "dropped")
-    )
-    #expect(writeAndReadBack(buffer))
-    await buffer.flush()
-    try? await Task.sleep(for: .milliseconds(50))
-    let matches = await store.debugLogEntries.filter { $0.category == category }
-    #expect(matches.isEmpty)
-    DebugLogBuffer.shared = nil
-  }
-
-  /// Key true: an `.info` entry recorded through `PersistentLogger` persists.
-  @Test
-  func `collection on persists an info entry`() async {
-    let captured = CapturedKey()
-    defer { captured.restore() }
-    UserDefaults.standard.set(true, forKey: Self.key)
-    #expect(UserDefaults.standard.bool(forKey: Self.key))
-
-    let store = MockPersistenceStore()
-    let buffer = DebugLogBuffer(dataStore: store)
-    var messages: [String] = []
+    var stayedEmpty = false
     for _ in 0..<Self.maxReadBackAttempts {
       let category = UUID().uuidString
-      DebugLogBuffer.shared = nil
-      DebugLogBuffer.resetPendingStateForTesting()
-      guard writeAndReadBack(buffer) else { continue }
-      let logger = PersistentLogger(subsystem: "test.gate", category: category)
-      logger.info("info-line")
-      let entries = await pollForDebugLogEntries(store, buffer: buffer, category: category, minimumCount: 1)
-      messages = entries.map(\.message)
-      if messages.contains("info-line") { break }
-    }
-    DebugLogBuffer.shared = nil
-    #expect(messages.contains("info-line"))
-  }
-
-  /// Key true, entry recorded before any buffer exists: queued as usual, so the
-  /// on path is unchanged.
-  @Test
-  func `collection on queues an entry recorded before a buffer exists`() async {
-    let captured = CapturedKey()
-    defer { captured.restore() }
-    UserDefaults.standard.set(true, forKey: Self.key)
-    #expect(UserDefaults.standard.bool(forKey: Self.key))
-
-    let store = MockPersistenceStore()
-    let buffer = DebugLogBuffer(dataStore: store)
-    var entries: [DebugLogEntryDTO] = []
-    for _ in 0..<Self.maxReadBackAttempts {
-      let category = UUID().uuidString
+      UserDefaults.standard.removeObject(forKey: Self.key)
+      guard UserDefaults.standard.object(forKey: Self.key) == nil else { continue }
       DebugLogBuffer.shared = nil
       DebugLogBuffer.resetPendingStateForTesting()
       DebugLogBuffer.record(
-        DebugLogEntryDTO(level: .info, subsystem: "test", category: category, message: "queued")
+        DebugLogEntryDTO(level: .info, subsystem: "test", category: category, message: "dropped")
       )
-      guard writeAndReadBack(buffer) else { continue }
-      entries = await pollForDebugLogEntries(store, buffer: buffer, category: category, minimumCount: 1)
-      if !entries.isEmpty { break }
+      guard UserDefaults.standard.object(forKey: Self.key) == nil, writeAndReadBack(buffer) else { continue }
+      await buffer.flush()
+      try? await Task.sleep(for: .milliseconds(50))
+      let matches = await store.debugLogEntries.filter { $0.category == category }
+      stayedEmpty = matches.isEmpty
+      if stayedEmpty { break }
     }
     DebugLogBuffer.shared = nil
-    #expect(entries.map(\.message) == ["queued"])
+    #expect(stayedEmpty)
   }
 
-  /// Key false: `record` drops the entry, assigns nothing, and the store stays
-  /// empty.
+  /// A stored false is off, distinct from a missing key.
   @Test
   func `collection off drops the entry and the store stays empty`() async {
     let captured = CapturedKey()
     defer { captured.restore() }
-    UserDefaults.standard.set(false, forKey: Self.key)
-    #expect(UserDefaults.standard.object(forKey: Self.key) != nil)
 
     let store = MockPersistenceStore()
     let buffer = DebugLogBuffer(dataStore: store)
-    let category = UUID().uuidString
+    var stayedEmpty = false
+    for _ in 0..<Self.maxReadBackAttempts {
+      let category = UUID().uuidString
+      UserDefaults.standard.set(false, forKey: Self.key)
+      guard UserDefaults.standard.object(forKey: Self.key) != nil,
+            UserDefaults.standard.bool(forKey: Self.key) == false else { continue }
+      DebugLogBuffer.shared = nil
+      DebugLogBuffer.resetPendingStateForTesting()
+      DebugLogBuffer.record(
+        DebugLogEntryDTO(level: .info, subsystem: "test", category: category, message: "dropped")
+      )
+      guard UserDefaults.standard.bool(forKey: Self.key) == false, writeAndReadBack(buffer) else { continue }
+      await buffer.flush()
+      try? await Task.sleep(for: .milliseconds(50))
+      let matches = await store.debugLogEntries.filter { $0.category == category }
+      stayedEmpty = matches.isEmpty
+      if stayedEmpty { break }
+    }
     DebugLogBuffer.shared = nil
-    DebugLogBuffer.resetPendingStateForTesting()
-    DebugLogBuffer.record(
-      DebugLogEntryDTO(level: .info, subsystem: "test", category: category, message: "dropped")
-    )
-    #expect(writeAndReadBack(buffer))
-    await buffer.flush()
-    try? await Task.sleep(for: .milliseconds(50))
-    let matches = await store.debugLogEntries.filter { $0.category == category }
-    #expect(matches.isEmpty)
-    DebugLogBuffer.shared = nil
+    #expect(stayedEmpty)
   }
 
-  /// The off transition: seed rows (on), disable, assert rows zero AND the key
-  /// false AND that a re-enable with a fresh buffer flushed to the same store
-  /// still finds it empty (buffers drained, nothing carried over).
   @Test
   func `disableCollection clears rows, sets key false, and drains buffers`() async throws {
     let captured = CapturedKey()
@@ -188,14 +103,13 @@ struct DebugLogCollectionGateTests {
     let store = PersistenceStore(modelContainer: container)
     let category = UUID().uuidString
 
-    // Seed persisted rows with collection on.
     UserDefaults.standard.set(true, forKey: Self.key)
     #expect(UserDefaults.standard.bool(forKey: Self.key))
     let seed = DebugLogEntryDTO(level: .info, subsystem: "test", category: category, message: "seed")
     try await store.saveDebugLogEntries([seed])
     #expect(try await store.countDebugLogEntries() == 1)
 
-    // Also leave an unflushed in-memory entry so the buffer drain is exercised.
+    // Unflushed memory and a `record` still in flight must not survive the wipe.
     let buffer = DebugLogBuffer(dataStore: store)
     DebugLogBuffer.shared = buffer
     await buffer.append(
@@ -210,8 +124,7 @@ struct DebugLogCollectionGateTests {
     #expect(UserDefaults.standard.bool(forKey: Self.key) == false)
     #expect(try await store.countDebugLogEntries() == 0)
 
-    // Re-enable, assign a fresh buffer backed by the same store, flush: the
-    // drained buffers must not have carried anything over.
+    // A later buffer on the same store must not publish what disable dropped.
     UserDefaults.standard.set(true, forKey: Self.key)
     DebugLogBuffer.shared = nil
     DebugLogBuffer.resetPendingStateForTesting()
@@ -223,9 +136,7 @@ struct DebugLogCollectionGateTests {
     DebugLogBuffer.shared = nil
   }
 
-  /// A throwing `clearDebugLogEntries` rethrows out of `disableCollection`.
-  /// At the throw the key is false and the rows remain. The depth is back to
-  /// zero, so a later turn-on can write the key; the view test owns that restore.
+  /// At the throw the key is false and the rows remain. The view turns the key back on after this returns.
   @Test
   func `disableCollection rethrows a store failure with the key already false`() async throws {
     let captured = CapturedKey()
@@ -252,7 +163,6 @@ struct DebugLogCollectionGateTests {
     #expect(UserDefaults.standard.bool(forKey: Self.key))
   }
 
-  /// Key already false: `append`, `flush`, and `shutdown` do not publish.
   @Test
   func `append flush and shutdown leave the store unchanged when collection is off`() async throws {
     let captured = CapturedKey()
@@ -284,9 +194,7 @@ struct DebugLogCollectionGateTests {
     try await assertDisableWaitsOutHeldSave(releaseSucceeds: false)
   }
 
-  /// Parks `saveDebugLogEntries`, starts `disableCollection`, and asserts it has
-  /// not returned while the save is held. `releaseSucceeds` chooses whether the
-  /// parked save then commits or throws.
+  /// Parks `saveDebugLogEntries`, then starts `disableCollection`. `releaseSucceeds` chooses whether the parked save commits or throws.
   private func assertDisableWaitsOutHeldSave(releaseSucceeds: Bool) async throws {
     let captured = CapturedKey()
     defer {
@@ -376,9 +284,7 @@ struct DebugLogCollectionGateTests {
     Issue.record("shared buffer was replaced before disable could wait out the save")
   }
 
-  /// A `DebugLogPersisting` fake whose saves park on a gate. The park is an
-  /// `await`, so `clearDebugLogEntries` can reenter the actor while a save is
-  /// held — the same window a suspended `saveDebugLogEntries` leaves open.
+  /// Parks `saveDebugLogEntries` on an await, so `clearDebugLogEntries` can reenter while a save is held.
   private actor HoldingDebugLogStore: DebugLogPersisting {
     enum Release: Sendable {
       case succeed

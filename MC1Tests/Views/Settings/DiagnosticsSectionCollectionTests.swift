@@ -6,15 +6,8 @@ import SwiftUI
 import Testing
 import UIKit
 
-/// App-hosted tests for the "Collect Debug Logs" toggle in `DiagnosticsSection`.
-///
-/// The view's `@AppStorage(AppStorageKey.collectDebugLogs…)` reads the process's
-/// standard `UserDefaults` domain (these hosts inject no `.defaultAppStorage`
-/// override), so each test captures the current value, drives the key through
-/// `UserDefaults.standard` itself, and restores it in teardown — matching how the
-/// MC1Services gate tests treat the same domain.
-///
-/// Serialized because every test mutates that shared process-global key.
+/// Serialized because each test mutates the process `collectDebugLogs` key.
+/// `@AppStorage` reads `UserDefaults.standard` here, so setup saves that value and teardown restores it.
 @MainActor
 @Suite("DiagnosticsSection collection toggle", .serialized)
 struct DiagnosticsSectionCollectionTests {
@@ -33,17 +26,13 @@ struct DiagnosticsSectionCollectionTests {
 
   // MARK: - Hosting
 
-  /// A live `AppState` on its own in-memory store. `connectionManager.persistenceStore`
-  /// is process-lifetime, so it is the exact object `DiagnosticsSection` reaches for
-  /// through `disableCollection`.
+  /// `connectionManager.persistenceStore` is the store `disableCollection(using:)` clears.
   private func makeLiveAppState() throws -> AppState {
     let container = try PersistenceStore.createContainer(inMemory: true)
     return AppState(modelContainer: container, isPlaceholder: true)
   }
 
-  /// Hosts `DiagnosticsSection` in a `NavigationStack` so section rows and footers
-  /// lay out and the disable alert can present over the hosting window. No
-  /// `.defaultAppStorage` is applied, so `@AppStorage` resolves to standard defaults.
+  /// Hosts `DiagnosticsSection` so rows, footers, and the disable alert lay out. No `.defaultAppStorage`, so `@AppStorage` uses standard defaults.
   private func host(_ appState: AppState) throws -> (window: UIWindow, controller: UIHostingController<AnyView>) {
     let root = NavigationStack {
       FeedbackView()
@@ -94,8 +83,7 @@ struct DiagnosticsSectionCollectionTests {
     return matchesCore(String(stripped), target: target)
   }
 
-  /// Section headers render uppercase without changing their localized text, and rows
-  /// concatenate label + value, so an exact / prefix match is the contract.
+  /// Headers render uppercase, and rows concatenate label and value, so the match is exact or a prefix.
   private func matchesCore(_ text: String, target: String) -> Bool {
     let text = text.folding(options: .caseInsensitive, locale: .current)
     let target = target.folding(options: .caseInsensitive, locale: .current)
@@ -103,9 +91,7 @@ struct DiagnosticsSectionCollectionTests {
     return text.hasPrefix(target + ",") || text.hasPrefix(target + "\n") || text.hasPrefix(target + " ")
   }
 
-  /// The labels SwiftUI exposes across the accessibility-element tree — this is how
-  /// `List` rows and alert actions surface text, since SwiftUI draws `Text` as CoreText
-  /// layers with no backing `UILabel`. Mirrors `SettingsTabHarness.activateAccessibility`.
+  /// Labels from the accessibility tree. `List` rows and alert actions have no `UILabel`; this matches `SettingsTabHarness`.
   private func accessibilityLabels(in view: UIView) -> [String] {
     var found: [String] = []
     func walk(_ object: NSObject) {
@@ -126,7 +112,6 @@ struct DiagnosticsSectionCollectionTests {
     return found
   }
 
-  /// Every accessibility label rendered in any scene window.
   private func allLabels() -> [String] {
     sceneWindows().flatMap { accessibilityLabels(in: $0) }
   }
@@ -135,15 +120,12 @@ struct DiagnosticsSectionCollectionTests {
     allLabels().contains { matchesLabel($0, target: target) }
   }
 
-  /// The `UISwitch` SwiftUI's `Toggle` renders: the switch on the same cell as the
-  /// toggle's accessibility identifier.
+  /// The section's only `UISwitch`, which is the collection `Toggle`.
   private func collectionSwitch(in window: UIWindow) -> UISwitch? {
     descendants(of: window, UISwitch.self).first
   }
 
-  /// Drives the collection switch to `targetValue` through the live view tree, the
-  /// same `setOn` + `valueChanged` path the chat pin-switch tests use for a SwiftUI
-  /// `Toggle`.
+  /// Drives the collection `UISwitch` with `setOn` and `valueChanged`, the path a SwiftUI `Toggle` observes.
   private func driveSwitch(to targetValue: Bool, in window: UIWindow) -> Bool {
     window.layoutIfNeeded()
     guard let toggle = collectionSwitch(in: window), toggle.isOn != targetValue else { return false }
@@ -152,9 +134,7 @@ struct DiagnosticsSectionCollectionTests {
     return true
   }
 
-  /// Polls a synchronous UI `condition`, yielding with `Task.sleep` so a pending
-  /// SwiftUI re-render or alert presentation can settle. Between reads, `layoutIfNeeded`
-  /// on each connected window forces a synchronous layout pass.
+  /// Polls `condition` until the timeout. `pump` lays out each window so a pending render can settle.
   private func waitFor(_ condition: @MainActor () -> Bool) async -> Bool {
     let deadline = ContinuousClock.now + Timing.timeout
     while ContinuousClock.now < deadline {
@@ -166,8 +146,7 @@ struct DiagnosticsSectionCollectionTests {
     return condition()
   }
 
-  /// Forces a synchronous layout on every scene window so a just-committed state
-  /// change is reflected in the view tree on the next `condition()` read.
+  /// Lays out every scene window so the next `condition` read sees the latest state.
   private func pump() {
     for window in sceneWindows() {
       window.layoutIfNeeded()
@@ -190,8 +169,6 @@ struct DiagnosticsSectionCollectionTests {
 
   // MARK: - Tests
 
-  /// Key true: the toggle row is present and reads on; both action buttons appear;
-  /// the footer is today's on-path string.
   @Test
   func `collection on shows toggle, both buttons, and the on footer`() async throws {
     let captured = captureKey()
@@ -218,8 +195,6 @@ struct DiagnosticsSectionCollectionTests {
     #expect(self.collectionSwitch(in: root)?.isOn == true)
   }
 
-  /// Key false: both action buttons are absent and the disabled footer replaces the
-  /// on-path footer.
   @Test
   func `collection off hides both buttons and shows the disabled footer`() async throws {
     let captured = captureKey()
@@ -246,12 +221,7 @@ struct DiagnosticsSectionCollectionTests {
     #expect(self.collectionSwitch(in: root)?.isOn == false)
   }
 
-  /// Off-transition through the view: seed a persisted row, flip the switch off (which
-  /// raises the confirm alert instead of writing), then run the confirm action against
-  /// the live store. The alert appears; toggling the switch off does not write the key
-  /// or delete rows. The confirm action is `disableCollection(using:)`, called here
-  /// because SwiftUI's alert button exposes no in-process driver. The test does not
-  /// write the key; a successful confirm leaves it false.
+  /// The switch raises the alert and does not write the key. Confirm calls `disableCollection(using:)` directly; the alert button has no in-process driver.
   @Test
   func `toggling off raises the alert and confirm clears rows and sets the key false`() async throws {
     let captured = captureKey()
@@ -278,12 +248,10 @@ struct DiagnosticsSectionCollectionTests {
     let ready = await waitFor { self.collectionSwitch(in: root)?.isOn == true }
     #expect(ready)
 
-    // Flip the switch off; the setter raises the confirm alert instead of writing.
     #expect(driveSwitch(to: false, in: root))
 
     let alertReady = await waitFor { self.labelMatches(Self.disableConfirmText) }
     #expect(alertReady)
-    // The deferred-write contract: raising the alert writes nothing yet.
     #expect(UserDefaults.standard.bool(forKey: Self.key))
 
     let section = DiagnosticsSection(exportedFile: .constant(nil), isSidebar: false)
@@ -294,9 +262,6 @@ struct DiagnosticsSectionCollectionTests {
     #expect(remaining == 0)
   }
 
-  /// Confirm against a store whose clear throws. The service leaves the key false
-  /// and the rows in place; the confirm action turns the key back on and sets
-  /// `errorMessage`.
   @Test
   func `failed confirm restores the key, keeps the rows, and sets errorMessage`() async throws {
     let captured = captureKey()
@@ -322,8 +287,6 @@ struct DiagnosticsSectionCollectionTests {
     )
   }
 
-  /// Clear parks, confirm is in flight, and the on-write does not stick. After
-  /// confirm returns, a later on-write sets the key true.
   @Test
   func `on write during confirm does not stick and a later on write enables collection`() async {
     let captured = captureKey()
@@ -358,8 +321,7 @@ struct DiagnosticsSectionCollectionTests {
   }
 }
 
-/// Wraps an in-memory `PersistenceStore` and throws from `clearDebugLogEntries`,
-/// mirroring the app view's `any DebugLogPersisting` seam used by `disableCollection`.
+/// Throws from `clearDebugLogEntries` so `disableCollection(using:)` takes its restore path.
 private struct ClearFailure: LocalizedError {
   static let message = "The debug log could not be cleared."
   var errorDescription: String? {
@@ -395,8 +357,7 @@ private actor FailingClearStore: DebugLogPersisting {
   }
 }
 
-/// Parks `clearDebugLogEntries` until `releaseClear`, so a test can turn the
-/// toggle on while confirm is in flight.
+/// Parks `clearDebugLogEntries` until `releaseClear`, so a turn-on can run while confirm is in flight.
 private actor SuspendingClearStore: DebugLogPersisting {
   private var waiter: CheckedContinuation<Void, Never>?
   private(set) var clearDidStart = false
