@@ -8,19 +8,21 @@ Use the Test navigator (Cmd+6) or Cmd+U to run all tests.
 
 ### Command Line
 
-Prefer the `make` targets; they take a per-simulator lock so concurrent sessions serialize instead of hanging:
+Prefer the `make` targets. Simulator passes take a per-simulator lock so concurrent sessions serialize instead of hanging:
 
 ```bash
-make test-app    # full app suite on iPhone 17e / iOS 27.0
-make test-store  # StoreKit/IAP SKTestSession suites on iOS 18.x
-make test        # both of the above
+make test-meshcore  # protocol/session package suite on the macOS host
+make test-services  # transport/service package suite on the macOS host
+make test-app       # full app suite on iPhone 17e / iOS 27.0
+make test-store     # StoreKit/IAP SKTestSession suites on iOS 18.x
+make test           # all four passes above
 ```
 
 The full app suite can take several minutes. `xcsift` prints its summary when the run ends. The periodic elapsed-time messages do not show whether tests are still making progress. Save the raw log when investigating a slow or stuck run:
 
 ```bash
 mkdir -p tmp
-make test-app XCSIFT_WITH_HEARTBEAT='tee tmp/test-app-raw.log | xcsift -f toon'
+make test-app TEST_LOG=tmp/test-app-raw.log
 ```
 
 Check the command's exit status and Xcode's test summary in the raw log. `xcsift` can report zero failures even when a Swift Testing assertion failed. Look in the `.xcresult` bundle for failure details.
@@ -31,18 +33,20 @@ Pass filters, repetition settings, or a result-bundle path through `XCODEBUILD_T
 make test-app XCODEBUILD_TEST_ARGS='-only-testing:MC1Tests/LifecycleTransitionTests -test-iterations 5'
 ```
 
+Use suite-level filters for Swift Testing; a method-level selector can run zero tests. `TEST_ARGS` remains available for app-only selectors, and `XCODEBUILD_TEST_FLAGS` supplies build settings to both simulator targets. These arguments are combined with `XCODEBUILD_TEST_ARGS`; `TEST_LOG` captures raw output without replacing the heartbeat.
+
 App tests run one at a time. Parallel testing is disabled in both the generated scheme and the make targets because several suites share the key window and keyboard. `@MainActor` and `.serialized` on a suite still allow other suites to run while a test is suspended. Keep parallel testing disabled for the full app suite.
 
-Run the SPM packages from the repository root, with parallel testing disabled as it is in CI:
+Run the SPM packages from the repository root. The make targets disable parallel testing and set Swift Testing width to one:
 
 ```bash
 set -o pipefail
 
 # Services package tests
-swift test --package-path MC1Services --no-parallel 2>&1 | xcsift -f toon
+make test-services 2>&1 | xcsift -f toon
 
 # MeshCore package tests
-swift test --package-path MeshCore --no-parallel 2>&1 | xcsift -f toon
+make test-meshcore 2>&1 | xcsift -f toon
 ```
 
 Use `xcsift` to get structured output. Add `-c` for code coverage or `-w` for a detailed warnings list. See CLAUDE.md for the full flag reference.
