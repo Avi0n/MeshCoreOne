@@ -38,8 +38,7 @@ final class ChatDraftEditor {
   /// An empty reply is consumed and does not change `text`. A retired editor returns
   /// before consuming so the reply stays for the replacement conversation.
   func importPendingReply(consuming consume: () -> String?) {
-    guard !isRetired else { return }
-    guard let reply = consume() else { return }
+    guard !isRetired, let reply = consume() else { return }
     if reply.isEmpty { return }
     setText(reply)
   }

@@ -25,9 +25,11 @@ jobs:
 
       - name: Test MeshCore
         run: |
+          # The 8 minute kill starts after the build, so compile time is not part of the test budget.
+          swift build --package-path MeshCore --build-tests
           run_tests() {
             rm -f "$RUNNER_TEMP/watchdog-fired"
-            swift test --package-path MeshCore --no-parallel &
+            swift test --package-path MeshCore --no-parallel --skip-build &
             TEST_PID=$!
             (
               sleep 480
@@ -63,9 +65,11 @@ jobs:
 
       - name: Test MC1Services
         run: |
+          # The 8 minute kill starts after the build, so compile time is not part of the test budget.
+          swift build --package-path MC1Services --build-tests
           run_tests() {
             rm -f "$RUNNER_TEMP/watchdog-fired"
-            swift test --package-path MC1Services --no-parallel &
+            swift test --package-path MC1Services --no-parallel --skip-build &
             TEST_PID=$!
             (
               sleep 480
