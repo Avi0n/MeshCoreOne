@@ -32,7 +32,7 @@ struct DeviceScanView: View {
           )
 
         if !hasConnectedDevice {
-          Text(L10n.Onboarding.DeviceScan.subtitle)
+          Text(appState.isRecoveringPairing ? L10n.Onboarding.DeviceScan.rePairingSubtitle : L10n.Onboarding.DeviceScan.subtitle)
             .font(.body)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
@@ -126,29 +126,36 @@ struct DeviceScanView: View {
 
   @ViewBuilder
   private var primaryCTA: some View {
-    #if targetEnvironment(simulator)
-      Button { connectSimulator() } label: { ctaLabel(systemImage: "laptopcomputer.and.iphone",
-                                                      text: L10n.Onboarding.DeviceScan.connectSimulator) }
-        .liquidGlassProminentButtonStyle()
-        .disabled(appState.connectionUI.isBusy)
-    #else
-      if demoModeManager.isEnabled {
-        Button { connectSimulator() } label: { ctaLabel(systemImage: "play.circle.fill",
-                                                        text: L10n.Onboarding.DeviceScan.continueDemo) }
+    if appState.isRecoveringPairing {
+      PairingRecoveryStatus()
+        .font(.headline)
+        .frame(maxWidth: .infinity)
+        .padding()
+    } else {
+      #if targetEnvironment(simulator)
+        Button { connectSimulator() } label: { ctaLabel(systemImage: "laptopcomputer.and.iphone",
+                                                        text: L10n.Onboarding.DeviceScan.connectSimulator) }
           .liquidGlassProminentButtonStyle()
           .disabled(appState.connectionUI.isBusy)
-      } else if let deviceID = otherAppDeviceID {
-        Button { retryConnection(deviceID: deviceID) } label: { ctaLabel(systemImage: "arrow.clockwise.circle.fill",
-                                                                         text: L10n.Onboarding.DeviceScan.retryConnection) }
-          .liquidGlassProminentButtonStyle()
-          .disabled(appState.connectionUI.isBusy)
-      } else {
-        Button { startPairing() } label: { ctaLabel(systemImage: "plus.circle.fill",
-                                                    text: L10n.Onboarding.DeviceScan.addDevice) }
-          .liquidGlassProminentButtonStyle()
-          .disabled(appState.connectionUI.isBusy)
-      }
-    #endif
+      #else
+        if demoModeManager.isEnabled {
+          Button { connectSimulator() } label: { ctaLabel(systemImage: "play.circle.fill",
+                                                          text: L10n.Onboarding.DeviceScan.continueDemo) }
+            .liquidGlassProminentButtonStyle()
+            .disabled(appState.connectionUI.isBusy)
+        } else if let deviceID = otherAppDeviceID {
+          Button { retryConnection(deviceID: deviceID) } label: { ctaLabel(systemImage: "arrow.clockwise.circle.fill",
+                                                                           text: L10n.Onboarding.DeviceScan.retryConnection) }
+            .liquidGlassProminentButtonStyle()
+            .disabled(appState.connectionUI.isBusy)
+        } else {
+          Button { startPairing() } label: { ctaLabel(systemImage: "plus.circle.fill",
+                                                      text: L10n.Onboarding.DeviceScan.addDevice) }
+            .liquidGlassProminentButtonStyle()
+            .disabled(appState.connectionUI.isBusy)
+        }
+      #endif
+    }
   }
 
   @ViewBuilder
@@ -183,30 +190,38 @@ struct DeviceScanView: View {
   }
 
   private func retryConnection(deviceID: UUID) {
-    appState.connectionUI.isBusy = true
+    let actionID = appState.connectionUI.beginConnectionAction()
     Task { @MainActor in
-      defer { appState.connectionUI.isBusy = false }
+      guard appState.connectionUI.isCurrentConnectionAction(actionID) else { return }
+      defer { appState.connectionUI.finishConnectionAction(actionID) }
       do {
-        try await appState.connectionManager.connect(to: deviceID, forceReconnect: true)
-        await appState.wireServicesIfConnected()
+        let result = try await appState.connectionManager.connect(to: deviceID, forceReconnect: true)
+        guard case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else { return }
+        await appState.wireServices(for: snapshot)
+        guard appState.connectionManager.isCurrent(snapshot) else { return }
         appState.onboarding.onboardingPath.append(.region)
       } catch {
-        appState.connectionUI.presentSavedDeviceConnectFailure(deviceID: deviceID, error: error)
+        guard let failure = appState.currentConnectionFailure(error) else { return }
+        appState.connectionUI.presentSavedDeviceConnectFailure(deviceID: deviceID, error: failure)
       }
     }
   }
 
   private func connectSimulator() {
-    appState.connectionUI.isBusy = true
+    let actionID = appState.connectionUI.beginConnectionAction()
     didInitiatePairing = true
     Task { @MainActor in
-      defer { appState.connectionUI.isBusy = false }
+      guard appState.connectionUI.isCurrentConnectionAction(actionID) else { return }
+      defer { appState.connectionUI.finishConnectionAction(actionID) }
       do {
-        try await appState.connectionManager.simulatorConnect()
-        await appState.wireServicesIfConnected()
+        let result = try await appState.connectionManager.simulatorConnect()
+        guard case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else { return }
+        await appState.wireServices(for: snapshot)
+        guard appState.connectionManager.isCurrent(snapshot) else { return }
         appState.onboarding.onboardingPath.append(.region)
       } catch {
-        appState.connectionUI.presentConnectionFailure(message: error.userFacingMessage)
+        guard let failure = appState.currentConnectionFailure(error) else { return }
+        appState.connectionUI.presentConnectionFailure(message: failure.userFacingMessage)
       }
     }
   }

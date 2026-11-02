@@ -3,10 +3,8 @@ import Foundation
 @testable import MC1Services
 import Testing
 
-/// Covers the `.withoutResponse` write path's backpressure continuation lifecycle and
-/// capability capture. The full `sendWithoutResponse` round-trip needs a real `CBPeripheral`
-/// (no public initializer) so it is verified on-device; these tests lock the concurrency-
-/// critical parts that can hang or corrupt state if they regress.
+/// Covers the `.withoutResponse` readiness continuation and capability capture.
+/// Production send admission and native origins are exercised by the transport harness.
 @Suite("BLEStateMachine write-without-response path")
 struct BLEStateMachineWriteWithoutResponseTests {
   // MARK: - Helpers
@@ -21,16 +19,93 @@ struct BLEStateMachineWriteWithoutResponseTests {
     return false
   }
 
-  /// Returns true if `work` finishes within `duration`; false if it is still running
-  /// (i.e. the awaited continuation never resumed — a hang). Converts a hang into a
-  /// fast assertion failure instead of stalling the whole suite.
-  private func completesWithin(_ duration: Duration, _ work: @escaping @Sendable () async -> Void) async -> Bool {
-    await withTaskGroup(of: Bool.self) { group in
-      group.addTask { await work(); return true }
-      group.addTask { try? await Task.sleep(for: duration); return false }
-      defer { group.cancelAll() }
-      return await group.next() ?? false
+  /// Reports the deadline without joining noncooperative work. The caller still owns
+  /// the operation and must release and join it during cleanup when the deadline wins.
+  private func completesWithin(
+    _ duration: Duration,
+    sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
+    _ work: @escaping @Sendable () async -> Void
+  ) async -> Bool {
+    let race = CompletionRace()
+    let observer = Task { await work(); await race.resolve(true) }
+    let timer = Task {
+      do { try await sleep(duration) } catch { return }
+      await race.resolve(false)
     }
+    let result = await race.value()
+    observer.cancel()
+    timer.cancel()
+    return result
+  }
+
+  private actor CompletionRace {
+    var result: Bool?
+    var continuation: CheckedContinuation<Bool, Never>?
+
+    func resolve(_ value: Bool) {
+      guard result == nil else { return }
+      result = value
+      continuation?.resume(returning: value)
+      continuation = nil
+    }
+
+    func value() async -> Bool {
+      if let result { return result }
+      return await withCheckedContinuation { continuation = $0 }
+    }
+  }
+
+  private actor SuspendedWork {
+    var continuation: CheckedContinuation<Void, Never>?
+    var isWaiting: Bool {
+      continuation != nil
+    }
+
+    func wait() async {
+      await withCheckedContinuation { continuation = $0 }
+    }
+
+    func release() {
+      continuation?.resume()
+      continuation = nil
+    }
+  }
+
+  private actor DeadlineObservation {
+    var result: Bool?
+    func record(_ value: Bool) {
+      result = value
+    }
+  }
+
+  @Test
+  func `deadline reports stalled work before its owner releases and joins it`() async {
+    let work = SuspendedWork()
+    let observation = DeadlineObservation()
+    let clock = BLETestOperationClock()
+    let parkedTask = Task { await work.wait() }
+    while await !work.isWaiting {
+      await Task.yield()
+    }
+    let detector = Task {
+      let result = await completesWithin(.seconds(1), sleep: clock.clock.sleep) { await parkedTask.value }
+      await observation.record(result)
+    }
+
+    while clock.sleeperCount == 0 {
+      await Task.yield()
+    }
+    clock.advance(by: .seconds(1))
+    // The deadline is controlled; this separate bound only allows the observer to run.
+    let observationDeadline = ContinuousClock.now.advanced(by: .seconds(1))
+    while await observation.result == nil, ContinuousClock.now < observationDeadline {
+      await Task.yield()
+    }
+    #expect(await observation.result == false)
+    await work.release()
+    await parkedTask.value
+    await detector.value
+    #expect(await observation.result == false)
   }
 
   // MARK: - Readiness gating
@@ -54,7 +129,7 @@ struct BLEStateMachineWriteWithoutResponseTests {
     let waiter = Task { _ = try? await sm.awaitWriteWithoutResponseReadiness(alreadyReady: false) }
     #expect(await waitUntilAwaiting(sm))
 
-    await sm.handlePeripheralReadyForWriteWithoutResponse()
+    await sm.resumeWriteWithoutResponseReadiness()
 
     #expect(await completesWithin(.seconds(3)) { await waiter.value })
     #expect(await sm.isAwaitingWriteWithoutResponseReady == false)
@@ -98,7 +173,7 @@ struct BLEStateMachineWriteWithoutResponseTests {
   func `peripheral-ready callback with no pending waiter is a safe no-op`() async {
     let sm = BLEStateMachine()
 
-    await sm.handlePeripheralReadyForWriteWithoutResponse()
+    await sm.resumeWriteWithoutResponseReadiness()
 
     #expect(await sm.isAwaitingWriteWithoutResponseReady == false)
   }

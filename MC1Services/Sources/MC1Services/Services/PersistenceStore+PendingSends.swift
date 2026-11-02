@@ -36,6 +36,9 @@ public extension PersistenceStore {
       existing.sequence = dto.sequence
       existing.enqueuedAt = dto.enqueuedAt
       existing.attemptCount = dto.attemptCount
+      existing.ackCodes = dto.ackCodes
+      existing.ackSentAt = dto.ackSentAt
+      existing.ackDeadline = dto.ackDeadline
     } else {
       modelContext.insert(PendingSend(dto: dto))
     }
@@ -52,7 +55,10 @@ public extension PersistenceStore {
   /// concurrent enqueues from main never see the same `max+1`. This is
   /// the production enqueue path; `upsertPendingSend(_:)` above is
   /// reserved for tests and explicit-sequence scenarios.
-  func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) throws -> Int {
+  func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int {
+    #if DEBUG
+      await pendingSendInsertHandler?()
+    #endif
     let scopedRadioID = dto.radioID
     let radioPredicate = #Predicate<PendingSend> { row in
       row.radioID == scopedRadioID
@@ -173,26 +179,20 @@ public extension PersistenceStore {
     }
   }
 
-  /// Delete every `PendingSend` row whose `radioID` does not match any
-  /// known `Device` row. Returns the number of rows deleted. An orphan row
-  /// can never drain (`fetchPendingSends(radioID:)` filters by radio and
-  /// the radio is gone), so leaving it on disk only wastes space.
-  ///
-  /// **Precondition (callers must satisfy):** every paired Device row,
-  /// including the one currently being constructed, must already be
-  /// persisted before this runs. The production wiring at
-  /// `ConnectionManager.buildServicesAndSaveDevice` saves the Device row
-  /// before invoking warmUp, so this precondition holds for the in-progress
-  /// radio as well as every previously-paired one. The doc-comment exists
-  /// to head off future refactors that might invoke warmUp ahead of the
-  /// Device save — in that order, an in-flight new-pair Device whose row
-  /// hasn't been flushed yet would have its enqueued PendingSends wrongly
-  /// classified as orphans.
+  /// Deletes pending sends only when both the Device and matching Message are absent.
+  /// Persist newly paired Device records first; identity reassociation may leave valid
+  /// unsent history under the previous Radio ID.
   @discardableResult
   func purgeOrphanPendingSends() throws -> Int {
     let knownRadioIDs = try Set(modelContext.fetch(FetchDescriptor<Device>()).map(\.radioID))
     let allRows = try modelContext.fetch(FetchDescriptor<PendingSend>())
-    let orphans = allRows.filter { !knownRadioIDs.contains($0.radioID) }
+    var orphans: [PendingSend] = []
+    for row in allRows where !knownRadioIDs.contains(row.radioID) {
+      let messageID = row.messageID
+      let radioID = row.radioID
+      let predicate = #Predicate<Message> { $0.id == messageID && $0.radioID == radioID }
+      if try modelContext.fetchCount(FetchDescriptor(predicate: predicate)) == 0 { orphans.append(row) }
+    }
     guard !orphans.isEmpty else { return 0 }
     for row in orphans {
       modelContext.delete(row)
@@ -329,24 +329,33 @@ public extension PersistenceStore {
   /// `?? 0` fallback degrades gracefully without pretending the row had
   /// prior drain attempts.
   @discardableResult
-  func incrementPendingSendAttemptCount(messageID: UUID) throws -> Int? {
+  func incrementPendingSendAttemptCount(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
     #if DEBUG
+      await pendingSendAttemptHandler?()
       try incrementPendingSendAttemptCountFaultInjection?()
     #endif
     let scopedMessageID = messageID
     let predicate = #Predicate<PendingSend> { row in
-      row.messageID == scopedMessageID
+      row.messageID == scopedMessageID && row.ackDeadline == nil
     }
-    var descriptor = FetchDescriptor<PendingSend>(predicate: predicate)
+    var descriptor = FetchDescriptor<PendingSend>(predicate: predicate, sortBy: [SortDescriptor(\.sequence)])
     descriptor.fetchLimit = 1
     guard let row = try modelContext.fetch(descriptor).first else { return nil }
     let nextCount = (row.attemptCount ?? 0) + 1
     row.attemptCount = nextCount
     try modelContext.save()
-    return nextCount
+    return (row.id, nextCount)
   }
 
   #if DEBUG
+    func setPendingSendAttemptHandler(_ handler: (@Sendable () async -> Void)?) {
+      pendingSendAttemptHandler = handler
+    }
+
+    func setPendingSendInsertHandler(_ handler: (@Sendable () async -> Void)?) {
+      pendingSendInsertHandler = handler
+    }
+
     func setIncrementPendingSendAttemptCountFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
       incrementPendingSendAttemptCountFaultInjection = hook
     }

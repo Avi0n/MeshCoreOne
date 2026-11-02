@@ -84,6 +84,9 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   }
 
   #if DEBUG
+    var pendingSendInsertHandler: (@Sendable () async -> Void)?
+    var pendingSendAttemptHandler: (@Sendable () async -> Void)?
+    var identityReconciliationFaultInjection: (@Sendable () throws -> Void)?
     /// Inserts since the last RxLog-initiated `modelContext.save()`. Does not
     /// count piggyback saves from other store APIs.
     var rxLogInitiatedSaveCount = 0
@@ -196,14 +199,8 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     // Perform a simple fetch to trigger modelContext initialization
     _ = try modelContext.fetchCount(FetchDescriptor<Device>())
 
-    // Both inner operations are idempotent under their own predicates:
-    // purgeOrphanPendingSends filters by absence of a matching
-    // Device.radioID and returns an empty row set once Device rows catch
-    // up; purgeLegacyAttemptCountRows filters by `attemptCount == nil`
-    // and returns empty after the first purge across the lifetime of
-    // the storage. Running both on every connect costs an empty fetch and
-    // self-heals the "erase device then re-pair" path — a process-level
-    // latch would suppress that recovery.
+    // Repeat both idempotent purges on each connection so removal and re-pairing
+    // can recover without requiring a process restart.
     let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore.warmUp")
     do {
       try purgeOrphanPendingSends()

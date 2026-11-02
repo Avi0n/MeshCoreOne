@@ -6,63 +6,84 @@ import Foundation
 @testable import MC1Services
 import Testing
 
-/// Without a pairing registry, Remove and Try Again must present the scanner
-/// immediately; with a registry it still waits for `.active`.
+/// Remove and Try Again continues into the platform picker after confirmed removal.
 @Suite("macOS pairing recovery")
 @MainActor
 struct MacOSPairingRecoveryTests {
   @Test
   func `remove and retry on macOS starts the scanner without waiting for foreground`() async throws {
     let pairing = BluetoothScanPairingService()
-    let harness = try makeHarness(pairing: pairing)
-    defer { harness.cleanup() }
-    harness.appState.connectionUI.failedPairingDeviceID = UUID()
+    let harness = try await makeHarness(pairing: pairing, deviceID: UUID())
+    do {
+      let removal = try #require(harness.appState.removeFailedPairingAndRetry())
+      try await waitUntil(timeout: .seconds(2), "macOS scanner should present") {
+        pairing.isPresenting
+      }
 
-    harness.appState.removeFailedPairingAndRetry()
-    try await waitUntil(timeout: .seconds(2), "macOS scanner should present") {
-      pairing.isPresenting
+      #expect(harness.appState.isRecoveringPairing)
+      #expect(harness.appState.connectionUI.failedPairingDeviceID == nil)
+      pairing.cancel()
+      await removal.value
+      try await waitUntil(timeout: .seconds(2), "pairing task should finish after cancel") {
+        !harness.appState.connectionUI.isBusy
+      }
+    } catch {
+      pairing.cancel()
+      await harness.cleanup()
+      throw error
     }
-
-    #expect(harness.appState.connectionUI.shouldShowPickerOnForeground == false)
-    #expect(harness.appState.connectionUI.failedPairingDeviceID == nil)
-    pairing.cancel()
-    try await waitUntil(timeout: .seconds(2), "pairing task should finish after cancel") {
-      !harness.appState.connectionUI.isBusy
-    }
+    await harness.cleanup()
   }
 
   @Test
-  func `remove and retry on iOS still waits for foreground`() async throws {
+  func `remove and retry on iOS opens the picker without another foreground event`() async throws {
     let mockASK = MockAccessorySetupKitService()
-    let harness = try makeHarness(pairing: AccessorySetupPairingService(accessorySetupKit: mockASK))
-    defer { harness.cleanup() }
-    harness.appState.connectionUI.failedPairingDeviceID = UUID()
+    let deviceID = UUID()
+    mockASK.setPickerResult(.failure(AccessorySetupKitError.pickerDismissed))
+    mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: deviceID, displayName: "Radio")])
+    let harness = try await makeHarness(
+      pairing: AccessorySetupPairingService(accessorySetupKit: mockASK), deviceID: deviceID
+    )
 
-    harness.appState.removeFailedPairingAndRetry()
-    try await waitUntil(timeout: .seconds(2), "iOS remove should finish") {
-      harness.appState.connectionUI.failedPairingDeviceID == nil
-        && !harness.appState.connectionUI.isBusy
+    do {
+      let removal = try #require(harness.appState.removeFailedPairingAndRetry())
+      await removal.value
+      #expect(harness.appState.connectionUI.failedPairingDeviceID == nil)
+      #expect(!harness.appState.connectionUI.isBusy)
+      #expect(!harness.appState.isRecoveringPairing)
+      #expect(mockASK.showPickerCallCount == 1)
+    } catch {
+      await harness.cleanup()
+      throw error
     }
-
-    #expect(harness.appState.connectionUI.shouldShowPickerOnForeground == true)
-    #expect(mockASK.showPickerCallCount == 0)
+    await harness.cleanup()
   }
 }
 
 @MainActor
 private struct MacOSPairingRecoveryHarness {
   let appState: AppState
-  let cleanup: () -> Void
+  let suite: String
+
+  func cleanup() async {
+    await appState.disconnect(reason: .userInitiated)
+    appState.shutdown()
+    UserDefaults().removePersistentDomain(forName: suite)
+  }
 }
 
 @MainActor
-private func makeHarness(pairing: any DevicePairingService) throws -> MacOSPairingRecoveryHarness {
+private func makeHarness(pairing: any DevicePairingService, deviceID: UUID) async throws -> MacOSPairingRecoveryHarness {
   let container = try PersistenceStore.createContainer(inMemory: true)
   let suite = "test.\(UUID().uuidString)"
   let defaults = UserDefaults(suiteName: suite)!
+  let transport = MockMeshTransport()
+  await transport.setConnectError(BLEError.authenticationFailed)
   let manager = ConnectionManager(
     modelContainer: container,
     defaults: defaults,
+    stateMachine: MockBLEStateMachine(),
+    transport: transport,
     pairing: pairing
   )
   let appState = AppState(
@@ -71,8 +92,22 @@ private func makeHarness(pairing: any DevicePairingService) throws -> MacOSPairi
     defaults: defaults,
     injectedConnectionManager: manager
   )
-  return MacOSPairingRecoveryHarness(
-    appState: appState,
-    cleanup: { UserDefaults().removePersistentDomain(forName: suite) }
-  )
+  let harness = MacOSPairingRecoveryHarness(appState: appState, suite: suite)
+  do {
+    do {
+      _ = try await appState.connectViaBluetooth(peripheralID: deviceID)
+      Issue.record("Physical authentication failure must establish the failed request")
+    } catch let failure as ConnectionRequestFailure {
+      #expect(manager.isCurrent(failure))
+      guard case BLEError.authenticationFailed = failure.underlying else { throw failure }
+      appState.connectionUI.presentPairingFailure(
+        .connectionFailed(deviceID: deviceID, underlying: failure.underlying)
+      )
+    }
+    #expect(await transport.connectInvocations.count == 1)
+    return harness
+  } catch {
+    await harness.cleanup()
+    throw error
+  }
 }

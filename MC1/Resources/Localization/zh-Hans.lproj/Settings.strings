@@ -165,6 +165,9 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "扫描蓝牙设备";
 
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "重新配对中...";
+
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
 "deviceSelection.setup" = "设置";
@@ -1033,6 +1036,9 @@
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "密码最多为 63 字节。";
 
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "网络名称或密码包含此无线电无法存储的字符。";
+
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "清除 WiFi 设置";
 
@@ -1212,11 +1218,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "断开连接";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "停止重新连接";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "取消连接";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "已断开";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "连接中...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "正在重新连接...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "等待重新连接";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "已连接";
@@ -1229,6 +1247,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "蓝牙连接状态";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "双击以连接设备";
@@ -1332,6 +1353,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ 部分设置可能已写入设备。请检查设备的配置。";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "向 %@ 导入身份时连接中断。无线电的身份可能已更改。配置导入未完成。";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "重试身份导入";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "此操作将使用所选文件中的私钥，替换通过 %@ 连接的无线电的身份。配置导入不会继续。";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "替换无线电身份？";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "身份已重新应用。配置导入未完成。请再次导入文件以应用其他设置。";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "请选择包含私钥的配置文件以重试身份导入。";
 
 /* Import success */
 "configImport.importSuccess" = "配置导入成功";

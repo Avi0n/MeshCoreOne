@@ -4,6 +4,8 @@ import SwiftUI
 enum StatusPillState: Hashable {
   case hidden
   case connecting
+  case reconnecting
+  case waitingToReconnect
   case syncing
   case syncingMessages
   case ready
@@ -16,6 +18,8 @@ enum StatusPillState: Hashable {
     case .syncing: L10n.Localizable.Common.Status.syncing
     case .syncingMessages: L10n.Localizable.Common.Status.syncingMessages
     case .connecting: L10n.Localizable.Common.Status.connecting
+    case .reconnecting: L10n.Settings.BleStatus.Status.reconnecting
+    case .waitingToReconnect: L10n.Settings.BleStatus.Status.waitingToReconnect
     case .ready: L10n.Localizable.Common.Status.ready
     case .disconnected: L10n.Localizable.Common.Status.disconnected
     case .hidden: ""
@@ -25,9 +29,9 @@ enum StatusPillState: Hashable {
   var systemImageName: String {
     switch self {
     case .failed: "exclamationmark.triangle.fill"
-    case .disconnected: "exclamationmark.triangle"
+    case .disconnected, .waitingToReconnect: "exclamationmark.triangle"
     case .ready: "checkmark.circle"
-    case .connecting, .syncing, .syncingMessages: "arrow.trianglehead.2.clockwise"
+    case .connecting, .reconnecting, .syncing, .syncingMessages: "arrow.trianglehead.2.clockwise"
     case .hidden: ""
     }
   }
@@ -39,7 +43,7 @@ enum StatusPillState: Hashable {
 
   var textColor: Color {
     if isFailure { return .red }
-    if case .disconnected = self { return .orange }
+    if self == .disconnected || self == .waitingToReconnect { return .orange }
     return .primary
   }
 }

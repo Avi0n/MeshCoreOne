@@ -25,6 +25,9 @@ final class MockAccessorySetupKitService: AccessorySetupKitServicing {
 
   var pickerResult: Result<UUID, Error> = .failure(AccessorySetupKitError.sessionNotActive)
   var removeAccessoryError: Error?
+  var beforeRemovalResult: (@MainActor () async -> Void)?
+  var beforePickerResult: (@MainActor () -> Void)?
+  var beforePickerResultAsync: (@MainActor () async -> Void)?
 
   func setPickerResult(_ result: Result<UUID, Error>) {
     pickerResult = result
@@ -41,6 +44,8 @@ final class MockAccessorySetupKitService: AccessorySetupKitServicing {
 
   func showPicker() async throws -> UUID {
     showPickerCallCount += 1
+    beforePickerResult?()
+    await beforePickerResultAsync?()
     switch pickerResult {
     case let .success(id):
       return id
@@ -52,6 +57,7 @@ final class MockAccessorySetupKitService: AccessorySetupKitServicing {
   func removeAccessory(_ accessory: ASAccessory) async throws {
     removeAccessoryCallCount += 1
     lastRemovedDeviceID = accessory.bluetoothIdentifier
+    await beforeRemovalResult?()
     if let removeAccessoryError {
       throw removeAccessoryError
     }

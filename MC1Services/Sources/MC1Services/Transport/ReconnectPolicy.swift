@@ -97,7 +97,7 @@ struct ReconnectPolicy {
     /// `didFailToConnect` already consumed the pending connect; tearing
     /// down would leave only a watchdog whose sleep freezes when suspended.
     case continueEpisodeAfterBudget(reason: BudgetHoldReason)
-    /// End the episode, surfacing `error` through `onDisconnection`.
+    /// End the episode, surfacing `error` through `BLELifecycleEvent.disconnected`.
     case tearDown(error: BLEError, reason: TeardownReason)
   }
 
@@ -179,7 +179,7 @@ struct ReconnectPolicy {
     case waitForPendingConnect
     /// Give discovery another window instead of tearing down a live link.
     case extendDiscoveryWindow(extensionCount: Int, budget: Int)
-    /// End the episode, surfacing `error` through `onDisconnection`.
+    /// End the episode, surfacing `error` through `BLELifecycleEvent.disconnected`.
     case tearDown(error: BLEError)
   }
 

@@ -22,14 +22,18 @@ final class MessageEventDispatcher {
   /// Stream-consuming tasks, cancelled on re-wire and on disconnect.
   /// Each consumed stream also ends when its `ServiceContainer` is torn down.
   private var tasks: [Task<Void, Never>] = []
+  private var context: ConnectionCallbackContext?
 
   init(appState: AppState, stream: MessageEventStream) {
     self.appState = appState
     self.stream = stream
   }
 
-  func wire(services: ServiceContainer) {
+  func wire(snapshot: ConnectionSnapshot) {
+    guard let appState, appState.connectionManager.isCurrent(snapshot) else { return }
     cancelAll()
+    context = ConnectionCallbackContext(snapshot)
+    let services = snapshot.services
     wireSyncCoordinator(services.syncCoordinator)
     wireHeardRepeats(services.heardRepeatsService)
     wireRxLogRegionUpdates(services.rxLogService)
@@ -45,21 +49,24 @@ final class MessageEventDispatcher {
       task.cancel()
     }
     tasks.removeAll()
+    context = nil
   }
 
   private func wireSyncCoordinator(_ syncCoordinator: SyncCoordinator) {
+    guard let context else { return }
     let events = syncCoordinator.dataEvents()
     let task = Task { [weak appState, stream] in
       for await event in events {
+        guard let appState, !Task.isCancelled, context.isCurrent(appState.connectionManager) else { return }
         switch event {
         case let .directMessageReceived(message, contact):
           stream.send(.directMessageReceived(message: message, contact: contact))
           // Keep a closed conversation's warm coordinator current so a reopen
           // renders the new tail on the first frame (no-op when open or cold).
-          appState?.ensureChatPrewarmRefresher().noteDirectMessage(contact: contact)
+          appState.ensureChatPrewarmRefresher().noteDirectMessage(contact: contact)
         case let .channelMessageReceived(message, channelIndex):
           stream.send(.channelMessageReceived(message: message, channelIndex: channelIndex))
-          appState?.ensureChatPrewarmRefresher().noteChannelMessage(
+          appState.ensureChatPrewarmRefresher().noteChannelMessage(
             radioID: message.radioID,
             channelIndex: channelIndex
           )
@@ -67,7 +74,7 @@ final class MessageEventDispatcher {
           stream.send(.roomMessageReceived(message: message, sessionID: message.sessionID))
         case let .reactionReceived(messageID, summary):
           stream.send(.reactionReceived(messageID: messageID, summary: summary))
-          await appState?.handleReactionNotification(messageID: messageID)
+          await appState.handleReactionNotification(messageID: messageID)
         case .contactsChanged, .conversationsChanged:
           break
         }
@@ -77,9 +84,11 @@ final class MessageEventDispatcher {
   }
 
   private func wireHeardRepeats(_ heardRepeatsService: HeardRepeatsService) {
+    guard let context else { return }
     let events = heardRepeatsService.events()
-    let task = Task { [stream] in
+    let task = Task { [weak appState, stream] in
       for await event in events {
+        guard let appState, !Task.isCancelled, context.isCurrent(appState.connectionManager) else { return }
         stream.send(.heardRepeatRecorded(messageID: event.messageID, count: event.count))
       }
     }
@@ -87,9 +96,11 @@ final class MessageEventDispatcher {
   }
 
   private func wireRxLogRegionUpdates(_ rxLogService: RxLogService) {
+    guard let context else { return }
     let events = rxLogService.regionUpdateEvents()
-    let task = Task { [stream] in
+    let task = Task { [weak appState, stream] in
       for await messageIDs in events {
+        guard let appState, !Task.isCancelled, context.isCurrent(appState.connectionManager) else { return }
         guard !messageIDs.isEmpty else { continue }
         stream.send(.messagesRegionUpdated(messageIDs: messageIDs))
       }
@@ -98,12 +109,14 @@ final class MessageEventDispatcher {
   }
 
   private func wireRemoteNode(_ remoteNodeService: RemoteNodeService) {
+    guard let context else { return }
     let events = remoteNodeService.events()
     let task = Task { [weak appState] in
       for await event in events {
+        guard let appState, !Task.isCancelled, context.isCurrent(appState.connectionManager) else { return }
         switch event {
         case .sessionStateChanged:
-          appState?.handleSessionStateChange()
+          appState.handleSessionStateChange()
         }
       }
     }
@@ -111,9 +124,11 @@ final class MessageEventDispatcher {
   }
 
   private func wireRoomServer(_ roomServerService: RoomServerService) {
+    guard let context else { return }
     let events = roomServerService.events()
     let task = Task { [weak appState, stream] in
       for await event in events {
+        guard let appState, !Task.isCancelled, context.isCurrent(appState.connectionManager) else { return }
         switch event {
         case let .statusUpdated(messageID, status):
           if status == .failed {
@@ -122,7 +137,7 @@ final class MessageEventDispatcher {
             stream.send(.roomMessageStatusUpdated(messageID: messageID))
           }
         case .connectionRecovered:
-          appState?.handleSessionStateChange()
+          appState.handleSessionStateChange()
         }
       }
     }
@@ -130,9 +145,11 @@ final class MessageEventDispatcher {
   }
 
   private func wireMessageService(_ messageService: MessageService) {
+    guard let context else { return }
     let events = messageService.statusEvents()
-    let task = Task { [stream] in
+    let task = Task { [weak appState, stream] in
       for await event in events {
+        guard let appState, !Task.isCancelled, context.isCurrent(appState.connectionManager) else { return }
         switch event {
         case let .statusResolved(messageID, status, roundTripTime):
           stream.send(.messageStatusResolved(messageID: messageID, status: status, roundTripTime: roundTripTime))

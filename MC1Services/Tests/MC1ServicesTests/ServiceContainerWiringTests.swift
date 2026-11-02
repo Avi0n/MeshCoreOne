@@ -121,4 +121,41 @@ struct ServiceContainerWiringTests {
     await container.stopEventMonitoring()
     #expect(await container.messageService.isAckExpiryCheckingActive == false)
   }
+
+  @Test
+  @MainActor
+  func `tearDown permanently prevents event monitoring resurrection`() async throws {
+    let container = try await makeContainer()
+    await container.tearDown()
+
+    await container.startEventMonitoring(
+      radioID: UUID(),
+      enableAutoFetch: false,
+      enableAdvertisementMonitoring: false
+    )
+
+    #expect(container.isEventMonitoringActive == false)
+    #expect(await container.messageService.isAckExpiryCheckingActive == false)
+    await container.stopEventMonitoring()
+  }
+
+  @Test
+  @MainActor
+  func `tearDown joins overlapping event monitoring startup`() async throws {
+    let container = try await makeContainer()
+    let starting = Task {
+      await container.startEventMonitoring(
+        radioID: UUID(),
+        enableAutoFetch: false,
+        enableAdvertisementMonitoring: false
+      )
+    }
+    await Task.yield()
+    await container.tearDown()
+    await starting.value
+
+    #expect(container.isEventMonitoringActive == false)
+    #expect(await container.messageService.isAckExpiryCheckingActive == false)
+    await container.stopEventMonitoring()
+  }
 }

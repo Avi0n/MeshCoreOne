@@ -165,6 +165,9 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Пошук Bluetooth-пристроїв";
 
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "Спарування заново...";
+
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
 "deviceSelection.setup" = "Налаштувати";
@@ -998,6 +1001,9 @@
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "Пароль може містити до 63 байт.";
 
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "Назва мережі або пароль містить символ, який це радіо не може зберегти.";
+
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Очистити налаштування WiFi";
 
@@ -1177,11 +1183,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "Відключитися";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "Зупинити перепідключення";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "Скасувати підключення";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "Відключено";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "Підключення...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "Перепідключення...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "Очікування перепідключення";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Підключено";
@@ -1194,6 +1212,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Стан Bluetooth-підключення";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "Подвійний дотик для підключення пристрою";
@@ -1332,6 +1353,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ Деякі налаштування, можливо, вже було записано на пристрій. Перевірте конфігурацію пристрою.";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "З'єднання було перервано під час імпорту ідентифікації на %@. Ідентифікація радіо могла змінитися. Імпорт конфігурації не було завершено.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "Повторити імпорт ідентифікації";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "Це замінить ідентифікацію радіо, доступного через %@, за допомогою закритого ключа з вибраного файлу. Імпорт конфігурації не буде продовжено.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "Замінити ідентифікацію радіо?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "Ідентифікацію застосовано повторно. Імпорт конфігурації не було завершено. Імпортуйте файл ще раз, щоб застосувати інші налаштування.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "Виберіть файл конфігурації із закритим ключем, щоб повторити імпорт ідентифікації.";
 
 /* Import success */
 "configImport.importSuccess" = "Конфігурацію успішно імпортовано";

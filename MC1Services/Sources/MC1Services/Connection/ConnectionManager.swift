@@ -1,46 +1,9 @@
-@preconcurrency import CoreBluetooth
 import Foundation
 import MeshCore
-import OSLog
 import SwiftData
 
-/// Manages the connection lifecycle for mesh devices.
-///
-/// `ConnectionManager` owns the transport, session, and services. It handles:
-/// - Device pairing via the `DevicePairingService` seam (AccessorySetupKit on iOS, in-app scan picker on macOS)
-/// - Connection and disconnection
-/// - Auto-reconnect on connection loss
-/// - Last-device persistence for app restoration
-///
-/// ## Connection-state model
-///
-/// Three distinct enums describe "where are we", at three layers, and they do
-/// not collapse into one another:
-///
-/// - `BLEPhase` (on `BLEStateMachine`): the CoreBluetooth link lifecycle
-///   (`idle`, `connecting`, `discoveringServices`, `discoveryComplete`,
-///   `connected`, `autoReconnecting`, ...). Driven by CBCentralManager
-///   callbacks; every transition routes through `BLEStateMachine.transition(to:)`.
-///   Concerns only the BLE transport, and does not apply to a radio connected over WiFi.
-/// - `MeshCore.ConnectionState`: the transport-link state the session publishes
-///   (`disconnected`, `connecting`, `connected`, `reconnecting`, `failed`).
-///   `@_exported import MeshCore` makes its bare name visible app-wide; this one
-///   is the lower layer.
-/// - `DeviceConnectionState`: the app-facing rung (`disconnected`, `connecting`,
-///   `connected`, `syncing`, `ready`). Adds the post-link `syncing`/`ready`
-///   distinction the transport layer has no concept of. This is the value
-///   `connectionState` holds and the one UI gates on.
-///
-/// `ConnectionManager` drives `connectionState` directly from the connect, sync,
-/// disconnect, and reconnect paths; nothing else writes it. The transport layer
-/// reports link events through the lifecycle callbacks wired in `init`
-/// (`setDisconnectionHandler`, `setReconnectionHandler`, the auto-reconnect and
-/// powered-on handlers), which this class translates into `connectionState`
-/// transitions. `ConnectionIntent` is the orthogonal "does the user want to be
-/// connected" axis that gates auto-reconnect, and is the only piece persisted
-/// across launches. In DEBUG, `assertStateInvariants()` enforces that `.syncing`
-/// and `.ready` always carry a live `services`, `session`, and `connectedDevice`,
-/// and that `.userDisconnected` intent only coexists with `.disconnected`.
+/// Owns connection requests, installed stacks, retirement and radio metadata.
+/// UI state, BLE phase and session state describe separate lifecycles.
 @Observable
 @MainActor
 public final class ConnectionManager {
@@ -58,29 +21,28 @@ public final class ConnectionManager {
   let connectionStateEvents = EventBroadcaster<DeviceConnectionState>()
 
   /// Current connection state
-  public internal(set) var connectionState: DeviceConnectionState = .disconnected {
+  public private(set) var connectionState: DeviceConnectionState = .disconnected {
     didSet {
+      logLifecycle("state", context: lifecycleContext(request: desiredRequest, attempt: desiredRequest?.attempt, link: installedLink))
       connectionStateEvents.yield(connectionState)
       #if DEBUG
         assertStateInvariants()
       #endif
-      if connectionState == .ready, oldValue != .ready {
-        onConnectionBecameUsable?()
-      }
+      if connectionState == .ready, oldValue != .ready, let snapshot = currentConnection { onConnectionBecameUsable?(snapshot) }
     }
   }
 
   /// Connected device info (nil when disconnected)
-  public internal(set) var connectedDevice: DeviceDTO?
+  public private(set) var connectedDevice: DeviceDTO?
 
   /// Allowed repeat frequency ranges from connected device (empty when disconnected or unsupported)
   public var allowedRepeatFreqRanges: [MeshCore.FrequencyRange] = []
 
   /// Services container (nil when disconnected)
-  public internal(set) var services: ServiceContainer?
+  public private(set) var services: ServiceContainer?
 
   /// Current transport type (bluetooth or wifi)
-  public internal(set) var currentTransportType: TransportType?
+  public private(set) var currentTransportType: TransportType?
 
   /// Current user-actionable Bluetooth availability, updated as `CBCentralManager` reports state
   /// changes. The macOS scan picker reads this to swap its scanning state for a remedy when
@@ -103,21 +65,6 @@ public final class ConnectionManager {
   /// The user's connection intent. Replaces shouldBeConnected, userExplicitlyDisconnected, and pendingForceFullSync.
   var connectionIntent: ConnectionIntent = .none
 
-  /// The device being actively connected via connect(to:).
-  /// Nil during auto-reconnect (tracked by reconnectionCoordinator.reconnectingDeviceID instead).
-  var connectingDeviceID: UUID? {
-    didSet {
-      if connectingDeviceID == nil { connectingAttemptID = nil }
-    }
-  }
-
-  /// Distinguishes successive manual attempts to the same radio.
-  var connectingAttemptID: UUID?
-
-  /// The device whose MeshCore session is currently being rebuilt after a BLE auto-reconnect.
-  /// Used to suppress duplicate reconnect attempts while session startup is still in flight.
-  var sessionRebuildDeviceID: UUID?
-
   /// Device whose pairing-failure recovery has already been surfaced this failure
   /// episode. While the bond stays invalid every watchdog retry fails the same way,
   /// so without this latch the recovery alert would re-interrupt after each retry.
@@ -138,91 +85,7 @@ public final class ConnectionManager {
   /// Opportunistic reconnect call sites consult this; or new conditions in here
   /// when the next contention class shows up, so every site picks them up.
   public var shouldDeferOpportunisticReconnect: Bool {
-    isPairingInProgress || isPairingFlowActive
-  }
-
-  /// Bluetooth radio came back while the user still wants a connection.
-  /// Stands down when the saved row's last method is WiFi.
-  func handleBluetoothPoweredOn() async {
-    #if DEBUG
-      defer { testBluetoothPoweredOnHandlerRuns += 1 }
-    #endif
-    guard connectionIntent.wantsConnection,
-          connectionState == .disconnected,
-          let deviceID = lastConnectedDeviceID else { return }
-
-    if shouldDeferOpportunisticReconnect {
-      logger.info("[BLE] Bluetooth powered on: standing down (pairing in progress)")
-      return
-    }
-
-    let blePhase = await stateMachine.linkDiagnostics.phase
-    let bleConnectedDeviceID = await stateMachine.connectedDeviceID
-    if blePhase != .idle || bleConnectedDeviceID == deviceID {
-      logger.info(
-        "[BLE] Bluetooth powered on: BLE already owns reconnect flow for \(deviceID.uuidString.prefix(8)) " +
-          "(phase: \(blePhase), bleConnectedDevice: \(bleConnectedDeviceID?.uuidString.prefix(8) ?? "none"))"
-      )
-      return
-    }
-
-    if activeReconnectDeviceID == deviceID {
-      logger.info("[BLE] Bluetooth powered on: reconnect/session rebuild already in progress for \(deviceID.uuidString.prefix(8))")
-      return
-    }
-
-    if await shouldStandDownOpportunisticBluetoothReconnect(for: deviceID) {
-      return
-    }
-
-    logger.info("[BLE] Bluetooth powered on: attempting reconnection to \(deviceID.uuidString.prefix(8))")
-    await attemptOpportunisticReconnect(deviceID: deviceID, reason: "Bluetooth powered on")
-  }
-
-  /// Single chokepoint for opportunistic reconnect attempts. Consults the defer
-  /// predicate and dispatches to `connect(to:)`. New opportunistic-reconnect
-  /// sites must route through this helper rather than duplicating the gate logic.
-  /// The auto-reconnect-handler closure (`setAutoReconnectingHandler`) operates
-  /// on `.autoReconnecting` phases rather than initiating a `.connecting`, so it
-  /// applies the same gate predicate at its own call site instead.
-  /// - Parameters:
-  ///   - deviceID: device to reconnect to. The caller is responsible for
-  ///     vetting that the user wants this device connected before invoking.
-  ///   - reason: short string for log correlation across call sites.
-  func attemptOpportunisticReconnect(deviceID: UUID, reason: String) async {
-    guard !shouldDeferOpportunisticReconnect else {
-      logger.info("[BLE] Opportunistic reconnect skipped (\(reason)): pairing in progress")
-      return
-    }
-    do {
-      try await connect(to: deviceID)
-    } catch {
-      logger.warning("[BLE] Opportunistic reconnect (\(reason)) failed: \(error.localizedDescription)")
-      // An invalidated bond can't be resolved by retrying in the background;
-      // route it to the same guided pairing-failure recovery a fresh connect
-      // attempt would show, rather than leaving the user on a silent watchdog loop.
-      if case BLEError.authenticationFailed = error {
-        surfaceAuthenticationFailure(deviceID: deviceID)
-      }
-    }
-  }
-
-  /// Fires `onAuthenticationFailure` at most once per failure episode, tracked by
-  /// `surfacedAuthFailureDeviceID`. All auth-failure surfacing routes through here
-  /// so the latch covers every producer path.
-  func surfaceAuthenticationFailure(deviceID: UUID) {
-    guard surfacedAuthFailureDeviceID != deviceID else {
-      logger.info("[BLE] Pairing-failure recovery already surfaced for \(deviceID.uuidString.prefix(8)), suppressing repeat")
-      return
-    }
-    surfacedAuthFailureDeviceID = deviceID
-    onAuthenticationFailure?(deviceID)
-  }
-
-  /// Clears the auth-failure surfacing latch so the next failure episode for the
-  /// same device re-presents the guided recovery.
-  public func clearSurfacedAuthenticationFailure() {
-    surfacedAuthFailureDeviceID = nil
+    isPairingInProgress || isPairingFlowActive || removalOperationID != nil
   }
 
   // MARK: - Callbacks
@@ -230,15 +93,15 @@ public final class ConnectionManager {
   /// Called when connection is ready and services are available.
   /// Use this to wire up UI observation of services.
   /// Installed by `AppState` during initialization.
-  public var onConnectionReady: (() async -> Void)?
+  public var onConnectionReady: ((ConnectionSnapshot) async -> Void)?
 
   /// Called synchronously on entry into `.ready` so UI readiness precedes post-sync awaits.
-  public var onConnectionBecameUsable: (@MainActor () -> Void)?
+  public var onConnectionBecameUsable: (@MainActor (ConnectionSnapshot) -> Void)?
 
   /// Called when connection is lost (disconnection, BLE power off, etc).
   /// Use this to update UI state when services become unavailable.
   /// Installed by `AppState` during initialization.
-  public var onConnectionLost: (() async -> Void)?
+  public var onConnectionLost: ((ConnectionLossReceipt) async -> Void)?
 
   /// Called when a live link drops and iOS auto-reconnect begins;
   /// `connectionState` stays `.connecting` and `onConnectionLost` fires only if
@@ -247,7 +110,7 @@ public final class ConnectionManager {
   /// wake window, so the Live Activity reflects the loss ahead of the heavy
   /// teardown work and before the app suspends.
   /// Installed by `AppState` during initialization.
-  public var onAutoReconnectStarted: (() async -> Void)?
+  public var onAutoReconnectStarted: ((ConnectionLossReceipt) async -> Void)?
 
   /// Called when a background reconnect attempt fails because the peer
   /// invalidated its bond. Use this to present guided pairing-failure recovery,
@@ -259,7 +122,7 @@ public final class ConnectionManager {
   /// Called after a usable sync promotes the connection to `.ready`.
   /// The flag is clean contacts and clean channels from that result, so a partial channel pass is `.ready` with false.
   /// Installed by `AppState` during initialization.
-  public var onDeviceSynced: ((_ hasCleanRecipientData: Bool) async -> Void)?
+  public var onDeviceSynced: ((ConnectionSnapshot, _ hasCleanRecipientData: Bool) async -> Void)?
 
   /// Called when `clearPersistedConnection(for:)` clears the last-connected slot.
   /// Installed by `AppState` during initialization.
@@ -300,9 +163,57 @@ public final class ConnectionManager {
   private let defaults: UserDefaults
   private let lastConnectionStore: LastConnectionStore
   let transport: any iOSMeshTransport
-  var wifiTransport: WiFiTransport?
-  var session: MeshCoreSession? {
+  private(set) var wifiTransport: (any WiFiMeshTransport)?
+  private(set) var session: MeshCoreSession? {
     didSet { invalidatePowerOffIfReplaced(newSession: session) }
+  }
+
+  var radioWiFiStates: [UUID: RadioWiFiState] = [:]
+  var pendingIdentityReconciliations: [UUID: IdentityImportReceipt] = [:]
+  #if DEBUG
+    var sessionClockForTesting: (any Clock<Duration>)?
+    var testIdentityBeforeAdmission: (@MainActor @Sendable () async -> Void)?
+    var testIdentityBeforeSourceValidation: (@MainActor @Sendable () async -> Void)?
+    var testIdentityBeforeCommit: (@MainActor @Sendable () async -> Void)?
+    var testIdentityAfterCommit: (@MainActor @Sendable () async -> Void)?
+  #endif
+  var desiredRequest: ConnectionRequest?
+  var installedLink: ConnectionLink?
+  var currentLossReceipt: ConnectionLossReceipt?
+  var retirementTask: Task<Void, Never>?
+  var retiringWorkers: [Task<Void, Never>] = []
+  var metadataCommitTask: Task<Void, Never>?
+  var pairingOperationID: UUID?
+  var removalDeviceID: UUID?
+  var removalOperationID: UUID?
+  var resyncSlotID: UUID?
+  var channelRetrySlotID: UUID?
+  var heartbeatSlotID: UUID?
+  var wifiRecoverySlotID: UUID?
+  let makeWiFiTransport: @Sendable () -> any WiFiMeshTransport
+
+  public var currentConnection: ConnectionSnapshot? {
+    installedLink?.snapshot
+  }
+
+  public func isCurrent(generation: UUID, requestID: UUID) -> Bool {
+    installedLink?.generation == generation && desiredRequest?.id == requestID
+  }
+
+  public func isCurrent(_ snapshot: ConnectionSnapshot) -> Bool {
+    installedLink?.generation == snapshot.generation && desiredRequest?.id == snapshot.requestID
+  }
+
+  public func isCurrent(_ receipt: ConnectionLossReceipt) -> Bool {
+    desiredRequest?.id == receipt.requestID && installedLink == nil && currentLossReceipt?.id == receipt.id
+  }
+
+  public func isCurrent(_ result: ConnectionResult) -> Bool {
+    switch result {
+    case let .operational(snapshot): isCurrent(snapshot)
+    case let .handoff(requestID): desiredRequest?.id == requestID
+    case .superseded, .cancelled: false
+    }
   }
 
   /// The in-flight power-off, if this manager still owns it.
@@ -310,7 +221,6 @@ public final class ConnectionManager {
   var powerOffCancelGeneration = 0
   var powerOffCleanupToken: UUID?
   var connectionTeardownCount = 0
-  var connectionTeardownWaiters: [CheckedContinuation<Void, Never>] = []
   /// Device discovery + system pairing-registry seam. Resolves to AccessorySetupKit on
   /// iOS, or an in-app CoreBluetooth scan picker on macOS "Designed for iPad".
   let pairing: any DevicePairingService
@@ -326,7 +236,8 @@ public final class ConnectionManager {
   let stateMachine: any BLEStateMachineProtocol
 
   /// Coordinates iOS auto-reconnect lifecycle (timeouts, teardown, rebuild).
-  let reconnectionCoordinator = BLEReconnectionCoordinator()
+  let reconnectionCoordinator: BLEReconnectionCoordinator
+  let reconnectionClock: any Clock<Duration>
 
   // MARK: - WiFi Reconnection
 
@@ -376,7 +287,7 @@ public final class ConnectionManager {
   /// Callback when resync fails after all attempts (triggers "Sync Failed" pill)
   /// Note: @Sendable @MainActor ensures safe cross-isolation callback
   /// Installed by `ConnectionUIState.wireCallbacks`.
-  public var onResyncFailed: (@Sendable @MainActor () -> Void)?
+  public var onResyncFailed: (@Sendable @MainActor (ConnectionSnapshot) -> Void)?
 
   // MARK: - Circuit Breaker
 
@@ -406,17 +317,12 @@ public final class ConnectionManager {
   static let pairingAdoptionMissingSessionDetail = "adoption rebuilt no session"
   static let pairingAdoptionTimedOutDetail = "adoption timed out"
 
-  /// Consecutive entries into `handleReconnectionFailure` while intent still wants a
-  /// connection that are allowed to preserve a live link (not radio handshakes — on the
-  /// auto-reconnect path the coordinator's first failed rebuild retries once before
-  /// reaching this funnel, so one unit can already cover two handshakes). Uses `<=`
-  /// comparison: N preserve attempts then sever on the (N+1)th wanting entry.
-  /// Exhaustion severs the link and leaves recovery to the ContinuousClock watchdog
-  /// (which only completes when the process is awake), so recovery waits until the
-  /// user foregrounds or another wake arrives — do not tighten lightly.
+  /// Allows this many consecutive recovery failures to preserve the live BLE link.
+  /// One failure can include two handshakes; exhaustion severs the link and waits
+  /// for the reconnect watchdog to run while the process is awake.
   static let maxRebuildFailuresPreservingLink = 3
 
-  /// Count of consecutive intent-wanting rebuild failures into `handleReconnectionFailure`.
+  /// Count of consecutive intent-wanting rebuild failures into `finishBLERecoveryFailure`.
   /// Reset on every operational session via `recordConnectionSuccess`.
   var consecutiveRebuildFailures = 0
 
@@ -467,12 +373,6 @@ public final class ConnectionManager {
     logger.info("[BLE] Circuit breaker: → closed (connection succeeded)")
   }
 
-  /// Refills the rebuild-preserve budget after a successful device switch.
-  /// Sole production call site: `switchDevice` after `promoteToReady`.
-  func resetPreserveBudgetAfterDeviceSwitch() {
-    recordConnectionSuccess()
-  }
-
   /// Epoch bumped by every `clearPersistedConnection` so a queued bond-refresh
   /// persist hop that already passed `shouldPersistBondRefresh` cannot write
   /// after a forget clears the shield.
@@ -489,7 +389,13 @@ public final class ConnectionManager {
   /// Session IDs that need re-authentication after BLE reconnect.
   /// Populated by `handleBLEDisconnection()`, consumed by `rebuildSession()`.
   /// Empty after app restart, so rooms show "Tap to reconnect" instead of auto-connecting.
-  var sessionsAwaitingReauth: Set<UUID> = []
+  struct MembershipBatch {
+    let id: UUID
+    let radioID: UUID
+    var sessionIDs: Set<UUID>
+  }
+
+  var membershipBatch: MembershipBatch?
 
   // MARK: - Simulator Support
 
@@ -521,18 +427,6 @@ public final class ConnectionManager {
     /// tests can complete without waiting on production backoff.
     var testWatchdogInitialDelay: Duration?
 
-    /// When set, `connectViaWiFi` records the attempt and returns this result
-    /// instead of opening a TCP socket.
-    var testWiFiConnectHandler: (@MainActor (String, UInt16) async throws -> Void)?
-
-    var testWiFiConnectAttempts: [(host: String, port: UInt16)] = []
-
-    /// When set, `connectViaBluetooth` records the attempt and returns this result
-    /// instead of opening a Bluetooth connection.
-    var testBluetoothConnectHandler: (@MainActor (UUID) async throws -> Void)?
-
-    var testBluetoothConnectAttempts: [UUID] = []
-
     /// When set, WiFi reconnect gives up after this duration instead of 30s.
     var testWiFiMaxReconnectDuration: Duration?
 
@@ -543,12 +437,18 @@ public final class ConnectionManager {
     var testWiFiHeartbeatClock: (any Clock<Duration>)?
 
     var testConnectionTeardownHandler: (@MainActor () async -> Void)?
-    var testConnectionTeardownWaiterCount = 0
+    var testNotificationSystemOperations: NotificationService.SystemOperations?
+    var testConnectionSelectionHandler: (@MainActor (UUID) async throws -> Void)?
+    var testCandidateRetirementHandler: (@MainActor (SessionTransportBinding) async -> Void)?
+    var testAdmissionCancellationHandler: (@MainActor () async -> Void)?
+    var testAdmissionCancellationFinished = false
+    var testWiFiRecoveryEntryHandler: (@MainActor () async -> Void)?
+    var testMessageListenerRepairHandler: (@MainActor (UUID) async -> Void)?
+    var testPostSetupResultHandler: (@MainActor (UUID) async -> Void)?
+    var testBLELifecycleEventHandled: (@MainActor (BLELifecycleEvent) -> Void)?
 
     /// How many times the Bluetooth powered-on handler has run.
     var testBluetoothPoweredOnHandlerRuns = 0
-
-    var testAutoReconnectEntryCompletions = 0
 
     /// Runs after `shouldPersistBondRefresh` returns true and before the epoch
     /// check in `persistBondRefreshIfStillValid` — tests force clear in that window.
@@ -574,9 +474,6 @@ public final class ConnectionManager {
 
     var testPairingAdoptionSettleTimeout: Duration?
 
-    typealias HealthCheckSessionRebuildOverride = @MainActor (UUID) async throws -> Void
-
-    var rebuildSessionForHealthCheckOverride: HealthCheckSessionRebuildOverride?
   #endif
 
   /// The last connected device ID (for auto-reconnect)
@@ -611,10 +508,12 @@ public final class ConnectionManager {
   /// gates that link behind MITM-bonded encryption, so any successful exchange
   /// proves the bond. Never called on the WiFi path, which bypasses the bond.
   /// Also marks the app session live for RSSI bond-shield refresh (awaited).
-  func recordBondVerification(deviceID: UUID) async {
-    lastConnectionStore.persistBondVerification(deviceID: deviceID)
-    await stateMachine.recordBondVerification(deviceID: deviceID, at: Date())
-    await stateMachine.setAppSessionLive(deviceID: deviceID)
+  func recordBondVerification(deviceID: UUID, binding: SessionTransportBinding) async {
+    do {
+      try binding.performIfActive { lastConnectionStore.persistBondVerification(deviceID: deviceID) }
+    } catch { return }
+    await stateMachine.recordBondVerification(deviceID: deviceID, at: Date(), sessionBinding: binding)
+    await stateMachine.setAppSessionLive(deviceID: deviceID, sessionBinding: binding)
   }
 
   /// Clears this device's bond verification without touching the last-connection slot.
@@ -630,10 +529,14 @@ public final class ConnectionManager {
 
   /// Clears bond verification and, when `deviceID` holds it, the last-connection slot.
   func clearPersistedConnection(for deviceID: UUID) async {
+    await clearPersistedConnection(for: deviceID, notifyingRequestID: desiredRequest?.id)
+  }
+
+  func clearPersistedConnection(for deviceID: UUID, notifyingRequestID: UUID?) async {
     let wasLastConnected = lastConnectionStore.deviceID == deviceID
     await clearBondVerification(for: deviceID)
     lastConnectionStore.clearLastConnection(for: deviceID)
-    if wasLastConnected {
+    if wasLastConnected, desiredRequest?.id == notifyingRequestID {
       onLastConnectedDeviceCleared?()
     }
   }
@@ -680,14 +583,20 @@ public final class ConnectionManager {
     lastConnectedDeviceID == MockDataProvider.simulatorDeviceID
   }
 
-  /// Whether a WiFi disconnection is currently being handled (prevents interleaving
-  /// across await suspension points before wifiReconnectTask is set).
-  var isHandlingWiFiDisconnection = false
+  var wifiDisconnectionReceipt: ConnectionLossReceipt?
+
+  var isHandlingWiFiDisconnection: Bool {
+    guard desiredRequest?.target.transportType == .wifi,
+          let wifiDisconnectionReceipt else { return false }
+    return isCurrent(wifiDisconnectionReceipt)
+  }
 
   // MARK: - Cancellation Helpers
 
   /// Cancels any in-progress WiFi reconnection attempts
   func cancelWiFiReconnection() {
+    if let wifiReconnectTask { retiringWorkers.append(wifiReconnectTask) }
+    wifiRecoverySlotID = nil
     wifiReconnectTask?.cancel()
     wifiReconnectTask = nil
     wifiReconnectAttempt = 0
@@ -706,9 +615,15 @@ public final class ConnectionManager {
     defaults: UserDefaults = .standard,
     stateMachine: (any BLEStateMachineProtocol)? = nil,
     transport: (any iOSMeshTransport)? = nil,
-    pairing: (any DevicePairingService)? = nil
+    pairing: (any DevicePairingService)? = nil,
+    reconnectionClock: (any Clock<Duration>)? = nil,
+    makeWiFiTransport: @escaping @Sendable () -> any WiFiMeshTransport = { WiFiTransport() }
   ) {
     self.modelContainer = modelContainer
+    self.makeWiFiTransport = makeWiFiTransport
+    let clock = reconnectionClock ?? ContinuousClock()
+    self.reconnectionClock = clock
+    reconnectionCoordinator = BLEReconnectionCoordinator(clock: clock)
     persistenceStore = PersistenceStore(modelContainer: modelContainer)
     self.defaults = defaults
     lastConnectionStore = LastConnectionStore(defaults: defaults)
@@ -730,7 +645,7 @@ public final class ConnectionManager {
     self.pairing = pairing ?? DevicePairingFactory.make()
 
     self.pairing.delegate = self
-    reconnectionCoordinator.delegate = self
+    wireReconnectPolicy()
 
     // Best-effort early wiring. activate() awaits the same idempotent
     // method before constructing the CBCentralManager, which is the
@@ -750,115 +665,12 @@ public final class ConnectionManager {
     let stateMachine = stateMachine
     let transport = transport
 
-    // Handle disconnection events
-    await transport.setDisconnectionHandler { [weak self] deviceID, error in
-      Task { @MainActor in
-        guard let self else { return }
-        await self.handleConnectionLoss(deviceID: deviceID, error: error)
-      }
+    await transport.setLifecycleHandler { [weak self] event in
+      Task { @MainActor in await self?.handleBLELifecycleEvent(event) }
     }
-
-    await stateMachine.setRemoteLinkLostHandler { [weak self] deviceID, eventTime in
-      Task { @MainActor in
-        self?.notePowerOffRemoteLoss(deviceID: deviceID, eventTime: eventTime)
-      }
-    }
-
-    // A bond verified in a previous launch must still shield an exhausted
-    // encryption-timeout budget, so seed the persisted verification before
-    // any teardown classification can run. Keyed off the bond slot, not the
-    // connection slot: a WiFi connection overwrites the latter without
-    // touching the bond.
     if let deviceID = lastConnectionStore.bondVerifiedDeviceID,
        let verified = lastConnectionStore.bondVerificationDate(for: deviceID) {
       await stateMachine.recordBondVerification(deviceID: deviceID, at: verified)
-    }
-
-    // Handle entering auto-reconnecting phase
-    await stateMachine.setAutoReconnectingHandler { [weak self] (deviceID: UUID, errorInfo: String) in
-      Task { @MainActor in
-        guard let self else { return }
-        #if DEBUG
-          defer { self.testAutoReconnectEntryCompletions += 1 }
-        #endif
-        guard !self.powerOffSuppressesReconnect(for: deviceID) else {
-          self.logger.info("[BLE] Auto-reconnect suppressed during power-off for \(deviceID.uuidString.prefix(8))")
-          return
-        }
-
-        if self.shouldDeferOpportunisticReconnect {
-          self.logger.info(
-            "[BLE] Auto-reconnect entry suppressed for \(deviceID.uuidString.prefix(8)) (pairing in progress) — tearing down stale session"
-          )
-          // Skip the reconnect-cycle claim and UI timeout (pairing's
-          // connect(to:) ceremony owns the next state transitions),
-          // but tear down the prior session so a pairing early-exit
-          // path doesn't strand the UI on stale `.ready` state.
-          await self.handleConnectionLoss(deviceID: deviceID, error: nil)
-          return
-        }
-
-        if let manualConnectDeviceID = self.connectingDeviceID {
-          guard manualConnectDeviceID == deviceID else {
-            self.logger.info(
-              "[BLE] Auto-reconnect entry for \(deviceID.uuidString.prefix(8)) standing down: manual connect in flight for \(manualConnectDeviceID.uuidString.prefix(8))"
-            )
-            return
-          }
-          // The dropped link belongs to the in-flight manual connect. Release
-          // its claim so the retry loop bails out instead of disconnecting the
-          // transport — that would cancel the OS pending connect recovering
-          // this link and leave a reconnect-cycle claim no completion can ever
-          // clear, silently disabling the watchdog, the foreground health
-          // check, and power-on recovery. The cycle claimed below owns
-          // teardown, the UI timeout, and the session rebuild from here.
-          self.logger.info("[BLE] Auto-reconnect entry adopting in-flight manual connect for \(deviceID.uuidString.prefix(8))")
-          self.connectingDeviceID = nil
-        }
-
-        // Snapshot pre-claim state before entering — handleEnteringAutoReconnect
-        // mutates connectionState to .connecting before its first await.
-        let initialState = String(describing: self.connectionState)
-        let transportName = switch self.currentTransportType {
-        case .bluetooth: "bluetooth"
-        case .wifi: "wifi"
-        case nil: "none"
-        }
-
-        // Claim before the state-machine queries below. Without this,
-        // a state-restoration adoption where iOS callbacks land within
-        // microseconds of each other can fire onReconnection while these
-        // awaits are still queued, and the strict completion guard would
-        // drop the completion since reconnectingDeviceID is still nil.
-        await self.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
-
-        let diagnostics = await self.stateMachine.linkDiagnostics
-        let bleState = diagnostics.centralState
-        let blePhase = diagnostics.phase
-        let blePeripheralState = diagnostics.peripheralState ?? "none"
-
-        self.persistDisconnectDiagnostic(
-          "source=bleStateMachine.autoReconnectingHandler, " +
-            "device=\(deviceID.uuidString.prefix(8)), " +
-            "transport=\(transportName), " +
-            "initialState=\(initialState), " +
-            "bleState=\(bleState), " +
-            "blePhase=\(blePhase), " +
-            "blePeripheralState=\(blePeripheralState), " +
-            "error=\(errorInfo), " +
-            "intent=\(self.connectionIntent)"
-        )
-      }
-    }
-
-    // Handle iOS auto-reconnect completion
-    // Using transport.setReconnectionHandler ensures the transport captures
-    // the data stream internally before calling our handler
-    await transport.setReconnectionHandler { [weak self] deviceID in
-      Task { @MainActor in
-        guard let self else { return }
-        await self.reconnectionCoordinator.handleReconnectionComplete(deviceID: deviceID)
-      }
     }
 
     // RSSI bond refresh runs on the state-machine actor; persist on MainActor
@@ -887,476 +699,14 @@ public final class ConnectionManager {
     }
   }
 
-  // MARK: - Session Helpers
-
-  /// Starts a session and queries device capabilities.
-  func initializeSession(
-    _ session: MeshCoreSession
-  ) async throws -> (SelfInfo, DeviceCapabilities) {
-    do {
-      try await withTimeout(.seconds(10), operationName: "session.start") {
-        try await session.start()
-      }
-    } catch {
-      logger.warning("[BLE] session.start() timed out or failed: \(error.localizedDescription)")
-      throw error
-    }
-
-    guard let selfInfo = await session.currentSelfInfo else {
-      logger.warning("[BLE] selfInfo is nil after session.start()")
-      throw ConnectionError.initializationFailed("Failed to get device self info")
-    }
-    do {
-      let capabilities = try await withTimeout(.seconds(10), operationName: "queryDevice") {
-        try await session.queryDevice()
-      }
-      return (selfInfo, capabilities)
-    } catch {
-      logger.warning("[BLE] queryDevice() timed out or failed: \(error.localizedDescription)")
-      throw error
-    }
-  }
-
-  // MARK: - Service Wiring Helpers
-
-  /// Wires the clean-channel-sync callback on a new ServiceContainer so that
-  /// `lastCleanChannelSync` is updated when a channel phase completes without errors.
-  /// Called from every path that creates a new ServiceContainer.
-  func wireCleanChannelSyncCallback(on services: ServiceContainer) async {
-    await services.syncCoordinator.setCleanChannelSyncCallback { [weak self] radioID in
-      await MainActor.run {
-        self?.lastCleanChannelSync = (radioID: radioID, completedAt: Date())
-      }
-    }
-    await services.syncCoordinator.setChannelSyncAttemptedCallback { [weak self] radioID in
-      await MainActor.run {
-        self?.lastAttemptedChannelSync = (radioID: radioID, attemptedAt: Date())
-      }
-    }
-  }
-
-  // MARK: - Connection Ceremony
-
-  /// Builds a fresh ServiceContainer, fetches device configuration from the radio
-  /// and database, builds and persists the device record, and updates self.
-  ///
-  /// Each connection path (BLE, WiFi, reconnect, device switch) calls this after
-  /// its transport and session are established. Post-ceremony work (sync, promote,
-  /// cleanup) remains in each caller since it genuinely varies.
-  ///
-  /// - Returns: The wired `ServiceContainer` for the caller's sync phase.
-  func buildServicesAndSaveDevice(
-    deviceID: UUID,
-    session: MeshCoreSession,
-    selfInfo: SelfInfo,
-    capabilities: DeviceCapabilities,
-    connectionMethods: [ConnectionMethod] = [],
-    connectionAttemptID: UUID? = nil
-  ) async throws -> (services: ServiceContainer, radioID: UUID) {
-    // Kick off `getAutoAddConfig` up-front so the BLE roundtrip overlaps
-    // with the local DB fetches and container wiring below.
-    async let autoAddConfigResult = session.getAutoAddConfig()
-
-    // Resolve the radio before constructing the container so the
-    // chat send queue can scope its `PendingSend` hydration to the
-    // right radio from frame zero. Falls back to publicKey lookup
-    // (backup import) and finally to a fresh UUID for first-time
-    // pairings.
-    let existingDevice = try? await persistenceStore.fetchDevice(id: deviceID)
-    let deviceByPublicKey: DeviceDTO? = if existingDevice == nil {
-      try? await persistenceStore.fetchDevice(publicKey: selfInfo.publicKey)
-    } else {
-      nil
-    }
-    let effectiveExisting = existingDevice ?? deviceByPublicKey
-    let resolvedRadioID = effectiveExisting?.radioID ?? UUID()
-
-    let newServices = ServiceContainer(
-      session: session,
-      dataStore: persistenceStore,
-      radioID: resolvedRadioID,
-      appStateProvider: appStateProvider,
-      connectionStateEvents: connectionStateEvents,
-      initialConnectionState: connectionState
-    )
-    await wireCleanChannelSyncCallback(on: newServices)
-    await newServices.nodeConfigService.setOnPostIdentityImport { [weak self, weak newServices] in
-      guard let self, let services = newServices else { return nil }
-      return try await reconcileIdentity(expectedServices: services, deviceID: deviceID)
-    }
-
-    let autoAddConfig = await (try? autoAddConfigResult) ?? MeshCore.AutoAddConfig(bitmask: 0)
-
-    let repeatFreqRanges: [MeshCore.FrequencyRange] = await capabilities.clientRepeat
-      ? (try? session.getRepeatFreq()) ?? []
-      : []
-
-    let device = createDevice(
-      deviceID: deviceID,
-      radioID: resolvedRadioID,
-      selfInfo: selfInfo,
-      capabilities: capabilities,
-      autoAddConfig: autoAddConfig,
-      existingDevice: effectiveExisting,
-      connectionMethods: connectionMethods
-    )
-
-    let deviceDTO = DeviceDTO(from: device)
-    // Persist before warmUp so purgeOrphanPendingSends sees the in-progress
-    // radio's Device row and does not classify its PendingSends as orphans.
-    try await newServices.dataStore.saveDevice(deviceDTO)
-
-    // Clean up orphaned Device row from backup import
-    if let oldDevice = deviceByPublicKey, oldDevice.id != deviceID {
-      try? await newServices.dataStore.deleteDevice(id: oldDevice.id)
-    }
-
-    // Run startup-time DB hygiene before hydrating the send queue.
-    // warmUp's inner operations (purgeOrphanPendingSends and
-    // purgeLegacyAttemptCountRows) are best-effort; failure is non-fatal.
-    do {
-      try await newServices.warmUp()
-    } catch {
-      logger.warning("ServiceContainer.warmUp failed: \(error.localizedDescription)")
-    }
-
-    // Hydrate the chat send queue before exposing the container so
-    // view-model `configure` calls see a hydrated service from the
-    // first read.
-    await newServices.chatSendQueueService.hydrate()
-
-    if let connectionAttemptID,
-       !ownsConnectionAttempt(deviceID: deviceID, attemptID: connectionAttemptID) {
-      await newServices.tearDown()
-      throw CancellationError()
-    }
-
-    // Restore `self.session` together with `self.services`: an interleaved
-    // `handleConnectionLoss` nils both atomically, and `promoteToReady`'s
-    // state invariants require both.
-    self.session = session
-    services = newServices
-
-    connectedDevice = deviceDTO
-    allowedRepeatFreqRanges = repeatFreqRanges
-
-    return (newServices, deviceDTO.radioID)
-  }
-
-  // MARK: - Ready Promotion
-
-  /// Promotes connection to `.ready` if the connection is still alive and owned by the expected services.
-  /// Skips post-sync work (time sync, timezone, onDeviceSynced) when sync failed to avoid BLE pressure.
-  /// Returns `true` if `.ready` was set, `false` if promotion was suppressed.
-  ///
-  /// - Parameter additionalGuard: Caller-specific invariant checked at every guard point,
-  ///   including after async operations like `syncDeviceTimeIfNeeded()`. This cannot be an
-  ///   inline check at the call site because the invariant must hold both before and after
-  ///   the internal awaits — a competing reconnect cycle could start during time sync,
-  ///   and promoting a stale session to `.ready` would shadow the new one.
-  ///   Currently only `rebuildSession` uses this (reconnect-generation check).
-  @discardableResult
-  func promoteToReady(
-    syncResult: FullSyncResult?,
-    expectedServices: ServiceContainer,
-    transportType: TransportType,
-    additionalGuard: (() -> Bool)? = nil
-  ) async -> Bool {
-    let syncSucceeded = syncResult?.isConnectionUsable == true
-    func canPromote(_ phase: String) -> Bool {
-      guard connectionIntent.wantsConnection else {
-        logger.warning("Promotion suppressed\(phase): user disconnected")
-        return false
-      }
-      guard services === expectedServices else {
-        logger.warning("Promotion suppressed\(phase): services replaced or nil")
-        return false
-      }
-      guard additionalGuard?() ?? true else {
-        logger.warning("Promotion suppressed\(phase): caller guard failed (e.g. reconnect generation)")
-        return false
-      }
-      return true
-    }
-    guard canPromote("") else { return false }
-
-    currentTransportType = transportType
-    connectionState = syncSucceeded ? .ready : .syncing
-    surfacedAuthFailureDeviceID = nil
-
-    // Skip time sync on BLE failure to avoid pressure on a saturated link.
-    // WiFi/TCP has no such constraint, so always correct the clock there.
-    if syncSucceeded || transportType == .wifi {
-      await syncDeviceTimeIfNeeded()
-      guard canPromote(" after time sync") else { return false }
-
-      await RadioTimezone.syncIfNeeded(
-        supportsRadioCLI: connectedDevice?.supportsRadioCLI == true,
-        secondsFromGMT: TimeZone.current.secondsFromGMT(),
-        settings: expectedServices.settingsService,
-        stillCurrent: { [weak self] in
-          guard let self else { return false }
-          return self.services === expectedServices
-        }
-      )
-      guard canPromote(" after timezone sync") else { return false }
-    }
-
-    if syncSucceeded {
-      await onDeviceSynced?(syncResult?.hasCleanRecipientData == true)
-      guard canPromote(" after device sync callback") else { return false }
-    }
-    return true
-  }
-
-  /// Re-evaluates the connected device's identity after `NodeConfigService.importIdentity`
-  /// has restored a privateKey on the radio. If the radio is now reporting a different
-  /// `publicKey` than the local Device row, attempts to reconcile against any ghost
-  /// carrying that publicKey (left by a prior "remove from MC1").
-  ///
-  /// Mirrors the `promoteToReady` lifecycle pattern: takes the `ServiceContainer`
-  /// the caller expects to still own, plus the `deviceID` it expects to still be
-  /// connected to. Bails out (returns `nil`) if either invariant fails before or
-  /// after the `currentSelfInfo` await — a competing reconnect cycle could otherwise
-  /// reconcile state onto the wrong connection.
-  ///
-  /// - Parameters:
-  ///   - expectedServices: The `ServiceContainer` captured at the start of the
-  ///     config-import operation. If `self.services` no longer points to it, the
-  ///     reconcile is silently skipped.
-  ///   - deviceID: The connected row's `Device.id`.
-  /// - Returns: The new `radioID` if reconciliation reassigned the device,
-  ///   otherwise `nil` (no publicKey change, no matching ghost, or a guard tripped).
-  @discardableResult
-  public func reconcileIdentity(
-    expectedServices: ServiceContainer,
-    deviceID: UUID
-  ) async throws -> UUID? {
-    guard services === expectedServices else {
-      logger.info("reconcileIdentity skipped: services replaced before currentSelfInfo")
-      return nil
-    }
-    guard let preDevice = connectedDevice, preDevice.id == deviceID else {
-      logger.info("reconcileIdentity skipped: connectedDevice changed before currentSelfInfo")
-      return nil
-    }
-    let previousSelfPublicKey = preDevice.publicKey
-    let previousRadioID = preDevice.radioID
-
-    let selfInfo: MeshCore.SelfInfo
-    do {
-      guard let info = await expectedServices.session.currentSelfInfo else {
-        logger.warning("reconcileIdentity failed: session.currentSelfInfo is nil")
-        return nil
-      }
-      selfInfo = info
-    }
-
-    guard services === expectedServices else {
-      logger.info("reconcileIdentity skipped: services replaced after currentSelfInfo")
-      return nil
-    }
-    guard connectedDevice?.id == deviceID else {
-      logger.info("reconcileIdentity skipped: connectedDevice changed after currentSelfInfo")
-      return nil
-    }
-
-    // No publicKey-equality short-circuit: after a partial-import + app restart,
-    // `buildServicesAndSaveDevice` finds the Device by BLE UUID and overwrites
-    // `Device.publicKey` with the restored key via `Device.apply(dto:)`. On the
-    // user's retry, `selfInfo.publicKey == connectedDevice.publicKey` even though
-    // `radioID` is still stale. Always ask `reconcileGhostIdentity` — its
-    // predicate handles the no-ghost case by returning nil, so the cost of an
-    // unconditional query is one cheap DB lookup per import.
-
-    let newRadioID: UUID?
-    do {
-      newRadioID = try await expectedServices.dataStore.reconcileGhostIdentity(
-        currentDeviceID: deviceID,
-        newPublicKey: selfInfo.publicKey
-      )
-    } catch {
-      logger.warning("reconcileIdentity: reconcileGhostIdentity failed: \(error.localizedDescription)")
-      return nil
-    }
-
-    // Drop the local ZephCore V-contact derived from the previous self key when
-    // identity rotates; the new V-key arrives on the next contact sync. It was synced
-    // under the pre-reconcile partition, and ghost reconciliation re-keys only the
-    // Device row, never contacts, so it always lives under previousRadioID.
-    if previousSelfPublicKey != selfInfo.publicKey {
-      await dropStaleVContact(
-        dataStore: expectedServices.dataStore,
-        radioID: previousRadioID,
-        oldSelfPublicKey: previousSelfPublicKey
-      )
-    }
-
-    guard let newRadioID else {
-      logger.info("reconcileIdentity: publicKey changed but no ghost matched")
-      return nil
-    }
-
-    // Final guard: the DB save just ran on a background actor; the connection
-    // could still have churned. Only mutate live state if the captured container
-    // is still authoritative.
-    guard services === expectedServices, connectedDevice?.id == deviceID else {
-      logger.info("reconcileIdentity: state churned after DB save; skipping in-memory refresh")
-      return newRadioID
-    }
-    if let refreshed = try? await expectedServices.dataStore.fetchDevice(id: deviceID),
-       services === expectedServices,
-       connectedDevice?.id == deviceID {
-      connectedDevice = refreshed
-      persistConnection(
-        deviceID: refreshed.id,
-        radioID: refreshed.radioID,
-        deviceName: refreshed.nodeName
-      )
-    }
-
-    logger.info("Reconciled identity to ghost radioID after key import: \(newRadioID)")
-    return newRadioID
-  }
-
-  /// Removes a local contact row for the V-contact derived from a retired self public key.
-  private func dropStaleVContact(
-    dataStore: PersistenceStore,
-    radioID: UUID,
-    oldSelfPublicKey: Data
-  ) async {
-    guard let oldVKey = VContactIdentity.publicKey(forSelfPublicKey: oldSelfPublicKey) else { return }
-    do {
-      guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: oldVKey) else {
-        return
-      }
-      try await dataStore.deleteContact(id: contact.id)
-      logger.info("Dropped stale ZephCore V-contact after identity rotation")
-    } catch {
-      logger.warning("Failed to drop stale V-contact after identity rotation: \(error.localizedDescription)")
-    }
-  }
-
-  /// Setting the radio clock backward makes its request timestamps fall below
-  /// the `last_timestamp` remote repeaters recorded for it, and their replay
-  /// protection then silently drops every packet until the clock re-passes the
-  /// stored value. A tight tolerance keeps each backward step, and therefore
-  /// each deaf window, no longer than the tolerance itself, while still
-  /// recovering radios whose clocks are stuck far in the future.
-  private static let deviceClockDriftTolerance: TimeInterval = 5
-
-  /// Syncs the device clock when it drifts beyond `deviceClockDriftTolerance`.
-  func syncDeviceTimeIfNeeded() async {
-    guard let session else { return }
-    do {
-      let deviceTime = try await withTimeout(.seconds(5), operationName: "getTime") {
-        try await session.getTime()
-      }
-      let timeDifference = abs(deviceTime.timeIntervalSinceNow)
-      if timeDifference > Self.deviceClockDriftTolerance {
-        try await withTimeout(.seconds(5), operationName: "setTime") {
-          try await session.setTime(Date())
-        }
-        logger.info("Synced device time (was off by \(Int(timeDifference))s)")
-      } else {
-        logger.info("Device time in sync (drift: \(Int(timeDifference))s)")
-      }
-    } catch {
-      logger.warning("Failed to sync device time: \(error.localizedDescription)")
-    }
-  }
-
-  /// Creates a Device from MeshCore types
-  ///
-  /// `radioID` is the resolved partition UUID for this device. Callers in
-  /// the connect path must pass the same UUID they used to construct
-  /// `ServiceContainer(radioID:)` so the chat send queue's `PendingSend`
-  /// scope and the persisted `Device.radioID` cannot diverge on first pair.
-  /// A bare `?? UUID()` fallback here would mint a second UUID that the
-  /// container would never see.
-  func createDevice(
-    deviceID: UUID,
-    radioID: UUID,
-    selfInfo: MeshCore.SelfInfo,
-    capabilities: MeshCore.DeviceCapabilities,
-    autoAddConfig: MeshCore.AutoAddConfig,
-    existingDevice: DeviceDTO? = nil,
-    connectionMethods: [ConnectionMethod] = []
-  ) -> Device {
-    // Merge new connection methods with existing ones, replacing by transport type
-    var mergedMethods = ConnectionMethod.canonicalized(existingDevice?.connectionMethods ?? [])
-    for method in connectionMethods {
-      if method.isWiFi {
-        mergedMethods.removeAll { $0.isWiFi }
-      } else if method.isBluetooth {
-        mergedMethods.removeAll { $0.isBluetooth }
-      }
-      mergedMethods.append(method)
-    }
-
-    let device = Device(
-      id: deviceID,
-      radioID: radioID,
-      publicKey: selfInfo.publicKey,
-      nodeName: selfInfo.name,
-      firmwareVersion: capabilities.firmwareVersion,
-      firmwareVersionString: capabilities.version,
-      manufacturerName: capabilities.model,
-      buildDate: capabilities.firmwareBuild,
-      maxContacts: UInt16(capabilities.maxContacts),
-      maxChannels: UInt8(min(capabilities.maxChannels, 255)),
-      frequency: UInt32(selfInfo.radioFrequency * 1000), // Convert MHz to kHz
-      bandwidth: UInt32(selfInfo.radioBandwidth * 1000), // Convert kHz to Hz
-      spreadingFactor: selfInfo.radioSpreadingFactor,
-      codingRate: selfInfo.radioCodingRate,
-      txPower: selfInfo.txPower,
-      maxTxPower: selfInfo.maxTxPower,
-      latitude: selfInfo.latitude,
-      longitude: selfInfo.longitude,
-      blePin: capabilities.blePin,
-      clientRepeat: capabilities.clientRepeat,
-      pathHashMode: capabilities.pathHashMode,
-      defaultFloodScopeName: existingDevice?.defaultFloodScopeName,
-      preRepeatFrequency: existingDevice?.preRepeatFrequency,
-      preRepeatBandwidth: existingDevice?.preRepeatBandwidth,
-      preRepeatSpreadingFactor: existingDevice?.preRepeatSpreadingFactor,
-      preRepeatCodingRate: existingDevice?.preRepeatCodingRate,
-      manualAddContacts: selfInfo.manualAddContacts,
-      autoAddConfig: autoAddConfig.bitmask,
-      autoAddMaxHops: autoAddConfig.maxHops,
-      multiAcks: selfInfo.multiAcks,
-      telemetryModeBase: selfInfo.telemetryModeBase,
-      telemetryModeLoc: selfInfo.telemetryModeLocation,
-      telemetryModeEnv: selfInfo.telemetryModeEnvironment,
-      advertLocationPolicy: selfInfo.advertisementLocationPolicy,
-      lastConnected: Date(),
-      lastContactSync: existingDevice?.lastContactSync ?? 0,
-      isActive: true,
-      ocvPreset: existingDevice?.ocvPreset
-        ?? OCVPreset.preset(forManufacturer: capabilities.model)?.rawValue,
-      appliedRadioPresetID: existingDevice?.appliedRadioPresetID,
-      customOCVArrayString: existingDevice?.customOCVArrayString,
-      connectionMethods: mergedMethods,
-      knownRegions: existingDevice?.knownRegions ?? []
-    )
-
-    // If repeat mode was disabled externally, clear orphaned pre-repeat settings
-    if !capabilities.clientRepeat, existingDevice?.preRepeatFrequency != nil {
-      device.preRepeatFrequency = nil
-      device.preRepeatBandwidth = nil
-      device.preRepeatSpreadingFactor = nil
-      device.preRepeatCodingRate = nil
-    }
-
-    return device
-  }
-
   /// Configures BLE write pacing based on detected device platform.
   /// - Parameter capabilities: The device capabilities from queryDevice()
-  func configureBLEPacing(for capabilities: MeshCore.DeviceCapabilities) async {
-    detectAndStorePlatform(model: capabilities.model, transportType: .bluetooth)
+  func configureBLEPacing(for capabilities: MeshCore.DeviceCapabilities, binding: SessionTransportBinding) async {
+    do {
+      try binding.performIfActive { detectAndStorePlatform(model: capabilities.model, transportType: .bluetooth) }
+    } catch { return }
     let pacing = detectedPlatform.recommendedWritePacing
-    await stateMachine.setWritePacingDelay(pacing)
+    await stateMachine.setWritePacingDelay(pacing, sessionBinding: binding)
     if pacing > 0 {
       logger.info("[BLE] Platform detected: \(capabilities.model) -> \(detectedPlatform), write pacing: \(pacing)s")
     }
@@ -1384,30 +734,7 @@ public final class ConnectionManager {
     }
   }
 
-  // MARK: - Cleanup
-
-  /// Cleans up session and services without changing connection state (used during retries)
-  func cleanupResources() async {
-    // Default stop() closes the shared transport, so teardown stays held until that close finishes.
-    beginConnectionTeardown()
-    defer { endConnectionTeardown() }
-    let oldSession = session
-    let oldServices = services
-    session = nil
-    services = nil
-    await oldSession?.stop()
-    await oldServices?.tearDown()
-  }
-
-  /// Full cleanup including state reset (used on explicit disconnect)
-  func cleanupConnection() async {
-    logger.info("[BLE] cleanupConnection: state → .disconnected")
-    connectionState = .disconnected
-    connectingDeviceID = nil
-    connectedDevice = nil
-    allowedRepeatFreqRanges = []
-    await cleanupResources()
-  }
+  // MARK: - Persisted Intent and Diagnostics
 
   func persistDisconnectDiagnostic(_ summary: String) {
     lastConnectionStore.persistDisconnectDiagnostic(summary)
@@ -1415,6 +742,68 @@ public final class ConnectionManager {
 
   func persistIntent() {
     connectionIntent.persist(to: defaults)
+  }
+
+  // MARK: - Owned Publication
+
+  func publish(_ link: ConnectionLink, repeatRanges: [MeshCore.FrequencyRange]) throws {
+    guard desiredRequest?.id == link.requestID, link.resource.binding.isActive else {
+      logLifecycle("publicationRejected", context: lifecycleContext(request: nil, attempt: nil, link: link), reason: "requestOrBinding")
+      throw CancellationError()
+    }
+    currentLossReceipt = nil
+    installedLink = link
+    session = link.resource.session
+    services = link.services
+    connectedDevice = link.device
+    currentTransportType = link.target.transportType
+    wifiTransport = link.resource.wifi
+    allowedRepeatFreqRanges = repeatRanges
+    connectionState = .syncing
+    logLifecycle("published", context: lifecycleContext(request: desiredRequest, attempt: desiredRequest?.attempt, link: link))
+  }
+
+  func publishPending(_ request: ConnectionRequest, phase: DeviceConnectionState) {
+    guard desiredRequest === request, installedLink == nil else {
+      logLifecycle("publicationRejected", context: lifecycleContext(request: request, attempt: request.attempt, link: nil), reason: "requestOrInstalledLink")
+      return
+    }
+    currentTransportType = phase == .disconnected ? nil : request.target.transportType
+    connectionState = phase
+  }
+
+  @discardableResult
+  func detachPublication(phase: DeviceConnectionState) -> ConnectionLink? {
+    let old = installedLink
+    installedLink = nil
+    session = nil
+    services = nil
+    connectedDevice = nil
+    wifiTransport = nil
+    currentTransportType = nil
+    allowedRepeatFreqRanges = []
+    connectionState = phase
+    return old
+  }
+
+  func transition(_ link: ConnectionLink, to state: DeviceConnectionState) {
+    guard installedLink === link, desiredRequest?.id == link.requestID else {
+      logLifecycle("transitionRejected", context: lifecycleContext(request: nil, attempt: nil, link: link), reason: "requestOrLink")
+      return
+    }
+    connectionState = state
+  }
+
+  func setPublishedDevice(_ device: DeviceDTO) {
+    guard let link = installedLink else {
+      #if DEBUG
+        connectedDevice = device
+      #endif
+      return
+    }
+    guard device.id == link.device.id else { return }
+    link.device = device
+    connectedDevice = device
   }
 
   // MARK: - State Invariants
@@ -1438,6 +827,18 @@ public final class ConnectionManager {
     }
   #endif
 
+  func makeBoundSession(transport: any MeshTransport, scope: RadioCLICorrelationScope) -> MeshCoreSession {
+    let clock: (any Clock<Duration>)?
+    #if DEBUG
+      clock = sessionClockForTesting
+    #else
+      clock = nil
+    #endif
+    return MeshCoreSession(
+      transport: transport, configuration: .default, clock: clock, radioCLICorrelationScope: scope
+    )
+  }
+
   // MARK: - Test Helpers
 
   #if DEBUG
@@ -1454,6 +855,7 @@ public final class ConnectionManager {
       session: MeshCoreSession?? = nil,
       connectedDevice: DeviceDTO?? = nil,
       currentTransportType: TransportType?? = nil,
+      wifiTransport: (any WiFiMeshTransport)?? = nil,
       connectionIntent: ConnectionIntent? = nil,
       connectingDeviceID: UUID?? = nil,
       sessionRebuildDeviceID: UUID?? = nil,
@@ -1481,14 +883,22 @@ public final class ConnectionManager {
       if let transport = currentTransportType {
         self.currentTransportType = transport
       }
+      if let socket = wifiTransport { self.wifiTransport = socket }
       if let intent = connectionIntent {
         self.connectionIntent = intent
       }
       if let deviceID = connectingDeviceID {
-        self.connectingDeviceID = deviceID
+        if let deviceID {
+          desiredRequest = ConnectionRequest(
+            targets: [.bluetooth(deviceID)], origin: .explicit, forceFullSync: false, forceReconnect: false,
+            continuing: nil
+          )
+        } else if installedLink == nil {
+          desiredRequest = nil
+        }
       }
-      if let deviceID = sessionRebuildDeviceID {
-        self.sessionRebuildDeviceID = deviceID
+      if let deviceID = sessionRebuildDeviceID, let deviceID, let request = desiredRequest {
+        _ = reconnectionCoordinator.begin(deviceID: deviceID, requestID: request.id)
       }
       if let pairing = isPairingInProgress {
         self.isPairingInProgress = pairing
@@ -1498,6 +908,23 @@ public final class ConnectionManager {
       }
       if let platform = detectedPlatform {
         self.detectedPlatform = platform
+      }
+      if services != nil || session != nil || connectedDevice != nil || wifiTransport != nil,
+         let liveSession = self.session, let liveServices = self.services, let device = self.connectedDevice {
+        let target: ConnectionRequest.Target = self.currentTransportType == .wifi ? .wifi(host: "test", port: 5000) : .bluetooth(device.id)
+        let request = desiredRequest ?? ConnectionRequest(
+          targets: [target], origin: .explicit, forceFullSync: false, forceReconnect: false, continuing: nil
+        )
+        desiredRequest = request
+        let physical: any MeshTransport = if let socket = self.wifiTransport { socket } else { self.transport }
+        let resource = ConnectionResource(
+          binding: SessionTransportBinding(), transport: physical, session: liveSession, wifi: self.wifiTransport,
+          ble: self.wifiTransport == nil ? self.transport : nil
+        )
+        installedLink = ConnectionLink(requestID: request.id, target: target, resource: resource, services: liveServices, device: device)
+        request.committedGeneration = installedLink?.generation
+      } else if services != nil || session != nil || connectedDevice != nil {
+        installedLink = nil
       }
       if let cleanSync = lastCleanChannelSync {
         self.lastCleanChannelSync = cleanSync

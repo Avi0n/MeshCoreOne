@@ -69,6 +69,9 @@
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
 "deviceScan.subtitle" = "무선 기기의 전원을 켜고 다른 모든 앱 및 기기와의 연결을 끊은 다음 기기 추가를 탭하십시오.";
 
+/* Location: DeviceScanView.swift - Subtitle while bond-loss recovery is re-pairing */
+"deviceScan.rePairingSubtitle" = "무선 기기의 전원을 켜고 다른 모든 앱 및 기기와의 연결을 끊으십시오.";
+
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "기기가 이미 페어링되어 있습니다";
 

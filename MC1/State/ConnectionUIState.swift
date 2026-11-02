@@ -74,7 +74,11 @@ final class ConnectionUIState {
   var pairingFailureKind: PairingFailureKind?
 
   /// Device ID that failed pairing (wrong PIN) - for recovery UI
-  var failedPairingDeviceID: UUID?
+  var failedPairingDeviceID: UUID? {
+    didSet { pairingFailureEpisodeID = UUID() }
+  }
+
+  private(set) var pairingFailureEpisodeID = UUID()
 
   /// Device ID that triggered "connected to other app" warning - alert shown when non-nil
   var otherAppWarningDeviceID: UUID?
@@ -82,6 +86,7 @@ final class ConnectionUIState {
   /// User-initiated connect in flight (scan, retry, simulator).
   /// Distinct from `isPairingInProgress` and `isPairingFlowActive`.
   var isBusy = false
+  private var connectionActionID: UUID?
 
   /// Whether the device's node storage is full (set by 0x90 push, cleared on delete/overwrite)
   var isNodeStorageFull = false
@@ -93,9 +98,6 @@ final class ConnectionUIState {
   /// Task consuming `ContactService.events()` for node-deletion events.
   /// Re-subscribed per connection in `wireCallbacks`; cancelled on disconnect.
   private var nodeDeletedEventsTask: Task<Void, Never>?
-
-  /// Flag indicating ASK picker should be shown when app returns to foreground
-  var shouldShowPickerOnForeground = false
 
   /// Forget succeeded but ASK rejected `showPicker` (`pickerRestricted`). Retry
   /// `pairNewDevice` on the next `.active` scene, not `startDeviceScan`.
@@ -135,6 +137,25 @@ final class ConnectionUIState {
     queuedSavedDeviceConnection = nil
     queuedDeviceScanAfterSelectionDismiss = false
     queuedSystemPairingSetup = prompt
+  }
+
+  func beginConnectionAction() -> UUID {
+    let id = UUID()
+    connectionActionID = id
+    isBusy = true
+    return id
+  }
+
+  func isCurrentConnectionAction(_ id: UUID) -> Bool {
+    connectionActionID == id
+  }
+
+  @discardableResult
+  func finishConnectionAction(_ id: UUID) -> Bool {
+    guard isCurrentConnectionAction(id) else { return false }
+    connectionActionID = nil
+    isBusy = false
+    return true
   }
 
   // MARK: - Ready Toast Methods
@@ -242,7 +263,7 @@ final class ConnectionUIState {
   private func updateSyncPhase(
     _ phase: SyncPhase?,
     connectionManager: ConnectionManager,
-    syncCoordinator: SyncCoordinator
+    context: ConnectionCallbackContext
   ) {
     currentSyncPhase = phase
     guard phase == .messages, !syncFailedPillVisible,
@@ -252,10 +273,10 @@ final class ConnectionUIState {
     }
     // Repeated phase updates keep the original deadline so they cannot postpone the label.
     guard messageSyncPillTask == nil, !showMessageSyncPill else { return }
-    messageSyncPillTask = Task { [weak self, weak connectionManager, weak syncCoordinator, clock] in
+    messageSyncPillTask = Task { [weak self, weak connectionManager, clock] in
       try? await clock.sleep(for: Self.messageSyncPillDelay)
-      guard !Task.isCancelled, let self, let connectionManager, let syncCoordinator,
-            connectionManager.services?.syncCoordinator === syncCoordinator,
+      guard !Task.isCancelled, let self, let connectionManager,
+            context.isCurrent(connectionManager),
             currentSyncPhase == .messages, !syncFailedPillVisible,
             connectionManager.connectionState == .connected || connectionManager.connectionState == .syncing else { return }
       showMessageSyncPill = true
@@ -302,47 +323,47 @@ final class ConnectionUIState {
 
   /// Wires ConnectionUI-related callbacks on the sync coordinator and services.
   func wireCallbacks(
-    syncCoordinator: SyncCoordinator,
-    advertisementService: AdvertisementService,
-    contactService: ContactService,
+    snapshot: ConnectionSnapshot,
     connectionManager: ConnectionManager
   ) async {
+    let context = ConnectionCallbackContext(snapshot)
+    guard context.isCurrent(connectionManager) else { return }
+    let syncCoordinator = snapshot.services.syncCoordinator
+    let advertisementService = snapshot.services.advertisementService
+    let contactService = snapshot.services.contactService
     hideDisconnectedPill()
 
     announceConnectionState(L10n.Localizable.Accessibility.Connection.deviceReconnected)
 
     // Activity tracks contacts/channels and on-demand work; phase identifies message catch-up.
     await syncCoordinator.setSyncActivityCallbacks(
-      onStarted: { @MainActor [weak self, weak connectionManager, weak syncCoordinator] in
-        guard let self, let connectionManager, let syncCoordinator,
-              connectionManager.services?.syncCoordinator === syncCoordinator else { return }
+      onStarted: { @MainActor [weak self, weak connectionManager] in
+        guard let self, let connectionManager,
+              context.isCurrent(connectionManager) else { return }
         syncActivityCount += 1
       },
-      onEnded: { @MainActor [weak self, weak connectionManager, weak syncCoordinator] succeeded in
-        guard let self, let connectionManager, let syncCoordinator,
-              connectionManager.services?.syncCoordinator === syncCoordinator else { return }
+      onEnded: { @MainActor [weak self, weak connectionManager] succeeded in
+        guard let self, let connectionManager,
+              context.isCurrent(connectionManager) else { return }
         endSyncActivity(succeeded: succeeded, connectionState: connectionManager.connectionState)
       },
-      onPhaseChanged: { @MainActor [weak self, weak connectionManager, weak syncCoordinator] phase in
-        guard let self, let connectionManager, let syncCoordinator,
-              connectionManager.services?.syncCoordinator === syncCoordinator else { return }
-        updateSyncPhase(phase, connectionManager: connectionManager, syncCoordinator: syncCoordinator)
+      onPhaseChanged: { @MainActor [weak self, weak connectionManager] phase in
+        guard let self, let connectionManager,
+              context.isCurrent(connectionManager) else { return }
+        updateSyncPhase(phase, connectionManager: connectionManager, context: context)
       }
     )
 
-    // Resync failed callback for "Sync Failed" pill
-    connectionManager.onResyncFailed = { [weak self] in
-      self?.showSyncFailedPill()
-    }
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
 
     // Node storage full events (0x90 contactsFull or 0x8F contactDeleted push).
     // Subscribed synchronously so the registration is live before
     // onConnectionEstablished can emit storage events.
     nodeStorageEventsTask?.cancel()
     let advertisementEvents = advertisementService.events()
-    nodeStorageEventsTask = Task { [weak self] in
+    nodeStorageEventsTask = Task { [weak self, weak connectionManager] in
       for await event in advertisementEvents {
-        guard let self else { return }
+        guard let self, let connectionManager, !Task.isCancelled, context.isCurrent(connectionManager) else { return }
         if case let .nodeStorageFullChanged(isFull) = event {
           isNodeStorageFull = isFull
         }
@@ -354,9 +375,9 @@ final class ConnectionUIState {
     // before a delete can emit.
     nodeDeletedEventsTask?.cancel()
     let contactEvents = contactService.events()
-    nodeDeletedEventsTask = Task { [weak self] in
+    nodeDeletedEventsTask = Task { [weak self, weak connectionManager] in
       for await event in contactEvents {
-        guard let self else { return }
+        guard let self, let connectionManager, !Task.isCancelled, context.isCurrent(connectionManager) else { return }
         if case .nodeDeleted = event {
           isNodeStorageFull = false
         }

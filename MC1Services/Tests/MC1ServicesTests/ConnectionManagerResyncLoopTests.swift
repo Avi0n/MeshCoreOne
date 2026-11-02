@@ -12,9 +12,11 @@ struct ConnectionManagerResyncLoopTests {
   private func makeResyncTestHarness(deviceID: UUID) async throws -> (
     manager: ConnectionManager,
     services: ServiceContainer,
-    session: MeshCoreSession
+    session: MeshCoreSession,
+    clock: TestClock
   ) {
-    let (manager, _) = try ConnectionManager.createForTesting()
+    let clock = TestClock()
+    let (manager, _) = try ConnectionManager.createForTesting(reconnectionClock: clock)
     let transport = SimulatorMockTransport()
     // Don't connect transport — commands fail immediately with .notConnected
     let session = MeshCoreSession(
@@ -37,7 +39,16 @@ struct ConnectionManagerResyncLoopTests {
       connectionIntent: .wantsConnection()
     )
 
-    return (manager, services, session)
+    return (manager, services, session, clock)
+  }
+
+  private func waitUntilResync(
+    _ clock: TestClock,
+    timeout: Duration = .seconds(2),
+    _ message: String,
+    _ condition: @escaping @MainActor () async throws -> Bool
+  ) async throws {
+    try await waitUntilClockAdvances(clock, timeout: timeout, message, condition)
   }
 
   // MARK: - Cancellation
@@ -45,7 +56,7 @@ struct ConnectionManagerResyncLoopTests {
   @Test
   func `Cancelling resync loop closes the activity bracket with succeeded=false`() async throws {
     let deviceID = UUID()
-    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let (manager, services, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
 
     let startedTracker = CallTracker()
     let succeededValues = ValueTracker<Bool>()
@@ -59,7 +70,7 @@ struct ConnectionManagerResyncLoopTests {
     manager.startResyncLoop(radioID: deviceID, services: services)
 
     // Wait for the outer bracket to open
-    try await waitUntil("beginResyncActivity should fire") {
+    try await waitUntilResync(clock, "beginResyncActivity should fire") {
       startedTracker.wasCalled
     }
 
@@ -67,7 +78,7 @@ struct ConnectionManagerResyncLoopTests {
     manager.cancelResyncLoop()
 
     // Wait for the catch-all to close the bracket
-    try await waitUntil("endResyncActivity should fire after cancellation") {
+    try await waitUntilResync(clock, "endResyncActivity should fire after cancellation") {
       !succeededValues.values.isEmpty
     }
 
@@ -81,7 +92,7 @@ struct ConnectionManagerResyncLoopTests {
   @Test
   func `Resync loop exits and closes bracket when connectionIntent changes`() async throws {
     let deviceID = UUID()
-    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let (manager, services, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
 
     let startedTracker = CallTracker()
     let succeededValues = ValueTracker<Bool>()
@@ -95,17 +106,16 @@ struct ConnectionManagerResyncLoopTests {
     manager.startResyncLoop(radioID: deviceID, services: services)
 
     // Wait for the outer bracket to open
-    try await waitUntil("beginResyncActivity should fire") {
+    try await waitUntilResync(clock, "beginResyncActivity should fire") {
       startedTracker.wasCalled
     }
 
-    // Change intent while the loop is sleeping between retries.
-    // The MainActor is free during Task.sleep, so this runs immediately.
+    // Change intent while the loop is parked on the test clock, before the next attempt.
     manager.setTestState(connectionIntent: .userDisconnected)
 
     // The guard at the top of the while loop will fail after the sleep,
     // causing a break → catch-all fires endResyncActivity(succeeded: false).
-    try await waitUntil(timeout: .seconds(5), "endResyncActivity should fire after guard exit") {
+    try await waitUntilResync(clock, timeout: .seconds(5), "endResyncActivity should fire after guard exit") {
       !succeededValues.values.isEmpty
     }
 
@@ -120,10 +130,10 @@ struct ConnectionManagerResyncLoopTests {
   )
   func `Max resync attempts triggers disconnect and onResyncFailed`() async throws {
     let deviceID = UUID()
-    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let (manager, services, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
 
     let resyncFailedTracker = CallTracker()
-    manager.onResyncFailed = {
+    manager.onResyncFailed = { _ in
       resyncFailedTracker.markCalled()
     }
 
@@ -138,7 +148,7 @@ struct ConnectionManagerResyncLoopTests {
     manager.startResyncLoop(radioID: deviceID, services: services)
 
     // Wait for max attempts to be exhausted (3 attempts × 2s intervals)
-    try await waitUntil(timeout: .seconds(15), "onResyncFailed should fire after max attempts") {
+    try await waitUntilResync(clock, timeout: .seconds(15), "onResyncFailed should fire after max attempts") {
       resyncFailedTracker.wasCalled
     }
 
@@ -159,7 +169,7 @@ struct ConnectionManagerResyncLoopTests {
   )
   func `Each resync attempt opens and closes an inner bracket`() async throws {
     let deviceID = UUID()
-    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let (manager, services, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
 
     let startCount = CallTracker()
     let endCount = CallTracker()
@@ -171,12 +181,12 @@ struct ConnectionManagerResyncLoopTests {
     )
 
     let resyncFailedTracker = CallTracker()
-    manager.onResyncFailed = { resyncFailedTracker.markCalled() }
+    manager.onResyncFailed = { _ in resyncFailedTracker.markCalled() }
 
     manager.startResyncLoop(radioID: deviceID, services: services)
 
     // Wait for loop to exhaust
-    try await waitUntil(timeout: .seconds(15), "resync loop should exhaust") {
+    try await waitUntilResync(clock, timeout: .seconds(15), "resync loop should exhaust") {
       resyncFailedTracker.wasCalled
     }
 
@@ -193,7 +203,7 @@ struct ConnectionManagerResyncLoopTests {
   )
   func `Resync success promotes .syncing → .ready`() async throws {
     let deviceID = UUID()
-    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let (manager, services, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
 
     // Override performResync to succeed
     await services.syncCoordinator.setPerformResyncOverride { _, _ in
@@ -209,8 +219,8 @@ struct ConnectionManagerResyncLoopTests {
 
     manager.startResyncLoop(radioID: deviceID, services: services)
 
-    try await waitUntil(timeout: .seconds(10), "endResyncActivity should fire with success") {
-      succeededValues.values.contains(true)
+    try await waitUntilResync(clock, timeout: .seconds(10), "successful resync completion should promote readiness") {
+      succeededValues.values.contains(true) && manager.connectionState == .ready
     }
 
     #expect(manager.connectionState == .ready)
@@ -221,7 +231,7 @@ struct ConnectionManagerResyncLoopTests {
   )
   func `Resync success calls onDeviceSynced`() async throws {
     let deviceID = UUID()
-    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let (manager, services, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
 
     // Override performResync to succeed
     await services.syncCoordinator.setPerformResyncOverride { _, _ in
@@ -229,7 +239,7 @@ struct ConnectionManagerResyncLoopTests {
     }
 
     let onDeviceSyncedTracker = CallTracker()
-    manager.onDeviceSynced = { _ in onDeviceSyncedTracker.markCalled() }
+    manager.onDeviceSynced = { _, _ in onDeviceSyncedTracker.markCalled() }
 
     let succeededValues = ValueTracker<Bool>()
     await services.syncCoordinator.setSyncActivityCallbacks(
@@ -240,7 +250,7 @@ struct ConnectionManagerResyncLoopTests {
 
     manager.startResyncLoop(radioID: deviceID, services: services)
 
-    try await waitUntil(timeout: .seconds(10), "onDeviceSynced should fire after resync success") {
+    try await waitUntilResync(clock, timeout: .seconds(10), "onDeviceSynced should fire after resync success") {
       onDeviceSyncedTracker.wasCalled
     }
 
@@ -260,15 +270,15 @@ struct ConnectionManagerResyncLoopTests {
 
     for (result, expected) in [(partial, false), (cleanDespiteMessages, true)] {
       let deviceID = UUID()
-      let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+      let (manager, services, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
       let delivered = result
       await services.syncCoordinator.setPerformResyncOverride { _, _ in delivered }
 
       var eligibility: [Bool] = []
-      manager.onDeviceSynced = { eligibility.append($0) }
+      manager.onDeviceSynced = { _, hasCleanRecipientData in eligibility.append(hasCleanRecipientData) }
 
       manager.startResyncLoop(radioID: deviceID, services: services)
-      try await waitUntil(timeout: .seconds(10), "onDeviceSynced should fire with the result flag") {
+      try await waitUntilResync(clock, timeout: .seconds(10), "onDeviceSynced should fire with the result flag") {
         eligibility.count == 1
       }
 
@@ -283,17 +293,17 @@ struct ConnectionManagerResyncLoopTests {
   )
   func `A thrown resync stays ineligible and retries`() async throws {
     let deviceID = UUID()
-    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let (manager, services, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
     let attempts = CallTracker()
     await services.syncCoordinator.setPerformResyncOverride { _, _ in
       attempts.markCalled()
       return nil
     }
     var published = false
-    manager.onDeviceSynced = { _ in published = true }
+    manager.onDeviceSynced = { _, _ in published = true }
 
     manager.startResyncLoop(radioID: deviceID, services: services)
-    try await waitUntil(timeout: .seconds(8), "a thrown resync should be retried") {
+    try await waitUntilResync(clock, timeout: .seconds(8), "a thrown resync should be retried") {
       attempts.callCount >= 2
     }
 
@@ -309,7 +319,7 @@ struct ConnectionManagerResyncLoopTests {
   )
   func `Disconnect during .syncing transitions to .disconnected and closes bracket`() async throws {
     let deviceID = UUID()
-    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let (manager, services, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
 
     let startedTracker = CallTracker()
     let succeededValues = ValueTracker<Bool>()
@@ -323,7 +333,7 @@ struct ConnectionManagerResyncLoopTests {
     manager.startResyncLoop(radioID: deviceID, services: services)
 
     // Wait for the outer bracket to open
-    try await waitUntil("beginResyncActivity should fire") {
+    try await waitUntilResync(clock, "beginResyncActivity should fire") {
       startedTracker.wasCalled
     }
 
@@ -331,7 +341,7 @@ struct ConnectionManagerResyncLoopTests {
     await manager.disconnect(reason: .userInitiated)
 
     // Wait for bracket to close
-    try await waitUntil("endResyncActivity should fire after disconnect") {
+    try await waitUntilResync(clock, "endResyncActivity should fire after disconnect") {
       !succeededValues.values.isEmpty
     }
 
@@ -346,7 +356,7 @@ struct ConnectionManagerResyncLoopTests {
   )
   func `Superseded resync loop cannot disconnect a healthy successor connection`() async throws {
     let deviceID = UUID()
-    let (manager, staleServices, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let (manager, staleServices, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
 
     // Count resync attempts against the cycle-N container. A loop orphaned by a
     // later reconnect must never drive resync against the replaced container.
@@ -357,7 +367,7 @@ struct ConnectionManagerResyncLoopTests {
     }
 
     let onResyncFailedTracker = CallTracker()
-    manager.onResyncFailed = { onResyncFailedTracker.markCalled() }
+    manager.onResyncFailed = { _ in onResyncFailedTracker.markCalled() }
 
     // Install the resync loop bound to the cycle-N container.
     manager.startResyncLoop(radioID: deviceID, services: staleServices)
@@ -381,7 +391,7 @@ struct ConnectionManagerResyncLoopTests {
     // branch that would disconnect. The timeout is generous enough that with
     // the fence absent the loop would exhaust and tear the successor down,
     // making the assertions below fail rather than hang.
-    try await waitUntil(timeout: .seconds(12), "orphaned resync loop should stop") {
+    try await waitUntilResync(clock, timeout: .seconds(12), "orphaned resync loop should stop") {
       manager.resyncTask == nil
     }
 
@@ -396,7 +406,7 @@ struct ConnectionManagerResyncLoopTests {
   )
   func `Cancelling the resync loop stops further resync attempts`() async throws {
     let deviceID = UUID()
-    let (manager, services, _) = try await makeResyncTestHarness(deviceID: deviceID)
+    let (manager, services, _, clock) = try await makeResyncTestHarness(deviceID: deviceID)
 
     let resyncCalls = CallTracker()
     await services.syncCoordinator.setPerformResyncOverride { _, _ in
@@ -406,20 +416,17 @@ struct ConnectionManagerResyncLoopTests {
 
     manager.startResyncLoop(radioID: deviceID, services: services)
 
-    try await waitUntil(timeout: .seconds(6), "first resync attempt should run") {
+    try await waitUntilResync(clock, timeout: .seconds(6), "first resync attempt should run") {
       resyncCalls.wasCalled
     }
 
     manager.cancelResyncLoop()
+    try await waitUntilResync(clock, "cancellation should clear the stored resync task") {
+      manager.resyncTask == nil
+    }
     let countAtCancel = resyncCalls.callCount
+    if clock.sleeperCount > 0 { clock.advanceToNextSleep() }
     #expect(manager.resyncTask == nil, "Cancellation must clear the stored resync task")
-
-    // A full interval beyond cancellation proves the loop made no further attempts.
-    try await Task.sleep(for: Self.postCancelObservationWindow)
     #expect(resyncCalls.callCount == countAtCancel, "Cancelled loop must not perform further resync attempts")
   }
-
-  /// Waited after cancelling a loop to confirm no further attempt fires; longer
-  /// than one `resyncInterval` so a still-running loop would have woken.
-  private static let postCancelObservationWindow: Duration = .seconds(3)
 }

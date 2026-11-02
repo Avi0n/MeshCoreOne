@@ -45,4 +45,5 @@ public enum SettingsEvent: Sendable {
   case pathHashModeUpdated(UInt8)
   case allowedRepeatFreqUpdated([MeshCore.FrequencyRange])
   case defaultFloodScopeUpdated(String?)
+  case radioWiFiChanged(revision: UInt64)
 }

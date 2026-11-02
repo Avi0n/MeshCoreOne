@@ -494,28 +494,23 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
   }
 
   func markMessageAsRead(id: UUID) async throws {}
-  func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int? {
+  func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?) async throws -> Bool {
+    false
+  }
+
+  func resolvePendingAcknowledgement(id: UUID, expectedDeadline: Date?, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?) async throws -> Bool {
+    false
+  }
+
+  func incrementPendingSendAttemptCount(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
     nil
   }
 
   func saveDevice(_ dto: DeviceDTO) async throws {}
-  func updateDeviceNodeName(radioID: UUID, name: String) async throws {}
-  func updateDeviceCoordinates(radioID: UUID, latitude: Double, longitude: Double) async throws {}
-  func updateDeviceRadio(
-    radioID: UUID,
-    frequency: UInt32,
-    bandwidth: UInt32,
-    spreadingFactor: UInt8,
-    codingRate: UInt8,
-    appliedRadioPresetID: String?
-  ) async throws {}
-  func updateDeviceTxPower(radioID: UUID, txPower: Int8) async throws {}
-  func updateDeviceObservation(radioID: UUID, mapped: DeviceDTO) async throws {}
-  func updateDeviceOtherParams(radioID: UUID, intent: OtherParamsIntent) async throws {}
-  func updateDeviceClientRepeat(radioID: UUID, enabled: Bool) async throws {}
-  func updateDevicePathHashMode(radioID: UUID, mode: UInt8) async throws {}
-  func updateDeviceAutoAdd(radioID: UUID, config: UInt8, maxHops: UInt8) async throws {}
-  func updateDeviceDefaultFloodScopeName(radioID: UUID, name: String?) async throws {}
+  func updateDeviceOCVSettings(id: UUID, preset: String, customArray: String?) async throws -> DeviceDTO? {
+    nil
+  }
+
   func fetchRemoteNodeSessionByPrefix(_ prefix: Data) async throws -> RemoteNodeSessionDTO? {
     nil
   }

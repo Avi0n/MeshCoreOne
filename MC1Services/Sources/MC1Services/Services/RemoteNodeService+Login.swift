@@ -261,6 +261,7 @@ public extension RemoteNodeService {
   /// then continues at the configured interval. Transient failures are retried up to
   /// `KeepAliveRetryPolicy.maxConsecutiveFailures` times before disconnecting.
   private func startKeepAlive(sessionID: UUID, publicKey: Data) {
+    guard !keepAliveAdmissionRetired else { return }
     stopKeepAlive(sessionID: sessionID)
 
     let interval = keepAliveIntervals[sessionID] ?? Self.defaultKeepAliveInterval
@@ -324,8 +325,9 @@ public extension RemoteNodeService {
 
   /// Stop keep-alive for a session
   internal func stopKeepAlive(sessionID: UUID) {
-    keepAliveTasks[sessionID]?.cancel()
-    keepAliveTasks.removeValue(forKey: sessionID)
+    guard let worker = keepAliveTasks.removeValue(forKey: sessionID) else { return }
+    worker.cancel()
+    retiredKeepAliveTasks.append(worker)
   }
 
   /// Send keep-alive only if the session has a direct routing path.

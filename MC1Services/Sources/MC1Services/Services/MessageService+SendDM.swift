@@ -37,6 +37,10 @@ extension MessageService {
     textType: TextType = .plain,
     replyToID: UUID? = nil
   ) async throws -> MessageDTO {
+    // Counted before `session.sendMessage`. `RequestContext` releases its slot
+    // before resuming this caller, and `retireInlineSends` waits without cancelling it.
+    try beginInlineSend()
+    defer { endInlineSend() }
     try validateDirectMessage(text: text, to: contact)
 
     let messageID = UUID()
@@ -96,6 +100,10 @@ extension MessageService {
       try await failMessageAndRethrow(error, messageID: messageID)
     }
 
+    #if DEBUG
+      if let gate = inlineSendAcceptedGateForTesting { await gate() }
+    #endif
+
     let ackTimeout = TimeInterval(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
 
     if sentInfo.expectedAck != predictedAck {
@@ -118,6 +126,7 @@ extension MessageService {
     // end-to-end ACK or the expiry checker owns the terminal state now,
     // mirroring the channel send path.
     do {
+      _ = try await persistAcknowledgement(messageID: messageID, radioID: contact.radioID, pendingSendID: nil)
       // updateMessageAck preserves `.delivered`, so writing `.sent` here
       // is a no-op when the listener already won the race.
       try await dataStore.updateMessageAck(
@@ -287,13 +296,15 @@ extension MessageService {
   public func sendPendingDirectMessage(
     messageID: UUID,
     to contact: ContactDTO,
-    preserveTimestamp: Bool = false
+    preserveTimestamp: Bool = false,
+    pendingSendID: UUID? = nil
   ) async throws -> MessageDTO {
     try await performQueuedDirectMessageSend(
       messageID: messageID,
       to: contact,
       preserveTimestamp: preserveTimestamp,
-      isResend: false
+      isResend: false,
+      pendingSendID: pendingSendID
     )
   }
 
@@ -308,13 +319,15 @@ extension MessageService {
   public func resendDirectMessage(
     messageID: UUID,
     to contact: ContactDTO,
-    preserveTimestamp: Bool = false
+    preserveTimestamp: Bool = false,
+    pendingSendID: UUID? = nil
   ) async throws -> MessageDTO {
     try await performQueuedDirectMessageSend(
       messageID: messageID,
       to: contact,
       preserveTimestamp: preserveTimestamp,
-      isResend: true
+      isResend: true,
+      pendingSendID: pendingSendID
     )
   }
 
@@ -322,7 +335,8 @@ extension MessageService {
     messageID: UUID,
     to contact: ContactDTO,
     preserveTimestamp: Bool,
-    isResend: Bool
+    isResend: Bool,
+    pendingSendID: UUID?
   ) async throws -> MessageDTO {
     guard !inFlightRetries.contains(messageID) else {
       logger.warning("Send already in progress for message: \(messageID)")
@@ -384,7 +398,8 @@ extension MessageService {
         radioID: contact.radioID,
         publicKey: contact.publicKey,
         sentInfo: sentInfo,
-        initialPathLength: initialPathLength
+        initialPathLength: initialPathLength,
+        pendingSendID: pendingSendID
       )
 
       // Broadcast after the DB write so the downstream refetch sees both
@@ -401,7 +416,8 @@ extension MessageService {
         pendingAcks.removeValue(forKey: messageID)
         throw CancellationError()
       }
-      try await failMessageAndRethrow(error, messageID: messageID)
+      if case MessageServiceError.persistenceError = error { throw error }
+      try await failMessageAndRethrow(error, messageID: messageID, pendingSendID: pendingSendID)
     }
   }
 
@@ -659,6 +675,8 @@ extension MessageService {
       existing.ackCodes.insert(ackCode)
       existing.sentAt = Date()
       existing.timeout = timeout
+      existing.pendingSendID = nil
+      existing.deadline = nil
       pendingAcks[messageID] = existing
     } else {
       pendingAcks[messageID] = PendingAck(
@@ -682,7 +700,8 @@ extension MessageService {
     radioID: UUID,
     publicKey: Data,
     sentInfo: MessageSentInfo?,
-    initialPathLength: UInt8
+    initialPathLength: UInt8,
+    pendingSendID: UUID? = nil
   ) async throws -> MessageDTO {
     // Peek the pendingAcks entry without taking ownership. A missing entry
     // means `handleAcknowledgement` already processed the ACK (it removes
@@ -711,10 +730,12 @@ extension MessageService {
       // the entry: `checkExpiredAcks` owns the give-up at
       // max(ackGiveUpWindow, last attempt's ACK timeout), so a
       // late-but-legitimate ACK can still upgrade the row.
-      // `clearRetryingToSent` rolls any `.retrying` status back to `.sent`
-      // and is terminal-safe: it no-ops if the checker already failed the
-      // row in the loop's await-gap, so the row stays `.failed` there.
-      let movedToSent = try await dataStore.clearRetryingToSent(id: messageID)
+      // The original PendingSend becomes a durable ACK owner in the same
+      // transaction that clears `.retrying`; a replacement or terminal row
+      // cannot be adopted by this send.
+      let movedToSent = try await persistAcknowledgement(
+        messageID: messageID, radioID: radioID, pendingSendID: pendingSendID
+      )
       if movedToSent {
         statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
       }

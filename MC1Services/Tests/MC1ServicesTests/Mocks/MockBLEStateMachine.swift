@@ -40,10 +40,6 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     stubbedIsBluetoothPoweredOff
   }
 
-  public var hasAutoReconnectingHandler: Bool {
-    autoReconnectingHandler != nil
-  }
-
   // MARK: - Recorded Invocations
 
   public private(set) var activateCallCount = 0
@@ -55,12 +51,13 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
 
   // MARK: - Captured Handlers
 
-  private var autoReconnectingHandler: (@Sendable (UUID, String) -> Void)?
   private var bluetoothPoweredOnHandler: (@Sendable () -> Void)?
   private var bluetoothStateChangeHandler: (@Sendable (CBManagerState) -> Void)?
   private var deviceDiscoveredHandler: (@Sendable (UUID, String?, Int) -> Void)?
   public private(set) var recordedBondVerifications: [UUID: Date] = [:]
   public private(set) var appSessionLiveDeviceID: UUID?
+  public private(set) var writePacingDelay: TimeInterval = 0
+  private var currentSessionBinding: SessionTransportBinding?
 
   // MARK: - Initialization
 
@@ -89,12 +86,6 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     activateCallCount += 1
   }
 
-  public func setAutoReconnectingHandler(_ handler: @escaping @Sendable (UUID, String) -> Void) {
-    autoReconnectingHandler = handler
-  }
-
-  public func setRemoteLinkLostHandler(_ handler: @escaping @Sendable (UUID, CFAbsoluteTime) -> Void) {}
-
   public func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void) {
     bluetoothPoweredOnHandler = handler
   }
@@ -103,12 +94,31 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     recordedBondVerifications[deviceID] = date
   }
 
+  public func recordBondVerification(deviceID: UUID, at date: Date, sessionBinding: SessionTransportBinding) {
+    try? sessionBinding.performIfActive {
+      currentSessionBinding = sessionBinding
+      recordedBondVerifications[deviceID] = date
+    }
+  }
+
   public func clearBondVerification(deviceID: UUID) {
     recordedBondVerifications[deviceID] = nil
   }
 
   public func setAppSessionLive(deviceID: UUID?) {
     appSessionLiveDeviceID = deviceID
+  }
+
+  public func setAppSessionLive(deviceID: UUID?, sessionBinding: SessionTransportBinding) {
+    if deviceID == nil {
+      guard currentSessionBinding === sessionBinding else { return }
+      appSessionLiveDeviceID = nil
+    } else {
+      try? sessionBinding.performIfActive {
+        currentSessionBinding = sessionBinding
+        appSessionLiveDeviceID = deviceID
+      }
+    }
   }
 
   public func hasBondVerification(deviceID: UUID) -> Bool {
@@ -146,7 +156,14 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
   }
 
   public func setWritePacingDelay(_ delay: TimeInterval) {
-    // No-op for testing
+    writePacingDelay = delay
+  }
+
+  public func setWritePacingDelay(_ delay: TimeInterval, sessionBinding: SessionTransportBinding) {
+    try? sessionBinding.performIfActive {
+      currentSessionBinding = sessionBinding
+      writePacingDelay = delay
+    }
   }
 
   public private(set) var shutdownCallCount = 0
@@ -187,17 +204,13 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     isScanning = false
     appDidEnterBackgroundCallCount = 0
     appDidBecomeActiveCallCount = 0
-    autoReconnectingHandler = nil
     bluetoothPoweredOnHandler = nil
     bluetoothStateChangeHandler = nil
     deviceDiscoveredHandler = nil
     recordedBondVerifications = [:]
     appSessionLiveDeviceID = nil
-  }
-
-  /// Simulates auto-reconnecting event
-  public func simulateAutoReconnecting(deviceID: UUID, errorInfo: String = "none") {
-    autoReconnectingHandler?(deviceID, errorInfo)
+    currentSessionBinding = nil
+    writePacingDelay = 0
   }
 
   /// Simulates Bluetooth powered on event

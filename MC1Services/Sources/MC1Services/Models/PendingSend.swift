@@ -60,7 +60,7 @@ public final class PendingSend {
 
   /// Number of drain attempts the send queue has progressed past the
   /// `hasPendingSend` gate for this row. Bumped at the top of each drain
-  /// attempt, before any wire-affecting work. Three distinguishable states:
+  /// attempt, before any wire-affecting work. For queued rows, three distinguishable states:
   ///
   /// - `nil`     — pre-migration row, lightweight-migrated from a schema
   ///               version without this column. Drain history is ambiguous,
@@ -83,6 +83,11 @@ public final class PendingSend {
   /// which lightweight migration maps to `nil` and warmUp purges on connect.
   public var attemptCount: Int?
 
+  /// Non-nil ACK metadata changes this row from queued work to delivery tracking without retransmission.
+  public var ackCodes: [Data]?
+  public var ackSentAt: Date?
+  public var ackDeadline: Date?
+
   public init(
     id: UUID,
     radioID: UUID,
@@ -96,7 +101,10 @@ public final class PendingSend {
     localNodeName: String?,
     sequence: Int,
     enqueuedAt: Date,
-    attemptCount: Int? = nil
+    attemptCount: Int? = nil,
+    ackCodes: [Data]? = nil,
+    ackSentAt: Date? = nil,
+    ackDeadline: Date? = nil
   ) {
     self.id = id
     self.radioID = radioID
@@ -111,6 +119,9 @@ public final class PendingSend {
     self.sequence = sequence
     self.enqueuedAt = enqueuedAt
     self.attemptCount = attemptCount
+    self.ackCodes = ackCodes
+    self.ackSentAt = ackSentAt
+    self.ackDeadline = ackDeadline
   }
 
   var kind: PendingSendKind {
@@ -155,6 +166,9 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
   /// new envelopes enter disk distinguishable from pre-migration rows that
   /// lightweight-migrate to `nil`.
   public let attemptCount: Int?
+  public let ackCodes: [Data]?
+  public let ackSentAt: Date?
+  public let ackDeadline: Date?
 
   init(
     id: UUID,
@@ -169,7 +183,10 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     localNodeName: String?,
     sequence: Int,
     enqueuedAt: Date,
-    attemptCount: Int? = 0
+    attemptCount: Int? = 0,
+    ackCodes: [Data]? = nil,
+    ackSentAt: Date? = nil,
+    ackDeadline: Date? = nil
   ) {
     self.id = id
     self.radioID = radioID
@@ -184,6 +201,9 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     self.sequence = sequence
     self.enqueuedAt = enqueuedAt
     self.attemptCount = attemptCount
+    self.ackCodes = ackCodes
+    self.ackSentAt = ackSentAt
+    self.ackDeadline = ackDeadline
   }
 }
 
@@ -202,7 +222,10 @@ public extension PendingSend {
       localNodeName: dto.localNodeName,
       sequence: dto.sequence,
       enqueuedAt: dto.enqueuedAt,
-      attemptCount: dto.attemptCount
+      attemptCount: dto.attemptCount,
+      ackCodes: dto.ackCodes,
+      ackSentAt: dto.ackSentAt,
+      ackDeadline: dto.ackDeadline
     )
   }
 
@@ -220,7 +243,10 @@ public extension PendingSend {
       localNodeName: localNodeName,
       sequence: sequence,
       enqueuedAt: enqueuedAt,
-      attemptCount: attemptCount
+      attemptCount: attemptCount,
+      ackCodes: ackCodes,
+      ackSentAt: ackSentAt,
+      ackDeadline: ackDeadline
     )
   }
 }

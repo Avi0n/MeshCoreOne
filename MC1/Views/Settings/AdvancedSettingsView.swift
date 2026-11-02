@@ -9,6 +9,7 @@ struct AdvancedSettingsView: View {
 
   let descendantPath: [SettingsSubpage]
   let requestRegionAdd: SettingsEditorPresentation.RegionRequest
+  let configImport: NodeConfigImportViewModel
 
   @State private var selectedOCVPreset: OCVPreset = .liIon
   @State private var ocvValues: [Int] = OCVPreset.liIon.ocvArray
@@ -65,7 +66,7 @@ struct AdvancedSettingsView: View {
     }
     .themedCanvas(theme)
     .environment(discovery)
-    .settingsSubpageDestinations(regions: discovery, requestRegionAdd: requestRegionAdd)
+    .settingsSubpageDestinations(regions: discovery, requestRegionAdd: requestRegionAdd, configImport: configImport)
     .sheet(isPresented: $showingImportKeySheet) {
       ImportKeySheet()
     }

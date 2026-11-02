@@ -403,7 +403,8 @@ struct ConnectionManagerPairingTests {
     manager.persistConnection(deviceID: deviceID, radioID: UUID(), deviceName: "Radio")
     #expect(manager.lastConnectedDeviceID == deviceID)
 
-    await manager.forgetDevice(id: deviceID)
+    let context = try await manager.captureRemoval(id: deviceID)
+    await manager.forgetDeviceAfterReset(context)
 
     // The auto-reconnect / onboarding-resume signal must not survive forgetting its own radio.
     #expect(manager.lastConnectedDeviceID == nil)
@@ -419,7 +420,8 @@ struct ConnectionManagerPairingTests {
     let lastConnected = UUID()
     manager.persistConnection(deviceID: lastConnected, radioID: UUID(), deviceName: "Radio")
 
-    await manager.forgetDevice(id: UUID())
+    let context = try await manager.captureRemoval(id: UUID())
+    await manager.forgetDeviceAfterReset(context)
 
     #expect(manager.lastConnectedDeviceID == lastConnected)
   }

@@ -8,6 +8,22 @@ import OSLog
 @MainActor
 final class BatteryMonitor {
   private let logger = Logger(subsystem: "com.mc1", category: "BatteryMonitor")
+  private weak var connectionManager: ConnectionManager?
+
+  func configure(connectionManager: ConnectionManager) {
+    self.connectionManager = connectionManager
+  }
+
+  private func context(for services: ServiceContainer) -> ConnectionCallbackContext? {
+    guard let connectionManager, let snapshot = connectionManager.currentConnection,
+          snapshot.services === services, connectionManager.isCurrent(snapshot) else { return nil }
+    return ConnectionCallbackContext(snapshot)
+  }
+
+  private func isCurrent(_ context: ConnectionCallbackContext) -> Bool {
+    guard let connectionManager else { return false }
+    return !Task.isCancelled && context.isCurrent(connectionManager)
+  }
 
   /// Current device battery info (nil if not fetched or disconnected)
   var deviceBattery: BatteryInfo?
@@ -39,16 +55,20 @@ final class BatteryMonitor {
 
   /// Fetch device battery level on demand
   func fetchDeviceBattery(services: ServiceContainer?, device: DeviceDTO?) async {
-    guard let settingsService = services?.settingsService else { return }
+    guard let services, let context = context(for: services) else { return }
+    let settingsService = services.settingsService
 
     do {
-      deviceBattery = try await settingsService.getBattery()
+      let battery = try await settingsService.getBattery()
+      guard isCurrent(context) else { return }
+      deviceBattery = battery
       lastSuccessfulFetchDate = .now
       if let battery = deviceBattery {
         onBatteryChanged?(battery)
       }
       await checkBatteryThresholds(device: device, services: services)
     } catch {
+      guard isCurrent(context) else { return }
       deviceBattery = nil
     }
   }
@@ -66,23 +86,28 @@ final class BatteryMonitor {
   /// Start battery monitoring for a newly connected device.
   /// Defers bootstrap so connection setup is not blocked by device request timeouts.
   func start(services: ServiceContainer, device: DeviceDTO?) {
+    guard let context = context(for: services) else { return }
+    stop()
     bootstrapTask = Task { @MainActor [weak self] in
       guard let self else { return }
 
       do {
-        deviceBattery = try await services.settingsService.getBattery()
+        let battery = try await services.settingsService.getBattery()
+        guard isCurrent(context) else { return }
+        deviceBattery = battery
         lastSuccessfulFetchDate = .now
         if let battery = deviceBattery {
           onBatteryChanged?(battery)
         }
       } catch {
+        guard isCurrent(context) else { return }
         logger.debug("Deferred battery bootstrap failed: \(error.localizedDescription, privacy: .public)")
         deviceBattery = nil
       }
 
-      guard !Task.isCancelled else { return }
-
+      guard isCurrent(context) else { return }
       await initializeBatteryThresholds(device: device, services: services)
+      guard isCurrent(context) else { return }
       startRefreshLoop(services: services, device: device)
     }
   }
@@ -103,12 +128,13 @@ final class BatteryMonitor {
   /// Check for battery thresholds crossed while app was backgrounded.
   /// Posts a single notification if any thresholds were missed.
   func checkMissedBatteryThreshold(device: DeviceDTO?, services: ServiceContainer?) async {
-    guard let device,
-          let settingsService = services?.settingsService,
-          let notificationService = services?.notificationService else { return }
-
+    guard let device, let services, let context = context(for: services) else { return }
+    let settingsService = services.settingsService
+    let notificationService = services.notificationService
     do {
-      deviceBattery = try await settingsService.getBattery()
+      let battery = try await settingsService.getBattery()
+      guard isCurrent(context) else { return }
+      deviceBattery = battery
       if let battery = deviceBattery {
         onBatteryChanged?(battery)
       }
@@ -138,6 +164,7 @@ final class BatteryMonitor {
 
   /// Restart the battery refresh loop (e.g., returning to foreground)
   func startRefreshLoop(services: ServiceContainer, device: DeviceDTO?) {
+    guard let context = context(for: services) else { return }
     batteryRefreshTask?.cancel()
     batteryRefreshTask = Task { [weak self] in
       while true {
@@ -146,7 +173,7 @@ final class BatteryMonitor {
         } catch {
           break
         }
-        guard let self else { break }
+        guard let self, isCurrent(context) else { break }
         await fetchDeviceBattery(services: services, device: device)
       }
     }

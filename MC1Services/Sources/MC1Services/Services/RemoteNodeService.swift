@@ -74,6 +74,9 @@ public actor RemoteNodeService {
 
   /// Keep-alive timer tasks
   var keepAliveTasks: [UUID: Task<Void, Never>] = [:]
+  var retiredKeepAliveTasks: [Task<Void, Never>] = []
+  var keepAliveAdmissionRetired = false
+  private var keepAliveRetirement: Task<Void, Never>?
 
   /// Keep-alive intervals per session (from login response, in seconds)
   /// Default to 90 seconds if not specified
@@ -173,9 +176,11 @@ public actor RemoteNodeService {
   }
 
   /// Stop monitoring events
-  public func stopEventMonitoring() {
-    eventMonitorTask?.cancel()
+  public func stopEventMonitoring() async {
+    let worker = eventMonitorTask
     eventMonitorTask = nil
+    worker?.cancel()
+    await worker?.value
   }
 
   /// Handle incoming MeshCore event
@@ -358,6 +363,7 @@ public actor RemoteNodeService {
   public func stopAllKeepAlives() {
     for task in keepAliveTasks.values {
       task.cancel()
+      retiredKeepAliveTasks.append(task)
     }
     keepAliveTasks.removeAll()
 
@@ -366,6 +372,19 @@ public actor RemoteNodeService {
     for prefix in Array(pendingLogins.keys) {
       cancelPendingLogin(for: prefix)
     }
+  }
+
+  func retireKeepAlives() async {
+    if let keepAliveRetirement { await keepAliveRetirement.value; return }
+    keepAliveAdmissionRetired = true
+    stopAllKeepAlives()
+    let workers = retiredKeepAliveTasks
+    retiredKeepAliveTasks.removeAll()
+    let drain = Task { for worker in workers {
+      await worker.value
+    } }
+    keepAliveRetirement = drain
+    await drain.value
   }
 
   /// Number of login continuations currently parked. Exposed for teardown tests.

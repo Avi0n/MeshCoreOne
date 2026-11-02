@@ -37,7 +37,7 @@ enum SettingsDestination: CaseIterable, Sendable, CustomTestStringConvertible {
   var markers: [String] {
     switch self {
     case .translateInto: [L10n.Settings.Language.matchAppLanguage]
-    case .offlineMaps: [L10n.Settings.OfflineMaps.emptyTitle]
+    case .offlineMaps: [L10n.Settings.OfflineMaps.emptyTitle, L10n.Settings.OfflineMaps.storageUsed]
     case .manageRegions: [L10n.Chats.Chats.ChannelInfo.Region.addManually]
     }
   }

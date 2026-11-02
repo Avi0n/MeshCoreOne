@@ -165,6 +165,9 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Cerca dispositivo Bluetooth";
 
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "Riassociazione…";
+
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
 "deviceSelection.setup" = "Configura";
@@ -1048,6 +1051,9 @@
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "La password può avere al massimo 63 byte.";
 
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "Il nome della rete o la password contiene un carattere che questa radio non può memorizzare.";
+
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Cancella impostazioni Wi‑Fi";
 
@@ -1227,11 +1233,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "Disconnetti";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "Interrompi riconnessione";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "Annulla connessione";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "Disconnesso";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "Connessione…";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "Riconnessione…";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "In attesa di riconnessione";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Connesso";
@@ -1244,6 +1262,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Stato connessione Bluetooth";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "Tocca due volte per connettere il dispositivo";
@@ -1347,6 +1368,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ Alcune impostazioni potrebbero essere già state scritte sul dispositivo. Controlla la configurazione del dispositivo.";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "La connessione è stata interrotta durante l’importazione dell’identità su %@. La radio potrebbe aver cambiato identità. L’importazione della configurazione non è stata completata.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "Riprova a importare l’identità";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "Questa operazione sostituirà l’identità della radio raggiungibile tramite %@ usando la chiave privata nel file selezionato. L’importazione della configurazione non continuerà.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "Sostituire l’identità della radio?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "L’identità è stata riapplicata. L’importazione della configurazione non è stata completata. Importa di nuovo il file per applicare le altre impostazioni.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "Seleziona un file di configurazione contenente la chiave privata per riprovare a importare l’identità.";
 
 /* Import success */
 "configImport.importSuccess" = "Configurazione importata correttamente";

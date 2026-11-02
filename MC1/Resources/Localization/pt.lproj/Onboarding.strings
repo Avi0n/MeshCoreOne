@@ -69,6 +69,9 @@
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
 "deviceScan.subtitle" = "Ligue o rádio, desemparelhe-o de todas as outras apps e dispositivos e toque em Adicionar dispositivo.";
 
+/* Location: DeviceScanView.swift - Subtitle while bond-loss recovery is re-pairing */
+"deviceScan.rePairingSubtitle" = "Ligue o rádio e desemparelhe-o de todas as outras apps e dispositivos.";
+
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "O dispositivo já está emparelhado";
 

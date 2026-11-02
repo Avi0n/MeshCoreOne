@@ -1,363 +1,150 @@
 import Foundation
 @testable import MC1Services
-import MeshCoreTestSupport
+import MeshCore
 import Testing
 
-@Suite("ConnectionManager Promotion Tests")
+@Suite("Owned connection completion")
 @MainActor
 struct ConnectionManagerPromotionTests {
-  private func usableSyncResult(
-    channels: SyncPhaseStatus = .clean,
-    messages: SyncPhaseStatus = .clean
-  ) -> FullSyncResult {
-    FullSyncResult(contacts: .clean, channels: channels, messages: messages)
-  }
-
-  private func unusableSyncResult() -> FullSyncResult {
-    FullSyncResult(contacts: .failed("sync failed"), channels: .skipped, messages: .skipped)
-  }
-
-  private func makeTestServices() async throws -> ServiceContainer {
-    let transport = SimulatorMockTransport()
-    let session = MeshCoreSession(transport: transport)
-    return try await ServiceContainer.forTesting(session: session)
-  }
-
-  /// Sets up manager state for promotion tests. Sets session and connectedDevice
-  /// so the .ready invariant can pass when promotion succeeds.
-  private func setupForPromotion(
-    manager: ConnectionManager,
-    services: ServiceContainer,
-    connectionState: DeviceConnectionState = .connected,
-    connectionIntent: ConnectionIntent = .wantsConnection(),
-    firmwareVersion: UInt8 = 9
-  ) {
-    let mockTransport = SimulatorMockTransport()
-    let session = MeshCoreSession(transport: mockTransport)
-    manager.setTestState(
-      connectionState: connectionState,
-      services: services,
-      session: session,
-      connectedDevice: DeviceDTO.testDevice(firmwareVersion: firmwareVersion),
-      connectionIntent: connectionIntent
-    )
-  }
-
-  // MARK: - Suppression: services replaced
-
-  @Test
-  func `promoteToReady suppressed when services replaced during sync`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let originalServices = try await makeTestServices()
-    let replacementServices = try await makeTestServices()
-
-    setupForPromotion(manager: manager, services: originalServices)
-
-    // Simulate: disconnect + new connection replaced services
-    manager.setTestState(services: replacementServices)
-
-    let promoted = await manager.promoteToReady(
-      syncResult: usableSyncResult(),
-      expectedServices: originalServices,
-      transportType: .bluetooth
-    )
-
-    #expect(!promoted)
-    #expect(manager.connectionState == .connected)
-  }
-
-  // MARK: - Suppression: services nil (disconnected)
-
-  @Test
-  func `promoteToReady suppressed when services nil (disconnected)`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let originalServices = try await makeTestServices()
-
-    manager.setTestState(
-      connectionState: .disconnected,
-      services: .some(nil),
-      connectionIntent: .wantsConnection()
-    )
-
-    let promoted = await manager.promoteToReady(
-      syncResult: usableSyncResult(),
-      expectedServices: originalServices,
-      transportType: .bluetooth
-    )
-
-    #expect(!promoted)
-    #expect(manager.connectionState == .disconnected)
-  }
-
-  // MARK: - Sync failure sets .syncing (resync loop continues from there)
-
-  @Test
-  func `promoteToReady sets .syncing when sync failed`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-
-    setupForPromotion(manager: manager, services: services)
-
-    let promoted = await manager.promoteToReady(
-      syncResult: unusableSyncResult(),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(promoted)
-    #expect(manager.connectionState == .syncing)
-  }
-
-  // MARK: - Sync failure skips onDeviceSynced
-
-  @Test
-  func `promoteToReady skips onDeviceSynced when sync failed`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-    var onDeviceSyncedCalled = false
-    var becameUsable = false
-
-    setupForPromotion(manager: manager, services: services)
-    manager.onConnectionBecameUsable = { becameUsable = true }
-    manager.onDeviceSynced = { _ in onDeviceSyncedCalled = true }
-
-    let promoted = await manager.promoteToReady(
-      syncResult: unusableSyncResult(),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(promoted, "Should still promote to .syncing for resync loop")
-    #expect(!onDeviceSyncedCalled, "onDeviceSynced should be skipped on sync failure")
-    #expect(!becameUsable)
-  }
-
-  // MARK: - Sync success sets .ready and fires onDeviceSynced
-
-  @Test
-  func `promoteToReady sets .ready when sync succeeded`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-
-    setupForPromotion(manager: manager, services: services)
-
-    let promoted = await manager.promoteToReady(
-      syncResult: usableSyncResult(),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(promoted)
-    #expect(manager.connectionState == .ready)
-  }
-
-  @Test
-  func `promoteToReady calls onDeviceSynced when sync succeeded`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-    var onDeviceSyncedCalled = false
-
-    setupForPromotion(manager: manager, services: services)
-    manager.onDeviceSynced = { _ in onDeviceSyncedCalled = true }
-
-    await manager.promoteToReady(
-      syncResult: usableSyncResult(),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(onDeviceSyncedCalled)
-  }
-
-  @Test
-  func `promoteToReady does NOT call onDeviceSynced when sync failed`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-    var onDeviceSyncedCalled = false
-
-    setupForPromotion(manager: manager, services: services)
-    manager.onDeviceSynced = { _ in onDeviceSyncedCalled = true }
-
-    await manager.promoteToReady(
-      syncResult: unusableSyncResult(),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(!onDeviceSyncedCalled)
-  }
-
-  // MARK: - Happy path
-
-  @Test
-  func `promoteToReady sets .ready and fires onDeviceSynced on successful sync`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-    var onDeviceSyncedCalled = false
-    var becameUsableCount = 0
-
-    setupForPromotion(manager: manager, services: services)
-    manager.onConnectionBecameUsable = { [weak manager] in
-      #expect(manager?.connectionState == .ready)
-      #expect(!onDeviceSyncedCalled)
-      becameUsableCount += 1
+  @Test(arguments: [TransportType.bluetooth, .wifi])
+  func `production connection publishes readiness before its best effort clock tail`(type: TransportType) async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    let radio = type == .bluetooth ? env.ble : env.wifi
+    await radio.holdReplies(for: .getTime)
+    var readyEdges = 0
+    var synced = 0
+    env.manager.onConnectionBecameUsable = { snapshot in
+      #expect(env.manager.isCurrent(snapshot))
+      #expect(synced == 0)
+      readyEdges += 1
     }
-    manager.onDeviceSynced = { hasCleanRecipientData in
+    env.manager.onDeviceSynced = { snapshot, hasCleanRecipientData in
+      #expect(env.manager.isCurrent(snapshot))
       #expect(hasCleanRecipientData)
-      #expect(becameUsableCount == 1)
-      onDeviceSyncedCalled = true
+      synced += 1
+    }
+    let connect = Task { try await env.connect(type) }
+    do {
+      try await waitUntil("the production sync should make the connection usable") { env.manager.connectionState == .ready }
+      #expect(readyEdges == 1)
+      #expect(synced == 0)
+      await radio.releaseReplies(for: .getTime)
+      let result = try await connect.value
+      #expect(env.manager.isCurrent(result))
+      #expect(synced == 1)
+      #expect(await radio.timeReads == 1)
+      #expect(await radio.cliCommands.filter { ConnectionTestRadioTransport.splitCLICommand($0).command == "get tz.offset" }.count == 1)
+    } catch {
+      await radio.releaseAllGates()
+      connect.cancel()
+      _ = await connect.result
+      await env.close()
+      throw error
+    }
+    await env.close()
+  }
+
+  @Test(arguments: [TransportType.bluetooth, .wifi])
+  func `failed initial contacts recover through the same production completion once`(type: TransportType) async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    let radio = type == .bluetooth ? env.ble : env.wifi
+    await radio.rejectNext(.getContacts)
+    var synced = 0
+    var readyEdges = 0
+    env.manager.onDeviceSynced = { _, _ in synced += 1 }
+    env.manager.onConnectionBecameUsable = { _ in readyEdges += 1 }
+    do {
+      _ = try await env.connect(type)
+      #expect(env.manager.connectionState == .syncing)
+      if type == .bluetooth { #expect(await radio.timeReads == 0) }
+      if type == .wifi { #expect(await radio.timeReads == 1) }
+      try await waitUntil(timeout: .seconds(12), "production resync should recover contacts") { synced == 1 }
+      #expect(env.manager.connectionState == .ready)
+      #expect(readyEdges == 1)
+      #expect(await radio.timeReads == 1)
+      #expect(await radio.cliCommands.filter { ConnectionTestRadioTransport.splitCLICommand($0).command == "get tz.offset" }.count == 1)
+    } catch { await env.close(); throw error }
+    await env.close()
+  }
+
+  enum CompletionOutcome: CaseIterable {
+    case partialChannels
+    case failedMessages
+    case missingResult
+
+    var syncResult: FullSyncResult? {
+      switch self {
+      case .partialChannels: FullSyncResult(contacts: .clean, channels: .partial, messages: .clean)
+      case .failedMessages: FullSyncResult(contacts: .clean, channels: .clean, messages: .failed("catch-up"))
+      case .missingResult: nil
+      }
     }
 
-    let promoted = await manager.promoteToReady(
-      syncResult: usableSyncResult(),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(promoted)
-    #expect(manager.connectionState == .ready)
-    #expect(manager.currentTransportType == .bluetooth)
-    #expect(onDeviceSyncedCalled, "onDeviceSynced should fire on successful sync")
-    #expect(becameUsableCount == 1)
-    manager.setTestState(connectionState: .ready)
-    #expect(becameUsableCount == 1)
+    var expectedEligibility: Bool? {
+      switch self {
+      case .partialChannels: false
+      case .failedMessages: true
+      case .missingResult: nil
+      }
+    }
   }
 
-  // MARK: - Suppression: user disconnected
-
-  @Test
-  func `promoteToReady suppressed when user disconnected during sync`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-
-    setupForPromotion(manager: manager, services: services, connectionIntent: .userDisconnected)
-
-    let promoted = await manager.promoteToReady(
-      syncResult: usableSyncResult(),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(!promoted)
-    #expect(manager.connectionState == .connected)
-  }
-
-  // MARK: - Additional guard suppresses promotion
-
-  @Test
-  func `promoteToReady suppressed when additionalGuard returns false`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-
-    setupForPromotion(manager: manager, services: services)
-
-    let promoted = await manager.promoteToReady(
-      syncResult: usableSyncResult(),
-      expectedServices: services,
-      transportType: .bluetooth,
-      additionalGuard: { false }
-    )
-
-    #expect(!promoted)
-    #expect(manager.connectionState == .connected)
-  }
-
-  @Test
-  func `promoteToReady completes for a radio CLI device when timezone sync fails`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-    setupForPromotion(manager: manager, services: services, firmwareVersion: 14)
-
-    let promoted = await manager.promoteToReady(
-      syncResult: usableSyncResult(),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(promoted)
-    #expect(manager.connectionState == .ready)
-  }
-
-  @Test
-  func `disconnect for power off leaves user disconnected`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-    setupForPromotion(
-      manager: manager,
-      services: services,
-      connectionState: .ready,
-      connectionIntent: .wantsConnection()
-    )
-
-    await manager.disconnect(reason: .powerOff)
-
-    #expect(manager.connectionIntent.isUserDisconnected)
-    #expect(manager.connectionState == .disconnected)
-  }
-
-  @Test
-  func `promoteToReady passes false when channels are partial`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
+  @Test(arguments: CompletionOutcome.allCases)
+  func `owned completion forwards recipient eligibility from its sync result`(outcome: CompletionOutcome) async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    await env.ble.rejectNext(.getContacts)
     var eligibility: Bool?
-    setupForPromotion(manager: manager, services: services)
-    manager.onDeviceSynced = { eligibility = $0 }
+    env.manager.onDeviceSynced = { snapshot, hasCleanRecipientData in
+      #expect(env.manager.isCurrent(snapshot))
+      eligibility = hasCleanRecipientData
+    }
+    do {
+      _ = try await env.connect(.bluetooth)
+      #expect(env.manager.connectionState == .syncing)
+      #expect(eligibility == nil)
+      env.manager.cancelResyncLoop()
+      let link = try #require(env.manager.installedLink)
+      let completed = await env.manager.completeSync(link, syncResult: outcome.syncResult)
+      #expect(completed)
+      #expect(env.manager.connectionState == (outcome.syncResult == nil ? .syncing : .ready))
+      #expect(eligibility == outcome.expectedEligibility)
+    } catch { await env.close(); throw error }
+    await env.close()
+  }
 
-    let promoted = await manager.promoteToReady(
-      syncResult: usableSyncResult(channels: .partial),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(promoted)
-    #expect(manager.connectionState == .ready)
-    #expect(eligibility == false)
+  @Test(arguments: [TransportType.bluetooth, .wifi])
+  func `same radio transport handoff preserves partition and replaces the Link generation`(first: TransportType) async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    do {
+      _ = try await env.connect(first)
+      let before = try #require(env.manager.currentConnection)
+      _ = try await env.connect(first == .bluetooth ? .wifi : .bluetooth)
+      let after = try #require(env.manager.currentConnection)
+      #expect(after.device.radioID == before.device.radioID)
+      #expect(after.generation != before.generation)
+      #expect(!env.manager.isCurrent(before))
+      let active = try await env.manager.persistenceStore.fetchActiveDevice()
+      #expect(active?.id == after.device.id)
+      #expect(active?.lastUsedConnectionMethod?.isWiFi == (after.transportType == .wifi))
+    } catch { await env.close(); throw error }
+    await env.close()
   }
 
   @Test
-  func `promoteToReady passes true when channels are clean and messages failed`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-    var eligibility: Bool?
-    setupForPromotion(manager: manager, services: services)
-    manager.onDeviceSynced = { eligibility = $0 }
-
-    let promoted = await manager.promoteToReady(
-      syncResult: usableSyncResult(messages: .failed("catch-up")),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(promoted)
-    #expect(manager.connectionState == .ready)
-    #expect(eligibility == true)
+  func `a loss receipt cannot become current again after a newer stack retires`() async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    do {
+      _ = try await env.connect(.bluetooth)
+      let request = try #require(env.manager.desiredRequest)
+      let old = env.manager.beginOwnedRetirement(previousRequest: request, phase: .connecting, closePhysical: true, retainMembership: true)
+      await old.value
+      #expect(env.manager.isCurrent(old.receipt))
+      _ = try await env.manager.establishAttempt(request, preservePhysicalBLE: false)
+      let newer = env.manager.beginOwnedRetirement(previousRequest: request, phase: .disconnected, closePhysical: true, retainMembership: true)
+      await newer.value
+      #expect(env.manager.isCurrent(newer.receipt))
+      #expect(!env.manager.isCurrent(old.receipt))
+    } catch { await env.close(); throw error }
+    await env.close()
   }
-
-  @Test
-  func `promoteToReady skips onDeviceSynced for a nil sync result`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let services = try await makeTestServices()
-    var onDeviceSyncedCalled = false
-    setupForPromotion(manager: manager, services: services)
-    manager.onDeviceSynced = { _ in onDeviceSyncedCalled = true }
-
-    let promoted = await manager.promoteToReady(
-      syncResult: nil,
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-
-    #expect(promoted)
-    #expect(manager.connectionState == .syncing)
-    #expect(!onDeviceSyncedCalled)
-  }
-
-  // MARK: - Post-time-sync re-validation (not unit-testable)
-
-  // promoteToReady re-checks connectionIntent, services identity, and additionalGuard
-  // after syncDeviceTimeIfNeeded() returns. These guards are structurally identical to
-  // the pre-await guards tested above. Exercising them requires mutating state during
-  // the syncDeviceTimeIfNeeded() suspension point, which needs concurrency interleaving
-  // that unit tests cannot reliably control. Covering this path requires integration
-  // tests with a real (or delay-injected) session where state can change mid-await.
 }

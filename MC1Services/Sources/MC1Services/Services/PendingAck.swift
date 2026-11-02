@@ -17,4 +17,9 @@ struct PendingAck {
   /// so a slow high-spreading-factor round-trip is not failed while still in flight.
   var timeout: TimeInterval
   var isDelivered: Bool = false
+  var pendingSendID: UUID?
+  var deadline: Date?
+  /// Set when an acknowledgement matches and kept until the terminal save commits.
+  var matchedAckCode: UInt32?
+  var matchedTripTime: UInt32?
 }

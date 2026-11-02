@@ -4,14 +4,17 @@ import SwiftData
 
 extension ConnectionManager {
   static func createForTesting(
-    defaults: UserDefaults? = nil
+    defaults: UserDefaults? = nil,
+    reconnectionClock: (any Clock<Duration>)? = nil
   ) throws -> (ConnectionManager, MockBLEStateMachine) {
     let container = try PersistenceStore.createContainer(inMemory: true)
     let mock = MockBLEStateMachine()
     let manager = if let defaults {
-      ConnectionManager(modelContainer: container, defaults: defaults, stateMachine: mock)
+      ConnectionManager(
+        modelContainer: container, defaults: defaults, stateMachine: mock, reconnectionClock: reconnectionClock
+      )
     } else {
-      ConnectionManager(modelContainer: container, stateMachine: mock)
+      ConnectionManager(modelContainer: container, stateMachine: mock, reconnectionClock: reconnectionClock)
     }
     return (manager, mock)
   }
@@ -20,7 +23,8 @@ extension ConnectionManager {
   static func createForPairingTesting(
     defaults: UserDefaults? = nil,
     transport: MockMeshTransport? = nil,
-    accessorySetupKit: MockAccessorySetupKitService? = nil
+    accessorySetupKit: MockAccessorySetupKitService? = nil,
+    reconnectionClock: (any Clock<Duration>)? = nil
   ) throws -> PairingTestEnvironment {
     let container = try PersistenceStore.createContainer(inMemory: true)
     let stateMachine = MockBLEStateMachine()
@@ -47,7 +51,8 @@ extension ConnectionManager {
       defaults: resolvedDefaults,
       stateMachine: stateMachine,
       transport: mockTransport,
-      pairing: AccessorySetupPairingService(accessorySetupKit: mockASK)
+      pairing: AccessorySetupPairingService(accessorySetupKit: mockASK),
+      reconnectionClock: reconnectionClock
     )
 
     // Cleanup closure: tests `defer { env.cleanup() }` to remove the persistent

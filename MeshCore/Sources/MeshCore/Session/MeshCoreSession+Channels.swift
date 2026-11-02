@@ -3,7 +3,7 @@ import Foundation
 /// Result a channel-pipeline task group task contributes: the consumer's collected channels,
 /// or a watchdog tick that has already finished the subscription.
 private enum ChannelPipelineOutcome {
-  case collected([UInt8: ChannelInfo])
+  case collected([UInt8: ChannelInfo], allSubmittedReceived: Bool)
   case watchdog
 }
 
@@ -58,7 +58,6 @@ public extension MeshCoreSession {
     indices: [UInt8]
   ) async throws -> (received: [ChannelInfo], missing: [UInt8]) {
     let requested = indices
-    let requestedSet = Set(indices)
     let window = max(1, configuration.channelPipelineWindow)
     let idleTimeout = configuration.channelPipelineIdleTimeout
     let hardTimeout = configuration.channelPipelineHardTimeout
@@ -80,13 +79,24 @@ public extension MeshCoreSession {
       // them with acknowledged reads. That reconcile path is load-bearing, not just a
       // disconnect fallback.
       let primeCount = min(window, requested.count)
+      var primed: [UInt8] = []
+      var primeFailure: (any Error)?
       for index in requested.prefix(primeCount) {
-        try await sendSessionDataWithoutResponse(PacketBuilder.getChannel(index: index))
+        do {
+          try await sendSessionDataWithoutResponse(PacketBuilder.getChannel(index: index))
+          primed.append(index)
+        } catch {
+          guard !primed.isEmpty else { throw error }
+          primeFailure = error
+          break
+        }
       }
+      let submitted = primed
+      let initialFailure = primeFailure
 
       let progressTracker = StreamProgressTracker()
 
-      let received: [UInt8: ChannelInfo] = try await withThrowingTaskGroup(
+      let result: (received: [UInt8: ChannelInfo], allSubmittedReceived: Bool) = try await withThrowingTaskGroup(
         of: ChannelPipelineOutcome.self
       ) { group in
         // Consumer: records matching responses, refills the window, returns as soon as
@@ -94,29 +104,35 @@ public extension MeshCoreSession {
         // or when the watchdog finishes the subscription.
         group.addTask { [self] in
           var collected: [UInt8: ChannelInfo] = [:]
-          var nextToSend = primeCount
+          var expected = Set(submitted)
+          var nextToSend = submitted.count
+          var canSubmit = initialFailure == nil
           for await event in events {
             guard case let .channelInfo(info) = event,
-                  requestedSet.contains(info.index),
+                  expected.contains(info.index),
                   collected[info.index] == nil else {
               continue
             }
             await progressTracker.markProgress()
             collected[info.index] = info
-            if nextToSend < requested.count {
+            if canSubmit, nextToSend < requested.count {
               let nextIndex = requested[nextToSend]
               nextToSend += 1
-              // A refill failure (disconnect mid-drain) just stops sending; the
-              // watchdog's idle timeout then returns the partial set.
-              try? await self.sendSessionDataWithoutResponse(
-                PacketBuilder.getChannel(index: nextIndex)
-              )
+              do {
+                try await self.sendSessionDataWithoutResponse(PacketBuilder.getChannel(index: nextIndex))
+                expected.insert(nextIndex)
+              } catch {
+                canSubmit = false
+              }
             }
-            if collected.count == requested.count {
-              return .collected(collected)
+            if collected.count == expected.count, !canSubmit || nextToSend == requested.count {
+              return .collected(collected, allSubmittedReceived: collected.count == expected.count)
             }
           }
-          return .collected(collected)
+          if !canSubmit, collected.count != expected.count {
+            await requestResponseSerializer.noteUncertainResponseHistory()
+          }
+          return .collected(collected, allSubmittedReceived: collected.count == expected.count)
         }
 
         // Watchdog: ends the stream on an inactivity gap or the hard cap so the consumer
@@ -143,27 +159,31 @@ public extension MeshCoreSession {
         }
 
         var collected: [UInt8: ChannelInfo] = [:]
+        var allSubmittedReceived = false
         for try await outcome in group {
-          if case let .collected(dict) = outcome {
+          if case let .collected(dict, allReplies) = outcome {
             collected = dict
+            allSubmittedReceived = allReplies
             group.cancelAll()
             break
           }
           // A watchdog tick already finished the subscription; loop until the
           // consumer returns its (possibly partial) collected set.
         }
-        return collected
+        return (collected, allSubmittedReceived)
       }
 
+      let received = result.received
       let missing = requested.filter { received[$0] == nil }
-      if missing.isEmpty {
-        // Every index answered. Hold the slot for the grace window with the subscription
+      if result.allSubmittedReceived {
+        // Every submitted index answered. Hold the slot for the grace window with the subscription
         // still open so duplicate/straggler frames are absorbed here instead of leaking
         // into the next command.
         try? await sessionClock.sleep(for: .seconds(graceTimeout))
       }
       await dispatcher.finishSubscription(id: subscriptionID)
 
+      if let initialFailure { throw initialFailure }
       let receivedSorted = received.keys.sorted().compactMap { received[$0] }
       return (received: receivedSorted, missing: missing)
     } catch {
