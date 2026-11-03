@@ -285,7 +285,7 @@ extension ConnectionManager {
       if owns(request), !preservePhysicalBLE, !request.forceReconnect,
          await connectRejectionBelongsToRestoredLink(error, attempt: attempt),
          let deviceID = attempt.target.deviceID,
-         (try? await handOffToOwningBluetoothLink(request, deviceID: deviceID)) == true {
+         await (try? handOffToOwningBluetoothLink(request, deviceID: deviceID)) == true {
         request.handedOff = true
       }
       // Retirement revokes every binding, so classify an already-lost owned attempt before cleanup.
