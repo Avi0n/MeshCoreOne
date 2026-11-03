@@ -23,6 +23,7 @@ public actor MockMeshTransport: iOSMeshTransport {
   private var dataContinuation: AsyncStream<Data>.Continuation
   private var connected = false
   private var connectError: Error?
+  private var beforeConnect: (@Sendable () async -> Void)?
 
   public init() {
     var continuation: AsyncStream<Data>.Continuation!
@@ -75,6 +76,7 @@ public actor MockMeshTransport: iOSMeshTransport {
 
   public func connect(sessionBinding: SessionTransportBinding) async throws {
     guard currentBinding === sessionBinding else { throw CancellationError() }
+    await beforeConnect?()
     try sessionBinding.performIfActive {
       connectInvocations.append(ConnectInvocation(deviceID: currentDeviceID, timestamp: Date()))
       if let connectError { throw connectError }
@@ -147,6 +149,11 @@ public actor MockMeshTransport: iOSMeshTransport {
   /// without standing up a real session.
   public func setConnectError(_ error: Error?) {
     connectError = error
+  }
+
+  /// Runs before the invocation is recorded, so the dial can be rejected in the phase set here.
+  public func setBeforeConnect(_ hook: (@Sendable () async -> Void)?) {
+    beforeConnect = hook
   }
 
   /// Emits a reconnected lifecycle event as if iOS auto-reconnect completed

@@ -4,22 +4,11 @@ extension ConnectionManager {
   func handOffBluetoothIfNeeded(_ request: ConnectionRequest, deviceID: UUID) async throws -> Bool {
     await stateMachine.activate()
     try requireOwnership(request)
-    let autoReconnecting = await stateMachine.isAutoReconnecting
-    let connectedID = await stateMachine.connectedDeviceID
-    let connected = await stateMachine.isConnected
-    try requireOwnership(request)
-    if autoReconnecting || connected, connectedID == deviceID, !request.forceReconnect {
-      if let origin = await transport.lifecycleOrigin, origin.deviceID == deviceID {
-        try requireOwnership(request)
-        if let accepted = request.physicalOrigin, accepted.generation > origin.generation { return true }
-        await enterBLERecovery(request, origin: origin)
-        if let cycle = reconnectionCoordinator.currentCycle, cycle.requestID == request.id {
-          try await reconcileBLERecoveryCompletion(request, cycle: cycle, origin: origin)
-        }
-        return true
-      }
-    }
+    if try await handOffToOwningBluetoothLink(request, deviceID: deviceID) { return true }
     if try await startAdoptingSystemLink(request, deviceID: deviceID) { return true }
+    // willRestoreState can claim the peripheral after the idle sample that let
+    // adoption start. Dialing then cancels that restored link on teardown.
+    if try await handOffToOwningBluetoothLink(request, deviceID: deviceID) { return true }
     let heldElsewhere = await isDeviceConnectedToOtherApp(deviceID)
     try requireOwnership(request)
     if heldElsewhere, !isOwnedSystemConnectedLink(deviceID) || request.origin == .recovery {
@@ -27,6 +16,22 @@ extension ConnectionManager {
       throw BLEError.deviceConnectedToOtherApp
     }
     return false
+  }
+
+  func handOffToOwningBluetoothLink(_ request: ConnectionRequest, deviceID: UUID) async throws -> Bool {
+    let autoReconnecting = await stateMachine.isAutoReconnecting
+    let connectedID = await stateMachine.connectedDeviceID
+    let connected = await stateMachine.isConnected
+    try requireOwnership(request)
+    guard autoReconnecting || connected, connectedID == deviceID, !request.forceReconnect else { return false }
+    guard let origin = await transport.lifecycleOrigin, origin.deviceID == deviceID else { return false }
+    try requireOwnership(request)
+    if let accepted = request.physicalOrigin, accepted.generation > origin.generation { return true }
+    await enterBLERecovery(request, origin: origin)
+    if let cycle = reconnectionCoordinator.currentCycle, cycle.requestID == request.id {
+      try await reconcileBLERecoveryCompletion(request, cycle: cycle, origin: origin)
+    }
+    return true
   }
 
   private func startAdoptingSystemLink(_ request: ConnectionRequest, deviceID: UUID) async throws -> Bool {

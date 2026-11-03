@@ -213,6 +213,20 @@ extension ConnectionManager {
     return .cancelled
   }
 
+  private func connectRejectionBelongsToRestoredLink(_ error: any Error, attempt: ConnectionAttempt) async -> Bool {
+    guard attempt.target.transportType == .bluetooth,
+          let deviceID = attempt.target.deviceID,
+          let ble = error as? BLEError, case .connectionFailed = ble else { return false }
+    let phase = await stateMachine.linkDiagnostics.phase
+    switch phase {
+    case .restoringState, .autoReconnecting, .connected:
+      break
+    default:
+      return false
+    }
+    return await stateMachine.connectedDeviceID == deviceID
+  }
+
   private func isTerminalConnectError(_ error: any Error) -> Bool {
     guard let error = error as? BLEError else { return error is CancellationError }
     return switch error {
@@ -266,6 +280,14 @@ extension ConnectionManager {
       stopReconnectionWatchdog()
       return .operational(link.snapshot)
     } catch {
+      // Preserve the peripheral only after the handoff adopts it. A false
+      // return still retires the attempt and closes the link.
+      if owns(request), !preservePhysicalBLE, !request.forceReconnect,
+         await connectRejectionBelongsToRestoredLink(error, attempt: attempt),
+         let deviceID = attempt.target.deviceID,
+         (try? await handOffToOwningBluetoothLink(request, deviceID: deviceID)) == true {
+        request.handedOff = true
+      }
       // Retirement revokes every binding, so classify an already-lost owned attempt before cleanup.
       let establishmentError: any Error = if error is CancellationError, !binding.isActive, owns(request), request.attempt === attempt,
                                              !Task.isCancelled, request.worker?.isCancelled != true, !request.handedOff {

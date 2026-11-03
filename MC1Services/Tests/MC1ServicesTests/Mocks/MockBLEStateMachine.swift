@@ -17,6 +17,8 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
   public var stubbedIsDeviceConnectedToSystem: Bool = false
   public var isDeviceConnectedToSystemHandler: (@Sendable (UUID) -> Bool)?
   public var stubbedDidStartAdoptingSystemConnectedPeripheral: Bool = false
+  private var claimsRestorationOnNextAdoption = false
+  private var releasesOwnershipAfterNextConnectedIDRead = false
 
   // MARK: - Protocol Properties
 
@@ -29,7 +31,21 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
   }
 
   public var connectedDeviceID: UUID? {
-    stubbedConnectedDeviceID
+    let identifier = stubbedConnectedDeviceID
+    if releasesOwnershipAfterNextConnectedIDRead {
+      // The restoration predicate compares the id returned below. Later reads
+      // belong to the handoff, which must see the phase already ended.
+      releasesOwnershipAfterNextConnectedIDRead = false
+      stubbedConnectedDeviceID = nil
+      stubbedIsAutoReconnecting = false
+      stubbedIsConnected = false
+      stubbedLinkDiagnostics = BLELinkDiagnostics(
+        centralState: stubbedLinkDiagnostics.centralState,
+        phase: .idle,
+        peripheralState: nil
+      )
+    }
+    return identifier
   }
 
   public var linkDiagnostics: BLELinkDiagnostics {
@@ -79,6 +95,18 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
 
   public func startAdoptingSystemConnectedPeripheral(_ deviceID: UUID) -> Bool {
     startAdoptingSystemConnectedPeripheralCalls.append(deviceID)
+    if claimsRestorationOnNextAdoption {
+      claimsRestorationOnNextAdoption = false
+      stubbedIsAutoReconnecting = true
+      stubbedIsConnected = false
+      stubbedConnectedDeviceID = deviceID
+      stubbedLinkDiagnostics = BLELinkDiagnostics(
+        centralState: stubbedLinkDiagnostics.centralState,
+        phase: .restoringState,
+        peripheralState: "connected"
+      )
+      return false
+    }
     return stubbedDidStartAdoptingSystemConnectedPeripheral
   }
 
@@ -196,6 +224,8 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     stubbedIsDeviceConnectedToSystem = false
     isDeviceConnectedToSystemHandler = nil
     stubbedDidStartAdoptingSystemConnectedPeripheral = false
+    claimsRestorationOnNextAdoption = false
+    releasesOwnershipAfterNextConnectedIDRead = false
     activateCallCount = 0
     isDeviceConnectedToSystemCalls = []
     startAdoptingSystemConnectedPeripheralCalls = []
@@ -254,6 +284,15 @@ extension MockBLEStateMachine {
 
   func setStubbedDidStartAdoptingSystemConnectedPeripheral(_ value: Bool) {
     stubbedDidStartAdoptingSystemConnectedPeripheral = value
+  }
+
+  /// The next `startAdoptingSystemConnectedPeripheral` loses to state restoration.
+  func claimRestorationOnNextAdoption() {
+    claimsRestorationOnNextAdoption = true
+  }
+
+  func releaseOwnershipAfterNextConnectedDeviceIDRead() {
+    releasesOwnershipAfterNextConnectedIDRead = true
   }
 
   func setStubbedPhase(_ value: BLEPhaseKind) {
