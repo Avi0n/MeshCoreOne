@@ -63,6 +63,18 @@ struct RoomConversationView: View {
         onTitleTap: { showingRoomInfo = true }
       )
       .toolbar {
+        ToolbarItem(placement: .primaryAction) {
+          if viewModel.isRefreshing {
+            ProgressView(L10n.RemoteNodes.RemoteNodes.Status.refresh)
+              .labelsHidden()
+          } else {
+            Button(L10n.RemoteNodes.RemoteNodes.Status.refresh, systemImage: "arrow.clockwise") {
+              let room = session
+              Task { await viewModel.refreshMessages(for: room) }
+            }
+            .disabled(appState.services == nil || !session.isConnected || appState.currentRadioID != session.radioID)
+          }
+        }
         if #unavailable(iOS 26) {
           ToolbarItem(placement: .primaryAction) {
             Button(L10n.RemoteNodes.RemoteNodes.Room.infoTitle, systemImage: "info.circle") {
@@ -176,6 +188,7 @@ struct RoomConversationView: View {
       .task(id: appState.servicesVersion) {
         // Reassert the active room when servicesVersion changes because reconnect replaces NotificationService.
         appState.services?.notificationService.setActiveConversation(roomSessionID: session.id)
+        await startKeepAliveIfConnected()
       }
       .task {
         for await event in appState.messageEventStream.events() {
@@ -190,17 +203,12 @@ struct RoomConversationView: View {
           }
         }
       }
-      .task(id: session.isConnected) {
-        guard session.isConnected else { return }
-        await appState.services?.remoteNodeService.startSessionKeepAlive(
-          sessionID: session.id, publicKey: session.publicKey
-        )
-      }
       .onChange(of: session.isConnected) { _, isConnected in
         if isConnected {
           AccessibilityNotification.Announcement(
             L10n.RemoteNodes.RemoteNodes.Room.reconnected
           ).post()
+          Task { await startKeepAliveIfConnected() }
         }
       }
       .onChange(of: scenePhase) { _, newPhase in
@@ -212,13 +220,7 @@ struct RoomConversationView: View {
               .removeDeliveredNotifications(forRoomSessionID: session.id)
             await appState.services?.notificationService.updateBadgeCount()
           }
-          if session.isConnected {
-            Task {
-              await appState.services?.remoteNodeService.startSessionKeepAlive(
-                sessionID: session.id, publicKey: session.publicKey
-              )
-            }
-          }
+          Task { await startKeepAliveIfConnected() }
         }
       }
       .onDisappear {
@@ -234,6 +236,13 @@ struct RoomConversationView: View {
           )
         }
       }
+  }
+
+  private func startKeepAliveIfConnected() async {
+    guard session.isConnected, appState.currentRadioID == session.radioID else { return }
+    await appState.services?.remoteNodeService.startSessionKeepAlive(
+      sessionID: session.id, publicKey: session.publicKey
+    )
   }
 
   private var connectionStatus: String {

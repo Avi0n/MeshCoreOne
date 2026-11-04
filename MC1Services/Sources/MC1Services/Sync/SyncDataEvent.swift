@@ -12,11 +12,15 @@ public enum SyncDataEvent: Sendable {
   /// Conversations data changed; observers should reload chat lists.
   case conversationsChanged
   /// An incoming direct message was persisted for a known contact.
-  case directMessageReceived(message: MessageDTO, contact: ContactDTO)
+  case directMessageReceived(message: MessageDTO, contact: ContactDTO, scope: ReceiveScope? = nil)
   /// An incoming channel message was persisted.
-  case channelMessageReceived(message: MessageDTO, channelIndex: UInt8)
+  case channelMessageReceived(
+    message: MessageDTO, channelIndex: UInt8, legacyScope: ReceiveScope? = nil
+  )
   /// An incoming signed room message was persisted.
-  case roomMessageReceived(RoomMessageDTO)
+  case roomMessageReceived(RoomMessageDTO, roomID: UUID?, scope: ReceiveScope)
   /// A reaction was persisted and its target message's summary updated.
-  case reactionReceived(messageID: UUID, summary: String)
+  case reactionReceived(
+    messageID: UUID, summary: String, scope: ReceiveScope? = nil, contact: ContactDTO? = nil
+  )
 }

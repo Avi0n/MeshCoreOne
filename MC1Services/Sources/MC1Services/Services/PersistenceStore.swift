@@ -65,6 +65,12 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     self.modelContainer = modelContainer
   }
 
+  var receivePartitions: [UUID: ReceiveScope.Lifetime] = [:]
+  var pendingEraseRadioIDs: Set<UUID>?
+
+  public static let recentlyBlockedRetentionLimit = 100
+  nonisolated let recentlyBlockedChanges = EventBroadcaster<Void>()
+
   var rxLogEntryCountsByDevice: [UUID: Int] = [:]
   var unsavedRxLogInsertCount = 0
   var rxLogFlushTask: Task<Void, Never>?
@@ -119,8 +125,17 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     /// Test-only hook at the top of `fetchDevice(id:)`. The pairing query skips that id on throw.
     var fetchDeviceByIDFaultInjection: (@Sendable () throws -> Void)?
 
+    var beginRadioEraseFaultInjection: (@Sendable () throws -> Void)?
+    var completeRadioEraseFaultInjection: (@Sendable () throws -> Void)?
+
     /// Test-only hook at the top of `fetchContactIDs`. A throw leaves that fetch unfinished.
     var fetchContactIDsFaultInjection: (@Sendable () throws -> Void)?
+
+    var recordRecentlyBlockedFaultInjection: (@Sendable () throws -> Void)?
+
+    public func setRecordRecentlyBlockedFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      recordRecentlyBlockedFaultInjection = hook
+    }
 
     var updateContactLastMessageFaultInjection: (@Sendable () throws -> Void)?
 
@@ -147,7 +162,9 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     DiscoveredNode.self,
     NodeStatusSnapshot.self,
     BlockedChannelSender.self,
-    PendingSend.self
+    PendingRadioErase.self,
+    PendingSend.self,
+    RecentlyBlockedMessage.self
   ])
 
   /// Creates a ModelContainer for the app.
@@ -174,6 +191,8 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   ///          Int8 flood sentinel. DTO still exposes UInt8 via truncatingIfNeeded.
   /// - v8→v9: Added Contact.isPinned (Bool, default false). Channel.isFavorite and
   ///          RemoteNodeSession.isFavorite renamed to isPinned via originalName (same column).
+  /// - v9→v10: Added local Text Rules identities, review entries,
+  ///           and pending radio erase targets.
   public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
     if !inMemory {
       let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!

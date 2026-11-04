@@ -11,7 +11,7 @@ import MeshCore
 public enum AdvertisementEvent: Sendable {
   /// A contact or discovered node was created or updated; observers should
   /// reload contact lists.
-  case contactUpdated
+  case contactUpdated(contact: ContactDTO? = nil, scope: ReceiveScope? = nil)
   /// Adopted orphan DMs created or updated a conversation row; observers must
   /// refresh the conversation list (mirrors `SyncDataEvent.conversationsChanged`).
   case conversationsChanged

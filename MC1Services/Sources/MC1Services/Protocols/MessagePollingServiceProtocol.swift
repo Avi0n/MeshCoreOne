@@ -43,13 +43,13 @@ protocol MessagePollingServiceProtocol: Actor {
   // MARK: - Ingestion Handlers
 
   /// Install the handler invoked for each incoming direct message.
-  func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void)
+  func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?) async -> Void)
 
   /// Install the handler invoked for each incoming channel message.
-  func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void)
+  func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, TextRulesPreference?, Date, ReceiveScope?) async -> Void)
 
   /// Install the handler invoked for each incoming signed room message.
-  func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void)
+  func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ReceiveScope) async -> Void)
 
   /// Install the handler invoked for each incoming CLI response.
   func setCLIMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void)

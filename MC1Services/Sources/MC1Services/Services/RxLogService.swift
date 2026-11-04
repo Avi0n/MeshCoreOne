@@ -95,10 +95,12 @@ public actor RxLogService {
 
       // Build known-regions cache (and channel/contact secrets).
       await loadSecretsFromDatabase(radioID: radioID, generation: generation)
+      guard !Task.isCancelled else { return }
 
       // Subscribe before reprocess. EventDispatcher only buffers for existing
       // subscribers; awaiting full reprocess here would drop live RX.
       let events = await session.events(filter: .rxLogData)
+      guard !Task.isCancelled else { return }
 
       // Sibling reprocess so the for-await loop drains while store work runs.
       await self.launchRegionReprocessTask()
@@ -153,11 +155,15 @@ public actor RxLogService {
   }
 
   /// Stop monitoring events.
-  public func stopEventMonitoring() {
-    eventMonitorTask?.cancel()
+  public func stopEventMonitoring() async {
+    let monitor = eventMonitorTask
+    let reprocess = regionReprocessTask
     eventMonitorTask = nil
-    regionReprocessTask?.cancel()
     regionReprocessTask = nil
+    monitor?.cancel()
+    reprocess?.cancel()
+    await monitor?.value
+    await reprocess?.value
   }
 
   /// Returns a fresh multicast stream of newly persisted entries.
@@ -271,8 +277,7 @@ public actor RxLogService {
     isReprocessingDMs = true
     defer { isReprocessingDMs = false }
 
-    guard let radioID, let myPrivateKey else { return }
-    guard !contactPublicKeysByPrefix.isEmpty else { return }
+    guard let radioID, let myPrivateKey, !contactPublicKeysByPrefix.isEmpty else { return }
 
     let cutoff = Date().addingTimeInterval(-60)
 

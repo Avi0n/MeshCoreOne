@@ -5539,6 +5539,20 @@ public enum L10n {
         }
       }
     }
+    public enum RadioCleanup {
+      /// Radio data removed
+      public static let completed = L10n.tr("Settings", "radioCleanup.completed", fallback: "Radio data removed")
+      /// Hidden messages from this radio may still be on this installation.
+      public static let failed = L10n.tr("Settings", "radioCleanup.failed", fallback: "Hidden messages from this radio may still be on this installation.")
+      /// Try Radio Cleanup Again for %@
+      public static func retryAccessibility(_ p1: Any) -> String {
+        return L10n.tr("Settings", "radioCleanup.retryAccessibility", String(describing: p1), fallback: "Try Radio Cleanup Again for %@")
+      }
+      /// Removing radio data
+      public static let running = L10n.tr("Settings", "radioCleanup.running", fallback: "Removing radio data")
+      /// Cleanup
+      public static let title = L10n.tr("Settings", "radioCleanup.title", fallback: "Cleanup")
+    }
     public enum RadioWiFi {
       /// Button that clears the radio's saved WiFi settings
       public static let clear = L10n.tr("Settings", "radioWiFi.clear", fallback: "Clear WiFi Settings")
@@ -6068,6 +6082,156 @@ public enum L10n {
       public static let trustedOnly = L10n.tr("Settings", "telemetry.trustedOnly", fallback: "Only Share with Trusted Contacts")
       /// Description for trusted contacts toggle
       public static let trustedOnlyDescription = L10n.tr("Settings", "telemetry.trustedOnlyDescription", fallback: "Limit telemetry to selected contacts")
+    }
+    public enum TextRules {
+      /// Deleting a rule leaves its hidden messages in Recently Blocked.
+      public static let deleteFooter = L10n.tr("Settings", "textRules.deleteFooter", fallback: "Deleting a rule leaves its hidden messages in Recently Blocked.")
+      /// No Text Rules
+      public static let empty = L10n.tr("Settings", "textRules.empty", fallback: "No Text Rules")
+      /// Could not load Text Rules. New messages use ordinary delivery until Text Rules can be loaded.
+      public static let loadFailed = L10n.tr("Settings", "textRules.loadFailed", fallback: "Could not load Text Rules. New messages use ordinary delivery until Text Rules can be loaded.")
+      /// A sender-name match also hides incoming emoji reactions from that sender.
+      public static let reactionFooter = L10n.tr("Settings", "textRules.reactionFooter", fallback: "A sender-name match also hides incoming emoji reactions from that sender.")
+      /// Try Loading Text Rules Again
+      public static let retryAccessibility = L10n.tr("Settings", "textRules.retryAccessibility", fallback: "Try Loading Text Rules Again")
+      /// Rules
+      public static let rules = L10n.tr("Settings", "textRules.rules", fallback: "Rules")
+      /// %1$@ · %2$@
+      public static func ruleSummary(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Settings", "textRules.ruleSummary", String(describing: p1), String(describing: p2), fallback: "%1$@ · %2$@")
+      }
+      /// Could not save Text Rules. Try again.
+      public static let saveFailed = L10n.tr("Settings", "textRules.saveFailed", fallback: "Could not save Text Rules. Try again.")
+      /// Text Rules
+      public static let title = L10n.tr("Settings", "textRules.title", fallback: "Text Rules")
+      public enum Archive {
+        /// No Hidden Messages
+        public static let empty = L10n.tr("Settings", "textRules.archive.empty", fallback: "No Hidden Messages")
+        /// Message and Sender
+        public static let fieldsBoth = L10n.tr("Settings", "textRules.archive.fieldsBoth", fallback: "Message and Sender")
+        /// The latest %d hidden messages are kept on this installation and are excluded from shareable backups.
+        public static func footer(_ p1: Int) -> String {
+          return L10n.tr("Settings", "textRules.archive.footer", p1, fallback: "The latest %d hidden messages are kept on this installation and are excluded from shareable backups.")
+        }
+        /// Matched “%1$@” in %2$@ (%3$@)
+        public static func reason(_ p1: Any, _ p2: Any, _ p3: Any) -> String {
+          return L10n.tr("Settings", "textRules.archive.reason", String(describing: p1), String(describing: p2), String(describing: p3), fallback: "Matched “%1$@” in %2$@ (%3$@)")
+        }
+        /// Recently Blocked
+        public static let title = L10n.tr("Settings", "textRules.archive.title", fallback: "Recently Blocked")
+        /// Unknown Conversation
+        public static let unknownConversation = L10n.tr("Settings", "textRules.archive.unknownConversation", fallback: "Unknown Conversation")
+        /// Unknown Radio
+        public static let unknownRadio = L10n.tr("Settings", "textRules.archive.unknownRadio", fallback: "Unknown Radio")
+      }
+      public enum Field {
+        /// Message
+        public static let message = L10n.tr("Settings", "textRules.field.message", fallback: "Message")
+        /// This rule checks the message body.
+        public static let messageFooter = L10n.tr("Settings", "textRules.field.messageFooter", fallback: "This rule checks the message body.")
+        /// Message or Sender
+        public static let messageOrSender = L10n.tr("Settings", "textRules.field.messageOrSender", fallback: "Message or Sender")
+        /// This rule checks the message and sender name separately. Either field can match.
+        public static let messageOrSenderFooter = L10n.tr("Settings", "textRules.field.messageOrSenderFooter", fallback: "This rule checks the message and sender name separately. Either field can match.")
+        /// Sender
+        public static let sender = L10n.tr("Settings", "textRules.field.sender", fallback: "Sender")
+        /// This rule checks the sender name.
+        public static let senderFooter = L10n.tr("Settings", "textRules.field.senderFooter", fallback: "This rule checks the sender name.")
+      }
+      public enum Info {
+        /// The saved conversation is unavailable.
+        public static let conversationUnavailable = L10n.tr("Settings", "textRules.info.conversationUnavailable", fallback: "The saved conversation is unavailable.")
+        /// Not included in %@
+        public static func excluded(_ p1: Any) -> String {
+          return L10n.tr("Settings", "textRules.info.excluded", String(describing: p1), fallback: "Not included in %@")
+        }
+        /// Set for this conversation
+        public static let explicit = L10n.tr("Settings", "textRules.info.explicit", fallback: "Set for this conversation")
+        /// Follows %@
+        public static func follows(_ p1: Any) -> String {
+          return L10n.tr("Settings", "textRules.info.follows", String(describing: p1), fallback: "Follows %@")
+        }
+        /// The type choice follows your Text Rules selection. On or Off here takes precedence for this conversation.
+        public static let footer = L10n.tr("Settings", "textRules.info.footer", fallback: "The type choice follows your Text Rules selection. On or Off here takes precedence for this conversation.")
+        /// %1$@ (%2$@)
+        public static func inheritedChoice(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Settings", "textRules.info.inheritedChoice", String(describing: p1), String(describing: p2), fallback: "%1$@ (%2$@)")
+        }
+        /// Off for This Channel
+        public static let offChannel = L10n.tr("Settings", "textRules.info.offChannel", fallback: "Off for This Channel")
+        /// Off for This DM
+        public static let offDm = L10n.tr("Settings", "textRules.info.offDm", fallback: "Off for This DM")
+        /// Off for This Room
+        public static let offRoom = L10n.tr("Settings", "textRules.info.offRoom", fallback: "Off for This Room")
+        /// On for This Channel
+        public static let onChannel = L10n.tr("Settings", "textRules.info.onChannel", fallback: "On for This Channel")
+        /// On for This DM
+        public static let onDm = L10n.tr("Settings", "textRules.info.onDm", fallback: "On for This DM")
+        /// On for This Room
+        public static let onRoom = L10n.tr("Settings", "textRules.info.onRoom", fallback: "On for This Room")
+        /// Radio %@
+        public static func radio(_ p1: Any) -> String {
+          return L10n.tr("Settings", "textRules.info.radio", String(describing: p1), fallback: "Radio %@")
+        }
+        /// Effective Setting
+        public static let status = L10n.tr("Settings", "textRules.info.status", fallback: "Effective Setting")
+        /// Unavailable
+        public static let unavailable = L10n.tr("Settings", "textRules.info.unavailable", fallback: "Unavailable")
+      }
+      public enum Match {
+        /// Contains
+        public static let contains = L10n.tr("Settings", "textRules.match.contains", fallback: "Contains")
+        /// Whole Field
+        public static let wholeField = L10n.tr("Settings", "textRules.match.wholeField", fallback: "Whole Field")
+        /// Whole Message
+        public static let wholeMessage = L10n.tr("Settings", "textRules.match.wholeMessage", fallback: "Whole Message")
+        /// Whole Name
+        public static let wholeName = L10n.tr("Settings", "textRules.match.wholeName", fallback: "Whole Name")
+      }
+      public enum New {
+        /// The phrase can match anywhere in the selected field, including inside a word.
+        public static let containsFooter = L10n.tr("Settings", "textRules.new.containsFooter", fallback: "The phrase can match anywhere in the selected field, including inside a word.")
+        /// Rules apply to incoming messages in conversations that use Text Rules. Saved messages stay in their conversations.
+        public static let deliveryFooter = L10n.tr("Settings", "textRules.new.deliveryFooter", fallback: "Rules apply to incoming messages in conversations that use Text Rules. Saved messages stay in their conversations.")
+        /// Look In
+        public static let lookIn = L10n.tr("Settings", "textRules.new.lookIn", fallback: "Look In")
+        /// Match
+        public static let match = L10n.tr("Settings", "textRules.new.match", fallback: "Match")
+        /// Word or phrase
+        public static let phrase = L10n.tr("Settings", "textRules.new.phrase", fallback: "Word or phrase")
+        /// New Rule
+        public static let title = L10n.tr("Settings", "textRules.new.title", fallback: "New Rule")
+        /// The phrase must match the entire field.
+        public static let wholeFieldFooter = L10n.tr("Settings", "textRules.new.wholeFieldFooter", fallback: "The phrase must match the entire field.")
+      }
+      public enum Selection {
+        /// Chats for %@
+        public static func accessibilityChats(_ p1: Any) -> String {
+          return L10n.tr("Settings", "textRules.selection.accessibilityChats", String(describing: p1), fallback: "Chats for %@")
+        }
+        /// All
+        public static let all = L10n.tr("Settings", "textRules.selection.all", fallback: "All")
+        /// %d Chats
+        public static func count(_ p1: Int) -> String {
+          return L10n.tr("Settings", "textRules.selection.count", p1, fallback: "%d Chats")
+        }
+        /// All includes future chats of this type. An individual selection follows only the selected chats. Explicit conversation choices take precedence.
+        public static let footer = L10n.tr("Settings", "textRules.selection.footer", fallback: "All includes future chats of this type. An individual selection follows only the selected chats. Explicit conversation choices take precedence.")
+        /// None
+        public static let `none` = L10n.tr("Settings", "textRules.selection.none", fallback: "None")
+      }
+      public enum Types {
+        /// Turn on a type to include all its chats. Open Chats below a switch to choose specific chats. Explicit conversation choices take precedence.
+        public static let footer = L10n.tr("Settings", "textRules.types.footer", fallback: "Turn on a type to include all its chats. Open Chats below a switch to choose specific chats. Explicit conversation choices take precedence.")
+        /// Hashtag Channels
+        public static let hashtagChannel = L10n.tr("Settings", "textRules.types.hashtagChannel", fallback: "Hashtag Channels")
+        /// Use rules for
+        public static let header = L10n.tr("Settings", "textRules.types.header", fallback: "Use rules for")
+        /// Private Channels
+        public static let privateChannel = L10n.tr("Settings", "textRules.types.privateChannel", fallback: "Private Channels")
+        /// Public
+        public static let publicChannel = L10n.tr("Settings", "textRules.types.publicChannel", fallback: "Public")
+      }
     }
     public enum TrustedContacts {
       /// Apply button label

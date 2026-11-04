@@ -130,6 +130,9 @@ extension PersistenceStore {
       inserted += 1
     }
 
+    for radioID in Set(dtos.map(\.radioID)) {
+      try bindRecentlyBlockedContacts(radioID: radioID)
+    }
     return (inserted, skipped, merged, contactIDsByKey)
   }
 
@@ -454,8 +457,7 @@ extension PersistenceStore {
         continue
       }
 
-      guard let foreignPath, foreignPath != parent.pathNodes else { continue }
-      guard extrasByMessage[localID, default: []].insert(foreignPath).inserted else { continue }
+      guard let foreignPath, foreignPath != parent.pathNodes, extrasByMessage[localID, default: []].insert(foreignPath).inserted else { continue }
       modelContext.insert(MessageRepeat(
         dto: MessageRepeatDTO(
           messageID: localID,

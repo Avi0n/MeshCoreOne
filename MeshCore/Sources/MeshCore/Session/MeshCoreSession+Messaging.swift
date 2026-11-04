@@ -182,6 +182,7 @@ public extension MeshCoreSession {
   ///            channel datagram (firmware v11+), or ``MessageResult/noMoreMessages``.
   /// - Throws: ``MeshCoreError`` if the fetch fails.
   func getMessage(timeout: TimeInterval? = nil) async throws -> MessageResult {
+    guard !isMessageFetchingSuspended else { throw CancellationError() }
     getMessageCallerCountForTest += 1
     defer { getMessageCallerCountForTest -= 1 }
 
@@ -583,32 +584,32 @@ public extension MeshCoreSession {
 
   // MARK: - Keep-Alive
 
-  /// Sends a keep-alive request to a room server with the client's sync watermark.
-  ///
-  /// The companion radio passes the payload through to the mesh layer, producing:
-  /// `[tag(4)][REQ_TYPE_KEEP_ALIVE(1)][sync_since(4)]` — 9 bytes total.
-  ///
-  /// The room server uses `sync_since` as a force-resync hint to update the client's
-  /// message watermark. The normal push-and-ACK cycle also advances `sync_since`
-  /// independently, so this serves as a correction mechanism.
-  ///
-  /// - Parameters:
-  ///   - publicKey: The full 32-byte public key of the room server.
-  ///   - syncSince: The client's last-received message timestamp (little-endian on wire).
-  /// - Returns: Information about the sent message.
-  /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
-  func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo {
+  /// Sends the room bookmark as a four-byte little-endian value.
+  /// A zero bookmark preserves the server’s replay cursor.
+  func sendKeepAlive(
+    to publicKey: Data,
+    syncSince: @escaping @Sendable () async throws -> UInt32,
+    beforeSend: @escaping @Sendable () throws -> Void
+  ) async throws -> MessageSentInfo {
     try requireFullPublicKey(publicKey, operation: "sendKeepAlive")
-    var syncSinceLE = syncSince.littleEndian
-    let payload = withUnsafeBytes(of: &syncSinceLE) { Data($0) }
-    let data = PacketBuilder.binaryRequest(to: publicKey, type: .keepAlive, payload: payload)
-    return try await sendAndWaitWithError(
-      data,
-      matching: { event in
-        if case let .messageSent(info) = event { return info }
-        return nil
-      },
-      errorMatcher: Self.deviceErrorMatcher
-    )
+    let cancelled = OSAllocatedUnfairLock(initialState: false)
+
+    return try await withTaskCancellationHandler {
+      try await requestResponseSerializer.withSerialization { [self] in
+        var watermark = try await syncSince().littleEndian
+        let payload = withUnsafeBytes(of: &watermark) { Data($0) }
+        let data = PacketBuilder.binaryRequest(to: publicKey, type: .keepAlive, payload: payload)
+        return try await sendAndMatchHoldingSerialization(data, beforeSend: {
+          if cancelled.withLock({ $0 }) { throw CancellationError() }
+          try beforeSend()
+        }) { event in
+          if let error = Self.deviceErrorMatcher(event) { return .failure(error) }
+          if case let .messageSent(info) = event { return .success(info) }
+          return .ignore
+        }
+      }
+    } onCancel: {
+      cancelled.withLock { $0 = true }
+    }
   }
 }

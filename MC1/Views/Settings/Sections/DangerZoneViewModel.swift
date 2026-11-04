@@ -31,8 +31,6 @@ final class DangerZoneViewModel {
 
   private var connectionManager: ConnectionManager?
 
-  /// Grace period for the radio to reboot after a factory reset before local cleanup.
-  private static let resetRebootGracePeriod: Duration = .seconds(1)
   /// How long the transient "Removed" confirmation stays on the button label.
   private static let removeSuccessDisplayDuration: Duration = .seconds(1.5)
 
@@ -67,9 +65,7 @@ final class DangerZoneViewModel {
   /// Returns true when the reset flow finished and the hosting page should dismiss.
   /// A nil service or device ID mirrors a disconnected state.
   func factoryReset() async -> Bool {
-    guard let settingsService,
-          let deviceID = connectedDevice?.id,
-          let connectionManager else {
+    guard settingsService != nil, connectedDevice != nil, let connectionManager else {
       errorMessage = L10n.Settings.DangerZone.Error.servicesUnavailable
       return false
     }
@@ -77,18 +73,15 @@ final class DangerZoneViewModel {
     isResetting = true
     defer { isResetting = false }
 
-    // Send reset command. The device typically reboots before responding,
-    // so a timeout/connection error here is expected, not a failure.
     do {
-      try await settingsService.factoryReset()
-      try await Task.sleep(for: Self.resetRebootGracePeriod)
+      try await connectionManager.factoryResetAndEraseRadio()
+      return true
+    } catch DevicePairingError.cancelled {
+      return false
     } catch {
-      // Expected: device reboots before sending OK response
+      errorMessage = error.userFacingMessage
+      return false
     }
-
-    // Always clean up: remove from ASK, disconnect, delete from SwiftData
-    await connectionManager.forgetDevice(id: deviceID)
-    return true
   }
 
   func fetchUnfavoritedCount() async {

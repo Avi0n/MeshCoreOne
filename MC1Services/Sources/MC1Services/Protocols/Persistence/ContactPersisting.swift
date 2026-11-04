@@ -103,14 +103,8 @@ public protocol ContactPersisting: Actor {
     skippingPublicKeys: @Sendable () -> Set<Data>
   ) async throws -> [UUID]
 
-  /// Deletes the contact only when no messages reference it. Insert-only
-  /// rollback of a mid-sync radio delete: prefer an orphan contact over a
-  /// cascade that wipes a concurrent DM. Implementations that share a
-  /// ModelActor with message storage must keep probe and delete in one
-  /// isolation region with no suspension between them.
-  ///
-  /// PendingSend and Reaction cascade with their Message rows on
-  /// `deleteContact`, so a Message probe is sufficient.
+  /// Deletes a Contact only when no message or review entry references it.
+  /// Check references and delete without suspension so a concurrent DM cannot be cascaded.
   func deleteContactIfUnreferenced(id: UUID) async throws
 
   /// Links direct messages stored before their contact row existed. Channel

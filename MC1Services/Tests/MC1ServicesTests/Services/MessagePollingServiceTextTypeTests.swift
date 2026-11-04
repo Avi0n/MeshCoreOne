@@ -37,7 +37,7 @@ struct MessagePollingServiceTextTypeTests {
     let polling = MessagePollingService(session: session, dataStore: store)
     let hits = HandlerHits()
 
-    await polling.setContactMessageHandler { _, _, _ in
+    await polling.setContactMessageHandler { _, _, _, _, _ in
       await hits.recordContact()
     }
     await polling.setCLIMessageHandler { _, _ in

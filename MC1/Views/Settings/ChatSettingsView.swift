@@ -20,6 +20,7 @@ struct ChatSettingsView: View {
       MapPreviewSettingsSection()
       MessagesSettingsSection()
       BlockingSection()
+      RadioCleanupSection()
     }
     .themedCanvas(theme)
     .settingsSubpageDestinations()

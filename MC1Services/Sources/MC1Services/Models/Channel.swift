@@ -18,6 +18,13 @@ public final class Channel {
   @Attribute(originalName: "deviceID")
   public var radioID: UUID
 
+  var textRulesID: UUID?
+  var textRulesOverrideRawValue: String = TextRulesPreference.Override.inherit.rawValue
+
+  var textRulesOverride: TextRulesPreference.Override {
+    TextRulesPreference.Override(rawValue: textRulesOverrideRawValue) ?? .inherit
+  }
+
   /// Channel slot index
   public var index: UInt8
 
@@ -93,6 +100,7 @@ public final class Channel {
   ) {
     self.id = id
     self.radioID = radioID
+    textRulesID = UUID()
     self.index = index
     self.name = name
     self.secret = secret
@@ -237,6 +245,8 @@ public extension Channel {
 public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
   public let id: UUID
   public var radioID: UUID
+  public internal(set) var textRulesID: UUID?
+  public internal(set) var textRulesOverride: TextRulesPreference.Override = .inherit
   public let index: UInt8
   public let name: String
   public let secret: Data
@@ -316,6 +326,8 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
   public init(from channel: Channel) {
     id = channel.id
     radioID = channel.radioID
+    textRulesID = channel.textRulesID
+    textRulesOverride = channel.textRulesOverride
     index = channel.index
     name = channel.name
     secret = channel.secret
@@ -368,35 +380,44 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
 
   /// Returns a copy with only `notificationLevel` changed.
   public func with(notificationLevel: NotificationLevel) -> ChannelDTO {
-    ChannelDTO(
+    var copy = ChannelDTO(
       id: id, radioID: radioID, index: index, name: name,
       secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
       notificationLevel: notificationLevel, isPinned: isPinned,
       floodScope: floodScope
     )
+    copy.textRulesID = textRulesID
+    copy.textRulesOverride = textRulesOverride
+    return copy
   }
 
   /// Returns a copy with only `isPinned` changed.
   public func with(isPinned: Bool) -> ChannelDTO {
-    ChannelDTO(
+    var copy = ChannelDTO(
       id: id, radioID: radioID, index: index, name: name,
       secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
       notificationLevel: notificationLevel, isPinned: isPinned,
       floodScope: floodScope
     )
+    copy.textRulesID = textRulesID
+    copy.textRulesOverride = textRulesOverride
+    return copy
   }
 
   /// Returns a copy with only the flood-scope preference changed.
   public func with(floodScope: ChannelFloodScope) -> ChannelDTO {
-    ChannelDTO(
+    var copy = ChannelDTO(
       id: id, radioID: radioID, index: index, name: name,
       secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
       notificationLevel: notificationLevel, isPinned: isPinned,
       floodScope: floodScope
     )
+    copy.textRulesID = textRulesID
+    copy.textRulesOverride = textRulesOverride
+    return copy
   }
 
   /// Returns a copy placed at a different slot `index`, forwarding every other raw
@@ -404,7 +425,7 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
   /// has no local match onto a free slot without routing through the normalizing
   /// ``ChannelFloodScope`` accessor (preserving pre-migration flood-scope rows).
   func with(index newIndex: UInt8) -> ChannelDTO {
-    ChannelDTO(
+    var copy = ChannelDTO(
       id: id, radioID: radioID, index: newIndex, name: name,
       secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
@@ -412,6 +433,9 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
       floodScopeModeRawValue: floodScopeModeRawValue,
       regionScope: regionScope
     )
+    copy.textRulesID = textRulesID
+    copy.textRulesOverride = textRulesOverride
+    return copy
   }
 
   /// Returns a copy with a fresh surrogate `id`, forwarding every other raw storage
@@ -420,7 +444,7 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
   /// id. Channel has no inbound foreign key, so re-issuing the id breaks no linkage; it
   /// uses the raw initializer to preserve pre-migration flood-scope rows (see ``init(dto:)``).
   func with(id newID: UUID) -> ChannelDTO {
-    ChannelDTO(
+    var copy = ChannelDTO(
       id: newID, radioID: radioID, index: index, name: name,
       secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
@@ -428,13 +452,16 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
       floodScopeModeRawValue: floodScopeModeRawValue,
       regionScope: regionScope
     )
+    copy.textRulesID = textRulesID
+    copy.textRulesOverride = textRulesOverride
+    return copy
   }
 
   /// Returns a copy with only the raw `regionScope` column changed. This is the
   /// low-level bypass used for tests that must simulate malformed on-disk state;
   /// production code should go through ``with(floodScope:)``.
   func with(regionScope: String?) -> ChannelDTO {
-    ChannelDTO(
+    var copy = ChannelDTO(
       id: id, radioID: radioID, index: index, name: name,
       secret: secret, isEnabled: isEnabled, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
@@ -442,6 +469,9 @@ public struct ChannelDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
       floodScopeModeRawValue: floodScopeModeRawValue,
       regionScope: regionScope
     )
+    copy.textRulesID = textRulesID
+    copy.textRulesOverride = textRulesOverride
+    return copy
   }
 
   /// Low-level init that sets both raw storage fields directly. Kept `internal`

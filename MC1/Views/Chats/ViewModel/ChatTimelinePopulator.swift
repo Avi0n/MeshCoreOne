@@ -161,7 +161,7 @@ enum ChatTimelinePopulator {
           channelIndex: channel.index,
           senderName: senderName,
           text: message.text,
-          timestamp: message.timestamp
+          timestamp: message.reactionTimestamp
         )
 
         for pending in pendingMatches {
@@ -206,7 +206,8 @@ enum ChatTimelinePopulator {
             reactionDTO,
             reactionService: reactionService,
             dataStore: dataStore,
-            writer: writer
+            writer: writer,
+            directMessage: pending.directMessage
           )
         }
       }
@@ -217,7 +218,8 @@ enum ChatTimelinePopulator {
     _ reaction: ReactionDTO,
     reactionService: ReactionService,
     dataStore: DataStore,
-    writer: ChatTimelineWriter
+    writer: ChatTimelineWriter,
+    directMessage: (scope: ReceiveScope, contact: ContactDTO)? = nil
   ) async {
     let exists = try? await dataStore.reactionExists(
       messageID: reaction.messageID,
@@ -228,7 +230,8 @@ enum ChatTimelinePopulator {
 
     if let result = await reactionService.persistReactionAndUpdateSummary(
       reaction,
-      using: dataStore
+      using: dataStore,
+      directMessage: directMessage
     ) {
       writer.enqueueReload(messageID: result.messageID)
     }

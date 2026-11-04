@@ -32,15 +32,7 @@ extension AdvertisementService {
       return
     }
 
-    guard !Task.isCancelled else {
-      finishRound(generation: generation)
-      return
-    }
-    guard !isSyncingContacts else {
-      finishRound(generation: generation)
-      return
-    }
-    guard await isInForeground() else {
+    guard !Task.isCancelled, !isSyncingContacts, await isInForeground() else {
       finishRound(generation: generation)
       return
     }
@@ -192,7 +184,7 @@ extension AdvertisementService {
     // Adopt against every drained key that now has a row — not only
     // insertedKeysForNotify — so a snapshot failure still links orphan DMs.
     let adoptedContactIDs = await adoptOrphanedMessages(for: drained, radioID: radioID)
-    eventBroadcaster.yield(.contactUpdated)
+    eventBroadcaster.yield(.contactUpdated())
     // A non-nil lastMessageDate after adoption is a new/updated conversation
     // row; contactsVersion alone does not reload the mounted chat list. The
     // adopted DMs never notified at receipt (no contact then), so hand the
@@ -222,8 +214,7 @@ extension AdvertisementService {
   /// Re-arms after a busy outcome with a short backoff so performResync-style
   /// claim holds do not spin at zero interval.
   private func scheduleBusyRetry() {
-    guard deltaSyncTask == nil else { return }
-    guard hasPendingDeltaSyncWork else { return }
+    guard deltaSyncTask == nil, hasPendingDeltaSyncWork else { return }
     deltaSyncGeneration &+= 1
     let generation = deltaSyncGeneration
     let fireAt = ContinuousClock.now + advertSyncBusyBackoff
@@ -280,7 +271,7 @@ extension AdvertisementService {
         ) else { continue }
         try await dataStore.deleteContactIfUnreferenced(id: contact.id)
         logger.info("Delta sync rollback: removed contact \(pubKeyHex) deleted by the radio mid-sync")
-        eventBroadcaster.yield(.contactUpdated)
+        eventBroadcaster.yield(.contactUpdated())
       } catch {
         logger.error("Delta sync rollback failed for \(pubKeyHex): \(error.localizedDescription)")
       }
@@ -396,8 +387,7 @@ extension AdvertisementService {
     var missing: Set<Data> = []
     for publicKey in unknownAtStart {
       // A key the radio deleted is missing on purpose; refetching cannot bring it back.
-      guard !isRadioDeleted(publicKey) else { continue }
-      guard let exists = await contactExists(radioID: radioID, publicKey: publicKey) else { continue }
+      guard !isRadioDeleted(publicKey), let exists = await contactExists(radioID: radioID, publicKey: publicKey) else { continue }
       if !exists {
         missing.insert(publicKey)
       }
@@ -484,8 +474,7 @@ extension AdvertisementService {
     guard let radioID = currentRadioID else { return }
 
     for publicKey in unknownAtStart {
-      guard !isRadioDeleted(publicKey) else { continue }
-      guard let exists = await contactExists(radioID: radioID, publicKey: publicKey) else { continue }
+      guard !isRadioDeleted(publicKey), let exists = await contactExists(radioID: radioID, publicKey: publicKey) else { continue }
       if !exists {
         let pubKeyHex = publicKey.uppercaseHexString()
         logger.info("Advert full refetch still missing key=\(pubKeyHex); dropping")

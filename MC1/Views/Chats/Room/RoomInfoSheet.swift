@@ -85,6 +85,13 @@ struct RoomInfoSheet: View {
           .themedRowBackground(theme)
         }
 
+        ConversationTextRulesSection(
+          kind: .room,
+          radioID: session.radioID,
+          conversationID: session.textRulesID,
+          savedChoice: session.textRulesOverride
+        )
+
         if session.isConnected {
           Section {
             Button { showTelemetry = true } label: {

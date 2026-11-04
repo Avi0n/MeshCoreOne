@@ -32,14 +32,22 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   private var eventSubscriptions: [UUID: EventSubscription] = [:]
 
   public func events() async -> AsyncStream<MeshEvent> {
-    makeEventStream(filter: nil)
+    makeEventStream(filter: nil).stream
   }
 
   public func events(filter: EventFilter) async -> AsyncStream<MeshEvent> {
+    makeEventStream(filter: filter).stream
+  }
+
+  public func eventsTracked(filter: EventFilter) async -> (id: UUID, stream: AsyncStream<MeshEvent>) {
     makeEventStream(filter: filter)
   }
 
-  private func makeEventStream(filter: EventFilter?) -> AsyncStream<MeshEvent> {
+  public func finishEvents(id: UUID) async {
+    eventSubscriptions.removeValue(forKey: id)?.continuation.finish()
+  }
+
+  private func makeEventStream(filter: EventFilter?) -> (id: UUID, stream: AsyncStream<MeshEvent>) {
     let id = UUID()
     let (stream, continuation) = AsyncStream<MeshEvent>.makeStream()
     eventSubscriptions[id] = EventSubscription(filter: filter, continuation: continuation)
@@ -47,7 +55,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
       guard let self else { return }
       Task { await self.removeEventSubscription(id: id) }
     }
-    return stream
+    return (id, stream)
   }
 
   private func removeEventSubscription(id: UUID) {
@@ -762,6 +770,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     startAutoMessageFetchingCallCount += 1
   }
 
+  public func suspendMessageFetching() async throws {}
+
+  public func resumeMessageFetching() {}
+
   public func stopAutoMessageFetching() {
     stopAutoMessageFetchingCallCount += 1
   }
@@ -821,7 +833,11 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     }
   }
 
-  public func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo {
+  public func sendKeepAlive(
+    to publicKey: Data,
+    syncSince: @escaping @Sendable () async throws -> UInt32,
+    beforeSend: @escaping @Sendable () throws -> Void
+  ) async throws -> MessageSentInfo {
     throw NotStubbed.method("sendKeepAlive")
   }
 

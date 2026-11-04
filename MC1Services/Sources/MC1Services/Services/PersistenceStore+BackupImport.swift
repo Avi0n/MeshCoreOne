@@ -351,6 +351,7 @@ public extension PersistenceStore {
     #endif
     try modelContext.save()
     didCommit = true
+    publishRecentlyBlockedChange()
 
     #if DEBUG
       backupImportPostCommitHook?()

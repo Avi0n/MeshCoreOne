@@ -299,6 +299,10 @@ public final class ConnectionManager {
   let modelContainer: ModelContainer
   private let defaults: UserDefaults
   private let lastConnectionStore: LastConnectionStore
+
+  let textRulesURL: URL
+  public internal(set) var textRulesPreference: TextRulesPreference?
+  public internal(set) var isTextRulesLoading = true
   let transport: any iOSMeshTransport
   var wifiTransport: WiFiTransport?
   var session: MeshCoreSession? {
@@ -369,6 +373,9 @@ public final class ConnectionManager {
 
   /// Task managing the resync retry loop
   var resyncTask: Task<Void, Never>?
+
+  public internal(set) var radioCleanup: [UUID: RadioCleanup] = [:]
+  @ObservationIgnored var radioEraseTasks: [UUID: Task<Void, Error>] = [:]
 
   /// Task managing delayed channel-only retry after a partial channel phase.
   var channelRetryTask: Task<Void, Never>?
@@ -706,12 +713,14 @@ public final class ConnectionManager {
     defaults: UserDefaults = .standard,
     stateMachine: (any BLEStateMachineProtocol)? = nil,
     transport: (any iOSMeshTransport)? = nil,
-    pairing: (any DevicePairingService)? = nil
+    pairing: (any DevicePairingService)? = nil,
+    textRulesURL: URL? = nil
   ) {
     self.modelContainer = modelContainer
     persistenceStore = PersistenceStore(modelContainer: modelContainer)
     self.defaults = defaults
     lastConnectionStore = LastConnectionStore(defaults: defaults)
+    self.textRulesURL = textRulesURL ?? Self.defaultTextRulesURL
     connectionIntent = .restored(from: defaults)
 
     // Use provided state machine or create default
@@ -970,6 +979,9 @@ public final class ConnectionManager {
     }
     let effectiveExisting = existingDevice ?? deviceByPublicKey
     let resolvedRadioID = effectiveExisting?.radioID ?? UUID()
+    guard try await !persistenceStore.isRadioErasePending(resolvedRadioID) else {
+      throw ConnectionError.deviceNotFound
+    }
 
     let newServices = ServiceContainer(
       session: session,
@@ -977,7 +989,8 @@ public final class ConnectionManager {
       radioID: resolvedRadioID,
       appStateProvider: appStateProvider,
       connectionStateEvents: connectionStateEvents,
-      initialConnectionState: connectionState
+      initialConnectionState: connectionState,
+      textRulesPreference: { [weak self] in await self?.textRulesPreference }
     )
     await wireCleanChannelSyncCallback(on: newServices)
     await newServices.nodeConfigService.setOnPostIdentityImport { [weak self, weak newServices] in
@@ -1005,6 +1018,7 @@ public final class ConnectionManager {
     // Persist before warmUp so purgeOrphanPendingSends sees the in-progress
     // radio's Device row and does not classify its PendingSends as orphans.
     try await newServices.dataStore.saveDevice(deviceDTO)
+    try await persistenceStore.backfillTextRulesIdentities(radioID: resolvedRadioID)
 
     // Clean up orphaned Device row from backup import
     if let oldDevice = deviceByPublicKey, oldDevice.id != deviceID {

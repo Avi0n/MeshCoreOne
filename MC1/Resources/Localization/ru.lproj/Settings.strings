@@ -1449,6 +1449,75 @@
 /* AI-translated - please verify with native speakers. */
 "mapPreviews.footer" = "Отображение миниатюр карты загружает плитки для координаты со стороннего сервера, что может раскрыть ваш IP-адрес.";
 
+// MARK: - Text Rules
+
+/* TODO: translate Text Rules strings */
+"textRules.title" = "Text Rules";
+"textRules.rules" = "Rules";
+"textRules.empty" = "No Text Rules";
+"textRules.deleteFooter" = "Deleting a rule leaves its hidden messages in Recently Blocked.";
+"textRules.loadFailed" = "Could not load Text Rules. New messages use ordinary delivery until Text Rules can be loaded.";
+"textRules.retryAccessibility" = "Try Loading Text Rules Again";
+"textRules.saveFailed" = "Could not save Text Rules. Try again.";
+"textRules.new.title" = "New Rule";
+"textRules.new.phrase" = "Word or phrase";
+"textRules.new.lookIn" = "Look In";
+"textRules.new.match" = "Match";
+"textRules.new.containsFooter" = "The phrase can match anywhere in the selected field, including inside a word.";
+"textRules.new.wholeFieldFooter" = "The phrase must match the entire field.";
+"textRules.new.deliveryFooter" = "Rules apply to incoming messages in conversations that use Text Rules. Saved messages stay in their conversations.";
+"textRules.reactionFooter" = "A sender-name match also hides incoming emoji reactions from that sender.";
+"textRules.field.message" = "Message";
+"textRules.field.sender" = "Sender";
+"textRules.field.messageOrSender" = "Message or Sender";
+"textRules.field.messageFooter" = "This rule checks the message body.";
+"textRules.field.senderFooter" = "This rule checks the sender name.";
+"textRules.field.messageOrSenderFooter" = "This rule checks the message and sender name separately. Either field can match.";
+"textRules.match.contains" = "Contains";
+"textRules.match.wholeMessage" = "Whole Message";
+"textRules.match.wholeName" = "Whole Name";
+"textRules.match.wholeField" = "Whole Field";
+"textRules.ruleSummary" = "%1$@ · %2$@";
+"textRules.types.header" = "Use rules for";
+"textRules.types.footer" = "Turn on a type to include all its chats. Open Chats below a switch to choose specific chats. Explicit conversation choices take precedence.";
+"textRules.types.publicChannel" = "Public";
+"textRules.types.hashtagChannel" = "Hashtag Channels";
+"textRules.types.privateChannel" = "Private Channels";
+"textRules.selection.all" = "All";
+"textRules.selection.none" = "None";
+"textRules.selection.count" = "%d Chats";
+"textRules.selection.accessibilityChats" = "Chats for %@";
+"textRules.selection.footer" = "All includes future chats of this type. An individual selection follows only the selected chats. Explicit conversation choices take precedence.";
+"textRules.archive.title" = "Recently Blocked";
+"textRules.archive.empty" = "No Hidden Messages";
+"textRules.archive.footer" = "The latest %d hidden messages are kept on this installation and are excluded from shareable backups.";
+"textRules.archive.fieldsBoth" = "Message and Sender";
+"textRules.archive.reason" = "Matched “%1$@” in %2$@ (%3$@)";
+"textRules.archive.unknownConversation" = "Unknown Conversation";
+"textRules.archive.unknownRadio" = "Unknown Radio";
+
+/* TODO: translate conversation Text Rules and radio Cleanup strings */
+"textRules.info.status" = "Effective Setting";
+"textRules.info.unavailable" = "Unavailable";
+"textRules.info.inheritedChoice" = "%1$@ (%2$@)";
+"textRules.info.onChannel" = "On for This Channel";
+"textRules.info.offChannel" = "Off for This Channel";
+"textRules.info.onDm" = "On for This DM";
+"textRules.info.offDm" = "Off for This DM";
+"textRules.info.onRoom" = "On for This Room";
+"textRules.info.offRoom" = "Off for This Room";
+"textRules.info.follows" = "Follows %@";
+"textRules.info.excluded" = "Not included in %@";
+"textRules.info.explicit" = "Set for this conversation";
+"textRules.info.footer" = "The type choice follows your Text Rules selection. On or Off here takes precedence for this conversation.";
+"textRules.info.conversationUnavailable" = "The saved conversation is unavailable.";
+"textRules.info.radio" = "Radio %@";
+"radioCleanup.title" = "Cleanup";
+"radioCleanup.running" = "Removing radio data";
+"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
+"radioCleanup.completed" = "Radio data removed";
+"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
+
 // MARK: - Blocking Section
 
 /* Location: BlockingSection.swift - Purpose: Section header */

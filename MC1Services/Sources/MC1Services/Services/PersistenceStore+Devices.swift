@@ -291,8 +291,17 @@ public extension PersistenceStore {
   /// RX log entries, discovered nodes, contacts, messages, channels, and saved trace paths.
   /// Does NOT delete the Device record itself.
   func deleteDeviceData(id: UUID) throws {
-    try _deleteAllDeviceData(id: id)
-    try modelContext.save()
+    guard let radioID = try fetchDevice(id: id)?.radioID else { return }
+    try commitPendingRxLogEntries()
+    do {
+      try stageDeleteAllDeviceData(radioID: radioID)
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    retireReceiveScope(radioID: radioID)
+    publishRecentlyBlockedChange()
   }
 
   /// Delete a device record only. Does NOT delete associated data.
@@ -361,16 +370,21 @@ public extension PersistenceStore {
   /// Delete a device and all its associated data atomically (single save).
   /// Use for factory reset and explicit "delete all data" user action.
   func deleteDeviceAndData(id: UUID) throws {
-    try _deleteAllDeviceData(id: id)
-
-    let targetID = id
-    let devicePredicate = #Predicate<Device> { device in
-      device.id == targetID
+    guard let radioID = try fetchDevice(id: id)?.radioID else { return }
+    try commitPendingRxLogEntries()
+    do {
+      try stageDeleteAllDeviceData(radioID: radioID)
+      let predicate = #Predicate<Device> { $0.id == id }
+      if let device = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
+        modelContext.delete(device)
+      }
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
     }
-    if let device = try modelContext.fetch(FetchDescriptor(predicate: devicePredicate)).first {
-      modelContext.delete(device)
-    }
-    try modelContext.save()
+    retireReceiveScope(radioID: radioID)
+    publishRecentlyBlockedChange()
   }
 
   /// Looks for a ghost `Device` row whose `publicKey` matches `newPublicKey`
@@ -420,34 +434,42 @@ public extension PersistenceStore {
     currentDescriptor.fetchLimit = 1
     guard let current = try modelContext.fetch(currentDescriptor).first else { return nil }
 
+    let previousRadioID = current.radioID
     let newRadioID = ghost.radioID
-    current.radioID = newRadioID
-    current.publicKey = newPublicKey
-    current.connectionMethods = ConnectionMethod.canonicalized(current.connectionMethods)
-    if !current.connectionMethods.isEmpty,
-       !current.connectionMethods.contains(where: \.isWiFi),
-       let wifi = ConnectionMethod.canonicalized(ghost.connectionMethods).first(where: \.isWiFi) {
-      current.connectionMethods.insert(wifi, at: 0)
-    }
+    let oldOwner = #Predicate<Device> { $0.radioID == previousRadioID && $0.id != lookupID }
+    let abandoned = try previousRadioID != newRadioID &&
+      modelContext.fetchCount(FetchDescriptor(predicate: oldOwner)) == 0
 
-    modelContext.delete(ghost)
-    try modelContext.save()
+    try commitPendingRxLogEntries()
+    do {
+      current.radioID = newRadioID
+      current.publicKey = newPublicKey
+      current.connectionMethods = ConnectionMethod.canonicalized(current.connectionMethods)
+      if !current.connectionMethods.isEmpty,
+         !current.connectionMethods.contains(where: \.isWiFi),
+         let wifi = ConnectionMethod.canonicalized(ghost.connectionMethods).first(where: \.isWiFi) {
+        current.connectionMethods.insert(wifi, at: 0)
+      }
+      if abandoned {
+        try retireTextRulesIdentities(radioID: previousRadioID)
+        try stageRecentlyBlockedDeletion(radioID: previousRadioID)
+      }
+      modelContext.delete(ghost)
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    if abandoned {
+      retireReceiveScope(radioID: previousRadioID)
+      publishRecentlyBlockedChange()
+    }
     return newRadioID
   }
 
-  /// Stages deletion of all device-scoped data without calling save().
-  /// Used by both `deleteDeviceData` and `deleteDeviceAndData` to compose
-  /// operations while maintaining single-save atomicity.
-  private func _deleteAllDeviceData(id: UUID) throws {
-    // Look up the Device's radioID since child records are keyed by radioID, not BLE UUID
-    let targetBLEID = id
-    let devicePredicate = #Predicate<Device> { device in
-      device.id == targetBLEID
-    }
-    guard let device = try modelContext.fetch(FetchDescriptor(predicate: devicePredicate)).first else {
-      return
-    }
-    let targetRadioID = device.radioID
+  /// Stages radio-scoped deletion independently of the lifetime of its Device row.
+  func stageDeleteAllDeviceData(radioID targetRadioID: UUID) throws {
+    try stageRecentlyBlockedDeletion(radioID: targetRadioID)
 
     // Delete reactions (references messages via messageID)
     let reactionPredicate = #Predicate<Reaction> { reaction in

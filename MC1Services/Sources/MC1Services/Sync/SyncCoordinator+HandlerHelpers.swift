@@ -31,6 +31,7 @@ extension SyncCoordinator {
 
     do {
       if let channelIndex {
+        let rxEntry: RxLogEntryDTO?
         if let channelDeduplicationKey {
           let raw = try await dependencies.dataStore.fetchRxLogEntries(
             radioID: radioID,
@@ -38,22 +39,22 @@ extension SyncCoordinator {
             senderTimestamp: senderTimestamp
           )
           let decoded = await dependencies.rxLogService.decodedEntries(raw)
-          if let rxEntry = ChannelRXCorrelation.matching(
-            decoded,
-            deduplicationKey: channelDeduplicationKey
-          ).first {
-            let pathLength = rxEntry.pathLength
-            let pathNodes = rxEntry.pathNodes
-            logger.info("Correlated channel message to RxLogEntry: pathLength=\(pathLength), pathNodes=\(pathNodes.count) bytes")
-            return RxLogLookupResult(
-              pathNodes: pathNodes,
-              pathLength: pathLength,
-              packetHash: rxEntry.packetHash,
-              routeType: rxEntry.routeType,
-              regionScope: rxEntry.regionScope,
-              regionScopeMatches: rxEntry.regionScopeMatches
-            )
-          }
+          rxEntry = ChannelRXCorrelation.matching(decoded, deduplicationKey: channelDeduplicationKey).first
+        } else {
+          rxEntry = nil
+        }
+        if let rxEntry {
+          let pathLength = rxEntry.pathLength
+          let pathNodes = rxEntry.pathNodes
+          logger.info("Correlated channel message to RxLogEntry: pathLength=\(pathLength), pathNodes=\(pathNodes.count) bytes")
+          return RxLogLookupResult(
+            pathNodes: pathNodes,
+            pathLength: pathLength,
+            packetHash: rxEntry.packetHash,
+            routeType: rxEntry.routeType,
+            regionScope: rxEntry.regionScope,
+            regionScopeMatches: rxEntry.regionScopeMatches
+          )
         }
         logger.warning("No RxLogEntry found for channel \(channelIndex), senderTimestamp: \(senderTimestamp)")
       } else if let rxEntry = try await dependencies.dataStore.findRxLogEntry(
@@ -114,34 +115,28 @@ extension SyncCoordinator {
     )
   }
 
-  /// Increments unread counts and posts a notification for a direct message.
+  /// Updates the current Contact before publishing ordinary DM effects.
   func updateDMUnreadsAndNotify(
     messageDTO: MessageDTO,
-    contactID: UUID,
-    contact: ContactDTO?,
-    messageText: String,
-    hasSelfMention: Bool,
-    dependencies: SyncDependencies
+    contact: ContactDTO,
+    dependencies: SyncDependencies,
+    scope: ReceiveScope
   ) async throws {
     // A mounted conversation does not mean its messages are visible in the background.
     let isInForeground = await dependencies.appStateProvider?.isInForeground ?? true
     let activeContactID = await dependencies.notificationService.activeContactID
-    let isViewingContact = isInForeground && activeContactID == contactID
-    if !isViewingContact {
-      try await dependencies.dataStore.incrementUnreadCount(contactID: contactID)
-
-      // Increment unread mention count if message contains self-mention
-      if hasSelfMention {
-        try await dependencies.dataStore.incrementUnreadMentionCount(contactID: contactID)
-      }
-    }
+    let isViewingContact = isInForeground && activeContactID == contact.id
+    guard let current = try await dependencies.dataStore.updateContactAfterDirectMessage(
+      messageDTO, contact: contact, scope: scope, isViewingContact: isViewingContact
+    ), !current.isBlocked, scope.isCurrent else { return }
 
     await dependencies.notificationService.postDirectMessageNotification(
-      from: contact?.displayName ?? "Unknown",
-      contactID: contactID,
-      messageText: messageText,
+      from: current.displayName,
+      contactID: current.id,
+      messageText: messageDTO.text,
       messageID: messageDTO.id,
-      isMuted: contact?.isMuted ?? false
+      isMuted: current.isMuted,
+      scope: scope
     )
     await dependencies.notificationService.updateBadgeCount()
   }
@@ -156,8 +151,10 @@ extension SyncCoordinator {
     timestamp: UInt32,
     hasSelfMention: Bool,
     radioID: UUID,
-    dependencies: SyncDependencies
+    dependencies: SyncDependencies,
+    legacyScope: ReceiveScope? = nil
   ) async throws {
+    guard legacyScope?.isCurrent != false else { return }
     if let channelID = channel?.id {
       // A mounted conversation does not mean its messages are visible in the background.
       let isInForeground = await dependencies.appStateProvider?.isInForeground ?? true
@@ -165,14 +162,16 @@ extension SyncCoordinator {
       let activeRadioID = await dependencies.notificationService.activeChannelRadioID
       let isViewingChannel = isInForeground && activeIndex == channel?.index && activeRadioID == channel?.radioID
       if !isViewingChannel {
+        guard legacyScope?.isCurrent != false else { return }
         try await dependencies.dataStore.incrementChannelUnreadCount(channelID: channelID)
 
         // Increment unread mention count if message contains self-mention
-        if hasSelfMention {
+        if hasSelfMention, legacyScope?.isCurrent != false {
           try await dependencies.dataStore.incrementChannelUnreadMentionCount(channelID: channelID)
         }
       }
     }
+    guard legacyScope?.isCurrent != false else { return }
     if Self.shouldPostChannelNotification(forResolvedChannel: channel) {
       await dependencies.notificationService.postChannelMessageNotification(
         channelName: channel?.name ?? "Channel \(channelIndex)",
@@ -182,19 +181,24 @@ extension SyncCoordinator {
         messageText: messageText,
         messageID: messageDTO.id,
         notificationLevel: channel?.notificationLevel ?? .all,
-        hasSelfMention: hasSelfMention
+        hasSelfMention: hasSelfMention,
+        legacyScope: legacyScope
       )
-    } else {
+    } else if channel == nil {
       recordUnresolvedChannel(
         channelIndex: channelIndex,
         radioID: radioID,
         senderTimestamp: timestamp
       )
     }
+    guard legacyScope?.isCurrent != false else { return }
     await dependencies.notificationService.updateBadgeCount()
 
     // Broadcast for real-time chat updates
-    dataEventBroadcaster.yield(.channelMessageReceived(message: messageDTO, channelIndex: channelIndex))
+    guard legacyScope?.isCurrent != false else { return }
+    dataEventBroadcaster.yield(.channelMessageReceived(
+      message: messageDTO, channelIndex: channelIndex, legacyScope: legacyScope
+    ))
   }
 
   private func recordUnresolvedChannel(

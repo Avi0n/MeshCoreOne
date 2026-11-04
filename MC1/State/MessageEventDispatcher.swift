@@ -52,20 +52,34 @@ final class MessageEventDispatcher {
     let task = Task { [weak appState, stream] in
       for await event in events {
         switch event {
-        case let .directMessageReceived(message, contact):
-          stream.send(.directMessageReceived(message: message, contact: contact))
+        case let .directMessageReceived(message, contact, scope):
+          if let scope {
+            guard let store = appState?.connectionManager.persistenceStore,
+                  await (try? store.currentDirectMessageContact(contact, scope: scope)) != nil,
+                  scope.isCurrent else { continue }
+          }
+          stream.send(.directMessageReceived(message: message, contact: contact, scope: scope))
           // Keep a closed conversation's warm coordinator current so a reopen
           // renders the new tail on the first frame (no-op when open or cold).
           appState?.ensureChatPrewarmRefresher().noteDirectMessage(contact: contact)
-        case let .channelMessageReceived(message, channelIndex):
-          stream.send(.channelMessageReceived(message: message, channelIndex: channelIndex))
+        case let .channelMessageReceived(message, channelIndex, legacyScope):
+          guard legacyScope?.isCurrent != false else { continue }
+          stream.send(.channelMessageReceived(
+            message: message, channelIndex: channelIndex, legacyScope: legacyScope
+          ))
           appState?.ensureChatPrewarmRefresher().noteChannelMessage(
             radioID: message.radioID,
             channelIndex: channelIndex
           )
-        case let .roomMessageReceived(message):
-          stream.send(.roomMessageReceived(message: message, sessionID: message.sessionID))
-        case let .reactionReceived(messageID, summary):
+        case let .roomMessageReceived(message, roomID, scope):
+          guard scope.isCurrent else { continue }
+          stream.send(.roomMessageReceived(message: message, sessionID: message.sessionID, roomID: roomID, scope: scope))
+        case let .reactionReceived(messageID, summary, scope, contact):
+          if let scope, let contact {
+            guard let store = appState?.connectionManager.persistenceStore,
+                  await (try? store.currentDirectMessageContact(contact, scope: scope)) != nil,
+                  scope.isCurrent else { continue }
+          }
           stream.send(.reactionReceived(messageID: messageID, summary: summary))
           await appState?.handleReactionNotification(messageID: messageID)
         case .contactsChanged, .conversationsChanged:

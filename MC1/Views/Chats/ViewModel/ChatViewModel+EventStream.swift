@@ -11,15 +11,21 @@ extension ChatViewModel {
   /// Incoming messages are inserted in event order before their previews load.
   func handle(_ event: MessageEvent) async {
     switch event {
-    case let .directMessageReceived(message, contact):
+    case let .directMessageReceived(message, contact, scope):
       guard let current = currentContact, current.id == contact.id else { return }
+      if let scope {
+        guard let dataStore,
+              await (try? dataStore.currentDirectMessageContact(contact, scope: scope)) != nil,
+              scope.isCurrent, currentContact?.id == contact.id else { return }
+      }
       admitIncomingMessage(message, isChannelMessage: false)
       recordIncomingMentionIfNeeded(message)
 
-    case let .channelMessageReceived(message, channelIndex):
+    case let .channelMessageReceived(message, channelIndex, legacyScope):
       guard let channel = currentChannel,
             channel.index == channelIndex,
-            message.radioID == channel.radioID else { return }
+            message.radioID == channel.radioID,
+            legacyScope?.isCurrent != false else { return }
       admitIncomingMessage(message, isChannelMessage: true)
       recordIncomingMentionIfNeeded(message)
 

@@ -74,6 +74,7 @@ public final class ServiceContainer {
 
   /// The persistence store for SwiftData operations
   public let dataStore: PersistenceStore
+  let receiveLifetime = ReceiveScope.Lifetime()
 
   /// Persists inline-image aspect ratios for chat link previews. Built early
   /// because downstream caches and the prefetcher depend on it.
@@ -225,7 +226,8 @@ public final class ServiceContainer {
     radioID: UUID,
     appStateProvider: AppStateProvider? = nil,
     connectionStateEvents: EventBroadcaster<DeviceConnectionState>? = nil,
-    initialConnectionState: DeviceConnectionState = .disconnected
+    initialConnectionState: DeviceConnectionState = .disconnected,
+    textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil }
   ) {
     self.session = session
     self.appStateProvider = appStateProvider
@@ -249,7 +251,10 @@ public final class ServiceContainer {
       session: session,
       dataStore: dataStore,
       keychainService: keychainService,
-      contactRadioOwner: contactRadioOwner
+      contactRadioOwner: contactRadioOwner,
+      textRulesPreference: textRulesPreference,
+      receiveLifetime: receiveLifetime,
+      radioID: radioID
     )
     let cleanupCoordinator = ContactCleanupCoordinator(
       dataStore: dataStore,
@@ -283,7 +288,13 @@ public final class ServiceContainer {
       contactService: contactService,
       appStateProvider: appStateProvider
     )
-    messagePollingService = MessagePollingService(session: session, dataStore: dataStore)
+    messagePollingService = MessagePollingService(
+      session: session,
+      dataStore: dataStore,
+      radioID: radioID,
+      textRulesPreference: textRulesPreference,
+      receiveLifetime: receiveLifetime
+    )
     binaryProtocolService = BinaryProtocolService(
       session: session,
       radioID: radioID,
@@ -316,7 +327,9 @@ public final class ServiceContainer {
       session: session,
       remoteNodeService: remoteNodeService,
       dataStore: dataStore,
-      radioID: radioID
+      radioID: radioID,
+      textRulesPreference: textRulesPreference,
+      receiveLifetime: receiveLifetime
     )
 
     chatSendQueueService = ChatSendQueueService(
@@ -430,6 +443,7 @@ public final class ServiceContainer {
   /// so the chat send queue drains. `stopEventMonitoring()` alone does not
   /// cover that.
   func tearDown() async {
+    receiveLifetime.retire()
     await stopEventMonitoring()
 
     // Break the retain cycles the wired handlers form. The message

@@ -55,6 +55,7 @@ final class RoomConversationViewModel {
 
   /// Whether a message is being sent
   var isSending = false
+  private(set) var isRefreshing = false
 
   // MARK: - Dependencies
 
@@ -185,6 +186,21 @@ final class RoomConversationViewModel {
     isSending = false
   }
 
+  func refreshMessages(for room: RemoteNodeSessionDTO) async {
+    guard !isRefreshing, let roomServerService else { return }
+    isRefreshing = true
+    errorMessage = nil
+    defer { isRefreshing = false }
+
+    do {
+      try await roomServerService.refreshMessages(for: room)
+    } catch is CancellationError {
+      return
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+  }
+
   /// Refresh session state from database
   func refreshSession() async {
     guard let session, let dataStore else { return }
@@ -202,11 +218,13 @@ final class RoomConversationViewModel {
     guard let session else { return }
 
     switch event {
-    case let .roomMessageReceived(message, sessionID):
+    case let .roomMessageReceived(message, sessionID, roomID, scope):
       // Optimistic append first so the message list sees the new count
       // immediately for unread tracking, then coalesce the reload so a
       // burst of incoming room messages triggers one DB sync, not N.
-      guard sessionID == session.id else { return }
+      guard sessionID == session.id,
+            roomID == nil || roomID == session.textRulesID,
+            scope?.isCurrent != false else { return }
       appendMessageIfNew(message)
       scheduleCoalescedReload()
 

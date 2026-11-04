@@ -271,60 +271,14 @@ public extension ConnectionManager {
   /// - Parameter deleteData: If `true`, also deletes all associated data (contacts, messages, channels, trace paths).
   /// - Throws: `ConnectionError.notConnected` if no device is connected
   func forgetDevice(deleteData: Bool) async throws {
-    guard let deviceID = connectedDevice?.id else {
+    guard let device = connectedDevice else {
       throw ConnectionError.notConnected
     }
-
-    guard pairing.isDeviceConnectable(deviceID) else {
-      throw ConnectionError.deviceNotFound
+    if deleteData {
+      try await startRadioErase(device)
+    } else {
+      try await deleteDevice(id: device.id)
     }
-
-    logger.info("Forgetting device: \(deviceID), deleteData: \(deleteData)")
-
-    try await pairing.removeDevice(deviceID)
-    await disconnect(reason: .forgetDevice)
-
-    let dataStore = persistenceStore
-    do {
-      if deleteData {
-        try await dataStore.deleteDeviceAndData(id: deviceID)
-      } else {
-        try await dataStore.demoteDeviceToGhost(id: deviceID)
-      }
-    } catch {
-      logger.warning("Failed to demote device in SwiftData: \(error.localizedDescription)")
-    }
-
-    await clearPersistedConnection(for: deviceID)
-    logger.info("Device forgotten")
-  }
-
-  /// Forgets a device by ID, removing it from paired accessories and local storage.
-  /// Deletes both the device record and all associated data (factory reset path).
-  /// Best-effort cleanup — does not throw.
-  func forgetDevice(id: UUID) async {
-    logger.info("Forgetting device by ID: \(id)")
-
-    await disconnect(reason: .factoryReset)
-
-    do {
-      try await pairing.removeDevice(id)
-    } catch {
-      logger.warning("Failed to remove device from pairing registry: \(error.localizedDescription)")
-    }
-
-    let dataStore = persistenceStore
-    do {
-      try await dataStore.deleteDeviceAndData(id: id)
-    } catch {
-      logger.warning("Failed to delete device data from SwiftData: \(error.localizedDescription)")
-    }
-
-    // Always clear this device's bond verification; store keys are holder-matched
-    // so a non-last-connected forget still drops its in-memory/persistent shield.
-    await clearPersistedConnection(for: id)
-
-    logger.info("Device forgotten by ID: \(id)")
   }
 
   // MARK: - Node Management

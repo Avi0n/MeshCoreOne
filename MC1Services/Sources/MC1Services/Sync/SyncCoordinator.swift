@@ -365,7 +365,10 @@ public actor SyncCoordinator {
 
   /// Notify that conversations data changed (triggers UI refresh)
   @MainActor
-  public func notifyConversationsChanged() {
+  public func notifyConversationsChanged(
+    scope: ReceiveScope? = nil
+  ) {
+    guard scope?.isCurrent != false else { return }
     conversationsVersion += 1
     dataEventBroadcaster.yield(.conversationsChanged)
   }

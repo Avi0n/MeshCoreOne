@@ -19,6 +19,9 @@ public protocol MessagePersisting: Actor {
   /// Save a new message
   func saveMessage(_ dto: MessageDTO) async throws
 
+  /// Saves only while the captured receive scope and any resolved channel identity are current.
+  func saveLegacyChannelMessage(_ dto: MessageDTO, scope: ReceiveScope?, conversationID: UUID?) async throws -> Bool
+
   /// Fetch a message by ID
   func fetchMessage(id: UUID) async throws -> MessageDTO?
 
@@ -192,5 +195,13 @@ extension MessagePersisting {
   /// this empty default over the real implementation.
   func newestUnreadIncomingMessage(contactID: UUID) async throws -> MessageDTO? {
     nil
+  }
+}
+
+public extension MessagePersisting {
+  func saveLegacyChannelMessage(_ dto: MessageDTO, scope: ReceiveScope?, conversationID: UUID?) async throws -> Bool {
+    if let scope, !scope.isCurrent || scope.radioID != dto.radioID { return false }
+    try await saveMessage(dto)
+    return true
   }
 }
