@@ -449,7 +449,7 @@ public actor RoomServerService {
     let preference = await textRulesPreference()
     guard scope.isCurrent, scope.radioID == radioID,
           let room = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
-            .first(where: { $0.publicKey.prefix(6) == senderPublicKeyPrefix && $0.isRoom }) else {
+          .first(where: { $0.publicKey.prefix(6) == senderPublicKeyPrefix && $0.isRoom }) else {
       return nil
     }
 
