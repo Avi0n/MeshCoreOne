@@ -80,27 +80,6 @@ struct DeviceInfoView: View {
         }
         .themedRowBackground(theme)
 
-        // Connection status
-        Section {
-          HStack {
-            Label(
-              L10n.Settings.DeviceInfo.Connection.status,
-              systemImage: "antenna.radiowaves.left.and.right"
-            )
-            Spacer()
-            HStack(spacing: 4) {
-              Circle()
-                .fill(.green)
-                .frame(width: 8, height: 8)
-              Text(L10n.Settings.Device.connected)
-                .foregroundStyle(.secondary)
-            }
-          }
-        } header: {
-          Text(L10n.Settings.DeviceInfo.Connection.header)
-        }
-        .themedRowBackground(theme)
-
         telemetrySection(for: device)
 
         // Battery and storage

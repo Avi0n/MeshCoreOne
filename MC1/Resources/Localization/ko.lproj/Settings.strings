@@ -46,9 +46,6 @@
 /* Section header for device information */
 "device.header" = "기기";
 
-/* Status shown when device is connected */
-"device.connected" = "연결됨";
-
 /* Footer shown when no device is connected */
 "device.noDeviceConnected" = "연결된 MeshCore 기기 없음";
 
@@ -59,12 +56,6 @@
 
 /* Navigation title for device info screen */
 "deviceInfo.title" = "기기 정보";
-
-/* Section header for connection status */
-"deviceInfo.connection.header" = "연결";
-
-/* Label for connection status */
-"deviceInfo.connection.status" = "상태";
 
 /* Section header for power and storage */
 "deviceInfo.powerStorage.header" = "전원 및 저장 공간";

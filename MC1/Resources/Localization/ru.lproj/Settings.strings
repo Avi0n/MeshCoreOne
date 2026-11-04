@@ -46,9 +46,6 @@
 /* Section header for device information */
 "device.header" = "Устройство";
 
-/* Status shown when device is connected */
-"device.connected" = "Подключено";
-
 /* Footer shown when no device is connected */
 "device.noDeviceConnected" = "Устройство MeshCore не подключено";
 
@@ -59,12 +56,6 @@
 
 /* Navigation title for device info screen */
 "deviceInfo.title" = "Информация об устройстве";
-
-/* Section header for connection status */
-"deviceInfo.connection.header" = "Подключение";
-
-/* Label for connection status */
-"deviceInfo.connection.status" = "Статус";
 
 /* Section header for power and storage */
 "deviceInfo.powerStorage.header" = "Питание и память";

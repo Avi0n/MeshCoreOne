@@ -46,9 +46,6 @@
 /* Section header for device information */
 "device.header" = "设备";
 
-/* Status shown when device is connected */
-"device.connected" = "已连接";
-
 /* Footer shown when no device is connected */
 "device.noDeviceConnected" = "未连接 MeshCore 设备";
 
@@ -59,12 +56,6 @@
 
 /* Navigation title for device info screen */
 "deviceInfo.title" = "设备信息";
-
-/* Section header for connection status */
-"deviceInfo.connection.header" = "连接";
-
-/* Label for connection status */
-"deviceInfo.connection.status" = "状态";
 
 /* Section header for power and storage */
 "deviceInfo.powerStorage.header" = "电源和存储";

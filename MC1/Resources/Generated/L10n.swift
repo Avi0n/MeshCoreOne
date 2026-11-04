@@ -4928,8 +4928,6 @@ public enum L10n {
     public enum Device {
       /// Button to connect a device
       public static let connect = L10n.tr("Settings", "device.connect", fallback: "Connect Device")
-      /// Status shown when device is connected
-      public static let connected = L10n.tr("Settings", "device.connected", fallback: "Connected")
       /// Section header for device information
       public static let header = L10n.tr("Settings", "device.header", fallback: "Device")
       /// Footer shown when no device is connected
@@ -5005,12 +5003,6 @@ public enum L10n {
       public enum Capabilities {
         /// Section header for device capabilities
         public static let header = L10n.tr("Settings", "deviceInfo.capabilities.header", fallback: "Capabilities")
-      }
-      public enum Connection {
-        /// Section header for connection status
-        public static let header = L10n.tr("Settings", "deviceInfo.connection.header", fallback: "Connection")
-        /// Label for connection status
-        public static let status = L10n.tr("Settings", "deviceInfo.connection.status", fallback: "Status")
       }
       public enum Firmware {
         /// Section header for firmware information
