@@ -30,7 +30,7 @@ extension ChatViewModel {
   /// do, so a delete animates once while reload-driven recomputes stay unanimated.
   func recomputeSnapshot() {
     let contactConversations = conversations
-      .filter { $0.type != .repeater && !$0.isBlocked && !pendingRemovalIDs.contains($0.id) }
+      .filter { $0.type != .repeater && $0.type != .sensor && !$0.isBlocked && !pendingRemovalIDs.contains($0.id) }
       .map { Conversation.direct($0) }
     let channelConversations = channels
       .filter { (!$0.name.isEmpty || $0.hasSecret) && !pendingRemovalIDs.contains($0.id) }

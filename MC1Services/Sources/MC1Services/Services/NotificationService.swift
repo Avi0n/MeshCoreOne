@@ -487,7 +487,7 @@ public final class NotificationService: NSObject {
 
     // Per-type filtering
     switch contactType {
-    case .chat: guard preferences.discoveryContactEnabled else { return }
+    case .chat, .sensor: guard preferences.discoveryContactEnabled else { return }
     case .repeater: guard preferences.discoveryRepeaterEnabled else { return }
     case .room: guard preferences.discoveryRoomEnabled else { return }
     }
@@ -527,6 +527,7 @@ public final class NotificationService: NSObject {
     case .chat: "New Contact Discovered"
     case .repeater: "New Repeater Discovered"
     case .room: "New Room Discovered"
+    case .sensor: "New Sensor Discovered"
     }
   }
 

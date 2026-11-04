@@ -16,6 +16,15 @@ actor CommandAuditLogger {
     case repeater = "REPEATER"
     case room = "ROOM"
     case contact = "CONTACT"
+    case sensor = "SENSOR"
+  }
+
+  static func target(for role: RemoteNodeRole) -> Target {
+    switch role {
+    case .repeater: .repeater
+    case .roomServer: .room
+    case .sensor: .sensor
+    }
   }
 
   // MARK: - Properties

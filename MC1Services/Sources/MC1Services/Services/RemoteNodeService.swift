@@ -12,7 +12,7 @@ private let cliResponseTextType: UInt8 = 0x01
 // MARK: - Remote Node Service
 
 /// Shared service for remote node operations.
-/// Handles login, keep-alive, status, telemetry, and CLI for both room servers and repeaters.
+/// Handles authentication and commands for sensors, repeaters, and room servers.
 public actor RemoteNodeService {
   // MARK: - Properties
 
@@ -23,7 +23,12 @@ public actor RemoteNodeService {
   let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
   let auditLogger = CommandAuditLogger()
 
+  var isRetired = false
+  var loginAttemptIDs: [Data: UUID] = [:]
+  var sensorConnectAttempts: [UUID: UUID] = [:]
+
   struct PendingLogin {
+    let id: UUID
     /// Session that called `login`, so a prefix match cannot update another radio's row.
     let sessionID: UUID
     let continuation: CheckedContinuation<LoginResult, Error>
@@ -75,15 +80,14 @@ public actor RemoteNodeService {
   /// Keep-alive timer tasks
   var keepAliveTasks: [UUID: Task<Void, Never>] = [:]
   var retiredKeepAliveTasks: [Task<Void, Never>] = []
-  var keepAliveAdmissionRetired = false
-  private var keepAliveRetirement: Task<Void, Never>?
+  private var retirementTask: Task<Void, Never>?
 
   /// Keep-alive intervals per session (from login response, in seconds)
   /// Default to 90 seconds if not specified
   var keepAliveIntervals: [UUID: Duration] = [:]
   static let defaultKeepAliveInterval: Duration = .seconds(90)
 
-  /// Reentrancy guard for BLE reconnection handling
+  /// Reentrancy guard for Link reconnection handling
   var isReauthenticating = false
 
   /// Event monitoring task
@@ -150,6 +154,7 @@ public actor RemoteNodeService {
 
   /// Start monitoring MeshCore events for login results
   public func startEventMonitoring() {
+    guard !isRetired else { return }
     eventMonitorTask?.cancel()
 
     eventMonitorTask = Task { [weak self] in
@@ -267,7 +272,9 @@ public actor RemoteNodeService {
     return TimeInterval(seconds) + TimeInterval(attoseconds) / 1e18
   }
 
-  func cancelPendingLogin(for prefix: Data) {
+  func cancelPendingLogin(for prefix: Data, attemptID: UUID? = nil) {
+    if let attemptID, loginAttemptIDs[prefix] != attemptID { return }
+    loginAttemptIDs[prefix] = nil
     pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
     if let pending = pendingLogins.removeValue(forKey: prefix) {
       pending.continuation.resume(throwing: RemoteNodeError.cancelled)
@@ -286,6 +293,15 @@ public actor RemoteNodeService {
     radioID: UUID,
     contact: ContactDTO
   ) async throws -> RemoteNodeSessionDTO {
+    try await createSession(radioID: radioID, contact: contact, sensorAttemptID: nil)
+  }
+
+  func createSession(
+    radioID: UUID,
+    contact: ContactDTO,
+    sensorAttemptID: UUID?
+  ) async throws -> RemoteNodeSessionDTO {
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     guard let role = RemoteNodeRole(contactType: contact.type) else {
       throw RemoteNodeError.invalidResponse
     }
@@ -300,6 +316,7 @@ public actor RemoteNodeService {
         await hold()
       }
     #endif
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     let saved = try await dataStore.reuseOrCreateRemoteNodeSession(
       RoomSessionPresentation(
         radioID: radioID,
@@ -310,8 +327,15 @@ public actor RemoteNodeService {
         longitude: contact.longitude
       )
     )
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     logger.info("createSession: saved session \(saved.id) for \(pubKeyHex), isConnected=\(saved.isConnected)")
     return saved
+  }
+
+  private func validateSessionCreation(contactID: UUID, sensorAttemptID: UUID?) throws {
+    try Task.checkCancellation()
+    guard !isRetired else { throw RemoteNodeError.notConnected }
+    if let sensorAttemptID, sensorConnectAttempts[contactID] != sensorAttemptID { throw RemoteNodeError.cancelled }
   }
 
   /// Remove a session and its associated data
@@ -361,6 +385,7 @@ public actor RemoteNodeService {
 
   /// Stop all keep-alive timers and resume any parked login continuations (call on app termination)
   public func stopAllKeepAlives() {
+    loginAttemptIDs.removeAll()
     for task in keepAliveTasks.values {
       task.cancel()
       retiredKeepAliveTasks.append(task)
@@ -374,16 +399,37 @@ public actor RemoteNodeService {
     }
   }
 
-  func retireKeepAlives() async {
-    if let keepAliveRetirement { await keepAliveRetirement.value; return }
-    keepAliveAdmissionRetired = true
+  func beginRetirement() {
+    guard !isRetired else { return }
+    isRetired = true
+    sensorConnectAttempts.removeAll()
     stopAllKeepAlives()
+    for (prefix, pending) in pendingCLIRequests {
+      cancelPendingCLIRequest(for: prefix, requestID: pending.id)
+    }
+    let waiters = cliSlotWaiters.values.flatMap(\.self)
+    cliSlotWaiters.removeAll()
+    for waiter in waiters {
+      waiter.continuation.resume(throwing: CancellationError())
+    }
+  }
+
+  func retire() async {
+    if let retirementTask {
+      await retirementTask.value
+      return
+    }
+
+    beginRetirement()
     let workers = retiredKeepAliveTasks
     retiredKeepAliveTasks.removeAll()
-    let drain = Task { for worker in workers {
-      await worker.value
-    } }
-    keepAliveRetirement = drain
+    let drain = Task {
+      await stopEventMonitoring()
+      for worker in workers {
+        await worker.value
+      }
+    }
+    retirementTask = drain
     await drain.value
   }
 

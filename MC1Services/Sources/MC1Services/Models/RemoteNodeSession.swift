@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 
 /// Represents an authenticated session with a remote node.
-/// Used for both room servers and repeater admin connections.
+/// Used for room membership and remote node management.
 @Model
 public final class RemoteNodeSession {
   #Index<RemoteNodeSession>([\.radioID])
@@ -213,6 +213,10 @@ public extension RemoteNodeSession {
   /// Whether this is a repeater session
   var isRepeater: Bool {
     role == .repeater
+  }
+
+  var isSensor: Bool {
+    role == .sensor
   }
 
   /// 6-byte public key prefix for addressing
@@ -451,6 +455,10 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable,
 
   public var isRepeater: Bool {
     role == .repeater
+  }
+
+  public var isSensor: Bool {
+    role == .sensor
   }
 
   public var canPost: Bool {

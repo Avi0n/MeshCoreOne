@@ -11,6 +11,7 @@ struct MapPoint: Identifiable, Equatable {
     case contactChat
     case contactRepeater
     case contactRoom
+    case contactSensor
     case repeater
     case repeaterRingBlue
     case repeaterRingGreen

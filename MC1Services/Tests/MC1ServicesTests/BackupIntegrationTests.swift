@@ -8,6 +8,55 @@ import Testing
 /// exercising the complete data flow rather than manually constructed envelopes.
 @Suite("BackupIntegration")
 struct BackupIntegrationTests {
+  @Test(arguments: [RemoteNodeRole.sensor, .repeater, .roomServer])
+  func `remote roles and legacy pins survive envelope import`(role: RemoteNodeRole) async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let original = RemoteNodeSessionDTO.testSession(radioID: radioID, role: role,
+                                                    isConnected: true, permissionLevel: .admin, isPinned: true)
+    try await store.saveRemoteNodeSessionDTO(original)
+    let service = AppBackupService()
+    let exported = try await service.export(persistenceStore: store)
+    let exportedEnvelope = try parseBackup(data: exported.data)
+    let exportedJSON = try makeBackupJSONEncoder().encode(exportedEnvelope)
+    var json = try #require(JSONSerialization.jsonObject(with: exportedJSON) as? [String: Any])
+    var rows = try #require(json["remoteNodeSessions"] as? [[String: Any]])
+    rows[0].removeValue(forKey: "isPinned")
+    rows[0]["isFavorite"] = true
+    json["remoteNodeSessions"] = rows
+    let legacy = try JSONSerialization.data(withJSONObject: json)
+    let envelope = try parseBackup(data: legacy.zlibCompressed())
+    let destination = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    _ = try await service.importBackup(envelope: envelope, into: destination)
+    let restored = try #require(try await destination.fetchRemoteNodeSessions(radioID: radioID).first)
+    #expect(restored.role == role)
+    #expect(!restored.isConnected)
+    #expect(restored.isPinned)
+    rows[0]["isPinned"] = false
+    json["remoteNodeSessions"] = rows
+    let explicitFalse = try parseBackup(data: JSONSerialization.data(withJSONObject: json).zlibCompressed())
+    #expect(explicitFalse.remoteNodeSessions[0].isPinned == false)
+  }
+
+  @Test(arguments: [UInt8(4), UInt8(0x7F)])
+  func `sensor and unknown contact and discovery types survive backup`(raw: UInt8) async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID, typeRawValue: raw)
+    try await store.saveContact(contact)
+    let frame = ContactFrame(publicKey: contact.publicKey, type: ContactType(rawValue: raw) ?? .chat,
+                             typeRawValue: raw, flags: 0, outPathLength: 0xFF, outPath: Data(),
+                             name: "Sensor", lastAdvertTimestamp: 0, latitude: 0, longitude: 0, lastModified: 0)
+    _ = try await store.upsertDiscoveredNode(radioID: radioID, from: frame)
+    let service = AppBackupService()
+    let exported = try await service.export(persistenceStore: store)
+    let envelope = try parseBackup(data: exported.data)
+    let destination = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    _ = try await service.importBackup(envelope: envelope, into: destination)
+    #expect(try await destination.fetchAllContacts(radioID: radioID).first?.typeRawValue == raw)
+    #expect(try await destination.fetchDiscoveredNodes(radioID: radioID).first?.typeRawValue == raw)
+  }
+
   @Test
   @MainActor
   func `legacy WiFi ordering survives backup round trip without changing the selected endpoint`() async throws {
@@ -182,18 +231,18 @@ struct BackupIntegrationTests {
   /// `decodeIfPresent` legacy path). An unmodeled type byte must survive verbatim so a
   /// future refactor can't silently re-collapse it onto a modeled `ContactType`.
   @Test
-  func `Unmodeled contact type byte (0x04) survives DTO encode → decode round-trip`() throws {
-    let dto = ContactDTO.testContact(typeRawValue: 0x04)
+  func `Unmodeled contact type byte (0x7F) survives DTO encode → decode round-trip`() throws {
+    let dto = ContactDTO.testContact(typeRawValue: 0x7F)
     let encoded = try JSONEncoder().encode(dto)
     let decoded = try JSONDecoder().decode(ContactDTO.self, from: encoded)
-    #expect(decoded.typeRawValue == 0x04)
+    #expect(decoded.typeRawValue == 0x7F)
     #expect(decoded.type == .chat)
   }
 
   /// Full envelope path: an unmodeled type byte must survive export → import into a fresh store,
   /// not just an isolated DTO round-trip.
   @Test
-  func `Unmodeled contact type byte (0x04) survives full backup export → import`() async throws {
+  func `Unmodeled contact type byte (0x7F) survives full backup export → import`() async throws {
     let radioID = UUID()
     let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
 
@@ -201,7 +250,7 @@ struct BackupIntegrationTests {
       radioID: radioID,
       publicKey: Data(repeating: 0xAB, count: 32),
       name: "FutureType",
-      typeRawValue: 0x04
+      typeRawValue: 0x7F
     )
     try await sourceStore.saveContact(contact)
 
@@ -214,7 +263,7 @@ struct BackupIntegrationTests {
     _ = try await service.importBackup(envelope: envelope, into: destStore)
 
     let destContacts = try await destStore.fetchAllContacts(radioID: radioID)
-    #expect(destContacts.first?.typeRawValue == 0x04)
+    #expect(destContacts.first?.typeRawValue == 0x7F)
     #expect(destContacts.first?.type == .chat)
   }
 

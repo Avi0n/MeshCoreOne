@@ -5,6 +5,14 @@ import Testing
 @Suite("UpdateContact")
 struct UpdateContactTests {
   @Test
+  func `sensor is recognized without changing its wire type`() throws {
+    let sensor = try #require(ContactType(rawValue: 0x04))
+    #expect(sensor.rawValue == 0x04)
+    #expect(sensor != .chat)
+    #expect(ContactType(rawValue: 0x7F) == nil)
+  }
+
+  @Test
   func `updateContact correct layout`() throws {
     let pubkey = Data(repeating: 0xAA, count: 32)
     let outPath = Data([0x11, 0x22, 0x33])

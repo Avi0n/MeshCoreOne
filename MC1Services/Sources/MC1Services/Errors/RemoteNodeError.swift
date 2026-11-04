@@ -3,6 +3,10 @@ import MeshCore
 
 public enum RemoteNodeError: Error, LocalizedError, Sendable {
   case notConnected
+  case invalidPasswordLength
+  case invalidSensorSetting
+  case sensorSettingRejected
+  case sensorOutcomeUnknown
   case loginFailed(String)
   case sendFailed(String)
   case invalidResponse
@@ -19,6 +23,14 @@ public enum RemoteNodeError: Error, LocalizedError, Sendable {
 
   public var errorDescription: String? {
     switch self {
+    case .invalidPasswordLength:
+      "Password exceeds the remote password byte limit"
+    case .invalidSensorSetting:
+      "The setting must contain a key and value without whitespace and fit in one command"
+    case .sensorSettingRejected:
+      "The sensor rejected this setting"
+    case .sensorOutcomeUnknown:
+      "The change could not be verified. Reload before saving again"
     case .notConnected:
       "Not connected to mesh device"
     case let .loginFailed(reason):

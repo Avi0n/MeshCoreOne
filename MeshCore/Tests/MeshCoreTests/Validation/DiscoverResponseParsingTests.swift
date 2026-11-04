@@ -4,6 +4,23 @@ import Testing
 
 @Suite("DiscoverResponse Parsing")
 struct DiscoverResponseParsingTests {
+  @Test(arguments: [8, 32])
+  func `sensor fixture preserves signed metrics and key length`(keyLength: Int) {
+    var payload = Data([0x0C, 0xBA, 0x00, 0x94, 0xF8, 0x78, 0x56, 0x34, 0x12])
+    payload.append(Data(repeating: 0xAB, count: keyLength))
+    guard case let .discoverResponse(response) = Parsers.ControlData.parse(payload) else {
+      Issue.record("Expected sensor discover response")
+      return
+    }
+    #expect(response.nodeType == 4)
+    #expect(response.snrIn == -2)
+    #expect(response.snr == 3)
+    #expect(response.rssi == -70)
+    #expect(response.pathLength == 0)
+    #expect(response.publicKey.count == keyLength)
+    #expect(response.tag == Data([0x78, 0x56, 0x34, 0x12]))
+  }
+
   @Test
   func `controlData parses discover response`() {
     // Control data format: [snr:1][rssi:1][pathLen:1][payloadType:1][payload...]

@@ -8,11 +8,13 @@ import Testing
 @MainActor
 struct ConnectionStatusLifecycleTests {
   private func makeAppState(clock: TestClock? = nil) throws -> AppState {
-    try AppState(
+    let appState = try AppState(
       modelContainer: PersistenceStore.createContainer(inMemory: true),
       isPlaceholder: true,
       injectedConnectionUI: ConnectionUIState(clock: clock)
     )
+    appState.connectionManager.testForceNeverPaired = true
+    return appState
   }
 
   private func wireConnection(_ appState: AppState) async throws -> ServiceContainer {

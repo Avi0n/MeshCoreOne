@@ -10,7 +10,9 @@ public extension RemoteNodeService {
       throw RemoteNodeError.sessionNotFound
     }
 
-    let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
+    guard !remoteSession.isSensor else { throw RemoteNodeError.invalidResponse }
+
+    let targetType = CommandAuditLogger.target(for: remoteSession.role)
     await auditLogger.logStatusRequest(target: targetType, publicKey: remoteSession.publicKey)
 
     do {
@@ -40,7 +42,7 @@ public extension RemoteNodeService {
       throw RemoteNodeError.sessionNotFound
     }
 
-    let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
+    let targetType = CommandAuditLogger.target(for: remoteSession.role)
     await auditLogger.logTelemetryRequest(target: targetType, publicKey: remoteSession.publicKey)
 
     do {
@@ -65,6 +67,8 @@ public extension RemoteNodeService {
     guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
       throw RemoteNodeError.sessionNotFound
     }
+
+    guard !remoteSession.isSensor else { throw RemoteNodeError.invalidResponse }
 
     do {
       let effectiveTimeout = timeout ?? RemoteOperationTimeoutPolicy.binaryMaximum

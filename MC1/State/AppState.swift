@@ -758,28 +758,35 @@ final class AppState {
     lastWiredDevice = (snapshot.device.id, snapshot.device.radioID)
     tracePathViewModel?.reattachIfWaiting()
     nodeDiscoveryViewModel?.reattachIfWaiting()
+    let radioID = snapshot.device.radioID
     await remoteAdminWorkspaces.rebind(
-      radioID: snapshot.device.radioID,
+      radioID: radioID,
       repeaterAdminService: { [weak self] in
         guard let self, context.isCurrent(self.connectionManager) else { return nil }
-        return self.connectionSnapshot(for: snapshot.device.radioID)?.services.repeaterAdminService
+        return self.connectionSnapshot(for: radioID)?.services.repeaterAdminService
       },
       roomAdminService: { [weak self] in
         guard let self, context.isCurrent(self.connectionManager) else { return nil }
-        return self.connectionSnapshot(for: snapshot.device.radioID)?.services.roomAdminService
+        return self.connectionSnapshot(for: radioID)?.services.roomAdminService
       },
       contactService: { [weak self] in
         guard let self, context.isCurrent(self.connectionManager) else { return nil }
-        return self.connectionSnapshot(for: snapshot.device.radioID)?.services.contactService
+        return self.connectionSnapshot(for: radioID)?.services.contactService
       },
       nodeSnapshotService: { [weak self] in
         guard let self, context.isCurrent(self.connectionManager) else { return nil }
-        return self.connectionSnapshot(for: snapshot.device.radioID)?.services.nodeSnapshotService
+        return self.connectionSnapshot(for: radioID)?.services.nodeSnapshotService
       },
       deviceHashSize: { [weak self] in
         guard let self, context.isCurrent(self.connectionManager) else { return nil }
-        return self.connectionSnapshot(for: snapshot.device.radioID)?.device.hashSize
+        return self.connectionSnapshot(for: radioID)?.device.hashSize
       },
+      remoteNodeService: { [weak self] in
+        guard let self, context.isCurrent(self.connectionManager) else { return nil }
+        return self.connectionSnapshot(for: radioID)?.services.remoteNodeService
+      },
+      dataStore: { [weak self] in self?.offlineDataStore },
+      connectionState: { [weak self] in self?.connectionState ?? .disconnected },
       isCurrent: { [weak self] in
         guard let self else { return false }
         return !Task.isCancelled && context.isCurrent(self.connectionManager)

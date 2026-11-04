@@ -21,6 +21,7 @@ public enum MockDataProvider {
   public static let hannahLeeID = UUID(uuidString: "00000000-0000-0000-0000-000000000080")!
   public static let northRidgeRepeaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000091")!
   public static let twinPeaksRepeaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000092")!
+  public static let creekSensorID = UUID(uuidString: "00000000-0000-0000-0000-000000000094")!
   public static let oaklandRepeaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000093")!
 
   /// Byte 0 of `mockPublicKey(seed:)`. A 1-byte hop hash of this value matches that repeater only.

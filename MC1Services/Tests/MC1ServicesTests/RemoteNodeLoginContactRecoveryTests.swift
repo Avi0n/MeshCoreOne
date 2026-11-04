@@ -34,7 +34,7 @@ struct RemoteNodeLoginContactRecoveryTests {
       try #require(try await !harness.isConnected(membership))
       let frameCount = await harness.bluetooth.sentData.count
       let login = harness.track(Task {
-        try await link.services.remoteNodeService.login(sessionID: membership.id, password: "synthetic-fixture")
+        try await link.services.remoteNodeService.login(sessionID: membership.id, password: "test-fixture")
       })
       if hasLocalContact {
         #expect(try await login.value.success)

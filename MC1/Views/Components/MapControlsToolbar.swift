@@ -97,7 +97,7 @@ struct MapControlsToolbar<AdditionalActions: View>: View {
         Toggle(isOn: toggleBinding(state, \.showChat) {
           $0.setShowChat($1, host: host)
         }) {
-          Text(L10n.Contacts.Contacts.Segment.contacts)
+          Text(L10n.Map.Map.Controls.contactsAndSensors)
         }
         .disabled(state.wrappedValue.favoritesOnly)
         Toggle(isOn: toggleBinding(state, \.showRepeater) {

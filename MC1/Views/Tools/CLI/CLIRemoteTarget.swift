@@ -4,6 +4,7 @@ import MC1Services
 enum CLIRemoteTarget: Hashable, Sendable {
   case repeater
   case room
+  case sensor
   /// A chat contact's radio. Callers set this directly. `init?(contactType:)` stays nil for chat.
   case radio
 
@@ -11,6 +12,7 @@ enum CLIRemoteTarget: Hashable, Sendable {
     switch role {
     case .repeater: self = .repeater
     case .roomServer: self = .room
+    case .sensor: self = .sensor
     }
   }
 
@@ -18,6 +20,7 @@ enum CLIRemoteTarget: Hashable, Sendable {
     switch contactType {
     case .repeater: self = .repeater
     case .room: self = .room
+    case .sensor: self = .sensor
     case .chat: return nil
     }
   }

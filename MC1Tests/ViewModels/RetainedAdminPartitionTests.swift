@@ -25,11 +25,11 @@ struct RetainedAdminPartitionTests {
       let perRadioNavigationCleared = appState.navigation.chatsSelectedRoute == nil
         && appState.navigation.selectedContact == nil
       #expect(perRadioNavigationCleared)
-      let replacementSettings = switch role {
-      case .roomServer: appState.remoteAdminWorkspaces.room(for: retained.session).settings.helper
-      case .repeater: appState.remoteAdminWorkspaces.repeater(for: retained.session).settings.helper
+      let previousWorkspaceReset = switch role {
+      case .roomServer: appState.remoteAdminWorkspaces.room(for: retained.session).settings.helper !== retained.settings
+      case .repeater: appState.remoteAdminWorkspaces.repeater(for: retained.session).settings.helper !== retained.settings
+      case .sensor: false
       }
-      let previousWorkspaceReset = replacementSettings !== retained.settings
       #expect(previousWorkspaceReset)
       let framesBefore = await outgoingAdminFrameCount(harness)
       await harness.radio.rejectNext(.sendStatusRequest)
@@ -69,6 +69,9 @@ struct RetainedAdminPartitionTests {
         contactService: { appState.services?.contactService },
         nodeSnapshotService: { appState.services?.nodeSnapshotService },
         deviceHashSize: { appState.connectedDevice?.hashSize },
+        remoteNodeService: { appState.connectionSnapshot(for: harness.canonicalRadioID)?.services.remoteNodeService },
+        dataStore: { appState.offlineDataStore },
+        connectionState: { appState.connectionState },
         isCurrent: { appState.connectionSnapshot(for: harness.canonicalRadioID) != nil }
       )
       await retained.requestStatus()

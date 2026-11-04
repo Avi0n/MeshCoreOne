@@ -47,6 +47,16 @@ private func makeNode(
 @Suite("DiscoveryViewModel Tests")
 @MainActor
 struct DiscoveryViewModelTests {
+  @Test
+  func `sensor discovery segment does not treat sensors as companions`() {
+    let model = DiscoveryViewModel()
+    let sensor = makeNode(name: "Sensor", type: .sensor)
+    model.discoveredNodes = [sensor, makeNode(type: .chat), makeNode(type: .repeater), makeNode(type: .room)]
+    #expect(model.filteredNodes(searchText: "", segment: .sensors, sortOrder: .name, userLocation: nil).map(\.id) == [sensor.id])
+    #expect(!model.filteredNodes(searchText: "", segment: .contacts, sortOrder: .name, userLocation: nil).contains { $0.id == sensor.id })
+    #expect(model.filteredNodes(searchText: "Sensor", segment: .contacts, sortOrder: .name, userLocation: nil).map(\.id) == [sensor.id])
+  }
+
   // MARK: - Name / Hex Search
 
   @Test

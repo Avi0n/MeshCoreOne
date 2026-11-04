@@ -419,10 +419,11 @@ public final class ServiceContainer {
   }
 
   private func performTearDown() async {
+    await remoteNodeService.beginRetirement()
     await messageService.retireInlineSends()
     await messageService.waitForAcknowledgementSaves()
     await stopEventMonitoring()
-    await remoteNodeService.retireKeepAlives()
+    await remoteNodeService.retire()
 
     // Break the retain cycles the wired handlers form. The message
     // closures and the discovery event task capture this container's
@@ -459,7 +460,7 @@ public final class ServiceContainer {
   func prepareForIdentityImport() async {
     isTornDown = true
     await messageService.retireInlineSends()
-    await remoteNodeService.retireKeepAlives()
+    await remoteNodeService.retire()
     await chatSendQueueService.shutdown()
     await stopEventMonitoring()
     await syncCoordinator.cancelDiscoveryEventMonitoring()

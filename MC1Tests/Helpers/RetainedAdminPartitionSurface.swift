@@ -68,6 +68,8 @@ struct RetainedAdminPartitionSurface {
         canMakeCLISend: { models.settings.makeNodeCLISendClosure(session: session) != nil },
         cliObservation: cliObservation
       )
+    case .sensor:
+      preconditionFailure("Sensors use a separate settings workspace")
     }
   }
 

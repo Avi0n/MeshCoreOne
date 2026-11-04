@@ -7,7 +7,27 @@ extension ContactDetailState {
   func presentPendingSheet() {
     defer { pendingSheet = nil; pendingSheetContext = nil }
     guard let context = pendingSheetContext, accepts(context), let next = pendingSheet else { return }
+    if case let .adminSettings(session) = next, !matchesCurrentContact(session) { return }
     activeSheet = next
+  }
+
+  func queueAdminSheet(for session: RemoteNodeSessionDTO, context: OperationContext) {
+    guard accepts(context), matchesCurrentContact(session) else { return }
+    guard !session.isSensor || (session.isConnected && session.isAdmin) else { return }
+    if session.isAdmin {
+      pendingSheet = .adminSettings(session)
+    } else if session.isRoom {
+      pendingSheet = .roomStatus(session)
+    } else {
+      pendingSheet = .repeaterStatus(session)
+    }
+    pendingSheetContext = context
+    activeSheet = nil
+  }
+
+  private func matchesCurrentContact(_ session: RemoteNodeSessionDTO) -> Bool {
+    session.publicKey == currentContact.publicKey && session.radioID == currentContact.radioID
+      && session.role == RemoteNodeRole(contactType: currentContact.type)
   }
 
   func showTelemetry() {
