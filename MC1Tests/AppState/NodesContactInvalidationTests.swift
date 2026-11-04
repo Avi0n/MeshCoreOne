@@ -50,7 +50,7 @@ struct NodesContactInvalidationTests {
       break
     }
     let revision = navigation.nodesPresentationRevision
-    await fixture.appState.wireDeviceUpdateCallbacks(services: fixture.services)
+    try await fixture.appState.wireDeviceUpdateCallbacks(snapshot: #require(fixture.appState.connectionManager.currentConnection))
     let listener = try #require(fixture.appState.advertisementEventsTask)
     fixture.services.advertisementService.eventBroadcaster.yield(
       .contactDeletedCleanup(contactIDs: selection == .emptyBatch ? [] : [contact.id])
@@ -85,7 +85,7 @@ struct NodesContactInvalidationTests {
     let oldBinding = try openHistory(contact, appState: fixture.appState, routes: routes)
     let oldPath = oldBinding.wrappedValue
     fixture.appState.navigation.selectedTab = AppTab.map.rawValue
-    fixture.appState.wireSyncDataEvents(services: fixture.services)
+    try fixture.appState.wireSyncDataEvents(snapshot: #require(fixture.appState.connectionManager.currentConnection))
     let listener = try #require(fixture.appState.syncDataEventsTask)
     try await store.deleteContact(id: contact.id)
 
@@ -111,7 +111,7 @@ struct NodesContactInvalidationTests {
     let contact = makeContact(radioID: fixture.radioID)
     try await fixture.appState.connectionManager.persistenceStore.saveContact(contact)
     fixture.appState.navigation.navigateToContactDetail(contact)
-    fixture.appState.wireSyncDataEvents(services: fixture.services)
+    try fixture.appState.wireSyncDataEvents(snapshot: #require(fixture.appState.connectionManager.currentConnection))
     let listener = try #require(fixture.appState.syncDataEventsTask)
     if disconnected {
       fixture.appState.connectionManager.setTestState(
@@ -130,7 +130,7 @@ struct NodesContactInvalidationTests {
     defer { fixture.stop() }
     let contact = makeContact(radioID: fixture.radioID)
     fixture.appState.navigation.navigateToContactDetail(contact)
-    fixture.appState.wireSyncDataEvents(services: fixture.services, nodesContactExists: { _ in
+    try fixture.appState.wireSyncDataEvents(snapshot: #require(fixture.appState.connectionManager.currentConnection), nodesContactExists: { _ in
       throw LookupError.unavailable
     })
     let listener = try #require(fixture.appState.syncDataEventsTask)
@@ -154,7 +154,7 @@ struct NodesContactInvalidationTests {
     let entered = Gate()
     let resume = Gate()
     let store = appState.connectionManager.persistenceStore
-    appState.wireSyncDataEvents(services: fixture.services, nodesContactExists: { id in
+    try appState.wireSyncDataEvents(snapshot: #require(fixture.appState.connectionManager.currentConnection), nodesContactExists: { id in
       let exists = try await store.fetchContact(id: id) != nil
       await entered.open()
       await resume.wait()
@@ -228,7 +228,7 @@ struct NodesContactInvalidationTests {
       session: MeshCoreSession(transport: MockTransport()),
       dataStore: appState.connectionManager.persistenceStore, radioID: radioID
     )
-    appState.connectionManager.setTestState(connectionState: .ready, services: services, connectedDevice: device)
+    appState.connectionManager.setTestState(connectionState: .ready, services: services, session: services.session, connectedDevice: device)
     return Fixture(appState: appState, services: services, radioID: radioID, defaults: defaults, suite: suite)
   }
 

@@ -1198,7 +1198,7 @@ struct PersistenceStoreTests {
     fetched = try await store.fetchRemoteNodeSession(id: session.id)
     #expect(fetched?.lastSyncTimestamp == 2000)
     #expect(fetched?.lastMessageDate != nil)
-    #expect(try #require(fetched?.lastMessageDate) >= firstDate!)
+    #expect(try #require(fetched?.lastMessageDate) >= #require(firstDate))
   }
 
   @Test
@@ -1784,7 +1784,7 @@ struct PersistenceStoreTests {
     try await store.upsertPendingSend(dto)
 
     let result = try await store.incrementPendingSendAttemptCount(messageID: messageID)
-    #expect(result == 1, "first drain attempt should bump 0 → 1")
+    #expect(result?.attemptCount == 1, "first drain attempt should bump 0 → 1")
 
     let persisted = try await store.fetchPendingSends(radioID: dto.radioID).first
     #expect(persisted?.attemptCount == 1, "persisted attemptCount should match return value")
@@ -1796,7 +1796,7 @@ struct PersistenceStoreTests {
     let messageID = UUID()
 
     let result = try await store.incrementPendingSendAttemptCount(messageID: messageID)
-    #expect(result == nil, "missing-row case is terminal — return nil instead of creating a new row")
+    #expect(result?.pendingSendID == nil, "missing-row case is terminal — return nil instead of creating a new row")
   }
 
   @Test

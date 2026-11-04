@@ -300,35 +300,26 @@ struct SystemPairingSetupAppStateTests {
     harness.appState.connectionUI.pendingSystemPairingSetup = SystemPairingSetupPrompt(
       accessories: [SystemPairedAccessory(id: id, name: "B")]
     )
-    harness.appState.connectionUI.shouldShowPickerOnForeground = true
     harness.appState.connectionManager.isPairingFlowActive = true
 
     harness.appState.handleBecameActive()
 
-    #expect(harness.appState.connectionUI.shouldShowPickerOnForeground)
     #expect(harness.appState.connectionUI.pendingSystemPairingSetup?.accessories.map(\.id) == [id])
     #expect(harness.appState.connectionUI.isBusy == false)
     #expect(harness.mockASK.showPickerCallCount == 0)
   }
 
   @Test
-  func `became-active picker retry still scans when no setup prompt is pending`() async throws {
+  func `became-active without a pairing operation does not open a picker`() throws {
     let harness = try makeHarness()
     defer { harness.cleanup() }
     let id = UUID()
-    harness.mockASK.setPairedAccessories([
-      ASAccessory(bluetoothIdentifier: id, displayName: "B")
-    ])
-    harness.appState.connectionUI.shouldShowPickerOnForeground = true
+    harness.mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: id, displayName: "B")])
 
     harness.appState.handleBecameActive()
-    try await waitUntil(timeout: .seconds(2), "foreground scan should set the prompt") {
-      harness.appState.connectionUI.pendingSystemPairingSetup != nil
-        && !harness.appState.connectionUI.isBusy
-    }
 
-    #expect(harness.appState.connectionUI.shouldShowPickerOnForeground == false)
-    #expect(harness.appState.connectionUI.pendingSystemPairingSetup?.accessories.map(\.id) == [id])
+    #expect(harness.appState.connectionUI.pendingSystemPairingSetup == nil)
+    #expect(!harness.appState.connectionUI.isBusy)
     #expect(harness.mockASK.showPickerCallCount == 0)
   }
 

@@ -268,8 +268,8 @@ struct ChatSendQueueServiceTests {
   func `channel drain fails when fetchChannel confirms the channel is gone`() async throws {
     let harness = try await Self.setUpChannelCapHarness(attemptCount: 7)
     defer { Task { await harness.queue.shutdown() } }
-    await harness.session.setGetChannelError(
-      MeshCoreError.deviceError(code: FirmwareDeviceErrorCode.channelMessageNotFound)
+    await harness.session.setGetChannelResults(
+      harness.channelReads(endingWith: MeshCoreError.deviceError(code: FirmwareDeviceErrorCode.channelMessageNotFound))
     )
 
     await harness.queue.hydrate()
@@ -280,7 +280,8 @@ struct ChatSendQueueServiceTests {
     await harness.queue.awaitDrainCompletion()
 
     #expect(try await harness.dataStore.fetchMessage(id: harness.messageID)?.status == .failed)
-    #expect(await harness.session.getChannelIndices == [0])
+    #expect(await harness.session.getChannelIndices == Array(repeating: 0, count: harness.occupancyReadCount + 1))
+    #expect(await harness.session.sendChannelMessageInvocations.count == harness.poolAttempts)
     await harness.queue.shutdown()
   }
 
@@ -288,34 +289,38 @@ struct ChatSendQueueServiceTests {
   func `channel drain parks deviceError(2) below disambiguateAfterAttempts`() async throws {
     let harness = try await Self.setUpChannelCapHarness(attemptCount: 0)
     defer { Task { await harness.queue.shutdown() } }
-    try await harness.dataStore.updateMessageStatus(id: harness.messageID, status: .failed)
-
     await harness.queue.hydrate()
-    try await waitUntil("channel send should fail and return to pending") {
+    try await waitUntil("channel pool exhaustion should park the pending send") {
       let sent = await harness.session.sendChannelMessageInvocations.count
       let message = try? await harness.dataStore.fetchMessage(id: harness.messageID)
-      return sent >= 2 && message?.status == .pending
+      let parked = await harness.queue.parkedDrainCountForTesting
+      return sent == harness.poolAttempts && message?.status == .pending && parked > 0
     }
 
     #expect(try await harness.dataStore.hasPendingSend(messageID: harness.messageID))
-    #expect(await harness.session.getChannelIndices.isEmpty)
+    #expect(await harness.session.getChannelIndices == Array(repeating: 0, count: harness.occupancyReadCount),
+            "Below the threshold, only occupancy validation may read the channel")
     await harness.queue.shutdown()
   }
 
   @Test
   func `persistent channel fetch failures stop at the configured cap`() async throws {
+    let failureCap = 2
     let harness = try await Self.setUpChannelCapHarness(
       attemptCount: 7,
-      queueConfig: ChatSendQueueConfig(maxConsecutiveFetchChannelFailures: 2)
+      queueConfig: ChatSendQueueConfig(maxConsecutiveFetchChannelFailures: failureCap)
     )
     defer { Task { await harness.queue.shutdown() } }
-    await harness.session.setGetChannelError(MeshCoreError.deviceError(code: 1))
+    let fetchError = MeshCoreError.deviceError(code: ErrorCode.unsupportedCommand.rawValue)
+    let readResults = (0..<failureCap).flatMap { _ in harness.channelReads(endingWith: fetchError) }
+    await harness.session.setGetChannelResults(readResults)
 
     await harness.queue.hydrate()
     try await waitUntil("first failed channel fetch should park") {
       let fetches = await harness.session.getChannelIndices.count
       let message = try? await harness.dataStore.fetchMessage(id: harness.messageID)
-      return fetches == 1 && message?.status == .pending
+      let parked = await harness.queue.parkedDrainCountForTesting
+      return fetches == harness.occupancyReadCount + 1 && message?.status == .pending && parked > 0
     }
     #expect(try await harness.dataStore.hasPendingSend(messageID: harness.messageID))
 
@@ -326,7 +331,8 @@ struct ChatSendQueueServiceTests {
     }
     await harness.queue.awaitDrainCompletion()
 
-    #expect(await harness.session.getChannelIndices == [0, 0])
+    #expect(await harness.session.getChannelIndices == Array(repeating: 0, count: failureCap * (harness.occupancyReadCount + 1)))
+    #expect(await harness.session.sendChannelMessageInvocations.count == failureCap * harness.poolAttempts)
     #expect(try await harness.dataStore.fetchMessage(id: harness.messageID)?.status == .failed)
     await harness.queue.shutdown()
   }
@@ -338,6 +344,17 @@ struct ChatSendQueueServiceTests {
     let session: MockMeshCoreSession
     let dataStore: PersistenceStore
     let messageID: UUID
+    let channel: ChannelInfo
+    let poolAttempts: Int
+
+    var occupancyReadCount: Int {
+      1 + poolAttempts
+    }
+
+    func channelReads(endingWith error: Error) -> [Result<ChannelInfo, Error>] {
+      // The outer read and each serialized send read succeed before disambiguation fails.
+      Array(repeating: .success(channel), count: occupancyReadCount) + [.failure(error)]
+    }
   }
 
   private static func setUpChannelCapHarness(
@@ -365,6 +382,8 @@ struct ChatSendQueueServiceTests {
     try container.mainContext.save()
 
     let session = MockMeshCoreSession()
+    let channelInfo = ChannelInfo(index: channelIndex, name: channel.name, secret: channel.secret)
+    await session.setStubbedChannels([channelIndex: channelInfo])
     await session.setSendChannelMessageError(
       MeshCoreError.deviceError(code: FirmwareDeviceErrorCode.channelMessageNotFound)
     )
@@ -416,7 +435,9 @@ struct ChatSendQueueServiceTests {
       queue: queueService,
       session: session,
       dataStore: store,
-      messageID: pending.id
+      messageID: pending.id,
+      channel: channelInfo,
+      poolAttempts: messageConfig.poolBackoff.attemptCap + 1
     )
   }
 
@@ -583,14 +604,14 @@ struct ChatSendQueueServiceTests {
     #expect(parkedRow?.attemptCount == 1, ".connected must not wake the drain during the sync window")
 
     // Entering `.ready` fires the trigger and the drain wakes for its second attempt.
-    try await harness.dataStore.updateMessageStatus(id: harness.messageID, status: .failed)
     continuation.yield(.ready)
     try await waitUntil(timeout: .seconds(10), "ready should wake the parked send") {
       let sent = await harness.session.sendMessageInvocations.count
       let row = try? await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
         .first(where: { $0.messageID == harness.messageID })
       let message = try? await harness.dataStore.fetchMessage(id: harness.messageID)
-      return sent >= 4 && row?.attemptCount == 2 && message?.status == .pending
+      let parked = await harness.queue.parkedDrainCountForTesting
+      return sent >= 4 && row?.attemptCount == 2 && message?.status == .pending && parked > 0
     }
     continuation.yield(.ready)
     continuation.finish()
@@ -611,15 +632,14 @@ struct ChatSendQueueServiceTests {
     let messageID: UUID
 
     func drainUntilParked() async throws {
-      // A transition from failed to pending witnesses the completed error handling.
-      try await dataStore.updateMessageStatus(id: messageID, status: .failed)
       await queue.hydrate()
-      try await waitUntil("DM send should fail and return to pending") {
+      try await waitUntil("DM pool exhaustion should park the pending send") {
         let sent = await session.sendMessageInvocations.count
         let row = try? await dataStore.fetchPendingSends(radioID: radioID)
           .first(where: { $0.messageID == messageID })
         let message = try? await dataStore.fetchMessage(id: messageID)
-        return sent >= 2 && (row?.attemptCount ?? 0) >= 1 && message?.status == .pending
+        let parked = await queue.parkedDrainCountForTesting
+        return sent >= 2 && (row?.attemptCount ?? 0) >= 1 && message?.status == .pending && parked > 0
       }
     }
 

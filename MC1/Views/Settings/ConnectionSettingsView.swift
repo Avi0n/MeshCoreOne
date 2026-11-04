@@ -38,13 +38,7 @@ struct ConnectionSettingsView: View {
         settingsService: { appState.services?.settingsService },
         connectionState: { appState.connectionState },
         connectedDevice: { appState.connectedDevice },
-        currentTransportType: { appState.connectionManager.currentTransportType },
-        reboot: {
-          guard let settingsService = appState.services?.settingsService else {
-            throw SettingsServiceError.notConnected
-          }
-          try await settingsService.reboot()
-        }
+        currentTransportType: { appState.connectionManager.currentTransportType }
       )
       await radioWiFi.noteSessionReadiness()
     }
@@ -89,7 +83,8 @@ struct ConnectionSettingsView: View {
   private var radioWiFiRefreshID: RadioWiFiRefreshID {
     RadioWiFiRefreshID(
       service: (appState.services?.settingsService).map(ObjectIdentifier.init),
-      isReady: appState.connectionState == .ready
+      isReady: appState.connectionState == .ready,
+      settingsRevision: appState.radioWiFiSettingsRevision
     )
   }
 
@@ -106,6 +101,7 @@ struct ConnectionSettingsView: View {
   private struct RadioWiFiRefreshID: Equatable {
     var service: ObjectIdentifier?
     var isReady: Bool
+    var settingsRevision: UInt64
   }
 }
 

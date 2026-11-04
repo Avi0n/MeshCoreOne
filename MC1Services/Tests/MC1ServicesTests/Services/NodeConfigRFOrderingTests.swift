@@ -16,7 +16,8 @@ struct NodeConfigRFOrderingTests {
     let collect = await log.collect(from: stack.settings)
     defer { collect.cancel() }
     let gate = SuspendGate()
-    await stack.service.setOnPostIdentityImport {
+    await stack.service.setIdentityImportHandler { key in
+      try await stack.settings.importPrivateKey(key)
       await gate.park()
       return nil
     }
@@ -28,7 +29,7 @@ struct NodeConfigRFOrderingTests {
         radioID: UUID()
       )
     }
-    try await waitUntil("import should reach the post-identity callback with the session idle") {
+    try await waitUntil("import should reach the identity-import handler with the session idle") {
       gate.isParked
     }
     _ = try await stack.settings.applyRadioPresetVerified(usa)
@@ -96,7 +97,8 @@ struct NodeConfigRFOrderingTests {
     let stack = try await RFStack.make(radio: .preset(eu))
     defer { stack.stop() }
     let gate = SuspendGate()
-    await stack.service.setOnPostIdentityImport {
+    await stack.service.setIdentityImportHandler { key in
+      try await stack.settings.importPrivateKey(key)
       await gate.park()
       return nil
     }

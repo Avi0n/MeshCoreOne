@@ -29,7 +29,7 @@ struct RoomSettingsView: View {
           viewModel: statusViewModel,
           session: session,
           connectionState: appState.connectionState,
-          connectedDeviceID: appState.connectedDevice?.radioID
+          connectedDeviceID: appState.connectionSnapshot(for: session.radioID)?.device.radioID
         )
       }
     }
@@ -44,14 +44,18 @@ struct RoomSettingsView: View {
       }
     }
     .task(id: appState.servicesVersion) {
+      guard let source = appState.connectionSnapshot(for: session.radioID) else { return }
+      let context = ConnectionCallbackContext(source)
       let models = appState.remoteAdminWorkspaces.room(for: session)
       viewModel = models.settings
       statusViewModel = models.status
       cliViewModel = models.cli
       await viewModel.configure(
-        roomAdminService: { appState.services?.roomAdminService },
+        roomAdminService: { appState.connectionSnapshot(for: session.radioID)?.services.roomAdminService },
         session: session
       )
+      guard !Task.isCancelled, context.isCurrent(appState.connectionManager),
+            source.services.isAcceptingRuntimeWork else { return }
       if let send = viewModel.makeNodeCLISendClosure(session: session) {
         cliViewModel.configure(sessionName: session.name, remoteTarget: .room, sendRawCommand: send)
       }
@@ -65,13 +69,13 @@ struct RoomSettingsView: View {
       // because a segment switch recreates only the content subtree, so this must not
       // re-run or duplicate handler registration.
       statusViewModel.configure(
-        roomAdminService: { appState.services?.roomAdminService },
-        contactService: { appState.services?.contactService },
-        nodeSnapshotService: { appState.services?.nodeSnapshotService }
+        roomAdminService: { appState.connectionSnapshot(for: session.radioID)?.services.roomAdminService },
+        contactService: { appState.connectionSnapshot(for: session.radioID)?.services.contactService },
+        nodeSnapshotService: { appState.connectionSnapshot(for: session.radioID)?.services.nodeSnapshotService }
       )
       Task {
         await statusViewModel.registerHandlers()
-        if let radioID = appState.connectedDevice?.radioID {
+        if let radioID = appState.connectionSnapshot(for: session.radioID)?.device.radioID {
           await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
       }

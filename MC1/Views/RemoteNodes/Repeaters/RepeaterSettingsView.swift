@@ -39,7 +39,7 @@ struct RepeaterSettingsView: View {
           contacts: contacts,
           discoveredNodes: discoveredNodes,
           userLocation: appState.bestAvailableLocation,
-          connectedDeviceID: appState.connectedDevice?.radioID,
+          connectedDeviceID: appState.connectionSnapshot(for: session.radioID)?.device.radioID,
           routePathContact: routeContact
         )
       }
@@ -55,24 +55,29 @@ struct RepeaterSettingsView: View {
       }
     }
     .task(id: appState.servicesVersion) {
+      guard let source = appState.connectionSnapshot(for: session.radioID) else { return }
+      let context = ConnectionCallbackContext(source)
       let models = appState.remoteAdminWorkspaces.repeater(for: session)
       viewModel = models.settings
       statusViewModel = models.status
       cliViewModel = models.cli
       await viewModel.configure(
-        repeaterAdminService: { appState.services?.repeaterAdminService },
+        repeaterAdminService: { appState.connectionSnapshot(for: session.radioID)?.services.repeaterAdminService },
         session: session
       )
+      guard !Task.isCancelled, context.isCurrent(appState.connectionManager),
+            source.services.isAcceptingRuntimeWork else { return }
       if let send = viewModel.makeNodeCLISendClosure(session: session) {
         cliViewModel.configure(sessionName: session.name, remoteTarget: .repeater, sendRawCommand: send)
       }
       // Loaded up front (not just on Telemetry reveal) so the Settings-tab route section can
       // resolve hop hashes to repeater names.
-      if let radioID = appState.connectedDevice?.radioID,
-         let dataStore = appState.services?.dataStore {
-        contacts = await (try? dataStore.fetchContacts(radioID: radioID)) ?? []
-        discoveredNodes = await (try? dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
-      }
+      let loadedContacts = await (try? source.services.dataStore.fetchContacts(radioID: session.radioID)) ?? []
+      let loadedDiscovered = await (try? source.services.dataStore.fetchDiscoveredNodes(radioID: session.radioID)) ?? []
+      guard !Task.isCancelled, context.isCurrent(appState.connectionManager),
+            source.services.isAcceptingRuntimeWork else { return }
+      contacts = loadedContacts
+      discoveredNodes = loadedDiscovered
       await refreshRouteContact()
     }
     .onChange(of: appState.contactsVersion) {
@@ -87,14 +92,14 @@ struct RepeaterSettingsView: View {
       // telemetryConfigured because a segment switch recreates only the content subtree,
       // so this must not re-run or duplicate handler registration.
       statusViewModel.configure(
-        repeaterAdminService: { appState.services?.repeaterAdminService },
-        contactService: { appState.services?.contactService },
-        nodeSnapshotService: { appState.services?.nodeSnapshotService },
-        deviceHashSize: { appState.connectedDevice?.hashSize }
+        repeaterAdminService: { appState.connectionSnapshot(for: session.radioID)?.services.repeaterAdminService },
+        contactService: { appState.connectionSnapshot(for: session.radioID)?.services.contactService },
+        nodeSnapshotService: { appState.connectionSnapshot(for: session.radioID)?.services.nodeSnapshotService },
+        deviceHashSize: { appState.connectionSnapshot(for: session.radioID)?.device.hashSize }
       )
       Task {
         await statusViewModel.registerHandlers()
-        if let radioID = appState.connectedDevice?.radioID {
+        if let radioID = appState.connectionSnapshot(for: session.radioID)?.device.radioID {
           await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
       }
@@ -209,11 +214,14 @@ struct RepeaterSettingsView: View {
   }
 
   private func refreshRouteContact() async {
-    guard let dataStore = appState.services?.dataStore else { return }
-    if let updated = await (try? dataStore.fetchContact(
+    guard let source = appState.connectionSnapshot(for: session.radioID) else { return }
+    let context = ConnectionCallbackContext(source)
+    if let updated = await (try? source.services.dataStore.fetchContact(
       radioID: session.radioID,
       publicKey: session.publicKey
     )).flatMap(\.self) {
+      guard !Task.isCancelled, context.isCurrent(appState.connectionManager),
+            source.services.isAcceptingRuntimeWork else { return }
       routeContact = updated
     }
   }

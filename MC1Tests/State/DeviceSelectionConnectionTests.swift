@@ -22,62 +22,52 @@ struct DeviceSelectionConnectionTests {
 
   @Test
   func `the default dismissal handler dials the captured wifi endpoint`() async throws {
-    let harness = try makeHarness()
+    let wifi = ConnectionTestRadioTransport()
+    await wifi.setConnectError(BLEError.connectionTimeout)
+    let harness = try makeHarness(wifi: wifi)
     defer { harness.cleanup() }
-    harness.appState.connectionManager.testWiFiConnectHandler = { _, _ in
-      throw BLEError.connectionTimeout
-    }
     harness.appState.connectionUI.queueSavedDeviceConnection(
       makeDevice(),
       target: .wifi(host: "radio.local", port: 4242)
     )
-    #expect(harness.appState.connectionManager.testWiFiConnectAttempts.isEmpty)
+    #expect(await wifi.connectCount == 0)
 
     harness.appState.handleDeviceSelectionSheetDismissed()
     try await waitUntil("wifi should be attempted after dismissal") {
       harness.appState.connectionUI.showingConnectionFailedAlert
     }
 
-    let attempts = harness.appState.connectionManager.testWiFiConnectAttempts
-    #expect(attempts.count == 1)
-    #expect(attempts.first?.host == "radio.local")
-    #expect(attempts.first?.port == 4242)
+    #expect(await wifi.connectCount == 1)
+    let endpoint = await wifi.connectionInfo
+    #expect(endpoint?.host == "radio.local")
+    #expect(endpoint?.port == 4242)
   }
 
   @Test
   func `choosing bluetooth while the same radio is connected over wifi starts a transport switch`() async throws {
-    let transport = MockMeshTransport()
-    await transport.setConnectError(BLEError.authenticationFailed)
-    let harness = try makeHarness(transport: transport)
-    defer { harness.cleanup() }
-    var device = makeDevice()
-    let peripheralID = try #require(device.bluetoothPeripheralID)
-    device.id = peripheralID
-    device.connectionMethods.reverse()
-    harness.appState.connectionManager.setTestState(
-      connectionState: .ready,
-      connectedDevice: device,
-      currentTransportType: .wifi,
-      connectionIntent: .wantsConnection()
-    )
-    harness.appState.connectionManager.wifiTransport = WiFiTransport()
-    harness.appState.connectionUI.queueSavedDeviceConnection(device, target: .bluetooth(peripheralID: peripheralID))
-    #expect(await transport.connectInvocations.isEmpty)
-    #expect(!harness.appState.connectionUI.showingConnectionFailedAlert)
+    try await ConnectionLinkSwitchHarness.withHarness(live: .wifi, wifiHost: "radio.local", wifiPort: 4242) { harness in
+      await harness.bluetooth.setConnectError(BLEError.authenticationFailed)
+      let device = harness.device
+      let peripheralID = try #require(device.bluetoothPeripheralID)
+      harness.appState.connectionUI.queueSavedDeviceConnection(device, target: .bluetooth(peripheralID: peripheralID))
+      #expect(await harness.bluetooth.connectCount == harness.initialBluetoothAttempts)
+      #expect(!harness.appState.connectionUI.showingConnectionFailedAlert)
 
-    harness.appState.handleDeviceSelectionSheetDismissed()
-    try await waitUntil(timeout: .seconds(2), "the selected Bluetooth transport should be dialed") {
-      harness.appState.connectionUI.showingConnectionFailedAlert
+      harness.appState.handleDeviceSelectionSheetDismissed()
+      try await waitUntil("the selected Bluetooth transport should be dialed") {
+        harness.appState.connectionUI.showingConnectionFailedAlert
+      }
+      harness.appState.handleDeviceSelectionSheetDismissed()
+
+      #expect(await harness.bluetooth.connectCount == harness.initialBluetoothAttempts + 1)
+      #expect(await harness.bluetooth.sessionDeviceIDs.last == peripheralID)
+      #expect(harness.appState.connectionUI.queuedSavedDeviceConnection == nil)
+      #expect(harness.manager.wifiTransport == nil)
+      #expect(harness.appState.connectedDevice == nil)
+      #expect(harness.manager.connectionIntent == .wantsConnection(forceFullSync: true))
+      #expect(harness.appState.connectionUI.failedPairingDeviceID == device.id)
+      #expect(harness.appState.connectionUI.pairingFailureKind == .authentication)
     }
-    harness.appState.handleDeviceSelectionSheetDismissed()
-
-    #expect(await transport.connectInvocations.compactMap(\.deviceID) == [peripheralID])
-    #expect(harness.appState.connectionUI.queuedSavedDeviceConnection == nil)
-    #expect(harness.appState.connectionManager.wifiTransport == nil)
-    #expect(harness.appState.connectedDevice == nil)
-    #expect(harness.appState.connectionManager.connectionIntent == .wantsConnection(forceFullSync: true))
-    #expect(harness.appState.connectionUI.failedPairingDeviceID == device.id)
-    #expect(harness.appState.connectionUI.pairingFailureKind == .authentication)
   }
 
   private struct Harness {
@@ -85,7 +75,7 @@ struct DeviceSelectionConnectionTests {
     let cleanup: () -> Void
   }
 
-  private func makeHarness(transport: MockMeshTransport? = nil) throws -> Harness {
+  private func makeHarness(wifi: ConnectionTestRadioTransport = ConnectionTestRadioTransport()) throws -> Harness {
     let suite = "test.deviceselection.\(UUID().uuidString)"
     let defaults = try #require(UserDefaults(suiteName: suite))
     let container = try PersistenceStore.createContainer(inMemory: true)
@@ -94,8 +84,10 @@ struct DeviceSelectionConnectionTests {
     let manager = ConnectionManager(
       modelContainer: container,
       defaults: defaults,
-      transport: transport,
-      pairing: AccessorySetupPairingService(accessorySetupKit: mockASK)
+      stateMachine: MockBLEStateMachine(),
+      transport: MockMeshTransport(),
+      pairing: AccessorySetupPairingService(accessorySetupKit: mockASK),
+      makeWiFiTransport: { wifi }
     )
     let appState = AppState(
       modelContainer: container,

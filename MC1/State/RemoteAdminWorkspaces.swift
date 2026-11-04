@@ -73,17 +73,21 @@ final class RemoteAdminWorkspaces {
 
   /// Same-device ready. Rebinds providers on the models that are still live.
   func rebind(
+    radioID: UUID,
     repeaterAdminService: @escaping @MainActor () -> RepeaterAdminService?,
     roomAdminService: @escaping @MainActor () -> RoomAdminService?,
     contactService: @escaping @MainActor () -> ContactService?,
     nodeSnapshotService: @escaping @MainActor () -> NodeSnapshotService?,
-    deviceHashSize: @escaping @MainActor () -> Int?
+    deviceHashSize: @escaping @MainActor () -> Int?,
+    isCurrent: @MainActor () -> Bool
   ) async {
-    for models in repeaters.values {
+    guard isCurrent() else { return }
+    for models in repeaters.values where models.session.radioID == radioID {
       await models.settings.configure(
         repeaterAdminService: repeaterAdminService,
         session: models.session
       )
+      guard isCurrent() else { return }
       models.status.configure(
         repeaterAdminService: repeaterAdminService,
         contactService: contactService,
@@ -91,6 +95,7 @@ final class RemoteAdminWorkspaces {
         deviceHashSize: deviceHashSize
       )
       await models.status.registerHandlers()
+      guard isCurrent() else { return }
       if let send = models.settings.makeNodeCLISendClosure(session: models.session) {
         models.cli.configure(
           sessionName: models.session.name,
@@ -99,17 +104,19 @@ final class RemoteAdminWorkspaces {
         )
       }
     }
-    for models in rooms.values {
+    for models in rooms.values where models.session.radioID == radioID {
       await models.settings.configure(
         roomAdminService: roomAdminService,
         session: models.session
       )
+      guard isCurrent() else { return }
       models.status.configure(
         roomAdminService: roomAdminService,
         contactService: contactService,
         nodeSnapshotService: nodeSnapshotService
       )
       await models.status.registerHandlers()
+      guard isCurrent() else { return }
       if let send = models.settings.makeNodeCLISendClosure(session: models.session) {
         models.cli.configure(
           sessionName: models.session.name,

@@ -129,8 +129,9 @@ struct BondShieldRefreshTests {
     await sm.appDidBecomeActive()
     await sm.primeFringeAutoReconnectingForBondTests(peripheral: peripheral)
     let recorder = FringeDisconnectionRecorder()
-    await sm.setDisconnectionHandler { deviceID, error in
-      recorder.append(deviceID: deviceID, error: error)
+    await sm.setLifecycleEventHandler { event, _ in
+      guard case let .disconnected(origin, error) = event else { return }
+      recorder.append(deviceID: origin.deviceID, error: error)
     }
 
     let encryptionTimedOut = NSError(
@@ -196,8 +197,9 @@ struct BondShieldRefreshTests {
     await sm.appDidBecomeActive()
     await sm.primeFringeAutoReconnectingForBondTests(peripheral: peripheral)
     let recorder = FringeDisconnectionRecorder()
-    await sm.setDisconnectionHandler { deviceID, error in
-      recorder.append(deviceID: deviceID, error: error)
+    await sm.setLifecycleEventHandler { event, _ in
+      guard case let .disconnected(origin, error) = event else { return }
+      recorder.append(deviceID: origin.deviceID, error: error)
     }
     let encryptionTimedOut = NSError(
       domain: CBErrorDomain,
@@ -348,7 +350,7 @@ private final class BondRefreshCallbackBox: @unchecked Sendable {
   }
 }
 
-/// Same shape as FringeDisconnectionRecorder — collect onDisconnection events.
+/// Records disconnected lifecycle events for the callback assertions.
 private final class FringeDisconnectionRecorder: @unchecked Sendable {
   struct Event {
     let deviceID: UUID

@@ -369,6 +369,7 @@ extension SyncCoordinator {
     }
 
     do {
+      await runTestBeforeMessageSave(messageDTO)
       try await dependencies.dataStore.saveMessage(messageDTO)
       var savedDTO = messageDTO
       if case .channel = resolvedKind {
@@ -693,9 +694,11 @@ extension SyncCoordinator {
 
   /// Cancels the discovery event task so it releases the service references
   /// it captures. Called by `ServiceContainer.tearDown()`.
-  func cancelDiscoveryEventMonitoring() {
-    discoveryEventsTask?.cancel()
+  func cancelDiscoveryEventMonitoring() async {
+    let worker = discoveryEventsTask
     discoveryEventsTask = nil
+    worker?.cancel()
+    await worker?.value
   }
 
   // MARK: - Static Helpers

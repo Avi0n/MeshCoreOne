@@ -91,6 +91,17 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
+  /// Updates local OCV fields without replacing connection identity or inserting a row.
+  func updateDeviceOCVSettings(id: UUID, preset: String, customArray: String?) throws -> DeviceDTO? {
+    guard let device = try fetchDevice(id: id) else { return nil }
+    let updated = device.copy {
+      $0.ocvPreset = preset
+      $0.customOCVArrayString = customArray
+    }
+    try saveDevice(updated)
+    return updated
+  }
+
   /// Set a device as active (deactivates others)
   func setActiveDevice(id: UUID) throws {
     // Deactivate all devices first
@@ -135,115 +146,6 @@ public extension PersistenceStore {
       throw PersistenceStoreError.deviceNotFound
     }
     device.lastContactSync = timestamp
-    try modelContext.save()
-  }
-
-  func updateDeviceNodeName(radioID: UUID, name: String) throws {
-    try updateExistingDevice(radioID: radioID) { $0.nodeName = name }
-  }
-
-  func updateDeviceCoordinates(radioID: UUID, latitude: Double, longitude: Double) throws {
-    try updateExistingDevice(radioID: radioID) {
-      $0.latitude = latitude
-      $0.longitude = longitude
-    }
-  }
-
-  func updateDeviceRadio(
-    radioID: UUID,
-    frequency: UInt32,
-    bandwidth: UInt32,
-    spreadingFactor: UInt8,
-    codingRate: UInt8,
-    appliedRadioPresetID: String?
-  ) throws {
-    try updateExistingDevice(radioID: radioID) {
-      $0.frequency = frequency
-      $0.bandwidth = bandwidth
-      $0.spreadingFactor = spreadingFactor
-      $0.codingRate = codingRate
-      $0.appliedRadioPresetID = appliedRadioPresetID
-    }
-  }
-
-  func updateDeviceTxPower(radioID: UUID, txPower: Int8) throws {
-    try updateExistingDevice(radioID: radioID) { $0.txPower = txPower }
-  }
-
-  func updateDeviceObservation(radioID: UUID, mapped: DeviceDTO) throws {
-    try updateExistingDevice(radioID: radioID) { device in
-      device.publicKey = mapped.publicKey
-      device.nodeName = mapped.nodeName
-      device.latitude = mapped.latitude
-      device.longitude = mapped.longitude
-      device.frequency = mapped.frequency
-      device.bandwidth = mapped.bandwidth
-      device.spreadingFactor = mapped.spreadingFactor
-      device.codingRate = mapped.codingRate
-      device.txPower = mapped.txPower
-      device.manualAddContacts = mapped.manualAddContacts
-      device.multiAcks = mapped.multiAcks
-      device.telemetryModeBase = mapped.telemetryModeBase
-      device.telemetryModeLoc = mapped.telemetryModeLoc
-      device.telemetryModeEnv = mapped.telemetryModeEnv
-      device.advertLocationPolicy = mapped.advertLocationPolicy
-      device.appliedRadioPresetID = mapped.appliedRadioPresetID
-    }
-  }
-
-  func updateDeviceOtherParams(radioID: UUID, intent: OtherParamsIntent) throws {
-    try updateExistingDevice(radioID: radioID) { device in
-      if let manualAddContacts = intent.manualAddContacts {
-        device.manualAddContacts = manualAddContacts
-      }
-      if let telemetryModeBase = intent.telemetryModeBase {
-        device.telemetryModeBase = telemetryModeBase
-      }
-      if let telemetryModeLocation = intent.telemetryModeLocation {
-        device.telemetryModeLoc = telemetryModeLocation
-      }
-      if let telemetryModeEnvironment = intent.telemetryModeEnvironment {
-        device.telemetryModeEnv = telemetryModeEnvironment
-      }
-      if let advertisementLocationPolicy = intent.advertisementLocationPolicy {
-        device.advertLocationPolicy = advertisementLocationPolicy
-      }
-      if let multiAcks = intent.multiAcks {
-        device.multiAcks = multiAcks
-      }
-    }
-  }
-
-  func updateDeviceClientRepeat(radioID: UUID, enabled: Bool) throws {
-    try updateExistingDevice(radioID: radioID) { $0.clientRepeat = enabled }
-  }
-
-  func updateDevicePathHashMode(radioID: UUID, mode: UInt8) throws {
-    try updateExistingDevice(radioID: radioID) { $0.pathHashMode = mode }
-  }
-
-  func updateDeviceAutoAdd(radioID: UUID, config: UInt8, maxHops: UInt8) throws {
-    try updateExistingDevice(radioID: radioID) {
-      $0.autoAddConfig = config
-      $0.autoAddMaxHops = maxHops
-    }
-  }
-
-  func updateDeviceDefaultFloodScopeName(radioID: UUID, name: String?) throws {
-    try updateExistingDevice(radioID: radioID) { $0.defaultFloodScopeName = name }
-  }
-
-  private func updateExistingDevice(radioID: UUID, _ body: (Device) -> Void) throws {
-    let targetRadioID = radioID
-    let predicate = #Predicate<Device> { device in
-      device.radioID == targetRadioID
-    }
-    var descriptor = FetchDescriptor(predicate: predicate)
-    descriptor.fetchLimit = 1
-    guard let device = try modelContext.fetch(descriptor).first else {
-      throw PersistenceStoreError.deviceNotFound
-    }
-    body(device)
     try modelContext.save()
   }
 
@@ -397,29 +299,51 @@ public extension PersistenceStore {
   ///   - newPublicKey: The radio's `selfInfo.publicKey` after `importPrivateKey`.
   /// - Returns: The new `radioID` if reconciliation occurred, otherwise `nil`.
   func reconcileGhostIdentity(currentDeviceID: UUID, newPublicKey: Data) throws -> UUID? {
+    guard let current = try identityDevice(id: currentDeviceID) else { return nil }
+    try commitPendingRxLogEntries()
+    guard let radioID = try stageGhostIdentity(current: current, newPublicKey: newPublicKey) else { return nil }
+    try saveIdentityChanges()
+    return radioID
+  }
+
+  /// Saves an authenticated identity observation and its canonical partition in one actor turn.
+  func importConnectionIdentity(
+    deviceID: UUID, expectedRadioID: UUID, expectedPublicKey: Data, selfInfo: SelfInfo?
+  ) throws -> DeviceDTO? {
+    guard let current = try identityDevice(id: deviceID),
+          current.radioID == expectedRadioID, current.publicKey == expectedPublicKey,
+          !current.connectionMethods.isEmpty else { return nil }
+    guard let selfInfo else { return DeviceDTO(from: current) }
+    try commitPendingRxLogEntries()
+    do {
+      current.apply(DeviceDTO(from: current).updating(from: selfInfo))
+      _ = try stageGhostIdentity(current: current, newPublicKey: selfInfo.publicKey)
+      try saveIdentityChanges()
+      return DeviceDTO(from: current)
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+  }
+
+  private func identityDevice(id: UUID) throws -> Device? {
+    let lookupID = id
+    let predicate = #Predicate<Device> { $0.id == lookupID }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    return try modelContext.fetch(descriptor).first
+  }
+
+  private func stageGhostIdentity(current: Device, newPublicKey: Data) throws -> UUID? {
     let lookupKey = newPublicKey
-    let lookupID = currentDeviceID
+    let lookupID = current.id
     let ghostPredicate = #Predicate<Device> { device in
       device.publicKey == lookupKey && device.id != lookupID && device.isActive == false
     }
     var ghostDescriptor = FetchDescriptor(predicate: ghostPredicate)
     ghostDescriptor.fetchLimit = 1
-    guard let ghost = try modelContext.fetch(ghostDescriptor).first else { return nil }
-
-    // Defensive: refuse to delete a row that still carries a Bluetooth method.
-    // It's a real saved-but-inactive device (per `setActiveDevice` semantics),
-    // not a ghost. Returning nil here is safe — no reconciliation, no data loss.
-    if ghost.connectionMethods.contains(where: \.isBluetooth) {
-      return nil
-    }
-
-    let currentPredicate = #Predicate<Device> { device in
-      device.id == lookupID
-    }
-    var currentDescriptor = FetchDescriptor(predicate: currentPredicate)
-    currentDescriptor.fetchLimit = 1
-    guard let current = try modelContext.fetch(currentDescriptor).first else { return nil }
-
+    guard let ghost = try modelContext.fetch(ghostDescriptor).first,
+          !ghost.connectionMethods.contains(where: \.isBluetooth) else { return nil }
     let newRadioID = ghost.radioID
     current.radioID = newRadioID
     current.publicKey = newPublicKey
@@ -429,10 +353,20 @@ public extension PersistenceStore {
        let wifi = ConnectionMethod.canonicalized(ghost.connectionMethods).first(where: \.isWiFi) {
       current.connectionMethods.insert(wifi, at: 0)
     }
-
     modelContext.delete(ghost)
-    try modelContext.save()
     return newRadioID
+  }
+
+  private func saveIdentityChanges() throws {
+    do {
+      #if DEBUG
+        try identityReconciliationFaultInjection?()
+      #endif
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
   }
 
   /// Stages deletion of all device-scoped data without calling save().
@@ -586,6 +520,10 @@ public extension PersistenceStore {
   }
 
   #if DEBUG
+    func setIdentityReconciliationFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      identityReconciliationFaultInjection = hook
+    }
+
     func setFetchDeviceByIDFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
       fetchDeviceByIDFaultInjection = hook
     }

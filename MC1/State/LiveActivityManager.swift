@@ -22,6 +22,7 @@ final class LiveActivityManager {
   var connectedRadioIDProvider: (@MainActor () -> UUID?)?
 
   private var currentActivity: Activity<MeshStatusAttributes>?
+  private var lifecycleGeneration = UUID()
   private var decayTimer: Task<Void, Never>?
   private var disconnectTimer: Task<Void, Never>?
   private var enablementTask: Task<Void, Never>?
@@ -97,8 +98,12 @@ final class LiveActivityManager {
   func handleConnectionReady(
     device: DeviceDTO,
     ocvArray: [Int],
-    unreadCount: Int
+    unreadCount: Int,
+    isCurrent: @escaping @MainActor () -> Bool
   ) async {
+    guard isCurrent() else { return }
+    let generation = UUID()
+    lifecycleGeneration = generation
     self.ocvArray = ocvArray
 
     // If reconnecting to same device within grace period, restore connected state
@@ -116,6 +121,7 @@ final class LiveActivityManager {
         unreadCount: unreadCount,
         disconnectedDate: .some(nil)
       )
+      guard lifecycleGeneration == generation, isCurrent() else { return }
       startDecayTimer()
       startObservingActivityState()
       return
@@ -123,20 +129,26 @@ final class LiveActivityManager {
 
     // If reconnecting to a different device, end the old activity first
     if currentActivity != nil {
-      await endActivity()
+      let activities = detachActivities()
+      await endActivities(activities)
+      guard lifecycleGeneration == generation, isCurrent() else { return }
     }
 
     await startActivity(
       deviceName: device.nodeName,
       radioID: device.radioID,
-      unreadCount: unreadCount
+      unreadCount: unreadCount,
+      generation: generation,
+      isCurrent: isCurrent
     )
+    guard lifecycleGeneration == generation, isCurrent() else { return }
     startDecayTimer()
   }
 
-  func handleConnectionLost() async {
-    guard currentActivity != nil else { return }
-
+  func handleConnectionLost(isCurrent: @escaping @MainActor () -> Bool) async {
+    guard isCurrent(), let activity = currentActivity else { return }
+    let generation = UUID()
+    lifecycleGeneration = generation
     stopDecayTimer()
     recentPacketTimestamps = []
     clearPendingUpdate()
@@ -148,11 +160,13 @@ final class LiveActivityManager {
       disconnectedDate: .some(.now)
     )
 
+    guard lifecycleGeneration == generation, currentActivity?.id == activity.id, isCurrent() else { return }
     disconnectTimer?.cancel()
     disconnectTimer = Task { [weak self] in
       try? await Task.sleep(for: .seconds(Self.disconnectGracePeriod))
-      guard !Task.isCancelled else { return }
-      await self?.endActivity()
+      guard !Task.isCancelled, let self,
+            lifecycleGeneration == generation, currentActivity?.id == activity.id, isCurrent() else { return }
+      await endActivity()
     }
   }
 
@@ -177,13 +191,17 @@ final class LiveActivityManager {
   }
 
   func handleBatteryChanged(battery: BatteryInfo) async {
+    let generation = lifecycleGeneration
     let percent = battery.percentage(using: ocvArray)
     await scheduleUpdate(battery: .some(percent))
+    guard lifecycleGeneration == generation else { return }
     await flushPendingUpdate()
   }
 
   func handleUnreadCountChanged(unreadCount: Int) async {
+    let generation = lifecycleGeneration
     await scheduleUpdate(unreadCount: unreadCount)
+    guard lifecycleGeneration == generation else { return }
     await flushPendingUpdate()
   }
 
@@ -197,6 +215,7 @@ final class LiveActivityManager {
   // MARK: - App relaunch recovery
 
   func recoverExistingActivity() async {
+    let generation = lifecycleGeneration
     let allActivities = Activity<MeshStatusAttributes>.activities
 
     // Clean up ended/dismissed activities still visible per their dismissal policy.
@@ -215,6 +234,7 @@ final class LiveActivityManager {
       await orphan.end(nil, dismissalPolicy: .immediate)
     }
 
+    guard lifecycleGeneration == generation else { return }
     currentActivity = activeOrStale.first
     guard let activity = currentActivity else { return }
 
@@ -226,7 +246,7 @@ final class LiveActivityManager {
     // branch will restore connected state once auto-reconnect lands.
     if activity.content.state.isConnected {
       logger.info("Recovered Live Activity in cached connected state — forcing re-validation as disconnected")
-      await handleConnectionLost()
+      await handleConnectionLost { [weak self] in self?.currentActivity?.id == activity.id }
       return
     }
 
@@ -243,8 +263,9 @@ final class LiveActivityManager {
     if remaining > 0 {
       disconnectTimer = Task { [weak self] in
         try? await Task.sleep(for: .seconds(remaining))
-        guard !Task.isCancelled else { return }
-        await self?.endActivity()
+        guard !Task.isCancelled, let self,
+              lifecycleGeneration == generation, currentActivity?.id == activity.id else { return }
+        await endActivity()
       }
     } else {
       await endActivity()
@@ -291,8 +312,11 @@ final class LiveActivityManager {
   private func startActivity(
     deviceName: String,
     radioID: UUID?,
-    unreadCount: Int
+    unreadCount: Int,
+    generation: UUID,
+    isCurrent: @escaping @MainActor () -> Bool
   ) async {
+    guard lifecycleGeneration == generation, isCurrent() else { return }
     guard ActivityAuthorizationInfo().areActivitiesEnabled else {
       logger.warning("Cannot start Live Activity: not authorized")
       return
@@ -314,6 +338,7 @@ final class LiveActivityManager {
       await activity.end(nil, dismissalPolicy: .immediate)
     }
 
+    guard lifecycleGeneration == generation, isCurrent() else { return }
     guard !Activity<MeshStatusAttributes>.activities.contains(where: {
       $0.activityState == .active || $0.activityState == .stale
     }) else {
@@ -353,7 +378,8 @@ final class LiveActivityManager {
     guard let activity = currentActivity else { return }
     stateObservationTask = Task { [weak self] in
       for await state in activity.activityStateUpdates {
-        guard let self else { break }
+        guard let self, !Task.isCancelled, currentActivity?.id == activity.id else { break }
+        let generation = lifecycleGeneration
         switch state {
         case .ended:
           let lastState = activity.content.state
@@ -373,10 +399,19 @@ final class LiveActivityManager {
 
           // Don't resurrect a "connected" LA from cached state —
           // only restart when the radio is actually connected.
+          guard lifecycleGeneration == generation, currentActivity == nil else { return }
           let isCurrentlyConnected = connectionStateProvider?() ?? false
-          if isCurrentlyConnected {
+          if isCurrentlyConnected, connectedRadioIDProvider?() == radioID {
             logger.info("System ended Live Activity, restarting (radio still connected)")
-            await startActivity(deviceName: deviceName, radioID: radioID, unreadCount: lastState.unreadCount)
+            await startActivity(
+              deviceName: deviceName,
+              radioID: radioID,
+              unreadCount: lastState.unreadCount,
+              generation: generation,
+              isCurrent: { [weak self] in
+                self?.connectedRadioIDProvider?() == radioID && (self?.connectionStateProvider?() ?? false)
+              }
+            )
             startDecayTimer()
           } else {
             logger.info("System ended Live Activity, not restarting (radio disconnected)")
@@ -397,7 +432,9 @@ final class LiveActivityManager {
             // disconnected (we missed a notification somewhere).
             // Force the disconnect path instead of refreshing.
             logger.warning("Stale Live Activity cached connected but radio disconnected — forcing handleConnectionLost")
-            await handleConnectionLost()
+            await handleConnectionLost { [weak self] in
+              self?.currentActivity?.id == activity.id && !(self?.connectionStateProvider?() ?? false)
+            }
           } else if !currentState.isConnected,
                     let activityRadioID = activity.attributes.radioID,
                     let connectedRadioID = connectedRadioIDProvider?(),
@@ -412,6 +449,7 @@ final class LiveActivityManager {
             recentPacketTimestamps = []
             clearPendingUpdate()
             await updateActivity(isConnected: true, disconnectedDate: .some(nil))
+            guard lifecycleGeneration == generation, currentActivity?.id == activity.id else { return }
             startDecayTimer()
           } else if currentState.isConnected, currentState.packetsPerMinute > 0 {
             logger.debug("Live Activity stale with active rate, resetting to 0")
@@ -502,7 +540,8 @@ final class LiveActivityManager {
     unreadCount: Int? = nil,
     disconnectedDate: Date?? = nil
   ) async {
-    guard let current = currentActivity?.content.state else { return }
+    guard let activity = currentActivity else { return }
+    let current = activity.content.state
     let state = MeshStatusAttributes.ContentState(
       isConnected: isConnected ?? current.isConnected,
       batteryPercent: battery ?? current.batteryPercent,
@@ -516,13 +555,14 @@ final class LiveActivityManager {
       Calendar.current.date(byAdding: .minute, value: 5, to: .now)
     }
     let content = ActivityContent(state: state, staleDate: staleDate)
-    await currentActivity?.update(content)
+    await activity.update(content)
   }
 
   /// Checks whether the current activity reference is still valid.
   /// If the activity was ended while suspended (and `activityStateUpdates` didn't fire), this catches it.
   func validateActivityState() async {
     guard let activity = currentActivity else { return }
+    let generation = lifecycleGeneration
     switch activity.activityState {
     case .ended:
       let lastState = activity.content.state
@@ -535,10 +575,19 @@ final class LiveActivityManager {
       clearActivityReference()
       await activity.end(nil, dismissalPolicy: .immediate)
 
+      guard lifecycleGeneration == generation, currentActivity == nil else { return }
       let isCurrentlyConnected = connectionStateProvider?() ?? false
-      if isCurrentlyConnected {
+      if isCurrentlyConnected, connectedRadioIDProvider?() == radioID {
         logger.info("Detected ended Live Activity on foreground, restarting (radio still connected)")
-        await startActivity(deviceName: deviceName, radioID: radioID, unreadCount: lastState.unreadCount)
+        await startActivity(
+          deviceName: deviceName,
+          radioID: radioID,
+          unreadCount: lastState.unreadCount,
+          generation: generation,
+          isCurrent: { [weak self] in
+            self?.connectedRadioIDProvider?() == radioID && (self?.connectionStateProvider?() ?? false)
+          }
+        )
         startDecayTimer()
       } else {
         logger.info("Detected ended Live Activity on foreground, not restarting (radio disconnected)")
@@ -555,17 +604,21 @@ final class LiveActivityManager {
   }
 
   func endActivity() async {
-    stopDecayTimer()
-    stateObservationTask?.cancel()
-    stateObservationTask = nil
-    disconnectTimer?.cancel()
-    disconnectTimer = nil
-    clearPendingUpdate()
-    recentPacketTimestamps = []
-    for activity in Activity<MeshStatusAttributes>.activities {
+    lifecycleGeneration = UUID()
+    let activities = detachActivities()
+    await endActivities(activities)
+  }
+
+  private func detachActivities() -> [Activity<MeshStatusAttributes>] {
+    let activities = Activity<MeshStatusAttributes>.activities
+    clearActivityReference()
+    return activities
+  }
+
+  private func endActivities(_ activities: [Activity<MeshStatusAttributes>]) async {
+    for activity in activities {
       await activity.end(nil, dismissalPolicy: .immediate)
     }
-    currentActivity = nil
     logger.info("Ended Live Activity")
   }
 }

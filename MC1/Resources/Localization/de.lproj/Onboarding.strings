@@ -69,6 +69,9 @@
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
 "deviceScan.subtitle" = "Schalte dein Funkgerät ein, trenne es von allen anderen Apps und Geräten und tippe dann auf \"Gerät hinzufügen\".";
 
+/* Location: DeviceScanView.swift - Subtitle while bond-loss recovery is re-pairing */
+"deviceScan.rePairingSubtitle" = "Schalte dein Funkgerät ein und trenne es von allen anderen Apps und Geräten.";
+
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Dein Gerät ist bereits gekoppelt";
 

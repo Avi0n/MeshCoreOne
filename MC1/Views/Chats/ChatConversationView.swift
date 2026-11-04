@@ -383,7 +383,7 @@ struct ChatConversationView: View {
     }
 
     chatViewModel.configure(
-      dependencies: appState.makeChatViewModelDependencies(),
+      dependencies: appState.makeChatViewModelDependencies(radioID: conversationType.radioID),
       onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) },
       linkPreviewCache: linkPreviewCache,
       chatCoordinatorRegistry: appState.ensureChatCoordinatorRegistry(),

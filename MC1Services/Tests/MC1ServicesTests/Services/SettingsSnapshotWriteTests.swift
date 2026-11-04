@@ -168,17 +168,17 @@ struct SettingsSnapshotWriteTests {
   }
 
   @Test
+  @MainActor
   func `a field update does not replace the contact watermark or identity`() async throws {
-    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let (manager, _) = try ConnectionManager.createForTesting()
+    let store = manager.persistenceStore
     let device = DeviceDTO.testDevice(nodeName: "Old", txPower: 20, lastContactSync: 42)
     try await store.saveDevice(device)
+    manager.updateDevice(with: device)
 
-    try await store.updateDeviceNodeName(radioID: device.radioID, name: "New")
-    try await store.updateDeviceTxPower(radioID: device.radioID, txPower: 9)
-    try await store.updateDeviceOtherParams(
-      radioID: device.radioID,
-      intent: OtherParamsIntent(multiAcks: 5)
-    )
+    await manager.applyNodeName("New")
+    await manager.applyTxPower(9)
+    await manager.applyOtherParams(OtherParamsIntent(multiAcks: 5))
 
     let loaded = try #require(await store.fetchDevice(radioID: device.radioID))
     #expect(loaded.nodeName == "New")
@@ -189,9 +189,9 @@ struct SettingsSnapshotWriteTests {
     #expect(loaded.publicKey == device.publicKey)
     #expect(loaded.isActive == device.isActive)
 
-    await #expect(throws: PersistenceStoreError.self) {
-      try await store.updateDeviceNodeName(radioID: UUID(), name: "Missing")
-    }
+    try await store.deleteDevice(id: device.id)
+    await manager.applyNodeName("Missing")
+    #expect(try await store.fetchDevice(id: device.id) == nil)
   }
 
   @Test
@@ -525,6 +525,10 @@ private actor SnapshotConfigurationSession: ConfigurationSessionOps {
 
   func runCliCommand(_ command: String) async throws -> String {
     "OK"
+  }
+
+  func runCorrelatedCliCommand(_ command: String) async throws -> String {
+    try await runCliCommand(command)
   }
 
   func setCustomVar(key: String, value: String) async throws {}

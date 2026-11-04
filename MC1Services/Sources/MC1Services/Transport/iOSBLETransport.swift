@@ -11,7 +11,6 @@ import os
 /// - **State restoration**: Background app relaunch via CoreBluetooth restoration
 /// - **Auto-reconnect**: iOS 17+ automatic reconnection handling
 /// - **Proper cleanup**: Continuation and resource management on all transitions
-/// - **Device switching**: Switch between devices without full disconnect/reconnect
 ///
 /// ## Usage
 ///
@@ -22,14 +21,14 @@ import os
 /// await transport.setDeviceID(deviceUUID)
 /// try await transport.connect()
 ///
-/// // Switch to a different device
-/// try await transport.switchDevice(to: otherDeviceUUID)
 /// ```
 actor iOSBLETransport: MeshTransport {
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "iOSBLETransport")
 
   private let stateMachine: BLEStateMachine
   private var deviceID: UUID?
+  private var sessionBinding: SessionTransportBinding?
+  private var physicalCloseTask: (id: UUID, task: Task<Void, Never>)?
 
   /// Lock-protected data stream storage.
   /// Using a lock allows synchronous access from BLEStateMachine callbacks without spawning Tasks.
@@ -44,6 +43,32 @@ actor iOSBLETransport: MeshTransport {
     self.stateMachine = stateMachine ?? BLEStateMachine()
   }
 
+  func makeSessionTransport(deviceID: UUID, binding: SessionTransportBinding) async -> SessionBoundTransport {
+    if let physicalCloseTask { await physicalCloseTask.task.value }
+    do {
+      try binding.performIfActive {
+        if sessionBinding !== binding { sessionBinding?.revoke() }
+        self.deviceID = deviceID
+        sessionBinding = binding
+      }
+      await stateMachine.setSessionBinding(binding)
+    } catch {
+      return SessionBoundTransport(transport: self, binding: binding)
+    }
+    return SessionBoundTransport(transport: self, binding: binding)
+  }
+
+  var lifecycleOrigin: BLELifecycleOrigin? {
+    get async { await stateMachine.lifecycleOrigin }
+  }
+
+  func setLifecycleHandler(_ handler: @escaping @Sendable (BLELifecycleEvent) -> Void) async {
+    await stateMachine.setLifecycleEventHandler { [dataStreamLock] event, stream in
+      if let stream { dataStreamLock.withLock { $0 = stream } }
+      handler(event)
+    }
+  }
+
   // MARK: - Configuration
 
   /// Sets the device UUID to connect to.
@@ -51,30 +76,6 @@ actor iOSBLETransport: MeshTransport {
   /// - Parameter id: The UUID of the BLE device.
   func setDeviceID(_ id: UUID) {
     deviceID = id
-  }
-
-  /// Sets a handler for disconnection events.
-  ///
-  /// - Parameter handler: Called when the device disconnects, with the device ID and optional error.
-  func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) async {
-    await stateMachine.setDisconnectionHandler(handler)
-  }
-
-  /// Sets a handler for reconnection events.
-  ///
-  /// When iOS auto-reconnect completes, the transport captures the data stream
-  /// and then calls your handler. The `receivedData` property will be ready
-  /// when your handler is called.
-  ///
-  /// - Parameter handler: Called when iOS auto-reconnect completes successfully.
-  func setReconnectionHandler(_ handler: @escaping @Sendable (UUID) -> Void) async {
-    await stateMachine.setReconnectionHandler { [dataStreamLock, logger] deviceID, stream in
-      // Capture the stream synchronously using lock (no Task spawning).
-      // This ensures the stream is available before any handler code runs.
-      logger.info("[BLE] Auto-reconnect stream captured for device: \(deviceID.uuidString.prefix(8))")
-      dataStreamLock.withLock { $0 = stream }
-      handler(deviceID)
-    }
   }
 
   // MARK: - MeshTransport Protocol
@@ -91,17 +92,22 @@ actor iOSBLETransport: MeshTransport {
     dataStreamLock.withLock { $0 } ?? AsyncStream { $0.finish() }
   }
 
-  /// Connects to the configured device.
-  ///
-  /// This method is idempotent: if already connected to the same device,
-  /// it returns without error. Use ``switchDevice(to:)`` to change devices.
-  ///
-  /// - Throws: `BLEError.deviceNotFound` if no device ID is set.
-  /// - Throws: `BLEError.connectionFailed` if connected to a different device.
-  /// - Throws: `BLEError` for connection failures.
+  /// Connects to the configured radio; repeated connects to the same Device ID are no-ops.
+  /// Connecting to a different Device ID requires disconnecting first.
   func connect() async throws {
+    try await performConnect(sessionBinding: nil)
+  }
+
+  func connect(sessionBinding: SessionTransportBinding) async throws {
+    guard self.sessionBinding === sessionBinding else { throw CancellationError() }
+    try await performConnect(sessionBinding: sessionBinding)
+  }
+
+  private func performConnect(sessionBinding: SessionTransportBinding?) async throws {
+    try sessionBinding?.checkActive()
+    let configuredDeviceID = deviceID
     let connectedID = await stateMachine.connectedDeviceID
-    let effectiveDeviceID = deviceID ?? connectedID
+    let effectiveDeviceID = configuredDeviceID ?? connectedID
 
     guard let deviceID = effectiveDeviceID else {
       logger.warning("[BLE] connect() called with no device ID set")
@@ -110,34 +116,74 @@ actor iOSBLETransport: MeshTransport {
 
     // Already connected - check if it's the same device
     if await stateMachine.isConnected {
+      try sessionBinding?.checkActive()
       if connectedID == deviceID {
         logger.info("Already connected to device: \(deviceID)")
         return
       } else {
-        throw BLEError.connectionFailed("Already connected to different device: \(connectedID?.uuidString ?? "unknown"). Use switchDevice() instead.")
+        throw BLEError.connectionFailed("Already connected to different device: \(connectedID?.uuidString ?? "unknown"). Disconnect before connecting to a different device.")
       }
     }
 
     logger.info("Connecting to device: \(deviceID)")
-    let stream = try await stateMachine.connect(to: deviceID)
+    let stream = try await stateMachine.connect(to: deviceID, sessionBinding: sessionBinding)
+    try sessionBinding?.checkActive()
     logger.info("[BLE] Stream captured for device: \(deviceID.uuidString.prefix(8))")
     dataStreamLock.withLock { $0 = stream }
   }
 
   /// Disconnects from the current device.
   func disconnect() async {
-    logger.info("Disconnecting")
-    await stateMachine.disconnect()
-    dataStreamLock.withLock { $0 = nil }
+    await closePhysicalTransport()
   }
 
-  /// Replaces the stored data stream with a fresh one from the state machine.
-  ///
-  /// Call before constructing a session over an existing link whose previous
-  /// session was stopped: the stop cancelled the old stream's shared storage,
-  /// and this slot is otherwise rewritten only on connect, switchDevice, and
-  /// auto-reconnect completion. A declined renewal (not connected) leaves the
-  /// slot untouched and is logged so a failing rebuild is attributable.
+  func disconnect(sessionBinding: SessionTransportBinding) async {
+    guard self.sessionBinding === sessionBinding else { return }
+    await closePhysicalTransport()
+  }
+
+  func cancelPendingEstablishment(sessionBinding: SessionTransportBinding) async {
+    guard self.sessionBinding === sessionBinding else { return }
+    await stateMachine.cancelPendingEstablishment(sessionBinding: sessionBinding)
+  }
+
+  func cancelUnsubmittedWrites(sessionBinding: SessionTransportBinding) async {
+    await stateMachine.cancelUnsubmittedWrites(sessionBinding: sessionBinding)
+  }
+
+  private func closePhysicalTransport() async {
+    if let physicalCloseTask {
+      await physicalCloseTask.task.value
+      return
+    }
+    let id = UUID()
+    let owner = sessionBinding
+    owner?.revoke()
+    let worker = Task {
+      if let owner {
+        await stateMachine.disconnect(sessionBinding: owner)
+      } else {
+        await stateMachine.disconnect()
+      }
+    }
+    physicalCloseTask = (id, worker)
+    await worker.value
+    guard physicalCloseTask?.id == id else { return }
+    if sessionBinding === owner {
+      dataStreamLock.withLock { $0 = nil }
+    }
+    physicalCloseTask = nil
+  }
+
+  func receivedData(sessionBinding: SessionTransportBinding) -> AsyncStream<Data> {
+    guard self.sessionBinding === sessionBinding, sessionBinding.isActive else {
+      return AsyncStream { $0.finish() }
+    }
+    return receivedData
+  }
+
+  /// Renews the receive stream before reusing a connected link for a new session.
+  /// Stopping the previous session cancelled the old stream's shared storage.
   func refreshDataStream() async {
     guard let stream = await stateMachine.renewDataStream() else {
       let phaseName = await stateMachine.currentPhase.name
@@ -148,6 +194,13 @@ actor iOSBLETransport: MeshTransport {
     dataStreamLock.withLock { $0 = stream }
   }
 
+  func refreshDataStream(sessionBinding: SessionTransportBinding) async {
+    guard self.sessionBinding === sessionBinding, sessionBinding.isActive,
+          let stream = await stateMachine.renewDataStream(sessionBinding: sessionBinding),
+          self.sessionBinding === sessionBinding, sessionBinding.isActive else { return }
+    dataStreamLock.withLock { $0 = stream }
+  }
+
   /// Sends data to the connected device.
   ///
   /// - Parameter data: The data to send.
@@ -155,6 +208,11 @@ actor iOSBLETransport: MeshTransport {
   /// - Throws: `BLEError.writeError` if the write fails.
   func send(_ data: Data) async throws {
     try await stateMachine.send(data)
+  }
+
+  func send(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
+    guard self.sessionBinding === sessionBinding else { throw CancellationError() }
+    try await stateMachine.send(data, sessionBinding: sessionBinding)
   }
 
   /// Whether the connected radio's write characteristic advertises Write-Without-Response.
@@ -170,24 +228,15 @@ actor iOSBLETransport: MeshTransport {
     try await stateMachine.sendWithoutResponse(data)
   }
 
+  func sendWithoutResponse(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
+    guard self.sessionBinding === sessionBinding else { throw CancellationError() }
+    try await stateMachine.sendWithoutResponse(data, sessionBinding: sessionBinding)
+  }
+
   // MARK: - Extended API
 
   /// UUID of the currently connected device, or nil if not connected.
   var connectedDeviceID: UUID? {
     get async { await stateMachine.connectedDeviceID }
-  }
-
-  /// Switches to a different device.
-  ///
-  /// Disconnects from the current device (if any) and connects to the new one.
-  /// More efficient than separate disconnect/connect calls.
-  ///
-  /// - Parameter deviceID: UUID of the new device to connect to.
-  /// - Throws: `BLEError` if connection fails.
-  func switchDevice(to deviceID: UUID) async throws {
-    logger.info("Switching to device: \(deviceID)")
-    self.deviceID = deviceID
-    let stream = try await stateMachine.switchDevice(to: deviceID)
-    dataStreamLock.withLock { $0 = stream }
   }
 }

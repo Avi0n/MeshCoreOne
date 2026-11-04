@@ -104,6 +104,10 @@ targets:
     platform: iOS
     sources:
       - path: MC1Tests
+      - path: MC1Services/Tests/MC1ServicesTests/Helpers/ConnectionTestRadioTransport.swift
+      - path: MC1Services/Tests/MC1ServicesTests/Mocks/MockBLEStateMachine.swift
+      - path: MC1Services/Tests/MC1ServicesTests/Mocks/MockConfigurationSession.swift
+      - path: MC1Services/Tests/MC1ServicesTests/Helpers/RadioWiFiFirmware.swift
     dependencies:
       - target: MC1
     settings:

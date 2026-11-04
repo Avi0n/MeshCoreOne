@@ -6,7 +6,7 @@ import Foundation
 /// channel row into the DM queue or vice versa.
 public extension PendingSendDTO {
   func directMessageEnvelope() -> DirectMessageEnvelope? {
-    guard kind == .dm, let contactID else { return nil }
+    guard kind == .dm, ackDeadline == nil, let contactID else { return nil }
     return DirectMessageEnvelope(messageID: messageID, contactID: contactID, isResend: isResend)
   }
 
@@ -37,7 +37,10 @@ public extension PendingSendDTO {
     id: UUID = UUID(),
     envelope: DirectMessageEnvelope,
     radioID: UUID,
-    enqueuedAt: Date = Date()
+    enqueuedAt: Date = Date(),
+    ackCodes: [Data]? = nil,
+    ackSentAt: Date? = nil,
+    ackDeadline: Date? = nil
   ) {
     // DM rows persist `isResend` so a process restart between enqueue
     // and drain routes the row to the same send method it would have
@@ -60,7 +63,10 @@ public extension PendingSendDTO {
       messageTimestamp: 0,
       localNodeName: nil,
       sequence: 0,
-      enqueuedAt: enqueuedAt
+      enqueuedAt: enqueuedAt,
+      ackCodes: ackCodes,
+      ackSentAt: ackSentAt,
+      ackDeadline: ackDeadline
     )
   }
 

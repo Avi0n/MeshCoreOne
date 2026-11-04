@@ -333,11 +333,15 @@ struct ChatTimelineFreshnessTests {
 
   @Test
   func `a still-alive interactive owner cannot starve the arrival refresh after close`() async throws {
-    let appState = AppState()
-    appState.connectionManager.testLastConnectedDeviceID = UUID()
+    let suiteName = "test.timeline-source.\(UUID())"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    let appState = AppState(defaults: defaults)
+    defer { appState.shutdown() }
+    let radioID = UUID()
+    appState.connectionManager.persistConnection(deviceID: UUID(), radioID: radioID, deviceName: "Fixture")
     let store = try #require(appState.offlineDataStore)
 
-    let radioID = UUID()
     let contact = makeContact(radioID: radioID)
     try await store.saveContact(contact)
     try await store.saveMessage(makeDirectMessage(radioID: radioID, contactID: contact.id, timestamp: 1000, text: "old"))
@@ -355,7 +359,7 @@ struct ChatTimelineFreshnessTests {
     // A live open: the interactive view model binds the writer and populates.
     let viewModel = ChatViewModel()
     viewModel.configure(
-      dependencies: appState.makeChatViewModelDependencies(),
+      dependencies: appState.makeChatViewModelDependencies(radioID: contact.radioID),
       onNavigateToMap: nil,
       linkPreviewCache: nil,
       chatCoordinatorRegistry: registry,

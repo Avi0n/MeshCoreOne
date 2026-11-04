@@ -44,6 +44,15 @@ public protocol MessagingSessionOps: Actor {
     timestamp: Date,
     floodScope: ResolvedFloodScope
   ) async throws
+
+  /// Verifies the slot secret and sends under the same command-response serialization.
+  func sendVerifiedChannelMessage(
+    channel: UInt8,
+    text: String,
+    timestamp: Date,
+    floodScope: ResolvedFloodScope?,
+    expectedSecret: Data
+  ) async throws
 }
 
 // MARK: - Default Implementations

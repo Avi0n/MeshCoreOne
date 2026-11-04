@@ -56,7 +56,7 @@ enum SettingsSubpage: Hashable {
 private enum SettingsSubpageContext {
   case standard
   case radio(PresetLocationSession)
-  case advanced(RegionDiscoveryState, SettingsEditorPresentation.RegionRequest)
+  case advanced(RegionDiscoveryState, SettingsEditorPresentation.RegionRequest, NodeConfigImportViewModel)
   case connection(RadioWiFiViewModel)
 }
 
@@ -71,9 +71,10 @@ extension View {
 
   func settingsSubpageDestinations(
     regions discovery: RegionDiscoveryState,
-    requestRegionAdd: @escaping SettingsEditorPresentation.RegionRequest
+    requestRegionAdd: @escaping SettingsEditorPresentation.RegionRequest,
+    configImport: NodeConfigImportViewModel
   ) -> some View {
-    modifier(SettingsSubpageRegistration(context: .advanced(discovery, requestRegionAdd)))
+    modifier(SettingsSubpageRegistration(context: .advanced(discovery, requestRegionAdd, configImport)))
   }
 
   func settingsSubpageDestinations(radioWiFi: RadioWiFiViewModel) -> some View {
@@ -103,7 +104,10 @@ private struct SettingsSubpageDestination: View {
     case .configExport:
       NodeConfigExportView()
     case .configImport:
-      NodeConfigImportView()
+      if case let .advanced(_, _, configImport) = context {
+        NodeConfigImportView(viewModel: configImport)
+          .onAppear { configImport.beginImport() }
+      }
     case .blockedChannelSenders:
       BlockedChannelSendersView()
     case .blockedContacts:
@@ -124,7 +128,7 @@ private struct SettingsSubpageDestination: View {
           .environment(session)
       }
     case .manageRegions:
-      if case let .advanced(discovery, requestRegionAdd) = context {
+      if case let .advanced(discovery, requestRegionAdd, _) = context {
         ManageRegionsPage(discovery: discovery, requestRegionAdd: requestRegionAdd)
       }
     case .bluetoothLink:

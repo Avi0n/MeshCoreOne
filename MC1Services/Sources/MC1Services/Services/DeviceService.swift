@@ -58,22 +58,15 @@ public actor DeviceService {
   ) async throws {
     logger.info("Updating OCV settings for device \(deviceID): preset=\(preset)")
 
-    // Fetch current device
-    guard var device = try await dataStore.fetchDevice(id: deviceID) else {
-      logger.error("Device not found: \(deviceID)")
-      throw DeviceServiceError.deviceNotFound
-    }
-
-    // Update OCV fields
-    device = device.copy {
-      $0.ocvPreset = preset
-      $0.customOCVArrayString = customArray
-    }
-
-    // Save to persistence
+    let device: DeviceDTO
     do {
-      try await dataStore.saveDevice(device)
+      guard let updated = try await dataStore.updateDeviceOCVSettings(
+        id: deviceID, preset: preset, customArray: customArray
+      ) else { throw DeviceServiceError.deviceNotFound }
+      device = updated
       logger.info("OCV settings saved successfully")
+    } catch let error as DeviceServiceError {
+      throw error
     } catch {
       logger.error("Failed to save OCV settings: \(error.localizedDescription)")
       throw DeviceServiceError.persistenceFailed(error.localizedDescription)

@@ -165,6 +165,9 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Scan for Bluetooth Device";
 
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "Re-pairing...";
+
 /* Trailing control on a previously paired row that still needs iPhone setup */
 "deviceSelection.setup" = "Set Up";
 
@@ -1038,6 +1041,9 @@
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "A password can be up to 63 bytes.";
 
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "The network name or password contains a character this radio can't store.";
+
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Clear WiFi Settings";
 
@@ -1217,11 +1223,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "Disconnect";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "Stop Reconnecting";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "Cancel Connection";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "Disconnected";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "Connecting...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "Reconnecting…";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "Waiting to Reconnect";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Connected";
@@ -1234,6 +1252,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Bluetooth connection status";
+
+/* Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "Double tap to connect device";
@@ -1337,6 +1358,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ Some settings may have already been written to the device. Review the device's configuration.";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "The connection was interrupted while importing the identity on %@. The radio may have changed identity. The configuration import was not completed.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "Retry Identity Import";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "This will replace the identity of the radio reached at %@ using the private key in the selected file. The configuration import will not continue.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "Replace Radio Identity?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "The identity was reapplied. The configuration import was not completed. Import the file again to apply its other settings.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "Select a configuration file containing the private key to retry identity import.";
 
 /* Import success */
 "configImport.importSuccess" = "Configuration imported successfully";

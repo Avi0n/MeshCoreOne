@@ -16,16 +16,17 @@ struct ConnectionManagerAuthFailureRoutingTests {
   func `connection loss with authenticationFailed fires the callback once per episode`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
+    env.manager.setTestState(connectionIntent: .wantsConnection())
     let deviceID = UUID()
     var surfaced: [UUID] = []
     env.manager.onAuthenticationFailure = { surfaced.append($0) }
 
-    await env.manager.handleConnectionLoss(deviceID: deviceID, error: BLEError.authenticationFailed)
+    await env.manager.acceptSeededBLELoss(deviceID: deviceID, error: BLEError.authenticationFailed)
     #expect(surfaced == [deviceID])
 
     // Watchdog retries keep failing the same way while the bond stays invalid;
     // the latch must keep those repeats from re-presenting the recovery alert.
-    await env.manager.handleConnectionLoss(deviceID: deviceID, error: BLEError.authenticationFailed)
+    await env.manager.acceptSeededBLELoss(deviceID: deviceID, error: BLEError.authenticationFailed)
     #expect(surfaced == [deviceID])
   }
 
@@ -33,10 +34,11 @@ struct ConnectionManagerAuthFailureRoutingTests {
   func `connection loss with a non-auth error does not fire the callback`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
+    env.manager.setTestState(connectionIntent: .wantsConnection())
     var surfaced: [UUID] = []
     env.manager.onAuthenticationFailure = { surfaced.append($0) }
 
-    await env.manager.handleConnectionLoss(
+    await env.manager.acceptSeededBLELoss(
       deviceID: UUID(),
       error: BLEError.connectionFailed("link supervision timeout")
     )
@@ -48,10 +50,11 @@ struct ConnectionManagerAuthFailureRoutingTests {
   func `connection loss with no error does not fire the callback`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
+    env.manager.setTestState(connectionIntent: .wantsConnection())
     var surfaced: [UUID] = []
     env.manager.onAuthenticationFailure = { surfaced.append($0) }
 
-    await env.manager.handleConnectionLoss(deviceID: UUID(), error: nil)
+    await env.manager.acceptSeededBLELoss(deviceID: UUID(), error: nil)
 
     #expect(surfaced.isEmpty)
   }
@@ -60,13 +63,15 @@ struct ConnectionManagerAuthFailureRoutingTests {
   func `explicit disconnect clears the latch so a new failure episode re-alerts`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
+    env.manager.setTestState(connectionIntent: .wantsConnection())
     let deviceID = UUID()
     var surfaced: [UUID] = []
     env.manager.onAuthenticationFailure = { surfaced.append($0) }
 
-    await env.manager.handleConnectionLoss(deviceID: deviceID, error: BLEError.authenticationFailed)
+    await env.manager.acceptSeededBLELoss(deviceID: deviceID, error: BLEError.authenticationFailed)
     await env.manager.disconnect(reason: .userInitiated)
-    await env.manager.handleConnectionLoss(deviceID: deviceID, error: BLEError.authenticationFailed)
+    env.manager.setTestState(connectionIntent: .wantsConnection())
+    await env.manager.acceptSeededBLELoss(deviceID: deviceID, error: BLEError.authenticationFailed)
 
     #expect(surfaced == [deviceID, deviceID])
   }
@@ -75,11 +80,12 @@ struct ConnectionManagerAuthFailureRoutingTests {
   func `ready promotion clears the latch so a new failure episode re-alerts`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
+    env.manager.setTestState(connectionIntent: .wantsConnection())
     let deviceID = UUID()
     var surfaced: [UUID] = []
     env.manager.onAuthenticationFailure = { surfaced.append($0) }
 
-    await env.manager.handleConnectionLoss(deviceID: deviceID, error: BLEError.authenticationFailed)
+    await env.manager.acceptSeededBLELoss(deviceID: deviceID, error: BLEError.authenticationFailed)
     #expect(surfaced == [deviceID])
 
     // A successful re-pair reconnects and promotes to .ready; install the
@@ -90,17 +96,16 @@ struct ConnectionManagerAuthFailureRoutingTests {
       connectionState: .connected,
       services: services,
       session: session,
-      connectedDevice: DeviceDTO.testDevice(),
+      connectedDevice: DeviceDTO.testDevice(id: deviceID),
       connectionIntent: .wantsConnection()
     )
-    let promoted = await env.manager.promoteToReady(
-      syncResult: FullSyncResult(contacts: .clean, channels: .clean, messages: .clean),
-      expectedServices: services,
-      transportType: .bluetooth
+    let link = try #require(env.manager.installedLink)
+    let promoted = await env.manager.completeSync(
+      link, syncResult: FullSyncResult(contacts: .clean, channels: .clean, messages: .clean)
     )
     #expect(promoted)
 
-    await env.manager.handleConnectionLoss(deviceID: deviceID, error: BLEError.authenticationFailed)
+    await env.manager.acceptSeededBLELoss(deviceID: deviceID, error: BLEError.authenticationFailed)
     #expect(surfaced == [deviceID, deviceID])
   }
 
@@ -108,17 +113,18 @@ struct ConnectionManagerAuthFailureRoutingTests {
   func `clearing the surfaced-auth latch lets the same device re-alert`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
+    env.manager.setTestState(connectionIntent: .wantsConnection())
     let deviceID = UUID()
     var surfaced: [UUID] = []
     env.manager.onAuthenticationFailure = { surfaced.append($0) }
 
-    await env.manager.handleConnectionLoss(deviceID: deviceID, error: BLEError.authenticationFailed)
+    await env.manager.acceptSeededBLELoss(deviceID: deviceID, error: BLEError.authenticationFailed)
     #expect(surfaced == [deviceID])
 
     // The foreground path clears the latch so a still-invalid bond re-surfaces
     // fresh from the foreground reconnect attempt.
     env.manager.clearSurfacedAuthenticationFailure()
-    await env.manager.handleConnectionLoss(deviceID: deviceID, error: BLEError.authenticationFailed)
+    await env.manager.acceptSeededBLELoss(deviceID: deviceID, error: BLEError.authenticationFailed)
     #expect(surfaced == [deviceID, deviceID])
   }
 
@@ -128,35 +134,65 @@ struct ConnectionManagerAuthFailureRoutingTests {
   func `opportunistic reconnect surfaces authenticationFailed thrown by connect`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
+    env.manager.setTestState(connectionIntent: .wantsConnection())
     let deviceID = UUID()
+    env.manager.testLastConnectedDeviceID = deviceID
     var surfaced: [UUID] = []
     env.manager.onAuthenticationFailure = { surfaced.append($0) }
 
-    // No system pairing registry (the macOS shape), so connect(to:) reaches the
-    // transport instead of failing the registry check; the transport then fails
-    // auth the way a radio with an invalidated bond does. This also proves
-    // connect(to:) rethrows the raw BLEError.authenticationFailed the pattern
-    // match in attemptOpportunisticReconnect requires.
+    // An eligible saved target reaches the transport before session startup.
     env.accessorySetupKit.isSessionActive = false
     await env.transport.setConnectError(BLEError.authenticationFailed)
 
     await env.manager.attemptOpportunisticReconnect(deviceID: deviceID, reason: "test")
 
+    let dialedIDs = await env.transport.connectInvocations.map(\.deviceID)
+    #expect(dialedIDs == [deviceID])
+    #expect(env.manager.desiredRequest?.target == .bluetooth(deviceID))
+    #expect(env.manager.connectionState == .disconnected)
+    #expect(env.manager.session == nil)
     #expect(surfaced == [deviceID])
+    _ = await env.manager.disconnect(reason: .userInitiated)
   }
 
   @Test
   func `opportunistic reconnect stays silent for non-auth connect failures`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
+    env.manager.setTestState(connectionIntent: .wantsConnection())
+    let deviceID = UUID()
+    env.manager.testLastConnectedDeviceID = deviceID
     var surfaced: [UUID] = []
     env.manager.onAuthenticationFailure = { surfaced.append($0) }
 
-    // Default mock registry has no paired accessories, so connect(to:) throws
-    // ConnectionError.deviceNotFound - a failure that must not trigger the
-    // pairing-failure recovery alert.
+    env.accessorySetupKit.isSessionActive = false
+    await env.transport.setConnectError(BLEError.bluetoothUnavailable)
+    await env.manager.attemptOpportunisticReconnect(deviceID: deviceID, reason: "test")
+
+    let dialedIDs = await env.transport.connectInvocations.map(\.deviceID)
+    #expect(dialedIDs == [deviceID])
+    #expect(env.manager.connectionState == .disconnected)
+    #expect(env.manager.session == nil)
+    #expect(surfaced.isEmpty)
+    _ = await env.manager.disconnect(reason: .userInitiated)
+  }
+
+  @Test
+  func `opportunistic reconnect without an authoritative target does not dial or surface auth`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    env.manager.setTestState(connectionIntent: .wantsConnection())
+    var surfaced: [UUID] = []
+    env.manager.onAuthenticationFailure = { surfaced.append($0) }
+    env.accessorySetupKit.isSessionActive = false
+    await env.transport.setConnectError(BLEError.authenticationFailed)
+
+    #expect(env.manager.connectionRequestID == nil)
+    #expect(env.manager.lastConnectedDeviceID == nil)
     await env.manager.attemptOpportunisticReconnect(deviceID: UUID(), reason: "test")
 
+    #expect(await env.transport.connectInvocations.isEmpty)
+    #expect(env.manager.connectionRequestID == nil)
     #expect(surfaced.isEmpty)
   }
 
@@ -166,14 +202,13 @@ struct ConnectionManagerAuthFailureRoutingTests {
   func `launch auto-reconnect throwing authenticationFailed surfaces recovery without the watchdog`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
+    env.manager.setTestState(connectionIntent: .wantsConnection())
     let deviceID = UUID()
     var surfaced: [UUID] = []
     env.manager.onAuthenticationFailure = { surfaced.append($0) }
 
-    // Model a launch-time auto-reconnect to the last radio whose bond was
-    // invalidated: no system pairing registry (the macOS shape) so connect(to:)
-    // reaches the transport, which fails auth. The failure arrives as a thrown
-    // error on the setup path, never firing onDisconnection.
+    // Without a system pairing registry, launch-time recovery reaches a transport
+    // that throws authentication failure before it can emit a lifecycle event.
     env.manager.testLastConnectedDeviceID = deviceID
     env.accessorySetupKit.isSessionActive = false
     await env.transport.setConnectError(BLEError.authenticationFailed)

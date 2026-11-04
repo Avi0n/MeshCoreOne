@@ -69,6 +69,9 @@
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
 "deviceScan.subtitle" = "Włącz radio, odłącz je od wszystkich innych aplikacji i urządzeń, a następnie dotknij Dodaj urządzenie.";
 
+/* Location: DeviceScanView.swift - Subtitle while bond-loss recovery is re-pairing */
+"deviceScan.rePairingSubtitle" = "Włącz radio i odłącz je od wszystkich innych aplikacji i urządzeń.";
+
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Twoje urządzenie jest już sparowane";
 
