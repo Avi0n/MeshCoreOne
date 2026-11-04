@@ -55,6 +55,7 @@ struct BLEStatusIndicatorView: View {
   @ViewBuilder
   private var menuContent: some View {
     if let activity = appState.connectionManager.connectionActivity {
+      let isConnected = appState.connectionState.isConnected
       Section(activity.accessibilityValue) {
         if let device = appState.connectedDevice {
           if device.clientRepeat {
@@ -73,7 +74,11 @@ struct BLEStatusIndicatorView: View {
           }
         }
 
-        Button {
+        if isConnected {
+          changeDeviceButton
+        }
+
+        Button(role: isConnected ? .destructive : nil) {
           logger.info("Disconnect tapped in BLE status menu")
           Task {
             await appState.disconnect(requestID: activity.requestID, reason: .statusMenuDisconnectTap)
@@ -81,11 +86,10 @@ struct BLEStatusIndicatorView: View {
         } label: {
           Label(activity.stopTitle, systemImage: "eject")
         }
+        .tint(isConnected ? Color(.systemRed) : nil)
 
-        Button {
-          showingDeviceSelection = true
-        } label: {
-          Label(L10n.Settings.BleStatus.changeDevice, systemImage: "flipphone")
+        if !isConnected {
+          changeDeviceButton
         }
       }
 
@@ -122,6 +126,14 @@ struct BLEStatusIndicatorView: View {
       } label: {
         Label(L10n.Settings.Device.connect, systemImage: "antenna.radiowaves.left.and.right")
       }
+    }
+  }
+
+  private var changeDeviceButton: some View {
+    Button {
+      showingDeviceSelection = true
+    } label: {
+      Label(L10n.Settings.BleStatus.changeDevice, systemImage: "flipphone")
     }
   }
 
