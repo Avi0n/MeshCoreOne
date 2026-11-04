@@ -24,6 +24,30 @@ public protocol HeardRepeatPersisting: Actor {
   /// Increment heard repeats count and return new count
   func incrementMessageHeardRepeats(id: UUID) async throws -> Int
 
+  /// Current canonical, dedup, and insert in one turn.
+  /// A nil path adopts the observation; empty path bytes are a 0-hop, and a distinct path is an extra arrival.
+  func admitIncomingPath(
+    messageID: UUID,
+    pathNodes: Data,
+    pathLength: UInt8,
+    snr: Double?,
+    rssi: Int?,
+    receivedAt: Date,
+    rxLogEntryID: UUID?
+  ) async throws -> IncomingPathAdmission
+
+  /// Records a sent-channel echo even when the hop list matches another echo.
+  /// The same RX entry is recorded once. Returns nil when that entry already exists.
+  func admitSentEcho(
+    messageID: UUID,
+    receivedAt: Date,
+    pathNodes: Data,
+    pathLength: UInt8,
+    snr: Double?,
+    rssi: Int?,
+    rxLogEntryID: UUID?
+  ) async throws -> Int?
+
   /// Writes path columns only when they are still nil. Fetch by id; `#Predicate` cannot match `Data`.
   /// Leaves snr and heardRepeats unchanged.
   func adoptIncomingPathIfUnknown(

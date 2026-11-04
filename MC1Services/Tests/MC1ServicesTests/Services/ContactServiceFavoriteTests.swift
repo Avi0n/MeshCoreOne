@@ -1,3 +1,4 @@
+import Foundation
 @testable import MC1Services
 import MeshCore
 import Testing
@@ -5,7 +6,8 @@ import Testing
 @Suite("ContactService favorite verification")
 struct ContactServiceFavoriteTests {
   private func makeService(
-    isFavorite: Bool = false
+    isFavorite: Bool = false,
+    coordinator: SyncCoordinator? = nil
   ) async throws -> (ContactService, MockPersistenceStore, MockMeshCoreSession, ContactDTO) {
     let session = MockMeshCoreSession()
     let store = MockPersistenceStore()
@@ -18,10 +20,39 @@ struct ContactServiceFavoriteTests {
     let service = ContactService(
       session: session,
       dataStore: store,
-      syncCoordinator: nil,
+      syncCoordinator: coordinator,
       cleanupCoordinator: nil
     )
     return (service, store, session, contact)
+  }
+
+  /// Subscribes before `body`, then finishes the stream so a missing event ends the read.
+  /// Each value is the stored favourite at the moment that invalidation is consumed.
+  private func storedFavoritesOnContactChange(
+    coordinator: SyncCoordinator,
+    store: MockPersistenceStore,
+    contactID: UUID,
+    during body: () async throws -> Void
+  ) async throws -> [Bool] {
+    let stream = coordinator.dataEvents()
+    let task = Task {
+      var favorites: [Bool] = []
+      for await event in stream {
+        guard case .contactsChanged = event else { continue }
+        let stored = await store.contacts[contactID]?.isFavorite ?? false
+        favorites.append(stored)
+      }
+      return favorites
+    }
+    do {
+      try await body()
+    } catch {
+      coordinator.finishDataEvents()
+      _ = await task.value
+      throw error
+    }
+    coordinator.finishDataEvents()
+    return await task.value
   }
 
   private func radioContact(_ contact: ContactDTO, isFavorite: Bool) -> MeshContact {
@@ -40,7 +71,7 @@ struct ContactServiceFavoriteTests {
 
     let updated = try await service.setContactFavorite(contact.id, isFavorite: requestedFavorite)
 
-    #expect(await session.getContactPublicKeys == [contact.publicKey])
+    #expect(await session.getContactPublicKeys == [contact.publicKey, contact.publicKey])
     #expect(await session.changeContactFlagsCalls.count == 1)
     #expect(await session.changeContactFlagsCalls.first?.flags == confirmed.flags)
     let saved = try #require(await store.contacts[contact.id])
@@ -82,5 +113,134 @@ struct ContactServiceFavoriteTests {
     #expect(await session.getContactPublicKeys == [contact.publicKey])
     #expect(await store.contacts[contact.id]?.isFavorite == false)
     #expect(await store.contacts[contact.id]?.flags == contact.flags)
+  }
+
+  @Test(arguments: [true, false])
+  func `committed favorite publishes one contact invalidation`(requestedFavorite: Bool) async throws {
+    let coordinator = SyncCoordinator()
+    let (service, store, session, contact) = try await makeService(
+      isFavorite: !requestedFavorite,
+      coordinator: coordinator
+    )
+    await session.setStubbedContact(radioContact(contact, isFavorite: requestedFavorite), for: contact.publicKey)
+
+    let observed = try await storedFavoritesOnContactChange(
+      coordinator: coordinator,
+      store: store,
+      contactID: contact.id
+    ) {
+      _ = try await service.setContactFavorite(contact.id, isFavorite: requestedFavorite)
+    }
+
+    #expect(observed == [requestedFavorite])
+  }
+
+  @Test
+  func `radio failure publishes no contact invalidation`() async throws {
+    let coordinator = SyncCoordinator()
+    let (service, store, session, contact) = try await makeService(coordinator: coordinator)
+    await session.setStubbedContact(radioContact(contact, isFavorite: false), for: contact.publicKey)
+    await session.setChangeContactFlagsHold { throw MeshCoreError.timeout }
+
+    let observed = try await storedFavoritesOnContactChange(
+      coordinator: coordinator,
+      store: store,
+      contactID: contact.id
+    ) {
+      await #expect {
+        try await service.setContactFavorite(contact.id, isFavorite: true)
+      } throws: { error in
+        guard case ContactServiceError.sessionError = error else { return false }
+        return true
+      }
+    }
+
+    #expect(observed.isEmpty)
+    #expect(await store.contacts[contact.id]?.isFavorite == false)
+  }
+
+  @Test
+  func `mismatched and missing readback publish no contact invalidation`() async throws {
+    let mismatched = SyncCoordinator()
+    let (mismatchService, mismatchStore, mismatchSession, mismatchContact) = try await makeService(
+      coordinator: mismatched
+    )
+    await mismatchSession.setStubbedContact(radioContact(mismatchContact, isFavorite: false), for: mismatchContact.publicKey)
+    let mismatchedEvents = try await storedFavoritesOnContactChange(
+      coordinator: mismatched,
+      store: mismatchStore,
+      contactID: mismatchContact.id
+    ) {
+      await #expect {
+        try await mismatchService.setContactFavorite(mismatchContact.id, isFavorite: true)
+      } throws: { error in
+        guard case ContactServiceError.invalidResponse = error else { return false }
+        return true
+      }
+    }
+    #expect(mismatchedEvents.isEmpty)
+    #expect(await mismatchStore.contacts[mismatchContact.id]?.isFavorite == false)
+
+    let missing = SyncCoordinator()
+    let (missingService, missingStore, _, missingContact) = try await makeService(coordinator: missing)
+    let missingEvents = try await storedFavoritesOnContactChange(
+      coordinator: missing,
+      store: missingStore,
+      contactID: missingContact.id
+    ) {
+      await #expect {
+        try await missingService.setContactFavorite(missingContact.id, isFavorite: true)
+      } throws: { error in
+        guard case ContactServiceError.contactNotFound = error else { return false }
+        return true
+      }
+    }
+    #expect(missingEvents.isEmpty)
+    #expect(await missingStore.contacts[missingContact.id]?.isFavorite == false)
+  }
+
+  @Test
+  func `save failure publishes no contact invalidation`() async throws {
+    let coordinator = SyncCoordinator()
+    let (service, store, session, contact) = try await makeService(coordinator: coordinator)
+    await session.setStubbedContact(radioContact(contact, isFavorite: true), for: contact.publicKey)
+    await store.setStubbedSaveContactError(PersistenceStoreError.contactNotFound)
+
+    let observed = try await storedFavoritesOnContactChange(
+      coordinator: coordinator,
+      store: store,
+      contactID: contact.id
+    ) {
+      await #expect {
+        try await service.setContactFavorite(contact.id, isFavorite: true)
+      } throws: { error in
+        guard case ContactServiceError.contactNotFound = error else { return false }
+        return true
+      }
+    }
+
+    #expect(observed.isEmpty)
+    #expect(await store.contacts[contact.id]?.isFavorite == false)
+  }
+
+  @Test
+  func `committed favorite publishes without a second contact fetch`() async throws {
+    let coordinator = SyncCoordinator()
+    let (service, store, session, contact) = try await makeService(coordinator: coordinator)
+    await session.setStubbedContact(radioContact(contact, isFavorite: true), for: contact.publicKey)
+    // The pre-write read is call 1. A later fetch is not part of the commit.
+    await store.failFetchContactID(onCall: 2)
+
+    let observed = try await storedFavoritesOnContactChange(
+      coordinator: coordinator,
+      store: store,
+      contactID: contact.id
+    ) {
+      let updated = try await service.setContactFavorite(contact.id, isFavorite: true)
+      #expect(updated.isFavorite)
+    }
+
+    #expect(observed == [true])
+    #expect(await store.contacts[contact.id]?.isFavorite == true)
   }
 }

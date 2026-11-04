@@ -132,7 +132,7 @@ actor MessagePollingService {
     if isAutoFetchEnabled {
       await stopAutoFetch()
     } else {
-      stopEventMonitoring()
+      await stopEventMonitoring()
       currentRadioID = nil
     }
   }
@@ -167,7 +167,7 @@ actor MessagePollingService {
     await session.stopAutoMessageFetching()
 
     // Stop event monitoring
-    stopEventMonitoring()
+    await stopEventMonitoring()
 
     logger.info("Auto-fetch stopped")
   }
@@ -268,9 +268,11 @@ actor MessagePollingService {
   }
 
   /// Stop monitoring events
-  private func stopEventMonitoring() {
-    eventMonitorTask?.cancel()
+  private func stopEventMonitoring() async {
+    let eventMonitorTaskToStop = eventMonitorTask
     eventMonitorTask = nil
+    eventMonitorTaskToStop?.cancel()
+    await eventMonitorTaskToStop?.value
   }
 
   /// Handle incoming MeshCore event

@@ -972,6 +972,7 @@ struct ContactServiceTests {
     try await dataStore.saveContact(contact)
 
     let session = MockMeshCoreSession()
+    await session.setStubbedContact(contact.toContactFrame().toMeshContact(), for: testPublicKey)
     let service = ContactService(
       session: session,
       dataStore: dataStore,
@@ -1014,6 +1015,7 @@ struct ContactServiceTests {
     try await dataStore.saveContact(contact)
 
     let session = MockMeshCoreSession()
+    await session.setStubbedContact(contact.toContactFrame().toMeshContact(), for: testPublicKey)
     await session.failNextAddContact(MeshCoreError.timeout)
     let service = ContactService(
       session: session,

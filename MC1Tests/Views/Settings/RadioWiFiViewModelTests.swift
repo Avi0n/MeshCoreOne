@@ -1,6 +1,7 @@
 import Foundation
 @testable import MC1
 @testable import MC1Services
+import SwiftUI
 import Testing
 
 @Suite("Radio WiFi view model")
@@ -71,6 +72,180 @@ struct RadioWiFiViewModelTests {
 
     let calls = await harness.mock.runCliCommandCalls
     #expect(calls.count == before)
+  }
+
+  @Test
+  func `a failed first password read keeps Save disabled`() async {
+    let harness = await Harness.make()
+    await harness.mock.setCLIReplyQueue(["> 1", "> stored", "> connected", "> 10.0.0.8"])
+    await harness.viewModel.noteSessionReadiness()
+    harness.viewModel.openEditor()
+    await harness.mock.setCLIReplyQueue(["> stored"])
+    await harness.mock.failCLICommand(after: 1, MeshCoreError.timeout)
+
+    await harness.viewModel.loadEditor()
+    harness.viewModel.ssidField = "replacement"
+    let before = await harness.mock.runCliCommandCalls.count
+
+    #expect(harness.viewModel.errorMessage != nil)
+    #expect(harness.viewModel.canSave == false)
+    await harness.viewModel.requestSave()
+
+    #expect(await harness.mock.runCliCommandCalls.count == before)
+    #expect(harness.viewModel.editorOpen)
+  }
+
+  @Test(arguments: CredentialReadFailure.allCases)
+  private func `unknown password knowledge requires a fresh editor Retry`(_ failure: CredentialReadFailure) async {
+    let harness = await Harness.make()
+    await harness.mock.setCLIReplyQueue(["> 1", "> stored", "> connected", "> 10.0.0.8"])
+    await harness.viewModel.noteSessionReadiness()
+    harness.viewModel.openEditor()
+    await failure.prime(harness.mock)
+
+    await harness.viewModel.loadEditor()
+    harness.viewModel.ssidField = "draft"
+    let before = await harness.mock.runCliCommandCalls.count
+    #expect(!harness.viewModel.canSave)
+    #expect(harness.viewModel.needsEditorRead)
+    await harness.viewModel.requestSave()
+    #expect(await harness.mock.runCliCommandCalls.count == before)
+
+    await harness.mock.setCLIReplyQueue(["> stored", "> recovered-key"])
+    await harness.viewModel.loadEditor()
+
+    #expect(harness.viewModel.canSave)
+    #expect(harness.viewModel.ssidField == "draft")
+    #expect(!harness.viewModel.needsEditorRead)
+    #expect(harness.viewModel.errorMessage == nil)
+    await harness.viewModel.closeEditor()
+    #expect(harness.viewModel.passwordField.isEmpty)
+    #expect(harness.viewModel.ssidField.isEmpty)
+  }
+
+  @Test
+  func `Retry refreshes an untouched password after a foreign mutation`() async throws {
+    let harness = await Harness.make()
+    await harness.mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    await harness.viewModel.noteSessionReadiness()
+    harness.viewModel.openEditor()
+    await harness.viewModel.loadEditor()
+    harness.viewModel.ssidField = "draft"
+    let settings = try #require(harness.settings)
+    _ = try await settings.runCliCommand("set wifi.pwd terminal-key")
+    #expect(!harness.viewModel.canSave)
+
+    await harness.viewModel.loadEditor()
+    let passwordRefreshed = harness.viewModel.passwordField == "terminal-key"
+    #expect(passwordRefreshed)
+    let before = await harness.mock.runCliCommandCalls.count
+    await harness.viewModel.requestSave()
+
+    #expect(await Array(harness.mock.runCliCommandCalls.dropFirst(before)) == ["set wifi.ssid draft"])
+    await harness.mock.bootWiFiFirmware()
+    #expect(await harness.mock.wiFiBootUses(ssid: "draft", password: "terminal-key"))
+    #expect(harness.viewModel.passwordField.isEmpty)
+  }
+
+  @Test
+  func `repeated raw mutations invalidate an open editor after each fresh Retry`() async throws {
+    let harness = await Harness.make()
+    await harness.mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    await harness.viewModel.noteSessionReadiness()
+    harness.viewModel.openEditor()
+    await harness.viewModel.loadEditor()
+    harness.viewModel.ssidField = "draft"
+    let settings = try #require(harness.settings)
+
+    for value in ["first-key", "second-key"] {
+      _ = try await settings.runCliCommand("set wifi.pwd \(value)")
+      await harness.viewModel.noteSessionReadiness()
+      #expect(harness.viewModel.needsEditorRead)
+      #expect(!harness.viewModel.canSave)
+      await harness.viewModel.loadEditor()
+      #expect(!harness.viewModel.needsEditorRead)
+      #expect(harness.viewModel.canSave)
+      #expect(harness.viewModel.ssidField == "draft")
+      let passwordRefreshed = harness.viewModel.passwordField == value
+      #expect(passwordRefreshed)
+    }
+    await harness.viewModel.closeEditor()
+  }
+
+  @Test
+  func `same-service unreadiness freezes the draft and replacement erases it`() async {
+    let harness = await Harness.make()
+    await harness.loadNetwork(ssid: "stored", password: "stored-key")
+    harness.viewModel.openEditor()
+    harness.viewModel.ssidField = "draft"
+    harness.connectionState = .syncing
+    await harness.viewModel.noteSessionReadiness()
+
+    #expect(!harness.viewModel.canSave)
+    #expect(harness.viewModel.editorOpen)
+    #expect(harness.viewModel.ssidField == "draft")
+    #expect(!harness.viewModel.statusConnected)
+
+    harness.connectionState = .ready
+    await harness.viewModel.noteSessionReadiness()
+    #expect(harness.viewModel.canSave)
+    let replacement = MockConfigurationSession()
+    await replacement.setCLIReply("Unknown command")
+    harness.settings = SettingsService(session: replacement, radioWiFiState: RadioWiFiState(radioID: harness.device.radioID))
+    await harness.viewModel.noteSessionReadiness()
+
+    #expect(!harness.viewModel.editorOpen)
+    #expect(harness.viewModel.passwordField.isEmpty)
+    #expect(harness.viewModel.ssidField.isEmpty)
+    #expect(!harness.viewModel.canSave)
+  }
+
+  @Test
+  func `a WiFi warning cannot submit credentials after a raw mutation`() async throws {
+    let harness = await Harness.make()
+    harness.transport.value = .wifi
+    await harness.loadNetwork(ssid: "stored", password: "stored-key")
+    harness.viewModel.openEditor()
+    harness.viewModel.ssidField = "draft"
+    await harness.viewModel.requestSave()
+    #expect(harness.viewModel.showingWiFiWarning)
+    let settings = try #require(harness.settings)
+    _ = try await settings.runCliCommand("set wifi.enabled 0")
+    let before = await harness.mock.runCliCommandCalls.count
+
+    await harness.viewModel.confirmFromAlert(.wifiWarning).value
+
+    #expect(await harness.mock.runCliCommandCalls.count == before)
+    #expect(!harness.viewModel.showingWiFiWarning)
+    #expect(!harness.viewModel.canSave)
+    #expect(harness.viewModel.needsEditorRead)
+    #expect(harness.viewModel.editorOpen)
+  }
+
+  @Test
+  func `an uncertain enable write reads back before restoring commands`() async {
+    let harness = await Harness.make()
+    await harness.mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    await harness.viewModel.noteSessionReadiness()
+    await harness.mock.failWiFiCommand("set wifi.enabled 0", with: .timeoutAfterApply)
+    let before = await harness.mock.runCliCommandCalls.count
+
+    await harness.viewModel.setWiFiEnabled(false)
+
+    let readback = await harness.mock.runCliCommandCalls.dropFirst(before)
+    #expect(Array(readback) == [
+      "set wifi.enabled 0", "get wifi.enabled", "get wifi.ssid", "get wifi.status", "get wifi.ip"
+    ])
+    #expect(harness.viewModel.canRunCommands)
+    #expect(!harness.viewModel.wifiEnabled)
+    #expect(harness.viewModel.errorMessage == nil)
+    #expect(harness.viewModel.rebootPending)
+    await harness.viewModel.refresh()
+    #expect(harness.viewModel.canRunCommands)
+    #expect(!harness.viewModel.wifiEnabled)
+    #expect(harness.viewModel.statusConnected)
+    #expect(harness.viewModel.rebootPending)
+    #expect(harness.viewModel.errorMessage == nil)
   }
 
   @Test
@@ -206,7 +381,7 @@ struct RadioWiFiViewModelTests {
     #expect(harness.viewModel.linkWarningTitle == L10n.Settings.RadioWiFi.Alert.Save.title)
     #expect(harness.viewModel.linkWarningConfirmTitle == L10n.Localizable.Common.save)
 
-    await harness.viewModel.continuePastWiFiWarning()
+    await harness.viewModel.confirmFromAlert(.wifiWarning).value
     calls = await harness.mock.runCliCommandCalls
     #expect(Array(calls.dropFirst(before)) == ["set wifi.ssid other"])
   }
@@ -241,22 +416,22 @@ struct RadioWiFiViewModelTests {
 
     harness.viewModel.requestReboot()
     harness.viewModel.cancelReboot()
-    #expect(harness.rebootCount == 0)
+    #expect(await harness.mock.rebootCallCount == 0)
     #expect(harness.viewModel.showingRebootConfirm == false)
 
     harness.viewModel.requestReboot()
-    await harness.viewModel.confirmReboot()
-    #expect(harness.rebootCount == 1)
+    await harness.viewModel.confirmFromAlert(.reboot).value
+    #expect(await harness.mock.rebootCallCount == 1)
   }
 
   @Test
   func `a load that finishes after services change applies nothing`() async {
     let mock = MockConfigurationSession()
     await mock.setCLIReplyQueue(["> 1", "> myssid", "> connected", "> 10.0.0.8"])
-    let first = SettingsService(session: mock)
-    let replacement = SettingsService(session: mock)
-    let viewModel = RadioWiFiViewModel()
     let device = Harness.radio()
+    let first = SettingsService(session: mock, radioWiFiState: RadioWiFiState(radioID: device.radioID))
+    let replacement = SettingsService(session: mock, radioWiFiState: RadioWiFiState(radioID: device.radioID))
+    let viewModel = RadioWiFiViewModel()
     var current: SettingsService? = first
     viewModel.configure(
       settingsService: {
@@ -266,15 +441,14 @@ struct RadioWiFiViewModelTests {
       },
       connectionState: { .ready },
       connectedDevice: { device },
-      currentTransportType: { .bluetooth },
-      reboot: {}
+      currentTransportType: { .bluetooth }
     )
 
     await viewModel.load()
 
     #expect(viewModel.showsSection == false)
     #expect(viewModel.networkName == nil)
-    #expect(await mock.runCliCommandCalls == ["get wifi.enabled"])
+    #expect(await mock.runCliCommandCalls.isEmpty)
   }
 
   @Test
@@ -300,7 +474,7 @@ struct RadioWiFiViewModelTests {
       "> (not connected)"
     ])
     await harness.viewModel.noteSessionReadiness()
-    await harness.mock.setCLIReply(">  pw ")
+    await harness.mock.setCLIReplyQueue(["> (not connected)", ">  pw "])
     await harness.viewModel.loadEditor()
 
     #expect(harness.viewModel.networkName == "(not connected)")
@@ -342,7 +516,7 @@ struct RadioWiFiViewModelTests {
 
     await harness.viewModel.requestSave()
     harness.viewModel.ssidField = "B"
-    await harness.viewModel.continuePastWiFiWarning()
+    await harness.viewModel.confirmFromAlert(.wifiWarning).value
 
     let calls = await harness.mock.runCliCommandCalls
     #expect(Array(calls.dropFirst(before)) == ["set wifi.ssid A"])
@@ -364,7 +538,7 @@ struct RadioWiFiViewModelTests {
     await harness.viewModel.requestSave()
     await harness.viewModel.load()
     await harness.viewModel.setWiFiEnabled(false)
-    await harness.viewModel.confirmClear()
+    await harness.viewModel.confirmFromAlert(.clear).value
     await harness.mock.releaseHeldCLIReply()
     await task.value
 
@@ -376,8 +550,8 @@ struct RadioWiFiViewModelTests {
   func `the editor is busy until the password read returns`() async throws {
     let harness = await Harness.make()
     await harness.loadNetwork(ssid: "old", password: "old")
-    await harness.mock.holdNextCLIReply()
-    await harness.mock.setCLIReply("> pw")
+    await harness.mock.holdCLIReply(after: 1)
+    await harness.mock.setCLIReplyQueue(["> old", "> pw"])
     let task = Task { await harness.viewModel.loadEditor() }
     try await waitUntil("password read held") {
       await harness.mock.heldCLICommand == "get wifi.pwd"
@@ -398,7 +572,7 @@ struct RadioWiFiViewModelTests {
     await harness.loadNetwork(ssid: "old", password: "")
     harness.viewModel.ssidField = "new"
     harness.viewModel.passwordField = "P"
-    harness.viewModel.editorOpen = true
+    harness.viewModel.openEditor()
     await harness.mock.setCLIReplyQueue(["OK", "Error: bad"])
     let before = await harness.mock.runCliCommandCalls.count
 
@@ -487,7 +661,7 @@ struct RadioWiFiViewModelTests {
 
     await harness.viewModel.setWiFiEnabled(false)
     #expect(harness.viewModel.showingWiFiWarning)
-    await harness.viewModel.continuePastWiFiWarning()
+    await harness.viewModel.confirmFromAlert(.wifiWarning).value
 
     #expect(harness.viewModel.wifiEnabled == false)
     #expect(harness.viewModel.networkName == "Field Net")
@@ -516,6 +690,8 @@ struct RadioWiFiViewModelTests {
     let harness = await Harness.make()
     await harness.mock.setCLIReplyQueue(["> 1", "> myssid", "> connected", "> 10.0.0.8"])
     await harness.viewModel.noteSessionReadiness()
+    await harness.mock.setCLIReplyQueue(["> myssid", "> original-key"])
+    await harness.viewModel.loadEditor()
     harness.viewModel.ssidField = "myssid"
     harness.viewModel.passwordField = "pw"
     await harness.mock.setCLIReply("OK")
@@ -561,7 +737,7 @@ struct RadioWiFiViewModelTests {
     #expect(harness.viewModel.rebootPending == false)
 
     let nextMock = MockConfigurationSession()
-    let next = SettingsService(session: nextMock)
+    let next = SettingsService(session: nextMock, radioWiFiState: RadioWiFiState(radioID: harness.device.radioID))
     await nextMock.setCLIReply("OK")
     try await next.setRadioCLIValue("wifi.enabled", to: "0")
     await nextMock.setCLIReplyQueue(["> 0", "> cafe", "> (not connected)", "> 192.168.0.4"])
@@ -598,6 +774,8 @@ struct RadioWiFiViewModelTests {
     #expect(harness.viewModel.wifiEnabled)
     #expect(harness.viewModel.networkName == "myssid")
     #expect(harness.viewModel.statusConnected)
+    #expect(harness.viewModel.networkValue == "myssid")
+    #expect(harness.viewModel.statusValue == L10n.Settings.RadioWiFi.Status.connected)
     #expect(harness.viewModel.ipAddress == "10.0.0.8")
   }
 
@@ -606,7 +784,7 @@ struct RadioWiFiViewModelTests {
     let harness = await Harness.make()
     await harness.mock.setCLIReplyQueue(["> 1", "> myssid", "> connected", "> 10.0.0.8"])
     await harness.viewModel.noteSessionReadiness()
-    harness.viewModel.editorOpen = true
+    harness.viewModel.openEditor()
     let before = await harness.mock.runCliCommandCalls.count
     await harness.mock.setCLIReplyQueue(["> 1", "> cafe", "> connected", "> 10.0.0.5"])
 
@@ -616,7 +794,7 @@ struct RadioWiFiViewModelTests {
     #expect(harness.viewModel.networkName == "myssid")
     #expect(harness.viewModel.ipAddress == "10.0.0.8")
 
-    harness.viewModel.editorOpen = false
+    await harness.viewModel.closeEditor()
     try await waitUntil("editor close reloads wifi") {
       harness.viewModel.networkName == "cafe"
     }
@@ -670,7 +848,7 @@ struct RadioWiFiViewModelTests {
     await harness.viewModel.noteSessionReadiness()
 
     let laterMock = MockConfigurationSession()
-    let later = SettingsService(session: laterMock)
+    let later = SettingsService(session: laterMock, radioWiFiState: RadioWiFiState(radioID: harness.device.radioID))
     await laterMock.setCLIReply("OK")
     try await later.setRadioCLIValue("wifi.ssid", to: "later")
     await laterMock.setCLIReplyQueue(["> 1", "> later", "> connected", "> 10.2.2.2"])
@@ -721,9 +899,9 @@ struct RadioWiFiViewModelTests {
     await harness.viewModel.requestSave()
     await harness.viewModel.setWiFiEnabled(false)
     harness.viewModel.requestClear()
-    await harness.viewModel.confirmClear()
+    await harness.viewModel.confirmFromAlert(.clear).value
     harness.viewModel.requestReboot()
-    await harness.viewModel.confirmReboot()
+    await harness.viewModel.confirmFromAlert(.reboot).value
 
     #expect(await harness.mock.runCliCommandCalls.count == before)
     #expect(harness.viewModel.errorMessage == nil)
@@ -731,13 +909,15 @@ struct RadioWiFiViewModelTests {
     #expect(harness.viewModel.networkName == "myssid")
     #expect(harness.viewModel.showingClearConfirm == false)
     #expect(harness.viewModel.showingRebootConfirm == false)
-    #expect(harness.rebootCount == 0)
+    #expect(await harness.mock.rebootCallCount == 0)
   }
 
   @Test
-  func `a reboot that drops the link does not alert`() async {
+  func `a reboot that drops the link does not alert`() async throws {
     let harness = await Harness.make()
     await harness.loadNetwork(ssid: "myssid", password: "secret")
+    let settings = try #require(harness.settings)
+    try await settings.setRadioCLIValue("wifi.ssid", to: "myssid")
     let errors: [any Error] = [
       BLEError.notConnected,
       BLEError.operationTimeout,
@@ -746,26 +926,28 @@ struct RadioWiFiViewModelTests {
     ]
 
     for error in errors {
-      harness.rebootError = error
+      await harness.mock.failReboot(error)
       harness.viewModel.requestReboot()
-      await harness.viewModel.confirmReboot()
+      await harness.viewModel.confirmFromAlert(.reboot).value
       #expect(harness.viewModel.errorMessage == nil)
     }
 
-    #expect(harness.rebootCount == errors.count)
+    #expect(await harness.mock.rebootCallCount == errors.count)
     #expect(harness.viewModel.networkName == "myssid")
   }
 
   @Test
-  func `a reboot that fails before the radio resets still alerts`() async {
+  func `a reboot that fails before the radio resets still alerts`() async throws {
     let harness = await Harness.make()
     await harness.loadNetwork(ssid: "myssid", password: "secret")
-    harness.rebootError = SettingsServiceError.notConnected
+    let settings = try #require(harness.settings)
+    try await settings.setRadioCLIValue("wifi.ssid", to: "myssid")
+    await harness.mock.failReboot(SettingsServiceError.notConnected)
 
     harness.viewModel.requestReboot()
-    await harness.viewModel.confirmReboot()
+    await harness.viewModel.confirmFromAlert(.reboot).value
 
-    #expect(harness.rebootCount == 1)
+    #expect(await harness.mock.rebootCallCount == 1)
     #expect(harness.viewModel.errorMessage == SettingsServiceError.notConnected.userFacingMessage)
     #expect(harness.viewModel.networkName == "myssid")
   }
@@ -785,7 +967,7 @@ struct RadioWiFiViewModelTests {
   }
 
   @Test(arguments: [1, 2, 3])
-  func `a later read failure keeps support and clears association`(_ skip: Int) async {
+  func `a later read failure retains completed nonsecret fields`(_ skip: Int) async {
     let harness = await Harness.make()
     await harness.mock.setCLIReplyQueue(["> 1", "> myssid", "> connected", "> 10.0.0.8"])
     await harness.mock.failCLICommand(after: skip, MeshCoreError.timeout)
@@ -795,10 +977,10 @@ struct RadioWiFiViewModelTests {
     #expect(harness.viewModel.showsSection)
     #expect(harness.viewModel.wifiSettingsSupport == .supported)
     #expect(harness.viewModel.wifiEnabled)
-    #expect(harness.viewModel.statusConnected == false)
+    #expect(harness.viewModel.statusConnected == (skip == 3))
     #expect(harness.viewModel.ipAddress == nil)
     #expect(harness.viewModel.errorMessage != nil)
-    #expect(harness.viewModel.canClear == false)
+    #expect(harness.viewModel.canClear == (skip > 1))
     let calls = await harness.mock.runCliCommandCalls
     #expect(calls.count == skip + 1)
     #expect(calls.first == "get wifi.enabled")
@@ -882,17 +1064,20 @@ struct RadioWiFiViewModelTests {
   @Test
   func `refresh waits until the editor closes`() async throws {
     let harness = await Harness.make()
-    await harness.mock.failNextCLICommand(MeshCoreError.timeout)
+    await harness.mock.setCLIReplyQueue(["> 1", "> original", "> connected", "> 10.0.0.8"])
     await harness.viewModel.noteSessionReadiness()
+    harness.viewModel.openEditor()
+    await harness.mock.setCLIReplyQueue(["> original"])
+    await harness.mock.failCLICommand(after: 1, MeshCoreError.timeout)
+    await harness.viewModel.loadEditor()
     #expect(harness.viewModel.errorMessage != nil)
-    harness.viewModel.editorOpen = true
     await harness.mock.setCLIReplyQueue(["> 1", "> cafe", "> connected", "> 10.2.2.2"])
     let before = await harness.mock.runCliCommandCalls.count
 
     await harness.viewModel.refresh()
 
     #expect(await harness.mock.runCliCommandCalls.count == before)
-    #expect(harness.viewModel.showsSection == false)
+    #expect(harness.viewModel.showsSection)
     #expect(
       RadioWiFiViewModel.recoverySurface(
         errorMessage: harness.viewModel.errorMessage,
@@ -901,7 +1086,7 @@ struct RadioWiFiViewModelTests {
       ) == .editor
     )
 
-    harness.viewModel.editorOpen = false
+    await harness.viewModel.closeEditor()
     try await waitUntil("editor close recovers wifi") {
       harness.viewModel.ipAddress == "10.2.2.2"
     }
@@ -936,7 +1121,7 @@ struct RadioWiFiViewModelTests {
     let nextMock = MockConfigurationSession()
     await nextMock.failNextCLICommand(MeshCoreError.timeout)
     harness.device = Harness.radio()
-    harness.settings = SettingsService(session: nextMock)
+    harness.settings = SettingsService(session: nextMock, radioWiFiState: RadioWiFiState(radioID: harness.device.radioID))
     await harness.viewModel.noteSessionReadiness()
 
     #expect(harness.viewModel.showsSection == false)
@@ -959,7 +1144,7 @@ struct RadioWiFiViewModelTests {
     let nextMock = MockConfigurationSession()
     await nextMock.setCLIReply("Unknown command")
     harness.device = Harness.radio()
-    harness.settings = SettingsService(session: nextMock)
+    harness.settings = SettingsService(session: nextMock, radioWiFiState: RadioWiFiState(radioID: harness.device.radioID))
     await harness.viewModel.noteSessionReadiness()
 
     #expect(harness.viewModel.wifiSettingsSupport == .unavailable)
@@ -979,7 +1164,7 @@ struct RadioWiFiViewModelTests {
     #expect(harness.viewModel.rebootPending)
 
     let nextMock = MockConfigurationSession()
-    let next = SettingsService(session: nextMock)
+    let next = SettingsService(session: nextMock, radioWiFiState: RadioWiFiState(radioID: harness.device.radioID))
     await nextMock.setCLIReplyQueue(["> 1", "> cafe", "> connected", "> 10.4.4.4"])
     await nextMock.holdNextCLIReply()
     harness.settings = next
@@ -1019,7 +1204,7 @@ struct RadioWiFiViewModelTests {
 
     let nextMock = MockConfigurationSession()
     await nextMock.failNextCLICommand(MeshCoreError.timeout)
-    harness.settings = SettingsService(session: nextMock)
+    harness.settings = SettingsService(session: nextMock, radioWiFiState: RadioWiFiState(radioID: harness.device.radioID))
     await harness.viewModel.noteSessionReadiness()
 
     #expect(harness.viewModel.showsSection == false)
@@ -1036,6 +1221,8 @@ struct RadioWiFiViewModelTests {
     let harness = await Harness.make()
     await harness.mock.setCLIReplyQueue(["> 1", "> old", "> connected", "> 10.0.0.8"])
     await harness.viewModel.noteSessionReadiness()
+    await harness.mock.setCLIReplyQueue(["> old", "> original-key"])
+    await harness.viewModel.loadEditor()
     harness.viewModel.ssidField = "older"
     await harness.mock.setCLIReply("OK")
     await harness.viewModel.requestSave()
@@ -1051,7 +1238,7 @@ struct RadioWiFiViewModelTests {
     let nextMock = MockConfigurationSession()
     await nextMock.setCLIReplyQueue(["> 0", "> fresh", "> (not connected)", "> (not connected)"])
     harness.device = Harness.radio()
-    harness.settings = SettingsService(session: nextMock)
+    harness.settings = SettingsService(session: nextMock, radioWiFiState: RadioWiFiState(radioID: harness.device.radioID))
     await harness.viewModel.noteSessionReadiness()
     await harness.mock.releaseHeldCLIReply()
     await task.value
@@ -1084,7 +1271,7 @@ struct RadioWiFiViewModelTests {
     let nextMock = MockConfigurationSession()
     await nextMock.failNextCLICommand(MeshCoreError.timeout)
     harness.device = Harness.radio()
-    harness.settings = SettingsService(session: nextMock)
+    harness.settings = SettingsService(session: nextMock, radioWiFiState: RadioWiFiState(radioID: harness.device.radioID))
     await harness.viewModel.noteSessionReadiness()
     await harness.mock.setCLIReply("OK")
     await harness.mock.releaseHeldCLIReply()
@@ -1114,7 +1301,7 @@ struct RadioWiFiViewModelTests {
     let nextMock = MockConfigurationSession()
     await nextMock.setCLIReply("Unknown command")
     harness.device = Harness.radio()
-    harness.settings = SettingsService(session: nextMock)
+    harness.settings = SettingsService(session: nextMock, radioWiFiState: RadioWiFiState(radioID: harness.device.radioID))
     await harness.viewModel.noteSessionReadiness()
     #expect(harness.viewModel.errorMessage == nil)
 
@@ -1128,6 +1315,197 @@ struct RadioWiFiViewModelTests {
     #expect(harness.viewModel.canClear == false)
   }
 
+  @Test(arguments: AlertConfirmationCase.allCases)
+  private func `alert button consumption survives framework binding dismissal`(
+    _ action: AlertConfirmationCase
+  ) async throws {
+    let harness = await Harness.make()
+    await harness.mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    await harness.viewModel.noteSessionReadiness()
+    try await action.prepare(harness)
+    let before = await harness.mock.runCliCommandCalls.count
+    let binding = action.presentationBinding(harness.viewModel)
+    #expect(binding.wrappedValue)
+
+    let accepted = harness.viewModel.confirmFromAlert(action.entry)
+    binding.wrappedValue = false
+    await accepted.value
+
+    let writes = await harness.mock.runCliCommandCalls.dropFirst(before).filter { $0.hasPrefix("set ") }
+    #expect(writes == action.expectedWrites)
+    #expect(await harness.mock.rebootCallCount == (action == .reboot ? 1 : 0))
+    #expect(harness.viewModel.confirmation == nil)
+    #expect(!harness.viewModel.isBusy)
+    await harness.viewModel.closeEditor()
+    await harness.settings?.retireRadioWiFiOperations()
+  }
+
+  @Test(arguments: AlertConfirmationCase.allCases)
+  private func `duplicate alert confirm submits once`(_ action: AlertConfirmationCase) async throws {
+    let harness = await Harness.make()
+    await harness.mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    await harness.viewModel.noteSessionReadiness()
+    try await action.prepare(harness)
+    let before = await harness.mock.runCliCommandCalls.count
+    let accepted = harness.viewModel.confirmFromAlert(action.entry)
+    let duplicate = harness.viewModel.confirmFromAlert(action.entry)
+    action.presentationBinding(harness.viewModel).wrappedValue = false
+    await accepted.value
+    await duplicate.value
+
+    let writes = await harness.mock.runCliCommandCalls.dropFirst(before).filter { $0.hasPrefix("set ") }
+    #expect(writes == action.expectedWrites)
+    #expect(await harness.mock.rebootCallCount == (action == .reboot ? 1 : 0))
+    await harness.viewModel.closeEditor()
+    await harness.settings?.retireRadioWiFiOperations()
+  }
+
+  @Test(arguments: AlertConfirmationCase.allCases, [false, true])
+  private func `cancelled and obsolete alert contexts submit nothing`(
+    _ action: AlertConfirmationCase, obsolete: Bool
+  ) async throws {
+    let harness = await Harness.make()
+    await harness.mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    await harness.viewModel.noteSessionReadiness()
+    try await action.prepare(harness)
+    let before = await harness.mock.runCliCommandCalls.count
+    if obsolete {
+      let accepted = harness.viewModel.confirmFromAlert(action.entry)
+      action.presentationBinding(harness.viewModel).wrappedValue = false
+      harness.connectionState = .disconnected
+      await accepted.value
+    } else {
+      action.presentationBinding(harness.viewModel).wrappedValue = false
+      await harness.viewModel.confirmFromAlert(action.entry).value
+    }
+
+    #expect(await harness.mock.runCliCommandCalls.count == before)
+    #expect(await harness.mock.rebootCallCount == 0)
+    #expect(harness.viewModel.confirmation == nil)
+    await harness.viewModel.closeEditor()
+    await harness.settings?.retireRadioWiFiOperations()
+  }
+
+  @Test(arguments: AlertConfirmationCase.allCases)
+  private func `accepted alert cannot write a newer WiFi revision`(_ action: AlertConfirmationCase) async throws {
+    let harness = await Harness.make()
+    await harness.mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    await harness.viewModel.noteSessionReadiness()
+    try await action.prepare(harness)
+    let settings = try #require(harness.settings)
+    let before = await harness.mock.runCliCommandCalls.count
+    let accepted = harness.viewModel.confirmFromAlert(action.entry)
+    action.presentationBinding(harness.viewModel).wrappedValue = false
+    let token = try #require(settings.radioWiFiState.beginMutation(expectedRevision: nil))
+    settings.radioWiFiState.settle(token, outcome: .accepted)
+    await accepted.value
+
+    let writes = await harness.mock.runCliCommandCalls.dropFirst(before).filter { $0.hasPrefix("set ") }
+    #expect(writes.isEmpty)
+    #expect(await harness.mock.rebootCallCount == 0)
+    await harness.viewModel.closeEditor()
+    await settings.retireRadioWiFiOperations()
+  }
+
+  @Test
+  func `accepted Save cannot write after its editor closes`() async throws {
+    let harness = await Harness.make()
+    await harness.mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    await harness.viewModel.noteSessionReadiness()
+    try await AlertConfirmationCase.save.prepare(harness)
+    let before = await harness.mock.runCliCommandCalls.count
+    let accepted = harness.viewModel.confirmFromAlert(.wifiWarning)
+    harness.viewModel.showingWiFiWarning = false
+    harness.viewModel.editor = nil
+    await accepted.value
+
+    #expect(await harness.mock.runCliCommandCalls.count == before)
+    await harness.viewModel.closeEditor()
+    await harness.settings?.retireRadioWiFiOperations()
+  }
+
+  @Test
+  func `reboot confirmation cannot open during a pending Tools WiFi mutation`() async throws {
+    let harness = try await Harness.makeRebootBoundary()
+    let tools = harness.makeTools()
+    await harness.mock.holdNextCLIReply()
+    tools.executeCommand("01|set wifi.ssid newer")
+    do {
+      try await waitUntil("Tools WiFi setter must remain pending") {
+        await harness.mock.heldCLICommand == "01|set wifi.ssid newer"
+      }
+      #expect(harness.settings?.radioWiFiState.stableRevision() == nil)
+      harness.viewModel.requestReboot()
+      #expect(!harness.viewModel.showingRebootConfirm)
+      await harness.mock.releaseHeldCLIReply()
+      try await waitUntil("Tools setter must settle") { !tools.isWaitingForResponse }
+      let accepted = harness.viewModel.confirmFromAlert(.reboot)
+      AlertConfirmationCase.reboot.presentationBinding(harness.viewModel).wrappedValue = false
+      await accepted.value
+      #expect(await harness.mock.rebootCallCount == 0)
+      await harness.confirmCurrentRebootOnce()
+    } catch {
+      await harness.mock.releaseHeldCLIReply()
+      tools.cleanup()
+      await harness.settings?.retireRadioWiFiOperations()
+      throw error
+    }
+    tools.cleanup()
+    await harness.settings?.retireRadioWiFiOperations()
+  }
+
+  @Test
+  func `settled Tools WiFi mutation invalidates an already open reboot confirmation`() async throws {
+    let harness = try await Harness.makeRebootBoundary()
+    let tools = harness.makeTools()
+    harness.viewModel.requestReboot()
+    #expect(harness.viewModel.showingRebootConfirm)
+    tools.executeCommand("01|set wifi.ssid newer")
+    try await waitUntil("Tools setter must settle") { !tools.isWaitingForResponse }
+    let accepted = harness.viewModel.confirmFromAlert(.reboot)
+    AlertConfirmationCase.reboot.presentationBinding(harness.viewModel).wrappedValue = false
+    await accepted.value
+
+    #expect(await harness.mock.rebootCallCount == 0)
+    await harness.confirmCurrentRebootOnce()
+    tools.cleanup()
+    await harness.settings?.retireRadioWiFiOperations()
+  }
+
+  @Test(arguments: [false, true])
+  func `reboot service admission rejects pending and settled Tools interference`(pending: Bool) async throws {
+    let harness = try await Harness.makeRebootBoundary()
+    let settings = try #require(harness.settings)
+    let revision = try #require(settings.radioWiFiState.stableRevision())
+    let tools = harness.makeTools()
+    await harness.mock.holdNextCLIReply()
+    tools.executeCommand("01|set wifi.ssid newer")
+    do {
+      try await waitUntil("Tools setter must reach firmware") {
+        await harness.mock.heldCLICommand == "01|set wifi.ssid newer"
+      }
+      if !pending {
+        await harness.mock.releaseHeldCLIReply()
+        try await waitUntil("Tools setter must settle before reboot admission") { !tools.isWaitingForResponse }
+      }
+      await #expect(throws: CancellationError.self) {
+        try await settings.reboot(expectedContextID: settings.radioWiFiContextID, expectedRevision: revision)
+      }
+      #expect(await harness.mock.rebootCallCount == 0)
+      if pending { await harness.mock.releaseHeldCLIReply() }
+      try await waitUntil("Tools setter must complete") { !tools.isWaitingForResponse }
+      #expect(harness.viewModel.errorMessage == nil)
+      await harness.confirmCurrentRebootOnce()
+    } catch {
+      await harness.mock.releaseHeldCLIReply()
+      tools.cleanup()
+      await settings.retireRadioWiFiOperations()
+      throw error
+    }
+    tools.cleanup()
+    await settings.retireRadioWiFiOperations()
+  }
+
   private static func wifiSwitchEnabled(on viewModel: RadioWiFiViewModel, dialHost: String?) -> Bool {
     let dial = dialHost.map { ConnectionLinkWiFiDial(host: $0, port: ConnectionMethod.defaultWiFiPort) }
     let snapshot = ConnectionLinkRows.make(
@@ -1139,6 +1517,78 @@ struct RadioWiFiViewModelTests {
       activeSwitch: nil
     )
     return snapshot.rows.first { $0.link == .wifi }?.canSwitch == true
+  }
+}
+
+private enum AlertConfirmationCase: CaseIterable, Sendable {
+  case clear, reboot, save, disable
+
+  var entry: RadioWiFiViewModel.AlertAction {
+    switch self {
+    case .clear: .clear
+    case .reboot: .reboot
+    case .save, .disable: .wifiWarning
+    }
+  }
+
+  var expectedWrites: [String] {
+    switch self {
+    case .clear: ["set wifi.clear"]
+    case .reboot: []
+    case .save: ["set wifi.ssid replacement"]
+    case .disable: ["set wifi.enabled 0"]
+    }
+  }
+
+  @MainActor
+  func prepare(_ harness: Harness) async throws {
+    switch self {
+    case .clear:
+      harness.viewModel.requestClear()
+    case .reboot:
+      let settings = try #require(harness.settings)
+      try await settings.setRadioCLIValue("wifi.ssid", to: "built-in")
+      harness.viewModel.requestReboot()
+    case .save:
+      harness.transport.value = .wifi
+      harness.viewModel.openEditor()
+      await harness.viewModel.loadEditor()
+      harness.viewModel.ssidField = "replacement"
+      await harness.viewModel.requestSave()
+    case .disable:
+      harness.transport.value = .wifi
+      await harness.viewModel.setWiFiEnabled(false)
+    }
+  }
+
+  @MainActor
+  func presentationBinding(_ viewModel: RadioWiFiViewModel) -> Binding<Bool> {
+    @Bindable var viewModel = viewModel
+    switch self {
+    case .clear: return $viewModel.showingClearConfirm
+    case .reboot: return $viewModel.showingRebootConfirm
+    case .save, .disable: return $viewModel.showingWiFiWarning
+    }
+  }
+}
+
+private enum CredentialReadFailure: CaseIterable, Sendable {
+  case unsupported
+  case malformed
+  case rejected
+  case cancelled
+
+  func prime(_ mock: MockConfigurationSession) async {
+    let reply = switch self {
+    case .unsupported: "Unknown command"
+    case .malformed: "OK"
+    case .rejected: "Error: rejected"
+    case .cancelled: "> ignored"
+    }
+    await mock.setCLIReplyQueue(["> stored", reply])
+    if case .cancelled = self {
+      await mock.failCLICommand(after: 1, CancellationError())
+    }
   }
 }
 
@@ -1187,8 +1637,6 @@ private final class Harness {
   var device: DeviceDTO
   var connectionState: DeviceConnectionState = .ready
   let transport = TransportBox()
-  var rebootCount = 0
-  var rebootError: (any Error)?
 
   static func radio() -> DeviceDTO {
     DeviceDTO(
@@ -1227,18 +1675,14 @@ private final class Harness {
 
   static func make() async -> Harness {
     let mock = MockConfigurationSession()
-    let harness = Harness(mock: mock, settings: SettingsService(session: mock), device: radio())
+    let device = radio()
+    let settings = SettingsService(session: mock, radioWiFiState: RadioWiFiState(radioID: device.radioID))
+    let harness = Harness(mock: mock, settings: settings, device: device)
     harness.viewModel.configure(
       settingsService: { harness.settings },
       connectionState: { harness.connectionState },
       connectedDevice: { harness.device },
-      currentTransportType: { harness.transport.value },
-      reboot: {
-        harness.rebootCount += 1
-        if let rebootError = harness.rebootError {
-          throw rebootError
-        }
-      }
+      currentTransportType: { harness.transport.value }
     )
     return harness
   }
@@ -1249,10 +1693,45 @@ private final class Harness {
     self.device = device
   }
 
+  static func makeRebootBoundary() async throws -> Harness {
+    let harness = await make()
+    await harness.mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    let settings = try #require(harness.settings)
+    try await settings.setRadioCLIValue("wifi.ssid", to: "initial")
+    await harness.viewModel.noteSessionReadiness()
+    return harness
+  }
+
+  func makeTools() -> CLIToolViewModel {
+    let tools = CLIToolViewModel()
+    tools.configure(
+      dependencies: CLIToolViewModel.Dependencies(
+        repeaterAdminService: { nil }, remoteNodeService: { nil }, settingsService: { self.settings },
+        dataStore: { nil }, radioID: { self.device.radioID }, connectedDevice: { self.device },
+        powerOffRadio: {}, powerOffCancelAvailable: { true }
+      ),
+      localDeviceName: "Radio", sendSelfAdvert: { _ in }
+    )
+    tools.activeSession = .local(deviceName: "Radio")
+    return tools
+  }
+
+  func confirmCurrentRebootOnce() async {
+    viewModel.requestReboot()
+    #expect(viewModel.showingRebootConfirm)
+    let accepted = viewModel.confirmFromAlert(.reboot)
+    let duplicate = viewModel.confirmFromAlert(.reboot)
+    AlertConfirmationCase.reboot.presentationBinding(viewModel).wrappedValue = false
+    await accepted.value
+    await duplicate.value
+    #expect(await mock.rebootCallCount == 1)
+    #expect(settings?.radioWiFiState.expectedRebootID != nil)
+  }
+
   func loadNetwork(ssid: String, password: String) async {
     await mock.setCLIReplyQueue(["> 1", "> \(ssid)", "> connected", "> (not connected)"])
     await viewModel.noteSessionReadiness()
-    await mock.setCLIReply(password.isEmpty ? "> " : "> \(password)")
+    await mock.setCLIReplyQueue(["> \(ssid)", password.isEmpty ? "> " : "> \(password)"])
     await viewModel.loadEditor()
     await mock.setCLIReply("OK")
   }

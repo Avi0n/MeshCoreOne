@@ -15,11 +15,13 @@ struct SensorSettingsView: View {
       }
     }
     .task(id: appState.servicesVersion) {
+      let radioID = session.radioID
+      guard appState.connectionSnapshot(for: radioID) != nil else { return }
       models = appState.remoteAdminWorkspaces.configureSensor(
         for: session,
-        remoteNodeService: { [appState] in appState.services?.remoteNodeService },
-        dataStore: { [appState] in appState.offlineDataStore },
-        connectionState: { [appState] in appState.connectionState }
+        remoteNodeService: { [weak appState] in appState?.connectionSnapshot(for: radioID)?.services.remoteNodeService },
+        dataStore: { [weak appState] in appState?.offlineDataStore },
+        connectionState: { [weak appState] in appState?.connectionState ?? .disconnected }
       )
     }
   }

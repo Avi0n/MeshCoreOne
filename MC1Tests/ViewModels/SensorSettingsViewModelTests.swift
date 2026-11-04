@@ -182,6 +182,29 @@ struct SensorSettingsViewModelTests {
   }
 
   @Test
+  func `rebind ignores a foreign radio and an obsolete connection`() async throws {
+    let h = try await Harness()
+    let replacement = RemoteNodeService(session: h.session, dataStore: h.store, keychainService: KeychainService())
+    for (radioID, isCurrent) in [(UUID(), true), (h.descriptor.radioID, false)] {
+      await h.workspaces.rebind(
+        radioID: radioID,
+        repeaterAdminService: { nil },
+        roomAdminService: { nil },
+        contactService: { nil },
+        nodeSnapshotService: { nil },
+        deviceHashSize: { nil },
+        remoteNodeService: { replacement },
+        dataStore: { h.store },
+        connectionState: { .ready },
+        isCurrent: { isCurrent }
+      )
+      #expect(h.model.isBound(to: h.remote))
+      #expect(h.model.isAuthorized)
+    }
+    await h.close()
+  }
+
+  @Test
   func `reboot waits for host acceptance then disables further commands`() async throws {
     let h = try await Harness()
     h.model.reboot()

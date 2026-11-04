@@ -14,4 +14,7 @@ public protocol DevicePersisting: Actor {
 
   /// Save or update a device
   func saveDevice(_ dto: DeviceDTO) async throws
+
+  /// Patches only OCV fields on an existing row in one actor turn.
+  func updateDeviceOCVSettings(id: UUID, preset: String, customArray: String?) async throws -> DeviceDTO?
 }

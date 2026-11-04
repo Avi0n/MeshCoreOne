@@ -48,6 +48,8 @@ struct TracePathMapView: View {
           hopCount: result.hops.count - 2,
           totalPathDistance: traceViewModel.totalPathDistance
         )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(.top)
       }
 
       // Floating buttons
@@ -165,3 +167,84 @@ struct TracePathMapView: View {
     .ignoresSafeArea()
   }
 }
+
+#if DEBUG
+  #Preview("Successful trace") {
+    TracePathMapPreview()
+      .environment(\.appState, AppState())
+  }
+
+  @MainActor
+  private struct TracePathMapPreview: View {
+    @State private var viewModel = TracePathMapPreview.makeViewModel()
+    @State private var presentedResult: TraceResult?
+
+    var body: some View {
+      NavigationStack {
+        TracePathMapView(traceViewModel: viewModel, presentedResult: $presentedResult)
+          .navigationTitle(L10n.Contacts.Contacts.Trace.title)
+          .navigationBarTitleDisplayMode(.inline)
+          .toolbar {
+            ToolbarItem(placement: .principal) {
+              Picker(L10n.Contacts.Contacts.Trace.viewMode, selection: .constant(TracePathViewMode.map)) {
+                ForEach(TracePathViewMode.allCases, id: \.self) { mode in
+                  Text(mode.label).tag(mode)
+                }
+              }
+              .pickerStyle(.segmented)
+              .fixedSize()
+            }
+            ToolbarItem(placement: .primaryAction) {
+              Button(L10n.Contacts.Contacts.Trace.saved, systemImage: "bookmark") {}
+            }
+          }
+      }
+    }
+
+    private static func makeViewModel() -> TracePathViewModel {
+      let viewModel = TracePathViewModel()
+      let hops = previewHops
+      viewModel.outboundPath = hops.dropFirst().dropLast().map { hop in
+        PathHop(
+          hashBytes: hop.hashBytes ?? Data([0x11]),
+          publicKey: nil,
+          resolvedName: hop.resolvedName
+        )
+      }
+      viewModel.result = TraceResult(
+        hops: hops,
+        durationMs: 840,
+        success: true,
+        errorMessage: nil,
+        tracedPathBytes: [0x11, 0x22],
+        hashSize: 1
+      )
+      return viewModel
+    }
+
+    private static let previewHops: [TraceHop] = [
+      previewHop(name: "Start", latitude: 37.7749, longitude: -122.4194, start: true),
+      previewHop(name: "Ridge", latitude: 37.8044, longitude: -122.2712),
+      previewHop(name: "Hill", latitude: 37.8715, longitude: -122.2730),
+      previewHop(name: "End", latitude: 37.8716, longitude: -122.4194, end: true),
+    ]
+
+    private static func previewHop(
+      name: String,
+      latitude: Double,
+      longitude: Double,
+      start: Bool = false,
+      end: Bool = false
+    ) -> TraceHop {
+      TraceHop(
+        hashBytes: start || end ? nil : Data([0x11]),
+        resolvedName: name,
+        snr: 4,
+        isStartNode: start,
+        isEndNode: end,
+        latitude: latitude,
+        longitude: longitude
+      )
+    }
+  }
+#endif

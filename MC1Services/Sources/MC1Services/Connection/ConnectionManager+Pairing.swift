@@ -4,109 +4,82 @@ import MeshCore
 // MARK: - Pairing
 
 public extension ConnectionManager {
-  /// Discovers a new device through the platform pairing service (AccessorySetupKit on
-  /// iOS, an in-app CoreBluetooth scan picker on macOS), then connects through the shared
-  /// `connect(to:)` ceremony. The connect path coordinates with in-flight auto-reconnects,
-  /// switch-device handling, and the circuit breaker, which `connectAfterPairing`'s direct
-  /// `performConnection` call used to bypass.
-  ///
-  /// **Cancellation behavior** (per `await`):
-  /// - `pairing.discoverDevice()` — `withTaskCancellationHandler` resumes the
-  ///   continuation with `CancellationError`. On iOS the system picker may stay visible
-  ///   (no public ASK API to dismiss programmatically without invalidating the
-  ///   session); if the user completes pairing in the orphaned picker,
-  ///   `accessoryAdded` removes the bond immediately. The device is not registered
-  ///   when this point is reached, so no cleanup needed here.
-  /// - `waitForOtherAppReconnection` — checks `Task.isCancelled` at the top of
-  ///   each iteration and short-circuits to `false`. A system-connected result
-  ///   proceeds to `connect(to:)` rather than throwing other-app. Cancellation
-  ///   is surfaced at `connect(to:)`'s entry-point `Task.checkCancellation()`.
-  /// - `connect(to:)` — runs `Task.checkCancellation()` before any state mutation
-  ///   so a cancelled task cannot drive a real BLE connect through to success.
-  ///   Leftover GATT this app owns is adopted; while pairing, that path waits
-  ///   until `isOperational` or throws. Propagates `CancellationError` normally;
-  ///   we catch it explicitly and re-throw without re-wrapping so the UI alert
-  ///   path stays quiet.
-  ///
-  /// Hard quit: process death; defer doesn't fire; the in-memory flag resets to
-  /// `false` on next launch. No persistent state corruption.
-  ///
-  /// - Throws:
-  ///   - `DevicePairingError.alreadyInProgress` on re-entry.
-  ///   - `PairingError.deviceConnectedToOtherApp` when another app holds the radio.
-  ///   - `PairingError.connectionFailed` for any other connection failure (auth,
-  ///     timeout, transport error). The wrapped `underlying` is checked by
-  ///     `PairingError.isAuthenticationFailure` so the auth alert path keeps working.
-  ///   - `CancellationError` if the surrounding task is cancelled mid-flight.
-  func pairNewDevice() async throws {
-    logger.info("Starting device pairing")
-    guard !isPairingInProgress else {
-      throw DevicePairingError.alreadyInProgress
-    }
+  /// Pairs through the platform picker, then joins the admitted connection request.
+  @discardableResult
+  func pairNewDevice() async throws -> ConnectionResult {
+    guard !isPairingInProgress else { throw DevicePairingError.alreadyInProgress }
+    let operationID = UUID()
+    let observedRequestID = desiredRequest?.id
+    pairingOperationID = operationID
     isPairingInProgress = true
-    defer { isPairingInProgress = false }
-
-    connectionIntent = .wantsConnection()
-    persistIntent()
-
+    defer {
+      if pairingOperationID == operationID { isPairingInProgress = false; pairingOperationID = nil }
+    }
     await stopBLEScanning()
-
-    // ASK's picker is empty until the session is active.
     try await pairing.activate()
-
+    try Task.checkCancellation()
+    guard desiredRequest?.id == observedRequestID else { return .superseded }
     let deviceID = try await pairing.discoverDevice()
-
-    // ASK has just associated this radio. A leftover system GATT link is ours
-    // (or the accessory we just set up); `connect(to:)` adopts or connects.
-    if await waitForOtherAppReconnection(deviceID) {
-      logger.info(
-        "[OtherAppCheck] System-connected after pairing \(deviceID.uuidString.prefix(8)); connecting"
+    guard desiredRequest?.id == observedRequestID, pairingOperationID == operationID else { return .superseded }
+    var handoffRequestID: UUID?
+    do {
+      _ = await waitForOtherAppReconnection(deviceID)
+      try Task.checkCancellation()
+      guard desiredRequest?.id == observedRequestID else { return .superseded }
+      let result = try await requestConnection(
+        targets: [.bluetooth(deviceID)], origin: .pairing, forceFullSync: true, forceReconnect: true
+      )
+      switch result {
+      case .operational: return result
+      case let .handoff(requestID):
+        handoffRequestID = requestID
+        try await waitForPairingAdoptionToSettle(expectedRequestID: requestID)
+        guard let snapshot = currentConnection, snapshot.requestID == requestID else { return .superseded }
+        return .operational(snapshot)
+      case .cancelled:
+        if let request = desiredRequest, request.target == .bluetooth(deviceID), installedLink == nil {
+          await cleanupPartialPairing(deviceID: deviceID, requestID: request.id)
+        }
+        return .cancelled
+      case .superseded: return .superseded
+      }
+    } catch let failure as ConnectionRequestFailure {
+      guard isCurrent(failure) else { return .superseded }
+      let pairingError: PairingError = if case BLEError.deviceConnectedToOtherApp = failure.underlying {
+        .deviceConnectedToOtherApp(deviceID: deviceID)
+      } else {
+        .connectionFailed(deviceID: deviceID, underlying: failure.underlying)
+      }
+      throw ConnectionRequestFailure(requestID: failure.requestID, underlying: pairingError)
+    } catch is CancellationError {
+      let ownerID = handoffRequestID ?? observedRequestID
+      await cleanupPartialPairing(deviceID: deviceID, requestID: ownerID)
+      return .cancelled
+    } catch {
+      guard let requestID = handoffRequestID, desiredRequest?.id == requestID else { throw error }
+      throw ConnectionRequestFailure(
+        requestID: requestID, underlying: PairingError.connectionFailed(deviceID: deviceID, underlying: error)
       )
     }
+  }
 
-    do {
-      try await connect(to: deviceID, forceFullSync: true, forceReconnect: true)
-    } catch BLEError.deviceConnectedToOtherApp {
-      // No `cleanupPartialPairing` here — the bond is good; the user retries
-      // after dismissing the other app via the otherAppWarningDeviceID alert.
-      // Removing the bond would force a fresh pair instead.
-      throw PairingError.deviceConnectedToOtherApp(deviceID: deviceID)
-    } catch is CancellationError {
-      await cleanupPartialPairing(deviceID: deviceID)
-      throw CancellationError()
-    } catch {
-      // Edge case: a domain error bubbled up while the surrounding task was
-      // also cancelled. Without this guard the user sees "Couldn't connect"
-      // instead of silent cancellation. Re-throw as CancellationError so the
-      // alert path doesn't fire.
-      if Task.isCancelled {
-        await cleanupPartialPairing(deviceID: deviceID)
-        throw CancellationError()
-      }
-      logger.error("Connection after pairing failed: \(error.localizedDescription)")
-      throw PairingError.connectionFailed(deviceID: deviceID, underlying: error)
+  private func cleanupPartialPairing(deviceID: UUID, requestID: UUID?) async {
+    let cleanup = Task { @MainActor in
+      guard self.desiredRequest?.id == requestID, self.connectedDevice?.id != deviceID else { return }
+      let admitted = self.desiredRequest?.target == .bluetooth(deviceID)
+      guard !admitted || self.installedLink == nil else { return }
+      let device = try? await self.persistenceStore.fetchDevice(id: deviceID)
+      let context = ConnectionRemovalContext(deviceID: deviceID, device: device, requestID: requestID, generation: nil)
+      _ = try? await self.removeDevice(
+        context, policy: .bluetoothAssociation(pairingFailed: false), reason: .pairingFailed, systemPolicy: .required
+      )
     }
+    await cleanup.value
   }
 
-  /// Removes a partially-paired device from the system registry when pairing is cancelled
-  /// mid-flight before a usable connection exists. On iOS the system has the device; we don't.
-  /// Without this cleanup, iOS retains a paired bond with no app-level state, surfacing as a
-  /// phantom device in Settings → Bluetooth that won't show up in the picker again. No-op on macOS.
-  private func cleanupPartialPairing(deviceID: UUID) async {
-    logger.info("Removing partially-paired device \(deviceID.uuidString.prefix(8)) from pairing registry")
-    try? await pairing.removeDevice(deviceID)
-    reconnectionCoordinator.cancelTimeout()
-    reconnectionCoordinator.clearReconnectingDevice()
-    await transport.disconnect()
-    // Defensive backstop — connectWithRetry and switchDevice both reset state
-    // on throw, so this is normally a no-op. Kept so a future cancellation
-    // path that lands here without doing so still leaves a clean UI.
-    connectionState = .disconnected
-  }
-
-  /// Pairing leftover-GATT wait. `.syncing` already has a session
-  /// (`promoteToReady` with a non-usable result); `.connected` is still rebuilding.
-  func waitForPairingAdoptionToSettle() async throws {
+  /// Pairing waits for the admitted request's operational stack; physical
+  /// `.connected` alone does not authorize completion.
+  func waitForPairingAdoptionToSettle(expectedRequestID: UUID) async throws {
     #if DEBUG
       if let strategy = pairingAdoptionSettleStrategyOverride {
         try await strategy()
@@ -124,6 +97,7 @@ public extension ConnectionManager {
 
     while true {
       try Task.checkCancellation()
+      guard desiredRequest?.id == expectedRequestID else { throw CancellationError() }
       if connectionState.isOperational {
         guard services != nil else {
           throw BLEError.connectionFailed(Self.pairingAdoptionMissingSessionDetail)
@@ -174,52 +148,14 @@ public extension ConnectionManager {
     }
   }
 
-  /// Removes a device that failed to connect after pairing, for the guided
-  /// "remove and retry" recovery. Demotes the row to a ghost rather than deleting
-  /// it, preserving the publicKey ↔ radioID bridge: an established radio that lost
-  /// its bond re-pairs onto the same radioID and its contacts, messages, and
-  /// channels reattach. A fresh pairing has no row to demote, so this is a no-op there.
-  /// - Parameter deviceID: The device ID from `PairingError.connectionFailed`
-  func removeFailedPairing(deviceID: UUID) async {
-    logger.info("Removing failed pairing for device: \(deviceID)")
-
-    await transport.disconnect()
-
-    do {
-      try await pairing.removeDevice(deviceID)
-    } catch {
-      logger.warning("Failed to remove from pairing registry: \(error.localizedDescription)")
-    }
-
-    if await retainedWiFiRowAfterBluetoothRemoval(peripheralID: deviceID) != nil {
-      return
-    }
-
-    let dataStore = persistenceStore
-    try? await dataStore.demoteDeviceToGhost(id: deviceID)
-
-    // Always clear this device's bond verification; store keys are holder-matched.
-    await clearPersistedConnection(for: deviceID)
-  }
-
-  /// Clears bond verification, then strips Bluetooth when the row also has WiFi.
-  /// Nil means the caller should ghost or delete and clear the last-connection slot.
-  private func retainedWiFiRowAfterBluetoothRemoval(peripheralID: UUID) async -> DeviceDTO? {
-    await clearBondVerification(for: peripheralID)
-    do {
-      guard let kept = try await persistenceStore.removeBluetoothMethod(peripheralID: peripheralID) else {
-        return nil
-      }
-      if connectedDevice?.id == kept.id {
-        connectedDevice = kept
-      }
-      return kept
-    } catch {
-      logger.warning(
-        "Failed to remove Bluetooth method for \(peripheralID.uuidString.prefix(8)): \(error.localizedDescription)"
-      )
-      return nil
-    }
+  /// Removes the failed Bluetooth association while retaining its radio partition.
+  @discardableResult
+  func removeFailedPairing(deviceID: UUID) async throws -> ConnectionRemovalResult {
+    let context = try await captureRemoval(id: deviceID)
+    return try await removeDevice(
+      context, policy: .bluetoothAssociation(pairingFailed: false),
+      reason: .forgetDevice, systemPolicy: .required
+    )
   }
 
   // MARK: - Other-App Detection
@@ -267,64 +203,23 @@ public extension ConnectionManager {
 
   // MARK: - Forget Device
 
-  /// Forgets the device, removing it from paired accessories and local storage.
-  /// - Parameter deleteData: If `true`, also deletes all associated data (contacts, messages, channels, trace paths).
-  /// - Throws: `ConnectionError.notConnected` if no device is connected
-  func forgetDevice(deleteData: Bool) async throws {
-    guard let deviceID = connectedDevice?.id else {
-      throw ConnectionError.notConnected
-    }
-
-    guard pairing.isDeviceConnectable(deviceID) else {
-      throw ConnectionError.deviceNotFound
-    }
-
-    logger.info("Forgetting device: \(deviceID), deleteData: \(deleteData)")
-
-    try await pairing.removeDevice(deviceID)
-    await disconnect(reason: .forgetDevice)
-
-    let dataStore = persistenceStore
-    do {
-      if deleteData {
-        try await dataStore.deleteDeviceAndData(id: deviceID)
-      } else {
-        try await dataStore.demoteDeviceToGhost(id: deviceID)
-      }
-    } catch {
-      logger.warning("Failed to demote device in SwiftData: \(error.localizedDescription)")
-    }
-
-    await clearPersistedConnection(for: deviceID)
-    logger.info("Device forgotten")
+  @discardableResult
+  func forgetDevice(_ context: ConnectionRemovalContext, deleteData: Bool) async throws -> ConnectionRemovalResult {
+    try await removeDevice(
+      context, policy: .wholeDevice(deleteData: deleteData), reason: .forgetDevice, systemPolicy: .required
+    )
   }
 
-  /// Forgets a device by ID, removing it from paired accessories and local storage.
-  /// Deletes both the device record and all associated data (factory reset path).
-  /// Best-effort cleanup — does not throw.
-  func forgetDevice(id: UUID) async {
-    logger.info("Forgetting device by ID: \(id)")
-
-    await disconnect(reason: .factoryReset)
-
+  @discardableResult
+  func forgetDeviceAfterReset(_ context: ConnectionRemovalContext) async -> ConnectionRemovalResult {
     do {
-      try await pairing.removeDevice(id)
+      return try await removeDevice(
+        context, policy: .wholeDevice(deleteData: true), reason: .factoryReset, systemPolicy: .bestEffort
+      )
     } catch {
-      logger.warning("Failed to remove device from pairing registry: \(error.localizedDescription)")
+      logger.warning("Reset cleanup failed: \(error.localizedDescription)")
+      return .superseded
     }
-
-    let dataStore = persistenceStore
-    do {
-      try await dataStore.deleteDeviceAndData(id: id)
-    } catch {
-      logger.warning("Failed to delete device data from SwiftData: \(error.localizedDescription)")
-    }
-
-    // Always clear this device's bond verification; store keys are holder-matched
-    // so a non-last-connected forget still drops its in-memory/persistent shield.
-    await clearPersistedConnection(for: id)
-
-    logger.info("Device forgotten by ID: \(id)")
   }
 
   // MARK: - Node Management
@@ -369,11 +264,7 @@ public extension ConnectionManager {
     matching predicate: (ContactDTO) -> Bool,
     onRemove: ((_ contact: ContactDTO) -> Void)? = nil
   ) async throws -> RemoveUnfavoritedResult {
-    guard let radioID = connectedDevice?.radioID else {
-      throw ConnectionError.notConnected
-    }
-
-    guard let services else {
+    guard let radioID = connectedDevice?.radioID, let services else {
       throw ConnectionError.notConnected
     }
 
@@ -468,161 +359,6 @@ public extension ConnectionManager {
     logger.info("Stale pairings cleared")
   }
 
-  // MARK: - Device Updates
-
-  /// Updates the connected device with new settings from SelfInfo.
-  /// Called by SettingsService after device settings are successfully changed.
-  /// Also persists to SwiftData so changes appear in Connect Device sheet.
-  func updateDevice(from selfInfo: MeshCore.SelfInfo, appliedRadioPresetID: String?) {
-    guard let device = connectedDevice else { return }
-    var updated = device.updating(from: selfInfo)
-    if let appliedRadioPresetID {
-      updated.appliedRadioPresetID = appliedRadioPresetID
-    } else if !device.clientRepeat {
-      // Drop a stale catalog id only when live RF no longer matches it. Repeat Mode
-      // keeps the id so restore can still paint the community name.
-      let matches = RadioPresets.matchingPresets(
-        frequencyKHz: updated.frequency,
-        bandwidthKHz: updated.bandwidth,
-        spreadingFactor: updated.spreadingFactor,
-        codingRate: updated.codingRate
-      )
-      if let current = updated.appliedRadioPresetID,
-         !matches.contains(where: { $0.id == current }) {
-        updated.appliedRadioPresetID = nil
-      }
-    }
-    connectedDevice = updated
-    Task {
-      try? await services?.dataStore.saveDevice(updated)
-    }
-  }
-
-  /// Updates the connected device with a new DeviceDTO.
-  /// Called by DeviceService after local device settings are successfully changed.
-  func updateDevice(with deviceDTO: DeviceDTO) {
-    connectedDevice = deviceDTO
-  }
-
-  /// Updates the connected device's auto-add config.
-  /// Called by SettingsService after auto-add config is successfully changed.
-  func updateAutoAddConfig(_ config: MeshCore.AutoAddConfig) {
-    guard let device = connectedDevice else { return }
-    let updated = device.copy {
-      $0.autoAddConfig = config.bitmask
-      $0.autoAddMaxHops = config.maxHops
-    }
-    connectedDevice = updated
-
-    Task {
-      do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist auto-add config: \(error)") }
-    }
-  }
-
-  /// Updates the connected device's client repeat state.
-  /// Called by SettingsService after client repeat is successfully changed.
-  func updateClientRepeat(_ enabled: Bool) {
-    guard let device = connectedDevice else { return }
-    let updated = device.copy { $0.clientRepeat = enabled }
-    connectedDevice = updated
-
-    Task {
-      do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist client repeat state: \(error)") }
-    }
-  }
-
-  /// Updates the connected device's path hash mode.
-  /// Called by SettingsService after path hash mode is successfully changed.
-  func updatePathHashMode(_ mode: UInt8) {
-    guard let device = connectedDevice else { return }
-    let updated = device.copy { $0.pathHashMode = mode }
-    connectedDevice = updated
-
-    Task {
-      do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist path hash mode: \(error)") }
-    }
-  }
-
-  /// Updates the connected device's cached default flood scope name.
-  /// Called by SettingsService after a `getDefaultFloodScope` read or a successful write.
-  func updateDefaultFloodScopeName(_ name: String?) {
-    guard let device = connectedDevice else { return }
-    let updated = device.copy { $0.defaultFloodScopeName = name }
-    connectedDevice = updated
-
-    Task {
-      do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist default flood scope: \(error)") }
-    }
-  }
-
-  /// Appends a region to the connected device's known-regions list and persists.
-  /// No-ops if the region is already present.
-  func addKnownRegion(_ region: String) {
-    guard let device = connectedDevice,
-          !device.knownRegions.contains(region) else { return }
-    let updated = device.copy { $0.knownRegions.append(region) }
-    connectedDevice = updated
-    Task {
-      do { try await services?.dataStore.addDeviceKnownRegion(radioID: updated.radioID, region: region) } catch { logger.error("Failed to add known region: \(error)") }
-      await services?.rxLogService.updateKnownRegions(updated.knownRegions)
-    }
-  }
-
-  /// Removes a region from the connected device's known-regions list and persists.
-  /// If the removed region is the device's current default flood scope, also clears
-  /// the scope on the radio so firmware state doesn't dangle on a deleted name.
-  func removeKnownRegion(_ region: String) {
-    guard let device = connectedDevice else { return }
-    let wasDefaultFloodScope = device.defaultFloodScopeName == region
-    let updated = device.copy {
-      $0.knownRegions.removeAll { $0 == region }
-      if wasDefaultFloodScope {
-        $0.defaultFloodScopeName = nil
-      }
-    }
-    connectedDevice = updated
-    Task {
-      do {
-        try await services?.dataStore.removeDeviceKnownRegion(radioID: updated.radioID, region: region)
-      } catch {
-        logger.error("Failed to remove known region: \(error)")
-      }
-
-      if wasDefaultFloodScope, let settingsService = services?.settingsService {
-        do {
-          _ = try await settingsService.setDefaultFloodScopeVerified(name: nil)
-        } catch {
-          logger.error("Failed to clear default flood scope after region removal: \(error)")
-        }
-      }
-
-      await services?.rxLogService.updateKnownRegions(updated.knownRegions)
-    }
-  }
-
-  /// Saves the connected device's current radio settings as pre-repeat settings.
-  /// Called before enabling repeat mode so settings can be restored later.
-  func savePreRepeatSettings() {
-    guard let device = connectedDevice else { return }
-    let updated = device.savingPreRepeatSettings()
-    connectedDevice = updated
-
-    Task {
-      do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist pre-repeat settings: \(error)") }
-    }
-  }
-
-  /// Clears the connected device's pre-repeat settings after restoration.
-  func clearPreRepeatSettings() {
-    guard let device = connectedDevice else { return }
-    let updated = device.clearingPreRepeatSettings()
-    connectedDevice = updated
-
-    Task {
-      do { try await services?.dataStore.saveDevice(updated) } catch { logger.error("Failed to persist cleared pre-repeat settings: \(error)") }
-    }
-  }
-
   // MARK: - Accessory Management
 
   /// Checks if a device is registered with the system pairing registry.
@@ -642,38 +378,13 @@ public extension ConnectionManager {
     return devices
   }
 
-  /// Forgets the system pairing registry entry (no-op if unregistered), then demotes the row to a ghost.
-  /// Declining iOS Remove Accessory throws `DevicePairingError.cancelled` and leaves the row listed.
-  /// - Parameter id: The device UUID to forget
+  /// Removes the confirmed subject while preserving its radio partition as a Ghost.
   func deleteDevice(id: UUID) async throws {
-    logger.info("deleteDevice called for device: \(id)")
-
-    // Snapshot before removeDevice: ASK can drop BLE, then handleConnectionLoss
-    // nils connectedDevice while wantsConnection stays.
-    let shouldTearDownSession =
-      connectedDevice?.id == id || activeConnectionAttemptDeviceID == id
-    if shouldTearDownSession {
-      isPairingFlowActive = true
-    }
-    defer {
-      if shouldTearDownSession {
-        isPairingFlowActive = false
-      }
-    }
-
-    try await pairing.removeDevice(id)
-    if shouldTearDownSession {
-      await disconnect(reason: .forgetDevice)
-    }
-
-    let dataStore = persistenceStore
-    try await dataStore.demoteDeviceToGhost(id: id)
-
-    // Always clear this device's bond verification; store keys are holder-matched
-    // so a non-last-connected delete still drops its shield.
-    await clearPersistedConnection(for: id)
-
-    logger.info("deleteDevice completed for device: \(id)")
+    let context = try await captureRemoval(id: id)
+    let result = try await removeDevice(
+      context, policy: .wholeDevice(deleteData: false), reason: .forgetDevice, systemPolicy: .required
+    )
+    if case .cancelled = result { throw DevicePairingError.cancelled }
   }
 
   /// Returns devices registered with the system pairing registry (AccessorySetupKit on iOS).
@@ -701,78 +412,34 @@ public extension ConnectionManager {
 // MARK: - DevicePairingDelegate
 
 extension ConnectionManager: DevicePairingDelegate {
-  public func devicePairing(
-    _ service: any DevicePairingService,
-    didRemoveDeviceWithID bluetoothID: UUID
-  ) {
-    logger.info("Device removed from pairing registry: \(bluetoothID)")
-
-    // DevicePairingDelegate is non-async, so bond clear cannot be awaited at the
-    // callback signature. Ordered first in the Task so it runs before reconnect-
-    // adjacent work; residual race with concurrent classify is accepted here.
-    Task {
-      let disconnectBluetoothSession = connectedDevice?.id == bluetoothID && wifiTransport == nil
-
-      // iOS can fire accessoryRemoved while session.accessories still lists the
-      // id. Ghosting then turns a still-authorized radio into a Set Up leftover
-      // that blocks Scan. Keep the Device row so Connect still works.
-      if pairing.isDeviceConnectable(bluetoothID) {
-        await clearPersistedConnection(for: bluetoothID)
-        if disconnectBluetoothSession {
-          await disconnect(reason: .deviceRemovedFromSettings)
-        }
-        logger.info(
-          "ASK still lists \(bluetoothID.uuidString.prefix(8)) after removal; keeping Device row"
-        )
-        return
-      }
-
-      let keptWiFi = await retainedWiFiRowAfterBluetoothRemoval(peripheralID: bluetoothID) != nil
-      if disconnectBluetoothSession {
-        await disconnect(reason: .deviceRemovedFromSettings)
-      }
-      if keptWiFi {
-        return
-      }
-
-      await clearPersistedConnection(for: bluetoothID)
-      let dataStore = persistenceStore
-      do {
-        try await dataStore.demoteDeviceToGhost(id: bluetoothID)
-      } catch {
-        logger.warning("Failed to demote device in SwiftData: \(error.localizedDescription)")
-      }
-    }
+  public func devicePairing(_ service: any DevicePairingService, didRemoveDeviceWithID bluetoothID: UUID) {
+    guard removalDeviceID != bluetoothID else { return }
+    handleRegistryRemoval(bluetoothID, pairingFailed: false)
   }
 
-  public func devicePairing(
-    _ service: any DevicePairingService,
-    didFailPairingForDeviceWithID bluetoothID: UUID
-  ) {
-    // Clean up device record so the device can appear in picker again.
-    // No data cascade — failed pairings have no associated data.
-    logger.info("Pairing failed for device: \(bluetoothID)")
+  public func devicePairing(_ service: any DevicePairingService, didFailPairingForDeviceWithID bluetoothID: UUID) {
+    guard removalDeviceID != bluetoothID else { return }
+    handleRegistryRemoval(bluetoothID, pairingFailed: true)
+  }
 
-    // DevicePairingDelegate is non-async; bond clear is ordered first in the Task.
-    Task {
-      let disconnectBluetoothSession = connectedDevice?.id == bluetoothID && wifiTransport == nil
-      let keptWiFi = await retainedWiFiRowAfterBluetoothRemoval(peripheralID: bluetoothID) != nil
-      if disconnectBluetoothSession {
-        await disconnect(reason: .pairingFailed)
-      }
-      if keptWiFi {
-        return
-      }
-
-      await clearPersistedConnection(for: bluetoothID)
-
-      // Delete device record only — no data exists for a failed pairing
-      let dataStore = persistenceStore
-      do {
-        try await dataStore.deleteDevice(id: bluetoothID)
-        logger.info("Deleted device record after failed pairing")
-      } catch {
-        logger.info("No device record to delete: \(error.localizedDescription)")
+  private func handleRegistryRemoval(_ id: UUID, pairingFailed: Bool) {
+    let identity: ConnectionDeviceIdentity = if let device = connectedDevice, device.id == id {
+      ConnectionDeviceIdentity(device)
+    } else if let attempt = desiredRequest?.attempt, attempt.identity.deviceID == id {
+      attempt.identity
+    } else {
+      ConnectionDeviceIdentity(deviceID: id)
+    }
+    let context = ConnectionRemovalContext(
+      deviceID: id, identity: identity, requestID: desiredRequest?.id, generation: installedLink?.generation
+    )
+    let work = startRemoval(
+      context, policy: .bluetoothAssociation(pairingFailed: pairingFailed),
+      reason: pairingFailed ? .pairingFailed : .deviceRemovedFromSettings, sourceIsCurrent: true
+    )
+    Task { @MainActor in
+      if case let .failure(error) = await work.result {
+        self.logger.warning("Association removal failed: \(error.localizedDescription)")
       }
     }
   }

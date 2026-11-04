@@ -41,8 +41,20 @@ struct PersistentLoggerTests {
       .map(\.message)
   }
 
+  /// Pins collection on. `PersistentLogger` still skips `.debug` and persists `.info`.
   @Test
   func `debug does not persist and info does`() async {
+    let capturedValue = UserDefaults.standard.object(forKey: AppStorageKey.collectDebugLogs.rawValue)
+    UserDefaults.standard.set(true, forKey: AppStorageKey.collectDebugLogs.rawValue)
+    defer {
+      if let capturedValue {
+        UserDefaults.standard.set(capturedValue, forKey: AppStorageKey.collectDebugLogs.rawValue)
+      } else {
+        UserDefaults.standard.removeObject(forKey: AppStorageKey.collectDebugLogs.rawValue)
+      }
+      DebugLogBuffer.shared = nil
+    }
+
     let store = MockPersistenceStore()
     let buffer = DebugLogBuffer(dataStore: store)
 
@@ -63,7 +75,6 @@ struct PersistentLoggerTests {
       )
       if messages.contains("info-line") { break }
     }
-    defer { DebugLogBuffer.shared = nil }
 
     #expect(!messages.contains("debug-line"))
     #expect(messages.contains("info-line"))

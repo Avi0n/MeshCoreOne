@@ -49,7 +49,7 @@ struct DirectMessagesSettingsSection: View {
     isSaving = true
     Task {
       do {
-        _ = try await settingsService.setOtherParamsVerified(from: device, multiAcks: value)
+        try await settingsService.setOtherParamsVerified(multiAcks: value)
         retryAlert.reset()
       } catch let error as SettingsServiceError where error.isRetryable {
         retryAlert.show(

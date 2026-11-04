@@ -153,11 +153,15 @@ public actor RxLogService {
   }
 
   /// Stop monitoring events.
-  public func stopEventMonitoring() {
-    eventMonitorTask?.cancel()
+  public func stopEventMonitoring() async {
+    let eventMonitorTaskToStop = eventMonitorTask
     eventMonitorTask = nil
-    regionReprocessTask?.cancel()
+    eventMonitorTaskToStop?.cancel()
+    let regionReprocessTaskToStop = regionReprocessTask
     regionReprocessTask = nil
+    regionReprocessTaskToStop?.cancel()
+    await eventMonitorTaskToStop?.value
+    await regionReprocessTaskToStop?.value
   }
 
   /// Returns a fresh multicast stream of newly persisted entries.

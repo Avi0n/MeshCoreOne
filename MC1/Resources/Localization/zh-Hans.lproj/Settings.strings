@@ -165,6 +165,9 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "扫描蓝牙设备";
 
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "重新配对中...";
+
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
 "deviceSelection.setup" = "设置";
@@ -746,6 +749,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "这将删除所有存储的调试日志。导出的日志文件不会受到影响。";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "收集调试日志";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "不收集本地调试日志。";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "停用收集";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "停用收集";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "这将删除所有存储的调试日志并停止收集。导出的日志文件不会受到影响。";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "创建导出文件失败";
 
@@ -1021,6 +1039,9 @@
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "密码最多为 63 字节。";
 
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "网络名称或密码包含此无线电无法存储的字符。";
+
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "清除 WiFi 设置";
 
@@ -1200,11 +1221,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "断开连接";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "停止重新连接";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "取消连接";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "已断开";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "连接中...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "正在重新连接...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "等待重新连接";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "已连接";
@@ -1217,6 +1250,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "蓝牙连接状态";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "双击以连接设备";
@@ -1320,6 +1356,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ 部分设置可能已写入设备。请检查设备的配置。";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "向 %@ 导入身份时连接中断。无线电的身份可能已更改。配置导入未完成。";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "重试身份导入";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "此操作将使用所选文件中的私钥，替换通过 %@ 连接的无线电的身份。配置导入不会继续。";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "替换无线电身份？";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "身份已重新应用。配置导入未完成。请再次导入文件以应用其他设置。";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "请选择包含私钥的配置文件以重试身份导入。";
 
 /* Import success */
 "configImport.importSuccess" = "配置导入成功";
@@ -1882,6 +1936,8 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "已达到此下载的瓦片数量限制。";
 
+"offlineMaps.error.providerLimitExceeded" = "请降低精细度或选择更小的区域，以免超出地图提供商的下载限制。";
+
 /* Pause download button */
 "offlineMaps.pause" = "暂停";
 
@@ -1891,8 +1947,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "已暂停";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@：~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "实际大小可能远大于或远小于预计值，具体取决于您选择的区域和精细度。";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "预计大小：~%@";
+"offlineMaps.estimatedSize" = "预计保存的地图大小：~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "下载区域较大，可能需要较长时间并占用大量存储空间。";
@@ -1910,12 +1972,35 @@
 /* Layers section header */
 "offlineMaps.layers" = "图层";
 
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "基础地图精细度";
+
+"offlineMaps.topographyDetail" = "地形精细度";
+
+"offlineMaps.detail.explanation" = "精细度越高，占用的存储空间越多，下载时间也越长。降低精细度可以让您保存更大的区域。";
+
+"offlineMaps.detail.value" = "%@（缩放 %@）";
+
+"offlineMaps.detail.overview" = "概览";
+
+"offlineMaps.detail.regional" = "地区";
+
+"offlineMaps.detail.local" = "城区";
+
+"offlineMaps.detail.detailed" = "精细";
+
+"offlineMaps.storageRemediation" = "请降低精细度或选择更小的区域，使下载大小不超过设备的可用存储空间。";
+
+"offlineMaps.startingDownload" = "正在开始下载…";
+
+"offlineMaps.error.invalidDetail" = "请选择受支持的地图精细度。";
+
 /* Include layers prompt */
 /* No network available */
 "offlineMaps.noNetwork" = "下载地图需要互联网连接。";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "包括地图数据和内部索引。总大小可能超过各项下载的总和。";
+"offlineMaps.storageFooter" = "包括各区域共用的地图数据和数据库索引。各区域的大小相加不等于此总数。";
 
 // MARK: - Backup & Restore
 

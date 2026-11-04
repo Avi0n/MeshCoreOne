@@ -17,23 +17,23 @@ extension AppState {
   /// live conversation view and the navigation-time prefetch so the two cannot
   /// drift into wiring different services.
   @MainActor
-  func makeChatViewModelDependencies() -> ChatViewModel.Dependencies {
+  func makeChatViewModelDependencies(radioID: UUID) -> ChatViewModel.Dependencies {
     ChatViewModel.Dependencies(
-      dataStore: { self.offlineDataStore },
-      messageService: { self.services?.messageService },
-      notificationService: { self.services?.notificationService },
-      channelService: { self.services?.channelService },
-      roomServerService: { self.services?.roomServerService },
-      contactService: { self.services?.contactService },
-      syncCoordinator: { self.syncCoordinator },
+      dataStore: { self.currentRadioID == radioID ? self.offlineDataStore : nil },
+      messageService: { self.connectionSnapshot(for: radioID)?.services.messageService },
+      notificationService: { self.connectionSnapshot(for: radioID)?.services.notificationService },
+      channelService: { self.connectionSnapshot(for: radioID)?.services.channelService },
+      roomServerService: { self.connectionSnapshot(for: radioID)?.services.roomServerService },
+      contactService: { self.connectionSnapshot(for: radioID)?.services.contactService },
+      syncCoordinator: { self.connectionSnapshot(for: radioID)?.services.syncCoordinator },
       connectionState: { self.connectionState },
-      connectedDevice: { self.connectedDevice },
+      connectedDevice: { self.connectionSnapshot(for: radioID)?.device },
       currentRadioID: { self.currentRadioID },
-      session: { self.services?.session },
-      reactionService: { self.services?.reactionService },
-      chatSendQueueService: { self.services?.chatSendQueueService },
-      inlineImageDimensionsStore: { self.services?.inlineImageDimensionsStore },
-      prefetchDataStore: { self.services?.dataStore }
+      session: { self.connectionSnapshot(for: radioID)?.services.session },
+      reactionService: { self.connectionSnapshot(for: radioID)?.services.reactionService },
+      chatSendQueueService: { self.connectionSnapshot(for: radioID)?.services.chatSendQueueService },
+      inlineImageDimensionsStore: { self.connectionSnapshot(for: radioID)?.services.inlineImageDimensionsStore },
+      prefetchDataStore: { self.connectionSnapshot(for: radioID)?.services.dataStore }
     )
   }
 

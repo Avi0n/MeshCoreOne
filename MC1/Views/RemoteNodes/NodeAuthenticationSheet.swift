@@ -4,7 +4,7 @@ import SwiftUI
 
 private let logger = Logger(subsystem: "com.mc1", category: "NodeAuthenticationSheet")
 
-/// Reusable password entry sheet for both room servers and repeaters
+/// Reusable password entry sheet for remote nodes
 struct NodeAuthenticationSheet: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
@@ -78,26 +78,32 @@ struct NodeAuthenticationSheet: View {
         }
       }
       .task {
-        if let remoteNodeService = appState.services?.remoteNodeService,
-           let saved = await remoteNodeService.retrievePassword(forContact: contact) {
-          guard !Task.isCancelled, password.isEmpty, !isAuthenticating else { return }
+        guard let source = appState.connectionSnapshot(for: contact.radioID) else { return }
+        let context = ConnectionCallbackContext(source)
+        if let saved = await source.services.remoteNodeService.retrievePassword(forContact: contact) {
+          guard accepts(context), password.isEmpty, !isAuthenticating else { return }
           password = saved
           hasSavedPassword = true
         }
       }
       .task {
         guard !contact.isFloodRouted, contact.pathHopCount > 0,
-              let radioID = appState.connectedDevice?.radioID else { return }
+              let source = appState.connectionSnapshot(for: contact.radioID) else { return }
+        let context = ConnectionCallbackContext(source)
         await pathViewModel.load(
           contact: contact,
-          services: appState.services,
-          radioID: radioID,
-          userLocation: appState.bestAvailableLocation
+          services: source.services,
+          radioID: contact.radioID,
+          userLocation: appState.bestAvailableLocation,
+          isCurrent: { accepts(context) }
         )
       }
       .sensoryFeedback(.error, trigger: errorMessage)
+      .onChange(of: appState.connectionManager.currentConnection?.generation) { _, _ in
+        cancelAuthentication()
+        didResetPath = false
+      }
       .onDisappear { cancelAuthentication() }
-      .onChange(of: appState.servicesVersion) { _, _ in cancelAuthentication() }
     }
   }
 
@@ -144,6 +150,7 @@ struct NodeAuthenticationSheet: View {
     authenticationTask?.cancel()
     authenticationTask = nil
     isAuthenticating = false
+    isRetryingViaFlood = false
     cleanupCountdownState()
   }
 
@@ -152,38 +159,31 @@ struct NodeAuthenticationSheet: View {
       errorMessage = RemoteNodeError.invalidPasswordLength.userFacingMessage
       return
     }
-    authEpoch.bump()
-    let ticket = authEpoch.ticket()
+    guard let source = appState.connectionSnapshot(for: contact.radioID) else {
+      errorMessage = RemoteNodeError.notConnected.userFacingMessage
+      return
+    }
+    let context = ConnectionCallbackContext(source)
     let submittedPassword = password
     let submittedRememberPassword = rememberPassword
-    // Clear any previous error
+    cancelAuthentication()
+    let ticket = authEpoch.ticket()
     errorMessage = nil
     isAuthenticating = true
-    isRetryingViaFlood = false
-    authenticationTask?.cancel()
-    cleanupCountdownState()
 
     authenticationTask = Task {
       do {
-        guard let device = appState.connectedDevice else {
-          throw RemoteNodeError.notConnected
-        }
+        guard accepts(context, ticket: ticket) else { return }
+        let services = source.services
 
-        guard device.radioID == contact.radioID else { throw RemoteNodeError.notConnected }
-        guard let services = appState.services else {
-          throw RemoteNodeError.notConnected
-        }
-
-        // Reset the firmware's stored path so the login packet is flood-routed.
-        // Only needed once per session — subsequent retries skip the BLE round-trip.
-        // Once any reset has run, the radio's path is gone regardless of what
-        // this sheet's contact snapshot says, so later attempts are flood.
+        // Once any reset has run, later attempts flood-route even if this contact snapshot still has a path.
         let pathLength: UInt8
         if useFloodRouting && !contact.isFloodRouted && !didResetPath {
           try await services.contactService.resetPath(
-            radioID: device.radioID,
+            radioID: contact.radioID,
             publicKey: contact.publicKey
           )
+          guard accepts(context, ticket: ticket) else { return }
           didResetPath = true
           pathLength = PacketBuilder.floodPathSentinel
         } else if useFloodRouting || didResetPath {
@@ -196,45 +196,35 @@ struct NodeAuthenticationSheet: View {
         do {
           session = try await performLogin(
             services: services,
-            device: device,
+            context: context,
             password: submittedPassword,
             rememberPassword: submittedRememberPassword,
             ticket: ticket,
             pathLength: pathLength
           )
         } catch RemoteNodeError.timeout where pathLength != PacketBuilder.floodPathSentinel {
-          try Task.checkCancellation()
-          guard ticket.isCurrent(in: authEpoch), appState.services === services,
-                appState.connectedDevice?.radioID == device.radioID else { throw CancellationError() }
-          // The stored route produced no reply; clear it and let the network
-          // find a path, mirroring what the flood toggle would have done.
-          await MainActor.run {
-            isRetryingViaFlood = true
-            cleanupCountdownState()
-          }
+          guard accepts(context, ticket: ticket) else { return }
+          // The stored route produced no reply. Clear it and let the network find a path.
+          isRetryingViaFlood = true
+          cleanupCountdownState()
           try await services.contactService.resetPath(
-            radioID: device.radioID,
+            radioID: contact.radioID,
             publicKey: contact.publicKey
           )
+          guard accepts(context, ticket: ticket) else { return }
           didResetPath = true
           session = try await performLogin(
             services: services,
-            device: device,
+            context: context,
             password: submittedPassword,
             rememberPassword: submittedRememberPassword,
             ticket: ticket,
             pathLength: PacketBuilder.floodPathSentinel
           )
         }
+        guard accepts(context, ticket: ticket) else { return }
 
-        try Task.checkCancellation()
-        guard ticket.isCurrent(in: authEpoch), appState.services === services,
-              appState.connectedDevice?.radioID == device.radioID else {
-          if role == .sensor { await services.remoteNodeService.disconnect(sessionID: session.id) }
-          throw CancellationError()
-        }
-
-        // Delete saved password if user unchecked "Remember Password"
+        // Sensor login handles its own credential update.
         if role != .sensor, hasSavedPassword, !submittedRememberPassword {
           do {
             try await services.remoteNodeService.deletePassword(forContact: contact)
@@ -243,45 +233,26 @@ struct NodeAuthenticationSheet: View {
           }
         }
 
-        try Task.checkCancellation()
-        await MainActor.run {
-          guard ticket.isCurrent(in: authEpoch), appState.services === services,
-                appState.connectedDevice?.radioID == device.radioID else { return }
-          authenticationTask = nil
-          isRetryingViaFlood = false
-          cleanupCountdownState()
-          dismiss()
-          onSuccess(session)
-        }
+        guard accepts(context, ticket: ticket) else { return }
+        authenticationTask = nil
+        isRetryingViaFlood = false
+        cleanupCountdownState()
+        dismiss()
+        onSuccess(session)
       } catch is CancellationError {
-        await MainActor.run {
-          guard ticket.isCurrent(in: authEpoch) else { return }
-          authenticationTask = nil
-          isRetryingViaFlood = false
-          cleanupCountdownState()
-          isAuthenticating = false
-        }
+        guard accepts(context, ticket: ticket) else { return }
+        cancelAuthentication()
       } catch RemoteNodeError.timeout {
-        await MainActor.run {
-          guard ticket.isCurrent(in: authEpoch), !Task.isCancelled else { return }
-          authenticationTask = nil
-          isRetryingViaFlood = false
-          cleanupCountdownState()
-          errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
-          isAuthenticating = false
-        }
+        guard accepts(context, ticket: ticket) else { return }
+        cancelAuthentication()
+        errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
       } catch {
-        await MainActor.run {
-          guard ticket.isCurrent(in: authEpoch), !Task.isCancelled else { return }
-          authenticationTask = nil
-          isRetryingViaFlood = false
-          cleanupCountdownState()
-          if role == .sensor, requireAdmin, case RemoteNodeError.permissionDenied = error {
-            errorMessage = L10n.RemoteNodes.RemoteNodes.Sensor.adminRequired
-          } else {
-            errorMessage = error.userFacingMessage
-          }
-          isAuthenticating = false
+        guard accepts(context, ticket: ticket) else { return }
+        cancelAuthentication()
+        if role == .sensor, requireAdmin, case RemoteNodeError.permissionDenied = error {
+          errorMessage = L10n.RemoteNodes.RemoteNodes.Sensor.adminRequired
+        } else {
+          errorMessage = error.userFacingMessage
         }
       }
     }
@@ -289,29 +260,27 @@ struct NodeAuthenticationSheet: View {
 
   private func performLogin(
     services: ServiceContainer,
-    device: DeviceDTO,
+    context: ConnectionCallbackContext,
     password: String,
     rememberPassword: Bool,
     ticket: Epoch.Ticket,
     pathLength: UInt8
   ) async throws -> RemoteNodeSessionDTO {
-    // Callback to start countdown when firmware timeout is known
     let onTimeoutKnown: @Sendable (Int) async -> Void = { [self] seconds in
       await MainActor.run {
-        guard ticket.isCurrent(in: authEpoch), !Task.isCancelled else { return }
+        guard accepts(context, ticket: ticket) else { return }
         authTimeoutSeconds = seconds
         authStartTime = Date.now
         authSecondsRemaining = seconds
-        startCountdownTask()
+        startCountdownTask(context: context, ticket: ticket)
       }
     }
 
-    try Task.checkCancellation()
-    guard ticket.isCurrent(in: authEpoch), appState.services === services else { throw CancellationError() }
+    guard accepts(context, ticket: ticket) else { throw CancellationError() }
     switch role {
     case .roomServer:
       return try await services.roomServerService.joinRoom(
-        radioID: device.radioID,
+        radioID: contact.radioID,
         contact: contact,
         password: password,
         rememberPassword: rememberPassword,
@@ -320,13 +289,13 @@ struct NodeAuthenticationSheet: View {
       )
     case .sensor:
       return try await services.remoteNodeService.connectSensor(
-        radioID: device.radioID, contact: contact, password: password,
+        radioID: contact.radioID, contact: contact, password: password,
         rememberPassword: rememberPassword, requireAdmin: requireAdmin,
         pathLength: pathLength, onTimeoutKnown: onTimeoutKnown
       )
     case .repeater:
       return try await services.repeaterAdminService.connectAsAdmin(
-        radioID: device.radioID,
+        radioID: contact.radioID,
         contact: contact,
         password: password,
         rememberPassword: rememberPassword,
@@ -336,11 +305,17 @@ struct NodeAuthenticationSheet: View {
     }
   }
 
+  private func accepts(_ context: ConnectionCallbackContext, ticket: Epoch.Ticket? = nil) -> Bool {
+    !Task.isCancelled && context.isCurrent(appState.connectionManager)
+      && appState.connectionSnapshot(for: contact.radioID) != nil
+      && (ticket?.isCurrent(in: authEpoch) ?? true)
+  }
+
   // MARK: - Countdown
 
   private static let countdownTickInterval: Duration = .seconds(1)
 
-  private func startCountdownTask() {
+  private func startCountdownTask(context: ConnectionCallbackContext, ticket: Epoch.Ticket) {
     countdownTask = Task {
       while !Task.isCancelled, let timeout = authTimeoutSeconds, let startTime = authStartTime {
         do {
@@ -348,6 +323,7 @@ struct NodeAuthenticationSheet: View {
         } catch {
           break
         }
+        guard accepts(context, ticket: ticket) else { return }
 
         let elapsed = Date.now.timeIntervalSince(startTime)
         let remaining = max(0, timeout - Int(elapsed))

@@ -2209,6 +2209,65 @@ struct SyncCoordinatorTests {
       #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: key) != nil)
     }
   }
+
+  @Test
+  @MainActor
+  func `complete empty snapshot removes an ordinary favourite and keeps the V-contact`() async throws {
+    let testDeviceID = UUID()
+    let selfPublicKey = Data(repeating: 0x01, count: 32)
+    let dataStore = try await createTestDataStore(radioID: testDeviceID, maxContacts: 4)
+    let vContactKey = try #require(VContactIdentity.publicKey(forSelfPublicKey: selfPublicKey))
+    let ordinaryKey = Data(repeating: 0x99, count: 32)
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: vContactKey, name: "V-Contact"))
+    _ = try await dataStore.saveContact(
+      radioID: testDeviceID,
+      from: contactFrame(key: ordinaryKey, name: "Favourite", flags: ContactFlags.favorite.rawValue)
+    )
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([])
+    await session.setStubbedReportedTotal(0)
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await contactService.syncContacts(radioID: testDeviceID, since: nil)
+
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: ordinaryKey) == nil)
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: vContactKey) != nil)
+  }
+
+  @Test
+  @MainActor
+  func `duplicate frames do not stand in for a missing distinct key`() async throws {
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(radioID: testDeviceID, maxContacts: 4)
+    let presentKey = Data(repeating: 0x11, count: 32)
+    let missingKey = Data(repeating: 0x99, count: 32)
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: presentKey, name: "Present"))
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: missingKey, name: "Missing"))
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([
+      meshContact(key: presentKey, name: "Present"),
+      meshContact(key: presentKey, name: "Present")
+    ])
+    await session.setStubbedReportedTotal(2)
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await contactService.syncContacts(radioID: testDeviceID, since: nil)
+
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: presentKey) != nil)
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: missingKey) != nil)
+  }
 }
 
 // MARK: - Test Helpers

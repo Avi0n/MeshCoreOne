@@ -165,6 +165,9 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Bluetooth 기기 검색";
 
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "다시 페어링 중...";
+
 /* Trailing control on a previously paired row that still needs iPhone setup */
 "deviceSelection.setup" = "설정";
 
@@ -735,6 +738,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "저장된 모든 디버그 로그가 삭제됩니다. 내보낸 로그 파일에는 영향을 주지 않습니다.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "디버그 로그 수집";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "로컬 디버그 로그가 수집되지 않습니다.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "디버그 로그 수집 끄기";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "끄기";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "저장된 모든 디버그 로그가 삭제되고 수집이 중단됩니다. 내보낸 로그 파일에는 영향을 주지 않습니다.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "내보내기 파일을 만들지 못함";
 
@@ -1026,6 +1044,9 @@
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "암호는 최대 63바이트입니다.";
 
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "네트워크 이름 또는 암호에 이 무선 기기가 저장할 수 없는 문자가 포함되어 있습니다.";
+
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Wi-Fi 설정 지우기";
 
@@ -1205,11 +1226,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "연결 해제";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "다시 연결 중지";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "연결 취소";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "연결 끊김";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "연결 중...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "다시 연결하는 중...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "다시 연결 대기 중";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "연결됨";
@@ -1222,6 +1255,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Bluetooth 연결 상태";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "기기를 연결하려면 이중 탭하십시오";
@@ -1325,6 +1361,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ 일부 설정이 이미 기기에 기록되었을 수 있습니다. 기기의 구성을 검토하십시오.";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "%@에 ID를 가져오는 동안 연결이 중단되었습니다. 무선 기기의 ID가 변경되었을 수 있습니다. 구성 가져오기가 완료되지 않았습니다.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "ID 가져오기 재시도";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "선택한 파일의 개인 키를 사용하여 %@을(를) 통해 연결되는 무선 기기의 ID를 교체합니다. 구성 가져오기는 계속되지 않습니다.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "무선 기기의 ID를 교체하겠습니까?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "ID가 다시 적용되었습니다. 구성 가져오기가 완료되지 않았습니다. 다른 설정을 적용하려면 파일을 다시 가져오십시오.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "ID 가져오기를 다시 시도하려면 개인 키가 포함된 구성 파일을 선택하십시오.";
 
 /* Import success */
 "configImport.importSuccess" = "구성을 가져왔습니다";
@@ -1887,6 +1941,8 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "다운로드 타일 한도에 도달했습니다.";
 
+"offlineMaps.error.providerLimitExceeded" = "지도 제공업체의 다운로드 한도를 넘지 않으려면 상세도를 낮추거나 더 작은 영역을 선택하십시오.";
+
 /* Pause download button */
 "offlineMaps.pause" = "일시 정지";
 
@@ -1896,8 +1952,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "일시 정지됨";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: 약 %@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "실제 크기는 영역과 상세도에 따라 예상보다 훨씬 크거나 작을 수 있습니다.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "예상 크기: 약 %@";
+"offlineMaps.estimatedSize" = "저장될 지도의 대략적인 크기: 약 %@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "다운로드 영역이 큽니다. 시간이 오래 걸리고 저장 공간을 많이 사용할 수 있습니다.";
@@ -1915,12 +1977,35 @@
 /* Layers section header */
 "offlineMaps.layers" = "레이어";
 
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "기본 지도 상세도";
+
+"offlineMaps.topographyDetail" = "지형 상세도";
+
+"offlineMaps.detail.explanation" = "상세도가 높을수록 저장 공간을 더 많이 사용하고 다운로드하는 데 더 오래 걸립니다. 상세도를 낮추면 더 큰 영역을 저장할 수 있습니다.";
+
+"offlineMaps.detail.value" = "%@(줌 %@)";
+
+"offlineMaps.detail.overview" = "개요";
+
+"offlineMaps.detail.regional" = "광역";
+
+"offlineMaps.detail.local" = "인근";
+
+"offlineMaps.detail.detailed" = "상세";
+
+"offlineMaps.storageRemediation" = "사용 가능한 저장 공간에 맞추려면 상세도를 낮추거나 더 작은 영역을 선택하십시오.";
+
+"offlineMaps.startingDownload" = "다운로드 시작 중…";
+
+"offlineMaps.error.invalidDetail" = "지원되는 지도 상세도를 선택하십시오.";
+
 /* Include layers prompt */
 /* No network available */
 "offlineMaps.noNetwork" = "지도를 다운로드하려면 인터넷 연결이 필요합니다.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "지도 데이터와 내부 인덱스가 포함됩니다. 합계는 개별 다운로드의 합보다 클 수 있습니다.";
+"offlineMaps.storageFooter" = "여러 지역이 함께 쓰는 지도 데이터와 데이터베이스 인덱스가 포함됩니다. 지역별 크기를 모두 더해도 이 합계가 되지 않습니다.";
 
 // MARK: - Backup & Restore
 

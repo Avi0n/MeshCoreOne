@@ -16,7 +16,11 @@ struct SettingsServiceRadioCLITests {
     await mock.setCLIReply("Unknown command")
     let missing = try await service.getRadioCLIValue("cad")
     #expect(missing == nil)
-    #expect(await mock.runCliCommandCalls == ["get tz.offset", "get cad"])
+
+    await mock.setCLIReply("??: wifi.enabled")
+    let zephcoreMissing = try await service.getRadioCLIValue("wifi.enabled")
+    #expect(zephcoreMissing == nil)
+    #expect(await mock.runCliCommandCalls == ["get tz.offset", "get cad", "get wifi.enabled"])
   }
 
   @Test
@@ -37,6 +41,11 @@ struct SettingsServiceRadioCLITests {
     await mock.setCLIReply("plain text")
     await expectInvalidResponse {
       try await service.getRadioCLIValue("cad")
+    }
+
+    await mock.setCLIReply("??: wifi.enabled")
+    await expectInvalidResponse {
+      try await service.getRadioCLIValue("wifi.ssid")
     }
   }
 

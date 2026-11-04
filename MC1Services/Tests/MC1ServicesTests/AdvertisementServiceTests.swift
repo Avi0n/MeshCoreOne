@@ -366,6 +366,7 @@ struct AdvertisementServiceTests {
     #expect(await waitForEventProcessing(service, session: session))
     #expect(await service.contactsDeletedDuringSync.contains(key))
     let round = try #require(await service.deltaSyncTask)
+    await service.flushPendingDeletedKeys()
     await hold.release()
     await round.value
 
@@ -1272,8 +1273,11 @@ struct AdvertisementServiceTests {
     #expect(deleted)
 
     // Teardown cancels the round and clears the handler while the commit runs.
-    await service.stopEventMonitoring()
+    let stopping = Task { await service.stopEventMonitoring() }
+    let handlerDropped = await waitUntil { await service.deltaSyncHandler == nil }
+    #expect(handlerDropped)
     await hold.release()
+    await stopping.value
 
     let committed = await waitUntil { await marker.committed }
     #expect(committed)
@@ -2462,17 +2466,16 @@ struct AdvertisementServiceTests {
 
     let key = makePublicKey(seed: 0xA5)
     let storedPath = Data([0xAB, 0xCD])
-    _ = try await store.saveContact(
-      radioID: radioID,
-      from: makeContactFrame(
-        publicKey: key,
-        name: "PathPeer",
-        type: .repeater,
-        lastModified: 1_700_000_100,
-        outPathLength: PacketBuilder.floodPathSentinel,
-        outPath: storedPath
-      )
+    let frame = makeContactFrame(
+      publicKey: key,
+      name: "PathPeer",
+      type: .repeater,
+      lastModified: 1_700_000_100,
+      outPathLength: PacketBuilder.floodPathSentinel,
+      outPath: storedPath
     )
+    _ = try await store.saveContact(radioID: radioID, from: frame)
+    await session.seedRadioContact(frame.toMeshContact())
 
     await startMonitoring(service, session: session)
     let events = service.events()
@@ -2514,15 +2517,14 @@ struct AdvertisementServiceTests {
     let session = MockMeshCoreSession()
     let service = makeService(session: session, store: store)
     let key = makePublicKey(seed: 0xA7)
-    _ = try await store.saveContact(
-      radioID: radioID,
-      from: makeContactFrame(
-        publicKey: key,
-        name: "DirectPeer",
-        outPathLength: PacketBuilder.floodPathSentinel,
-        outPath: Data([0xAB])
-      )
+    let frame = makeContactFrame(
+      publicKey: key,
+      name: "DirectPeer",
+      outPathLength: PacketBuilder.floodPathSentinel,
+      outPath: Data([0xAB])
     )
+    _ = try await store.saveContact(radioID: radioID, from: frame)
+    await session.seedRadioContact(frame.toMeshContact())
 
     await startMonitoring(service, session: session)
     let events = service.events()
@@ -2601,15 +2603,14 @@ struct AdvertisementServiceTests {
     let service = makeService(session: session, store: store)
     let key = makePublicKey(seed: 0xA9)
     let storedPath = Data([0xAB, 0xCD])
-    _ = try await store.saveContact(
-      radioID: radioID,
-      from: makeContactFrame(
-        publicKey: key,
-        name: "RejectedPeer",
-        outPathLength: PacketBuilder.floodPathSentinel,
-        outPath: storedPath
-      )
+    let frame = makeContactFrame(
+      publicKey: key,
+      name: "RejectedPeer",
+      outPathLength: PacketBuilder.floodPathSentinel,
+      outPath: storedPath
     )
+    _ = try await store.saveContact(radioID: radioID, from: frame)
+    await session.seedRadioContact(frame.toMeshContact())
     await session.failNextAddContact(MeshCoreError.timeout)
 
     await startMonitoring(service, session: session)
@@ -3436,11 +3437,12 @@ struct AdvertisementServiceTests {
     }
 
     await startMonitoring(service, session: session)
+    let attemptsBeforeFailure = await store.deleteContactsCallCount
     await store.setStubbedDeleteContactError(AdvertisementServiceTestError.storeUnavailable)
     await session.yieldEvent(.contactDeleted(publicKey: key))
 
     let requeued = await waitUntil {
-      let attempted = await store.deletedContactIDs.contains(saved.id)
+      let attempted = await store.deleteContactsCallCount > attemptsBeforeFailure
       let queued = await service.pendingDeletedKeys.contains(key)
       return attempted && queued
     }

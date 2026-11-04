@@ -16,9 +16,20 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   private var nextSetCustomVarErrorCode: UInt8?
   private var nextGetCustomVarsErrorCode: UInt8?
   private var nextSetPathHashModeErrorCode: UInt8?
+  private var coreStatsUptime: UInt32?
+  private(set) var coreStatsReadCount = 0
+
+  func setCoreStatsUptime(_ uptime: UInt32?) {
+    coreStatsUptime = uptime
+  }
 
   private(set) var readCount = 0
   private(set) var rebootCalled = false
+  private(set) var rebootCallCount = 0
+  private var rebootError: (any Error & Sendable)?
+  private var holdReboot = false
+  private var rebootContinuation: CheckedContinuation<Void, Never>?
+  private(set) var rebootHeld = false
   private(set) var powerOffCallCount = 0
   private var powerOffBehavior: PowerOffBehavior = .poweredOff
   private(set) var setNameCalls: [String] = []
@@ -29,6 +40,10 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   private(set) var setCoordinatesCalls: [(latitude: Double, longitude: Double)] = []
   private(set) var setOtherParamsCalls: [(manualAddContacts: Bool, multiAcks: UInt8?)] = []
   private(set) var setCustomVarCalls: [(key: String, value: String)] = []
+  private(set) var operationTrace: [String] = []
+  private var acceptCustomVarWrites = true
+  private var latitudeAfterGPSOff: Double?
+  private var longitudeAfterGPSOff: Double?
   private(set) var runCliCommandCalls: [String] = []
   /// The command parked by `holdNextCLIReply()`, until `releaseHeldCLIReply()`.
   private(set) var heldCLICommand: String?
@@ -39,6 +54,31 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   private var holdNextCLI = false
   private var holdSkip: Int?
   private var heldCLIContinuation: CheckedContinuation<String, Never>?
+  private var wiFiFirmware: RadioWiFiFirmware?
+  private var heldWiFiReply: String?
+  private var wiFiFailures: [String: WiFiFailure] = [:]
+
+  enum WiFiFailure: Sendable {
+    case rejected
+    case timeoutBeforeApply
+    case timeoutAfterApply
+  }
+
+  func failWiFiCommand(_ command: String, with failure: WiFiFailure) {
+    wiFiFailures[command] = failure
+  }
+
+  func useWiFiFirmware(_ firmware: RadioWiFiFirmware) {
+    wiFiFirmware = firmware
+  }
+
+  func wiFiBootUses(ssid: String, password: String) -> Bool {
+    wiFiFirmware?.bootUses(ssid: ssid, password: password) == true
+  }
+
+  func bootWiFiFirmware() {
+    wiFiFirmware?.boot()
+  }
 
   func setCLIReply(_ reply: String) {
     cliReply = reply
@@ -71,7 +111,8 @@ actor MockConfigurationSession: ConfigurationSessionOps {
 
   /// Returns the parked CLI reply. The reply is the queue head, or `cliReply`.
   func releaseHeldCLIReply() {
-    let reply = dequeueCLIReply()
+    let reply = heldWiFiReply ?? dequeueCLIReply()
+    heldWiFiReply = nil
     let continuation = heldCLIContinuation
     heldCLIContinuation = nil
     Task.detached { continuation?.resume(returning: reply) }
@@ -140,6 +181,7 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   // MARK: - Device Info
 
   func sendAppStart() async throws -> SelfInfo {
+    operationTrace.append("sendAppStart")
     readCount += 1
     return selfInfo
   }
@@ -174,6 +216,7 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   }
 
   func setCoordinates(latitude: Double, longitude: Double) async throws {
+    operationTrace.append("setCoordinates")
     setCoordinatesCalls.append((latitude, longitude))
     guard !suppressWrites else { return }
     selfInfo = patched(latitude: latitude, longitude: longitude)
@@ -212,7 +255,46 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   ) async throws {
     setOtherParamsCalls.append((manualAddContacts, multiAcks))
     guard !suppressWrites else { return }
-    selfInfo = patched(multiAcks: multiAcks ?? selfInfo.multiAcks, manualAddContacts: manualAddContacts)
+    selfInfo = patched(
+      multiAcks: multiAcks ?? selfInfo.multiAcks,
+      manualAddContacts: manualAddContacts,
+      telemetryModeEnvironment: telemetryModeEnvironment,
+      telemetryModeLocation: telemetryModeLocation,
+      telemetryModeBase: telemetryModeBase,
+      advertisementLocationPolicy: advertisementLocationPolicy
+    )
+  }
+
+  private var applyOtherParamsHold: (@Sendable () async throws -> Void)?
+  private var nextApplyOtherParamsError: Error?
+
+  func setApplyOtherParamsHold(_ hold: (@Sendable () async throws -> Void)?) {
+    applyOtherParamsHold = hold
+  }
+
+  func failNextApplyOtherParams(_ error: Error) {
+    nextApplyOtherParamsError = error
+  }
+
+  private(set) var appliedOtherParamsIntents: [OtherParamsIntent] = []
+
+  func applyOtherParams(_ intent: OtherParamsIntent) async throws {
+    appliedOtherParamsIntents.append(intent)
+    if let error = nextApplyOtherParamsError {
+      nextApplyOtherParamsError = nil
+      throw error
+    }
+    try await applyOtherParamsHold?()
+    guard !intent.isEmpty, !suppressWrites else { return }
+    let updated = intent.applied(to: OtherParamsConfig(from: selfInfo))
+    selfInfo = patched(
+      multiAcks: updated.multiAcks,
+      manualAddContacts: updated.manualAddContacts,
+      telemetryModeEnvironment: updated.telemetryModeEnvironment,
+      telemetryModeLocation: updated.telemetryModeLocation,
+      telemetryModeBase: updated.telemetryModeBase,
+      advertisementLocationPolicy: updated.advertisementLocationPolicy
+    )
   }
 
   /// Make the next `setPathHashMode` throw `MeshCoreError.deviceError(code:)`.
@@ -220,8 +302,15 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     nextSetPathHashModeErrorCode = code
   }
 
+  private var pathHashModeHold: (@Sendable () async throws -> Void)?
+
+  func setPathHashModeHold(_ hold: (@Sendable () async throws -> Void)?) {
+    pathHashModeHold = hold
+  }
+
   func setPathHashMode(_ mode: UInt8) async throws {
     setPathHashModeCalls.append(mode)
+    try await pathHashModeHold?()
     if let code = nextSetPathHashModeErrorCode {
       nextSetPathHashModeErrorCode = nil
       throw MeshCoreError.deviceError(code: code)
@@ -232,6 +321,28 @@ actor MockConfigurationSession: ConfigurationSessionOps {
 
   func reboot() async throws {
     rebootCalled = true
+    rebootCallCount += 1
+    if holdReboot {
+      holdReboot = false
+      rebootHeld = true
+      await withCheckedContinuation { rebootContinuation = $0 }
+      rebootHeld = false
+    }
+    if let rebootError { throw rebootError }
+  }
+
+  func holdNextReboot() {
+    holdReboot = true
+  }
+
+  func releaseReboot() {
+    let continuation = rebootContinuation
+    rebootContinuation = nil
+    continuation?.resume()
+  }
+
+  func failReboot(_ error: any Error & Sendable) {
+    rebootError = error
   }
 
   enum PowerOffBehavior: Sendable {
@@ -276,7 +387,17 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     nextGetCustomVarsErrorCode = code
   }
 
+  func setCoordinatesAfterGPSOff(latitude: Double? = nil, longitude: Double? = nil) {
+    if let latitude { latitudeAfterGPSOff = latitude }
+    if let longitude { longitudeAfterGPSOff = longitude }
+  }
+
+  func setAcceptCustomVarWrites(_ accept: Bool) {
+    acceptCustomVarWrites = accept
+  }
+
   func getCustomVars() async throws -> [String: String] {
+    operationTrace.append("getCustomVars")
     readCount += 1
     if let code = nextGetCustomVarsErrorCode {
       nextGetCustomVarsErrorCode = nil
@@ -286,17 +407,34 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   }
 
   func setCustomVar(key: String, value: String) async throws {
+    operationTrace.append("setCustomVar(\(key),\(value))")
     setCustomVarCalls.append((key, value))
     if let code = nextSetCustomVarErrorCode {
       nextSetCustomVarErrorCode = nil
       throw MeshCoreError.deviceError(code: code)
     }
-    guard !suppressWrites else { return }
+    guard acceptCustomVarWrites, !suppressWrites else { return }
     customVars[key] = value
+    if key == "gps", value == "0" {
+      selfInfo = patched(latitude: latitudeAfterGPSOff, longitude: longitudeAfterGPSOff)
+    }
+  }
+
+  func runCorrelatedCliCommand(_ command: String) async throws -> String {
+    try await runCliCommand(command)
   }
 
   func runCliCommand(_ command: String) async throws -> String {
     runCliCommandCalls.append(command)
+    if let failure = wiFiFailures.removeValue(forKey: command) {
+      switch failure {
+      case .rejected: return RadioWiFiFirmware.reflectedReply("Error: rejected", to: command)
+      case .timeoutBeforeApply: throw MeshCoreError.timeout
+      case .timeoutAfterApply:
+        _ = wiFiFirmware?.reply(to: command)
+        throw MeshCoreError.timeout
+      }
+    }
     if let failure = takeDueCLIFailure() {
       throw failure
     }
@@ -315,6 +453,9 @@ actor MockConfigurationSession: ConfigurationSessionOps {
       holdNextCLI = false
       return await parkCLI(command)
     }
+    if let reply = wiFiFirmware?.reply(to: command) {
+      return reply
+    }
     return dequeueCLIReply()
   }
 
@@ -330,6 +471,7 @@ actor MockConfigurationSession: ConfigurationSessionOps {
 
   private func parkCLI(_ command: String) async -> String {
     heldCLICommand = command
+    heldWiFiReply = wiFiFirmware?.reply(to: command)
     let reply = await withCheckedContinuation { (continuation: CheckedContinuation<String, Never>) in
       heldCLIContinuation = continuation
     }
@@ -363,7 +505,9 @@ actor MockConfigurationSession: ConfigurationSessionOps {
 
   func factoryReset() async throws {}
   func getStatsCore() async throws -> CoreStats {
-    throw MeshCoreError.timeout
+    coreStatsReadCount += 1
+    guard let coreStatsUptime else { throw MeshCoreError.timeout }
+    return CoreStats(batteryMV: 3700, uptimeSeconds: coreStatsUptime, errors: 0, queueLength: 0)
   }
 
   func getStatsRadio() async throws -> RadioStats {
@@ -391,6 +535,10 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     longitude: Double? = nil,
     multiAcks: UInt8? = nil,
     manualAddContacts: Bool? = nil,
+    telemetryModeEnvironment: UInt8? = nil,
+    telemetryModeLocation: UInt8? = nil,
+    telemetryModeBase: UInt8? = nil,
+    advertisementLocationPolicy: UInt8? = nil,
     radioFrequency: Double? = nil,
     radioBandwidth: Double? = nil,
     radioSpreadingFactor: UInt8? = nil,
@@ -405,10 +553,10 @@ actor MockConfigurationSession: ConfigurationSessionOps {
       latitude: latitude ?? selfInfo.latitude,
       longitude: longitude ?? selfInfo.longitude,
       multiAcks: multiAcks ?? selfInfo.multiAcks,
-      advertisementLocationPolicy: selfInfo.advertisementLocationPolicy,
-      telemetryModeEnvironment: selfInfo.telemetryModeEnvironment,
-      telemetryModeLocation: selfInfo.telemetryModeLocation,
-      telemetryModeBase: selfInfo.telemetryModeBase,
+      advertisementLocationPolicy: advertisementLocationPolicy ?? selfInfo.advertisementLocationPolicy,
+      telemetryModeEnvironment: telemetryModeEnvironment ?? selfInfo.telemetryModeEnvironment,
+      telemetryModeLocation: telemetryModeLocation ?? selfInfo.telemetryModeLocation,
+      telemetryModeBase: telemetryModeBase ?? selfInfo.telemetryModeBase,
       manualAddContacts: manualAddContacts ?? selfInfo.manualAddContacts,
       radioFrequency: radioFrequency ?? selfInfo.radioFrequency,
       radioBandwidth: radioBandwidth ?? selfInfo.radioBandwidth,

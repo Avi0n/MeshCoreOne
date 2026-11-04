@@ -138,12 +138,11 @@ struct TelemetrySettingsSection: View {
     isSaving = true
     Task {
       do {
-        let modes = TelemetryModes(
-          base: base ?? device.telemetryModeBase,
-          location: location ?? device.telemetryModeLoc,
-          environment: environment ?? device.telemetryModeEnv
+        try await settingsService.setOtherParamsVerified(
+          telemetryModeBase: base,
+          telemetryModeLocation: location,
+          telemetryModeEnvironment: environment
         )
-        _ = try await settingsService.setOtherParamsVerified(from: device, telemetryModes: modes)
         retryAlert.reset()
       } catch let error as SettingsServiceError where error.isRetryable {
         retryAlert.show(

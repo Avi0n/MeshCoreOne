@@ -83,26 +83,24 @@ private func makeIncomingMessage(
 @Suite("ChatViewModel Reaction Indexing")
 @MainActor
 struct ChatViewModelReactionIndexingTests {
-  private func makeViewModel(with message: MessageDTO) -> ChatViewModel {
+  private func makeViewModel(with message: MessageDTO) -> (ChatViewModel, ChatCoordinator) {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
     viewModel.bindCoordinatorForTesting(coordinator)
     coordinator.replaceAllForTesting([message])
-    return viewModel
+    return (viewModel, coordinator)
   }
 
   @Test
   func `DM scope matches a queued pending reaction, persists it scoped to the contact, and updates the summary`() async throws {
-    let container = try PersistenceStore.createContainer(inMemory: true)
-    let dataStore = PersistenceStore(modelContainer: container)
     let reactionService = ReactionService()
 
     let radioID = UUID()
     let contact = makeContact(radioID: radioID)
     let message = makeIncomingMessage(radioID: radioID, contactID: contact.id)
+    let (viewModel, coordinator) = makeViewModel(with: message)
+    let dataStore = coordinator.dataStore
     try await dataStore.saveMessage(message)
-
-    let viewModel = makeViewModel(with: message)
 
     // Queue a reaction whose target hasn't been indexed yet, as the live
     // receive path does when the referenced message isn't in the cache.
@@ -126,6 +124,7 @@ struct ChatViewModelReactionIndexingTests {
       reactionService: reactionService,
       dataStore: dataStore
     )
+    await coordinator.coalescedReloadTask?.value
 
     let persisted = try await dataStore.fetchReactions(for: message.id)
     #expect(persisted.count == 1)
@@ -140,8 +139,6 @@ struct ChatViewModelReactionIndexingTests {
 
   @Test
   func `Channel scope matches a queued pending reaction, persists it scoped to the channel, and updates the summary`() async throws {
-    let container = try PersistenceStore.createContainer(inMemory: true)
-    let dataStore = PersistenceStore(modelContainer: container)
     let reactionService = ReactionService()
 
     let radioID = UUID()
@@ -151,9 +148,9 @@ struct ChatViewModelReactionIndexingTests {
       channelIndex: channel.index,
       senderNodeName: "Alice"
     )
+    let (viewModel, coordinator) = makeViewModel(with: message)
+    let dataStore = coordinator.dataStore
     try await dataStore.saveMessage(message)
-
-    let viewModel = makeViewModel(with: message)
 
     let rawText = reactionService.buildReactionText(
       emoji: "🔥",
@@ -176,6 +173,7 @@ struct ChatViewModelReactionIndexingTests {
       reactionService: reactionService,
       dataStore: dataStore
     )
+    await coordinator.coalescedReloadTask?.value
 
     let persisted = try await dataStore.fetchReactions(for: message.id)
     #expect(persisted.count == 1)
@@ -190,16 +188,14 @@ struct ChatViewModelReactionIndexingTests {
 
   @Test
   func `Re-queued duplicate reaction is dropped by the reactionExists guard`() async throws {
-    let container = try PersistenceStore.createContainer(inMemory: true)
-    let dataStore = PersistenceStore(modelContainer: container)
     let reactionService = ReactionService()
 
     let radioID = UUID()
     let contact = makeContact(radioID: radioID)
     let message = makeIncomingMessage(radioID: radioID, contactID: contact.id)
+    let (viewModel, coordinator) = makeViewModel(with: message)
+    let dataStore = coordinator.dataStore
     try await dataStore.saveMessage(message)
-
-    let viewModel = makeViewModel(with: message)
 
     let rawText = ReactionParser.buildDMReactionText(
       emoji: "👍",
@@ -224,6 +220,7 @@ struct ChatViewModelReactionIndexingTests {
         reactionService: reactionService,
         dataStore: dataStore
       )
+      await coordinator.coalescedReloadTask?.value
     }
 
     let persisted = try await dataStore.fetchReactions(for: message.id)
@@ -232,17 +229,15 @@ struct ChatViewModelReactionIndexingTests {
 
   @Test
   func `Channel scope skips outgoing messages when the local node name is unknown`() async throws {
-    let container = try PersistenceStore.createContainer(inMemory: true)
-    let dataStore = PersistenceStore(modelContainer: container)
     let reactionService = ReactionService()
 
     let radioID = UUID()
     let channel = makeChannel(radioID: radioID)
     var message = makeIncomingMessage(radioID: radioID, channelIndex: channel.index, senderNodeName: nil)
     message.direction = .outgoing
+    let (viewModel, coordinator) = makeViewModel(with: message)
+    let dataStore = coordinator.dataStore
     try await dataStore.saveMessage(message)
-
-    let viewModel = makeViewModel(with: message)
 
     let rawText = reactionService.buildReactionText(
       emoji: "🔥",

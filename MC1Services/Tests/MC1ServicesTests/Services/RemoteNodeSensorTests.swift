@@ -170,7 +170,9 @@ extension RemoteNodeSensorTests {
     await h.session.setSendLoginResults(Array(repeating: .success(
       MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100)
     ), count: roles.count))
-    let task = Task { await h.service.handleBLEReconnection(sessionIDs: Set(nodes.map(\.id))) }
+    let task = Task {
+      await h.service.handleLinkReconnection(radioID: h.remote.radioID, sessionIDs: Set(nodes.map(\.id)))
+    }
     for index in roles.indices {
       try await waitUntil("one login should be outstanding") { await h.session.sendLoginInvocations.count == index + 1 }
       #expect(await h.service.pendingLoginCount == 1)

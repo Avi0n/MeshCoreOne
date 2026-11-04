@@ -249,7 +249,7 @@ extension LocationPickerView {
         throw SettingsServiceError.notConnected
       }
       let previousDevice = appState.connectedDevice
-      let verifiedInfo = try await settingsService.setManualLocationVerified(
+      _ = try await settingsService.setManualLocationVerified(
         latitude: coordinate.latitude,
         longitude: coordinate.longitude
       )
@@ -266,17 +266,7 @@ extension LocationPickerView {
 
       if previousDevice.sharesLocationPublicly,
          previousDevice.advertLocationPolicyMode == .share {
-        let telemetryModes = TelemetryModes(
-          base: verifiedInfo.telemetryModeBase,
-          location: verifiedInfo.telemetryModeLocation,
-          environment: verifiedInfo.telemetryModeEnvironment
-        )
-        _ = try await settingsService.setOtherParamsVerified(
-          autoAddContacts: !verifiedInfo.manualAddContacts,
-          telemetryModes: telemetryModes,
-          advertLocationPolicy: .prefs,
-          multiAcks: verifiedInfo.multiAcks
-        )
+        try await settingsService.setOtherParamsVerified(advertLocationPolicy: .prefs)
       }
     }
   }

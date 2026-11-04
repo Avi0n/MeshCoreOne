@@ -63,6 +63,8 @@ public enum AppStorageKey: String {
   /// hardware still shows the current release's notes once. Registering it would
   /// suppress the sheet on a genuinely new device.
   case lastShownWhatsNewVersion
+  /// Left out of `BackupUserDefaults`, so a restored on value cannot enable collection. A missing key stays off.
+  case collectDebugLogs
 
   // Notification toggles read by NotificationPreferences and
   // NotificationPreferencesStore; all share defaultNotificationEnabled.

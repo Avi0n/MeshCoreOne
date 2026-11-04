@@ -165,6 +165,9 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Scannen naar Bluetooth-apparaat";
 
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "Opnieuw koppelen...";
+
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
 "deviceSelection.setup" = "Instellen";
@@ -746,6 +749,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Dit verwijdert alle opgeslagen debuglogboeken. Geëxporteerde logbestanden worden niet beïnvloed.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Debuglogboeken verzamelen";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Lokale debuglogboeken worden niet verzameld.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Verzamelen uitschakelen";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Verzamelen uitschakelen";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Dit verwijdert alle opgeslagen debuglogboeken en stopt met het verzamelen ervan. Geëxporteerde logbestanden worden niet beïnvloed.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Kan exportbestand niet maken";
 
@@ -986,6 +1004,9 @@
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "Een wachtwoord kan maximaal 63 bytes zijn.";
 
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "De netwerknaam of het wachtwoord bevat een teken dat deze radio niet kan opslaan.";
+
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Wifi-instellingen wissen";
 
@@ -1165,11 +1186,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "Verbinding verbreken";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "Stoppen met opnieuw verbinden";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "Verbinding annuleren";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "Niet verbonden";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "Verbinden...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "Opnieuw verbinden...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "Wachten om opnieuw te verbinden";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Verbonden";
@@ -1182,6 +1215,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Bluetooth-verbindingsstatus";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "Dubbeltik om apparaat te verbinden";
@@ -1320,6 +1356,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ Sommige instellingen zijn mogelijk al naar het apparaat geschreven. Controleer de configuratie van het apparaat.";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "De verbinding werd onderbroken tijdens het importeren van de identiteit op %@. De identiteit van de radio is mogelijk gewijzigd. Het importeren van de configuratie is niet voltooid.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "Identiteit opnieuw importeren";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "Hiermee wordt de identiteit van de radio die op %@ is bereikt vervangen met behulp van de privésleutel in het geselecteerde bestand. Het importeren van de configuratie wordt niet voortgezet.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "Identiteit van de radio vervangen?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "De identiteit is opnieuw toegepast. Het importeren van de configuratie is niet voltooid. Importeer het bestand opnieuw om de overige instellingen toe te passen.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "Selecteer een configuratiebestand met de privésleutel om de identiteit opnieuw te importeren.";
 
 /* Import success */
 "configImport.importSuccess" = "Configuratie succesvol geïmporteerd";
@@ -1882,6 +1936,8 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "De tegellimiet voor deze download is bereikt.";
 
+"offlineMaps.error.providerLimitExceeded" = "Kies minder detail of selecteer een kleiner gebied om binnen de downloadlimiet van de kaartaanbieder te blijven.";
+
 /* Pause download button */
 "offlineMaps.pause" = "Pauzeren";
 
@@ -1891,8 +1947,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Gepauzeerd";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "De werkelijke grootte kan veel groter of kleiner zijn, afhankelijk van het gebied en het detail.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Geschatte grootte: ~%@";
+"offlineMaps.estimatedSize" = "Geschatte grootte van de opgeslagen kaart: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Groot downloadgebied. Dit kan even duren en aanzienlijke opslagruimte gebruiken.";
@@ -1910,12 +1972,35 @@
 /* Layers section header */
 "offlineMaps.layers" = "Kaartlagen";
 
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Detail basiskaart";
+
+"offlineMaps.topographyDetail" = "Detail topografie";
+
+"offlineMaps.detail.explanation" = "Meer detail gebruikt meer opslag en het downloaden duurt langer. Met minder detail kun je grotere gebieden opslaan.";
+
+"offlineMaps.detail.value" = "%@ (zoom %@)";
+
+"offlineMaps.detail.overview" = "Overzicht";
+
+"offlineMaps.detail.regional" = "Regionaal";
+
+"offlineMaps.detail.local" = "Lokaal";
+
+"offlineMaps.detail.detailed" = "Gedetailleerd";
+
+"offlineMaps.storageRemediation" = "Kies minder detail of selecteer een kleiner gebied, zodat de download in de beschikbare opslagruimte past.";
+
+"offlineMaps.startingDownload" = "Download starten…";
+
+"offlineMaps.error.invalidDetail" = "Kies een ondersteund detailniveau voor de kaart.";
+
 /* Include layers prompt */
 /* No network available */
 "offlineMaps.noNetwork" = "Een internetverbinding is vereist om kaarten te downloaden.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Omvat kaartgegevens en interne indexen. Het totaal kan groter zijn dan de som van de afzonderlijke downloads.";
+"offlineMaps.storageFooter" = "Omvat gedeelde kaartgegevens en database-indexen. De groottes van de regio's tellen niet op tot dit totaal.";
 
 // MARK: - Backup & Restore
 

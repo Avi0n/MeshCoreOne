@@ -39,7 +39,8 @@ struct PairingStrandedAssociationTests {
     try await #expect {
       try await manager.pairNewDevice()
     } throws: { error in
-      guard let pairingError = error as? PairingError else { return false }
+      guard let failure = error as? ConnectionRequestFailure,
+            manager.isCurrent(failure), let pairingError = failure.underlying as? PairingError else { return false }
       return pairingError.isAuthenticationFailure && pairingError.deviceID == deviceID
     }
 
@@ -68,7 +69,8 @@ struct PairingStrandedAssociationTests {
     try await #expect {
       try await manager.pairNewDevice()
     } throws: { error in
-      guard let pairingError = error as? PairingError else { return false }
+      guard let failure = error as? ConnectionRequestFailure,
+            manager.isCurrent(failure), let pairingError = failure.underlying as? PairingError else { return false }
       return !pairingError.isAuthenticationFailure && pairingError.deviceID == deviceID
     }
 
@@ -382,9 +384,14 @@ struct PairingStrandedAssociationTests {
       connectionIntent: .wantsConnection()
     )
     manager.testPairingAdoptionSettleTimeout = .milliseconds(80)
+    let request = ConnectionRequest(
+      targets: [.bluetooth(UUID())], origin: .explicit, forceFullSync: false, forceReconnect: false, continuing: nil
+    )
+    manager.desiredRequest = request
+    let requestID = request.id
 
     try await #expect {
-      try await manager.waitForPairingAdoptionToSettle()
+      try await manager.waitForPairingAdoptionToSettle(expectedRequestID: requestID)
     } throws: { error in
       if case let BLEError.connectionFailed(detail) = error {
         return detail == ConnectionManager.pairingAdoptionTimedOutDetail
@@ -412,7 +419,8 @@ struct PairingStrandedAssociationTests {
     try await #expect {
       try await manager.connect(to: deviceID, forceFullSync: true, forceReconnect: true)
     } throws: { error in
-      if case BLEError.deviceConnectedToOtherApp = error { return true }
+      if let failure = error as? ConnectionRequestFailure,
+         manager.isCurrent(failure), case BLEError.deviceConnectedToOtherApp = failure.underlying { return true }
       return false
     }
   }
@@ -426,132 +434,97 @@ struct PairingStrandedAssociationTests {
     }
   }
 
+  private func withRadioHarness(
+    _ operation: @MainActor (ConnectionManagerRadioTestHarness) async throws -> Void
+  ) async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    do { try await operation(env) } catch { await env.close(); throw error }
+    await env.close()
+  }
+
   @Test
   func `settings removal during a wifi session keeps the row and the session`() async throws {
-    let suiteName = "test.\(UUID().uuidString)"
-    let defaults = try #require(UserDefaults(suiteName: suiteName))
-    defer { defaults.removePersistentDomain(forName: suiteName) }
-    let env = try ConnectionManager.createForPairingTesting(defaults: defaults)
-    defer { env.cleanup() }
-    let manager = env.manager
-    let peripheralID = UUID()
-    let radioID = UUID()
-    let device = dualDevice(id: peripheralID, peripheralID: peripheralID, radioID: radioID)
+    try await withRadioHarness { env in
+      _ = try await env.connect(.bluetooth)
+      _ = try await env.connect(.wifi)
+      let manager = env.manager
+      let before = try #require(manager.currentConnection)
+      let binding = try #require(manager.installedLink?.resource.binding)
+      await manager.recordBondVerification(deviceID: before.device.id, binding: binding)
+      var clearedLastConnection = false
+      manager.onLastConnectedDeviceCleared = { clearedLastConnection = true }
 
-    try await manager.persistenceStore.saveDevice(device)
-    manager.persistConnection(deviceID: peripheralID, radioID: radioID, deviceName: device.nodeName)
-    await manager.recordBondVerification(deviceID: peripheralID)
-    var clearedLastConnection = false
-    manager.onLastConnectedDeviceCleared = { clearedLastConnection = true }
-    manager.wifiTransport = WiFiTransport()
-    manager.setTestState(
-      connectionState: .ready,
-      connectedDevice: device,
-      currentTransportType: .wifi,
-      connectionIntent: .wantsConnection()
-    )
+      manager.devicePairing(manager.pairing, didRemoveDeviceWithID: before.device.id)
+      await manager.metadataCommitTask?.value
+      try await waitUntil("live WiFi projection should reflect confirmed Bluetooth removal") {
+        manager.connectedDevice?.bluetoothPeripheralID == nil
+      }
 
-    manager.devicePairing(manager.pairing, didRemoveDeviceWithID: peripheralID)
-    try await waitUntil("settings removal should strip Bluetooth and keep WiFi") {
-      let row = try? await manager.persistenceStore.fetchDevice(id: peripheralID)
-      return row?.connectionMethods == [.wifi(host: "10.0.0.4", port: 5000, displayName: nil)]
+      #expect(manager.isCurrent(before))
+      #expect(manager.connectionState == .ready)
+      #expect(manager.wifiTransport != nil)
+      #expect(manager.lastConnectedDeviceID == before.device.id)
+      #expect(!clearedLastConnection)
+      #expect(await env.stateMachine.recordedBondVerifications[before.device.id] == nil)
+      let rows = try await manager.persistenceStore.fetchDevices()
+      #expect(rows.map(\.id) == [before.device.id])
+      #expect(rows.first?.radioID == before.device.radioID)
+      #expect(rows.first?.connectionMethods.allSatisfy(\.isWiFi) == true)
+      #expect(try await manager.session?.getTime() != nil)
     }
-
-    #expect(manager.connectionState == .ready)
-    #expect(manager.wifiTransport != nil)
-    #expect(manager.lastConnectedDeviceID == peripheralID)
-    #expect(clearedLastConnection == false)
-    #expect(manager.connectedDevice?.bluetoothPeripheralID == nil)
-    #expect(manager.connectedDevice?.id == peripheralID)
-    #expect(LastConnectionStore(defaults: defaults).bondVerificationDate(for: peripheralID) == nil)
-    #expect(await env.stateMachine.recordedBondVerifications[peripheralID] == nil)
-    let rows = try await manager.persistenceStore.fetchDevices()
-    #expect(rows.map(\.id) == [peripheralID])
-    #expect(rows.first?.radioID == radioID)
   }
 
   @Test
   func `settings removal during a bluetooth session disconnects and keeps wifi`() async throws {
-    let env = try ConnectionManager.createForPairingTesting()
-    defer { env.cleanup() }
-    let manager = env.manager
-    let peripheralID = UUID()
-    let radioID = UUID()
-    let device = dualDevice(id: peripheralID, peripheralID: peripheralID, radioID: radioID)
+    try await withRadioHarness { env in
+      _ = try await env.connect(.bluetooth)
+      let manager = env.manager
+      let before = try #require(manager.currentConnection)
+      let wifi = ConnectionMethod.wifi(host: "radio.test", port: 5123, displayName: nil)
+      try await manager.persistenceStore.saveDevice(before.device.copy { $0.connectionMethods.append(wifi) })
+      let disconnectsBefore = await env.ble.disconnectCount
 
-    try await manager.persistenceStore.saveDevice(device)
-    manager.persistConnection(deviceID: peripheralID, radioID: radioID, deviceName: device.nodeName)
-    manager.setTestState(
-      connectionState: .connected,
-      connectedDevice: device,
-      currentTransportType: .bluetooth,
-      connectionIntent: .wantsConnection()
-    )
-    let disconnectsBefore = await env.transport.disconnectInvocations
+      manager.devicePairing(manager.pairing, didRemoveDeviceWithID: before.device.id)
+      await manager.retirementTask?.value
+      await manager.metadataCommitTask?.value
 
-    manager.devicePairing(manager.pairing, didRemoveDeviceWithID: peripheralID)
-    try await waitUntil("settings removal should disconnect the Bluetooth session") {
-      manager.connectionState == .disconnected
-        && manager.connectedDevice == nil
-        && manager.currentTransportType == nil
+      #expect(manager.connectionState == .disconnected)
+      #expect(manager.connectedDevice == nil)
+      #expect(manager.currentTransportType == nil)
+      let row = try await manager.persistenceStore.fetchDevice(id: before.device.id)
+      #expect(row?.connectionMethods == [wifi])
+      #expect(row?.radioID == before.device.radioID)
+      #expect(manager.lastConnectedDeviceID == before.device.id)
+      #expect(await env.ble.disconnectCount > disconnectsBefore)
     }
-
-    let row = try await manager.persistenceStore.fetchDevice(id: peripheralID)
-    #expect(row?.connectionMethods == [.wifi(host: "10.0.0.4", port: 5000, displayName: nil)])
-    #expect(row?.radioID == radioID)
-    #expect(manager.lastConnectedDeviceID == peripheralID)
-    #expect(await env.transport.disconnectInvocations > disconnectsBefore)
   }
 
   @Test
   func `settings removal after a wifi give-up disconnects the bluetooth transport`() async throws {
-    let env = try ConnectionManager.createForPairingTesting()
-    defer { env.cleanup() }
-    let manager = env.manager
-    let peripheralID = UUID()
-    let radioID = UUID()
-    let device = dualDevice(id: peripheralID, peripheralID: peripheralID, radioID: radioID)
-    try await manager.persistenceStore.saveDevice(device)
+    try await withRadioHarness { env in
+      let manager = env.manager
+      _ = try await env.connect(.bluetooth)
+      _ = try await env.connect(.wifi)
+      manager.testWiFiMaxReconnectDuration = .seconds(-1)
+      await env.wifi.simulateRemoteLoss()
+      try await waitUntil("owned WiFi give-up should finish retirement") {
+        manager.connectionState == .disconnected && manager.connectionTeardownCount == 0
+          && manager.wifiReconnectTask == nil
+      }
+      _ = try await env.connect(.bluetooth)
+      let before = try #require(manager.currentConnection)
+      let disconnectsBefore = await env.ble.disconnectCount
+      manager.devicePairing(manager.pairing, didRemoveDeviceWithID: before.device.id)
+      await manager.retirementTask?.value
+      await manager.metadataCommitTask?.value
 
-    manager.testWiFiMaxReconnectDuration = .seconds(-1)
-    manager.setTestState(
-      connectionState: .ready,
-      currentTransportType: .wifi,
-      connectionIntent: .wantsConnection()
-    )
-    manager.wifiTransport = WiFiTransport()
-    await manager.checkWiFiConnectionHealth()
-    try await waitUntil("WiFi reconnect timeout should release the transport") {
-      manager.wifiTransport == nil && manager.currentTransportType == nil
+      #expect(manager.connectionState == .disconnected)
+      #expect(manager.wifiTransport == nil)
+      #expect(await env.ble.disconnectCount > disconnectsBefore)
+      let row = try await manager.persistenceStore.fetchDevice(id: before.device.id)
+      #expect(row?.radioID == before.device.radioID)
+      #expect(row?.connectionMethods.allSatisfy(\.isWiFi) == true)
     }
-
-    let session = MeshCoreSession(transport: SimulatorMockTransport())
-    let services = try await ServiceContainer.forTesting(session: session, radioID: radioID)
-    manager.setTestState(
-      connectionState: .connected,
-      services: services,
-      session: session,
-      connectedDevice: device,
-      connectionIntent: .wantsConnection()
-    )
-    let promoted = await manager.promoteToReady(
-      syncResult: FullSyncResult(contacts: .clean, channels: .clean, messages: .clean),
-      expectedServices: services,
-      transportType: .bluetooth
-    )
-    #expect(promoted)
-    #expect(manager.connectionState == .ready)
-    #expect(manager.wifiTransport == nil)
-
-    let disconnectsBefore = await env.transport.disconnectInvocations
-    manager.devicePairing(manager.pairing, didRemoveDeviceWithID: peripheralID)
-    try await waitUntil("settings removal should disconnect Bluetooth") {
-      manager.connectionState == .disconnected
-        && manager.currentTransportType == nil
-    }
-
-    #expect(await env.transport.disconnectInvocations > disconnectsBefore)
-    #expect(manager.wifiTransport == nil)
   }
 
   @Test

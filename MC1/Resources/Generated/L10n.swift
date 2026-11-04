@@ -3128,6 +3128,8 @@ public enum L10n {
       public static let deviceNotAppearing = L10n.tr("Onboarding", "deviceScan.deviceNotAppearing", fallback: "Help")
       /// Location: DeviceScanView.swift - "I don't have a device yet" tertiary
       public static let noDeviceYet = L10n.tr("Onboarding", "deviceScan.noDeviceYet", fallback: "I don't have a device yet")
+      /// Location: DeviceScanView.swift - Subtitle while bond-loss recovery is re-pairing
+      public static let rePairingSubtitle = L10n.tr("Onboarding", "deviceScan.rePairingSubtitle", fallback: "Power your radio on and disconnect it from all other apps and devices.")
       /// Location: DeviceScanView.swift - Button to retry connection after other-app conflict
       public static let retryConnection = L10n.tr("Onboarding", "deviceScan.retryConnection", fallback: "Retry Connection")
       /// Location: DeviceScanView.swift - Subtitle with pairing instructions
@@ -4480,6 +4482,12 @@ public enum L10n {
     public enum BleStatus {
       /// Accessibility label for BLE status indicator
       public static let accessibilityLabel = L10n.tr("Settings", "bleStatus.accessibilityLabel", fallback: "Bluetooth connection status")
+      /// Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status
+      public static func accessibilityValue(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Settings", "bleStatus.accessibilityValue", String(describing: p1), String(describing: p2), fallback: "%1$@, %2$@")
+      }
+      /// Menu item to cancel the current connection request
+      public static let cancelConnection = L10n.tr("Settings", "bleStatus.cancelConnection", fallback: "Cancel Connection")
       /// Menu item to change the connected device
       public static let changeDevice = L10n.tr("Settings", "bleStatus.changeDevice", fallback: "Change Device")
       /// Menu item to disconnect from the current device
@@ -4490,6 +4498,8 @@ public enum L10n {
       public static let sendFloodAdvert = L10n.tr("Settings", "bleStatus.sendFloodAdvert", fallback: "Send Flood Advert")
       /// Menu item to send a zero-hop advertisement
       public static let sendZeroHopAdvert = L10n.tr("Settings", "bleStatus.sendZeroHopAdvert", fallback: "Send Zero-Hop Advert")
+      /// Menu item to stop automatic reconnection until another explicit connection
+      public static let stopReconnecting = L10n.tr("Settings", "bleStatus.stopReconnecting", fallback: "Stop Reconnecting")
       public enum AccessibilityHint {
         /// Accessibility hint when connected
         public static let connected = L10n.tr("Settings", "bleStatus.accessibilityHint.connected", fallback: "Shows device connection options")
@@ -4513,8 +4523,12 @@ public enum L10n {
         public static let disconnected = L10n.tr("Settings", "bleStatus.status.disconnected", fallback: "Disconnected")
         /// Status shown when device is ready
         public static let ready = L10n.tr("Settings", "bleStatus.status.ready", fallback: "Ready")
+        /// Status shown while reconnecting to the selected device
+        public static let reconnecting = L10n.tr("Settings", "bleStatus.status.reconnecting", fallback: "Reconnecting…")
         /// Status shown when device is syncing data
         public static let syncing = L10n.tr("Settings", "bleStatus.status.syncing", fallback: "Syncing")
+        /// Status shown while automatic reconnection remains enabled between attempts
+        public static let waitingToReconnect = L10n.tr("Settings", "bleStatus.status.waitingToReconnect", fallback: "Waiting to Reconnect")
       }
     }
     public enum Blocking {
@@ -4664,6 +4678,10 @@ public enum L10n {
       public static func channelCount(_ p1: Int) -> String {
         return L10n.tr("Settings", "configImport.channelCount", p1, fallback: "Will add/update %d channels on device")
       }
+      /// Interrupted identity import recovery
+      public static func confirmIdentityRecovery(_ p1: Any) -> String {
+        return L10n.tr("Settings", "configImport.confirmIdentityRecovery", String(describing: p1), fallback: "This will replace the identity of the radio reached at %@ using the private key in the selected file. The configuration import will not continue.")
+      }
       /// Confirmation alert message (param: device name)
       public static func confirmMessage(_ p1: Any) -> String {
         return L10n.tr("Settings", "configImport.confirmMessage", String(describing: p1), fallback: "This will merge the selected settings into %@. Existing channels and contacts will be updated or added.")
@@ -4684,6 +4702,8 @@ public enum L10n {
       public static let confirmTitle = L10n.tr("Settings", "configImport.confirmTitle", fallback: "Apply Configuration?")
       /// Confirmation alert title (additive only)
       public static let confirmTitleAdd = L10n.tr("Settings", "configImport.confirmTitleAdd", fallback: "Add to Device?")
+      /// Confirmation alert title when retrying an interrupted identity import
+      public static let confirmTitleIdentityRecovery = L10n.tr("Settings", "configImport.confirmTitleIdentityRecovery", fallback: "Replace Radio Identity?")
       /// Confirmation alert title (overwrite settings)
       public static let confirmTitleOverwrite = L10n.tr("Settings", "configImport.confirmTitleOverwrite", fallback: "Overwrite Settings?")
       /// Contact count (param: integer)
@@ -4698,6 +4718,14 @@ public enum L10n {
       public static func failedPartial(_ p1: Any) -> String {
         return L10n.tr("Settings", "configImport.failedPartial", String(describing: p1), fallback: "%@ Some settings may have already been written to the device. Review the device's configuration.")
       }
+      /// Interrupted identity import recovery
+      public static func identityOutcomeUnknown(_ p1: Any) -> String {
+        return L10n.tr("Settings", "configImport.identityOutcomeUnknown", String(describing: p1), fallback: "The connection was interrupted while importing the identity on %@. The radio may have changed identity. The configuration import was not completed.")
+      }
+      /// Interrupted identity import recovery
+      public static let identityRecoveryComplete = L10n.tr("Settings", "configImport.identityRecoveryComplete", fallback: "The identity was reapplied. The configuration import was not completed. Import the file again to apply its other settings.")
+      /// Interrupted identity import recovery
+      public static let identityRecoveryKeyRequired = L10n.tr("Settings", "configImport.identityRecoveryKeyRequired", fallback: "Select a configuration file containing the private key to retry identity import.")
       /// Import navigation row label
       public static let importConfig = L10n.tr("Settings", "configImport.importConfig", fallback: "Import Config")
       /// Import success
@@ -4712,6 +4740,8 @@ public enum L10n {
       public static let proximityWarning = L10n.tr("Settings", "configImport.proximityWarning", fallback: "Keep devices close together during import")
       /// Radio settings change warning
       public static let radioWarning = L10n.tr("Settings", "configImport.radioWarning", fallback: "Changing radio settings will disconnect from the current mesh network")
+      /// Interrupted identity import recovery
+      public static let retryIdentityImport = L10n.tr("Settings", "configImport.retryIdentityImport", fallback: "Retry Identity Import")
       /// Select file button
       public static let selectFile = L10n.tr("Settings", "configImport.selectFile", fallback: "Select JSON File")
       /// Import progress: importing a channel (param: channel name)
@@ -5014,6 +5044,8 @@ public enum L10n {
       public static let noPairedDevices = L10n.tr("Settings", "deviceSelection.noPairedDevices", fallback: "No Paired Devices")
       /// Section header for previously paired devices
       public static let previouslyPaired = L10n.tr("Settings", "deviceSelection.previouslyPaired", fallback: "Previously Paired")
+      /// Button title while this radio is being paired again
+      public static let rePairing = L10n.tr("Settings", "deviceSelection.rePairing", fallback: "Re-pairing...")
       /// Button to scan for Bluetooth devices
       public static let scanBluetooth = L10n.tr("Settings", "deviceSelection.scanBluetooth", fallback: "Scan for Bluetooth Device")
       /// Button to scan for new devices
@@ -5066,6 +5098,8 @@ public enum L10n {
     public enum Diagnostics {
       /// Button to clear debug logs
       public static let clearLogs = L10n.tr("Settings", "diagnostics.clearLogs", fallback: "Clear Debug Logs")
+      /// Toggle to enable collecting local debug logs
+      public static let collectLogs = L10n.tr("Settings", "diagnostics.collectLogs", fallback: "Collect Debug Logs")
       /// Button to export debug logs
       public static let exportLogs = L10n.tr("Settings", "diagnostics.exportLogs", fallback: "Export Debug Logs")
       /// Footer explaining log export
@@ -5081,10 +5115,22 @@ public enum L10n {
           /// Alert title for clear logs confirmation
           public static let title = L10n.tr("Settings", "diagnostics.alert.clear.title", fallback: "Clear Debug Logs")
         }
+        public enum Disable {
+          /// Button to confirm disabling collection
+          public static let confirm = L10n.tr("Settings", "diagnostics.alert.disable.confirm", fallback: "Disable Collection")
+          /// Alert message for disabling collection
+          public static let message = L10n.tr("Settings", "diagnostics.alert.disable.message", fallback: "This will delete all stored debug logs and stop collecting them. Exported log files will not be affected.")
+          /// Alert title for disabling collection
+          public static let title = L10n.tr("Settings", "diagnostics.alert.disable.title", fallback: "Disable Collection")
+        }
       }
       public enum Error {
         /// Error when export fails
         public static let exportFailed = L10n.tr("Settings", "diagnostics.error.exportFailed", fallback: "Failed to create export file")
+      }
+      public enum Footer {
+        /// Footer shown when debug log collection is off
+        public static let disabled = L10n.tr("Settings", "diagnostics.footer.disabled", fallback: "Local debug logs are not collected.")
       }
     }
     public enum DirectMessages {
@@ -5408,6 +5454,8 @@ public enum L10n {
       public static let roomMessages = L10n.tr("Settings", "notifications.roomMessages", fallback: "Room Messages")
     }
     public enum OfflineMaps {
+      /// Offline map download detail
+      public static let baseDetail = L10n.tr("Settings", "offlineMaps.baseDetail", fallback: "Base map detail")
       /// Cancel button
       public static let cancel = L10n.tr("Settings", "offlineMaps.cancel", fallback: "Cancel")
       /// Status when pack download is complete
@@ -5426,12 +5474,18 @@ public enum L10n {
       public static let emptyTitle = L10n.tr("Settings", "offlineMaps.emptyTitle", fallback: "No Offline Maps")
       /// Estimated download size
       public static func estimatedSize(_ p1: Any) -> String {
-        return L10n.tr("Settings", "offlineMaps.estimatedSize", String(describing: p1), fallback: "Estimated size: ~%@")
+        return L10n.tr("Settings", "offlineMaps.estimatedSize", String(describing: p1), fallback: "Approximate saved map size: ~%@")
       }
+      /// Uncertainty shown beside saved map size estimates, including when a warning is visible.
+      public static let estimateUncertainty = L10n.tr("Settings", "offlineMaps.estimateUncertainty", fallback: "Actual size may be much larger or smaller, depending on the area and detail.")
       /// Download exceeds available storage
       public static let exceedsStorage = L10n.tr("Settings", "offlineMaps.exceedsStorage", fallback: "Not enough storage on this device. Zoom in to select a smaller area.")
       /// Large tile download warning
       public static let largeTileWarning = L10n.tr("Settings", "offlineMaps.largeTileWarning", fallback: "Large download area. This may take a while and use significant storage.")
+      /// Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size.
+      public static func layerEstimate(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Settings", "offlineMaps.layerEstimate", String(describing: p1), String(describing: p2), fallback: "%@: ~%@")
+      }
       /// Layers section header
       public static let layers = L10n.tr("Settings", "offlineMaps.layers", fallback: "Layers")
       /// No network available
@@ -5446,19 +5500,45 @@ public enum L10n {
       public static let regionName = L10n.tr("Settings", "offlineMaps.regionName", fallback: "Region Name")
       /// Resume download button
       public static let resume = L10n.tr("Settings", "offlineMaps.resume", fallback: "Resume")
+      /// Starting download…
+      public static let startingDownload = L10n.tr("Settings", "offlineMaps.startingDownload", fallback: "Starting download…")
       /// Section header for storage info
       public static let storage = L10n.tr("Settings", "offlineMaps.storage", fallback: "Storage")
       /// Storage section footer
-      public static let storageFooter = L10n.tr("Settings", "offlineMaps.storageFooter", fallback: "Includes map data and internal indexes. Total may be larger than the sum of individual downloads.")
+      public static let storageFooter = L10n.tr("Settings", "offlineMaps.storageFooter", fallback: "Includes shared map data and database indexes. Region sizes do not add up to this total.")
+      /// Reduce detail or select a smaller area to fit the available storage.
+      public static let storageRemediation = L10n.tr("Settings", "offlineMaps.storageRemediation", fallback: "Reduce detail or select a smaller area to fit the available storage.")
       /// Label for total storage used
       public static let storageUsed = L10n.tr("Settings", "offlineMaps.storageUsed", fallback: "Storage Used")
       /// Navigation title for offline maps settings
       public static let title = L10n.tr("Settings", "offlineMaps.title", fallback: "Offline Maps")
+      /// Topography detail
+      public static let topographyDetail = L10n.tr("Settings", "offlineMaps.topographyDetail", fallback: "Topography detail")
       /// Fallback name for unknown region
       public static let unknownRegion = L10n.tr("Settings", "offlineMaps.unknownRegion", fallback: "Unknown Region")
+      public enum Detail {
+        /// Detailed
+        public static let detailed = L10n.tr("Settings", "offlineMaps.detail.detailed", fallback: "Detailed")
+        /// More detail uses more storage and takes longer to download. Lower detail lets you save larger areas.
+        public static let explanation = L10n.tr("Settings", "offlineMaps.detail.explanation", fallback: "More detail uses more storage and takes longer to download. Lower detail lets you save larger areas.")
+        /// Local
+        public static let local = L10n.tr("Settings", "offlineMaps.detail.local", fallback: "Local")
+        /// Overview
+        public static let overview = L10n.tr("Settings", "offlineMaps.detail.overview", fallback: "Overview")
+        /// Regional
+        public static let regional = L10n.tr("Settings", "offlineMaps.detail.regional", fallback: "Regional")
+        /// %@ (zoom %@)
+        public static func value(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Settings", "offlineMaps.detail.value", String(describing: p1), String(describing: p2), fallback: "%@ (zoom %@)")
+        }
+      }
       public enum Error {
         /// Error: insufficient disk space
         public static let insufficientDiskSpace = L10n.tr("Settings", "offlineMaps.error.insufficientDiskSpace", fallback: "Not enough storage space. At least 100 MB is required.")
+        /// Choose a supported map detail level.
+        public static let invalidDetail = L10n.tr("Settings", "offlineMaps.error.invalidDetail", fallback: "Choose a supported map detail level.")
+        /// The selected area exceeds the offline map provider limit.
+        public static let providerLimitExceeded = L10n.tr("Settings", "offlineMaps.error.providerLimitExceeded", fallback: "Reduce detail or select a smaller area to stay within the map provider's download limit.")
         /// Error: tile limit reached
         public static let tileLimitReached = L10n.tr("Settings", "offlineMaps.error.tileLimitReached", fallback: "The download tile limit has been reached.")
       }
@@ -5615,6 +5695,8 @@ public enum L10n {
         public static let nameLength = L10n.tr("Settings", "radioWiFi.editor.nameLength", fallback: "A network name can be up to 32 bytes.")
         /// Editor footer when the password is too long
         public static let passwordLength = L10n.tr("Settings", "radioWiFi.editor.passwordLength", fallback: "A password can be up to 63 bytes.")
+        /// Editor footer when a credential contains a character the firmware cannot store
+        public static let unsupportedCharacter = L10n.tr("Settings", "radioWiFi.editor.unsupportedCharacter", fallback: "The network name or password contains a character this radio can't store.")
       }
       public enum Network {
         /// Shown when the radio has no saved network name

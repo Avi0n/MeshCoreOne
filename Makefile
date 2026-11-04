@@ -20,7 +20,16 @@ PROJECT := MC1.xcodeproj
 
 # The full app suite runs on the project-standard iOS 27 simulator. Override SIM to retarget.
 SIM ?= platform=iOS Simulator,name=iPhone 17e,OS=27.0
+
+# Additional test options, including result-bundle paths and repetition settings.
 XCODEBUILD_TEST_ARGS ?=
+
+# Use suite-level selectors for Swift Testing; method-level selectors can run zero tests.
+TEST_ARGS ?=
+# Optional raw xcodebuild output, normally under repo tmp/; the caller creates its directory.
+TEST_LOG ?=
+# Shared build settings, e.g. a CI DerivedData path.
+XCODEBUILD_TEST_FLAGS ?=
 
 # StoreKit (SKTestSession) suites must run on an iOS 18.x simulator. Under `xcodebuild
 # test`, iOS 26.x simulators deliver 0 products to storekitd (Apple regression
@@ -80,11 +89,9 @@ XCSIFT_WITH_HEARTBEAT = { \
 	}
 
 .DEFAULT_GOAL := help
-.PHONY: help generate test test-app test-store
-# `make test` runs two xcodebuild passes because a single invocation targets one OS: the full
-# app suite on iOS 27 and the StoreKit suites on iOS 18.x (where SKTestSession actually serves
-# products; iOS 26.x auto-skips those suites). .NOTPARALLEL keeps `make -j` from running
-# both passes at once and colliding on the shared build.
+.PHONY: help generate test test-packages test-meshcore test-services test-app test-store
+# Package suites run on the host. The app and StoreKit passes use separate simulator OSes.
+# .NOTPARALLEL keeps `make -j` from colliding on shared builds and simulators.
 .NOTPARALLEL:
 
 help: ## List available targets
@@ -105,22 +112,36 @@ dev.yml:
 generate: dev.yml ## Regenerate MC1.xcodeproj from project.yml (xcodegen)
 	xcodegen generate
 
-test: test-app test-store ## Run everything: full app suite (iOS 27) + StoreKit suites (iOS 18)
+test: test-packages test-app test-store ## Run package suites, app tests (iOS 27), and StoreKit tests (iOS 18)
+
+test-packages: test-meshcore test-services ## Run both Swift package suites on the macOS host
+
+# SwiftPM's --no-parallel does not serialize Swift Testing suites on this toolchain.
+# Width one also isolates suites that use process-wide state, including the persistent logger.
+test-meshcore: ## Run MeshCore protocol/session tests on the macOS host
+	swift test --package-path MeshCore --no-parallel --experimental-maximum-parallelization-width 1
+
+test-services: ## Run MC1Services transport/lifecycle tests on the macOS host
+	swift test --package-path MC1Services --no-parallel --experimental-maximum-parallelization-width 1
 
 # Skip sysdiagnose collection. xcodebuild can spawn simctl diagnose after the
 # suite and block the recipe for minutes even when every test passed.
 test-app: generate ## Run the full app suite on iOS 27
 	@dest='$(SIM)'; $(SIM_LOCK); \
 		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
-		-destination "$$dest" \
+		-destination "$$dest" $(TEST_ARGS) \
 		-parallel-testing-enabled NO $(XCODEBUILD_TEST_ARGS) \
+		$(XCODEBUILD_TEST_FLAGS) \
 		-collect-test-diagnostics never \
-		2>&1 | $(XCSIFT_WITH_HEARTBEAT)
+		2>&1 | { if [ -n "$(TEST_LOG)" ]; then tee "$(TEST_LOG)"; else cat; fi; } \
+		| $(XCSIFT_WITH_HEARTBEAT)
 
 test-store: generate ## Run every StoreKit/IAP SKTestSession suite on iOS 18.x
 	@dest='$(STORE_SIM)'; $(SIM_LOCK); \
 		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
 		-destination "$$dest" $(STORE_SUITES) \
 		-parallel-testing-enabled NO $(XCODEBUILD_TEST_ARGS) \
+		$(XCODEBUILD_TEST_FLAGS) \
 		-collect-test-diagnostics never \
-		2>&1 | $(XCSIFT_WITH_HEARTBEAT)
+		2>&1 | { if [ -n "$(TEST_LOG)" ]; then tee "$(TEST_LOG)"; else cat; fi; } \
+		| $(XCSIFT_WITH_HEARTBEAT)

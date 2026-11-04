@@ -137,10 +137,7 @@ public enum ReactionParser {
       sender = String(afterAtBracket.dropLast())
     }
 
-    guard Self.isReactionEmoji(emoji) else {
-      return nil
-    }
-    guard !sender.isEmpty else {
+    guard Self.isReactionEmoji(emoji), !sender.isEmpty else {
       return nil
     }
 
@@ -199,6 +196,9 @@ public enum ReactionParser {
     let bytes = Array(digest.prefix(5))
     return encodeCrockfordBase32(bytes)
   }
+
+  /// Rows included in a message's reaction summary, most recent first.
+  static let summaryRowLimit = 100
 
   /// Builds summary string from emoji counts, sorted by count descending
   static func buildSummary(from reactions: [(emoji: String, count: Int)]) -> String {

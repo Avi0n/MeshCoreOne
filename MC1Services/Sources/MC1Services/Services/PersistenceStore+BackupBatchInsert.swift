@@ -82,13 +82,8 @@ extension PersistenceStore {
     _ dtos: [DeviceDTO],
     existingKeys: Set<Data>
   ) throws -> (inserted: Int, skipped: Int) {
-    // Assign a fresh Device.id on insert: the backup UUID was `CBPeripheral.identifier`
-    // from the source phone, and `Device.id` is `@Attribute(.unique)`. Reusing the
-    // backup UUID here could collide with a live local peripheral identifier and
-    // trigger SwiftData's upsert, silently overwriting the current Device row.
-    // Child records key by `radioID`, not `Device.id`, so the fresh id breaks no
-    // linkage; `ConnectionManager.buildServicesAndSaveDevice` cleans up the stub
-    // row when the user reconnects to the real radio.
+    // Remint Device ID to avoid upserting a local row with the source phone's handle.
+    // Children retain their Radio ID; public-key reconciliation reconnects the imported record.
     insertUnique(
       dtos,
       existingKeys: existingKeys,

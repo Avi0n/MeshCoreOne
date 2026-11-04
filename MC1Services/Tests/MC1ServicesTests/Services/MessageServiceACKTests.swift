@@ -1013,4 +1013,108 @@ struct MessageServiceACKTests {
             "an unmatched late ACK must not resurrect a failed-and-removed row")
     #expect(await service.pendingAckCount == 0)
   }
+
+  @Test
+  func `renewing another pending ack while the first failure is gated leaves the renewed message sent`() async throws {
+    let (service, dataStore) = try await MessageService.createForTesting()
+    let firstID = UUID()
+    let secondID = UUID()
+    let contactID = UUID()
+    let ancient = Date().addingTimeInterval(-60)
+    for (messageID, code) in [(firstID, Data([0x01])), (secondID, Data([0x02]))] {
+      try await dataStore.saveMessage(
+        MessageDTO.testDirectMessage(
+          id: messageID,
+          radioID: testDeviceID,
+          contactID: contactID,
+          status: .sent
+        )
+      )
+      await service.setPendingAckForTest(
+        makePending(
+          messageID: messageID,
+          contactID: contactID,
+          ackCodes: [code],
+          sentAt: ancient,
+          timeout: 30
+        )
+      )
+    }
+
+    let gate = SuspendGate()
+    let gated = GatedMessage()
+    await service.setAckExpiryWriteGateForTesting { messageID in
+      if await gated.claim(messageID) {
+        await gate.enter()
+        await gate.waitForRelease()
+      }
+    }
+    let check = Task {
+      try await service.checkExpiredAcks()
+    }
+    await gate.waitForEntry()
+    let gatedID = try #require(await gated.value())
+    let otherID = gatedID == firstID ? secondID : firstID
+    await service.trackPendingAck(
+      messageID: otherID,
+      contactID: contactID,
+      ackCode: Data([0x03]),
+      timeout: 30
+    )
+    await gate.release()
+    try await check.value
+
+    #expect(try await dataStore.fetchMessage(id: gatedID)?.status == .failed)
+    #expect(await service.pendingAckForTest(gatedID) == nil)
+    #expect(try await dataStore.fetchMessage(id: otherID)?.status == .sent)
+    #expect(await service.pendingAckCount == 1)
+    let renewed = try #require(await service.pendingAckForTest(otherID))
+    #expect(renewed.sentAt > ancient)
+  }
+}
+
+private actor SuspendGate {
+  private var hasEntered = false
+  private var entryWaiters: [CheckedContinuation<Void, Never>] = []
+  private var releaseWaiter: CheckedContinuation<Void, Never>?
+  private var isReleased = false
+
+  func enter() {
+    hasEntered = true
+    let waiters = entryWaiters
+    entryWaiters.removeAll()
+    for waiter in waiters {
+      waiter.resume()
+    }
+  }
+
+  func waitForEntry() async {
+    if hasEntered { return }
+    await withCheckedContinuation { entryWaiters.append($0) }
+  }
+
+  func waitForRelease() async {
+    if isReleased { return }
+    await withCheckedContinuation { releaseWaiter = $0 }
+  }
+
+  func release() {
+    isReleased = true
+    releaseWaiter?.resume()
+    releaseWaiter = nil
+  }
+}
+
+private actor GatedMessage {
+  private var id: UUID?
+
+  func claim(_ messageID: UUID) -> Bool {
+    if id != nil { return false }
+    id = messageID
+    return true
+  }
+
+  func value() -> UUID? {
+    id
+  }
 }

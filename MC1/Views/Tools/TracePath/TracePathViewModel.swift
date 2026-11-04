@@ -259,8 +259,7 @@ final class TracePathViewModel {
   /// List mode asks once per stored success. A second call for the same
   /// `resultID` returns nil. Map mode does not call this.
   func consumeStoredResultForPresentation() -> TraceResult? {
-    guard isWorkspaceVisible, let result, result.success, let resultID else { return nil }
-    guard !resultDismissedWhileVisible, presentedSuccessID != resultID else { return nil }
+    guard isWorkspaceVisible, let result, result.success, let resultID, !resultDismissedWhileVisible, presentedSuccessID != resultID else { return nil }
     let batchStillSending = isBatchInProgress
     guard !isRunning || batchStillSending else { return nil }
     presentedSuccessID = resultID
@@ -377,8 +376,7 @@ final class TracePathViewModel {
   /// Can save path if result is successful and path hasn't changed since trace ran
   var canSavePath: Bool {
     if batchEnabled {
-      guard !completedResults.isEmpty else { return false }
-      guard let firstSuccess = successfulResults.first else { return false }
+      guard !completedResults.isEmpty, let firstSuccess = successfulResults.first else { return false }
       return fullPathBytes == firstSuccess.tracedPathBytes
     } else {
       guard let result, result.success else { return false }
@@ -393,8 +391,7 @@ final class TracePathViewModel {
   /// 2. Intermediate repeaters only if device lacks location
   /// 3. Nil if fewer than 2 hops with valid location
   var totalPathDistance: Double? {
-    guard let result, result.success else { return nil }
-    guard result.hops.count >= 2 else { return nil }
+    guard let result, result.success, result.hops.count >= 2 else { return nil }
 
     // Priority 1: Full path including device legs
     if let fullDistance = calculateDistance(for: result.hops) {
@@ -441,9 +438,7 @@ final class TracePathViewModel {
 
   /// Whether the distance calculation used intermediate-only fallback (device has no location)
   var isDistanceUsingFallback: Bool {
-    guard let result, result.success, totalPathDistance != nil else { return false }
-
-    guard let startNode = result.hops.first, let endNode = result.hops.last else { return false }
+    guard let result, result.success, totalPathDistance != nil, let startNode = result.hops.first, let endNode = result.hops.last else { return false }
 
     // If device nodes lack location, we used the intermediate-only fallback
     return !startNode.hasLocation || !endNode.hasLocation
@@ -874,12 +869,10 @@ final class TracePathViewModel {
     resultID = nil
     clearError()
 
-    if activeSavedPath == nil {
-      if let matchedPath = await findMatchingSavedPath() {
-        guard isCurrent(ticket) else { return }
-        activeSavedPath = matchedPath
-        logger.info("Matched path to saved path: \(matchedPath.name)")
-      }
+    if activeSavedPath == nil, let matchedPath = await findMatchingSavedPath() {
+      guard isCurrent(ticket) else { return }
+      activeSavedPath = matchedPath
+      logger.info("Matched path to saved path: \(matchedPath.name)")
     }
     guard isCurrent(ticket) else { return }
 
@@ -915,12 +908,10 @@ final class TracePathViewModel {
 
     guard isCurrent(ticket), canSendTrace, !outboundPath.isEmpty else { return }
 
-    if activeSavedPath == nil {
-      if let matchedPath = await findMatchingSavedPath() {
-        guard isCurrent(ticket) else { return }
-        activeSavedPath = matchedPath
-        logger.info("Matched path to saved path: \(matchedPath.name)")
-      }
+    if activeSavedPath == nil, let matchedPath = await findMatchingSavedPath() {
+      guard isCurrent(ticket) else { return }
+      activeSavedPath = matchedPath
+      logger.info("Matched path to saved path: \(matchedPath.name)")
     }
     guard isCurrent(ticket) else { return }
 
@@ -1151,8 +1142,7 @@ final class TracePathViewModel {
   }
 
   private func handleTraceStreamEnded(finished: AdvertisementService) {
-    guard pendingTag != nil, let waitingTicket, waitingTicket.isCurrent(in: executionEpoch) else { return }
-    guard let next = advertisementService, next !== finished else { return }
+    guard pendingTag != nil, let waitingTicket, waitingTicket.isCurrent(in: executionEpoch), let next = advertisementService, next !== finished else { return }
     startListening()
   }
 
@@ -1164,8 +1154,7 @@ final class TracePathViewModel {
 
   /// Record a failed run for saved paths
   private func recordFailedRun(ticket: Epoch.Ticket) {
-    guard ticket.isCurrent(in: executionEpoch) else { return }
-    guard let savedPath = activeSavedPath else { return }
+    guard ticket.isCurrent(in: executionEpoch), let savedPath = activeSavedPath else { return }
 
     let failedRun = TracePathRunDTO(
       id: UUID(),

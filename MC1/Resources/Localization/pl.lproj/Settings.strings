@@ -165,6 +165,9 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Skanuj urządzenie Bluetooth";
 
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "Ponowne parowanie...";
+
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
 "deviceSelection.setup" = "Skonfiguruj";
@@ -746,6 +749,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Spowoduje to usunięcie wszystkich przechowywanych logów debugowania. Wyeksportowane pliki logów nie zostaną usunięte.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Zbieraj logi debugowania";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Lokalne logi debugowania nie są zbierane.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Wyłącz zbieranie";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Wyłącz zbieranie";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Spowoduje to usunięcie wszystkich przechowywanych logów debugowania i zaprzestanie ich zbierania. Wyeksportowane pliki logów nie zostaną usunięte.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Nie udało się utworzyć pliku eksportu";
 
@@ -986,6 +1004,9 @@
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "Hasło może mieć do 63 bajtów.";
 
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "Nazwa sieci lub hasło zawiera znak, którego to radio nie może zapisać.";
+
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Wyczyść ustawienia WiFi";
 
@@ -1165,11 +1186,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "Rozłącz";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "Zatrzymaj ponowne łączenie";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "Anuluj połączenie";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "Rozłączono";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "Łączenie...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "Ponowne łączenie...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "Oczekiwanie na ponowne połączenie";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Połączono";
@@ -1182,6 +1215,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Status połączenia Bluetooth";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "Stuknij dwukrotnie, aby połączyć urządzenie";
@@ -1320,6 +1356,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ Część ustawień mogła już zostać zapisana na urządzeniu. Sprawdź konfigurację urządzenia.";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "Połączenie zostało przerwane podczas importowania tożsamości na %@. Tożsamość radia mogła się zmienić. Import konfiguracji nie został ukończony.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "Ponów import tożsamości";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "To zastąpi tożsamość radia dostępnego pod %@ przy użyciu klucza prywatnego z wybranego pliku. Import konfiguracji nie będzie kontynuowany.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "Zastąpić tożsamość radia?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "Tożsamość została ponownie zastosowana. Import konfiguracji nie został ukończony. Zaimportuj plik ponownie, aby zastosować pozostałe ustawienia.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "Wybierz plik konfiguracji zawierający klucz prywatny, aby ponowić import tożsamości.";
 
 /* Import success */
 "configImport.importSuccess" = "Konfiguracja zaimportowana pomyślnie";
@@ -1882,6 +1936,8 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Osiągnięto limit kafelków dla tego pobierania.";
 
+"offlineMaps.error.providerLimitExceeded" = "Zmniejsz szczegółowość lub wybierz mniejszy obszar, aby nie przekroczyć limitu pobierania dostawcy map.";
+
 /* Pause download button */
 "offlineMaps.pause" = "Wstrzymaj";
 
@@ -1891,8 +1947,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Wstrzymano";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "Rzeczywisty rozmiar może być dużo większy lub dużo mniejszy, zależnie od obszaru i szczegółowości.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Szacowany rozmiar: ~%@";
+"offlineMaps.estimatedSize" = "Przybliżony rozmiar zapisanej mapy: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Duży obszar pobierania. Może to trochę potrwać i zużyć dużo miejsca.";
@@ -1910,12 +1972,35 @@
 /* Layers section header */
 "offlineMaps.layers" = "Warstwy";
 
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Szczegółowość mapy bazowej";
+
+"offlineMaps.topographyDetail" = "Szczegółowość topografii";
+
+"offlineMaps.detail.explanation" = "Większa szczegółowość zajmuje więcej miejsca, a pobieranie trwa dłużej. Mniejsza szczegółowość pozwala zapisać większe obszary.";
+
+"offlineMaps.detail.value" = "%@ (zoom %@)";
+
+"offlineMaps.detail.overview" = "Przeglądowa";
+
+"offlineMaps.detail.regional" = "Regionalna";
+
+"offlineMaps.detail.local" = "Lokalna";
+
+"offlineMaps.detail.detailed" = "Szczegółowa";
+
+"offlineMaps.storageRemediation" = "Zmniejsz szczegółowość lub wybierz mniejszy obszar, aby wystarczyło wolnego miejsca.";
+
+"offlineMaps.startingDownload" = "Rozpoczynanie pobierania…";
+
+"offlineMaps.error.invalidDetail" = "Wybierz obsługiwany poziom szczegółowości mapy.";
+
 /* Include layers prompt */
 /* No network available */
 "offlineMaps.noNetwork" = "Do pobrania map wymagane jest połączenie z internetem.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Obejmuje dane mapy i wewnętrzne indeksy. Łączny rozmiar może być większy niż suma poszczególnych pobrań.";
+"offlineMaps.storageFooter" = "Obejmuje współdzielone dane mapy i indeksy bazy danych. Rozmiary regionów nie sumują się do łącznego rozmiaru.";
 
 // MARK: - Backup & Restore
 

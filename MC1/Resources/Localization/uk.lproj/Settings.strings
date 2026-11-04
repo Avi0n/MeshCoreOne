@@ -165,6 +165,9 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Пошук Bluetooth-пристроїв";
 
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "Спарування заново...";
+
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
 "deviceSelection.setup" = "Налаштувати";
@@ -746,6 +749,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Це видалить усі збережені журнали налагодження. Експортовані файли журналів не будуть зачеплені.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Збирати журнали налагодження";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Локальні журнали налагодження не збираються.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Вимкнути збір";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Вимкнути збір";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Це видалить усі збережені журнали налагодження та припинить їх збір. Експортовані файли журналів не будуть зачеплені.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Не вдалося створити файл експорту";
 
@@ -986,6 +1004,9 @@
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "Пароль може містити до 63 байт.";
 
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "Назва мережі або пароль містить символ, який це радіо не може зберегти.";
+
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Очистити налаштування WiFi";
 
@@ -1165,11 +1186,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "Відключитися";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "Зупинити перепідключення";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "Скасувати підключення";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "Відключено";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "Підключення...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "Перепідключення...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "Очікування перепідключення";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Підключено";
@@ -1182,6 +1215,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Стан Bluetooth-підключення";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "Подвійний дотик для підключення пристрою";
@@ -1320,6 +1356,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ Деякі налаштування, можливо, вже було записано на пристрій. Перевірте конфігурацію пристрою.";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "З'єднання було перервано під час імпорту ідентифікації на %@. Ідентифікація радіо могла змінитися. Імпорт конфігурації не було завершено.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "Повторити імпорт ідентифікації";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "Це замінить ідентифікацію радіо, доступного через %@, за допомогою закритого ключа з вибраного файлу. Імпорт конфігурації не буде продовжено.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "Замінити ідентифікацію радіо?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "Ідентифікацію застосовано повторно. Імпорт конфігурації не було завершено. Імпортуйте файл ще раз, щоб застосувати інші налаштування.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "Виберіть файл конфігурації із закритим ключем, щоб повторити імпорт ідентифікації.";
 
 /* Import success */
 "configImport.importSuccess" = "Конфігурацію успішно імпортовано";
@@ -1882,6 +1936,8 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Досягнуто ліміт тайлів для цього завантаження.";
 
+"offlineMaps.error.providerLimitExceeded" = "Зменште деталізацію або виберіть меншу область, щоб не перевищити ліміт завантаження постачальника карти.";
+
 /* Pause download button */
 "offlineMaps.pause" = "Пауза";
 
@@ -1891,8 +1947,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Призупинено";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "Фактичний розмір може бути значно більшим або меншим залежно від області та рівня деталізації.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Орієнтовний розмір: ~%@";
+"offlineMaps.estimatedSize" = "Орієнтовний розмір збереженої карти: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Велика область завантаження. Це може зайняти час і потребувати значного обсягу пам'яті.";
@@ -1910,12 +1972,35 @@
 /* Layers section header */
 "offlineMaps.layers" = "Шари";
 
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Деталізація базової карти";
+
+"offlineMaps.topographyDetail" = "Деталізація топографії";
+
+"offlineMaps.detail.explanation" = "Більша деталізація використовує більше сховища та завантажується довше. Менша деталізація дозволяє зберегти більші області.";
+
+"offlineMaps.detail.value" = "%@ (масштаб %@)";
+
+"offlineMaps.detail.overview" = "Огляд";
+
+"offlineMaps.detail.regional" = "Регіональний";
+
+"offlineMaps.detail.local" = "Місцевий";
+
+"offlineMaps.detail.detailed" = "Детальний";
+
+"offlineMaps.storageRemediation" = "Зменште деталізацію або виберіть меншу область, щоб вистачило вільного місця у сховищі.";
+
+"offlineMaps.startingDownload" = "Початок завантаження…";
+
+"offlineMaps.error.invalidDetail" = "Оберіть підтримуваний рівень деталізації карти.";
+
 /* Include layers prompt */
 /* No network available */
 "offlineMaps.noNetwork" = "Для завантаження карт потрібне з'єднання з інтернетом.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Включає дані карти та внутрішні індекси. Загальний обсяг може перевищувати суму окремих завантажень.";
+"offlineMaps.storageFooter" = "Включає спільні дані карти та індекси бази даних. Розміри регіонів у сумі не дорівнюють цьому загальному обсягу.";
 
 // MARK: - Backup & Restore
 

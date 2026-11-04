@@ -19,6 +19,7 @@ public actor RemoteNodeService {
   let session: any RemoteAccessSessionOps & SessionEventStreaming & ContactSessionOps
   let dataStore: any PersistenceStoreProtocol
   let keychainService: KeychainService
+  let contactRadioOwner: ContactRadioOwner
   let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
   let auditLogger = CommandAuditLogger()
 
@@ -78,13 +79,15 @@ public actor RemoteNodeService {
 
   /// Keep-alive timer tasks
   var keepAliveTasks: [UUID: Task<Void, Never>] = [:]
+  var retiredKeepAliveTasks: [Task<Void, Never>] = []
+  private var retirementTask: Task<Void, Never>?
 
   /// Keep-alive intervals per session (from login response, in seconds)
   /// Default to 90 seconds if not specified
   var keepAliveIntervals: [UUID: Duration] = [:]
   static let defaultKeepAliveInterval: Duration = .seconds(90)
 
-  /// Reentrancy guard for BLE reconnection handling
+  /// Reentrancy guard for Link reconnection handling
   var isReauthenticating = false
 
   /// Event monitoring task
@@ -117,16 +120,27 @@ public actor RemoteNodeService {
     eventBroadcaster.finish()
   }
 
+  #if DEBUG
+    /// Pauses before the store reads or creates a session.
+    var roomReuseHoldForTesting: (@Sendable () async -> Void)?
+
+    func setRoomReuseHoldForTesting(_ hold: (@Sendable () async -> Void)?) {
+      roomReuseHoldForTesting = hold
+    }
+  #endif
+
   // MARK: - Initialization
 
   init(
     session: any RemoteAccessSessionOps & SessionEventStreaming & ContactSessionOps,
     dataStore: any PersistenceStoreProtocol,
-    keychainService: KeychainService
+    keychainService: KeychainService,
+    contactRadioOwner: ContactRadioOwner = ContactRadioOwner()
   ) {
     self.session = session
     self.dataStore = dataStore
     self.keychainService = keychainService
+    self.contactRadioOwner = contactRadioOwner
   }
 
   deinit {
@@ -140,6 +154,7 @@ public actor RemoteNodeService {
 
   /// Start monitoring MeshCore events for login results
   public func startEventMonitoring() {
+    guard !isRetired else { return }
     eventMonitorTask?.cancel()
 
     eventMonitorTask = Task { [weak self] in
@@ -166,9 +181,11 @@ public actor RemoteNodeService {
   }
 
   /// Stop monitoring events
-  public func stopEventMonitoring() {
-    eventMonitorTask?.cancel()
+  public func stopEventMonitoring() async {
+    let worker = eventMonitorTask
     eventMonitorTask = nil
+    worker?.cancel()
+    await worker?.value
   }
 
   /// Handle incoming MeshCore event
@@ -271,37 +288,6 @@ public actor RemoteNodeService {
 
   // MARK: - Session Management
 
-  /// Create a session DTO for a contact, optionally preserving data from an existing session.
-  private func makeSessionDTO(
-    radioID: UUID,
-    contact: ContactDTO,
-    role: RemoteNodeRole,
-    preserving existing: RemoteNodeSessionDTO? = nil
-  ) -> RemoteNodeSessionDTO {
-    RemoteNodeSessionDTO(
-      id: existing?.id ?? UUID(),
-      radioID: radioID,
-      publicKey: contact.publicKey,
-      name: contact.displayName,
-      role: role,
-      latitude: contact.latitude,
-      longitude: contact.longitude,
-      isConnected: false,
-      permissionLevel: existing?.permissionLevel ?? .guest,
-      lastConnectedDate: existing?.lastConnectedDate,
-      lastBatteryMillivolts: existing?.lastBatteryMillivolts,
-      lastUptimeSeconds: existing?.lastUptimeSeconds,
-      lastNoiseFloor: existing?.lastNoiseFloor,
-      unreadCount: existing?.unreadCount ?? 0,
-      notificationLevel: existing?.notificationLevel ?? .all,
-      isPinned: existing?.isPinned ?? false,
-      lastRxAirtimeSeconds: existing?.lastRxAirtimeSeconds,
-      neighborCount: existing?.neighborCount ?? 0,
-      lastSyncTimestamp: existing?.lastSyncTimestamp ?? 0,
-      lastMessageDate: existing?.lastMessageDate
-    )
-  }
-
   /// Create a new session for a remote node.
   public func createSession(
     radioID: UUID,
@@ -325,31 +311,24 @@ public actor RemoteNodeService {
     }
 
     let pubKeyHex = contact.publicKey.prefix(6).map { String(format: "%02x", $0) }.joined()
-
-    let existing = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
-      .first { $0.publicKey == contact.publicKey }
-
-    if let existing {
-      logger.info("createSession: reusing existing session \(existing.id) for \(pubKeyHex), isConnected=\(existing.isConnected)")
-    } else {
-      logger.info("createSession: creating new session for \(pubKeyHex)")
-    }
-
+    #if DEBUG
+      if let hold = roomReuseHoldForTesting {
+        await hold()
+      }
+    #endif
     try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
-    let dto = makeSessionDTO(radioID: radioID, contact: contact, role: role, preserving: existing)
-
-    try await dataStore.saveRemoteNodeSessionDTO(dto)
+    let saved = try await dataStore.reuseOrCreateRemoteNodeSession(
+      RoomSessionPresentation(
+        radioID: radioID,
+        publicKey: contact.publicKey,
+        name: contact.displayName,
+        role: role,
+        latitude: contact.latitude,
+        longitude: contact.longitude
+      )
+    )
     try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
-    try await dataStore.cleanupDuplicateRemoteNodeSessions(publicKey: contact.publicKey, keepID: dto.id)
-
-    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
-    guard let saved = try await dataStore.fetchRemoteNodeSession(id: dto.id) else {
-      logger.error("createSession: failed to fetch saved session for \(pubKeyHex)")
-      throw RemoteNodeError.sessionNotFound
-    }
-
-    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
-    logger.info("createSession: saved session \(saved.id) for \(pubKeyHex)")
+    logger.info("createSession: saved session \(saved.id) for \(pubKeyHex), isConnected=\(saved.isConnected)")
     return saved
   }
 
@@ -409,6 +388,7 @@ public actor RemoteNodeService {
     loginAttemptIDs.removeAll()
     for task in keepAliveTasks.values {
       task.cancel()
+      retiredKeepAliveTasks.append(task)
     }
     keepAliveTasks.removeAll()
 
@@ -419,10 +399,10 @@ public actor RemoteNodeService {
     }
   }
 
-  func retire() {
+  func beginRetirement() {
+    guard !isRetired else { return }
     isRetired = true
     sensorConnectAttempts.removeAll()
-    stopEventMonitoring()
     stopAllKeepAlives()
     for (prefix, pending) in pendingCLIRequests {
       cancelPendingCLIRequest(for: prefix, requestID: pending.id)
@@ -432,6 +412,25 @@ public actor RemoteNodeService {
     for waiter in waiters {
       waiter.continuation.resume(throwing: CancellationError())
     }
+  }
+
+  func retire() async {
+    if let retirementTask {
+      await retirementTask.value
+      return
+    }
+
+    beginRetirement()
+    let workers = retiredKeepAliveTasks
+    retiredKeepAliveTasks.removeAll()
+    let drain = Task {
+      await stopEventMonitoring()
+      for worker in workers {
+        await worker.value
+      }
+    }
+    retirementTask = drain
+    await drain.value
   }
 
   /// Number of login continuations currently parked. Exposed for teardown tests.

@@ -14,7 +14,8 @@ final class NodeAuthPathViewModel {
     contact: ContactDTO,
     services: ServiceContainer?,
     radioID: UUID,
-    userLocation: CLLocation?
+    userLocation: CLLocation?,
+    isCurrent: @MainActor () -> Bool
   ) async {
     guard let services else {
       hops = []
@@ -23,7 +24,9 @@ final class NodeAuthPathViewModel {
 
     do {
       let contacts = try await services.dataStore.fetchContacts(radioID: radioID)
+      guard !Task.isCancelled, isCurrent() else { return }
       let discoveredNodes = try await services.dataStore.fetchDiscoveredNodes(radioID: radioID)
+      guard !Task.isCancelled, isCurrent() else { return }
 
       hops = NeighborNameResolver.resolvePath(
         contact.pathHops,
@@ -32,6 +35,7 @@ final class NodeAuthPathViewModel {
         userLocation: userLocation
       )
     } catch {
+      guard !Task.isCancelled, isCurrent() else { return }
       logger.error("Failed to resolve path hops: \(error.localizedDescription)")
       hops = []
     }

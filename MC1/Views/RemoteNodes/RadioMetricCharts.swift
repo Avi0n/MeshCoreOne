@@ -12,6 +12,18 @@ struct RadioMetricCharts<ChartContainer: View, PacketSection: View>: View {
   @ViewBuilder let chartContainer: (MetricChartView) -> ChartContainer
   @ViewBuilder let packetSection: (PacketChartsGroup) -> PacketSection
 
+  init(
+    snapshots: [NodeStatusSnapshotDTO],
+    ocvArray: [Int],
+    @ViewBuilder chartContainer: @escaping (MetricChartView) -> ChartContainer,
+    @ViewBuilder packetSection: @escaping (PacketChartsGroup) -> PacketSection
+  ) {
+    self.snapshots = snapshots.filter(RadioHistoryFilter.includes)
+    self.ocvArray = ocvArray
+    self.chartContainer = chartContainer
+    self.packetSection = packetSection
+  }
+
   var body: some View {
     let batteryPoints = snapshots.compactMap { s in
       s.batteryMillivolts.map {

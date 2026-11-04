@@ -203,22 +203,20 @@ struct AdvancedRadioSection: View {
     radioWriteInFlight = true
     Task {
       do {
-        guard let device = appState.connectedDevice else {
+        guard appState.connectedDevice != nil else {
           throw ConnectionError.notConnected
         }
 
-        // Firmware treats an omitted repeat byte as Repeat Mode off. Read clientRepeat
-        // and frequency from the radio at this call, not before the Task.
-        let frequencyKHzToSend = device.clientRepeat ? device.frequency : frequencyKHz
-
+        // Firmware treats an omitted repeat byte as Repeat Mode off. The service reads the
+        // live repeat flag, and the live frequency while repeat is on, after it owns the write.
         _ = try await settingsService.setRadioParamsVerified(
-          frequencyKHz: frequencyKHzToSend,
+          frequencyKHz: frequencyKHz,
           // Note: Parameter is misleadingly named "bandwidthKHz" but expects Hz.
           // bandwidthHz is already UInt32 Hz from the picker, pass directly.
           bandwidthKHz: bandwidthHz,
           spreadingFactor: spreadFactorByte,
           codingRate: codeRateByte,
-          clientRepeat: device.clientRepeat
+          preserveLiveRepeat: true
         )
 
         // Then set TX power

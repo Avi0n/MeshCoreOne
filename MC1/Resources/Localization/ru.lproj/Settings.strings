@@ -165,6 +165,9 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Поиск Bluetooth-устройств";
 
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "Сопряжение заново...";
+
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
 "deviceSelection.setup" = "Настроить";
@@ -746,6 +749,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Это удалит все сохранённые отладочные логи. Экспортированные файлы логов не будут затронуты.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Собирать отладочные логи";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Локальные отладочные логи не собираются.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Отключить сбор";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Отключить сбор";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Это удалит все сохранённые отладочные логи и прекратит их сбор. Экспортированные файлы логов не будут затронуты.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Не удалось создать файл экспорта";
 
@@ -986,6 +1004,9 @@
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "Пароль может содержать до 63 байт.";
 
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "Имя сети или пароль содержит символ, который это радио не может сохранить.";
+
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Очистить настройки WiFi";
 
@@ -1165,11 +1186,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "Отключить";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "Остановить переподключение";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "Отменить подключение";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "Отключено";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "Подключение...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "Переподключение...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "Ожидание переподключения";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Подключено";
@@ -1182,6 +1215,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Статус Bluetooth-подключения";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "Дважды коснитесь для подключения устройства";
@@ -1320,6 +1356,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ Некоторые настройки могли быть уже записаны на устройство. Проверьте конфигурацию устройства.";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "Соединение было прервано во время импорта идентификации на %@. Идентификация радио могла измениться. Импорт конфигурации не был завершён.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "Повторить импорт идентификации";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "Это заменит идентификацию радио, доступного через %@, с помощью закрытого ключа из выбранного файла. Импорт конфигурации не будет продолжен.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "Заменить идентификацию радио?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "Идентификация была применена повторно. Импорт конфигурации не был завершён. Импортируйте файл ещё раз, чтобы применить остальные настройки.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "Выберите файл конфигурации, содержащий закрытый ключ, чтобы повторить импорт идентификации.";
 
 /* Import success */
 "configImport.importSuccess" = "Конфигурация успешно импортирована";
@@ -1882,6 +1936,8 @@
 /* Error: tile limit reached */
 "offlineMaps.error.tileLimitReached" = "Достигнут лимит тайлов для этой загрузки.";
 
+"offlineMaps.error.providerLimitExceeded" = "Уменьшите детализацию или выберите меньшую область, чтобы уложиться в лимит загрузки поставщика карт.";
+
 /* Pause download button */
 "offlineMaps.pause" = "Пауза";
 
@@ -1891,8 +1947,14 @@
 /* Paused status label */
 "offlineMaps.paused" = "Приостановлено";
 
+/* Estimated layer size: first placeholder is the localized layer name, second is the formatted byte size. */
+"offlineMaps.layerEstimate" = "%@: ~%@";
+
+/* Uncertainty shown beside saved map size estimates, including when a warning is visible. */
+"offlineMaps.estimateUncertainty" = "Фактический размер может быть намного больше или меньше в зависимости от области и детализации.";
+
 /* Estimated download size */
-"offlineMaps.estimatedSize" = "Примерный размер: ~%@";
+"offlineMaps.estimatedSize" = "Примерный размер сохранённой карты: ~%@";
 
 /* Large tile download warning */
 "offlineMaps.largeTileWarning" = "Большая область загрузки. Это может занять время и потребовать значительного объёма памяти.";
@@ -1910,12 +1972,35 @@
 /* Layers section header */
 "offlineMaps.layers" = "Слои";
 
+/* Offline map download detail */
+"offlineMaps.baseDetail" = "Детализация базовой карты";
+
+"offlineMaps.topographyDetail" = "Детализация топографии";
+
+"offlineMaps.detail.explanation" = "Более высокая детализация занимает больше места в хранилище и дольше загружается. Меньшая детализация позволяет загрузить области большего размера.";
+
+"offlineMaps.detail.value" = "%@ (масштаб %@)";
+
+"offlineMaps.detail.overview" = "Обзорный";
+
+"offlineMaps.detail.regional" = "Региональный";
+
+"offlineMaps.detail.local" = "Местный";
+
+"offlineMaps.detail.detailed" = "Детальный";
+
+"offlineMaps.storageRemediation" = "Уменьшите детализацию или выберите меньшую область, чтобы хватило места в хранилище.";
+
+"offlineMaps.startingDownload" = "Начало загрузки…";
+
+"offlineMaps.error.invalidDetail" = "Выберите поддерживаемый уровень детализации карты.";
+
 /* Include layers prompt */
 /* No network available */
 "offlineMaps.noNetwork" = "Для загрузки карт требуется подключение к интернету.";
 
 /* Storage section footer */
-"offlineMaps.storageFooter" = "Включает данные карты и внутренние индексы. Общий объём может превышать сумму отдельных загрузок.";
+"offlineMaps.storageFooter" = "Включает данные карты, общие для регионов, и индексы базы данных. Размеры регионов не складываются в этот общий объём.";
 
 // MARK: - Backup & Restore
 

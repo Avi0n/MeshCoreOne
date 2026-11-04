@@ -95,6 +95,7 @@ struct LineOfSightView: View {
   private var workspaceWithChrome: some View {
     workspaceContent
       .navigationBarBackButtonHidden(layoutMode == .mapWithSheet && showAnalysisSheet)
+      .modifier(SheetTabBarHider(hides: LineOfSightLayoutMode.hidesTabBar(in: workspaceSize)))
       .liquidGlassToolbarBackground()
       .background {
         GeometryReader { proxy in
@@ -408,7 +409,29 @@ extension LineOfSightView {
   }
 }
 
+/// Hides the tab bar for a measured sheet layout, and leaves visibility
+/// unset so MapToolboxPlacement can hide it when a vertical bar is present.
+private struct SheetTabBarHider: ViewModifier {
+  var hides: Bool
+
+  func body(content: Content) -> some View {
+    if hides {
+      content.toolbarVisibility(.hidden, for: .tabBar)
+    } else {
+      content
+    }
+  }
+}
+
 // MARK: - Preview
+
+#Preview("Tools tab") {
+  let appState = AppState()
+  appState.navigation.selectedTab = AppTab.tools.rawValue
+  appState.navigation.selectedTool = .lineOfSight
+  return MainTabView()
+    .environment(\.appState, appState)
+}
 
 #Preview("Empty") {
   NavigationStack {

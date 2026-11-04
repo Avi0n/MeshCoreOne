@@ -1,4 +1,5 @@
 import Foundation
+import MeshCore
 import SwiftData
 
 public extension PersistenceStore {
@@ -88,6 +89,17 @@ public extension PersistenceStore {
     }
 
     try modelContext.save()
+  }
+
+  /// Updates local OCV fields without replacing connection identity or inserting a row.
+  func updateDeviceOCVSettings(id: UUID, preset: String, customArray: String?) throws -> DeviceDTO? {
+    guard let device = try fetchDevice(id: id) else { return nil }
+    let updated = device.copy {
+      $0.ocvPreset = preset
+      $0.customOCVArrayString = customArray
+    }
+    try saveDevice(updated)
+    return updated
   }
 
   /// Set a device as active (deactivates others)
@@ -206,10 +218,7 @@ public extension PersistenceStore {
         if case let .bluetooth(id, _) = method { return id == peripheralID }
         return false
       }
-    }) else {
-      return nil
-    }
-    guard device.connectionMethods.contains(where: \.isWiFi) else {
+    }), device.connectionMethods.contains(where: \.isWiFi) else {
       return nil
     }
     device.connectionMethods = device.connectionMethods.filter { !$0.isBluetooth }
@@ -290,29 +299,51 @@ public extension PersistenceStore {
   ///   - newPublicKey: The radio's `selfInfo.publicKey` after `importPrivateKey`.
   /// - Returns: The new `radioID` if reconciliation occurred, otherwise `nil`.
   func reconcileGhostIdentity(currentDeviceID: UUID, newPublicKey: Data) throws -> UUID? {
+    guard let current = try identityDevice(id: currentDeviceID) else { return nil }
+    try commitPendingRxLogEntries()
+    guard let radioID = try stageGhostIdentity(current: current, newPublicKey: newPublicKey) else { return nil }
+    try saveIdentityChanges()
+    return radioID
+  }
+
+  /// Saves an authenticated identity observation and its canonical partition in one actor turn.
+  func importConnectionIdentity(
+    deviceID: UUID, expectedRadioID: UUID, expectedPublicKey: Data, selfInfo: SelfInfo?
+  ) throws -> DeviceDTO? {
+    guard let current = try identityDevice(id: deviceID),
+          current.radioID == expectedRadioID, current.publicKey == expectedPublicKey,
+          !current.connectionMethods.isEmpty else { return nil }
+    guard let selfInfo else { return DeviceDTO(from: current) }
+    try commitPendingRxLogEntries()
+    do {
+      current.apply(DeviceDTO(from: current).updating(from: selfInfo))
+      _ = try stageGhostIdentity(current: current, newPublicKey: selfInfo.publicKey)
+      try saveIdentityChanges()
+      return DeviceDTO(from: current)
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+  }
+
+  private func identityDevice(id: UUID) throws -> Device? {
+    let lookupID = id
+    let predicate = #Predicate<Device> { $0.id == lookupID }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    return try modelContext.fetch(descriptor).first
+  }
+
+  private func stageGhostIdentity(current: Device, newPublicKey: Data) throws -> UUID? {
     let lookupKey = newPublicKey
-    let lookupID = currentDeviceID
+    let lookupID = current.id
     let ghostPredicate = #Predicate<Device> { device in
       device.publicKey == lookupKey && device.id != lookupID && device.isActive == false
     }
     var ghostDescriptor = FetchDescriptor(predicate: ghostPredicate)
     ghostDescriptor.fetchLimit = 1
-    guard let ghost = try modelContext.fetch(ghostDescriptor).first else { return nil }
-
-    // Defensive: refuse to delete a row that still carries a Bluetooth method.
-    // It's a real saved-but-inactive device (per `setActiveDevice` semantics),
-    // not a ghost. Returning nil here is safe — no reconciliation, no data loss.
-    if ghost.connectionMethods.contains(where: \.isBluetooth) {
-      return nil
-    }
-
-    let currentPredicate = #Predicate<Device> { device in
-      device.id == lookupID
-    }
-    var currentDescriptor = FetchDescriptor(predicate: currentPredicate)
-    currentDescriptor.fetchLimit = 1
-    guard let current = try modelContext.fetch(currentDescriptor).first else { return nil }
-
+    guard let ghost = try modelContext.fetch(ghostDescriptor).first,
+          !ghost.connectionMethods.contains(where: \.isBluetooth) else { return nil }
     let newRadioID = ghost.radioID
     current.radioID = newRadioID
     current.publicKey = newPublicKey
@@ -322,10 +353,20 @@ public extension PersistenceStore {
        let wifi = ConnectionMethod.canonicalized(ghost.connectionMethods).first(where: \.isWiFi) {
       current.connectionMethods.insert(wifi, at: 0)
     }
-
     modelContext.delete(ghost)
-    try modelContext.save()
     return newRadioID
+  }
+
+  private func saveIdentityChanges() throws {
+    do {
+      #if DEBUG
+        try identityReconciliationFaultInjection?()
+      #endif
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
   }
 
   /// Stages deletion of all device-scoped data without calling save().
@@ -479,6 +520,10 @@ public extension PersistenceStore {
   }
 
   #if DEBUG
+    func setIdentityReconciliationFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      identityReconciliationFaultInjection = hook
+    }
+
     func setFetchDeviceByIDFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
       fetchDeviceByIDFaultInjection = hook
     }

@@ -19,6 +19,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public var stubbedSaveMessageError: Error?
   public var stubbedFetchMessageError: Error?
   public var stubbedUpdateMessageStatusError: Error?
+  public var stubbedResolvePendingAcknowledgementError: Error?
   public var stubbedSaveContactError: Error?
   public var stubbedFetchContactError: Error?
   public var stubbedFetchContactPublicKeysError: Error?
@@ -48,8 +49,20 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   // MARK: - Stub Configuration
 
+  public func setStubbedUpdateMessageStatusError(_ error: Error?) {
+    stubbedUpdateMessageStatusError = error
+  }
+
+  public func setStubbedResolvePendingAcknowledgementError(_ error: Error?) {
+    stubbedResolvePendingAcknowledgementError = error
+  }
+
   public func setStubbedFetchContactError(_ error: Error?) {
     stubbedFetchContactError = error
+  }
+
+  public func setStubbedSaveContactError(_ error: Error?) {
+    stubbedSaveContactError = error
   }
 
   public func setStubbedTouchContactHeardError(_ error: Error?) {
@@ -58,6 +71,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func setStubbedDeleteContactError(_ error: Error?) {
     stubbedDeleteContactError = error
+  }
+
+  public func setStubbedDebugLogError(_ error: Error?) {
+    stubbedDebugLogError = error
   }
 
   // MARK: - Message Operations
@@ -538,7 +555,22 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       .sorted { ($0.lastMessageDate ?? .distantPast) > ($1.lastMessageDate ?? .distantPast) }
   }
 
+  /// 1-based `fetchContact(id:)` call that throws once. Arms only that read, so a
+  /// later fetch can fail after an earlier read and a successful save.
+  private var failFetchContactIDOnCall: Int?
+  private var fetchContactIDCallCount = 0
+
+  public func failFetchContactID(onCall call: Int) {
+    fetchContactIDCallCount = 0
+    failFetchContactIDOnCall = call
+  }
+
   public func fetchContact(id: UUID) async throws -> ContactDTO? {
+    fetchContactIDCallCount += 1
+    if failFetchContactIDOnCall == fetchContactIDCallCount {
+      failFetchContactIDOnCall = nil
+      throw PersistenceStoreError.contactNotFound
+    }
     if let error = stubbedFetchContactError {
       throw error
     }
@@ -726,6 +758,185 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       throw error
     }
     contacts[dto.id] = dto
+  }
+
+  public func insertContactIfAbsent(
+    radioID: UUID,
+    from frame: ContactFrame
+  ) async throws -> (id: UUID, isNew: Bool) {
+    if let existing = contacts.values.first(where: { $0.radioID == radioID && $0.publicKey == frame.publicKey }) {
+      return (id: existing.id, isNew: false)
+    }
+    let contact = ContactDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: frame.publicKey,
+      name: frame.name,
+      typeRawValue: frame.typeRawValue,
+      flags: frame.flags,
+      outPathLength: frame.outPathLength,
+      outPath: frame.outPath,
+      lastAdvertTimestamp: frame.lastAdvertTimestamp,
+      latitude: frame.latitude,
+      longitude: frame.longitude,
+      lastModified: frame.lastModified,
+      lastHeardTimestamp: nil,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: (frame.flags & ContactFlags.favorite.rawValue) != 0,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    contacts[contact.id] = contact
+    return (id: contact.id, isNew: true)
+  }
+
+  public func updateContactLocalPreferences(
+    contactID: UUID,
+    nickname: ContactNicknameUpdate,
+    isBlocked: Bool?,
+    isFavorite: Bool?,
+    clearRemoteCLI: Bool
+  ) async throws -> ContactPreferenceCommit {
+    guard var contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    switch nickname {
+    case .unchanged:
+      break
+    case .clear:
+      contact = replacing(contact, nickname: .some(nil))
+    case let .set(value):
+      contact = replacing(contact, nickname: .some(value))
+    }
+    var blockTransition = ContactPreferenceCommit.BlockTransition.none
+    if let isBlocked {
+      if isBlocked, !contact.isBlocked {
+        blockTransition = .blocked
+        contact = replacing(contact, isBlocked: true, unreadCount: 0)
+      } else if !isBlocked, contact.isBlocked {
+        blockTransition = .unblocked
+        contact = replacing(contact, isBlocked: false)
+      } else {
+        contact = replacing(contact, isBlocked: isBlocked)
+      }
+    }
+    if let isFavorite {
+      contact = replacing(contact, isFavorite: isFavorite)
+    }
+    if clearRemoteCLI {
+      contact = replacing(
+        contact,
+        flags: contact.flags & ~ContactFlags.remoteCLIAllowed.rawValue
+      )
+    }
+    contacts[contactID] = contact
+    return ContactPreferenceCommit(contact: contact, blockTransition: blockTransition)
+  }
+
+  public func updateContactOCVSettings(
+    contactID: UUID,
+    preset: String,
+    customArray: String?
+  ) async throws -> ContactDTO {
+    guard let contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    let updated = replacing(contact, ocvPreset: preset, customOCVArrayString: .some(customArray))
+    contacts[contactID] = updated
+    return updated
+  }
+
+  public func updateContactAvatar(contactID: UUID, imageData: Data?) async throws -> ContactDTO {
+    guard let contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    let updated = replacing(contact, avatarImageData: .some(imageData))
+    contacts[contactID] = updated
+    return updated
+  }
+
+  public func updateContactFavorite(contactID: UUID, isFavorite: Bool) async throws -> ContactDTO {
+    if let error = stubbedSaveContactError {
+      throw error
+    }
+    guard let contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    let flags = isFavorite
+      ? contact.flags | ContactFlags.favorite.rawValue
+      : contact.flags & ~ContactFlags.favorite.rawValue
+    let updated = replacing(contact, flags: flags, isFavorite: isFavorite)
+    contacts[contactID] = updated
+    return updated
+  }
+
+  public func updateContactTelemetryPermissions(contactID: UUID, granted: Bool) async throws -> ContactDTO {
+    guard let contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    let flags = granted
+      ? contact.flags | ContactFlags.telemetryAll.rawValue
+      : contact.flags & ~ContactFlags.telemetryAll.rawValue
+    let updated = replacing(contact, flags: flags)
+    contacts[contactID] = updated
+    return updated
+  }
+
+  public func updateContactRemoteCLIPermission(contactID: UUID, granted: Bool) async throws -> ContactDTO {
+    guard let contact = contacts[contactID] else { throw PersistenceStoreError.contactNotFound }
+    let flags = granted
+      ? contact.flags | ContactFlags.remoteCLIAllowed.rawValue
+      : contact.flags & ~ContactFlags.remoteCLIAllowed.rawValue
+    let updated = replacing(contact, flags: flags)
+    contacts[contactID] = updated
+    return updated
+  }
+
+  public func updateContactRoute(
+    radioID: UUID,
+    publicKey: Data,
+    outPathLength: UInt8,
+    outPath: Data
+  ) async throws -> ContactDTO? {
+    guard let match = contacts.values.first(where: { $0.radioID == radioID && $0.publicKey == publicKey }) else {
+      return nil
+    }
+    let updated = replacing(match, outPathLength: outPathLength, outPath: outPath)
+    contacts[match.id] = updated
+    return updated
+  }
+
+  private func replacing(
+    _ contact: ContactDTO,
+    flags: UInt8? = nil,
+    outPathLength: UInt8? = nil,
+    outPath: Data? = nil,
+    nickname: String?? = nil,
+    isBlocked: Bool? = nil,
+    isFavorite: Bool? = nil,
+    unreadCount: Int? = nil,
+    ocvPreset: String? = nil,
+    customOCVArrayString: String?? = nil,
+    avatarImageData: Data?? = nil
+  ) -> ContactDTO {
+    ContactDTO(
+      id: contact.id,
+      radioID: contact.radioID,
+      publicKey: contact.publicKey,
+      name: contact.name,
+      typeRawValue: contact.typeRawValue,
+      flags: flags ?? contact.flags,
+      outPathLength: outPathLength ?? contact.outPathLength,
+      outPath: outPath ?? contact.outPath,
+      lastAdvertTimestamp: contact.lastAdvertTimestamp,
+      latitude: contact.latitude,
+      longitude: contact.longitude,
+      lastModified: contact.lastModified,
+      lastHeardTimestamp: contact.lastHeardTimestamp,
+      nickname: nickname ?? contact.nickname,
+      isBlocked: isBlocked ?? contact.isBlocked,
+      isMuted: contact.isMuted,
+      isFavorite: isFavorite ?? contact.isFavorite,
+      isPinned: contact.isPinned,
+      lastMessageDate: contact.lastMessageDate,
+      unreadCount: unreadCount ?? contact.unreadCount,
+      unreadMentionCount: contact.unreadMentionCount,
+      ocvPreset: ocvPreset ?? contact.ocvPreset,
+      customOCVArrayString: customOCVArrayString ?? contact.customOCVArrayString,
+      avatarImageData: avatarImageData ?? contact.avatarImageData
+    )
   }
 
   public func deleteContact(id: UUID) async throws {
@@ -1592,6 +1803,72 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     0 // Stub
   }
 
+  public func admitIncomingPath(
+    messageID: UUID,
+    pathNodes: Data,
+    pathLength: UInt8,
+    snr: Double?,
+    rssi: Int?,
+    receivedAt: Date,
+    rxLogEntryID: UUID?
+  ) async throws -> IncomingPathAdmission {
+    guard var message = messages[messageID] else { return .missingParent }
+    if message.pathNodes == nil {
+      message.pathNodes = pathNodes
+      message.pathLength = pathLength
+      messages[messageID] = message
+      return .adoptedCanonical
+    }
+    if message.pathNodes == pathNodes { return .unchanged }
+    if let rxLogEntryID, repeatRows.contains(where: { $0.rxLogEntryID == rxLogEntryID }) {
+      return .unchanged
+    }
+    if repeatRows.contains(where: { $0.messageID == messageID && $0.pathNodes == pathNodes }) {
+      return .unchanged
+    }
+    repeatRows.append(MessageRepeatDTO(
+      messageID: messageID,
+      receivedAt: receivedAt,
+      pathNodes: pathNodes,
+      pathLength: pathLength,
+      snr: snr,
+      rssi: rssi,
+      rxLogEntryID: rxLogEntryID
+    ))
+    message.heardRepeats += 1
+    messages[messageID] = message
+    return .recordedExtra(message.heardRepeats)
+  }
+
+  public func admitSentEcho(
+    messageID: UUID,
+    receivedAt: Date,
+    pathNodes: Data,
+    pathLength: UInt8,
+    snr: Double?,
+    rssi: Int?,
+    rxLogEntryID: UUID?
+  ) async throws -> Int? {
+    guard var message = messages[messageID] else { throw PersistenceStoreError.messageNotFound }
+    if let rxLogEntryID, repeatRows.contains(where: { $0.rxLogEntryID == rxLogEntryID }) {
+      return nil
+    }
+    repeatRows.append(MessageRepeatDTO(
+      messageID: messageID,
+      receivedAt: receivedAt,
+      pathNodes: pathNodes,
+      pathLength: pathLength,
+      snr: snr,
+      rssi: rssi,
+      rxLogEntryID: rxLogEntryID
+    ))
+    message.heardRepeats += 1
+    messages[messageID] = message
+    return message.heardRepeats
+  }
+
+  private var repeatRows: [MessageRepeatDTO] = []
+
   public func adoptIncomingPathIfUnknown(id: UUID, pathNodes: Data, pathLength: UInt8) async throws -> Bool {
     guard var message = messages[id] else { return false }
     if message.pathNodes != nil { return false }
@@ -1715,6 +1992,16 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     devices[dto.radioID] = dto
   }
 
+  public func updateDeviceOCVSettings(id: UUID, preset: String, customArray: String?) async throws -> DeviceDTO? {
+    guard let current = devices.values.first(where: { $0.id == id }) else { return nil }
+    let updated = current.copy {
+      $0.ocvPreset = preset
+      $0.customOCVArrayString = customArray
+    }
+    devices[updated.radioID] = updated
+    return updated
+  }
+
   // MARK: - Room Session State
 
   public var remoteNodeSessions: [UUID: RemoteNodeSessionDTO] = [:]
@@ -1748,6 +2035,54 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public func saveRemoteNodeSessionDTO(_ dto: RemoteNodeSessionDTO) async throws {
     savedRemoteNodeSessions.append(dto)
     remoteNodeSessions[dto.id] = dto
+  }
+
+  public func reuseOrCreateRemoteNodeSession(
+    _ presentation: RoomSessionPresentation
+  ) async throws -> RemoteNodeSessionDTO {
+    let matches = remoteNodeSessions.values
+      .filter { $0.radioID == presentation.radioID && $0.publicKey == presentation.publicKey }
+      .sorted { $0.name < $1.name }
+    if let existing = matches.first {
+      let updated = RemoteNodeSessionDTO(
+        id: existing.id,
+        radioID: existing.radioID,
+        publicKey: presentation.publicKey,
+        name: presentation.name,
+        role: presentation.role,
+        latitude: presentation.latitude,
+        longitude: presentation.longitude,
+        isConnected: false,
+        permissionLevel: existing.permissionLevel,
+        lastConnectedDate: existing.lastConnectedDate,
+        lastBatteryMillivolts: existing.lastBatteryMillivolts,
+        lastUptimeSeconds: existing.lastUptimeSeconds,
+        lastNoiseFloor: existing.lastNoiseFloor,
+        unreadCount: existing.unreadCount,
+        notificationLevel: existing.notificationLevel,
+        isPinned: existing.isPinned,
+        lastRxAirtimeSeconds: existing.lastRxAirtimeSeconds,
+        neighborCount: existing.neighborCount,
+        lastSyncTimestamp: existing.lastSyncTimestamp,
+        lastMessageDate: existing.lastMessageDate
+      )
+      remoteNodeSessions[existing.id] = updated
+      for duplicate in matches.dropFirst() {
+        remoteNodeSessions.removeValue(forKey: duplicate.id)
+      }
+      return updated
+    }
+    let created = RemoteNodeSessionDTO(
+      radioID: presentation.radioID,
+      publicKey: presentation.publicKey,
+      name: presentation.name,
+      role: presentation.role,
+      latitude: presentation.latitude,
+      longitude: presentation.longitude,
+      isConnected: false
+    )
+    remoteNodeSessions[created.id] = created
+    return created
   }
 
   public func updateRemoteNodeSessionConnection(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel) async throws {
@@ -1954,8 +2289,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     inboundHopCountCalls.append((radioID: radioID, publicKey: publicKey, hopCount: hopCount, advertTimestamp: advertTimestamp))
     guard let existing = discoveredNodes.values.first(where: {
       $0.radioID == radioID && $0.publicKey == publicKey
-    }) else { return }
-    guard let adopted = adoptInboundHop(
+    }), let adopted = adoptInboundHop(
       storedHops: existing.inboundHopCount,
       storedTimestamp: existing.inboundHopAdvertTimestamp,
       incomingHops: hopCount,
@@ -2023,6 +2357,25 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public func saveReaction(_ dto: ReactionDTO) async throws {
     savedReactions.append(dto)
     reactions[dto.messageID, default: []].append(dto)
+  }
+
+  public func admitReaction(_ dto: ReactionDTO) async throws -> ReactionAdmission? {
+    guard var message = messages[dto.messageID] else { return nil }
+    let existing = reactions[dto.messageID] ?? []
+    let inserted = !existing.contains { $0.senderName == dto.senderName && $0.emoji == dto.emoji }
+    if inserted {
+      savedReactions.append(dto)
+      reactions[dto.messageID, default: []].append(dto)
+    }
+    let limited = Array(
+      (reactions[dto.messageID] ?? [])
+        .sorted { $0.receivedAt > $1.receivedAt }
+        .prefix(ReactionParser.summaryRowLimit)
+    )
+    let summary = ReactionParser.buildSummary(from: limited)
+    message.reactionSummary = summary
+    messages[dto.messageID] = message
+    return ReactionAdmission(messageID: dto.messageID, summary: summary, inserted: inserted)
   }
 
   public func reactionExists(messageID: UUID, senderName: String, emoji: String) async throws -> Bool {
@@ -2281,10 +2634,42 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       localNodeName: dto.localNodeName,
       sequence: nextSequence,
       enqueuedAt: dto.enqueuedAt,
-      attemptCount: dto.attemptCount
+      attemptCount: dto.attemptCount,
+      ackCodes: dto.ackCodes,
+      ackSentAt: dto.ackSentAt,
+      ackDeadline: dto.ackDeadline
     )
     pendingSends[dto.id] = assigned
     return nextSequence
+  }
+
+  public func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?) async throws -> Bool {
+    guard var message = messages[dto.messageID], message.status != .delivered, message.status != .failed else { return false }
+    if let replacingPendingSendID {
+      guard let existing = pendingSends[replacingPendingSendID], existing.messageID == dto.messageID,
+            existing.ackDeadline == nil else { return false }
+    } else if pendingSends.values.contains(where: { $0.messageID == dto.messageID }) {
+      return false
+    }
+    pendingSends[dto.id] = dto
+    message.status = .sent
+    messages[dto.messageID] = message
+    return true
+  }
+
+  public func resolvePendingAcknowledgement(
+    id: UUID, expectedDeadline: Date?, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?
+  ) async throws -> Bool {
+    if let error = stubbedResolvePendingAcknowledgementError { throw error }
+    guard let row = pendingSends[id], row.ackDeadline == expectedDeadline else { return false }
+    if row.ackDeadline != nil { pendingSends[id] = nil }
+    guard var message = messages[row.messageID], message.status != .delivered, message.status != .failed else { return false }
+    message.status = status
+    if status == .failed { message.failureSeen = false }
+    if let ackCode { message.ackCode = ackCode }
+    if let roundTripTime { message.roundTripTime = roundTripTime }
+    messages[row.messageID] = message
+    return true
   }
 
   public func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO] {
@@ -2307,8 +2692,8 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   }
 
   @discardableResult
-  public func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int? {
-    guard let row = pendingSends.values.first(where: { $0.messageID == messageID }) else { return nil }
+  public func incrementPendingSendAttemptCount(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
+    guard let row = pendingSends.values.first(where: { $0.messageID == messageID && $0.ackDeadline == nil }) else { return nil }
     let nextCount = (row.attemptCount ?? 0) + 1
     pendingSends[row.id] = PendingSendDTO(
       id: row.id,
@@ -2323,9 +2708,12 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       localNodeName: row.localNodeName,
       sequence: row.sequence,
       enqueuedAt: row.enqueuedAt,
-      attemptCount: nextCount
+      attemptCount: nextCount,
+      ackCodes: row.ackCodes,
+      ackSentAt: row.ackSentAt,
+      ackDeadline: row.ackDeadline
     )
-    return nextCount
+    return (row.id, nextCount)
   }
 
   // MARK: - Test Helpers

@@ -15,20 +15,6 @@ extension ContactDetailPresenter {
   }
 
   @ViewBuilder
-  var adminAuthenticationSheet: some View {
-    if let state, state.hasPresentationOwnership, let role = RemoteNodeRole(contactType: state.currentContact.type) {
-      let context = state.operationContext
-      NodeAuthenticationSheet(contact: state.currentContact, role: role) { session in
-        guard state.accepts(context) else { return }
-        state.adminSession = session
-        state.adminSessionContext = context
-        state.showRepeaterAdminAuth = false
-      }
-      .presentationSizing(.page)
-    }
-  }
-
-  @ViewBuilder
   func activeSheet(_ active: ContactDetailState.ActiveSheet) -> some View {
     if let state, state.hasPresentationOwnership {
       switch active {
@@ -49,6 +35,14 @@ extension ContactDetailPresenter {
             }
             state.pendingSheetContext = context
             state.activeSheet = nil
+          }
+          .presentationSizing(.page)
+        }
+      case .adminAuth:
+        if let role = RemoteNodeRole(contactType: state.currentContact.type) {
+          let context = state.operationContext
+          NodeAuthenticationSheet(contact: state.currentContact, role: role) { session in
+            state.queueAdminSheet(for: session, context: context)
           }
           .presentationSizing(.page)
         }

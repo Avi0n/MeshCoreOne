@@ -158,10 +158,8 @@ struct NodeLocationMapView: View {
     )
   }
 
-  /// Fixed bottom-right map controls.
   private var toolbarOverlay: some View {
-    HStack {
-      Spacer()
+    MapToolboxPlacement {
       MapControlsToolbar(
         onLocationTap: centerOnMyLocation,
         isCenteredOnUser: state.isCenteredOnUser,

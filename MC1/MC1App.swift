@@ -22,6 +22,7 @@ struct MC1App: App {
   private let pendingExternalURL = PendingExternalURL()
 
   init() {
+    OfflineMapNetwork.configure()
     // Register the bridge synchronously here: a background-launched intent
     // runs only `App.init` (no scene, no `.task`), so a deferred
     // registration could let its `@Dependency` read throw before it lands.

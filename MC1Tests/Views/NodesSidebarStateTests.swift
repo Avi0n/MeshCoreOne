@@ -145,6 +145,43 @@ struct NodesSidebarStateTests {
     #expect(Set(state.viewModel.contacts.map(\.name)) == ["Alex", "Blair"])
   }
 
+  @Test
+  func `favourite membership stays cached until contact invalidation`() async throws {
+    let fixture = try makeFixture()
+    defer { fixture.cleanUp() }
+    let store = fixture.appState.connectionManager.persistenceStore
+    let saved = try await store.saveContact(radioID: fixture.radioID, from: frame(name: "Alex", byte: 0x11))
+    let state = ContactsSidebarState()
+    defer { state.end() }
+    state.configure(appState: fixture.appState)
+    state.selectedSegment = .favorites
+    state.reloadIfNeeded(appState: fixture.appState)
+    await state.waitForLoadForTesting()
+    #expect(favoriteNames(in: state) == [])
+
+    let stored = try #require(try await store.fetchContact(id: saved.id))
+    try await store.saveContact(stored.with(isFavorite: true))
+    state.reloadIfNeeded(appState: fixture.appState)
+    await state.waitForLoadForTesting()
+    #expect(favoriteNames(in: state) == [])
+
+    fixture.appState.contactsVersion += 1
+    state.reloadIfNeeded(appState: fixture.appState)
+    await state.waitForLoadForTesting()
+    #expect(favoriteNames(in: state) == ["Alex"])
+
+    let favorited = try #require(try await store.fetchContact(id: saved.id))
+    try await store.saveContact(favorited.with(isFavorite: false))
+    state.reloadIfNeeded(appState: fixture.appState)
+    await state.waitForLoadForTesting()
+    #expect(favoriteNames(in: state) == ["Alex"])
+
+    fixture.appState.contactsVersion += 1
+    state.reloadIfNeeded(appState: fixture.appState)
+    await state.waitForLoadForTesting()
+    #expect(favoriteNames(in: state) == [])
+  }
+
   @Test(arguments: ReloadRetirement.allCases)
   private func `retired suspended Discovery load cannot publish and a new load can`(
     _ retirement: ReloadRetirement
@@ -234,6 +271,15 @@ struct NodesSidebarStateTests {
     let appState = AppState(modelContainer: container, isPlaceholder: true, defaults: defaults)
     appState.connectionManager.persistConnection(deviceID: UUID(), radioID: radioID, deviceName: "Fixture")
     return Fixture(appState: appState, radioID: radioID, defaults: defaults, suiteName: suiteName)
+  }
+
+  private func favoriteNames(in state: ContactsSidebarState) -> [String] {
+    state.viewModel.filteredContacts(
+      searchText: "",
+      segment: .favorites,
+      sortOrder: .name,
+      userLocation: nil
+    ).map(\.name)
   }
 
   private func frame(name: String, byte: UInt8) -> ContactFrame {

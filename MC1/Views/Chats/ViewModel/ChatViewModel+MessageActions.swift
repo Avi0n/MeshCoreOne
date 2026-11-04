@@ -20,8 +20,8 @@ extension ChatViewModel {
     defer { retryInFlight = false }
 
     guard let contact = currentContact,
-          let dataStore else {
-      logger.warning("retryMessage: missing currentContact or dataStore")
+          let dataStore = dataStoreForDMRetry(to: contact) else {
+      logger.warning("retryMessage: DM persistence is unavailable")
       return
     }
 
@@ -83,8 +83,8 @@ extension ChatViewModel {
       // debounces via retryInFlight, sendAgain via actions-sheet dismissal —
       // extracting a shared body would lose that distinction.
       guard let contact = currentContact,
-            let dataStore else {
-        logger.warning("sendAgain (DM): missing currentContact or dataStore")
+            let dataStore = dataStoreForDMRetry(to: contact) else {
+        logger.warning("sendAgain (DM): DM persistence is unavailable")
         return
       }
 
@@ -116,8 +116,7 @@ extension ChatViewModel {
 
   /// Delete a single message
   func deleteMessage(_ message: MessageDTO) async {
-    guard connectionStateProvider() == .ready else { return }
-    guard let dataStore else { return }
+    guard connectionStateProvider() == .ready, let dataStore else { return }
 
     do {
       try await dataStore.deleteMessage(id: message.id)
@@ -143,9 +142,8 @@ extension ChatViewModel {
     }
   }
 
-  /// Clears a direct conversation by dropping its messages and last-message date (a local
-  /// SwiftData write, no radio command). Throws `ConversationActionError.notConnected` rather
-  /// than returning silently so the caller can roll back the optimistic hide and surface an error.
+  /// Deletes a DM's messages and clears its last-message date.
+  /// Throws when disconnected so the caller can restore the hidden row.
   func deleteDirectConversation(for contact: ContactDTO) async throws {
     guard connectionStateProvider() == .ready, let dataStore else {
       throw ConversationActionError.notConnected
@@ -153,7 +151,27 @@ extension ChatViewModel {
 
     try await dataStore.deleteMessagesForContact(contactID: contact.id)
     try await dataStore.clearUnreadCount(contactID: contact.id)
-    try await dataStore.updateContactLastMessage(contactID: contact.id, date: nil)
+    do {
+      // Unread clearing is committed, so a failed date write must still notify.
+      defer {
+        if currentRadioIDProvider() == contact.radioID, self.dataStore === dataStore {
+          syncCoordinator?.notifyConversationsChanged()
+        }
+      }
+      #if DEBUG
+        conversationMutationPostSaveHook?()
+      #endif
+      try await dataStore.updateContactLastMessage(contactID: contact.id, date: nil)
+    }
     await notificationService?.updateBadgeCount()
+  }
+
+  private func dataStoreForDMRetry(to contact: ContactDTO) -> DataStore? {
+    guard currentRadioIDProvider() == contact.radioID,
+          let dataStore,
+          connectionStateProvider() == .disconnected || chatSendQueueServiceProvider() != nil else {
+      return nil
+    }
+    return dataStore
   }
 }

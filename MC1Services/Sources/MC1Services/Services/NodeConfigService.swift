@@ -86,40 +86,58 @@ public struct ImportPreview: Sendable {
 /// Exports device configuration to `MeshCoreNodeConfig` and imports it back,
 /// handling section filtering, other-params merging, and safe import ordering.
 public actor NodeConfigService {
-  private let session: any MeshCoreSessionProtocol
-  private let settingsService: SettingsService
-  private let channelService: ChannelService
+  private var session: any MeshCoreSessionProtocol
+  private var settingsService: SettingsService
+  private var channelService: ChannelService
   private let dataStore: any PersistenceStoreProtocol
+  private var contactRadio: (any ContactRadioOwning)?
   /// Injected by `ServiceContainer` at construction.
   private weak var syncCoordinator: SyncCoordinator?
   private let logger = Logger(subsystem: "com.mc1", category: "NodeConfigService")
-  /// Called after a config import restores a private key, so the connection layer can
-  /// reconcile device identity. Installed by `ConnectionManager.buildServicesAndSaveDevice`.
-  private var onPostIdentityImport: (@Sendable () async throws -> UUID?)?
+  private var onIdentityImport: (@Sendable (Data) async throws -> UUID?)?
+  private var importIsRunning = false
+  private var publicAdmissionRetired = false
+  private var importedRadioID: UUID?
+  private var onImportFinished: (@Sendable () async throws -> Void)?
 
   public init(
     session: any MeshCoreSessionProtocol,
     settingsService: SettingsService,
     channelService: ChannelService,
     dataStore: any PersistenceStoreProtocol,
-    syncCoordinator: SyncCoordinator?
+    syncCoordinator: SyncCoordinator?,
+    contactRadio: (any ContactRadioOwning)? = nil
   ) {
     self.session = session
     self.settingsService = settingsService
     self.channelService = channelService
     self.dataStore = dataStore
     self.syncCoordinator = syncCoordinator
+    self.contactRadio = contactRadio
   }
 
-  /// Wires a late-bound callback that fires after `importIdentity` succeeds.
-  /// The callback is responsible for reconciling the radio's restored
-  /// `publicKey` with any ghost `Device` row left by a prior "remove from MC1".
-  /// Its return value, when non-nil, replaces the `radioID` used by all
-  /// subsequent steps in `importConfig` (channels, contacts).
-  public func setOnPostIdentityImport(
-    _ callback: (@Sendable () async throws -> UUID?)?
-  ) {
-    onPostIdentityImport = callback
+  func setIdentityImportHandler(_ handler: @escaping @Sendable (Data) async throws -> UUID?) {
+    onIdentityImport = handler
+  }
+
+  func adoptImportRuntime(
+    session: MeshCoreSession, settingsService: SettingsService,
+    channelService: ChannelService, syncCoordinator: SyncCoordinator,
+    contactRadio: any ContactRadioOwning, onImportFinished: @escaping @Sendable () async throws -> Void
+  ) -> Bool {
+    guard importIsRunning else { return false }
+    self.session = session
+    self.settingsService = settingsService
+    self.channelService = channelService
+    self.syncCoordinator = syncCoordinator
+    self.contactRadio = contactRadio
+    publicAdmissionRetired = true
+    self.onImportFinished = onImportFinished
+    return true
+  }
+
+  func retirePublicAdmission() {
+    publicAdmissionRetired = true
   }
 
   /// Whether a sync coordinator was injected at construction.
@@ -133,11 +151,18 @@ public actor NodeConfigService {
   /// - Parameter sections: Which sections to include in the export.
   /// - Returns: A populated config struct.
   public func exportConfig(sections: ConfigSections) async throws -> MeshCoreNodeConfig {
-    let selfInfo = try await settingsService.getSelfInfo()
+    guard !publicAdmissionRetired else { throw CancellationError() }
+    let capturedSession = session
+    let settings = settingsService
+    let configuration = await settings.configurationSessionForRead()
+    guard !publicAdmissionRetired else { throw CancellationError() }
+    let selfInfo = try await settings.getSelfInfo(using: configuration)
+    guard !publicAdmissionRetired else { throw CancellationError() }
 
     var config = MeshCoreNodeConfig()
 
     if sections.nodeIdentity {
+      guard !publicAdmissionRetired else { throw CancellationError() }
       config.name = selfInfo.name
       config.publicKey = selfInfo.publicKey.hexString
       // Hardened firmware disables private-key export (`featureDisabled`). Emit name +
@@ -145,7 +170,7 @@ public actor NodeConfigService {
       // (transient BLE timeout, device error, cancellation) propagates, so the user sees
       // the export fail and retries instead of saving an identity backup missing its key.
       do {
-        let privateKey = try await settingsService.exportPrivateKey()
+        let privateKey = try await settings.exportPrivateKey(using: configuration)
         config.privateKey = privateKey.hexString
       } catch SettingsServiceError.sessionError(.featureDisabled) {
         logger.warning("Private key export disabled by firmware; exporting identity without it")
@@ -168,12 +193,14 @@ public actor NodeConfigService {
     }
 
     if sections.channels {
-      let capabilities = try await settingsService.queryDevice()
-      config.channels = try await exportChannels(maxChannels: UInt8(capabilities.maxChannels))
+      guard !publicAdmissionRetired else { throw CancellationError() }
+      let capabilities = try await settings.queryDevice(using: configuration)
+      config.channels = try await exportChannels(maxChannels: UInt8(capabilities.maxChannels), using: capturedSession)
     }
 
     if sections.contacts {
-      let meshContacts = try await session.getContacts(since: nil)
+      guard !publicAdmissionRetired else { throw CancellationError() }
+      let meshContacts = try await capturedSession.getContacts(since: nil)
       config.contacts = meshContacts.map { Self.buildContactConfig(from: $0) }
     }
 
@@ -200,63 +227,88 @@ public actor NodeConfigService {
     radioID: UUID,
     onProgress: (@Sendable (ImportProgress) -> Void)? = nil
   ) async throws {
+    guard !publicAdmissionRetired, !importIsRunning else { throw CancellationError() }
+    importIsRunning = true
+    importedRadioID = nil
+    defer { importIsRunning = false; importedRadioID = nil }
     // Read + validate/plan phase (non-destructive): rejects a poison/malformed config before any write.
     let plan = try await buildImportPlan(config, sections: sections)
 
     // Execute phase, driven through the testable `executeConfigImport` seam. The actor supplies
     // the concrete write closures; the sequencing, progress, and cancellation live in the seam.
-    let coordinator = syncCoordinator
-    try await executeConfigImport(
-      plan: plan, sections: sections, radioID: radioID,
-      writers: makeWriters(), logger: logger, onProgress: onProgress,
-      notifyContactsChanged: { await coordinator?.notifyContactsChanged() }
+    do {
+      try await executeConfigImport(
+        plan: plan, sections: sections, radioID: radioID,
+        writers: makeWriters(), logger: logger, onProgress: onProgress,
+        notifyContactsChanged: { [weak self] in await self?.notifyImportedContactsChanged() }
+      )
+    } catch {
+      try? await finishImportRuntime()
+      throw error
+    }
+    try await finishImportRuntime()
+  }
+
+  private func finishImportRuntime() async throws {
+    let completion = onImportFinished
+    onImportFinished = nil
+    try await completion?()
+  }
+
+  /// Resolves the admitted importer's current runtime at each selected stage.
+  private func makeWriters() -> ConfigImportWriters {
+    ConfigImportWriters(
+      getSelfInfo: { [self] in try await settingsService.getSelfInfo() },
+      importPrivateKey: { [self] key in try await importConfigPrivateKey(key) },
+      setNodeName: { [self] in try await settingsService.setNodeName($0) },
+      setLocation: { [self] in try await settingsService.setLocation(latitude: $0, longitude: $1) },
+      setOtherParams: { [self] in try await importOtherParams($0) },
+      resolveEffectiveRadioID: { [self] original, didImport in
+        if didImport, let resolved = await importedRadioID { return resolved }
+        return original
+      },
+      setRadioParams: { [self] radio in
+        try await settingsService.applyImportedRadioParams(radio)
+      },
+      setTxPower: { [self] in try await settingsService.setTxPower($0) },
+      setChannel: { [self] radioID, write in
+        try await importConfigChannel(radioID: radioID, write: write)
+      },
+      addContact: { [self] radioID, contact in
+        try await importConfigContact(radioID: radioID, contact: contact)
+      }
     )
   }
 
-  /// Builds the concrete write closures `executeConfigImport` calls, capturing this actor's
-  /// services. Each closure performs exactly one device (and, for contacts, database) write.
-  private func makeWriters() -> ConfigImportWriters {
-    let settings = settingsService
-    let channels = channelService
-    let session = session
-    let store = dataStore
-    let logger = logger
-    let callback = onPostIdentityImport
-    return ConfigImportWriters(
-      getSelfInfo: { try await settings.getSelfInfo() },
-      importPrivateKey: { try await settings.importPrivateKey($0) },
-      setNodeName: { try await settings.setNodeName($0) },
-      setLocation: { try await settings.setLocation(latitude: $0, longitude: $1) },
-      setOtherParams: { [self] in try await importOtherParams($0) },
-      resolveEffectiveRadioID: {
-        try await resolveEffectiveRadioID(original: $0, didImportPrivateKey: $1, callback: callback)
-      },
-      setRadioParams: { radio in
-        // bandwidthKHz parameter actually takes Hz (misnomer); pass directly.
-        try await settings.setRadioParams(
-          frequencyKHz: radio.frequency, bandwidthKHz: radio.bandwidth,
-          spreadingFactor: radio.spreadingFactor, codingRate: radio.codingRate
-        )
-      },
-      setTxPower: { try await settings.setTxPower($0) },
-      setChannel: { radioID, write in
-        try await channels.setChannelWithSecret(
-          radioID: radioID, index: write.index, name: write.name, secret: write.secret
-        )
-      },
-      addContact: { radioID, contact in
-        try await session.addContact(contact)
-        // The device add is the irreversible change. The local row is an idempotent
-        // (radioID, publicKey) upsert that the next contacts sync reconciles, so a save
-        // failure here must not mask that the contact already landed on the device.
-        do {
-          let frame = contact.toContactFrame()
-          _ = try await store.saveContact(radioID: radioID, from: frame)
-        } catch {
-          logger.error("Contact added to device but local save failed; next sync will reconcile: \(error.localizedDescription)")
-        }
-      }
+  private func importConfigPrivateKey(_ key: Data) async throws {
+    if let onIdentityImport {
+      importedRadioID = try await onIdentityImport(key)
+    } else {
+      try await settingsService.importPrivateKey(key)
+    }
+  }
+
+  private func importConfigChannel(radioID: UUID, write: ConfigImportPlan.ChannelWrite) async throws {
+    try await channelService.setChannelWithSecret(
+      radioID: radioID, index: write.index, name: write.name, secret: write.secret
     )
+  }
+
+  private func importConfigContact(radioID: UUID, contact: MeshContact) async throws {
+    if let contactRadio {
+      try await contactRadio.importRadioContact(radioID: radioID, contact: contact)
+      return
+    }
+    try await session.addContact(contact)
+    do {
+      _ = try await dataStore.saveContact(radioID: radioID, from: contact.toContactFrame())
+    } catch {
+      logger.error("Contact added to device but local save failed; next sync will reconcile: \(error.localizedDescription)")
+    }
+  }
+
+  private func notifyImportedContactsChanged() async {
+    await syncCoordinator?.notifyContactsChanged()
   }
 
   /// Total destructive steps for progress reporting, derived entirely from the resolved plan so the
@@ -300,13 +352,20 @@ public actor NodeConfigService {
     _ config: MeshCoreNodeConfig,
     sections: ConfigSections
   ) async throws -> ConfigImportPlan {
-    let capabilities = try await settingsService.queryDevice()
+    guard !publicAdmissionRetired else { throw CancellationError() }
+    let capturedSession = session
+    let settings = settingsService
+    let configuration = await settings.configurationSessionForRead()
+    guard !publicAdmissionRetired else { throw CancellationError() }
+    let capabilities = try await settings.queryDevice(using: configuration)
+    guard !publicAdmissionRetired else { throw CancellationError() }
     let maxChannels = UInt8(capabilities.maxChannels)
     let maxContacts = Int(capabilities.maxContacts)
 
     let existingChannels = sections.channels
-      ? try await readExistingChannels(maxChannels: maxChannels)
+      ? try await readExistingChannels(maxChannels: maxChannels, using: capturedSession)
       : []
+    guard !publicAdmissionRetired else { throw CancellationError() }
 
     // Existing contacts credit firmware updates (which consume no slot) against free capacity,
     // so an over-capacity import is rejected up front instead of failing partway through the
@@ -317,15 +376,17 @@ public actor NodeConfigService {
     // firmware no longer intercepts ADD and would store it as a real contact).
     var existingContacts: [String: MeshContact] = try await sections.contacts
       ? Dictionary(
-        session.getContacts(since: nil).map { ($0.publicKey.hexString, $0) },
+        capturedSession.getContacts(since: nil).map { ($0.publicKey.hexString, $0) },
         uniquingKeysWith: { _, latest in latest }
       )
       : [:]
+    guard !publicAdmissionRetired else { throw CancellationError() }
 
     // Self-info is shared by V-contact capacity filtering and max TX power.
     let selfInfo = (sections.contacts || sections.radioSettings)
-      ? try await settingsService.getSelfInfo()
+      ? try await settings.getSelfInfo(using: configuration)
       : nil
+    guard !publicAdmissionRetired else { throw CancellationError() }
 
     var planConfig = config
     if sections.contacts, let selfPublicKey = selfInfo?.publicKey,
@@ -355,11 +416,14 @@ public actor NodeConfigService {
   }
 
   /// Reads every channel slot from the device and classifies it as configured or empty.
-  private func readExistingChannels(maxChannels: UInt8) async throws -> [DeviceChannelSlot] {
+  private func readExistingChannels(
+    maxChannels: UInt8, using capturedSession: any MeshCoreSessionProtocol
+  ) async throws -> [DeviceChannelSlot] {
     var slots: [DeviceChannelSlot] = []
     for index in 0 as UInt8..<maxChannels {
       try Task.checkCancellation()
-      let info = try await session.getChannel(index: index)
+      guard !publicAdmissionRetired else { throw CancellationError() }
+      let info = try await capturedSession.getChannel(index: index)
       slots.append(DeviceChannelSlot(
         index: index,
         name: info.name,
@@ -371,10 +435,13 @@ public actor NodeConfigService {
   }
 
   /// Reads all configured channels from the device.
-  private func exportChannels(maxChannels: UInt8) async throws -> [MeshCoreNodeConfig.ChannelConfig] {
+  private func exportChannels(
+    maxChannels: UInt8, using capturedSession: any MeshCoreSessionProtocol
+  ) async throws -> [MeshCoreNodeConfig.ChannelConfig] {
     var channels: [MeshCoreNodeConfig.ChannelConfig] = []
     for index in 0..<maxChannels {
-      let info = try await session.getChannel(index: index)
+      guard !publicAdmissionRetired else { throw CancellationError() }
+      let info = try await capturedSession.getChannel(index: index)
       guard ChannelService.isChannelConfigured(name: info.name, secret: info.secret) else {
         continue
       }
@@ -386,65 +453,19 @@ public actor NodeConfigService {
     return channels
   }
 
-  /// Merges imported other-settings with current device values for fields not in the import.
-  /// `advertisementType` is neither exported nor imported here (firmware-managed); `setOtherParams`
-  /// does not accept it.
+  /// Sends only the other-settings fields present in the import.
+  /// `advertisementType` is neither exported nor imported here (firmware-managed).
   func importOtherParams(_ imported: MeshCoreNodeConfig.OtherSettings) async throws {
-    let current = try await settingsService.getSelfInfo()
-
-    let manualAdd = imported.manualAddContacts ?? (current.manualAddContacts ? 1 : 0)
-    let advertPolicy = imported.advertLocationPolicy ?? current.advertisementLocationPolicy
-    let telBase = imported.telemetryModeBase ?? current.telemetryModeBase
-    let telLocation = imported.telemetryModeLocation ?? current.telemetryModeLocation
-    let telEnvironment = imported.telemetryModeEnvironment ?? current.telemetryModeEnvironment
-    let multiAcks = imported.multiAcks ?? current.multiAcks
-
-    // Skip the write entirely when the merged result matches every current value: setOtherParams
-    // commits the whole /new_prefs blob synchronously, so a no-op merge is a vulnerable flash
-    // write for nothing.
-    let currentManualAdd: UInt8 = current.manualAddContacts ? 1 : 0
-    if manualAdd == currentManualAdd,
-       advertPolicy == current.advertisementLocationPolicy,
-       telBase == current.telemetryModeBase,
-       telLocation == current.telemetryModeLocation,
-       telEnvironment == current.telemetryModeEnvironment,
-       multiAcks == current.multiAcks {
-      return
-    }
-
-    // Pass the policy as a raw byte rather than a typed enum so a value the app doesn't model is
-    // sent verbatim instead of coerced to `.none`. The firmware stores this byte without clamping
-    // and only special-cases the zero value, so any non-zero policy the app doesn't yet model is
-    // persisted as-is and behaves as "share location".
-    try await settingsService.setOtherParams(
-      autoAddContacts: manualAdd == 0,
-      telemetryModes: TelemetryModes(base: telBase, location: telLocation, environment: telEnvironment),
-      advertLocationPolicyRaw: advertPolicy,
-      multiAcks: multiAcks
+    // Named fields are merged inside the session serializer, so a missing key is not filled from a snapshot taken before admission.
+    try await settingsService.setOtherParamsVerified(
+      autoAddContacts: imported.manualAddContacts.map { $0 == 0 },
+      telemetryModeBase: imported.telemetryModeBase,
+      telemetryModeLocation: imported.telemetryModeLocation,
+      telemetryModeEnvironment: imported.telemetryModeEnvironment,
+      advertLocationPolicyRaw: imported.advertLocationPolicy,
+      multiAcks: imported.multiAcks
     )
   }
-}
-
-// MARK: - Post-Identity Resolution (testable seam)
-
-/// Resolves the `radioID` that subsequent `importConfig` steps should use,
-/// given whether `importIdentity` actually pushed a private key to the radio
-/// and the late-bound reconciliation callback.
-///
-/// Extracted as a free function so it can be unit-tested without constructing
-/// a real `NodeConfigService` (which would require a live `MeshCoreSession`).
-func resolveEffectiveRadioID(
-  original: UUID,
-  didImportPrivateKey: Bool,
-  callback: (@Sendable () async throws -> UUID?)?
-) async throws -> UUID {
-  guard didImportPrivateKey, let cb = callback else {
-    return original
-  }
-  if let reconciled = try await cb() {
-    return reconciled
-  }
-  return original
 }
 
 // MARK: - Execute Orchestration (testable seam)
@@ -453,8 +474,8 @@ func resolveEffectiveRadioID(
 /// `NodeConfigService` builds these from its services; tests build spies, so the destructive-path
 /// sequencing can be exercised without a live `MeshCoreSession`.
 struct ConfigImportWriters {
-  /// Reads the device's current state so the pref/radio writes below can be diff-gated against
-  /// it; a read, not a commit, so eliding redundant pref commits dwarfs its cost.
+  /// Reads device state for the name, position, and TX diff gates.
+  /// Radio comparison happens when `setRadioParams` runs, under the RF owner.
   let getSelfInfo: @Sendable () async throws -> SelfInfo
   let importPrivateKey: @Sendable (Data) async throws -> Void
   let setNodeName: @Sendable (String) async throws -> Void
@@ -469,14 +490,8 @@ struct ConfigImportWriters {
 
 // MARK: - Pref/radio diff gates (testable seam)
 
-/// Whether each pref/radio write in a plan actually differs from the device's current `SelfInfo`.
-/// Re-importing an unchanged config would otherwise fire an immediate, full-`/new_prefs` commit per
-/// pref; these four gates (node name, position, radio params, TX power) elide the ones the device
-/// already holds. The fifth pref commit, other-params, gates itself inside `importOtherParams`, where
-/// the imported-`??`-current merge it depends on lives. Computed once per import from a freshly-read
-/// `SelfInfo` so a value the user changed on the device since export still writes.
-///
-/// Pure and synchronous so the per-setter decisions can be asserted against a `SelfInfo` fixture.
+/// Name, position, and TX use the import's initial observation.
+/// RF comparison runs after admission to its operation owner.
 func nodeNameNeedsWrite(_ name: String, current: SelfInfo) -> Bool {
   // Compare the truncated name the device actually stores: setNodeName truncates to the firmware
   // field width before writing, so a longer name whose stored bytes already match must not re-commit.
@@ -505,14 +520,8 @@ func txPowerNeedsWrite(_ radio: MeshCoreNodeConfig.RadioSettings, current: SelfI
   radio.txPower != current.txPower
 }
 
-/// Executes a validated `ConfigImportPlan` in safe order: identity (so a private-key import can
-/// reassign the radioID before channels/contacts are keyed by it), then position, other params,
-/// channels, contacts, and radio last. Each `progress(...)` is emitted only after its write
-/// succeeds, so "no progress reported" reliably means "nothing was written" — a first-write failure
-/// surfaces as a clean failure, not a partial one.
-///
-/// Extracted as a free function taking write closures (mirroring `resolveEffectiveRadioID`) so the
-/// ordering, progress, and cancellation behavior are unit-testable without a live session.
+/// Applies identity before partition-scoped writes and radio settings last to preserve connectivity.
+/// Progress follows acknowledged writes; the identity owner separately reports an unknown wire outcome.
 func executeConfigImport(
   plan: ConfigImportPlan,
   sections: ConfigSections,
@@ -532,16 +541,20 @@ func executeConfigImport(
     guard !Task.isCancelled else { throw CancellationError() }
   }
 
-  // Read current device state once so the pref/radio writes below can be diff-gated against it.
-  // Only fetched when a section that carries a savePrefs commit is present; otherParams gates
-  // itself inside `importOtherParams` (where the merge lives), so it is not a trigger here.
+  // Name, position, and TX compare against this read. Radio compares again after the RF owner
+  // admits this import, so a newer RF write is not skipped from the earlier snapshot.
   let needsPrefState = plan.nodeName != nil || plan.position != nil || plan.radioSettings != nil
   let prefState = needsPrefState ? try await writers.getSelfInfo() : nil
 
   var effectiveRadioID = radioID
   if let privateKey = plan.importPrivateKey {
     try checkCancellation()
-    try await writers.importPrivateKey(privateKey)
+    do {
+      try await writers.importPrivateKey(privateKey)
+    } catch let failure as ConfigIdentityImportFailure {
+      progress(.privateKey)
+      throw failure.underlying
+    }
     progress(.privateKey)
     logger.info("Imported private key")
   }
@@ -602,16 +615,11 @@ func executeConfigImport(
     await notifyContactsChanged()
   }
 
-  // Radio goes last (minimizes mesh isolation on BLE disconnect). Params and TX power are gated
-  // independently: a change to only one re-commits only the pref it touched.
+  // Radio goes last (minimizes mesh isolation on BLE disconnect). The RF writer owns the
+  // compare. TX power stays a separate step, gated on the earlier read.
   if let radio = plan.radioSettings {
     try checkCancellation()
-    if prefState.map({ radioParamsNeedWrite(radio, current: $0) }) ?? true {
-      try await writers.setRadioParams(radio)
-      logger.info("Set radio params")
-    } else {
-      logger.info("Skipped radio params (unchanged)")
-    }
+    try await writers.setRadioParams(radio)
     progress(.radioParameters)
 
     try checkCancellation()
@@ -621,7 +629,7 @@ func executeConfigImport(
       } catch {
         // Params already retuned the node; flag that power did not follow so the failure
         // isn't mistaken for "radio unchanged."
-        logger.error("Radio params applied but TX power did not: \(error.localizedDescription)")
+        logger.error("Radio step finished but TX power did not: \(error.localizedDescription)")
         throw error
       }
       logger.info("Set TX power: \(radio.txPower)")

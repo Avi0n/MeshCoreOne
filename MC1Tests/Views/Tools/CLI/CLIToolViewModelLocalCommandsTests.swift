@@ -194,15 +194,68 @@ struct CLIToolViewModelLocalCommandsTests {
     #expect(lastResponse(viewModel) == "OK")
   }
 
+  @Test(arguments: [UInt8(9), UInt8(14)])
+  func `set lat and set lon with GPS on shut GPS down before the sibling read`(
+    firmwareVersion: UInt8
+  ) async throws {
+    let latitudeMock = MockConfigurationSession(latitude: 10, longitude: -100, customVars: ["gps": "1"])
+    await latitudeMock.setCoordinatesAfterGPSOff(longitude: -122.4194)
+    let latitudeViewModel = makeViewModel(mock: latitudeMock, device: makeDevice(firmwareVersion: firmwareVersion))
+    await run(latitudeViewModel, "set lat 37.7749")
+    #expect(await latitudeMock.operationTrace == [
+      "getCustomVars", "setCustomVar(gps,0)", "getCustomVars", "sendAppStart", "sendAppStart", "setCoordinates", "sendAppStart",
+    ])
+    let latitudeCall = try #require(await latitudeMock.setCoordinatesCalls.first)
+    #expect(abs(latitudeCall.latitude - 37.7749) < 0.0001)
+    #expect(abs(latitudeCall.longitude - -122.4194) < 0.0001)
+    #expect(await latitudeMock.runCliCommandCalls.isEmpty)
+    #expect(lastResponse(latitudeViewModel) == "OK")
+
+    let longitudeMock = MockConfigurationSession(latitude: 10, longitude: -100, customVars: ["gps": "1"])
+    await longitudeMock.setCoordinatesAfterGPSOff(latitude: 37.7749)
+    let longitudeViewModel = makeViewModel(mock: longitudeMock, device: makeDevice(firmwareVersion: firmwareVersion))
+    await run(longitudeViewModel, "set lon -122.4194")
+    #expect(await longitudeMock.operationTrace == [
+      "getCustomVars", "setCustomVar(gps,0)", "getCustomVars", "sendAppStart", "sendAppStart", "setCoordinates", "sendAppStart",
+    ])
+    let longitudeCall = try #require(await longitudeMock.setCoordinatesCalls.first)
+    #expect(abs(longitudeCall.latitude - 37.7749) < 0.0001)
+    #expect(abs(longitudeCall.longitude - -122.4194) < 0.0001)
+    #expect(await longitudeMock.runCliCommandCalls.isEmpty)
+    #expect(lastResponse(longitudeViewModel) == "OK")
+  }
+
+  @Test(arguments: [UInt8(9), UInt8(14)])
+  func `a rejected GPS shutdown prints an error and sends no coordinate write`(
+    firmwareVersion: UInt8
+  ) async throws {
+    for line in ["set lat 37.7749", "set lon -122.4194"] {
+      let mock = MockConfigurationSession(latitude: 10, longitude: -100, customVars: ["gps": "1"])
+      await mock.setAcceptCustomVarWrites(false)
+      let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: firmwareVersion))
+      await run(viewModel, line)
+      #expect(await mock.setCoordinatesCalls.isEmpty)
+      let gpsCalls = await mock.setCustomVarCalls
+      #expect(gpsCalls.map(\.key) == ["gps"])
+      #expect(gpsCalls.map(\.value) == ["0"])
+      #expect(await mock.runCliCommandCalls.isEmpty)
+      let last = try #require(viewModel.outputLines.last)
+      #expect(last.type == .error)
+      #expect(last.text == "Device GPS setting was not saved. Expected 'Off' but device reports 'On'.")
+    }
+  }
+
   @Test
-  func `set multi acks uses the connected device as base`() async {
+  func `set multi acks uses the connected device as base`() async throws {
     let mock = MockConfigurationSession(manualAddContacts: true)
     let device = makeDevice(manualAddContacts: true, multiAcks: 0)
     let viewModel = makeViewModel(mock: mock, device: device)
 
     await run(viewModel, "set multi.acks 1")
 
-    #expect(await mock.setOtherParamsCalls.map(\.multiAcks) == [1])
+    let intent = try #require(await mock.appliedOtherParamsIntents.first)
+    #expect(intent.multiAcks == 1)
+    #expect(intent.manualAddContacts == nil)
     #expect(lastResponse(viewModel) == "OK")
   }
 
@@ -594,6 +647,63 @@ struct CLIToolViewModelLocalCommandsTests {
     #expect(await mock.runCliCommandCalls.isEmpty)
   }
 
+  @Test(arguments: [
+    ("get radio.rxps", "> balanced"),
+    ("set radio.rxps balanced", "OK - on,level=2"),
+  ])
+  func `v14 radio rxps reaches runCliCommand with the firmware reply`(line: String, reply: String) async {
+    let mock = MockConfigurationSession()
+    await mock.setCLIReply(reply)
+    let device = makeDevice(firmwareVersion: 14).copy { $0.firmwareVersionString = "PowerSaving18" }
+    let viewModel = makeViewModel(mock: mock, device: device)
+
+    await run(viewModel, line)
+
+    #expect(await mock.runCliCommandCalls == [line])
+    #expect(await mock.setCustomVarCalls.isEmpty)
+    #expect(await mock.readCount == 0)
+    #expect(lastResponse(viewModel) == reply)
+    #expect(!viewModel.isWaitingForResponse)
+  }
+
+  @Test
+  func `v13 radio rxps stays on custom variables`() async {
+    let mock = MockConfigurationSession()
+    let viewModel = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 13))
+
+    await run(viewModel, "get radio.rxps")
+    #expect(await mock.runCliCommandCalls.isEmpty)
+    #expect(await mock.readCount == 1)
+
+    await run(viewModel, "set radio.rxps balanced")
+    #expect(await mock.runCliCommandCalls.isEmpty)
+    let calls = await mock.setCustomVarCalls
+    #expect(calls.count == 1)
+    #expect(calls.first?.key == "radio.rxps")
+    #expect(calls.first?.value == "balanced")
+  }
+
+  @Test(arguments: [
+    ("_radio.rxps", "radio.rxps"),
+    ("mykey", "mykey"),
+  ])
+  func `v14 custom variables stay off radio cli`(typedKey: String, storedKey: String) async {
+    let mock = MockConfigurationSession()
+    let device = makeDevice(firmwareVersion: 14).copy { $0.firmwareVersionString = "PowerSaving18" }
+    let viewModel = makeViewModel(mock: mock, device: device)
+    let value = "kept"
+
+    await run(viewModel, "set \(typedKey) \(value)")
+    await run(viewModel, "get \(typedKey)")
+
+    let calls = await mock.setCustomVarCalls
+    #expect(calls.count == 1)
+    #expect(calls.first?.key == storedKey)
+    #expect(calls.first?.value == value)
+    #expect(lastResponse(viewModel) == "> \(value)")
+    #expect(await mock.runCliCommandCalls.isEmpty)
+  }
+
   @Test
   func `v14 poweroff prompts and yes powers off once`() async {
     let probe = PowerOffProbe()
@@ -843,6 +953,120 @@ struct CLIToolViewModelLocalCommandsTests {
     #expect(await mock.runCliCommandCalls.isEmpty)
   }
 
+  @Test(arguments: ["set wifi.ssid terminal", "   set wifi.ssid terminal", "01|set wifi.ssid terminal", "   01|set wifi.ssid terminal"])
+  func `Tools WiFi setters invalidate the open editor certificate`(_ command: String) async throws {
+    let mock = MockConfigurationSession()
+    await mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    let tools = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+    let service = try #require(tools.settingsService)
+    let editorID = UUID()
+    let baseline = try #require(try await service.readRadioWiFiCredentials(editorID: editorID))
+
+    await run(tools, command)
+
+    #expect(!tools.isWaitingForResponse)
+    #expect(await mock.runCliCommandCalls.last == command)
+    #expect(try await service.getRadioCLIValue("wifi.ssid") == "terminal")
+    #expect(service.radioWiFiState.rebootPending)
+    let before = await mock.runCliCommandCalls.count
+    await #expect(throws: CancellationError.self) {
+      _ = try await service.saveRadioWiFiCredentials(
+        ssid: baseline.ssid, password: "changed", baseline: baseline,
+        editorID: editorID, ownerIsCurrent: { true }
+      )
+    }
+    #expect(await mock.runCliCommandCalls.count == before)
+    tools.cleanup()
+    await service.retireRadioWiFiOperations()
+  }
+
+  @Test
+  func `Tools prefixed mutation after boot prevents old reboot evidence clearing`() async throws {
+    let mock = MockConfigurationSession()
+    await mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    let first = SettingsService(session: mock)
+    try await first.setRadioCLIValue("wifi.ssid", to: "before-boot")
+    try await first.reboot()
+    let state = first.radioWiFiState
+    let candidate = try #require(state.expectedRebootID)
+    state.noteLinkEnded(contextID: first.radioWiFiContextID)
+    await first.retireRadioWiFiOperations()
+    await mock.bootWiFiFirmware()
+    let replacement = SettingsService(session: mock, radioWiFiState: state)
+    let tools = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14), settings: replacement)
+
+    await run(tools, "  01|set wifi.ssid after-boot")
+    guard case let .supported(probe) = try await replacement.probeRadioWiFiSettings() else {
+      throw SettingsServiceError.invalidResponse
+    }
+    let observation = try #require(await replacement.readRadioWiFiObservation(probe: probe))
+    #expect(observation.error == nil)
+    #expect(observation.networkNameWasRead)
+    #expect(observation.associated != nil)
+    #expect(observation.ipAddressWasRead)
+    let cleared = await replacement.confirmExpectedRadioWiFiReboot(
+      id: candidate, expectedRadioID: state.radioID, ownerIsCurrent: { true }
+    )
+
+    #expect(!cleared)
+    #expect(state.rebootPending)
+    #expect(await mock.wiFiBootUses(ssid: "before-boot", password: ""))
+    #expect(observation.networkName == "after-boot")
+    tools.cleanup()
+    await replacement.retireRadioWiFiOperations()
+  }
+
+  @Test(arguments: [MockConfigurationSession.WiFiFailure.rejected, .timeoutAfterApply])
+  func `Tools reflected rejection and uncertain apply settle the captured radio`(
+    _ failure: MockConfigurationSession.WiFiFailure
+  ) async throws {
+    let mock = MockConfigurationSession()
+    await mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    let tools = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+    let service = try #require(tools.settingsService)
+    let command = "  01|set wifi.ssid terminal"
+    await mock.failWiFiCommand(command, with: failure)
+
+    await run(tools, command)
+
+    #expect(!tools.isWaitingForResponse)
+    #expect(await mock.runCliCommandCalls == [command])
+    #expect(service.radioWiFiState.revision > 0)
+    #expect(service.radioWiFiState.stableRevision() != nil)
+    switch failure {
+    case .rejected:
+      #expect(!service.radioWiFiState.rebootPending)
+      #expect(lastResponse(tools) == "01|Error: rejected")
+      #expect(try await service.getRadioCLIValue("wifi.ssid") == "built-in")
+    case .timeoutAfterApply:
+      #expect(service.radioWiFiState.rebootPending)
+      #expect(try await service.getRadioCLIValue("wifi.ssid") == "terminal")
+    case .timeoutBeforeApply:
+      Issue.record("unexpected failure control")
+    }
+    tools.cleanup()
+    await service.retireRadioWiFiOperations()
+  }
+
+  @Test
+  func `Tools prefixed unknown key leaves no apply evidence and empty password stays empty`() async throws {
+    let mock = MockConfigurationSession()
+    await mock.useWiFiFirmware(RadioWiFiFirmware(defaultSSID: "built-in"))
+    let tools = makeViewModel(mock: mock, device: makeDevice(firmwareVersion: 14))
+    let service = try #require(tools.settingsService)
+    await run(tools, "01|set wifi.unknown ignored")
+    #expect(lastResponse(tools) == "01|Unknown command")
+    #expect(!service.radioWiFiState.rebootPending)
+    await run(tools, "02|set wifi.pwd ")
+    let originalBytesPreserved = await mock.runCliCommandCalls.last == "02|set wifi.pwd "
+    #expect(originalBytesPreserved)
+    #expect(service.radioWiFiState.rebootPending)
+    let emptyPassword = try await service.getRadioCLIValue("wifi.pwd")?.isEmpty == true
+    #expect(emptyPassword)
+    tools.cleanup()
+    await service.retireRadioWiFiOperations()
+  }
+
   // MARK: - Helpers
 
   private func makeViewModel(
@@ -850,9 +1074,12 @@ struct CLIToolViewModelLocalCommandsTests {
     device: DeviceDTO? = nil,
     floods: FloodRecorder? = nil,
     powerOff: @escaping @MainActor () async throws -> Void = {},
-    powerOffCancelAvailable: @escaping @MainActor () -> Bool = { true }
+    powerOffCancelAvailable: @escaping @MainActor () -> Bool = { true },
+    settings: SettingsService? = nil
   ) -> CLIToolViewModel {
-    let service = SettingsService(session: mock)
+    let radioID = settings?.radioWiFiState.radioID ?? device?.radioID ?? UUID()
+    let service = settings ?? SettingsService(session: mock, radioWiFiState: RadioWiFiState(radioID: radioID))
+    let currentDevice = device?.copy { $0.radioID = radioID }
     let viewModel = CLIToolViewModel()
     viewModel.configure(
       dependencies: CLIToolViewModel.Dependencies(
@@ -860,8 +1087,8 @@ struct CLIToolViewModelLocalCommandsTests {
         remoteNodeService: { nil },
         settingsService: { service },
         dataStore: { nil },
-        radioID: { UUID() },
-        connectedDevice: { device },
+        radioID: { currentDevice?.radioID },
+        connectedDevice: { currentDevice },
         powerOffRadio: powerOff,
         powerOffCancelAvailable: powerOffCancelAvailable
       ),

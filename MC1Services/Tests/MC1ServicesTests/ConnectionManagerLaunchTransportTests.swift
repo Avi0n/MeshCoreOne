@@ -1,165 +1,98 @@
 import Foundation
 @testable import MC1Services
-import MeshCore
 import Testing
 
-/// Launch reconnect on a simulator build returns before this path. These tests call
-/// `reconnectLastUsedTransport`, which `activate()` uses on device.
 @Suite("Launch last-used transport")
 @MainActor
 struct ConnectionManagerLaunchTransportTests {
-  private func makeEnvironment() throws -> PairingTestEnvironment {
-    let env = try ConnectionManager.createForPairingTesting()
-    env.accessorySetupKit.isSessionActive = false
-    return env
-  }
-
   @Test
-  func `bluetooth then wifi falls back to wifi when bluetooth throws and skips the watchdog`() async throws {
-    let env = try makeEnvironment()
-    defer { env.cleanup() }
-    let peripheralID = UUID()
-    let device = DeviceDTO.testDevice().copy {
-      $0.connectionMethods = [
-        .wifi(host: "10.0.0.8", port: 5000, displayName: nil),
-        .bluetooth(peripheralUUID: peripheralID, displayName: nil)
-      ]
-    }
+  func `bluetooth then wifi falls back only within the admitted launch request`() async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    let device = savedDevice(env, wifiLast: false)
     try await env.manager.persistenceStore.saveDevice(device)
     env.manager.testLastConnectedDeviceID = device.id
-    env.manager.testWiFiConnectHandler = { _, _ in }
-    await env.transport.setConnectError(BLEError.connectionFailed("down"))
-
+    await env.ble.setConnectError(BLEError.authenticationFailed)
     await env.manager.reconnectLastUsedTransport(device: device, lastDeviceID: device.id)
-
-    #expect(env.manager.testWiFiConnectAttempts.count == 1)
-    #expect(env.manager.testWiFiConnectAttempts.first?.host == "10.0.0.8")
-    #expect(env.manager.isReconnectionWatchdogRunning == false)
-    env.manager.stopReconnectionWatchdog()
+    #expect(await env.wifi.connectCount == 1)
+    #expect(env.manager.currentTransportType == .wifi)
+    #expect(!env.manager.isReconnectionWatchdogRunning)
+    await env.close()
   }
 
   @Test
-  func `wifi then bluetooth dials the peripheral when wifi throws`() async throws {
-    let env = try makeEnvironment()
-    defer { env.cleanup() }
-    let peripheralID = UUID()
-    let device = DeviceDTO.testDevice().copy {
-      $0.connectionMethods = [
-        .bluetooth(peripheralUUID: peripheralID, displayName: nil),
-        .wifi(host: "10.0.0.8", port: 5000, displayName: nil)
-      ]
-    }
-    env.manager.testWiFiConnectHandler = { _, _ in throw BLEError.connectionFailed("wifi") }
-    await env.transport.setConnectError(BLEError.connectionFailed("down"))
-
+  func `wifi then bluetooth dials the recorded peripheral after owned wifi failure`() async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    let device = savedDevice(env, wifiLast: true)
+    try await env.manager.persistenceStore.saveDevice(device)
+    await env.wifi.setConnectError(BLEError.connectionFailed("unreachable"))
     await env.manager.reconnectLastUsedTransport(device: device, lastDeviceID: device.id)
-
-    let dialed = await env.transport.connectInvocations.compactMap(\.deviceID)
-    #expect(dialed.isEmpty == false)
-    #expect(dialed.allSatisfy { $0 == peripheralID })
-    #expect(dialed.contains(device.id) == false)
-    env.manager.stopReconnectionWatchdog()
+    #expect(await env.ble.connectCount == 1)
+    #expect(env.manager.currentTransportType == .bluetooth)
+    #expect(env.manager.connectedDevice?.id == env.deviceID)
+    await env.close()
   }
 
   @Test
-  func `wifi only does not dial bluetooth or start the watchdog`() async throws {
-    let env = try makeEnvironment()
-    defer { env.cleanup() }
-    let device = DeviceDTO.testDevice().copy {
-      $0.connectionMethods = [.wifi(host: "10.0.0.8", port: 5000, displayName: nil)]
-    }
-    env.manager.testWiFiConnectHandler = { _, _ in throw BLEError.connectionFailed("wifi") }
-
+  func `wifi only failure never dials bluetooth or starts its watchdog`() async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    let device = DeviceDTO.testDevice().copy { $0.connectionMethods = [.wifi(host: "radio.test", port: 5123, displayName: nil)] }
+    await env.wifi.setConnectError(BLEError.connectionFailed("unreachable"))
     await env.manager.reconnectLastUsedTransport(device: device, lastDeviceID: device.id)
-
-    let dialed = await env.transport.connectInvocations
-    #expect(dialed.isEmpty)
-    #expect(env.manager.isReconnectionWatchdogRunning == false)
+    #expect(await env.ble.connectCount == 0)
+    #expect(!env.manager.isReconnectionWatchdogRunning)
+    await env.close()
   }
 
   @Test
-  func `no methods dials the device id`() async throws {
-    let env = try makeEnvironment()
-    defer { env.cleanup() }
-    let device = DeviceDTO.testDevice()
-    await env.transport.setConnectError(BLEError.connectionFailed("down"))
-
+  func `a row with no methods dials its Device ID`() async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    let device = DeviceDTO.testDevice(id: env.deviceID)
     await env.manager.reconnectLastUsedTransport(device: device, lastDeviceID: device.id)
-
-    let dialed = await env.transport.connectInvocations.compactMap(\.deviceID)
-    #expect(dialed.isEmpty == false)
-    #expect(dialed.allSatisfy { $0 == device.id })
-    env.manager.stopReconnectionWatchdog()
+    #expect(await env.ble.connectCount == 1)
+    #expect(env.manager.connectedDevice?.id == device.id)
+    await env.close()
   }
 
   @Test
-  func `foreground health check reconnects wifi only when it was last used`() async throws {
-    let env = try makeEnvironment()
-    defer { env.cleanup() }
-    let wifiLast = DeviceDTO.testDevice().copy {
-      $0.connectionMethods = [
-        .bluetooth(peripheralUUID: UUID(), displayName: nil),
-        .wifi(host: "10.0.0.9", port: 5000, displayName: nil)
-      ]
-    }
-    try await env.manager.persistenceStore.saveDevice(wifiLast)
-    env.manager.testLastConnectedDeviceID = wifiLast.id
-    env.manager.setTestState(connectionState: .disconnected, connectionIntent: .wantsConnection())
-    env.manager.testWiFiConnectHandler = { _, _ in }
-
+  func `foreground wifi recovery follows the saved last method`() async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    let device = savedDevice(env, wifiLast: true)
+    try await env.manager.persistenceStore.saveDevice(device)
+    env.manager.testLastConnectedDeviceID = device.id
+    env.manager.setTestState(connectionIntent: .wantsConnection())
     await env.manager.checkWiFiConnectionHealth()
-    #expect(env.manager.testWiFiConnectAttempts.count == 1)
-
-    let bluetoothLast = wifiLast.copy {
-      $0.connectionMethods = [
-        .wifi(host: "10.0.0.9", port: 5000, displayName: nil),
-        .bluetooth(peripheralUUID: UUID(), displayName: nil)
-      ]
-    }
-    try await env.manager.persistenceStore.saveDevice(bluetoothLast)
-    env.manager.testWiFiConnectAttempts = []
-    await env.manager.checkWiFiConnectionHealth()
-    #expect(env.manager.testWiFiConnectAttempts.isEmpty)
+    #expect(await env.wifi.connectCount == 1)
+    #expect(env.manager.connectionState == .ready)
+    await env.close()
   }
 
   @Test
-  func `bluetooth connect prep keeps the intent to connect`() async throws {
-    let env = try makeEnvironment()
-    defer { env.cleanup() }
-    env.manager.setTestState(
-      connectionState: .connected,
-      currentTransportType: .some(.wifi),
-      connectionIntent: .wantsConnection()
-    )
-    env.manager.wifiTransport = WiFiTransport()
-
-    await env.manager.disconnect(reason: .bluetoothConnectPrep)
-
-    #expect(env.manager.connectionIntent.wantsConnection)
-    #expect(env.manager.connectionState == .disconnected)
-    #expect(env.manager.wifiTransport == nil)
+  func `switching to bluetooth closes the captured wifi socket before dialing`() async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    do {
+      _ = try await env.connect(.wifi)
+      await env.ble.holdConnect()
+      let switchTask = Task { try await env.connect(.bluetooth) }
+      do {
+        try await waitUntil("BLE should reach its real dial") { await env.ble.connectIsHeld }
+        #expect(await env.wifi.isConnected == false)
+        #expect(env.manager.services == nil)
+        await env.ble.releaseConnect()
+        let result = try await switchTask.value
+        #expect(env.manager.isCurrent(result))
+      } catch {
+        await env.ble.releaseAllGates()
+        switchTask.cancel()
+        _ = await switchTask.result
+        throw error
+      }
+    } catch { await env.close(); throw error }
+    await env.close()
   }
 
-  @Test
-  func `connect via bluetooth drops wifi before dialing the peripheral`() async throws {
-    let env = try makeEnvironment()
-    defer { env.cleanup() }
-    let peripheralID = UUID()
-    env.manager.setTestState(
-      connectionState: .connected,
-      currentTransportType: .some(.wifi),
-      connectionIntent: .wantsConnection()
-    )
-    env.manager.wifiTransport = WiFiTransport()
-    await env.transport.setConnectError(BLEError.connectionFailed("down"))
-
-    await #expect(throws: BLEError.self) {
-      try await env.manager.connectViaBluetooth(peripheralID: peripheralID)
-    }
-
-    let dialed = await env.transport.connectInvocations.compactMap(\.deviceID)
-    #expect(env.manager.wifiTransport == nil)
-    #expect(dialed.first == peripheralID)
-    #expect(env.manager.connectionIntent.wantsConnection)
+  private func savedDevice(_ env: ConnectionManagerRadioTestHarness, wifiLast: Bool) -> DeviceDTO {
+    let bluetooth = ConnectionMethod.bluetooth(peripheralUUID: env.deviceID, displayName: nil)
+    let wifi = ConnectionMethod.wifi(host: "radio.test", port: 5123, displayName: nil)
+    return DeviceDTO.testDevice(id: env.deviceID).copy { $0.connectionMethods = wifiLast ? [bluetooth, wifi] : [wifi, bluetooth] }
   }
 }

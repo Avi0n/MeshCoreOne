@@ -138,7 +138,7 @@ public extension MessageService {
   /// success or `.failed` on error.
   ///
   /// - Parameter messageID: The ID of the pending message to send
-  func sendPendingChannelMessage(messageID: UUID) async throws {
+  func sendPendingChannelMessage(messageID: UUID, expectedChannelSecret: Data? = nil) async throws {
     // Catch 1: validation guards + send + status flip. Validation lives
     // inside the do/catch so a missing message or missing channel index
     // consistently writes `.failed` to the DB before propagating — paired
@@ -162,7 +162,8 @@ public extension MessageService {
           text: message.text,
           channelIndex: channelIndex,
           radioID: radioID,
-          timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp))
+          timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp)),
+          expectedChannelSecret: expectedChannelSecret
         )
       }
       try await dataStore.updateMessageStatus(id: messageID, status: .sent)
@@ -199,7 +200,8 @@ public extension MessageService {
   @discardableResult
   func resendChannelMessage(
     messageID: UUID,
-    preserveTimestamp: Bool = false
+    preserveTimestamp: Bool = false,
+    expectedChannelSecret: Data? = nil
   ) async throws -> UInt32 {
     // Broadcast .resent only after .sent is committed. The sentCommitted
     // flag suppresses a spurious broadcast if catch 1 rethrows;
@@ -243,7 +245,8 @@ public extension MessageService {
           text: message.text,
           channelIndex: channelIndex,
           radioID: message.radioID,
-          timestamp: wireDate
+          timestamp: wireDate,
+          expectedChannelSecret: expectedChannelSecret
         )
       }
       try await dataStore.updateMessageStatus(id: messageID, status: .sent)

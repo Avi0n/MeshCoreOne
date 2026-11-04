@@ -114,7 +114,12 @@ public enum RegionDiscoveryService {
         guard !Task.isCancelled else { break }
         group.addTask {
           do {
-            let regions = try await session.requestRegions(from: meshContact)
+            let regions = try await contactService.ownedRegionQuery(
+              target: meshContact,
+              radioID: radioID
+            ) { resolved in
+              try await session.requestRegions(from: resolved)
+            }
             return .regions(regions)
           } catch let MeshCoreError.deviceError(code) where code == tableFullErrorCode {
             return .tableFull

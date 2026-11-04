@@ -11,6 +11,15 @@ public actor HeardRepeatsService {
   /// Device ID for the current session
   private var radioID: UUID?
 
+  #if DEBUG
+    /// Runs before an incoming-path decision reads the current rows.
+    var admissionHoldForTesting: (@Sendable () async -> Void)?
+
+    func setAdmissionHoldForTesting(_ hold: (@Sendable () async -> Void)?) {
+      admissionHoldForTesting = hold
+    }
+  #endif
+
   /// Multicast broadcaster for heard-repeat events.
   private nonisolated let eventBroadcaster = EventBroadcaster<HeardRepeatEvent>()
 
@@ -61,12 +70,7 @@ public actor HeardRepeatsService {
   @discardableResult
   public func processForRepeats(_ entry: RxLogEntryDTO) async -> Int? {
     // Only process successfully decrypted channel messages
-    guard entry.payloadType == .groupText else { return nil }
-    guard entry.decryptStatus == .success else { return nil }
-    guard let decodedText = entry.decodedText else { return nil }
-    guard let channelIndex = entry.channelIndex else { return nil }
-    guard let senderTimestamp = entry.senderTimestamp else { return nil }
-    guard let radioID else { return nil }
+    guard entry.payloadType == .groupText, entry.decryptStatus == .success, let decodedText = entry.decodedText, let channelIndex = entry.channelIndex, let senderTimestamp = entry.senderTimestamp, let radioID else { return nil }
 
     // Body after the first colon is the stored outgoing text. Sender name is a
     // join key only for incoming extras (`DeduplicationKey`), not sent echoes.
@@ -123,8 +127,8 @@ public actor HeardRepeatsService {
   }
 
   /// Records every sent-channel echo, including identical hop lists.
-  private func recordSentEcho(message: MessageDTO, entry: RxLogEntryDTO) async throws -> Int {
-    let repeatDTO = MessageRepeatDTO(
+  private func recordSentEcho(message: MessageDTO, entry: RxLogEntryDTO) async throws -> Int? {
+    guard let newCount = try await dataStore.admitSentEcho(
       messageID: message.id,
       receivedAt: entry.receivedAt,
       pathNodes: entry.pathNodes,
@@ -132,17 +136,14 @@ public actor HeardRepeatsService {
       snr: entry.snr,
       rssi: entry.rssi,
       rxLogEntryID: entry.id
-    )
-
-    try await dataStore.saveMessageRepeat(repeatDTO)
-    let newCount = try await dataStore.incrementMessageHeardRepeats(id: message.id)
+    ) else { return nil }
     logger.info("Recorded repeat #\(newCount) for message \(message.id)")
     eventBroadcaster.yield(HeardRepeatEvent(messageID: message.id, count: newCount))
     return newCount
   }
 
-  /// Records a distinct extra incoming path. A nil canonical is unknown, not a
-  /// 0-hop, so the first match is adopted onto the message instead of stored as an extra.
+  /// Records a distinct extra incoming path. The store reads the current canonical:
+  /// nil adopts the path, and a stale nil DTO still records a later distinct path.
   @discardableResult
   func recordDistinctPathIfNeeded(
     message: MessageDTO,
@@ -153,46 +154,25 @@ public actor HeardRepeatsService {
     receivedAt: Date,
     rxLogEntryID: UUID?
   ) async -> Int? {
-    guard let canonicalPath = message.pathNodes else {
-      do {
-        _ = try await dataStore.adoptIncomingPathIfUnknown(
-          id: message.id,
-          pathNodes: pathNodes,
-          pathLength: pathLength
-        )
-      } catch {
-        logger.error("Failed to adopt incoming path: \(error.localizedDescription)")
+    #if DEBUG
+      if let hold = admissionHoldForTesting {
+        await hold()
       }
-      return nil
-    }
-    if pathNodes == canonicalPath {
-      return nil
-    }
-
+    #endif
     do {
-      if let rxLogEntryID, try await dataStore.messageRepeatExists(rxLogEntryID: rxLogEntryID) {
-        return nil
-      }
-
-      let existing = try await dataStore.fetchMessageRepeats(messageID: message.id)
-      if existing.contains(where: { $0.pathNodes == pathNodes }) {
-        return nil
-      }
-
-      let repeatDTO = MessageRepeatDTO(
+      let admission = try await dataStore.admitIncomingPath(
         messageID: message.id,
-        receivedAt: receivedAt,
         pathNodes: pathNodes,
         pathLength: pathLength,
         snr: snr,
         rssi: rssi,
+        receivedAt: receivedAt,
         rxLogEntryID: rxLogEntryID
       )
-      try await dataStore.saveMessageRepeat(repeatDTO)
-      let newCount = try await dataStore.incrementMessageHeardRepeats(id: message.id)
-      logger.info("Recorded extra path #\(newCount) for message \(message.id)")
-      eventBroadcaster.yield(HeardRepeatEvent(messageID: message.id, count: newCount))
-      return newCount
+      guard case let .recordedExtra(count) = admission else { return nil }
+      logger.info("Recorded extra path #\(count) for message \(message.id)")
+      eventBroadcaster.yield(HeardRepeatEvent(messageID: message.id, count: count))
+      return count
     } catch {
       logger.error("Failed to record extra path: \(error.localizedDescription)")
       return nil
@@ -210,11 +190,9 @@ public actor HeardRepeatsService {
       decodedCandidates,
       deduplicationKey: message.deduplicationKey
     )
-    var current = message
     for entry in matching {
-      let wasUnknown = current.pathNodes == nil
       _ = await recordDistinctPathIfNeeded(
-        message: current,
+        message: message,
         pathNodes: entry.pathNodes,
         pathLength: entry.pathLength,
         snr: entry.snr,
@@ -222,13 +200,6 @@ public actor HeardRepeatsService {
         receivedAt: entry.receivedAt,
         rxLogEntryID: entry.id
       )
-      if wasUnknown, let key = current.deduplicationKey,
-         let refreshed = try? await dataStore.fetchMessage(
-           deduplicationKey: key,
-           radioID: current.radioID
-         ) {
-        current = refreshed
-      }
     }
   }
 

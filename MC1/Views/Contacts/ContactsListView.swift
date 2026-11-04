@@ -54,6 +54,12 @@ struct ContactsListView: View {
       .onChange(of: navigation.selectedContact) { _, value in
         if let value { contact?.updateContact(value) }
       }
+      // The open detail reads selectedContact. A list reload does not replace that copy.
+      .onChange(of: sidebar.viewModel.contacts) { _, contacts in
+        guard let selectedID = navigation.selectedContact?.id,
+              let updated = contacts.first(where: { $0.id == selectedID }) else { return }
+        navigation.selectedContact = updated
+      }
       .onChange(of: routes.sidebarRevision, initial: true) { _, _ in
         reconcileScreens()
       }

@@ -92,6 +92,44 @@ struct OtherParamsSerializationTests {
 
     await session.stop()
   }
+
+  @Test
+  func `partial intent merges inside the owner alongside a granular setter`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
+    )
+    try await startSession(session, transport: transport)
+    let device = OtherParamsDevice(transport: transport)
+    let responderTask = Task { await device.run() }
+    defer { responderTask.cancel() }
+
+    async let partial: Void = session.applyOtherParams(OtherParamsIntent(multiAcks: 7))
+    async let granular: Void = session.setManualAddContacts(true)
+    try await partial
+    try await granular
+
+    let finalConfig = try #require(await device.lastWrittenConfig)
+    #expect(finalConfig.manualAddContacts)
+    #expect(finalConfig.multiAcks == 7)
+    #expect(finalConfig.advertisementLocationPolicy == 0)
+    await session.stop()
+  }
+
+  @Test
+  func `an empty or unchanged partial intent sends no command`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(transport: transport)
+    try await startSession(session, transport: transport)
+    let before = await transport.sentData.count
+
+    try await session.applyOtherParams(OtherParamsIntent())
+    try await session.applyOtherParams(OtherParamsIntent(advertisementLocationPolicy: 0, multiAcks: 0))
+
+    #expect(await transport.sentData.count == before)
+    await session.stop()
+  }
 }
 
 /// Background device emulator that tracks running other-params state. Replies OK to each

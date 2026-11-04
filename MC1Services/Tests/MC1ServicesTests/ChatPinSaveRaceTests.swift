@@ -87,6 +87,8 @@ struct ChatPinSaveRaceTests {
     await session.setChangeContactFlagsHold { @Sendable in
       try await store.setContactPinned(contactID, isPinned: true)
     }
+    let confirmed = ContactDTO.testContact(publicKey: contact.publicKey, flags: 0)
+    await session.setStubbedContact(confirmed.toContactFrame().toMeshContact(), for: contact.publicKey)
 
     try await service.setTelemetryPermissions(contact.id, granted: true)
 

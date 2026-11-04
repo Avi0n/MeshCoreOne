@@ -26,6 +26,7 @@ struct ContactServiceRemoteCLITests {
       flags: ContactFlags.favorite.rawValue | ContactFlags.telemetryAll.rawValue
     )
     try await store.saveContact(contact)
+    await session.seedRadioContact(contact.toContactFrame().toMeshContact())
 
     try await service.setRemoteCLIAllowed(contact.id, granted: true)
     let granted = try #require(await store.fetchContact(id: contact.id))
@@ -71,6 +72,7 @@ struct ContactServiceRemoteCLITests {
     let (service, store, session) = try await makeService(radioID: radioID)
     let contact = ContactDTO.testContact(radioID: radioID)
     try await store.saveContact(contact)
+    await session.seedRadioContact(contact.toContactFrame().toMeshContact())
 
     try await service.setRemoteCLIAllowed(contact.id, granted: true)
     try await service.updateContactPreferences(contactID: contact.id, isBlocked: true)

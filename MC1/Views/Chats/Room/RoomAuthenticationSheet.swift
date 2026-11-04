@@ -31,11 +31,16 @@ struct RoomAuthenticationSheet: View {
       }
     }
     .task {
-      contact = try? await appState.services?.dataStore.fetchContact(
+      defer { isLoading = false }
+      guard let source = appState.connectionSnapshot(for: session.radioID) else { return }
+      let context = ConnectionCallbackContext(source)
+      let fetched = try? await source.services.dataStore.fetchContact(
         radioID: session.radioID,
         publicKey: session.publicKey
       )
-      isLoading = false
+      guard !Task.isCancelled, context.isCurrent(appState.connectionManager),
+            source.services.isAcceptingRuntimeWork else { return }
+      contact = fetched
     }
   }
 }

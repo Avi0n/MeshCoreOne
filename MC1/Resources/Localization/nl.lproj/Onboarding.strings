@@ -69,6 +69,9 @@
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
 "deviceScan.subtitle" = "Schakel je radio in, koppel deze los van alle andere apps en apparaten en tik vervolgens op Apparaat toevoegen.";
 
+/* Location: DeviceScanView.swift - Subtitle while bond-loss recovery is re-pairing */
+"deviceScan.rePairingSubtitle" = "Schakel je radio in en koppel deze los van alle andere apps en apparaten.";
+
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Je apparaat is al gekoppeld";
 

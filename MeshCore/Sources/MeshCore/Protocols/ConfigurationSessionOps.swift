@@ -103,6 +103,10 @@ public protocol ConfigurationSessionOps: Actor {
     multiAcks: UInt8?
   ) async throws
 
+  /// Merges `intent` into the current other-params record inside the config serializer.
+  /// An empty intent sends no command. A result equal to the current record sends none either.
+  func applyOtherParams(_ intent: OtherParamsIntent) async throws
+
   /// Sets the device PIN for administrative access.
   ///
   /// - Parameter pin: 4-digit PIN as a 32-bit unsigned integer.
@@ -193,6 +197,9 @@ public protocol ConfigurationSessionOps: Actor {
   /// Runs a UTF-8 CLI command on the paired radio (firmware v14+).
   /// Sent verbatim. Empty, whitespace-only, or out-of-range UTF-8 length is rejected before send.
   func runCliCommand(_ command: String) async throws -> String
+
+  /// Runs a typed CLI command with a unique reflected request tag and returns its unprefixed reply.
+  func runCorrelatedCliCommand(_ command: String) async throws -> String
 
   /// Sets a custom variable on the device.
   ///

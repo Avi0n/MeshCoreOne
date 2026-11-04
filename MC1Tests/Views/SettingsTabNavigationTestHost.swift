@@ -58,7 +58,9 @@ final class SettingsTabHarness {
     self.controller = controller
   }
 
-  static func make(connected: Bool, regularWidth: Bool = false, compactHeight: Bool = false) throws -> SettingsTabHarness {
+  static func make(
+    connected: Bool, regularWidth: Bool = false, compactHeight: Bool = false, injectedAppState: AppState? = nil
+  ) throws -> SettingsTabHarness {
     let suiteName = "settings-tab-navigation-\(UUID().uuidString)"
     guard let defaults = UserDefaults(suiteName: suiteName) else {
       throw SettingsTabHarnessError.defaultsUnavailable
@@ -68,7 +70,7 @@ final class SettingsTabHarness {
     defaults.set(false, forKey: AppStorageKey.useDefaultTranslationApp.rawValue)
     defaults.set(translationLanguageCode, forKey: AppStorageKey.translationTargetLanguage.rawValue)
 
-    let appState = AppState(defaults: defaults)
+    let appState = injectedAppState ?? AppState(defaults: defaults)
     appState.navigation.selectedSetting = nil
     appState.navigation.selectedTab = AppTab.chats.rawValue
     if connected {

@@ -97,6 +97,29 @@ struct DeviceDTOClientRepeatTests {
     #expect(v14.supportsRadioCLI == true)
   }
 
+  @Test(arguments: [
+    (UInt8(14), "PowerSaving18", true, true),
+    (UInt8(8), "v1.12.0", true, false),
+    (UInt8(8), "v1.11.0", false, false),
+    (UInt8(8), "PowerSaving18", false, false),
+    (UInt8(9), "", true, false),
+    (UInt8(10), "", true, true),
+  ])
+  func `auto-add support uses the firmware code or the display version`(
+    firmwareVersion: UInt8,
+    firmwareVersionString: String,
+    configuration: Bool,
+    maxHops: Bool
+  ) {
+    let device = DeviceDTO.testDevice(
+      firmwareVersion: firmwareVersion,
+      firmwareVersionString: firmwareVersionString
+    )
+
+    #expect(device.supportsAutoAddConfig == configuration)
+    #expect(device.supportsAutoAddMaxHops == maxHops)
+  }
+
   // MARK: - advert location policy
 
   @Test

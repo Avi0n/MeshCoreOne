@@ -48,6 +48,11 @@ struct LineOfSightWorkspaceTests {
   }
 
   @Test
+  func `unmeasured layout keeps the tab bar`() {
+    #expect(!LineOfSightLayoutMode.hidesTabBar(in: .zero))
+  }
+
+  @Test
   func `compact overlay padding is the map/sheet overlap plus sheet gap`() {
     #expect(LineOfSightMapOverlayPadding.amount(overlayMaxY: 800, sheetMinY: 600) == 196)
   }

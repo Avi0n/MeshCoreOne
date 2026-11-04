@@ -4,7 +4,7 @@ import MC1Services
 /// instead of opcode-mapped verbs or custom vars.
 enum RadioCLIPassthrough {
   static let getSetKeys: Set<String> = [
-    "af", "dutycycle", "int.thresh", "cad", "radio.rxgain", "rxdelay",
+    "af", "dutycycle", "int.thresh", "cad", "radio.rxgain", "radio.rxps", "rxdelay",
     "agc.reset.interval", "txdelay", "direct.txdelay",
     RadioCLIKey.timezoneOffset, RadioCLIKey.wifiSSID, RadioCLIKey.wifiPassword, RadioCLIKey.wifiEnabled,
     "radio.fem.rxgain", "radio.fem.txgain", "fan",

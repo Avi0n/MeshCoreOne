@@ -13,6 +13,8 @@ struct SettingsView: View {
   @State private var nestedPath: [SettingsSubpage] = []
   @State private var editorPresentation = SettingsEditorPresentation()
   @State private var backupPresentation: SettingsBackupPresentation?
+  @State private var configImport = NodeConfigImportViewModel()
+  @State private var showingIdentityRecovery = false
   private var demoModeManager = DemoModeManager.shared
 
   private var tabBarVisibility: Visibility {
@@ -94,7 +96,10 @@ struct SettingsView: View {
       SettingsListContent(
         showingDeviceSelection: $showingDeviceSelection,
         demoModeManager: demoModeManager,
-        isSidebar: sizeClass == .regular
+        isSidebar: sizeClass == .regular,
+        requestIdentityRecovery: { recovery in
+          if configImport.beginRecovery(recovery) { showingIdentityRecovery = true }
+        }
       )
       .sectionSplitColumnChrome()
     } detail: {
@@ -106,7 +111,8 @@ struct SettingsView: View {
               descendantPath: nestedPath,
               requestNameEdit: requestNameEdit,
               requestRegionAdd: requestRegionAdd,
-              backupPresentation: currentBackupPresentation
+              backupPresentation: currentBackupPresentation,
+              configImport: configImport
             )
           } else {
             ContentUnavailableView(L10n.Settings.selectSetting, systemImage: "gear")
@@ -116,6 +122,19 @@ struct SettingsView: View {
       }
       .id(appState.navigation.selectedSetting)
     }
+    .sheet(isPresented: $showingIdentityRecovery) {
+      NavigationStack {
+        NodeConfigImportView(viewModel: configImport)
+          .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+              Button(L10n.Localizable.Common.done) { showingIdentityRecovery = false }
+                .disabled(configImport.recoverySheetDismissalDisabled)
+            }
+          }
+          .interactiveDismissDisabled(configImport.recoverySheetDismissalDisabled)
+      }
+    }
+    .onAppear { configureConfigImport() }
     .navigationSplitViewStyle(.balanced)
     .sectionSplitChrome(tabBarVisibility: tabBarVisibility)
     .sectionSplitState(
@@ -148,6 +167,25 @@ struct SettingsView: View {
     }
     .modifier(SettingsEditorPresenter(presentation: editorPresentation))
     .modifier(SettingsBackupPresenter(presentation: currentBackupPresentation))
+    .errorAlert(Binding(
+      get: {
+        guard appState.navigation.selectedTab == AppTab.settings.rawValue,
+              appState.navigation.selectedSetting == .maps,
+              nestedPath.last == .offlineMaps else { return nil }
+        return appState.offlineMapService.errorMessage
+      },
+      set: { _ in appState.offlineMapService.clearError() }
+    ))
+  }
+
+  private func configureConfigImport() {
+    let appState = appState
+    configImport.configure(
+      nodeConfigService: { appState.services?.nodeConfigService },
+      settingsService: { appState.services?.settingsService },
+      connectedDevice: { appState.connectedDevice },
+      connectionManager: appState.connectionManager
+    )
   }
 
   private func prepareBackupPresentation() {

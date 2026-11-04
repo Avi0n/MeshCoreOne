@@ -8,6 +8,11 @@ extension ChatViewModel {
   func setNotificationLevel(_ conversation: Conversation, level: NotificationLevel) async {
     guard connectionStateProvider() == .ready else { return }
     let originalLevel = conversation.notificationLevel
+    let radioID = switch conversation {
+    case let .direct(contact): contact.radioID
+    case let .channel(channel): channel.radioID
+    case let .room(session): session.radioID
+    }
 
     // Capture once so the write and the badge update target the same container.
     let dataStore = dataStore
@@ -26,6 +31,14 @@ extension ChatViewModel {
       case let .room(session):
         try await dataStore?.setSessionNotificationLevel(session.id, level: level)
       }
+      if let dataStore {
+        #if DEBUG
+          conversationMutationPostSaveHook?()
+        #endif
+        if currentRadioIDProvider() == radioID, self.dataStore === dataStore {
+          syncCoordinator?.notifyConversationsChanged()
+        }
+      }
       await notificationService?.updateBadgeCount()
     } catch {
       // Rollback on failure
@@ -37,6 +50,8 @@ extension ChatViewModel {
   /// Live row for `id` from the fetch buffers.
   /// Swipe chrome keeps the value from first reveal, so toggles must not use that snapshot.
   func liveConversation(id: UUID) -> Conversation? {
+    // Fetch buffers are not observed; retained controls follow snapshot publication.
+    _ = snapshotGeneration
     if let contact = conversations.first(where: { $0.id == id }) {
       return .direct(contact)
     }
@@ -85,12 +100,14 @@ extension ChatViewModel {
   }
 
   private func writePin(_ conversation: Conversation, isPinned: Bool, disableAnimation: Bool) async throws {
-    let current = liveConversation(id: conversation.id) ?? conversation
+    let listed = liveConversation(id: conversation.id)
+    let current = listed ?? conversation
     let original = current.isPinned
-    guard original != isPinned else { return }
+    // Unlisted details may hold stale pins, so explicit writes must reach the store.
+    guard listed == nil || original != isPinned else { return }
     guard let dataStore else { throw ChatPinError.storeUnavailable }
 
-    let isListed = liveConversation(id: conversation.id) != nil
+    let isListed = listed != nil
     if isListed {
       applyPinUpdate(current, isPinned: isPinned, disableAnimation: disableAnimation)
     }

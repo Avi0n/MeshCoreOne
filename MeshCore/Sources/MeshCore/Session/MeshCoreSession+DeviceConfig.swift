@@ -250,6 +250,18 @@ public extension MeshCoreSession {
     try await sendSimpleCommand(PacketBuilder.setAutoAddConfig(config))
   }
 
+  /// Merges supplied fields into the current record while this session holds the
+  /// other-params serializer. Callers do not read siblings before admission.
+  func applyOtherParams(_ intent: OtherParamsIntent) async throws {
+    guard !intent.isEmpty else { return }
+    try await otherParamsSerializer.withSerialization { [self] in
+      let current = try await currentOtherParams()
+      let updated = intent.applied(to: current)
+      guard updated != current else { return }
+      try await applyOtherParams(updated)
+    }
+  }
+
   /// Holds configuration ownership through the read, write, and cache refresh so
   /// another full or granular setter cannot revert an acknowledged change.
   private func mutateOtherParams(
@@ -351,9 +363,9 @@ public extension MeshCoreSession {
   func powerOff() async throws -> Bool {
     switch await exchangePowerOff() {
     case .submitted(.silence):
-      return true
+      true
     case .submitted(.stillOn):
-      return false
+      false
     case let .submitted(.rejected(code)):
       throw MeshCoreError.deviceError(code: code)
     case .submitted(.sendFailed), .notSubmitted(.notConnected):
@@ -366,23 +378,7 @@ public extension MeshCoreSession {
   /// Runs a UTF-8 CLI command on the paired radio (firmware v14+).
   /// Sent verbatim. A too-short frame is unsupported on the radio, and a frame over `MAX_FRAME_SIZE` is dropped.
   func runCliCommand(_ command: String) async throws -> String {
-    let isBlank = command.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    guard !isBlank, command.utf8.count >= PacketBuilder.runCliCommandMinUTF8Bytes else {
-      throw MeshCoreError.invalidInput(
-        isBlank ? "CLI command is empty" : "CLI command is too short"
-      )
-    }
-    guard command.utf8.count <= PacketBuilder.runCliCommandMaxUTF8Bytes else {
-      throw MeshCoreError.invalidInput("CLI command exceeds maximum length")
-    }
-    return try await sendAndWaitWithError(
-      PacketBuilder.runCliCommand(command),
-      matching: { event in
-        if case let .cliReply(text) = event { return text }
-        return nil
-      },
-      errorMatcher: Self.deviceErrorMatcher
-    )
+    try await runVerbatimCLICommand(command)
   }
 
   /// Sets a custom variable on the device.

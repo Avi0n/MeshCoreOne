@@ -76,14 +76,15 @@ struct ConversationRowActions: View {
   }
 
   private var pinButton: some View {
-    Button {
+    let current = viewModel.liveConversation(id: conversation.id) ?? conversation
+    return Button {
       Task {
         await viewModel.togglePinned(conversation, disableAnimation: true)
       }
     } label: {
       Label(
-        conversation.isPinned ? L10n.Chats.Chats.Action.unpin : L10n.Chats.Chats.Action.pin,
-        systemImage: conversation.isPinned ? "pin.slash" : "pin"
+        current.isPinned ? L10n.Chats.Chats.Action.unpin : L10n.Chats.Chats.Action.pin,
+        systemImage: current.isPinned ? "pin.slash" : "pin"
       )
     }
   }

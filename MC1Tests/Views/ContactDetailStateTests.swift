@@ -12,10 +12,11 @@ struct ContactDetailStateTests {
                                            name: "Sensor", typeRawValue: ContactType.sensor.rawValue, lastHeardTimestamp: 0))
     let state = ContactDetailState(contact: contact)
     state.configure(appState: AppState(), onClose: {})
-    state.adminSession = RemoteNodeSessionDTO(radioID: contact.radioID, publicKey: contact.publicKey,
-                                              name: contact.name, role: .sensor, isConnected: true, permissionLevel: .guest)
-    state.adminSessionContext = state.operationContext
-    state.presentAdminSession()
+    let session = RemoteNodeSessionDTO(radioID: contact.radioID, publicKey: contact.publicKey,
+                                       name: contact.name, role: .sensor, isConnected: true, permissionLevel: .guest)
+    state.queueAdminSheet(for: session, context: state.operationContext)
+    #expect(state.pendingSheet == nil)
+    state.presentPendingSheet()
     #expect(state.activeSheet == nil)
     state.end()
   }
@@ -120,7 +121,6 @@ struct ContactDetailStateTests {
     state.completeAvatarCrop(UIImage())
     state.presentPendingCropIfReady()
     state.presentPendingSheet()
-    state.presentAdminSession()
     state.close()
     state.updateContact(refreshed(contact, nickname: "Late refresh"))
     state.setActive(true, appState: appState)

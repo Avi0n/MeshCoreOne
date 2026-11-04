@@ -25,6 +25,16 @@ enum LineOfSightLayoutMode: String, Equatable {
     "lineOfSight.layout.\(rawValue)"
   }
 
+  var hidesTabBar: Bool {
+    self == .mapWithSheet
+  }
+
+  /// A zero size keeps the tab bar visible because the workspace has not been measured.
+  static func hidesTabBar(in size: CGSize) -> Bool {
+    guard size.width > 0, size.height > 0 else { return false }
+    return preferred(in: size).hidesTabBar
+  }
+
   static func preferred(in size: CGSize) -> LineOfSightLayoutMode {
     let canPairHorizontally = size.width >= minimumAnalysisWidth + minimumMapWidth
     let canPairVertically = size.height >= minimumAnalysisHeight

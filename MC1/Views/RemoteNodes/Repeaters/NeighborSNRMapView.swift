@@ -139,10 +139,8 @@ struct NeighborSNRMapView: View {
     .transition(.move(edge: .top).combined(with: .opacity))
   }
 
-  /// Fixed bottom-right map controls.
   private var toolbarOverlay: some View {
-    HStack {
-      Spacer()
+    MapToolboxPlacement {
       MapControlsToolbar(
         onLocationTap: centerOnMyLocation,
         isCenteredOnUser: isCenteredOnUser,

@@ -178,8 +178,7 @@ struct NodesSettingsSection: View {
   }
 
   private func applySettings() {
-    guard !isApplying else { return }
-    guard let device, let settingsService = appState.services?.settingsService else { return }
+    guard !isApplying, let device, let settingsService = appState.services?.settingsService else { return }
 
     isApplying = true
     Task {
@@ -188,7 +187,7 @@ struct NodesSettingsSection: View {
         let manualAdd = autoAddMode != .all
 
         // Save manualAddContacts (works on all firmware versions)
-        _ = try await settingsService.setOtherParamsVerified(from: device, autoAddContacts: !manualAdd)
+        try await settingsService.setOtherParamsVerified(autoAddContacts: !manualAdd)
 
         // Save autoAddConfig only on v1.12+ firmware
         if device.supportsAutoAddConfig {

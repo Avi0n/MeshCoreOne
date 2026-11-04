@@ -50,6 +50,7 @@ struct MC1MapView: UIViewRepresentable {
   let onMapTap: ((CLLocationCoordinate2D) -> Void)?
   var onMapLongPress: ((CLLocationCoordinate2D) -> Void)?
   let onCameraRegionChange: ((MKCoordinateRegion) -> Void)?
+  var onMapGeometryChange: ((MLNMapView) -> Void)?
 
   /// Optional features
   var isStyleLoaded: Binding<Bool> = .constant(true)
@@ -81,6 +82,7 @@ struct MC1MapView: UIViewRepresentable {
       mapView.isRotateEnabled = false
       mapView.isPitchEnabled = false
       mapView.compassView.isHidden = true
+      context.coordinator.scrollWheelZoomGesture.isEnabled = false
     }
 
     // Disable quick-zoom (tap-then-hold-drag) gesture
@@ -126,6 +128,7 @@ struct MC1MapView: UIViewRepresentable {
     coordinator.onMapTap = onMapTap
     coordinator.onMapLongPress = onMapLongPress
     coordinator.onCameraRegionChange = onCameraRegionChange
+    coordinator.onMapGeometryChange = onMapGeometryChange
     coordinator.viewportSnapshotProvider = viewportSnapshotProvider
     coordinator.onViewportReady = onViewportReady
     coordinator.onViewportCapture = onViewportCapture
@@ -215,10 +218,15 @@ struct MC1MapView: UIViewRepresentable {
   /// uncaught `std::domain_error` (aborting the app) for any value beyond ±90.
   private static let latitudeLimit = 90.0
 
+  static func selectionBounds(in mapView: MLNMapView, padding: CGFloat) -> MLNCoordinateBounds? {
+    guard mapView.bounds.width > padding * 2, mapView.bounds.height > padding * 2 else { return nil }
+    let selectionRect = mapView.bounds.insetBy(dx: padding, dy: padding)
+    return mapView.convert(selectionRect, toCoordinateBoundsFrom: mapView)
+  }
+
   func updateCameraRegion(in mapView: MLNMapView, coordinator: Coordinator) {
     if viewportSnapshotProvider != nil, !coordinator.isStyleLoaded { return }
-    guard let region = cameraRegion else { return }
-    guard cameraRegionVersion != coordinator.lastAppliedRegionVersion else { return }
+    guard let region = cameraRegion, cameraRegionVersion != coordinator.lastAppliedRegionVersion else { return }
 
     guard CLLocationCoordinate2DIsValid(region.center) else {
       coordinator.lastAppliedRegionVersion = cameraRegionVersion
@@ -349,8 +357,14 @@ struct MC1MapView: UIViewRepresentable {
 extension MC1MapView {
   @MainActor
   class Coordinator: NSObject, @preconcurrency MLNMapViewDelegate, UIGestureRecognizerDelegate {
-    /// Non-zero frame avoids MapLibre zero-size Metal init (issue #67).
+    /// A non-zero frame avoids MapLibre's zero-size Metal initialization.
     let mapView = MLNMapView(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
+    let scrollWheelZoomGesture = UIPanGestureRecognizer()
+
+    override init() {
+      super.init()
+      configureScrollWheelZoom()
+    }
 
     // Callbacks
     var onPointTap: ((MapPoint, CGPoint) -> Void)?
@@ -358,6 +372,7 @@ extension MC1MapView {
     var onMapTap: ((CLLocationCoordinate2D) -> Void)?
     var onMapLongPress: ((CLLocationCoordinate2D) -> Void)?
     var onCameraRegionChange: ((MKCoordinateRegion) -> Void)?
+    var onMapGeometryChange: ((MLNMapView) -> Void)?
     var viewportSnapshotProvider: (() -> MapViewportSnapshot?)?
     var onViewportReady: (() -> Void)?
     var onViewportCapture: ((MapViewportSnapshot) -> Void)?
@@ -396,6 +411,10 @@ extension MC1MapView {
     // MARK: - Style loading
 
     func mapView(_ mapView: MLNMapView, didFinishLoading style: MLNStyle) {
+      MapLabelLocalizer.localize(
+        style.layers,
+        languageCode: Bundle.main.preferredLocalizations.first ?? MapLabelLocalizer.defaultLanguageCode
+      )
       isStyleLoaded = true
       restoreViewportIfNeeded()
       setIsStyleLoaded?(true)
@@ -437,6 +456,21 @@ extension MC1MapView {
     }
 
     // MARK: - Region changes
+
+    func mapViewDidFinishRenderingFrame(_ mapView: MLNMapView, fullyRendered: Bool) {
+      reportMapGeometry()
+    }
+
+    private func reportMapGeometry() {
+      guard !isDismantled, onMapGeometryChange != nil else { return }
+      if isUpdatingFromSwiftUI {
+        DispatchQueue.main.async { [weak self] in
+          self?.reportMapGeometry()
+        }
+      } else {
+        onMapGeometryChange?(mapView)
+      }
+    }
 
     func restoreViewportIfNeeded() {
       guard !isDismantled, isStyleLoaded, !hasInitializedViewport,
@@ -483,14 +517,21 @@ extension MC1MapView {
 
     func mapView(_ mapView: MLNMapView, regionDidChangeWith reason: MLNCameraChangeReason, animated: Bool) {
       isUserInteracting = false
+      reportMapGeometry()
       let isUserGesture = !reason.isDisjoint(with: Self.userGestureReasons)
-      if isUserGesture, viewportSnapshotProvider != nil, isStyleLoaded {
+      if isUserGesture {
+        userCameraDidChange()
+      } else {
+        captureViewport()
+      }
+    }
+
+    func userCameraDidChange() {
+      if viewportSnapshotProvider != nil, isStyleLoaded {
         hasInitializedViewport = true
       }
       captureViewport()
       guard !isUpdatingFromSwiftUI else { return }
-
-      guard isUserGesture else { return }
 
       // Debounce: cancel previous pending write-back
       pendingRegionTask?.cancel()

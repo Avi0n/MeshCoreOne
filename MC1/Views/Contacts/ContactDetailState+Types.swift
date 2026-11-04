@@ -5,6 +5,7 @@ import UIKit
 extension ContactDetailState {
   enum ActiveSheet: Identifiable, Hashable {
     case nodeAuth
+    case adminAuth
     case repeaterStatus(RemoteNodeSessionDTO)
     case roomStatus(RemoteNodeSessionDTO)
     case nodeTelemetry(ContactDTO)
@@ -14,6 +15,7 @@ extension ContactDetailState {
     var id: String {
       switch self {
       case .nodeAuth: "auth"
+      case .adminAuth: "admin-auth"
       case let .repeaterStatus(session): "status-\(session.id)"
       case let .roomStatus(session): "room-status-\(session.id)"
       case let .nodeTelemetry(contact): "telemetry-\(contact.id)"

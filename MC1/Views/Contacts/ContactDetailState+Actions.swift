@@ -7,22 +7,27 @@ extension ContactDetailState {
   func presentPendingSheet() {
     defer { pendingSheet = nil; pendingSheetContext = nil }
     guard let context = pendingSheetContext, accepts(context), let next = pendingSheet else { return }
+    if case let .adminSettings(session) = next, !matchesCurrentContact(session) { return }
     activeSheet = next
   }
 
-  func presentAdminSession() {
-    defer { adminSession = nil; adminSessionContext = nil }
-    guard let context = adminSessionContext, accepts(context), let session = adminSession else { return }
-    guard session.publicKey == currentContact.publicKey, session.radioID == currentContact.radioID,
-          session.role == RemoteNodeRole(contactType: currentContact.type) else { return }
+  func queueAdminSheet(for session: RemoteNodeSessionDTO, context: OperationContext) {
+    guard accepts(context), matchesCurrentContact(session) else { return }
     guard !session.isSensor || (session.isConnected && session.isAdmin) else { return }
     if session.isAdmin {
-      activeSheet = .adminSettings(session)
+      pendingSheet = .adminSettings(session)
     } else if session.isRoom {
-      activeSheet = .roomStatus(session)
+      pendingSheet = .roomStatus(session)
     } else {
-      activeSheet = .repeaterStatus(session)
+      pendingSheet = .repeaterStatus(session)
     }
+    pendingSheetContext = context
+    activeSheet = nil
+  }
+
+  private func matchesCurrentContact(_ session: RemoteNodeSessionDTO) -> Bool {
+    session.publicKey == currentContact.publicKey && session.radioID == currentContact.radioID
+      && session.role == RemoteNodeRole(contactType: currentContact.type)
   }
 
   func showTelemetry() {
@@ -37,8 +42,7 @@ extension ContactDetailState {
 
   func showAdminAccess() {
     guard hasPresentationOwnership else { return }
-    adminSession = nil
-    showRepeaterAdminAuth = true
+    activeSheet = .adminAuth
   }
 
   func requestFavorite(_ favorite: Bool) {

@@ -212,15 +212,10 @@ struct RadioPresetSection: View {
           throw ConnectionError.notConnected
         }
         if isRepeatEnabled {
-          guard let device = appState.connectedDevice else {
-            throw ConnectionError.notConnected
-          }
-          // Repeat Mode changes only the frequency; bandwidth/SF/CR stay as the device's current values.
-          _ = try await settingsService.setRadioParamsVerified(
+          // Repeat Mode changes only the frequency. Bandwidth, spreading factor, and coding rate
+          // are read inside the RF operation so a newer radio write is not replaced by this device row.
+          _ = try await settingsService.setRadioFrequencyVerified(
             frequencyKHz: preset.frequencyKHz,
-            bandwidthKHz: device.bandwidth,
-            spreadingFactor: device.spreadingFactor,
-            codingRate: device.codingRate,
             clientRepeat: true
           )
         } else {

@@ -98,11 +98,11 @@ extension ChatViewModel {
         channelIndex: channelIndex,
         radioID: message.radioID
       )
-      if let result = await reactionService.persistReactionAndUpdateSummary(
+      if await reactionService.persistReactionAndUpdateSummary(
         reactionDTO,
         using: dataStore
-      ) {
-        updateReactionSummary(for: result.messageID, summary: result.summary)
+      ) != nil {
+        timeline.enqueueReload(messageID: message.id)
       }
     } catch {
       logger.error("Failed to send channel reaction: \(error)")
@@ -152,22 +152,15 @@ extension ChatViewModel {
         contactID: contactID,
         radioID: message.radioID
       )
-      if let result = await reactionService.persistReactionAndUpdateSummary(
+      if await reactionService.persistReactionAndUpdateSummary(
         reactionDTO,
         using: dataStore
-      ) {
-        updateReactionSummary(for: result.messageID, summary: result.summary)
+      ) != nil {
+        timeline.enqueueReload(messageID: message.id)
       }
     } catch {
       logger.error("Failed to send DM reaction: \(error)")
       errorMessage = error.userFacingMessage
     }
-  }
-
-  // MARK: - Reaction Updates
-
-  /// Update reaction summary for a specific message inline (O(1) update)
-  func updateReactionSummary(for messageID: UUID, summary: String) {
-    updateMessage(id: messageID) { $0.reactionSummary = summary }
   }
 }
