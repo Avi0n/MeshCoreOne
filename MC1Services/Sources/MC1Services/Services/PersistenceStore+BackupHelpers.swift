@@ -99,15 +99,13 @@ extension PersistenceStore {
     "\(radioID)-\(publicKey.base64EncodedString())"
   }
 
-  func nodeStatusSnapshotKey(nodePublicKey: Data, timestamp: Date) -> String {
-    // Use milliseconds (Int) to stay stable across JSON `.secondsSince1970`
-    // encode/decode roundtrips — Double.bitPattern can drift on roundtrip
-    // even when the two Dates compare equal.
-    // Two distinct snapshots for one node within the same millisecond intentionally
-    // coalesce (the second is counted as skipped). This is acceptable, rare diagnostic
-    // coalescing; the id is deliberately not part of the key so re-import stays idempotent.
+  func nodeStatusSnapshotKey(nodePublicKey: Data, timestamp: Date, selfRadioID: UUID?) -> String {
+    // Millisecond precision keeps keys stable across JSON date round trips.
     let milliseconds = Int(timestamp.timeIntervalSince1970 * 1000)
-    return "\(nodePublicKey.base64EncodedString())-\(milliseconds)"
+    let base = "\(nodePublicKey.base64EncodedString())-\(milliseconds)"
+    // Include the Radio ID so self readings cannot merge with remote history.
+    guard let selfRadioID else { return base }
+    return "\(selfRadioID.uuidString)-\(base)"
   }
 
   /// Rewrite the contact-UUID segment of a DM dedup key. Only the `dm-{uuid}-` prefix

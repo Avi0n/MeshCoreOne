@@ -73,6 +73,30 @@ struct SettingsRouteAdmissionTests {
     #expect(SettingsSubpage.admitted(path, for: .radio, device: makeDevice(firmware: 11, clientRepeat: true)).isEmpty)
     #expect(SettingsSubpage.admitted(path, for: nil, device: device).isEmpty)
   }
+
+  @Test
+  func `device info telemetry routes stay with the matching key`() {
+    let device = makeDevice(firmware: 11, clientRepeat: false)
+    let fix = NodeLocationFix(latitude: 47.6, longitude: -122.3, altitude: 12)
+    let history = SettingsSubpage.deviceInfoTelemetryHistory(publicKey: device.publicKey)
+    let map = SettingsSubpage.deviceInfoLocationMap(publicKey: device.publicKey, fix: fix, name: "Relay")
+    let otherKey = Data(repeating: 0x22, count: ProtocolLimits.publicKeySize)
+    let wrongHistory = SettingsSubpage.deviceInfoTelemetryHistory(publicKey: otherKey)
+    let wrongMap = SettingsSubpage.deviceInfoLocationMap(publicKey: otherKey, fix: fix, name: "Other")
+
+    #expect(history.isAdmitted(for: .deviceInfo, device: device))
+    #expect(map.isAdmitted(for: .deviceInfo, device: device))
+    #expect(!history.isAdmitted(for: .advanced, device: device))
+    #expect(!map.isAdmitted(for: .maps, device: device))
+    #expect(!history.isAdmitted(for: .deviceInfo, device: nil))
+    #expect(!map.isAdmitted(for: .deviceInfo, device: nil))
+    #expect(!wrongHistory.isAdmitted(for: .deviceInfo, device: device))
+    #expect(!wrongMap.isAdmitted(for: .deviceInfo, device: device))
+
+    let path: [SettingsSubpage] = [history, map, wrongHistory, wrongMap, .offlineMaps]
+    #expect(SettingsSubpage.admitted(path, for: .deviceInfo, device: device) == [history, map])
+    #expect(SettingsSubpage.admitted(path, for: .maps, device: device) == [.offlineMaps])
+  }
 }
 
 private func makeDevice(firmware: UInt8, clientRepeat: Bool) -> DeviceDTO {

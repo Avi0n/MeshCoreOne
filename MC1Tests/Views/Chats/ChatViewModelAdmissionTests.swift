@@ -1097,6 +1097,23 @@ private actor AdmissionStubDataStore: PersistenceStoreProtocol {
 
   func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws {}
 
+  func recordSelfTelemetrySnapshot(
+    deviceID: UUID,
+    radioID: UUID,
+    nodePublicKey: Data,
+    telemetry: [TelemetrySnapshotEntry]?,
+    location: NodeLocationFix?
+  ) async throws -> UUID? {
+    nil
+  }
+
+  func fetchSelfTelemetrySnapshots(
+    radioID: UUID,
+    nodePublicKey: Data
+  ) async throws -> [NodeStatusSnapshotDTO] {
+    []
+  }
+
   func upsertPendingSend(_ dto: PendingSendDTO) async throws {}
   func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int {
     0

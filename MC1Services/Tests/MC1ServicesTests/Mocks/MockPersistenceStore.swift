@@ -2579,6 +2579,23 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     return id
   }
 
+  public func recordSelfTelemetrySnapshot(
+    deviceID: UUID,
+    radioID: UUID,
+    nodePublicKey: Data,
+    telemetry: [TelemetrySnapshotEntry]?,
+    location: NodeLocationFix?
+  ) async throws -> UUID? {
+    nil
+  }
+
+  public func fetchSelfTelemetrySnapshots(
+    radioID: UUID,
+    nodePublicKey: Data
+  ) async throws -> [NodeStatusSnapshotDTO] {
+    []
+  }
+
   /// Rewrites the stored DTO's location by index. The DTO is a value type, so an
   /// in-place mutation is a full rebuild; the mock keeps this in one helper.
   private func applyLocation(_ location: NodeLocationFix, to id: UUID) {

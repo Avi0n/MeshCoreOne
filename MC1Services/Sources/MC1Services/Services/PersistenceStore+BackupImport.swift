@@ -83,12 +83,24 @@ public extension PersistenceStore {
     return Set(senders.map { blockedChannelSenderKey(radioID: $0.radioID, name: $0.name) })
   }
 
-  func existingNodeStatusSnapshotKeys() throws -> Set<String> {
+  func existingNodeStatusSnapshotIdentity() throws -> (keys: Set<String>, ids: Set<UUID>) {
     let descriptor = FetchDescriptor<NodeStatusSnapshot>()
     let snapshots = try modelContext.fetch(descriptor)
-    return Set(snapshots.map {
-      nodeStatusSnapshotKey(nodePublicKey: $0.nodePublicKey, timestamp: $0.timestamp)
-    })
+    var keys = Set<String>()
+    var ids = Set<UUID>()
+    keys.reserveCapacity(snapshots.count)
+    ids.reserveCapacity(snapshots.count)
+    for snapshot in snapshots {
+      keys.insert(
+        nodeStatusSnapshotKey(
+          nodePublicKey: snapshot.nodePublicKey,
+          timestamp: snapshot.timestamp,
+          selfRadioID: snapshot.selfRadioID
+        )
+      )
+      ids.insert(snapshot.id)
+    }
+    return (keys, ids)
   }
 
   func existingDiscoveredNodeKeys(radioIDs: Set<UUID>) throws -> Set<String> {
@@ -319,10 +331,12 @@ public extension PersistenceStore {
     )
     result.record(.blockedChannelSenders, inserted: blockedResult.inserted, skipped: blockedResult.skipped)
 
-    let existingSnapshotKeys = try existingNodeStatusSnapshotKeys()
+    let snapshotIdentity = try existingNodeStatusSnapshotIdentity()
     let snapshotResult = try batchInsertNodeStatusSnapshots(
       envelope.nodeStatusSnapshots,
-      existingKeys: existingSnapshotKeys
+      existingKeys: snapshotIdentity.keys,
+      existingIDs: snapshotIdentity.ids,
+      radioIDMapping: radioMap.mapping
     )
     result.record(.nodeStatusSnapshots, inserted: snapshotResult.inserted, skipped: snapshotResult.skipped)
 

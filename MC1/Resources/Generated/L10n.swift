@@ -4978,6 +4978,8 @@ public enum L10n {
       public static func firmwareVersionFormat(_ p1: Any) -> String {
         return L10n.tr("Settings", "deviceInfo.firmwareVersionFormat", String(describing: p1), fallback: "v%@")
       }
+      /// Heading above retained telemetry after a Device Info reload fails
+      public static let lastSuccessfulReading = L10n.tr("Settings", "deviceInfo.lastSuccessfulReading", fallback: "Last successful reading")
       /// Label for manufacturer
       public static let manufacturer = L10n.tr("Settings", "deviceInfo.manufacturer", fallback: "Manufacturer")
       /// Label for max channels capability
@@ -5023,6 +5025,10 @@ public enum L10n {
       public enum PowerStorage {
         /// Section header for power and storage
         public static let header = L10n.tr("Settings", "deviceInfo.powerStorage.header", fallback: "Power & Storage")
+      }
+      public enum Telemetry {
+        /// Section header for Device Info telemetry
+        public static let header = L10n.tr("Settings", "deviceInfo.telemetry.header", fallback: "Node Telemetry")
       }
     }
     public enum DeviceSelection {
@@ -5990,7 +5996,7 @@ public enum L10n {
             /// Export confirmation alert export button
             public static let export = L10n.tr("Settings", "settings.backup.export.alert.export", fallback: "Export")
             /// Export confirmation alert message
-            public static let message = L10n.tr("Settings", "settings.backup.export.alert.message", fallback: "This backup includes channel encryption keys, message history, your contact list, and the WiFi node's local network address and port. Store the exported file securely.")
+            public static let message = L10n.tr("Settings", "settings.backup.export.alert.message", fallback: "This backup includes channel encryption keys, message history, your contact list, and the WiFi node's local network address and port. The backup may also include GPS coordinates captured from radios. Store the exported file securely.")
             /// Export confirmation alert title
             public static let title = L10n.tr("Settings", "settings.backup.export.alert.title", fallback: "Security Notice")
           }

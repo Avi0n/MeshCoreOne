@@ -19,6 +19,7 @@ struct DeviceInfoView: View {
   @State private var errorMessage: String?
   @State private var retryAlert = RetryAlertState()
   @State private var isSaving = false
+  @State private var telemetryModel = DeviceInfoTelemetryViewModel()
 
   var body: some View {
     List {
@@ -99,6 +100,8 @@ struct DeviceInfoView: View {
           Text(L10n.Settings.DeviceInfo.Connection.header)
         }
         .themedRowBackground(theme)
+
+        telemetrySection(for: device)
 
         // Battery and storage
         Section {
@@ -213,12 +216,17 @@ struct DeviceInfoView: View {
       }
     }
     .themedCanvas(theme)
-    .settingsSubpageDestinations()
+    .settingsSubpageDestinations(deviceInfoTelemetry: telemetryModel)
     .navigationTitle(L10n.Settings.DeviceInfo.title)
     .errorAlert($errorMessage)
     .retryAlert(retryAlert)
     .refreshable {
       await appState.batteryMonitor.fetchDeviceBattery(services: appState.services, device: appState.connectedDevice)
+    }
+    .onAppear { bindTelemetry() }
+    .onChange(of: telemetryPresentation) { _, _ in
+      // A child push can hide Device Info without invalidating its request.
+      telemetryModel.synchronizePresentation()
     }
     .task {
       deviceInfoLogger.info("DeviceInfoView: appeared, connectedDevice=\(appState.connectedDevice != nil)")
@@ -233,6 +241,71 @@ struct DeviceInfoView: View {
         )
       }
     }
+  }
+
+  private struct TelemetryPresentation: Equatable {
+    let connectionReady: Bool
+    let showsDeviceInfo: Bool
+    let presentationRevision: Int
+    let rootNavigationGeneration: Int
+    let deviceID: UUID?
+    let radioID: UUID?
+    let publicKey: Data?
+    let nodeName: String?
+    let ocvValues: [Int]
+    let serviceIdentity: ObjectIdentifier?
+  }
+
+  private var telemetryPresentation: TelemetryPresentation {
+    let device = appState.connectedDevice
+    return TelemetryPresentation(
+      connectionReady: appState.connectionState == .ready,
+      showsDeviceInfo: appState.navigation.selectedSetting == .deviceInfo,
+      presentationRevision: appState.navigation.settingsPresentationRevision,
+      rootNavigationGeneration: appState.navigation.settingsRootNavigationGeneration,
+      deviceID: device?.id,
+      radioID: device?.radioID,
+      publicKey: device?.publicKey,
+      nodeName: device?.nodeName,
+      ocvValues: device?.activeOCVArray ?? [],
+      serviceIdentity: appState.services.map { ObjectIdentifier($0.binaryProtocolService) }
+    )
+  }
+
+  private func telemetrySection(for device: DeviceDTO) -> some View {
+    NodeTelemetryDisclosureSection(
+      helper: telemetryModel,
+      connectionState: appState.connectionState,
+      historyRoute: SettingsSubpage.deviceInfoTelemetryHistory(publicKey: device.publicKey),
+      mapRoute: { fix in
+        SettingsSubpage.deviceInfoLocationMap(
+          publicKey: device.publicKey,
+          fix: fix,
+          name: telemetryModel.mapLabel
+        )
+      },
+      isDeviceInfo: true,
+      onRequestTelemetry: { await telemetryModel.loadTelemetry() }
+    )
+  }
+
+  private func bindTelemetry() {
+    let appState = appState
+    telemetryModel.configure(
+      device: { appState.connectedDevice },
+      readyScope: {
+        guard appState.connectionState == .ready,
+              appState.navigation.selectedSetting == .deviceInfo,
+              let service = appState.services?.binaryProtocolService else { return nil }
+        return DeviceInfoTelemetryViewModel.ReadyScope(
+          binaryProtocolService: service,
+          presentationRevision: appState.navigation.settingsPresentationRevision,
+          rootNavigationGeneration: appState.navigation.settingsRootNavigationGeneration
+        )
+      },
+      nodeSnapshotService: { appState.services?.nodeSnapshotService }
+    )
+    telemetryModel.synchronizePresentation()
   }
 
   /// Firmware reports storage in binary kilobytes.

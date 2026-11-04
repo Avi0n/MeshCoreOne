@@ -270,10 +270,42 @@ struct NodeBatteryCurveDisclosureSection: View {
 
 // MARK: - Telemetry Disclosure Section
 
-struct NodeTelemetryDisclosureSection: View {
+@MainActor
+protocol TelemetryDisclosurePresenting: AnyObject, Observable {
+  var telemetryExpanded: Bool { get set }
+  var isLoadingTelemetry: Bool { get }
+  var telemetrySectionError: String? { get }
+  var telemetry: TelemetryResponse? { get }
+  var cachedDataPoints: [LPPDataPoint] { get }
+  var ocvValues: [Int] { get }
+  var telemetryLoaded: Bool { get }
+}
+
+extension TelemetryDisclosurePresenting {
+  var hasMultipleChannels: Bool {
+    Set(cachedDataPoints.map(\.channel)).count > 1
+  }
+
+  var groupedDataPoints: [(channel: UInt8, dataPoints: [LPPDataPoint])] {
+    Dictionary(grouping: cachedDataPoints, by: \.channel)
+      .sorted { $0.key < $1.key }
+      .map { (channel: $0.key, dataPoints: $0.value) }
+  }
+
+  var currentLocationFix: NodeLocationFix? {
+    NodeLocationFix.primaryFix(from: cachedDataPoints)
+  }
+}
+
+extension NodeStatusViewModel: TelemetryDisclosurePresenting {}
+
+struct NodeTelemetryDisclosureSection<Model: TelemetryDisclosurePresenting, Route: Hashable>: View {
   @Environment(\.appTheme) private var theme
-  @Bindable var helper: NodeStatusViewModel
+  @Bindable var helper: Model
   let connectionState: DeviceConnectionState
+  let historyRoute: Route
+  let mapRoute: @MainActor (NodeLocationFix) -> Route
+  let isDeviceInfo: Bool
   let onRequestTelemetry: () async -> Void
 
   var body: some View {
@@ -285,48 +317,13 @@ struct NodeTelemetryDisclosureSection: View {
             ProgressView()
             Spacer()
           }
+        } else if isDeviceInfo {
+          deviceInfoContent
         } else if let errorMessage = helper.telemetrySectionError, helper.telemetry == nil {
-          Text(errorMessage)
-            .foregroundStyle(.orange)
+          telemetryError(errorMessage)
         } else if helper.telemetry != nil {
-          if helper.cachedDataPoints.isEmpty {
-            Text(L10n.RemoteNodes.RemoteNodes.Status.noSensorData)
-              .foregroundStyle(.secondary)
-          } else if helper.hasMultipleChannels {
-            ForEach(helper.groupedDataPoints, id: \.channel) { group in
-              Section {
-                ForEach(Array(group.dataPoints.enumerated()), id: \.offset) { index, dataPoint in
-                  NodeTelemetryRow(
-                    dataPoint: dataPoint,
-                    ocvArray: helper.ocvValues,
-                    label: telemetryLabel(for: dataPoint, at: index, in: group.dataPoints)
-                  )
-                }
-              } header: {
-                Text(L10n.RemoteNodes.RemoteNodes.Status.channel(Int(group.channel)))
-                  .fontWeight(.semibold)
-              }
-            }
-          } else {
-            ForEach(Array(helper.cachedDataPoints.enumerated()), id: \.offset) { index, dataPoint in
-              NodeTelemetryRow(
-                dataPoint: dataPoint,
-                ocvArray: helper.ocvValues,
-                label: telemetryLabel(for: dataPoint, at: index, in: helper.cachedDataPoints)
-              )
-            }
-          }
-
-          if let fix = helper.currentLocationFix {
-            NavigationLink(value: NodeStatusRoute.locationMap(fix: fix, name: helper.session?.name)) {
-              Label(L10n.RemoteNodes.RemoteNodes.Status.viewOnMap, systemImage: "map")
-            }
-            .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Status.Accessibility.viewLocationOnMap)
-          }
-
-          NavigationLink(value: NodeStatusRoute.telemetryHistory) {
-            Text(L10n.RemoteNodes.RemoteNodes.History.title)
-          }
+          readingContent
+          historyLink
         } else {
           Text(L10n.RemoteNodes.RemoteNodes.Status.noTelemetryData)
             .foregroundStyle(.secondary)
@@ -352,9 +349,104 @@ struct NodeTelemetryDisclosureSection: View {
           }
         }
       }
+
+      if isDeviceInfo {
+        historyLink
+      }
+    } header: {
+      if isDeviceInfo {
+        Text(L10n.Settings.DeviceInfo.Telemetry.header)
+      }
     } footer: {
       Text(L10n.RemoteNodes.RemoteNodes.Status.telemetryFooter)
     }
     .themedRowBackground(theme)
+  }
+
+  @ViewBuilder
+  private var deviceInfoContent: some View {
+    if let errorMessage = helper.telemetrySectionError {
+      telemetryError(errorMessage)
+      if helper.telemetry != nil {
+        Text(L10n.Settings.DeviceInfo.lastSuccessfulReading)
+          .font(.headline)
+          .accessibilityAddTraits(.isHeader)
+      }
+    } else if helper.telemetry == nil {
+      Text(L10n.RemoteNodes.RemoteNodes.Status.noTelemetryData)
+        .foregroundStyle(.secondary)
+    }
+
+    if helper.telemetry != nil {
+      readingContent
+    }
+  }
+
+  @ViewBuilder
+  private var readingContent: some View {
+    if helper.cachedDataPoints.isEmpty {
+      Text(L10n.RemoteNodes.RemoteNodes.Status.noSensorData)
+        .foregroundStyle(.secondary)
+    } else if helper.hasMultipleChannels {
+      ForEach(helper.groupedDataPoints, id: \.channel) { group in
+        Section {
+          ForEach(Array(group.dataPoints.enumerated()), id: \.offset) { index, dataPoint in
+            NodeTelemetryRow(
+              dataPoint: dataPoint,
+              ocvArray: helper.ocvValues,
+              label: telemetryLabel(for: dataPoint, at: index, in: group.dataPoints)
+            )
+          }
+        } header: {
+          Text(L10n.RemoteNodes.RemoteNodes.Status.channel(Int(group.channel)))
+            .fontWeight(.semibold)
+        }
+      }
+    } else {
+      ForEach(Array(helper.cachedDataPoints.enumerated()), id: \.offset) { index, dataPoint in
+        NodeTelemetryRow(
+          dataPoint: dataPoint,
+          ocvArray: helper.ocvValues,
+          label: telemetryLabel(for: dataPoint, at: index, in: helper.cachedDataPoints)
+        )
+      }
+    }
+
+    if let fix = helper.currentLocationFix {
+      NavigationLink(value: mapRoute(fix)) {
+        Label(L10n.RemoteNodes.RemoteNodes.Status.viewOnMap, systemImage: "map")
+      }
+      .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Status.Accessibility.viewLocationOnMap)
+    }
+  }
+
+  private var historyLink: some View {
+    NavigationLink(value: historyRoute) {
+      Text(L10n.RemoteNodes.RemoteNodes.History.title)
+    }
+  }
+
+  private func telemetryError(_ message: String) -> some View {
+    Text(message)
+      .foregroundStyle(.orange)
+  }
+}
+
+extension NodeTelemetryDisclosureSection where Model == NodeStatusViewModel, Route == NodeStatusRoute {
+  init(
+    helper: NodeStatusViewModel,
+    connectionState: DeviceConnectionState,
+    onRequestTelemetry: @escaping () async -> Void
+  ) {
+    self.init(
+      helper: helper,
+      connectionState: connectionState,
+      historyRoute: .telemetryHistory,
+      mapRoute: { fix in
+        .locationMap(fix: fix, name: helper.session?.name)
+      },
+      isDeviceInfo: false,
+      onRequestTelemetry: onRequestTelemetry
+    )
   }
 }

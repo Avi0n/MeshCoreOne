@@ -111,6 +111,12 @@
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
 
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "마지막으로 성공한 측정값";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "노드 텔레메트리";
+
 /* Section header for identity information */
 /* Label for public key */
 "deviceInfo.publicKey" = "공개 키";
@@ -2040,7 +2046,7 @@
 "settings.backup.export.alert.title" = "보안 알림";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "이 백업에는 채널 암호화 키, 메시지 기록, 연락처 목록, Wi-Fi 노드의 로컬 네트워크 주소와 포트가 포함됩니다. 내보낸 파일을 안전하게 보관하십시오.";
+"settings.backup.export.alert.message" = "이 백업에는 채널 암호화 키, 메시지 기록, 연락처 목록, Wi-Fi 노드의 로컬 네트워크 주소와 포트가 포함됩니다. 무전기에서 수집한 GPS 좌표도 포함될 수 있습니다. 내보낸 파일을 안전하게 보관하십시오.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "내보내기";

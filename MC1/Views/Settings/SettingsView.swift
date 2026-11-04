@@ -159,6 +159,13 @@ struct SettingsView: View {
         device: appState.connectedDevice
       )
     }
+    .onChange(of: appState.connectedDevice?.publicKey) { _, _ in
+      nestedPath = SettingsSubpage.admitted(
+        nestedPath,
+        for: appState.navigation.selectedSetting,
+        device: appState.connectedDevice
+      )
+    }
     .onChange(of: appState.navigation.settingsPresentationRevision, initial: true) { _, _ in
       prepareBackupPresentation()
     }

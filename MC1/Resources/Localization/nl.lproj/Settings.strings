@@ -111,6 +111,12 @@
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
 
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "Laatste geslaagde meting";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "Knooppunttelemetrie";
+
 /* Section header for identity information */
 /* Label for public key */
 "deviceInfo.publicKey" = "Publieke sleutel";
@@ -2035,7 +2041,7 @@
 "settings.backup.export.alert.title" = "Beveiligingsmelding";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Deze back-up bevat kanaalversleutelingssleutels, de berichtgeschiedenis, je contactenlijst en het lokale netwerkadres en de poort van de WiFi-node. Bewaar het geëxporteerde bestand veilig.";
+"settings.backup.export.alert.message" = "Deze back-up bevat kanaalversleutelingssleutels, de berichtgeschiedenis, je contactenlijst en het lokale netwerkadres en de poort van de WiFi-node. De back-up kan ook vastgelegde gps-coördinaten van radio's bevatten. Bewaar het geëxporteerde bestand veilig.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Exporteren";

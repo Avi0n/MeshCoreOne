@@ -111,6 +111,12 @@
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
 
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "Última lectura correcta";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "Telemetría del nodo";
+
 /* Section header for identity information */
 /* Label for public key */
 "deviceInfo.publicKey" = "Clave pública";
@@ -2035,7 +2041,7 @@
 "settings.backup.export.alert.title" = "Aviso de seguridad";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Esta copia incluye claves de cifrado de canales, el historial de mensajes, tu lista de contactos y la dirección de red local y el puerto del nodo WiFi. Almacena el archivo exportado de forma segura.";
+"settings.backup.export.alert.message" = "Esta copia incluye claves de cifrado de canales, el historial de mensajes, tu lista de contactos y la dirección de red local y el puerto del nodo WiFi. La copia también puede incluir coordenadas GPS obtenidas de las radios. Almacena el archivo exportado de forma segura.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Exportar";

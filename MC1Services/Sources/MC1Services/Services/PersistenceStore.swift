@@ -177,6 +177,8 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   ///          Int8 flood sentinel. DTO still exposes UInt8 via truncatingIfNeeded.
   /// - v8→v9: Added Contact.isPinned (Bool, default false). Channel.isFavorite and
   ///          RemoteNodeSession.isFavorite renamed to isPinned via originalName (same column).
+  /// - v9→v10: Added NodeStatusSnapshot.selfRadioID (UUID?, default nil). Existing rows
+  ///          stay remote history. Self telemetry rows store the Device's radioID.
   public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
     if !inMemory {
       let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!

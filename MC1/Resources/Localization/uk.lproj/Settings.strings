@@ -111,6 +111,12 @@
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
 
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "Останній успішний показник";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "Телеметрія вузла";
+
 /* Section header for identity information */
 /* Label for public key */
 "deviceInfo.publicKey" = "Публічний ключ";
@@ -2035,7 +2041,7 @@
 "settings.backup.export.alert.title" = "Попередження про безпеку";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Ця резервна копія містить ключі шифрування каналів, історію повідомлень, список контактів, а також локальну мережеву адресу та порт вузла Wi-Fi. Зберігайте експортований файл у безпечному місці.";
+"settings.backup.export.alert.message" = "Ця резервна копія містить ключі шифрування каналів, історію повідомлень, список контактів, а також локальну мережеву адресу та порт вузла Wi-Fi. Резервна копія також може містити збережені GPS-координати радіопристроїв. Зберігайте експортований файл у безпечному місці.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Експортувати";

@@ -449,8 +449,7 @@ extension PersistenceStore {
         continue
       }
 
-      guard let foreignPath, foreignPath != parent.pathNodes else { continue }
-      guard extrasByMessage[localID, default: []].insert(foreignPath).inserted else { continue }
+      guard let foreignPath, foreignPath != parent.pathNodes, extrasByMessage[localID, default: []].insert(foreignPath).inserted else { continue }
       modelContext.insert(MessageRepeat(
         dto: MessageRepeatDTO(
           messageID: localID,
@@ -638,14 +637,42 @@ extension PersistenceStore {
   @discardableResult
   func batchInsertNodeStatusSnapshots(
     _ dtos: [NodeStatusSnapshotDTO],
-    existingKeys: Set<String>
+    existingKeys: Set<String>,
+    existingIDs: Set<UUID>,
+    radioIDMapping: [UUID: UUID]
   ) throws -> (inserted: Int, skipped: Int) {
-    insertUnique(
-      dtos,
-      existingKeys: existingKeys,
-      key: { nodeStatusSnapshotKey(nodePublicKey: $0.nodePublicKey, timestamp: $0.timestamp) },
-      construct: NodeStatusSnapshot.init(dto:)
-    )
+    let devices = try modelContext.fetch(FetchDescriptor<Device>())
+    let validRadioIDs = Set(devices.map(\.radioID))
+    var knownKeys = existingKeys
+    var knownIDs = existingIDs
+    var inserted = 0
+
+    for incoming in dtos {
+      let owner: UUID?
+      if let incomingOwner = incoming.selfRadioID {
+        // A backup made before ghost reconciliation must not overwrite the adopted owner.
+        guard !knownIDs.contains(incoming.id),
+              let remapped = radioIDMapping[incomingOwner],
+              validRadioIDs.contains(remapped) else { continue }
+        owner = remapped
+      } else {
+        owner = nil
+      }
+
+      let key = nodeStatusSnapshotKey(
+        nodePublicKey: incoming.nodePublicKey,
+        timestamp: incoming.timestamp,
+        selfRadioID: owner
+      )
+      guard knownKeys.insert(key).inserted else { continue }
+
+      let snapshot = NodeStatusSnapshot(dto: incoming)
+      snapshot.selfRadioID = owner
+      modelContext.insert(snapshot)
+      knownIDs.insert(incoming.id)
+      inserted += 1
+    }
+    return (inserted, dtos.count - inserted)
   }
 
   @discardableResult

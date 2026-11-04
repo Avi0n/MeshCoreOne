@@ -111,6 +111,12 @@
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
 
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "上次成功读数";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "节点遥测数据";
+
 /* Section header for identity information */
 /* Label for public key */
 "deviceInfo.publicKey" = "查看公钥";
@@ -2035,7 +2041,7 @@
 "settings.backup.export.alert.title" = "安全提示";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史、联系人列表以及 WiFi 节点的本地网络地址和端口。请妥善保管导出的文件。";
+"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史、联系人列表以及 WiFi 节点的本地网络地址和端口。此备份还可能包含已记录的电台 GPS 坐标。请妥善保管导出的文件。";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "导出";

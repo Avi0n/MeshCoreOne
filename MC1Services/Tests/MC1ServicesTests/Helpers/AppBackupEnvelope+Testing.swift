@@ -6,6 +6,7 @@ extension AppBackupEnvelope {
   /// Every DTO array and userDefaults payload defaults to empty, so call sites
   /// only pass what the specific test needs.
   static func test(
+    version: Int = AppBackupEnvelope.currentVersion,
     exportDate: Date = Date(timeIntervalSince1970: 1_700_000_000),
     appVersion: String = "test",
     appBuild: String = "1",
@@ -24,6 +25,7 @@ extension AppBackupEnvelope {
     userDefaults: BackupUserDefaults? = nil
   ) -> AppBackupEnvelope {
     var envelope = AppBackupEnvelope(
+      version: version,
       exportDate: exportDate,
       appVersion: appVersion,
       appBuild: appBuild,

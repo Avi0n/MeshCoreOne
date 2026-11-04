@@ -620,6 +620,23 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
 
   func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws {}
 
+  func recordSelfTelemetrySnapshot(
+    deviceID: UUID,
+    radioID: UUID,
+    nodePublicKey: Data,
+    telemetry: [TelemetrySnapshotEntry]?,
+    location: NodeLocationFix?
+  ) async throws -> UUID? {
+    nil
+  }
+
+  func fetchSelfTelemetrySnapshots(
+    radioID: UUID,
+    nodePublicKey: Data
+  ) async throws -> [NodeStatusSnapshotDTO] {
+    []
+  }
+
   // MARK: - Pending Sends (stubs)
 
   func upsertPendingSend(_ dto: PendingSendDTO) async throws {}

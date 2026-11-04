@@ -344,7 +344,11 @@ public extension PersistenceStore {
     ghostDescriptor.fetchLimit = 1
     guard let ghost = try modelContext.fetch(ghostDescriptor).first,
           !ghost.connectionMethods.contains(where: \.isBluetooth) else { return nil }
+    let departingRadioID = current.radioID
     let newRadioID = ghost.radioID
+    if departingRadioID != newRadioID {
+      try reassignSelfTelemetrySnapshots(from: departingRadioID, to: newRadioID)
+    }
     current.radioID = newRadioID
     current.publicKey = newPublicKey
     current.connectionMethods = ConnectionMethod.canonicalized(current.connectionMethods)
@@ -383,6 +387,8 @@ public extension PersistenceStore {
     }
     let targetRadioID = device.radioID
 
+    try deleteSelfTelemetrySnapshots(radioID: targetRadioID)
+
     // Delete reactions (references messages via messageID)
     let reactionPredicate = #Predicate<Reaction> { reaction in
       reaction.radioID == targetRadioID
@@ -413,7 +419,7 @@ public extension PersistenceStore {
       modelContext.delete(session)
     }
 
-    // Delete NodeStatusSnapshots only when no other session references that node
+    // Delete remote history only when no other session references the public key.
     for pubKey in sessionPublicKeys {
       let remainingPredicate = #Predicate<RemoteNodeSession> { session in
         session.publicKey == pubKey
@@ -421,11 +427,11 @@ public extension PersistenceStore {
       let remainingCount = try modelContext.fetchCount(FetchDescriptor(predicate: remainingPredicate))
       guard remainingCount == 0 else { continue }
 
-      let snapshotPredicate = #Predicate<NodeStatusSnapshot> { snapshot in
-        snapshot.nodePublicKey == pubKey
-      }
-      let snapshots = try modelContext.fetch(FetchDescriptor(predicate: snapshotPredicate))
-      for snapshot in snapshots {
+      let key = pubKey
+      let snapshots = try modelContext.fetch(
+        FetchDescriptor<NodeStatusSnapshot>(predicate: #Predicate { $0.nodePublicKey == key })
+      )
+      for snapshot in snapshots where snapshot.selfRadioID == nil {
         modelContext.delete(snapshot)
       }
     }
@@ -516,6 +522,22 @@ public extension PersistenceStore {
     let paths = try modelContext.fetch(FetchDescriptor(predicate: pathPredicate))
     for path in paths {
       modelContext.delete(path)
+    }
+  }
+
+  /// Stages deletion of self telemetry alongside the Device's other data.
+  private func deleteSelfTelemetrySnapshots(radioID: UUID) throws {
+    let snapshots = try modelContext.fetch(FetchDescriptor<NodeStatusSnapshot>())
+    for snapshot in snapshots where snapshot.selfRadioID == radioID {
+      modelContext.delete(snapshot)
+    }
+  }
+
+  /// Moves self telemetry with the Device so it remains deletable after ghost adoption.
+  private func reassignSelfTelemetrySnapshots(from sourceRadioID: UUID, to adoptedRadioID: UUID) throws {
+    let snapshots = try modelContext.fetch(FetchDescriptor<NodeStatusSnapshot>())
+    for snapshot in snapshots where snapshot.selfRadioID == sourceRadioID {
+      snapshot.selfRadioID = adoptedRadioID
     }
   }
 
