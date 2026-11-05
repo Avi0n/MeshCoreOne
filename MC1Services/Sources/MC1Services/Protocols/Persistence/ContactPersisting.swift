@@ -2,6 +2,23 @@ import Foundation
 
 /// Store operations for contact rows, contact mention tracking, and blocked senders.
 public protocol ContactPersisting: Actor {
+  func currentDirectMessageContact(_ contact: ContactDTO, scope: ReceiveScope) async throws -> ContactDTO?
+
+  func materializeContactForDirectMessage(
+    from frame: ContactFrame,
+    receivedAt: Date,
+    scope: ReceiveScope
+  ) async throws -> ContactDTO?
+
+  func touchDirectMessageContact(_ contact: ContactDTO, scope: ReceiveScope, at date: Date) async throws
+
+  func updateContactAfterDirectMessage(
+    _ message: MessageDTO,
+    contact: ContactDTO,
+    scope: ReceiveScope,
+    isViewingContact: Bool
+  ) async throws -> ContactDTO?
+
   // MARK: - Contact Operations
 
   /// Fetch all confirmed contacts for a device
@@ -236,5 +253,30 @@ public extension ContactPersisting where Self: MessagePersisting {
     contacts: [(id: UUID, publicKey: Data)]
   ) async throws -> [UUID: Int] {
     [:]
+  }
+}
+
+public extension ContactPersisting {
+  func currentDirectMessageContact(_ contact: ContactDTO, scope: ReceiveScope) async throws -> ContactDTO? {
+    nil
+  }
+
+  func materializeContactForDirectMessage(
+    from frame: ContactFrame,
+    receivedAt: Date,
+    scope: ReceiveScope
+  ) async throws -> ContactDTO? {
+    nil
+  }
+
+  func touchDirectMessageContact(_ contact: ContactDTO, scope: ReceiveScope, at date: Date) async throws {}
+
+  func updateContactAfterDirectMessage(
+    _ message: MessageDTO,
+    contact: ContactDTO,
+    scope: ReceiveScope,
+    isViewingContact: Bool
+  ) async throws -> ContactDTO? {
+    nil
   }
 }

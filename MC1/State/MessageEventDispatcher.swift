@@ -60,20 +60,18 @@ final class MessageEventDispatcher {
         guard let appState, !Task.isCancelled, context.isCurrent(appState.connectionManager) else { return }
         switch event {
         case let .directMessageReceived(message, contact, scope):
-          if let scope {
-            let store = appState.connectionManager.persistenceStore
-            guard await (try? store.currentDirectMessageContact(contact, scope: scope)) != nil,
-                  scope.isCurrent else { continue }
-            guard !Task.isCancelled, context.isCurrent(appState.connectionManager) else { return }
-          }
+          let store = appState.connectionManager.persistenceStore
+          guard await (try? store.currentDirectMessageContact(contact, scope: scope)) != nil,
+                scope.isCurrent else { continue }
+          guard !Task.isCancelled, context.isCurrent(appState.connectionManager) else { return }
           stream.send(.directMessageReceived(message: message, contact: contact, scope: scope))
           // Keep a closed conversation's warm coordinator current so a reopen
           // renders the new tail on the first frame (no-op when open or cold).
           appState.ensureChatPrewarmRefresher().noteDirectMessage(contact: contact)
-        case let .channelMessageReceived(message, channelIndex, legacyScope):
-          guard legacyScope?.isCurrent != false else { continue }
+        case let .channelMessageReceived(message, channelIndex, scope):
+          guard scope.isCurrent else { continue }
           stream.send(.channelMessageReceived(
-            message: message, channelIndex: channelIndex, legacyScope: legacyScope
+            message: message, channelIndex: channelIndex, scope: scope
           ))
           appState.ensureChatPrewarmRefresher().noteChannelMessage(
             radioID: message.radioID,

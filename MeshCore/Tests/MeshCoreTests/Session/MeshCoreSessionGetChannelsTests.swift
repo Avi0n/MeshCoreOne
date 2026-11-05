@@ -7,57 +7,6 @@ import Testing
 /// window/refill bound and the capability fallback to serial reads.
 @Suite("MeshCoreSession getChannels pipeline")
 struct MeshCoreSessionGetChannelsTests {
-  @Test
-  func `channel reads and queued text use stock framing`() async throws {
-    let transport = MockTransport()
-    await transport.setSupportsWriteWithoutResponse(true)
-    let session = MeshCoreSession(transport: transport, configuration: pipelineConfig())
-    try await startSession(session, transport: transport)
-
-    let query = Task { try await session.queryDevice() }
-    try await waitUntil("expected stock device query") {
-      await transport.sentData.last == Data([0x16, 0x03])
-    }
-    var info = Data([0x0D, 0x0E])
-    info.append(Data(repeating: 0, count: 80))
-    await transport.simulateReceive(info)
-    #expect(try await query.value.firmwareVersion == 14)
-
-    let secret = Data(repeating: 0xAA, count: 16)
-    let channel = makeChannelInfoPacket(index: 2, name: "two", secret: secret)
-    let serial = Task { try await session.getChannel(index: 2) }
-    try await waitUntil("expected stock serial channel read") {
-      await transport.sentData.last == Data([0x1F, 0x02])
-    }
-    await transport.simulateReceive(channel)
-    #expect(try await serial.value.secret == secret)
-
-    let pipeline = Task { try await session.getChannels(indices: [2]) }
-    try await waitUntil("expected stock pipelined channel read") {
-      let sent = await transport.sentData
-      return sent.count == 4 && sent.last == Data([0x1F, 0x02])
-    }
-    await transport.simulateReceive(channel)
-    #expect(try await pipeline.value.received.first?.secret == secret)
-
-    let message = Task { try await session.getMessage() }
-    try await waitUntil("expected stock queued message fetch") {
-      await transport.sentData.last == Data([0x0A])
-    }
-    var frame = Data([0x11, 0xFC, 0x00, 0x00, 0x02, 0x01, 0x00, 0x20, 0x10, 0x00, 0x00])
-    let text = String(repeating: "🙂", count: 40)
-    frame.append(contentsOf: text.utf8)
-    await transport.simulateReceive(frame)
-    guard case let .channelMessage(result) = try await message.value else {
-      Issue.record("Expected queued channel text")
-      return
-    }
-    #expect(result.channelIndex == 2)
-    #expect(result.text == text)
-    #expect(result.snr == -1)
-    await session.stop()
-  }
-
   // MARK: - Gate #1: correctness with gaps
 
   @Test

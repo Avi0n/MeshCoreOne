@@ -135,7 +135,6 @@ public struct TextRulesPreference: Sendable, Codable, Equatable {
 
   private static let comparisonLocale = Locale(identifier: "en_US_POSIX")
 
-  public internal(set) var revision = UUID()
   public private(set) var rules: [Rule] = []
   private var selections: [Kind: Selection] = [
     .publicChannel: .all,

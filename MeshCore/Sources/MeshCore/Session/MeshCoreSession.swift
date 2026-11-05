@@ -376,9 +376,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     await dispatcher.subscribeTracked(filter: filter.matches)
   }
 
-  /// Finishes a tracked event subscription.
-  ///
-  /// Causes the corresponding `for await` loop to exit. Safe to call with an unknown id.
+  /// Finishes a tracked subscription so its consumer exits after draining buffered events.
+  /// Unknown subscription IDs are ignored.
   public func finishEvents(id: UUID) async {
     await dispatcher.finishSubscription(id: id)
   }

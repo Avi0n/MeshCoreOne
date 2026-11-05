@@ -5,10 +5,10 @@ public extension PersistenceStore {
     _ message: MessageDTO,
     frame: ChannelMessage,
     channel: ChannelDTO,
-    scope: ReceiveScope?,
+    scope: ReceiveScope,
     preference: TextRulesPreference?
   ) async throws -> Bool {
-    guard scope?.isCurrent != false, scope?.radioID == nil || scope?.radioID == message.radioID else { return true }
+    guard scope.isCurrent, scope.radioID == message.radioID else { return true }
     guard let conversationID = channel.textRulesID else { return false }
     guard let current = try fetchChannel(radioID: message.radioID, index: frame.channelIndex),
           current.textRulesID == conversationID else { return true }

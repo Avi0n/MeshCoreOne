@@ -315,9 +315,8 @@ struct SyncCoordinatorMessageHandlerTests {
     #expect(saved[0].textType == .cliCommand)
   }
 
-  @Test(arguments: [false, true])
-  func `DM rule drop and replay leave conversation effects untouched`(catchUp: Bool) async throws {
-    let context: DeliveryContext = catchUp ? .initialSync(anchor: Date()) : .live
+  @Test
+  func `DM rule drop and replay leave conversation effects untouched`() async throws {
     let radioID = UUID()
     let store = try await createTestDataStore(radioID: radioID)
     let key = Data(repeating: 0xB6, count: 32)
@@ -338,8 +337,8 @@ struct SyncCoordinatorMessageHandlerTests {
     preference.append(.init(phrase: "ALERT", lookIn: .message, match: .contains))
 
     let arrival = makeDirectArrival("  alert!  ", key: key, timestamp: 50)
-    await deliver(arrival, contact, context, scope, preference)
-    await deliver(arrival, contact, context, scope, nil)
+    await deliver(arrival, contact, .live, scope, preference)
+    await deliver(arrival, contact, .live, scope, nil)
 
     let entries = try await store.recentlyBlockedMessages()
     #expect(entries.count == 1)
@@ -353,7 +352,7 @@ struct SyncCoordinatorMessageHandlerTests {
     #expect(current.lastHeardTimestamp == contact.lastHeardTimestamp)
     #expect(await coordinator.conversationsVersion == 0)
 
-    await deliver(makeDirectArrival("safe", key: key, timestamp: 51), contact, context, scope, preference)
+    await deliver(makeDirectArrival("safe", key: key, timestamp: 51), contact, .live, scope, preference)
     #expect(try await store.fetchMessages(contactID: contact.id).map(\.text) == ["safe"])
     #expect(try await store.fetchContact(id: contact.id)?.unreadCount == 1)
     #expect(await coordinator.conversationsVersion == 1)
@@ -554,7 +553,8 @@ struct SyncCoordinatorMessageHandlerTests {
       text: "ChannelPeer: hello channel",
       snr: nil
     )
-    await mockPolling.capturedChannelMessageHandler?(channelMessage, nil, .live, nil, .now, nil)
+    let scope = try #require(await dataStore.captureReceiveScope(radioID: radioID, link: .init()))
+    await mockPolling.capturedChannelMessageHandler?(channelMessage, nil, .live, scope, nil, .now)
 
     let updated = try #require(
       await dataStore.fetchContact(radioID: radioID, publicKey: publicKey)
@@ -565,7 +565,7 @@ struct SyncCoordinatorMessageHandlerTests {
   // MARK: - Live receive region propagation
 
   @Test(.timeLimit(.minutes(1)))
-  func `legacy channel arrival cannot cross a retired receive scope`() async throws {
+  func `channel arrival cannot cross a retired receive scope`() async throws {
     let radioID = UUID()
     let store = try await createTestDataStore(radioID: radioID)
     let radio = try #require(await store.fetchDevice(radioID: radioID))
@@ -581,15 +581,15 @@ struct SyncCoordinatorMessageHandlerTests {
     await coordinator.wireMessageHandlers(dependencies: dependencies, radioID: radioID)
     let handler = try #require(await mockPolling.capturedChannelMessageHandler)
 
-    let (captured, capture) = AsyncStream<ReceiveScope?>.makeStream()
+    let (captured, capture) = AsyncStream<ReceiveScope>.makeStream()
     let (released, release) = AsyncStream<Void>.makeStream()
-    await poller.setChannelMessageHandler { message, channel, context, preference, arrivedAt, scope in
+    await poller.setChannelMessageHandler { message, channel, context, scope, preference, arrivedAt in
       if message.text == "Peer: before erase" {
         capture.yield(scope)
         var iterator = released.makeAsyncIterator()
         _ = await iterator.next()
       }
-      await handler(message, channel, context, preference, arrivedAt, scope)
+      await handler(message, channel, context, scope, preference, arrivedAt)
     }
     await poller.startMessageEventMonitoring(radioID: radioID)
     try await waitUntil("poller did not subscribe") { await mesh.eventSubscriptionCount == 1 }
@@ -598,14 +598,13 @@ struct SyncCoordinatorMessageHandlerTests {
       channelIndex: 0, pathLength: 0, textType: 0, senderTimestamp: stamp, text: "Peer: before erase", snr: nil
     )))
     var captureIterator = captured.makeAsyncIterator()
-    let deliveredScope = await captureIterator.next() ?? nil
-    let oldScope = try #require(deliveredScope)
+    let oldScope = try #require(await captureIterator.next())
 
     _ = try await store.beginRadioErase(radio)
     try await store.cancelRadioErase(radioID: radioID)
     #expect(!oldScope.isCurrent)
     let lateWrite = MessageDTO.testChannelMessage(radioID: radioID, channelIndex: 0, text: "Before erase")
-    #expect(try await store.saveLegacyChannelMessage(lateWrite, scope: oldScope, conversationID: nil) == false)
+    #expect(try await store.saveReceivedChannelMessage(lateWrite, scope: oldScope, conversationID: nil) == false)
 
     release.finish()
     await mesh.yieldEvent(.channelMessageReceived(ChannelMessage(
@@ -669,7 +668,8 @@ struct SyncCoordinatorMessageHandlerTests {
       text: "NodeAlpha: region scope test",
       snr: nil
     )
-    await mockPolling.capturedChannelMessageHandler?(channelMessage, nil, .live, nil, .now, nil)
+    let scope = try #require(await dataStore.captureReceiveScope(radioID: radioID, link: .init()))
+    await mockPolling.capturedChannelMessageHandler?(channelMessage, nil, .live, scope, nil, .now)
 
     let saved = try await dataStore.fetchMessages(radioID: radioID, channelIndex: channelIndex)
     let message = try #require(saved.first)
@@ -716,6 +716,7 @@ struct SyncCoordinatorMessageHandlerTests {
     let events = coordinator.dataEventBroadcaster.subscribe()
     await coordinator.wireMessageHandlers(dependencies: dependencies, radioID: radioID)
 
+    let scope = try #require(await dataStore.captureReceiveScope(radioID: radioID, link: .init()))
     await mockPolling.capturedChannelMessageHandler?(
       ChannelMessage(
         channelIndex: channelIndex,
@@ -726,7 +727,7 @@ struct SyncCoordinatorMessageHandlerTests {
         snr: nil
       ),
       nil,
-      .live, nil, .now, nil
+      .live, scope, nil, .now
     )
 
     let saved = try await dataStore.fetchMessages(radioID: radioID, channelIndex: channelIndex)
@@ -795,6 +796,7 @@ struct SyncCoordinatorMessageHandlerTests {
     let coordinator = SyncCoordinator()
     await coordinator.wireMessageHandlers(dependencies: dependencies, radioID: radioID)
 
+    let scope = try #require(await dataStore.captureReceiveScope(radioID: radioID, link: .init()))
     await mockPolling.capturedChannelMessageHandler?(
       ChannelMessage(
         channelIndex: channelIndex,
@@ -805,7 +807,7 @@ struct SyncCoordinatorMessageHandlerTests {
         snr: nil
       ),
       channel,
-      .live, nil, .now, nil
+      .live, scope, nil, .now
     )
 
     let saved = try await dataStore.fetchMessages(radioID: radioID, channelIndex: channelIndex)
@@ -863,6 +865,7 @@ struct SyncCoordinatorMessageHandlerTests {
     let coordinator = SyncCoordinator()
     await coordinator.wireMessageHandlers(dependencies: dependencies, radioID: radioID)
 
+    let scope = try #require(await dataStore.captureReceiveScope(radioID: radioID, link: .init()))
     await mockPolling.capturedChannelMessageHandler?(
       ChannelMessage(
         channelIndex: channelIndex,
@@ -873,7 +876,7 @@ struct SyncCoordinatorMessageHandlerTests {
         snr: nil
       ),
       nil,
-      .live, nil, .now, nil
+      .live, scope, nil, .now
     )
 
     #expect(try await dataStore.fetchMessages(radioID: radioID, channelIndex: channelIndex).count == 1)

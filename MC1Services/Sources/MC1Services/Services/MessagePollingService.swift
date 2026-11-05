@@ -39,7 +39,7 @@ actor MessagePollingService {
 
   /// Handler for incoming channel messages.
   /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
-  private var channelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, TextRulesPreference?, Date, ReceiveScope?) async -> Void)?
+  private var channelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)?
 
   /// Handler for signed messages (from room servers).
   /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
@@ -96,7 +96,7 @@ actor MessagePollingService {
   }
 
   /// Set handler for incoming channel messages
-  func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, TextRulesPreference?, Date, ReceiveScope?) async -> Void) {
+  func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {
     channelMessageHandler = handler
   }
 
@@ -381,7 +381,7 @@ actor MessagePollingService {
     let preference = await textRulesPreference()
     let channel = try? await dataStore.fetchChannel(radioID: radioID, index: message.channelIndex)
     guard scope.isCurrent else { return }
-    await channelMessageHandler?(message, channel, context, preference, arrivedAt, scope)
+    await channelMessageHandler?(message, channel, context, scope, preference, arrivedAt)
   }
 }
 

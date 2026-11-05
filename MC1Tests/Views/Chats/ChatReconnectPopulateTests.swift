@@ -169,12 +169,19 @@ struct ChatReconnectPopulateTests {
       timestamp: 9000
     )
     try await env.dataStore.saveMessage(incoming)
+    try await env.dataStore.saveDevice(DeviceDTO(from: Device(
+      radioID: env.contact.radioID,
+      publicKey: Data(repeating: 0x17, count: 32),
+      nodeName: "TestRadio"
+    )))
+    let scope = try #require(await env.dataStore.captureReceiveScope(radioID: env.contact.radioID, link: .init()))
+    let contact = try #require(await env.dataStore.fetchContact(id: env.contact.id))
 
-    await env.viewModel.handle(.directMessageReceived(message: incoming, contact: env.contact))
+    await env.viewModel.handle(.directMessageReceived(message: incoming, contact: contact, scope: scope))
     #expect(env.viewModel.messages.contains { $0.id == incoming.id })
     let countAfterAdmit = env.viewModel.messages.count
 
-    await env.viewModel.handle(.directMessageReceived(message: incoming, contact: env.contact))
+    await env.viewModel.handle(.directMessageReceived(message: incoming, contact: contact, scope: scope))
     #expect(env.viewModel.messages.count == countAfterAdmit)
   }
 

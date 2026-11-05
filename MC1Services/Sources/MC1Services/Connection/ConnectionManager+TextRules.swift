@@ -35,7 +35,6 @@ extension ConnectionManager {
     update(&preference)
     guard preference.isValid else { throw CocoaError(.fileWriteInapplicableStringEncoding) }
     guard preference != textRulesPreference else { return }
-    preference.revision = UUID()
     let data = try JSONEncoder().encode(preference)
     try FileManager.default.createDirectory(
       at: textRulesURL.deletingLastPathComponent(),

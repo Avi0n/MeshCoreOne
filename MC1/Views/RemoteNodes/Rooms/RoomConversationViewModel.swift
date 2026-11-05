@@ -224,7 +224,7 @@ final class RoomConversationViewModel {
       // burst of incoming room messages triggers one DB sync, not N.
       guard sessionID == session.id,
             roomID == nil || roomID == session.textRulesID,
-            scope?.isCurrent != false else { return }
+            scope.isCurrent else { return }
       appendMessageIfNew(message)
       scheduleCoalescedReload()
 

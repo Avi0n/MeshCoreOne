@@ -2,6 +2,26 @@ import Foundation
 
 /// Store operations for message rows and their pending-send queue entries.
 public protocol MessagePersisting: Actor {
+  // MARK: - Incoming Messages
+
+  func captureReceiveScope(radioID: UUID, link: ReceiveScope.Lifetime) async throws -> ReceiveScope?
+
+  func admitDirectMessage(
+    _ message: MessageDTO,
+    wireTextType: UInt8,
+    contact: ContactDTO?,
+    scope: ReceiveScope,
+    preference: TextRulesPreference?
+  ) async throws -> DirectMessageAdmission
+
+  func shouldSuppressChannelMessage(
+    _ message: MessageDTO,
+    frame: ChannelMessage,
+    channel: ChannelDTO,
+    scope: ReceiveScope,
+    preference: TextRulesPreference?
+  ) async throws -> Bool
+
   // MARK: - Message Operations
 
   /// Check if a message with this deduplication key already exists for the given radio.
@@ -20,7 +40,7 @@ public protocol MessagePersisting: Actor {
   func saveMessage(_ dto: MessageDTO) async throws
 
   /// Saves only while the captured receive scope and any resolved channel identity are current.
-  func saveLegacyChannelMessage(_ dto: MessageDTO, scope: ReceiveScope?, conversationID: UUID?) async throws -> Bool
+  func saveReceivedChannelMessage(_ dto: MessageDTO, scope: ReceiveScope, conversationID: UUID?) async throws -> Bool
 
   /// Fetch a message by ID
   func fetchMessage(id: UUID) async throws -> MessageDTO?
@@ -205,9 +225,34 @@ extension MessagePersisting {
 }
 
 public extension MessagePersisting {
-  func saveLegacyChannelMessage(_ dto: MessageDTO, scope: ReceiveScope?, conversationID: UUID?) async throws -> Bool {
-    if let scope, !scope.isCurrent || scope.radioID != dto.radioID { return false }
+  func saveReceivedChannelMessage(_ dto: MessageDTO, scope: ReceiveScope, conversationID: UUID?) async throws -> Bool {
+    guard scope.isCurrent, scope.radioID == dto.radioID else { return false }
     try await saveMessage(dto)
     return true
+  }
+
+  func captureReceiveScope(radioID: UUID, link: ReceiveScope.Lifetime) async throws -> ReceiveScope? {
+    guard link.isCurrent else { return nil }
+    return ReceiveScope(radioID: radioID, link: link, partition: .init())
+  }
+
+  func admitDirectMessage(
+    _ message: MessageDTO,
+    wireTextType: UInt8,
+    contact: ContactDTO?,
+    scope: ReceiveScope,
+    preference: TextRulesPreference?
+  ) async throws -> DirectMessageAdmission {
+    .discarded
+  }
+
+  func shouldSuppressChannelMessage(
+    _ message: MessageDTO,
+    frame: ChannelMessage,
+    channel: ChannelDTO,
+    scope: ReceiveScope,
+    preference: TextRulesPreference?
+  ) async throws -> Bool {
+    false
   }
 }

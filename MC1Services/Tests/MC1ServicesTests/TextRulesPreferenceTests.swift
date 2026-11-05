@@ -67,27 +67,17 @@ struct TextRulesPreferenceTests {
   }
 
   @Test @MainActor
-  func `failed settings saves leave committed values and concurrent edits rebase`() async throws {
+  func `settings edits persist and failed saves leave committed values intact`() throws {
     let directory = try makeDirectory()
     defer { try? FileManager.default.removeItem(at: directory) }
     let url = directory.appending(path: "rules.json")
     let manager = try makeManager(url: url)
     manager.loadTextRules()
-    let defaults = try #require(manager.textRulesPreference)
-    #expect(defaults.rules.isEmpty)
-    #expect(defaults.selection(for: .publicChannel) == .all)
 
     let rule = TextRulesPreference.Rule(phrase: " alert ", lookIn: .message, match: .contains)
-    let first = Task { @MainActor in
-      try manager.updateTextRules { $0.append(rule) }
-    }
-    let second = Task { @MainActor in
-      try manager.updateTextRules { $0.setSelection(.fixed([]), for: .publicChannel) }
-    }
-    try await first.value
-    try await second.value
+    try manager.updateTextRules { $0.append(rule) }
+    try manager.updateTextRules { $0.setSelection(.fixed([]), for: .publicChannel) }
     let committed = try #require(manager.textRulesPreference)
-    #expect(committed.revision != defaults.revision)
     #expect(committed.rules == [rule])
     #expect(committed.selection(for: .publicChannel) == .fixed([]))
 

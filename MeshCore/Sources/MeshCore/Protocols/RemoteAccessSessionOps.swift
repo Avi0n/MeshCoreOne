@@ -125,7 +125,6 @@ public protocol RemoteAccessSessionOps: Actor {
 // MARK: - Default Implementations
 
 public extension RemoteAccessSessionOps {
-  /// Sends a keep-alive with a fixed watermark.
   func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo {
     try await sendKeepAlive(to: publicKey, syncSince: { syncSince }, beforeSend: {})
   }

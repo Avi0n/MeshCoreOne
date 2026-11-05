@@ -8,11 +8,11 @@ import MC1Services
 /// exhaustively (no `default`) so a new case becomes a compile error
 /// rather than a silent skip.
 enum MessageEvent: Equatable {
-  case directMessageReceived(message: MessageDTO, contact: ContactDTO, scope: ReceiveScope? = nil)
+  case directMessageReceived(message: MessageDTO, contact: ContactDTO, scope: ReceiveScope)
   case channelMessageReceived(
-    message: MessageDTO, channelIndex: UInt8, legacyScope: ReceiveScope? = nil
+    message: MessageDTO, channelIndex: UInt8, scope: ReceiveScope
   )
-  case roomMessageReceived(message: RoomMessageDTO, sessionID: UUID, roomID: UUID? = nil, scope: ReceiveScope? = nil)
+  case roomMessageReceived(message: RoomMessageDTO, sessionID: UUID, roomID: UUID? = nil, scope: ReceiveScope)
   /// Fired when a message's status resolves to .sent or .delivered for an
   /// original (non-resend) send. `roundTripTime` is supplied only when firmware
   /// reports it (.delivered via end-to-end ACK); .sent transitions and

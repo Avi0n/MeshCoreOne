@@ -115,7 +115,6 @@ extension SyncCoordinator {
     )
   }
 
-  /// Updates the current Contact before publishing ordinary DM effects.
   func updateDMUnreadsAndNotify(
     messageDTO: MessageDTO,
     contact: ContactDTO,
@@ -145,16 +144,10 @@ extension SyncCoordinator {
   func updateChannelUnreadsAndNotify(
     messageDTO: MessageDTO,
     channel: ChannelDTO?,
-    channelIndex: UInt8,
-    senderNodeName: String?,
-    messageText: String,
-    timestamp: UInt32,
-    hasSelfMention: Bool,
-    radioID: UUID,
     dependencies: SyncDependencies,
-    legacyScope: ReceiveScope? = nil
+    scope: ReceiveScope
   ) async throws {
-    guard legacyScope?.isCurrent != false else { return }
+    guard scope.isCurrent, let channelIndex = messageDTO.channelIndex else { return }
     if let channelID = channel?.id {
       // A mounted conversation does not mean its messages are visible in the background.
       let isInForeground = await dependencies.appStateProvider?.isInForeground ?? true
@@ -162,42 +155,42 @@ extension SyncCoordinator {
       let activeRadioID = await dependencies.notificationService.activeChannelRadioID
       let isViewingChannel = isInForeground && activeIndex == channel?.index && activeRadioID == channel?.radioID
       if !isViewingChannel {
-        guard legacyScope?.isCurrent != false else { return }
+        guard scope.isCurrent else { return }
         try await dependencies.dataStore.incrementChannelUnreadCount(channelID: channelID)
 
         // Increment unread mention count if message contains self-mention
-        if hasSelfMention, legacyScope?.isCurrent != false {
+        if messageDTO.containsSelfMention, scope.isCurrent {
           try await dependencies.dataStore.incrementChannelUnreadMentionCount(channelID: channelID)
         }
       }
     }
-    guard legacyScope?.isCurrent != false else { return }
+    guard scope.isCurrent else { return }
     if Self.shouldPostChannelNotification(forResolvedChannel: channel) {
       await dependencies.notificationService.postChannelMessageNotification(
         channelName: channel?.name ?? "Channel \(channelIndex)",
         channelIndex: channelIndex,
-        radioID: radioID,
-        senderName: senderNodeName,
-        messageText: messageText,
+        radioID: messageDTO.radioID,
+        senderName: messageDTO.senderNodeName,
+        messageText: messageDTO.text,
         messageID: messageDTO.id,
         notificationLevel: channel?.notificationLevel ?? .all,
-        hasSelfMention: hasSelfMention,
-        legacyScope: legacyScope
+        hasSelfMention: messageDTO.containsSelfMention,
+        scope: scope
       )
     } else if channel == nil {
       recordUnresolvedChannel(
         channelIndex: channelIndex,
-        radioID: radioID,
-        senderTimestamp: timestamp
+        radioID: messageDTO.radioID,
+        senderTimestamp: messageDTO.reactionTimestamp
       )
     }
-    guard legacyScope?.isCurrent != false else { return }
+    guard scope.isCurrent else { return }
     await dependencies.notificationService.updateBadgeCount()
 
     // Broadcast for real-time chat updates
-    guard legacyScope?.isCurrent != false else { return }
+    guard scope.isCurrent else { return }
     dataEventBroadcaster.yield(.channelMessageReceived(
-      message: messageDTO, channelIndex: channelIndex, legacyScope: legacyScope
+      message: messageDTO, channelIndex: channelIndex, scope: scope
     ))
   }
 

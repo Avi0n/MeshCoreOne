@@ -46,7 +46,7 @@ protocol MessagePollingServiceProtocol: Actor {
   func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?) async -> Void)
 
   /// Install the handler invoked for each incoming channel message.
-  func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, TextRulesPreference?, Date, ReceiveScope?) async -> Void)
+  func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)
 
   /// Install the handler invoked for each incoming signed room message.
   func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ReceiveScope) async -> Void)

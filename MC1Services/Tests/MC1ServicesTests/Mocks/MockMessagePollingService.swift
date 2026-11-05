@@ -59,7 +59,7 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
   public private(set) var capturedContactMessageHandler: (@Sendable (ContactMessage, ContactDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?) async -> Void)?
 
   /// Captured channel message handler (set via setChannelMessageHandler)
-  public private(set) var capturedChannelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, TextRulesPreference?, Date, ReceiveScope?) async -> Void)?
+  public private(set) var capturedChannelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)?
 
   /// Captured signed message handler (set via setSignedMessageHandler)
   public private(set) var capturedSignedMessageHandler: (@Sendable (ContactMessage, ReceiveScope) async -> Void)?
@@ -73,7 +73,7 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
     capturedContactMessageHandler = handler
   }
 
-  public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, TextRulesPreference?, Date, ReceiveScope?) async -> Void) {
+  public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {
     capturedChannelMessageHandler = handler
   }
 

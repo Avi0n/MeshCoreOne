@@ -31,11 +31,12 @@ extension SyncCoordinator {
     await dependencies.messagePollingService.setContactMessageHandler { [weak self] message, contact, context, scope, preference in
       guard let self, scope.radioID == radioID, scope.isCurrent else { return }
       await handleIncomingMessage(
-        kind: .direct(message, contact: contact, scope: scope, preference: preference),
+        kind: .direct(message, contact: contact),
         context: context,
         dependencies: dependencies,
-        radioID: radioID,
-        selfNodeName: selfNodeName
+        selfNodeName: selfNodeName,
+        scope: scope,
+        preference: preference
       )
     }
   }
@@ -43,16 +44,16 @@ extension SyncCoordinator {
   // MARK: - Channel Message Handler
 
   private func wireChannelMessageHandler(dependencies: SyncDependencies, radioID: UUID, selfNodeName: String) async {
-    await dependencies.messagePollingService.setChannelMessageHandler { [weak self] message, channel, context, preference, arrivedAt, legacyScope in
-      guard let self else { return }
+    await dependencies.messagePollingService.setChannelMessageHandler { [weak self] message, channel, context, scope, preference, arrivedAt in
+      guard let self, scope.radioID == radioID, scope.isCurrent else { return }
       await handleIncomingMessage(
-        kind: .channel(message, channel: channel, preference: preference),
+        kind: .channel(message, channel: channel),
         receivedAt: arrivedAt,
         context: context,
         dependencies: dependencies,
-        radioID: radioID,
         selfNodeName: selfNodeName,
-        legacyScope: legacyScope
+        scope: scope,
+        preference: preference
       )
     }
   }
@@ -62,8 +63,8 @@ extension SyncCoordinator {
   /// Discriminates the two text-message ingestion paths, carrying the wire
   /// message and the resolved conversation for each.
   private enum IncomingMessageKind {
-    case direct(ContactMessage, contact: ContactDTO?, scope: ReceiveScope, preference: TextRulesPreference?)
-    case channel(ChannelMessage, channel: ChannelDTO?, preference: TextRulesPreference?)
+    case direct(ContactMessage, contact: ContactDTO?)
+    case channel(ChannelMessage, channel: ChannelDTO?)
 
     /// Log noun distinguishing the two paths in shared diagnostics.
     var logLabel: String {
@@ -79,9 +80,10 @@ extension SyncCoordinator {
   /// without posting a second alert.
   private func resolveDirectContactIfNeeded(
     _ kind: IncomingMessageKind,
-    dependencies: SyncDependencies
+    dependencies: SyncDependencies,
+    scope: ReceiveScope
   ) async -> IncomingMessageKind {
-    guard case let .direct(message, contact, scope, preference) = kind, contact == nil else {
+    guard case let .direct(message, contact) = kind, contact == nil else {
       return kind
     }
     let prefix = message.senderPublicKeyPrefix
@@ -91,7 +93,7 @@ extension SyncCoordinator {
     else {
       return kind
     }
-    return .direct(message, contact: materialized, scope: scope, preference: preference)
+    return .direct(message, contact: materialized)
   }
 
   /// Re-decrypts stamp-matched 0x88 rows and harvests extras, then refetches
@@ -100,7 +102,7 @@ extension SyncCoordinator {
     messageDTO: MessageDTO,
     radioID: UUID,
     dependencies: SyncDependencies,
-    legacyScope: ReceiveScope?
+    scope: ReceiveScope
   ) async throws -> MessageDTO {
     guard let channelIndex = messageDTO.channelIndex else { return messageDTO }
     let stamp = messageDTO.senderTimestamp ?? messageDTO.timestamp
@@ -111,7 +113,7 @@ extension SyncCoordinator {
         senderTimestamp: stamp
       )
       let decoded = await dependencies.rxLogService.decodedEntries(raw)
-      guard legacyScope?.isCurrent != false else { return messageDTO }
+      guard scope.isCurrent else { return messageDTO }
       await dependencies.heardRepeatsService.harvestIncomingPaths(
         for: messageDTO,
         decodedCandidates: decoded
@@ -127,15 +129,14 @@ extension SyncCoordinator {
 
   /// True when a row already owns this content key. A known distinct channel path
   /// is recorded as an extra; a nil path is unknown and is not written as one.
-  private func recordArrivalAndSkipDuplicate(
-    resolvedKind: IncomingMessageKind,
+  private func recordChannelArrivalAndSkipDuplicate(
     deduplicationKey: String,
     radioID: UUID,
     rxResult: RxLogLookupResult,
     snr: Double?,
     receiveTime: Date,
     dependencies: SyncDependencies,
-    legacyScope: ReceiveScope?
+    scope: ReceiveScope
   ) async -> Bool {
     do {
       guard let existing = try await dependencies.dataStore.fetchMessage(
@@ -144,12 +145,8 @@ extension SyncCoordinator {
       ) else {
         return false
       }
-      guard legacyScope?.isCurrent != false else { return true }
-      if case .channel = resolvedKind {
-        guard let path = rxResult.pathNodes else {
-          logger.info("Skipping duplicate \(resolvedKind.logLabel) message")
-          return true
-        }
+      guard scope.isCurrent else { return true }
+      if let path = rxResult.pathNodes {
         await dependencies.heardRepeatsService.recordDistinctPathIfNeeded(
           message: existing,
           pathNodes: path,
@@ -160,7 +157,7 @@ extension SyncCoordinator {
           rxLogEntryID: nil
         )
       }
-      logger.info("Skipping duplicate \(resolvedKind.logLabel) message")
+      logger.info("Skipping duplicate channel message")
       return true
     } catch {
       logger.warning("Dedup check failed, proceeding with save: \(error)")
@@ -176,16 +173,17 @@ extension SyncCoordinator {
     receivedAt: Date = .now,
     context: DeliveryContext,
     dependencies: SyncDependencies,
-    radioID: UUID,
     selfNodeName: String,
-    legacyScope: ReceiveScope? = nil
+    scope: ReceiveScope,
+    preference: TextRulesPreference?
   ) async {
-    guard legacyScope?.isCurrent != false else { return }
+    guard scope.isCurrent else { return }
+    let radioID = scope.radioID
     // A DM can land in the advert delta-sync debounce window before the local
     // Contact row exists. Materialize from a pending 0x80 key so unread,
     // notification, and Chats-list updates use the live path exactly once.
     let resolvedKind = await resolveDirectContactIfNeeded(
-      kind, dependencies: dependencies
+      kind, dependencies: dependencies, scope: scope
     )
 
     // Per-kind wire fields. Channel messages embed the sender as a
@@ -200,7 +198,7 @@ extension SyncCoordinator {
     let channelIndex: UInt8?
     let senderKeyPrefix: Data?
     switch resolvedKind {
-    case let .direct(message, contact, _, _):
+    case let .direct(message, contact):
       // The firmware cannot surface a self-DM here: decrypt runs against a
       // contact's ECDH shared secret and the local self_id is never in
       // contacts[], so an echo of the user's own DM never reaches this arm.
@@ -213,7 +211,7 @@ extension SyncCoordinator {
       contactID = contact?.id
       channelIndex = nil
       senderKeyPrefix = message.senderPublicKeyPrefix
-    case let .channel(message, _, _):
+    case let .channel(message, _):
       // Parse "NodeName: text" format for sender name
       (senderNodeName, text) = Self.parseChannelMessage(message.text)
       senderTimestampDate = message.senderTimestamp
@@ -317,38 +315,37 @@ extension SyncCoordinator {
     )
 
     switch resolvedKind {
-    case let .direct(_, contact, scope, preference):
+    case let .direct(_, contact):
       await receiveDirectMessage(
         messageDTO, wireTextType: textTypeRaw, contact: contact,
         scope: scope, preference: preference, dependencies: dependencies
       )
 
-    case let .channel(message, channel, preference):
-      if await recordArrivalAndSkipDuplicate(
-        resolvedKind: resolvedKind,
+    case let .channel(message, channel):
+      if await recordChannelArrivalAndSkipDuplicate(
         deduplicationKey: deduplicationKey,
         radioID: radioID,
         rxResult: rxResult,
         snr: snr,
         receiveTime: receiveTime,
         dependencies: dependencies,
-        legacyScope: legacyScope
+        scope: scope
       ) {
         return
       }
-      guard legacyScope?.isCurrent != false else { return }
+      guard scope.isCurrent else { return }
       if isBlockedSender(senderNodeName) {
         return
       }
       do {
         if let channel, try await dependencies.dataStore.shouldSuppressChannelMessage(
-          messageDTO, frame: message, channel: channel, scope: legacyScope, preference: preference
+          messageDTO, frame: message, channel: channel, scope: scope, preference: preference
         ) { return }
       } catch {
         logger.error("Failed to evaluate channel Text Rules: \(error)")
         return
       }
-      guard legacyScope?.isCurrent != false else { return }
+      guard scope.isCurrent else { return }
       if await handleChannelReaction(
         text: text,
         channelIndex: message.channelIndex,
@@ -362,29 +359,23 @@ extension SyncCoordinator {
       }
       do {
         await runTestBeforeMessageSave(messageDTO)
-        guard try await dependencies.dataStore.saveLegacyChannelMessage(
-                messageDTO, scope: legacyScope, conversationID: channel?.textRulesID
+        guard try await dependencies.dataStore.saveReceivedChannelMessage(
+                messageDTO, scope: scope, conversationID: channel?.textRulesID
               ),
-              legacyScope?.isCurrent != false else { return }
+              scope.isCurrent else { return }
         let savedDTO = try await harvestAndRefreshChannelMessage(
           messageDTO: messageDTO,
           radioID: radioID,
           dependencies: dependencies,
-          legacyScope: legacyScope
+          scope: scope
         )
         try await indexAndNotifyChannelMessage(
           messageDTO: savedDTO,
           channel: channel,
-          channelIndex: message.channelIndex,
-          senderNodeName: senderNodeName,
-          messageText: text,
-          timestamp: timestamp,
-          hasSelfMention: hasSelfMention,
           dependencies: dependencies,
-          radioID: radioID,
-          legacyScope: legacyScope
+          scope: scope
         )
-        await notifyConversationsChanged(scope: legacyScope)
+        await notifyConversationsChanged(scope: scope)
       } catch {
         logger.error("Failed to save channel message: \(error)")
       }
@@ -496,30 +487,22 @@ extension SyncCoordinator {
   private func indexAndNotifyChannelMessage(
     messageDTO: MessageDTO,
     channel: ChannelDTO?,
-    channelIndex: UInt8,
-    senderNodeName: String?,
-    messageText: String,
-    timestamp: UInt32,
-    hasSelfMention: Bool,
     dependencies: SyncDependencies,
-    radioID: UUID,
-    legacyScope: ReceiveScope? = nil
+    scope: ReceiveScope
   ) async throws {
-    guard legacyScope?.isCurrent != false else { return }
-    // Index message for reaction matching and process any pending reactions
-    // Use original timestamp for indexing so pending reactions can match
-    if let senderName = senderNodeName {
+    guard scope.isCurrent, let channelIndex = messageDTO.channelIndex else { return }
+    // Use the sender timestamp so pending reactions match corrected-clock messages.
+    if let senderName = messageDTO.senderNodeName {
       let pendingMatches = await dependencies.reactionService.indexMessage(
         id: messageDTO.id,
         channelIndex: channelIndex,
         senderName: senderName,
-        text: messageText,
-        timestamp: timestamp
+        text: messageDTO.text,
+        timestamp: messageDTO.reactionTimestamp
       )
 
-      // Process any pending reactions that now have their target
       for pending in pendingMatches {
-        guard legacyScope?.isCurrent != false else { return }
+        guard scope.isCurrent else { return }
         let reactionDTO = ReactionDTO(
           messageID: messageDTO.id,
           emoji: pending.parsed.emoji,
@@ -533,25 +516,17 @@ extension SyncCoordinator {
       }
     }
 
-    guard legacyScope?.isCurrent != false else { return }
-    // Update channel's last message date
+    guard scope.isCurrent else { return }
     if let channelID = channel?.id {
       try await dependencies.dataStore.updateChannelLastMessage(channelID: channelID, date: Date())
     }
 
-    // Only update unread count, badges, and notify UI for non-blocked senders
-    if !isBlockedSender(senderNodeName) {
+    if !isBlockedSender(messageDTO.senderNodeName) {
       try await updateChannelUnreadsAndNotify(
         messageDTO: messageDTO,
         channel: channel,
-        channelIndex: channelIndex,
-        senderNodeName: senderNodeName,
-        messageText: messageText,
-        timestamp: timestamp,
-        hasSelfMention: hasSelfMention,
-        radioID: radioID,
         dependencies: dependencies,
-        legacyScope: legacyScope
+        scope: scope
       )
     }
   }

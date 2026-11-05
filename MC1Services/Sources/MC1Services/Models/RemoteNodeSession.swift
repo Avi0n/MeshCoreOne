@@ -268,8 +268,8 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable,
   public let lastUptimeSeconds: UInt32?
   public let lastNoiseFloor: Int16?
   public let unreadCount: Int
-  public let notificationLevel: NotificationLevel
-  public let isPinned: Bool
+  public private(set) var notificationLevel: NotificationLevel
+  public private(set) var isPinned: Bool
 
   /// Convenience property for checking if muted
   public var isMuted: Bool {
@@ -423,39 +423,15 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable,
 
   /// Returns a copy with only `notificationLevel` changed.
   public func with(notificationLevel: NotificationLevel) -> RemoteNodeSessionDTO {
-    var copy = RemoteNodeSessionDTO(
-      id: id, radioID: radioID, publicKey: publicKey, name: name,
-      role: role, latitude: latitude, longitude: longitude,
-      isConnected: isConnected, permissionLevel: permissionLevel,
-      lastConnectedDate: lastConnectedDate,
-      lastBatteryMillivolts: lastBatteryMillivolts,
-      lastUptimeSeconds: lastUptimeSeconds, lastNoiseFloor: lastNoiseFloor,
-      unreadCount: unreadCount, notificationLevel: notificationLevel,
-      isPinned: isPinned, lastRxAirtimeSeconds: lastRxAirtimeSeconds,
-      neighborCount: neighborCount, lastSyncTimestamp: lastSyncTimestamp,
-      lastMessageDate: lastMessageDate
-    )
-    copy.textRulesID = textRulesID
-    copy.textRulesOverride = textRulesOverride
+    var copy = self
+    copy.notificationLevel = notificationLevel
     return copy
   }
 
   /// Returns a copy with only `isPinned` changed.
   public func with(isPinned: Bool) -> RemoteNodeSessionDTO {
-    var copy = RemoteNodeSessionDTO(
-      id: id, radioID: radioID, publicKey: publicKey, name: name,
-      role: role, latitude: latitude, longitude: longitude,
-      isConnected: isConnected, permissionLevel: permissionLevel,
-      lastConnectedDate: lastConnectedDate,
-      lastBatteryMillivolts: lastBatteryMillivolts,
-      lastUptimeSeconds: lastUptimeSeconds, lastNoiseFloor: lastNoiseFloor,
-      unreadCount: unreadCount, notificationLevel: notificationLevel,
-      isPinned: isPinned, lastRxAirtimeSeconds: lastRxAirtimeSeconds,
-      neighborCount: neighborCount, lastSyncTimestamp: lastSyncTimestamp,
-      lastMessageDate: lastMessageDate
-    )
-    copy.textRulesID = textRulesID
-    copy.textRulesOverride = textRulesOverride
+    var copy = self
+    copy.isPinned = isPinned
     return copy
   }
 

@@ -362,9 +362,9 @@ public final class NotificationService: NSObject {
     messageID: UUID,
     notificationLevel: NotificationLevel,
     hasSelfMention: Bool,
-    legacyScope: ReceiveScope? = nil
+    scope: ReceiveScope
   ) async {
-    guard legacyScope?.isCurrent != false, notificationLevel != .muted, notificationLevel != .mentionsOnly || hasSelfMention, isAuthorized else { return }
+    guard scope.isCurrent, notificationLevel != .muted, notificationLevel != .mentionsOnly || hasSelfMention, isAuthorized else { return }
 
     // Check granular preference (uses cached preferences)
     guard preferences.channelMessagesEnabled else { return }

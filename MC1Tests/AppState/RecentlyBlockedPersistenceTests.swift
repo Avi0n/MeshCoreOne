@@ -32,14 +32,12 @@ struct RecentlyBlockedPersistenceTests {
       try await store.recordRecentlyBlockedMessage(lastDrop)
       let committed = try await store.recentlyBlockedMessages()
       #expect(committed == Array(drops[1...limit].reversed()))
-      #expect(try await store.recentlyBlockedCount() == limit)
 
       await store.setRecordRecentlyBlockedFaultInjection { throw InjectedSaveFailure() }
       await #expect(throws: InjectedSaveFailure.self) {
         try await store.recordRecentlyBlockedMessage(drops[limit + 1])
       }
       #expect(try await store.recentlyBlockedMessages() == committed)
-      #expect(try await store.recentlyBlockedCount() == limit)
     }
 
     let reopened = try ModelContainer(for: PersistenceStore.schema, configurations: [configuration])

@@ -8,7 +8,6 @@ struct NewTextRuleSheet: View {
   @State private var phrase = ""
   @State private var lookIn = TextRulesPreference.Rule.LookIn.message
   @State private var match = TextRulesPreference.Rule.Match.contains
-  @State private var isSaving = false
   @State private var errorMessage: String?
 
   var body: some View {
@@ -38,7 +37,6 @@ struct NewTextRuleSheet: View {
             Text(L10n.Settings.TextRules.New.deliveryFooter)
           }
         }
-        .disabled(isSaving)
         .themedRowBackground(theme)
       }
       .themedCanvas(theme)
@@ -47,30 +45,24 @@ struct NewTextRuleSheet: View {
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button(L10n.Localizable.Common.cancel) { dismiss() }
-            .disabled(isSaving)
         }
         ToolbarItem(placement: .confirmationAction) {
           Button(L10n.Contacts.Contacts.Add.add, action: add)
-            .disabled(isSaving || phrase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .disabled(phrase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
       }
       .errorAlert($errorMessage)
     }
-    .interactiveDismissDisabled(isSaving)
   }
 
   private func add() {
     let rule = TextRulesPreference.Rule(phrase: phrase, lookIn: lookIn, match: match)
-    guard !isSaving, rule.isValid else { return }
-    isSaving = true
-    Task {
-      defer { isSaving = false }
-      do {
-        try appState.connectionManager.updateTextRules { $0.append(rule) }
-        dismiss()
-      } catch {
-        errorMessage = L10n.Settings.TextRules.saveFailed
-      }
+    guard rule.isValid else { return }
+    do {
+      try appState.connectionManager.updateTextRules { $0.append(rule) }
+      dismiss()
+    } catch {
+      errorMessage = L10n.Settings.TextRules.saveFailed
     }
   }
 }

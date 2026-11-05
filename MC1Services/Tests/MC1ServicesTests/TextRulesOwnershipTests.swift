@@ -76,8 +76,6 @@ struct TextRulesOwnershipTests {
     let envelope = try parseBackup(data: backup.data)
     let exportedContact = try #require(envelope.contacts.first)
     #expect(exportedContact.id == contact.id)
-    #expect(exportedContact.textRulesID == nil)
-    #expect(exportedContact.textRulesOverride == .inherit)
 
     _ = try await backupService.importBackup(envelope: envelope, into: store)
     #expect(try await store.textRulesConversation(kind: selected.kind, key: selected.key)?.override == .on)
