@@ -20,8 +20,8 @@ extension ChatViewModel {
     defer { retryInFlight = false }
 
     guard let contact = currentContact,
-          let dataStore else {
-      logger.warning("retryMessage: missing currentContact or dataStore")
+          let dataStore = dataStoreForDMRetry(to: contact) else {
+      logger.warning("retryMessage: DM persistence is unavailable")
       return
     }
 
@@ -83,8 +83,8 @@ extension ChatViewModel {
       // debounces via retryInFlight, sendAgain via actions-sheet dismissal —
       // extracting a shared body would lose that distinction.
       guard let contact = currentContact,
-            let dataStore else {
-        logger.warning("sendAgain (DM): missing currentContact or dataStore")
+            let dataStore = dataStoreForDMRetry(to: contact) else {
+        logger.warning("sendAgain (DM): DM persistence is unavailable")
         return
       }
 
@@ -164,5 +164,14 @@ extension ChatViewModel {
       try await dataStore.updateContactLastMessage(contactID: contact.id, date: nil)
     }
     await notificationService?.updateBadgeCount()
+  }
+
+  private func dataStoreForDMRetry(to contact: ContactDTO) -> DataStore? {
+    guard currentRadioIDProvider() == contact.radioID,
+          let dataStore,
+          connectionStateProvider() == .disconnected || chatSendQueueServiceProvider() != nil else {
+      return nil
+    }
+    return dataStore
   }
 }

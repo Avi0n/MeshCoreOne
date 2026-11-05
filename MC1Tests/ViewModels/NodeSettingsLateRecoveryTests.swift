@@ -15,7 +15,7 @@ struct NodeSettingsLateRecoveryTests {
     let viewModel = NodeSettingsViewModel()
     let send: (UUID, String, Duration) async throws -> String = { _, command, _ in
       switch responses[command] {
-      case let .success(response): return response
+      case let .success(response): response
       case let .failure(error): throw error
       case nil: throw RemoteNodeError.timeout
       }

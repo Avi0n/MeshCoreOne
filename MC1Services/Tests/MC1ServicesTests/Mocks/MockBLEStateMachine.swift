@@ -17,6 +17,8 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
   public var stubbedIsDeviceConnectedToSystem: Bool = false
   public var isDeviceConnectedToSystemHandler: (@Sendable (UUID) -> Bool)?
   public var stubbedDidStartAdoptingSystemConnectedPeripheral: Bool = false
+  private var claimsRestorationOnNextAdoption = false
+  private var releasesOwnershipAfterNextConnectedIDRead = false
 
   // MARK: - Protocol Properties
 
@@ -29,7 +31,21 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
   }
 
   public var connectedDeviceID: UUID? {
-    stubbedConnectedDeviceID
+    let identifier = stubbedConnectedDeviceID
+    if releasesOwnershipAfterNextConnectedIDRead {
+      // The restoration predicate compares the id returned below. Later reads
+      // belong to the handoff, which must see the phase already ended.
+      releasesOwnershipAfterNextConnectedIDRead = false
+      stubbedConnectedDeviceID = nil
+      stubbedIsAutoReconnecting = false
+      stubbedIsConnected = false
+      stubbedLinkDiagnostics = BLELinkDiagnostics(
+        centralState: stubbedLinkDiagnostics.centralState,
+        phase: .idle,
+        peripheralState: nil
+      )
+    }
+    return identifier
   }
 
   public var linkDiagnostics: BLELinkDiagnostics {
@@ -38,10 +54,6 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
 
   public var isBluetoothPoweredOff: Bool {
     stubbedIsBluetoothPoweredOff
-  }
-
-  public var hasAutoReconnectingHandler: Bool {
-    autoReconnectingHandler != nil
   }
 
   // MARK: - Recorded Invocations
@@ -55,12 +67,13 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
 
   // MARK: - Captured Handlers
 
-  private var autoReconnectingHandler: (@Sendable (UUID, String) -> Void)?
   private var bluetoothPoweredOnHandler: (@Sendable () -> Void)?
   private var bluetoothStateChangeHandler: (@Sendable (CBManagerState) -> Void)?
   private var deviceDiscoveredHandler: (@Sendable (UUID, String?, Int) -> Void)?
   public private(set) var recordedBondVerifications: [UUID: Date] = [:]
   public private(set) var appSessionLiveDeviceID: UUID?
+  public private(set) var writePacingDelay: TimeInterval = 0
+  private var currentSessionBinding: SessionTransportBinding?
 
   // MARK: - Initialization
 
@@ -82,18 +95,24 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
 
   public func startAdoptingSystemConnectedPeripheral(_ deviceID: UUID) -> Bool {
     startAdoptingSystemConnectedPeripheralCalls.append(deviceID)
+    if claimsRestorationOnNextAdoption {
+      claimsRestorationOnNextAdoption = false
+      stubbedIsAutoReconnecting = true
+      stubbedIsConnected = false
+      stubbedConnectedDeviceID = deviceID
+      stubbedLinkDiagnostics = BLELinkDiagnostics(
+        centralState: stubbedLinkDiagnostics.centralState,
+        phase: .restoringState,
+        peripheralState: "connected"
+      )
+      return false
+    }
     return stubbedDidStartAdoptingSystemConnectedPeripheral
   }
 
   public func activate() {
     activateCallCount += 1
   }
-
-  public func setAutoReconnectingHandler(_ handler: @escaping @Sendable (UUID, String) -> Void) {
-    autoReconnectingHandler = handler
-  }
-
-  public func setRemoteLinkLostHandler(_ handler: @escaping @Sendable (UUID, CFAbsoluteTime) -> Void) {}
 
   public func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void) {
     bluetoothPoweredOnHandler = handler
@@ -103,12 +122,31 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     recordedBondVerifications[deviceID] = date
   }
 
+  public func recordBondVerification(deviceID: UUID, at date: Date, sessionBinding: SessionTransportBinding) {
+    try? sessionBinding.performIfActive {
+      currentSessionBinding = sessionBinding
+      recordedBondVerifications[deviceID] = date
+    }
+  }
+
   public func clearBondVerification(deviceID: UUID) {
     recordedBondVerifications[deviceID] = nil
   }
 
   public func setAppSessionLive(deviceID: UUID?) {
     appSessionLiveDeviceID = deviceID
+  }
+
+  public func setAppSessionLive(deviceID: UUID?, sessionBinding: SessionTransportBinding) {
+    if deviceID == nil {
+      guard currentSessionBinding === sessionBinding else { return }
+      appSessionLiveDeviceID = nil
+    } else {
+      try? sessionBinding.performIfActive {
+        currentSessionBinding = sessionBinding
+        appSessionLiveDeviceID = deviceID
+      }
+    }
   }
 
   public func hasBondVerification(deviceID: UUID) -> Bool {
@@ -146,7 +184,14 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
   }
 
   public func setWritePacingDelay(_ delay: TimeInterval) {
-    // No-op for testing
+    writePacingDelay = delay
+  }
+
+  public func setWritePacingDelay(_ delay: TimeInterval, sessionBinding: SessionTransportBinding) {
+    try? sessionBinding.performIfActive {
+      currentSessionBinding = sessionBinding
+      writePacingDelay = delay
+    }
   }
 
   public private(set) var shutdownCallCount = 0
@@ -179,6 +224,8 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     stubbedIsDeviceConnectedToSystem = false
     isDeviceConnectedToSystemHandler = nil
     stubbedDidStartAdoptingSystemConnectedPeripheral = false
+    claimsRestorationOnNextAdoption = false
+    releasesOwnershipAfterNextConnectedIDRead = false
     activateCallCount = 0
     isDeviceConnectedToSystemCalls = []
     startAdoptingSystemConnectedPeripheralCalls = []
@@ -187,17 +234,13 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     isScanning = false
     appDidEnterBackgroundCallCount = 0
     appDidBecomeActiveCallCount = 0
-    autoReconnectingHandler = nil
     bluetoothPoweredOnHandler = nil
     bluetoothStateChangeHandler = nil
     deviceDiscoveredHandler = nil
     recordedBondVerifications = [:]
     appSessionLiveDeviceID = nil
-  }
-
-  /// Simulates auto-reconnecting event
-  public func simulateAutoReconnecting(deviceID: UUID, errorInfo: String = "none") {
-    autoReconnectingHandler?(deviceID, errorInfo)
+    currentSessionBinding = nil
+    writePacingDelay = 0
   }
 
   /// Simulates Bluetooth powered on event
@@ -241,6 +284,15 @@ extension MockBLEStateMachine {
 
   func setStubbedDidStartAdoptingSystemConnectedPeripheral(_ value: Bool) {
     stubbedDidStartAdoptingSystemConnectedPeripheral = value
+  }
+
+  /// The next `startAdoptingSystemConnectedPeripheral` loses to state restoration.
+  func claimRestorationOnNextAdoption() {
+    claimsRestorationOnNextAdoption = true
+  }
+
+  func releaseOwnershipAfterNextConnectedDeviceIDRead() {
+    releasesOwnershipAfterNextConnectedIDRead = true
   }
 
   func setStubbedPhase(_ value: BLEPhaseKind) {

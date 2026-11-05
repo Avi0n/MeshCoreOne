@@ -310,15 +310,33 @@ final class AppState {
   /// second `pickerUnavailable` is presented instead of rescheduled.
   var isFreshPairingForegroundRetry = false
 
+  struct FreshPairingOperation {
+    enum Source {
+      case explicitSwitch
+      case systemPairingSetup
+      case bondLossRecovery
+    }
+
+    let actionID: UUID
+    let source: Source
+    var requestID: UUID?
+  }
+
+  var freshPairingOperation: FreshPairingOperation?
+  var freshPairingTask: Task<Void, Never>?
+  var freshPairingForegroundRetryTask: Task<Void, Never>?
+
+  var isRecoveringPairing: Bool {
+    freshPairingOperation?.source == .bondLossRecovery
+  }
+
   /// Battery monitoring (polling, thresholds, low-battery notifications)
   let batteryMonitor = BatteryMonitor()
 
   /// Live Activity lifecycle (start/update/stop on Lock Screen and Dynamic Island)
   let liveActivityManager = LiveActivityManager()
 
-  /// Task chain that serializes BLE lifecycle transitions across scene-phase changes.
-  /// Do not cancel this task externally -- cancelling breaks the serialization
-  /// guarantee because Task<Void, Never>.value returns immediately on cancellation.
+  /// Task chain that joins each BLE lifecycle transition before starting the next.
   var bleLifecycleTransitionTask: Task<Void, Never>?
 
   /// Fallback task that re-runs foreground recovery shortly after activation when the
@@ -341,6 +359,10 @@ final class AppState {
   /// Task consuming SettingsService event stream, canceled on disconnect
   var settingsEventsTask: Task<Void, Never>?
 
+  private var connectionWiringJob: AppConnectionWiringJob?
+  private var wiredConnectionGeneration: UUID?
+  var radioWiFiSettingsRevision: UInt64 = 0
+
   /// Task consuming SyncCoordinator's data event stream, canceled on disconnect
   var syncDataEventsTask: Task<Void, Never>?
 
@@ -356,12 +378,13 @@ final class AppState {
     var bleBecomeActiveOverride: (@MainActor () async -> Void)?
     /// Parks power-off cleanup at the Live Activity await. Nil uses the real activity end.
     var powerOffEndActivityOverride: (@MainActor () async -> Void)?
+    var connectionWiringAfterCallbacks: (@MainActor (ConnectionSnapshot) async -> Void)?
   #endif
 
   // MARK: - Onboarding State
 
   /// Onboarding state (completion flag, navigation path)
-  let onboarding = OnboardingState()
+  let onboarding: OnboardingState
 
   // MARK: - What's New
 
@@ -403,7 +426,7 @@ final class AppState {
   let remoteAdminWorkspaces = RemoteAdminWorkspaces()
 
   /// Tracks the device ID for CLI state - reset CLI when device changes
-  private var lastConnectedDeviceIDForCLI: UUID?
+  private var lastWiredDevice: (deviceID: UUID, radioID: UUID)?
 
   // MARK: - Status Pill
 
@@ -412,6 +435,9 @@ final class AppState {
     if connectionUI.syncFailedPillVisible {
       return .failed(message: L10n.Localizable.StatusPill.syncFailed)
     }
+    let activity = connectionManager.connectionActivity
+    if activity?.phase == .reconnecting { return .reconnecting }
+    if activity?.phase == .waitingToReconnect { return .waitingToReconnect }
     if connectionState == .connected || connectionState == .syncing,
        connectionUI.currentSyncPhase == .messages, connectionUI.showMessageSyncPill {
       return .syncingMessages
@@ -452,6 +478,7 @@ final class AppState {
   ) {
     self.defaults = defaults
     self.conversationUnreadOperations = conversationUnreadOperations
+    onboarding = OnboardingState(defaults: defaults)
     draftStore = DraftStore(defaults: defaults)
 
     let store = StoreService()
@@ -463,6 +490,7 @@ final class AppState {
       ?? ConnectionManager(modelContainer: modelContainer, defaults: defaults)
     connectionUI = injectedConnectionUI ?? ConnectionUIState()
     connectionUI.hasSystemPairingRegistry = connectionManager.hasSystemPairingRegistry
+    batteryMonitor.configure(connectionManager: connectionManager)
 
     let bootstrapBuffer = DebugLogBuffer(dataStore: connectionManager.persistenceStore)
     bootstrapDebugLogBuffer = bootstrapBuffer
@@ -495,17 +523,18 @@ final class AppState {
     connectionManager.appStateProvider = AppStateProviderImpl()
 
     // Wire connection ready callback - automatically updates UI when connection completes
-    connectionManager.onConnectionReady = { [weak self] in
-      await self?.wireServicesIfConnected()
+    connectionManager.onConnectionReady = { [weak self] snapshot in
+      await self?.wireServices(for: snapshot)
     }
 
-    connectionManager.onConnectionBecameUsable = { [weak self] in
-      self?.connectionUI.showReadyToastBriefly()
+    connectionManager.onConnectionBecameUsable = { [weak self] snapshot in
+      guard let self, connectionManager.isCurrent(snapshot) else { return }
+      connectionUI.showReadyToastBriefly()
     }
 
     // Wire connection lost callback - updates UI when connection is lost
-    connectionManager.onConnectionLost = { [weak self] in
-      await self?.wireServicesIfConnected()
+    connectionManager.onConnectionLost = { [weak self] receipt in
+      await self?.handleConnectionLoss(receipt)
     }
 
     connectionManager.onLastConnectedDeviceCleared = { [weak self] in
@@ -517,8 +546,11 @@ final class AppState {
 
     // Wire auto-reconnect entry callback - reflects an out-of-range drop on the
     // Live Activity immediately, while connectionState is still .connecting.
-    connectionManager.onAutoReconnectStarted = { [weak self] in
-      await self?.liveActivityManager.handleConnectionLost()
+    connectionManager.onAutoReconnectStarted = { [weak self] receipt in
+      guard let self, connectionManager.isCurrent(receipt) else { return }
+      await liveActivityManager.handleConnectionLost { [weak self] in
+        self?.connectionManager.isCurrent(receipt) ?? false
+      }
     }
 
     // Wire background auth-failure callback - surfaces guided pairing-failure
@@ -532,8 +564,14 @@ final class AppState {
     }
 
     // Wire device synced callback - runs after sync completes and state is .ready
-    connectionManager.onDeviceSynced = { [weak self] hasCleanRecipientData in
-      await self?.handleDeviceSynced(hasCleanRecipientData: hasCleanRecipientData)
+    connectionManager.onDeviceSynced = { [weak self] snapshot, hasCleanRecipientData in
+      guard let self, connectionManager.isCurrent(snapshot) else { return }
+      await handleDeviceSynced(hasCleanRecipientData: hasCleanRecipientData)
+    }
+
+    connectionManager.onResyncFailed = { [weak self] snapshot in
+      guard let self, connectionManager.isCurrent(snapshot) else { return }
+      connectionUI.showSyncFailedPill()
     }
 
     loadPersistedRegionSelection()
@@ -558,6 +596,7 @@ final class AppState {
   /// listener, which otherwise leaks across a before-first-unlock `AppState` swap.
   /// Connection teardown stays on `ConnectionManager`.
   func shutdown() {
+    cancelFreshPairingOperation()
     cancelStaleNodeCleanup()
     flushChatDrafts()
     for editor in chatDraftEditors.values {
@@ -601,6 +640,9 @@ final class AppState {
   /// Cancels event tasks; the coordinator registry stays so an open chat
   /// keeps its timeline.
   func tearDownAppStateSessionState() {
+    connectionWiringJob?.cancel()
+    connectionWiringJob = nil
+    wiredConnectionGeneration = nil
     cancelStaleNodeCleanup()
     settingsEventsTask?.cancel()
     settingsEventsTask = nil
@@ -654,122 +696,162 @@ final class AppState {
     remoteAdminWorkspaces.reset()
   }
 
-  /// Wire services-dependent callbacks after a successful connection.
+  /// Reuses the installed connection; a loss receipt owns disconnect cleanup.
   func wireServicesIfConnected() async {
-    reconcileConnectionLinkSwitch()
-    guard let services else {
-      tearDownAppStateSessionState()
-      syncCoordinator = nil
-      connectionUI.handleDisconnect(
-        connectionState: connectionState,
-        lastConnectedDeviceID: connectionManager.lastConnectedDeviceID,
-        shouldSuppressDisconnectedPill: connectionManager.shouldSuppressDisconnectedPill
-      )
-      batteryMonitor.stop()
-      batteryMonitor.clearThresholds()
-      await liveActivityManager.handleConnectionLost()
-      lastBumpedServicesID = nil
+    guard let snapshot = connectionManager.currentConnection else { return }
+    await wireServices(for: snapshot)
+  }
+
+  func wireServices(for snapshot: ConnectionSnapshot) async {
+    guard !Task.isCancelled, connectionManager.isCurrent(snapshot) else { return }
+    if wiredConnectionGeneration == snapshot.generation {
+      await restartLiveActivityIfMissing()
       return
     }
+    if let job = connectionWiringJob, job.generation == snapshot.generation {
+      await job.wait()
+      return
+    }
+    connectionWiringJob?.cancel()
+    let jobID = UUID()
+    let job = AppConnectionWiringJob(id: jobID, generation: snapshot.generation) { [weak self] in
+      guard let self else { return }
+      defer {
+        if connectionWiringJob?.id == jobID { connectionWiringJob = nil }
+      }
+      guard !Task.isCancelled, connectionManager.isCurrent(snapshot) else { return }
+      await performConnectionWiring(snapshot)
+      guard !Task.isCancelled, connectionManager.isCurrent(snapshot) else { return }
+      wiredConnectionGeneration = snapshot.generation
+    }
+    connectionWiringJob = job
+    await job.wait()
+  }
 
-    // Reset transient sync UI before wiring awaits so a replacement connection
-    // cannot inherit activity, phase, or a Ready timer.
+  func handleConnectionLoss(_ receipt: ConnectionLossReceipt) async {
+    guard connectionManager.isCurrent(receipt) else { return }
+    reconcileConnectionLinkSwitch()
+    tearDownAppStateSessionState()
+    syncCoordinator = nil
+    connectionUI.handleDisconnect(
+      connectionState: connectionState,
+      lastConnectedDeviceID: connectionManager.lastConnectedDeviceID,
+      shouldSuppressDisconnectedPill: connectionManager.shouldSuppressDisconnectedPill
+    )
+    batteryMonitor.stop()
+    batteryMonitor.clearThresholds()
+    lastBumpedServicesID = nil
+    await liveActivityManager.handleConnectionLost { [weak self] in
+      self?.connectionManager.isCurrent(receipt) ?? false
+    }
+  }
+
+  private func performConnectionWiring(_ snapshot: ConnectionSnapshot) async {
+    let context = ConnectionCallbackContext(snapshot)
+    let services = snapshot.services
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
+    reconcileConnectionLinkSwitch()
     if syncCoordinator !== services.syncCoordinator {
       connectionUI.resetSyncState()
       syncCoordinator = services.syncCoordinator
     }
-
-    // The link is up, so drop any pairing-failure alert latched while
-    // backgrounded before it can present over a working connection.
     connectionUI.clearPairingFailure()
+    await connectionUI.wireCallbacks(snapshot: snapshot, connectionManager: connectionManager)
+    #if DEBUG
+      await connectionWiringAfterCallbacks?(snapshot)
+    #endif
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
 
-    // Wire ConnectionUI callbacks (sync activity, node storage, pills, VoiceOver)
-    // Must be set before onConnectionEstablished to avoid a race condition
-    await connectionUI.wireCallbacks(
-      syncCoordinator: services.syncCoordinator,
-      advertisementService: services.advertisementService,
-      contactService: services.contactService,
-      connectionManager: connectionManager
-    )
-
-    // On a device switch onConnectionLost doesn't fire, so the disconnect teardown that
-    // resets per-radio UI state is skipped. Reset the CLI and every per-radio detail selection
-    // here so neither carries the previous radio's state into the new session.
-    if let newDeviceID = connectedDevice?.id,
-       let oldDeviceID = lastConnectedDeviceIDForCLI,
-       newDeviceID != oldDeviceID {
+    if let previous = lastWiredDevice,
+       snapshot.device.id != previous.deviceID || snapshot.device.radioID != previous.radioID {
       resetRadioScopedToolWorkspaces()
       navigation.clearPerRadioSelection(preservingConnection: connectionLinkSwitch?.target != nil)
     }
-    lastConnectedDeviceIDForCLI = connectedDevice?.id
+    lastWiredDevice = (snapshot.device.id, snapshot.device.radioID)
     tracePathViewModel?.reattachIfWaiting()
     nodeDiscoveryViewModel?.reattachIfWaiting()
+    let radioID = snapshot.device.radioID
     await remoteAdminWorkspaces.rebind(
-      repeaterAdminService: { services.repeaterAdminService },
-      roomAdminService: { services.roomAdminService },
-      contactService: { services.contactService },
-      nodeSnapshotService: { services.nodeSnapshotService },
-      deviceHashSize: { [weak self] in self?.connectedDevice?.hashSize }
+      radioID: radioID,
+      repeaterAdminService: { [weak self] in
+        guard let self, context.isCurrent(self.connectionManager) else { return nil }
+        return self.connectionSnapshot(for: radioID)?.services.repeaterAdminService
+      },
+      roomAdminService: { [weak self] in
+        guard let self, context.isCurrent(self.connectionManager) else { return nil }
+        return self.connectionSnapshot(for: radioID)?.services.roomAdminService
+      },
+      contactService: { [weak self] in
+        guard let self, context.isCurrent(self.connectionManager) else { return nil }
+        return self.connectionSnapshot(for: radioID)?.services.contactService
+      },
+      nodeSnapshotService: { [weak self] in
+        guard let self, context.isCurrent(self.connectionManager) else { return nil }
+        return self.connectionSnapshot(for: radioID)?.services.nodeSnapshotService
+      },
+      deviceHashSize: { [weak self] in
+        guard let self, context.isCurrent(self.connectionManager) else { return nil }
+        return self.connectionSnapshot(for: radioID)?.device.hashSize
+      },
+      remoteNodeService: { [weak self] in
+        guard let self, context.isCurrent(self.connectionManager) else { return nil }
+        return self.connectionSnapshot(for: radioID)?.services.remoteNodeService
+      },
+      dataStore: { [weak self] in self?.offlineDataStore },
+      connectionState: { [weak self] in self?.connectionState ?? .disconnected },
+      isCurrent: { [weak self] in
+        guard let self else { return false }
+        return !Task.isCancelled && context.isCurrent(self.connectionManager)
+      }
     )
-
-    // Process-wide inline image cache learns where to persist probed dims.
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
     await InlineImageCache.shared.attachDimensionsStore(services.inlineImageDimensionsStore)
-
-    // Demo mode ships an inline image whose bytes are embedded offline; pre-seed the
-    // process-wide cache so the seeded DM renders it without a network fetch.
-    if connectedDevice?.id == MockDataProvider.simulatorDeviceID {
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
+    if snapshot.device.id == MockDataProvider.simulatorDeviceID {
       DemoInlineImageSeeder.seed()
     }
 
-    wireSyncDataEvents(services: services)
-    await wireSettingsEventStream(services: services)
-    await wireDeviceUpdateCallbacks(services: services)
-    wireMessageEvents(services: services)
-    await wireLiveActivityCallbacks(services: services)
-
+    wireSyncDataEvents(snapshot: snapshot)
+    await wireSettingsEventStream(snapshot: snapshot)
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
+    await wireDeviceUpdateCallbacks(snapshot: snapshot)
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
+    wireMessageEvents(snapshot: snapshot)
+    await wireLiveActivityCallbacks(snapshot: snapshot)
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
     await services.channelService.setSlotOccupantChangedHandler { [weak self] radioID, indices in
-      await self?.handleChannelSlotOccupantChanged(radioID: radioID, indices: indices)
+      await MainActor.run {
+        guard let self else { return }
+        self.handleChannelSlotOccupantChanged(radioID: radioID, indices: indices)
+      }
     }
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
 
-    // Bump the version (which drives `.task(id:)` reloads in chat, tools, and
-    // room views) only when the services container actually changed. A single
-    // connect both fires `onConnectionReady` and is followed by an explicit
-    // `wireServicesIfConnected()` call, and the Live Activity toggle re-wires the
-    // same container — none of those are a services change, so they must not
-    // trigger a reload.
     let servicesID = ObjectIdentifier(services)
     if lastBumpedServicesID != servicesID {
       lastBumpedServicesID = servicesID
       servicesVersion += 1
     }
-
-    // Set up notification center delegate, wire localized strings, then register categories
     UNUserNotificationCenter.current().delegate = services.notificationService
     services.notificationService.setStringProvider(NotificationStringProviderImpl())
     await services.notificationService.setup()
-
-    // Configure badge count callback
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
+    let capturedRadioID = snapshot.device.radioID
     services.notificationService.getBadgeCount = { [weak self, dataStore = services.dataStore] in
-      let radioID = await MainActor.run { self?.currentRadioID }
-      guard let radioID else {
-        return (contacts: 0, channels: 0, rooms: 0)
+      let radioID = await MainActor.run {
+        guard let self, context.isCurrent(self.connectionManager) else { return UUID?.none }
+        return capturedRadioID
       }
-      do {
-        return try await dataStore.getTotalUnreadCounts(radioID: radioID)
-      } catch {
-        return (contacts: 0, channels: 0, rooms: 0)
-      }
+      guard let radioID else { return (contacts: 0, channels: 0, rooms: 0) }
+      return await (try? dataStore.getTotalUnreadCounts(radioID: radioID)) ?? (contacts: 0, channels: 0, rooms: 0)
     }
-
-    // Seed the badge from persisted unread messages now that the callback is wired; otherwise
-    // badgeCount stays 0 until a message arrives or a chat opens and recomputes it.
-    await services.notificationService.updateBadgeCount()
-
-    // Configure notification interaction handlers
+    await services.notificationService.updateBadgeCount { [weak self] in
+      guard let self else { return false }
+      return context.isCurrent(connectionManager)
+    }
+    guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
     configureNotificationHandlers()
-
-    // Defer battery bootstrap so connection setup is not blocked by device request timeouts.
-    batteryMonitor.start(services: services, device: connectedDevice)
+    batteryMonitor.start(services: services, device: snapshot.device)
   }
 
   // MARK: - Stale Node Cleanup

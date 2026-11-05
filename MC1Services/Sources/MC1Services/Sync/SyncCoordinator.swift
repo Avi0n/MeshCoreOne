@@ -251,6 +251,13 @@ public actor SyncCoordinator {
     /// Nil stands in for a thrown sync. A completed result keeps its eligibility.
     var performResyncOverride: ((_ radioID: UUID, _ dependencies: SyncDependencies) async -> FullSyncResult?)?
 
+    /// Runs immediately before the real message save. Nil leaves that save unchanged.
+    var testBeforeMessageSave: (@Sendable (MessageDTO) async -> Void)?
+
+    func setTestBeforeMessageSave(_ hook: (@Sendable (MessageDTO) async -> Void)?) {
+      testBeforeMessageSave = hook
+    }
+
     /// Sets the test override for `performResync`.
     func setPerformResyncOverride(
       _ override: @escaping @Sendable (_ radioID: UUID, _ dependencies: SyncDependencies) async -> FullSyncResult?
@@ -258,6 +265,13 @@ public actor SyncCoordinator {
       performResyncOverride = override
     }
   #endif
+
+  /// Parks an admitted save when a test hook is installed. Release builds return immediately.
+  func runTestBeforeMessageSave(_ message: MessageDTO) async {
+    #if DEBUG
+      await testBeforeMessageSave?(message)
+    #endif
+  }
 
   // MARK: - Initialization
 

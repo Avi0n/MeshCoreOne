@@ -439,7 +439,8 @@ struct ConnectionManagerPairingTests {
       await store.setRadioEraseFaults(begin: nil, complete: { throw InjectedFailure.save })
     }
     await transport.holdNextSend()
-    let reset = Task { try await manager.factoryResetAndEraseRadio() }
+    let context = try #require(manager.captureCurrentRemoval())
+    let reset = Task { try await manager.factoryResetAndEraseRadio(context) }
     try await waitUntil("factory reset reaches transport") { await transport.sendIsWaiting }
     #expect(try await store.fetchPendingRadioErases().first?.radioID == radio.radioID)
     #expect(await Array(transport.sentData.dropFirst()) == [PacketBuilder.factoryReset()])
@@ -598,7 +599,8 @@ struct ConnectionManagerPairingTests {
     manager.persistConnection(deviceID: device.id, radioID: device.radioID, deviceName: device.nodeName)
     #expect(manager.lastConnectedDeviceID == device.id)
 
-    try await manager.forgetDevice(deleteData: true)
+    let context = try #require(manager.captureCurrentRemoval())
+    _ = try await manager.forgetDevice(context, deleteData: true)
 
     // The auto-reconnect / onboarding-resume signal must not survive forgetting its own radio.
     #expect(manager.lastConnectedDeviceID == nil)

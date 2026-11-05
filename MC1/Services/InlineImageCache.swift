@@ -100,6 +100,7 @@ actor InlineImageCache {
   /// Registers the persistence sink for successful probes. Held strongly;
   /// later calls overwrite the reference so each connection's store wins.
   func attachDimensionsStore(_ store: InlineImageDimensionsStore) {
+    guard !Task.isCancelled else { return }
     dimensionsStore = store
   }
 

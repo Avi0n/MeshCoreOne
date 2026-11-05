@@ -447,7 +447,12 @@ public extension PersistenceStore {
       message.failureSeen = false
     }
     message.status = status
-    try modelContext.save()
+    do {
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
     return true
   }
 
@@ -543,7 +548,12 @@ public extension PersistenceStore {
       message.ackCode = ackCode
       message.status = status
       message.roundTripTime = roundTripTime
-      try modelContext.save()
+      do {
+        try modelContext.save()
+      } catch {
+        modelContext.rollback()
+        throw error
+      }
     }
   }
 

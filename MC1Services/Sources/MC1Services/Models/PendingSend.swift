@@ -1,41 +1,10 @@
 import Foundation
 import SwiftData
 
-/// Persistent record of an envelope queued for send. Survives process death
-/// so `SendQueue` resumes draining after the app restarts.
-///
-/// Rows are scoped to a single radio via `radioID` so reconnecting to a
-/// different radio does not attempt to send envelopes whose messages live
-/// in a different radio's data partition.
-///
-/// `sequence` is a per-radio monotonic counter assigned by
-/// `PersistenceStore.insertPendingSendAssigningSequence(_:)` at enqueue
-/// time. `fetchPendingSends` orders by `sequence` ascending so drain order
-/// across process death matches the original enqueue order.
-///
-/// Storage type choices align with `Message` (UInt32 timestamp,
-/// UInt8? channelIndex) so future readers don't pay an `Int` conversion
-/// hop on every read/write.
-///
-/// PendingSend uses a discriminated single-table design (`kindRawValue`
-/// selects DM vs. channel) rather than two parallel @Model classes. No
-/// other @Model in MC1 follows this pattern, but the alternative — two
-/// tables with two sets of CRUD — adds far more surface than the ≤6
-/// optional fields per variant justify. Documenting the choice here so
-/// future maintainers don't re-evaluate it from scratch.
+/// Durable send work partitioned by Radio ID and ordered by a per-radio sequence.
+/// ACK metadata retains delivery tracking after command issuance ends.
 @Model
 public final class PendingSend {
-  // Compound indexes targeting the two hot fetch paths:
-  // - `(radioID, sequence)` powers `fetchPendingSends(radioID:)`'s
-  //    ordered scan during hydrate-on-configure.
-  // - `messageID` alone powers `deletePendingSendsForMessage(...)`,
-  //    which runs on every successful send and every non-cancellation
-  //    error — i.e., the highest-frequency read path on this table.
-  //    Radio is intentionally not part of this index because the
-  //    drain-time delete must succeed regardless of which radio is
-  //    currently in scope.
-  // The uniqueness on `id` already produces an implicit index for the
-  // `deletePendingSend(id:)` path, so no third compound is needed.
   #Index<PendingSend>([\.radioID, \.sequence], [\.messageID])
 
   @Attribute(.unique)
@@ -44,12 +13,12 @@ public final class PendingSend {
   public var radioID: UUID
   public var messageID: UUID
 
-  /// Discriminator: 0 = DM, 1 = channel. See `PendingSendKind`.
   public var kindRawValue: Int
 
   public var contactID: UUID?
   public var channelIndex: UInt8?
   public var isResend: Bool
+  public var isSingleAttempt: Bool = false
 
   public var messageText: String
   public var messageTimestamp: UInt32
@@ -58,30 +27,16 @@ public final class PendingSend {
   public var sequence: Int
   public var enqueuedAt: Date
 
-  /// Number of drain attempts the send queue has progressed past the
-  /// `hasPendingSend` gate for this row. Bumped at the top of each drain
-  /// attempt, before any wire-affecting work. Three distinguishable states:
-  ///
-  /// - `nil`     — pre-migration row, lightweight-migrated from a schema
-  ///               version without this column. Drain history is ambiguous,
-  ///               so `purgeLegacyAttemptCountRows` in
-  ///               `PersistenceStore.warmUp()` deletes these on connect.
-  /// - `0`       — row that has been persisted but has not yet progressed
-  ///               past the top-of-drain bump (either fresh enqueue in
-  ///               flight, or process death between persist and bump).
-  ///               The recipient cannot have seen this packet, so the
-  ///               next drain stamps a fresh wire timestamp
-  ///               (`preserveTimestamp = false`).
-  /// - positive  — at least one drain attempt has run. A wire send may
-  ///               already have happened, so auto-retries must preserve the
-  ///               original wire timestamp via `postBumpCount > 1`.
-  ///
-  /// PendingSendDTO is `Sendable, Hashable, Identifiable` only — intentionally
-  /// not Codable, intentionally excluded from AppBackupEnvelope — so there
-  /// is no on-disk wire format to defend against. The only "legacy" data is
-  /// live SwiftData rows persisted by a build that predates this field,
-  /// which lightweight migration maps to `nil` and warmUp purges on connect.
+  /// Persisted before issuing a command so recovery knows whether to reuse the wire timestamp.
+  /// `nil` marks legacy rows with ambiguous send history; warm-up purges them.
+  /// `0` permits a fresh timestamp because no attempt has started. A positive count
+  /// means transmission may have started, so replay preserves the timestamp.
   public var attemptCount: Int?
+
+  /// Non-nil ACK metadata changes this row from queued work to delivery tracking without retransmission.
+  public var ackCodes: [Data]?
+  public var ackSentAt: Date?
+  public var ackDeadline: Date?
 
   public init(
     id: UUID,
@@ -96,7 +51,11 @@ public final class PendingSend {
     localNodeName: String?,
     sequence: Int,
     enqueuedAt: Date,
-    attemptCount: Int? = nil
+    attemptCount: Int? = nil,
+    ackCodes: [Data]? = nil,
+    ackSentAt: Date? = nil,
+    ackDeadline: Date? = nil,
+    isSingleAttempt: Bool = false
   ) {
     self.id = id
     self.radioID = radioID
@@ -105,12 +64,16 @@ public final class PendingSend {
     self.contactID = contactID
     self.channelIndex = channelIndex
     self.isResend = isResend
+    self.isSingleAttempt = isSingleAttempt
     self.messageText = messageText
     self.messageTimestamp = messageTimestamp
     self.localNodeName = localNodeName
     self.sequence = sequence
     self.enqueuedAt = enqueuedAt
     self.attemptCount = attemptCount
+    self.ackCodes = ackCodes
+    self.ackSentAt = ackSentAt
+    self.ackDeadline = ackDeadline
   }
 
   var kind: PendingSendKind {
@@ -118,25 +81,13 @@ public final class PendingSend {
   }
 }
 
-/// Discriminator for which `SendQueue` a row drains into.
-///
-/// Raw values are pinned explicitly per CLAUDE.md "Backup and restore" —
-/// even though `PendingSendDTO` is excluded from `AppBackupEnvelope`, the
-/// discriminator IS persisted via `kindRawValue` and a future case rename
-/// must not silently change the on-disk format.
+/// Raw values persist in `kindRawValue` and must survive case renames.
 enum PendingSendKind: Int {
   case dm = 0
   case channel = 1
 }
 
-/// Sendable DTO mirror of `PendingSend`. Raw `@Model` instances never leave
-/// `PersistenceStore`.
-///
-/// Intentionally non-Codable: pending sends are transient queue state and
-/// are excluded from `AppBackupEnvelope` by design. Restoring a pending
-/// send from backup would replay a message that may have already been
-/// delivered on the radio, so the DTO does not flow through backup-
-/// envelope encoding paths.
+/// Excluded from `AppBackupEnvelope` because restoring pending work could replay a delivered send.
 public struct PendingSendDTO: Sendable, Hashable, Identifiable {
   public let id: UUID
   public let radioID: UUID
@@ -145,16 +96,17 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
   public let contactID: UUID?
   public let channelIndex: UInt8?
   public let isResend: Bool
+  public let isSingleAttempt: Bool
   public let messageText: String
   public let messageTimestamp: UInt32
   public let localNodeName: String?
   public let sequence: Int
   public let enqueuedAt: Date
-  /// See `PendingSend.attemptCount` for the three-state semantics. The DTO
-  /// memberwise init defaults this to `0` (current-build sentinel) so
-  /// new envelopes enter disk distinguishable from pre-migration rows that
-  /// lightweight-migrate to `nil`.
+  /// Zero distinguishes new sends from legacy rows migrated to nil.
   public let attemptCount: Int?
+  public let ackCodes: [Data]?
+  public let ackSentAt: Date?
+  public let ackDeadline: Date?
 
   init(
     id: UUID,
@@ -169,7 +121,11 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     localNodeName: String?,
     sequence: Int,
     enqueuedAt: Date,
-    attemptCount: Int? = 0
+    attemptCount: Int? = 0,
+    ackCodes: [Data]? = nil,
+    ackSentAt: Date? = nil,
+    ackDeadline: Date? = nil,
+    isSingleAttempt: Bool = false
   ) {
     self.id = id
     self.radioID = radioID
@@ -178,12 +134,16 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     self.contactID = contactID
     self.channelIndex = channelIndex
     self.isResend = isResend
+    self.isSingleAttempt = isSingleAttempt
     self.messageText = messageText
     self.messageTimestamp = messageTimestamp
     self.localNodeName = localNodeName
     self.sequence = sequence
     self.enqueuedAt = enqueuedAt
     self.attemptCount = attemptCount
+    self.ackCodes = ackCodes
+    self.ackSentAt = ackSentAt
+    self.ackDeadline = ackDeadline
   }
 }
 
@@ -202,7 +162,11 @@ public extension PendingSend {
       localNodeName: dto.localNodeName,
       sequence: dto.sequence,
       enqueuedAt: dto.enqueuedAt,
-      attemptCount: dto.attemptCount
+      attemptCount: dto.attemptCount,
+      ackCodes: dto.ackCodes,
+      ackSentAt: dto.ackSentAt,
+      ackDeadline: dto.ackDeadline,
+      isSingleAttempt: dto.isSingleAttempt
     )
   }
 
@@ -220,7 +184,11 @@ public extension PendingSend {
       localNodeName: localNodeName,
       sequence: sequence,
       enqueuedAt: enqueuedAt,
-      attemptCount: attemptCount
+      attemptCount: attemptCount,
+      ackCodes: ackCodes,
+      ackSentAt: ackSentAt,
+      ackDeadline: ackDeadline,
+      isSingleAttempt: isSingleAttempt
     )
   }
 }

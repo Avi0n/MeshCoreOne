@@ -8,6 +8,55 @@ import Testing
 /// exercising the complete data flow rather than manually constructed envelopes.
 @Suite("BackupIntegration")
 struct BackupIntegrationTests {
+  @Test(arguments: [RemoteNodeRole.sensor, .repeater, .roomServer])
+  func `remote roles and legacy pins survive envelope import`(role: RemoteNodeRole) async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let original = RemoteNodeSessionDTO.testSession(radioID: radioID, role: role,
+                                                    isConnected: true, permissionLevel: .admin, isPinned: true)
+    try await store.saveRemoteNodeSessionDTO(original)
+    let service = AppBackupService()
+    let exported = try await service.export(persistenceStore: store)
+    let exportedEnvelope = try parseBackup(data: exported.data)
+    let exportedJSON = try makeBackupJSONEncoder().encode(exportedEnvelope)
+    var json = try #require(JSONSerialization.jsonObject(with: exportedJSON) as? [String: Any])
+    var rows = try #require(json["remoteNodeSessions"] as? [[String: Any]])
+    rows[0].removeValue(forKey: "isPinned")
+    rows[0]["isFavorite"] = true
+    json["remoteNodeSessions"] = rows
+    let legacy = try JSONSerialization.data(withJSONObject: json)
+    let envelope = try parseBackup(data: legacy.zlibCompressed())
+    let destination = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    _ = try await service.importBackup(envelope: envelope, into: destination)
+    let restored = try #require(try await destination.fetchRemoteNodeSessions(radioID: radioID).first)
+    #expect(restored.role == role)
+    #expect(!restored.isConnected)
+    #expect(restored.isPinned)
+    rows[0]["isPinned"] = false
+    json["remoteNodeSessions"] = rows
+    let explicitFalse = try parseBackup(data: JSONSerialization.data(withJSONObject: json).zlibCompressed())
+    #expect(explicitFalse.remoteNodeSessions[0].isPinned == false)
+  }
+
+  @Test(arguments: [UInt8(4), UInt8(0x7F)])
+  func `sensor and unknown contact and discovery types survive backup`(raw: UInt8) async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID, typeRawValue: raw)
+    try await store.saveContact(contact)
+    let frame = ContactFrame(publicKey: contact.publicKey, type: ContactType(rawValue: raw) ?? .chat,
+                             typeRawValue: raw, flags: 0, outPathLength: 0xFF, outPath: Data(),
+                             name: "Sensor", lastAdvertTimestamp: 0, latitude: 0, longitude: 0, lastModified: 0)
+    _ = try await store.upsertDiscoveredNode(radioID: radioID, from: frame)
+    let service = AppBackupService()
+    let exported = try await service.export(persistenceStore: store)
+    let envelope = try parseBackup(data: exported.data)
+    let destination = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    _ = try await service.importBackup(envelope: envelope, into: destination)
+    #expect(try await destination.fetchAllContacts(radioID: radioID).first?.typeRawValue == raw)
+    #expect(try await destination.fetchDiscoveredNodes(radioID: radioID).first?.typeRawValue == raw)
+  }
+
   @Test
   @MainActor
   func `legacy WiFi ordering survives backup round trip without changing the selected endpoint`() async throws {
@@ -182,18 +231,18 @@ struct BackupIntegrationTests {
   /// `decodeIfPresent` legacy path). An unmodeled type byte must survive verbatim so a
   /// future refactor can't silently re-collapse it onto a modeled `ContactType`.
   @Test
-  func `Unmodeled contact type byte (0x04) survives DTO encode → decode round-trip`() throws {
-    let dto = ContactDTO.testContact(typeRawValue: 0x04)
+  func `Unmodeled contact type byte (0x7F) survives DTO encode → decode round-trip`() throws {
+    let dto = ContactDTO.testContact(typeRawValue: 0x7F)
     let encoded = try JSONEncoder().encode(dto)
     let decoded = try JSONDecoder().decode(ContactDTO.self, from: encoded)
-    #expect(decoded.typeRawValue == 0x04)
+    #expect(decoded.typeRawValue == 0x7F)
     #expect(decoded.type == .chat)
   }
 
   /// Full envelope path: an unmodeled type byte must survive export → import into a fresh store,
   /// not just an isolated DTO round-trip.
   @Test
-  func `Unmodeled contact type byte (0x04) survives full backup export → import`() async throws {
+  func `Unmodeled contact type byte (0x7F) survives full backup export → import`() async throws {
     let radioID = UUID()
     let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
 
@@ -201,7 +250,7 @@ struct BackupIntegrationTests {
       radioID: radioID,
       publicKey: Data(repeating: 0xAB, count: 32),
       name: "FutureType",
-      typeRawValue: 0x04
+      typeRawValue: 0x7F
     )
     try await sourceStore.saveContact(contact)
 
@@ -214,7 +263,7 @@ struct BackupIntegrationTests {
     _ = try await service.importBackup(envelope: envelope, into: destStore)
 
     let destContacts = try await destStore.fetchAllContacts(radioID: radioID)
-    #expect(destContacts.first?.typeRawValue == 0x04)
+    #expect(destContacts.first?.typeRawValue == 0x7F)
     #expect(destContacts.first?.type == .chat)
   }
 
@@ -2409,6 +2458,249 @@ struct BackupIntegrationTests {
     #expect(decoded.longitude == -122.4194)
   }
 
+  @Test
+  func `Self telemetry owner and coordinates survive DTO encode and decode`() throws {
+    let owner = UUID()
+    let dto = NodeStatusSnapshotDTO.testSnapshot(
+      nodePublicKey: Data(repeating: 0xAB, count: 32),
+      selfRadioID: owner,
+      latitude: 47.6062,
+      longitude: -122.3321,
+      altitude: 15
+    )
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: JSONEncoder().encode(dto))
+    #expect(decoded.selfRadioID == owner)
+    #expect(decoded.latitude == 47.6062)
+    #expect(decoded.longitude == -122.3321)
+    #expect(decoded.altitude == 15)
+  }
+
+  @Test
+  func `Legacy snapshot envelope without a self owner decodes it as nil`() throws {
+    let dto = NodeStatusSnapshotDTO.testSnapshot(
+      selfRadioID: UUID(),
+      latitude: 47.6062,
+      longitude: -122.3321
+    )
+    let encoded = try JSONEncoder().encode(dto)
+    var json = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json.removeValue(forKey: "selfRadioID")
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(NodeStatusSnapshotDTO.self, from: stripped)
+    #expect(decoded.selfRadioID == nil)
+    #expect(decoded.latitude == 47.6062)
+    #expect(decoded.batteryMillivolts == 3800)
+  }
+
+  @Test
+  func `Import remaps a self telemetry owner and keeps a same-key remote row`() async throws {
+    let sharedKey = Data(repeating: 0xD1, count: 32)
+    let nodeKey = Data(repeating: 0xD2, count: 32)
+    let localRadioID = UUID()
+    let backupRadioID = UUID()
+    let timestamp = Date(timeIntervalSince1970: 1_700_000_900)
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let dest = PersistenceStore(modelContainer: container)
+    try await dest.saveDevice(DeviceDTO.testDevice(id: UUID(), radioID: localRadioID, publicKey: sharedKey))
+
+    let selfRow = NodeStatusSnapshotDTO.testSnapshot(
+      timestamp: timestamp,
+      nodePublicKey: nodeKey,
+      selfRadioID: backupRadioID,
+      batteryMillivolts: nil,
+      uptimeSeconds: nil,
+      telemetryEntries: [TelemetrySnapshotEntry(channel: 1, type: "voltage", value: 4.1)],
+      latitude: 47.6062,
+      longitude: -122.3321,
+      altitude: 12
+    )
+    let remoteRow = NodeStatusSnapshotDTO.testSnapshot(
+      timestamp: timestamp,
+      nodePublicKey: nodeKey,
+      batteryMillivolts: 3700,
+      uptimeSeconds: 60
+    )
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: UUID(), radioID: backupRadioID, publicKey: sharedKey)],
+      nodeStatusSnapshots: [selfRow, remoteRow]
+    )
+
+    let result = try await AppBackupService().importBackup(envelope: envelope, into: dest)
+    #expect(result.nodeStatusSnapshotsInserted == 2)
+
+    let selfRows = try await dest.fetchSelfTelemetrySnapshots(
+      radioID: localRadioID,
+      nodePublicKey: nodeKey
+    )
+    #expect(selfRows.count == 1)
+    #expect(selfRows.first?.selfRadioID == localRadioID)
+    #expect(selfRows.first?.latitude == 47.6062)
+    #expect(selfRows.first?.altitude == 12)
+    let remote = try await dest.fetchNodeStatusSnapshots(nodePublicKey: nodeKey, since: nil)
+    #expect(remote.count == 1)
+    #expect(remote.first?.selfRadioID == nil)
+    #expect(remote.first?.uptimeSeconds == 60)
+    let unmapped = try await dest.fetchSelfTelemetrySnapshots(
+      radioID: backupRadioID,
+      nodePublicKey: nodeKey
+    )
+    #expect(unmapped.isEmpty)
+  }
+
+  @Test
+  func `Import skips a self telemetry owner that does not resolve to a device`() async throws {
+    let radioID = UUID()
+    let dest = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let orphan = NodeStatusSnapshotDTO.testSnapshot(
+      nodePublicKey: Data(repeating: 0xE1, count: 32),
+      selfRadioID: UUID(),
+      latitude: 47.6,
+      longitude: -122.3
+    )
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      nodeStatusSnapshots: [orphan]
+    )
+
+    let result = try await AppBackupService().importBackup(envelope: envelope, into: dest)
+    #expect(result.nodeStatusSnapshotsInserted == 0)
+    #expect(result.nodeStatusSnapshotsSkipped == 1)
+    let exported = try await dest.fetchBackupExportSnapshot()
+    #expect(exported.nodeStatusSnapshots.contains { $0.id == orphan.id } == false)
+  }
+
+  @Test
+  func `Repeated self telemetry import does not duplicate or rewrite a row`() async throws {
+    let radioID = UUID()
+    let nodeKey = Data(repeating: 0xE2, count: 32)
+    let timestamp = Date(timeIntervalSince1970: 1_700_000_950)
+    let dest = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let original = NodeStatusSnapshotDTO.testSnapshot(
+      timestamp: timestamp,
+      nodePublicKey: nodeKey,
+      selfRadioID: radioID,
+      latitude: 47.6062,
+      longitude: -122.3321,
+      altitude: 9
+    )
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      nodeStatusSnapshots: [original]
+    )
+    let service = AppBackupService()
+    let first = try await service.importBackup(envelope: envelope, into: dest)
+    #expect(first.nodeStatusSnapshotsInserted == 1)
+
+    let second = try await service.importBackup(envelope: envelope, into: dest)
+    #expect(second.nodeStatusSnapshotsInserted == 0)
+    #expect(second.nodeStatusSnapshotsSkipped == 1)
+
+    let replay = NodeStatusSnapshotDTO.testSnapshot(
+      timestamp: timestamp,
+      nodePublicKey: nodeKey,
+      selfRadioID: radioID,
+      latitude: 1,
+      longitude: 2
+    )
+    let replayEnvelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      nodeStatusSnapshots: [replay]
+    )
+    let third = try await service.importBackup(envelope: replayEnvelope, into: dest)
+    #expect(third.nodeStatusSnapshotsInserted == 0)
+    #expect(third.nodeStatusSnapshotsSkipped == 1)
+
+    let rows = try await dest.fetchSelfTelemetrySnapshots(radioID: radioID, nodePublicKey: nodeKey)
+    #expect(rows.count == 1)
+    #expect(rows.first?.id == original.id)
+    #expect(rows.first?.latitude == 47.6062)
+  }
+
+  @Test
+  func `Deleting a restored device removes its remapped self telemetry from the next export`() async throws {
+    let localRadioID = UUID()
+    let backupRadioID = UUID()
+    let publicKey = Data(repeating: 0x01, count: 32)
+    let dest = try await PersistenceStore.createTestDataStore(radioID: localRadioID)
+    let snapshot = NodeStatusSnapshotDTO.testSnapshot(
+      nodePublicKey: publicKey,
+      selfRadioID: backupRadioID,
+      latitude: 47.6062,
+      longitude: -122.3321,
+      altitude: 4
+    )
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: UUID(), radioID: backupRadioID, publicKey: publicKey)],
+      nodeStatusSnapshots: [snapshot]
+    )
+    let service = AppBackupService()
+    let imported = try await service.importBackup(envelope: envelope, into: dest)
+    #expect(imported.nodeStatusSnapshotsInserted == 1)
+
+    try await dest.deleteDeviceAndData(id: localRadioID)
+    let exported = try await parseBackup(data: service.export(persistenceStore: dest).data)
+    #expect(exported.nodeStatusSnapshots.contains { $0.id == snapshot.id } == false)
+    #expect(exported.version == AppBackupEnvelope.legacyVersion)
+  }
+
+  @Test
+  func `Reimporting a pre-reconciliation backup keeps the adopted self telemetry owner`() async throws {
+    let currentID = UUID()
+    let departingRadioID = UUID()
+    let adoptedRadioID = UUID()
+    let departingKey = Data(repeating: 0x11, count: 32)
+    let adoptedKey = Data(repeating: 0x22, count: 32)
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let current = DeviceDTO.testDevice(
+      id: currentID,
+      radioID: departingRadioID,
+      publicKey: departingKey,
+      isActive: true
+    )
+    try await store.saveDevice(current)
+    let snapshotID = try #require(
+      try await store.recordSelfTelemetrySnapshot(
+        deviceID: currentID,
+        radioID: departingRadioID,
+        nodePublicKey: departingKey,
+        telemetry: [TelemetrySnapshotEntry(channel: 1, type: "voltage", value: 4.4)],
+        location: NodeLocationFix(latitude: 36.1, longitude: -115.1, altitude: 600)
+      )
+    )
+
+    let service = AppBackupService()
+    let before = try await parseBackup(data: service.export(persistenceStore: store).data)
+    #expect(before.version == AppBackupEnvelope.currentVersion)
+    #expect(before.nodeStatusSnapshots.first?.id == snapshotID)
+    #expect(before.nodeStatusSnapshots.first?.selfRadioID == departingRadioID)
+
+    let ghost = DeviceDTO.testDevice(
+      radioID: adoptedRadioID,
+      publicKey: adoptedKey,
+      isActive: false
+    ).copy { $0.connectionMethods = [] }
+    try await store.saveDevice(ghost)
+    let adopted = try await store.reconcileGhostIdentity(currentDeviceID: currentID, newPublicKey: adoptedKey)
+    #expect(adopted == adoptedRadioID)
+
+    let reimport = try await service.importBackup(envelope: before, into: store)
+    #expect(reimport.nodeStatusSnapshotsInserted == 0)
+    #expect(reimport.nodeStatusSnapshotsSkipped == 1)
+    let kept = try await store.fetchSelfTelemetrySnapshots(
+      radioID: adoptedRadioID,
+      nodePublicKey: departingKey
+    )
+    #expect(kept.count == 1)
+    #expect(kept.first?.id == snapshotID)
+    #expect(kept.first?.selfRadioID == adoptedRadioID)
+    #expect(kept.first?.latitude == 36.1)
+
+    try await store.deleteDeviceAndData(id: currentID)
+    let after = try await store.fetchBackupExportSnapshot()
+    #expect(after.nodeStatusSnapshots.contains { $0.id == snapshotID } == false)
+  }
+
   /// Full envelope path: the six counters must survive export → import into a fresh store.
   @Test
   func `Node status packet-type counters survive full backup export → import`() async throws {
@@ -3722,12 +4014,12 @@ struct BackupIntegrationTests {
 
   @Test
   func `Legacy envelope without regionSelection decodes as nil`() throws {
-    let legacyJSON = """
+    let legacyJSON = try #require("""
     {
         "hasCompletedOnboarding": true,
         "mapStyleSelection": "topo"
     }
-    """.data(using: .utf8)!
+    """.data(using: .utf8))
     let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
     #expect(decoded.regionSelection == nil)
     #expect(decoded.hasCompletedOnboarding == true)
@@ -3781,12 +4073,12 @@ struct BackupIntegrationTests {
 
   @Test
   func `Legacy envelope without translationTargetLanguage decodes as nil`() throws {
-    let legacyJSON = """
+    let legacyJSON = try #require("""
     {
         "hasCompletedOnboarding": true,
         "mapStyleSelection": "topo"
     }
-    """.data(using: .utf8)!
+    """.data(using: .utf8))
     let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
     #expect(decoded.translationTargetLanguage == nil)
   }
@@ -3806,12 +4098,12 @@ struct BackupIntegrationTests {
 
   @Test
   func `Legacy envelope without useDefaultTranslationApp decodes as nil`() throws {
-    let legacyJSON = """
+    let legacyJSON = try #require("""
     {
         "hasCompletedOnboarding": true,
         "mapStyleSelection": "topo"
     }
-    """.data(using: .utf8)!
+    """.data(using: .utf8))
     let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
     #expect(decoded.useDefaultTranslationApp == nil)
   }
@@ -3834,6 +4126,44 @@ struct BackupIntegrationTests {
     #expect(setKeys.contains(AppStorageKey.useDefaultTranslationApp.rawValue))
     #expect(defaults.string(forKey: AppStorageKey.translationTargetLanguage.rawValue) == "da")
     #expect(defaults.bool(forKey: AppStorageKey.useDefaultTranslationApp.rawValue) == true)
+  }
+
+  // MARK: - DM attempt budget backup contract
+
+  @Test
+  func `DM attempt budget including explicit zero survives a full backup envelope`() throws {
+    var preferences = BackupUserDefaults()
+    preferences.dmDirectAttempts = 2
+    preferences.dmFloodAttempts = 0
+    let original = AppBackupEnvelope.test(version: AppBackupEnvelope.legacyVersion, userDefaults: preferences)
+    let encoded = try makeBackupJSONEncoder().encode(original)
+    let envelope = try parseBackup(data: encoded.zlibCompressed())
+    let decoded = try #require(envelope.userDefaults)
+    #expect(decoded == preferences)
+
+    let suiteName = "test.dmBudget.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    decoded.restore(to: defaults)
+
+    let budget = DMSendBudget.current(defaults: defaults)
+    #expect(budget.directAttempts == 2)
+    #expect(budget.floodAttempts == 0)
+  }
+
+  @Test
+  func `legacy backup envelope preserves missing DM attempt settings`() throws {
+    let original = AppBackupEnvelope.test(version: AppBackupEnvelope.legacyVersion)
+    let encoded = try makeBackupJSONEncoder().encode(original)
+    var json = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json["userDefaults"] = ["hasCompletedOnboarding": true]
+    let legacy = try JSONSerialization.data(withJSONObject: json).zlibCompressed()
+
+    let decoded = try parseBackup(data: legacy)
+    let preferences = try #require(decoded.userDefaults)
+    #expect(preferences.hasCompletedOnboarding == true)
+    #expect(preferences.dmDirectAttempts == nil)
+    #expect(preferences.dmFloodAttempts == nil)
   }
 
   // MARK: - Message.regionScope round-trip
@@ -4194,9 +4524,9 @@ struct BackupIntegrationTests {
 
   @Test
   func `Legacy envelope without selectedThemeID decodes as nil`() throws {
-    let legacyJSON = """
+    let legacyJSON = try #require("""
     { "hasCompletedOnboarding": true, "mapStyleSelection": "topo" }
-    """.data(using: .utf8)!
+    """.data(using: .utf8))
     let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
     #expect(decoded.selectedThemeID == nil)
     #expect(decoded.hasCompletedOnboarding == true)
@@ -4227,9 +4557,9 @@ struct BackupIntegrationTests {
 
   @Test
   func `Legacy envelope without appColorSchemePreference decodes as nil`() throws {
-    let legacyJSON = """
+    let legacyJSON = try #require("""
     { "hasCompletedOnboarding": true, "mapStyleSelection": "topo" }
-    """.data(using: .utf8)!
+    """.data(using: .utf8))
     let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
     #expect(decoded.appColorSchemePreference == nil)
   }

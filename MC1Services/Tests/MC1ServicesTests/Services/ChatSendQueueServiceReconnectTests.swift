@@ -109,7 +109,8 @@ struct ChatSendQueueServiceReconnectTests {
       session: session,
       dataStore: store,
       contactService: nil,
-      config: MessageServiceConfig(maxAttempts: 3, floodAfter: 3, triggerPathDiscoveryAfterFlood: false)
+      config: MessageServiceConfig(triggerPathDiscoveryAfterFlood: false),
+      dmSendBudget: { DMSendBudget(directAttempts: 3, floodAttempts: 0) }
     )
     let queue = ChatSendQueueService(
       radioID: radioID,

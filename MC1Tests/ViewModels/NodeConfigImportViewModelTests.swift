@@ -124,9 +124,11 @@ struct NodeConfigImportViewModelTests {
     appState.connectionManager.setTestState(
       connectionState: .ready,
       services: services,
+      session: session,
       connectedDevice: device
     )
-    await appState.wireSettingsEventStream(services: services)
+    let snapshot = try #require(appState.connectionManager.currentConnection)
+    await appState.wireSettingsEventStream(snapshot: snapshot)
     defer {
       appState.shutdown()
       Task {
@@ -136,7 +138,8 @@ struct NodeConfigImportViewModelTests {
     }
 
     let gate = ImportSuspendGate()
-    await services.nodeConfigService.setOnPostIdentityImport {
+    await services.nodeConfigService.setIdentityImportHandler { key in
+      try await services.settingsService.importPrivateKey(key)
       await gate.park()
       return nil
     }
@@ -154,11 +157,13 @@ struct NodeConfigImportViewModelTests {
     viewModel.sections.nodeIdentity = true
     viewModel.sections.radioSettings = true
 
-    viewModel.applyConfig(
-      nodeConfigService: services.nodeConfigService,
-      settingsService: services.settingsService,
-      radioID: radioID
+    viewModel.configure(
+      nodeConfigService: { services.nodeConfigService }, settingsService: { services.settingsService },
+      connectedDevice: { appState.connectedDevice }, connectionManager: appState.connectionManager
     )
+    viewModel.prepareConfirmation()
+    try await waitUntil("the import preview should be ready") { viewModel.showConfirmation || viewModel.errorMessage != nil }
+    viewModel.applyConfig()
     try await waitUntil("import should park after its early radio read") {
       gate.isParked && viewModel.isApplying
     }

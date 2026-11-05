@@ -15,7 +15,7 @@ struct RoomStatusView: View {
         viewModel: viewModel,
         session: session,
         connectionState: appState.connectionState,
-        connectedDeviceID: appState.connectedDevice?.radioID
+        connectedDeviceID: appState.connectionSnapshot(for: session.radioID)?.device.radioID
       )
       .navigationTitle(L10n.RemoteNodes.RemoteNodes.RoomStatus.title)
       .navigationBarTitleDisplayMode(.inline)
@@ -37,16 +37,20 @@ struct RoomStatusView: View {
         }
       }
       .task(id: appState.servicesVersion) {
+        guard let source = appState.connectionSnapshot(for: session.radioID) else { return }
+        let context = ConnectionCallbackContext(source)
         viewModel = appState.remoteAdminWorkspaces.room(for: session).status
         viewModel.configure(
-          roomAdminService: { appState.services?.roomAdminService },
-          contactService: { appState.services?.contactService },
-          nodeSnapshotService: { appState.services?.nodeSnapshotService }
+          roomAdminService: { appState.connectionSnapshot(for: session.radioID)?.services.roomAdminService },
+          contactService: { appState.connectionSnapshot(for: session.radioID)?.services.contactService },
+          nodeSnapshotService: { appState.connectionSnapshot(for: session.radioID)?.services.nodeSnapshotService }
         )
         await viewModel.registerHandlers()
+        guard !Task.isCancelled, context.isCurrent(appState.connectionManager),
+              source.services.isAcceptingRuntimeWork else { return }
 
         // Pre-load OCV settings
-        if let radioID = appState.connectedDevice?.radioID {
+        if let radioID = appState.connectionSnapshot(for: session.radioID)?.device.radioID {
           await viewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
       }

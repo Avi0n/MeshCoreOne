@@ -160,6 +160,12 @@ public protocol MessagePersisting: Actor {
   /// Returns the assigned sequence number.
   func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int
 
+  /// Atomically hands an accepted DM to durable ACK tracking, only while its original queue row remains current.
+  func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?) async throws -> Bool
+
+  /// Resolves only this durable ACK owner; a replacement retry row must remain untouched.
+  func resolvePendingAcknowledgement(id: UUID, expectedDeadline: Date?, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?) async throws -> Bool
+
   /// Fetch all pending sends for a given radio, ordered by sequence ascending.
   func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO]
 
@@ -175,11 +181,11 @@ public protocol MessagePersisting: Actor {
   func hasPendingSend(messageID: UUID) async throws -> Bool
 
   /// Increments the `attemptCount` for the `PendingSend` row matching
-  /// `messageID`. Returns the new count, or `nil` if no row matched.
+  /// `messageID`. Returns that row's ID and new count, or `nil` if no queued row matched.
   /// Throws on SwiftData read/write failure; callers must treat a thrown
   /// error as transient (park + retry) and `nil` as terminal (deleted row).
   @discardableResult
-  func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int?
+  func incrementPendingSendAttemptCount(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)?
 }
 
 // MARK: - Default Parameter Values

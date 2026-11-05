@@ -32,6 +32,8 @@
 /* Location: NodeAuthenticationSheet.swift - Repeater type value */
 "remoteNodes.auth.typeRepeater" = "Repeater";
 
+"remoteNodes.auth.typeSensor" = "Sensor";
+
 /* Location: NodeAuthenticationSheet.swift - Authentication section header */
 "remoteNodes.auth.authentication" = "Authentication";
 
@@ -83,6 +85,26 @@
 
 /* Location: RepeaterSettingsView.swift - Navigation title */
 "remoteNodes.settings.title" = "Repeater Settings";
+
+"remoteNodes.sensor.adminRequired" = "Sensor management requires administrator access.";
+
+"remoteNodes.sensor.saved" = "Setting verified.";
+
+"remoteNodes.sensor.rebootSent" = "Reboot request sent. The sensor has not confirmed a restart. Authenticate again before sending more commands.";
+
+"remoteNodes.sensor.rebootConfirmation" = "Send a reboot request to this sensor?";
+
+"remoteNodes.sensor.runtimeOnly" = "Changes affect the running sensor. Persistence across reboot depends on its firmware.";
+
+"remoteNodes.sensor.value" = "Value";
+
+"remoteNodes.sensor.save" = "Save";
+
+"remoteNodes.sensor.reload" = "Reload";
+
+"remoteNodes.sensor.empty" = "This sensor exposes no settings.";
+
+"remoteNodes.sensor.title" = "Sensor Management";
 
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Done";

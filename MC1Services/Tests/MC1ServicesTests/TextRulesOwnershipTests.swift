@@ -120,6 +120,28 @@ struct TextRulesOwnershipTests {
     #expect(try await store.hasRecentlyBlockedMessage(retainedDrop.identity))
   }
 
+  @Test
+  func `completing a pending erase preserves a radio that tried to adopt its identity`() async throws {
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let current = DeviceDTO.testDevice(publicKey: Data(repeating: 1, count: 32))
+    let target = DeviceDTO.testDevice(publicKey: Data(repeating: 2, count: 32), isActive: false).copy {
+      $0.connectionMethods = []
+    }
+    try await store.saveDevice(current)
+    try await store.saveDevice(target)
+    _ = try await store.beginRadioErase(target)
+
+    await #expect(throws: PersistenceStoreError.self) {
+      _ = try await store.reconcileGhostIdentity(currentDeviceID: current.id, newPublicKey: target.publicKey)
+    }
+    try await store.completeRadioErase(radioID: target.radioID)
+
+    let surviving = try #require(await store.fetchDevice(id: current.id))
+    #expect(surviving.radioID == current.radioID)
+    #expect(surviving.publicKey == current.publicKey)
+    #expect(try await store.fetchDevice(id: target.id) == nil)
+  }
+
   private func makeDrop(
     radioID: UUID,
     prefix: Data?,

@@ -92,6 +92,12 @@ struct ContactAddConfirmationContent: View {
         role: .repeater,
         size: Constants.identityGlyphSize
       )
+    case .sensor:
+      NodeAvatar(
+        publicKey: contactResult.publicKey,
+        role: .sensor,
+        size: Constants.identityGlyphSize
+      )
     case .room:
       NodeAvatar(
         publicKey: contactResult.publicKey,

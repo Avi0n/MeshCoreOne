@@ -100,8 +100,7 @@ struct ToolbarMenu<Content: View, LabelView: View>: View {
         Menu {
           content
         } label: {
-          Rectangle()
-            .fill(.clear)
+          label
             .contentShape(Rectangle())
         }
         .colorMultiply(.clear)

@@ -50,9 +50,11 @@ public extension MessageService {
   /// (`stopAndFailAllPending()` does both). This is the stop variant used on
   /// a routine disconnect: in-flight DMs stay `.sent` so a reconnect within
   /// the same session can still receive the ACK.
-  func stopAckExpiryChecking() {
-    ackCheckTask?.cancel()
+  func stopAckExpiryChecking() async {
+    let worker = ackCheckTask
     ackCheckTask = nil
+    worker?.cancel()
+    await worker?.value
   }
 
   /// Checks for expired ACKs and advances their delivery state.
@@ -72,10 +74,10 @@ public extension MessageService {
 
     let expiredEntries = pendingAcks.filter { _, tracking in
       !tracking.isDelivered &&
-        now.timeIntervalSince(tracking.sentAt) > max(window, tracking.timeout)
+        now > (tracking.deadline ?? tracking.sentAt.addingTimeInterval(max(window, tracking.timeout)))
     }
 
-    for (messageID, snapshot) in expiredEntries {
+    for (messageID, tracking) in expiredEntries {
       #if DEBUG
         if let gate = ackExpiryWriteGateForTesting {
           await gate(messageID)
@@ -83,16 +85,20 @@ public extension MessageService {
       #endif
       guard let current = pendingAcks[messageID],
             !current.isDelivered,
-            current.sentAt == snapshot.sentAt,
-            now.timeIntervalSince(current.sentAt) > max(window, current.timeout) else { continue }
+            current.sentAt == tracking.sentAt,
+            now > (current.deadline ?? current.sentAt.addingTimeInterval(max(window, current.timeout))) else { continue }
 
-      let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
-      guard let removed = pendingAcks.removeValue(forKey: messageID),
-            !removed.isDelivered, didFail else { continue }
+      let result: PendingAcknowledgementCommit
+      do {
+        result = try await commitPendingAcknowledgement(messageID: messageID, sentAt: tracking.sentAt)
+      } catch {
+        logger.error("ACK expiry check failed: \(error.localizedDescription)")
+        continue
+      }
+      guard case let .committed(status) = result, status == .failed else { continue }
 
-      let deadline = max(window, removed.timeout)
-      logger.warning("[ack-diag] give-up: failed after \(String(format: "%.1f", now.timeIntervalSince(removed.sentAt)))s window=\(window)s deadline=\(String(format: "%.1f", deadline))s livePending=\(pendingAcks.count)")
-      statusEventBroadcaster.yield(.failed(messageID: messageID))
+      let deadline = max(window, tracking.timeout)
+      logger.warning("[ack-diag] give-up: failed after \(String(format: "%.1f", now.timeIntervalSince(tracking.sentAt)))s window=\(window)s deadline=\(String(format: "%.1f", deadline))s livePending=\(pendingAcks.count)")
     }
   }
 
@@ -102,13 +108,14 @@ public extension MessageService {
   ///
   /// - Throws: Database errors when updating message status
   func failAllPendingMessages() async throws {
-    let pending = pendingAcks.filter { !$0.value.isDelivered }
-    pendingAcks.removeAll()
+    let pending = Array(pendingAcks)
 
-    for (messageID, _) in pending {
-      let didFail = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
-      if didFail {
-        statusEventBroadcaster.yield(.failed(messageID: messageID))
+    for (messageID, tracking) in pending {
+      guard pendingAcks[messageID]?.sentAt == tracking.sentAt, pendingAcks[messageID]?.isDelivered == false else { continue }
+      do {
+        _ = try await commitPendingAcknowledgement(messageID: messageID, sentAt: tracking.sentAt)
+      } catch {
+        logger.error("Failed to fail pending message: \(error.localizedDescription)")
       }
     }
   }
@@ -122,8 +129,7 @@ public extension MessageService {
   ///
   /// - Throws: Database errors when updating message status
   func stopAndFailAllPending() async throws {
-    ackCheckTask?.cancel()
-    ackCheckTask = nil
+    await stopAckExpiryChecking()
 
     try await failAllPendingMessages()
   }

@@ -518,65 +518,6 @@ struct NodeConfigServiceTests {
     #expect(progress.total == 10)
   }
 
-  // MARK: - Post-Identity Resolution Seam
-
-  @Test
-  func `resolveEffectiveRadioID returns callback result when private key was imported`() async throws {
-    let original = UUID()
-    let reconciled = UUID()
-    let result = try await resolveEffectiveRadioID(
-      original: original,
-      didImportPrivateKey: true,
-      callback: { @Sendable in reconciled }
-    )
-    #expect(result == reconciled)
-  }
-
-  @Test
-  func `resolveEffectiveRadioID skips callback when no private key was imported`() async throws {
-    actor CallTracker {
-      var calls = 0
-      func bump() {
-        calls += 1
-      }
-    }
-    let tracker = CallTracker()
-    let original = UUID()
-    let result = try await resolveEffectiveRadioID(
-      original: original,
-      didImportPrivateKey: false,
-      callback: { @Sendable in
-        await tracker.bump()
-        return UUID()
-      }
-    )
-    #expect(result == original)
-    #expect(await tracker.calls == 0,
-            "Callback must not fire when no private key was imported")
-  }
-
-  @Test
-  func `resolveEffectiveRadioID returns original when callback returns nil`() async throws {
-    let original = UUID()
-    let result = try await resolveEffectiveRadioID(
-      original: original,
-      didImportPrivateKey: true,
-      callback: { @Sendable in nil }
-    )
-    #expect(result == original)
-  }
-
-  @Test
-  func `resolveEffectiveRadioID handles nil callback gracefully`() async throws {
-    let original = UUID()
-    let result = try await resolveEffectiveRadioID(
-      original: original,
-      didImportPrivateKey: true,
-      callback: nil
-    )
-    #expect(result == original)
-  }
-
   // MARK: - Execute orchestration seam
 
   private static let executeSections = ConfigSections(

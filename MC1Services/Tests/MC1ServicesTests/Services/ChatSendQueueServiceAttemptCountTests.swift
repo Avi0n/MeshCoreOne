@@ -125,7 +125,7 @@ struct ChatSendQueueServiceAttemptCountTests {
     try await waitUntil(timeout: .seconds(10), "first drain must bump 0 → 1 and stamp a fresh timestamp") {
       guard
         let row = await (try? harness.store.fetchPendingSends(radioID: harness.radioID))?
-        .first(where: { $0.messageID == harness.messageID }),
+          .first(where: { $0.messageID == harness.messageID }),
         let timestamp = await (try? harness.store.fetchMessage(id: harness.messageID))?.timestamp
       else { return false }
       return row.attemptCount == 1 && timestamp != harness.originalTimestamp

@@ -5,51 +5,93 @@ import SwiftUI
 @Observable
 @MainActor
 final class NodeConfigImportViewModel {
-  // Parse state
-  var importedConfig: MeshCoreNodeConfig?
+  struct ImportSource: Equatable, Sendable {
+    let generation: UUID
+    let requestID: UUID
+    let deviceID: UUID
+    let radioID: UUID
+    let name: String
+
+    @MainActor
+    init(_ snapshot: ConnectionSnapshot) {
+      generation = snapshot.generation
+      requestID = snapshot.requestID
+      deviceID = snapshot.device.id
+      radioID = snapshot.device.radioID
+      name = snapshot.device.nodeName
+    }
+  }
+
+  enum Confirmation {
+    case config(ImportSource, inputID: UUID, sections: ConfigSections)
+    case recovery(IdentityImportRecovery, inputID: UUID)
+  }
+
+  var importedConfig: MeshCoreNodeConfig? {
+    didSet {
+      inputID = UUID()
+      inputSource = nil
+      inputReceiptID = nil
+      cancelConfirmation()
+    }
+  }
+
   var errorMessage: String?
   var showFilePicker = false
   var isParsing = false
-
-  /// Section selection
   var sections = ConfigSections()
-
-  // Current device state for diff
   var currentName: String?
   var currentRadio: MeshCoreNodeConfig.RadioSettings?
   var currentPosition: MeshCoreNodeConfig.PositionSettings?
-
-  // Apply state
   var isApplying = false
   var applyProgress: Double = 0
   var applyStepDescription = ""
   var importComplete = false
   var showConfirmation = false
   var isPreparingConfirmation = false
+  var recovery: IdentityImportRecovery?
+  var identityRecoveryComplete = false
 
-  /// Set from a non-destructive ``NodeConfigService/previewImport(_:sections:)`` pass before the
-  /// confirmation alert. True when at least one selected channel would replace an already-configured
-  /// slot, so the channels section is not purely additive and the confirmation copy must say so.
-  private var channelsWouldOverwrite = false
+  var channelsWouldOverwrite = false
+  var didApplyAnyWrite = false
+  var importTask: Task<Void, Never>?
+  var parseTask: Task<Void, Never>?
+  var currentParseID: UUID?
+  var previewTask: Task<Void, Never>?
+  var currentPreviewID: UUID?
+  var inputID = UUID()
+  var inputSource: ImportSource?
+  var inputReceiptID: UUID?
+  var confirmation: Confirmation?
+  var connectionManager: ConnectionManager?
+  let logger = Logger(subsystem: "com.mc1", category: "NodeConfigImportVM")
 
-  /// True once the import has reported progress, i.e. at least one destructive write reached the
-  /// device. Distinguishes "cancelled before anything changed" from "cancelled mid-write."
-  private var didApplyAnyWrite = false
+  private var nodeConfigServiceProvider: @MainActor () -> NodeConfigService? = { nil }
+  private var settingsServiceProvider: @MainActor () -> SettingsService? = { nil }
+  private var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
+  var nodeConfigService: NodeConfigService? {
+    nodeConfigServiceProvider()
+  }
 
-  private var importTask: Task<Void, Never>?
+  var settingsService: SettingsService? {
+    settingsServiceProvider()
+  }
 
-  /// Handle for the in-flight file parse, plus the ID guard that lets a newer parse
-  /// (or a dismissal) invalidate a stale result that raced past cancellation.
-  private var parseTask: Task<Void, Never>?
-  private var currentParseID: UUID?
+  var connectedDevice: DeviceDTO? {
+    connectedDeviceProvider()
+  }
 
-  /// Handle for the in-flight preview, which does a real BLE round-trip via `previewImport`.
-  /// Stored so it can be cancelled if the user leaves the screen or supersedes it.
-  private var previewTask: Task<Void, Never>?
-
-  private let logger = Logger(subsystem: "com.mc1", category: "NodeConfigImportVM")
-
-  // MARK: - Dynamic confirmation text
+  func configure(
+    nodeConfigService: @escaping @MainActor () -> NodeConfigService?,
+    settingsService: @escaping @MainActor () -> SettingsService?,
+    connectedDevice: @escaping @MainActor () -> DeviceDTO?,
+    connectionManager: ConnectionManager
+  ) {
+    nodeConfigServiceProvider = nodeConfigService
+    settingsServiceProvider = settingsService
+    connectedDeviceProvider = connectedDevice
+    self.connectionManager = connectionManager
+  }
 
   private var hasOverwriteSections: Bool {
     sections.radioSettings || sections.nodeIdentity || sections.positionSettings
@@ -61,149 +103,113 @@ final class NodeConfigImportViewModel {
   }
 
   var confirmTitle: String {
+    if recovery != nil { return L10n.Settings.ConfigImport.confirmTitleIdentityRecovery }
     switch (hasOverwriteSections, hasAdditiveSections) {
-    case (false, true): L10n.Settings.ConfigImport.confirmTitleAdd
-    case (true, false): L10n.Settings.ConfigImport.confirmTitleOverwrite
-    default: L10n.Settings.ConfigImport.confirmTitle
+    case (false, true): return L10n.Settings.ConfigImport.confirmTitleAdd
+    case (true, false): return L10n.Settings.ConfigImport.confirmTitleOverwrite
+    default: return L10n.Settings.ConfigImport.confirmTitle
     }
+  }
+
+  var confirmButtonRole: ButtonRole? {
+    recovery == nil ? nil : .destructive
+  }
+
+  /// The recovery sheet stays up while the identity write is in flight, so its result stays visible.
+  var recoverySheetDismissalDisabled: Bool {
+    recovery != nil && isApplying
   }
 
   var applyButtonLabel: String {
+    if recovery != nil { return L10n.Settings.ConfigImport.retryIdentityImport }
     switch (hasOverwriteSections, hasAdditiveSections) {
-    case (false, true): L10n.Settings.ConfigImport.applyButtonAdd
-    case (true, false): L10n.Settings.ConfigImport.applyButtonOverwrite
-    default: L10n.Settings.ConfigImport.applyButton
+    case (false, true): return L10n.Settings.ConfigImport.applyButtonAdd
+    case (true, false): return L10n.Settings.ConfigImport.applyButtonOverwrite
+    default: return L10n.Settings.ConfigImport.applyButton
     }
   }
 
-  func confirmMessage(deviceName: String) -> String {
+  var confirmMessage: String {
+    if case let .recovery(summary, _) = confirmation {
+      return L10n.Settings.ConfigImport.confirmIdentityRecovery("\(summary.sourceName) (\(summary.targetDescription))")
+    }
+    guard case let .config(source, _, _) = confirmation else { return "" }
     switch (hasOverwriteSections, hasAdditiveSections) {
-    case (false, true): L10n.Settings.ConfigImport.confirmMessageAdd(deviceName)
-    case (true, false): L10n.Settings.ConfigImport.confirmMessageOverwrite(deviceName)
-    case (true, true): L10n.Settings.ConfigImport.confirmMessageMixed(deviceName)
-    default: L10n.Settings.ConfigImport.confirmMessage(deviceName)
+    case (false, true): return L10n.Settings.ConfigImport.confirmMessageAdd(source.name)
+    case (true, false): return L10n.Settings.ConfigImport.confirmMessageOverwrite(source.name)
+    case (true, true): return L10n.Settings.ConfigImport.confirmMessageMixed(source.name)
+    default: return L10n.Settings.ConfigImport.confirmMessage(source.name)
     }
   }
 
-  /// Parse a JSON file from a security-scoped URL. The read and decode run detached
-  /// because the URL can point at an undownloaded iCloud Drive file, where a
-  /// synchronous read on the main actor blocks the UI for the whole download.
-  func parseFile(at url: URL) {
-    parseTask?.cancel()
-    isParsing = true
-    errorMessage = nil
-    let taskID = UUID()
-    currentParseID = taskID
-    let didAccessSecurityScope = url.startAccessingSecurityScopedResource()
-
-    parseTask = Task.detached(priority: .userInitiated) { [weak self, url, didAccessSecurityScope] in
-      defer {
-        if didAccessSecurityScope {
-          url.stopAccessingSecurityScopedResource()
-        }
-      }
-      do {
-        // .mappedIfSafe lets the OS page-cache the read rather than
-        // copying the whole file into the heap.
-        let data = try Data(contentsOf: url, options: .mappedIfSafe)
-        try Task.checkCancellation()
-        let config = try JSONDecoder().decode(MeshCoreNodeConfig.self, from: data)
-        try Task.checkCancellation()
-        await self?.applyParseSuccess(config, for: taskID)
-      } catch is CancellationError {
-        // The new invocation or the dismissal owns the parse state; don't clobber it.
-        return
-      } catch {
-        await self?.applyParseFailure(error, for: taskID)
-      }
+  func prepareConfirmation() {
+    guard !isPreparingConfirmation, !isApplying, !isParsing else { return }
+    if recovery != nil {
+      prepareRecoveryConfirmation()
+      return
     }
-  }
-
-  private func applyParseSuccess(_ config: MeshCoreNodeConfig, for taskID: UUID) {
-    guard currentParseID == taskID else { return }
-    isParsing = false
-    importedConfig = config
-    errorMessage = nil
-
-    // Auto-select only sections present in the file
-    sections.nodeIdentity = config.name != nil || config.publicKey != nil || config.privateKey != nil
-    sections.radioSettings = config.radioSettings != nil
-    sections.positionSettings = config.positionSettings != nil && !(config.positionSettings?.isZero ?? true)
-    sections.otherSettings = config.otherSettings != nil
-    sections.channels = config.channels != nil
-    sections.contacts = config.contacts != nil
-  }
-
-  private func applyParseFailure(_ error: Error, for taskID: UUID) {
-    guard currentParseID == taskID else { return }
-    isParsing = false
-    errorMessage = error.userFacingMessage
-    logger.error("Failed to parse config: \(error.localizedDescription)")
-  }
-
-  /// Load current device values for diff display. A nil service mirrors a disconnected state.
-  func loadCurrentDeviceState(settingsService: SettingsService?) async {
-    guard let settingsService else { return }
-    do {
-      let selfInfo = try await settingsService.getSelfInfo()
-      currentName = selfInfo.name
-      currentRadio = NodeConfigService.buildRadioSettings(from: selfInfo)
-      currentPosition = MeshCoreNodeConfig.PositionSettings(
-        latitude: String(selfInfo.latitude),
-        longitude: String(selfInfo.longitude)
-      )
-    } catch {
-      logger.error("Failed to load device state: \(error.localizedDescription)")
-    }
-  }
-
-  /// Runs the non-destructive planner to classify the import (overwrite vs additive) and reject a
-  /// malformed config up front, then presents the confirmation alert. Surfacing a planner error here
-  /// means a poison file is caught before the user even confirms, and before any write.
-  func prepareConfirmation(nodeConfigService: NodeConfigService?) {
-    guard !isPreparingConfirmation, !isApplying else { return }
-    guard let config = importedConfig,
-          let service = nodeConfigService else { return }
-
+    guard let config = importedConfig, let service = nodeConfigService,
+          let snapshot = connectionManager?.currentConnection,
+          connectedDevice?.id == snapshot.device.id else { return }
+    let source = ImportSource(snapshot)
+    guard inputSource == nil || inputSource == source else { return }
+    inputSource = source
+    let selectedInputID = inputID
+    let selectedSections = sections
+    let previewID = UUID()
+    currentPreviewID = previewID
     errorMessage = nil
     isPreparingConfirmation = true
     previewTask = Task {
-      defer { isPreparingConfirmation = false }
+      defer {
+        if currentPreviewID == previewID { isPreparingConfirmation = false }
+      }
       do {
-        let preview = try await service.previewImport(config, sections: sections)
-        // If the user left the screen while the round-trip was in flight, the dismissal has
-        // already reset the UI; presenting the confirmation now would pop an alert over a
-        // stale, off-screen state, so honour the cancellation even when the BLE call won the
-        // race and returned before observing it.
-        guard !Task.isCancelled else { return }
+        let preview = try await service.previewImport(config, sections: selectedSections)
+        guard !Task.isCancelled, currentPreviewID == previewID, inputID == selectedInputID,
+              connectionManager?.isCurrent(generation: source.generation, requestID: source.requestID) == true else { return }
         channelsWouldOverwrite = preview.channelsOverwriteExisting
-        errorMessage = nil
+        confirmation = .config(source, inputID: selectedInputID, sections: selectedSections)
         showConfirmation = true
       } catch is CancellationError {
-        // The user left the screen mid-preview — leave the UI untouched.
+        return
       } catch {
+        guard currentPreviewID == previewID else { return }
         errorMessage = error.userFacingMessage
         logger.error("Import preview failed: \(error.localizedDescription)")
       }
     }
   }
 
-  /// Apply the imported config to the device. Nil parameters mirror a disconnected state.
-  func applyConfig(nodeConfigService: NodeConfigService?, settingsService: SettingsService?, radioID: UUID?) {
-    guard !isApplying else { return }
-    guard let config = importedConfig,
-          let service = nodeConfigService,
-          let radioID else { return }
+  func cancelConfirmation() {
+    confirmation = nil
+    showConfirmation = false
+  }
 
+  func applyConfig() {
+    guard !isApplying, let confirmation else { return }
+    cancelConfirmation()
+    switch confirmation {
+    case let .recovery(summary, selectedInputID):
+      applyIdentityRecovery(summary, selectedInputID: selectedInputID)
+    case let .config(source, selectedInputID, selectedSections):
+      guard inputID == selectedInputID, sections == selectedSections,
+            connectionManager?.isCurrent(generation: source.generation, requestID: source.requestID) == true,
+            let config = importedConfig, let service = nodeConfigService else { return }
+      applyConfiguration(config, service: service, source: source, selectedSections: selectedSections)
+    }
+  }
+
+  private func applyConfiguration(
+    _ config: MeshCoreNodeConfig, service: NodeConfigService, source: ImportSource, selectedSections: ConfigSections
+  ) {
     isApplying = true
     applyProgress = 0
     errorMessage = nil
     importComplete = false
     didApplyAnyWrite = false
-
+    let selectedInputID = inputID
     importTask = Task {
-      // Deliver progress through one stream consumed in order on the main actor, so updates
-      // can't race or arrive out of sequence the way a per-update `Task { @MainActor }` would.
       let (progressStream, progressContinuation) = AsyncStream.makeStream(of: ImportProgress.self)
       let consumer = Task { @MainActor in
         for await progress in progressStream {
@@ -212,38 +218,32 @@ final class NodeConfigImportViewModel {
           applyStepDescription = Self.description(for: progress.step)
         }
       }
-
       do {
-        try await service.importConfig(
-          config,
-          sections: sections,
-          radioID: radioID
-        ) { progress in
-          progressContinuation.yield(progress)
+        try await service.importConfig(config, sections: selectedSections, radioID: source.radioID) {
+          progressContinuation.yield($0)
         }
         progressContinuation.finish()
         await consumer.value
-        // Refresh cached device state so Settings UI reflects imported values
-        if let settingsService {
+        if connectedDevice?.id == source.deviceID, let settingsService {
           try? await settingsService.refreshDeviceInfo()
         }
         isApplying = false
         importComplete = true
-        try? await Task.sleep(for: .seconds(1.5))
-        guard !Task.isCancelled else { return }
+        try? await Task.sleep(for: Timing.resultDisplay)
+        guard !Task.isCancelled, inputID == selectedInputID else { return }
         resetToFileSelection()
-      } catch is CancellationError {
-        progressContinuation.finish()
-        await consumer.value
-        isApplying = false
-        // "No progress reported" means no destructive write landed, so the device is untouched.
-        errorMessage = Self.cancellationMessage(didApplyAnyWrite: didApplyAnyWrite)
       } catch {
         progressContinuation.finish()
         await consumer.value
         isApplying = false
-        errorMessage = Self.failureMessage(for: error, didApplyAnyWrite: didApplyAnyWrite)
-        logger.error("Import failed: \(error.localizedDescription)")
+        if let interrupted = error as? IdentityImportRecoveryRequired {
+          retainInterruptedInput(interrupted.recovery, selectedInputID: selectedInputID)
+        } else if error is CancellationError {
+          errorMessage = Self.cancellationMessage(didApplyAnyWrite: didApplyAnyWrite)
+        } else {
+          errorMessage = Self.failureMessage(for: error, didApplyAnyWrite: didApplyAnyWrite)
+          logger.error("Import failed: \(error.localizedDescription)")
+        }
       }
     }
   }
@@ -252,23 +252,11 @@ final class NodeConfigImportViewModel {
     importTask?.cancel()
   }
 
-  /// Called when the screen goes away. Cancels any pending preview round-trip and, unless a
-  /// destructive import is in flight, resets back to the file picker so re-entering the screen
-  /// starts fresh instead of re-showing a stale preview or error. An in-flight import is left
-  /// running with its progress state intact: it is a destructive, safety-critical operation with
-  /// its own explicit cancel control, so a transient view disappearance must neither abort it
-  /// mid-write nor hide its result from a user who returns.
-  func handleDismissal() {
-    parseTask?.cancel()
-    currentParseID = nil
-    previewTask?.cancel()
-    guard !isApplying else { return }
-    resetToFileSelection()
+  private enum Timing {
+    static let resultDisplay: Duration = .seconds(1.5)
   }
 
-  /// Maps a service-layer ``ImportStep`` to a localized progress description, keeping `L10n`
-  /// in the app layer so the service stays localization-free.
-  private static func description(for step: ImportStep) -> String {
+  static func description(for step: ImportStep) -> String {
     switch step {
     case .position: L10n.Settings.ConfigImport.stepPosition
     case .otherParameters: L10n.Settings.ConfigImport.stepOtherParameters
@@ -281,38 +269,11 @@ final class NodeConfigImportViewModel {
     }
   }
 
-  /// Localized message for a cancelled import; distinguishes a clean cancel from one where a
-  /// destructive write already landed on the device.
   static func cancellationMessage(didApplyAnyWrite: Bool) -> String {
-    didApplyAnyWrite
-      ? L10n.Settings.ConfigImport.cancelledPartial
-      : L10n.Settings.ConfigImport.cancelled
+    didApplyAnyWrite ? L10n.Settings.ConfigImport.cancelledPartial : L10n.Settings.ConfigImport.cancelled
   }
 
-  /// Localized message for a failed import; distinguishes a clean failure from one where a
-  /// destructive write already landed.
   static func failureMessage(for error: Error, didApplyAnyWrite: Bool) -> String {
-    didApplyAnyWrite
-      ? L10n.Settings.ConfigImport.failedPartial(error.userFacingMessage)
-      : error.userFacingMessage
-  }
-
-  /// Reset to the initial file-selection state so the user can import another file.
-  private func resetToFileSelection() {
-    importedConfig = nil
-    errorMessage = nil
-    isParsing = false
-    sections = ConfigSections()
-    currentName = nil
-    currentRadio = nil
-    currentPosition = nil
-    applyProgress = 0
-    applyStepDescription = ""
-    importComplete = false
-    isApplying = false
-    isPreparingConfirmation = false
-    showConfirmation = false
-    channelsWouldOverwrite = false
-    didApplyAnyWrite = false
+    didApplyAnyWrite ? L10n.Settings.ConfigImport.failedPartial(error.userFacingMessage) : error.userFacingMessage
   }
 }

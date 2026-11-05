@@ -23,8 +23,11 @@ This guide covers the message lifecycle, delivery states, retry logic, and ACK h
 │                         SEND                         │
 │  MessageService.sendMessageWithRetry() runs the      │
 │  app-layer retry loop (sendDirectMessageWithRetryLoop)│
-│  • Attempts 1-4: Direct routing                      │
-│  • Attempt 5: Flood routing (after floodAfter)       │
+│  • Default: 4 on the current out path, then 4        │
+│    after one resetPath (counter 1/7 through 7/7)     │
+│  • The radio chooses the route on every send         │
+│  • A queued send waits while the previous DM can     │
+│    still receive a late ACK                          │
 │  • Message status: .sent, then .retrying per retry   │
 └──────────────────────────────────────────────────────┘
                             │
@@ -34,7 +37,7 @@ This guide covers the message lifecycle, delivery states, retry logic, and ACK h
 │     ACK RECEIVED        │   │     ALL ATTEMPTS       │
 │                         │   │      EXHAUSTED         │
 │  • Status: .delivered   │   │                        │
-│  • RTT recorded         │   │  • Status: .failed     │
+│  • RTT recorded         │   │  • .sent, then .failed │
 │  • UI updated           │   │  • User can retry      │
 └─────────────────────────┘   └────────────────────────┘
 ```
@@ -57,25 +60,29 @@ This guide covers the message lifecycle, delivery states, retry logic, and ACK h
 
 ### Automatic Retry (sendMessageWithRetry)
 
-**File:** `MC1Services/Sources/MC1Services/Services/MessageService+SendDM.swift` (config in `MessageServiceConfig.swift`)
+**File:** `MC1Services/Sources/MC1Services/Services/MessageService+SendDM.swift` (attempt counts in `DMSendBudget.swift`, timing in `MessageServiceConfig.swift`)
 
-Default configuration (`MessageServiceConfig`):
-- `floodFallbackOnRetry: true` - Currently unused; no send/retry code reads it. Both automatic and manual retries switch to flood after `floodAfter` direct attempts
-- `maxAttempts: 5` - Total send attempts (capped at 5 = 4 direct + 1 flood)
-- `maxFloodAttempts: 1` - Maximum flood attempts
-- `floodAfter: 4` - Switch to flood after 4 direct attempts
-- `minTimeout: 0` - Minimum timeout seconds
-- `triggerPathDiscoveryAfterFlood: true` - Trigger path discovery after flood
+A DM loop reads `DMSendBudget` once. The default is 4 attempts on the contact's current out path, then one `resetPath` and 4 fallback attempts. The bubble counter runs `1/7` through `7/7`. Setting Flood Fallback Attempts to zero leaves only the initial attempts and skips `resetPath`. The radio chooses Direct or Flood on every send. Initial attempts can use Flood when the contact has no out path, and later attempts can use Direct if the radio learns an out path after `resetPath`.
+
+`DMSendBudget` bounds initial attempts to 1...4 and fallback attempts to 0...4. Its total is the sum of those counts. Room posts use fixed limits owned by `RoomServerService`: 4 initial attempts and 1 fallback attempt, independent of the DM preference.
+
+`MessageServiceConfig` controls timing:
+
+- `floodFallbackOnRetry: true` - Currently unused; no send/retry code reads it
+- `minTimeout: 0` - Minimum timeout seconds. DM loops still read this from `config`
+- `triggerPathDiscoveryAfterFlood: true` - Currently unused; no send/retry code reads it
 - `ackGiveUpWindow: 30` - Floor and post-loop grace for the give-up deadline
 
+Room posts share plain-text send admission with DMs. After admission, the app checks that the post still exists and the room still allows posting. Within a connection, distinct posts to the same room get increasing whole-second wire timestamps. Automatic retries reuse the post's wire timestamp.
+
 ```
-Attempts 1-4: Direct routing (use contact's outPath)
+Attempts 1-4: contact's current out path
+    │
+    ▼ Timeout, no ACK, Flood Fallback Attempts > 0
+resetPath, then attempts 5-8
     │
     ▼ Timeout, no ACK
-Attempt 5: Flood routing (broadcast to all)
-    │
-    ▼ Timeout, no ACK
-FAILED
+Stays .sent until the ACK window ends
 ```
 
 ### Direct vs Flood Routing
@@ -93,14 +100,13 @@ FAILED
 
 ### Path Reset During Retry
 
-When switching from direct to flood routing:
+When Flood Fallback Attempts is greater than 0, the loop calls `resetPath` once before the fallback attempts:
 
 ```swift
-// Reset path before flood attempt
 try await session.resetPath(publicKey: contact.publicKey)
 ```
 
-This clears the contact's cached routing path, forcing the mesh to rediscover the route.
+This clears the contact's cached out path. The radio chooses the route for every later send.
 
 ### Automatic vs Manual Retry
 
@@ -109,12 +115,12 @@ This clears the contact's cached routing path, forcing the mesh to rediscover th
 - The retry loop runs at the app layer in `sendDirectMessageWithRetryLoop`, not inside `MeshCoreSession`, so each attempt can emit UI feedback
 - After the first attempt fails, status moves to `.retrying` and a `.retrying` event is broadcast per subsequent attempt
 - No user interaction required
-- If all attempts fail, status changes to `.failed`
+- If the budget is spent with no ACK, the message stays `.sent` until the ACK window ends, then becomes `.failed`
 
 **Manual Retry:**
 - Triggered when user taps "Retry" button on a failed message
 - The UI's `retryMessage` replaces the `PendingSend` row (`replacePendingSendForRetry`), sets status to `.pending`, and signals the persistent send queue; it does not set `.retrying` immediately
-- The queue drain later runs the same retry loop as an automatic send, which switches to flood after `floodAfter` (4) direct attempts; `.retrying` is only set by the loop after the first attempt fails
+- The queue drain later runs the same retry loop as an automatic send. It reads `DMSendBudget` once after admission, so a picker change while the row is waiting applies to that loop. `.retrying` is only set by the loop after the first attempt fails. The row stays `.pending` with no counter until it is admitted, including while an earlier DM can still receive a late ACK
 - Retry button disappears while `.retrying` status is active
 
 ### Manual Retry Details
@@ -133,7 +139,7 @@ coordinator?.applyStatusUpdate(
 try await signalDMEnqueued(envelope)
 ```
 
-The queue drain then calls `sendPendingDirectMessage` (or `resendDirectMessage` when the envelope is `isResend`), which runs `sendDirectMessageWithRetryLoop`. That loop marks `.retrying` via `updateMessageRetryStatus` only after the first attempt fails, and switches to flood after `floodAfter` (4) direct attempts; the same code path serves automatic and manual retries.
+The queue drain calls `performQueuedDirectMessageSend`, which runs `sendDirectMessageWithRetryLoop`. That loop marks `.retrying` via `updateMessageRetryStatus` only after the first attempt fails. With the default budget it sends 4 attempts on the current out path, calls `resetPath` once, then sends 4 fallback attempts. The radio chooses the route on every send. The same code path serves automatic and manual retries. A queued send waits while the previous plain-text send can still receive a late ACK.
 
 The UI shows:
 - "Retrying %d/%d" text (current attempt / max attempts) with a spinner icon when `maxRetryAttempts > 0`, falling back to plain "Retrying..." only when `maxRetryAttempts == 0`
@@ -155,6 +161,10 @@ struct PendingAck: Sendable {
 ```
 
 Keyed on `messageID`, not `ackCode`, so a late ACK from any retry attempt can still resolve the message. The `MessageService` persistent listener (`startEventMonitoring`) subscribes via `session.events(filter: .anyAcknowledgement)` so the dispatcher's ring buffer only holds matching events.
+
+On reconnect, unexpired ACK owners recovered from `PendingSend` hold admission before the queue hydrates. Each reservation ends when its ACK is resolved or its deadline expires.
+
+Quick replies and DM reactions persist their single-attempt policy before waiting for admission. Recovery sends them once even when the configured DM budget allows more attempts. The attempt count is saved before the command, so recovery preserves the wire timestamp if transmission may have started. Delivered or failed inline sends are removed from the queue without another send.
 
 ### ACK Flow
 

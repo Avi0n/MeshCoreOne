@@ -22,8 +22,9 @@ struct BLEStateMachineFringeEncryptionGraceTests {
     await sm.injectFringeCentralManager(FringeTestCentralManager(delegate: nil, queue: nil))
     let peripheral = makeLeakedFringePeripheral()
     let recorder = FringeDisconnectionRecorder()
-    await sm.setDisconnectionHandler { deviceID, error in
-      recorder.append(deviceID: deviceID, error: error)
+    await sm.setLifecycleEventHandler { event, _ in
+      guard case let .disconnected(origin, error) = event else { return }
+      recorder.append(deviceID: origin.deviceID, error: error)
     }
     if let bondVerified {
       await sm.recordBondVerification(deviceID: FringeTestPeripheral.uuid, at: bondVerified)
@@ -181,7 +182,7 @@ struct BLEStateMachineFringeEncryptionGraceTests {
 
 // MARK: - Test doubles and seams
 
-/// Collects `(deviceID, error)` pairs delivered to `onDisconnection`.
+/// Collects `(deviceID, error)` pairs delivered to `BLELifecycleEvent.disconnected`.
 private final class FringeDisconnectionRecorder: @unchecked Sendable {
   private(set) var events: [(deviceID: UUID, error: Error?)] = []
 

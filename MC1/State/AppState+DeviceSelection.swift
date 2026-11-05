@@ -30,7 +30,8 @@ extension AppState {
         do {
           try await connect(queued.target)
         } catch {
-          connectionUI.presentSavedDeviceConnectFailure(deviceID: queued.device.id, error: error)
+          guard let failure = currentConnectionFailure(error) else { return }
+          connectionUI.presentSavedDeviceConnectFailure(deviceID: queued.device.id, error: failure)
         }
       }
       return

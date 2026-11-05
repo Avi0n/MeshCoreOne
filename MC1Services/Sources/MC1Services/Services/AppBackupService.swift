@@ -34,7 +34,9 @@ public actor AppBackupService {
       let appVersion = Bundle.main.appVersion
       let appBuild = Bundle.main.appBuild
 
+      let includesSelfTelemetry = snapshot.nodeStatusSnapshots.contains { $0.selfRadioID != nil }
       var envelope = AppBackupEnvelope(
+        version: includesSelfTelemetry ? AppBackupEnvelope.currentVersion : AppBackupEnvelope.legacyVersion,
         exportDate: .now,
         appVersion: appVersion,
         appBuild: appBuild,

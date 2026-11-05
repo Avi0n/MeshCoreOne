@@ -51,6 +51,8 @@ make test-meshcore 2>&1 | xcsift -f toon
 
 Use `xcsift` to get structured output. Add `-c` for code coverage or `-w` for a detailed warnings list. See CLAUDE.md for the full flag reference.
 
+The service-only `SettingsServiceRadioWiFi` suites run in `MC1ServicesTests`; app presentation tests share their configuration-session and firmware helpers through `project.yml`.
+
 The Build workflow runs both SPM package suites and builds the app for the iOS Simulator. GitHub CI does not run the app or StoreKit test suites for now. Run those locally with the make targets above.
 
 For a local app test run that saves logs and an `.xcresult` bundle, use `scripts/test-app-ci.py`. It runs `make test-app` on iPhone 17e / iOS 27.0 and reuses `.derivedData`.

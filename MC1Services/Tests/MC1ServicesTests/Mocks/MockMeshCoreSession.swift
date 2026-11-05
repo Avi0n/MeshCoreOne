@@ -151,6 +151,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   /// Channel info to return from getChannel, keyed by index
   public var stubbedChannels: [UInt8: ChannelInfo] = [:]
+  private var stubbedGetChannelResults: [Result<ChannelInfo, Error>] = []
 
   public func setStubbedChannels(_ channels: [UInt8: ChannelInfo]) {
     stubbedChannels = channels
@@ -363,6 +364,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     stubbedGetChannelError = error
   }
 
+  public func setGetChannelResults(_ results: [Result<ChannelInfo, Error>]) {
+    stubbedGetChannelResults = results
+  }
+
   /// Sets the results returned by successive `sendLogin` calls (isolated setter).
   public func setSendLoginResults(_ results: [Result<MessageSentInfo, Error>]) {
     stubbedSendLoginResults = results
@@ -531,6 +536,21 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     try await sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
   }
 
+  public func sendVerifiedChannelMessage(
+    channel: UInt8,
+    text: String,
+    timestamp: Date,
+    floodScope: ResolvedFloodScope?,
+    expectedSecret: Data
+  ) async throws {
+    let info = try await getChannel(index: channel)
+    guard info.index == channel, info.secret == expectedSecret,
+          !info.name.isEmpty || info.secret.contains(where: { $0 != 0 }) else {
+      throw MeshCoreError.invalidResponse(expected: "unchanged channel occupancy", got: "different or missing channel occupancy")
+    }
+    try await sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
+  }
+
   public func getContacts(since lastModified: Date?) async throws -> [MeshContact] {
     try await getContactsReportingTotal(since: lastModified).contacts
   }
@@ -648,6 +668,9 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   public func getChannel(index: UInt8) async throws -> ChannelInfo {
     getChannelIndices.append(index)
+    if !stubbedGetChannelResults.isEmpty {
+      return try stubbedGetChannelResults.removeFirst().get()
+    }
     if let error = stubbedGetChannelErrorsByIndex[index] ?? stubbedGetChannelError {
       throw error
     }

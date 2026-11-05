@@ -169,7 +169,7 @@ import Testing
 
       try await env.manager.deleteDevice(id: deviceID)
 
-      #expect(env.manager.connectingDeviceID == nil)
+      #expect(env.manager.activeConnectionAttemptDeviceID == nil)
       #expect(env.manager.connectionState == .disconnected)
       #expect(env.manager.connectionIntent.isUserDisconnected)
       #expect(env.mockASK.accessory(for: deviceID) == nil)

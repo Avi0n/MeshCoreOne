@@ -87,8 +87,12 @@ struct ConnectionManagerCircuitBreakerTests {
     let (manager, _) = try ConnectionManager.createForTesting()
     manager.recordConnectionFailure()
 
-    await #expect(throws: BLEError.self) {
+    try await #expect {
       try await manager.connect(to: UUID())
+    } throws: { error in
+      guard let failure = error as? ConnectionRequestFailure,
+            manager.isCurrent(failure), case BLEError.connectionFailed = failure.underlying else { return false }
+      return true
     }
   }
 }

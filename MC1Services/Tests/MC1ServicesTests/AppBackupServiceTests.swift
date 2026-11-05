@@ -160,7 +160,7 @@ struct AppBackupServiceTests {
   // MARK: - Version and source bundle
 
   @Test
-  func `Envelope contains expected version`() async throws {
+  func `Export without self telemetry uses version 1`() async throws {
     let radioID = UUID()
     let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
 
@@ -168,7 +168,54 @@ struct AppBackupServiceTests {
     let result = try await service.export(persistenceStore: store)
 
     let envelope = try parseBackup(data: result.data)
-    #expect(envelope.version == AppBackupEnvelope.currentVersion)
+    #expect(envelope.version == 1)
+  }
+
+  @Test
+  func `Export uses version 2 when self telemetry is present and both versions import`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let device = try #require(try await store.fetchDevice(id: radioID))
+    _ = try await store.recordSelfTelemetrySnapshot(
+      deviceID: device.id,
+      radioID: device.radioID,
+      nodePublicKey: device.publicKey,
+      telemetry: [TelemetrySnapshotEntry(channel: 1, type: "voltage", value: 4.2)],
+      location: NodeLocationFix(latitude: 47.6062, longitude: -122.3321, altitude: 8)
+    )
+
+    let service = AppBackupService()
+    let exported = try await parseBackup(data: service.export(persistenceStore: store).data)
+    #expect(exported.version == 2)
+    #expect(exported.nodeStatusSnapshots.contains { $0.selfRadioID == radioID && $0.latitude == 47.6062 })
+
+    let restored = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let selfImport = try await service.importBackup(envelope: exported, into: restored)
+    #expect(selfImport.nodeStatusSnapshotsInserted == 1)
+    let selfRows = try await restored.fetchSelfTelemetrySnapshots(
+      radioID: radioID,
+      nodePublicKey: device.publicKey
+    )
+    #expect(selfRows.first?.selfRadioID == radioID)
+    #expect(selfRows.first?.altitude == 8)
+
+    let legacySnapshot = NodeStatusSnapshotDTO.testSnapshot()
+    let legacyEnvelope = AppBackupEnvelope.test(
+      version: 1,
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      nodeStatusSnapshots: [legacySnapshot]
+    )
+    let legacyData = try makeBackupJSONEncoder().encode(legacyEnvelope).zlibCompressed()
+    let legacy = try parseBackup(data: legacyData)
+
+    let legacyStore = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let legacyImport = try await service.importBackup(envelope: legacy, into: legacyStore)
+    #expect(legacyImport.nodeStatusSnapshotsInserted == 1)
+    let remote = try await legacyStore.fetchNodeStatusSnapshots(
+      nodePublicKey: legacySnapshot.nodePublicKey,
+      since: nil
+    )
+    #expect(remote.first?.selfRadioID == nil)
   }
 
   // MARK: - Import: into empty store

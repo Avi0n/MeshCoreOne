@@ -8,6 +8,7 @@ enum NodeSegment: String, CaseIterable {
   case contacts
   case repeaters
   case rooms
+  case sensors
 
   var localizedTitle: String {
     switch self {
@@ -15,6 +16,7 @@ enum NodeSegment: String, CaseIterable {
     case .contacts: L10n.Contacts.Contacts.Segment.contacts
     case .repeaters: L10n.Contacts.Contacts.Segment.repeaters
     case .rooms: L10n.Contacts.Contacts.Segment.rooms
+    case .sensors: L10n.Contacts.Contacts.Segment.sensors
     }
   }
 }
@@ -416,6 +418,8 @@ final class ContactsViewModel {
         result = result.filter { $0.type == .repeater }
       case .rooms:
         result = result.filter { $0.type == .room }
+      case .sensors:
+        result = result.filter { $0.type == .sensor }
       }
     } else {
       // Filter by search text only

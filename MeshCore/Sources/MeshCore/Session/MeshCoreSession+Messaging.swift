@@ -303,23 +303,6 @@ public extension MeshCoreSession {
     )
   }
 
-  /// Sends a message to a channel.
-  ///
-  /// Channel messages are broadcast to all nodes with the same channel configuration.
-  ///
-  /// - Parameters:
-  ///   - channel: Channel index (0-255).
-  ///   - text: The message text to send.
-  ///   - timestamp: Message timestamp. Defaults to current time.
-  /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
-  func sendChannelMessage(
-    channel: UInt8,
-    text: String,
-    timestamp: Date = Date()
-  ) async throws {
-    try await sendSimpleCommand(PacketBuilder.sendChannelMessage(channel: channel, text: text, timestamp: timestamp))
-  }
-
   /// Sends a binary datagram to a channel.
   ///
   /// Requires firmware v11+ (MeshCore v1.15.0+).

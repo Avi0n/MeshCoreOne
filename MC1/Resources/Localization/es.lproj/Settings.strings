@@ -46,9 +46,6 @@
 /* Section header for device information */
 "device.header" = "Dispositivo";
 
-/* Status shown when device is connected */
-"device.connected" = "Conectado";
-
 /* Footer shown when no device is connected */
 "device.noDeviceConnected" = "Ningún dispositivo MeshCore conectado";
 
@@ -59,12 +56,6 @@
 
 /* Navigation title for device info screen */
 "deviceInfo.title" = "Info del dispositivo";
-
-/* Section header for connection status */
-"deviceInfo.connection.header" = "Conexión";
-
-/* Label for connection status */
-"deviceInfo.connection.status" = "Estado";
 
 /* Section header for power and storage */
 "deviceInfo.powerStorage.header" = "Energía y almacenamiento";
@@ -110,6 +101,12 @@
 
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
+
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "Última lectura correcta";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "Telemetría del nodo";
 
 /* Section header for identity information */
 /* Label for public key */
@@ -164,6 +161,9 @@
 
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Buscar dispositivo Bluetooth";
+
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "Volviendo a emparejar...";
 
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
@@ -837,6 +837,9 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "Acompañante";
 
+/* TODO: translate */
+"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Repetidor";
 
@@ -997,6 +1000,9 @@
 
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "Una contraseña puede tener hasta 63 bytes.";
+
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "El nombre de la red o la contraseña contiene un carácter que esta radio no puede almacenar.";
 
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Borrar ajustes de WiFi";
@@ -1163,6 +1169,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Número de acuses de recibo enviados por mensaje directo. Usa 2 para una mejor confirmación de entrega en enlaces poco fiables.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Intentos iniciales";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Intentos de reserva Flood";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "Los intentos iniciales usan Flood si el contacto no tiene ruta de salida. Con los intentos de reserva Flood se intenta restablecer la ruta de salida antes de los intentos adicionales. Usa 0 en Intentos de reserva Flood para omitir el restablecimiento y los intentos adicionales.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */
@@ -1177,11 +1192,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "Desconectar";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "Detener reconexión";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "Cancelar conexión";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "Desconectado";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "Conectando...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "Reconectando...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "Esperando reconexión";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Conectado";
@@ -1194,6 +1221,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Estado de conexión Bluetooth";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "Toca dos veces para conectar dispositivo";
@@ -1332,6 +1362,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ Es posible que algunos ajustes ya se hayan escrito en el dispositivo. Revisa la configuración del dispositivo.";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "Se interrumpió la conexión mientras se importaba la identidad en %@. Es posible que la radio haya cambiado de identidad. La importación de la configuración no se completó.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "Reintentar importación de identidad";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "Esto reemplazará la identidad de la radio a la que se llegó en %@ usando la clave privada del archivo seleccionado. La importación de la configuración no continuará.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "¿Reemplazar la identidad de la radio?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "Se volvió a aplicar la identidad. La importación de la configuración no se completó. Importa el archivo de nuevo para aplicar los demás ajustes.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "Selecciona un archivo de configuración que contenga la clave privada para reintentar la importación de identidad.";
 
 /* Import success */
 "configImport.importSuccess" = "Configuración importada correctamente";
@@ -2062,7 +2110,7 @@
 "settings.backup.export.alert.title" = "Aviso de seguridad";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Esta copia incluye claves de cifrado de canales, el historial de mensajes, tu lista de contactos y la dirección de red local y el puerto del nodo WiFi. Almacena el archivo exportado de forma segura.";
+"settings.backup.export.alert.message" = "Esta copia incluye claves de cifrado de canales, el historial de mensajes, tu lista de contactos y la dirección de red local y el puerto del nodo WiFi. La copia también puede incluir coordenadas GPS obtenidas de las radios. Almacena el archivo exportado de forma segura.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Exportar";

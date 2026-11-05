@@ -2,6 +2,7 @@
 @preconcurrency import CoreBluetooth
 import Dispatch
 import Foundation
+import MeshCore
 
 /// Manages BLE connections using an explicit state machine.
 ///
@@ -24,17 +25,18 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Converts CBPeripheralState to readable string for diagnostics
   nonisolated func peripheralStateString(_ state: CBPeripheralState) -> String {
     switch state {
-    case .disconnected: return "disconnected"
-    case .connecting: return "connecting"
-    case .connected: return "connected"
-    case .disconnecting: return "disconnecting"
-    @unknown default: return "unknown(\(state.rawValue))"
+    case .disconnected: "disconnected"
+    case .connecting: "connecting"
+    case .connected: "connected"
+    case .disconnecting: "disconnecting"
+    @unknown default: "unknown(\(state.rawValue))"
     }
   }
 
   // MARK: - State
 
   var phase: BLEPhase = .idle
+  private var disconnectTask: (id: UUID, generation: UInt64, task: Task<Void, Never>)?
 
   /// Tracks when the current phase started (for timing diagnostics)
   var phaseStartTime: Date = .init()
@@ -58,6 +60,12 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// extend the bond shield. Cleared in cleanupPhaseResources on exit from
   /// `.connected` and explicitly on preserve-path stack teardown.
   var appSessionLiveDeviceID: UUID?
+  var activeSessionBinding: SessionTransportBinding?
+  private var dataStreamSequence: UInt64 = 0
+
+  private var appSessionLogContext: String {
+    "instance=\(instanceID) generation=\(connectionGeneration) stream=\(dataStreamSequence)"
+  }
 
   /// Expose current phase for testing
   var currentPhase: BLEPhase {
@@ -105,6 +113,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
   // MARK: - Configuration
 
+  let operationClock: BLEOperationClock
   private let stateRestorationID = "com.pocketmesh.ble.central"
   private let connectionTimeout: TimeInterval
   let serviceDiscoveryTimeout: TimeInterval
@@ -141,7 +150,16 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   var pendingWriteSequence: UInt64 = 0
 
   /// Queue of tasks waiting to write (serializes concurrent sends)
-  private var writeWaiters: [CheckedContinuation<Void, Never>] = []
+  private struct WriteWaiter {
+    let id: UUID
+    let continuation: CheckedContinuation<Void, Error>
+  }
+
+  private var writeWaiters: [WriteWaiter] = []
+
+  var queuedWriteCount: Int {
+    writeWaiters.count
+  }
 
   /// Tracks the current write timeout task so it can be cancelled when write completes
   var writeTimeoutTask: Task<Void, Never>?
@@ -159,11 +177,21 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// backstop, so a sender never hangs across a disconnect or a peripheral that goes silent.
   /// Single slot: the pipeline issues one Write Command at a time.
   private var writeWithoutResponseReadyContinuation: CheckedContinuation<Void, Error>?
+  private var writeWithoutResponseReadyBinding: SessionTransportBinding?
+
+  #if DEBUG
+    var testWriteReadinessHandled: (@Sendable (UUID) -> Void)?
+
+    func noteWriteReadinessHandled(_ deviceID: UUID) {
+      testWriteReadinessHandled?(deviceID)
+    }
+  #endif
 
   /// Backstop timeout for `writeWithoutResponseReadyContinuation`: fails a parked sender if
   /// the peripheral never re-signals readiness and no disconnect arrives, so a stuck Write
   /// Command cannot defeat the session's pipeline timeout and hang the channel sync.
   private var writeWithoutResponseReadyTimeoutTask: Task<Void, Never>?
+  private var writeWithoutResponseReadyID: UUID?
 
   /// Error recorded when a `.discoveryComplete` phase is torn down before
   /// `connect()` adopts it, so the in-flight connect surfaces the real
@@ -194,6 +222,10 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Grace period task for poweredOff during waitingForBluetooth.
   /// Allows CBCentralManager initialization to settle (poweredOff → poweredOn).
   var bluetoothPowerOffGraceTask: Task<Void, Never>?
+  var bluetoothPowerOffGraceID: UUID?
+  private var bluetoothWaitID: UUID?
+  static let bluetoothPowerOffGrace: Duration = .seconds(1)
+  private static let disconnectSettleDelay: Duration = .milliseconds(100)
 
   // MARK: - Scanning (orthogonal to connection lifecycle)
 
@@ -204,14 +236,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
   // MARK: - Callbacks
 
-  /// Installed by `ConnectionManager.init` (via `iOSBLETransport.setDisconnectionHandler`).
-  var onDisconnection: (@Sendable (UUID, Error?) -> Void)?
-  /// Peripheral link loss with the CoreBluetooth event time. Not fired for local
-  /// shutdown or the phone's own Bluetooth power-off.
-  var onRemoteLinkLost: (@Sendable (UUID, CFAbsoluteTime) -> Void)?
-  /// Installed by `ConnectionManager.init` (via `iOSBLETransport.setReconnectionHandler`,
-  /// which wraps it to capture the data stream before the handler runs).
-  var onReconnection: (@Sendable (UUID, AsyncStream<Data>) -> Void)?
+  var onLifecycleEvent: (@Sendable (BLELifecycleEvent, AsyncStream<Data>?) -> Void)?
   /// Fired when an existing bond verification was refreshed while a live app
   /// session is present. Installed by `ConnectionManager.wireTransportHandlers`.
   var onBondRefreshed: (@Sendable (UUID) -> Void)?
@@ -219,14 +244,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   var onBluetoothStateChange: (@Sendable (CBManagerState) -> Void)?
   /// Installed by `ConnectionManager.init`.
   var onBluetoothPoweredOn: (@Sendable () -> Void)?
-  /// Called when entering iOS auto-reconnecting phase.
-  /// The device has disconnected but iOS will attempt automatic reconnection.
-  /// Note: The MeshCore session is invalid at this point and will be rebuilt upon successful reconnection.
-  /// Installed by `ConnectionManager.init`.
-  var onAutoReconnecting: (@Sendable (UUID, String) -> Void)?
-
-  /// Distinguishes the call site driving `handleRestoredPeripheral` so the function
-  /// fires `onAutoReconnecting` only when no upstream caller has already claimed the cycle.
+  /// Distinguishes restoration from an adoption whose lifecycle event was already sent.
   enum RestoredPeripheralSource {
     case stateRestoration
     case adoption
@@ -247,20 +265,34 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     serviceDiscoveryTimeout: TimeInterval = 40.0,
     autoReconnectDiscoveryTimeout: TimeInterval = 15.0,
     writeTimeout: TimeInterval = 5.0,
-    writePacingDelay: TimeInterval = 0
+    writePacingDelay: TimeInterval = 0,
+    centralManager: CBCentralManager? = nil,
+    operationClock: BLEOperationClock = .continuous
   ) {
+    self.operationClock = operationClock
     self.connectionTimeout = connectionTimeout
     self.serviceDiscoveryTimeout = serviceDiscoveryTimeout
     self.autoReconnectDiscoveryTimeout = autoReconnectDiscoveryTimeout
     self.writeTimeout = writeTimeout
     self.writePacingDelay = writePacingDelay
     delegateHandler = BLEDelegateHandler()
+    earliestNextWrite = operationClock.now()
+    if let centralManager {
+      self.centralManager = centralManager
+      isActivated = true
+      delegateHandler.stateMachine = self
+    }
   }
 
   /// Sets the write pacing delay for ESP32 compatibility.
   /// - Parameter delay: Delay in seconds between write operations (0 = no pacing)
   func setWritePacingDelay(_ delay: TimeInterval) {
     writePacingDelay = delay
+  }
+
+  func setWritePacingDelay(_ delay: TimeInterval, sessionBinding: SessionTransportBinding) {
+    guard activeSessionBinding === sessionBinding else { return }
+    try? sessionBinding.performIfActive { writePacingDelay = delay }
   }
 
   /// Activates the BLE state machine, creating the CBCentralManager.
@@ -422,21 +454,6 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
   // MARK: - Event Handler Registration
 
-  /// Sets a handler for disconnection events
-  func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) {
-    onDisconnection = handler
-  }
-
-  func setRemoteLinkLostHandler(_ handler: @escaping @Sendable (UUID, CFAbsoluteTime) -> Void) {
-    onRemoteLinkLost = handler
-  }
-
-  /// Sets a handler for reconnection events.
-  /// The handler receives the device ID and the data stream for receiving data.
-  func setReconnectionHandler(_ handler: @escaping @Sendable (UUID, AsyncStream<Data>) -> Void) {
-    onReconnection = handler
-  }
-
   /// Sets a handler for Bluetooth state changes
   func setBluetoothStateChangeHandler(_ handler: @escaping @Sendable (CBManagerState) -> Void) {
     onBluetoothStateChange = handler
@@ -447,17 +464,18 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     onBluetoothPoweredOn = handler
   }
 
-  /// Sets a handler for auto-reconnecting events.
-  /// Called when device disconnects but iOS is attempting automatic reconnection.
-  func setAutoReconnectingHandler(_ handler: @escaping @Sendable (UUID, String) -> Void) {
-    onAutoReconnecting = handler
-  }
-
   /// Records a verified encrypted session. An exhausted encryption-timeout
   /// budget within the grace window then continues the episode rather than
   /// tearing down. `ConnectionManager` seeds and refreshes this stamp.
   func recordBondVerification(deviceID: UUID, at date: Date) {
     reconnectPolicy.recordBondVerification(deviceID: deviceID, at: date)
+  }
+
+  func recordBondVerification(deviceID: UUID, at date: Date, sessionBinding: SessionTransportBinding) {
+    guard activeSessionBinding === sessionBinding else { return }
+    try? sessionBinding.performIfActive {
+      reconnectPolicy.recordBondVerification(deviceID: deviceID, at: date)
+    }
   }
 
   /// Clears a device's bond-verification record when its pairing is
@@ -468,6 +486,36 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
   func setAppSessionLive(deviceID: UUID?) {
     appSessionLiveDeviceID = deviceID
+  }
+
+  func setSessionBinding(_ binding: SessionTransportBinding) {
+    try? binding.performIfActive {
+      if let previous = activeSessionBinding, previous !== binding {
+        previous.revoke()
+        cancelUnsubmittedWrites(sessionBinding: previous)
+      }
+      activeSessionBinding = binding
+    }
+  }
+
+  func setAppSessionLive(deviceID: UUID?, sessionBinding: SessionTransportBinding) {
+    let binding = String(describing: ObjectIdentifier(sessionBinding))
+    let currentBinding = activeSessionBinding.map { String(describing: ObjectIdentifier($0)) } ?? "none"
+    guard activeSessionBinding === sessionBinding else {
+      logger.info("[BLE] Session live rejected binding=\(binding) currentBinding=\(currentBinding) reason=bindingMismatch \(appSessionLogContext)")
+      return
+    }
+    if let deviceID {
+      do {
+        try sessionBinding.performIfActive { appSessionLiveDeviceID = deviceID }
+        logger.info("[BLE] Session live binding=\(binding) device=\(deviceID.uuidString.prefix(8)) \(appSessionLogContext)")
+      } catch {
+        logger.info("[BLE] Session live rejected binding=\(binding) currentBinding=\(currentBinding) reason=revoked \(appSessionLogContext)")
+      }
+    } else {
+      appSessionLiveDeviceID = nil
+      logger.info("[BLE] Session revoked binding=\(binding) \(appSessionLogContext)")
+    }
   }
 
   func hasBondVerification(deviceID: UUID) -> Bool {
@@ -536,6 +584,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   ///           `BLEError.bluetoothUnauthorized` if access is denied
   ///           `BLEError.bluetoothPoweredOff` if Bluetooth is off and doesn't turn on
   func waitForPoweredOn() async throws {
+    try Task.checkCancellation()
     activate()
 
     // Already powered on
@@ -554,13 +603,28 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     // Wait for state change (.unknown, .resetting, and .poweredOff reach here).
     // poweredOff is included because a freshly created CBCentralManager may
     // briefly report poweredOff before settling on poweredOn.
-    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-      guard case .idle = phase else {
-        continuation.resume(throwing: BLEError.connectionFailed("Already in operation"))
-        return
+    let waitID = UUID()
+    try await withTaskCancellationHandler {
+      try Task.checkCancellation()
+      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        guard case .idle = phase else {
+          continuation.resume(throwing: BLEError.connectionFailed("Already in operation"))
+          return
+        }
+        bluetoothWaitID = waitID
+        transition(to: .waitingForBluetooth(continuation: continuation))
+        if centralManager.state == .poweredOff {
+          startBluetoothPowerOffGraceIfNeeded()
+        }
       }
-      transition(to: .waitingForBluetooth(continuation: continuation))
+    } onCancel: {
+      Task { await self.cancelBluetoothWait(id: waitID) }
     }
+  }
+
+  private func cancelBluetoothWait(id: UUID) {
+    guard bluetoothWaitID == id, case .waitingForBluetooth = phase else { return }
+    cancelCurrentOperation(with: CancellationError())
   }
 
   /// Connects to a BLE device and returns a data stream.
@@ -568,7 +632,8 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// - Parameter deviceID: UUID of the device to connect to
   /// - Returns: AsyncStream of data received from the device
   /// - Throws: BLEError if connection fails
-  func connect(to deviceID: UUID) async throws -> AsyncStream<Data> {
+  func connect(to deviceID: UUID, sessionBinding: SessionTransportBinding? = nil) async throws -> AsyncStream<Data> {
+    try sessionBinding?.checkActive()
     logger.info("Connect requested for device: \(deviceID)")
 
     // Ensure we're in idle state
@@ -584,6 +649,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
     // Wait for Bluetooth
     try await waitForPoweredOn()
+    try sessionBinding?.checkActive()
 
     // Re-validate after the suspension: state restoration or a poweredOn
     // callback can claim the machine (e.g. .autoReconnecting) while waiting,
@@ -605,7 +671,8 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     logger.info("[BLE] Connection generation advanced to \(connectionGeneration) for device: \(deviceID.uuidString.prefix(8))")
 
     // Connect and discover services (continuation spans entire discovery chain)
-    try await connectToPeripheral(peripheral)
+    try await connectToPeripheral(peripheral, sessionBinding: sessionBinding)
+    try sessionBinding?.checkActive()
 
     // Create data stream and transition to connected
     let (stream, continuation) = AsyncStream.makeStream(
@@ -620,7 +687,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     }
 
     // Pass continuation to delegate handler for direct yielding (preserves ordering)
-    delegateHandler.setDataContinuation(continuation)
+    installDataContinuation(continuation, peripheral: peripheral, rx: rx)
 
     transition(to: .connected(
       peripheral: peripheral,
@@ -641,9 +708,9 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   ///
   /// - Parameter data: Data to send
   /// - Throws: BLEError if not connected or write fails
-  func send(_ data: Data) async throws {
+  func send(_ data: Data, sessionBinding: SessionTransportBinding? = nil) async throws {
     logger.debug("[BLE] send: \(data.count) bytes")
-    try await claimWriteSlot(data: data)
+    try await claimWriteSlot(data: data, sessionBinding: sessionBinding)
   }
 
   /// Whether the connected peripheral's write characteristic supports ATT Write Commands.
@@ -673,7 +740,9 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// deliberately skips `writePacingDelay` — that delay protects the ESP32 RX queue during
   /// `.withResponse` bursts, and Write Commands are an nRF52-only path. A radio whose write
   /// characteristic does not advertise the capability degrades to the acknowledged path.
-  func sendWithoutResponse(_ data: Data) async throws {
+  func sendWithoutResponse(_ data: Data, sessionBinding: SessionTransportBinding? = nil) async throws {
+    try Task.checkCancellation()
+    try sessionBinding?.checkActive()
     let myGeneration = connectionGeneration
 
     guard case let .connected(peripheral, _, _, _) = phase,
@@ -682,34 +751,52 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     }
 
     guard txSupportsWriteWithoutResponse else {
-      try await claimWriteSlot(data: data)
+      try await claimWriteSlot(data: data, sessionBinding: sessionBinding)
       return
     }
 
-    try await awaitWriteWithoutResponseReadiness(alreadyReady: peripheral.canSendWriteWithoutResponse)
-
-    // Re-validate after a possible suspension: the connection may have dropped while parked.
-    guard case let .connected(readyPeripheral, readyTx, _, _) = phase,
-          readyPeripheral.state == .connected,
-          connectionGeneration == myGeneration else {
-      throw BLEError.notConnected
+    while true {
+      try await awaitWriteWithoutResponseReadiness(
+        alreadyReady: peripheral.canSendWriteWithoutResponse, sessionBinding: sessionBinding
+      )
+      try Task.checkCancellation()
+      guard case let .connected(readyPeripheral, readyTx, _, _) = phase,
+            readyPeripheral.state == .connected,
+            connectionGeneration == myGeneration else {
+        throw BLEError.notConnected
+      }
+      guard readyPeripheral.canSendWriteWithoutResponse else { continue }
+      if let sessionBinding {
+        try sessionBinding.performIfActive {
+          readyPeripheral.writeValue(data, for: readyTx, type: .withoutResponse)
+        }
+      } else {
+        readyPeripheral.writeValue(data, for: readyTx, type: .withoutResponse)
+      }
+      return
     }
-
-    readyPeripheral.writeValue(data, for: readyTx, type: .withoutResponse)
   }
 
   /// Serializes concurrent writes by waiting for any pending write to complete,
   /// then claims the write slot and issues the BLE write.
-  private func claimWriteSlot(data: Data) async throws {
+  private func claimWriteSlot(data: Data, sessionBinding: SessionTransportBinding?) async throws {
     let myGeneration = connectionGeneration
+    var claimedWrite = false
+    defer {
+      // A cancelled caller can wake after leaving the queue; it still owes the next handoff.
+      if !claimedWrite, connectionGeneration == myGeneration, pendingWriteContinuation == nil {
+        resumeNextWriteWaiter()
+      }
+    }
     while true {
+      try sessionBinding?.checkActive()
       guard connectionGeneration == myGeneration else {
         throw BLEError.notConnected
       }
 
       // Pacing: wait until earliestNextWrite.
-      if writePacingDelay > 0, ContinuousClock.now < earliestNextWrite {
-        try await Task.sleep(until: earliestNextWrite, clock: .continuous)
+      if writePacingDelay > 0, operationClock.now() < earliestNextWrite {
+        try await operationClock.sleep(operationClock.now().duration(to: earliestNextWrite))
         try Task.checkCancellation()
         guard connectionGeneration == myGeneration else {
           throw BLEError.notConnected
@@ -718,11 +805,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
       try Task.checkCancellation()
 
-      guard case let .connected(peripheral, _, _, _) = phase else {
-        throw BLEError.notConnected
-      }
-
-      guard peripheral.state == .connected else {
+      guard case let .connected(peripheral, _, _, _) = phase, peripheral.state == .connected else {
         throw BLEError.notConnected
       }
 
@@ -737,8 +820,17 @@ actor BLEStateMachine: BLEStateMachineProtocol {
         } else {
           logger.debug("[BLE] Write queued, depth: \(queueDepth)")
         }
-        await withCheckedContinuation { (waiter: CheckedContinuation<Void, Never>) in
-          writeWaiters.append(waiter)
+        let waiterID = UUID()
+        try await withTaskCancellationHandler {
+          try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            guard !Task.isCancelled else {
+              continuation.resume(throwing: CancellationError())
+              return
+            }
+            writeWaiters.append(WriteWaiter(id: waiterID, continuation: continuation))
+          }
+        } onCancel: {
+          Task { await self.cancelWriteWaiter(id: waiterID) }
         }
         continue
       }
@@ -752,29 +844,43 @@ actor BLEStateMachine: BLEStateMachineProtocol {
           return
         }
 
+        claimedWrite = true
         self.writeSequenceNumber += 1
         let currentSeq = self.writeSequenceNumber
         self.pendingWriteSequence = currentSeq
         self.pendingWriteContinuation = continuation
         // Record the sequence before issuing the write so didWriteValue
         // can tag its callback with the originating write
-        self.delegateHandler.recordIssuedWriteSequence(currentSeq)
-        currentPeripheral.writeValue(data, for: currentTx, type: .withResponse)
+        do {
+          if let sessionBinding {
+            try sessionBinding.performIfActive {
+              self.delegateHandler.recordIssuedWriteSequence(currentSeq, peripheral: currentPeripheral, characteristic: currentTx)
+              currentPeripheral.writeValue(data, for: currentTx, type: .withResponse)
+            }
+          } else {
+            self.delegateHandler.recordIssuedWriteSequence(currentSeq, peripheral: currentPeripheral, characteristic: currentTx)
+            currentPeripheral.writeValue(data, for: currentTx, type: .withResponse)
+          }
+        } catch {
+          self.pendingWriteContinuation = nil
+          continuation.resume(throwing: error)
+          self.resumeNextWriteWaiter()
+          return
+        }
 
         // Cancel any previous timeout task and create a new one
         let seq = self.pendingWriteSequence
         self.writeTimeoutTask?.cancel()
         self.writeTimeoutTask = Task {
-          try? await Task.sleep(for: .seconds(self.writeTimeout))
-          guard !Task.isCancelled else { return }
-          guard self.pendingWriteSequence == seq else { return }
+          try? await self.operationClock.sleep(.seconds(self.writeTimeout))
+          guard !Task.isCancelled, self.pendingWriteSequence == seq else { return }
           if let pending = self.pendingWriteContinuation {
             self.logger.warning("[BLE] Write timeout: seq=\(seq), elapsed=\(self.writeTimeout)s")
             self.pendingWriteContinuation = nil
             self.consecutiveQueuedWrites = 0
             pending.resume(throwing: BLEError.operationTimeout)
             self.writeTimeoutTask = nil
-            self.earliestNextWrite = ContinuousClock.now.advanced(by: .seconds(self.writePacingDelay))
+            self.earliestNextWrite = operationClock.now().advanced(by: .seconds(self.writePacingDelay))
             self.resumeNextWriteWaiter()
           }
         }
@@ -788,53 +894,86 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   func resumeNextWriteWaiter() {
     guard !writeWaiters.isEmpty else { return }
     let waiter = writeWaiters.removeFirst()
-    waiter.resume()
+    waiter.continuation.resume()
   }
 
-  /// Parks the caller until the peripheral can accept another Write Command. Returns
-  /// immediately when `alreadyReady`. Otherwise suspends on a single continuation that is
-  /// resumed by `handlePeripheralReadyForWriteWithoutResponse()`, released on teardown by
-  /// `cancelPendingWriteOperations`, or failed by a timeout backstop — so a peripheral that
-  /// stops signalling readiness cannot hang the sender past the per-write timeout.
-  func awaitWriteWithoutResponseReadiness(alreadyReady: Bool) async throws {
+  private func cancelWriteWaiter(id: UUID) {
+    guard let index = writeWaiters.firstIndex(where: { $0.id == id }) else { return }
+    writeWaiters.remove(at: index).continuation.resume(throwing: CancellationError())
+  }
+
+  /// Waits for Write Command readiness, with teardown cancellation and a per-write timeout
+  /// so a peripheral that stops signalling cannot leave the sender suspended.
+  func awaitWriteWithoutResponseReadiness(
+    alreadyReady: Bool, sessionBinding: SessionTransportBinding? = nil
+  ) async throws {
+    try Task.checkCancellation()
+    try sessionBinding?.checkActive()
     guard !alreadyReady else { return }
     let timeout = writeTimeout
-    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-      // The pipeline issues one Write Command at a time, so the slot is normally free.
-      // Release any stale waiter rather than leak it if that invariant is ever broken.
-      if let stale = writeWithoutResponseReadyContinuation {
-        writeWithoutResponseReadyContinuation = nil
-        writeWithoutResponseReadyTimeoutTask?.cancel()
-        writeWithoutResponseReadyTimeoutTask = nil
-        stale.resume(throwing: BLEError.notConnected)
+    let waitID = UUID()
+    try await withTaskCancellationHandler {
+      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        guard !Task.isCancelled else {
+          continuation.resume(throwing: CancellationError())
+          return
+        }
+        completeWriteWithoutResponseReadiness(error: BLEError.notConnected)
+        writeWithoutResponseReadyID = waitID
+        writeWithoutResponseReadyContinuation = continuation
+        writeWithoutResponseReadyBinding = sessionBinding
+        writeWithoutResponseReadyTimeoutTask = Task { [weak self] in
+          try? await self?.operationClock.sleep(.seconds(timeout))
+          guard !Task.isCancelled else { return }
+          await self?.timeoutWriteWithoutResponseReadiness(id: waitID)
+        }
       }
-      writeWithoutResponseReadyContinuation = continuation
-      writeWithoutResponseReadyTimeoutTask = Task { [weak self] in
-        try? await Task.sleep(for: .seconds(timeout))
-        guard !Task.isCancelled else { return }
-        await self?.timeoutWriteWithoutResponseReadiness()
-      }
+    } onCancel: {
+      Task { await self.cancelWriteWithoutResponseReadiness(id: waitID) }
     }
   }
 
-  /// Fails a parked `sendWithoutResponse` caller when the peripheral has not re-signalled
-  /// readiness within the backstop interval. A no-op when no caller is parked.
-  private func timeoutWriteWithoutResponseReadiness() {
-    guard let continuation = writeWithoutResponseReadyContinuation else { return }
-    writeWithoutResponseReadyContinuation = nil
-    writeWithoutResponseReadyTimeoutTask = nil
+  private func timeoutWriteWithoutResponseReadiness(id: UUID) {
+    guard writeWithoutResponseReadyID == id else { return }
     logger.warning("[BLE] Write-without-response readiness timeout after \(writeTimeout)s")
-    continuation.resume(throwing: BLEError.operationTimeout)
+    completeWriteWithoutResponseReadiness(error: BLEError.operationTimeout)
   }
 
-  /// Resumes a parked `sendWithoutResponse` caller when CoreBluetooth reports the peripheral
-  /// can accept another Write Command. A no-op when no caller is parked.
-  func handlePeripheralReadyForWriteWithoutResponse() {
+  private func cancelWriteWithoutResponseReadiness(id: UUID) {
+    guard writeWithoutResponseReadyID == id else { return }
+    completeWriteWithoutResponseReadiness(error: CancellationError())
+  }
+
+  func cancelUnsubmittedWrites(sessionBinding: SessionTransportBinding) {
+    guard writeWithoutResponseReadyBinding === sessionBinding else { return }
+    completeWriteWithoutResponseReadiness(error: MeshTransportError.cancelledBeforeSubmission)
+  }
+
+  private func completeWriteWithoutResponseReadiness(error: Error? = nil) {
     guard let continuation = writeWithoutResponseReadyContinuation else { return }
     writeWithoutResponseReadyContinuation = nil
+    writeWithoutResponseReadyID = nil
+    writeWithoutResponseReadyBinding = nil
     writeWithoutResponseReadyTimeoutTask?.cancel()
     writeWithoutResponseReadyTimeoutTask = nil
-    continuation.resume()
+    if let error { continuation.resume(throwing: error) } else { continuation.resume() }
+  }
+
+  /// Resumes a parked sender only when its current peripheral can accept a Write Command.
+  func handlePeripheralReadyForWriteWithoutResponse(_ peripheral: CBPeripheral) {
+    guard case let .connected(current, _, _, _) = phase,
+          current === peripheral,
+          current.canSendWriteWithoutResponse else { return }
+    resumeWriteWithoutResponseReadiness()
+  }
+
+  func handlePeripheralReadyForWriteWithoutResponse(_ peripheral: CBPeripheral, generation: UInt64) {
+    guard connectionGeneration == generation else { return }
+    handlePeripheralReadyForWriteWithoutResponse(peripheral)
+  }
+
+  func resumeWriteWithoutResponseReadiness() {
+    completeWriteWithoutResponseReadiness()
   }
 
   /// Records whether the resolved write characteristic advertises Write-Without-Response.
@@ -854,6 +993,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     // Cancel all timeout tasks
     bluetoothPowerOffGraceTask?.cancel()
     bluetoothPowerOffGraceTask = nil
+    bluetoothPowerOffGraceID = nil
     autoReconnectDiscoveryTimeoutTask?.cancel()
     autoReconnectDiscoveryTimeoutTask = nil
     serviceDiscoveryTimeoutTask?.cancel()
@@ -879,18 +1019,19 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     case let .subscribingToNotifications(_, _, _, continuation):
       continuation.resume(throwing: CancellationError())
     case let .connected(_, _, _, dataContinuation):
-      delegateHandler.setDataContinuation(nil)
+      delegateHandler.clearDataContinuation()
       dataContinuation.finish()
     default:
       break
     }
 
     let deviceID = phase.deviceID
+    bluetoothWaitID = nil
     phase = .idle
     phaseStartTime = Date()
 
     if let deviceID {
-      onDisconnection?(deviceID, nil)
+      notifyDisconnection(deviceID, nil)
     }
   }
 
@@ -943,12 +1084,57 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   // callers must call shutdown() explicitly before dropping the actor reference.
 
   /// Disconnects from the current device.
-  func disconnect() async {
+  func disconnect(expectedGeneration: UInt64? = nil) async {
+    await disconnect(
+      generation: expectedGeneration ?? connectionGeneration, sessionBinding: nil, pendingOnly: false
+    )
+  }
+
+  func disconnect(sessionBinding: SessionTransportBinding) async {
+    await disconnect(generation: connectionGeneration, sessionBinding: sessionBinding, pendingOnly: false)
+  }
+
+  func cancelPendingEstablishment(sessionBinding: SessionTransportBinding) async {
+    await disconnect(generation: connectionGeneration, sessionBinding: sessionBinding, pendingOnly: true)
+  }
+
+  private func permitsDisconnect(sessionBinding: SessionTransportBinding?, pendingOnly: Bool) -> Bool {
+    if let sessionBinding, activeSessionBinding !== sessionBinding { return false }
+    guard pendingOnly else { return true }
+    switch phase {
+    case .waitingForBluetooth, .connecting, .discoveringServices, .discoveringCharacteristics,
+         .subscribingToNotifications, .discoveryComplete:
+      return true
+    default:
+      return false
+    }
+  }
+
+  private func disconnect(generation: UInt64, sessionBinding: SessionTransportBinding?, pendingOnly: Bool) async {
+    guard generation == connectionGeneration,
+          permitsDisconnect(sessionBinding: sessionBinding, pendingOnly: pendingOnly) else { return }
+    if let disconnectTask, disconnectTask.generation == generation {
+      await disconnectTask.task.value
+      return
+    }
+    let id = UUID()
+    let worker = Task {
+      await performDisconnect(generation: generation, sessionBinding: sessionBinding, pendingOnly: pendingOnly)
+    }
+    disconnectTask = (id, generation, worker)
+    await worker.value
+    if disconnectTask?.id == id { disconnectTask = nil }
+  }
+
+  private func performDisconnect(generation: UInt64, sessionBinding: SessionTransportBinding?, pendingOnly: Bool) async {
+    guard generation == connectionGeneration,
+          permitsDisconnect(sessionBinding: sessionBinding, pendingOnly: pendingOnly) else { return }
     logger.info("Disconnect requested")
 
     // Cancel Bluetooth power-off grace period
     bluetoothPowerOffGraceTask?.cancel()
     bluetoothPowerOffGraceTask = nil
+    bluetoothPowerOffGraceID = nil
 
     // Cancel write timeout task
     writeTimeoutTask?.cancel()
@@ -956,7 +1142,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
     // Reset queue tracking
     consecutiveQueuedWrites = 0
-    earliestNextWrite = .now
+    earliestNextWrite = operationClock.now()
 
     // Cancel pending write
     if let pending = pendingWriteContinuation {
@@ -966,7 +1152,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
     // Resume all write waiters (they'll fail on the .connected check)
     while !writeWaiters.isEmpty {
-      writeWaiters.removeFirst().resume()
+      writeWaiters.removeFirst().continuation.resume(throwing: BLEError.notConnected)
     }
 
     // Get peripheral before cancelling
@@ -985,31 +1171,16 @@ actor BLEStateMachine: BLEStateMachineProtocol {
       centralManager.cancelPeripheralConnection(peripheral)
 
       // Wait briefly for disconnection to complete
-      try? await Task.sleep(for: .milliseconds(100))
+      try? await operationClock.sleep(Self.disconnectSettleDelay)
     }
 
+    guard generation == connectionGeneration,
+          permitsDisconnect(sessionBinding: sessionBinding, pendingOnly: false) else { return }
     transition(to: .idle)
     logger.info("Disconnect complete")
   }
 
-  /// Switches to a different device.
-  ///
-  /// Disconnects from current device (if any) and connects to the new one.
-  ///
-  /// - Parameter deviceID: UUID of the new device to connect to
-  /// - Returns: AsyncStream of data from the new device
-  /// - Throws: BLEError if connection fails
-  func switchDevice(to deviceID: UUID) async throws -> AsyncStream<Data> {
-    logger.info("Switch device requested: \(deviceID)")
-
-    // Disconnect current device
-    await disconnect()
-
-    // Connect to new device
-    return try await connect(to: deviceID)
-  }
-
-  private func connectToPeripheral(_ peripheral: CBPeripheral) async throws {
+  private func connectToPeripheral(_ peripheral: CBPeripheral, sessionBinding: SessionTransportBinding?) async throws {
     let pState = peripheralStateString(peripheral.state)
     logger.info("[BLE] Connecting to peripheral: \(peripheral.identifier.uuidString.prefix(8)), currentState: \(pState), timeout: \(connectionTimeout)s, autoReconnect: enabled")
 
@@ -1032,7 +1203,19 @@ actor BLEStateMachine: BLEStateMachineProtocol {
         CBConnectPeripheralOptionNotifyOnNotificationKey: true,
         CBConnectPeripheralOptionEnableAutoReconnect: true
       ]
-      centralManager.connect(peripheral, options: options)
+      do {
+        if let sessionBinding {
+          try sessionBinding.performIfActive {
+            centralManager.connect(peripheral, options: options)
+          }
+        } else {
+          centralManager.connect(peripheral, options: options)
+        }
+      } catch {
+        timeoutTask.cancel()
+        transition(to: .idle)
+        continuation.resume(throwing: error)
+      }
     }
   }
 
@@ -1089,6 +1272,15 @@ extension BLEStateMachine {
     }
   }
 
+  func installDataContinuation(_ continuation: AsyncStream<Data>.Continuation, peripheral: CBPeripheral, rx: CBCharacteristic) {
+    dataStreamSequence &+= 1
+    let binding = activeSessionBinding.map { String(describing: ObjectIdentifier($0)) }
+    delegateHandler.setDataContinuation(
+      continuation, peripheral: peripheral, characteristic: rx, instanceID: instanceID,
+      generation: connectionGeneration, streamSequence: dataStreamSequence, binding: binding
+    )
+  }
+
   /// Replaces the connected phase's data stream with a fresh one and returns it,
   /// or returns nil when not `.connected`.
   ///
@@ -1104,14 +1296,29 @@ extension BLEStateMachine {
   /// background keepalive on every rebuild), and the outgoing continuation is
   /// dropped without finish() because its consumer is already cancelled and
   /// continuation deinit terminates the dead storage.
-  func renewDataStream() -> AsyncStream<Data>? {
+  func renewDataStream(sessionBinding: SessionTransportBinding? = nil) -> AsyncStream<Data>? {
+    if let sessionBinding {
+      guard activeSessionBinding === sessionBinding, sessionBinding.isActive else { return nil }
+    }
     guard case let .connected(peripheral, tx, rx, _) = phase else { return nil }
     let (stream, continuation) = AsyncStream.makeStream(
       of: Data.self,
       bufferingPolicy: .bufferingOldest(512)
     )
-    phase = .connected(peripheral: peripheral, tx: tx, rx: rx, dataContinuation: continuation)
-    delegateHandler.setDataContinuation(continuation)
+    do {
+      if let sessionBinding {
+        try sessionBinding.performIfActive {
+          phase = .connected(peripheral: peripheral, tx: tx, rx: rx, dataContinuation: continuation)
+          installDataContinuation(continuation, peripheral: peripheral, rx: rx)
+        }
+      } else {
+        phase = .connected(peripheral: peripheral, tx: tx, rx: rx, dataContinuation: continuation)
+        installDataContinuation(continuation, peripheral: peripheral, rx: rx)
+      }
+    } catch {
+      continuation.finish()
+      return nil
+    }
     return stream
   }
 
@@ -1136,6 +1343,12 @@ extension BLEStateMachine {
     }
 
     switch oldPhase {
+    case .waitingForBluetooth:
+      bluetoothWaitID = nil
+      bluetoothPowerOffGraceTask?.cancel()
+      bluetoothPowerOffGraceTask = nil
+      bluetoothPowerOffGraceID = nil
+
     case let .connecting(_, _, timeoutTask):
       timeoutTask.cancel()
 
@@ -1149,7 +1362,7 @@ extension BLEStateMachine {
       // because that path keeps the phase `.connected`.
       appSessionLiveDeviceID = nil
       // Clear delegate handler's continuation first to stop data flow
-      delegateHandler.setDataContinuation(nil)
+      delegateHandler.clearDataContinuation()
       dataContinuation.finish()
 
     default:
@@ -1164,7 +1377,7 @@ extension BLEStateMachine {
     writeTimeoutTask?.cancel()
     writeTimeoutTask = nil
     consecutiveQueuedWrites = 0
-    earliestNextWrite = .now
+    earliestNextWrite = operationClock.now()
     // Outstanding write callbacks either never arrive (link dropped) or
     // find no continuation; their recorded sequences must not survive to
     // mis-tag the next connection's first write callback.
@@ -1176,11 +1389,11 @@ extension BLEStateMachine {
     }
 
     while !writeWaiters.isEmpty {
-      writeWaiters.removeFirst().resume()
+      writeWaiters.removeFirst().continuation.resume(throwing: error)
     }
 
     // Release a Write-Command sender parked on backpressure so it doesn't hang past the drop.
-    handlePeripheralReadyForWriteWithoutResponse()
+    resumeWriteWithoutResponseReadiness()
   }
 
   /// Cancels the current operation, resuming any pending continuation with an error.
@@ -1313,7 +1526,7 @@ extension BLEStateMachine {
       )
       centralManager.cancelPeripheralConnection(peripheral)
       transition(to: .idle)
-      onDisconnection?(peripheral.identifier, teardownError)
+      notifyDisconnection(peripheral.identifier, teardownError)
     }
   }
 }

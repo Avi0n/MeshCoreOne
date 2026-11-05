@@ -46,9 +46,6 @@
 /* Section header for device information */
 "device.header" = "设备";
 
-/* Status shown when device is connected */
-"device.connected" = "已连接";
-
 /* Footer shown when no device is connected */
 "device.noDeviceConnected" = "未连接 MeshCore 设备";
 
@@ -59,12 +56,6 @@
 
 /* Navigation title for device info screen */
 "deviceInfo.title" = "设备信息";
-
-/* Section header for connection status */
-"deviceInfo.connection.header" = "连接";
-
-/* Label for connection status */
-"deviceInfo.connection.status" = "状态";
 
 /* Section header for power and storage */
 "deviceInfo.powerStorage.header" = "电源和存储";
@@ -110,6 +101,12 @@
 
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
+
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "上次成功读数";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "节点遥测数据";
 
 /* Section header for identity information */
 /* Label for public key */
@@ -164,6 +161,9 @@
 
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "扫描蓝牙设备";
+
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "重新配对中...";
 
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
@@ -872,6 +872,9 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "伴侣节点";
 
+/* TODO: translate */
+"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "中继器";
 
@@ -1032,6 +1035,9 @@
 
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "密码最多为 63 字节。";
+
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "网络名称或密码包含此无线电无法存储的字符。";
 
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "清除 WiFi 设置";
@@ -1198,6 +1204,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "每条私信发送的确认数量。在不可靠的链路上使用 2 以获得更好的送达确认。";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "初始尝试";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "泛洪回退尝试";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "初始尝试在联系人没有出站路径时使用泛洪。泛洪回退将先尝试重置出站路径，再进行额外尝试。将“泛洪回退尝试”设为 0 以跳过重置出站路径和额外尝试。";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */
@@ -1212,11 +1227,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "断开连接";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "停止重新连接";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "取消连接";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "已断开";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "连接中...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "正在重新连接...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "等待重新连接";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "已连接";
@@ -1229,6 +1256,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "蓝牙连接状态";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "双击以连接设备";
@@ -1332,6 +1362,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ 部分设置可能已写入设备。请检查设备的配置。";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "向 %@ 导入身份时连接中断。无线电的身份可能已更改。配置导入未完成。";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "重试身份导入";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "此操作将使用所选文件中的私钥，替换通过 %@ 连接的无线电的身份。配置导入不会继续。";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "替换无线电身份？";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "身份已重新应用。配置导入未完成。请再次导入文件以应用其他设置。";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "请选择包含私钥的配置文件以重试身份导入。";
 
 /* Import success */
 "configImport.importSuccess" = "配置导入成功";
@@ -2062,7 +2110,7 @@
 "settings.backup.export.alert.title" = "安全提示";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史、联系人列表以及 WiFi 节点的本地网络地址和端口。请妥善保管导出的文件。";
+"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史、联系人列表以及 WiFi 节点的本地网络地址和端口。此备份还可能包含已记录的电台 GPS 坐标。请妥善保管导出的文件。";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "导出";

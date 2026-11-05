@@ -53,6 +53,21 @@ public protocol NodeSnapshotPersisting: Actor {
 
   /// Delete snapshots older than the given date
   func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws
+
+  /// Checks Device identity before saving so a delayed write cannot recreate deleted history.
+  func recordSelfTelemetrySnapshot(
+    deviceID: UUID,
+    radioID: UUID,
+    nodePublicKey: Data,
+    telemetry: [TelemetrySnapshotEntry]?,
+    location: NodeLocationFix?
+  ) async throws -> UUID?
+
+  /// Self telemetry captured for one radio under one public key, oldest first.
+  func fetchSelfTelemetrySnapshots(
+    radioID: UUID,
+    nodePublicKey: Data
+  ) async throws -> [NodeStatusSnapshotDTO]
 }
 
 public extension NodeSnapshotPersisting {

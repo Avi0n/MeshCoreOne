@@ -10,7 +10,7 @@ struct ContactShareUtilitiesTests {
   // MARK: - Round-trip
 
   @Test(
-    arguments: [ContactType.chat, .repeater, .room]
+    arguments: [ContactType.chat, .repeater, .room, .sensor]
   )
   func `formatShare then parseShare round-trips for every contact type`(type: ContactType) throws {
     let publicKey = try #require(Data(hexString: Self.validHex))
@@ -64,7 +64,7 @@ struct ContactShareUtilitiesTests {
   // MARK: - Adversarial type bounds (regression for the trap)
 
   @Test(
-    arguments: ["256", "300", "99999999999999999999", "0", "4"]
+    arguments: ["256", "300", "99999999999999999999", "0", "127"]
   )
   func `parseShare rejects out-of-range and overflowing type values without trapping`(typeDigits: String) {
     let token = "<\(Self.validHex):\(typeDigits):x>"

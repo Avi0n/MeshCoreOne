@@ -230,47 +230,87 @@ struct SettingsRefreshPropagationTests {
   @Test
   func `config import completion publishes name RF and TX without a second reconciliation`() async throws {
     let eu = try #require(RadioPresets.all.first { $0.id == "eu-narrow" })
-    let fixture = try await RefreshFixture.make(device: savedDevice(catalogID: "hu"), state: .init())
-    defer { fixture.stop() }
-    let callbacks = CallbackCount()
-    let services = fixture.services
-    let manager = fixture.appState.connectionManager
-    let deviceID = fixture.device.id
-    await services.nodeConfigService.setOnPostIdentityImport {
-      await callbacks.increment()
-      return try await manager.reconcileIdentity(expectedServices: services, deviceID: deviceID)
+    let env = try await ConnectionLinkSwitchHarness.make()
+    let radio = env.bluetooth
+    let viewModel = NodeConfigImportViewModel()
+    var bodyError: (any Error)?
+    do {
+      await radio.setConnectError(nil)
+      let importedKey = Data(repeating: 0x22, count: ProtocolLimits.publicKeySize)
+      await radio.setIdentityImportPublicKey(importedKey)
+      await env.appState.wireServicesIfConnected()
+      let source = try #require(env.manager.currentConnection)
+      viewModel.importedConfig = MeshCoreNodeConfig(
+        name: "Imported", privateKey: String(repeating: "ab", count: 64),
+        radioSettings: .init(
+          frequency: eu.frequencyKHz, bandwidth: eu.bandwidthHz,
+          spreadingFactor: eu.spreadingFactor, codingRate: eu.codingRate, txPower: 10
+        )
+      )
+      viewModel.configure(
+        nodeConfigService: { env.manager.services?.nodeConfigService },
+        settingsService: { env.manager.services?.settingsService },
+        connectedDevice: { env.manager.connectedDevice }, connectionManager: env.manager
+      )
+      viewModel.sections.nodeIdentity = true
+      viewModel.sections.radioSettings = true
+      viewModel.prepareConfirmation()
+      await viewModel.previewTask?.value
+      try #require(viewModel.showConfirmation && viewModel.errorMessage == nil)
+      await radio.holdReplies(for: .setTxPower)
+      viewModel.applyConfig()
+      try await waitUntil("the imported settings should reach the last selected write") {
+        await radio.heldReplyCount(for: .setTxPower) == 1
+      }
+      var finalState = PropagationRadio.State()
+      finalState.publicKey = importedKey
+      finalState.nodeName = "Imported"
+      finalState.frequencyKHz = eu.frequencyKHz
+      finalState.bandwidthHz = eu.bandwidthHz
+      finalState.spreadingFactor = eu.spreadingFactor
+      finalState.codingRate = eu.codingRate
+      finalState.txPower = 10
+      await radio.releaseReplies(for: .setTxPower)
+      try await waitUntil("the import refresh should publish name, RF, and TX") {
+        !viewModel.isApplying && env.manager.connectedDevice?.nodeName == finalState.nodeName
+          && env.manager.connectedDevice?.frequency == eu.frequencyKHz
+          && env.manager.connectedDevice?.txPower == finalState.txPower
+      }
+      let live = try #require(env.manager.currentConnection)
+      let stored = try #require(try await env.manager.persistenceStore.fetchDevice(id: source.device.id))
+      for device in [live.device, stored] {
+        #expect(device.nodeName == finalState.nodeName)
+        #expect(device.frequency == eu.frequencyKHz)
+        #expect(device.bandwidth == eu.bandwidthHz)
+        #expect(device.spreadingFactor == eu.spreadingFactor)
+        #expect(device.codingRate == eu.codingRate)
+        #expect(device.txPower == finalState.txPower)
+        #expect(device.publicKey == importedKey)
+        #expect(device.radioID == source.device.radioID)
+        #expect(device.id == source.device.id)
+      }
+      #expect(viewModel.errorMessage == nil)
+      #expect(viewModel.importComplete)
+      #expect(live.generation != source.generation)
+      #expect(live.services !== source.services)
+      let frames = await radio.sentData
+      #expect(frames.filter { $0.first == CommandCode.importPrivateKey.rawValue }.count == 1)
+      #expect(frames.filter { $0.first == CommandCode.setName.rawValue } == [PacketBuilder.setName(finalState.nodeName)])
+      #expect(frames.filter { $0.first == CommandCode.setRadio.rawValue } == [PacketBuilder.setRadio(
+        frequency: eu.frequencyMHz, bandwidth: eu.bandwidthKHz,
+        spreadingFactor: eu.spreadingFactor, codingRate: eu.codingRate
+      )])
+      #expect(frames.filter { $0.first == CommandCode.setTxPower.rawValue } == [PacketBuilder.setTxPower(finalState.txPower)])
+    } catch {
+      bodyError = error
     }
-    let viewModel = configuredImport(
-      fixture: fixture,
-      name: "Imported",
-      radio: eu,
-      txPower: 10
-    )
-
-    viewModel.applyConfig(
-      nodeConfigService: fixture.services.nodeConfigService,
-      settingsService: fixture.services.settingsService,
-      radioID: fixture.device.radioID
-    )
-    try await waitUntil("the import refresh should publish name, RF, and TX") {
-      fixture.appState.connectedDevice?.nodeName == "Imported"
-        && fixture.appState.connectedDevice?.frequency == eu.frequencyKHz
-        && fixture.appState.connectedDevice?.txPower == 10
-        && fixture.appState.connectedDevice?.publicKey == Data(repeating: 0x22, count: ProtocolLimits.publicKeySize)
-    }
-
-    #expect(viewModel.errorMessage == nil)
-    #expect(await callbacks.value == 1)
-    let stored = try #require(try await fixture.store.fetchDevice(radioID: fixture.device.radioID))
-    #expect(stored.nodeName == "Imported")
-    #expect(stored.frequency == eu.frequencyKHz)
-    #expect(stored.bandwidth == eu.bandwidthHz)
-    #expect(stored.spreadingFactor == eu.spreadingFactor)
-    #expect(stored.codingRate == eu.codingRate)
-    #expect(stored.txPower == 10)
-    #expect(stored.publicKey == Data(repeating: 0x22, count: ProtocolLimits.publicKeySize))
-    #expect(stored.radioID == fixture.device.radioID)
-    #expect(stored.id == fixture.device.id)
+    viewModel.cancelImport()
+    viewModel.previewTask?.cancel()
+    await radio.releaseAllGates()
+    await viewModel.importTask?.value
+    await viewModel.previewTask?.value
+    await env.close()
+    if let bodyError { throw bodyError }
   }
 
   @Test(arguments: [UInt8(0), 1, 2, 3, 4, 255])
@@ -445,18 +485,18 @@ struct SettingsRefreshPropagationTests {
     #expect(viewModel.importedConfig?.otherSettings?.telemetryModeLocation == 4)
     #expect(viewModel.importedConfig?.otherSettings?.telemetryModeEnvironment == 4)
 
-    viewModel.prepareConfirmation(nodeConfigService: fixture.services.nodeConfigService)
+    viewModel.configure(
+      nodeConfigService: { fixture.services.nodeConfigService }, settingsService: { fixture.services.settingsService },
+      connectedDevice: { fixture.appState.connectedDevice }, connectionManager: fixture.appState.connectionManager
+    )
+    viewModel.prepareConfirmation()
     try await waitUntil("preview should accept the config") {
       viewModel.showConfirmation || viewModel.errorMessage != nil
     }
     #expect(viewModel.errorMessage == nil)
     #expect(viewModel.showConfirmation)
 
-    viewModel.applyConfig(
-      nodeConfigService: fixture.services.nodeConfigService,
-      settingsService: fixture.services.settingsService,
-      radioID: fixture.device.radioID
-    )
+    viewModel.applyConfig()
     try await waitUntil("imported telemetry mode 4 should persist as 0") {
       fixture.appState.connectedDevice?.telemetryModeBase == 0
         && fixture.appState.connectedDevice?.telemetryModeLoc == 0
@@ -506,9 +546,12 @@ private struct RefreshFixture {
     appState.connectionManager.setTestState(
       connectionState: .ready,
       services: services,
-      connectedDevice: device
+      session: session,
+      connectedDevice: device,
+      connectionIntent: .wantsConnection()
     )
-    await appState.wireSettingsEventStream(services: services)
+    let snapshot = try #require(appState.connectionManager.currentConnection)
+    await appState.wireSettingsEventStream(snapshot: snapshot)
     return RefreshFixture(
       preferences: preferences,
       appState: appState,
@@ -566,37 +609,6 @@ private func expectPreservedMetadata(_ device: DeviceDTO, matches original: Devi
   #expect(device.pathHashMode == original.pathHashMode)
   #expect(device.defaultFloodScopeName == original.defaultFloodScopeName)
   #expect(device.clientRepeat == original.clientRepeat)
-}
-
-@MainActor
-private func configuredImport(
-  fixture: RefreshFixture,
-  name: String,
-  radio: RadioPreset,
-  txPower: Int8
-) -> NodeConfigImportViewModel {
-  let viewModel = NodeConfigImportViewModel()
-  viewModel.importedConfig = MeshCoreNodeConfig(
-    name: name,
-    privateKey: String(repeating: "ab", count: 64),
-    radioSettings: .init(
-      frequency: radio.frequencyKHz,
-      bandwidth: radio.bandwidthHz,
-      spreadingFactor: radio.spreadingFactor,
-      codingRate: radio.codingRate,
-      txPower: txPower
-    )
-  )
-  viewModel.sections.nodeIdentity = true
-  viewModel.sections.radioSettings = true
-  return viewModel
-}
-
-private actor CallbackCount {
-  private(set) var value = 0
-  func increment() {
-    value += 1
-  }
 }
 
 private actor PropagationRadio: MeshTransport {

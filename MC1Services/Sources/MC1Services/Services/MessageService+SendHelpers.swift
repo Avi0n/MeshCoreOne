@@ -38,8 +38,8 @@ func withPoolBackoff<T>(
 }
 
 extension MessageService {
-  func failMessageAndRethrow(_ error: Error, messageID: UUID) async throws -> Never {
-    pendingAcks.removeValue(forKey: messageID)
+  func failMessageAndRethrow(_ error: Error, messageID: UUID, pendingSendID: UUID? = nil) async throws -> Never {
+    await discardTrackedAck(messageID: messageID)
     // Persistence layer absorbs `.delivered`: if the listener won the race
     // before the throw path runs, the row stays delivered. Same invariant as
     // updateMessageRetryStatus and updateMessageAck. The Bool return is
@@ -49,7 +49,14 @@ extension MessageService {
     // above this call; queue-routed catch sites delegate to the queue's
     // outer catch, which calls `notifyMessageFailed` exactly once on any
     // non-`CancellationError` escape.
-    _ = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+    if let pendingSendID {
+      let failed = try await dataStore.resolvePendingAcknowledgement(
+        id: pendingSendID, expectedDeadline: nil, status: .failed, ackCode: nil, roundTripTime: nil
+      )
+      guard failed else { throw CancellationError() }
+    } else {
+      _ = try await dataStore.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+    }
     if let meshError = error as? MeshCoreError {
       throw MessageServiceError.sessionError(meshError)
     }

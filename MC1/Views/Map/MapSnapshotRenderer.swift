@@ -141,6 +141,10 @@ final class MapSnapshotRenderer: MapSnapshotRendering {
   /// A / B / hop names match `MC1MapView`; anything else uses the dropped pin.
   private static func spriteName(for point: MapPoint) -> String {
     switch point.pinStyle {
+    case .contactChat: "pin-chat"
+    case .contactRepeater: "pin-repeater"
+    case .contactRoom: "pin-room"
+    case .contactSensor: "pin-sensor"
     case .pointA: "pin-point-a"
     case .pointB: "pin-point-b"
     case .repeaterHop:

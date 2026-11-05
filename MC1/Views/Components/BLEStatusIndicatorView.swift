@@ -9,6 +9,7 @@ private let logger = Logger(subsystem: "com.mc1", category: "BLEStatus")
 /// Shows connection state via color-coded icon with menu details
 struct BLEStatusIndicatorView: View {
   @Environment(\.appState) private var appState
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var showingDeviceSelection = false
   @State private var isSendingAdvert = false
   @State private var successFeedbackTrigger = false
@@ -26,7 +27,7 @@ struct BLEStatusIndicatorView: View {
     } label: {
       // Overflow uses the title; iconOnly keeps the bar glyph-only.
       Label {
-        Text(L10n.Settings.BleStatus.accessibilityLabel)
+        Text(accessibilityLabel)
       } icon: {
         StatusIcon(iconName: iconName, iconColor: iconColor, isAnimating: isAnimating)
       }
@@ -34,12 +35,9 @@ struct BLEStatusIndicatorView: View {
       .tint(iconColor)
     }
     .popoverTip(deviceMenuTip)
-    .dynamicTypeSize(...DynamicTypeSize.xLarge)
     .sensoryFeedback(.success, trigger: successFeedbackTrigger)
     .sensoryFeedback(.error, trigger: errorFeedbackTrigger)
-    .accessibilityLabel(L10n.Settings.BleStatus.accessibilityLabel)
-    .accessibilityValue(statusTitle)
-    .accessibilityHint(accessibilityHint)
+    .accessibilityHint(L10n.Settings.BleStatus.AccessibilityHint.connected)
     .onChange(of: appState.connectedDevice != nil, initial: true) { _, isConnected in
       DeviceMenuTip.isConnected = isConnected
     }
@@ -56,14 +54,14 @@ struct BLEStatusIndicatorView: View {
 
   @ViewBuilder
   private var menuContent: some View {
-    if let device = appState.connectedDevice {
-      Section {
-        if device.clientRepeat {
-          Label(L10n.Settings.BleStatus.repeatModeActive, systemImage: "repeat")
-            .foregroundStyle(AppColors.Radio.repeatMode)
-        }
-        VStack(alignment: .leading) {
-          Label(device.nodeName, systemImage: "antenna.radiowaves.left.and.right")
+    if let activity = appState.connectionManager.connectionActivity {
+      let isConnected = appState.connectionState.isConnected
+      Section(activity.accessibilityValue) {
+        if let device = appState.connectedDevice {
+          if device.clientRepeat {
+            Label(L10n.Settings.BleStatus.repeatModeActive, systemImage: "repeat")
+              .foregroundStyle(AppColors.Radio.repeatMode)
+          }
           if let battery = appState.batteryMonitor.deviceBattery {
             let ocvArray = appState.batteryMonitor.activeBatteryOCVArray(for: appState.connectedDevice)
             Label(
@@ -72,51 +70,54 @@ struct BLEStatusIndicatorView: View {
             )
             .font(.caption)
             .foregroundStyle(.secondary)
+            .tint(.secondary)
           }
         }
-        .foregroundStyle(.secondary)
-        .tint(.secondary)
 
-        Button {
-          showingDeviceSelection = true
-        } label: {
-          Label(L10n.Settings.BleStatus.changeDevice, systemImage: "flipphone")
+        if isConnected {
+          changeDeviceButton
         }
 
-        Button(role: .destructive) {
+        Button(role: isConnected ? .destructive : nil) {
           logger.info("Disconnect tapped in BLE status menu")
           Task {
-            await appState.disconnect(reason: .statusMenuDisconnectTap)
+            await appState.disconnect(requestID: activity.requestID, reason: .statusMenuDisconnectTap)
           }
         } label: {
-          Label(L10n.Settings.BleStatus.disconnect, systemImage: "eject")
+          Label(activity.stopTitle, systemImage: "eject")
         }
-        .tint(Color(.systemRed))
+        .tint(isConnected ? Color(.systemRed) : nil)
+
+        if !isConnected {
+          changeDeviceButton
+        }
       }
 
-      Section {
-        Button {
-          sendAdvert(flood: false)
-        } label: {
-          Label(L10n.Settings.BleStatus.sendZeroHopAdvert, systemImage: "dot.radiowaves.right")
-        }
-        .radioDisabled(for: appState.connectionState, or: isSendingAdvert)
-        .accessibilityHint(L10n.Settings.BleStatus.SendZeroHopAdvert.hint)
+      if appState.connectedDevice != nil {
+        Section {
+          Button {
+            sendAdvert(flood: false)
+          } label: {
+            Label(L10n.Settings.BleStatus.sendZeroHopAdvert, systemImage: "dot.radiowaves.right")
+          }
+          .radioDisabled(for: appState.connectionState, or: isSendingAdvert)
+          .accessibilityHint(L10n.Settings.BleStatus.SendZeroHopAdvert.hint)
 
-        Button {
-          sendAdvert(flood: true)
-        } label: {
-          Label(L10n.Settings.BleStatus.sendFloodAdvert, systemImage: "dot.radiowaves.left.and.right")
+          Button {
+            sendAdvert(flood: true)
+          } label: {
+            Label(L10n.Settings.BleStatus.sendFloodAdvert, systemImage: "dot.radiowaves.left.and.right")
+          }
+          .radioDisabled(for: appState.connectionState, or: isSendingAdvert)
+          .accessibilityHint(L10n.Settings.BleStatus.SendFloodAdvert.hint)
         }
-        .radioDisabled(for: appState.connectionState, or: isSendingAdvert)
-        .accessibilityHint(L10n.Settings.BleStatus.SendFloodAdvert.hint)
-      }
 
-      Section {
-        Button {
-          appState.navigation.navigateToSetting(.advanced)
-        } label: {
-          Label(L10n.Settings.AdvancedSettings.title, systemImage: "gearshape")
+        Section {
+          Button {
+            appState.navigation.navigateToSetting(.advanced)
+          } label: {
+            Label(L10n.Settings.AdvancedSettings.title, systemImage: "gearshape")
+          }
         }
       }
     } else {
@@ -128,10 +129,17 @@ struct BLEStatusIndicatorView: View {
     }
   }
 
-  private var accessibilityHint: String {
-    appState.connectedDevice != nil
-      ? L10n.Settings.BleStatus.AccessibilityHint.connected
-      : L10n.Settings.BleStatus.AccessibilityHint.disconnected
+  private var changeDeviceButton: some View {
+    Button {
+      showingDeviceSelection = true
+    } label: {
+      Label(L10n.Settings.BleStatus.changeDevice, systemImage: "flipphone")
+    }
+  }
+
+  private var accessibilityLabel: String {
+    let value = appState.connectionManager.connectionActivity?.accessibilityValue ?? statusTitle
+    return L10n.Settings.BleStatus.accessibilityValue(L10n.Settings.BleStatus.accessibilityLabel, value)
   }
 
   // MARK: - Computed Properties
@@ -160,11 +168,12 @@ struct BLEStatusIndicatorView: View {
   }
 
   private var isAnimating: Bool {
-    appState.connectionState == .connecting
+    appState.connectionState == .connecting && !reduceMotion
   }
 
   private var statusTitle: String {
-    switch appState.connectionState {
+    if let activity = appState.connectionManager.connectionActivity { return activity.statusTitle }
+    return switch appState.connectionState {
     case .disconnected:
       L10n.Settings.BleStatus.Status.disconnected
     case .connecting:

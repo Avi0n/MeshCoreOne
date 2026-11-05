@@ -106,13 +106,10 @@ Handles message sending with automatic retry logic, flood routing fallback, and 
 ### Configuration
 
 ```swift
-struct MessageServiceConfig: Sendable {  // internal; defined in MessageServiceConfig.swift
-    let floodFallbackOnRetry: Bool        // Use flood on manual retry (default: true)
-    let maxAttempts: Int                  // Total attempts (default: 5; capped at 5 = 4 direct + 1 flood)
-    let maxFloodAttempts: Int             // Max flood attempts (default: 1)
-    let floodAfter: Int                   // Switch to flood after N direct attempts (default: 4)
+struct MessageServiceConfig {            // internal; defined in MessageServiceConfig.swift
+    let floodFallbackOnRetry: Bool        // Currently unused (default: true)
     let minTimeout: TimeInterval          // Minimum timeout seconds (default: 0)
-    let triggerPathDiscoveryAfterFlood: Bool // Trigger path discovery after a successful flood
+    let triggerPathDiscoveryAfterFlood: Bool // Currently unused (default: true)
     let ackGiveUpWindow: TimeInterval     // Give-up floor for the ACK deadline on fast presets
     let poolBackoff: PoolBackoffConfig    // In-loop pool-exhaustion backoff tuning
 }
@@ -158,10 +155,10 @@ The `ContactService` used for path management during retry is injected via `Mess
 
 ### Retry Flow
 
-1. Direct routing for the first `floodAfter` attempts (using the contact's outbound path)
-2. Flood routing thereafter (broadcast to all nearby nodes), up to `maxAttempts` (capped at 5 = 4 direct + 1 flood)
-3. Returns immediately when ACK received
-4. Marks failed if all attempts exhausted
+1. DM loops read `DMSendBudget` once. The default is 4 attempts on the contact's current out path, then one `resetPath` and 4 fallback attempts. The counter runs `1/7` through `7/7`. Setting Flood Fallback Attempts to zero skips `resetPath`.
+2. The fallback count is not the radio's routing mode. The radio chooses Direct or Flood on every send. `DMSendBudget.totalAttempts` is the sum of its bounded initial and fallback counts. Room posts use fixed limits owned by `RoomServerService` (4 initial attempts and 1 fallback).
+3. Returns immediately when an ACK is received. A queued plain-text send waits while the previous one can still receive a late ACK.
+4. On exhaustion a DM stays `.sent` until that ACK arrives or the give-up window ends.
 
 ---
 

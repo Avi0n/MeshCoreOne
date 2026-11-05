@@ -15,6 +15,16 @@ import os
 public actor RequestResponseSerializer {
   private var isRequestInFlight = false
   private var waiters: [CheckedContinuation<Void, Never>] = []
+  private var settlementWaiters: [CheckedContinuation<Void, Never>] = []
+  private var hasUncertainResponseHistory = false
+
+  func requireIdentityImportResponseAttribution() throws {
+    guard !hasUncertainResponseHistory else { throw IdentityImportReconnectionError.uncertainResponseHistory }
+  }
+
+  func noteUncertainResponseHistory() {
+    hasUncertainResponseHistory = true
+  }
 
   /// ContactService lives outside MeshCore, and the memberwise initializer is internal.
   public init() {}
@@ -22,6 +32,12 @@ public actor RequestResponseSerializer {
   public var waiterCountForTest: Int {
     waiters.count
   }
+
+  #if DEBUG
+    var quiescenceWaiterCountForTesting: Int {
+      settlementWaiters.count
+    }
+  #endif
 
   /// Acquires the serializer, waiting if another request/response exchange is active.
   public func acquire() async {
@@ -42,7 +58,18 @@ public actor RequestResponseSerializer {
       next.resume()
     } else {
       isRequestInFlight = false
+      let settled = settlementWaiters
+      settlementWaiters.removeAll()
+      for waiter in settled {
+        waiter.resume()
+      }
     }
+  }
+
+  /// Joins the exchanges themselves, rather than their cancellable callers.
+  public func waitForQuiescence() async {
+    guard isRequestInFlight else { return }
+    await withCheckedContinuation { settlementWaiters.append($0) }
   }
 
   /// Executes a request/response operation while holding the serializer.
@@ -85,6 +112,9 @@ public actor RequestResponseSerializer {
           do {
             outcome = try await .success(operation())
           } catch {
+            if let failure = error as? MeshCoreError, case .timeout = failure {
+              noteUncertainResponseHistory()
+            }
             outcome = .failure(error)
           }
           release()

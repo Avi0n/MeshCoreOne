@@ -308,6 +308,66 @@ struct AppBackupEnvelopeTests {
   }
 
   @Test
+  func `snapshot of flood 0 restores as 0 and an empty suite reads 4 and 4`() throws {
+    let sourceName = "test.dmBudget.source.\(UUID().uuidString)"
+    let source = try #require(UserDefaults(suiteName: sourceName))
+    defer { source.removePersistentDomain(forName: sourceName) }
+    source.set(0, forKey: AppStorageKey.dmFloodAttempts.rawValue)
+
+    let snapshot = BackupUserDefaults.snapshot(from: source)
+    #expect(snapshot.dmDirectAttempts == nil)
+    #expect(snapshot.dmFloodAttempts == 0)
+
+    let destinationName = "test.dmBudget.destination.\(UUID().uuidString)"
+    let destination = try #require(UserDefaults(suiteName: destinationName))
+    defer { destination.removePersistentDomain(forName: destinationName) }
+    let empty = BackupUserDefaults.snapshot(from: destination)
+    #expect(empty.dmDirectAttempts == nil)
+    #expect(empty.dmFloodAttempts == nil)
+    let missing = DMSendBudget.current(defaults: destination)
+    #expect(missing.directAttempts == 4)
+    #expect(missing.floodAttempts == 4)
+
+    snapshot.restore(to: destination)
+    #expect(destination.object(forKey: AppStorageKey.dmDirectAttempts.rawValue) == nil)
+    #expect(destination.object(forKey: AppStorageKey.dmFloodAttempts.rawValue) != nil)
+    #expect(destination.integer(forKey: AppStorageKey.dmFloodAttempts.rawValue) == 0)
+    let restored = DMSendBudget.current(defaults: destination)
+    #expect(restored.directAttempts == 4)
+    #expect(restored.floodAttempts == 0)
+    #expect(restored.totalAttempts == 4)
+  }
+
+  @Test
+  func `restoring preferences preserves a saved 2 and 0 budget`() throws {
+    let decoded = try JSONDecoder().decode(
+      BackupUserDefaults.self, from: Data(#"{"hasCompletedOnboarding":true}"#.utf8)
+    )
+    let suiteName = "test.dmBudget.legacy.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    defaults.set(2, forKey: AppStorageKey.dmDirectAttempts.rawValue)
+    defaults.set(0, forKey: AppStorageKey.dmFloodAttempts.rawValue)
+
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(AppStorageKey.dmDirectAttempts.rawValue))
+    #expect(!setKeys.contains(AppStorageKey.dmFloodAttempts.rawValue))
+    let budget = DMSendBudget.current(defaults: defaults)
+    #expect(budget.directAttempts == 2)
+    #expect(budget.floodAttempts == 0)
+    #expect(budget.totalAttempts == 2)
+
+    var incoming = BackupUserDefaults()
+    incoming.dmDirectAttempts = 4
+    incoming.dmFloodAttempts = 4
+    let incomingSetKeys = incoming.restore(to: defaults)
+    #expect(incomingSetKeys.isEmpty)
+    let retained = DMSendBudget.current(defaults: defaults)
+    #expect(retained.directAttempts == 2)
+    #expect(retained.floodAttempts == 0)
+  }
+
+  @Test
   func `Legacy envelope without showIncomingSendTime decodes to nil and restore skips it`() throws {
     // A backup predating the toggle has no key. decodeIfPresent must yield nil,
     // and write-if-missing restore must leave any existing local value untouched.

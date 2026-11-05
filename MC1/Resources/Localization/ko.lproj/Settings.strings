@@ -46,9 +46,6 @@
 /* Section header for device information */
 "device.header" = "기기";
 
-/* Status shown when device is connected */
-"device.connected" = "연결됨";
-
 /* Footer shown when no device is connected */
 "device.noDeviceConnected" = "연결된 MeshCore 기기 없음";
 
@@ -59,12 +56,6 @@
 
 /* Navigation title for device info screen */
 "deviceInfo.title" = "기기 정보";
-
-/* Section header for connection status */
-"deviceInfo.connection.header" = "연결";
-
-/* Label for connection status */
-"deviceInfo.connection.status" = "상태";
 
 /* Section header for power and storage */
 "deviceInfo.powerStorage.header" = "전원 및 저장 공간";
@@ -110,6 +101,12 @@
 
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
+
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "마지막으로 성공한 측정값";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "노드 텔레메트리";
 
 /* Section header for identity information */
 /* Label for public key */
@@ -164,6 +161,9 @@
 
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Bluetooth 기기 검색";
+
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "다시 페어링 중...";
 
 /* Trailing control on a previously paired row that still needs iPhone setup */
 "deviceSelection.setup" = "설정";
@@ -877,6 +877,9 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "컴패니언";
 
+/* TODO: translate */
+"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "리피터";
 
@@ -1037,6 +1040,9 @@
 
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "암호는 최대 63바이트입니다.";
+
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "네트워크 이름 또는 암호에 이 무선 기기가 저장할 수 없는 문자가 포함되어 있습니다.";
 
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Wi-Fi 설정 지우기";
@@ -1203,6 +1209,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "다이렉트 메시지당 보내는 확인 응답 수입니다. 불안정한 링크에서 전달 확인을 개선하려면 2를 사용하십시오.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "초기 시도";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "플러드 대체 시도";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "초기 시도는 연락처에 발신 경로가 없으면 플러드 라우팅을 사용합니다. 플러드 대체는 추가 시도 전에 발신 경로를 재설정하려고 합니다. 경로 재설정과 추가 시도를 건너뛰려면 플러드 대체 시도를 0으로 설정하십시오.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */
@@ -1217,11 +1232,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "연결 해제";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "다시 연결 중지";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "연결 취소";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "연결 끊김";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "연결 중...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "다시 연결하는 중...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "다시 연결 대기 중";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "연결됨";
@@ -1234,6 +1261,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Bluetooth 연결 상태";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "기기를 연결하려면 이중 탭하십시오";
@@ -1337,6 +1367,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ 일부 설정이 이미 기기에 기록되었을 수 있습니다. 기기의 구성을 검토하십시오.";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "%@에 ID를 가져오는 동안 연결이 중단되었습니다. 무선 기기의 ID가 변경되었을 수 있습니다. 구성 가져오기가 완료되지 않았습니다.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "ID 가져오기 재시도";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "선택한 파일의 개인 키를 사용하여 %@을(를) 통해 연결되는 무선 기기의 ID를 교체합니다. 구성 가져오기는 계속되지 않습니다.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "무선 기기의 ID를 교체하겠습니까?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "ID가 다시 적용되었습니다. 구성 가져오기가 완료되지 않았습니다. 다른 설정을 적용하려면 파일을 다시 가져오십시오.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "ID 가져오기를 다시 시도하려면 개인 키가 포함된 구성 파일을 선택하십시오.";
 
 /* Import success */
 "configImport.importSuccess" = "구성을 가져왔습니다";
@@ -2067,7 +2115,7 @@
 "settings.backup.export.alert.title" = "보안 알림";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "이 백업에는 채널 암호화 키, 메시지 기록, 연락처 목록, Wi-Fi 노드의 로컬 네트워크 주소와 포트가 포함됩니다. 내보낸 파일을 안전하게 보관하십시오.";
+"settings.backup.export.alert.message" = "이 백업에는 채널 암호화 키, 메시지 기록, 연락처 목록, Wi-Fi 노드의 로컬 네트워크 주소와 포트가 포함됩니다. 무전기에서 수집한 GPS 좌표도 포함될 수 있습니다. 내보낸 파일을 안전하게 보관하십시오.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "내보내기";

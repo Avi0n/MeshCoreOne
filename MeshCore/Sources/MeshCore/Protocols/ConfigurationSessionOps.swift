@@ -198,6 +198,9 @@ public protocol ConfigurationSessionOps: Actor {
   /// Sent verbatim. Empty, whitespace-only, or out-of-range UTF-8 length is rejected before send.
   func runCliCommand(_ command: String) async throws -> String
 
+  /// Runs a typed CLI command with a unique reflected request tag and returns its unprefixed reply.
+  func runCorrelatedCliCommand(_ command: String) async throws -> String
+
   /// Sets a custom variable on the device.
   ///
   /// - Parameters:

@@ -31,6 +31,36 @@ struct PendingSendPersistenceTests {
     #expect(fetched.first == dto)
   }
 
+  @Test(arguments: [false, true])
+  func `single-attempt policy survives persistence and existing-row updates`(isSingleAttempt: Bool) async throws {
+    let store = try makeStore()
+    let radioID = UUID()
+    let envelope = DirectMessageEnvelope(
+      messageID: UUID(), contactID: UUID(), isSingleAttempt: isSingleAttempt
+    )
+    let dto = PendingSendDTO(envelope: envelope, radioID: radioID)
+    _ = try await store.insertPendingSendAssigningSequence(dto)
+
+    let inserted = try #require(try await store.fetchPendingSends(radioID: radioID).first)
+    #expect(inserted.isSingleAttempt == isSingleAttempt)
+    #expect(inserted.directMessageEnvelope()?.isSingleAttempt == isSingleAttempt)
+
+    let replacement = PendingSendDTO(
+      id: inserted.id,
+      envelope: DirectMessageEnvelope(
+        messageID: envelope.messageID, contactID: envelope.contactID, isSingleAttempt: !isSingleAttempt
+      ),
+      radioID: radioID
+    )
+    try await store.upsertPendingSend(replacement)
+
+    let rows = try await store.fetchPendingSends(radioID: radioID)
+    #expect(rows.count == 1)
+    let updated = try #require(rows.first)
+    #expect(updated.isSingleAttempt == !isSingleAttempt)
+    #expect(updated.directMessageEnvelope()?.isSingleAttempt == !isSingleAttempt)
+  }
+
   @Test
   func `Pending sends are scoped by radioID`() async throws {
     let store = try makeStore()

@@ -62,7 +62,7 @@ extension SendMessageIntent {
       case .invalidRecipient, .contactNotFound, .channelNotFound: .invalidRecipient
       case .messageTooLong: .messageTooLong
       case let .sessionError(underlying): .sessionError(underlying)
-      case .sendFailed: .sendFailed
+      case .sendFailed, .persistenceError: .sendFailed
       }
     case let serviceError as ChannelServiceError:
       switch serviceError {

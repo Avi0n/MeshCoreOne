@@ -111,8 +111,8 @@ Block unwanted contacts to prevent receiving messages from them:
 If a message fails to deliver:
 
 1. Tap the **Retry** button that appears below the failed message.
-2. The app re-attempts direct routing first, then falls back to flood routing (broadcast to all nearby nodes) only after the direct attempts are exhausted (by default, 4 direct attempts followed by 1 flood attempt).
-3. You'll see retry progress: "Retrying 1/4...", "Retrying 2/4...", etc.
+2. By default the app tries four times on the contact's current out path, then resets the out path and tries four more. The radio uses Flood when the contact has no out path. Set Flood Fallback Attempts to zero in Settings to skip the reset and extra attempts. A retry waits if another DM can still receive an ACK.
+3. You'll see retry progress from "Retrying 1/7..." through "Retrying 7/7...".
 
 ### Group Channels
 

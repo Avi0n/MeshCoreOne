@@ -82,13 +82,8 @@ extension PersistenceStore {
     _ dtos: [DeviceDTO],
     existingKeys: Set<Data>
   ) throws -> (inserted: Int, skipped: Int) {
-    // Assign a fresh Device.id on insert: the backup UUID was `CBPeripheral.identifier`
-    // from the source phone, and `Device.id` is `@Attribute(.unique)`. Reusing the
-    // backup UUID here could collide with a live local peripheral identifier and
-    // trigger SwiftData's upsert, silently overwriting the current Device row.
-    // Child records key by `radioID`, not `Device.id`, so the fresh id breaks no
-    // linkage; `ConnectionManager.buildServicesAndSaveDevice` cleans up the stub
-    // row when the user reconnects to the real radio.
+    // Remint Device ID to avoid upserting a local row with the source phone's handle.
+    // Children retain their Radio ID; public-key reconciliation reconnects the imported record.
     insertUnique(
       dtos,
       existingKeys: existingKeys,
@@ -645,14 +640,42 @@ extension PersistenceStore {
   @discardableResult
   func batchInsertNodeStatusSnapshots(
     _ dtos: [NodeStatusSnapshotDTO],
-    existingKeys: Set<String>
+    existingKeys: Set<String>,
+    existingIDs: Set<UUID>,
+    radioIDMapping: [UUID: UUID]
   ) throws -> (inserted: Int, skipped: Int) {
-    insertUnique(
-      dtos,
-      existingKeys: existingKeys,
-      key: { nodeStatusSnapshotKey(nodePublicKey: $0.nodePublicKey, timestamp: $0.timestamp) },
-      construct: NodeStatusSnapshot.init(dto:)
-    )
+    let devices = try modelContext.fetch(FetchDescriptor<Device>())
+    let validRadioIDs = Set(devices.map(\.radioID))
+    var knownKeys = existingKeys
+    var knownIDs = existingIDs
+    var inserted = 0
+
+    for incoming in dtos {
+      let owner: UUID?
+      if let incomingOwner = incoming.selfRadioID {
+        // A backup made before ghost reconciliation must not overwrite the adopted owner.
+        guard !knownIDs.contains(incoming.id),
+              let remapped = radioIDMapping[incomingOwner],
+              validRadioIDs.contains(remapped) else { continue }
+        owner = remapped
+      } else {
+        owner = nil
+      }
+
+      let key = nodeStatusSnapshotKey(
+        nodePublicKey: incoming.nodePublicKey,
+        timestamp: incoming.timestamp,
+        selfRadioID: owner
+      )
+      guard knownKeys.insert(key).inserted else { continue }
+
+      let snapshot = NodeStatusSnapshot(dto: incoming)
+      snapshot.selfRadioID = owner
+      modelContext.insert(snapshot)
+      knownIDs.insert(incoming.id)
+      inserted += 1
+    }
+    return (inserted, dtos.count - inserted)
   }
 
   @discardableResult

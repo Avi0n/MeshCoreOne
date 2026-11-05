@@ -91,6 +91,17 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
+  /// Updates local OCV fields without replacing connection identity or inserting a row.
+  func updateDeviceOCVSettings(id: UUID, preset: String, customArray: String?) throws -> DeviceDTO? {
+    guard let device = try fetchDevice(id: id) else { return nil }
+    let updated = device.copy {
+      $0.ocvPreset = preset
+      $0.customOCVArrayString = customArray
+    }
+    try saveDevice(updated)
+    return updated
+  }
+
   /// Set a device as active (deactivates others)
   func setActiveDevice(id: UUID) throws {
     // Deactivate all devices first
@@ -135,115 +146,6 @@ public extension PersistenceStore {
       throw PersistenceStoreError.deviceNotFound
     }
     device.lastContactSync = timestamp
-    try modelContext.save()
-  }
-
-  func updateDeviceNodeName(radioID: UUID, name: String) throws {
-    try updateExistingDevice(radioID: radioID) { $0.nodeName = name }
-  }
-
-  func updateDeviceCoordinates(radioID: UUID, latitude: Double, longitude: Double) throws {
-    try updateExistingDevice(radioID: radioID) {
-      $0.latitude = latitude
-      $0.longitude = longitude
-    }
-  }
-
-  func updateDeviceRadio(
-    radioID: UUID,
-    frequency: UInt32,
-    bandwidth: UInt32,
-    spreadingFactor: UInt8,
-    codingRate: UInt8,
-    appliedRadioPresetID: String?
-  ) throws {
-    try updateExistingDevice(radioID: radioID) {
-      $0.frequency = frequency
-      $0.bandwidth = bandwidth
-      $0.spreadingFactor = spreadingFactor
-      $0.codingRate = codingRate
-      $0.appliedRadioPresetID = appliedRadioPresetID
-    }
-  }
-
-  func updateDeviceTxPower(radioID: UUID, txPower: Int8) throws {
-    try updateExistingDevice(radioID: radioID) { $0.txPower = txPower }
-  }
-
-  func updateDeviceObservation(radioID: UUID, mapped: DeviceDTO) throws {
-    try updateExistingDevice(radioID: radioID) { device in
-      device.publicKey = mapped.publicKey
-      device.nodeName = mapped.nodeName
-      device.latitude = mapped.latitude
-      device.longitude = mapped.longitude
-      device.frequency = mapped.frequency
-      device.bandwidth = mapped.bandwidth
-      device.spreadingFactor = mapped.spreadingFactor
-      device.codingRate = mapped.codingRate
-      device.txPower = mapped.txPower
-      device.manualAddContacts = mapped.manualAddContacts
-      device.multiAcks = mapped.multiAcks
-      device.telemetryModeBase = mapped.telemetryModeBase
-      device.telemetryModeLoc = mapped.telemetryModeLoc
-      device.telemetryModeEnv = mapped.telemetryModeEnv
-      device.advertLocationPolicy = mapped.advertLocationPolicy
-      device.appliedRadioPresetID = mapped.appliedRadioPresetID
-    }
-  }
-
-  func updateDeviceOtherParams(radioID: UUID, intent: OtherParamsIntent) throws {
-    try updateExistingDevice(radioID: radioID) { device in
-      if let manualAddContacts = intent.manualAddContacts {
-        device.manualAddContacts = manualAddContacts
-      }
-      if let telemetryModeBase = intent.telemetryModeBase {
-        device.telemetryModeBase = telemetryModeBase
-      }
-      if let telemetryModeLocation = intent.telemetryModeLocation {
-        device.telemetryModeLoc = telemetryModeLocation
-      }
-      if let telemetryModeEnvironment = intent.telemetryModeEnvironment {
-        device.telemetryModeEnv = telemetryModeEnvironment
-      }
-      if let advertisementLocationPolicy = intent.advertisementLocationPolicy {
-        device.advertLocationPolicy = advertisementLocationPolicy
-      }
-      if let multiAcks = intent.multiAcks {
-        device.multiAcks = multiAcks
-      }
-    }
-  }
-
-  func updateDeviceClientRepeat(radioID: UUID, enabled: Bool) throws {
-    try updateExistingDevice(radioID: radioID) { $0.clientRepeat = enabled }
-  }
-
-  func updateDevicePathHashMode(radioID: UUID, mode: UInt8) throws {
-    try updateExistingDevice(radioID: radioID) { $0.pathHashMode = mode }
-  }
-
-  func updateDeviceAutoAdd(radioID: UUID, config: UInt8, maxHops: UInt8) throws {
-    try updateExistingDevice(radioID: radioID) {
-      $0.autoAddConfig = config
-      $0.autoAddMaxHops = maxHops
-    }
-  }
-
-  func updateDeviceDefaultFloodScopeName(radioID: UUID, name: String?) throws {
-    try updateExistingDevice(radioID: radioID) { $0.defaultFloodScopeName = name }
-  }
-
-  private func updateExistingDevice(radioID: UUID, _ body: (Device) -> Void) throws {
-    let targetRadioID = radioID
-    let predicate = #Predicate<Device> { device in
-      device.radioID == targetRadioID
-    }
-    var descriptor = FetchDescriptor(predicate: predicate)
-    descriptor.fetchLimit = 1
-    guard let device = try modelContext.fetch(descriptor).first else {
-      throw PersistenceStoreError.deviceNotFound
-    }
-    body(device)
     try modelContext.save()
   }
 
@@ -411,65 +313,101 @@ public extension PersistenceStore {
   ///   - newPublicKey: The radio's `selfInfo.publicKey` after `importPrivateKey`.
   /// - Returns: The new `radioID` if reconciliation occurred, otherwise `nil`.
   func reconcileGhostIdentity(currentDeviceID: UUID, newPublicKey: Data) throws -> UUID? {
+    guard let current = try identityDevice(id: currentDeviceID),
+          try !isRadioErasePending(current.radioID) else { return nil }
+    try commitPendingRxLogEntries()
+    do {
+      guard let adoption = try stageGhostIdentity(current: current, newPublicKey: newPublicKey) else { return nil }
+      try saveIdentityChanges(retiring: adoption.abandonedRadioID)
+      return adoption.radioID
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+  }
+
+  /// Saves an authenticated identity observation and its canonical partition in one actor turn.
+  func importConnectionIdentity(
+    deviceID: UUID, expectedRadioID: UUID, expectedPublicKey: Data, selfInfo: SelfInfo?
+  ) throws -> DeviceDTO? {
+    guard let current = try identityDevice(id: deviceID),
+          current.radioID == expectedRadioID, current.publicKey == expectedPublicKey,
+          !current.connectionMethods.isEmpty,
+          try !isRadioErasePending(current.radioID) else { return nil }
+    guard let selfInfo else { return DeviceDTO(from: current) }
+    try commitPendingRxLogEntries()
+    do {
+      current.apply(DeviceDTO(from: current).updating(from: selfInfo))
+      let adoption = try stageGhostIdentity(current: current, newPublicKey: selfInfo.publicKey)
+      try saveIdentityChanges(retiring: adoption?.abandonedRadioID)
+      return DeviceDTO(from: current)
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+  }
+
+  private func identityDevice(id: UUID) throws -> Device? {
+    let lookupID = id
+    let predicate = #Predicate<Device> { $0.id == lookupID }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    return try modelContext.fetch(descriptor).first
+  }
+
+  private func stageGhostIdentity(
+    current: Device, newPublicKey: Data
+  ) throws -> (radioID: UUID, abandonedRadioID: UUID?)? {
     let lookupKey = newPublicKey
-    let lookupID = currentDeviceID
+    let lookupID = current.id
     let ghostPredicate = #Predicate<Device> { device in
       device.publicKey == lookupKey && device.id != lookupID && device.isActive == false
     }
     var ghostDescriptor = FetchDescriptor(predicate: ghostPredicate)
     ghostDescriptor.fetchLimit = 1
-    guard let ghost = try modelContext.fetch(ghostDescriptor).first else { return nil }
-
-    // Defensive: refuse to delete a row that still carries a Bluetooth method.
-    // It's a real saved-but-inactive device (per `setActiveDevice` semantics),
-    // not a ghost. Returning nil here is safe — no reconciliation, no data loss.
-    if ghost.connectionMethods.contains(where: \.isBluetooth) {
-      return nil
-    }
-
-    let currentPredicate = #Predicate<Device> { device in
-      device.id == lookupID
-    }
-    var currentDescriptor = FetchDescriptor(predicate: currentPredicate)
-    currentDescriptor.fetchLimit = 1
-    guard let current = try modelContext.fetch(currentDescriptor).first else { return nil }
-
-    let previousRadioID = current.radioID
+    guard let ghost = try modelContext.fetch(ghostDescriptor).first,
+          !ghost.connectionMethods.contains(where: \.isBluetooth) else { return nil }
+    let departingRadioID = current.radioID
     let newRadioID = ghost.radioID
-    let oldOwner = #Predicate<Device> { $0.radioID == previousRadioID && $0.id != lookupID }
-    let abandoned = try previousRadioID != newRadioID &&
-      modelContext.fetchCount(FetchDescriptor(predicate: oldOwner)) == 0
-
-    try commitPendingRxLogEntries()
-    do {
-      current.radioID = newRadioID
-      current.publicKey = newPublicKey
-      current.connectionMethods = ConnectionMethod.canonicalized(current.connectionMethods)
-      if !current.connectionMethods.isEmpty,
-         !current.connectionMethods.contains(where: \.isWiFi),
-         let wifi = ConnectionMethod.canonicalized(ghost.connectionMethods).first(where: \.isWiFi) {
-        current.connectionMethods.insert(wifi, at: 0)
-      }
-      if abandoned {
-        try retireTextRulesIdentities(radioID: previousRadioID)
-        try stageRecentlyBlockedDeletion(radioID: previousRadioID)
-      }
-      modelContext.delete(ghost)
-      try modelContext.save()
-    } catch {
-      modelContext.rollback()
-      throw error
+    guard try !isRadioErasePending(newRadioID) else { throw PersistenceStoreError.deviceNotFound }
+    if departingRadioID != newRadioID {
+      try reassignSelfTelemetrySnapshots(from: departingRadioID, to: newRadioID)
     }
+    let oldOwner = #Predicate<Device> { $0.radioID == departingRadioID && $0.id != lookupID }
+    let abandoned = try departingRadioID != newRadioID &&
+      modelContext.fetchCount(FetchDescriptor(predicate: oldOwner)) == 0
     if abandoned {
-      retireReceiveScope(radioID: previousRadioID)
+      try retireTextRulesIdentities(radioID: departingRadioID)
+      try stageRecentlyBlockedDeletion(radioID: departingRadioID)
+    }
+    current.radioID = newRadioID
+    current.publicKey = newPublicKey
+    current.connectionMethods = ConnectionMethod.canonicalized(current.connectionMethods)
+    if !current.connectionMethods.isEmpty,
+       !current.connectionMethods.contains(where: \.isWiFi),
+       let wifi = ConnectionMethod.canonicalized(ghost.connectionMethods).first(where: \.isWiFi) {
+      current.connectionMethods.insert(wifi, at: 0)
+    }
+    modelContext.delete(ghost)
+    return (newRadioID, abandoned ? departingRadioID : nil)
+  }
+
+  private func saveIdentityChanges(retiring abandonedRadioID: UUID?) throws {
+    #if DEBUG
+      try identityReconciliationFaultInjection?()
+    #endif
+    try modelContext.save()
+    if let abandonedRadioID {
+      retireReceiveScope(radioID: abandonedRadioID)
       publishRecentlyBlockedChange()
     }
-    return newRadioID
   }
 
   /// Stages radio-scoped deletion independently of the lifetime of its Device row.
   func stageDeleteAllDeviceData(radioID targetRadioID: UUID) throws {
     try stageRecentlyBlockedDeletion(radioID: targetRadioID)
+
+    try deleteSelfTelemetrySnapshots(radioID: targetRadioID)
 
     // Delete reactions (references messages via messageID)
     let reactionPredicate = #Predicate<Reaction> { reaction in
@@ -501,7 +439,7 @@ public extension PersistenceStore {
       modelContext.delete(session)
     }
 
-    // Delete NodeStatusSnapshots only when no other session references that node
+    // Delete remote history only when no other session references the public key.
     for pubKey in sessionPublicKeys {
       let remainingPredicate = #Predicate<RemoteNodeSession> { session in
         session.publicKey == pubKey
@@ -509,11 +447,11 @@ public extension PersistenceStore {
       let remainingCount = try modelContext.fetchCount(FetchDescriptor(predicate: remainingPredicate))
       guard remainingCount == 0 else { continue }
 
-      let snapshotPredicate = #Predicate<NodeStatusSnapshot> { snapshot in
-        snapshot.nodePublicKey == pubKey
-      }
-      let snapshots = try modelContext.fetch(FetchDescriptor(predicate: snapshotPredicate))
-      for snapshot in snapshots {
+      let key = pubKey
+      let snapshots = try modelContext.fetch(
+        FetchDescriptor<NodeStatusSnapshot>(predicate: #Predicate { $0.nodePublicKey == key })
+      )
+      for snapshot in snapshots where snapshot.selfRadioID == nil {
         modelContext.delete(snapshot)
       }
     }
@@ -607,7 +545,27 @@ public extension PersistenceStore {
     }
   }
 
+  /// Stages deletion of self telemetry alongside the Device's other data.
+  private func deleteSelfTelemetrySnapshots(radioID: UUID) throws {
+    let snapshots = try modelContext.fetch(FetchDescriptor<NodeStatusSnapshot>())
+    for snapshot in snapshots where snapshot.selfRadioID == radioID {
+      modelContext.delete(snapshot)
+    }
+  }
+
+  /// Moves self telemetry with the Device so it remains deletable after ghost adoption.
+  private func reassignSelfTelemetrySnapshots(from sourceRadioID: UUID, to adoptedRadioID: UUID) throws {
+    let snapshots = try modelContext.fetch(FetchDescriptor<NodeStatusSnapshot>())
+    for snapshot in snapshots where snapshot.selfRadioID == sourceRadioID {
+      snapshot.selfRadioID = adoptedRadioID
+    }
+  }
+
   #if DEBUG
+    func setIdentityReconciliationFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      identityReconciliationFaultInjection = hook
+    }
+
     func setFetchDeviceByIDFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
       fetchDeviceByIDFaultInjection = hook
     }

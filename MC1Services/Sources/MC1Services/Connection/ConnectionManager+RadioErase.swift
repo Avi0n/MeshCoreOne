@@ -15,64 +15,97 @@ public extension ConnectionManager {
     }
   }
 
-  func factoryResetAndEraseRadio() async throws {
-    guard let device = connectedDevice, let settings = services?.settingsService else {
-      throw ConnectionError.notConnected
-    }
-    try await startRadioErase(device, resetWith: settings)
+  func factoryResetAndEraseRadio(_ context: ConnectionRemovalContext) async throws -> ConnectionRemovalResult {
+    guard ownsRemovalSource(context), let device = connectedDevice, let settings = services?.settingsService,
+          context.identity.matches(ConnectionDeviceIdentity(device)) else { return .superseded }
+    return try await startRadioErase(device, context: context, resetWith: settings)
   }
 
   func retryRadioErase(_ target: PendingRadioEraseDTO) {
     guard radioEraseTasks[target.radioID] == nil else { return }
     beginRadioEraseTask(radioID: target.radioID) { [self] in
-      guard try await persistenceStore.isRadioErasePending(target.radioID) else { return }
-      try await finishRadioErase(target)
+      guard try await persistenceStore.isRadioErasePending(target.radioID) else { return .superseded }
+      let context = ConnectionRemovalContext(
+        deviceID: target.deviceID, identity: .init(deviceID: target.deviceID, radioID: target.radioID),
+        requestID: desiredRequest?.id, generation: installedLink?.generation
+      )
+      return try await finishRadioErase(target, context: context)
     }
   }
 }
 
 extension ConnectionManager {
-  func startRadioErase(_ device: DeviceDTO, resetWith settings: SettingsService? = nil) async throws {
+  @discardableResult
+  func startRadioErase(
+    _ device: DeviceDTO, context: ConnectionRemovalContext? = nil, resetWith settings: SettingsService? = nil
+  ) async throws -> ConnectionRemovalResult {
+    let context = context ?? ConnectionRemovalContext(
+      deviceID: device.id, device: device, requestID: desiredRequest?.id, generation: installedLink?.generation
+    )
+    guard ownsRemovalSource(context) else { return .superseded }
     if let running = radioEraseTasks[device.radioID] {
-      try await running.value
-      return
+      return try await running.value
     }
     let task = beginRadioEraseTask(radioID: device.radioID) { [self] in
-      let ownsPairingFlow = connectedDevice?.radioID == device.radioID && !isPairingFlowActive
-      if ownsPairingFlow { isPairingFlowActive = true }
-      defer {
-        if ownsPairingFlow { isPairingFlowActive = false }
+      guard ownsRemovalSource(context) else { return .superseded }
+      let alreadyPending = try await persistenceStore.isRadioErasePending(device.radioID)
+      guard ownsRemovalSource(context) else { return .superseded }
+      let poller = connectedDevice?.radioID == device.radioID ? services?.messagePollingService : nil
+      do {
+        try await poller?.suspendForRadioErase()
+      } catch {
+        guard ownsRemovalSource(context) else { return .superseded }
+        throw error
       }
 
-      let alreadyPending = try await persistenceStore.isRadioErasePending(device.radioID)
-      let poller = connectedDevice?.radioID == device.radioID ? services?.messagePollingService : nil
-      try await poller?.suspendForRadioErase()
-
-      let target: PendingRadioEraseDTO
+      let record: Task<PendingRadioEraseDTO?, Error> = enqueueMetadata { store in
+        guard self.ownsRemovalSource(context),
+              self.connectedDevice?.radioID != device.radioID || self.services?.messagePollingService === poller else { return nil }
+        return try await store.beginRadioErase(device, isFactoryReset: settings != nil)
+      }
+      let target: PendingRadioEraseDTO?
       do {
-        guard connectedDevice?.radioID != device.radioID || services?.messagePollingService === poller else {
-          throw ConnectionError.notConnected
-        }
-        target = try await persistenceStore.beginRadioErase(device, isFactoryReset: settings != nil)
+        target = try await record.value
       } catch {
-        if services?.messagePollingService === poller {
-          await poller?.resumeAfterRadioErase()
-        }
+        if services?.messagePollingService === poller { await poller?.resumeAfterRadioErase() }
+        guard ownsRemovalSource(context) else { return .superseded }
         throw error
+      }
+      guard let target else {
+        if services?.messagePollingService === poller { await poller?.resumeAfterRadioErase() }
+        return .superseded
       }
       radioCleanup[target.radioID] = .init(target: target, state: .running)
       if let settings, !alreadyPending {
-        // The radio usually reboots before it can acknowledge the command.
-        do {
-          try await settings.factoryReset()
-          try await Task.sleep(for: Self.factoryResetRebootGracePeriod)
-        } catch {
-          logger.info("Factory reset response interrupted: \(error.localizedDescription)")
+        let canSubmitReset = ownsRemovalSource(context) && services?.settingsService === settings
+        if canSubmitReset {
+          // The radio usually reboots before it can acknowledge the command.
+          do {
+            try await settings.factoryReset()
+            try await Task.sleep(for: Self.factoryResetRebootGracePeriod)
+          } catch {
+            logger.info("Factory reset response interrupted: \(error.localizedDescription)")
+          }
+        }
+        // An admitted recovery owns the next Link record while the old reset settles.
+        let recoveryOwnsRequest = installedLink == nil && reconnectionCoordinator.currentCycle.map {
+          $0.requestID == context.requestID
+        } == true
+        if !canSubmitReset || !ownsRemovalSource(context) || recoveryOwnsRequest {
+          do {
+            try await persistenceStore.cancelRadioErase(radioID: target.radioID)
+            radioCleanup[target.radioID] = nil
+            if services?.messagePollingService === poller { await poller?.resumeAfterRadioErase() }
+          } catch {
+            radioCleanup[target.radioID]?.state = .failed
+            logger.warning("Failed to roll back superseded reset cleanup: \(error.localizedDescription)")
+          }
+          return .superseded
         }
       }
-      try await finishRadioErase(target)
+      return try await finishRadioErase(target, context: context)
     }
-    try await task.value
+    return try await task.value
   }
 
   func resumePendingRadioErases(pairingReady: Bool) async {
@@ -93,26 +126,27 @@ extension ConnectionManager {
   @discardableResult
   private func beginRadioEraseTask(
     radioID: UUID,
-    operation: @escaping @MainActor () async throws -> Void
-  ) -> Task<Void, Error> {
+    operation: @escaping @MainActor () async throws -> ConnectionRemovalResult
+  ) -> Task<ConnectionRemovalResult, Error> {
     let task = Task { [self] in
       defer { radioEraseTasks[radioID] = nil }
-      try await operation()
+      return try await operation()
     }
     radioEraseTasks[radioID] = task
     return task
   }
 
-  private func finishRadioErase(_ target: PendingRadioEraseDTO) async throws {
+  private func finishRadioErase(
+    _ target: PendingRadioEraseDTO, context: ConnectionRemovalContext
+  ) async throws -> ConnectionRemovalResult {
     radioCleanup[target.radioID] = .init(target: target, state: .running)
-    let shouldTearDown =
-      connectedDevice?.radioID == target.radioID ||
-      activeConnectionAttemptDeviceID == target.deviceID ||
-      activeConnectionAttemptDeviceID == target.pairingID
-    let ownsPairingFlow = shouldTearDown && !isPairingFlowActive
-    if ownsPairingFlow { isPairingFlowActive = true }
+    let operationID = UUID()
+    if ownsRemovalSource(context), removalMatchesCurrent(context, policy: .wholeDevice(deleteData: true)) {
+      removalOperationID = operationID
+      removalDeviceID = target.pairingID
+    }
     defer {
-      if ownsPairingFlow { isPairingFlowActive = false }
+      if removalOperationID == operationID { removalOperationID = nil; removalDeviceID = nil }
     }
 
     do {
@@ -132,19 +166,53 @@ extension ConnectionManager {
         }
         throw DevicePairingError.cancelled
       }
-      if shouldTearDown,
-         connectedDevice == nil || connectedDevice?.radioID == target.radioID,
-         activeConnectionAttemptDeviceID == nil ||
-         activeConnectionAttemptDeviceID == target.deviceID ||
-         activeConnectionAttemptDeviceID == target.pairingID {
-        await disconnect(reason: target.isFactoryReset == true ? .factoryReset : .forgetDevice)
+    } catch {
+      if radioCleanup[target.radioID] != nil { radioCleanup[target.radioID]?.state = .failed }
+      guard ownsRemovalSource(context) else { return .superseded }
+      throw error
+    }
+
+    let sourceIsCurrent = ownsRemovalSource(context)
+    if sourceIsCurrent, let request = desiredRequest, !request.removedIdentities.contains(context.identity) {
+      request.removedIdentities.append(context.identity)
+    }
+    let terminal = if sourceIsCurrent,
+                      removalMatchesCurrent(context, policy: .wholeDevice(deleteData: true)) ||
+                      desiredRequest?.target.deviceID == target.pairingID {
+      beginDisconnect(reason: target.isFactoryReset == true ? .factoryReset : .forgetDevice)
+    } else {
+      nil as (barrier: ConnectionRetirement, receipt: ConnectionLossReceipt)?
+    }
+    let writerDrain = retirementTask
+    let notifyingRequestID = terminal?.receipt.requestID ?? context.requestID
+    let cleanup = enqueueMetadata { store -> Bool in
+      await writerDrain?.value
+      let sourceStillCurrent = terminal.map { self.isCurrent($0.receipt) } ?? self.ownsRemovalSource(context)
+      let sourceWasSuperseded = !sourceIsCurrent || !sourceStillCurrent
+      if sourceWasSuperseded, self.pairing.hasSystemPairingRegistry, self.pairing.isDeviceConnectable(target.pairingID) {
+        try await store.cancelRadioErase(radioID: target.radioID)
+        return false
       }
-      try await waitForConnectionTeardown()
-      await clearPersistedConnection(for: target.deviceID)
-      try await persistenceStore.completeRadioErase(radioID: target.radioID)
+      await self.clearPersistedConnection(for: target.deviceID, notifyingRequestID: notifyingRequestID)
+      try await store.completeRadioErase(radioID: target.radioID)
+      return true
+    }
+    do {
+      guard try await cleanup.value else {
+        radioCleanup[target.radioID] = nil
+        return .superseded
+      }
       radioCleanup[target.radioID]?.state = .completed
+      guard let terminal, isCurrent(terminal.receipt) else { return .superseded }
+      await onConnectionLost?(terminal.receipt)
+      return .removed(terminal.receipt)
     } catch {
       radioCleanup[target.radioID]?.state = .failed
+      if let terminal {
+        guard isCurrent(terminal.receipt) else { return .superseded }
+      } else {
+        guard ownsRemovalSource(context) else { return .superseded }
+      }
       throw error
     }
   }

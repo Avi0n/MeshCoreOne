@@ -2,68 +2,8 @@ import Foundation
 import MeshCore
 import SwiftData
 
-/// Dependency injection container for MC1Services.
-///
-/// `ServiceContainer` creates and manages all services needed by the MeshCore One app,
-/// handling the dependency graph between services. It provides a single point of
-/// initialization for the service layer.
-///
-/// ## Lifetime
-///
-/// The container is per-connection, not a singleton: `ConnectionManager` builds a
-/// fresh `ServiceContainer` (and a fresh session) on every connection in
-/// `buildServicesAndSaveDevice`, and tears it down via `tearDown()` on disconnect
-/// before nilling its reference. The `PersistenceStore` is injected and
-/// process-lifetime on `ConnectionManager`; it is not minted here. Anything
-/// else that must survive reconnects (for example detected platform or
-/// last-clean-sync state) lives on `ConnectionManager`, not here. `init` also
-/// reassigns the `DebugLogBuffer.shared` global to this container's buffer,
-/// so a stale container's services must not keep running past teardown.
-///
-/// ## Usage
-///
-/// ```swift
-/// // Create container with session and model container
-/// let container = ServiceContainer(
-///     session: meshCoreSession,
-///     dataStore: persistenceStore,
-///     radioID: radioUUID
-/// )
-///
-/// // Start event monitoring when device is connected
-/// await container.startEventMonitoring(radioID: radioUUID)
-/// ```
-///
-/// ## Dependency injection
-///
-/// `init` constructs services in dependency order, so a fully wired container
-/// exists as soon as `init` returns. Stable one-to-one dependencies are
-/// constructor-injected. One-to-many notifications flow through typed event
-/// streams (`SyncDataEvent`, `AdvertisementEvent`, `MessageStatusEvent`,
-/// `HeardRepeatEvent`, `RemoteNodeEvent`, `RoomServerEvent`,
-/// `ContactServiceEvent`, and the RX log entry stream), every one of which is
-/// finished in `tearDown()` so consumer loops cannot outlive the container.
-///
-/// Setter injection survives only where ordering or a reference cycle forces it:
-/// - `MessagePollingService` ingestion handlers: installed by
-///   `SyncCoordinator.wireMessageHandlers` before event monitoring starts,
-///   cleared in `tearDown()`.
-/// - `SyncCoordinator.setSyncActivityCallbacks`: installed by
-///   `ConnectionUIState.wireCallbacks` before `onConnectionEstablished` so the
-///   count-paired started/ended events keep the sync pill accurate.
-/// - `SyncCoordinator.setCleanChannelSyncCallback` /
-///   `setChannelSyncAttemptedCallback`: installed by
-///   `ConnectionManager.wireCleanChannelSyncCallback` at container build.
-/// - `NotificationService` action closures and `getBadgeCount`: installed by
-///   `AppState` and `NavigationCoordinator` when notification handling is
-///   configured. The action closures are cleared in `tearDown()` because they
-///   capture `NotificationActionHandler`, which strong-holds the service back.
-/// - `ChannelService.setSlotOccupantChangedHandler` and
-///   `DeviceService.setDeviceUpdateCallback`: installed by
-///   `AppState.wireServicesIfConnected` per connection.
-/// - `NodeConfigService.setOnPostIdentityImport`: installed by
-///   `ConnectionManager.buildServicesAndSaveDevice`; a cycle-forced upward
-///   call into `ConnectionManager`.
+/// Owns the service graph for one connection; retirement joins `tearDown()` before replacement.
+/// `ConnectionManager` injects its process-lifetime `PersistenceStore` so reconnects share one store.
 @Observable
 @MainActor
 public final class ServiceContainer {
@@ -155,17 +95,11 @@ public final class ServiceContainer {
 
   // MARK: - Chat Send Queue
 
-  /// Service-layer outbound chat queue. Replaces the per-view-model
-  /// `dmSendQueue` / `channelSendQueue` instances. Hydrates from
-  /// `PendingSend` on construction; drain gated on `ConnectionManager`
-  /// transport state via `BLETransportOpenedSignal`.
-  ///
-  /// Constructed eagerly in `ServiceContainer.init` because `radioID`
-  /// is known at container-build time (`buildServicesAndSaveDevice`
-  /// resolves the device record before instantiating the container).
-  /// Eager construction closes the visibility window where the
-  /// container exists but the service is `nil`.
+  /// Hydrates this Radio ID's `PendingSend` rows during connection setup.
+  /// Connection-state events wake parked sends when the connection becomes ready.
   public let chatSendQueueService: ChatSendQueueService
+
+  let plainTextSendGate: PlainTextSendGate
 
   // MARK: - Notification Actions
 
@@ -195,6 +129,18 @@ public final class ServiceContainer {
   }
 
   private var eventMonitoringState: EventMonitoringState = .stopped
+  private var eventMonitoringStartTask: Task<Void, Never>?
+  private var eventMonitoringStopTask: Task<Void, Never>?
+  private var tearDownTask: Task<Void, Never>?
+  private var isTornDown = false
+
+  public var isAcceptingRuntimeWork: Bool {
+    !isTornDown
+  }
+
+  #if DEBUG
+    var testEventMonitoringStartHandler: (@MainActor () async -> Void)?
+  #endif
 
   /// Whether service event listeners are active or currently starting.
   var isEventMonitoringActive: Bool {
@@ -203,23 +149,8 @@ public final class ServiceContainer {
 
   // MARK: - Initialization
 
-  /// Creates a new service container.
-  ///
-  /// - Parameters:
-  ///   - session: The MeshCoreSession for device communication
-  ///   - dataStore: Process-lifetime persistence store. Injected by
-  ///     `ConnectionManager`; the container does not mint its own.
-  ///   - radioID: The connected device's radio ID. Used to scope the
-  ///     chat send queue's pending-send rows so two radios cannot share
-  ///     drain state across reconnects.
-  ///   - appStateProvider: Optional provider for app foreground/background state
-  ///   - connectionStateEvents: Optional broadcaster of connection-state
-  ///     changes. When provided, the chat send queue observes it to wake
-  ///     parked drains on each disconnected-to-connected edge.
-  ///   - initialConnectionState: The connection state at container build
-  ///     time. Connect paths reach `.connected` before constructing the
-  ///     container, so the queue's edge detection treats an
-  ///     already-connected initial value as a fired edge.
+  /// Constructs the connection's services around the shared store and resolved Radio ID.
+  /// An initially ready connection or a later ready event wakes parked sends.
   init(
     session: MeshCoreSession,
     dataStore: PersistenceStore,
@@ -227,6 +158,10 @@ public final class ServiceContainer {
     appStateProvider: AppStateProvider? = nil,
     connectionStateEvents: EventBroadcaster<DeviceConnectionState>? = nil,
     initialConnectionState: DeviceConnectionState = .disconnected,
+    radioWiFiState: RadioWiFiState? = nil,
+    notificationService suppliedNotificationService: NotificationService? = nil,
+    ackEvents: AsyncStream<MeshEvent>? = nil,
+    messageConfig: MessageServiceConfig = .default,
     textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil }
   ) {
     self.session = session
@@ -236,7 +171,7 @@ public final class ServiceContainer {
 
     // Independent services (no dependencies)
     keychainService = KeychainService()
-    notificationService = NotificationService()
+    notificationService = suppliedNotificationService ?? NotificationService()
     syncCoordinator = SyncCoordinator()
 
     // Core services, constructed so every dependency exists before its consumer
@@ -270,23 +205,30 @@ public final class ServiceContainer {
       cleanupCoordinator: cleanupCoordinator
     )
     contactRadioOwner.bind(contactService)
+    let plainTextSendGate = PlainTextSendGate()
+    self.plainTextSendGate = plainTextSendGate
     messageService = MessageService(
       session: session,
       dataStore: dataStore,
-      contactService: contactService
+      contactService: contactService,
+      config: messageConfig,
+      ackEvents: ackEvents,
+      dmSendBudget: { DMSendBudget.current() },
+      plainTextSendGate: plainTextSendGate
     )
     channelService = ChannelService(
       session: session,
       dataStore: dataStore,
       rxLogService: rxLogService
     )
-    settingsService = SettingsService(session: session)
+    settingsService = SettingsService(session: session, radioWiFiState: radioWiFiState ?? RadioWiFiState(radioID: radioID))
     deviceService = DeviceService(dataStore: dataStore)
     advertisementService = AdvertisementService(
       session: session,
       dataStore: dataStore,
       contactService: contactService,
-      appStateProvider: appStateProvider
+      appStateProvider: appStateProvider,
+      notificationService: self.notificationService
     )
     messagePollingService = MessagePollingService(
       session: session,
@@ -328,6 +270,7 @@ public final class ServiceContainer {
       remoteNodeService: remoteNodeService,
       dataStore: dataStore,
       radioID: radioID,
+      plainTextSendGate: plainTextSendGate,
       textRulesPreference: textRulesPreference,
       receiveLifetime: receiveLifetime
     )
@@ -337,7 +280,8 @@ public final class ServiceContainer {
       dataStore: dataStore,
       messageService: messageService,
       channelService: channelService,
-      reactionService: reactionService
+      reactionService: reactionService,
+      plainTextSendGate: plainTextSendGate
     )
     notificationActionHandler = NotificationActionHandler(
       dataStore: dataStore,
@@ -370,28 +314,58 @@ public final class ServiceContainer {
     enableAutoFetch: Bool = true,
     enableAdvertisementMonitoring: Bool = true
   ) async {
-    // Claim synchronously before the awaits below so an overlapping caller
-    // (SyncCoordinator.onConnectionEstablished racing the foreground health
-    // check) cannot pass the guard and double-start every monitor.
+    guard !isTornDown else { return }
+    if let eventMonitoringStartTask {
+      await eventMonitoringStartTask.value
+      return
+    }
     guard eventMonitoringState == .stopped else { return }
     eventMonitoringState = .starting
+    let worker = Task {
+      await performEventMonitoringStart(
+        radioID: radioID,
+        enableAutoFetch: enableAutoFetch,
+        enableAdvertisementMonitoring: enableAdvertisementMonitoring
+      )
+    }
+    eventMonitoringStartTask = worker
+    await worker.value
+    eventMonitoringStartTask = nil
+  }
 
+  private func performEventMonitoringStart(
+    radioID: UUID,
+    enableAutoFetch: Bool,
+    enableAdvertisementMonitoring: Bool
+  ) async {
+    guard eventMonitoringState == .starting else { return }
     await heardRepeatsService.configure(radioID: radioID)
+    #if DEBUG
+      await testEventMonitoringStartHandler?()
+    #endif
+    guard eventMonitoringState == .starting, !isTornDown else { return }
 
     // Start event monitoring for services that need it
     if enableAdvertisementMonitoring {
       await advertisementService.startEventMonitoring(radioID: radioID)
+      guard eventMonitoringState == .starting, !isTornDown else { return }
     }
     await rxLogService.startEventMonitoring(radioID: radioID)
+    guard eventMonitoringState == .starting, !isTornDown else { return }
     await messageService.startEventMonitoring()
+    guard eventMonitoringState == .starting, !isTornDown else { return }
     await messageService.startAckExpiryChecking()
+    guard eventMonitoringState == .starting, !isTornDown else { return }
 
     await remoteNodeService.startEventMonitoring()
+    guard eventMonitoringState == .starting, !isTornDown else { return }
 
     // Always start message event monitoring so handlers are ready for polled messages
     await messagePollingService.startMessageEventMonitoring(radioID: radioID)
+    guard eventMonitoringState == .starting, !isTornDown else { return }
     if enableAutoFetch {
       await messagePollingService.startAutoFetch(radioID: radioID)
+      guard eventMonitoringState == .starting, !isTornDown else { return }
     }
 
     // Prune debug logs on connection
@@ -415,11 +389,23 @@ public final class ServiceContainer {
   ///
   /// Call this when disconnecting from a device.
   func stopEventMonitoring() async {
-    // Claimed synchronously, mirroring startEventMonitoring, so two teardown
-    // paths interleaving at the awaits below cannot double-stop.
-    guard eventMonitoringState == .active else { return }
+    if let eventMonitoringStopTask {
+      await eventMonitoringStopTask.value
+      return
+    }
+    guard eventMonitoringState == .active || eventMonitoringState == .starting else { return }
     eventMonitoringState = .stopping
+    let starting = eventMonitoringStartTask
+    let worker = Task {
+      await starting?.value
+      await performEventMonitoringStop()
+    }
+    eventMonitoringStopTask = worker
+    await worker.value
+    eventMonitoringStopTask = nil
+  }
 
+  private func performEventMonitoringStop() async {
     await advertisementService.stopEventMonitoring()
     await rxLogService.stopEventMonitoring()
     try? await dataStore.flushPendingRxLogEntries()
@@ -431,7 +417,7 @@ public final class ServiceContainer {
     // reconnect within the same session or expire via `ackGiveUpWindow`.
     await messageService.stopAckExpiryChecking()
     await messagePollingService.stopMessageEventMonitoring()
-    // RemoteNodeService event monitoring is per-session, handled internally
+    await remoteNodeService.stopEventMonitoring()
 
     // Flush debug log buffer
     await debugLogBuffer.shutdown()
@@ -444,7 +430,23 @@ public final class ServiceContainer {
   /// cover that.
   func tearDown() async {
     receiveLifetime.retire()
+    isTornDown = true
+    if let tearDownTask {
+      await tearDownTask.value
+      return
+    }
+    let worker = Task { await performTearDown() }
+    tearDownTask = worker
+    await worker.value
+  }
+
+  private func performTearDown() async {
+    await plainTextSendGate.invalidate()
+    await remoteNodeService.beginRetirement()
+    await messageService.retireInlineSends()
+    await messageService.waitForAcknowledgementSaves()
     await stopEventMonitoring()
+    await remoteNodeService.retire()
 
     // Break the retain cycles the wired handlers form. The message
     // closures and the discovery event task capture this container's
@@ -478,13 +480,25 @@ public final class ServiceContainer {
     await chatSendQueueService.shutdown()
   }
 
+  func prepareForIdentityImport() async {
+    isTornDown = true
+    await plainTextSendGate.invalidate()
+    await messageService.retireInlineSends()
+    await remoteNodeService.retire()
+    await chatSendQueueService.shutdown()
+    await stopEventMonitoring()
+    await syncCoordinator.cancelDiscoveryEventMonitoring()
+  }
+
   // MARK: - Convenience Methods
 
   /// Performs initial database warm-up.
   ///
   /// Call this early during app launch to avoid lazy initialization delays.
   func warmUp() async throws {
+    await messageService.captureAcknowledgementEvents()
     try await dataStore.warmUp()
+    try await messageService.restorePendingAcknowledgements(radioID: chatSendQueueService.radioID)
   }
 
   /// Resets all remote node session connections.

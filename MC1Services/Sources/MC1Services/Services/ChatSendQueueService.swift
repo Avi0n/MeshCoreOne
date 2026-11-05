@@ -82,6 +82,12 @@ public final class ChatSendQueueService {
   private let channelQueue: SendQueue<ChannelMessageEnvelope>
 
   private var hasHydrated = false
+  private var isRetired = false
+  /// The channel drain reads this without retaining the service. Shutdown sets it before the first suspension.
+  private let sendsRetired = OSAllocatedUnfairLock(initialState: false)
+  private var admittedWork = 0
+  private var admissionWaiters: [CheckedContinuation<Void, Never>] = []
+  private var shutdownTask: Task<Void, Never>?
 
   /// Task consuming the connection-state stream installed by
   /// `observeConnectionState`. Cancelled in `shutdown()`.
@@ -94,7 +100,8 @@ public final class ChatSendQueueService {
     messageService: MessageService,
     channelService: ChannelService,
     reactionService: ReactionService,
-    config: ChatSendQueueConfig = .default
+    config: ChatSendQueueConfig = .default,
+    plainTextSendGate: PlainTextSendGate? = nil
   ) {
     self.radioID = radioID
     self.config = config
@@ -115,9 +122,11 @@ public final class ChatSendQueueService {
     let osLoggerRef = osLogger
     let failureCounter = channelFetchFailureCounter
     let configRef = config
+    let sendsRetired = self.sendsRetired
 
     dmQueue = SendQueue<DirectMessageEnvelope>(
       send: { envelope in
+        var pendingSendID: UUID?
         // Outer catch: the queue-routed catch sites in MessageService
         // do not broadcast `.failed` themselves; the helper
         // `failMessageAndRethrow` only writes the DB state and
@@ -130,17 +139,29 @@ public final class ChatSendQueueService {
         // transient error does not produce a `.failed`-then-`.pending`
         // flicker on the UI.
         do {
+          let sendLease = try await plainTextSendGate?.acquire()
+          func stopIssuing() async {
+            if let sendLease {
+              await plainTextSendGate?.stopIssuing(sendLease)
+            }
+          }
+          defer { await stopIssuing() }
+          try Task.checkCancellation()
+          try ChatSendQueueService.cancelSendIfRetired(sendsRetired)
+
           let contact: ContactDTO
           switch await ChatSendQueueService.classifyRead({ try await dataStoreRef.fetchContact(id: envelope.contactID) }) {
           case let .found(value):
             contact = value
           case .missing:
             loggerRef.info("DM send queue: contact \(envelope.contactID) was deleted; dropping envelope")
+            await stopIssuing()
             try? await dataStoreRef.deletePendingSendsForMessage(messageID: envelope.messageID)
             try? await dataStoreRef.updateMessageStatus(id: envelope.messageID, status: .failed)
             return
           case let .transient(error):
             loggerRef.warning("DM drain fetchContact transient error: \(String(describing: error)); parking envelope")
+            await stopIssuing()
             try await ChatSendQueueService.parkAndCancel(
               triggers: triggers,
               logger: loggerRef,
@@ -150,10 +171,8 @@ public final class ChatSendQueueService {
             )
           }
 
-          // Pre-send gate + attemptCount bump. Persisted attemptCount
-          // becomes the source of truth for preserveTimestamp. Bump
-          // completes (and modelContext.save() commits) before any
-          // wire-affecting work.
+          // Persist the attempt after admission but before any command, so replay knows
+          // whether transmission may have started and must preserve the timestamp.
           let preserveTimestamp: Bool
           do {
             guard let result = try await ChatSendQueueService.preflightAndBump(
@@ -162,10 +181,14 @@ public final class ChatSendQueueService {
               kind: "DM",
               logger: loggerRef,
               osLogger: osLoggerRef
-            ) else { return }
+            ) else {
+              return
+            }
             preserveTimestamp = result.preserveTimestamp
+            pendingSendID = result.pendingSendID
           } catch {
             _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
+            await stopIssuing()
             try await ChatSendQueueService.parkAndCancel(
               triggers: triggers,
               logger: loggerRef,
@@ -176,25 +199,21 @@ public final class ChatSendQueueService {
           }
 
           do {
-            if envelope.isResend {
-              _ = try await messageServiceRef.resendDirectMessage(
-                messageID: envelope.messageID,
-                to: contact,
-                preserveTimestamp: preserveTimestamp
-              )
-            } else {
-              _ = try await messageServiceRef.sendPendingDirectMessage(
-                messageID: envelope.messageID,
-                to: contact,
-                preserveTimestamp: preserveTimestamp
-              )
+            let message = try await messageServiceRef.performQueuedDirectMessageSend(
+              messageID: envelope.messageID,
+              to: contact,
+              preserveTimestamp: preserveTimestamp,
+              isResend: envelope.isResend,
+              isSingleAttempt: envelope.isSingleAttempt,
+              pendingSendID: pendingSendID,
+              sendLease: sendLease
+            )
+            if message.status != .sent, let pendingSendID {
+              try? await dataStoreRef.deletePendingSend(id: pendingSendID)
             }
-            try? await dataStoreRef.deletePendingSendsForMessage(messageID: envelope.messageID)
             osLoggerRef.debug("DM drain success messageID=\(envelope.messageID)")
-            // Success: clear any armed trigger now that the row
-            // is gone. A subsequent failed send for a different
-            // envelope re-arms on its own when the next
-            // transport-open fires.
+            // Clear the trigger once wire work is complete; an ACK-only row
+            // remains durable without needing another transport-open signal.
             await triggers.clear()
           } catch is CancellationError {
             throw CancellationError()
@@ -219,17 +238,18 @@ public final class ChatSendQueueService {
             )
           }
         } catch let cancellation as CancellationError {
+          // The replacement queue hydrates this row. A retired gate cannot retry it.
+          if await plainTextSendGate?.isInvalidated == true, !Task.isCancelled { return }
           throw cancellation
         } catch {
+          if let pendingSendID {
+            try? await dataStoreRef.deletePendingSend(id: pendingSendID)
+          }
           await messageServiceRef.notifyMessageFailed(messageID: envelope.messageID)
           throw error
         }
       },
-      onError: { _, envelope in
-        // Permanent error path only — transient errors take the
-        // wait-and-retry branch above and never reach onError.
-        try? await dataStoreRef.deletePendingSendsForMessage(messageID: envelope.messageID)
-      },
+      onError: { _, _ in },
       onDrain: { lastError in
         if let lastError {
           loggerRef.error("DM queue drained with error: \(String(describing: lastError))")
@@ -244,6 +264,17 @@ public final class ChatSendQueueService {
         // terminal failure for the envelope and calls
         // `notifyMessageFailed` exactly once.
         do {
+          guard let expectedChannelSecret = try await ChatSendQueueService.validateQueuedChannel(
+            envelope: envelope,
+            radioID: radioID,
+            dataStore: dataStoreRef,
+            channelService: channelServiceRef,
+            triggers: triggers,
+            logger: loggerRef,
+            timeout: configRef.transportWaitTimeout
+          ) else { return }
+          try ChatSendQueueService.cancelSendIfRetired(sendsRetired)
+
           // Pre-send gate + attemptCount bump; see DM closure for rationale.
           let postBumpCount: Int
           let preserveTimestamp: Bool
@@ -279,10 +310,14 @@ public final class ChatSendQueueService {
             if envelope.isResend {
               indexTimestamp = try await messageServiceRef.resendChannelMessage(
                 messageID: envelope.messageID,
-                preserveTimestamp: preserveTimestamp
+                preserveTimestamp: preserveTimestamp,
+                expectedChannelSecret: expectedChannelSecret
               )
             } else {
-              try await messageServiceRef.sendPendingChannelMessage(messageID: envelope.messageID)
+              try await messageServiceRef.sendPendingChannelMessage(
+                messageID: envelope.messageID,
+                expectedChannelSecret: expectedChannelSecret
+              )
               indexTimestamp = envelope.messageTimestamp
             }
             if let nodeName = envelope.localNodeName {
@@ -397,12 +432,18 @@ public final class ChatSendQueueService {
   /// fails so the caller can surface the failure instead of silently
   /// dropping the queued send.
   public func enqueueDM(_ envelope: DirectMessageEnvelope) async throws {
+    guard beginAdmission() else { throw CancellationError() }
+    defer { finishAdmission() }
     try await persist(PendingSendDTO(envelope: envelope, radioID: radioID))
+    guard !isRetired else { throw CancellationError() }
     await dmQueue.enqueue(envelope)
   }
 
   public func enqueueChannel(_ envelope: ChannelMessageEnvelope) async throws {
+    guard beginAdmission() else { throw CancellationError() }
+    defer { finishAdmission() }
     try await persist(PendingSendDTO(envelope: envelope, radioID: radioID))
+    guard !isRetired else { throw CancellationError() }
     await channelQueue.enqueue(envelope)
   }
 
@@ -414,14 +455,15 @@ public final class ChatSendQueueService {
   /// `hasPendingSend` on the next send attempt, so the in-memory
   /// enqueue is the only step left.
   public func signalDMEnqueued(_ envelope: DirectMessageEnvelope) async {
+    guard beginAdmission() else { return }
+    defer { finishAdmission() }
     await dmQueue.enqueue(envelope)
   }
 
   /// Starts observing the connection-state stream and fires the
   /// transport-open trigger exactly once each time the connection enters
-  /// `.ready`. Gating on `.ready` (not the first `isConnected` edge) keeps
-  /// hydrated sends parked through the initial-sync window, so they do not
-  /// contend with sync's reads on the radio's link. In production the container
+  /// `.ready`. This wakes parked retries after initial sync. Queued channel
+  /// sends independently verify the current slot before replay. In production the container
   /// is built while still `.connected`, so the `.ready` wake arrives on the
   /// event stream; the initial-value check only fires when the observation is
   /// (re)started against an already-`.ready` connection, waking drains parked in
@@ -433,6 +475,7 @@ public final class ChatSendQueueService {
     initial: DeviceConnectionState,
     events: AsyncStream<DeviceConnectionState>
   ) {
+    guard !isRetired else { return }
     connectionStateTask?.cancel()
     if initial.canDrainSendQueue {
       transportDidOpen()
@@ -460,6 +503,7 @@ public final class ChatSendQueueService {
   /// to a single armed trigger on the actor. Do not extend this function
   /// with per-call state — the fire-and-forget shape would lose ordering.
   func transportDidOpen() {
+    guard !isRetired else { return }
     osLogger.debug("transportDidOpen firing trigger")
     Task { [triggers] in
       await triggers.fire()
@@ -503,7 +547,7 @@ public final class ChatSendQueueService {
     kind: String,
     logger: PersistentLogger,
     osLogger: os.Logger
-  ) async throws -> (postBumpCount: Int, preserveTimestamp: Bool)? {
+  ) async throws -> (pendingSendID: UUID, postBumpCount: Int, preserveTimestamp: Bool)? {
     switch await ChatSendQueueService.classifyRead({ () async throws -> Bool? in
       try await dataStore.hasPendingSend(messageID: messageID) ? true : nil
     }) {
@@ -518,12 +562,14 @@ public final class ChatSendQueueService {
     }
 
     let postBumpCount: Int
+    let pendingSendID: UUID
     do {
       guard let bumped = try await dataStore.incrementPendingSendAttemptCount(messageID: messageID) else {
         logger.info("\(kind) drain: PendingSend row gone for messageID=\(messageID); treating as terminal")
         return nil
       }
-      postBumpCount = bumped
+      postBumpCount = bumped.attemptCount
+      pendingSendID = bumped.pendingSendID
     } catch {
       logger.warning("incrementPendingSendAttemptCount failed: \(String(describing: error)); parking envelope for next transport-open")
       throw error
@@ -531,7 +577,44 @@ public final class ChatSendQueueService {
 
     let preserveTimestamp = postBumpCount > 1
     osLogger.debug("\(kind) drain begin messageID=\(messageID) postBumpCount=\(postBumpCount) preserveTimestamp=\(preserveTimestamp)")
-    return (postBumpCount: postBumpCount, preserveTimestamp: preserveTimestamp)
+    return (pendingSendID: pendingSendID, postBumpCount: postBumpCount, preserveTimestamp: preserveTimestamp)
+  }
+
+  private nonisolated static func cancelSendIfRetired(_ sendsRetired: OSAllocatedUnfairLock<Bool>) throws {
+    if sendsRetired.withLock({ $0 }) {
+      throw CancellationError()
+    }
+  }
+
+  private nonisolated static func validateQueuedChannel(
+    envelope: ChannelMessageEnvelope,
+    radioID: UUID,
+    dataStore: any MessagePersisting,
+    channelService: ChannelService,
+    triggers: BLETransportOpenedSignal,
+    logger: PersistentLogger,
+    timeout: TimeInterval
+  ) async throws -> Data? {
+    do {
+      try Task.checkCancellation()
+      guard try await dataStore.hasPendingSend(messageID: envelope.messageID) else { return nil }
+      guard let expected = try await channelService.getChannel(radioID: radioID, index: envelope.channelIndex),
+            let current = try await channelService.fetchChannel(index: envelope.channelIndex),
+            current.secret == expected.secret else {
+        throw MessageServiceError.channelNotFound
+      }
+      try Task.checkCancellation()
+      return expected.secret
+    } catch MessageServiceError.channelNotFound {
+      _ = try await dataStore.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .failed)
+      throw MessageServiceError.channelNotFound
+    } catch {
+      _ = try? await dataStore.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
+      try await parkAndCancel(
+        triggers: triggers, logger: logger, messageID: envelope.messageID,
+        kind: "channel", timeout: timeout
+      )
+    }
   }
 
   /// Awaits a transport-open trigger up to the bounded timeout, then throws
@@ -565,7 +648,7 @@ public final class ChatSendQueueService {
       switch serviceError {
       case let .sessionError(underlying):
         return isTransientError(underlying, deviceCode: deviceCode)
-      case .notConnected:
+      case .notConnected, .persistenceError:
         return true
       case .contactNotFound, .channelNotFound, .sendFailed,
            .invalidRecipient, .messageTooLong:
@@ -653,28 +736,19 @@ public final class ChatSendQueueService {
 
   // MARK: - Hydration
 
-  /// Called once by `ServiceContainer` after construction. Reads
-  /// every `PendingSend` row for this service's `radioID` and
-  /// enqueues each envelope. Subsequent calls are no-ops — the
-  /// service's hydration latch is per-instance, and one instance
-  /// lives per `ServiceContainer`, so two view models on the same
-  /// connection cannot trigger duplicate replay.
-  ///
-  /// The nullable-attemptCount scheme stores legacy-vs-current-build
-  /// distinction in the column itself; `PersistenceStore.warmUp()` runs
-  /// `purgeLegacyAttemptCountRows` before hydrate (wired in
-  /// `ConnectionManager.buildServicesAndSaveDevice`) so pre-migration `nil`
-  /// rows are deleted rather than promoted. Race-window rows (persist
-  /// succeeded, drain bump didn't run) sit at `attemptCount = 0`, bump to
-  /// `1`, and `preserveTimestamp` = false — correct, because the recipient
-  /// never saw the packet.
+  /// Hydrates this Radio ID's pending sends once per service instance before app wiring and sync.
+  /// `PersistenceStore.warmUp()` must purge legacy nil-attempt rows first; zero-attempt
+  /// rows represent unsent work and receive a fresh timestamp on their first attempt.
   func hydrate() async {
-    guard !hasHydrated else { return }
+    guard !hasHydrated, beginAdmission() else { return }
+    defer { finishAdmission() }
     hasHydrated = true
     logger.info("hydrate begin radio=\(radioID)")
     do {
       let rows = try await dataStore.fetchPendingSends(radioID: radioID)
       for dto in rows {
+        guard !isRetired else { return }
+        guard dto.ackDeadline == nil else { continue }
         osLogger.debug("hydrate enqueue messageID=\(dto.messageID) kind=\(String(describing: dto.kind)) isResend=\(dto.isResend) attemptCount=\(String(describing: dto.attemptCount))")
         switch dto.kind {
         case .dm:
@@ -694,6 +768,18 @@ public final class ChatSendQueueService {
   }
 
   #if DEBUG
+    var isRetiredForTesting: Bool {
+      isRetired
+    }
+
+    var parkedDrainCountForTesting: Int {
+      get async { await triggers.waiterCountForTesting }
+    }
+
+    var isDMDrainingForTesting: Bool {
+      get async { await dmQueue.isDrainingForTesting }
+    }
+
     /// Test-only: drain readiness for synchronizing tests.
     func awaitDrainCompletion() async {
       await dmQueue.awaitDrainCompletion()
@@ -713,10 +799,40 @@ public final class ChatSendQueueService {
   /// `EventBroadcaster` subscription so a torn-down container never
   /// receives the next connection's edge.
   func shutdown() async {
-    connectionStateTask?.cancel()
+    if let shutdownTask { await shutdownTask.value; return }
+    sendsRetired.withLock { $0 = true }
+    isRetired = true
+    let worker = Task { await performShutdown() }
+    shutdownTask = worker
+    await worker.value
+  }
+
+  private func performShutdown() async {
+    let observer = connectionStateTask
     connectionStateTask = nil
+    observer?.cancel()
+    await observer?.value
+    if admittedWork != 0 {
+      await withCheckedContinuation { admissionWaiters.append($0) }
+    }
     await dmQueue.cancelDrain()
     await channelQueue.cancelDrain()
+  }
+
+  private func beginAdmission() -> Bool {
+    guard !isRetired else { return false }
+    admittedWork += 1
+    return true
+  }
+
+  private func finishAdmission() {
+    admittedWork -= 1
+    guard admittedWork == 0 else { return }
+    let waiters = admissionWaiters
+    admissionWaiters.removeAll()
+    for waiter in waiters {
+      waiter.resume()
+    }
   }
 }
 

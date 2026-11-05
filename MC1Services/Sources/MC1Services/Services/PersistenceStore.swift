@@ -90,6 +90,9 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   }
 
   #if DEBUG
+    var pendingSendInsertHandler: (@Sendable () async -> Void)?
+    var pendingSendAttemptHandler: (@Sendable () async -> Void)?
+    var identityReconciliationFaultInjection: (@Sendable () throws -> Void)?
     /// Inserts since the last RxLog-initiated `modelContext.save()`. Does not
     /// count piggyback saves from other store APIs.
     var rxLogInitiatedSaveCount = 0
@@ -191,8 +194,9 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   ///          Int8 flood sentinel. DTO still exposes UInt8 via truncatingIfNeeded.
   /// - v8→v9: Added Contact.isPinned (Bool, default false). Channel.isFavorite and
   ///          RemoteNodeSession.isFavorite renamed to isPinned via originalName (same column).
-  /// - v9→v10: Added local Text Rules identities, review entries,
-  ///           and pending radio erase targets.
+  /// - v9→v10: Added local Text Rules identities, review entries, and pending radio erase targets.
+  ///          Added NodeStatusSnapshot.selfRadioID (UUID?, default nil). Existing rows
+  ///          stay remote history. Self telemetry rows store the Device's radioID.
   public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
     if !inMemory {
       let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -215,14 +219,8 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     // Perform a simple fetch to trigger modelContext initialization
     _ = try modelContext.fetchCount(FetchDescriptor<Device>())
 
-    // Both inner operations are idempotent under their own predicates:
-    // purgeOrphanPendingSends filters by absence of a matching
-    // Device.radioID and returns an empty row set once Device rows catch
-    // up; purgeLegacyAttemptCountRows filters by `attemptCount == nil`
-    // and returns empty after the first purge across the lifetime of
-    // the storage. Running both on every connect costs an empty fetch and
-    // self-heals the "erase device then re-pair" path — a process-level
-    // latch would suppress that recovery.
+    // Repeat both idempotent purges on each connection so removal and re-pairing
+    // can recover without requiring a process restart.
     let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore.warmUp")
     do {
       try purgeOrphanPendingSends()
@@ -272,7 +270,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     let isNew: Bool
     if let existingNode = existing.first {
       existingNode.name = frame.name
-      existingNode.typeRawValue = frame.type.rawValue
+      existingNode.typeRawValue = frame.typeRawValue
       existingNode.lastHeard = Date()
       existingNode.lastAdvertTimestamp = frame.lastAdvertTimestamp
       existingNode.latitude = frame.latitude
@@ -286,7 +284,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
         radioID: radioID,
         publicKey: frame.publicKey,
         name: frame.name,
-        typeRawValue: frame.type.rawValue,
+        typeRawValue: frame.typeRawValue,
         lastAdvertTimestamp: frame.lastAdvertTimestamp,
         latitude: frame.latitude,
         longitude: frame.longitude,

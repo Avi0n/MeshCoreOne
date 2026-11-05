@@ -72,7 +72,7 @@ struct RoomConversationView: View {
               let room = session
               Task { await viewModel.refreshMessages(for: room) }
             }
-            .disabled(appState.services == nil || !session.isConnected || appState.currentRadioID != session.radioID)
+            .disabled(!session.isConnected || appState.connectionSnapshot(for: session.radioID) == nil)
           }
         }
         if #unavailable(iOS 26) {
@@ -114,30 +114,15 @@ struct RoomConversationView: View {
         }
       }
       .task {
+        let radioID = session.radioID
         viewModel.configure(
-          roomServerService: { appState.services?.roomServerService },
-          dataStore: { appState.services?.dataStore },
-          syncCoordinator: { appState.syncCoordinator },
-          notificationService: { appState.services?.notificationService }
+          roomServerService: { appState.connectionSnapshot(for: radioID)?.services.roomServerService },
+          dataStore: { appState.connectionSnapshot(for: radioID)?.services.dataStore },
+          syncCoordinator: { appState.connectionSnapshot(for: radioID)?.services.syncCoordinator },
+          notificationService: { appState.connectionSnapshot(for: radioID)?.services.notificationService }
         )
         chatViewModel.configure(
-          dependencies: ChatViewModel.Dependencies(
-            dataStore: { appState.offlineDataStore },
-            messageService: { appState.services?.messageService },
-            notificationService: { appState.services?.notificationService },
-            channelService: { appState.services?.channelService },
-            roomServerService: { appState.services?.roomServerService },
-            contactService: { appState.services?.contactService },
-            syncCoordinator: { appState.syncCoordinator },
-            connectionState: { appState.connectionState },
-            connectedDevice: { appState.connectedDevice },
-            currentRadioID: { appState.currentRadioID },
-            session: { appState.services?.session },
-            reactionService: { appState.services?.reactionService },
-            chatSendQueueService: { appState.services?.chatSendQueueService },
-            inlineImageDimensionsStore: { nil },
-            prefetchDataStore: { nil }
-          ),
+          dependencies: appState.makeChatViewModelDependencies(radioID: radioID),
           onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) },
           linkPreviewCache: nil,
           chatCoordinatorRegistry: nil,
@@ -187,8 +172,8 @@ struct RoomConversationView: View {
       }
       .task(id: appState.servicesVersion) {
         // Reassert the active room when servicesVersion changes because reconnect replaces NotificationService.
-        appState.services?.notificationService.setActiveConversation(roomSessionID: session.id)
-        await startKeepAliveIfConnected()
+        appState.connectionSnapshot(for: session.radioID)?.services.notificationService.setActiveConversation(roomSessionID: session.id)
+        await startSessionKeepAlive()
       }
       .task {
         for await event in appState.messageEventStream.events() {
@@ -203,12 +188,14 @@ struct RoomConversationView: View {
           }
         }
       }
+      .task(id: session.isConnected) {
+        await startSessionKeepAlive()
+      }
       .onChange(of: session.isConnected) { _, isConnected in
         if isConnected {
           AccessibilityNotification.Announcement(
             L10n.RemoteNodes.RemoteNodes.Room.reconnected
           ).post()
-          Task { await startKeepAliveIfConnected() }
         }
       }
       .onChange(of: scenePhase) { _, newPhase in
@@ -216,33 +203,38 @@ struct RoomConversationView: View {
           // Re-clear the tray: notifications usually arrive while
           // backgrounded with this room already on screen.
           Task {
-            await appState.services?.notificationService
-              .removeDeliveredNotifications(forRoomSessionID: session.id)
-            await appState.services?.notificationService.updateBadgeCount()
+            guard let source = appState.connectionSnapshot(for: session.radioID) else { return }
+            let context = ConnectionCallbackContext(source)
+            await source.services.notificationService.removeDeliveredNotifications(forRoomSessionID: session.id)
+            guard !Task.isCancelled, context.isCurrent(appState.connectionManager),
+                  source.services.isAcceptingRuntimeWork else { return }
+            await source.services.notificationService.updateBadgeCount {
+              context.isCurrent(appState.connectionManager) && source.services.isAcceptingRuntimeWork
+            }
           }
-          Task { await startKeepAliveIfConnected() }
+          Task { await startSessionKeepAlive() }
         }
       }
       .onDisappear {
         viewModel.cancelPendingTranslation()
         // Only clear if this room still owns the active slot; a newer room's
         // .task may have already claimed it before this view tears down.
-        if appState.services?.notificationService.activeRoomSessionID == session.id {
-          appState.services?.notificationService.activeRoomSessionID = nil
+        let source = appState.connectionSnapshot(for: session.radioID)
+        if source?.services.notificationService.activeRoomSessionID == session.id {
+          source?.services.notificationService.activeRoomSessionID = nil
         }
         Task {
-          await appState.services?.remoteNodeService.stopSessionKeepAlive(
+          await source?.services.remoteNodeService.stopSessionKeepAlive(
             sessionID: session.id
           )
         }
       }
   }
 
-  private func startKeepAliveIfConnected() async {
-    guard session.isConnected, appState.currentRadioID == session.radioID else { return }
-    await appState.services?.remoteNodeService.startSessionKeepAlive(
-      sessionID: session.id, publicKey: session.publicKey
-    )
+  private func startSessionKeepAlive() async {
+    guard session.isConnected,
+          let source = appState.connectionSnapshot(for: session.radioID) else { return }
+    await source.services.remoteNodeService.startSessionKeepAlive(sessionID: session.id, publicKey: session.publicKey)
   }
 
   private var connectionStatus: String {

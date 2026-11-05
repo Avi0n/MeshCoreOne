@@ -23,8 +23,9 @@ struct BLEStateMachineAutoReconnectRetryTests {
 
   private func makeRecorder(on sm: BLEStateMachine) async -> RetryDisconnectionRecorder {
     let recorder = RetryDisconnectionRecorder()
-    await sm.setDisconnectionHandler { deviceID, error in
-      recorder.append(deviceID: deviceID, error: error)
+    await sm.setLifecycleEventHandler { event, _ in
+      guard case let .disconnected(origin, error) = event else { return }
+      recorder.append(deviceID: origin.deviceID, error: error)
     }
     return recorder
   }
@@ -153,7 +154,7 @@ struct BLEStateMachineAutoReconnectRetryTests {
 
 // MARK: - Test doubles and seams
 
-/// Collects `(deviceID, error)` pairs delivered to `onDisconnection`.
+/// Collects `(deviceID, error)` pairs delivered to `BLELifecycleEvent.disconnected`.
 private final class RetryDisconnectionRecorder: @unchecked Sendable {
   private(set) var events: [(deviceID: UUID, error: Error?)] = []
 

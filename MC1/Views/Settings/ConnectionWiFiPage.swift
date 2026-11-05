@@ -26,7 +26,10 @@ struct ConnectionWiFiPage: View {
     .sheet(isPresented: $showingWiFiEditSheet) {
       WiFiEditSheet()
     }
-    .sheet(isPresented: $radioWiFi.editorOpen) {
+    .sheet(isPresented: Binding(
+      get: { radioWiFi.editorOpen },
+      set: { if !$0 { Task { await radioWiFi.closeEditor() } } }
+    )) {
       RadioWiFiEditSheet(viewModel: radioWiFi)
     }
   }

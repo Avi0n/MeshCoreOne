@@ -80,7 +80,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
   let transport: any MeshTransport
   let configuration: SessionConfiguration
-  let clock: any Clock<Duration>
+  public nonisolated let clock: any Clock<Duration>
+  let radioCLICorrelationScope: RadioCLICorrelationScope
   let dispatcher = EventDispatcher()
   let requestResponseSerializer = RequestResponseSerializer()
 
@@ -109,6 +110,13 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   }
 
   private var isRunning = false
+  var identityImportInProgress = false
+  var identityImportHasStarted = false
+  private var isStarting = false
+  private var isStopped = false
+  private var retiredWorkers: [Task<Void, Never>] = []
+  private var stopTask: Task<Void, Never>?
+  private var transportCloseTask: Task<Void, Never>?
 
   /// False after `stop()`. `performBinaryExchange`, `sendAndMatch`, and `performGetMessage`
   /// read this so a stopped session does not send or report a radio timeout.
@@ -127,6 +135,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   var inFlightGetMessage: Task<MessageResult, Error>?
   var getMessageCallerCountForTest = 0
   private(set) var processedMessagesWaitingCountForTest = 0
+  /// Channel info frames handed to subscribers. A pipeline idle sleep is safe to elapse only after this catches the yielded frames.
+  private(set) var dispatchedChannelInfoCountForTest = 0
 
   // MARK: - Connection State
 
@@ -178,11 +188,13 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   public init(
     transport: any MeshTransport,
     configuration: SessionConfiguration = .default,
-    clock: (any Clock<Duration>)? = nil
+    clock: (any Clock<Duration>)? = nil,
+    radioCLICorrelationScope: RadioCLICorrelationScope = RadioCLICorrelationScope()
   ) {
     self.transport = transport
     self.configuration = configuration
     self.clock = clock ?? ContinuousClock()
+    self.radioCLICorrelationScope = radioCLICorrelationScope
   }
 
   /// Connects to the device and starts the session.
@@ -205,11 +217,14 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   /// - Throws: ``MeshTransportError`` if the transport connection fails.
   ///           ``MeshCoreError/timeout`` if the device doesn't respond to appStart.
   public func start(reconnectingAttempt: Int? = nil, disconnectTransportOnFailure: Bool = true) async throws {
+    guard !isStopped, !isStarting else { throw CancellationError() }
     // Guard against being called multiple times
     if isRunning {
       logger.warning("Session already running - skipping redundant start()")
       return
     }
+    isStarting = true
+    defer { isStarting = false }
 
     isMessageFetchingSuspended = false
     logger.info("Starting MeshCore session...")
@@ -221,7 +236,9 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     logger.info("Connecting via transport...")
     do {
       try await transport.connect()
+      guard !isStopped else { throw CancellationError() }
     } catch {
+      guard !isStopped else { throw CancellationError() }
       logger.warning("Transport connection failed: \(error.localizedDescription)")
       updateConnectionState(.failed(error as? MeshTransportError ?? .connectionFailed(error.localizedDescription)))
       throw error
@@ -238,13 +255,17 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     // Send appstart
     logger.info("Sending appStart command...")
     do {
-      selfInfo = try await sendAppStart()
+      let info = try await sendAppStart()
+      guard !isStopped else { throw CancellationError() }
+      selfInfo = info
     } catch {
+      guard !isStopped else { throw CancellationError() }
       // Unwind the half-started session so a retry start() runs the full
       // handshake instead of hitting the isRunning guard and no-opping.
       logger.warning("appStart failed: \(error.localizedDescription)")
       isRunning = false
       receiveTask?.cancel()
+      if let receiveTask { retiredWorkers.append(receiveTask) }
       receiveTask = nil
       if disconnectTransportOnFailure {
         await transport.disconnect()
@@ -255,34 +276,65 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     logger.info("MeshCore session started")
   }
 
-  /// Stops the session and disconnects from the device.
-  ///
-  /// This method is safe to call multiple times. It cancels all pending operations,
-  /// stops the receive loop, and closes the transport connection unless
-  /// `disconnectTransport` is `false`.
-  ///
-  /// After calling this method, the session cannot be reused. Create a new session
-  /// to reconnect.
-  ///
-  /// - Parameter disconnectTransport: When `false`, the transport link is left
-  ///   open. Pass `false` when the caller does not own the link — e.g. tearing
-  ///   down a superseded session while a newer reconnect cycle (or an OS-level
-  ///   pending connect) still rides on the same transport.
-  public func stop(disconnectTransport: Bool = true) async {
+  /// Stops this session permanently; leave the transport open when its owner outlives this session.
+  /// Revoke the binding before `drainExchanges` so admitted replies or timeouts settle before receiving stops.
+  public func stop(disconnectTransport: Bool = true, drainExchanges: Bool = false) async {
+    if let stopTask {
+      await stopTask.value
+      if disconnectTransport { await closeTransport() }
+      return
+    }
     logger.info("Stopping MeshCore session...")
     isRunning = false
+    isStopped = true
+    if let autoMessageFetchTask { retiredWorkers.append(autoMessageFetchTask) }
+    if let autoMessageDrainTask { retiredWorkers.append(autoMessageDrainTask) }
+    if let autoContactRefreshTask { retiredWorkers.append(autoContactRefreshTask) }
+    if let receiveTask { retiredWorkers.append(receiveTask) }
     stopAutoMessageFetching()
     autoContactRefreshTask?.cancel()
     autoContactRefreshTask = nil
     autoContactRefreshRequested = false
-    receiveTask?.cancel()
-    await dispatcher.finishAllSubscriptions()
-    if disconnectTransport {
-      logger.info("Disconnecting transport...")
-      await transport.disconnect()
+    let worker = Task {
+      await finishStopping(drainExchanges: drainExchanges)
     }
+    stopTask = worker
+    await worker.value
+    if disconnectTransport { await closeTransport() }
+  }
+
+  private func finishStopping(drainExchanges: Bool) async {
+    if drainExchanges {
+      await otherParamsSerializer.waitForQuiescence()
+      await requestResponseSerializer.waitForQuiescence()
+    }
+    receiveTask?.cancel()
+    receiveTask = nil
+    await dispatcher.finishAllSubscriptions()
     updateConnectionState(.disconnected)
     logger.info("MeshCore session stopped")
+  }
+
+  private func closeTransport() async {
+    if let transportCloseTask {
+      await transportCloseTask.value
+      return
+    }
+    let worker = Task { await transport.disconnect() }
+    transportCloseTask = worker
+    await worker.value
+  }
+
+  /// After stop, joins receive workers and exchanges that outlive cancelled callers.
+  public func waitForQuiescence() async {
+    let workers = retiredWorkers
+    for worker in workers {
+      await worker.value
+    }
+    if let inFlightGetMessage { _ = await inFlightGetMessage.result }
+    await otherParamsSerializer.waitForQuiescence()
+    await requestResponseSerializer.waitForQuiescence()
+    retiredWorkers.removeAll()
   }
 
   // MARK: - Events
@@ -359,6 +411,8 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   ///
   /// Call this to disable the automatic fetching started by ``startAutoMessageFetching()``.
   public func stopAutoMessageFetching() {
+    if let autoMessageFetchTask { retiredWorkers.append(autoMessageFetchTask) }
+    if let autoMessageDrainTask { retiredWorkers.append(autoMessageDrainTask) }
     isAutoFetchingMessages = false
     autoMessageDrainRequested = false
     autoMessageFetchTask?.cancel()
@@ -499,6 +553,9 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
 
     trackContactChanges(event: event)
     await dispatcher.dispatch(event)
+    if case .channelInfo = event {
+      dispatchedChannelInfoCountForTest += 1
+    }
   }
 
   /// Tracks contact-related changes from received events.

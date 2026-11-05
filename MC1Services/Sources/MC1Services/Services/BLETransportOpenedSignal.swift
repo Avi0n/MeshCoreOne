@@ -21,6 +21,12 @@ actor BLETransportOpenedSignal {
 
   init() {}
 
+  #if DEBUG
+    var waiterCountForTesting: Int {
+      waiters.count
+    }
+  #endif
+
   /// Suspend until `fire()` lands. If the signal is already armed at
   /// call time, the call returns immediately and consumes the armed
   /// flag. Throws `CancellationError` if the calling task is cancelled

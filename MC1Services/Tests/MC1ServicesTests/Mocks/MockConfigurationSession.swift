@@ -16,9 +16,20 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   private var nextSetCustomVarErrorCode: UInt8?
   private var nextGetCustomVarsErrorCode: UInt8?
   private var nextSetPathHashModeErrorCode: UInt8?
+  private var coreStatsUptime: UInt32?
+  private(set) var coreStatsReadCount = 0
+
+  func setCoreStatsUptime(_ uptime: UInt32?) {
+    coreStatsUptime = uptime
+  }
 
   private(set) var readCount = 0
   private(set) var rebootCalled = false
+  private(set) var rebootCallCount = 0
+  private var rebootError: (any Error & Sendable)?
+  private var holdReboot = false
+  private var rebootContinuation: CheckedContinuation<Void, Never>?
+  private(set) var rebootHeld = false
   private(set) var powerOffCallCount = 0
   private var powerOffBehavior: PowerOffBehavior = .poweredOff
   private(set) var setNameCalls: [String] = []
@@ -43,6 +54,31 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   private var holdNextCLI = false
   private var holdSkip: Int?
   private var heldCLIContinuation: CheckedContinuation<String, Never>?
+  private var wiFiFirmware: RadioWiFiFirmware?
+  private var heldWiFiReply: String?
+  private var wiFiFailures: [String: WiFiFailure] = [:]
+
+  enum WiFiFailure: Sendable {
+    case rejected
+    case timeoutBeforeApply
+    case timeoutAfterApply
+  }
+
+  func failWiFiCommand(_ command: String, with failure: WiFiFailure) {
+    wiFiFailures[command] = failure
+  }
+
+  func useWiFiFirmware(_ firmware: RadioWiFiFirmware) {
+    wiFiFirmware = firmware
+  }
+
+  func wiFiBootUses(ssid: String, password: String) -> Bool {
+    wiFiFirmware?.bootUses(ssid: ssid, password: password) == true
+  }
+
+  func bootWiFiFirmware() {
+    wiFiFirmware?.boot()
+  }
 
   func setCLIReply(_ reply: String) {
     cliReply = reply
@@ -75,7 +111,8 @@ actor MockConfigurationSession: ConfigurationSessionOps {
 
   /// Returns the parked CLI reply. The reply is the queue head, or `cliReply`.
   func releaseHeldCLIReply() {
-    let reply = dequeueCLIReply()
+    let reply = heldWiFiReply ?? dequeueCLIReply()
+    heldWiFiReply = nil
     let continuation = heldCLIContinuation
     heldCLIContinuation = nil
     Task.detached { continuation?.resume(returning: reply) }
@@ -284,6 +321,28 @@ actor MockConfigurationSession: ConfigurationSessionOps {
 
   func reboot() async throws {
     rebootCalled = true
+    rebootCallCount += 1
+    if holdReboot {
+      holdReboot = false
+      rebootHeld = true
+      await withCheckedContinuation { rebootContinuation = $0 }
+      rebootHeld = false
+    }
+    if let rebootError { throw rebootError }
+  }
+
+  func holdNextReboot() {
+    holdReboot = true
+  }
+
+  func releaseReboot() {
+    let continuation = rebootContinuation
+    rebootContinuation = nil
+    continuation?.resume()
+  }
+
+  func failReboot(_ error: any Error & Sendable) {
+    rebootError = error
   }
 
   enum PowerOffBehavior: Sendable {
@@ -361,8 +420,21 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     }
   }
 
+  func runCorrelatedCliCommand(_ command: String) async throws -> String {
+    try await runCliCommand(command)
+  }
+
   func runCliCommand(_ command: String) async throws -> String {
     runCliCommandCalls.append(command)
+    if let failure = wiFiFailures.removeValue(forKey: command) {
+      switch failure {
+      case .rejected: return RadioWiFiFirmware.reflectedReply("Error: rejected", to: command)
+      case .timeoutBeforeApply: throw MeshCoreError.timeout
+      case .timeoutAfterApply:
+        _ = wiFiFirmware?.reply(to: command)
+        throw MeshCoreError.timeout
+      }
+    }
     if let failure = takeDueCLIFailure() {
       throw failure
     }
@@ -381,6 +453,9 @@ actor MockConfigurationSession: ConfigurationSessionOps {
       holdNextCLI = false
       return await parkCLI(command)
     }
+    if let reply = wiFiFirmware?.reply(to: command) {
+      return reply
+    }
     return dequeueCLIReply()
   }
 
@@ -396,6 +471,7 @@ actor MockConfigurationSession: ConfigurationSessionOps {
 
   private func parkCLI(_ command: String) async -> String {
     heldCLICommand = command
+    heldWiFiReply = wiFiFirmware?.reply(to: command)
     let reply = await withCheckedContinuation { (continuation: CheckedContinuation<String, Never>) in
       heldCLIContinuation = continuation
     }
@@ -429,7 +505,9 @@ actor MockConfigurationSession: ConfigurationSessionOps {
 
   func factoryReset() async throws {}
   func getStatsCore() async throws -> CoreStats {
-    throw MeshCoreError.timeout
+    coreStatsReadCount += 1
+    guard let coreStatsUptime else { throw MeshCoreError.timeout }
+    return CoreStats(batteryMV: 3700, uptimeSeconds: coreStatsUptime, errors: 0, queueLength: 0)
   }
 
   func getStatsRadio() async throws -> RadioStats {

@@ -44,6 +44,9 @@
 /* Location: Multiple files - Purpose: Room contact type label */
 "contacts.nodeKind.room" = "Stanza";
 
+/* TODO: translate */
+"contacts.nodeKind.sensor" = "Sensor";
+
 /* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Badge label for discovered nodes */
 "contacts.nodeKind.discovered" = "Scoperto";
 
@@ -74,6 +77,9 @@
 
 /* Location: ContactsViewModel.swift - Purpose: Rooms segment */
 "contacts.segment.rooms" = "Stanze";
+
+/* TODO: translate */
+"contacts.segment.sensors" = "Sensors";
 
 /* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
 "contacts.segment.pickerLabel" = "Filtra nodi";
@@ -168,8 +174,14 @@
 /* Location: ContactsListView.swift - Purpose: No rooms empty title */
 "contacts.list.empty.rooms.title" = "Non ci sono stanze";
 
+/* TODO: translate */
+"contacts.list.empty.sensors.title" = "No Sensors";
+
 /* Location: ContactsListView.swift - Purpose: No rooms empty description */
 "contacts.list.empty.rooms.description" = "Le stanze sono server di chat pubblici sulla mesh. Compariranno qui quando verranno scoperte.";
+
+/* TODO: translate */
+"contacts.list.empty.sensors.description" = "Sensors appear here when discovered on the mesh.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Nessun risultato";
@@ -622,6 +634,9 @@
 
 /* Location: DiscoveryView.swift - Purpose: Segment filter: Rooms */
 "contacts.discovery.segment.rooms" = "Stanze";
+
+/* TODO: translate */
+"contacts.discovery.segment.sensors" = "Sensors";
 
 /* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
 "contacts.discovery.segment.pickerLabel" = "Filtra nodi scoperti";

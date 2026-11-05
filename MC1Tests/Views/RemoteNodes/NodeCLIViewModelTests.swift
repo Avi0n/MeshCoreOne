@@ -6,6 +6,35 @@ import Testing
 @Suite("NodeCLIViewModel Tests")
 @MainActor
 struct NodeCLIViewModelTests {
+  @Test
+  func `sensor host timeout is an error and does not claim reboot was sent`() async throws {
+    let spy = SendSpy()
+    spy.error = RemoteNodeError.timeout
+    let model = makeViewModel(spy: spy, remoteTarget: .sensor)
+    model.executeCommand("reboot")
+    try await waitUntil("sensor command should finish") { !model.isWaitingForResponse }
+    #expect(spy.calls.count == 1)
+    #expect(model.outputLines.contains { $0.type == .error })
+    #expect(!model.outputLines.contains { $0.type == .success })
+  }
+
+  @Test
+  func `sensor no reply submission cannot be cancelled and duplicated`() async throws {
+    let send = HeldSend()
+    let model = NodeCLIViewModel()
+    model.configure(sessionName: "Sensor", remoteTarget: .sensor, sendRawCommand: send.send)
+    model.executeCommand("rebootx")
+    try await waitUntil("host acceptance should be pending") { send.commands.count == 1 }
+    #expect(!model.canCancelCurrentCommand)
+    model.cancelCurrentCommand()
+    model.executeCommand("rebootx")
+    #expect(model.isWaitingForResponse)
+    #expect(send.commands == ["rebootx"])
+    send.finish("rebootx", with: .success(""))
+    try await waitUntil("accepted submission should finish") { !model.isWaitingForResponse }
+    #expect(model.outputLines.contains { $0.text == L10n.RemoteNodes.RemoteNodes.Sensor.rebootSent })
+  }
+
   /// Records the commands/timeouts passed to the injected send closure and
   /// returns a configurable result (or throws a configurable error).
   @MainActor

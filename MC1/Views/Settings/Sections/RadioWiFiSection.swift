@@ -25,12 +25,12 @@ struct RadioWiFiSection: View {
         }
 
         Button {
-          viewModel.editorOpen = true
+          viewModel.openEditor()
         } label: {
           HStack {
             Text(L10n.Settings.RadioWiFi.network)
             Spacer()
-            Text(viewModel.networkName ?? L10n.Settings.RadioWiFi.Network.notSet)
+            Text(viewModel.networkValue)
               .foregroundStyle(.secondary)
             Image(systemName: "chevron.right")
               .font(.caption)
@@ -42,9 +42,7 @@ struct RadioWiFiSection: View {
 
         LabeledContent(
           L10n.Settings.RadioWiFi.status,
-          value: viewModel.statusConnected
-            ? L10n.Settings.RadioWiFi.Status.connected
-            : L10n.Settings.RadioWiFi.Status.notConnected
+          value: viewModel.statusValue
         )
 
         if let ipAddress = viewModel.ipAddress {
@@ -73,7 +71,7 @@ struct RadioWiFiSection: View {
         viewModel.cancelWiFiWarning()
       }
       Button(viewModel.linkWarningConfirmTitle) {
-        Task { await viewModel.continuePastWiFiWarning() }
+        viewModel.confirmFromAlert(.wifiWarning)
       }
     } message: {
       Text(L10n.Settings.RadioWiFi.Alert.WifiTransport.message)
@@ -81,7 +79,7 @@ struct RadioWiFiSection: View {
     .alert(L10n.Settings.RadioWiFi.Alert.Clear.title, isPresented: $viewModel.showingClearConfirm) {
       Button(L10n.Localizable.Common.cancel, role: .cancel) {}
       Button(L10n.Settings.RadioWiFi.clear, role: .destructive) {
-        Task { await viewModel.confirmClear() }
+        viewModel.confirmFromAlert(.clear)
       }
     } message: {
       Text(viewModel.clearMessage)
@@ -91,7 +89,7 @@ struct RadioWiFiSection: View {
         viewModel.cancelReboot()
       }
       Button(L10n.Settings.DeviceActions.Alert.Reboot.confirm) {
-        Task { await viewModel.confirmReboot() }
+        viewModel.confirmFromAlert(.reboot)
       }
     } message: {
       Text(viewModel.rebootMessage)

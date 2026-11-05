@@ -72,6 +72,7 @@ struct BackupUserDefaultsCoverageTests {
     let allOptional = allOptionalPropertyNames()
     let covered = BackupUserDefaults.boolMappingKeys
       .union(BackupUserDefaults.stringMappingKeys)
+      .union(BackupUserDefaults.intMappingKeys)
       .union(BackupUserDefaults.specialCasedPropertyNames)
 
     let uncovered = allOptional.subtracting(covered)
@@ -80,9 +81,9 @@ struct BackupUserDefaultsCoverageTests {
     #expect(uncovered.isEmpty, """
     Optional properties not covered by any mapping or allow-list: \(uncovered.sorted()).
     Either:
-      (a) add to boolMappings/stringMappings if Bool?/String?, or
+      (a) add to boolMappings/stringMappings/intMappings if Bool?/String?/Int?, or
       (b) hand-roll snapshot/restore branches and add to specialCasedPropertyNames.
-    See BackupUserDefaults.boolMappings / stringMappings / specialCasedPropertyNames.
+    See BackupUserDefaults.boolMappings / stringMappings / intMappings / specialCasedPropertyNames.
     """)
 
     #expect(staleAllowList.isEmpty, """

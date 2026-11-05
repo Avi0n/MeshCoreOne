@@ -16,6 +16,7 @@ final class DangerZoneViewModel {
   var removeResult: String?
 
   private var removeTask: Task<Void, Never>?
+  private var removalOperationID: UUID?
 
   // MARK: - Dependencies
 
@@ -50,14 +51,18 @@ final class DangerZoneViewModel {
 
   /// Returns true when the device was forgotten and the hosting page should dismiss.
   func forgetDevice(deleteData: Bool) async -> Bool {
-    guard let connectionManager else { return false }
+    guard let connectionManager, let context = connectionManager.captureCurrentRemoval() else { return false }
+    let operationID = UUID()
+    removalOperationID = operationID
+    defer { if removalOperationID == operationID { removalOperationID = nil } }
     do {
-      try await connectionManager.forgetDevice(deleteData: deleteData)
-      return true
-    } catch DevicePairingError.cancelled {
+      let result = try await connectionManager.forgetDevice(context, deleteData: deleteData)
+      guard removalOperationID == operationID, case let .removed(receipt) = result else { return false }
+      return connectionManager.isCurrent(receipt)
+    } catch is CancellationError {
       return false
     } catch {
-      errorMessage = error.userFacingMessage
+      if removalOperationID == operationID { errorMessage = error.userFacingMessage }
       return false
     }
   }
@@ -65,21 +70,32 @@ final class DangerZoneViewModel {
   /// Returns true when the reset flow finished and the hosting page should dismiss.
   /// A nil service or device ID mirrors a disconnected state.
   func factoryReset() async -> Bool {
-    guard settingsService != nil, connectedDevice != nil, let connectionManager else {
+    guard settingsService != nil,
+          connectedDevice != nil,
+          let connectionManager,
+          let context = connectionManager.captureCurrentRemoval() else {
       errorMessage = L10n.Settings.DangerZone.Error.servicesUnavailable
       return false
     }
 
+    let operationID = UUID()
+    removalOperationID = operationID
     isResetting = true
-    defer { isResetting = false }
+    defer {
+      if removalOperationID == operationID {
+        isResetting = false
+        removalOperationID = nil
+      }
+    }
 
     do {
-      try await connectionManager.factoryResetAndEraseRadio()
-      return true
-    } catch DevicePairingError.cancelled {
+      let result = try await connectionManager.factoryResetAndEraseRadio(context)
+      guard removalOperationID == operationID, case let .removed(receipt) = result else { return false }
+      return connectionManager.isCurrent(receipt)
+    } catch is CancellationError {
       return false
     } catch {
-      errorMessage = error.userFacingMessage
+      if removalOperationID == operationID { errorMessage = error.userFacingMessage }
       return false
     }
   }

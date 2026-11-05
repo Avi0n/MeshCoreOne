@@ -45,6 +45,7 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
   /// accessory stays registered.
   public var removeAccessoryError: Error?
   public var removeAccessoryGate: AsyncStream<Void>?
+  public var beforeRemovalResult: (@MainActor () async -> Void)?
 
   public init() {}
 
@@ -54,6 +55,11 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
 
   public func setPairedAccessories(_ accessories: [ASAccessory]) {
     storedPairedAccessories = accessories
+  }
+
+  public func simulateAccessoryRemoved(_ bluetoothID: UUID) {
+    storedPairedAccessories.removeAll { $0.bluetoothIdentifier == bluetoothID }
+    delegate?.accessorySetupKitService(AccessorySetupKitService(), didRemoveAccessoryWithID: bluetoothID)
   }
 
   public func activateSession() async throws {
@@ -85,6 +91,7 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
         break
       }
     }
+    await beforeRemovalResult?()
     if let removeAccessoryError {
       throw removeAccessoryError
     }

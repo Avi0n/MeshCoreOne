@@ -137,7 +137,7 @@ struct ChatReconnectPopulateTests {
     let contact = makeContact(radioID: UUID(), unreadCount: 0)
     let viewModel = ChatViewModel()
     viewModel.configure(
-      dependencies: appState.makeChatViewModelDependencies(),
+      dependencies: appState.makeChatViewModelDependencies(radioID: contact.radioID),
       onNavigateToMap: nil,
       linkPreviewCache: nil,
       chatCoordinatorRegistry: appState.ensureChatCoordinatorRegistry(),

@@ -87,7 +87,7 @@ extension SyncCoordinator {
     let prefix = message.senderPublicKeyPrefix
     guard !prefix.isEmpty,
           let materialized = await dependencies.advertisementService
-          .materializeContactForPendingAdvert(matchingPrefix: prefix, scope: scope)
+            .materializeContactForPendingAdvert(matchingPrefix: prefix, scope: scope)
     else {
       return kind
     }
@@ -361,10 +361,11 @@ extension SyncCoordinator {
         return
       }
       do {
+        await runTestBeforeMessageSave(messageDTO)
         guard try await dependencies.dataStore.saveLegacyChannelMessage(
-          messageDTO, scope: legacyScope, conversationID: channel?.textRulesID
-        ),
-          legacyScope?.isCurrent != false else { return }
+                messageDTO, scope: legacyScope, conversationID: channel?.textRulesID
+              ),
+              legacyScope?.isCurrent != false else { return }
         let savedDTO = try await harvestAndRefreshChannelMessage(
           messageDTO: messageDTO,
           radioID: radioID,
@@ -399,6 +400,7 @@ extension SyncCoordinator {
     dependencies: SyncDependencies
   ) async {
     do {
+      await runTestBeforeMessageSave(message)
       let admission = try await dependencies.dataStore.admitDirectMessage(
         message, wireTextType: wireTextType, contact: contact, scope: scope, preference: preference
       )
@@ -577,15 +579,15 @@ extension SyncCoordinator {
     let timestamp = UInt32(message.senderTimestamp.timeIntervalSince1970)
     do {
       guard let saved = try await dependencies.roomServerService.handleIncomingMessage(
-        senderPublicKeyPrefix: message.senderPublicKeyPrefix,
-        timestamp: timestamp,
-        authorPrefix: Data(authorPrefix),
-        text: message.text,
-        scope: scope
-      ), let room = try await dependencies.dataStore.fetchRemoteNodeSession(id: saved.room.id),
-      room.radioID == saved.room.radioID,
-      room.textRulesID == saved.room.textRulesID,
-      scope.isCurrent else { return }
+              senderPublicKeyPrefix: message.senderPublicKeyPrefix,
+              timestamp: timestamp,
+              authorPrefix: Data(authorPrefix),
+              text: message.text,
+              scope: scope
+            ), let room = try await dependencies.dataStore.fetchRemoteNodeSession(id: saved.room.id),
+            room.radioID == saved.room.radioID,
+            room.textRulesID == saved.room.textRulesID,
+            scope.isCurrent else { return }
 
       await dependencies.notificationService.postRoomMessageNotification(
         roomName: room.name,
@@ -711,9 +713,11 @@ extension SyncCoordinator {
 
   /// Cancels the discovery event task so it releases the service references
   /// it captures. Called by `ServiceContainer.tearDown()`.
-  func cancelDiscoveryEventMonitoring() {
-    discoveryEventsTask?.cancel()
+  func cancelDiscoveryEventMonitoring() async {
+    let worker = discoveryEventsTask
     discoveryEventsTask = nil
+    worker?.cancel()
+    await worker?.value
   }
 
   // MARK: - Static Helpers
