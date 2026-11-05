@@ -36,18 +36,16 @@ struct ContactCleanupCoordinator: ContactCleanupHandling {
     }
 
     // Refresh blocked names cache and delete channel messages on block
-    if reason == .blocked || reason == .unblocked {
-      if let contact = try? await dataStore.fetchContact(id: contactID) {
-        if reason == .blocked {
-          try? await dataStore.deleteChannelMessages(
-            fromSender: contact.name, radioID: contact.radioID
-          )
-        }
-        await syncCoordinator.refreshBlockedContactsCache(
-          radioID: contact.radioID, dataStore: dataStore
+    if reason == .blocked || reason == .unblocked, let contact = try? await dataStore.fetchContact(id: contactID) {
+      if reason == .blocked {
+        try? await dataStore.deleteChannelMessages(
+          fromSender: contact.name, radioID: contact.radioID
         )
-        await syncCoordinator.notifyConversationsChanged()
       }
+      await syncCoordinator.refreshBlockedContactsCache(
+        radioID: contact.radioID, dataStore: dataStore
+      )
+      await syncCoordinator.notifyConversationsChanged()
     }
 
     if reason == .blocked {

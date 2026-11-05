@@ -25,11 +25,11 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Converts CBPeripheralState to readable string for diagnostics
   nonisolated func peripheralStateString(_ state: CBPeripheralState) -> String {
     switch state {
-    case .disconnected: return "disconnected"
-    case .connecting: return "connecting"
-    case .connected: return "connected"
-    case .disconnecting: return "disconnecting"
-    @unknown default: return "unknown(\(state.rawValue))"
+    case .disconnected: "disconnected"
+    case .connecting: "connecting"
+    case .connected: "connected"
+    case .disconnecting: "disconnecting"
+    @unknown default: "unknown(\(state.rawValue))"
     }
   }
 

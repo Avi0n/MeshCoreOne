@@ -50,6 +50,7 @@
 --disable wrapIfStatementBodies   # single-line early returns and `if case` checks stay on one line
 --disable wrapIfExpressionBodies  # same, for if-expression branches
 --disable redundantSwiftUIGroup   # mis-parses Group(subviews:) into uncompilable code, and strips Groups whose modifiers must not reapply per-child
+--disable repeatedGuard           # consecutive guards with the same exit stay on their own lines
 
 # Leave file headers untouched
 --header ignore

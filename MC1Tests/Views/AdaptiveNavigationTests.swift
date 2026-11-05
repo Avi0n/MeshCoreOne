@@ -653,7 +653,7 @@ struct AdaptiveNavigationTests {
   private func contactDetailIsVisible(in host: Host, contact: ContactDTO) -> Bool {
     guard host.renderedContact.id == contact.id,
           let navigation = navigationControllers(from: host.window.rootViewController)
-          .first(where: { viewIsVisible($0.view, in: host.window) }),
+            .first(where: { viewIsVisible($0.view, in: host.window) }),
           let root = navigation.topViewController?.view,
           let list = descendantViews(in: root, of: UICollectionView.self).first else { return false }
     return viewIsVisible(list, in: host.window)

@@ -1,8 +1,8 @@
 import Foundation
 @testable import MC1Services
 
+@MainActor
 extension ConnectionManager {
-  @MainActor
   @discardableResult
   func seedBLERecoveryRequest(deviceID: UUID = UUID()) -> ConnectionRequest {
     if let desiredRequest, desiredRequest.target != .disconnected { return desiredRequest }
@@ -14,7 +14,6 @@ extension ConnectionManager {
     return request
   }
 
-  @MainActor
   func finishSeededBLERecovery() async {
     let request = seedBLERecoveryRequest()
     guard let deviceID = request.target.deviceID else { return }
@@ -25,7 +24,6 @@ extension ConnectionManager {
     if reconnectionCoordinator.isCurrent(cycle) { reconnectionCoordinator.clear() }
   }
 
-  @MainActor
   func acceptSeededBLELoss(deviceID: UUID? = nil, error: BLEError? = nil) async {
     let request = seedBLERecoveryRequest(deviceID: deviceID ?? connectedDevice?.id ?? UUID())
     let origin = BLELifecycleOrigin(
