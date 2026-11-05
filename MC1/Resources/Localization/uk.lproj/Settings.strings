@@ -1169,6 +1169,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Кількість підтверджень, що надсилаються на кожне особисте повідомлення. Використовуйте 2 для кращого підтвердження доставки через ненадійні з'єднання.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Початкові спроби";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Запасні спроби Flood";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "Початкові спроби використовують Flood, якщо контакт не має вихідного шляху. Робиться спроба скинути вихідний шлях перед запасними спробами Flood. Встановіть «Запасні спроби Flood» на нуль, щоб пропустити скидання вихідного шляху та запасні спроби.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

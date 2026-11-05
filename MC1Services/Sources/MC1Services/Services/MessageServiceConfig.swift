@@ -38,15 +38,6 @@ struct MessageServiceConfig {
   /// Whether to use flood routing when user manually retries a failed message
   let floodFallbackOnRetry: Bool
 
-  /// Maximum total send attempts for automatic retry
-  let maxAttempts: Int
-
-  /// Maximum attempts to make after switching to flood routing
-  let maxFloodAttempts: Int
-
-  /// Number of direct attempts before switching to flood routing
-  let floodAfter: Int
-
   /// Minimum timeout in seconds (floor for device-suggested timeout)
   let minTimeout: TimeInterval
 
@@ -68,21 +59,12 @@ struct MessageServiceConfig {
 
   init(
     floodFallbackOnRetry: Bool = true,
-    maxAttempts: Int = 5,
-    maxFloodAttempts: Int = 1,
-    floodAfter: Int = 4,
     minTimeout: TimeInterval = 0,
     triggerPathDiscoveryAfterFlood: Bool = true,
     ackGiveUpWindow: TimeInterval = 30,
     poolBackoff: PoolBackoffConfig = .default
   ) {
-    // 5 = 4 direct + 1 flood. AckCodeBuilder.expectedAck documents why attempt
-    // indices through 4 stay ACK-unambiguous; past that the cap bounds airtime.
-    precondition(maxAttempts <= 5, "maxAttempts must be <= 5 (4 direct + 1 flood)")
     self.floodFallbackOnRetry = floodFallbackOnRetry
-    self.maxAttempts = maxAttempts
-    self.maxFloodAttempts = maxFloodAttempts
-    self.floodAfter = floodAfter
     self.minTimeout = minTimeout
     self.triggerPathDiscoveryAfterFlood = triggerPathDiscoveryAfterFlood
     self.ackGiveUpWindow = ackGiveUpWindow

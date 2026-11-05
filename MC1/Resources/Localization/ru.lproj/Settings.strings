@@ -1169,6 +1169,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Количество подтверждений, отправляемых на каждое прямое сообщение. Используйте 2 для лучшего подтверждения доставки по ненадёжным каналам.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Начальные попытки";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Запасные попытки Flood";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "Начальные попытки используют Flood, если у контакта нет исходящего пути. Исходящий путь пытаются сбросить перед запасными попытками Flood. Установите «Запасные попытки Flood» на 0, чтобы пропустить сброс и дополнительные попытки.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

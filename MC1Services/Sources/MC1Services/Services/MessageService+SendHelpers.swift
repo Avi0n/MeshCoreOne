@@ -39,7 +39,7 @@ func withPoolBackoff<T>(
 
 extension MessageService {
   func failMessageAndRethrow(_ error: Error, messageID: UUID, pendingSendID: UUID? = nil) async throws -> Never {
-    pendingAcks.removeValue(forKey: messageID)
+    await discardTrackedAck(messageID: messageID)
     // Persistence layer absorbs `.delivered`: if the listener won the race
     // before the throw path runs, the row stays delivered. Same invariant as
     // updateMessageRetryStatus and updateMessageAck. The Bool return is

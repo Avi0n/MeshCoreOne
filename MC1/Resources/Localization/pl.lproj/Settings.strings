@@ -1169,6 +1169,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Liczba potwierdzeń wysyłanych na wiadomość bezpośrednią. Użyj 2 dla lepszego potwierdzenia dostarczenia przez zawodne łącza.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Próby początkowe";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Próby zapasowe Flood";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "Próby początkowe używają Flood, gdy kontakt nie ma ścieżki wychodzącej. Przed dodatkowymi próbami zapasowy Flood próbuje zresetować ścieżkę wychodzącą. Ustaw próby zapasowe Flood na 0, aby pominąć resetowanie ścieżki wychodzącej i dodatkowe próby.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

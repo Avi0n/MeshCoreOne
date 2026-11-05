@@ -60,6 +60,10 @@ actor SendQueue<Envelope: Sendable> {
       pending.count
     }
 
+    var isDrainingForTesting: Bool {
+      processingTask != nil
+    }
+
     /// Await the current drain pass to completion. If no drain is in
     /// progress this returns immediately. Used by tests to synchronize
     /// on the drain task without polling — production consumers observe

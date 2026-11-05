@@ -1169,6 +1169,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Aantal bevestigingen dat per direct bericht wordt verstuurd. Gebruik 2 voor betere afleverbevestiging via onbetrouwbare verbindingen.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Eerste pogingen";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Flood-terugvalpogingen";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "De eerste pogingen gebruiken Flood als het contact geen uitgaand pad heeft. De Flood-terugval probeert het uitgaande pad te resetten voordat de extra pogingen beginnen. Zet Flood-terugvalpogingen op nul om het resetten van het uitgaande pad en de extra pogingen over te slaan.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

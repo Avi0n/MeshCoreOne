@@ -4128,6 +4128,44 @@ struct BackupIntegrationTests {
     #expect(defaults.bool(forKey: AppStorageKey.useDefaultTranslationApp.rawValue) == true)
   }
 
+  // MARK: - DM attempt budget backup contract
+
+  @Test
+  func `DM attempt budget including explicit zero survives a full backup envelope`() throws {
+    var preferences = BackupUserDefaults()
+    preferences.dmDirectAttempts = 2
+    preferences.dmFloodAttempts = 0
+    let original = AppBackupEnvelope.test(version: AppBackupEnvelope.legacyVersion, userDefaults: preferences)
+    let encoded = try makeBackupJSONEncoder().encode(original)
+    let envelope = try parseBackup(data: encoded.zlibCompressed())
+    let decoded = try #require(envelope.userDefaults)
+    #expect(decoded == preferences)
+
+    let suiteName = "test.dmBudget.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    decoded.restore(to: defaults)
+
+    let budget = DMSendBudget.current(defaults: defaults)
+    #expect(budget.directAttempts == 2)
+    #expect(budget.floodAttempts == 0)
+  }
+
+  @Test
+  func `legacy backup envelope preserves missing DM attempt settings`() throws {
+    let original = AppBackupEnvelope.test(version: AppBackupEnvelope.legacyVersion)
+    let encoded = try makeBackupJSONEncoder().encode(original)
+    var json = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json["userDefaults"] = ["hasCompletedOnboarding": true]
+    let legacy = try JSONSerialization.data(withJSONObject: json).zlibCompressed()
+
+    let decoded = try parseBackup(data: legacy)
+    let preferences = try #require(decoded.userDefaults)
+    #expect(preferences.hasCompletedOnboarding == true)
+    #expect(preferences.dmDirectAttempts == nil)
+    #expect(preferences.dmFloodAttempts == nil)
+  }
+
   // MARK: - Message.regionScope round-trip
 
   @Test

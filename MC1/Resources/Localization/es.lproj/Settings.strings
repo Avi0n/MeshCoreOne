@@ -1169,6 +1169,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Número de acuses de recibo enviados por mensaje directo. Usa 2 para una mejor confirmación de entrega en enlaces poco fiables.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Intentos iniciales";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Intentos de reserva Flood";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "Los intentos iniciales usan Flood si el contacto no tiene ruta de salida. Con los intentos de reserva Flood se intenta restablecer la ruta de salida antes de los intentos adicionales. Usa 0 en Intentos de reserva Flood para omitir el restablecimiento y los intentos adicionales.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

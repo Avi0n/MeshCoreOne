@@ -13,7 +13,7 @@ extension BackupIntegrationTests {
     try await source.saveMessage(message)
     let sentAt = Date()
     let owner = PendingSendDTO(
-      envelope: DirectMessageEnvelope(messageID: message.id, contactID: contact.id), radioID: radioID,
+      envelope: DirectMessageEnvelope(messageID: message.id, contactID: contact.id, isSingleAttempt: true), radioID: radioID,
       ackCodes: [Data([1, 2, 3, 4])], ackSentAt: sentAt, ackDeadline: sentAt.addingTimeInterval(60)
     )
     #expect(try await source.savePendingAcknowledgement(owner, replacingPendingSendID: nil))
@@ -25,6 +25,7 @@ extension BackupIntegrationTests {
     #expect(!json.contains("ackSentAt"))
     #expect(!json.contains("ackDeadline"))
     #expect(!json.contains("pendingSends"))
+    #expect(!json.contains("isSingleAttempt"))
     #expect(envelope.messages.first?.id == message.id)
     #expect(envelope.messages.first?.ackCode == 123)
     let destination = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
@@ -32,5 +33,6 @@ extension BackupIntegrationTests {
     #expect(try await destination.fetchMessage(id: message.id)?.ackCode == 123)
     #expect(try await destination.fetchPendingSends(radioID: radioID).isEmpty)
     #expect(try await source.fetchPendingSends(radioID: radioID).first?.ackCodes == owner.ackCodes)
+    #expect(try await source.fetchPendingSends(radioID: radioID).first?.isSingleAttempt == true)
   }
 }

@@ -100,7 +100,8 @@ public final class ChatSendQueueService {
     messageService: MessageService,
     channelService: ChannelService,
     reactionService: ReactionService,
-    config: ChatSendQueueConfig = .default
+    config: ChatSendQueueConfig = .default,
+    plainTextSendGate: PlainTextSendGate? = nil
   ) {
     self.radioID = radioID
     self.config = config
@@ -138,17 +139,29 @@ public final class ChatSendQueueService {
         // transient error does not produce a `.failed`-then-`.pending`
         // flicker on the UI.
         do {
+          let sendLease = try await plainTextSendGate?.acquire()
+          func stopIssuing() async {
+            if let sendLease {
+              await plainTextSendGate?.stopIssuing(sendLease)
+            }
+          }
+          defer { await stopIssuing() }
+          try Task.checkCancellation()
+          try ChatSendQueueService.cancelSendIfRetired(sendsRetired)
+
           let contact: ContactDTO
           switch await ChatSendQueueService.classifyRead({ try await dataStoreRef.fetchContact(id: envelope.contactID) }) {
           case let .found(value):
             contact = value
           case .missing:
             loggerRef.info("DM send queue: contact \(envelope.contactID) was deleted; dropping envelope")
+            await stopIssuing()
             try? await dataStoreRef.deletePendingSendsForMessage(messageID: envelope.messageID)
             try? await dataStoreRef.updateMessageStatus(id: envelope.messageID, status: .failed)
             return
           case let .transient(error):
             loggerRef.warning("DM drain fetchContact transient error: \(String(describing: error)); parking envelope")
+            await stopIssuing()
             try await ChatSendQueueService.parkAndCancel(
               triggers: triggers,
               logger: loggerRef,
@@ -158,10 +171,8 @@ public final class ChatSendQueueService {
             )
           }
 
-          // Pre-send gate + attemptCount bump. Persisted attemptCount
-          // becomes the source of truth for preserveTimestamp. Bump
-          // completes (and modelContext.save() commits) before any
-          // wire-affecting work.
+          // Persist the attempt after admission but before any command, so replay knows
+          // whether transmission may have started and must preserve the timestamp.
           let preserveTimestamp: Bool
           do {
             guard let result = try await ChatSendQueueService.preflightAndBump(
@@ -170,11 +181,14 @@ public final class ChatSendQueueService {
               kind: "DM",
               logger: loggerRef,
               osLogger: osLoggerRef
-            ) else { return }
+            ) else {
+              return
+            }
             preserveTimestamp = result.preserveTimestamp
             pendingSendID = result.pendingSendID
           } catch {
             _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
+            await stopIssuing()
             try await ChatSendQueueService.parkAndCancel(
               triggers: triggers,
               logger: loggerRef,
@@ -185,21 +199,15 @@ public final class ChatSendQueueService {
           }
 
           do {
-            let message: MessageDTO = if envelope.isResend {
-              try await messageServiceRef.resendDirectMessage(
-                messageID: envelope.messageID,
-                to: contact,
-                preserveTimestamp: preserveTimestamp,
-                pendingSendID: pendingSendID
-              )
-            } else {
-              try await messageServiceRef.sendPendingDirectMessage(
-                messageID: envelope.messageID,
-                to: contact,
-                preserveTimestamp: preserveTimestamp,
-                pendingSendID: pendingSendID
-              )
-            }
+            let message = try await messageServiceRef.performQueuedDirectMessageSend(
+              messageID: envelope.messageID,
+              to: contact,
+              preserveTimestamp: preserveTimestamp,
+              isResend: envelope.isResend,
+              isSingleAttempt: envelope.isSingleAttempt,
+              pendingSendID: pendingSendID,
+              sendLease: sendLease
+            )
             if message.status != .sent, let pendingSendID {
               try? await dataStoreRef.deletePendingSend(id: pendingSendID)
             }
@@ -230,6 +238,8 @@ public final class ChatSendQueueService {
             )
           }
         } catch let cancellation as CancellationError {
+          // The replacement queue hydrates this row. A retired gate cannot retry it.
+          if await plainTextSendGate?.isInvalidated == true, !Task.isCancelled { return }
           throw cancellation
         } catch {
           if let pendingSendID {
@@ -764,6 +774,10 @@ public final class ChatSendQueueService {
 
     var parkedDrainCountForTesting: Int {
       get async { await triggers.waiterCountForTesting }
+    }
+
+    var isDMDrainingForTesting: Bool {
+      get async { await dmQueue.isDrainingForTesting }
     }
 
     /// Test-only: drain readiness for synchronizing tests.

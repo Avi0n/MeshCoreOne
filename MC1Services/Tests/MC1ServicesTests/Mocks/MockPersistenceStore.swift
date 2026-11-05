@@ -2654,7 +2654,8 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       attemptCount: dto.attemptCount,
       ackCodes: dto.ackCodes,
       ackSentAt: dto.ackSentAt,
-      ackDeadline: dto.ackDeadline
+      ackDeadline: dto.ackDeadline,
+      isSingleAttempt: dto.isSingleAttempt
     )
     pendingSends[dto.id] = assigned
     return nextSequence
@@ -2665,10 +2666,30 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     if let replacingPendingSendID {
       guard let existing = pendingSends[replacingPendingSendID], existing.messageID == dto.messageID,
             existing.ackDeadline == nil else { return false }
+      pendingSends[existing.id] = PendingSendDTO(
+        id: existing.id,
+        radioID: existing.radioID,
+        messageID: existing.messageID,
+        kind: existing.kind,
+        contactID: existing.contactID,
+        channelIndex: existing.channelIndex,
+        isResend: existing.isResend,
+        messageText: existing.messageText,
+        messageTimestamp: existing.messageTimestamp,
+        localNodeName: existing.localNodeName,
+        sequence: existing.sequence,
+        enqueuedAt: existing.enqueuedAt,
+        attemptCount: existing.attemptCount,
+        ackCodes: dto.ackCodes,
+        ackSentAt: dto.ackSentAt,
+        ackDeadline: dto.ackDeadline,
+        isSingleAttempt: existing.isSingleAttempt
+      )
     } else if pendingSends.values.contains(where: { $0.messageID == dto.messageID }) {
       return false
+    } else {
+      pendingSends[dto.id] = dto
     }
-    pendingSends[dto.id] = dto
     message.status = .sent
     messages[dto.messageID] = message
     return true
@@ -2728,7 +2749,8 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       attemptCount: nextCount,
       ackCodes: row.ackCodes,
       ackSentAt: row.ackSentAt,
-      ackDeadline: row.ackDeadline
+      ackDeadline: row.ackDeadline,
+      isSingleAttempt: row.isSingleAttempt
     )
     return (row.id, nextCount)
   }

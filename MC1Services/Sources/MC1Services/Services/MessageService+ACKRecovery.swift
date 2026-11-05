@@ -8,6 +8,7 @@ enum PendingAcknowledgementCommit {
 
 extension MessageService {
   func restorePendingAcknowledgements(radioID: UUID) async throws {
+    var restored: [UUID: PendingAck] = [:]
     for row in try await dataStore.fetchPendingSends(radioID: radioID) {
       guard let codes = row.ackCodes, let sentAt = row.ackSentAt,
             let deadline = row.ackDeadline, let contactID = row.contactID else { continue }
@@ -16,12 +17,21 @@ extension MessageService {
         try await dataStore.deletePendingSend(id: row.id)
         continue
       }
-      pendingAcks[row.messageID] = PendingAck(
+      restored[row.messageID] = PendingAck(
         messageID: row.messageID, contactID: contactID, ackCodes: Set(codes),
         sentAt: sentAt, timeout: deadline.timeIntervalSince(sentAt),
         pendingSendID: row.id, deadline: deadline
       )
     }
+    let now = Date()
+    for (id, tracking) in restored {
+      if let deadline = tracking.deadline, deadline > now {
+        restored[id]?.sendLeaseID = tracking.pendingSendID
+      }
+    }
+    // Reserve recovered ACK owners before hydration can admit another send.
+    await plainTextSendGate?.reserveRestoredAcks(Set(restored.values.compactMap(\.sendLeaseID)))
+    pendingAcks.merge(restored) { _, restored in restored }
   }
 
   func persistAcknowledgement(
@@ -48,7 +58,9 @@ extension MessageService {
     }
     noteAcknowledgementSaveCommitted(messageID)
     guard saved else {
-      removePendingAckIfCurrent(tracking)
+      if removePendingAckIfCurrent(tracking) {
+        await settlePlainTextLease(tracking.sendLeaseID)
+      }
       return false
     }
     #if DEBUG
@@ -85,12 +97,14 @@ extension MessageService {
       return .waitingForOwner
     }
     let status: MessageStatus = current.matchedAckCode == nil ? .failed : .delivered
+    let leaseID = current.sendLeaseID
     let updated = try await writeTerminalAcknowledgement(current, status: status)
     guard pendingAcks[messageID]?.sentAt == sentAt else {
       return updated ? .committed(status) : .unchanged
     }
     guard updated else {
       pendingAcks.removeValue(forKey: messageID)
+      await settlePlainTextLease(leaseID)
       return .unchanged
     }
     pendingAcks[messageID]?.isDelivered = true
@@ -103,6 +117,7 @@ extension MessageService {
     }
     let tripTime = pendingAcks[messageID]?.matchedTripTime
     pendingAcks.removeValue(forKey: messageID)
+    await settlePlainTextLease(leaseID)
     switch status {
     case .delivered:
       statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: tripTime))

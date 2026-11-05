@@ -31,7 +31,7 @@ struct MessageServiceACKRecoveryTests {
     await original.services.chatSendQueueService.awaitDrainCompletion()
     let exhausted = try #require(await originalStore.fetchMessage(id: message.id))
     #expect(exhausted.status == .sent)
-    #expect(await original.radio.sendCount == 5)
+    #expect(await original.radio.sendCount == 8)
     #expect(await original.services.messageService.pendingAckCount == 1)
     #expect(try await originalStore.fetchPendingSends(radioID: radioID).count == 1,
             "Accepted sends need a durable ACK owner after the send queue finishes")
@@ -57,6 +57,55 @@ struct MessageServiceACKRecoveryTests {
     #expect(delivered.roundTripTime == 123)
     #expect(try await restoredStore.fetchPendingSends(radioID: radioID).isEmpty)
     await restored.close()
+  }
+
+  @Test
+  func `hydrated DM waits for every live restored ACK owner`() async throws {
+    let previousLogBuffer = DebugLogBuffer.shared
+    defer { DebugLogBuffer.shared = previousLogBuffer }
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let radioID = UUID()
+    try await store.saveDevice(.testDevice(radioID: radioID, publicKey: Self.senderKey))
+    let contact = ContactDTO.testContact(radioID: radioID)
+    try await store.saveContact(contact)
+    let sentAt = Date()
+    let deadline = sentAt.addingTimeInterval(60)
+    let codes = [Data([1, 2, 3, 4]), Data([5, 6, 7, 8])]
+    var restoredMessageIDs: [UUID] = []
+    for code in codes {
+      let message = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id, status: .pending)
+      try await store.saveMessage(message)
+      let owner = PendingSendDTO(
+        envelope: DirectMessageEnvelope(messageID: message.id, contactID: contact.id),
+        radioID: radioID, ackCodes: [code], ackSentAt: sentAt, ackDeadline: deadline
+      )
+      try #require(await store.savePendingAcknowledgement(owner, replacingPendingSendID: nil))
+      restoredMessageIDs.append(message.id)
+    }
+    let queued = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id, status: .pending)
+    try await store.saveMessage(queued)
+    let row = PendingSendDTO(
+      envelope: DirectMessageEnvelope(messageID: queued.id, contactID: contact.id), radioID: radioID
+    )
+    _ = try await store.insertPendingSendAssigningSequence(row)
+
+    let successor = try await Connection.open(store: store, radioID: radioID)
+    defer { Task { await successor.close() } }
+    try await waitUntil("the hydrated message reaches admission or is sent") {
+      if await successor.services.plainTextSendGate.waiterCountForTesting == 1 { return true }
+      return await successor.radio.sendCount > 0
+    }
+    #expect(await successor.radio.sendCount == 0)
+    await successor.services.messageService.handleAcknowledgement(code: codes[0], tripTime: 100)
+    #expect(try await store.fetchMessage(id: restoredMessageIDs[0])?.status == .delivered)
+    #expect(await successor.services.plainTextSendGate.waiterCountForTesting == 1)
+    #expect(await successor.radio.sendCount == 0)
+
+    await successor.services.messageService.handleAcknowledgement(code: codes[1], tripTime: 100)
+    #expect(try await store.fetchMessage(id: restoredMessageIDs[1])?.status == .delivered)
+    try await waitUntil("the queued message sends after both ACKs") { await successor.radio.sendCount > 0 }
+    await successor.services.chatSendQueueService.awaitDrainCompletion()
+    #expect(await successor.radio.sendCount == 8)
   }
 
   @Test(arguments: [false, true])
@@ -115,7 +164,7 @@ struct MessageServiceACKRecoveryTests {
       DirectMessageEnvelope(messageID: message.id, contactID: contact.id)
     )
     try await waitUntil("queued owner save is held") { gate.isParked }
-    #expect(await original.radio.sendCount == 5)
+    #expect(await original.radio.sendCount == 8)
     let successor = try await successorAfterHeldSave(
       original: original, store: store, radioID: radioID, gate: gate
     )
@@ -183,7 +232,7 @@ struct MessageServiceACKRecoveryTests {
     #expect(message.status == .sent)
     await successor.services.messageService.stopAckExpiryChecking()
     let row = try #require(await store.fetchPendingSends(radioID: radioID).first)
-    #expect(row.attemptCount == 0)
+    #expect(row.attemptCount == 1)
     #expect(row.ackDeadline != nil)
     return HeldInlineSave(
       store: store, radioID: radioID, original: original, successor: successor, messageID: messageID

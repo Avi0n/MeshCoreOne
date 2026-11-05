@@ -86,7 +86,7 @@ struct MessageServiceSendDMBookkeepingTests {
     #expect(owner.messageID == accepted.id)
     #expect(owner.ackCodes?.contains(code) == true)
     #expect(owner.ackDeadline != nil)
-    #expect(owner.attemptCount == 0)
+    #expect(owner.attemptCount == 1)
 
     await store.setStubbedUpdateMessageStatusError(nil)
     await service.handleAcknowledgement(code: code, tripTime: 123)

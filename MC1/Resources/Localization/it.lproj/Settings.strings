@@ -1219,6 +1219,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Numero di conferme inviate per messaggio diretto. Usa 2 per una conferma di consegna migliore su collegamenti inaffidabili.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Tentativi iniziali";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Tentativi di ripiego flood";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "I tentativi iniziali usano l’instradamento flood se il contatto non ha un percorso in uscita. Il ripiego flood prova a reimpostare il percorso in uscita prima dei tentativi extra. Imposta Tentativi di ripiego flood a zero per saltare la reimpostazione del percorso in uscita e i tentativi extra.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

@@ -1219,6 +1219,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Número de confirmações enviadas por mensagem direta. Use 2 para melhor confirmação de entrega em ligações pouco fiáveis.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Tentativas iniciais";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Tentativas de recurso por difusão";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "As tentativas iniciais usam a difusão se o contacto não tiver rota de saída. Com a opção «Tentativas de recurso por difusão», a app tenta repor a rota de saída antes de tentar novamente. Use 0 nessa opção para não repor a rota de saída nem fazer as tentativas extra.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

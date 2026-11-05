@@ -41,6 +41,9 @@ public actor MessageService {
   let session: any MeshCoreSessionProtocol
   let dataStore: any PersistenceStoreProtocol
   let config: MessageServiceConfig
+  /// Read once at the start of each DM retry loop.
+  let dmSendBudgetProvider: @Sendable () -> DMSendBudget
+  let plainTextSendGate: PlainTextSendGate?
 
   /// Contact service for path management (optional - retry with reset requires this).
   /// Injected by `ServiceContainer` at construction.
@@ -132,12 +135,16 @@ public actor MessageService {
     dataStore: any PersistenceStoreProtocol,
     contactService: ContactService?,
     config: MessageServiceConfig = .default,
-    ackEvents: AsyncStream<MeshEvent>? = nil
+    ackEvents: AsyncStream<MeshEvent>? = nil,
+    dmSendBudget: @escaping @Sendable () -> DMSendBudget = { .default },
+    plainTextSendGate: PlainTextSendGate? = nil
   ) {
     self.session = session
     self.dataStore = dataStore
     self.contactService = contactService
     self.config = config
+    dmSendBudgetProvider = dmSendBudget
+    self.plainTextSendGate = plainTextSendGate
     bufferedAckEvents = ackEvents
   }
 

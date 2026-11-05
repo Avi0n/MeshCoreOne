@@ -30,6 +30,7 @@ public extension PersistenceStore {
       existing.contactID = dto.contactID
       existing.channelIndex = dto.channelIndex
       existing.isResend = dto.isResend
+      existing.isSingleAttempt = dto.isSingleAttempt
       existing.messageText = dto.messageText
       existing.messageTimestamp = dto.messageTimestamp
       existing.localNodeName = dto.localNodeName

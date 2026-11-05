@@ -1208,6 +1208,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Initial Attempts";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Flood Fallback Attempts";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "Initial attempts use Flood if the contact has no out path. Flood fallback tries to clear the out path before retrying. Set Flood Fallback Attempts to zero to skip the reset and extra attempts.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

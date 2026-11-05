@@ -1169,6 +1169,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Nombre d'accusés de réception envoyés par message direct. Utilisez 2 pour une meilleure confirmation de livraison sur les liaisons peu fiables.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Tentatives initiales";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Tentatives de repli Flood";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "Les tentatives initiales utilisent Flood si le contact n'a pas de chemin sortant. Le repli Flood tente de réinitialiser le chemin sortant avant les tentatives supplémentaires. Réglez les tentatives de repli Flood sur zéro pour ignorer la réinitialisation et les tentatives supplémentaires.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

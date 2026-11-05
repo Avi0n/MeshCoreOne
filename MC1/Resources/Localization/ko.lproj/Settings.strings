@@ -1209,6 +1209,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "다이렉트 메시지당 보내는 확인 응답 수입니다. 불안정한 링크에서 전달 확인을 개선하려면 2를 사용하십시오.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "초기 시도";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "플러드 대체 시도";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "초기 시도는 연락처에 발신 경로가 없으면 플러드 라우팅을 사용합니다. 플러드 대체는 추가 시도 전에 발신 경로를 재설정하려고 합니다. 경로 재설정과 추가 시도를 건너뛰려면 플러드 대체 시도를 0으로 설정하십시오.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

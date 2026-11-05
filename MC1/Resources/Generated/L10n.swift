@@ -5134,6 +5134,12 @@ public enum L10n {
     public enum DirectMessages {
       /// Picker label for number of acknowledgments
       public static let acknowledgments = L10n.tr("Settings", "directMessages.acknowledgments", fallback: "Acknowledgments")
+      /// Footer explaining the initial and fallback attempt pickers
+      public static let attemptsFooter = L10n.tr("Settings", "directMessages.attemptsFooter", fallback: "Initial attempts use Flood if the contact has no out path. Flood fallback tries to clear the out path before retrying. Set Flood Fallback Attempts to zero to skip the reset and extra attempts.")
+      /// Picker label for attempts before resetting the contact's out path
+      public static let directAttempts = L10n.tr("Settings", "directMessages.directAttempts", fallback: "Initial Attempts")
+      /// Picker label for extra attempts after the contact's out path reset
+      public static let floodAttempts = L10n.tr("Settings", "directMessages.floodAttempts", fallback: "Flood Fallback Attempts")
       /// Footer explaining the acknowledgments setting
       public static let footer = L10n.tr("Settings", "directMessages.footer", fallback: "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.")
       /// Section header for direct message settings

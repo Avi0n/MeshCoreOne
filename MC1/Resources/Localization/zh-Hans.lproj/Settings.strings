@@ -1204,6 +1204,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "每条私信发送的确认数量。在不可靠的链路上使用 2 以获得更好的送达确认。";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "初始尝试";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "泛洪回退尝试";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "初始尝试在联系人没有出站路径时使用泛洪。泛洪回退将先尝试重置出站路径，再进行额外尝试。将“泛洪回退尝试”设为 0 以跳过重置出站路径和额外尝试。";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */

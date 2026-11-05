@@ -6,7 +6,7 @@ import Foundation
 /// single logical message can produce multiple `ackCodes` (one per attempt).
 /// All attempts for the same message share one `PendingAck` entry.
 ///
-/// DM-only: channel/room broadcasts do not generate ACKs and are not tracked here.
+/// Only DMs are tracked here. `RoomServerService` waits for room post ACKs separately.
 struct PendingAck {
   let messageID: UUID
   let contactID: UUID
@@ -22,4 +22,6 @@ struct PendingAck {
   /// Set when an acknowledgement matches and kept until the terminal save commits.
   var matchedAckCode: UInt32?
   var matchedTripTime: UInt32?
+  /// Admission lease for this ACK. A restored live ACK uses its persisted owner ID.
+  var sendLeaseID: UUID?
 }

@@ -98,6 +98,8 @@ public final class ServiceContainer {
   /// Connection-state events wake parked sends when the connection becomes ready.
   public let chatSendQueueService: ChatSendQueueService
 
+  let plainTextSendGate: PlainTextSendGate
+
   // MARK: - Notification Actions
 
   /// Executes the multi-service transactions behind notification actions
@@ -198,12 +200,16 @@ public final class ServiceContainer {
       cleanupCoordinator: cleanupCoordinator
     )
     contactRadioOwner.bind(contactService)
+    let plainTextSendGate = PlainTextSendGate()
+    self.plainTextSendGate = plainTextSendGate
     messageService = MessageService(
       session: session,
       dataStore: dataStore,
       contactService: contactService,
       config: messageConfig,
-      ackEvents: ackEvents
+      ackEvents: ackEvents,
+      dmSendBudget: { DMSendBudget.current() },
+      plainTextSendGate: plainTextSendGate
     )
     channelService = ChannelService(
       session: session,
@@ -252,7 +258,8 @@ public final class ServiceContainer {
       session: session,
       remoteNodeService: remoteNodeService,
       dataStore: dataStore,
-      radioID: radioID
+      radioID: radioID,
+      plainTextSendGate: plainTextSendGate
     )
 
     chatSendQueueService = ChatSendQueueService(
@@ -260,7 +267,8 @@ public final class ServiceContainer {
       dataStore: dataStore,
       messageService: messageService,
       channelService: channelService,
-      reactionService: reactionService
+      reactionService: reactionService,
+      plainTextSendGate: plainTextSendGate
     )
     notificationActionHandler = NotificationActionHandler(
       dataStore: dataStore,
@@ -419,6 +427,7 @@ public final class ServiceContainer {
   }
 
   private func performTearDown() async {
+    await plainTextSendGate.invalidate()
     await remoteNodeService.beginRetirement()
     await messageService.retireInlineSends()
     await messageService.waitForAcknowledgementSaves()
@@ -459,6 +468,7 @@ public final class ServiceContainer {
 
   func prepareForIdentityImport() async {
     isTornDown = true
+    await plainTextSendGate.invalidate()
     await messageService.retireInlineSends()
     await remoteNodeService.retire()
     await chatSendQueueService.shutdown()

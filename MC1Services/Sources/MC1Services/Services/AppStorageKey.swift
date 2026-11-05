@@ -54,6 +54,10 @@ public enum AppStorageKey: String {
   /// in-bubble Translate button.
   case translationOffersEnabled
   case autoDeleteStaleNodesDays
+  /// Initial attempts use the contact's current out path, which can be Flood.
+  case dmDirectAttempts
+  /// Zero disables the out path reset and fallback sends.
+  case dmFloodAttempts
   case lastStaleCleanupDate
   case frequentEmojis
   case recentReactionEmojis
@@ -105,6 +109,8 @@ public enum AppStorageKey: String {
   public static let defaultLiveActivityEnabled: Bool = true
   /// Days before a non-favorite node is auto-deleted; 0 disables cleanup.
   public static let defaultAutoDeleteStaleNodesDays: Int = 0
+  public static let defaultDMDirectAttempts: Int = DMSendBudget.defaultDirectAttempts
+  public static let defaultDMFloodAttempts: Int = DMSendBudget.defaultFloodAttempts
   /// `timeIntervalSinceReferenceDate` of the last cleanup; 0 means never ran.
   public static let defaultLastStaleCleanupDate: Double = 0
   /// Shared default for every notification toggle case.

@@ -1169,6 +1169,15 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Anzahl der pro Direktnachricht gesendeten Bestätigungen. Verwende 2 für eine bessere Zustellbestätigung über unzuverlässige Verbindungen.";
 
+/* Picker label for attempts before resetting the contact's out path */
+"directMessages.directAttempts" = "Erste Versuche";
+
+/* Picker label for extra attempts after the contact's out path reset */
+"directMessages.floodAttempts" = "Flood-Fallback-Versuche";
+
+/* Footer explaining the initial and fallback attempt pickers */
+"directMessages.attemptsFooter" = "Die ersten Versuche verwenden Flood, wenn der Kontakt keinen ausgehenden Pfad hat. Der Flood-Fallback versucht, den ausgehenden Pfad zurückzusetzen, bevor erneut gesendet wird. Stelle die Flood-Fallback-Versuche auf 0, um das Zurücksetzen und die zusätzlichen Versuche zu überspringen.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */
