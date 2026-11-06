@@ -174,7 +174,7 @@ struct MessageServiceACKRecoveryTests {
     #expect(row.ackDeadline != nil)
     #expect(row.ackSentAt != nil)
     #expect(row.attemptCount == 1)
-    #expect(await successor.services.messageService.pendingAckForTest(message.id)?.pendingSendID == row.id)
+    #expect(await successor.services.messageService.pendingAckForTest(message.id)?.owner?.id == row.id)
     await successor.services.chatSendQueueService.awaitDrainCompletion()
     #expect(await successor.radio.sendCount == 0)
     await successor.close()

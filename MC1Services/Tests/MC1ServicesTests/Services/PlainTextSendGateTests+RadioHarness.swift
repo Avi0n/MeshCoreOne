@@ -19,9 +19,17 @@ extension PlainTextSendGateTests {
     let script: RadioScript
     private let responder: Task<Void, Never>
 
-    init(budget: DMSendBudget, senderKey: Data, ackGiveUpWindow: TimeInterval = 30) async throws {
+    init(
+      budget: DMSendBudget,
+      senderKey: Data,
+      ackGiveUpWindow: TimeInterval = 30,
+      poolBackoff: PoolBackoffConfig = .default,
+      commandTimeout: TimeInterval = 10,
+      transportWaitTimeout: TimeInterval = 30,
+      script: RadioScript? = nil
+    ) async throws {
       let transport = MockTransport()
-      let session = MeshCoreSession(transport: transport, configuration: SessionConfiguration(defaultTimeout: 10))
+      let session = MeshCoreSession(transport: transport, configuration: SessionConfiguration(defaultTimeout: commandTimeout))
       let start = Task { try await session.start() }
       try await waitUntil("session should send app start") { await transport.sentData.count == 1 }
       await transport.simulateReceive(Self.selfInfo(publicKey: senderKey))
@@ -35,7 +43,7 @@ extension PlainTextSendGateTests {
         session: session,
         dataStore: store,
         contactService: nil,
-        config: MessageServiceConfig(minTimeout: 0, ackGiveUpWindow: ackGiveUpWindow),
+        config: MessageServiceConfig(minTimeout: 0, ackGiveUpWindow: ackGiveUpWindow, poolBackoff: poolBackoff),
         dmSendBudget: { budget },
         plainTextSendGate: gate
       )
@@ -46,6 +54,7 @@ extension PlainTextSendGateTests {
         messageService: service,
         channelService: channelService,
         reactionService: ReactionService(),
+        config: ChatSendQueueConfig(transportWaitTimeout: transportWaitTimeout),
         plainTextSendGate: gate
       )
       let remote = RemoteNodeService(
@@ -60,7 +69,7 @@ extension PlainTextSendGateTests {
         radioID: radioID,
         plainTextSendGate: gate
       )
-      let script = RadioScript()
+      let script = script ?? RadioScript()
       self.transport = transport
       self.session = session
       self.store = store
@@ -77,7 +86,11 @@ extension PlainTextSendGateTests {
 
     func stop() {
       responder.cancel()
-      Task { await session.stop() }
+      Task {
+        await session.stop()
+        await queue.shutdown()
+        await service.stopEventMonitoring()
+      }
     }
 
     func contact(byte: UInt8) async throws -> ContactDTO {

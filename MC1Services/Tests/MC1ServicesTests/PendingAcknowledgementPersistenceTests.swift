@@ -156,14 +156,13 @@ struct PendingAcknowledgementPersistenceTests {
     try await live.store.deleteMessage(id: live.message.id)
     try await live.store.upsertPendingSend(owner)
     let saved = try #require(await live.store.fetchPendingSends(radioID: live.contact.radioID).first)
-    await live.service.setPendingAckForTest(PendingAck(
+    try await live.service.setPendingAckForTest(PendingAck(
       messageID: live.message.id,
       contactID: live.contact.id,
       ackCodes: Set(saved.ackCodes ?? []),
       sentAt: saved.ackSentAt ?? Date(),
       timeout: 1,
-      pendingSendID: saved.id,
-      deadline: saved.ackDeadline
+      owner: .init(id: saved.id, radioID: saved.radioID, deadline: #require(saved.ackDeadline), phase: .saved)
     ))
     let events = live.service.statusEvents()
     await live.service.handleAcknowledgement(code: Self.ackCode, tripTime: 9)

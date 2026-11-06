@@ -208,7 +208,7 @@ public final class ChatSendQueueService {
               pendingSendID: pendingSendID,
               sendLease: sendLease
             )
-            if message.status != .sent, let pendingSendID {
+            if message.status == .delivered || message.status == .failed, let pendingSendID {
               try? await dataStoreRef.deletePendingSend(id: pendingSendID)
             }
             osLoggerRef.debug("DM drain success messageID=\(envelope.messageID)")

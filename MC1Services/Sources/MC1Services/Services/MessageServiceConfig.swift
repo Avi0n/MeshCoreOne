@@ -1,7 +1,7 @@
 import Foundation
 
 /// Tuning for the `withPoolBackoff` helper that absorbs short bursts of
-/// firmware pool-exhaustion errors before parking the envelope.
+/// firmware pool-exhaustion errors before ACK handoff or queue recovery.
 struct PoolBackoffConfig {
   /// Maximum in-loop retries before re-throwing the transient `deviceError`.
   let attemptCap: Int

@@ -48,7 +48,7 @@ extension PlainTextSendGateTests {
     }
     try await waitUntil("A's give-up deadline has elapsed") {
       guard let tracking = await harness.service.pendingAckForTest(messageA.id) else { return false }
-      let deadline = tracking.deadline ?? tracking.sentAt
+      let deadline = tracking.owner?.deadline ?? tracking.sentAt
       return Date() > deadline
     }
     try await harness.service.checkExpiredAcks()
