@@ -19,10 +19,9 @@ struct ChatSettingsView: View {
       LinkPreviewSettingsSection()
       MapPreviewSettingsSection()
       MessagesSettingsSection()
-      BlockingSection()
+      RadioCleanupSection()
     }
     .themedCanvas(theme)
-    .settingsSubpageDestinations()
     .navigationTitle(L10n.Settings.ChatSettings.title)
     .navigationBarTitleDisplayMode(.inline)
   }

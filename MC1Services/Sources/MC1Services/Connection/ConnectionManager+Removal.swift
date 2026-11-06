@@ -62,7 +62,7 @@ extension ConnectionManager {
     removalOperationID == operationID && ownsRemovalSource(context)
   }
 
-  private func ownsRemovalSource(_ context: ConnectionRemovalContext) -> Bool {
+  func ownsRemovalSource(_ context: ConnectionRemovalContext) -> Bool {
     desiredRequest?.id == context.requestID
       && (context.generation == nil || desiredRequest?.committedGeneration == context.generation)
   }
@@ -143,7 +143,7 @@ extension ConnectionManager {
     }
   }
 
-  private func removalMatchesCurrent(_ context: ConnectionRemovalContext, policy: RemovalPolicy) -> Bool {
+  func removalMatchesCurrent(_ context: ConnectionRemovalContext, policy: RemovalPolicy) -> Bool {
     switch policy {
     case .wholeDevice:
       if let device = connectedDevice, context.identity.matches(ConnectionDeviceIdentity(device)) { return true }
@@ -155,7 +155,7 @@ extension ConnectionManager {
     }
   }
 
-  private func resolveRemovalDevice(
+  func resolveRemovalDevice(
     _ identity: ConnectionDeviceIdentity, store: PersistenceStore
   ) async throws -> DeviceDTO? {
     if let id = identity.deviceID, let device = try await store.fetchDevice(id: id) { return device }

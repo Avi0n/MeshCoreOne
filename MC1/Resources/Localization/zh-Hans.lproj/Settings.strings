@@ -769,6 +769,8 @@
 /* Navigation title for chat settings page */
 "chatSettings.title" = "聊天";
 
+"blocksAndFilters.title" = "屏蔽与过滤";
+
 // MARK: - Link Preview Settings Section
 
 /* Section header for link content settings */
@@ -1496,6 +1498,65 @@
 /* Footer explaining map preview privacy implications */
 /* AI-translated - please verify with native speakers. */
 "mapPreviews.footer" = "显示地图缩略图会从第三方服务器获取该坐标的地图图块，可能会暴露您的IP地址。";
+
+// MARK: - Text Rules
+
+/* TODO: translate Text Rules strings */
+"textRules.rules" = "过滤规则";
+"textRules.empty" = "没有过滤规则";
+"textRules.loading" = "正在加载过滤规则…";
+"textRules.loadFailed" = "无法加载过滤规则。在过滤规则加载成功之前，新消息不会使用过滤规则。";
+"textRules.retryAccessibility" = "重新加载过滤规则";
+"textRules.saveFailed" = "无法保存过滤规则。请重试。";
+"textRules.new.title" = "New Rule";
+"textRules.new.phrase" = "Word or phrase";
+"textRules.new.lookIn" = "Look In";
+"textRules.new.match" = "Match";
+"textRules.new.containsMessageFooter" = "只要在消息中出现就会匹配，包括某个词的一部分。";
+"textRules.new.wholeMessageFooter" = "仅当整条消息就是这段文字时才会匹配。";
+"textRules.new.containsSenderFooter" = "只要在发送者名称中出现就会匹配，包括某个词的一部分。该发送者的表情反应也会被隐藏。";
+"textRules.new.wholeNameFooter" = "仅当发送者名称正好是这段文字时才会匹配。该发送者的表情反应也会被隐藏。";
+"textRules.new.containsMessageOrSenderFooter" = "只要在消息或发送者名称中出现就会匹配，包括某个词的一部分。发送者名称匹配时，其表情反应也会被隐藏。";
+"textRules.new.wholeMessageOrSenderFooter" = "仅当整条消息或发送者的整个名称就是这段文字时才会匹配。发送者名称匹配时，其表情反应也会被隐藏。";
+"textRules.field.message" = "Message";
+"textRules.field.sender" = "Sender";
+"textRules.field.messageOrSender" = "Message or Sender";
+"textRules.match.contains" = "Contains";
+"textRules.match.wholeMessage" = "Whole Message";
+"textRules.match.wholeName" = "Whole Name";
+"textRules.match.wholeField" = "Whole Field";
+"textRules.ruleSummary" = "%1$@ · %2$@";
+"textRules.types.header" = "Use rules for";
+"textRules.types.footer" = "开启后，该类型的所有聊天都会包括在内，包括您之后加入的聊天。";
+"textRules.types.publicChannel" = "Public";
+"textRules.types.hashtagChannel" = "Hashtag Channels";
+"textRules.types.privateChannel" = "Private Channels";
+"textRules.selection.all" = "All";
+"textRules.selection.none" = "None";
+"textRules.selection.count" = "%d Chats";
+"textRules.selection.accessibilityChats" = "Chats for %@";
+"textRules.selection.footer" = "“All”会包括您之后加入的聊天。";
+"textRules.archive.title" = "Recently Blocked";
+"textRules.archive.empty" = "No Hidden Messages";
+"textRules.archive.footer" = "最近的 %d 条隐藏消息会保留在此设备上。这些消息不会包含在应用备份中。";
+"textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
+"textRules.archive.rule" = "规则";
+"textRules.archive.chat" = "聊天";
+"textRules.archive.myNode" = "我的节点";
+"textRules.archive.time" = "时间";
+"textRules.archive.unknownConversation" = "Unknown Conversation";
+"textRules.archive.unknownRadio" = "Unknown Radio";
+
+/* TODO: translate radio Cleanup strings */
+"radioCleanup.title" = "Cleanup";
+"radioCleanup.running" = "Removing radio data";
+"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
+"radioCleanup.completed" = "Radio data removed";
+"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
 
 // MARK: - Blocking Section
 

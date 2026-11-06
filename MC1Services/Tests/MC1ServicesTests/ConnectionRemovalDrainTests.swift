@@ -1,6 +1,6 @@
 import Foundation
 @testable import MC1Services
-import MeshCore
+@testable import MeshCore
 import Testing
 
 @Suite("Destructive removal drains admitted writers")
@@ -23,10 +23,11 @@ struct ConnectionRemovalDrainTests {
         finished = true
         return result
       }
-      try await waitUntil("forget must park in retirement while the admitted save is held") {
-        fixture.env.manager.connectionTeardownCount > 0
+      try await waitUntil("forget must suspend new reads while the admitted save is held") {
+        await fixture.env.manager.session?.isMessageFetchingSuspended == true
       }
-      try await fixture.observeDeletionStillPending()
+      #expect(try await !fixture.env.manager.persistenceStore.isRadioErasePending(fixture.radioID))
+      #expect(try await fixture.env.manager.persistenceStore.fetchDevice(radioID: fixture.radioID) != nil)
       #expect(!finished)
       let messageID = try #require(fixture.gate.messageID)
       fixture.gate.release()
@@ -44,16 +45,20 @@ struct ConnectionRemovalDrainTests {
   @Test
   func `admitted successor cannot pass the reserved destructive removal`() async throws {
     let fixture = try await Fixture.make(sameRadio: false)
+    let retirement = Gate()
+    fixture.armRetirement(retirement)
     var removal: Task<ConnectionRemovalResult, Error>?
     var successor: Task<ConnectionResult, Error>?
     do {
       try await fixture.admitSentinel()
+      fixture.gate.release()
       let context = try #require(fixture.env.manager.captureCurrentRemoval())
       let removedRadioID = fixture.radioID
       removal = Task { try await fixture.env.manager.forgetDevice(context, deleteData: true) }
       try await waitUntil("forget must capture retirement before the successor is admitted") {
-        fixture.env.manager.connectionTeardownCount > 0
+        retirement.entered
       }
+      #expect(try await fixture.env.manager.persistenceStore.isRadioErasePending(removedRadioID))
       let dialsBefore = await fixture.env.wifi.connectCount
       successor = Task { try await fixture.env.connect(.wifi) }
       try await waitUntil("successor must be admitted behind the reserved removal") {
@@ -63,7 +68,7 @@ struct ConnectionRemovalDrainTests {
       #expect(await fixture.env.wifi.connectCount == dialsBefore)
       #expect(fixture.env.manager.currentConnection == nil)
       let messageID = try #require(fixture.gate.messageID)
-      fixture.gate.release()
+      retirement.release()
       _ = try await removal?.value
       let connected = try await #require(successor).value
       #expect(fixture.env.manager.isCurrent(connected))
@@ -75,6 +80,7 @@ struct ConnectionRemovalDrainTests {
       try await fixture.expectUnrelatedDataRemains()
       await fixture.finish()
     } catch {
+      retirement.release()
       await fixture.stop(removal, successor)
       throw error
     }
@@ -83,11 +89,14 @@ struct ConnectionRemovalDrainTests {
   @Test
   func `accepted confirmation after supersession still drains the captured retirement`() async throws {
     let fixture = try await Fixture.make(sameRadio: false)
-    let confirmation = ConfirmationGate()
+    let confirmation = Gate()
+    let retirement = Gate()
+    fixture.armRetirement(retirement)
     var removal: Task<ConnectionRemovalResult, Error>?
     var successor: Task<ConnectionResult, Error>?
     do {
       try await fixture.admitSentinel()
+      fixture.gate.release()
       let device = try #require(fixture.env.manager.connectedDevice)
       fixture.armConfirmation(confirmation, accessoryID: device.id)
       let context = try #require(fixture.env.manager.captureCurrentRemoval())
@@ -95,9 +104,9 @@ struct ConnectionRemovalDrainTests {
       try await waitUntil("system confirmation must be waiting") { confirmation.entered }
       let previousRequest = fixture.env.manager.connectionRequestID
       successor = Task { try await fixture.env.connect(.wifi) }
-      try await waitUntil("successor retirement must park on the admitted writer") {
+      try await waitUntil("successor must park on retirement") {
         let dials = await fixture.env.wifi.connectCount
-        return fixture.env.manager.connectionRequestID != previousRequest && fixture.env.manager.connectionTeardownCount > 0
+        return fixture.env.manager.connectionRequestID != previousRequest && retirement.entered
           && dials == 0
       }
       let successorRequest = fixture.env.manager.connectionRequestID
@@ -112,7 +121,7 @@ struct ConnectionRemovalDrainTests {
       #expect(fixture.losses.count == lossesBefore)
       #expect(await fixture.env.wifi.connectCount == 0)
       let messageID = try #require(fixture.gate.messageID)
-      fixture.gate.release()
+      retirement.release()
       let outcome = try await #require(removal).value
       if case .superseded = outcome {} else { Issue.record("A detached confirmation must not publish removal into the successor") }
       let connected = try await #require(successor).value
@@ -123,6 +132,7 @@ struct ConnectionRemovalDrainTests {
       await fixture.finish()
     } catch {
       confirmation.release()
+      retirement.release()
       await fixture.stop(removal, successor)
       throw error
     }
@@ -131,11 +141,14 @@ struct ConnectionRemovalDrainTests {
   @Test
   func `new pairing during a held destructive removal keeps the fresh association`() async throws {
     let fixture = try await Fixture.make(sameRadio: false)
-    let confirmation = ConfirmationGate()
+    let confirmation = Gate()
+    let retirement = Gate()
+    fixture.armRetirement(retirement)
     var removal: Task<ConnectionRemovalResult, Error>?
     var successor: Task<ConnectionResult, Error>?
     do {
       try await fixture.admitSentinel()
+      fixture.gate.release()
       let device = try #require(fixture.env.manager.connectedDevice)
       fixture.armConfirmation(confirmation, accessoryID: device.id)
       let context = try #require(fixture.env.manager.captureCurrentRemoval())
@@ -143,10 +156,10 @@ struct ConnectionRemovalDrainTests {
       try await waitUntil("system confirmation must be waiting") { confirmation.entered }
       successor = Task { try await fixture.env.connect(.wifi) }
       try await waitUntil("successor must supersede the removal source") {
-        fixture.env.manager.connectionRequestID != context.requestID && fixture.env.manager.connectionTeardownCount > 0
+        fixture.env.manager.connectionRequestID != context.requestID && retirement.entered
       }
       confirmation.release()
-      try await waitUntil("accepted confirmation must queue removal while the admitted save is held") {
+      try await waitUntil("accepted confirmation must queue removal while retirement is held") {
         fixture.env.pairing.accessory(for: device.id) == nil && fixture.gate.messageID != nil
       }
       try await fixture.observeDeletionStillPending()
@@ -154,15 +167,17 @@ struct ConnectionRemovalDrainTests {
         ASAccessory(bluetoothIdentifier: device.id, displayName: "Renewed association")
       ])
       #expect(fixture.env.manager.pairing.isDeviceConnectable(device.id))
-      fixture.gate.release()
+      retirement.release()
       _ = try await removal?.value
       _ = try await successor?.value
       let preserved = try #require(try await fixture.env.manager.persistenceStore.fetchDevice(id: device.id))
       #expect(preserved.radioID == device.radioID)
+      #expect(try await !fixture.env.manager.persistenceStore.isRadioErasePending(device.radioID))
       #expect(try await fixture.env.manager.session?.getTime() != nil)
       await fixture.finish()
     } catch {
       confirmation.release()
+      retirement.release()
       await fixture.stop(removal, successor)
       throw error
     }
@@ -315,10 +330,14 @@ struct ConnectionRemovalDrainTests {
       #expect(try await env.manager.persistenceStore.fetchDevice(radioID: radioID) != nil)
     }
 
-    func armConfirmation(_ confirmation: ConfirmationGate, accessoryID: UUID) {
+    func armConfirmation(_ confirmation: Gate, accessoryID: UUID) {
       env.pairing.isSessionActive = true
       env.pairing.setPairedAccessories([ASAccessory(bluetoothIdentifier: accessoryID, displayName: "Radio")])
       env.pairing.beforeRemovalResult = { await confirmation.wait() }
+    }
+
+    func armRetirement(_ retirement: Gate) {
+      env.manager.testConnectionTeardownHandler = { await retirement.wait() }
     }
 
     func expectPartitionAbsent(messageID: UUID) async throws {
@@ -343,6 +362,7 @@ struct ConnectionRemovalDrainTests {
 
     func finish() async {
       gate.release()
+      env.manager.testConnectionTeardownHandler = nil
       if let coordinator {
         await coordinator.setTestBeforeMessageSave(nil)
       }
@@ -413,7 +433,7 @@ struct ConnectionRemovalDrainTests {
   }
 
   @MainActor
-  private final class ConfirmationGate {
+  private final class Gate {
     private(set) var entered = false
     private var released = false
     private var continuation: CheckedContinuation<Void, Never>?

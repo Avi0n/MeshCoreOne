@@ -44,6 +44,7 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
   /// modelling the user declining the system removal confirmation so the
   /// accessory stays registered.
   public var removeAccessoryError: Error?
+  public var removeAccessoryGate: AsyncStream<Void>?
   public var beforeRemovalResult: (@MainActor () async -> Void)?
 
   public init() {}
@@ -85,6 +86,11 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
   public func removeAccessory(_ accessory: ASAccessory) async throws {
     removeAccessoryCallCount += 1
     lastRemovedDeviceID = accessory.bluetoothIdentifier
+    if let gate = removeAccessoryGate {
+      for await _ in gate {
+        break
+      }
+    }
     await beforeRemovalResult?()
     if let removeAccessoryError {
       throw removeAccessoryError

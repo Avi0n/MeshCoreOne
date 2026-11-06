@@ -32,8 +32,6 @@ final class DangerZoneViewModel {
 
   private var connectionManager: ConnectionManager?
 
-  /// Grace period for the radio to reboot after a factory reset before local cleanup.
-  private static let resetRebootGracePeriod: Duration = .seconds(1)
   /// How long the transient "Removed" confirmation stays on the button label.
   private static let removeSuccessDisplayDuration: Duration = .seconds(1.5)
 
@@ -72,7 +70,7 @@ final class DangerZoneViewModel {
   /// Returns true when the reset flow finished and the hosting page should dismiss.
   /// A nil service or device ID mirrors a disconnected state.
   func factoryReset() async -> Bool {
-    guard let settingsService,
+    guard settingsService != nil,
           connectedDevice != nil,
           let connectionManager,
           let context = connectionManager.captureCurrentRemoval() else {
@@ -84,21 +82,22 @@ final class DangerZoneViewModel {
     removalOperationID = operationID
     isResetting = true
     defer {
-      if removalOperationID == operationID { isResetting = false; removalOperationID = nil }
+      if removalOperationID == operationID {
+        isResetting = false
+        removalOperationID = nil
+      }
     }
 
-    // Send reset command. The device typically reboots before responding,
-    // so a timeout/connection error here is expected, not a failure.
     do {
-      try await settingsService.factoryReset()
-      try await Task.sleep(for: Self.resetRebootGracePeriod)
+      let result = try await connectionManager.factoryResetAndEraseRadio(context)
+      guard removalOperationID == operationID, case let .removed(receipt) = result else { return false }
+      return connectionManager.isCurrent(receipt)
+    } catch is CancellationError {
+      return false
     } catch {
-      // Expected: device reboots before sending OK response
+      if removalOperationID == operationID { errorMessage = error.userFacingMessage }
+      return false
     }
-
-    let result = await connectionManager.forgetDeviceAfterReset(context)
-    guard removalOperationID == operationID, case let .removed(receipt) = result else { return false }
-    return connectionManager.isCurrent(receipt)
   }
 
   func fetchUnfavoritedCount() async {

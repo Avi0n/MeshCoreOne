@@ -100,13 +100,15 @@ struct ConnectionManagerMembershipTests {
       #expect(await firstServices.remoteNodeService.pendingLoginCount == 0)
       await harness.bluetooth.releaseLoginResults()
       await harness.bluetooth.holdLoginResults()
+      let loginCountBeforeRebuild = await loginDestinations(harness.bluetooth).count
       await harness.bluetooth.simulateReconnected()
-      try await waitUntil("new BLE batch should attempt both retained memberships") {
-        await harness.bluetooth.heldLoginResultCount == 2
+      try await waitUntil("the first login in the new BLE batch should be held") {
+        await harness.bluetooth.heldLoginResultCount == 1
       }
 
       #expect(harness.manager.connectionState == .ready)
       #expect(harness.manager.membershipBatch?.sessionIDs == [activeA.id, addedDuringRestore.id])
+      #expect(await loginDestinations(harness.bluetooth).count == loginCountBeforeRebuild + 1)
       #expect(try await !harness.isConnected(activeA))
       #expect(try await !harness.isConnected(addedDuringRestore))
       await harness.bluetooth.releaseLoginResults()
@@ -118,6 +120,9 @@ struct ConnectionManagerMembershipTests {
       try await waitUntil("only the completed batch should be consumed") {
         harness.manager.membershipBatch?.sessionIDs.isEmpty == true
       }
+      let newDestinations = await loginDestinations(harness.bluetooth).dropFirst(loginCountBeforeRebuild)
+      #expect(newDestinations.count == 2)
+      #expect(Set(newDestinations) == [activeA.publicKey, addedDuringRestore.publicKey])
     }
   }
 

@@ -300,7 +300,7 @@ public actor AdvertisementService {
           await notificationService?.removeDeliveredNotifications(forContactIDs: Set(deletedIDs))
           eventBroadcaster.yield(.contactDeletedCleanup(contactIDs: deletedIDs))
           eventBroadcaster.yield(.nodeStorageFullChanged(isFull: false))
-          eventBroadcaster.yield(.contactUpdated)
+          eventBroadcaster.yield(.contactUpdated())
         } catch {
           pendingDeletedKeys.formUnion(keys)
           pendingDeletedKeys.subtract(pendingAdvertKeys)
@@ -380,9 +380,9 @@ public actor AdvertisementService {
   ///   or the radio fetch / save fails.
   public func materializeContactForPendingAdvert(
     matchingPrefix prefix: Data,
-    radioID: UUID
+    scope: ReceiveScope
   ) async -> ContactDTO? {
-    guard !prefix.isEmpty else { return nil }
+    guard scope.isCurrent, !prefix.isEmpty else { return nil }
 
     let matches = pendingAdvertKeys.filter { $0.starts(with: prefix) }
     guard matches.count == 1, let publicKey = matches.first else { return nil }
@@ -393,29 +393,15 @@ public actor AdvertisementService {
         logger.info("materialize pending advert: getContact nil key=\(pubKeyHex)")
         return nil
       }
-      let frame = meshContact.toContactFrame()
-      let saveResult = try await dataStore.insertContactIfAbsent(radioID: radioID, from: frame)
-      // Stamp phone recency before the returned DTO is read so a debounce-window
-      // insert is not prune-eligible under a stale radio lastModified.
+      guard scope.isCurrent, !isRadioDeleted(publicKey) else { return nil }
       let receivedAt = pendingAdvertReceiveTimes[publicKey] ?? Date()
-      do {
-        _ = try await dataStore.touchContactHeard(
-          radioID: radioID, publicKey: publicKey, at: receivedAt
-        )
-      } catch {
-        logger.error(
-          "materialize pending advert lastHeard stamp failed key=\(pubKeyHex): \(error.localizedDescription)"
-        )
+      guard let contact = try await dataStore.materializeContactForDirectMessage(
+        from: meshContact.toContactFrame(), receivedAt: receivedAt, scope: scope
+      ) else { return nil }
+      if scope.isCurrent {
+        eventBroadcaster.yield(.contactUpdated(contact: contact, scope: scope))
       }
-      do {
-        _ = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
-      } catch {
-        logger.error(
-          "materialize pending advert Discover upsert failed key=\(pubKeyHex): \(error.localizedDescription)"
-        )
-      }
-      eventBroadcaster.yield(.contactUpdated)
-      return try await dataStore.fetchContact(id: saveResult.id)
+      return contact
     } catch {
       logger.error(
         "materialize pending advert failed key=\(pubKeyHex): \(error.localizedDescription)"
@@ -566,7 +552,7 @@ public actor AdvertisementService {
 
     if let known {
       if known {
-        eventBroadcaster.yield(.contactUpdated)
+        eventBroadcaster.yield(.contactUpdated())
       } else {
         discoverTrace.debug("B2 0x80 no local contact key=\(pubKeyHex) syncing=\(isSyncingContacts)")
         logger.debug("ADVERT received for unknown contact - scheduling delta sync")
@@ -589,7 +575,7 @@ public actor AdvertisementService {
       let (node, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: contactFrame)
       discoverTrace.debug("B2 0x8A upsert key=\(pubKeyHex) isNew=\(isNew)")
 
-      eventBroadcaster.yield(.contactUpdated)
+      eventBroadcaster.yield(.contactUpdated())
 
       // Notify only first-time discoveries, not repeat adverts for the same contact.
       if isNew {

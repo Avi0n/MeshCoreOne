@@ -219,6 +219,14 @@ final class AppState {
     return connectionManager.persistenceStore
   }
 
+  var textRulesPreference: TextRulesPreference? {
+    connectionManager.textRulesPreference
+  }
+
+  var isTextRulesLoading: Bool {
+    connectionManager.isTextRulesLoading
+  }
+
   /// Sole lazy factory for the process-lifetime registry. Bound to the
   /// process store; `wireServicesIfConnected` neither creates nor rebinds it.
   func ensureChatCoordinatorRegistry() -> ChatCoordinatorRegistry? {

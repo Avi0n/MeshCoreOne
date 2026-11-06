@@ -282,7 +282,7 @@ public extension RemoteNodeService {
   ) async -> (shouldContinue: Bool, consecutiveFailures: Int) {
     var failures = consecutiveFailures
     do {
-      try await sendKeepAliveIfDirectRouted(sessionID: sessionID, publicKey: publicKey)
+      try await sendScheduledKeepAlive(sessionID: sessionID, publicKey: publicKey)
       KeepAliveRetryPolicy.recordSuccess(consecutiveFailures: &failures)
       return (shouldContinue: true, consecutiveFailures: failures)
     } catch {
@@ -316,43 +316,32 @@ public extension RemoteNodeService {
     retiredKeepAliveTasks.append(worker)
   }
 
-  /// Send keep-alive only if the session has a direct routing path.
-  private func sendKeepAliveIfDirectRouted(sessionID: UUID, publicKey: Data) async throws {
-    // Fetch session to get radioID
+  /// Send a manual keep-alive for a directly routed session.
+  func sendKeepAlive(sessionID: UUID) async throws {
     guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
       throw RemoteNodeError.sessionNotFound
     }
 
     guard !remoteSession.isSensor else { throw RemoteNodeError.invalidResponse }
+    if remoteSession.isRoom {
+      try await refreshRoom(remoteSession)
+      return
+    }
 
-    // Check contact's routing status
+    let publicKey = remoteSession.publicKey
     guard let contact = try await dataStore.fetchContact(radioID: remoteSession.radioID, publicKey: publicKey) else {
       throw RemoteNodeError.contactNotFound
     }
 
-    // Keep-alive only works with direct routing
-    if contact.isFloodRouted {
-      throw RemoteNodeError.floodRouted
-    }
+    guard !contact.isFloodRouted else { throw RemoteNodeError.floodRouted }
 
-    // Log keep-alive
-    let targetType: CommandAuditLogger.Target = CommandAuditLogger.target(for: remoteSession.role)
-    await auditLogger.logKeepAlive(target: targetType, publicKey: publicKey)
+    await auditLogger.logKeepAlive(target: .repeater, publicKey: publicKey)
 
-    // Send keep-alive with sync_since for force-resync hint
     do {
       _ = try await session.sendKeepAlive(to: publicKey, syncSince: remoteSession.lastSyncTimestamp)
     } catch let error as MeshCoreError {
       throw RemoteNodeError.sessionError(error)
     }
-  }
-
-  /// Public method to send keep-alive (for manual refresh).
-  func sendKeepAlive(sessionID: UUID) async throws {
-    guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-      throw RemoteNodeError.sessionNotFound
-    }
-    try await sendKeepAliveIfDirectRouted(sessionID: sessionID, publicKey: remoteSession.publicKey)
   }
 
   /// Start keep-alive for a room session (called when room view appears).

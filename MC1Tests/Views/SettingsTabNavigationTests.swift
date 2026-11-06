@@ -18,9 +18,8 @@ struct SettingsTabNavigationTests {
     #expect(try await harness.waitUntil { harness.tabControlsAreOnScreen() }, "\(harness.describe())")
   }
 
-  @Test
-  func `Regular back keeps the selected detail`() async throws {
-    let destination = SettingsDestination.manageRegions
+  @Test(arguments: [SettingsDestination.manageRegions, .recentlyBlocked, .blockedChannelSenders, .blockedContacts])
+  func `Regular back keeps the selected detail`(_ destination: SettingsDestination) async throws {
     let harness = try mounted(destination.root)
     defer { harness.tearDown() }
     try await requireChild(destination, on: harness)
@@ -66,7 +65,7 @@ struct SettingsTabNavigationTests {
       "\(harness.describe())"
     )
 
-    try #require(try await harness.openChild(row: destination.row, title: destination.title, markers: destination.markers, detail: destination.root.detail), "\(harness.describe())")
+    try #require(try await harness.openRow(row: destination.row, title: destination.title, markers: destination.markers, detail: destination.root.detail), "\(harness.describe())")
     harness.selectTab(.chats)
     try #require(try await harness.waitUntil { harness.showsSelectedTab(.chats) }, "\(harness.describe())")
     harness.navigation.navigateToSetting(.backup)
@@ -160,6 +159,24 @@ struct SettingsTabNavigationTests {
     defer { harness.tearDown() }
     try #require(try await harness.showSettingsList(), "\(harness.describe())")
     #expect(try await harness.waitUntil { harness.tabControlsAreOnScreen() }, "\(harness.describe())")
+  }
+
+  @Test
+  func `Blocks and Filters has its own row immediately after Chats`() async throws {
+    let harness = try SettingsTabHarness.make(connected: false)
+    defer { harness.tearDown() }
+    let chats = SettingsRoot.chats
+    let blocksAndFilters = SettingsRoot.blocksAndFilters
+
+    try #require(try await harness.showSettingsList(), "\(harness.describe())")
+    let chatsRow = try #require(harness.cell(matching: chats.title, in: harness.visibleCollectionViews()))
+    let filtersRow = try #require(harness.cell(matching: blocksAndFilters.title, in: [chatsRow.list]))
+    #expect(filtersRow.indexPath.section == chatsRow.indexPath.section)
+    #expect(filtersRow.indexPath.item == chatsRow.indexPath.item + 1)
+
+    try #require(try await harness.openRow(
+      row: blocksAndFilters.title, title: blocksAndFilters.title, markers: blocksAndFilters.markers, detail: blocksAndFilters.detail
+    ), "\(harness.describe())")
   }
 
   @Test(arguments: SettingsRoot.allCases)

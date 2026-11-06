@@ -769,6 +769,8 @@
 /* Navigation title for chat settings page */
 "chatSettings.title" = "Czaty";
 
+"blocksAndFilters.title" = "Blokowanie i filtry";
+
 // MARK: - Link Preview Settings Section
 
 /* Section header for link content settings */
@@ -1496,6 +1498,65 @@
 /* Footer explaining map preview privacy implications */
 /* AI-translated - please verify with native speakers. */
 "mapPreviews.footer" = "Wyświetlanie miniatur mapy pobiera kafelki dla współrzędnych z serwera zewnętrznego, co może ujawnić Twój adres IP.";
+
+// MARK: - Text Rules
+
+/* TODO: translate Text Rules strings */
+"textRules.rules" = "Reguły filtrowania";
+"textRules.empty" = "Brak reguł filtrowania";
+"textRules.loading" = "Ładowanie reguł filtrowania…";
+"textRules.loadFailed" = "Nie udało się załadować reguł filtrowania. Nowe wiadomości nie będą ich używać, dopóki reguły nie zostaną załadowane.";
+"textRules.retryAccessibility" = "Spróbuj ponownie załadować reguły filtrowania";
+"textRules.saveFailed" = "Nie udało się zapisać reguł filtrowania. Spróbuj ponownie.";
+"textRules.new.title" = "New Rule";
+"textRules.new.phrase" = "Word or phrase";
+"textRules.new.lookIn" = "Look In";
+"textRules.new.match" = "Match";
+"textRules.new.containsMessageFooter" = "Pasuje w dowolnym miejscu wiadomości, także wewnątrz słowa.";
+"textRules.new.wholeMessageFooter" = "Pasuje tylko wtedy, gdy cała wiadomość jest tym tekstem.";
+"textRules.new.containsSenderFooter" = "Pasuje w dowolnym miejscu nazwy nadawcy, także wewnątrz słowa. Reakcje od tego nadawcy są też ukryte.";
+"textRules.new.wholeNameFooter" = "Pasuje tylko wtedy, gdy nazwa nadawcy jest dokładnie tym tekstem. Reakcje od tego nadawcy są też ukryte.";
+"textRules.new.containsMessageOrSenderFooter" = "Pasuje w dowolnym miejscu wiadomości lub nazwy nadawcy, także wewnątrz słowa. Reakcje od pasującego nadawcy są też ukryte.";
+"textRules.new.wholeMessageOrSenderFooter" = "Pasuje tylko wtedy, gdy cała wiadomość lub cała nazwa nadawcy jest tym tekstem. Reakcje od pasującego nadawcy są też ukryte.";
+"textRules.field.message" = "Message";
+"textRules.field.sender" = "Sender";
+"textRules.field.messageOrSender" = "Message or Sender";
+"textRules.match.contains" = "Contains";
+"textRules.match.wholeMessage" = "Whole Message";
+"textRules.match.wholeName" = "Whole Name";
+"textRules.match.wholeField" = "Whole Field";
+"textRules.ruleSummary" = "%1$@ · %2$@";
+"textRules.types.header" = "Use rules for";
+"textRules.types.footer" = "Włączenie obejmuje wszystkie czaty tego typu, w tym te, do których dołączysz później.";
+"textRules.types.publicChannel" = "Public";
+"textRules.types.hashtagChannel" = "Hashtag Channels";
+"textRules.types.privateChannel" = "Private Channels";
+"textRules.selection.all" = "All";
+"textRules.selection.none" = "None";
+"textRules.selection.count" = "%d Chats";
+"textRules.selection.accessibilityChats" = "Chats for %@";
+"textRules.selection.footer" = "All obejmuje czaty, do których dołączysz później.";
+"textRules.archive.title" = "Recently Blocked";
+"textRules.archive.empty" = "No Hidden Messages";
+"textRules.archive.footer" = "To urządzenie przechowuje %d najnowszych ukrytych wiadomości. Kopia zapasowa danych aplikacji ich nie obejmuje.";
+"textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
+"textRules.archive.rule" = "Reguła";
+"textRules.archive.chat" = "Czat";
+"textRules.archive.myNode" = "Mój węzeł";
+"textRules.archive.time" = "Czas";
+"textRules.archive.unknownConversation" = "Unknown Conversation";
+"textRules.archive.unknownRadio" = "Unknown Radio";
+
+/* TODO: translate radio Cleanup strings */
+"radioCleanup.title" = "Cleanup";
+"radioCleanup.running" = "Removing radio data";
+"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
+"radioCleanup.completed" = "Radio data removed";
+"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
 
 // MARK: - Blocking Section
 

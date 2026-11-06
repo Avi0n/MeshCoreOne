@@ -162,6 +162,10 @@ public final class ConnectionManager {
   let modelContainer: ModelContainer
   private let defaults: UserDefaults
   private let lastConnectionStore: LastConnectionStore
+
+  let textRulesURL: URL
+  public internal(set) var textRulesPreference: TextRulesPreference?
+  public internal(set) var isTextRulesLoading = true
   let transport: any iOSMeshTransport
   private(set) var wifiTransport: (any WiFiMeshTransport)?
   private(set) var session: MeshCoreSession? {
@@ -280,6 +284,9 @@ public final class ConnectionManager {
 
   /// Task managing the resync retry loop
   var resyncTask: Task<Void, Never>?
+
+  public internal(set) var radioCleanup: [UUID: RadioCleanup] = [:]
+  @ObservationIgnored var radioEraseTasks: [UUID: Task<ConnectionRemovalResult, Error>] = [:]
 
   /// Task managing delayed channel-only retry after a partial channel phase.
   var channelRetryTask: Task<Void, Never>?
@@ -617,7 +624,8 @@ public final class ConnectionManager {
     transport: (any iOSMeshTransport)? = nil,
     pairing: (any DevicePairingService)? = nil,
     reconnectionClock: (any Clock<Duration>)? = nil,
-    makeWiFiTransport: @escaping @Sendable () -> any WiFiMeshTransport = { WiFiTransport() }
+    makeWiFiTransport: @escaping @Sendable () -> any WiFiMeshTransport = { WiFiTransport() },
+    textRulesURL: URL? = nil
   ) {
     self.modelContainer = modelContainer
     self.makeWiFiTransport = makeWiFiTransport
@@ -627,6 +635,7 @@ public final class ConnectionManager {
     persistenceStore = PersistenceStore(modelContainer: modelContainer)
     self.defaults = defaults
     lastConnectionStore = LastConnectionStore(defaults: defaults)
+    self.textRulesURL = textRulesURL ?? Self.defaultTextRulesURL
     connectionIntent = .restored(from: defaults)
 
     // Use provided state machine or create default

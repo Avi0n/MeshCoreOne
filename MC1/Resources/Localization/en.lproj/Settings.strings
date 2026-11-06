@@ -758,6 +758,8 @@
 /* Navigation title for chat settings page */
 "chatSettings.title" = "Chats";
 
+"blocksAndFilters.title" = "Blocks & Filters";
+
 // MARK: - Link Preview Settings Section
 
 /* Section header for link content settings */
@@ -1483,6 +1485,63 @@
 
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "No empty channel slot available for \"%@\"";
+
+// MARK: - Text Rules
+
+"textRules.rules" = "Filter Rules";
+"textRules.empty" = "No Filter Rules";
+"textRules.loading" = "Loading Filter Rules…";
+"textRules.loadFailed" = "Could not load filter rules. New messages won’t use filter rules until they can be loaded.";
+"textRules.retryAccessibility" = "Try Loading Filter Rules Again";
+"textRules.saveFailed" = "Could not save filter rules. Try again.";
+"textRules.new.title" = "New Rule";
+"textRules.new.phrase" = "Word or phrase";
+"textRules.new.lookIn" = "Look In";
+"textRules.new.match" = "Match";
+"textRules.new.containsMessageFooter" = "Matches anywhere in the message, including inside a word.";
+"textRules.new.wholeMessageFooter" = "Matches only when the whole message is this phrase.";
+"textRules.new.containsSenderFooter" = "Matches anywhere in the sender’s name, including inside a word. Reactions from that sender are hidden too.";
+"textRules.new.wholeNameFooter" = "Matches only when the sender’s name is exactly this. Reactions from that sender are hidden too.";
+"textRules.new.containsMessageOrSenderFooter" = "Matches the message or the sender’s name, including inside a word. Reactions from a matching sender are hidden too.";
+"textRules.new.wholeMessageOrSenderFooter" = "Matches only when the whole message or the whole sender name is this phrase. Reactions from a matching sender are hidden too.";
+"textRules.field.message" = "Message";
+"textRules.field.sender" = "Sender";
+"textRules.field.messageOrSender" = "Message or Sender";
+"textRules.match.contains" = "Contains";
+"textRules.match.wholeMessage" = "Whole Message";
+"textRules.match.wholeName" = "Whole Name";
+"textRules.match.wholeField" = "Whole Field";
+"textRules.ruleSummary" = "%1$@ · %2$@";
+"textRules.types.header" = "Use rules for";
+"textRules.types.footer" = "On includes every chat of that type, including chats you join later.";
+"textRules.types.publicChannel" = "Public";
+"textRules.types.hashtagChannel" = "Hashtag Channels";
+"textRules.types.privateChannel" = "Private Channels";
+"textRules.selection.all" = "All";
+"textRules.selection.none" = "None";
+"textRules.selection.count" = "%d Chats";
+"textRules.selection.accessibilityChats" = "Chats for %@";
+"textRules.selection.footer" = "All includes chats you join later.";
+"textRules.archive.title" = "Recently Blocked";
+"textRules.archive.empty" = "No Hidden Messages";
+"textRules.archive.footer" = "The latest %d hidden messages are kept on this device. They aren’t included in app backups.";
+"textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
+"textRules.archive.rule" = "Rule";
+"textRules.archive.chat" = "Chat";
+"textRules.archive.myNode" = "My Node";
+"textRules.archive.time" = "Time";
+"textRules.archive.unknownConversation" = "Unknown Conversation";
+"textRules.archive.unknownRadio" = "Unknown Radio";
+
+"radioCleanup.title" = "Cleanup";
+"radioCleanup.running" = "Removing radio data";
+"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
+"radioCleanup.completed" = "Radio data removed";
+"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
 
 // MARK: - Blocking Section
 

@@ -22,4 +22,13 @@ enum ChannelMessageFormat {
     let messageText = String(text[afterColon...]).trimmingCharacters(in: .whitespaces)
     return (senderName, messageText)
   }
+
+  /// Removes the sender delimiter and its single framing space for rule matching.
+  static func originalFields(_ text: String) -> (sender: String?, body: String) {
+    guard let colon = text.firstIndex(of: ":"), colon != text.startIndex else {
+      return (nil, text)
+    }
+    let body = text[text.index(after: colon)...]
+    return (String(text[..<colon]), String(body.first == " " ? body.dropFirst() : body))
+  }
 }

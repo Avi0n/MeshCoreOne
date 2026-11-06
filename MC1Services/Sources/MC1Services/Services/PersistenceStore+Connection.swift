@@ -13,6 +13,9 @@ extension PersistenceStore {
   /// Registers authenticated radio observations while preserving the store's current local state.
   func registerConnectionDevice(_ observation: DeviceDTO, bluetoothPeripheralID: UUID?) throws -> DeviceDTO {
     let current = try fetchDevice(id: observation.id) ?? fetchDevice(publicKey: observation.publicKey)
+    guard try !isRadioErasePending(current?.radioID ?? observation.radioID) else {
+      throw ConnectionError.deviceNotFound
+    }
     let merged: DeviceDTO = if let current {
       current.copy {
         $0.id = observation.id
@@ -71,6 +74,7 @@ extension PersistenceStore {
   /// Selects from a fresh row so a delayed connection cannot restore old preferences or endpoints.
   func selectConnectionDevice(id: UUID, method: ConnectionMethod?) throws -> DeviceDTO {
     guard let current = try fetchDevice(id: id) else { throw PersistenceStoreError.deviceNotFound }
+    guard try !isRadioErasePending(current.radioID) else { throw ConnectionError.deviceNotFound }
     let selected = current.copy {
       if let method {
         $0.connectionMethods.removeAll { $0.isBluetooth == method.isBluetooth }

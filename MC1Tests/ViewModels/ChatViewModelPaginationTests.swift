@@ -438,7 +438,8 @@ struct ChatViewModelChannelPaginationTests {
       channelIndex: channelIndex,
       timestamp: 2000
     )
-    await viewModel.handle(.channelMessageReceived(message: channelMessage, channelIndex: channelIndex))
+    let scope = ReceiveScope(radioID: radioID, link: .init(), partition: .init())
+    await viewModel.handle(.channelMessageReceived(message: channelMessage, channelIndex: channelIndex, scope: scope))
 
     #expect(viewModel.messages.count == baselineCount,
             "An incoming channel message must not be admitted into the open DM after the axis switch")

@@ -16,6 +16,13 @@ public final class RemoteNodeSession {
   @Attribute(originalName: "deviceID")
   public var radioID: UUID
 
+  var textRulesID: UUID?
+  var textRulesOverrideRawValue: String = TextRulesPreference.Override.inherit.rawValue
+
+  var textRulesOverride: TextRulesPreference.Override {
+    TextRulesPreference.Override(rawValue: textRulesOverrideRawValue) ?? .inherit
+  }
+
   /// 32-byte remote node's public key
   public var publicKey: Data
 
@@ -120,6 +127,7 @@ public final class RemoteNodeSession {
   ) {
     self.id = id
     self.radioID = radioID
+    textRulesID = UUID()
     self.publicKey = publicKey
     self.name = name
     roleRawValue = role.rawValue
@@ -246,6 +254,8 @@ public extension RemoteNodeSession {
 public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable, Codable {
   public let id: UUID
   public var radioID: UUID
+  public internal(set) var textRulesID: UUID?
+  public internal(set) var textRulesOverride: TextRulesPreference.Override = .inherit
   public let publicKey: Data
   public let name: String
   public let role: RemoteNodeRole
@@ -258,8 +268,8 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable,
   public let lastUptimeSeconds: UInt32?
   public let lastNoiseFloor: Int16?
   public let unreadCount: Int
-  public let notificationLevel: NotificationLevel
-  public let isPinned: Bool
+  public private(set) var notificationLevel: NotificationLevel
+  public private(set) var isPinned: Bool
 
   /// Convenience property for checking if muted
   public var isMuted: Bool {
@@ -335,6 +345,8 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable,
   public init(from model: RemoteNodeSession) {
     id = model.id
     radioID = model.radioID
+    textRulesID = model.textRulesID
+    textRulesOverride = model.textRulesOverride
     publicKey = model.publicKey
     name = model.name
     role = model.role
@@ -411,34 +423,16 @@ public struct RemoteNodeSessionDTO: Sendable, Equatable, Identifiable, Hashable,
 
   /// Returns a copy with only `notificationLevel` changed.
   public func with(notificationLevel: NotificationLevel) -> RemoteNodeSessionDTO {
-    RemoteNodeSessionDTO(
-      id: id, radioID: radioID, publicKey: publicKey, name: name,
-      role: role, latitude: latitude, longitude: longitude,
-      isConnected: isConnected, permissionLevel: permissionLevel,
-      lastConnectedDate: lastConnectedDate,
-      lastBatteryMillivolts: lastBatteryMillivolts,
-      lastUptimeSeconds: lastUptimeSeconds, lastNoiseFloor: lastNoiseFloor,
-      unreadCount: unreadCount, notificationLevel: notificationLevel,
-      isPinned: isPinned, lastRxAirtimeSeconds: lastRxAirtimeSeconds,
-      neighborCount: neighborCount, lastSyncTimestamp: lastSyncTimestamp,
-      lastMessageDate: lastMessageDate
-    )
+    var copy = self
+    copy.notificationLevel = notificationLevel
+    return copy
   }
 
   /// Returns a copy with only `isPinned` changed.
   public func with(isPinned: Bool) -> RemoteNodeSessionDTO {
-    RemoteNodeSessionDTO(
-      id: id, radioID: radioID, publicKey: publicKey, name: name,
-      role: role, latitude: latitude, longitude: longitude,
-      isConnected: isConnected, permissionLevel: permissionLevel,
-      lastConnectedDate: lastConnectedDate,
-      lastBatteryMillivolts: lastBatteryMillivolts,
-      lastUptimeSeconds: lastUptimeSeconds, lastNoiseFloor: lastNoiseFloor,
-      unreadCount: unreadCount, notificationLevel: notificationLevel,
-      isPinned: isPinned, lastRxAirtimeSeconds: lastRxAirtimeSeconds,
-      neighborCount: neighborCount, lastSyncTimestamp: lastSyncTimestamp,
-      lastMessageDate: lastMessageDate
-    )
+    var copy = self
+    copy.isPinned = isPinned
+    return copy
   }
 
   public var publicKeyPrefix: Data {

@@ -29,19 +29,21 @@ actor MessagePollingService {
 
   private let session: any MeshCoreSessionProtocol
   private let dataStore: any PersistenceStoreProtocol
+  let receiveLifetime: ReceiveScope.Lifetime
+  let textRulesPreference: @Sendable () async -> TextRulesPreference?
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "MessagePolling")
 
   /// Handler for incoming contact messages.
   /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
-  private var contactMessageHandler: (@Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void)?
+  private var contactMessageHandler: (@Sendable (ContactMessage, ContactDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?) async -> Void)?
 
   /// Handler for incoming channel messages.
   /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
-  private var channelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void)?
+  private var channelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)?
 
   /// Handler for signed messages (from room servers).
   /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
-  private var signedMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
+  private var signedMessageHandler: (@Sendable (ContactMessage, ReceiveScope) async -> Void)?
 
   /// Handler for CLI responses (textType = 0x01).
   /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
@@ -49,6 +51,8 @@ actor MessagePollingService {
 
   /// Event monitoring task
   private var eventMonitorTask: Task<Void, Never>?
+  private var eventSubscription: Task<(id: UUID, stream: AsyncStream<MeshEvent>), Never>?
+  private var isSuspendedForRadioErase = false
 
   /// Whether auto-fetch is currently enabled
   private var isAutoFetchEnabled = false
@@ -68,10 +72,16 @@ actor MessagePollingService {
 
   init(
     session: any MeshCoreSessionProtocol,
-    dataStore: any PersistenceStoreProtocol
+    dataStore: any PersistenceStoreProtocol,
+    radioID: UUID? = nil,
+    textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil },
+    receiveLifetime: ReceiveScope.Lifetime = .init()
   ) {
     self.session = session
     self.dataStore = dataStore
+    currentRadioID = radioID
+    self.textRulesPreference = textRulesPreference
+    self.receiveLifetime = receiveLifetime
   }
 
   deinit {
@@ -81,17 +91,17 @@ actor MessagePollingService {
   // MARK: - Event Handlers
 
   /// Set handler for incoming contact messages
-  func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {
+  func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?) async -> Void) {
     contactMessageHandler = handler
   }
 
   /// Set handler for incoming channel messages
-  func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {
+  func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {
     channelMessageHandler = handler
   }
 
   /// Set handler for signed messages (from room servers)
-  func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
+  func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ReceiveScope) async -> Void) {
     signedMessageHandler = handler
   }
 
@@ -185,6 +195,35 @@ actor MessagePollingService {
     await session.startAutoMessageFetching()
   }
 
+  func suspendForRadioErase() async throws {
+    guard !isPolling else { throw MessagePollingError.pollingFailed }
+    guard !isSuspendedForRadioErase else { return }
+    isSuspendedForRadioErase = true
+    do {
+      try await session.suspendMessageFetching()
+    } catch {
+      isSuspendedForRadioErase = false
+      throw error
+    }
+
+    // Finishing the stream lets the handler commit a reply already in its buffer.
+    if let eventSubscription, let eventMonitorTask {
+      await session.finishEvents(id: eventSubscription.value.id)
+      await eventMonitorTask.value
+    }
+  }
+
+  func resumeAfterRadioErase() async {
+    guard isSuspendedForRadioErase, receiveLifetime.isCurrent else { return }
+    isSuspendedForRadioErase = false
+    if eventMonitorTask != nil || isAutoFetchEnabled {
+      startEventMonitoring()
+      _ = await eventSubscription?.value
+    }
+    guard receiveLifetime.isCurrent else { return }
+    await session.resumeMessageFetching()
+  }
+
   /// Check if auto-fetch is currently enabled
   var isAutoFetching: Bool {
     isAutoFetchEnabled
@@ -205,6 +244,7 @@ actor MessagePollingService {
   /// Poll all waiting messages from the device.
   /// - Returns: Count of messages retrieved
   func pollAllMessages() async throws -> Int {
+    guard !isSuspendedForRadioErase else { throw CancellationError() }
     isPolling = true
     defer { isPolling = false }
     var count = 0
@@ -254,16 +294,19 @@ actor MessagePollingService {
 
   /// Start monitoring MeshCore events for messages
   private func startEventMonitoring() {
+    guard !isSuspendedForRadioErase else { return }
     eventMonitorTask?.cancel()
-
-    eventMonitorTask = Task { [weak self] in
-      guard let self else { return }
-      let events = await session.events(filter: EventFilter.anyContactMessage.or(.anyChannelMessage))
-
+    let subscription = Task { [session] in
+      await session.eventsTracked(filter: EventFilter.anyContactMessage.or(.anyChannelMessage))
+    }
+    eventSubscription = subscription
+    eventMonitorTask = Task { [weak self, session] in
+      let (id, events) = await subscription.value
       for await event in events {
-        guard !Task.isCancelled else { break }
+        guard !Task.isCancelled, let self else { break }
         await handleEvent(event)
       }
+      await session.finishEvents(id: id)
     }
   }
 
@@ -271,6 +314,7 @@ actor MessagePollingService {
   private func stopEventMonitoring() async {
     let eventMonitorTaskToStop = eventMonitorTask
     eventMonitorTask = nil
+    eventSubscription = nil
     eventMonitorTaskToStop?.cancel()
     await eventMonitorTaskToStop?.value
   }
@@ -301,45 +345,43 @@ actor MessagePollingService {
   private func handleContactMessage(_ message: ContactMessage, context: DeliveryContext) async {
     guard let radioID = currentRadioID else {
       logger.warning("Received message but no radio ID set")
-      await contactMessageHandler?(message, nil, context)
       return
     }
 
-    // Look up the sender contact
-    let contact = try? await dataStore.fetchContact(
-      radioID: radioID,
-      publicKeyPrefix: message.senderPublicKeyPrefix
-    )
-
-    // Route based on text type
     switch message.textType {
     case MeshTextType.cliData.rawValue:
-      // CLI responses from repeaters (textType = 0x01)
+      let contact = try? await dataStore.fetchContact(
+        radioID: radioID,
+        publicKeyPrefix: message.senderPublicKeyPrefix
+      )
       await cliMessageHandler?(message, contact)
     case MeshTextType.signedPlain.rawValue:
-      // Signed messages from room servers (textType = 0x02)
-      await signedMessageHandler?(message, contact)
-    case MeshTextType.cliCommand.rawValue:
-      // Queued, not executed. Same path as plain so it is not treated as a CLI reply.
-      await contactMessageHandler?(message, contact, context)
+      guard let scope = try? await dataStore.captureReceiveScope(radioID: radioID, link: receiveLifetime) else {
+        return
+      }
+      await signedMessageHandler?(message, scope)
     default:
-      // Regular contact messages (textType = 0x00 or unknown)
-      await contactMessageHandler?(message, contact, context)
+      // Plain and queued CLI commands both follow ordinary DM delivery.
+      guard let scope = try? await dataStore.captureReceiveScope(radioID: radioID, link: receiveLifetime) else {
+        return
+      }
+      let preference = await textRulesPreference()
+      let contact = try? await dataStore.fetchContact(
+        radioID: radioID,
+        publicKeyPrefix: message.senderPublicKeyPrefix
+      )
+      await contactMessageHandler?(message, contact, context, scope, preference)
     }
   }
 
-  /// Handle incoming channel message
   private func handleChannelMessage(_ message: ChannelMessage, context: DeliveryContext) async {
-    guard let radioID = currentRadioID else {
-      logger.warning("Received channel message but no radio ID set")
-      await channelMessageHandler?(message, nil, context)
-      return
-    }
-
-    // Look up the channel
+    let arrivedAt = Date()
+    guard let radioID = currentRadioID,
+          let scope = try? await dataStore.captureReceiveScope(radioID: radioID, link: receiveLifetime) else { return }
+    let preference = await textRulesPreference()
     let channel = try? await dataStore.fetchChannel(radioID: radioID, index: message.channelIndex)
-
-    await channelMessageHandler?(message, channel, context)
+    guard scope.isCurrent else { return }
+    await channelMessageHandler?(message, channel, context, scope, preference, arrivedAt)
   }
 }
 

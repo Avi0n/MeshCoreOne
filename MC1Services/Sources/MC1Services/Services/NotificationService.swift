@@ -304,10 +304,10 @@ public final class NotificationService: NSObject {
     contactID: UUID,
     messageText: String,
     messageID: UUID,
-    isMuted: Bool = false
+    isMuted: Bool = false,
+    scope: ReceiveScope? = nil
   ) async {
-    guard !isMuted else { return }
-    guard isAuthorized else { return }
+    guard !isMuted, scope?.isCurrent != false, isAuthorized else { return }
 
     // Check granular preference (uses cached preferences)
     guard preferences.contactMessagesEnabled else { return }
@@ -361,11 +361,10 @@ public final class NotificationService: NSObject {
     messageText: String,
     messageID: UUID,
     notificationLevel: NotificationLevel,
-    hasSelfMention: Bool
+    hasSelfMention: Bool,
+    scope: ReceiveScope
   ) async {
-    guard notificationLevel != .muted else { return }
-    guard notificationLevel != .mentionsOnly || hasSelfMention else { return }
-    guard isAuthorized else { return }
+    guard scope.isCurrent, notificationLevel != .muted, notificationLevel != .mentionsOnly || hasSelfMention, isAuthorized else { return }
 
     // Check granular preference (uses cached preferences)
     guard preferences.channelMessagesEnabled else { return }
@@ -421,10 +420,10 @@ public final class NotificationService: NSObject {
     senderName: String?,
     messageText: String,
     messageID: UUID,
-    notificationLevel: NotificationLevel
+    notificationLevel: NotificationLevel,
+    scope: ReceiveScope? = nil
   ) async {
-    guard notificationLevel != .muted else { return }
-    guard isAuthorized else { return }
+    guard notificationLevel != .muted, isAuthorized else { return }
 
     // Check granular preference
     guard preferences.roomMessagesEnabled else { return }
@@ -459,6 +458,7 @@ public final class NotificationService: NSObject {
       trigger: nil
     )
 
+    guard scope?.isCurrent != false else { return }
     do {
       try await UNUserNotificationCenter.current().add(request)
     } catch {
@@ -597,9 +597,7 @@ public final class NotificationService: NSObject {
     deviceName: String,
     batteryPercentage: Int
   ) async {
-    guard isAuthorized else { return }
-
-    guard preferences.lowBatteryEnabled else { return }
+    guard isAuthorized, preferences.lowBatteryEnabled else { return }
 
     let content = UNMutableNotificationContent()
     content.title = stringProvider?.lowBatteryTitle ?? "Low Battery"

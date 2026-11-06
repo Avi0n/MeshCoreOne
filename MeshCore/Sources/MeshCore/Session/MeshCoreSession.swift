@@ -151,6 +151,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   private var autoMessageDrainTask: Task<Void, Never>?
   private var autoContactRefreshTask: Task<Void, Never>?
   private var isAutoFetchingMessages = false
+  private(set) var isMessageFetchingSuspended = false
   private var autoMessageDrainRequested = false
   private var autoContactRefreshRequested = false
   var inFlightGetMessage: Task<MessageResult, Error>?
@@ -247,6 +248,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     isStarting = true
     defer { isStarting = false }
 
+    isMessageFetchingSuspended = false
     logger.info("Starting MeshCore session...")
     if let reconnectingAttempt {
       updateConnectionState(.reconnecting(attempt: max(1, reconnectingAttempt)))
@@ -392,9 +394,12 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     await dispatcher.subscribeTracked()
   }
 
-  /// Finishes a subscription created via ``eventsTracked()``.
-  ///
-  /// Causes the corresponding `for await` loop to exit. Safe to call with an unknown id.
+  public func eventsTracked(filter: EventFilter) async -> (id: UUID, stream: AsyncStream<MeshEvent>) {
+    await dispatcher.subscribeTracked(filter: filter.matches)
+  }
+
+  /// Finishes a tracked subscription so its consumer exits after draining buffered events.
+  /// Unknown subscription IDs are ignored.
   public func finishEvents(id: UUID) async {
     await dispatcher.finishSubscription(id: id)
   }
@@ -437,6 +442,25 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     autoMessageDrainTask = nil
   }
 
+  public func suspendMessageFetching() async throws {
+    isMessageFetchingSuspended = true
+    autoMessageDrainRequested = false
+    do {
+      _ = try await inFlightGetMessage?.value
+    } catch {
+      resumeMessageFetching()
+      throw error
+    }
+    await autoMessageDrainTask?.value
+  }
+
+  public func resumeMessageFetching() {
+    isMessageFetchingSuspended = false
+    if isAutoFetchingMessages {
+      requestAutoMessageDrain()
+    }
+  }
+
   private func autoMessageFetchLoop(events: AsyncStream<MeshEvent>) async {
     for await event in events {
       guard isAutoFetchingMessages else { break }
@@ -449,6 +473,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   }
 
   private func requestAutoMessageDrain() {
+    guard !isMessageFetchingSuspended else { return }
     autoMessageDrainRequested = true
 
     guard autoMessageDrainTask == nil else { return }
@@ -465,7 +490,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
       autoMessageDrainRequested = false
 
       do {
-        while isAutoFetchingMessages, !Task.isCancelled {
+        while isAutoFetchingMessages, !isMessageFetchingSuspended, !Task.isCancelled {
           let result = try await getMessage()
           if case .noMoreMessages = result { break }
           try await Task.sleep(for: .milliseconds(100))

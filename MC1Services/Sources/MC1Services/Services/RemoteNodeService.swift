@@ -20,6 +20,9 @@ public actor RemoteNodeService {
   let dataStore: any PersistenceStoreProtocol
   let keychainService: KeychainService
   let contactRadioOwner: ContactRadioOwner
+  let textRulesPreference: @Sendable () async -> TextRulesPreference?
+  let receiveLifetime: ReceiveScope.Lifetime
+  let radioID: UUID?
   let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
   let auditLogger = CommandAuditLogger()
 
@@ -82,6 +85,17 @@ public actor RemoteNodeService {
   var retiredKeepAliveTasks: [Task<Void, Never>] = []
   private var retirementTask: Task<Void, Never>?
 
+  /// Recovery and refresh outlive timer restarts on this Link record.
+  struct RoomKeepAliveSchedule {
+    let sessionID: UUID
+    let lifetime = ReceiveScope.Lifetime()
+    let recoverySubmitted = OSAllocatedUnfairLock(initialState: false)
+    var recovery: Task<Void, Error>?
+    var refresh: Task<Void, Error>?
+  }
+
+  var roomKeepAliveSchedules: [UUID: RoomKeepAliveSchedule] = [:]
+
   /// Keep-alive intervals per session (from login response, in seconds)
   /// Default to 90 seconds if not specified
   var keepAliveIntervals: [UUID: Duration] = [:]
@@ -135,12 +149,18 @@ public actor RemoteNodeService {
     session: any RemoteAccessSessionOps & SessionEventStreaming & ContactSessionOps,
     dataStore: any PersistenceStoreProtocol,
     keychainService: KeychainService,
-    contactRadioOwner: ContactRadioOwner = ContactRadioOwner()
+    contactRadioOwner: ContactRadioOwner = ContactRadioOwner(),
+    textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil },
+    receiveLifetime: ReceiveScope.Lifetime = .init(),
+    radioID: UUID? = nil
   ) {
     self.session = session
     self.dataStore = dataStore
     self.keychainService = keychainService
     self.contactRadioOwner = contactRadioOwner
+    self.textRulesPreference = textRulesPreference
+    self.receiveLifetime = receiveLifetime
+    self.radioID = radioID
   }
 
   deinit {
@@ -343,6 +363,12 @@ public actor RemoteNodeService {
     stopKeepAlive(sessionID: id)
     try await keychainService.deletePassword(forNodeKey: publicKey)
     try await dataStore.deleteRemoteNodeSession(id: id)
+    for (key, schedule) in roomKeepAliveSchedules where schedule.sessionID == id {
+      schedule.lifetime.retire()
+      schedule.recovery?.cancel()
+      schedule.refresh?.cancel()
+      roomKeepAliveSchedules.removeValue(forKey: key)
+    }
   }
 
   /// Check if a password is stored for a contact's public key.

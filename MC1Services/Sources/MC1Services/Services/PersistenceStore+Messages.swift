@@ -397,6 +397,16 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
+  func saveReceivedChannelMessage(_ dto: MessageDTO, scope: ReceiveScope, conversationID: UUID?) async throws -> Bool {
+    guard scope.isCurrent, scope.radioID == dto.radioID else { return false }
+    if let conversationID, let index = dto.channelIndex,
+       try fetchChannel(radioID: dto.radioID, index: index)?.textRulesID != conversationID {
+      return false
+    }
+    try saveMessage(dto)
+    return true
+  }
+
   /// Update message status
   func updateMessageStatus(id: UUID, status: MessageStatus) throws {
     let targetID = id

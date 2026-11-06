@@ -112,7 +112,13 @@ extension AppState {
       for await event in advertisementEvents {
         guard let self, !Task.isCancelled, context.isCurrent(connectionManager) else { return }
         switch event {
-        case .contactUpdated:
+        case let .contactUpdated(contact, scope):
+          if let contact, let scope {
+            let store = connectionManager.persistenceStore
+            guard await (try? store.currentDirectMessageContact(contact, scope: scope)) != nil,
+                  scope.isCurrent else { continue }
+            guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
+          }
           contactsVersion += 1
           PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
             .debug("B4 contactUpdated bump contactsVersion=\(contactsVersion)")

@@ -758,6 +758,8 @@
 /* Navigation title for chat settings page */
 "chatSettings.title" = "채팅";
 
+"blocksAndFilters.title" = "차단 및 필터";
+
 // MARK: - Link Preview Settings Section
 
 /* Section header for link content settings */
@@ -1484,6 +1486,65 @@
 
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "\"%@\"에 사용할 빈 채널 슬롯이 없습니다";
+
+// MARK: - Text Rules
+
+/* TODO: translate Text Rules strings */
+"textRules.rules" = "필터 규칙";
+"textRules.empty" = "필터 규칙 없음";
+"textRules.loading" = "필터 규칙을 불러오는 중…";
+"textRules.loadFailed" = "필터 규칙을 불러올 수 없습니다. 불러올 수 있을 때까지 새 메시지는 필터 규칙을 사용하지 않습니다.";
+"textRules.retryAccessibility" = "필터 규칙 다시 불러오기";
+"textRules.saveFailed" = "필터 규칙을 저장할 수 없습니다. 다시 시도하십시오.";
+"textRules.new.title" = "New Rule";
+"textRules.new.phrase" = "Word or phrase";
+"textRules.new.lookIn" = "Look In";
+"textRules.new.match" = "Match";
+"textRules.new.containsMessageFooter" = "메시지 어디에서든, 단어 안에서도 일치합니다.";
+"textRules.new.wholeMessageFooter" = "메시지 전체가 이 문구일 때만 일치합니다.";
+"textRules.new.containsSenderFooter" = "발신자 이름 어디에서든, 단어 안에서도 일치합니다. 그 발신자의 반응도 숨겨집니다.";
+"textRules.new.wholeNameFooter" = "발신자 이름이 정확히 이 문구일 때만 일치합니다. 그 발신자의 반응도 숨겨집니다.";
+"textRules.new.containsMessageOrSenderFooter" = "메시지 또는 발신자 이름 어디에서든, 단어 안에서도 일치합니다. 일치하는 발신자의 반응도 숨겨집니다.";
+"textRules.new.wholeMessageOrSenderFooter" = "메시지 전체 또는 발신자 이름 전체가 이 문구일 때만 일치합니다. 일치하는 발신자의 반응도 숨겨집니다.";
+"textRules.field.message" = "Message";
+"textRules.field.sender" = "Sender";
+"textRules.field.messageOrSender" = "Message or Sender";
+"textRules.match.contains" = "Contains";
+"textRules.match.wholeMessage" = "Whole Message";
+"textRules.match.wholeName" = "Whole Name";
+"textRules.match.wholeField" = "Whole Field";
+"textRules.ruleSummary" = "%1$@ · %2$@";
+"textRules.types.header" = "Use rules for";
+"textRules.types.footer" = "켜면 해당 유형의 모든 채팅이 포함됩니다. 나중에 참여하는 채팅도 포함됩니다.";
+"textRules.types.publicChannel" = "Public";
+"textRules.types.hashtagChannel" = "Hashtag Channels";
+"textRules.types.privateChannel" = "Private Channels";
+"textRules.selection.all" = "All";
+"textRules.selection.none" = "None";
+"textRules.selection.count" = "%d Chats";
+"textRules.selection.accessibilityChats" = "Chats for %@";
+"textRules.selection.footer" = "All은 나중에 참여하는 채팅도 포함합니다.";
+"textRules.archive.title" = "Recently Blocked";
+"textRules.archive.empty" = "No Hidden Messages";
+"textRules.archive.footer" = "최근 숨겨진 메시지 %d개가 이 기기에 보관됩니다. 앱 백업에는 포함되지 않습니다.";
+"textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
+"textRules.archive.rule" = "규칙";
+"textRules.archive.chat" = "채팅";
+"textRules.archive.myNode" = "내 노드";
+"textRules.archive.time" = "시간";
+"textRules.archive.unknownConversation" = "Unknown Conversation";
+"textRules.archive.unknownRadio" = "Unknown Radio";
+
+/* TODO: translate radio Cleanup strings */
+"radioCleanup.title" = "Cleanup";
+"radioCleanup.running" = "Removing radio data";
+"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
+"radioCleanup.completed" = "Radio data removed";
+"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
 
 // MARK: - Blocking Section
 

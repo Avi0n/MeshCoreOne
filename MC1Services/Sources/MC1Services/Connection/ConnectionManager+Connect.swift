@@ -113,7 +113,8 @@ public extension ConnectionManager {
         session: session, dataStore: persistenceStore, radioID: MockDataProvider.simulatorDeviceID,
         appStateProvider: appStateProvider, connectionStateEvents: connectionStateEvents,
         initialConnectionState: .connected, radioWiFiState: radioWiFiState(for: MockDataProvider.simulatorDeviceID),
-        notificationService: notificationServiceForTesting()
+        notificationService: notificationServiceForTesting(),
+        textRulesPreference: { [weak self] in await self?.textRulesPreference }
       )
       attempt.preparedServices = container
       try await simulatorMode.seedDataStore(persistenceStore)

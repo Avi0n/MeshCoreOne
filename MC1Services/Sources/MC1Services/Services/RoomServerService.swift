@@ -35,8 +35,10 @@ public actor RoomServerService {
 
   private let session: any RemoteAccessSessionOps
   private let remoteNodeService: RemoteNodeService
-  private let dataStore: any PersistenceStoreProtocol
+  private let dataStore: PersistenceStore
+  private let textRulesPreference: @Sendable () async -> TextRulesPreference?
   private let radioID: UUID
+  private let receiveLifetime: ReceiveScope.Lifetime
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "RoomServer")
   private let auditLogger = CommandAuditLogger()
 
@@ -63,15 +65,19 @@ public actor RoomServerService {
   init(
     session: any RemoteAccessSessionOps,
     remoteNodeService: RemoteNodeService,
-    dataStore: any PersistenceStoreProtocol,
+    dataStore: PersistenceStore,
     radioID: UUID,
-    plainTextSendGate: PlainTextSendGate? = nil
+    plainTextSendGate: PlainTextSendGate? = nil,
+    textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil },
+    receiveLifetime: ReceiveScope.Lifetime = .init()
   ) {
     self.session = session
     self.remoteNodeService = remoteNodeService
     self.dataStore = dataStore
     self.radioID = radioID
     self.plainTextSendGate = plainTextSendGate
+    self.textRulesPreference = textRulesPreference
+    self.receiveLifetime = receiveLifetime
   }
 
   /// Set self public key prefix from SelfInfo.
@@ -185,6 +191,12 @@ public actor RoomServerService {
   public func leaveRoom(sessionID: UUID, publicKey: Data) async throws {
     try await remoteNodeService.logout(sessionID: sessionID)
     try await remoteNodeService.removeSession(id: sessionID, publicKey: publicKey)
+  }
+
+  /// Requests a fresh replay from this room's saved bookmark.
+  public func refreshMessages(for room: RemoteNodeSessionDTO) async throws {
+    guard room.radioID == radioID else { throw RoomServerError.notConnected }
+    try await remoteNodeService.refreshRoom(room)
   }
 
   // MARK: - Message Posting
@@ -379,69 +391,53 @@ public actor RoomServerService {
     authorPrefix: Data,
     text: String
   ) async throws -> RoomMessageDTO? {
-    guard let remoteSession = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
-      .first(where: { $0.publicKey.prefix(6) == senderPublicKeyPrefix && $0.isRoom }) else {
+    guard let scope = try await dataStore.captureReceiveScope(radioID: radioID, link: receiveLifetime) else {
       return nil
     }
-
-    // Receiving any message (even duplicate) proves session is active
-    if !remoteSession.isConnected {
-      let recovered = await (try? dataStore.markRoomSessionConnected(remoteSession.id)) ?? false
-      if recovered {
-        eventBroadcaster.yield(.connectionRecovered(sessionID: remoteSession.id))
-      }
-    }
-
-    // Generate deduplication key
-    let dedupKey = RoomMessage.generateDeduplicationKey(
+    return try await handleIncomingMessage(
+      senderPublicKeyPrefix: senderPublicKeyPrefix,
       timestamp: timestamp,
-      authorKeyPrefix: authorPrefix,
-      text: text
-    )
+      authorPrefix: authorPrefix,
+      text: text,
+      scope: scope
+    )?.message
+  }
 
-    // Check for duplicate using deduplication key
-    if try await dataStore.isDuplicateRoomMessage(
-      sessionID: remoteSession.id,
-      deduplicationKey: dedupKey
-    ) {
+  func handleIncomingMessage(
+    senderPublicKeyPrefix: Data,
+    timestamp: UInt32,
+    authorPrefix: Data,
+    text: String,
+    scope: ReceiveScope
+  ) async throws -> (message: RoomMessageDTO, room: RemoteNodeSessionDTO)? {
+    let arrivedAt = Date()
+    let preference = await textRulesPreference()
+    guard scope.isCurrent, scope.radioID == radioID,
+          let room = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
+            .first(where: { $0.publicKey.prefix(6) == senderPublicKeyPrefix && $0.isRoom }) else {
       return nil
     }
 
-    // Log room message received (metadata only, no content)
+    let post = RoomMessageDTO(
+      sessionID: room.id,
+      authorKeyPrefix: authorPrefix,
+      text: text,
+      timestamp: timestamp,
+      createdAt: arrivedAt,
+      isFromSelf: selfPublicKeyPrefix == authorPrefix
+    )
+    let result = try await dataStore.receiveRoomPost(post, in: room, scope: scope, preference: preference)
+    guard scope.isCurrent else { return nil }
+    if result.recovered {
+      eventBroadcaster.yield(.connectionRecovered(sessionID: room.id))
+    }
+    guard let message = result.message else { return nil }
     await auditLogger.logRoomMessageReceived(
       roomPublicKey: senderPublicKeyPrefix,
       authorPrefix: authorPrefix,
       messageLength: text.count
     )
-
-    // Defensive check: room servers shouldn't push our own messages back
-    let isFromSelf = selfPublicKeyPrefix?.prefix(4) == authorPrefix.prefix(4)
-    if isFromSelf {
-      logger.info("Received self message from room server (unexpected)")
-    }
-
-    let authorName = try await resolveAuthorName(keyPrefix: authorPrefix)
-
-    let messageDTO = RoomMessageDTO(
-      sessionID: remoteSession.id,
-      authorKeyPrefix: authorPrefix,
-      authorName: authorName,
-      text: text,
-      timestamp: timestamp,
-      isFromSelf: isFromSelf
-    )
-
-    try await dataStore.saveRoomMessage(messageDTO)
-
-    // Update sync bookmark and sort date
-    try await dataStore.updateRoomActivity(remoteSession.id, syncTimestamp: timestamp)
-
-    // Increment unread count if not from self
-    if !isFromSelf {
-      try await dataStore.incrementRoomUnreadCount(remoteSession.id)
-    }
-
-    return messageDTO
+    return (message, room)
   }
 
   // MARK: - Message Retrieval
@@ -485,12 +481,6 @@ public actor RoomServerService {
   }
 
   // MARK: - Private Helpers
-
-  private func resolveAuthorName(keyPrefix: Data) async throws -> String? {
-    // Try to find contact with matching public key prefix
-    // Returns nil if no matching contact found
-    try await dataStore.findContactNameByKeyPrefix(keyPrefix)
-  }
 
   /// Attempt to sync history, using advert path first, then falling back to path discovery.
   private func syncHistoryIfPossible(sessionID: UUID) async {

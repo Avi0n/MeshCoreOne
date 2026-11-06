@@ -205,20 +205,22 @@ public extension ConnectionManager {
 
   @discardableResult
   func forgetDevice(_ context: ConnectionRemovalContext, deleteData: Bool) async throws -> ConnectionRemovalResult {
-    try await removeDevice(
-      context, policy: .wholeDevice(deleteData: deleteData), reason: .forgetDevice, systemPolicy: .required
-    )
-  }
-
-  @discardableResult
-  func forgetDeviceAfterReset(_ context: ConnectionRemovalContext) async -> ConnectionRemovalResult {
-    do {
+    if !deleteData {
       return try await removeDevice(
-        context, policy: .wholeDevice(deleteData: true), reason: .factoryReset, systemPolicy: .bestEffort
+        context, policy: .wholeDevice(deleteData: false), reason: .forgetDevice, systemPolicy: .required
       )
-    } catch {
-      logger.warning("Reset cleanup failed: \(error.localizedDescription)")
-      return .superseded
+    }
+    guard ownsRemovalSource(context) else { return .superseded }
+    let device = if let connectedDevice, context.identity.matches(ConnectionDeviceIdentity(connectedDevice)) {
+      connectedDevice
+    } else {
+      try await resolveRemovalDevice(context.identity, store: persistenceStore)
+    }
+    guard let device, ownsRemovalSource(context) else { return .superseded }
+    do {
+      return try await startRadioErase(device, context: context)
+    } catch DevicePairingError.cancelled {
+      return .cancelled
     }
   }
 
@@ -413,13 +415,19 @@ public extension ConnectionManager {
 
 extension ConnectionManager: DevicePairingDelegate {
   public func devicePairing(_ service: any DevicePairingService, didRemoveDeviceWithID bluetoothID: UUID) {
-    guard removalDeviceID != bluetoothID else { return }
+    guard !isRemovingPairing(bluetoothID) else { return }
     handleRegistryRemoval(bluetoothID, pairingFailed: false)
   }
 
   public func devicePairing(_ service: any DevicePairingService, didFailPairingForDeviceWithID bluetoothID: UUID) {
-    guard removalDeviceID != bluetoothID else { return }
+    guard !isRemovingPairing(bluetoothID) else { return }
     handleRegistryRemoval(bluetoothID, pairingFailed: true)
+  }
+
+  private func isRemovingPairing(_ bluetoothID: UUID) -> Bool {
+    removalDeviceID == bluetoothID || radioCleanup.values.contains {
+      $0.target.pairingID == bluetoothID && radioEraseTasks[$0.target.radioID] != nil
+    }
   }
 
   private func handleRegistryRemoval(_ id: UUID, pairingFailed: Bool) {

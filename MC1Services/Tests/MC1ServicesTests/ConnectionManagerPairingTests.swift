@@ -1,6 +1,9 @@
+#if canImport(UIKit)
+  import AccessorySetupKit
+#endif
 import Foundation
 @testable import MC1Services
-import MeshCore
+@testable import MeshCore
 import os
 import Testing
 
@@ -358,6 +361,197 @@ struct ConnectionManagerPairingTests {
     try await manager.deleteDevice(id: UUID())
   }
 
+  @Test
+  func `radio erase records before pairing and resumes after local failure`() async throws {
+    enum InjectedFailure: Error { case save }
+
+    let environment = try ConnectionManager.createForPairingTesting()
+    defer { environment.cleanup() }
+    let manager = environment.manager
+    let pairing = environment.accessorySetupKit
+    let store = manager.persistenceStore
+    let radio = DeviceDTO.testDevice()
+    try await store.saveDevice(radio)
+    pairing.setPairedAccessories([ASAccessory(bluetoothIdentifier: radio.id, displayName: radio.nodeName)])
+    let link = ReceiveScope.Lifetime()
+    let captured = try #require(await store.captureReceiveScope(radioID: radio.radioID, link: link))
+
+    await store.setRadioEraseFaults(begin: { throw InjectedFailure.save }, complete: nil)
+    await #expect(throws: InjectedFailure.save) { try await manager.startRadioErase(radio) }
+    #expect(pairing.removeAccessoryCallCount == 0)
+    #expect(captured.isCurrent)
+    #expect(try await store.fetchDevice(id: radio.id) != nil)
+
+    await store.setRadioEraseFaults(begin: nil, complete: nil)
+    pairing.removeAccessoryError = DevicePairingError.cancelled
+    await #expect(throws: DevicePairingError.cancelled) { try await manager.startRadioErase(radio) }
+    #expect(pairing.accessory(for: radio.id) != nil)
+    #expect(try await store.fetchDevice(id: radio.id) != nil)
+    #expect(!captured.isCurrent)
+    #expect(try await store.fetchPendingRadioErases().isEmpty)
+    #expect(try await store.captureReceiveScope(radioID: radio.radioID, link: link)?.isCurrent == true)
+
+    pairing.removeAccessoryError = nil
+    await store.setRadioEraseFaults(begin: nil, complete: { throw InjectedFailure.save })
+    await #expect(throws: InjectedFailure.save) { try await manager.startRadioErase(radio) }
+    #expect(pairing.accessory(for: radio.id) == nil)
+    #expect(manager.radioCleanup[radio.radioID]?.state == .failed)
+    let target = try #require(await store.fetchPendingRadioErases().first)
+
+    manager.retryRadioErase(target)
+    _ = await manager.radioEraseTasks[radio.radioID]?.result
+    #expect(manager.radioCleanup[radio.radioID]?.state == .failed)
+    #expect(try await store.fetchPendingRadioErases().count == 1)
+
+    await store.setRadioEraseFaults(begin: nil, complete: nil)
+    manager.retryRadioErase(target)
+    _ = await manager.radioEraseTasks[radio.radioID]?.result
+    #expect(manager.radioCleanup[radio.radioID]?.state == .completed)
+    #expect(pairing.removeAccessoryCallCount == 2)
+    #expect(try await store.fetchPendingRadioErases().isEmpty)
+    #expect(try await store.fetchDevice(id: radio.id) == nil)
+  }
+
+  @Test(arguments: [false, true])
+  func `factory reset retry only repeats local cleanup`(cancelPairingRemoval: Bool) async throws {
+    enum InjectedFailure: Error { case save }
+
+    let environment = try ConnectionManager.createForPairingTesting()
+    defer { environment.cleanup() }
+    let manager = environment.manager
+    let store = manager.persistenceStore
+    let radio = DeviceDTO.testDevice()
+    try await store.saveDevice(radio)
+    let transport = MockTransport()
+    let session = MeshCoreSession(transport: transport)
+    try await startEraseTestSession(session, transport: transport, radio: radio)
+    let services = ServiceContainer(session: session, dataStore: store, radioID: radio.radioID)
+    manager.setTestState(
+      connectionState: .connected, services: .some(services), session: .some(session), connectedDevice: .some(radio)
+    )
+
+    if cancelPairingRemoval {
+      environment.accessorySetupKit.setPairedAccessories([
+        ASAccessory(bluetoothIdentifier: radio.id, displayName: radio.nodeName)
+      ])
+      environment.accessorySetupKit.removeAccessoryError = DevicePairingError.cancelled
+    } else {
+      await store.setRadioEraseFaults(begin: nil, complete: { throw InjectedFailure.save })
+    }
+    await transport.holdNextSend()
+    let context = try #require(manager.captureCurrentRemoval())
+    let reset = Task { try await manager.factoryResetAndEraseRadio(context) }
+    try await waitUntil("factory reset reaches transport") { await transport.sendIsWaiting }
+    #expect(try await store.fetchPendingRadioErases().first?.radioID == radio.radioID)
+    #expect(await Array(transport.sentData.dropFirst()) == [PacketBuilder.factoryReset()])
+    await transport.failHeldSend()
+    await transport.releaseHeldSend()
+    if cancelPairingRemoval {
+      await #expect(throws: DevicePairingError.cancelled) { try await reset.value }
+      #expect(manager.radioCleanup[radio.radioID]?.state == .failed)
+      #expect(try await store.fetchDevice(id: radio.id) != nil)
+    } else {
+      await #expect(throws: InjectedFailure.save) { try await reset.value }
+    }
+    let target = try #require(await store.fetchPendingRadioErases().first)
+
+    environment.accessorySetupKit.removeAccessoryError = nil
+    await store.setRadioEraseFaults(begin: nil, complete: nil)
+    manager.retryRadioErase(target)
+    _ = await manager.radioEraseTasks[radio.radioID]?.result
+    #expect(manager.radioCleanup[radio.radioID]?.state == .completed)
+    #expect(await Array(transport.sentData.dropFirst()) == [PacketBuilder.factoryReset()])
+  }
+
+  @Test
+  func `cancelled erase settles in flight message and restarts queued delivery`() async throws {
+    let environment = try ConnectionManager.createForPairingTesting()
+    defer { environment.cleanup() }
+    let manager = environment.manager
+    let pairing = environment.accessorySetupKit
+    let store = manager.persistenceStore
+    let radio = DeviceDTO.testDevice()
+    try await store.saveDevice(radio)
+    pairing.setPairedAccessories([ASAccessory(bluetoothIdentifier: radio.id, displayName: radio.nodeName)])
+    let (gate, answerPrompt) = AsyncStream<Void>.makeStream()
+    defer { answerPrompt.finish() }
+    pairing.removeAccessoryGate = gate
+    pairing.removeAccessoryError = DevicePairingError.cancelled
+
+    let transport = MockTransport()
+    let session = MeshCoreSession(transport: transport)
+    try await startEraseTestSession(session, transport: transport, radio: radio)
+    let services = ServiceContainer(session: session, dataStore: store, radioID: radio.radioID)
+    manager.setTestState(
+      connectionState: .connected, services: .some(services), session: .some(session), connectedDevice: .some(radio)
+    )
+    let poller = services.messagePollingService
+    await services.syncCoordinator.wireMessageHandlers(dependencies: services.syncDependencies, radioID: radio.radioID)
+    await poller.startAutoFetch(radioID: radio.radioID)
+    try await waitUntil("poller and automatic fetch are subscribed") { await session.subscriberCountForTest >= 2 }
+
+    let getMessage = PacketBuilder.getMessage()
+    let timestamp = UInt32(Date().timeIntervalSince1970)
+    await transport.simulateReceive(Data([ResponseCode.messagesWaiting.rawValue]))
+    try await waitUntil("first queue read reaches transport") { await transport.sentData.last == getMessage }
+    let erase = Task { try await manager.startRadioErase(radio) }
+    try await waitUntil("erase suspends new queue reads") { await session.isMessageFetchingSuspended }
+    #expect(pairing.removeAccessoryCallCount == 0)
+    #expect(try await !store.isRadioErasePending(radio.radioID))
+
+    await transport.simulateReceive(eraseTestChannelFrame("before prompt", timestamp: timestamp))
+    try await waitUntil("pairing removal reaches confirmation") {
+      await MainActor.run { pairing.removeAccessoryCallCount == 1 }
+    }
+    #expect(try await store.fetchMessages(radioID: radio.radioID, channelIndex: 0).map(\.text) == ["before prompt"])
+    #expect(try await store.isRadioErasePending(radio.radioID))
+    await transport.simulateReceive(Data([ResponseCode.messagesWaiting.rawValue]))
+    try await waitUntil("message waiting was observed during pairing confirmation") {
+      await session.processedMessagesWaitingCountForTest == 2
+    }
+    #expect(await transport.sentData.filter { $0 == getMessage }.count == 1)
+
+    answerPrompt.yield()
+    await #expect(throws: DevicePairingError.cancelled) { try await erase.value }
+    #expect(try await !store.isRadioErasePending(radio.radioID))
+    try await waitUntil("cancellation restarts the radio queue drain") {
+      await transport.sentData.filter { $0 == getMessage }.count == 2
+    }
+    await transport.simulateReceive(eraseTestChannelFrame("during prompt", timestamp: timestamp + 1))
+    try await waitUntil("radio queue is checked after the resumed delivery") {
+      await transport.sentData.filter { $0 == getMessage }.count == 3
+    }
+    await transport.simulateReceive(Data([ResponseCode.noMoreMessages.rawValue]))
+    try await waitUntil("both channel arrivals are stored once") {
+      let messages = try? await store.fetchMessages(radioID: radio.radioID, channelIndex: 0)
+      return messages?.map(\.text).sorted() == ["before prompt", "during prompt"]
+    }
+    await poller.stopAutoFetch()
+    await session.stop()
+  }
+
+  private func startEraseTestSession(_ session: MeshCoreSession, transport: MockTransport, radio: DeviceDTO) async throws {
+    let start = Task { try await session.start() }
+    try await waitUntil("app start reaches transport") { await !transport.sentData.isEmpty }
+    var selfInfo = Data([ResponseCode.selfInfo.rawValue, ContactType.chat.rawValue, 22, 22])
+    selfInfo.append(radio.publicKey)
+    selfInfo.append(Data(repeating: 0, count: 12))
+    for value in [radio.frequency, radio.bandwidth] {
+      selfInfo.append(withUnsafeBytes(of: value.littleEndian) { Data($0) })
+    }
+    selfInfo.append(contentsOf: [radio.spreadingFactor, radio.codingRate])
+    selfInfo.append(contentsOf: radio.nodeName.utf8)
+    await transport.simulateReceive(selfInfo)
+    try await start.value
+  }
+
+  private func eraseTestChannelFrame(_ body: String, timestamp: UInt32) -> Data {
+    var frame = Data([ResponseCode.channelMessageReceivedV3.rawValue, 32, 0, 0, 0, 0, 0])
+    frame.append(withUnsafeBytes(of: timestamp.littleEndian) { Data($0) })
+    frame.append(contentsOf: "Peer: \(body)".utf8)
+    return frame
+  }
+
   // MARK: - Forget/Resume Signal
 
   @Test
@@ -399,12 +593,14 @@ struct ConnectionManagerPairingTests {
     defer { UserDefaults().removePersistentDomain(forName: suiteName) }
     let (manager, _) = try ConnectionManager.createForTesting(defaults: defaults)
 
-    let deviceID = UUID()
-    manager.persistConnection(deviceID: deviceID, radioID: UUID(), deviceName: "Radio")
-    #expect(manager.lastConnectedDeviceID == deviceID)
+    let device = DeviceDTO.testDevice()
+    try await manager.persistenceStore.saveDevice(device)
+    manager.setTestState(connectedDevice: .some(device))
+    manager.persistConnection(deviceID: device.id, radioID: device.radioID, deviceName: device.nodeName)
+    #expect(manager.lastConnectedDeviceID == device.id)
 
-    let context = try await manager.captureRemoval(id: deviceID)
-    await manager.forgetDeviceAfterReset(context)
+    let context = try #require(manager.captureCurrentRemoval())
+    _ = try await manager.forgetDevice(context, deleteData: true)
 
     // The auto-reconnect / onboarding-resume signal must not survive forgetting its own radio.
     #expect(manager.lastConnectedDeviceID == nil)
@@ -420,8 +616,9 @@ struct ConnectionManagerPairingTests {
     let lastConnected = UUID()
     manager.persistConnection(deviceID: lastConnected, radioID: UUID(), deviceName: "Radio")
 
-    let context = try await manager.captureRemoval(id: UUID())
-    await manager.forgetDeviceAfterReset(context)
+    let device = DeviceDTO.testDevice()
+    try await manager.persistenceStore.saveDevice(device)
+    try await manager.startRadioErase(device)
 
     #expect(manager.lastConnectedDeviceID == lastConnected)
   }

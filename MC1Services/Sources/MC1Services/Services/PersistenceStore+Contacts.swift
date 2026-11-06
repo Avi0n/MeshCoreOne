@@ -116,6 +116,7 @@ public extension PersistenceStore {
   /// Save or update a contact from a ContactFrame.
   /// Returns the contact id and whether the row was newly inserted (`isNew`).
   func saveContact(radioID: UUID, from frame: ContactFrame) throws -> (id: UUID, isNew: Bool) {
+    try commitPendingRxLogEntries()
     let targetRadioID = radioID
     let targetKey = frame.publicKey
     let predicate = #Predicate<Contact> { contact in
@@ -136,7 +137,7 @@ public extension PersistenceStore {
       isNew = true
     }
 
-    try modelContext.save()
+    try saveContactChangesBindingRecentlyBlocked(radioID: radioID)
     return (id: contact.id, isNew: isNew)
   }
 
@@ -145,6 +146,7 @@ public extension PersistenceStore {
   @discardableResult
   func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) async throws -> Int {
     guard !frames.isEmpty else { return 0 }
+    try commitPendingRxLogEntries()
 
     let referenceDate = Date()
     let targetRadioID = radioID
@@ -170,7 +172,7 @@ public extension PersistenceStore {
       }
     }
 
-    try modelContext.save()
+    try saveContactChangesBindingRecentlyBlocked(radioID: radioID)
     return frames.count
   }
 
@@ -188,6 +190,7 @@ public extension PersistenceStore {
 
   /// Save or update a contact from DTO
   func saveContact(_ dto: ContactDTO) throws {
+    try commitPendingRxLogEntries()
     let targetID = dto.id
     let predicate = #Predicate<Contact> { contact in
       contact.id == targetID
@@ -201,11 +204,12 @@ public extension PersistenceStore {
       modelContext.insert(Contact(dto: dto))
     }
 
-    try modelContext.save()
+    try saveContactChangesBindingRecentlyBlocked(radioID: dto.radioID)
   }
 
   @discardableResult
   func insertContactIfAbsent(radioID: UUID, from frame: ContactFrame) throws -> (id: UUID, isNew: Bool) {
+    try commitPendingRxLogEntries()
     let targetRadioID = radioID
     let targetKey = frame.publicKey
     let predicate = #Predicate<Contact> { contact in
@@ -220,7 +224,7 @@ public extension PersistenceStore {
 
     let contact = Contact(radioID: radioID, from: frame)
     modelContext.insert(contact)
-    try modelContext.save()
+    try saveContactChangesBindingRecentlyBlocked(radioID: radioID)
     return (id: contact.id, isNew: true)
   }
 
@@ -378,17 +382,21 @@ public extension PersistenceStore {
     try commitPendingRxLogEntries()
     do {
       try _stageOverwriteOldestCascade(contactID: id)
+      try stageRecentlyBlockedContactDeletion(contactID: id)
       let targetID = id
       let predicate = #Predicate<Contact> { contact in
         contact.id == targetID
       }
       if let contact = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
+        let radioID = contact.radioID
         modelContext.delete(contact)
+        try bindRecentlyBlockedContacts(radioID: radioID)
       }
       #if DEBUG
         try deleteContactsFaultInjection?()
       #endif
       try modelContext.save()
+      publishRecentlyBlockedChange()
     } catch {
       modelContext.rollback()
       throw error
@@ -439,14 +447,17 @@ public extension PersistenceStore {
         if skippingPublicKeys().contains(publicKey) { continue }
         let contactID = contact.id
         try _stageOverwriteOldestCascade(contactID: contactID)
+        try stageRecentlyBlockedContactDeletion(contactID: contactID)
         modelContext.delete(contact)
         deletedIDs.append(contactID)
       }
       if !deletedIDs.isEmpty {
+        try bindRecentlyBlockedContacts(radioID: radioID)
         #if DEBUG
           try deleteContactsFaultInjection?()
         #endif
         try modelContext.save()
+        publishRecentlyBlockedChange()
       }
     } catch {
       modelContext.rollback()
@@ -458,7 +469,7 @@ public extension PersistenceStore {
   /// Insert-only rollback: probe for messages and delete in one ModelActor
   /// region with no suspension between them. Prefer an orphan contact over a
   /// cascade that wipes a concurrent DM.
-  func deleteContactIfUnreferenced(id: UUID) throws {
+  func deleteContactIfUnreferenced(id: UUID) async throws {
     let targetID = id
     let messagePredicate = #Predicate<Message> { message in
       message.contactID == targetID
@@ -468,6 +479,7 @@ public extension PersistenceStore {
     if try modelContext.fetch(messageDescriptor).first != nil {
       return
     }
+    guard try !hasRecentlyBlockedContactReference(contactID: id) else { return }
     try deleteContact(id: id)
   }
 

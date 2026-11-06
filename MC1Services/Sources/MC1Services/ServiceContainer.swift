@@ -14,6 +14,7 @@ public final class ServiceContainer {
 
   /// The persistence store for SwiftData operations
   public let dataStore: PersistenceStore
+  let receiveLifetime = ReceiveScope.Lifetime()
 
   /// Persists inline-image aspect ratios for chat link previews. Built early
   /// because downstream caches and the prefetcher depend on it.
@@ -160,7 +161,8 @@ public final class ServiceContainer {
     radioWiFiState: RadioWiFiState? = nil,
     notificationService suppliedNotificationService: NotificationService? = nil,
     ackEvents: AsyncStream<MeshEvent>? = nil,
-    messageConfig: MessageServiceConfig = .default
+    messageConfig: MessageServiceConfig = .default,
+    textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil }
   ) {
     self.session = session
     self.appStateProvider = appStateProvider
@@ -184,7 +186,10 @@ public final class ServiceContainer {
       session: session,
       dataStore: dataStore,
       keychainService: keychainService,
-      contactRadioOwner: contactRadioOwner
+      contactRadioOwner: contactRadioOwner,
+      textRulesPreference: textRulesPreference,
+      receiveLifetime: receiveLifetime,
+      radioID: radioID
     )
     let cleanupCoordinator = ContactCleanupCoordinator(
       dataStore: dataStore,
@@ -225,7 +230,13 @@ public final class ServiceContainer {
       appStateProvider: appStateProvider,
       notificationService: self.notificationService
     )
-    messagePollingService = MessagePollingService(session: session, dataStore: dataStore)
+    messagePollingService = MessagePollingService(
+      session: session,
+      dataStore: dataStore,
+      radioID: radioID,
+      textRulesPreference: textRulesPreference,
+      receiveLifetime: receiveLifetime
+    )
     binaryProtocolService = BinaryProtocolService(
       session: session,
       radioID: radioID,
@@ -259,7 +270,9 @@ public final class ServiceContainer {
       remoteNodeService: remoteNodeService,
       dataStore: dataStore,
       radioID: radioID,
-      plainTextSendGate: plainTextSendGate
+      plainTextSendGate: plainTextSendGate,
+      textRulesPreference: textRulesPreference,
+      receiveLifetime: receiveLifetime
     )
 
     chatSendQueueService = ChatSendQueueService(
@@ -416,6 +429,7 @@ public final class ServiceContainer {
   /// so the chat send queue drains. `stopEventMonitoring()` alone does not
   /// cover that.
   func tearDown() async {
+    receiveLifetime.retire()
     isTornDown = true
     if let tearDownTask {
       await tearDownTask.value

@@ -142,9 +142,7 @@ public extension PersistenceStore {
     modelContext.autosaveEnabled = false
 
     defer {
-      if !didCommit {
-        modelContext.rollback()
-      }
+      if !didCommit { modelContext.rollback() }
       modelContext.autosaveEnabled = originalAutosaveEnabled
     }
 
@@ -365,6 +363,7 @@ public extension PersistenceStore {
     #endif
     try modelContext.save()
     didCommit = true
+    publishRecentlyBlockedChange()
 
     #if DEBUG
       backupImportPostCommitHook?()

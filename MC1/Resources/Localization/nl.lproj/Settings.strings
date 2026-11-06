@@ -769,6 +769,8 @@
 /* Navigation title for chat settings page */
 "chatSettings.title" = "Chats";
 
+"blocksAndFilters.title" = "Blokkering en filters";
+
 // MARK: - Link Preview Settings Section
 
 /* Section header for link content settings */
@@ -1496,6 +1498,65 @@
 /* Footer explaining map preview privacy implications */
 /* AI-translated - please verify with native speakers. */
 "mapPreviews.footer" = "Het tonen van kaartminiaturen haalt kaarttegels voor de coördinaat op bij een externe server, waardoor uw IP-adres kan worden onthuld.";
+
+// MARK: - Text Rules
+
+/* TODO: translate Text Rules strings */
+"textRules.rules" = "Filterregels";
+"textRules.empty" = "Geen filterregels";
+"textRules.loading" = "Filterregels laden…";
+"textRules.loadFailed" = "Filterregels konden niet worden geladen. Nieuwe berichten gebruiken geen filterregels totdat het laden lukt.";
+"textRules.retryAccessibility" = "Filterregels opnieuw laden";
+"textRules.saveFailed" = "Kan filterregels niet opslaan. Probeer het opnieuw.";
+"textRules.new.title" = "New Rule";
+"textRules.new.phrase" = "Word or phrase";
+"textRules.new.lookIn" = "Look In";
+"textRules.new.match" = "Match";
+"textRules.new.containsMessageFooter" = "Komt ergens in het bericht overeen, ook binnen een woord.";
+"textRules.new.wholeMessageFooter" = "Komt alleen overeen als het hele bericht deze tekst is.";
+"textRules.new.containsSenderFooter" = "Komt ergens in de naam van de afzender overeen, ook binnen een woord. Reacties van die afzender worden ook verborgen.";
+"textRules.new.wholeNameFooter" = "Komt alleen overeen als de naam van de afzender precies deze tekst is. Reacties van die afzender worden ook verborgen.";
+"textRules.new.containsMessageOrSenderFooter" = "Komt in het bericht of in de naam van de afzender overeen, ook binnen een woord. Reacties van een overeenkomende afzender worden ook verborgen.";
+"textRules.new.wholeMessageOrSenderFooter" = "Komt alleen overeen als het hele bericht of de hele naam van de afzender deze tekst is. Reacties van een overeenkomende afzender worden ook verborgen.";
+"textRules.field.message" = "Message";
+"textRules.field.sender" = "Sender";
+"textRules.field.messageOrSender" = "Message or Sender";
+"textRules.match.contains" = "Contains";
+"textRules.match.wholeMessage" = "Whole Message";
+"textRules.match.wholeName" = "Whole Name";
+"textRules.match.wholeField" = "Whole Field";
+"textRules.ruleSummary" = "%1$@ · %2$@";
+"textRules.types.header" = "Use rules for";
+"textRules.types.footer" = "Staat de schakelaar aan, dan geldt die voor elk gesprek van dat type, ook voor gesprekken waaraan je later deelneemt.";
+"textRules.types.publicChannel" = "Public";
+"textRules.types.hashtagChannel" = "Hashtag Channels";
+"textRules.types.privateChannel" = "Private Channels";
+"textRules.selection.all" = "All";
+"textRules.selection.none" = "None";
+"textRules.selection.count" = "%d Chats";
+"textRules.selection.accessibilityChats" = "Chats for %@";
+"textRules.selection.footer" = "All geldt ook voor gesprekken waaraan je later deelneemt.";
+"textRules.archive.title" = "Recently Blocked";
+"textRules.archive.empty" = "No Hidden Messages";
+"textRules.archive.footer" = "De laatste %d verborgen berichten worden op dit apparaat bewaard. Ze zijn niet in de app-data back-up opgenomen.";
+"textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
+"textRules.archive.rule" = "Regel";
+"textRules.archive.chat" = "Gesprek";
+"textRules.archive.myNode" = "Mijn knooppunt";
+"textRules.archive.time" = "Tijd";
+"textRules.archive.unknownConversation" = "Unknown Conversation";
+"textRules.archive.unknownRadio" = "Unknown Radio";
+
+/* TODO: translate radio Cleanup strings */
+"radioCleanup.title" = "Cleanup";
+"radioCleanup.running" = "Removing radio data";
+"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
+"radioCleanup.completed" = "Radio data removed";
+"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
 
 // MARK: - Blocking Section
 

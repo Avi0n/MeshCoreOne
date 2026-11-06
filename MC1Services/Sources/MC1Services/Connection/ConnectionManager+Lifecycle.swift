@@ -103,6 +103,8 @@ public extension ConnectionManager {
   /// Activates the connection manager on app launch.
   /// Call this once during app initialization.
   func activate() async {
+    loadTextRules()
+
     // Ensure lifecycle handlers are installed before anything below can
     // construct the CBCentralManager; creating the central can fire
     // restoration callbacks synchronously, and a missed handler would
@@ -177,8 +179,10 @@ public extension ConnectionManager {
       guard connectionIntent.wantsConnection else { return }
       do {
         try await pairing.activate()
+        Task { await resumePendingRadioErases(pairingReady: true) }
       } catch {
         logger.error("Failed to activate pairing session: \(error.localizedDescription)")
+        await resumePendingRadioErases(pairingReady: false)
       }
       guard desiredRequest?.id == activationRequestID else { return }
       await checkWiFiConnectionHealth()
@@ -187,6 +191,7 @@ public extension ConnectionManager {
     }
 
     #if targetEnvironment(simulator)
+      Task { await resumePendingRadioErases(pairingReady: true) }
       // Skip auto-reconnect if user explicitly disconnected
       if connectionIntent.isUserDisconnected {
         logger.info("Simulator: skipping auto-reconnect - user previously disconnected")
@@ -211,9 +216,10 @@ public extension ConnectionManager {
       // ASK events and iOS 26 state restoration. On macOS this is a no-op.
       do {
         try await pairing.activate()
+        Task { await resumePendingRadioErases(pairingReady: true) }
       } catch {
         logger.error("Failed to activate pairing session: \(error.localizedDescription)")
-        // Don't return - WiFi doesn't need the pairing session
+        await resumePendingRadioErases(pairingReady: false)
       }
 
       // Skip auto-reconnect if user explicitly disconnected

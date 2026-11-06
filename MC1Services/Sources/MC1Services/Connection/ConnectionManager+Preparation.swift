@@ -62,7 +62,9 @@ extension ConnectionManager {
     ))
     let bluetoothPeripheralID = attempt.target.deviceID
     let registration = enqueueMetadata { store in
-      try await store.registerConnectionDevice(observation, bluetoothPeripheralID: bluetoothPeripheralID)
+      let device = try await store.registerConnectionDevice(observation, bluetoothPeripheralID: bluetoothPeripheralID)
+      try await store.backfillTextRulesIdentities(radioID: device.radioID)
+      return device
     }
     let device = try await registration.value
     attempt.identity = ConnectionDeviceIdentity(device)
@@ -88,7 +90,8 @@ extension ConnectionManager {
       session: resource.session, dataStore: persistenceStore, radioID: device.radioID,
       appStateProvider: appStateProvider, connectionStateEvents: connectionStateEvents,
       initialConnectionState: .connected, radioWiFiState: wifiState,
-      notificationService: notificationServiceForTesting(), ackEvents: attempt.ackEvents
+      notificationService: notificationServiceForTesting(), ackEvents: attempt.ackEvents,
+      textRulesPreference: { [weak self] in await self?.textRulesPreference }
     )
     attempt.preparedServices = container
     await wireCleanChannelSyncCallback(on: container)

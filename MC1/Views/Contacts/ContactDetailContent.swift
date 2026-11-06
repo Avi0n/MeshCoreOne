@@ -159,8 +159,7 @@ struct ContactDetailContent: View {
   }
 
   private func updateVisibleSection() {
-    guard isCurrentRenderer else { return }
-    guard let section = visibleSection else { return }
+    guard isCurrentRenderer, let section = visibleSection else { return }
     if !restoredScroll {
       guard section == restorationTarget else { return }
       restoredScroll = true

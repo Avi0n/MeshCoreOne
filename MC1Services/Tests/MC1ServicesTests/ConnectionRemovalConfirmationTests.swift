@@ -10,7 +10,7 @@ import Testing
 @MainActor
 struct ConnectionRemovalConfirmationTests {
   @Test
-  func `reset cleanup retains its best effort system removal policy`() async throws {
+  func `reset cleanup persists across declined system removal`() async throws {
     let env = try ConnectionManagerRadioTestHarness()
     do {
       _ = try await env.connect(.bluetooth)
@@ -19,12 +19,14 @@ struct ConnectionRemovalConfirmationTests {
       env.pairing.isSessionActive = true
       env.pairing.setPairedAccessories([ASAccessory(bluetoothIdentifier: device.id, displayName: "Reset radio")])
       env.pairing.removeAccessoryError = DevicePairingError.cancelled
-      let result = await env.manager.forgetDeviceAfterReset(context)
-      if case let .removed(receipt) = result {
-        #expect(env.manager.isCurrent(receipt))
-      } else {
-        Issue.record("After a submitted factory reset, local cleanup remains best effort across system removal failure")
-      }
+      await #expect(throws: DevicePairingError.cancelled) { try await env.manager.factoryResetAndEraseRadio(context) }
+      let target = try #require(try await env.manager.persistenceStore.fetchPendingRadioErases().first)
+      #expect(target.radioID == device.radioID)
+      #expect(try await env.manager.persistenceStore.fetchDevice(id: device.id) != nil)
+      env.pairing.removeAccessoryError = nil
+      env.manager.retryRadioErase(target)
+      _ = try await env.manager.radioEraseTasks[device.radioID]?.value
+      #expect(try await env.manager.persistenceStore.fetchPendingRadioErases().isEmpty)
       #expect(try await env.manager.persistenceStore.fetchDevice(id: device.id) == nil)
       let disconnected = env.manager.currentConnection == nil
       #expect(disconnected)

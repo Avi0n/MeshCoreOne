@@ -193,8 +193,17 @@ public extension PersistenceStore {
   /// RX log entries, discovered nodes, contacts, messages, channels, and saved trace paths.
   /// Does NOT delete the Device record itself.
   func deleteDeviceData(id: UUID) throws {
-    try _deleteAllDeviceData(id: id)
-    try modelContext.save()
+    guard let radioID = try fetchDevice(id: id)?.radioID else { return }
+    try commitPendingRxLogEntries()
+    do {
+      try stageDeleteAllDeviceData(radioID: radioID)
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    retireReceiveScope(radioID: radioID)
+    publishRecentlyBlockedChange()
   }
 
   /// Delete a device record only. Does NOT delete associated data.
@@ -263,16 +272,21 @@ public extension PersistenceStore {
   /// Delete a device and all its associated data atomically (single save).
   /// Use for factory reset and explicit "delete all data" user action.
   func deleteDeviceAndData(id: UUID) throws {
-    try _deleteAllDeviceData(id: id)
-
-    let targetID = id
-    let devicePredicate = #Predicate<Device> { device in
-      device.id == targetID
+    guard let radioID = try fetchDevice(id: id)?.radioID else { return }
+    try commitPendingRxLogEntries()
+    do {
+      try stageDeleteAllDeviceData(radioID: radioID)
+      let predicate = #Predicate<Device> { $0.id == id }
+      if let device = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
+        modelContext.delete(device)
+      }
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
     }
-    if let device = try modelContext.fetch(FetchDescriptor(predicate: devicePredicate)).first {
-      modelContext.delete(device)
-    }
-    try modelContext.save()
+    retireReceiveScope(radioID: radioID)
+    publishRecentlyBlockedChange()
   }
 
   /// Looks for a ghost `Device` row whose `publicKey` matches `newPublicKey`
@@ -299,11 +313,17 @@ public extension PersistenceStore {
   ///   - newPublicKey: The radio's `selfInfo.publicKey` after `importPrivateKey`.
   /// - Returns: The new `radioID` if reconciliation occurred, otherwise `nil`.
   func reconcileGhostIdentity(currentDeviceID: UUID, newPublicKey: Data) throws -> UUID? {
-    guard let current = try identityDevice(id: currentDeviceID) else { return nil }
+    guard let current = try identityDevice(id: currentDeviceID),
+          try !isRadioErasePending(current.radioID) else { return nil }
     try commitPendingRxLogEntries()
-    guard let radioID = try stageGhostIdentity(current: current, newPublicKey: newPublicKey) else { return nil }
-    try saveIdentityChanges()
-    return radioID
+    do {
+      guard let adoption = try stageGhostIdentity(current: current, newPublicKey: newPublicKey) else { return nil }
+      try saveIdentityChanges(retiring: adoption.abandonedRadioID)
+      return adoption.radioID
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
   }
 
   /// Saves an authenticated identity observation and its canonical partition in one actor turn.
@@ -312,13 +332,14 @@ public extension PersistenceStore {
   ) throws -> DeviceDTO? {
     guard let current = try identityDevice(id: deviceID),
           current.radioID == expectedRadioID, current.publicKey == expectedPublicKey,
-          !current.connectionMethods.isEmpty else { return nil }
+          !current.connectionMethods.isEmpty,
+          try !isRadioErasePending(current.radioID) else { return nil }
     guard let selfInfo else { return DeviceDTO(from: current) }
     try commitPendingRxLogEntries()
     do {
       current.apply(DeviceDTO(from: current).updating(from: selfInfo))
-      _ = try stageGhostIdentity(current: current, newPublicKey: selfInfo.publicKey)
-      try saveIdentityChanges()
+      let adoption = try stageGhostIdentity(current: current, newPublicKey: selfInfo.publicKey)
+      try saveIdentityChanges(retiring: adoption?.abandonedRadioID)
       return DeviceDTO(from: current)
     } catch {
       modelContext.rollback()
@@ -334,7 +355,9 @@ public extension PersistenceStore {
     return try modelContext.fetch(descriptor).first
   }
 
-  private func stageGhostIdentity(current: Device, newPublicKey: Data) throws -> UUID? {
+  private func stageGhostIdentity(
+    current: Device, newPublicKey: Data
+  ) throws -> (radioID: UUID, abandonedRadioID: UUID?)? {
     let lookupKey = newPublicKey
     let lookupID = current.id
     let ghostPredicate = #Predicate<Device> { device in
@@ -346,8 +369,16 @@ public extension PersistenceStore {
           !ghost.connectionMethods.contains(where: \.isBluetooth) else { return nil }
     let departingRadioID = current.radioID
     let newRadioID = ghost.radioID
+    guard try !isRadioErasePending(newRadioID) else { throw PersistenceStoreError.deviceNotFound }
     if departingRadioID != newRadioID {
       try reassignSelfTelemetrySnapshots(from: departingRadioID, to: newRadioID)
+    }
+    let oldOwner = #Predicate<Device> { $0.radioID == departingRadioID && $0.id != lookupID }
+    let abandoned = try departingRadioID != newRadioID &&
+      modelContext.fetchCount(FetchDescriptor(predicate: oldOwner)) == 0
+    if abandoned {
+      try retireTextRulesIdentities(radioID: departingRadioID)
+      try stageRecentlyBlockedDeletion(radioID: departingRadioID)
     }
     current.radioID = newRadioID
     current.publicKey = newPublicKey
@@ -358,34 +389,23 @@ public extension PersistenceStore {
       current.connectionMethods.insert(wifi, at: 0)
     }
     modelContext.delete(ghost)
-    return newRadioID
+    return (newRadioID, abandoned ? departingRadioID : nil)
   }
 
-  private func saveIdentityChanges() throws {
-    do {
-      #if DEBUG
-        try identityReconciliationFaultInjection?()
-      #endif
-      try modelContext.save()
-    } catch {
-      modelContext.rollback()
-      throw error
+  private func saveIdentityChanges(retiring abandonedRadioID: UUID?) throws {
+    #if DEBUG
+      try identityReconciliationFaultInjection?()
+    #endif
+    try modelContext.save()
+    if let abandonedRadioID {
+      retireReceiveScope(radioID: abandonedRadioID)
+      publishRecentlyBlockedChange()
     }
   }
 
-  /// Stages deletion of all device-scoped data without calling save().
-  /// Used by both `deleteDeviceData` and `deleteDeviceAndData` to compose
-  /// operations while maintaining single-save atomicity.
-  private func _deleteAllDeviceData(id: UUID) throws {
-    // Look up the Device's radioID since child records are keyed by radioID, not BLE UUID
-    let targetBLEID = id
-    let devicePredicate = #Predicate<Device> { device in
-      device.id == targetBLEID
-    }
-    guard let device = try modelContext.fetch(FetchDescriptor(predicate: devicePredicate)).first else {
-      return
-    }
-    let targetRadioID = device.radioID
+  /// Stages radio-scoped deletion independently of the lifetime of its Device row.
+  func stageDeleteAllDeviceData(radioID targetRadioID: UUID) throws {
+    try stageRecentlyBlockedDeletion(radioID: targetRadioID)
 
     try deleteSelfTelemetrySnapshots(radioID: targetRadioID)
 

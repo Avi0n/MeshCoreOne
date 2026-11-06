@@ -270,9 +270,9 @@ struct ConnectionStatusLifecycleTests {
     func startAutoFetch(radioID: UUID) async {}
     func pauseAutoFetch() async {}
     func resumeAutoFetch() async {}
-    func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {}
-    func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {}
-    func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {}
+    func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?) async -> Void) {}
+    func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {}
+    func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ReceiveScope) async -> Void) {}
     func setCLIMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {}
   }
 }

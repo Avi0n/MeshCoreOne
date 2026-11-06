@@ -334,6 +334,8 @@ public extension PersistenceStore {
   private func applyRadioChannelInfo(_ info: ChannelInfo, to row: Channel) throws {
     if row.secret != info.secret {
       try _deleteMessagesForChannelWithoutSaving(radioID: row.radioID, channelIndex: row.index)
+      row.textRulesID = UUID()
+      row.textRulesOverrideRawValue = TextRulesPreference.Override.inherit.rawValue
       row.lastMessageDate = nil
       row.unreadCount = 0
       row.unreadMentionCount = 0

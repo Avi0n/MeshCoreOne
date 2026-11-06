@@ -63,6 +63,18 @@ struct RoomConversationView: View {
         onTitleTap: { showingRoomInfo = true }
       )
       .toolbar {
+        ToolbarItem(placement: .primaryAction) {
+          if viewModel.isRefreshing {
+            ProgressView(L10n.RemoteNodes.RemoteNodes.Status.refresh)
+              .labelsHidden()
+          } else {
+            Button(L10n.RemoteNodes.RemoteNodes.Status.refresh, systemImage: "arrow.clockwise") {
+              let room = session
+              Task { await viewModel.refreshMessages(for: room) }
+            }
+            .disabled(!session.isConnected || appState.connectionSnapshot(for: session.radioID) == nil)
+          }
+        }
         if #unavailable(iOS 26) {
           ToolbarItem(placement: .primaryAction) {
             Button(L10n.RemoteNodes.RemoteNodes.Room.infoTitle, systemImage: "info.circle") {
@@ -161,6 +173,7 @@ struct RoomConversationView: View {
       .task(id: appState.servicesVersion) {
         // Reassert the active room when servicesVersion changes because reconnect replaces NotificationService.
         appState.connectionSnapshot(for: session.radioID)?.services.notificationService.setActiveConversation(roomSessionID: session.id)
+        await startSessionKeepAlive()
       }
       .task {
         for await event in appState.messageEventStream.events() {

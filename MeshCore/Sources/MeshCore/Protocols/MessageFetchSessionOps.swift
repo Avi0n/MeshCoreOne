@@ -15,6 +15,12 @@ public protocol MessageFetchSessionOps: Actor {
 
   /// Stops the automatic fetching started by ``startAutoMessageFetching()``.
   func stopAutoMessageFetching()
+
+  /// Blocks new queue reads and lets an already-issued read finish.
+  func suspendMessageFetching() async throws
+
+  /// Allows queue reads and drains any backlog when auto-fetch is enabled.
+  func resumeMessageFetching()
 }
 
 // MARK: - Default Implementations

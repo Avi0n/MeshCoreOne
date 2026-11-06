@@ -8,6 +8,49 @@ import Testing
 /// exercising the complete data flow rather than manually constructed envelopes.
 @Suite("BackupIntegration")
 struct BackupIntegrationTests {
+  @Test
+  func `backup restores conversations without local text rule selections`() async throws {
+    let radioID = UUID()
+    let source = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    try await source.saveContact(.testContact(radioID: radioID))
+    try await source.saveChannel(.testChannel(radioID: radioID))
+    try await source.saveRemoteNodeSessionDTO(.testSession(radioID: radioID))
+    let originals = try await source.textRulesConversations()
+    #expect(originals.count == 3)
+    for conversation in originals {
+      try await source.setTextRulesOverride(.on, kind: conversation.kind, key: conversation.key)
+    }
+
+    let service = AppBackupService()
+    let exported = try await service.export(persistenceStore: source)
+    let encoded = try exported.data.zlibDecompressed(maxUncompressedBytes: maxBackupUncompressedBytes)
+    let json = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    for collection in ["contacts", "channels", "remoteNodeSessions"] {
+      let row = try #require((json[collection] as? [[String: Any]])?.first)
+      #expect(row["textRulesID"] == nil)
+      #expect(row["textRulesOverride"] == nil)
+    }
+    let envelope = try parseBackup(data: exported.data)
+    let contact = try #require(envelope.contacts.first)
+    let channel = try #require(envelope.channels.first)
+    let room = try #require(envelope.remoteNodeSessions.first)
+    #expect(contact.textRulesID == nil)
+    #expect(channel.textRulesID == nil)
+    #expect(room.textRulesID == nil)
+    #expect(contact.textRulesOverride == .inherit)
+    #expect(channel.textRulesOverride == .inherit)
+    #expect(room.textRulesOverride == .inherit)
+
+    let destination = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    _ = try await service.importBackup(envelope: envelope, into: destination)
+    let restored = try await destination.textRulesConversations()
+    #expect(restored.count == originals.count)
+    for conversation in restored {
+      #expect(conversation.override == .inherit)
+      #expect(!originals.contains { $0.key == conversation.key })
+    }
+  }
+
   @Test(arguments: [RemoteNodeRole.sensor, .repeater, .roomServer])
   func `remote roles and legacy pins survive envelope import`(role: RemoteNodeRole) async throws {
     let radioID = UUID()

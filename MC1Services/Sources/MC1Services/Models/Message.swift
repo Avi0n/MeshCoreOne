@@ -26,10 +26,13 @@ public final class Message {
     [\.radioID, \.channelIndex, \.createdAt],
     [\.radioID, \.channelIndex, \.sortDate],
     [\.radioID, \.channelIndex, \.timestamp],
+    [\.radioID, \.channelIndex, \.senderTimestamp],
     [\.contactID, \.createdAt],
     [\.contactID, \.sortDate],
     [\.contactID, \.containsSelfMention, \.mentionSeen],
     [\.radioID, \.channelIndex, \.containsSelfMention, \.mentionSeen],
+    [\.radioID, \.senderKeyPrefix, \.senderTimestamp],
+    [\.radioID, \.senderKeyPrefix, \.timestamp],
     [\.deduplicationKey]
   )
 
@@ -723,8 +726,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
   }
 
   private static func isSameSender(_ a: MessageDTO, _ b: MessageDTO) -> Bool {
-    guard a.direction == b.direction else { return false }
-    guard a.isChannelMessage == b.isChannelMessage else { return false }
+    guard a.direction == b.direction, a.isChannelMessage == b.isChannelMessage else { return false }
 
     // For channel messages, compare sender node name (nil = unknown, treat as different).
     // senderNodeName isn't unique — two users with the same name may be falsely clustered.

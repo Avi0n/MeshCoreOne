@@ -125,6 +125,9 @@ extension PersistenceStore {
       inserted += 1
     }
 
+    for radioID in Set(dtos.map(\.radioID)) {
+      try bindRecentlyBlockedContacts(radioID: radioID)
+    }
     return (inserted, skipped, merged, contactIDsByKey)
   }
 
