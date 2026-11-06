@@ -69,12 +69,13 @@ public extension MessageService {
   ///
   /// - Throws: Database errors when updating message status
   func checkExpiredAcks() async throws {
+    await retryPendingAcknowledgementSaves()
     let now = Date()
     let window = config.ackGiveUpWindow
 
     let expiredEntries = pendingAcks.filter { _, tracking in
       !tracking.isDelivered &&
-        now > (tracking.deadline ?? tracking.sentAt.addingTimeInterval(max(window, tracking.timeout)))
+        now > tracking.expiresAt(giveUpWindow: window)
     }
 
     for (messageID, tracking) in expiredEntries {
@@ -86,7 +87,7 @@ public extension MessageService {
       guard let current = pendingAcks[messageID],
             !current.isDelivered,
             current.sentAt == tracking.sentAt,
-            now > (current.deadline ?? current.sentAt.addingTimeInterval(max(window, current.timeout))) else { continue }
+            now > current.expiresAt(giveUpWindow: window) else { continue }
 
       let result: PendingAcknowledgementCommit
       do {

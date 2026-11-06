@@ -3,7 +3,6 @@ import Foundation
 enum PendingAcknowledgementCommit {
   case committed(MessageStatus)
   case unchanged
-  case waitingForOwner
 }
 
 extension MessageService {
@@ -20,13 +19,13 @@ extension MessageService {
       restored[row.messageID] = PendingAck(
         messageID: row.messageID, contactID: contactID, ackCodes: Set(codes),
         sentAt: sentAt, timeout: deadline.timeIntervalSince(sentAt),
-        pendingSendID: row.id, deadline: deadline
+        owner: .init(id: row.id, radioID: radioID, deadline: deadline, phase: .saved)
       )
     }
     let now = Date()
     for (id, tracking) in restored {
-      if let deadline = tracking.deadline, deadline > now {
-        restored[id]?.sendLeaseID = tracking.pendingSendID
+      if let owner = tracking.owner, owner.deadline > now {
+        restored[id]?.sendLeaseID = owner.id
       }
     }
     // Reserve recovered ACK owners before hydration can admit another send.
@@ -34,54 +33,75 @@ extension MessageService {
     pendingAcks.merge(restored) { _, restored in restored }
   }
 
-  func persistAcknowledgement(
-    messageID: UUID, radioID: UUID, pendingSendID: UUID?
-  ) async throws -> Bool {
-    beginAcknowledgementSave(messageID)
-    defer { endAcknowledgementSave(messageID) }
+  @discardableResult
+  func persistAcknowledgement(messageID: UUID, radioID: UUID, pendingSendID: UUID?) async -> Bool {
     guard let tracking = pendingAcks[messageID], !tracking.isDelivered else { return false }
+    if tracking.owner == nil {
+      pendingAcks[messageID]?.owner = .init(
+        id: pendingSendID ?? UUID(),
+        radioID: radioID,
+        deadline: tracking.expiresAt(giveUpWindow: config.ackGiveUpWindow),
+        phase: pendingSendID == nil ? .insert : .convert
+      )
+    }
+    return await saveAcknowledgementOwner(messageID: messageID)
+  }
+
+  private func saveAcknowledgementOwner(messageID: UUID) async -> Bool {
+    guard let tracking = pendingAcks[messageID], !tracking.isDelivered,
+          let owner = tracking.owner, owner.phase != .saved,
+          acknowledgementSavesInFlight.insert(messageID).inserted else { return false }
+    defer { endAcknowledgementSave(messageID) }
+
+    let row = PendingSendDTO(
+      id: owner.id, envelope: DirectMessageEnvelope(messageID: messageID, contactID: tracking.contactID),
+      radioID: owner.radioID, enqueuedAt: tracking.sentAt,
+      ackCodes: Array(tracking.ackCodes), ackSentAt: tracking.sentAt, ackDeadline: owner.deadline
+    )
     #if DEBUG
       if let gate = acknowledgementSaveGateForTesting { await gate() }
     #endif
-    let ownerID = pendingSendID ?? UUID()
-    let deadline = tracking.sentAt.addingTimeInterval(max(config.ackGiveUpWindow, tracking.timeout))
-    let row = PendingSendDTO(
-      id: ownerID, envelope: DirectMessageEnvelope(messageID: messageID, contactID: tracking.contactID),
-      radioID: radioID, enqueuedAt: tracking.sentAt,
-      ackCodes: Array(tracking.ackCodes), ackSentAt: tracking.sentAt, ackDeadline: deadline
-    )
     let saved: Bool
     do {
-      saved = try await dataStore.savePendingAcknowledgement(row, replacingPendingSendID: pendingSendID)
+      saved = try await dataStore.savePendingAcknowledgement(
+        row, replacingPendingSendID: owner.phase == .convert ? owner.id : nil
+      )
     } catch {
-      throw MessageServiceError.persistenceError(error)
+      logger.warning("ACK owner save deferred messageID=\(messageID): \(String(describing: error))")
+      return false
     }
-    noteAcknowledgementSaveCommitted(messageID)
-    guard saved else {
-      if removePendingAckIfCurrent(tracking) {
-        await settlePlainTextLease(tracking.sendLeaseID)
+
+    guard let current = pendingAcks[messageID], current.owner == owner,
+          current.sentAt == tracking.sentAt, !current.isDelivered else {
+      if saved {
+        await cleanUpStaleAcknowledgementOwner(tracking, owner: owner)
       }
       return false
     }
-    #if DEBUG
-      if let gate = acknowledgementInstallGateForTesting { await gate() }
-    #endif
-    if let current = pendingAcks[messageID] {
-      if current.sentAt == tracking.sentAt, !current.isDelivered {
-        pendingAcks[messageID]?.pendingSendID = ownerID
-        pendingAcks[messageID]?.deadline = deadline
-        if current.matchedAckCode != nil {
-          _ = try await commitPendingAcknowledgement(messageID: messageID, sentAt: current.sentAt)
-        }
-      } else if current.sentAt != tracking.sentAt {
-        try await dataStore.deletePendingSend(id: ownerID)
-      } else {
-        try await resolveFinishedOwner(messageID: messageID, ownerID: ownerID, deadline: deadline)
+    guard saved else {
+      await discardTrackedAck(messageID: messageID)
+      return false
+    }
+
+    pendingAcks[messageID]?.owner?.phase = .saved
+    if current.matchedAckCode != nil {
+      do {
+        _ = try await commitPendingAcknowledgement(messageID: messageID, sentAt: current.sentAt)
+        return false
+      } catch {
+        logger.warning("ACK resolution deferred messageID=\(messageID): \(String(describing: error))")
+        return pendingAcks[messageID]?.owner?.id == owner.id
       }
-    } else {
-      try await resolveFinishedOwner(messageID: messageID, ownerID: ownerID, deadline: deadline)
     }
     return true
+  }
+
+  func retryPendingAcknowledgementSaves() async {
+    for messageID in pendingAcks.keys {
+      if await saveAcknowledgementOwner(messageID: messageID) {
+        statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
+      }
+    }
   }
 
   func waitForAcknowledgementSaves() async {
@@ -93,9 +113,7 @@ extension MessageService {
 
   func commitPendingAcknowledgement(messageID: UUID, sentAt: Date) async throws -> PendingAcknowledgementCommit {
     guard let current = pendingAcks[messageID], current.sentAt == sentAt else { return .unchanged }
-    if uncommittedAcknowledgementSaves.contains(messageID), current.pendingSendID == nil {
-      return .waitingForOwner
-    }
+    if let owner = current.owner, owner.phase != .saved { return .unchanged }
     let status: MessageStatus = current.matchedAckCode == nil ? .failed : .delivered
     let leaseID = current.sendLeaseID
     let updated = try await writeTerminalAcknowledgement(current, status: status)
@@ -129,23 +147,8 @@ extension MessageService {
     return .committed(status)
   }
 
-  private func beginAcknowledgementSave(_ messageID: UUID) {
-    acknowledgementSavesInFlight[messageID, default: 0] += 1
-    uncommittedAcknowledgementSaves.insert(messageID)
-  }
-
-  private func noteAcknowledgementSaveCommitted(_ messageID: UUID) {
-    uncommittedAcknowledgementSaves.remove(messageID)
-  }
-
   private func endAcknowledgementSave(_ messageID: UUID) {
-    uncommittedAcknowledgementSaves.remove(messageID)
-    let remaining = (acknowledgementSavesInFlight[messageID] ?? 1) - 1
-    if remaining > 0 {
-      acknowledgementSavesInFlight[messageID] = remaining
-    } else {
-      acknowledgementSavesInFlight.removeValue(forKey: messageID)
-    }
+    acknowledgementSavesInFlight.remove(messageID)
     guard acknowledgementSavesInFlight.isEmpty else { return }
     let waiters = acknowledgementSaveWaiters
     acknowledgementSaveWaiters.removeAll()
@@ -155,9 +158,9 @@ extension MessageService {
   }
 
   private func writeTerminalAcknowledgement(_ current: PendingAck, status: MessageStatus) async throws -> Bool {
-    if let ownerID = current.pendingSendID {
+    if let owner = current.owner {
       return try await dataStore.resolvePendingAcknowledgement(
-        id: ownerID, expectedDeadline: current.deadline, status: status,
+        id: owner.id, expectedDeadline: owner.deadline, status: status,
         ackCode: current.matchedAckCode, roundTripTime: current.matchedTripTime
       )
     }
@@ -172,20 +175,20 @@ extension MessageService {
     return try await dataStore.updateMessageStatusUnlessDelivered(id: current.messageID, status: .failed)
   }
 
-  private func resolveFinishedOwner(messageID: UUID, ownerID: UUID, deadline: Date) async throws {
-    let message = try await dataStore.fetchMessage(id: messageID)
-    guard message == nil || message?.status == .delivered || message?.status == .failed else { return }
-    _ = try await dataStore.resolvePendingAcknowledgement(
-      id: ownerID, expectedDeadline: deadline, status: message?.status ?? .failed,
-      ackCode: message?.ackCode, roundTripTime: message?.roundTripTime
-    )
-  }
-
-  @discardableResult
-  func removePendingAckIfCurrent(_ tracking: PendingAck) -> Bool {
-    guard let current = pendingAcks[tracking.messageID], current.sentAt == tracking.sentAt,
-          current.pendingSendID == tracking.pendingSendID else { return false }
-    pendingAcks.removeValue(forKey: tracking.messageID)
-    return true
+  private func cleanUpStaleAcknowledgementOwner(_ tracking: PendingAck, owner: PendingAck.Owner) async {
+    do {
+      if let current = pendingAcks[tracking.messageID], current.sentAt != tracking.sentAt {
+        try await dataStore.deletePendingSend(id: owner.id)
+        return
+      }
+      let message = try await dataStore.fetchMessage(id: tracking.messageID)
+      guard message == nil || message?.status == .delivered || message?.status == .failed else { return }
+      _ = try await dataStore.resolvePendingAcknowledgement(
+        id: owner.id, expectedDeadline: owner.deadline, status: message?.status ?? .failed,
+        ackCode: message?.ackCode, roundTripTime: message?.roundTripTime
+      )
+    } catch {
+      logger.warning("Stale ACK owner cleanup failed messageID=\(tracking.messageID): \(String(describing: error))")
+    }
   }
 }

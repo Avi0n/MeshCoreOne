@@ -48,9 +48,8 @@ public extension MessageService {
 
     var sendLease: PlainTextSendGate.Lease?
     defer { await stopPlainTextLease(sendLease) }
-    var ackOwnerCommitted = false
     defer {
-      if !ackOwnerCommitted {
+      if pendingAcks[messageID]?.owner == nil {
         // A row that already records an ACK deadline belongs to delivery tracking.
         // Deleting it would drop a send the radio has accepted.
         let stillUnsent: Bool = if let rows = try? await dataStore.fetchPendingSends(radioID: contact.radioID) {
@@ -116,32 +115,18 @@ public extension MessageService {
       if let gate = inlineSendAcceptedGateForTesting { await gate() }
     #endif
 
-    let ackTimeout = TimeInterval(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
+    let ackTimeout = dmAckTimeout(for: sentInfo)
 
-    if sentInfo.expectedAck != predictedAck {
-      logger.warning(
-        "expectedAck mismatch for \(messageID) attempt 0: predicted \(predictedAck.uppercaseHexString()) vs firmware \(sentInfo.expectedAck.uppercaseHexString()); merging firmware code"
-      )
-      trackPendingAck(
-        messageID: messageID,
-        contactID: contact.id,
-        ackCode: sentInfo.expectedAck,
-        timeout: ackTimeout,
-        sendLeaseID: sendLease?.id
-      )
-    } else {
-      pendingAcks[messageID]?.timeout = ackTimeout
-      pendingAcks[messageID]?.sentAt = Date()
-    }
+    recordDMCommandAcceptance(
+      messageID: messageID, sentInfo: sentInfo, predictedAck: predictedAck, timeout: ackTimeout
+    )
 
     // The radio accepted the send; bookkeeping errors must leave terminal status
     // to the end-to-end ACK or expiry checker.
     do {
-      if try await persistAcknowledgement(
+      await persistAcknowledgement(
         messageID: messageID, radioID: contact.radioID, pendingSendID: pendingSendID
-      ) {
-        ackOwnerCommitted = true
-      }
+      )
       // updateMessageAck preserves `.delivered`, so writing `.sent` here
       // is a no-op when the listener already won the race.
       try await dataStore.updateMessageAck(
@@ -200,14 +185,11 @@ public extension MessageService {
 
     // Run app-layer retry loop with UI notifications
     do {
-      let sentInfo = try await sendDirectMessageWithRetryLoop(
+      let acknowledgedCode = try await sendDirectMessageWithRetryLoop(
         messageID: messageID,
-        contactID: contact.id,
-        radioID: contact.radioID,
-        publicKey: contact.publicKey,
+        to: contact,
         text: text,
-        timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp)),
-        timestampRaw: timestamp,
+        timestamp: timestamp,
         timeout: timeout > 0 ? timeout : nil,
         budget: dmSendBudgetProvider(),
         sendLease: sendLease
@@ -218,7 +200,7 @@ public extension MessageService {
         contactID: contact.id,
         radioID: contact.radioID,
         publicKey: contact.publicKey,
-        sentInfo: sentInfo,
+        acknowledgedCode: acknowledgedCode,
         initialPathLength: initialPathLength
       )
     } catch {
@@ -351,26 +333,17 @@ public extension MessageService {
     // auto-retry passes preserveTimestamp: true so the duplicate landing
     // on a recipient that already saw the first send gets caught by
     // their dedup ring rather than rendered as a second copy.
-    let wireTimestamp: Date
-    let wireTimestampRaw: UInt32
-    if preserveTimestamp {
-      wireTimestampRaw = existingMessage.timestamp
-      wireTimestamp = Date(timeIntervalSince1970: TimeInterval(wireTimestampRaw))
-    } else {
-      wireTimestamp = Date()
-      wireTimestampRaw = UInt32(wireTimestamp.timeIntervalSince1970)
-      try await dataStore.updateMessageTimestamp(id: messageID, timestamp: wireTimestampRaw)
+    let wireTimestamp = preserveTimestamp ? existingMessage.timestamp : UInt32(Date().timeIntervalSince1970)
+    if !preserveTimestamp {
+      try await dataStore.updateMessageTimestamp(id: messageID, timestamp: wireTimestamp)
     }
 
     do {
-      let sentInfo = try await sendDirectMessageWithRetryLoop(
+      let acknowledgedCode = try await sendDirectMessageWithRetryLoop(
         messageID: messageID,
-        contactID: contact.id,
-        radioID: contact.radioID,
-        publicKey: contact.publicKey,
+        to: contact,
         text: existingMessage.text,
         timestamp: wireTimestamp,
-        timestampRaw: wireTimestampRaw,
         timeout: nil,
         budget: isSingleAttempt ? .singleAttempt : dmSendBudgetProvider(),
         sendLease: sendLease
@@ -380,7 +353,7 @@ public extension MessageService {
       // landed user-initiated sends, not queue-driven attempts;
       // bookkeeping failures log because the on-air retransmission
       // already happened.
-      if isResend, sentInfo != nil {
+      if isResend, acknowledgedCode != nil {
         do {
           _ = try await dataStore.incrementMessageSendCount(id: messageID)
         } catch {
@@ -393,14 +366,14 @@ public extension MessageService {
         contactID: contact.id,
         radioID: contact.radioID,
         publicKey: contact.publicKey,
-        sentInfo: sentInfo,
+        acknowledgedCode: acknowledgedCode,
         initialPathLength: initialPathLength,
         pendingSendID: pendingSendID
       )
 
       // Broadcast after the DB write so the downstream refetch sees both
       // the bumped sendCount and the committed terminal status.
-      if isResend, sentInfo != nil {
+      if isResend, acknowledgedCode != nil {
         statusEventBroadcaster.yield(.resent(messageID: messageID))
       }
 
@@ -415,166 +388,6 @@ public extension MessageService {
       if case MessageServiceError.persistenceError = error { throw error }
       try await failMessageAndRethrow(error, messageID: messageID, pendingSendID: pendingSendID)
     }
-  }
-
-  // MARK: - Direct Message Retry Loop
-
-  private func sendDirectMessageWithRetryLoop(
-    messageID: UUID,
-    contactID: UUID,
-    radioID: UUID,
-    publicKey: Data,
-    text: String,
-    timestamp: Date,
-    timestampRaw: UInt32,
-    timeout: TimeInterval?,
-    budget: DMSendBudget,
-    sendLease: PlainTextSendGate.Lease?
-  ) async throws -> MessageSentInfo? {
-    let maxRetryAttempts = budget.totalAttempts - 1
-
-    for attemptIndex in 0..<budget.totalAttempts {
-      guard !Task.isCancelled else {
-        throw CancellationError()
-      }
-
-      if attemptIndex > 0 {
-        try await dataStore.updateMessageRetryStatus(
-          id: messageID,
-          status: .retrying,
-          retryAttempt: attemptIndex - 1,
-          maxRetryAttempts: maxRetryAttempts
-        )
-        statusEventBroadcaster.yield(.retrying(
-          messageID: messageID,
-          attempt: attemptIndex - 1,
-          maxAttempts: maxRetryAttempts
-        ))
-      }
-
-      if attemptIndex == budget.directAttempts {
-        logger.info("Resetting path to flood after \(attemptIndex) failed attempts")
-        do {
-          if let contactService {
-            try await contactService.resetPath(radioID: radioID, publicKey: publicKey)
-          } else {
-            try await session.resetPath(publicKey: publicKey)
-            _ = try await dataStore.updateContactRoute(
-              radioID: radioID,
-              publicKey: publicKey,
-              outPathLength: PacketBuilder.floodPathSentinel,
-              outPath: Data()
-            )
-          }
-          if try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) != nil {
-            statusEventBroadcaster.yield(.routingChanged(contactID: contactID, isFlood: true))
-          }
-        } catch {
-          logger.warning("Failed to reset path: \(error.localizedDescription), continuing...")
-        }
-      }
-
-      if attemptIndex > 0 {
-        logger.info("Retry sending message: attempt \(attemptIndex + 1)/\(budget.totalAttempts)")
-      }
-
-      // Precompute the expected ACK CRC before the send so the persistent
-      // ACK listener cannot race ahead of trackPendingAck on short direct links.
-      guard let senderPublicKey = await session.currentSelfInfo?.publicKey else {
-        throw MessageServiceError.notConnected
-      }
-
-      let predictedAck = AckCodeBuilder.expectedAck(
-        timestamp: timestampRaw,
-        attempt: UInt8(attemptIndex),
-        text: text,
-        senderPublicKey: senderPublicKey
-      )
-
-      // Pre-send floor must outlive one checkExpiredAcks tick; otherwise a
-      // BLE round-trip > 1s could let the checker expire the speculative
-      // entry before sendMessage returns and we overwrite the timeout with
-      // the authoritative sentInfo-derived value.
-      let preSendTimeout = max(timeout ?? config.minTimeout, checkInterval)
-      trackPendingAck(
-        messageID: messageID,
-        contactID: contactID,
-        ackCode: predictedAck,
-        timeout: preSendTimeout,
-        sendLeaseID: sendLease?.id
-      )
-      await notePlainTextLease(sendLease)
-
-      let sentInfo: MessageSentInfo
-      do {
-        sentInfo = try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.directMessageTableFull, config: config.poolBackoff, logger: logger) {
-          try await session.sendMessage(
-            to: publicKey.prefix(6),
-            text: text,
-            timestamp: timestamp,
-            attempt: UInt8(attemptIndex)
-          )
-        }
-      } catch {
-        // Drop the whole speculative entry on send failure. A partial
-        // remove would leave an empty-codes PendingAck visible to
-        // checkExpiredAcks if failMessageAndRethrow is ever bypassed.
-        await discardTrackedAck(messageID: messageID)
-        throw error
-      }
-
-      // If the persistent ACK listener consumed our predicted ACK during
-      // sendMessage's cross-actor suspension, the entry is already
-      // removed or marked delivered. Short-circuit before waitForEvent
-      // so the retry loop doesn't clobber .delivered via
-      // updateMessageRetryStatus and broadcast a duplicate DM.
-      guard let tracked = pendingAcks[messageID], !tracked.isDelivered else {
-        return sentInfo
-      }
-
-      let ackTimeout = timeout ?? max(
-        config.minTimeout,
-        Double(sentInfo.suggestedTimeoutMs) / 1000.0 * 1.2
-      )
-
-      if sentInfo.expectedAck != predictedAck {
-        logger.warning(
-          "expectedAck mismatch for \(messageID) attempt \(attemptIndex): predicted \(predictedAck.uppercaseHexString()) vs firmware \(sentInfo.expectedAck.uppercaseHexString()); merging firmware code"
-        )
-        trackPendingAck(
-          messageID: messageID,
-          contactID: contactID,
-          ackCode: sentInfo.expectedAck,
-          timeout: ackTimeout,
-          sendLeaseID: sendLease?.id
-        )
-      } else {
-        // Re-stamp sentAt so checkExpiredAcks measures timeout from
-        // send-return, not from the speculative insert.
-        pendingAcks[messageID]?.timeout = ackTimeout
-        pendingAcks[messageID]?.sentAt = Date()
-      }
-
-      let ackEvent = await session.waitForEvent(
-        filter: .acknowledgement(code: sentInfo.expectedAck),
-        timeout: ackTimeout
-      )
-
-      if ackEvent != nil {
-        logger.info("Message acknowledged on attempt \(attemptIndex + 1)")
-        return sentInfo
-      }
-
-      // Listener may have consumed the ACK between the pre-send guard
-      // and waitForEvent's subscription becoming active; re-check before
-      // retrying so we don't resend a DM the firmware already delivered.
-      if pendingAcks[messageID]?.isDelivered != false {
-        return sentInfo
-      }
-    }
-
-    logger.warning("Message delivery failed after \(budget.totalAttempts) attempts")
-    return nil
   }
 
   // MARK: - Routing Change Detection
@@ -646,8 +459,7 @@ public extension MessageService {
       existing.ackCodes.insert(ackCode)
       existing.sentAt = Date()
       existing.timeout = timeout
-      existing.pendingSendID = nil
-      existing.deadline = nil
+      existing.owner = nil
       if let sendLeaseID {
         existing.sendLeaseID = sendLeaseID
       }
@@ -674,7 +486,7 @@ public extension MessageService {
     contactID: UUID,
     radioID: UUID,
     publicKey: Data,
-    sentInfo: MessageSentInfo?,
+    acknowledgedCode: Data?,
     initialPathLength: UInt8,
     pendingSendID: UUID? = nil
   ) async throws -> MessageDTO {
@@ -691,7 +503,7 @@ public extension MessageService {
       let leaseID = tracking?.sendLeaseID
       pendingAcks.removeValue(forKey: messageID)
       await settlePlainTextLease(leaseID)
-    } else if let sentInfo {
+    } else if let acknowledgedCode, tracking?.matchedAckCode == nil {
       // The retry loop's waitForEvent matched the ACK. Take ownership and
       // record the legitimate `.sent` -> `.delivered` upgrade.
       let leaseID = tracking?.sendLeaseID
@@ -699,20 +511,15 @@ public extension MessageService {
       await settlePlainTextLease(leaseID)
       try await dataStore.updateMessageAck(
         id: messageID,
-        ackCode: sentInfo.expectedAck.ackCodeUInt32,
+        ackCode: acknowledgedCode.ackCodeUInt32,
         status: .delivered
       )
       try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
       statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: nil))
     } else {
-      // Retry budget spent without an ACK. Neither fail the row nor remove
-      // the entry: `checkExpiredAcks` owns the give-up at
-      // max(ackGiveUpWindow, last attempt's ACK timeout), so a
-      // late-but-legitimate ACK can still upgrade the row.
-      // The original PendingSend becomes a durable ACK owner in the same
-      // transaction that clears `.retrying`; a replacement or terminal row
-      // cannot be adopted by this send.
-      let movedToSent = try await persistAcknowledgement(
+      // Command issuance ended; durable ACK ownership preserves late matches
+      // and retries a failed owner save without submitting another command.
+      let movedToSent = await persistAcknowledgement(
         messageID: messageID, radioID: radioID, pendingSendID: pendingSendID
       )
       if movedToSent {

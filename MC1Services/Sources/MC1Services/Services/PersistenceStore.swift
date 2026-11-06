@@ -126,6 +126,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     var fetchContactIDsFaultInjection: (@Sendable () throws -> Void)?
 
     var updateContactLastMessageFaultInjection: (@Sendable () throws -> Void)?
+    var savePendingAcknowledgementFaultInjection: (@Sendable () throws -> Void)?
 
     func setDeleteContactsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
       deleteContactsFaultInjection = hook

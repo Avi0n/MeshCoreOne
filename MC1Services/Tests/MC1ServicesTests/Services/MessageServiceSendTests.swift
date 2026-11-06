@@ -483,20 +483,6 @@ struct MessageServiceSendTests {
 
     let statusEvents = service.statusEvents()
 
-    // Pre-populate the pending-ack entry as already delivered so the
-    // retry loop short-circuits after sendMessage returns.
-    let ackCode = Data([0xAB, 0xCD, 0xEF, 0x12])
-    await service.setPendingAckForTest(
-      PendingAck(
-        messageID: messageID,
-        contactID: contactID,
-        ackCodes: [ackCode],
-        sentAt: Date(),
-        timeout: 30,
-        isDelivered: true
-      )
-    )
-
     let resendTask = Task {
       try await service.resendDirectMessage(messageID: messageID, to: contact)
     }
@@ -504,6 +490,13 @@ struct MessageServiceSendTests {
     try await waitUntil("resend should send CMD_SEND_TXT_MSG") {
       await transport.sentData.count == 2
     }
+
+    let timestamp = try #require(try await dataStore.fetchMessage(id: messageID)?.timestamp)
+    let senderKey = try #require(await session.currentSelfInfo?.publicKey)
+    let ackCode = AckCodeBuilder.expectedAck(
+      timestamp: timestamp, attempt: 0, text: delivered.text, senderPublicKey: senderKey
+    )
+    await service.handleAcknowledgement(code: ackCode, tripTime: 40)
 
     var msgSent = Data([ResponseCode.messageSent.rawValue])
     msgSent.append(0)
@@ -565,20 +558,6 @@ struct MessageServiceSendTests {
 
     let statusEvents = service.statusEvents()
 
-    // Pre-populate the pending-ack entry as already delivered so the
-    // retry loop short-circuits after sendMessage returns.
-    let ackCode = Data([0xAB, 0xCD, 0xEF, 0x12])
-    await service.setPendingAckForTest(
-      PendingAck(
-        messageID: messageID,
-        contactID: contactID,
-        ackCodes: [ackCode],
-        sentAt: Date(),
-        timeout: 30,
-        isDelivered: true
-      )
-    )
-
     let sendTask = Task {
       try await service.sendPendingDirectMessage(messageID: messageID, to: contact)
     }
@@ -586,6 +565,13 @@ struct MessageServiceSendTests {
     try await waitUntil("send should send CMD_SEND_TXT_MSG") {
       await transport.sentData.count == 2
     }
+
+    let timestamp = try #require(try await dataStore.fetchMessage(id: messageID)?.timestamp)
+    let senderKey = try #require(await session.currentSelfInfo?.publicKey)
+    let ackCode = AckCodeBuilder.expectedAck(
+      timestamp: timestamp, attempt: 0, text: pending.text, senderPublicKey: senderKey
+    )
+    await service.handleAcknowledgement(code: ackCode, tripTime: 40)
 
     var msgSent = Data([ResponseCode.messageSent.rawValue])
     msgSent.append(0)
@@ -607,6 +593,7 @@ struct MessageServiceSendTests {
             ".resent must not broadcast on first send")
 
     let stored = try await dataStore.fetchMessage(id: messageID)
+    #expect(stored?.status == .delivered)
     #expect(stored?.sendCount == 1,
             "successful sendPendingDirectMessage must leave sendCount at 1")
   }
@@ -742,7 +729,7 @@ struct MessageServiceSendTests {
       contactID: contactID,
       radioID: radioID,
       publicKey: publicKey,
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
 

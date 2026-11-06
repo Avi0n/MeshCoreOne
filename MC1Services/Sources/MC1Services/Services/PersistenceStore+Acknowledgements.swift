@@ -37,6 +37,9 @@ public extension PersistenceStore {
     row.ackDeadline = dto.ackDeadline
     message.status = .sent
     do {
+      #if DEBUG
+        try savePendingAcknowledgementFaultInjection?()
+      #endif
       try modelContext.save()
     } catch {
       modelContext.rollback()
@@ -72,4 +75,10 @@ public extension PersistenceStore {
     }
     return shouldUpdate
   }
+
+  #if DEBUG
+    func setSavePendingAcknowledgementFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      savePendingAcknowledgementFaultInjection = hook
+    }
+  #endif
 }

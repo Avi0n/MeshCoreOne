@@ -624,18 +624,13 @@ struct MessageServiceACKTests {
             "Listener should have written RTT=500 before finalizeSend runs")
 
     // Retry loop's waitForEvent matched the same ACK, so finalizeSend runs
-    // with sentInfo != nil. It must NOT clobber the listener-written RTT.
-    let sentInfo = MessageSentInfo(
-      route: 0,
-      expectedAck: ackCode,
-      suggestedTimeoutMs: 5000
-    )
+    // with the ACK code and must preserve the listener-written RTT.
     _ = try await service.finalizeSend(
       messageID: messageID,
       contactID: contactID,
       radioID: radioID,
       publicKey: publicKey,
-      sentInfo: sentInfo,
+      acknowledgedCode: ackCode,
       initialPathLength: 0
     )
 
@@ -665,23 +660,18 @@ struct MessageServiceACKTests {
 
     let statusEvents = service.statusEvents()
 
-    // Seed a non-delivered pendingAcks entry so finalizeSend's `if let sentInfo`
-    // branch is taken (isDelivered == false, sentInfo != nil).
+    // Seed a non-delivered pendingAcks entry so finalizeSend's acknowledged-code
+    // branch is taken.
     await service.setPendingAckForTest(
       makePending(messageID: messageID, contactID: contactID, ackCodes: [ackCode])
     )
 
-    let sentInfo = MessageSentInfo(
-      route: 0,
-      expectedAck: ackCode,
-      suggestedTimeoutMs: 5000
-    )
     _ = try await service.finalizeSend(
       messageID: messageID,
       contactID: contactID,
       radioID: radioID,
       publicKey: publicKey,
-      sentInfo: sentInfo,
+      acknowledgedCode: ackCode,
       initialPathLength: 0
     )
 
@@ -828,7 +818,7 @@ struct MessageServiceACKTests {
       contactID: contactID,
       radioID: radioID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: MessageSentInfo(route: 0, expectedAck: ackCode, suggestedTimeoutMs: 5000),
+      acknowledgedCode: ackCode,
       initialPathLength: 0
     )
 
@@ -857,7 +847,7 @@ struct MessageServiceACKTests {
       contactID: UUID(),
       radioID: testDeviceID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
 
@@ -886,7 +876,7 @@ struct MessageServiceACKTests {
       contactID: UUID(),
       radioID: testDeviceID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
 
@@ -915,7 +905,7 @@ struct MessageServiceACKTests {
       contactID: UUID(),
       radioID: testDeviceID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
 
@@ -943,7 +933,7 @@ struct MessageServiceACKTests {
       contactID: UUID(),
       radioID: testDeviceID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
     #expect(try await storeA.fetchMessage(id: idA)?.status == .sent)
@@ -965,7 +955,7 @@ struct MessageServiceACKTests {
       contactID: UUID(),
       radioID: testDeviceID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
     #expect(try await storeB.fetchMessage(id: idB)?.status == .failed)

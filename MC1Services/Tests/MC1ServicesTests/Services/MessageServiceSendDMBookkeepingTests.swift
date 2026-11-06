@@ -102,49 +102,37 @@ struct MessageServiceSendDMBookkeepingTests {
 
   @Test
   @MainActor
-  func `a thrown delivery write before the owner id is installed keeps the owner and the matched code`() async throws {
+  func `a matched ACK survives a terminal write failure when the owner is saved`() async throws {
     let code = Data([0xAB, 0xCD, 0xEF, 0x12])
     let harness = try await makeHarness(ackGiveUpWindow: 0, suggestedTimeoutMs: 0, code: code)
     let gate = SuspendGate()
-    await harness.service.setAcknowledgementInstallGateForTesting {
+    defer { gate.release() }
+    await harness.service.setAcknowledgementSaveGateForTesting {
       await gate.park()
     }
-    await harness.store.setStubbedUpdateMessageStatusError(InjectedBookkeepingError.simulated)
+    await harness.store.setStubbedResolvePendingAcknowledgementError(InjectedBookkeepingError.simulated)
     let send = Task {
       try await harness.service.sendDirectMessage(text: "held delivery", to: harness.contact)
     }
-    try await waitUntil("owner row is committed before the id is installed") {
-      guard gate.isParked else { return false }
-      return try await harness.store.fetchPendingSends(radioID: harness.contact.radioID).count == 1
-    }
+    try await waitUntil("owner save is held") { gate.isParked }
     let messageID = try #require(
       try await harness.store.fetchMessages(contactID: harness.contact.id, limit: 1, offset: 0).first?.id
     )
-    #expect(try await harness.store.fetchMessage(id: messageID)?.status == .sent)
-    #expect(await harness.service.pendingAckForTest(messageID)?.pendingSendID == nil)
-    #expect(await harness.service.pendingAckForTest(messageID)?.isDelivered == false)
-
     await harness.service.handleAcknowledgement(code: code, tripTime: 77)
-    try await waitUntil("give-up deadline has elapsed") {
-      guard let tracking = await harness.service.pendingAckForTest(messageID) else { return false }
-      let deadline = tracking.deadline ?? tracking.sentAt.addingTimeInterval(max(0, tracking.timeout))
-      return Date() > deadline
-    }
-    try await harness.service.checkExpiredAcks()
+    #expect(try await harness.store.fetchMessage(id: messageID)?.status == .pending)
 
-    #expect(try await harness.store.fetchMessage(id: messageID)?.status == .sent)
-    #expect(await harness.service.pendingAckForTest(messageID)?.isDelivered == false)
-    #expect(await harness.service.pendingAckForTest(messageID)?.matchedAckCode == code.ackCodeUInt32)
-    #expect(await harness.service.pendingAckForTest(messageID)?.pendingSendID == nil)
-    #expect(try await harness.store.fetchPendingSends(radioID: harness.contact.radioID).count == 1)
-    #expect(await harness.store.updatedMessageAcks.map(\.status) == [.delivered, .delivered])
-    #expect(await harness.store.updatedMessageStatuses.isEmpty)
-
-    await harness.store.setStubbedUpdateMessageStatusError(nil)
     gate.release()
     let accepted = try await send.value
-    #expect(accepted.status == .delivered)
-    #expect(accepted.roundTripTime == 77)
+    #expect(accepted.status == .sent)
+    #expect(await harness.service.pendingAckForTest(messageID)?.matchedAckCode == code.ackCodeUInt32)
+    let owner = try #require(await harness.store.fetchPendingSends(radioID: harness.contact.radioID).first)
+    #expect(owner.ackDeadline != nil)
+
+    await harness.store.setStubbedResolvePendingAcknowledgementError(nil)
+    try await harness.service.checkExpiredAcks()
+    let delivered = try await harness.store.fetchMessage(id: messageID)
+    #expect(delivered?.status == .delivered)
+    #expect(delivered?.roundTripTime == 77)
     #expect(await harness.service.pendingAckCount == 0)
     #expect(try await harness.store.fetchPendingSends(radioID: harness.contact.radioID).isEmpty)
   }
@@ -154,7 +142,7 @@ struct MessageServiceSendDMBookkeepingTests {
     let code = Data([0x11, 0x22, 0x33, 0x44])
     let harness = try await makeHarness(code: code)
     let accepted = try await harness.service.sendDirectMessage(text: "installed", to: harness.contact)
-    #expect(await harness.service.pendingAckForTest(accepted.id)?.pendingSendID != nil)
+    #expect(await harness.service.pendingAckForTest(accepted.id)?.owner?.id != nil)
     let events = harness.service.statusEvents()
     await harness.service.handleAcknowledgement(code: code, tripTime: 15)
     #expect(try await harness.store.fetchMessage(id: accepted.id)?.status == .delivered)
@@ -172,11 +160,11 @@ struct MessageServiceSendDMBookkeepingTests {
     let harness = try await makeHarness(ackGiveUpWindow: 0, suggestedTimeoutMs: 0)
     let accepted = try await harness.service.sendDirectMessage(text: "expire", to: harness.contact)
     #expect(await harness.service.pendingAckForTest(accepted.id)?.matchedAckCode == nil)
-    #expect(await harness.service.pendingAckForTest(accepted.id)?.pendingSendID != nil)
+    #expect(await harness.service.pendingAckForTest(accepted.id)?.owner?.id != nil)
     let events = harness.service.statusEvents()
     try await waitUntil("give-up deadline has elapsed") {
       guard let tracking = await harness.service.pendingAckForTest(accepted.id) else { return false }
-      let deadline = tracking.deadline ?? tracking.sentAt
+      let deadline = tracking.owner?.deadline ?? tracking.sentAt
       return Date() > deadline
     }
     try await harness.service.checkExpiredAcks()
@@ -194,18 +182,18 @@ struct MessageServiceSendDMBookkeepingTests {
     let code = Data([0xAB, 0xCD, 0xEF, 0x12])
     let harness = try await makeHarness(ackGiveUpWindow: 0, suggestedTimeoutMs: 0, code: code)
     let accepted = try await harness.service.sendDirectMessage(text: "resolve throws", to: harness.contact)
-    #expect(await harness.service.pendingAckForTest(accepted.id)?.pendingSendID != nil)
+    #expect(await harness.service.pendingAckForTest(accepted.id)?.owner?.id != nil)
     await harness.store.setStubbedResolvePendingAcknowledgementError(InjectedBookkeepingError.simulated)
     await harness.service.handleAcknowledgement(code: code, tripTime: 40)
     #expect(try await harness.store.fetchMessage(id: accepted.id)?.status == .sent)
     #expect(await harness.service.pendingAckForTest(accepted.id)?.isDelivered == false)
     #expect(await harness.service.pendingAckForTest(accepted.id)?.matchedAckCode == code.ackCodeUInt32)
-    #expect(await harness.service.pendingAckForTest(accepted.id)?.pendingSendID != nil)
+    #expect(await harness.service.pendingAckForTest(accepted.id)?.owner?.id != nil)
     #expect(try await harness.store.fetchPendingSends(radioID: harness.contact.radioID).count == 1)
     await harness.store.setStubbedResolvePendingAcknowledgementError(nil)
     try await waitUntil("give-up deadline has elapsed") {
       guard let tracking = await harness.service.pendingAckForTest(accepted.id) else { return false }
-      let deadline = tracking.deadline ?? tracking.sentAt
+      let deadline = tracking.owner?.deadline ?? tracking.sentAt
       return Date() > deadline
     }
     try await harness.service.checkExpiredAcks()

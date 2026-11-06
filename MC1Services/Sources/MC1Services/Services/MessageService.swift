@@ -55,11 +55,8 @@ public actor MessageService {
   /// CRCs accumulated across retry attempts, so a late ACK from any attempt
   /// can still mark the message delivered.
   var pendingAcks: [UUID: PendingAck] = [:]
-
-  /// Owner saves inside `persistAcknowledgement`, keyed by message.
-  var acknowledgementSavesInFlight: [UUID: Int] = [:]
-  /// Saves whose store commit has not returned. A nil-owner status write waits for that commit.
-  var uncommittedAcknowledgementSaves: Set<UUID> = []
+  /// Keeps teardown waiting for store writes even if their trackers disappear.
+  var acknowledgementSavesInFlight: Set<UUID> = []
   var inlineSendsInFlight = 0
   var inlineSendAdmissionClosed = false
   var inlineSendWaiters: [CheckedContinuation<Void, Never>] = []
@@ -73,8 +70,6 @@ public actor MessageService {
     var inlineSendAcceptedGateForTesting: (@Sendable () async -> Void)?
     /// Runs after an owner save is entered and before its store commit.
     var acknowledgementSaveGateForTesting: (@Sendable () async -> Void)?
-    /// Runs after the owner row commits and before `pendingSendID` is attached.
-    var acknowledgementInstallGateForTesting: (@Sendable () async -> Void)?
 
     func setAckExpiryWriteGateForTesting(_ gate: (@Sendable (UUID) async -> Void)?) {
       ackExpiryWriteGateForTesting = gate
@@ -86,10 +81,6 @@ public actor MessageService {
 
     func setAcknowledgementSaveGateForTesting(_ gate: (@Sendable () async -> Void)?) {
       acknowledgementSaveGateForTesting = gate
-    }
-
-    func setAcknowledgementInstallGateForTesting(_ gate: (@Sendable () async -> Void)?) {
-      acknowledgementInstallGateForTesting = gate
     }
 
     var acknowledgementSaveWaiterCountForTesting: Int {

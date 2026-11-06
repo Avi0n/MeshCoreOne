@@ -34,8 +34,8 @@ This guide covers the message lifecycle, delivery states, retry logic, and ACK h
               ┌─────────────┴─────────────┐
               ▼                           ▼
 ┌─────────────────────────┐   ┌────────────────────────┐
-│     ACK RECEIVED        │   │     ALL ATTEMPTS       │
-│                         │   │      EXHAUSTED         │
+│     ACK RECEIVED        │   │     SEND PASS ENDED    │
+│                         │   │    WITHOUT AN ACK      │
 │  • Status: .delivered   │   │                        │
 │  • RTT recorded         │   │  • .sent, then .failed │
 │  • UI updated           │   │  • User can retry      │
@@ -51,7 +51,7 @@ This guide covers the message lifecycle, delivery states, retry logic, and ACK h
 | `.sent` (DM) | Radio queued the packet, awaiting end-to-end ACK | "Sending..." text (rendered as in-progress so the user never sees a settled "Sent" that later becomes "Failed") |
 | `.sent` (channel) | Radio queued the broadcast; no ACK, terminal success | "Sent" text |
 | `.delivered` | ACK received from recipient | "Delivered" text |
-| `.failed` | All attempts exhausted | "Failed" text + red exclamation icon + red bubble background |
+| `.failed` | No end-to-end ACK by the give-up deadline, or a terminal send failure | "Failed" text + red exclamation icon + red bubble background |
 | `.retrying` | Retry in progress | "Retrying %d/%d" text (current attempt / max attempts when `maxRetryAttempts > 0`, falling back to "Retrying..." when `maxRetryAttempts == 0`) + spinner |
 
 **Note:** The retry button only appears for messages with `.failed` status. During `.retrying`, the button is replaced with a spinner to indicate the retry is in progress.
@@ -60,7 +60,7 @@ This guide covers the message lifecycle, delivery states, retry logic, and ACK h
 
 ### Automatic Retry (sendMessageWithRetry)
 
-**File:** `MC1Services/Sources/MC1Services/Services/MessageService+SendDM.swift` (attempt counts in `DMSendBudget.swift`, timing in `MessageServiceConfig.swift`)
+**Files:** `MC1Services/Sources/MC1Services/Services/MessageService+DMRetry.swift` owns the retry loop; `MessageService+SendDM.swift` owns send entry and finalization. Attempt counts live in `DMSendBudget.swift`, timing in `MessageServiceConfig.swift`.
 
 A DM loop reads `DMSendBudget` once. The default is 4 attempts on the contact's current out path, then one `resetPath` and 4 fallback attempts. The bubble counter runs `1/7` through `7/7`. Setting Flood Fallback Attempts to zero leaves only the initial attempts and skips `resetPath`. The radio chooses Direct or Flood on every send. Initial attempts can use Flood when the contact has no out path, and later attempts can use Direct if the radio learns an out path after `resetPath`.
 
@@ -83,6 +83,34 @@ resetPath, then attempts 5-8
     │
     ▼ Timeout, no ACK
 Stays .sent until the ACK window ends
+```
+
+### Command Failure After Acceptance
+
+`RESP_CODE_SENT` means the radio accepted a DM command for transmission. It does not mean the recipient received the packet. After at least one command in a pass is accepted, exhausted local `TABLE_FULL` backoff or a missing host command response ends command issuance for that pass. The original message retains its ACK obligation and reaches `.delivered` on an eligible ACK or `.failed` at its give-up deadline. The queue does not restart that accepted prefix at attempt zero on the same link.
+
+An explicit `TABLE_FULL` rejection retains earlier accepted ACK codes and their deadline. Waiting through local backoff does not extend that deadline. A command-response timeout has an uncertain send outcome, so tracking also retains that command's predicted ACK and a window that covers the preceding accepted deadline. Firmware ACK codes repeat every four attempts: rejecting attempt 5 must preserve the code already accepted for attempt 1.
+
+An ACK during local pool backoff stops further command submissions. The current command, if one is in flight, still owns its completion before the next sender can be admitted. A recipient ACK timeout alone continues through the configured attempt budget.
+
+Failures before any command is accepted retain the existing queue recovery policy. Genuine cancellation, session retirement, and transport loss retain reconnect replay with the original wire timestamp. Those recovery paths are separate from ending a partially accepted pass on the same link.
+
+```mermaid
+flowchart TD
+    Send[Submit DM command] --> Response{Host response}
+    Response -->|RESP_CODE_SENT| Wait[Wait for recipient ACK]
+    Wait -->|ACK timeout and attempts remain| Send
+    Wait -->|budget spent| Handoff[End commands and retain ACK obligation]
+    Response -->|TABLE_FULL| Backoff[Bounded local pool backoff]
+    Backoff -->|no matched ACK and retries remain| Send
+    Backoff -->|retries exhausted| Accepted{Earlier command accepted?}
+    Response -->|command-response timeout| Accepted
+    Accepted -->|yes| Handoff
+    Accepted -->|no| Recover[Existing queue recovery]
+    Wait -->|ACK| Delivered[Persist Delivered]
+    Backoff -->|ACK| Delivered
+    Handoff -->|late ACK| Delivered
+    Handoff -->|give-up deadline| Failed[Persist Failed]
 ```
 
 ### Direct vs Flood Routing
@@ -115,7 +143,7 @@ This clears the contact's cached out path. The radio chooses the route for every
 - The retry loop runs at the app layer in `sendDirectMessageWithRetryLoop`, not inside `MeshCoreSession`, so each attempt can emit UI feedback
 - After the first attempt fails, status moves to `.retrying` and a `.retrying` event is broadcast per subsequent attempt
 - No user interaction required
-- If the budget is spent with no ACK, the message stays `.sent` until the ACK window ends, then becomes `.failed`
+- If the budget is spent with no ACK, or a later command fails after prior acceptance, command issuance ends and ACK tracking owns the remaining delivery outcome
 
 **Manual Retry:**
 - Triggered when user taps "Retry" button on a failed message
@@ -149,34 +177,22 @@ The UI shows:
 
 ### PendingAck Structure
 
-```swift
-struct PendingAck: Sendable {
-    let messageID: UUID
-    let contactID: UUID
-    var ackCodes: Set<Data>     // One per retry attempt
-    var sentAt: Date
-    var timeout: TimeInterval
-    var isDelivered: Bool = false
-}
-```
-
-Keyed on `messageID`, not `ackCode`, so a late ACK from any retry attempt can still resolve the message. The `MessageService` persistent listener (`startEventMonitoring`) subscribes via `session.events(filter: .anyAcknowledgement)` so the dispatcher's ring buffer only holds matching events.
+`MessageService` keeps one `PendingAck` per message ID. Each entry holds the eligible ACK codes, send time, timeout, and optional `PendingSend` owner. The persistent listener (`startEventMonitoring`) subscribes via `session.events(filter: .anyAcknowledgement)`. A late ACK from an earlier accepted attempt can still resolve the message.
 
 On reconnect, unexpired ACK owners recovered from `PendingSend` hold admission before the queue hydrates. Each reservation ends when its ACK is resolved or its deadline expires.
+
+At the end of an accepted send pass, the owner on `PendingAck` records the row ID, radio ID, deadline, and whether persistence needs to insert a row or convert the original queued `PendingSend`. If the write fails, the ACK checker uses the same owner and tracked ACK codes and send time for the next save. A successful write advances the owner to its saved phase. A recorded ACK or elapsed deadline then resolves the message and consumes that row. Row identity and terminal-state guards protect a later user retry from stale completion. The ACK checker also retries terminal writes for saved owners.
 
 Quick replies and DM reactions persist their single-attempt policy before waiting for admission. Recovery sends them once even when the configured DM budget allows more attempts. The attempt count is saved before the command, so recovery preserves the wire timestamp if transmission may have started. Delivered or failed inline sends are removed from the queue without another send.
 
 ### ACK Flow
 
 ```
-Message sent
-    │
-    ▼ ACK code predicted + PendingAck tracked
-    │
-    ├───── ACK received ─────────► handleAcknowledgement: mark .delivered
-    │
-    └───── Timeout (5s check) ───► checkExpiredAcks: mark .failed
-                                    (give-up deadline = max(ackGiveUpWindow, PendingAck.timeout))
+Predict the ACK code and start tracking before command submission
+    ├─ ACK matched during issuance → resolve delivery
+    └─ Accepted pass ends with ACK tracking active → save PendingAck owner
+        ├─ Save fails → ACK checker retries the owner write
+        └─ Save succeeds → resolve delivery on a matching ACK, or fail at the deadline
 ```
 
 An end-to-end ACK that arrives after its `PendingAck` entry is gone (failed and removed, or duplicate) has no live entry to match; `handleAcknowledgement` logs it as an unmatched ACK and returns without changing status.
