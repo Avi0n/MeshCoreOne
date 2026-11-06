@@ -758,6 +758,8 @@
 /* Navigation title for chat settings page */
 "chatSettings.title" = "채팅";
 
+"blocksAndFilters.title" = "차단 및 필터";
+
 // MARK: - Link Preview Settings Section
 
 /* Section header for link content settings */
@@ -1488,12 +1490,12 @@
 // MARK: - Text Rules
 
 /* TODO: translate Text Rules strings */
-"textRules.title" = "Text Rules";
-"textRules.rules" = "Rules";
-"textRules.empty" = "No Text Rules";
-"textRules.loadFailed" = "Could not load Text Rules. New messages use ordinary delivery until Text Rules can be loaded.";
-"textRules.retryAccessibility" = "Try Loading Text Rules Again";
-"textRules.saveFailed" = "Could not save Text Rules. Try again.";
+"textRules.rules" = "필터 규칙";
+"textRules.empty" = "필터 규칙 없음";
+"textRules.loading" = "필터 규칙을 불러오는 중…";
+"textRules.loadFailed" = "필터 규칙을 불러올 수 없습니다. 불러올 수 있을 때까지 새 메시지는 필터 규칙을 사용하지 않습니다.";
+"textRules.retryAccessibility" = "필터 규칙 다시 불러오기";
+"textRules.saveFailed" = "필터 규칙을 저장할 수 없습니다. 다시 시도하십시오.";
 "textRules.new.title" = "New Rule";
 "textRules.new.phrase" = "Word or phrase";
 "textRules.new.lookIn" = "Look In";

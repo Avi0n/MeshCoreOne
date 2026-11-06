@@ -8,12 +8,6 @@ struct BlockingSection: View {
 
   var body: some View {
     Section {
-      TextRulesLoadNotice()
-
-      NavigationLink(value: SettingsSubpage.textRules) {
-        TintedLabel(L10n.Settings.TextRules.title, systemImage: "line.3.horizontal.decrease")
-      }
-
       NavigationLink(value: SettingsSubpage.recentlyBlocked) {
         HStack {
           TintedLabel(L10n.Settings.TextRules.Archive.title, systemImage: "tray")

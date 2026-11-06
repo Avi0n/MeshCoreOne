@@ -4549,6 +4549,10 @@ public enum L10n {
         }
       }
     }
+    public enum BlocksAndFilters {
+      /// Blocks & Filters
+      public static let title = L10n.tr("Settings", "blocksAndFilters.title", fallback: "Blocks & Filters")
+    }
     public enum Bluetooth {
       /// Button to change the device display name
       public static let changeDisplayName = L10n.tr("Settings", "bluetooth.changeDisplayName", fallback: "Change Display Name")
@@ -6178,22 +6182,22 @@ public enum L10n {
       public static let trustedOnlyDescription = L10n.tr("Settings", "telemetry.trustedOnlyDescription", fallback: "Limit telemetry to selected contacts")
     }
     public enum TextRules {
-      /// No Text Rules
-      public static let empty = L10n.tr("Settings", "textRules.empty", fallback: "No Text Rules")
-      /// Could not load Text Rules. New messages use ordinary delivery until Text Rules can be loaded.
-      public static let loadFailed = L10n.tr("Settings", "textRules.loadFailed", fallback: "Could not load Text Rules. New messages use ordinary delivery until Text Rules can be loaded.")
-      /// Try Loading Text Rules Again
-      public static let retryAccessibility = L10n.tr("Settings", "textRules.retryAccessibility", fallback: "Try Loading Text Rules Again")
-      /// Rules
-      public static let rules = L10n.tr("Settings", "textRules.rules", fallback: "Rules")
+      /// No Filter Rules
+      public static let empty = L10n.tr("Settings", "textRules.empty", fallback: "No Filter Rules")
+      /// Could not load filter rules. New messages won’t use filter rules until they can be loaded.
+      public static let loadFailed = L10n.tr("Settings", "textRules.loadFailed", fallback: "Could not load filter rules. New messages won’t use filter rules until they can be loaded.")
+      /// Loading Filter Rules…
+      public static let loading = L10n.tr("Settings", "textRules.loading", fallback: "Loading Filter Rules…")
+      /// Try Loading Filter Rules Again
+      public static let retryAccessibility = L10n.tr("Settings", "textRules.retryAccessibility", fallback: "Try Loading Filter Rules Again")
+      /// Filter Rules
+      public static let rules = L10n.tr("Settings", "textRules.rules", fallback: "Filter Rules")
       /// %1$@ · %2$@
       public static func ruleSummary(_ p1: Any, _ p2: Any) -> String {
         return L10n.tr("Settings", "textRules.ruleSummary", String(describing: p1), String(describing: p2), fallback: "%1$@ · %2$@")
       }
-      /// Could not save Text Rules. Try again.
-      public static let saveFailed = L10n.tr("Settings", "textRules.saveFailed", fallback: "Could not save Text Rules. Try again.")
-      /// Text Rules
-      public static let title = L10n.tr("Settings", "textRules.title", fallback: "Text Rules")
+      /// Could not save filter rules. Try again.
+      public static let saveFailed = L10n.tr("Settings", "textRules.saveFailed", fallback: "Could not save filter rules. Try again.")
       public enum Archive {
         /// Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary.
         public static func caption(_ p1: Any, _ p2: Any, _ p3: Any) -> String {

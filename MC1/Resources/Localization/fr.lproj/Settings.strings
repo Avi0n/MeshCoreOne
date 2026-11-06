@@ -769,6 +769,8 @@
 /* Navigation title for chat settings page */
 "chatSettings.title" = "Discussions";
 
+"blocksAndFilters.title" = "Blocage et filtres";
+
 // MARK: - Link Preview Settings Section
 
 /* Section header for link content settings */
@@ -1500,12 +1502,12 @@
 // MARK: - Text Rules
 
 /* TODO: translate Text Rules strings */
-"textRules.title" = "Text Rules";
-"textRules.rules" = "Rules";
-"textRules.empty" = "No Text Rules";
-"textRules.loadFailed" = "Could not load Text Rules. New messages use ordinary delivery until Text Rules can be loaded.";
-"textRules.retryAccessibility" = "Try Loading Text Rules Again";
-"textRules.saveFailed" = "Could not save Text Rules. Try again.";
+"textRules.rules" = "Règles de filtrage";
+"textRules.empty" = "Aucune règle de filtrage";
+"textRules.loading" = "Chargement des règles de filtrage…";
+"textRules.loadFailed" = "Impossible de charger les règles de filtrage. Les nouveaux messages ne les utiliseront pas jusqu’à ce qu’elles puissent être chargées.";
+"textRules.retryAccessibility" = "Réessayer de charger les règles de filtrage";
+"textRules.saveFailed" = "Impossible d’enregistrer les règles de filtrage. Réessayez.";
 "textRules.new.title" = "New Rule";
 "textRules.new.phrase" = "Word or phrase";
 "textRules.new.lookIn" = "Look In";

@@ -6,7 +6,6 @@ enum SettingsSubpage: Hashable {
   case publicKey(Data)
   case configExport
   case configImport
-  case textRules
   case textRuleChats(TextRulesPreference.Kind)
   case recentlyBlocked
   case blockedChannelSenders
@@ -37,8 +36,8 @@ enum SettingsSubpage: Hashable {
       detail == .advanced
     case .remoteCLIContacts:
       detail == .advanced && device?.supportsRadioCLI == true
-    case .textRules, .textRuleChats, .recentlyBlocked, .blockedChannelSenders, .blockedContacts:
-      detail == .chats
+    case .textRuleChats, .recentlyBlocked, .blockedChannelSenders, .blockedContacts:
+      detail == .blocksAndFilters
     case .translateIntoLanguage:
       detail == .language
     case .presetLocation:
@@ -122,8 +121,6 @@ private struct SettingsSubpageDestination: View {
         NodeConfigImportView(viewModel: configImport)
           .onAppear { configImport.beginImport() }
       }
-    case .textRules:
-      TextRulesSettingsView()
     case let .textRuleChats(kind):
       TextRuleChatsView(kind: kind)
     case .recentlyBlocked:

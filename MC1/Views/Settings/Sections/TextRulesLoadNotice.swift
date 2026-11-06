@@ -5,7 +5,7 @@ struct TextRulesLoadNotice: View {
 
   var body: some View {
     if appState.isTextRulesLoading {
-      ProgressView(L10n.Settings.TextRules.title)
+      ProgressView(L10n.Settings.TextRules.loading)
     } else if appState.textRulesPreference == nil {
       VStack(alignment: .leading) {
         Text(L10n.Settings.TextRules.loadFailed)

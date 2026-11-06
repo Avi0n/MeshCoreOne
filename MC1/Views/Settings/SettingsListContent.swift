@@ -88,6 +88,10 @@ struct SettingsListContent: View {
         TintedLabel(L10n.Settings.ChatSettings.title, systemImage: "bubble.left.and.bubble.right")
       }
 
+      SettingsDetailRow(detail: .blocksAndFilters) {
+        TintedLabel(L10n.Settings.BlocksAndFilters.title, systemImage: "line.3.horizontal.decrease")
+      }
+
       AppearanceSection()
 
       TipView(liveActivityTip, arrowEdge: .bottom)

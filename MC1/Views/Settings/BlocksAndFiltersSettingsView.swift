@@ -1,7 +1,7 @@
 import MC1Services
 import SwiftUI
 
-struct TextRulesSettingsView: View {
+struct BlocksAndFiltersSettingsView: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @State private var isAddingRule = false
@@ -9,26 +9,25 @@ struct TextRulesSettingsView: View {
   @State private var errorMessage: String?
 
   var body: some View {
+    let preference = appState.textRulesPreference
     List {
-      if let preference = appState.textRulesPreference {
-        rulesSection(preference.rules)
+      BlockingSection()
+      rulesSection(preference?.rules)
+
+      if let preference {
         typesSection(preference)
-      } else {
-        Section {
-          TextRulesLoadNotice()
-        }
-        .themedRowBackground(theme)
       }
     }
     .themedCanvas(theme)
-    .navigationTitle(L10n.Settings.TextRules.title)
+    .settingsSubpageDestinations()
+    .navigationTitle(L10n.Settings.BlocksAndFilters.title)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       ToolbarItem(placement: .primaryAction) {
         Button(L10n.Settings.TextRules.New.title, systemImage: "plus") {
           isAddingRule = true
         }
-        .disabled(appState.textRulesPreference == nil)
+        .disabled(preference == nil)
       }
     }
     .sheet(isPresented: $isAddingRule) {
@@ -44,28 +43,32 @@ struct TextRulesSettingsView: View {
     }
   }
 
-  private func rulesSection(_ rules: [TextRulesPreference.Rule]) -> some View {
+  private func rulesSection(_ rules: [TextRulesPreference.Rule]?) -> some View {
     Section {
-      if rules.isEmpty {
-        Text(L10n.Settings.TextRules.empty)
-          .foregroundStyle(.secondary)
-      }
-      ForEach(rules) { rule in
-        VStack(alignment: .leading) {
-          Text(verbatim: rule.phrase)
-          Text(verbatim: rule.summary)
-            .font(.subheadline)
+      if let rules {
+        if rules.isEmpty {
+          Text(L10n.Settings.TextRules.empty)
             .foregroundStyle(.secondary)
         }
-        .accessibilityElement(children: .combine)
-        .swipeActions {
-          Button(L10n.Localizable.Common.delete, systemImage: "trash", role: .destructive) {
+        ForEach(rules) { rule in
+          VStack(alignment: .leading) {
+            Text(verbatim: rule.phrase)
+            Text(verbatim: rule.summary)
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+          }
+          .accessibilityElement(children: .combine)
+          .swipeActions {
+            Button(L10n.Localizable.Common.delete, systemImage: "trash", role: .destructive) {
+              delete(rule)
+            }
+          }
+          .accessibilityAction(named: Text(L10n.Localizable.Common.delete)) {
             delete(rule)
           }
         }
-        .accessibilityAction(named: Text(L10n.Localizable.Common.delete)) {
-          delete(rule)
-        }
+      } else {
+        TextRulesLoadNotice()
       }
     } header: {
       Text(L10n.Settings.TextRules.rules)

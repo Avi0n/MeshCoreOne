@@ -28,6 +28,8 @@ struct SettingsDetailView: View {
       NotificationSettingsView()
     case .chats:
       ChatSettingsView()
+    case .blocksAndFilters:
+      BlocksAndFiltersSettingsView()
     case .appearance:
       AppearanceView()
     case .maps:

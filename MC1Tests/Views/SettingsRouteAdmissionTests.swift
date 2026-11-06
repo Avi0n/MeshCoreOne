@@ -13,13 +13,6 @@ struct SettingsRouteAdmissionTests {
     #expect(SettingsSubpage.publicKey(key).isAdmitted(for: .deviceInfo, device: device))
     #expect(SettingsSubpage.configExport.isAdmitted(for: .advanced, device: device))
     #expect(SettingsSubpage.configImport.isAdmitted(for: .advanced, device: device))
-    #expect(SettingsSubpage.textRules.isAdmitted(for: .chats, device: nil))
-    #expect(SettingsSubpage.textRuleChats(.room).isAdmitted(for: .chats, device: nil))
-    #expect(SettingsSubpage.recentlyBlocked.isAdmitted(for: .chats, device: nil))
-    #expect(!SettingsSubpage.textRules.isAdmitted(for: .advanced, device: device))
-    #expect(!SettingsSubpage.recentlyBlocked.isAdmitted(for: .advanced, device: device))
-    #expect(SettingsSubpage.blockedChannelSenders.isAdmitted(for: .chats, device: device))
-    #expect(SettingsSubpage.blockedContacts.isAdmitted(for: .chats, device: device))
     #expect(SettingsSubpage.trustedContacts.isAdmitted(for: .advanced, device: device))
     #expect(!SettingsSubpage.remoteCLIContacts.isAdmitted(for: .advanced, device: device))
     #expect(SettingsSubpage.translateIntoLanguage.isAdmitted(for: .language, device: device))
@@ -38,6 +31,14 @@ struct SettingsRouteAdmissionTests {
     #expect(!SettingsSubpage.offlineMaps.isAdmitted(for: .language, device: device))
     #expect(!SettingsSubpage.support.isAdmitted(for: .support, device: device))
     #expect(!SettingsSubpage.manageRegions.isAdmitted(for: .maps, device: device))
+  }
+
+  @Test
+  func `blocks and filters routes belong to their own settings page while disconnected`() {
+    let path: [SettingsSubpage] = [.recentlyBlocked, .blockedChannelSenders, .blockedContacts, .textRuleChats(.room)]
+
+    #expect(SettingsSubpage.admitted(path, for: .blocksAndFilters, device: nil) == path)
+    #expect(SettingsSubpage.admitted(path, for: .chats, device: nil).isEmpty)
   }
 
   @Test
