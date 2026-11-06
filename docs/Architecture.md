@@ -336,7 +336,7 @@ The service-layer packages use `nonisolated(unsafe)` only where Swift's isolatio
 1. **User Action**: User types message in `ChatConversationView` and taps send.
 2. **Service Call**: `MessageService.sendMessageWithRetry()` is called.
 3. **Queue**: Message is saved to `PersistenceStore` with status `.pending`.
-4. **Retry Loop**: `MessageService.sendMessageWithRetry()` reads `DMSendBudget` once (default 4 attempts on the current out path, then one `resetPath` and 4 fallback attempts; the counter runs `1/7` through `7/7`). The radio chooses the route on every send. A queued send waits while the previous DM can still receive a late ACK. `RoomServerService` owns fixed room-post limits of 4 initial attempts and 1 fallback.
+4. **Retry Loop**: `MessageService.sendMessageWithRetry()` reads `DMSendBudget` once (default 4 attempts on the current out path, then one `resetPath` and 4 fallback attempts). The first attempt shows a spinner. The counter starts at `2/8` on the first retry and can reach `8/8` by default. The radio chooses the route on every send. A queued send waits while the previous DM can still receive a late ACK. `RoomServerService` owns fixed room-post limits of 4 initial attempts and 1 fallback.
 5. **ACK Tracking**: Each send attempt waits inline for ACK using `waitForEvent()` with configurable timeout.
 6. **Completion**: ACK received -> `.delivered`; exhausted attempts leave the DM `.sent` until an ACK arrives or the give-up deadline marks it `.failed`.
 
