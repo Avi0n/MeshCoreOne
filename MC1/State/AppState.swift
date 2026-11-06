@@ -741,6 +741,8 @@ final class AppState {
     batteryMonitor.stop()
     batteryMonitor.clearThresholds()
     lastBumpedServicesID = nil
+    // Refresh the active timeline from storage to pick up status changes made during retirement.
+    bumpServicesVersion()
     await liveActivityManager.handleConnectionLost { [weak self] in
       self?.connectionManager.isCurrent(receipt) ?? false
     }

@@ -132,6 +132,10 @@ extension ConnectionManager {
 
   // MARK: - Session Helpers
 
+  private static let sessionInitializationTimeout: Duration = .seconds(10)
+
+  private static let floodScopeBaselineMinimumFirmwareVersion: UInt8 = 8
+
   /// Starts a session and queries device capabilities.
   func initializeSession(
     _ session: MeshCoreSession,
@@ -141,7 +145,7 @@ extension ConnectionManager {
       attempt.ackEvents = await session.events(filter: .anyAcknowledgement)
     }
     do {
-      try await withTimeout(.seconds(10), operationName: "session.start") {
+      try await withTimeout(Self.sessionInitializationTimeout, operationName: "session.start") {
         try await session.start(disconnectTransportOnFailure: false)
       }
     } catch {
@@ -158,15 +162,35 @@ extension ConnectionManager {
       guard let request = desiredRequest else { throw CancellationError() }
       try requireAttemptOwnership(request, attempt)
     }
+    let capabilities: DeviceCapabilities
     do {
-      let capabilities = try await withTimeout(.seconds(10), operationName: "queryDevice") {
+      capabilities = try await withTimeout(Self.sessionInitializationTimeout, operationName: "queryDevice") {
         try await session.queryDevice()
       }
-      return (selfInfo, capabilities)
     } catch {
       logger.warning("[BLE] queryDevice() timed out or failed: \(error.localizedDescription)")
       throw error
     }
+    if let attempt {
+      guard let request = desiredRequest else { throw CancellationError() }
+      try requireAttemptOwnership(request, attempt)
+    }
+    // Clear an override left by a previous connection before publishing the session.
+    if capabilities.firmwareVersion >= Self.floodScopeBaselineMinimumFirmwareVersion {
+      do {
+        try await withTimeout(Self.sessionInitializationTimeout, operationName: "floodScopeBaseline") {
+          try await session.setFloodScope(scopeKey: FloodScope.disabled.scopeKey())
+        }
+      } catch {
+        logger.warning("[BLE] flood scope baseline timed out or failed: \(error.localizedDescription)")
+        throw error
+      }
+      if let attempt {
+        guard let request = desiredRequest else { throw CancellationError() }
+        try requireAttemptOwnership(request, attempt)
+      }
+    }
+    return (selfInfo, capabilities)
   }
 
   // MARK: - Service Wiring Helpers

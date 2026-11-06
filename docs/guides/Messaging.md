@@ -282,8 +282,10 @@ The SHA256 hash ensures that:
 
 - Broadcast to a channel slot (0..<(device.maxChannels))
 - Encrypted with shared channel secret (SHA-256 of passphrase)
-- No ACK support (broadcast, not point-to-point)
-- Use `sendChannelMessage()`
+- No end-to-end ACK. `.sent` means the radio accepted `03` with `RES_CODE_OK` (queued for TX)
+- Use `sendChannelMessage()`. A `ResolvedFloodScope` on that send is temporary: a 16-byte named key or `36 01` is restored with zero-key `36 00` before the next app command. A zero key is the baseline and has no trailing reset. `setFloodScope` stays sticky
+- `ChannelFloodScopeResolver` resolves transmission preferences. Inheritance selects the radio's persisted default; the channel header uses the cached default name only for display
+- An accepted `03` stays `.sent` if cleanup fails. The session fences further messaging commands while the connection owner arranges replacement. Retirement joins the Sent write for queued sends and inline quick replies before the conversation reloads
 
 ```swift
 // Channel message format: "NodeName: message text"

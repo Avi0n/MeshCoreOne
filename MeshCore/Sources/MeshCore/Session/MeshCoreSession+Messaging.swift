@@ -469,7 +469,7 @@ public extension MeshCoreSession {
   ///
   /// The flood scope limits broadcast flooding to nodes with matching scope.
   ///
-  /// - Parameter scopeKey: The 32-byte scope key.
+  /// - Parameter scopeKey: The 16-byte scope key. A zero key clears the RAM override.
   /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
   func setFloodScope(scopeKey: Data) async throws {
     try await sendSimpleCommand(PacketBuilder.setFloodScope(scopeKey))

@@ -58,7 +58,6 @@ struct ChatsListModifiers: ViewModifier {
             connectionState: { appState.connectionState },
             connectedDevice: { appState.connectedDevice },
             currentRadioID: { appState.currentRadioID },
-            session: { appState.services?.session },
             reactionService: { appState.services?.reactionService },
             chatSendQueueService: { appState.services?.chatSendQueueService },
             inlineImageDimensionsStore: { nil },

@@ -38,7 +38,7 @@ extension MeshCoreSession {
         )
         try await sendSimpleCommand(PacketBuilder.updateContact(directContact))
       }
-      let result = try await requestResponseSerializer.withSerialization { [self] in
+      let result = try await withSerializedBinaryRequest { [self] in
         try await performRegionsRequest(from: contact)
       }
       if isFloodRouted {

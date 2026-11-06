@@ -173,6 +173,8 @@ final class BLETransportHarness: @unchecked Sendable {
       return [Data([ResponseCode.ok.rawValue])]
     case CommandCode.getBattery.rawValue:
       return [Data([ResponseCode.battery.rawValue, 0x74, 0x0E])]
+    case CommandCode.setFloodScope.rawValue:
+      return [Data([ResponseCode.ok.rawValue])]
     default:
       return [Data([ResponseCode.error.rawValue, 1])]
     }

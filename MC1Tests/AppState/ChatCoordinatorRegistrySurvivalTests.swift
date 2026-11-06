@@ -42,6 +42,66 @@ struct ChatCoordinatorRegistrySurvivalTests {
   }
 
   @Test
+  func `connection loss refreshes an open channel timeline to the committed send`() async throws {
+    let suiteName = "test.loss-timeline.\(UUID())"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    let appState = AppState(defaults: defaults)
+    defer { appState.shutdown() }
+    let radioID = UUID()
+    appState.connectionManager.persistConnection(deviceID: UUID(), radioID: radioID, deviceName: "Fixture")
+    let store = try #require(appState.offlineDataStore)
+    let channel = ChannelDTO(
+      id: UUID(), radioID: radioID, index: 2, name: "Ops",
+      secret: Data(repeating: 0x5A, count: 16), isEnabled: true,
+      lastMessageDate: nil, unreadCount: 0
+    )
+    let message = MessageDTO(
+      id: UUID(), radioID: radioID, contactID: nil, channelIndex: channel.index,
+      text: "kept", timestamp: 1_700_000_000,
+      createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+      direction: .outgoing, status: .pending, textType: .plain, ackCode: nil,
+      pathLength: 0, snr: nil, senderKeyPrefix: nil, senderNodeName: nil,
+      isRead: true, replyToID: nil, roundTripTime: nil, heardRepeats: 0,
+      retryAttempt: 0, maxRetryAttempts: 0
+    )
+    try await store.saveChannel(channel)
+    try await store.saveMessage(message)
+
+    let registry = try #require(appState.ensureChatCoordinatorRegistry())
+    let viewModel = ChatViewModel()
+    viewModel.configure(
+      dependencies: appState.makeChatViewModelDependencies(radioID: radioID),
+      onNavigateToMap: nil, linkPreviewCache: nil,
+      chatCoordinatorRegistry: registry, conversation: .channel(channel)
+    )
+    viewModel.applyEnvInputs(.default)
+    #expect(await viewModel.primeInitialChannelMessages(for: channel, populateMode: .replace))
+    #expect(viewModel.messagesByID[message.id]?.status == .pending)
+    try await store.updateMessageStatus(id: message.id, status: .sent)
+    #expect(viewModel.messagesByID[message.id]?.status == .pending)
+
+    let versionBeforeLoss = appState.servicesVersion
+    await appState.disconnect()
+    #expect(appState.servicesVersion == versionBeforeLoss + 1)
+    #expect(appState.services == nil)
+
+    viewModel.configure(
+      dependencies: appState.makeChatViewModelDependencies(radioID: radioID),
+      onNavigateToMap: nil, linkPreviewCache: nil,
+      chatCoordinatorRegistry: registry, conversation: .channel(channel)
+    )
+    await viewModel.loadChannelMessages(for: channel, populateMode: .refreshWindow)
+    await viewModel.coordinator?.buildItemsTask?.value
+    #expect(viewModel.messagesByID[message.id]?.status == .sent)
+
+    let versionAfterRefresh = appState.servicesVersion
+    await appState.handleConnectionLoss(ConnectionLossReceipt(requestID: UUID(), retiredGeneration: UUID()))
+    #expect(appState.servicesVersion == versionAfterRefresh)
+    #expect(viewModel.messagesByID[message.id]?.status == .sent)
+  }
+
+  @Test
   func `notifyDataRestored bumps servicesVersion and the next load binds a fresh coordinator`() async throws {
     let suiteName = "test.registry-source.\(UUID())"
     let defaults = try #require(UserDefaults(suiteName: suiteName))

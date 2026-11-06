@@ -108,6 +108,7 @@ public extension ConnectionManager {
       )
       let resource = ConnectionResource(binding: binding, transport: physical, session: session, wifi: nil, ble: nil)
       attempt.resource = resource
+      await installFloodScopeRecovery(on: resource, requestID: request.id)
       let container = ServiceContainer(
         session: session, dataStore: persistenceStore, radioID: MockDataProvider.simulatorDeviceID,
         appStateProvider: appStateProvider, connectionStateEvents: connectionStateEvents,

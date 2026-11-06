@@ -8,14 +8,6 @@ import UIKit
 @Observable
 @MainActor
 final class ChatViewModel {
-  /// Tracks the last flood scope we pushed to the device for the current channel.
-  /// Keyed by the input pair (per-channel preference, device default) so that a
-  /// change in either triggers a fresh push next time `loadChannelMessages` runs.
-  enum RegionScopeState: Equatable {
-    case unknown
-    case pushed(ChannelFloodScope, deviceDefault: String?)
-  }
-
   /// Identifies an incoming self-mention with a per-mention sequence number so
   /// `.onChange(of:)` fires for consecutive mentions of the same message.
   /// `Equatable` is auto-synthesised from `UUID` + `UInt64`; adding a non-Equatable
@@ -114,9 +106,6 @@ final class ChatViewModel {
   #endif
 
   // MARK: - Conversation Cache Storage
-
-  /// Tracks the last region scope sent to the device via setFloodScope.
-  @ObservationIgnored var lastSetRegionScope: RegionScopeState = .unknown
 
   /// Per-conversation assembly module owning the bake state, write
   /// capability, and populate/bake ordering. Bound by `configure(...)` once
@@ -328,7 +317,6 @@ final class ChatViewModel {
     var connectionState: @MainActor () -> DeviceConnectionState
     var connectedDevice: @MainActor () -> DeviceDTO?
     var currentRadioID: @MainActor () -> UUID?
-    var session: @MainActor () -> MeshCoreSession?
     var reactionService: @MainActor () -> ReactionService?
     var chatSendQueueService: @MainActor () -> ChatSendQueueService?
     var inlineImageDimensionsStore: @MainActor () -> InlineImageDimensionsStore?
@@ -373,7 +361,6 @@ final class ChatViewModel {
   @ObservationIgnored var connectionStateProvider: @MainActor () -> DeviceConnectionState = { .disconnected }
   @ObservationIgnored var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
   @ObservationIgnored var currentRadioIDProvider: @MainActor () -> UUID? = { nil }
-  @ObservationIgnored var sessionProvider: @MainActor () -> MeshCoreSession? = { nil }
   @ObservationIgnored var reactionServiceProvider: @MainActor () -> ReactionService? = { nil }
   @ObservationIgnored var chatSendQueueServiceProvider: @MainActor () -> ChatSendQueueService? = { nil }
 
@@ -458,13 +445,11 @@ final class ChatViewModel {
     connectionStateProvider = dependencies.connectionState
     connectedDeviceProvider = dependencies.connectedDevice
     currentRadioIDProvider = dependencies.currentRadioID
-    sessionProvider = dependencies.session
     reactionServiceProvider = dependencies.reactionService
     chatSendQueueServiceProvider = dependencies.chatSendQueueService
     bake.bindInlineImageDimensionsStore(dependencies.inlineImageDimensionsStore)
     prefetchDataStoreProvider = dependencies.prefetchDataStore
     self.onNavigateToMap = onNavigateToMap
-    lastSetRegionScope = .unknown
     if let linkPreviewCache {
       self.linkPreviewCache = linkPreviewCache
       configurePrefetcher(

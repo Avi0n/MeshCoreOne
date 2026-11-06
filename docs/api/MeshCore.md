@@ -52,7 +52,9 @@ The primary entry point for communicating with a MeshCore device. Serializes all
 |--------|-------------|
 | `sendMessage(to:text:timestamp:) async throws -> MessageSentInfo` | Sends a direct message to a contact (6-byte public key prefix or `Destination`) |
 | `sendMessageWithRetry(to:text:timestamp:maxAttempts:floodAfter:maxFloodAttempts:timeout:) async throws -> MessageSentInfo?` | Sends with automatic retry and flood fallback (requires 32-byte key) |
-| `sendChannelMessage(channel:text:timestamp:) async throws` | Broadcasts to a channel slot (0-15) |
+| `sendChannelMessage(channel:text:timestamp:) async throws` | Broadcasts to a channel slot (0-15) without changing flood scope |
+| `sendChannelMessage(channel:text:timestamp:floodScope:) async throws` | Broadcasts with a temporary `ResolvedFloodScope`, then restores the baseline before the next command |
+| `sendVerifiedChannelMessage(channel:text:timestamp:floodScope:expectedSecret:) async throws` | Checks the slot secret and broadcasts under the same temporary-scope rules when `floodScope` is non-nil |
 | `sendCommand(to:command:timestamp:) async throws -> MessageSentInfo` | Sends a command message to a remote node |
 | `sendAdvertisement(flood:) async throws` | Sends an advertisement broadcast, optionally using flood routing |
 | `sendLogin(to:password:) async throws -> MessageSentInfo` | Sends a login request to a remote node (accepts `Data` or `Destination`) |
@@ -144,8 +146,9 @@ The primary entry point for communicating with a MeshCore device. Serializes all
 | `getChannel(index:) async throws -> ChannelInfo` | Retrieves configuration for a channel (index 0-15) |
 | `setChannel(index:name:secret:) async throws` | Configures a channel with name and PSK secret data (16 bytes) |
 | `setChannel(index:name:secret:) async throws` | Configures a channel with automatic secret derivation (accepts `ChannelSecret`, default: `.deriveFromName`) |
-| `setFloodScope(scopeKey:) async throws` | Sets the flood scope using a raw 32-byte scope key |
-| `setFloodScope(_:) async throws` | Sets the flood scope using a `FloodScope` enum |
+| `setFloodScope(scopeKey:) async throws` | Sticky flood scope from a 16-byte key. A zero key clears the RAM override and selects the radio's persisted default |
+| `setFloodScope(_:) async throws` | Sticky flood scope from a `FloodScope`. Unlike a channel send, this is not restored after the next command |
+| `setFloodScopeUnscoped() async throws` | Sticky `36 01` override. Requires protocol capability 12 or newer |
 
 ### Signing
 
@@ -504,13 +507,15 @@ Defines the scope for flood routing in the mesh network.
 
 | Case | Payload | Description |
 |------|---------|-------------|
-| `.disabled` | - | Flood routing is disabled |
+| `.disabled` | - | 16-byte zero key. With `setFloodScope`, clears the temporary override and uses the radio's persisted default |
 | `.channelName(String)` | Channel name | Scope derived from channel name hash |
 | `.rawKey(Data)` | 16-byte key | Scope using explicit key |
 | `.region(String)` | Region name | Scope from `SHA256("#" + name).prefix(16)`; `#` prefix added automatically |
 
 **Methods:**
 - `scopeKey() -> Data` - Generates a 16-byte scope key
+
+`ResolvedFloodScope` (`MeshCore/Sources/MeshCore/Models/ResolvedFloodScope.swift`) is the channel-send value. `.scope(.disabled)` is the 16-byte zero key and selects the radio's persisted default. `.unscoped` forces no region (`36 01`) and requires protocol capability 12 or newer. A send with `ResolvedFloodScope` confirms restoration before releasing the command slot or fences the session. The nil-scope verified send only checks occupancy and sends. `setFloodScope` is the sticky API.
 
 ### ChannelSecret (public, enum)
 

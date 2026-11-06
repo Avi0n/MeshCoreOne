@@ -7,7 +7,7 @@ public extension MessageService {
   /// Sends a broadcast message to a channel.
   ///
   /// Channel messages are broadcast to all devices listening on the specified channel.
-  /// No acknowledgement is expected or tracked for channel messages.
+  /// A radio acknowledgement confirms acceptance for transmission.
   ///
   /// - Parameters:
   ///   - text: The message text to broadcast. Bounded by
@@ -39,6 +39,9 @@ public extension MessageService {
     radioID: UUID,
     textType: TextType = .plain
   ) async throws -> (id: UUID, timestamp: UInt32) {
+    // Keep this send in the retirement barrier through the Sent write if scope cleanup triggers recovery.
+    try beginInlineSend()
+    defer { endInlineSend() }
     try await rejectIfChannelTextTooLong(text, radioID: radioID)
 
     let messageID = UUID()
@@ -69,13 +72,11 @@ public extension MessageService {
       try await failMessageAndRethrow(error, messageID: messageID)
     }
 
-    // Post-broadcast bookkeeping. The broadcast already left the radio,
-    // so a throw here must not mark `.failed` — that would lie about
-    // delivery. Log and continue; the message stays `.sent` (or sticks
-    // `.pending` if `updateMessageStatus` itself threw, which a subsequent
-    // ack or user retry can reconverge). No queue row exists on this
-    // inline path, so the "retry button hidden via missing PendingSend"
-    // pathology from the queue-routed path does not apply.
+    #if DEBUG
+      if let gate = inlineSendAcceptedGateForTesting { await gate() }
+    #endif
+
+    // Preserve radio acceptance if updating the local record fails.
     do {
       try await dataStore.updateMessageStatus(id: messageID, status: .sent)
       statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
@@ -83,7 +84,7 @@ public extension MessageService {
         try await dataStore.updateChannelLastMessage(channelID: channel.id, date: Date())
       }
     } catch {
-      logger.warning("Channel post-broadcast bookkeeping failed (inline path) messageID=\(messageID) broadcast already out: \(String(describing: error))")
+      logger.warning("Inline channel bookkeeping failed after radio acceptance messageID=\(messageID): \(String(describing: error))")
     }
 
     return (id: messageID, timestamp: timestamp)

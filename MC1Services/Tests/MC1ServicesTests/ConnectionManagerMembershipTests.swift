@@ -152,6 +152,53 @@ struct ConnectionManagerMembershipTests {
     }
   }
 
+  @Test
+  func `flood scope recovery replaces a fenced session during a post-ready BLE rebuild`() async throws {
+    try await ConnectionRadioHandoffHarness.withHarness { harness in
+      _ = try await harness.addMembership(radioID: harness.deviceA.radioID, connected: true)
+      let secret = Data(repeating: 0x5A, count: 16)
+      let channel = ChannelDTO.testChannel(
+        radioID: harness.deviceA.radioID, index: 0, secret: secret, floodScope: .region("Selected")
+      )
+      try await harness.manager.persistenceStore.saveChannel(channel)
+      await harness.bluetooth.setChannel(index: channel.index, name: channel.name, secret: secret)
+      try await harness.connectBluetooth()
+      await harness.bluetooth.holdLoginResults()
+      await harness.bluetooth.simulateAutoReconnecting(deviceID: harness.deviceA.id)
+      try await waitUntil("BLE loss should drop the installed link") { harness.manager.currentConnection == nil }
+      await harness.bluetooth.simulateReconnected()
+      try await waitUntil("rebuild should be ready with its room login held") {
+        guard let cycle = harness.manager.reconnectionCoordinator.currentCycle else { return false }
+        let loginHeld = await harness.bluetooth.heldLoginResultCount == 1
+        return harness.manager.connectionState == .ready
+          && harness.manager.reconnectionCoordinator.isRebuilding(cycle)
+          && loginHeld
+      }
+      let fenced = try #require(harness.manager.installedLink)
+      await harness.bluetooth.enqueueResponsePackets(
+        for: .setFloodScope, packets: [Data([ResponseCode.ok.rawValue])]
+      )
+      await harness.bluetooth.enqueueResponsePackets(
+        for: .setFloodScope, packets: [Data([ResponseCode.error.rawValue, 1])]
+      )
+
+      _ = try await fenced.services.messageService.sendChannelMessage(
+        text: "kept", channelIndex: channel.index, radioID: channel.radioID
+      )
+      try await waitUntil("forced recovery should publish a successor") {
+        harness.manager.installedLink?.resource !== fenced.resource && harness.manager.connectionState == .ready
+      }
+      let successor = try #require(harness.manager.installedLink)
+      await harness.bluetooth.releaseLoginResults()
+      try await waitUntil("the released login must leave the successor in place") {
+        harness.manager.installedLink === successor && harness.manager.connectionState == .ready
+      }
+      _ = try await successor.services.session.getTime()
+      #expect(harness.manager.installedLink === successor)
+      #expect(await harness.bluetooth.sentData.filter { $0.first == CommandCode.sendChannelMessage.rawValue }.count == 1)
+    }
+  }
+
   private func loginDestinations(_ radio: ConnectionTestRadioTransport) async -> [Data] {
     await radio.sentData.filter { $0.first == CommandCode.sendLogin.rawValue }.map {
       Data($0.dropFirst().prefix(ProtocolLimits.publicKeySize))

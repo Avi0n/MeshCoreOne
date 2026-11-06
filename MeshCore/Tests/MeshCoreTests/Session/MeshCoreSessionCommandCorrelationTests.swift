@@ -1,5 +1,6 @@
 import Foundation
 @testable import MeshCore
+import MeshCoreTestSupport
 import Testing
 
 @Suite("MeshCoreSession command correlation")
@@ -766,6 +767,144 @@ struct MeshCoreSessionCommandCorrelationTests {
     await session.stop()
   }
 
+  @Test(arguments: [true, false])
+  func `status settlement owns the last retry host reply before a channel scope write`(replyArrives: Bool) async throws {
+    let transport = MockTransport()
+    let clock = TestClock()
+    let session = MeshCoreSession(
+      transport: CancellationSensitiveTransport(base: transport),
+      configuration: SessionConfiguration(
+        defaultTimeout: 5, binaryRequestOverallTimeout: 10, binaryRequestRetransmitInterval: 0.1
+      ),
+      clock: clock
+    )
+    try await startSession(session, transport: transport)
+    defer {
+      Task {
+        await transport.releaseHeldSend()
+        await session.stop()
+      }
+    }
+
+    let target = Data(repeating: 0x31, count: 32)
+    let requestFrame = PacketBuilder.sendStatusRequest(to: target)
+    let status = Task { try await session.requestStatus(from: target) }
+    try await waitUntil("initial status request") { await transport.sentData.count == 2 }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([1, 2, 3, 4]), timeoutMs: 50))
+    try await waitUntil("retry timer starts") { clock.sleeperCount == 2 }
+    await transport.holdNextSend()
+    clock.advanceToNextSleep()
+    try await waitUntil("status retry is submitted and its write is pending") { await transport.sendIsWaiting }
+
+    let timestamp = Date(timeIntervalSince1970: 1_700_000_000)
+    let scope = FloodScope.region("Alpha")
+    let channel = Task {
+      try await session.sendChannelMessage(channel: 1, text: "hello", timestamp: timestamp, floodScope: .scope(scope))
+    }
+    try await waitUntil("channel waits for status slot") {
+      await session.requestResponseSerializer.waiterCountForTest == 1
+    }
+    await transport.simulateReceive(makeStatusResponsePacket(publicKeyPrefix: Data(target.prefix(6)), battery: 2200))
+    try await waitUntil("the RF deadline is cancelled while the retry write is pending") {
+      clock.sleeperCount == 0
+    }
+    await transport.releaseHeldSend()
+    try await waitUntil("only the local host-reply timer remains") {
+      clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(5)
+    }
+    try #require(await Array(transport.sentData.dropFirst()) == [requestFrame, requestFrame])
+
+    if replyArrives {
+      await transport.simulateError(code: ErrorCode.tableFull.rawValue)
+      try await acknowledgeChannelFrames(on: transport, after: 3, scope: scope, timestamp: timestamp)
+      try await channel.value
+    } else {
+      clock.advanceToNextSleep()
+      await #expect {
+        try await channel.value
+      } throws: { error in
+        if case MeshCoreError.timeout = error { return true }
+        return false
+      }
+      #expect(await transport.sentData.count == 3)
+    }
+    #expect(try await status.value.battery == 2200)
+  }
+
+  @Test(arguments: [true, false])
+  func `telemetry timeout leaves channel replies attributable only when the host replied`(hostReplied: Bool) async throws {
+    let transport = MockTransport()
+    let clock = TestClock()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(binaryRequestOverallTimeout: 1, binaryRequestRetransmitInterval: nil),
+      clock: clock
+    )
+    try await startSession(session, transport: transport)
+    defer { Task { await session.stop() } }
+
+    let target = Data(repeating: 0x31, count: 32)
+    let telemetry = Task { try await session.requestTelemetry(from: target) }
+    try await waitUntil("telemetry is submitted and waiting") {
+      await transport.sentData.count == 2 && clock.nextSleepDuration == .seconds(1)
+    }
+    if hostReplied {
+      await session.dispatchForTesting(.messageSent(MessageSentInfo(
+        route: 1, expectedAck: Data([1, 2, 3, 4]), suggestedTimeoutMs: 500
+      )))
+    }
+    clock.advanceToNextSleep()
+    await #expect {
+      try await telemetry.value
+    } throws: { error in
+      if case MeshCoreError.timeout = error { return true }
+      return false
+    }
+
+    let timestamp = Date(timeIntervalSince1970: 1_700_000_000)
+    let scope = FloodScope.region("Alpha")
+    let channel = Task {
+      try await session.sendChannelMessage(channel: 1, text: "hello", timestamp: timestamp, floodScope: .scope(scope))
+    }
+    if hostReplied {
+      try await acknowledgeChannelFrames(on: transport, after: 2, scope: scope, timestamp: timestamp)
+      try await channel.value
+    } else {
+      await #expect {
+        try await channel.value
+      } throws: { error in
+        if case MeshCoreError.timeout = error { return true }
+        return false
+      }
+      #expect(await transport.sentData.count == 2)
+    }
+  }
+
+  private struct CancellationSensitiveTransport: MeshTransport {
+    let base: MockTransport
+
+    var receivedData: AsyncStream<Data> {
+      get async { await base.receivedData }
+    }
+
+    var isConnected: Bool {
+      get async { await base.isConnected }
+    }
+
+    func connect() async throws {
+      try await base.connect()
+    }
+
+    func disconnect() async {
+      await base.disconnect()
+    }
+
+    func send(_ data: Data) async throws {
+      try await base.send(data)
+      if Task.isCancelled { throw MeshTransportError.sendFailed("cancelled after submission") }
+    }
+  }
+
   @Test(arguments: ["", "  KD7ABC\nch 31\n"], [Data(), Data(repeating: 0, count: 8)])
   func `owner info stops at the null terminator and preserves text`(ownerInfo: String, padding: Data) async throws {
     let transport = MockTransport()
@@ -1358,6 +1497,27 @@ struct MeshCoreSessionCommandCorrelationTests {
       "a command cancelled before acquiring the serializer must not commit a write"
     )
     await session.stop()
+  }
+}
+
+private func acknowledgeChannelFrames(
+  on transport: MockTransport,
+  after priorFrameCount: Int,
+  scope: FloodScope,
+  timestamp: Date
+) async throws {
+  let frames = [
+    PacketBuilder.setFloodScope(scope.scopeKey()),
+    PacketBuilder.sendChannelMessage(channel: 1, text: "hello", timestamp: timestamp),
+    PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey())
+  ]
+  for (offset, frame) in frames.enumerated() {
+    let index = priorFrameCount + offset
+    try await waitUntil("channel scope, message and reset must be sent in order") {
+      await transport.sentData.count > index
+    }
+    try #require(await transport.sentData[index] == frame)
+    await transport.simulateOK()
   }
 }
 

@@ -12,7 +12,7 @@ struct ChannelSendSerializationTests {
   private static let selectedScope = FloodScope.region("Gamma")
 
   @Test
-  func `concurrent channels and UI scope changes cannot split a scope and send pair`() async throws {
+  func `concurrent channel sends and scope writes keep each send together`() async throws {
     let (session, transport) = try await startSession()
     let first = Task {
       try await session.sendChannelMessage(
@@ -39,11 +39,15 @@ struct ChannelSendSerializationTests {
       channel: Self.firstChannel, text: "first", timestamp: Self.timestamp
     ))
     await transport.simulateOK()
+    try await waitForFrameCount(4, transport: transport)
+    #expect(await transport.sentData[3] == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
+    let framesBeforeRest = await transport.sentData.count
+    await transport.simulateOK()
     try await first.value
 
-    // Either waiter may acquire first, but Beta must stay next to its channel send.
-    for count in 4...6 {
-      try await waitForFrameCount(count, transport: transport)
+    // Waiters can arrive in either order. The second channel send still owns its setup and reset.
+    for offset in 1...4 {
+      try await waitForFrameCount(framesBeforeRest + offset, transport: transport)
       await transport.simulateOK()
     }
     try await second.value
@@ -55,6 +59,7 @@ struct ChannelSendSerializationTests {
     #expect(frames[secondScopeIndex + 1] == PacketBuilder.sendChannelMessage(
       channel: Self.secondChannel, text: "second", timestamp: Self.timestamp
     ))
+    #expect(frames[secondScopeIndex + 2] == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
     #expect(frames.filter { $0.first == CommandCode.sendChannelMessage.rawValue }.count == 2)
     await session.stop()
   }
@@ -135,29 +140,37 @@ struct ChannelSendSerializationTests {
     }
     let outstandingCount = afterScopeACK ? 3 : 2
     send.cancel()
-    await #expect(throws: CancellationError.self) {
-      try await send.value
-    }
     let following = Task { try await session.setFloodScope(Self.selectedScope) }
     try await waitForSerializerWaiters(1, session: session)
     #expect(await transport.sentData.count == outstandingCount)
 
     await transport.simulateOK()
-    try await waitForFrameCount(outstandingCount + 1, transport: transport)
-    #expect(await transport.sentData[outstandingCount] == PacketBuilder.setFloodScope(Self.selectedScope.scopeKey()))
+    let resetCount = outstandingCount + 1
+    try await waitForFrameCount(resetCount, transport: transport)
+    #expect(await transport.sentData[outstandingCount] == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
+    await transport.simulateOK()
+    if afterScopeACK {
+      try await send.value
+    } else {
+      await #expect(throws: CancellationError.self) { try await send.value }
+    }
+
+    try await waitForFrameCount(resetCount + 1, transport: transport)
+    #expect(await transport.sentData[resetCount] == PacketBuilder.setFloodScope(Self.selectedScope.scopeKey()))
     let advertisement = Task { try await session.sendAdvertisement(flood: true) }
     try await waitForSerializerWaiters(1, session: session)
-    #expect(await transport.sentData.count == outstandingCount + 1,
+    #expect(await transport.sentData.count == resetCount + 1,
             "The scope change must still wait for its own ACK")
 
     await transport.simulateOK()
-    try await waitForFrameCount(outstandingCount + 2, transport: transport)
+    try await waitForFrameCount(resetCount + 2, transport: transport)
     #expect(await transport.sentData.last?.first == CommandCode.sendAdvertisement.rawValue)
     await transport.simulateOK()
     try await following.value
     try await advertisement.value
     let messageCount = await transport.sentData.filter { $0.first == CommandCode.sendChannelMessage.rawValue }.count
     #expect(messageCount == (afterScopeACK ? 1 : 0))
+    #expect(await session.floodScopeRecoveryRequired == false)
     await session.stop()
   }
 
