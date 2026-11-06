@@ -72,16 +72,15 @@ public actor RequestResponseSerializer {
     await withCheckedContinuation { settlementWaiters.append($0) }
   }
 
-  /// Executes a request/response operation while holding the serializer.
-  ///
-  /// The slot is held until the wire exchange the operation owns actually terminates —
-  /// a matching response is consumed or the command's own timeout elapses — even after
-  /// the caller has been resumed. If the caller's task is cancelled mid-flight, it is
-  /// resumed immediately with `CancellationError`, but the operation keeps running so a
-  /// late (orphaned) response is drained here under the held slot instead of leaking to
-  /// the next command, which would otherwise consume it as its own. A command cancelled
-  /// before its exchange begins releases the slot without writing.
+  func responseAttributionIsUncertain() -> Bool {
+    hasUncertainResponseHistory
+  }
+
+  /// Holds the slot through reply or timeout so a cancelled caller cannot leave a reply for the next command.
+  /// Pass `resumeCallerOnCancel: false` to wait for settlement when acceptance must survive cancellation.
+  /// Cancellation before the exchange starts prevents the write.
   public func withSerialization<T: Sendable>(
+    resumeCallerOnCancel: Bool = true,
     _ operation: @escaping @Sendable () async throws -> T
   ) async throws -> T {
     await acquire()
@@ -127,6 +126,7 @@ public actor RequestResponseSerializer {
         }
       }
     } onCancel: {
+      guard resumeCallerOnCancel else { return }
       let waiting = pending.withLock { stored -> CheckedContinuation<T, Error>? in
         let continuation = stored
         stored = nil

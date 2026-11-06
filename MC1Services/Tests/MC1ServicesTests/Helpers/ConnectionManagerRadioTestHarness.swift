@@ -21,13 +21,16 @@ final class ConnectionManagerRadioTestHarness {
     sameRadio: Bool = true,
     publicKey: Data = Data(repeating: 1, count: 32),
     clock: TestClock? = nil,
-    sessionClock: TestClock? = nil
+    sessionClock: TestClock? = nil,
+    firmwareVersion: UInt8 = 14
   ) throws {
     self.clock = clock
     self.sessionClock = sessionClock
     let store = try PersistenceStore.createContainer(inMemory: true)
-    ble = ConnectionTestRadioTransport(publicKey: publicKey)
-    let wifi = ConnectionTestRadioTransport(publicKey: sameRadio ? publicKey : Data(repeating: 2, count: 32))
+    ble = ConnectionTestRadioTransport(publicKey: publicKey, firmwareVersion: firmwareVersion)
+    let wifi = ConnectionTestRadioTransport(
+      publicKey: sameRadio ? publicKey : Data(repeating: 2, count: 32), firmwareVersion: firmwareVersion
+    )
     self.wifi = wifi
     pairing.isSessionActive = false
     let defaults = try #require(UserDefaults(suiteName: suite))

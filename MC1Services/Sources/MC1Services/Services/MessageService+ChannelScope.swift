@@ -15,7 +15,6 @@ extension MessageService {
     let device = try await dataStore.fetchDevice(radioID: radioID)
     let scope = ChannelFloodScopeResolver.resolve(
       channelFloodScope: channel?.floodScope ?? .inherit,
-      deviceDefaultFloodScopeName: device?.defaultFloodScopeName,
       supportsUnscopedFloodSend: device?.supportsUnscopedFloodSend ?? false
     )
 

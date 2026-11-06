@@ -310,21 +310,6 @@ struct ChannelInfoSheet: View {
     } catch {
       logger.error("Failed to save flood scope: \(error.localizedDescription)")
       selectedFloodScope = previous
-      return
-    }
-
-    if let session = appState.services?.session {
-      let resolved = ChannelFloodScopeResolver.resolve(
-        channelFloodScope: scope,
-        deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName,
-        supportsUnscopedFloodSend: appState.connectedDevice?.supportsUnscopedFloodSend ?? false
-      )
-      switch resolved {
-      case .unscoped:
-        try? await session.setFloodScopeUnscoped()
-      case let .scope(scope):
-        try? await session.setFloodScope(scope)
-      }
     }
   }
 

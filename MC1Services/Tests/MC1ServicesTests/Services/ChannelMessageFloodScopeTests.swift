@@ -69,9 +69,9 @@ struct ChannelMessageFloodScopeTests {
     #expect(await transport.scopesAtChannelSend == [scopePacket("Gamma")])
   }
 
-  @Test(arguments: [true, false])
+  @Test
   @MainActor
-  func `Inherited scope restores the device default or clears the previous region`(hasDefault: Bool) async throws {
+  func `Inherited scope clears the override without writing the cached default`() async throws {
     let radioID = UUID()
     let transport = ChannelScopeTestTransport()
     let session = MeshCoreSession(transport: transport)
@@ -82,7 +82,7 @@ struct ChannelMessageFloodScopeTests {
     let channel = ChannelDTO.testChannel(radioID: radioID, floodScope: .inherit)
     try await services.dataStore.saveChannel(channel)
     try await services.dataStore.saveDevice(DeviceDTO.testDevice(radioID: radioID).copy {
-      $0.defaultFloodScopeName = hasDefault ? "Alpha" : nil
+      $0.defaultFloodScopeName = "Alpha"
     })
     try await session.setFloodScope(.region("Beta"))
 
@@ -90,11 +90,12 @@ struct ChannelMessageFloodScopeTests {
       text: "region-test", channelIndex: channel.index, radioID: radioID
     )
 
-    let expected = PacketBuilder.setFloodScope((hasDefault ? FloodScope.region("Alpha") : .disabled).scopeKey())
-    #expect(await transport.scopesAtChannelSend == [expected])
+    let baseline = PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey())
+    #expect(await transport.scopesAtChannelSend == [baseline])
+    #expect(await transport.scopePackets == [scopePacket("Beta"), baseline])
   }
 
-  @Test(arguments: [UInt8(8), UInt8(12)])
+  @Test(arguments: [UInt8(7), UInt8(8), UInt8(11), UInt8(12)])
   @MainActor
   func `Explicit Unscoped uses only supported firmware commands`(firmwareVersion: UInt8) async throws {
     let radioID = UUID()
@@ -115,7 +116,12 @@ struct ChannelMessageFloodScopeTests {
       text: "region-test", channelIndex: channel.index, radioID: radioID
     )
 
-    let expected = firmwareVersion == 12
+    if firmwareVersion < 8 {
+      #expect(await transport.scopePackets == [scopePacket("Beta")])
+      #expect(await transport.scopesAtChannelSend == [scopePacket("Beta")])
+      return
+    }
+    let expected = firmwareVersion >= 12
       ? PacketBuilder.setFloodScopeUnscoped()
       : PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey())
     #expect(await transport.scopesAtChannelSend == [expected])
@@ -196,6 +202,43 @@ struct ChannelMessageFloodScopeTests {
     _ = try? await service.sendChannelMessage(text: "region-test", channelIndex: channel.index, radioID: radioID)
 
     #expect(await transport.scopesAtChannelSend == [scopePacket("Alpha"), scopePacket("Gamma")])
+  }
+
+  @Test
+  @MainActor
+  func `Explicit region send restores the baseline before the next contact command`() async throws {
+    let radioID = UUID()
+    let transport = ChannelScopeTestTransport(channelOutcome: .accept)
+    let session = MeshCoreSession(transport: transport)
+    try await session.start()
+    defer { Task { await session.stop() } }
+
+    let services = try await ServiceContainer.forTesting(session: session, radioID: radioID)
+    let secret = Data(repeating: 0x5A, count: 16)
+    let channel = ChannelDTO.testChannel(radioID: radioID, index: 3, secret: secret, floodScope: .region("Selected"))
+    try await services.dataStore.saveChannel(channel)
+    try await services.dataStore.saveDevice(DeviceDTO.testDevice(radioID: radioID, firmwareVersion: 8).copy {
+      $0.defaultFloodScopeName = "Persisted"
+    })
+
+    _ = try await services.messageService.sendChannelMessage(
+      text: "region-test", channelIndex: channel.index, radioID: radioID
+    )
+    _ = try await session.sendMessage(to: Data(repeating: 0x22, count: 32), text: "after")
+
+    let selected = scopePacket("Selected")
+    let baseline = PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey())
+    let frames = await transport.sentFrames
+    let channelFrame = try #require(frames.first { $0.first == CommandCode.sendChannelMessage.rawValue })
+    #expect(channelFrame.dropFirst(2).first == channel.index)
+    #expect(frames.compactMap(\.first) == [
+      CommandCode.appStart, .setFloodScope, .sendChannelMessage, .setFloodScope, .sendMessage
+    ].map(\.rawValue))
+    #expect(await transport.scopePackets == [selected, baseline])
+    let stored = try #require(try await services.dataStore.fetchMessages(
+      radioID: radioID, channelIndex: channel.index, limit: 10, offset: 0
+    ).first)
+    #expect(stored.status == .sent)
   }
 
   enum SendPath: CaseIterable {

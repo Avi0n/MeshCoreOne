@@ -29,6 +29,7 @@ struct VerifiedChannelSendSerializationTests {
     await expectOccupancyMismatch(send)
     #expect(await transport.sentData.allSatisfy { $0.first != CommandCode.sendChannelMessage.rawValue })
     #expect(await transport.sentData.allSatisfy { $0.first != CommandCode.setFloodScope.rawValue })
+    #expect(await session.floodScopeRecoveryRequired == false)
     await session.stop()
   }
 
@@ -56,9 +57,16 @@ struct VerifiedChannelSendSerializationTests {
     ))
     #expect(await transport.sentData.allSatisfy { $0.first != CommandCode.setChannel.rawValue })
     await transport.simulateOK()
+    let replacementIndex = sendFrameCount
+    if scoped {
+      try await waitForFrames(sendFrameCount + 1, transport: transport)
+      #expect(await transport.sentData[sendFrameCount] == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
+      await transport.simulateOK()
+    }
+    let channelWriteIndex = scoped ? replacementIndex + 1 : replacementIndex
     try await send.value
-    try await waitForFrames(sendFrameCount + 1, transport: transport)
-    #expect(await transport.sentData[sendFrameCount] == PacketBuilder.setChannel(
+    try await waitForFrames(channelWriteIndex + 1, transport: transport)
+    #expect(await transport.sentData[channelWriteIndex] == PacketBuilder.setChannel(
       index: Self.index, name: "B", secret: Self.secretB
     ))
     await transport.simulateOK()
@@ -73,7 +81,6 @@ struct VerifiedChannelSendSerializationTests {
     let send = verifiedSend(session, scoped: scoped)
     try await waitForFrames(2, transport: transport)
     send.cancel()
-    await #expect(throws: CancellationError.self) { try await send.value }
     let following = Task { try await session.setChannel(index: Self.index, name: "B", secret: Self.secretB) }
     try await waitForWaiters(1, session: session)
     #expect(await transport.sentData.count == 2)
@@ -84,6 +91,7 @@ struct VerifiedChannelSendSerializationTests {
     #expect(await transport.sentData.allSatisfy { $0.first != CommandCode.setFloodScope.rawValue })
     await transport.simulateOK()
     try await following.value
+    await #expect(throws: CancellationError.self) { try await send.value }
     await session.stop()
   }
 

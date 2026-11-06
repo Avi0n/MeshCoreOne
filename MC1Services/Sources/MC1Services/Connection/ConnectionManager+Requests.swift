@@ -57,7 +57,10 @@ extension ConnectionManager {
        connectionState.isOperational {
       return .operational(link.snapshot)
     }
-    if let request = desiredRequest, request.target == targets.first,
+    // Forced recovery replaces the session even while its BLE rebuild still owns the cycle.
+    let forceRecovery = origin == .recovery && forceReconnect
+    if !forceRecovery,
+       let request = desiredRequest, request.target == targets.first,
        let cycle = reconnectionCoordinator.currentCycle, cycle.requestID == request.id,
        !forceReconnect || connectionState != .disconnected || reconnectionCoordinator.isRebuilding(cycle) {
       if connectionState == .connecting, !reconnectionCoordinator.isRebuilding(cycle) {

@@ -14,12 +14,17 @@ public extension MeshCoreSession {
   ///
   /// - Parameter index: Channel index (0-255).
   /// - Returns: Channel information including name and secret.
-  /// - Throws: ``MeshCoreError/timeout`` if the device doesn't emit configuration for the requested channel.
+  /// - Throws: ``MeshCoreError/timeout`` if the device doesn't emit configuration, or
+  ///   ``MeshCoreError/deviceError(code:)`` when the radio rejects the read.
   func getChannel(index: UInt8) async throws -> ChannelInfo {
-    try await sendAndWait(PacketBuilder.getChannel(index: index)) { event in
-      if case let .channelInfo(info) = event, info.index == index { return info }
-      return nil
-    }
+    try await sendAndWaitWithError(
+      PacketBuilder.getChannel(index: index),
+      matching: { event in
+        if case let .channelInfo(info) = event, info.index == index { return info }
+        return nil
+      },
+      errorMatcher: Self.deviceErrorMatcher
+    )
   }
 
   /// Reads multiple channels in a single bounded-window pipeline of unacknowledged requests,

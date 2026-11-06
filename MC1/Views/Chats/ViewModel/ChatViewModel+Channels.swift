@@ -4,11 +4,8 @@ import MC1Services
 extension ChatViewModel {
   // MARK: - Channel Messages
 
-  /// Load messages for a channel: marks it active, syncs the device flood scope,
-  /// populates the coordinator, then clears unread state. Delegates coordinator
-  /// population to `primeInitialChannelMessages(for:)`; the unread/badge/notify
-  /// side effects here run only when that load succeeded.
-  /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
+  /// Populates the active channel before clearing unread state so a failed load
+  /// preserves unread markers.
   func loadChannelMessages(for channel: ChannelDTO, populateMode: ChatPopulateMode) async {
     guard !Task.isCancelled else { return }
     let dataStore = dataStore
@@ -20,12 +17,6 @@ extension ChatViewModel {
     )
 
     let loaded = await primeInitialChannelMessages(for: channel, populateMode: populateMode)
-    guard !Task.isCancelled else { return }
-
-    // Push the device flood scope after populating the timeline. A device
-    // command, so it runs only on real channel open — never during prefetch.
-    await syncFloodScope(for: channel)
-
     guard loaded, !Task.isCancelled else { return }
 
     // Clear unread count and mention badge, then notify UI to refresh chat list.
@@ -48,13 +39,8 @@ extension ChatViewModel {
     }
   }
 
-  /// Populates the bound coordinator for `channel` and builds its render
-  /// items and mention senders — with no notification, flood-scope,
-  /// unread-clearing, or badge side effects. Safe to run before navigation to
-  /// warm the coordinator so the channel renders populated on the first frame
-  /// instead of popping in after the push transition. `loadChannelMessages`
-  /// layers the open-time side effects on top.
-  /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
+  /// Populates the channel timeline and builds mention senders for the first frame.
+  /// Notification, unread, and badge changes belong to `loadChannelMessages`.
   @discardableResult
   func primeInitialChannelMessages(for channel: ChannelDTO, populateMode: ChatPopulateMode) async -> Bool {
     // Clear preview state only when switching away from a previously loaded
@@ -67,7 +53,6 @@ extension ChatViewModel {
     if isConversationSwitch {
       clearPreviewState()
       timeline.stageOpen(.channel(channel))
-      lastSetRegionScope = .unknown
     }
 
     currentChannel = channel
@@ -108,38 +93,6 @@ extension ChatViewModel {
 
     isLoading = false
     return didLoad
-  }
-
-  /// Pushes the device's session-scoped flood key to match the effective scope
-  /// for `channel`. The effective scope combines the per-channel preference with
-  /// the device-level default — `.inherit` means "fall through to the default".
-  /// A no-op when the desired scope already matches the last one pushed.
-  private func syncFloodScope(for channel: ChannelDTO) async {
-    let deviceDefault = connectedDeviceProvider()?.defaultFloodScopeName
-    let desiredState: ChatViewModel.RegionScopeState = .pushed(
-      channel.floodScope,
-      deviceDefault: deviceDefault
-    )
-    guard lastSetRegionScope != desiredState, let session = sessionProvider() else { return }
-
-    let resolved = ChannelFloodScopeResolver.resolve(
-      channelFloodScope: channel.floodScope,
-      deviceDefaultFloodScopeName: deviceDefault,
-      supportsUnscopedFloodSend: connectedDeviceProvider()?.supportsUnscopedFloodSend ?? false
-    )
-    do {
-      switch resolved {
-      case .unscoped:
-        try await session.setFloodScopeUnscoped()
-      case let .scope(scope):
-        try await session.setFloodScope(scope)
-      }
-      lastSetRegionScope = desiredState
-    } catch is CancellationError {
-      // Benign: a superseding load (reconnect / conversation switch) cancelled this one.
-    } catch {
-      logger.error("Failed to set flood scope: \(error.localizedDescription)")
-    }
   }
 
   // MARK: - Channel Actions

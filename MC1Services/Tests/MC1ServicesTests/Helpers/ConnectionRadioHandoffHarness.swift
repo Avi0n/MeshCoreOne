@@ -70,7 +70,8 @@ final class ConnectionRadioHandoffHarness {
   func addMembership(radioID: UUID, connected: Bool) async throws -> RemoteNodeSessionDTO {
     let key = Data(UUID().uuidString.utf8.prefix(ProtocolLimits.publicKeySize))
     nodeKeys.append(key)
-    try await KeychainService.shared.storePassword("synthetic-handoff", forNodeKey: key)
+    // Keep the fixture password within the firmware limit so login reaches the radio.
+    try await KeychainService.shared.storePassword("handoff", forNodeKey: key)
     let membership = RemoteNodeSessionDTO.testSession(
       radioID: radioID, publicKey: key, isConnected: connected, permissionLevel: .readWrite
     )

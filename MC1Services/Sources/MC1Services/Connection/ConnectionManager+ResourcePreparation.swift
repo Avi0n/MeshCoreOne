@@ -37,6 +37,7 @@ extension ConnectionManager {
       ble: attempt.target.transportType == .bluetooth ? transport : nil
     )
     attempt.resource = resource
+    await installFloodScopeRecovery(on: resource, requestID: request.id)
     await wireSocketLoss(resource)
     try requireAttemptOwnership(request, attempt)
     publishPending(request, phase: .connecting)
@@ -50,5 +51,37 @@ extension ConnectionManager {
     try requireAttemptOwnership(request, attempt)
     publishPending(request, phase: .connected)
     return resource
+  }
+
+  /// Schedules recovery without awaiting it because retirement waits for the command slot.
+  func installFloodScopeRecovery(on resource: ConnectionResource, requestID: UUID) async {
+    await resource.session.setFloodScopeRecoveryHandler { [weak self, weak resource] in
+      Task { @MainActor [weak self, weak resource] in
+        guard let self, let resource else { return }
+        await self.recoverFloodScope(resource: resource, requestID: requestID)
+      }
+    }
+  }
+
+  func recoverFloodScope(resource: ConnectionResource, requestID: UUID) async {
+    while let link = installedLink,
+          link.resource === resource,
+          link.requestID == requestID,
+          desiredRequest?.id == requestID,
+          connectionIntent.wantsConnection {
+      if powerOffBlocksReconnect {
+        // Power Off owns reconnect until it settles. Revalidate the link if it fails.
+        guard let worker = powerOffOperation?.worker, case .failure = await worker.result else { return }
+        continue
+      }
+      do {
+        _ = try await requestConnection(
+          targets: [link.target], origin: .recovery, forceFullSync: false, forceReconnect: true
+        )
+      } catch {
+        logger.warning("Flood scope recovery failed: \(error.localizedDescription)")
+      }
+      return
+    }
   }
 }

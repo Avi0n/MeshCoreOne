@@ -29,7 +29,6 @@ extension AppState {
       connectionState: { self.connectionState },
       connectedDevice: { self.connectionSnapshot(for: radioID)?.device },
       currentRadioID: { self.currentRadioID },
-      session: { self.connectionSnapshot(for: radioID)?.services.session },
       reactionService: { self.connectionSnapshot(for: radioID)?.services.reactionService },
       chatSendQueueService: { self.connectionSnapshot(for: radioID)?.services.chatSendQueueService },
       inlineImageDimensionsStore: { self.connectionSnapshot(for: radioID)?.services.inlineImageDimensionsStore },
@@ -111,17 +110,8 @@ extension AppState {
     )
   }
 
-  /// Warms the shared `ChatCoordinator` for `conversation` before its view is
-  /// pushed, so the conversation renders populated on the first frame instead of
-  /// popping in a frame after the push transition (the cold-open jump). The
-  /// coordinator persists in the registry, so a re-open reuses the warm entry —
-  /// this no-ops when it is already loaded.
-  ///
-  /// Fire-and-forget on a `ChatTimelinePrimer`: only the shared coordinator
-  /// (held by the registry) outlives the prime, and `ChatConversationView`
-  /// rebinds it on open. The prime deliberately skips notification
-  /// suppression, unread clearing, and flood-scope pushes — those belong to
-  /// the real open, not a speculative warm.
+  /// Primes a closed conversation for first-frame rendering. The registry keeps
+  /// the populated coordinator so `ChatConversationView` can reuse it on open.
   @MainActor
   func prefetchConversation(_ conversation: ChatConversationType, envInputs: EnvInputs) {
     guard let registry = ensureChatCoordinatorRegistry() else { return }

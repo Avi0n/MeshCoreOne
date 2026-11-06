@@ -124,6 +124,28 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
     isRunning
   }
 
+  /// Blocks further writes when the session cannot confirm that its temporary scope is clear.
+  var floodScopeRecoveryRequired = false
+  private var floodScopeRecoveryNotified = false
+  private var floodScopeRecoveryHandler: (@Sendable () -> Void)?
+
+  /// Called at most once on the session actor after the send outcome is known.
+  /// Schedule retirement without waiting because `stop()` joins the occupied command slot.
+  public func setFloodScopeRecoveryHandler(_ handler: (@Sendable () -> Void)?) {
+    floodScopeRecoveryHandler = handler
+  }
+
+  func markFloodScopeRecoveryRequired() {
+    floodScopeRecoveryRequired = true
+  }
+
+  func notifyFloodScopeRecoveryIfNeeded() {
+    guard floodScopeRecoveryRequired, !floodScopeRecoveryNotified, sessionIsRunning else { return }
+    floodScopeRecoveryNotified = true
+    logger.warning("Flood scope recovery required; refusing further commands on this session")
+    floodScopeRecoveryHandler?()
+  }
+
   private var receiveTask: Task<Void, Never>?
   private var autoMessageFetchTask: Task<Void, Never>?
   private var autoMessageDrainTask: Task<Void, Never>?

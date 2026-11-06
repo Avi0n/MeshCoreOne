@@ -36,6 +36,7 @@ struct IdentityImportTransportFailureTests {
     try await ConnectionRadioHandoffHarness.withHarness { harness in
       try await harness.connectBluetooth()
       let source = try #require(harness.manager.installedLink)
+      let scopesBefore = await harness.bluetooth.sentData.filter { $0.first == CommandCode.setFloodScope.rawValue }.count
       await harness.bluetooth.holdReplies(for: .setFloodScope)
       if priorOutcome == .rejectedScope { await harness.bluetooth.rejectNext(.setFloodScope) }
       let ordinary = harness.track(Task {
@@ -46,12 +47,15 @@ struct IdentityImportTransportFailureTests {
       var importing: Task<Void, Error>?
       do {
         try await waitUntil("the ordinary scope exchange must have its own outstanding response") {
-          await harness.bluetooth.sentData.contains { $0.first == CommandCode.setFloodScope.rawValue }
+          let scopes = await harness.bluetooth.sentData.filter { $0.first == CommandCode.setFloodScope.rawValue }.count
+          let scopeHeld = await harness.bluetooth.heldReplyCount(for: .setFloodScope) >= 1
+          return scopes > scopesBefore && scopeHeld
         }
         if priorOutcome == .cancelledBeforeMessage {
           ordinary.cancel()
-          await #expect(throws: CancellationError.self) { try await ordinary.value }
+          // The submitted scope exchange keeps the caller until its reply settles.
           await harness.bluetooth.releaseReplies(for: .setFloodScope)
+          await #expect(throws: CancellationError.self) { try await ordinary.value }
         } else {
           await harness.bluetooth.releaseReplies(for: .setFloodScope)
           await #expect(throws: MeshCoreError.self) { try await ordinary.value }
@@ -115,6 +119,7 @@ struct IdentityImportTransportFailureTests {
         }
         if !gate.arrived { try await importing.value }
         try #require(gate.arrived)
+        let scopesBefore = await radio.sentData.filter { $0.first == CommandCode.setFloodScope.rawValue }.count
         await radio.holdReplies(for: .setFloodScope)
         await radio.holdReplies(for: .sendChannelMessage)
         await radio.setResponsePackets(
@@ -135,7 +140,9 @@ struct IdentityImportTransportFailureTests {
           try await source.services.chatSendQueueService.enqueueChannel(envelope(pending))
         }
         try await waitUntil("the actual channel operation should hold its scope ACK") {
-          await radio.sentData.contains { $0.first == CommandCode.setFloodScope.rawValue }
+          let scopes = await radio.sentData.filter { $0.first == CommandCode.setFloodScope.rawValue }.count
+          let scopeHeld = await radio.heldReplyCount(for: .setFloodScope) >= 1
+          return scopes > scopesBefore && scopeHeld
         }
         await radio.holdNextSendCompletion()
         await radio.releaseReplies(for: .setFloodScope)
@@ -148,7 +155,7 @@ struct IdentityImportTransportFailureTests {
         #expect(await radio.isConnected)
         if let ordinary {
           ordinary.cancel()
-          await #expect(throws: CancellationError.self) { try await ordinary.value }
+          // The caller stays suspended until the submitted write settles.
           #expect(await radio.sendCompletionIsHeld)
         }
         if oldReplyWasOK { await radio.rejectNext(.importPrivateKey) }
@@ -175,6 +182,9 @@ struct IdentityImportTransportFailureTests {
           #expect(importFinished == false)
           #expect(await radio.sendCompletionIsHeld)
           await radio.releaseSendCompletion()
+          if let ordinary {
+            _ = await ordinary.result
+          }
         }
         try await waitUntil("the actual transport failure must either refuse identity or reveal a key frame") {
           if importFinished { return true }
