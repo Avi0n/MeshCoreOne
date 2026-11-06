@@ -150,6 +150,7 @@ private extension PersistenceStore {
     let type = incoming.textType.rawValue
     let senderPrefix: Data? = prefix
     let senderTimestamp: UInt32? = timestamp
+    let text = incoming.text
 
     if let key = incoming.deduplicationKey,
        let saved = try fetchMessage(deduplicationKey: key, radioID: radioID),
@@ -162,12 +163,14 @@ private extension PersistenceStore {
 
     let corrected = #Predicate<Message> {
       $0.radioID == radioID && $0.senderKeyPrefix == senderPrefix && $0.senderTimestamp == senderTimestamp &&
-        $0.directionRawValue == incomingDirection && $0.channelIndex == nil && $0.textTypeRawValue == type
+        $0.directionRawValue == incomingDirection && $0.channelIndex == nil && $0.textTypeRawValue == type &&
+        $0.text == text
     }
     let original = #Predicate<Message> {
       $0.radioID == radioID && $0.senderKeyPrefix == senderPrefix && $0.timestamp == timestamp &&
         $0.senderTimestamp == nil && !$0.timestampCorrected &&
-        $0.directionRawValue == incomingDirection && $0.channelIndex == nil && $0.textTypeRawValue == type
+        $0.directionRawValue == incomingDirection && $0.channelIndex == nil && $0.textTypeRawValue == type &&
+        $0.text == text
     }
     for predicate in [corrected, original] {
       if let row = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first(where: { $0.text.utf8.elementsEqual(body) }) {
