@@ -112,7 +112,7 @@ If a message fails to deliver:
 
 1. Tap the **Retry** button that appears below the failed message.
 2. By default the app tries four times on the contact's current out path, then resets the out path and tries four more. The radio uses Flood when the contact has no out path. Set Flood Fallback Attempts to zero in Settings to skip the reset and extra attempts. A retry waits if another DM can still receive an ACK.
-3. You'll see retry progress from "Retrying 1/7..." through "Retrying 7/7...".
+3. The first attempt shows a spinner. If the app retries, the counter starts at `2/8` and can reach `8/8` with the default settings. The total follows your configured attempt counts.
 
 ### Group Channels
 

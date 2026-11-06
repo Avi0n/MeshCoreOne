@@ -24,7 +24,7 @@ This guide covers the message lifecycle, delivery states, retry logic, and ACK h
 │  MessageService.sendMessageWithRetry() runs the      │
 │  app-layer retry loop (sendDirectMessageWithRetryLoop)│
 │  • Default: 4 on the current out path, then 4        │
-│    after one resetPath (counter 1/7 through 7/7)     │
+│    after one resetPath (counter 2/8 through 8/8)     │
 │  • The radio chooses the route on every send         │
 │  • A queued send waits while the previous DM can     │
 │    still receive a late ACK                          │
@@ -52,7 +52,7 @@ This guide covers the message lifecycle, delivery states, retry logic, and ACK h
 | `.sent` (channel) | Radio queued the broadcast; no ACK, terminal success | "Sent" text |
 | `.delivered` | ACK received from recipient | "Delivered" text |
 | `.failed` | No end-to-end ACK by the give-up deadline, or a terminal send failure | "Failed" text + red exclamation icon + red bubble background |
-| `.retrying` | Retry in progress | "Retrying %d/%d" text (current attempt / max attempts when `maxRetryAttempts > 0`, falling back to "Retrying..." when `maxRetryAttempts == 0`) + spinner |
+| `.retrying` | Retry in progress | Spinner plus the current send attempt / total allowed attempts when `maxRetryAttempts > 0`. VoiceOver announces the same attempt counts. |
 
 **Note:** The retry button only appears for messages with `.failed` status. During `.retrying`, the button is replaced with a spinner to indicate the retry is in progress.
 
@@ -62,7 +62,7 @@ This guide covers the message lifecycle, delivery states, retry logic, and ACK h
 
 **Files:** `MC1Services/Sources/MC1Services/Services/MessageService+DMRetry.swift` owns the retry loop; `MessageService+SendDM.swift` owns send entry and finalization. Attempt counts live in `DMSendBudget.swift`, timing in `MessageServiceConfig.swift`.
 
-A DM loop reads `DMSendBudget` once. The default is 4 attempts on the contact's current out path, then one `resetPath` and 4 fallback attempts. The bubble counter runs `1/7` through `7/7`. Setting Flood Fallback Attempts to zero leaves only the initial attempts and skips `resetPath`. The radio chooses Direct or Flood on every send. Initial attempts can use Flood when the contact has no out path, and later attempts can use Direct if the radio learns an out path after `resetPath`.
+A DM loop reads `DMSendBudget` once. The default is 4 attempts on the contact's current out path, then one `resetPath` and 4 fallback attempts. The first attempt shows a spinner. The counter includes the initial send and uses the configured total, so by default it starts at `2/8` and can reach `8/8`. Setting Flood Fallback Attempts to zero leaves only the initial attempts and skips `resetPath`. The radio chooses Direct or Flood on every send. Initial attempts can use Flood when the contact has no out path, and later attempts can use Direct if the radio learns an out path after `resetPath`.
 
 `DMSendBudget` bounds initial attempts to 1...4 and fallback attempts to 0...4. Its total is the sum of those counts. Room posts use fixed limits owned by `RoomServerService`: 4 initial attempts and 1 fallback attempt, independent of the DM preference.
 
@@ -170,7 +170,7 @@ try await signalDMEnqueued(envelope)
 The queue drain calls `performQueuedDirectMessageSend`, which runs `sendDirectMessageWithRetryLoop`. That loop marks `.retrying` via `updateMessageRetryStatus` only after the first attempt fails. With the default budget it sends 4 attempts on the current out path, calls `resetPath` once, then sends 4 fallback attempts. The radio chooses the route on every send. The same code path serves automatic and manual retries. A queued send waits while the previous plain-text send can still receive a late ACK.
 
 The UI shows:
-- "Retrying %d/%d" text (current attempt / max attempts) with a spinner icon when `maxRetryAttempts > 0`, falling back to plain "Retrying..." only when `maxRetryAttempts == 0`
+- A spinner without a counter on the first attempt, then the current send attempt / total allowed attempts when `maxRetryAttempts > 0` (`2/8` through `8/8` by default). VoiceOver announces the same attempt counts.
 - The retry button is hidden while in `.retrying` status
 
 ## ACK Tracking
