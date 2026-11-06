@@ -10,6 +10,10 @@ struct NewTextRuleSheet: View {
   @State private var match = TextRulesPreference.Rule.Match.contains
   @State private var errorMessage: String?
 
+  private var trimmedPhrase: String {
+    phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+  }
+
   var body: some View {
     NavigationStack {
       Form {
@@ -48,7 +52,7 @@ struct NewTextRuleSheet: View {
         }
         ToolbarItem(placement: .confirmationAction) {
           Button(L10n.Contacts.Contacts.Add.add, action: add)
-            .disabled(phrase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .disabled(trimmedPhrase.isEmpty)
         }
       }
       .errorAlert($errorMessage)
@@ -56,7 +60,7 @@ struct NewTextRuleSheet: View {
   }
 
   private func add() {
-    let rule = TextRulesPreference.Rule(phrase: phrase, lookIn: lookIn, match: match)
+    let rule = TextRulesPreference.Rule(phrase: trimmedPhrase, lookIn: lookIn, match: match)
     guard rule.isValid else { return }
     do {
       try appState.connectionManager.updateTextRules { $0.append(rule) }
