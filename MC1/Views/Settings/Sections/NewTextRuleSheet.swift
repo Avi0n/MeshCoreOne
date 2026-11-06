@@ -14,6 +14,23 @@ struct NewTextRuleSheet: View {
     phrase.trimmingCharacters(in: .whitespacesAndNewlines)
   }
 
+  private var ruleFooter: String {
+    switch (lookIn, match) {
+    case (.message, .contains):
+      L10n.Settings.TextRules.New.containsMessageFooter
+    case (.message, .wholeField):
+      L10n.Settings.TextRules.New.wholeMessageFooter
+    case (.sender, .contains):
+      L10n.Settings.TextRules.New.containsSenderFooter
+    case (.sender, .wholeField):
+      L10n.Settings.TextRules.New.wholeNameFooter
+    case (.messageOrSender, .contains):
+      L10n.Settings.TextRules.New.containsMessageOrSenderFooter
+    case (.messageOrSender, .wholeField):
+      L10n.Settings.TextRules.New.wholeMessageOrSenderFooter
+    }
+  }
+
   var body: some View {
     NavigationStack {
       Form {
@@ -32,14 +49,7 @@ struct NewTextRuleSheet: View {
           }
           .pickerStyle(.menu)
         } footer: {
-          VStack(alignment: .leading) {
-            Text(match == .contains ? L10n.Settings.TextRules.New.containsFooter : L10n.Settings.TextRules.New.wholeFieldFooter)
-            Text(lookIn.footer)
-            if lookIn != .message {
-              Text(L10n.Settings.TextRules.reactionFooter)
-            }
-            Text(L10n.Settings.TextRules.New.deliveryFooter)
-          }
+          Text(ruleFooter)
         }
         .themedRowBackground(theme)
       }
@@ -77,14 +87,6 @@ extension TextRulesPreference.Rule.LookIn {
     case .message: L10n.Settings.TextRules.Field.message
     case .sender: L10n.Settings.TextRules.Field.sender
     case .messageOrSender: L10n.Settings.TextRules.Field.messageOrSender
-    }
-  }
-
-  var footer: String {
-    switch self {
-    case .message: L10n.Settings.TextRules.Field.messageFooter
-    case .sender: L10n.Settings.TextRules.Field.senderFooter
-    case .messageOrSender: L10n.Settings.TextRules.Field.messageOrSenderFooter
     }
   }
 }

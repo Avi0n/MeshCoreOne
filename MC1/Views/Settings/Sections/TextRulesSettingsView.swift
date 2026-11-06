@@ -56,11 +56,6 @@ struct TextRulesSettingsView: View {
           Text(verbatim: rule.summary)
             .font(.subheadline)
             .foregroundStyle(.secondary)
-          if rule.lookIn != .message {
-            Text(L10n.Settings.TextRules.reactionFooter)
-              .font(.footnote)
-              .foregroundStyle(.secondary)
-          }
         }
         .accessibilityElement(children: .combine)
         .swipeActions {

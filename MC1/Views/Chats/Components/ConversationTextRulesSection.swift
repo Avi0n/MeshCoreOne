@@ -71,16 +71,16 @@ struct ConversationTextRulesSection: View {
     } header: {
       Text(L10n.Settings.TextRules.title)
     } footer: {
-      VStack(alignment: .leading) {
-        if appState.textRulesPreference == nil {
-          Text(L10n.Settings.TextRules.loadFailed)
-        } else if key == nil {
-          Text(Strings.conversationUnavailable)
-        } else {
-          Text(Strings.footer)
-        }
-        if let radioName {
-          Text(Strings.radio(radioName))
+      if appState.textRulesPreference == nil || key == nil || radioName != nil {
+        VStack(alignment: .leading) {
+          if appState.textRulesPreference == nil {
+            Text(L10n.Settings.TextRules.loadFailed)
+          } else if key == nil {
+            Text(Strings.conversationUnavailable)
+          }
+          if let radioName {
+            Text(Strings.radio(radioName))
+          }
         }
       }
     }
