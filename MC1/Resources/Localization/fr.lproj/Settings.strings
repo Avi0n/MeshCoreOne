@@ -1503,7 +1503,6 @@
 "textRules.title" = "Text Rules";
 "textRules.rules" = "Rules";
 "textRules.empty" = "No Text Rules";
-"textRules.deleteFooter" = "Les messages masqués restent dans Recently Blocked.";
 "textRules.loadFailed" = "Could not load Text Rules. New messages use ordinary delivery until Text Rules can be loaded.";
 "textRules.retryAccessibility" = "Try Loading Text Rules Again";
 "textRules.saveFailed" = "Could not save Text Rules. Try again.";

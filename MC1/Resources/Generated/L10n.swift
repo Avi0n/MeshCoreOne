@@ -6178,8 +6178,6 @@ public enum L10n {
       public static let trustedOnlyDescription = L10n.tr("Settings", "telemetry.trustedOnlyDescription", fallback: "Limit telemetry to selected contacts")
     }
     public enum TextRules {
-      /// Hidden messages stay in Recently Blocked.
-      public static let deleteFooter = L10n.tr("Settings", "textRules.deleteFooter", fallback: "Hidden messages stay in Recently Blocked.")
       /// No Text Rules
       public static let empty = L10n.tr("Settings", "textRules.empty", fallback: "No Text Rules")
       /// Could not load Text Rules. New messages use ordinary delivery until Text Rules can be loaded.

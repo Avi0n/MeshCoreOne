@@ -69,8 +69,6 @@ struct TextRulesSettingsView: View {
       }
     } header: {
       Text(L10n.Settings.TextRules.rules)
-    } footer: {
-      Text(L10n.Settings.TextRules.deleteFooter)
     }
     .themedRowBackground(theme)
   }
