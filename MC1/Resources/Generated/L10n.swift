@@ -6199,18 +6199,24 @@ public enum L10n {
       /// Text Rules
       public static let title = L10n.tr("Settings", "textRules.title", fallback: "Text Rules")
       public enum Archive {
+        /// Chat
+        public static let chat = L10n.tr("Settings", "textRules.archive.chat", fallback: "Chat")
         /// No Hidden Messages
         public static let empty = L10n.tr("Settings", "textRules.archive.empty", fallback: "No Hidden Messages")
-        /// Message and Sender
-        public static let fieldsBoth = L10n.tr("Settings", "textRules.archive.fieldsBoth", fallback: "Message and Sender")
         /// The latest %d hidden messages are kept on this installation and are excluded from shareable backups.
         public static func footer(_ p1: Int) -> String {
           return L10n.tr("Settings", "textRules.archive.footer", p1, fallback: "The latest %d hidden messages are kept on this installation and are excluded from shareable backups.")
         }
-        /// Matched “%1$@” in %2$@ (%3$@)
-        public static func reason(_ p1: Any, _ p2: Any, _ p3: Any) -> String {
-          return L10n.tr("Settings", "textRules.archive.reason", String(describing: p1), String(describing: p2), String(describing: p3), fallback: "Matched “%1$@” in %2$@ (%3$@)")
+        /// %@: 
+        public static func labelPrefix(_ p1: Any) -> String {
+          return L10n.tr("Settings", "textRules.archive.labelPrefix", String(describing: p1), fallback: "%@: ")
         }
+        /// My Node
+        public static let myNode = L10n.tr("Settings", "textRules.archive.myNode", fallback: "My Node")
+        /// Rule
+        public static let rule = L10n.tr("Settings", "textRules.archive.rule", fallback: "Rule")
+        /// Time
+        public static let time = L10n.tr("Settings", "textRules.archive.time", fallback: "Time")
         /// Recently Blocked
         public static let title = L10n.tr("Settings", "textRules.archive.title", fallback: "Recently Blocked")
         /// Unknown Conversation

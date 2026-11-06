@@ -99,3 +99,9 @@ extension TextRulesPreference.Rule.Match {
     }
   }
 }
+
+extension TextRulesPreference.Rule {
+  var summary: String {
+    L10n.Settings.TextRules.ruleSummary(match.title(for: lookIn), lookIn.title)
+  }
+}

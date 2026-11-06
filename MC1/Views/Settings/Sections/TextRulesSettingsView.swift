@@ -53,7 +53,7 @@ struct TextRulesSettingsView: View {
       ForEach(rules) { rule in
         VStack(alignment: .leading) {
           Text(verbatim: rule.phrase)
-          Text(L10n.Settings.TextRules.ruleSummary(rule.match.title(for: rule.lookIn), rule.lookIn.title))
+          Text(verbatim: rule.summary)
             .font(.subheadline)
             .foregroundStyle(.secondary)
           if rule.lookIn != .message {

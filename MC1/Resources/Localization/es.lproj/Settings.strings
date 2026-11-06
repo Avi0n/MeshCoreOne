@@ -1539,8 +1539,11 @@
 "textRules.archive.title" = "Recently Blocked";
 "textRules.archive.empty" = "No Hidden Messages";
 "textRules.archive.footer" = "The latest %d hidden messages are kept on this installation and are excluded from shareable backups.";
-"textRules.archive.fieldsBoth" = "Message and Sender";
-"textRules.archive.reason" = "Matched “%1$@” in %2$@ (%3$@)";
+"textRules.archive.labelPrefix" = "%@: ";
+"textRules.archive.rule" = "Regla";
+"textRules.archive.chat" = "Chat";
+"textRules.archive.myNode" = "Mi nodo";
+"textRules.archive.time" = "Hora";
 "textRules.archive.unknownConversation" = "Unknown Conversation";
 "textRules.archive.unknownRadio" = "Unknown Radio";
 

@@ -38,21 +38,44 @@ struct RecentlyBlockedView: View {
 
   private func archiveRow(_ entry: RecentlyBlockedMessageDTO) -> some View {
     VStack(alignment: .leading) {
-      Text(highlighted(entry.body, matches: entry.match.bodyHighlights))
-        .fixedSize(horizontal: false, vertical: true)
-      Text(reason(for: entry.match))
-        .font(.subheadline)
-      if let sender = entry.sender {
-        Text(highlighted(sender, matches: entry.match.senderHighlights))
-          .font(.subheadline)
+      labeled(
+        L10n.Settings.TextRules.Field.message,
+        Text(highlighted(entry.body, matches: entry.match.bodyHighlights))
+      )
+      VStack(alignment: .leading) {
+        labeled(
+          L10n.Settings.TextRules.Archive.rule,
+          Text(verbatim: L10n.Settings.TextRules.ruleSummary(
+            entry.match.rule.phrase,
+            entry.match.rule.summary
+          ))
+        )
+        if let sender = entry.sender {
+          labeled(
+            L10n.Settings.TextRules.Field.sender,
+            Text(highlighted(sender, matches: entry.match.senderHighlights))
+          )
+        }
       }
-      Text(entry.conversationName ?? L10n.Settings.TextRules.Archive.unknownConversation)
-        .foregroundStyle(.secondary)
-      Text(entry.radioName ?? L10n.Settings.TextRules.Archive.unknownRadio)
-        .foregroundStyle(.secondary)
-      Text(entry.arrivedAt, format: .dateTime.month().day().hour().minute())
-        .foregroundStyle(.secondary)
+      .font(.subheadline)
+      VStack(alignment: .leading) {
+        labeled(
+          L10n.Settings.TextRules.Archive.chat,
+          Text(verbatim: entry.conversationName ?? L10n.Settings.TextRules.Archive.unknownConversation)
+        )
+        labeled(
+          L10n.Settings.TextRules.Archive.myNode,
+          Text(verbatim: entry.radioName ?? L10n.Settings.TextRules.Archive.unknownRadio)
+        )
+        labeled(
+          L10n.Settings.TextRules.Archive.time,
+          Text(entry.arrivedAt, format: .dateTime.month().day().hour().minute())
+        )
+      }
+      .font(.footnote)
+      .foregroundStyle(.secondary)
     }
+    .fixedSize(horizontal: false, vertical: true)
     .accessibilityElement(children: .combine)
   }
 
@@ -69,15 +92,8 @@ struct RecentlyBlockedView: View {
     return attributed
   }
 
-  private func reason(for match: TextRulesPreference.RuleMatch) -> String {
-    let fields: String = if match.bodyHighlights.isEmpty {
-      L10n.Settings.TextRules.Field.sender
-    } else if match.senderHighlights.isEmpty {
-      L10n.Settings.TextRules.Field.message
-    } else {
-      L10n.Settings.TextRules.Archive.fieldsBoth
-    }
-    return L10n.Settings.TextRules.Archive.reason(match.rule.phrase, fields, match.rule.match.title(for: match.rule.lookIn))
+  private func labeled(_ label: String, _ value: Text) -> Text {
+    Text(verbatim: L10n.Settings.TextRules.Archive.labelPrefix(label)) + value
   }
 
   private func refresh(from store: PersistenceStore) async {

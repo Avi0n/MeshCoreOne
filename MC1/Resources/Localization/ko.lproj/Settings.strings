@@ -1527,8 +1527,11 @@
 "textRules.archive.title" = "Recently Blocked";
 "textRules.archive.empty" = "No Hidden Messages";
 "textRules.archive.footer" = "The latest %d hidden messages are kept on this installation and are excluded from shareable backups.";
-"textRules.archive.fieldsBoth" = "Message and Sender";
-"textRules.archive.reason" = "Matched “%1$@” in %2$@ (%3$@)";
+"textRules.archive.labelPrefix" = "%@: ";
+"textRules.archive.rule" = "규칙";
+"textRules.archive.chat" = "채팅";
+"textRules.archive.myNode" = "내 노드";
+"textRules.archive.time" = "시간";
 "textRules.archive.unknownConversation" = "Unknown Conversation";
 "textRules.archive.unknownRadio" = "Unknown Radio";
 
