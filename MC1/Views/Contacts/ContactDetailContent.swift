@@ -55,15 +55,6 @@ struct ContactDetailContent: View {
         )
         .themedRowBackground(theme)
 
-        if state.showFromDirectChat {
-          ConversationTextRulesSection(
-            kind: .directMessage,
-            radioID: state.currentContact.radioID,
-            conversationID: state.currentContact.textRulesID,
-            savedChoice: state.currentContact.textRulesOverride
-          )
-        }
-
         ContactDetailInfoSection(
           state: state, rendererID: rendererID, rendererRevision: rendererRevision,
           onRowPosition: recordRowPosition

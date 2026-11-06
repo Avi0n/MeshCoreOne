@@ -1549,21 +1549,7 @@
 "textRules.archive.unknownConversation" = "Unknown Conversation";
 "textRules.archive.unknownRadio" = "Unknown Radio";
 
-/* TODO: translate conversation Text Rules and radio Cleanup strings */
-"textRules.info.status" = "Effective Setting";
-"textRules.info.unavailable" = "Unavailable";
-"textRules.info.inheritedChoice" = "%1$@ (%2$@)";
-"textRules.info.onChannel" = "On for This Channel";
-"textRules.info.offChannel" = "Off for This Channel";
-"textRules.info.onDm" = "On for This DM";
-"textRules.info.offDm" = "Off for This DM";
-"textRules.info.onRoom" = "On for This Room";
-"textRules.info.offRoom" = "Off for This Room";
-"textRules.info.follows" = "Follows %@";
-"textRules.info.excluded" = "Not included in %@";
-"textRules.info.explicit" = "Set for this conversation";
-"textRules.info.conversationUnavailable" = "The saved conversation is unavailable.";
-"textRules.info.radio" = "Radio %@";
+/* TODO: translate radio Cleanup strings */
 "radioCleanup.title" = "Cleanup";
 "radioCleanup.running" = "Removing radio data";
 "radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";

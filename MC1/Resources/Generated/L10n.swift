@@ -6236,44 +6236,6 @@ public enum L10n {
         /// Sender
         public static let sender = L10n.tr("Settings", "textRules.field.sender", fallback: "Sender")
       }
-      public enum Info {
-        /// The saved conversation is unavailable.
-        public static let conversationUnavailable = L10n.tr("Settings", "textRules.info.conversationUnavailable", fallback: "The saved conversation is unavailable.")
-        /// Not included in %@
-        public static func excluded(_ p1: Any) -> String {
-          return L10n.tr("Settings", "textRules.info.excluded", String(describing: p1), fallback: "Not included in %@")
-        }
-        /// Set for this conversation
-        public static let explicit = L10n.tr("Settings", "textRules.info.explicit", fallback: "Set for this conversation")
-        /// Follows %@
-        public static func follows(_ p1: Any) -> String {
-          return L10n.tr("Settings", "textRules.info.follows", String(describing: p1), fallback: "Follows %@")
-        }
-        /// %1$@ (%2$@)
-        public static func inheritedChoice(_ p1: Any, _ p2: Any) -> String {
-          return L10n.tr("Settings", "textRules.info.inheritedChoice", String(describing: p1), String(describing: p2), fallback: "%1$@ (%2$@)")
-        }
-        /// Off for This Channel
-        public static let offChannel = L10n.tr("Settings", "textRules.info.offChannel", fallback: "Off for This Channel")
-        /// Off for This DM
-        public static let offDm = L10n.tr("Settings", "textRules.info.offDm", fallback: "Off for This DM")
-        /// Off for This Room
-        public static let offRoom = L10n.tr("Settings", "textRules.info.offRoom", fallback: "Off for This Room")
-        /// On for This Channel
-        public static let onChannel = L10n.tr("Settings", "textRules.info.onChannel", fallback: "On for This Channel")
-        /// On for This DM
-        public static let onDm = L10n.tr("Settings", "textRules.info.onDm", fallback: "On for This DM")
-        /// On for This Room
-        public static let onRoom = L10n.tr("Settings", "textRules.info.onRoom", fallback: "On for This Room")
-        /// Radio %@
-        public static func radio(_ p1: Any) -> String {
-          return L10n.tr("Settings", "textRules.info.radio", String(describing: p1), fallback: "Radio %@")
-        }
-        /// Effective Setting
-        public static let status = L10n.tr("Settings", "textRules.info.status", fallback: "Effective Setting")
-        /// Unavailable
-        public static let unavailable = L10n.tr("Settings", "textRules.info.unavailable", fallback: "Unavailable")
-      }
       public enum Match {
         /// Contains
         public static let contains = L10n.tr("Settings", "textRules.match.contains", fallback: "Contains")

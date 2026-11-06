@@ -219,10 +219,6 @@ final class AppState {
     return connectionManager.persistenceStore
   }
 
-  var textRulesOverrideWrites: Set<TextRulesPreference.Key> = []
-  var textRulesOverrideErrors: [TextRulesPreference.Key: String] = [:]
-  var textRulesOverrideVersion = 0
-
   var textRulesPreference: TextRulesPreference? {
     connectionManager.textRulesPreference
   }

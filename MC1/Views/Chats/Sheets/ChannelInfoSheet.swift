@@ -91,13 +91,6 @@ struct ChannelInfoSheet: View {
           .themedRowBackground(theme)
         }
 
-        ConversationTextRulesSection(
-          kind: TextRulesPreference.channelKind(isPublic: channel.isPublicChannel, name: channel.name),
-          radioID: channel.radioID,
-          conversationID: channel.textRulesID,
-          savedChoice: channel.textRulesOverride
-        )
-
         // Region Scope Section
         ChannelInfoRegionSection(
           knownRegions: knownRegions,
