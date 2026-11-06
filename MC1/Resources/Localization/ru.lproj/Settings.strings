@@ -1539,6 +1539,10 @@
 "textRules.archive.empty" = "No Hidden Messages";
 "textRules.archive.footer" = "Последние %d скрытых сообщений хранятся на этом устройстве. В резервную копию приложения они не входят.";
 "textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
 "textRules.archive.rule" = "Правило";
 "textRules.archive.chat" = "Чат";
 "textRules.archive.myNode" = "Мой узел";

@@ -1525,6 +1525,10 @@
 "textRules.archive.empty" = "No Hidden Messages";
 "textRules.archive.footer" = "The latest %d hidden messages are kept on this device. They aren’t included in app backups.";
 "textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
 "textRules.archive.rule" = "Rule";
 "textRules.archive.chat" = "Chat";
 "textRules.archive.myNode" = "My Node";

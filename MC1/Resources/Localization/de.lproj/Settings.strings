@@ -1539,6 +1539,10 @@
 "textRules.archive.empty" = "No Hidden Messages";
 "textRules.archive.footer" = "Die letzten %d ausgeblendeten Nachrichten bleiben auf diesem Gerät. Sie sind nicht in Sicherungen der App-Daten enthalten.";
 "textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
 "textRules.archive.rule" = "Regel";
 "textRules.archive.chat" = "Chat";
 "textRules.archive.myNode" = "Mein Knoten";

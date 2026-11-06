@@ -6197,6 +6197,14 @@ public enum L10n {
       /// Text Rules
       public static let title = L10n.tr("Settings", "textRules.title", fallback: "Text Rules")
       public enum Archive {
+        /// Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary.
+        public static func caption(_ p1: Any, _ p2: Any, _ p3: Any) -> String {
+          return L10n.tr("Settings", "textRules.archive.caption", String(describing: p1), String(describing: p2), String(describing: p3), fallback: "%1$@ · “%2$@” · %3$@")
+        }
+        /// Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary.
+        public static func captionWithoutChat(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Settings", "textRules.archive.captionWithoutChat", String(describing: p1), String(describing: p2), fallback: "“%1$@” · %2$@")
+        }
         /// Chat
         public static let chat = L10n.tr("Settings", "textRules.archive.chat", fallback: "Chat")
         /// No Hidden Messages

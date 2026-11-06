@@ -1539,6 +1539,10 @@
 "textRules.archive.empty" = "No Hidden Messages";
 "textRules.archive.footer" = "最近的 %d 条隐藏消息会保留在此设备上。这些消息不会包含在应用备份中。";
 "textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
 "textRules.archive.rule" = "规则";
 "textRules.archive.chat" = "聊天";
 "textRules.archive.myNode" = "我的节点";

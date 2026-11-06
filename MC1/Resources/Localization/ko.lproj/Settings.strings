@@ -1527,6 +1527,10 @@
 "textRules.archive.empty" = "No Hidden Messages";
 "textRules.archive.footer" = "최근 숨겨진 메시지 %d개가 이 기기에 보관됩니다. 앱 백업에는 포함되지 않습니다.";
 "textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
 "textRules.archive.rule" = "규칙";
 "textRules.archive.chat" = "채팅";
 "textRules.archive.myNode" = "내 노드";
