@@ -358,6 +358,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     sendMessageObserver = observer
   }
 
+  public func setWaitForEventResult(_ event: MeshEvent?) {
+    stubbedWaitForEventResult = event
+  }
+
   public func setSendChannelMessageError(_ error: Error?) {
     stubbedSendChannelMessageError = error
   }

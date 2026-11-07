@@ -186,7 +186,7 @@ struct MessageServiceSendDMBookkeepingTests {
     await harness.store.setStubbedResolvePendingAcknowledgementError(InjectedBookkeepingError.simulated)
     await harness.service.handleAcknowledgement(code: code, tripTime: 40)
     #expect(try await harness.store.fetchMessage(id: accepted.id)?.status == .sent)
-    #expect(await harness.service.pendingAckForTest(accepted.id)?.isDelivered == false)
+    #expect(await harness.service.pendingAckForTest(accepted.id)?.isResolved == false)
     #expect(await harness.service.pendingAckForTest(accepted.id)?.matchedAckCode == code.ackCodeUInt32)
     #expect(await harness.service.pendingAckForTest(accepted.id)?.owner?.id != nil)
     #expect(try await harness.store.fetchPendingSends(radioID: harness.contact.radioID).count == 1)

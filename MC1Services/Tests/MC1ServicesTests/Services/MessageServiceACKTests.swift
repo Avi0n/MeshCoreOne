@@ -21,7 +21,7 @@ struct MessageServiceACKTests {
       ackCodes: ackCodes,
       sentAt: sentAt,
       timeout: timeout,
-      isDelivered: isDelivered
+      resolution: isDelivered ? .resolved : .awaitingAck
     )
   }
 
@@ -660,8 +660,6 @@ struct MessageServiceACKTests {
 
     let statusEvents = service.statusEvents()
 
-    // Seed a non-delivered pendingAcks entry so finalizeSend's acknowledged-code
-    // branch is taken.
     await service.setPendingAckForTest(
       makePending(messageID: messageID, contactID: contactID, ackCodes: [ackCode])
     )

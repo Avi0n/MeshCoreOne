@@ -42,6 +42,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public private(set) var deletedChannelMessagesFromSenderCalls: [(senderName: String, radioID: UUID)] = []
   public private(set) var updatedMessageStatuses: [(id: UUID, status: MessageStatus)] = []
   public private(set) var updatedMessageAcks: [(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?)] = []
+  public private(set) var resolvePendingAcknowledgementCallCount = 0
+  private var resolvePendingAcknowledgementObserver: (@Sendable () async -> Void)?
+  private var resolvePendingAcknowledgementCompletionObserver: (@Sendable () async -> Void)?
+  private var updateMessageAckObserver: (@Sendable (MessageStatus) async -> Void)?
 
   // MARK: - Initialization
 
@@ -55,6 +59,18 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func setStubbedResolvePendingAcknowledgementError(_ error: Error?) {
     stubbedResolvePendingAcknowledgementError = error
+  }
+
+  public func setResolvePendingAcknowledgementObserver(_ observer: (@Sendable () async -> Void)?) {
+    resolvePendingAcknowledgementObserver = observer
+  }
+
+  public func setResolvePendingAcknowledgementCompletionObserver(_ observer: (@Sendable () async -> Void)?) {
+    resolvePendingAcknowledgementCompletionObserver = observer
+  }
+
+  public func setUpdateMessageAckObserver(_ observer: (@Sendable (MessageStatus) async -> Void)?) {
+    updateMessageAckObserver = observer
   }
 
   public func setStubbedFetchContactError(_ error: Error?) {
@@ -365,6 +381,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {
     updatedMessageAcks.append((id: id, ackCode: ackCode, status: status, roundTripTime: roundTripTime))
+    await updateMessageAckObserver?(status)
     if let error = stubbedUpdateMessageStatusError {
       throw error
     }
@@ -2704,6 +2721,8 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public func resolvePendingAcknowledgement(
     id: UUID, expectedDeadline: Date?, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?
   ) async throws -> Bool {
+    resolvePendingAcknowledgementCallCount += 1
+    await resolvePendingAcknowledgementObserver?()
     if let error = stubbedResolvePendingAcknowledgementError { throw error }
     guard let row = pendingSends[id], row.ackDeadline == expectedDeadline else { return false }
     if row.ackDeadline != nil { pendingSends[id] = nil }
@@ -2713,6 +2732,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     if let ackCode { message.ackCode = ackCode }
     if let roundTripTime { message.roundTripTime = roundTripTime }
     messages[row.messageID] = message
+    await resolvePendingAcknowledgementCompletionObserver?()
     return true
   }
 

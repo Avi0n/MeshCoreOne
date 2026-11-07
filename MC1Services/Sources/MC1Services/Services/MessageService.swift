@@ -206,7 +206,7 @@ public actor MessageService {
   /// succeeds, so a thrown write can be retried with the same code.
   func handleAcknowledgement(code: Data, tripTime: UInt32?) async {
     guard let (messageID, tracking) = pendingAcks.first(where: {
-      $0.value.ackCodes.contains(code) && !$0.value.isDelivered
+      $0.value.ackCodes.contains(code) && !$0.value.isResolved
     }) else {
       // Diagnostic: the firmware delivered an end-to-end ACK we have no
       // live entry for. This is either a genuinely late ACK that arrived
@@ -220,8 +220,7 @@ public actor MessageService {
       return
     }
 
-    pendingAcks[messageID]?.matchedAckCode = code.ackCodeUInt32
-    pendingAcks[messageID]?.matchedTripTime = tripTime
+    pendingAcks[messageID]?.recordAcknowledgement(code: code.ackCodeUInt32, tripTime: tripTime)
     do {
       _ = try await commitPendingAcknowledgement(messageID: messageID, sentAt: tracking.sentAt)
     } catch {

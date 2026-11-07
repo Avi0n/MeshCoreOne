@@ -679,7 +679,7 @@ struct MessageServiceSendTests {
         ackCodes: [ackCode],
         sentAt: Date(),
         timeout: 30,
-        isDelivered: true
+        resolution: .resolved
       )
     )
 
@@ -720,7 +720,7 @@ struct MessageServiceSendTests {
         ackCodes: [ackCode],
         sentAt: Date(),
         timeout: 30,
-        isDelivered: false
+        resolution: .awaitingAck
       )
     )
 

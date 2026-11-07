@@ -185,8 +185,9 @@ extension MessageService {
     }
     guard let previousAck, let current = pendingAcks[messageID],
           current.sendLeaseID == sendLeaseID else { return true }
+    guard current.isAwaitingAck else { return true }
     if rejected {
-      // Restore accepted codes and timing without overwriting an ACK matched during the command.
+      // A rejected command keeps the last accepted attempt's codes and deadline.
       pendingAcks[messageID]?.ackCodes = previousAck.ackCodes
       pendingAcks[messageID]?.sentAt = previousAck.sentAt
       pendingAcks[messageID]?.timeout = previousAck.timeout

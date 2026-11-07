@@ -35,22 +35,26 @@ extension MessageService {
 
   @discardableResult
   func persistAcknowledgement(messageID: UUID, radioID: UUID, pendingSendID: UUID?) async -> Bool {
-    guard let tracking = pendingAcks[messageID], !tracking.isDelivered else { return false }
-    if tracking.owner == nil {
-      pendingAcks[messageID]?.owner = .init(
-        id: pendingSendID ?? UUID(),
-        radioID: radioID,
-        deadline: tracking.expiresAt(giveUpWindow: config.ackGiveUpWindow),
-        phase: pendingSendID == nil ? .insert : .convert
-      )
+    pendingAcks[messageID]?.prepareOwner(
+      radioID: radioID, pendingSendID: pendingSendID, giveUpWindow: config.ackGiveUpWindow
+    )
+    if let tracking = pendingAcks[messageID], tracking.owner?.phase == .saved,
+       tracking.matchedAckCode != nil {
+      do {
+        _ = try await commitPendingAcknowledgement(messageID: messageID, sentAt: tracking.sentAt)
+      } catch {
+        logger.warning("ACK resolution deferred messageID=\(messageID): \(String(describing: error))")
+      }
+      return false
     }
     return await saveAcknowledgementOwner(messageID: messageID)
   }
 
   private func saveAcknowledgementOwner(messageID: UUID) async -> Bool {
-    guard let tracking = pendingAcks[messageID], !tracking.isDelivered,
-          let owner = tracking.owner, owner.phase != .saved,
-          acknowledgementSavesInFlight.insert(messageID).inserted else { return false }
+    guard !acknowledgementSavesInFlight.contains(messageID),
+          let owner = pendingAcks[messageID]?.beginOwnerSave(),
+          let tracking = pendingAcks[messageID] else { return false }
+    acknowledgementSavesInFlight.insert(messageID)
     defer { endAcknowledgementSave(messageID) }
 
     let row = PendingSendDTO(
@@ -64,15 +68,18 @@ extension MessageService {
     let saved: Bool
     do {
       saved = try await dataStore.savePendingAcknowledgement(
-        row, replacingPendingSendID: owner.phase == .convert ? owner.id : nil
+        row, replacingPendingSendID: owner.phase == .saving(.convert) ? owner.id : nil
       )
     } catch {
+      if pendingAcks[messageID]?.owner == owner, pendingAcks[messageID]?.sentAt == tracking.sentAt {
+        pendingAcks[messageID]?.finishOwnerSave(succeeded: false)
+      }
       logger.warning("ACK owner save deferred messageID=\(messageID): \(String(describing: error))")
       return false
     }
 
     guard let current = pendingAcks[messageID], current.owner == owner,
-          current.sentAt == tracking.sentAt, !current.isDelivered else {
+          current.sentAt == tracking.sentAt, !current.isResolved else {
       if saved {
         await cleanUpStaleAcknowledgementOwner(tracking, owner: owner)
       }
@@ -83,7 +90,7 @@ extension MessageService {
       return false
     }
 
-    pendingAcks[messageID]?.owner?.phase = .saved
+    pendingAcks[messageID]?.finishOwnerSave(succeeded: true)
     if current.matchedAckCode != nil {
       do {
         _ = try await commitPendingAcknowledgement(messageID: messageID, sentAt: current.sentAt)
@@ -112,30 +119,39 @@ extension MessageService {
   }
 
   func commitPendingAcknowledgement(messageID: UUID, sentAt: Date) async throws -> PendingAcknowledgementCommit {
-    guard let current = pendingAcks[messageID], current.sentAt == sentAt else { return .unchanged }
-    if let owner = current.owner, owner.phase != .saved { return .unchanged }
-    let status: MessageStatus = current.matchedAckCode == nil ? .failed : .delivered
+    guard pendingAcks[messageID]?.sentAt == sentAt,
+          let status = pendingAcks[messageID]?.beginResolution(),
+          let current = pendingAcks[messageID] else { return .unchanged }
     let leaseID = current.sendLeaseID
-    let updated = try await writeTerminalAcknowledgement(current, status: status)
+    let updated: Bool
+    do {
+      updated = try await writeTerminalAcknowledgement(current, status: status)
+    } catch {
+      if pendingAcks[messageID]?.sentAt == sentAt {
+        pendingAcks[messageID]?.resolutionSaveFailed()
+      }
+      throw error
+    }
     guard pendingAcks[messageID]?.sentAt == sentAt else {
       return updated ? .committed(status) : .unchanged
     }
-    guard updated else {
-      pendingAcks.removeValue(forKey: messageID)
-      await settlePlainTextLease(leaseID)
-      return .unchanged
+    pendingAcks[messageID]?.resolutionSaveSucceeded()
+    if current.owner == nil, let installedOwner = pendingAcks[messageID]?.owner {
+      await cleanUpStaleAcknowledgementOwner(current, owner: installedOwner)
     }
-    pendingAcks[messageID]?.isDelivered = true
-    if status == .delivered {
+    if updated, status == .delivered {
       do {
         try await dataStore.updateContactLastMessage(contactID: current.contactID, date: Date())
       } catch {
         logger.error("Failed to update contact lastMessageDate: \(error.localizedDescription)")
       }
     }
-    let tripTime = pendingAcks[messageID]?.matchedTripTime
-    pendingAcks.removeValue(forKey: messageID)
+    let tripTime = current.matchedTripTime
+    if pendingAcks[messageID]?.sentAt == sentAt {
+      pendingAcks.removeValue(forKey: messageID)
+    }
     await settlePlainTextLease(leaseID)
+    guard updated else { return .unchanged }
     switch status {
     case .delivered:
       statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: tripTime))

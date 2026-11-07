@@ -74,7 +74,7 @@ public extension MessageService {
     let window = config.ackGiveUpWindow
 
     let expiredEntries = pendingAcks.filter { _, tracking in
-      !tracking.isDelivered &&
+      !tracking.isResolved &&
         now > tracking.expiresAt(giveUpWindow: window)
     }
 
@@ -85,7 +85,7 @@ public extension MessageService {
         }
       #endif
       guard let current = pendingAcks[messageID],
-            !current.isDelivered,
+            !current.isResolved,
             current.sentAt == tracking.sentAt,
             now > current.expiresAt(giveUpWindow: window) else { continue }
 
@@ -112,7 +112,7 @@ public extension MessageService {
     let pending = Array(pendingAcks)
 
     for (messageID, tracking) in pending {
-      guard pendingAcks[messageID]?.sentAt == tracking.sentAt, pendingAcks[messageID]?.isDelivered == false else { continue }
+      guard pendingAcks[messageID]?.sentAt == tracking.sentAt, pendingAcks[messageID]?.isResolved == false else { continue }
       do {
         _ = try await commitPendingAcknowledgement(messageID: messageID, sentAt: tracking.sentAt)
       } catch {

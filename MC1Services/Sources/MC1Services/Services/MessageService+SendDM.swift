@@ -434,12 +434,8 @@ public extension MessageService {
 
   // MARK: - Private Helpers
 
-  /// Records a new expected-ACK code for a message awaiting delivery.
-  ///
-  /// On the first call for a given `messageID` this creates the entry; on
-  /// subsequent retry attempts it adds the new `ackCode` to the same entry's
-  /// `ackCodes` set and resets both `sentAt` and the timeout window to the
-  /// latest attempt so `checkExpiredAcks` does not fail the in-flight retry.
+  /// Accumulates expected ACK codes while awaiting delivery and renews the attempt's timing.
+  /// `checkExpiredAcks` then preserves the in-flight retry until its deadline.
   internal func trackPendingAck(
     messageID: UUID,
     contactID: UUID,
@@ -447,19 +443,17 @@ public extension MessageService {
     timeout: TimeInterval,
     sendLeaseID: UUID? = nil
   ) {
-    // Diagnostic: the firmware ACK CRC is derived from (timestamp, attempt,
-    // text, sender key) with no recipient, so identical text sent in the
-    // same second to different contacts produces the same code. Counting
-    // collisions across distinct in-flight messages measures how often a
-    // delivery confirmation could be attributed to the wrong message.
+    // ACK CRCs omit the recipient, so identical text sent in one second can collide across Contacts.
+    // Log collisions to diagnose acknowledgements attributed to the wrong DM.
     if let colliding = pendingAcks.first(where: { $0.key != messageID && $0.value.ackCodes.contains(ackCode) }) {
       logger.warning("[ack-diag] ackCode collision: code=\(ackCode.uppercaseHexString()) shared by messages \(colliding.key) and \(messageID)")
     }
     if var existing = pendingAcks[messageID] {
+      guard existing.isAwaitingAck else { return }
       existing.ackCodes.insert(ackCode)
       existing.sentAt = Date()
       existing.timeout = timeout
-      existing.owner = nil
+      existing.resetOwner()
       if let sendLeaseID {
         existing.sendLeaseID = sendLeaseID
       }
@@ -490,33 +484,18 @@ public extension MessageService {
     initialPathLength: UInt8,
     pendingSendID: UUID? = nil
   ) async throws -> MessageDTO {
-    // Peek the pendingAcks entry without taking ownership. A missing entry
-    // means `handleAcknowledgement` already processed the ACK (it removes
-    // the entry on delivery) or `checkExpiredAcks` already failed and
-    // removed it; an `isDelivered == true` entry means the listener marked
-    // it mid-flight. In those cases the owner holds the terminal write
-    // (including `roundTripTime`) and we drop any residual entry and skip
-    // the DB update here.
+    // A missing or resolved entry leaves terminal bookkeeping with the ACK listener
+    // or expiry checker, including the committed round-trip time.
     let tracking = pendingAcks[messageID]
 
-    if tracking == nil || tracking?.isDelivered == true {
+    if tracking == nil || tracking?.isResolved == true {
       let leaseID = tracking?.sendLeaseID
       pendingAcks.removeValue(forKey: messageID)
       await settlePlainTextLease(leaseID)
-    } else if let acknowledgedCode, tracking?.matchedAckCode == nil {
-      // The retry loop's waitForEvent matched the ACK. Take ownership and
-      // record the legitimate `.sent` -> `.delivered` upgrade.
-      let leaseID = tracking?.sendLeaseID
-      pendingAcks.removeValue(forKey: messageID)
-      await settlePlainTextLease(leaseID)
-      try await dataStore.updateMessageAck(
-        id: messageID,
-        ackCode: acknowledgedCode.ackCodeUInt32,
-        status: .delivered
-      )
-      try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
-      statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: nil))
     } else {
+      if let acknowledgedCode, tracking?.isAwaitingAck == true {
+        pendingAcks[messageID]?.recordAcknowledgement(code: acknowledgedCode.ackCodeUInt32, tripTime: nil)
+      }
       // Command issuance ended; durable ACK ownership preserves late matches
       // and retries a failed owner save without submitting another command.
       let movedToSent = await persistAcknowledgement(
