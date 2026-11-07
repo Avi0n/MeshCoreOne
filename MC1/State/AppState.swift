@@ -299,28 +299,13 @@ final class AppState {
   /// Connection UI state (status pills, sync activity, alerts, pairing)
   let connectionUI: ConnectionUIState
 
-  /// True while `confirmSystemPairingSetup` is in flight so sheet `onDismiss` does not cancel the flow.
-  var isConfirmingSystemPairingSetup = false
-
-  /// True while the foreground retry of `completeFreshPairing` is running, so a
-  /// second `pickerUnavailable` is presented instead of rescheduled.
-  var isFreshPairingForegroundRetry = false
-
-  struct FreshPairingOperation {
-    enum Source {
-      case explicitSwitch
-      case systemPairingSetup
-      case bondLossRecovery
-    }
-
-    let actionID: UUID
-    let source: Source
-    var requestID: UUID?
-  }
-
   var freshPairingOperation: FreshPairingOperation?
   var freshPairingTask: Task<Void, Never>?
   var freshPairingForegroundRetryTask: Task<Void, Never>?
+
+  var shouldCompleteFreshPairingOnForeground: Bool {
+    freshPairingOperation?.phase == .awaitingForegroundRetry
+  }
 
   var isRecoveringPairing: Bool {
     freshPairingOperation?.source == .bondLossRecovery

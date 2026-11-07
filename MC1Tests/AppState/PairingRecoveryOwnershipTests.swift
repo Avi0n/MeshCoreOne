@@ -50,7 +50,7 @@ struct PairingRecoveryOwnershipTests {
       env.picker.setPickerResult(.failure(AccessorySetupKitError.pickerRestricted))
       let operation = try #require(env.app.removeFailedPairingAndRetry())
       await operation.value
-      #expect(env.app.connectionUI.shouldCompleteFreshPairingOnForeground)
+      #expect(env.app.shouldCompleteFreshPairingOnForeground)
       #expect(!env.app.connectionUI.isBusy)
       #expect(env.app.isRecoveringPairing)
       #expect(env.manager.isPairingFlowActive)
@@ -64,7 +64,7 @@ struct PairingRecoveryOwnershipTests {
       #expect(!env.app.isRecoveringPairing)
       #expect(!env.manager.isPairingFlowActive)
       #expect(!env.app.connectionUI.isBusy)
-      #expect(!env.app.connectionUI.shouldCompleteFreshPairingOnForeground)
+      #expect(!env.app.shouldCompleteFreshPairingOnForeground)
       #expect(env.picker.showPickerCallCount == 1)
       #expect(env.manager.isCurrent(result))
     }
@@ -102,7 +102,7 @@ struct PairingRecoveryOwnershipTests {
       env.picker.setPickerResult(.failure(AccessorySetupKitError.pickerRestricted))
       env.app.startDeviceScan()
       try await waitUntil("picker rejection must arm its scoped retry") {
-        env.app.connectionUI.shouldCompleteFreshPairingOnForeground && !env.app.connectionUI.isBusy
+        env.app.shouldCompleteFreshPairingOnForeground && !env.app.connectionUI.isBusy
       }
       let result = try await env.manager.connectViaWiFi(host: "successor.local", port: 4242)
       guard case let .operational(successor) = result else {
@@ -111,7 +111,7 @@ struct PairingRecoveryOwnershipTests {
       }
       env.app.handleBecameActive()
       try await waitUntil("the obsolete foreground flow must settle") {
-        !env.app.connectionUI.shouldCompleteFreshPairingOnForeground && !env.app.connectionUI.isBusy
+        !env.app.shouldCompleteFreshPairingOnForeground && !env.app.connectionUI.isBusy
       }
 
       #expect(env.picker.showPickerCallCount == 1)
@@ -168,7 +168,7 @@ struct PairingRecoveryOwnershipTests {
       env.picker.setPickerResult(.failure(AccessorySetupKitError.pickerRestricted))
       env.app.startDeviceScan()
       try await waitUntil("the first picker must leave a pending retry") {
-        env.app.connectionUI.shouldCompleteFreshPairingOnForeground && !env.app.connectionUI.isBusy
+        env.app.shouldCompleteFreshPairingOnForeground && !env.app.connectionUI.isBusy
       }
       let next = env.app.connectionUI.beginConnectionAction()
       defer { env.app.connectionUI.finishConnectionAction(next) }
@@ -177,7 +177,7 @@ struct PairingRecoveryOwnershipTests {
       }
       #expect(env.app.connectionUI.isCurrentConnectionAction(next))
       #expect(env.app.connectionUI.isBusy)
-      #expect(!env.app.connectionUI.shouldCompleteFreshPairingOnForeground)
+      #expect(!env.app.shouldCompleteFreshPairingOnForeground)
       #expect(env.picker.showPickerCallCount == 1)
     }
   }

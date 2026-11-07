@@ -99,10 +99,6 @@ final class ConnectionUIState {
   /// Re-subscribed per connection in `wireCallbacks`; cancelled on disconnect.
   private var nodeDeletedEventsTask: Task<Void, Never>?
 
-  /// Forget succeeded but ASK rejected `showPicker` (`pickerRestricted`). Retry
-  /// `pairNewDevice` on the next `.active` scene, not `startDeviceScan`.
-  var shouldCompleteFreshPairingOnForeground = false
-
   /// ASK-authorized radios with no `Device` row. Non-nil presents `SystemPairingSetupSheet`.
   var pendingSystemPairingSetup: SystemPairingSetupPrompt?
 
