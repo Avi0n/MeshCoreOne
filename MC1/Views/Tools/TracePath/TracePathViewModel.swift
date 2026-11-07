@@ -48,6 +48,7 @@ final class TracePathViewModel {
 
   /// Buffer between consecutive batch traces to avoid network flooding.
   private static let interTraceBufferMs = 500
+  private static let millisecondsPerSecond: Double = 1000
 
   // MARK: - Batch Trace State
 
@@ -65,9 +66,6 @@ final class TracePathViewModel {
 
   /// Flag to signal batch loop should stop (since we await in the calling context)
   private var batchCancelled = false
-
-  /// Continuation for awaiting trace response in batch mode
-  private var traceContinuation: CheckedContinuation<Void, Never>?
 
   var isBatchInProgress: Bool {
     batchEnabled && currentTraceIndex > 0 && currentTraceIndex <= batchSize
@@ -152,24 +150,13 @@ final class TracePathViewModel {
 
   // MARK: - Trace Correlation
 
-  private var pendingTag: UInt32?
-  private var pendingDeviceID: UUID? // Track which device initiated trace
-  private var traceStartTime: Date?
-  private var timeoutTask: Task<Void, Never>?
+  private var traceRequest: TraceRequestState = .idle
   private var executionTask: Task<Void, Never>?
   /// Owns one run. Hiding the tool does not bump it.
   private var executionEpoch = Epoch()
-  private var waitingTicket: Epoch.Ticket?
-  private var responseDeadline: Date?
-  private var pendingIsBatch = false
   private var isWorkspaceVisible = false
   private var resultDismissedWhileVisible = false
   private var presentedSuccessID: UUID?
-
-  // MARK: - Path Hash Tracking (for save validation)
-
-  private var pendingPathHash: [UInt8]?
-  // resultPathHash removed - now derived from result.tracedPathBytes
 
   // MARK: - Event Subscription
 
@@ -226,7 +213,7 @@ final class TracePathViewModel {
     }
     errorAutoClearTask?.cancel()
     errorAutoClearTask = nil
-    if pendingTag == nil, executionTask == nil {
+    if traceRequest.submission == nil, executionTask == nil {
       stopListening()
     }
   }
@@ -234,15 +221,15 @@ final class TracePathViewModel {
   /// Same-device ready. Attaches a waiting run to the service the provider
   /// returns now and does not bump the epoch.
   func reattachIfWaiting() {
-    guard pendingTag != nil else { return }
+    guard traceRequest.submission != nil else { return }
     startListening()
   }
 
   /// Foreground return. A deadline that passed while `Task.sleep` was
   /// suspended ends the run through the same path as an in-process timeout.
   func expireWaitingRunIfDeadlinePassed() {
-    guard let deadline = responseDeadline, Date() >= deadline, let tag = pendingTag else { return }
-    applyTimeout(tag: tag)
+    guard case let .waiting(submission, wait) = traceRequest, Date() >= wait.deadline else { return }
+    applyTimeout(tag: submission.tag)
   }
 
   func noteResultSheetDismissed() {
@@ -276,7 +263,6 @@ final class TracePathViewModel {
     completedResults.removeAll()
     clearBatchState()
     activeSavedPath = nil
-    responseDeadline = nil
     presentedSuccessID = nil
     resultDismissedWhileVisible = false
     clearError()
@@ -377,10 +363,10 @@ final class TracePathViewModel {
   var canSavePath: Bool {
     if batchEnabled {
       guard !completedResults.isEmpty, let firstSuccess = successfulResults.first else { return false }
-      return fullPathBytes == firstSuccess.tracedPathBytes
+      return fullPathBytes == firstSuccess.tracedPathBytes && hashSize == firstSuccess.hashSize
     } else {
       guard let result, result.success else { return false }
-      return fullPathBytes == result.tracedPathBytes
+      return fullPathBytes == result.tracedPathBytes && hashSize == result.hashSize
     }
   }
 
@@ -537,7 +523,6 @@ final class TracePathViewModel {
     let hop = PathHop(hashBytes: hashBytes, publicKey: node.publicKey, resolvedName: node.resolvableName)
     outboundPath.append(hop)
     activeSavedPath = nil
-    pendingPathHash = nil
     result = nil
   }
 
@@ -561,7 +546,6 @@ final class TracePathViewModel {
       return hop
     }
     activeSavedPath = nil
-    pendingPathHash = nil
     result = nil
   }
 
@@ -586,7 +570,6 @@ final class TracePathViewModel {
     // Clear saved path reference if we added anything
     if !result.added.isEmpty {
       activeSavedPath = nil
-      pendingPathHash = nil
       self.result = nil
       clearError()
     }
@@ -600,7 +583,6 @@ final class TracePathViewModel {
     guard outboundPath.indices.contains(index) else { return }
     outboundPath.remove(at: index)
     activeSavedPath = nil
-    pendingPathHash = nil
     result = nil
   }
 
@@ -609,7 +591,6 @@ final class TracePathViewModel {
     clearError()
     outboundPath.move(fromOffsets: source, toOffset: destination)
     activeSavedPath = nil
-    pendingPathHash = nil
     result = nil
   }
 
@@ -665,7 +646,7 @@ final class TracePathViewModel {
           radioID: radioID,
           name: name,
           pathBytes: Data(firstSuccess.tracedPathBytes),
-          hashSize: hashSize,
+          hashSize: firstSuccess.hashSize,
           initialRun: initialRun
         )
 
@@ -712,7 +693,7 @@ final class TracePathViewModel {
         radioID: radioID,
         name: name,
         pathBytes: Data(result.tracedPathBytes),
-        hashSize: hashSize,
+        hashSize: result.hashSize,
         initialRun: initialRun
       )
       activeSavedPath = savedPath
@@ -753,7 +734,6 @@ final class TracePathViewModel {
   func loadSavedPath(_ savedPath: SavedTracePathDTO) {
     outboundPath.removeAll()
     result = nil
-    pendingPathHash = nil
 
     let fullPath = savedPath.pathBytes
     let size = savedPath.hashSize
@@ -799,7 +779,6 @@ final class TracePathViewModel {
     activeSavedPath = nil
     outboundPath.removeAll()
     result = nil
-    pendingPathHash = nil
     traceHashMode = nil
   }
 
@@ -863,9 +842,6 @@ final class TracePathViewModel {
   private func runTrace(ticket: Epoch.Ticket) async {
     guard isCurrent(ticket), canSendTrace, !outboundPath.isEmpty else { return }
 
-    timeoutTask?.cancel()
-    timeoutTask = nil
-
     resultID = nil
     clearError()
 
@@ -878,14 +854,7 @@ final class TracePathViewModel {
 
     isRunning = true
     result = nil
-    pendingPathHash = fullPathBytes
-
-    switch await sendAndArm(ticket: ticket, isBatch: false) {
-    case .abandoned, .failedBeforeTag:
-      return
-    case .waiting:
-      armCurrentWait(ticket: ticket)
-    }
+    await sendAndArm(ticket: ticket, isBatch: false)
   }
 
   // MARK: - Batch Trace Execution
@@ -956,64 +925,56 @@ final class TracePathViewModel {
   /// Execute a single trace within a batch, storing result in completedResults
   private func executeSingleTrace(ticket: Epoch.Ticket) async {
     guard isCurrent(ticket) else { return }
-    pendingPathHash = fullPathBytes
+    await sendAndArm(ticket: ticket, isBatch: true)
 
-    switch await sendAndArm(ticket: ticket, isBatch: true) {
-    case .abandoned, .failedBeforeTag:
-      return
-    case .waiting:
-      break
-    }
-
-    guard pendingTag != nil, isCurrent(ticket) else { return }
+    guard isCurrent(ticket) else { return }
     await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-      traceContinuation = continuation
-      armCurrentWait(ticket: ticket)
+      guard case .waiting(let submission, var wait) = traceRequest, submission.input.ticket == ticket else {
+        continuation.resume()
+        return
+      }
+      wait.continuation = continuation
+      traceRequest = .waiting(submission, wait)
     }
   }
 
-  private enum SendArmResult {
-    case waiting
-    case failedBeforeTag
-    case abandoned
-  }
-
-  /// Assigns `pendingTag` only after the pre-tag step. A throw after that
-  /// leaves the tag in place and arms the deadline if it is not armed yet.
-  private func sendAndArm(ticket: Epoch.Ticket, isBatch: Bool) async -> SendArmResult {
+  /// A post-tag send error still permits a response; a consumed request cannot be revived by send completion.
+  private func sendAndArm(ticket: Epoch.Ticket, isBatch: Bool) async {
+    let input = TraceRequestState.Input(
+      ticket: ticket,
+      isBatch: isBatch,
+      path: fullPathBytes,
+      flags: effectiveTraceMode
+    )
     do {
       try await preflightBeforeTag()
     } catch {
-      guard isCurrent(ticket) else { return .abandoned }
-      failBeforeTag(ticket: ticket, isBatch: isBatch)
-      return .failedBeforeTag
+      guard isCurrent(ticket) else { return }
+      failBeforeTag(input: input)
+      return
     }
+    guard isCurrent(ticket) else { return }
 
-    let tag = UInt32.random(in: 0...UInt32.max)
-    pendingTag = tag
-    waitingTicket = ticket
-    pendingIsBatch = isBatch
-    pendingDeviceID = connectedDevice?.radioID
-    traceStartTime = Date()
+    let submission = TraceRequestState.Submission(
+      input: input,
+      tag: UInt32.random(in: 0...UInt32.max),
+      radioID: connectedDevice?.radioID,
+      startedAt: Date()
+    )
+    traceRequest = .sending(submission)
 
+    let timeoutSeconds: Double
     do {
-      let sentInfo = try await performSendTrace(tag: tag, flags: effectiveTraceMode, path: Data(fullPathBytes))
-      guard isCurrent(ticket) else { return .abandoned }
-      let timeoutSeconds = responseTimeoutSeconds(suggestedTimeoutMs: sentInfo.suggestedTimeoutMs)
-      logger.info("Sent trace with tag \(tag), path: \(self.fullPathString), timeout: \(timeoutSeconds)s")
-      pendingTimeoutSeconds = timeoutSeconds
-      return .waiting
+      let sentInfo = try await performSendTrace(tag: submission.tag, flags: input.flags, path: Data(input.path))
+      timeoutSeconds = responseTimeoutSeconds(suggestedTimeoutMs: sentInfo.suggestedTimeoutMs)
     } catch {
-      guard isCurrent(ticket) else { return .abandoned }
-      if pendingTag == tag {
-        if responseDeadline == nil {
-          pendingTimeoutSeconds = unackedTimeoutSeconds
-        }
-        return .waiting
-      }
-      failBeforeTag(ticket: ticket, isBatch: isBatch)
-      return .failedBeforeTag
+      timeoutSeconds = unackedTimeoutSeconds
     }
+    guard isCurrent(ticket), case let .sending(current) = traceRequest,
+          current.tag == submission.tag, current.input.ticket == ticket else { return }
+    logger.info("Waiting for trace with tag \(submission.tag), timeout: \(timeoutSeconds)s")
+    let timeoutClock = clock
+    armTimeout(submission: submission, timeoutSeconds: timeoutSeconds, clock: timeoutClock)
   }
 
   private func preflightBeforeTag() async throws {
@@ -1024,25 +985,20 @@ final class TracePathViewModel {
     #endif
   }
 
-  private func failBeforeTag(ticket: Epoch.Ticket, isBatch: Bool) {
-    guard isCurrent(ticket) else { return }
+  private func failBeforeTag(input: TraceRequestState.Input) {
     logger.error("Failed to send trace before a tag was assigned")
-    if isBatch {
+    if input.isBatch {
       let failedResult = TraceResult.sendFailed(
         L10n.Contacts.Contacts.Trace.Error.sendFailed,
-        attemptedPath: pendingPathHash ?? [],
-        hashSize: hashSize
+        attemptedPath: input.path,
+        hashSize: input.hashSize
       )
       completedResults.append(failedResult)
     } else {
       setError(L10n.Contacts.Contacts.Trace.Error.sendFailed)
       isRunning = false
     }
-    recordFailedRun(ticket: ticket)
-    pendingPathHash = nil
-    pendingTag = nil
-    pendingDeviceID = nil
-    waitingTicket = nil
+    recordFailedRun(ticket: input.ticket)
   }
 
   private var canSendTrace: Bool {
@@ -1089,67 +1045,49 @@ final class TracePathViewModel {
     return try await session.sendTrace(tag: tag, authCode: 0, flags: flags, path: path)
   }
 
-  private var pendingTimeoutSeconds: Double = 0
-
-  private func armCurrentWait(ticket: Epoch.Ticket) {
-    guard isCurrent(ticket), let tag = pendingTag, responseDeadline == nil else { return }
-    let timeoutClock = clock
-    armTimeout(tag: tag, timeoutSeconds: pendingTimeoutSeconds, clock: timeoutClock)
-  }
-
-  private func armTimeout<C: Clock>(tag: UInt32, timeoutSeconds: Double, clock: C) where C.Duration == Duration {
-    responseDeadline = Date().addingTimeInterval(timeoutSeconds)
+  private func armTimeout<C: Clock>(
+    submission: TraceRequestState.Submission,
+    timeoutSeconds: Double,
+    clock: C
+  ) where C.Duration == Duration {
+    let responseDeadline = Date().addingTimeInterval(timeoutSeconds)
     let deadline = clock.now.advanced(by: .seconds(timeoutSeconds))
-    timeoutTask?.cancel()
-    timeoutTask = Task { @MainActor in
+    let timeoutTask = Task { @MainActor in
       try? await clock.sleep(until: deadline, tolerance: nil)
       guard !Task.isCancelled else { return }
-      applyTimeout(tag: tag)
+      applyTimeout(tag: submission.tag)
     }
+    traceRequest = .waiting(submission, .init(deadline: responseDeadline, timeoutTask: timeoutTask))
   }
 
   private func applyTimeout(tag: UInt32) {
-    let isBatch = pendingIsBatch
-    let ticket = waitingTicket
-    guard claimPendingResponse(tag: tag), let ticket else { return }
+    guard let submission = claimPendingResponse(tag: tag) else { return }
+    let input = submission.input
 
-    if isBatch {
+    if input.isBatch {
       logger.warning("Batch trace timeout for tag \(tag)")
-      let timeoutResult = TraceResult.timeout(attemptedPath: pendingPathHash ?? [], hashSize: hashSize)
+      let timeoutResult = TraceResult.timeout(attemptedPath: input.path, hashSize: input.hashSize)
       completedResults.append(timeoutResult)
-      recordFailedRun(ticket: ticket)
-      pendingPathHash = nil
-      resumeContinuationOnce()
     } else {
       logger.warning("Trace timeout for tag \(tag)")
       setError(L10n.Contacts.Contacts.Trace.Error.noResponse)
-      pendingPathHash = nil
-      recordFailedRun(ticket: ticket)
       isRunning = false
-      pendingDeviceID = nil
     }
+    recordFailedRun(ticket: input.ticket)
   }
 
   /// First owner of the tag wins. The response path and the deadline path both call this before writing.
-  private func claimPendingResponse(tag: UInt32) -> Bool {
-    guard pendingTag == tag, let waitingTicket, waitingTicket.isCurrent(in: executionEpoch) else { return false }
-    pendingTag = nil
-    self.waitingTicket = nil
-    responseDeadline = nil
-    timeoutTask?.cancel()
-    timeoutTask = nil
-    return true
+  private func claimPendingResponse(tag: UInt32) -> TraceRequestState.Submission? {
+    guard let submission = traceRequest.submission, submission.tag == tag,
+          submission.input.ticket.isCurrent(in: executionEpoch) else { return nil }
+    traceRequest.finish()
+    return submission
   }
 
   private func handleTraceStreamEnded(finished: AdvertisementService) {
-    guard pendingTag != nil, let waitingTicket, waitingTicket.isCurrent(in: executionEpoch), let next = advertisementService, next !== finished else { return }
+    guard let submission = traceRequest.submission, submission.input.ticket.isCurrent(in: executionEpoch),
+          let next = advertisementService, next !== finished else { return }
     startListening()
-  }
-
-  private func resumeContinuationOnce() {
-    guard let continuation = traceContinuation else { return }
-    traceContinuation = nil
-    continuation.resume()
   }
 
   /// Record a failed run for saved paths
@@ -1198,14 +1136,7 @@ final class TracePathViewModel {
   func cancelExecution() {
     executionEpoch.bump()
     batchCancelled = true
-    pendingTag = nil
-    waitingTicket = nil
-    responseDeadline = nil
-    pendingDeviceID = nil
-    pendingPathHash = nil
-    timeoutTask?.cancel()
-    timeoutTask = nil
-    resumeContinuationOnce()
+    traceRequest.finish()
     executionTask?.cancel()
     executionTask = nil
     isRunning = false
@@ -1214,26 +1145,21 @@ final class TracePathViewModel {
 
   /// Handle trace response from event stream
   func handleTraceResponse(_ traceInfo: TraceInfo, radioID: UUID?) {
-    guard traceInfo.tag == pendingTag else {
+    guard let pending = traceRequest.submission, traceInfo.tag == pending.tag else {
       logger.debug("Ignoring trace response with non-matching tag \(traceInfo.tag)")
       return
     }
 
-    // Validate device ID if both are available; skip if either is nil
-    if let pending = pendingDeviceID, let received = radioID, pending != received {
-      logger.warning("Ignoring trace response from different device")
+    // Validate Radio ID if both are available; skip if either is nil.
+    if let pendingRadioID = pending.radioID, let received = radioID, pendingRadioID != received {
+      logger.warning("Ignoring trace response from different radio")
       return
     }
 
-    let ticket = waitingTicket
-    guard claimPendingResponse(tag: traceInfo.tag), let ticket else { return }
+    guard let submission = claimPendingResponse(tag: traceInfo.tag) else { return }
 
     // Calculate duration
-    let durationMs = if let startTime = traceStartTime {
-      Int(Date().timeIntervalSince(startTime) * 1000)
-    } else {
-      0
-    }
+    let durationMs = Int(Date().timeIntervalSince(submission.startedAt) * Self.millisecondsPerSecond)
 
     // Build hops from response using receiver attribution model:
     // Each node's SNR shows what it measured when receiving.
@@ -1308,12 +1234,11 @@ final class TracePathViewModel {
       durationMs: durationMs,
       success: true,
       errorMessage: nil,
-      tracedPathBytes: pendingPathHash ?? [],
-      hashSize: hashSize
+      tracedPathBytes: submission.input.path,
+      hashSize: submission.input.hashSize
     )
 
-    // In batch mode, store result and resume continuation
-    if batchEnabled, let result {
+    if submission.input.isBatch, let result {
       completedResults.append(result)
     } else {
       resultID = UUID()
@@ -1321,13 +1246,6 @@ final class TracePathViewModel {
       presentedSuccessID = nil
       isRunning = false
     }
-
-    resumeContinuationOnce()
-
-    pendingPathHash = nil
-    pendingTag = nil
-    pendingDeviceID = nil
-    traceStartTime = nil
 
     // Auto-append run if this is a saved path
     if let savedPath = activeSavedPath, dataStore != nil {
@@ -1342,7 +1260,7 @@ final class TracePathViewModel {
         hopsSNR: hopsSNR
       )
 
-      appendRunIfCurrent(ticket: ticket, pathID: savedPath.id, run: runDTO)
+      appendRunIfCurrent(ticket: submission.input.ticket, pathID: savedPath.id, run: runDTO)
     }
 
     logger.info("Trace completed: \(hops.count) hops, \(durationMs)ms")
@@ -1366,7 +1284,7 @@ final class TracePathViewModel {
     }
 
     var timeoutTaskForTesting: Task<Void, Never>? {
-      timeoutTask
+      traceRequest.timeoutTask
     }
 
     var errorAutoClearTaskForTesting: Task<Void, Never>? {
@@ -1374,29 +1292,23 @@ final class TracePathViewModel {
     }
 
     var pendingTagForTesting: UInt32? {
-      pendingTag
+      traceRequest.submission?.tag
     }
 
     var hasActiveTimeoutTaskForTesting: Bool {
-      guard let timeoutTask else { return false }
+      guard let timeoutTask = traceRequest.timeoutTask else { return false }
       return !timeoutTask.isCancelled
     }
 
-    /// Test helper to set pending tag without running a full trace
-    func setPendingTagForTesting(_ tag: UInt32) {
-      pendingTag = tag
-      waitingTicket = executionEpoch.ticket()
-      pendingIsBatch = batchEnabled
-    }
-
-    /// Test helper to set pending device ID
-    func setPendingDeviceIDForTesting(_ radioID: UUID?) {
-      pendingDeviceID = radioID
-    }
-
-    /// Test helper to set pending path hash
-    func setPendingPathHashForTesting(_ pathHash: [UInt8]?) {
-      pendingPathHash = pathHash
+    /// Installs a complete submitted request without sending to a radio.
+    func setPendingTraceForTesting(_ tag: UInt32, radioID: UUID? = nil, path: [UInt8]? = nil) {
+      traceRequest.finish()
+      traceRequest = .sending(.init(
+        input: .init(ticket: executionEpoch.ticket(), isBatch: batchEnabled, path: path ?? fullPathBytes, flags: effectiveTraceMode),
+        tag: tag,
+        radioID: radioID,
+        startedAt: Date()
+      ))
     }
 
     /// Test helper to set contacts for hash resolution

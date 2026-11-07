@@ -125,6 +125,158 @@ struct TracePathExecutionCancellationTests {
     try #require(clock.sleeperCount == 0)
   }
 
+  @Test(arguments: [false, true], [false, true])
+  func `a response during send wins once over its later completion`(isBatch: Bool, sendFails: Bool) async throws {
+    let send = ControllableTraceSend()
+    let clock = TestClock()
+    let viewModel = makeViewModel(send: send, clock: clock)
+    defer {
+      viewModel.reset()
+      send.completeAll()
+    }
+    viewModel.batchEnabled = isBatch
+    viewModel.batchSize = 1
+    viewModel.startTrace()
+    let execution = try #require(viewModel.executionTaskForTesting)
+
+    try await waitUntil("send should start") { send.sendCount == 1 }
+    let tag = try #require(viewModel.pendingTagForTesting)
+    viewModel.handleTraceResponse(traceInfo(tag: tag), radioID: nil)
+    viewModel.handleTraceResponse(traceInfo(tag: tag), radioID: nil)
+    #expect(viewModel.result?.success == true)
+
+    if sendFails {
+      send.failOldest(MeshCoreError.timeout)
+    } else {
+      send.completeOldest()
+    }
+    await execution.value
+
+    #expect(viewModel.result?.success == true)
+    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.completedResults.count == (isBatch ? 1 : 0))
+    #expect(viewModel.isRunning == false)
+    #expect(viewModel.pendingTagForTesting == nil)
+    #expect(viewModel.hasActiveTimeoutTaskForTesting == false)
+    #expect(clock.sleeperCount == 0)
+  }
+
+  @Test(arguments: [false, true])
+  func `a retired preflight cannot send or replace a newer request`(replace: Bool) async throws {
+    let send = ControllableTraceSend()
+    send.hangUntilComplete = false
+    let clock = TestClock()
+    let gate = AppendGate()
+    let viewModel = makeViewModel(send: send, clock: clock)
+    defer {
+      gate.release()
+      viewModel.reset()
+      send.completeAll()
+    }
+    viewModel.responseTimeoutSecondsForTesting = 30
+    viewModel.throwBeforeTagForTesting = { await gate.wait() }
+    viewModel.startTrace()
+    let oldExecution = try #require(viewModel.executionTaskForTesting)
+    try await waitUntil("preflight should suspend") { gate.started }
+
+    var replacementTag: UInt32?
+    if replace {
+      viewModel.throwBeforeTagForTesting = nil
+      viewModel.startTrace()
+      try await waitUntil("replacement should wait for its response") { clock.sleeperCount == 1 }
+      let tag = try #require(viewModel.pendingTagForTesting)
+      replacementTag = tag
+    } else {
+      viewModel.cancelExecution()
+    }
+    gate.release()
+    await oldExecution.value
+
+    #expect(send.sendCount == (replace ? 1 : 0))
+    #expect(viewModel.pendingTagForTesting == replacementTag)
+    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.result == nil)
+    #expect(viewModel.isRunning == replace)
+    if let replacementTag {
+      viewModel.handleTraceResponse(traceInfo(tag: replacementTag), radioID: nil)
+      #expect(viewModel.result?.success == true)
+    }
+  }
+
+  @Test(arguments: [false, true])
+  func `a response after a send error completes the request once`(isBatch: Bool) async throws {
+    let send = ControllableTraceSend()
+    let clock = TestClock()
+    let viewModel = makeViewModel(send: send, clock: clock)
+    defer {
+      viewModel.reset()
+      send.completeAll()
+    }
+    viewModel.batchEnabled = isBatch
+    viewModel.batchSize = 1
+    viewModel.unackedTimeoutSecondsForTesting = 5
+    viewModel.startTrace()
+    let execution = try #require(viewModel.executionTaskForTesting)
+
+    try await waitUntil("send should start") { send.sendCount == 1 }
+    let tag = try #require(viewModel.pendingTagForTesting)
+    send.failOldest(MeshCoreError.timeout)
+    try await waitUntil("unacked response deadline should park") { clock.sleeperCount == 1 }
+    let timeout = try #require(viewModel.timeoutTaskForTesting)
+    viewModel.handleTraceResponse(traceInfo(tag: tag), radioID: nil)
+    viewModel.handleTraceResponse(traceInfo(tag: tag), radioID: nil)
+    await execution.value
+    await timeout.value
+    clock.advance(by: .seconds(5))
+
+    #expect(viewModel.result?.success == true)
+    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.completedResults.count == (isBatch ? 1 : 0))
+    #expect(viewModel.isRunning == false)
+    #expect(viewModel.pendingTagForTesting == nil)
+  }
+
+  @Test
+  func `a timeout retains the submitted path and hash size`() async throws {
+    let send = ControllableTraceSend()
+    let clock = TestClock()
+    let viewModel = makeViewModel(send: send, clock: clock)
+    defer {
+      viewModel.reset()
+      send.completeAll()
+    }
+    var submittedPath: Data?
+    var submittedFlags: UInt8?
+    viewModel.sendTraceForTesting = { tag, flags, path in
+      submittedPath = path
+      submittedFlags = flags
+      return try await send.send(tag: tag, flags: flags, path: path)
+    }
+    viewModel.batchEnabled = true
+    viewModel.batchSize = 1
+    viewModel.responseTimeoutSecondsForTesting = 5
+    viewModel.startTrace()
+    let execution = try #require(viewModel.executionTaskForTesting)
+    try await waitUntil("send should start") { send.sendCount == 1 }
+    let path = try #require(submittedPath)
+    let flags = try #require(submittedFlags)
+
+    viewModel.setTraceHashMode(1)
+    viewModel.addNode(makeContact())
+    send.completeOldest()
+    try await waitUntil("response deadline should park") { clock.sleeperCount == 1 }
+    clock.advance(by: .seconds(5))
+    await execution.value
+
+    let result = try #require(viewModel.completedResults.first)
+    #expect(viewModel.completedResults.count == 1)
+    #expect(result.success == false)
+    #expect(result.tracedPathBytes == Array(path))
+    #expect(result.hashSize == 1 << Int(flags))
+    #expect(viewModel.fullPathData != path)
+    #expect(viewModel.hashSize != result.hashSize)
+  }
+
   @Test
   func `hiding during the response wait still accepts the response`() async throws {
     let send = ControllableTraceSend()
@@ -357,7 +509,7 @@ struct TracePathExecutionCancellationTests {
       connectedDevice: { nil },
       bestAvailableLocation: { nil }
     ))
-    viewModel.setPendingTagForTesting(0x00C0_FFEE)
+    viewModel.setPendingTraceForTesting(0x00C0_FFEE)
     viewModel.isRunning = true
     viewModel.startListening()
 
@@ -390,7 +542,7 @@ struct TracePathExecutionCancellationTests {
       bestAvailableLocation: { nil }
     ))
     viewModel.addNode(makeContact())
-    viewModel.setPendingTagForTesting(0x00C0_FFEE)
+    viewModel.setPendingTraceForTesting(0x00C0_FFEE)
     viewModel.startListening()
     let listener = try #require(viewModel.traceEventsTaskForTesting)
     viewModel.reset()
@@ -422,7 +574,7 @@ struct TracePathExecutionCancellationTests {
       connectedDevice: { nil },
       bestAvailableLocation: { nil }
     ))
-    viewModel.setPendingTagForTesting(0x00C0_FFEE)
+    viewModel.setPendingTraceForTesting(0x00C0_FFEE)
     viewModel.isRunning = true
     viewModel.startListening()
     let listener = try #require(viewModel.traceEventsTaskForTesting)

@@ -264,7 +264,7 @@ struct BatchExecutionTests {
     viewModel.batchEnabled = true
     viewModel.isRunning = true
     viewModel.currentTraceIndex = 2
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345)
 
     viewModel.cancelBatchTrace()
 

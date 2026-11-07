@@ -271,7 +271,7 @@ struct TraceResponseHopParsingTests {
     )
 
     // Set up pending tag to match
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345)
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
     guard let result = viewModel.result else {
@@ -318,7 +318,7 @@ struct TraceResponseHopParsingTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345)
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
     guard let result = viewModel.result else {
@@ -356,7 +356,7 @@ struct TraceResponseHopParsingTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345) // Different from traceInfo.tag
+    viewModel.setPendingTraceForTesting(12345) // Different from traceInfo.tag
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
     #expect(viewModel.result == nil)
@@ -384,7 +384,7 @@ struct ResultIDBehaviorTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345)
     #expect(viewModel.resultID == nil)
 
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
@@ -407,12 +407,12 @@ struct ResultIDBehaviorTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345)
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
     let firstID = viewModel.resultID
 
     // Run another trace
-    viewModel.setPendingTagForTesting(12346)
+    viewModel.setPendingTraceForTesting(12346)
     let traceInfo2 = TraceInfo(
       tag: 12346,
       authCode: 0,
@@ -605,7 +605,7 @@ struct MultiByteHashTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345)
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
     guard let result = viewModel.result else {
@@ -636,7 +636,7 @@ struct MultiByteHashTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345)
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
     guard let result = viewModel.result else {
@@ -789,8 +789,7 @@ struct DeviceIDValidationTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
-    viewModel.setPendingDeviceIDForTesting(pendingDevice)
+    viewModel.setPendingTraceForTesting(12345, radioID: pendingDevice)
     viewModel.handleTraceResponse(traceInfo, radioID: differentDevice)
 
     // Result should be nil - response was ignored
@@ -813,8 +812,7 @@ struct DeviceIDValidationTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
-    viewModel.setPendingDeviceIDForTesting(deviceID)
+    viewModel.setPendingTraceForTesting(12345, radioID: deviceID)
     viewModel.handleTraceResponse(traceInfo, radioID: deviceID)
 
     #expect(viewModel.result != nil)
@@ -836,8 +834,7 @@ struct DeviceIDValidationTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
-    viewModel.setPendingDeviceIDForTesting(nil)
+    viewModel.setPendingTraceForTesting(12345, radioID: nil)
     viewModel.handleTraceResponse(traceInfo, radioID: UUID())
 
     // Should accept - pendingDeviceID is nil so skip device check
@@ -859,8 +856,7 @@ struct DeviceIDValidationTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
-    viewModel.setPendingDeviceIDForTesting(UUID())
+    viewModel.setPendingTraceForTesting(12345, radioID: UUID())
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
     // Should accept - received deviceID is nil so skip device check
@@ -879,8 +875,7 @@ struct PathCaptureTests {
 
     // Set up pending path hash (simulating what runTrace does)
     let originalPath: [UInt8] = [0xAA, 0xBB, 0xAA]
-    viewModel.setPendingPathHashForTesting(originalPath)
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345, path: originalPath)
 
     let traceInfo = TraceInfo(
       tag: 12345,
@@ -911,8 +906,7 @@ struct PathCaptureTests {
 
     // Simulate a completed trace with path [0xAA, 0xAA]
     let originalPath: [UInt8] = [0xAA, 0xAA]
-    viewModel.setPendingPathHashForTesting(originalPath)
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345, path: originalPath)
 
     let traceInfo = TraceInfo(
       tag: 12345,
@@ -979,8 +973,7 @@ struct PathCaptureTests {
     let currentPath = viewModel.fullPathBytes
 
     // Simulate trace with same path
-    viewModel.setPendingPathHashForTesting(currentPath)
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345, path: currentPath)
 
     let traceInfo = TraceInfo(
       tag: 12345,
@@ -1652,7 +1645,7 @@ struct OutboundPathNameResolutionTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345)
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
     guard let result = viewModel.result else {
@@ -1740,7 +1733,7 @@ struct OutboundPathNameResolutionTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(42)
+    viewModel.setPendingTraceForTesting(42)
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
     guard let result = viewModel.result else {
@@ -1774,7 +1767,7 @@ struct OutboundPathNameResolutionTests {
       ]
     )
 
-    viewModel.setPendingTagForTesting(12345)
+    viewModel.setPendingTraceForTesting(12345)
     viewModel.handleTraceResponse(traceInfo, radioID: nil)
 
     guard let result = viewModel.result else {
