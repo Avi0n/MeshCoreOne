@@ -2011,6 +2011,11 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public private(set) var savedRemoteNodeSessions: [RemoteNodeSessionDTO] = []
   public private(set) var updatedSessionConnections: [(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel)] = []
   public private(set) var deletedRemoteNodeSessionIDs: [UUID] = []
+  private var updateRemoteNodeSessionConnectionHold: (@Sendable () async -> Void)?
+
+  public func setUpdateRemoteNodeSessionConnectionHold(_ hold: (@Sendable () async -> Void)?) {
+    updateRemoteNodeSessionConnectionHold = hold
+  }
 
   public func fetchRemoteNodeSession(id: UUID) async throws -> RemoteNodeSessionDTO? {
     remoteNodeSessions[id]
@@ -2087,6 +2092,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func updateRemoteNodeSessionConnection(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel) async throws {
     updatedSessionConnections.append((id: id, isConnected: isConnected, permissionLevel: permissionLevel))
+    await updateRemoteNodeSessionConnectionHold?()
     if let session = remoteNodeSessions[id] {
       remoteNodeSessions[id] = RemoteNodeSessionDTO(
         id: session.id,

@@ -27,23 +27,9 @@ public actor RemoteNodeService {
   let auditLogger = CommandAuditLogger()
 
   var isRetired = false
-  var loginAttemptIDs: [Data: UUID] = [:]
+  /// Login ownership keyed by the public key prefix carried in login responses.
+  var loginAttempts: [Data: RemoteLoginAttempt] = [:]
   var sensorConnectAttempts: [UUID: UUID] = [:]
-
-  struct PendingLogin {
-    let id: UUID
-    /// Session that called `login`, so a prefix match cannot update another radio's row.
-    let sessionID: UUID
-    let continuation: CheckedContinuation<LoginResult, Error>
-  }
-
-  /// Pending login continuations keyed by 6-byte public key prefix.
-  /// Using 6-byte prefix matches MeshCore protocol format for login results.
-  var pendingLogins: [Data: PendingLogin] = [:]
-
-  /// Timeout tasks for pending logins, keyed by 6-byte public key prefix.
-  /// Cancelled when login succeeds/fails before timeout.
-  var pendingLoginTimeoutTasks: [Data: Task<Void, Never>] = [:]
 
   /// The in-flight CLI request for a node. `acceptsAnyResponse` marks raw
   /// passthrough commands whose reply shape can't be validated. `wirePrefix`
@@ -293,12 +279,10 @@ public actor RemoteNodeService {
   }
 
   func cancelPendingLogin(for prefix: Data, attemptID: UUID? = nil) {
-    if let attemptID, loginAttemptIDs[prefix] != attemptID { return }
-    loginAttemptIDs[prefix] = nil
-    pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
-    if let pending = pendingLogins.removeValue(forKey: prefix) {
-      pending.continuation.resume(throwing: RemoteNodeError.cancelled)
-    }
+    if let attemptID, loginAttempts[prefix]?.id != attemptID { return }
+    guard var attempt = loginAttempts.removeValue(forKey: prefix) else { return }
+    // A claimed result owns its continuation until persistence settles; removal only revokes its authority.
+    attempt.claimCompletion()?.continuation.resume(throwing: RemoteNodeError.cancelled)
   }
 
   func cancelPendingCLIRequest(for prefix: Data, requestID: UUID) {
@@ -411,16 +395,13 @@ public actor RemoteNodeService {
 
   /// Stop all keep-alive timers and resume any parked login continuations (call on app termination)
   public func stopAllKeepAlives() {
-    loginAttemptIDs.removeAll()
     for task in keepAliveTasks.values {
       task.cancel()
       retiredKeepAliveTasks.append(task)
     }
     keepAliveTasks.removeAll()
 
-    // Resume parked logins before dropping their timeout tasks; otherwise the
-    // continuation that would have resumed them is gone and the caller hangs.
-    for prefix in Array(pendingLogins.keys) {
+    for prefix in Array(loginAttempts.keys) {
       cancelPendingLogin(for: prefix)
     }
   }
@@ -461,6 +442,6 @@ public actor RemoteNodeService {
 
   /// Number of login continuations currently parked. Exposed for teardown tests.
   var pendingLoginCount: Int {
-    pendingLogins.count
+    loginAttempts.values.count(where: \.isAwaitingResult)
   }
 }

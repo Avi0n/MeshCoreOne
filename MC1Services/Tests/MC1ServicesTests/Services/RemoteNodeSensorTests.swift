@@ -253,7 +253,7 @@ extension RemoteNodeSensorTests {
     let prefix = Data(h.remote.publicKey.prefix(6))
     let first = Task { try await h.service.login(sessionID: h.remote.id, password: "old") }
     try await waitUntil("first login should send") { await h.session.sendLoginInvocations.count == 1 }
-    let firstID = try #require(await h.service.loginAttemptIDs[prefix])
+    let firstID = try #require(await h.service.loginAttempts[prefix]?.id)
     let second = Task { try await h.service.login(sessionID: h.remote.id, password: "new") }
     try await waitUntil("replacement login should send") { await h.session.sendLoginInvocations.count == 2 }
     await h.service.cancelPendingLogin(for: prefix, attemptID: firstID)

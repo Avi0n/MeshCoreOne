@@ -217,6 +217,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   /// Results to return from successive `sendLogin` calls, consumed FIFO.
   public var stubbedSendLoginResults: [Result<MessageSentInfo, Error>] = []
+  private var sendLoginHold: (@Sendable () async throws -> Void)?
 
   /// Result to return from `sendCommand`. The short suggested timeout keeps
   /// CLI polling loops in tests brief.
@@ -297,6 +298,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   public private(set) var getContactPublicKeys: [Data] = []
   public private(set) var addContactInvocations: [AddContactInvocation] = []
   public private(set) var sendLoginInvocations: [SendLoginInvocation] = []
+  public private(set) var completedSendLoginCount = 0
   public private(set) var sendCommandInvocations: [SendCommandInvocation] = []
   public private(set) var removeContactPublicKeys: [Data] = []
   public private(set) var resetPathPublicKeys: [Data] = []
@@ -371,6 +373,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   /// Sets the results returned by successive `sendLogin` calls (isolated setter).
   public func setSendLoginResults(_ results: [Result<MessageSentInfo, Error>]) {
     stubbedSendLoginResults = results
+  }
+
+  public func setSendLoginHold(_ hold: (@Sendable () async throws -> Void)?) {
+    sendLoginHold = hold
   }
 
   /// Sets the result returned by `requestStatus` (isolated setter).
@@ -814,6 +820,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     getContactPublicKeys = []
     addContactInvocations = []
     sendLoginInvocations = []
+    completedSendLoginCount = 0
     sendCommandInvocations = []
     removeContactPublicKeys = []
     resetPathPublicKeys = []
@@ -832,8 +839,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 extension MockMeshCoreSession: RemoteAccessSessionOps {
   public func sendLogin(to destination: Data, password: String) async throws -> MessageSentInfo {
     sendLoginInvocations.append(SendLoginInvocation(destination: destination, password: password))
+    defer { completedSendLoginCount += 1 }
     guard !stubbedSendLoginResults.isEmpty else { throw NotStubbed.method("sendLogin") }
-    switch stubbedSendLoginResults.removeFirst() {
+    let result = stubbedSendLoginResults.removeFirst()
+    try await sendLoginHold?()
+    switch result {
     case let .success(info): return info
     case let .failure(error): throw error
     }
