@@ -2,7 +2,7 @@ import CoreLocation
 import MC1Services
 import SwiftUI
 
-/// Capsules, compact preview map, hop list, and expand-to-full-map sheet.
+/// Outgoing repeat rows or incoming arrival paths and maps.
 struct MessagePathDetailBlock: View {
   private static let expandedContentTopPadding: CGFloat = 8
   private static let outgoingDisclosureSymbol = "arrow.triangle.branch"
@@ -15,6 +15,7 @@ struct MessagePathDetailBlock: View {
 
   let message: MessageDTO
   let arrivals: [MessagePathArrival]
+  let repeats: [MessageRepeatDTO]?
   let pathViewModel: MessagePathViewModel
   @Binding var isDetailExpanded: Bool
 
@@ -44,6 +45,7 @@ struct MessagePathDetailBlock: View {
       proxy.size.width
     } action: { containerWidth = $0 }
     .task(id: prefetchID) {
+      guard !message.isOutgoing else { return }
       await pathViewModel.prefetchPreviews(
         message: message,
         arrivals: arrivals,
@@ -124,24 +126,33 @@ struct MessagePathDetailBlock: View {
 
   private var expandedContent: some View {
     VStack(alignment: .leading, spacing: 12) {
-      if arrivals.count > 1 {
-        MessagePathArrivalCapsules(
-          arrivals: arrivals,
-          selectedID: selectedBinding,
-          reduceMotion: reduceMotion
-        )
-      }
-
-      previewMap
-
-      if let selectedArrival {
-        MessagePathContent(
-          message: message,
-          arrival: selectedArrival,
-          viewModel: pathViewModel,
-          receiverName: appState.connectedDevice?.nodeName ?? L10n.Chats.Chats.Path.Receiver.you,
+      if message.isOutgoing {
+        RepeatDetailsContent(
+          repeats: pathViewModel.isLoading ? nil : repeats,
+          contacts: pathViewModel.contacts,
+          discoveredNodes: pathViewModel.discoveredRepeaters,
           userLocation: appState.bestAvailableLocation
         )
+      } else {
+        if arrivals.count > 1 {
+          MessagePathArrivalCapsules(
+            arrivals: arrivals,
+            selectedID: selectedBinding,
+            reduceMotion: reduceMotion
+          )
+        }
+
+        previewMap
+
+        if let selectedArrival {
+          MessagePathContent(
+            message: message,
+            arrival: selectedArrival,
+            viewModel: pathViewModel,
+            receiverName: appState.connectedDevice?.nodeName ?? L10n.Chats.Chats.Path.Receiver.you,
+            userLocation: appState.bestAvailableLocation
+          )
+        }
       }
     }
   }

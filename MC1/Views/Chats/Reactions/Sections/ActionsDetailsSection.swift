@@ -26,6 +26,7 @@ struct ActionsDetailsSection: View {
         MessagePathDetailBlock(
           message: message,
           arrivals: arrivals,
+          repeats: repeats,
           pathViewModel: pathViewModel,
           isDetailExpanded: $isDetailExpanded
         )
