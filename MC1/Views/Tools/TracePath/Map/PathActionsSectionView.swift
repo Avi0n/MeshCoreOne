@@ -79,6 +79,17 @@ struct PathActionsSectionView: View {
         Button(L10n.Contacts.Contacts.Trace.clearPath, systemImage: "trash", role: .destructive) {
           showingClearConfirmation = true
         }
+        .confirmationDialog(
+          L10n.Contacts.Contacts.Trace.clearPath,
+          isPresented: $showingClearConfirmation,
+          titleVisibility: .visible
+        ) {
+          Button(L10n.Contacts.Contacts.Trace.clearPath, role: .destructive) {
+            viewModel.clearPath()
+          }
+        } message: {
+          Text(L10n.Contacts.Contacts.Trace.clearPathMessage)
+        }
       }
     } footer: {
       if !viewModel.outboundPath.isEmpty {

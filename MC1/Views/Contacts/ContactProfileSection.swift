@@ -7,6 +7,9 @@ struct ContactProfileSection: View {
   @Binding var measuredHeight: CGFloat
   let isSavingAvatar: Bool
   @Binding var showAvatarSourceMenu: Bool
+  let onChoosePhoto: () -> Void
+  let onChooseFile: () -> Void
+  let onRemovePhoto: () -> Void
   let onRowPosition: (ContactDetailRowPosition.Measurement) -> Void
 
   var body: some View {
@@ -15,7 +18,10 @@ struct ContactProfileSection: View {
         ContactDetailAvatarView(
           contact: currentContact,
           isSavingAvatar: isSavingAvatar,
-          showSourceMenu: $showAvatarSourceMenu
+          showSourceMenu: $showAvatarSourceMenu,
+          onChoosePhoto: onChoosePhoto,
+          onChooseFile: onChooseFile,
+          onRemovePhoto: onRemovePhoto
         )
 
         VStack(spacing: 4) {

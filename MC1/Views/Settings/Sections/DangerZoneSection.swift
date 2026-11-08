@@ -35,6 +35,21 @@ struct DangerZoneSection: View {
       } label: {
         Label(L10n.Settings.DangerZone.forgetDevice, systemImage: "trash")
       }
+      .confirmationDialog(
+        L10n.Settings.DangerZone.Dialog.Forget.title,
+        isPresented: $viewModel.showingForgetConfirmation,
+        titleVisibility: .visible
+      ) {
+        Button(L10n.Settings.DangerZone.Dialog.Forget.keepData, role: .destructive) {
+          forgetDevice(deleteData: false)
+        }
+        Button(L10n.Settings.DangerZone.Dialog.Forget.deleteAll, role: .destructive) {
+          forgetDevice(deleteData: true)
+        }
+        Button(L10n.Localizable.Common.cancel, role: .cancel) {}
+      } message: {
+        Text(L10n.Settings.DangerZone.Dialog.Forget.message)
+      }
 
       Button(role: .destructive) {
         viewModel.showingResetAlert = true
@@ -61,21 +76,6 @@ struct DangerZoneSection: View {
         connectedDevice: { appState.connectedDevice },
         connectionManager: appState.connectionManager
       )
-    }
-    .confirmationDialog(
-      L10n.Settings.DangerZone.Dialog.Forget.title,
-      isPresented: $viewModel.showingForgetConfirmation,
-      titleVisibility: .visible
-    ) {
-      Button(L10n.Settings.DangerZone.Dialog.Forget.keepData, role: .destructive) {
-        forgetDevice(deleteData: false)
-      }
-      Button(L10n.Settings.DangerZone.Dialog.Forget.deleteAll, role: .destructive) {
-        forgetDevice(deleteData: true)
-      }
-      Button(L10n.Localizable.Common.cancel, role: .cancel) {}
-    } message: {
-      Text(L10n.Settings.DangerZone.Dialog.Forget.message)
     }
     .alert(L10n.Settings.DangerZone.Alert.Reset.title, isPresented: $viewModel.showingResetAlert) {
       Button(L10n.Localizable.Common.cancel, role: .cancel) {}

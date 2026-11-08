@@ -62,7 +62,8 @@ struct DiscoveryView: View {
       ToolbarItem(placement: .automatic) {
         DiscoveryMoreMenu(
           isEmpty: viewModel.discoveredNodes.isEmpty,
-          showClearConfirmation: $state.showClearConfirmation
+          showClearConfirmation: clearConfirmationPresented,
+          onClear: { state.clearAll() }
         )
       }
     }
@@ -85,6 +86,16 @@ struct DiscoveryView: View {
       guard isMounted else { return }
       state.updateSearchFocus(focused, rendererRevision: rendererRevision)
     }
+  }
+
+  private var clearConfirmationPresented: Binding<Bool> {
+    Binding(
+      get: { state.rendererRevision == rendererRevision && state.showClearConfirmation },
+      set: { value in
+        guard state.rendererRevision == rendererRevision else { return }
+        state.showClearConfirmation = value
+      }
+    )
   }
 
   private var filterHeader: some View {
@@ -369,6 +380,7 @@ private struct DiscoverySortMenu: View {
 private struct DiscoveryMoreMenu: View {
   let isEmpty: Bool
   @Binding var showClearConfirmation: Bool
+  let onClear: () -> Void
 
   var body: some View {
     Menu {
@@ -382,6 +394,15 @@ private struct DiscoveryMoreMenu: View {
       Label(L10n.Contacts.Contacts.Discovery.menu, systemImage: "ellipsis.circle")
     }
     .liquidGlassSecondaryButtonStyle()
+    .confirmationDialog(
+      L10n.Contacts.Contacts.Discovery.Clear.title,
+      isPresented: $showClearConfirmation,
+      titleVisibility: .visible
+    ) {
+      Button(L10n.Contacts.Contacts.Discovery.Clear.confirm, role: .destructive, action: onClear)
+    } message: {
+      Text(L10n.Contacts.Contacts.Discovery.Clear.message)
+    }
   }
 }
 

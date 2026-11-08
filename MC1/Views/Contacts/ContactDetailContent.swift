@@ -30,7 +30,10 @@ struct ContactDetailContent: View {
           contactTypeLabel: state.contactTypeLabel,
           measuredHeight: $headerHeight,
           isSavingAvatar: state.isSavingAvatar,
-          showAvatarSourceMenu: $state.showAvatarSourceMenu,
+          showAvatarSourceMenu: avatarSourceMenuPresented,
+          onChoosePhoto: { state.showAvatarPhotosPicker = true },
+          onChooseFile: { state.showAvatarFileImporter = true },
+          onRemovePhoto: { state.removeAvatarPhoto() },
           onRowPosition: recordRowPosition
         )
 
@@ -135,6 +138,16 @@ struct ContactDetailContent: View {
 
   private var isCurrentRenderer: Bool {
     state.rendererRevision == rendererRevision && state.rendererID == rendererID && state.hasPresentationOwnership
+  }
+
+  private var avatarSourceMenuPresented: Binding<Bool> {
+    Binding(
+      get: { isCurrentRenderer && state.showAvatarSourceMenu },
+      set: { value in
+        guard isCurrentRenderer else { return }
+        state.showAvatarSourceMenu = value
+      }
+    )
   }
 
   private func restoredSection(_ saved: ContactDetailState.ScrollSection) -> ContactDetailState.ScrollSection {

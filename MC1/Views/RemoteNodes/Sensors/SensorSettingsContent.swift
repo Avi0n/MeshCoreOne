@@ -29,17 +29,6 @@ struct SensorSettingsContent: View {
     }
     .onDisappear { reloadTask?.cancel(); reloadTask = nil }
     .errorAlert($viewModel.errorMessage)
-    .confirmationDialog(
-      L10n.RemoteNodes.RemoteNodes.Sensor.rebootConfirmation,
-      isPresented: $showRebootConfirmation,
-      titleVisibility: .visible
-    ) {
-      Button(L10n.RemoteNodes.RemoteNodes.Settings.reboot, role: .destructive) {
-        showRebootConfirmation = false
-        viewModel.reboot()
-      }
-      Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
-    }
   }
 
   private var settingsForm: some View {
@@ -88,6 +77,17 @@ struct SensorSettingsContent: View {
           showRebootConfirmation = true
         }
         .disabled(!viewModel.canSend)
+        .confirmationDialog(
+          L10n.RemoteNodes.RemoteNodes.Sensor.rebootConfirmation,
+          isPresented: $showRebootConfirmation,
+          titleVisibility: .visible
+        ) {
+          Button(L10n.RemoteNodes.RemoteNodes.Settings.reboot, role: .destructive) {
+            showRebootConfirmation = false
+            viewModel.reboot()
+          }
+          Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
+        }
       }
     }
     .themedCanvas(theme)

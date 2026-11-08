@@ -6,6 +6,9 @@ struct ContactDetailAvatarView: View {
   let contact: ContactDTO
   let isSavingAvatar: Bool
   @Binding var showSourceMenu: Bool
+  let onChoosePhoto: () -> Void
+  let onChooseFile: () -> Void
+  let onRemovePhoto: () -> Void
 
   var body: some View {
     if contact.type == .chat {
@@ -27,6 +30,18 @@ struct ContactDetailAvatarView: View {
       .buttonStyle(.plain)
       .disabled(isSavingAvatar)
       .accessibilityLabel(accessibilityLabel)
+      .confirmationDialog(
+        L10n.Contacts.Contacts.Detail.Avatar.chooseSource,
+        isPresented: $showSourceMenu,
+        titleVisibility: .visible
+      ) {
+        Button(L10n.Contacts.Contacts.Detail.Avatar.choosePhoto, action: onChoosePhoto)
+        Button(L10n.Contacts.Contacts.Detail.Avatar.chooseFile, action: onChooseFile)
+        if contact.avatarImageData != nil {
+          Button(L10n.Contacts.Contacts.Detail.Avatar.removePhoto, role: .destructive, action: onRemovePhoto)
+        }
+        Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
+      }
     } else {
       switch contact.type {
       case .repeater:

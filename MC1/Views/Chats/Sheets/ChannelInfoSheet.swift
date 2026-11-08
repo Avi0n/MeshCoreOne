@@ -136,7 +136,9 @@ struct ChannelInfoSheet: View {
           isClearingMessages: isClearingMessages,
           isDeleting: isDeleting,
           showingClearMessagesConfirmation: $showingClearMessagesConfirmation,
-          showingDeleteConfirmation: $showingDeleteConfirmation
+          showingDeleteConfirmation: $showingDeleteConfirmation,
+          onClearMessages: clearMessages,
+          onDelete: deleteChannel
         )
       }
       .themedCanvas(theme)
@@ -176,34 +178,6 @@ struct ChannelInfoSheet: View {
           }
         }
       }
-    }
-    .confirmationDialog(
-      L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.title,
-      isPresented: $showingClearMessagesConfirmation,
-      titleVisibility: .visible
-    ) {
-      Button(L10n.Chats.Chats.ChannelInfo.clearMessagesButton, role: .destructive) {
-        Task {
-          await clearMessages()
-        }
-      }
-      Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
-    } message: {
-      Text(L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.message)
-    }
-    .confirmationDialog(
-      L10n.Chats.Chats.ChannelInfo.DeleteConfirm.title,
-      isPresented: $showingDeleteConfirmation,
-      titleVisibility: .visible
-    ) {
-      Button(L10n.Chats.Chats.ChannelInfo.deleteButton, role: .destructive) {
-        Task {
-          await deleteChannel()
-        }
-      }
-      Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
-    } message: {
-      Text(L10n.Chats.Chats.ChannelInfo.DeleteConfirm.message)
     }
     .sensoryFeedback(.success, trigger: copyHapticTrigger)
   }
@@ -501,6 +475,8 @@ private struct ChannelInfoActionsSection: View {
   let isDeleting: Bool
   @Binding var showingClearMessagesConfirmation: Bool
   @Binding var showingDeleteConfirmation: Bool
+  let onClearMessages: () async -> Void
+  let onDelete: () async -> Void
 
   var body: some View {
     Section {
@@ -516,6 +492,18 @@ private struct ChannelInfoActionsSection: View {
         }
       }
       .disabled(isActionInProgress)
+      .confirmationDialog(
+        L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.title,
+        isPresented: $showingClearMessagesConfirmation,
+        titleVisibility: .visible
+      ) {
+        Button(L10n.Chats.Chats.ChannelInfo.clearMessagesButton, role: .destructive) {
+          Task { await onClearMessages() }
+        }
+        Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
+      } message: {
+        Text(L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.message)
+      }
 
       Button(role: .destructive) {
         showingDeleteConfirmation = true
@@ -529,6 +517,18 @@ private struct ChannelInfoActionsSection: View {
         }
       }
       .disabled(isActionInProgress)
+      .confirmationDialog(
+        L10n.Chats.Chats.ChannelInfo.DeleteConfirm.title,
+        isPresented: $showingDeleteConfirmation,
+        titleVisibility: .visible
+      ) {
+        Button(L10n.Chats.Chats.ChannelInfo.deleteButton, role: .destructive) {
+          Task { await onDelete() }
+        }
+        Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
+      } message: {
+        Text(L10n.Chats.Chats.ChannelInfo.DeleteConfirm.message)
+      }
     } footer: {
       Text(L10n.Chats.Chats.ChannelInfo.deleteFooter)
     }
