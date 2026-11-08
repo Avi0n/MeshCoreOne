@@ -61,7 +61,7 @@ extension PlainTextSendGateTests {
     defer { harness.stop() }
     let contact = try await harness.contact(byte: 0x47)
     let handler = try quickReplyHandler(harness)
-    await harness.store.setIncrementPendingSendAttemptCountFaultInjection {
+    await harness.store.setPreparePendingSendAttemptFaultInjection {
       throw AttemptPersistenceError.unavailable
     }
 

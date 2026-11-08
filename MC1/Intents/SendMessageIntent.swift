@@ -153,46 +153,23 @@ struct SendMessageIntent: AppIntent {
     let nodeNameByteCount = appState.connectedDevice?.nodeName.utf8.count ?? 0
     try validate(message: message, for: recipient, nodeNameByteCount: nodeNameByteCount)
 
-    let pending: MessageDTO
+    let admission: ChatSendAdmission
     do {
       switch recipient {
       case let .contact(dto):
-        pending = try await services.messageService.createPendingMessage(text: message, to: dto)
+        admission = try await services.chatSendQueueService.enqueueDirectMessage(text: message, to: dto)
       case let .channel(dto):
-        pending = try await services.messageService.createPendingChannelMessage(
+        admission = try await services.chatSendQueueService.enqueueChannelMessage(
           text: message,
-          channelIndex: dto.index,
-          radioID: dto.radioID
+          to: dto,
+          localNodeName: appState.connectedDevice?.nodeName
         )
       }
     } catch {
       throw mapToIntentError(error)
     }
 
-    do {
-      switch recipient {
-      case let .contact(dto):
-        try await services.chatSendQueueService.enqueueDM(
-          DirectMessageEnvelope(messageID: pending.id, contactID: dto.id)
-        )
-      case let .channel(dto):
-        try await services.chatSendQueueService.enqueueChannel(
-          ChannelMessageEnvelope(
-            messageID: pending.id,
-            channelIndex: dto.index,
-            isResend: false,
-            messageText: pending.text,
-            messageTimestamp: pending.timestamp,
-            localNodeName: appState.connectedDevice?.nodeName
-          )
-        )
-      }
-    } catch {
-      // The row is already persisted as `.pending`, but the enqueue write
-      // failed so no `PendingSend` backs it and the drain never sends it.
-      // Mark it `.failed` so it surfaces a retry instead of hanging pending,
-      // the same recovery the chat send path performs.
-      _ = try? await services.dataStore.updateMessageStatusUnlessDelivered(id: pending.id, status: .failed)
+    if case let .enqueueFailed(_, error) = admission {
       throw mapToIntentError(error)
     }
     // A headless send never crosses the chat view model that an in-app send

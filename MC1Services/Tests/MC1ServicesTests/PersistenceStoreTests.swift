@@ -1777,13 +1777,13 @@ struct PersistenceStoreTests {
   }
 
   @Test
-  func `incrementPendingSendAttemptCount from 0 bumps to 1`() async throws {
+  func `preparePendingSendAttempt from 0 bumps to 1`() async throws {
     let store = try await createTestStore()
     let messageID = UUID()
     let dto = makePendingSendDTO(messageID: messageID, attemptCount: 0)
     try await store.upsertPendingSend(dto)
 
-    let result = try await store.incrementPendingSendAttemptCount(messageID: messageID)
+    let result = try await store.preparePendingSendAttempt(messageID: messageID)
     #expect(result?.attemptCount == 1, "first drain attempt should bump 0 → 1")
 
     let persisted = try await store.fetchPendingSends(radioID: dto.radioID).first
@@ -1791,11 +1791,11 @@ struct PersistenceStoreTests {
   }
 
   @Test
-  func `incrementPendingSendAttemptCount returns nil when no row matches`() async throws {
+  func `preparePendingSendAttempt returns nil when no row matches`() async throws {
     let store = try await createTestStore()
     let messageID = UUID()
 
-    let result = try await store.incrementPendingSendAttemptCount(messageID: messageID)
+    let result = try await store.preparePendingSendAttempt(messageID: messageID)
     #expect(result?.pendingSendID == nil, "missing-row case is terminal — return nil instead of creating a new row")
   }
 

@@ -46,31 +46,14 @@ struct ChatSendQueueConfig {
   static let `default` = ChatSendQueueConfig()
 }
 
-/// Owns the DM and channel send queues for a connection. Replaces the
-/// per-view-model queue ownership on `ChatViewModel`. Lives on
-/// `ServiceContainer`; constructed once per connection, torn down on
-/// disconnect.
-///
-/// Startup behaviour: `hydrate()` reads `PendingSend` rows from
-/// `PersistenceStore` for the connection's radio and enqueues them.
-/// `ConnectionManager` calls `hydrate()` once after building the container
-/// and before exposing it to view models, so two `ChatViewModel`s
-/// active during a single connection cannot trigger duplicate replay.
-///
-/// Transport-open signal: the drain step suspends via
-/// `withCooperativeTimeout` on the `BLETransportOpenedSignal` actor.
-/// The connection-state observation started by `observeConnectionState`
-/// fires the signal each time the connection enters `.ready`. Rows are
-/// never deleted while waiting. `triggers.clear` is called only after a
-/// successful send (not before each attempt) so that a fire signal
-/// landing during a successful send doesn't get wiped before the next
-/// failed send needs it.
+/// Owns initial admission and durable DM and channel queues for one connection.
+/// ServiceContainer retirement joins admitted work before replacement services hydrate it.
 @MainActor
 public final class ChatSendQueueService {
   let radioID: UUID
   private let config: ChatSendQueueConfig
-  private let dataStore: any MessagePersisting & ContactPersisting
-  private let messageService: MessageService
+  let dataStore: any MessagePersisting & ContactPersisting
+  let messageService: MessageService
   private let channelService: ChannelService
   private let reactionService: ReactionService
   private let triggers: BLETransportOpenedSignal
@@ -187,7 +170,6 @@ public final class ChatSendQueueService {
             preserveTimestamp = result.preserveTimestamp
             pendingSendID = result.pendingSendID
           } catch {
-            _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
             await stopIssuing()
             try await ChatSendQueueService.parkAndCancel(
               triggers: triggers,
@@ -426,12 +408,8 @@ public final class ChatSendQueueService {
     )
   }
 
-  /// Enqueue a DM envelope. Persists a `PendingSend` row first; the
-  /// queue's drain reads it back on the next send attempt. Throws
-  /// `ChatSendQueueServiceError.persistFailed` if the SwiftData write
-  /// fails so the caller can surface the failure instead of silently
-  /// dropping the queued send.
-  public func enqueueDM(_ envelope: DirectMessageEnvelope) async throws {
+  /// Persists the DM envelope before signaling the drain so reconnect can recover it.
+  func enqueueDM(_ envelope: DirectMessageEnvelope) async throws {
     guard beginAdmission() else { throw CancellationError() }
     defer { finishAdmission() }
     try await persist(PendingSendDTO(envelope: envelope, radioID: radioID))
@@ -575,11 +553,8 @@ public final class ChatSendQueueService {
     }
   }
 
-  /// Combines the `hasPendingSend` gate, the top-of-drain `attemptCount` bump,
-  /// and the `preserveTimestamp` computation that every DM and channel drain
-  /// runs before any wire-affecting work. Returns nil if the row is gone
-  /// (terminal — abandon envelope). Throws transient errors so the caller can
-  /// park and retry; throws nothing on the gate-missing terminal path.
+  /// Prepares durable work before any radio command and preserves timestamps after the first attempt.
+  /// A missing row ends the drain; persistence errors let the caller park and retry.
   nonisolated static func preflightAndBump(
     dataStore: any MessagePersisting,
     messageID: UUID,
@@ -603,14 +578,14 @@ public final class ChatSendQueueService {
     let postBumpCount: Int
     let pendingSendID: UUID
     do {
-      guard let bumped = try await dataStore.incrementPendingSendAttemptCount(messageID: messageID) else {
+      guard let bumped = try await dataStore.preparePendingSendAttempt(messageID: messageID) else {
         logger.info("\(kind) drain: PendingSend row gone for messageID=\(messageID); treating as terminal")
         return nil
       }
       postBumpCount = bumped.attemptCount
       pendingSendID = bumped.pendingSendID
     } catch {
-      logger.warning("incrementPendingSendAttemptCount failed: \(String(describing: error)); parking envelope for next transport-open")
+      logger.warning("preparePendingSendAttempt failed: \(String(describing: error)); parking envelope for next transport-open")
       throw error
     }
 
@@ -858,13 +833,13 @@ public final class ChatSendQueueService {
     await channelQueue.cancelDrain()
   }
 
-  private func beginAdmission() -> Bool {
+  func beginAdmission() -> Bool {
     guard !isRetired else { return false }
     admittedWork += 1
     return true
   }
 
-  private func finishAdmission() {
+  func finishAdmission() {
     admittedWork -= 1
     guard admittedWork == 0 else { return }
     let waiters = admissionWaiters

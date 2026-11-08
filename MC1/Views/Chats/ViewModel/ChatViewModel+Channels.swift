@@ -103,39 +103,30 @@ extension ChatViewModel {
   func sendChannelMessage(text: String) async -> Bool {
     guard !text.isEmpty else { return true }
     guard let channel = currentChannel,
-          let messageService else {
+          let queue = chatSendQueueServiceProvider() else {
       sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
       return false
     }
 
     errorMessage = nil
 
-    let message: MessageDTO
     do {
-      message = try await messageService.createPendingChannelMessage(
+      let admission = try await queue.enqueueChannelMessage(
         text: text,
-        channelIndex: channel.index,
-        radioID: channel.radioID
-      )
-      appendMessageIfNew(message)
-      schedulePrefetchForMessage(message, isChannelMessage: true)
+        to: channel,
+        localNodeName: connectedDeviceProvider()?.nodeName
+      ) { message in
+        self.appendMessageIfNew(message)
+        self.schedulePrefetchForMessage(message, isChannelMessage: true)
+      }
+      if case let .enqueueFailed(message, error) = admission {
+        await presentLocalEnqueueFailure(messageID: message.id, error: error)
+      }
+    } catch ChatSendQueueServiceError.notConnected {
+      sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+      return false
     } catch {
       errorMessage = error.userFacingMessage
-      return true
-    }
-
-    let envelope = ChannelMessageEnvelope(
-      messageID: message.id,
-      channelIndex: channel.index,
-      isResend: false,
-      messageText: message.text,
-      messageTimestamp: message.timestamp,
-      localNodeName: connectedDeviceProvider()?.nodeName
-    )
-    do {
-      try await enqueueChannel(envelope)
-    } catch {
-      await recordLocalEnqueueFailure(messageID: message.id, error: error)
     }
     return true
   }

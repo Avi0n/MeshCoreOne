@@ -502,7 +502,7 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
     false
   }
 
-  func incrementPendingSendAttemptCount(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
+  func preparePendingSendAttempt(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
     nil
   }
 

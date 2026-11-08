@@ -2,21 +2,7 @@ import Foundation
 import MC1Services
 
 extension ChatViewModel {
-  /// Route a DM enqueue through the service-owned send queue. The
-  /// service persists the row and drives the drain. Throws
-  /// `.notConnected` if the connection has been torn down between the
-  /// optimistic DB write and this call, or `.persistFailed` if the
-  /// SwiftData write fails. The caller's catch flips the message to
-  /// `.failed` and surfaces the error.
-  func enqueueDM(_ envelope: DirectMessageEnvelope) async throws {
-    guard let queue = chatSendQueueServiceProvider() else {
-      throw ChatSendQueueServiceError.notConnected
-    }
-    try await queue.enqueueDM(envelope)
-  }
-
-  /// Route a channel enqueue through the service-owned send queue.
-  /// See `enqueueDM` for the error contract.
+  /// Queues a channel retry; the caller repairs and presents an enqueue failure.
   func enqueueChannel(_ envelope: ChannelMessageEnvelope) async throws {
     guard let queue = chatSendQueueServiceProvider() else {
       throw ChatSendQueueServiceError.notConnected

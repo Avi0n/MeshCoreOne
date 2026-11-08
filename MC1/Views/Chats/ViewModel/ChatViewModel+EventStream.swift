@@ -115,10 +115,14 @@ extension ChatViewModel {
     await markFailedSendSeenIfCurrent(message: message)
   }
 
-  /// Persists local enqueue failures before presentation because the queue emits no failure event.
+  /// Persists retry enqueue failures before presentation because the queue emits no failure event.
   func recordLocalEnqueueFailure(messageID: UUID, error: Error) async {
-    logger.error("enqueue failed for messageID=\(messageID, privacy: .public): \(String(describing: error))")
     _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+    await presentLocalEnqueueFailure(messageID: messageID, error: error)
+  }
+
+  func presentLocalEnqueueFailure(messageID: UUID, error: Error) async {
+    logger.error("enqueue failed for messageID=\(messageID, privacy: .public): \(String(describing: error))")
     timeline.applyStatusUpdate(messageID: messageID, status: .failed)
     await handleMessageFailure(messageID: messageID)
     sendErrorMessage = Self.copyForEnqueueFailure(error)

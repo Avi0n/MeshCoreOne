@@ -70,7 +70,7 @@ public extension MessageService {
         throw CancellationError()
       }
       // A restart must preserve this timestamp once the command may have reached the radio.
-      guard let attempted = try await dataStore.incrementPendingSendAttemptCount(messageID: messageID),
+      guard let attempted = try await dataStore.preparePendingSendAttempt(messageID: messageID),
             attempted.pendingSendID == pendingSendID else {
         throw CancellationError()
       }
@@ -210,19 +210,8 @@ public extension MessageService {
     }
   }
 
-  /// Creates a pending message without sending it.
-  ///
-  /// Use this when you want to show the message in the UI immediately
-  /// and drain it later via ``sendPendingDirectMessage(messageID:to:preserveTimestamp:)``.
-  ///
-  /// - Parameters:
-  ///   - text: The message text
-  ///   - contact: The recipient contact
-  ///   - textType: The type of text content (default: .plain)
-  ///   - replyToID: Optional ID of message being replied to
-  ///
-  /// - Returns: The created message DTO with pending status
-  func createPendingMessage(
+  /// Saves the pending Message and updates contact recency before the caller publishes it.
+  internal func createPendingMessage(
     text: String,
     to contact: ContactDTO,
     textType: TextType = .plain,

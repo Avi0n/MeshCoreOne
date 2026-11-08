@@ -11,26 +11,19 @@ struct ChatSendAdmissionTests {
   private let timeout: Duration = .seconds(3)
 
   @Test(arguments: [false, true])
-  func `service loss before message creation surfaces a send failure`(isChannel: Bool) async {
-    let viewModel = ChatViewModel()
-    let radioID = UUID()
-    viewModel.configureForTesting(dependencies: .testDefaults())
-
-    selectConversation(viewModel, radioID: radioID, isChannel: isChannel)
-    let reachedService = await submit("Retain this text", to: viewModel, isChannel: isChannel)
-
-    #expect(!reachedService)
-    #expect(viewModel.messages.isEmpty)
-    #expect(viewModel.sendErrorMessage == L10n.Chats.Chats.Alert.UnableToSend.message)
-  }
-
-  @Test(arguments: [false, true])
   func `queue rejection retains one failed Message without restoring a duplicate Draft`(isChannel: Bool) async throws {
     let radioID = UUID()
     let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
-    let service = MessageService(session: MeshCoreSession(transport: MockTransport()), dataStore: store, contactService: nil)
+    let services = ServiceContainer(
+      session: MeshCoreSession(transport: MockTransport()), dataStore: store, radioID: radioID
+    )
+    await store.setPendingSendInsertHandler { throw CocoaError(.fileWriteUnknown) }
     let viewModel = ChatViewModel()
-    viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { store }, messageService: { service }))
+    viewModel.configureForTesting(dependencies: .testDefaults(
+      dataStore: { store },
+      messageService: { services.messageService },
+      chatSendQueueService: { services.chatSendQueueService }
+    ))
     viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
     selectConversation(viewModel, radioID: radioID, isChannel: isChannel)
     if let contact = viewModel.currentContact { try await store.saveContact(contact) }
@@ -42,6 +35,32 @@ struct ChatSendAdmissionTests {
     #expect(viewModel.messages.count == 1)
     #expect(message.status == .failed)
     #expect(try await store.fetchMessage(id: message.id)?.status == .failed)
+    #expect(try await store.fetchMessage(id: message.id)?.failureSeen == true)
+    #expect(try await store.fetchPendingSends(radioID: radioID).isEmpty)
+    #expect(viewModel.sendErrorMessage == L10n.Chats.Chats.Error.sendQueuePersistFailed)
+    await services.chatSendQueueService.shutdown()
+  }
+
+  @Test(arguments: [false, true])
+  func `retired queue rejects before creation so the composer restores the Draft`(isChannel: Bool) async throws {
+    let radioID = UUID()
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let services = ServiceContainer(
+      session: MeshCoreSession(transport: MockTransport()), dataStore: store, radioID: radioID
+    )
+    let viewModel = ChatViewModel()
+    viewModel.configureForTesting(dependencies: .testDefaults(
+      dataStore: { store },
+      messageService: { services.messageService },
+      chatSendQueueService: { services.chatSendQueueService }
+    ))
+    selectConversation(viewModel, radioID: radioID, isChannel: isChannel)
+    await services.chatSendQueueService.shutdown()
+
+    let reachedService = await submit("Retain this text", to: viewModel, isChannel: isChannel)
+
+    #expect(!reachedService)
+    #expect(viewModel.messages.isEmpty)
     #expect(try await store.fetchPendingSends(radioID: radioID).isEmpty)
     #expect(viewModel.sendErrorMessage == L10n.Chats.Chats.Alert.UnableToSend.message)
   }

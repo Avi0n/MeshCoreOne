@@ -90,7 +90,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   }
 
   #if DEBUG
-    var pendingSendInsertHandler: (@Sendable () async -> Void)?
+    var pendingSendInsertHandler: (@Sendable () async throws -> Void)?
     var pendingSendAttemptHandler: (@Sendable () async -> Void)?
     var identityReconciliationFaultInjection: (@Sendable () throws -> Void)?
     /// Inserts since the last RxLog-initiated `modelContext.save()`. Does not
@@ -118,12 +118,8 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     /// they can assert post-commit behaviour of `importBackup`.
     var backupImportPostCommitHook: (@Sendable () -> Void)?
 
-    /// Test-only fault injection fired at the top of
-    /// `incrementPendingSendAttemptCount`. Tests use it to verify the
-    /// bump-failure park-and-requeue path in `ChatSendQueueService`'s drain
-    /// closures — a real SwiftData save failure here is otherwise hard to
-    /// provoke from a well-formed row.
-    var incrementPendingSendAttemptCountFaultInjection: (@Sendable () throws -> Void)?
+    var preparePendingSendAttemptFaultInjection: (@Sendable () throws -> Void)?
+    var pendingSendAttemptSaveFaultInjection: (@Sendable (UUID) throws -> Void)?
 
     /// Test-only hook at the top of `fetchDevice(id:)`. The pairing query skips that id on throw.
     var fetchDeviceByIDFaultInjection: (@Sendable () throws -> Void)?

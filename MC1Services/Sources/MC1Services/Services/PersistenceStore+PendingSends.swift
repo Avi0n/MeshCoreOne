@@ -3,6 +3,7 @@ import os
 import SwiftData
 
 public extension PersistenceStore {
+  private static let initialAttemptCount = 0
   private static let pendingSendLogger = Logger(
     subsystem: "com.mc1",
     category: "PersistenceStore.PendingSends"
@@ -58,7 +59,7 @@ public extension PersistenceStore {
   /// reserved for tests and explicit-sequence scenarios.
   func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int {
     #if DEBUG
-      await pendingSendInsertHandler?()
+      try await pendingSendInsertHandler?()
     #endif
     let assignedSequence = try insertPendingSendAssigningSequenceWithoutSaving(dto)
     try modelContext.save()
@@ -325,21 +326,15 @@ public extension PersistenceStore {
     return rows.count
   }
 
-  /// Increments the `attemptCount` for the `PendingSend` row matching
-  /// `messageID`. Returns the new count, or `nil` if no row matched.
-  /// Throws on SwiftData read/write failure — callers must treat a thrown
-  /// error as transient (park + retry) and `nil` as terminal (deleted row).
-  ///
-  /// `warmUp`'s purge runs before hydrate, so a `nil` row reaching increment
-  /// time would indicate the purge step was skipped (programmer error). The
-  /// `?? 0` fallback degrades gracefully without pretending the row had
-  /// prior drain attempts.
+  /// Restores eligible unsent DMs and increments the queued row's attempt count in one save.
+  /// Returns nil if no queued row remains; persistence errors leave preparation retryable.
   @discardableResult
-  func incrementPendingSendAttemptCount(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
+  func preparePendingSendAttempt(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
     #if DEBUG
       await pendingSendAttemptHandler?()
-      try incrementPendingSendAttemptCountFaultInjection?()
+      try preparePendingSendAttemptFaultInjection?()
     #endif
+    try commitPendingRxLogEntries()
     let scopedMessageID = messageID
     let predicate = #Predicate<PendingSend> { row in
       row.messageID == scopedMessageID && row.ackDeadline == nil
@@ -347,10 +342,28 @@ public extension PersistenceStore {
     var descriptor = FetchDescriptor<PendingSend>(predicate: predicate, sortBy: [SortDescriptor(\.sequence)])
     descriptor.fetchLimit = 1
     guard let row = try modelContext.fetch(descriptor).first else { return nil }
-    let nextCount = (row.attemptCount ?? 0) + 1
-    row.attemptCount = nextCount
-    try modelContext.save()
-    return (row.id, nextCount)
+    do {
+      if row.kind == .dm, row.attemptCount == Self.initialAttemptCount, !row.isResend, !row.isSingleAttempt {
+        let radioID = row.radioID
+        let messagePredicate = #Predicate<Message> { $0.id == scopedMessageID && $0.radioID == radioID }
+        if let message = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).first,
+           message.reactionTargetMessageID == nil, message.status == .failed {
+          // Admission can fail after the durable write. Restore unsent DMs so ACK
+          // persistence can record acceptance and delivery on their first attempt.
+          message.status = .pending
+        }
+      }
+      let nextCount = (row.attemptCount ?? Self.initialAttemptCount) + 1
+      row.attemptCount = nextCount
+      #if DEBUG
+        try pendingSendAttemptSaveFaultInjection?(messageID)
+      #endif
+      try modelContext.save()
+      return (row.id, nextCount)
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
   }
 
   #if DEBUG
@@ -358,12 +371,16 @@ public extension PersistenceStore {
       pendingSendAttemptHandler = handler
     }
 
-    func setPendingSendInsertHandler(_ handler: (@Sendable () async -> Void)?) {
+    func setPendingSendInsertHandler(_ handler: (@Sendable () async throws -> Void)?) {
       pendingSendInsertHandler = handler
     }
 
-    func setIncrementPendingSendAttemptCountFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
-      incrementPendingSendAttemptCountFaultInjection = hook
+    func setPreparePendingSendAttemptFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      preparePendingSendAttemptFaultInjection = hook
+    }
+
+    func setPendingSendAttemptSaveFaultInjection(_ hook: (@Sendable (UUID) throws -> Void)?) {
+      pendingSendAttemptSaveFaultInjection = hook
     }
   #endif
 }

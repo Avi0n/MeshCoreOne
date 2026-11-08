@@ -90,25 +90,8 @@ public extension MessageService {
     return (id: messageID, timestamp: timestamp)
   }
 
-  /// Creates a pending channel message without sending it.
-  ///
-  /// Use this for optimistic UI — the message is saved immediately and can be
-  /// displayed in the conversation while the actual send happens in the background
-  /// via ``sendPendingChannelMessage(messageID:channelIndex:radioID:)``.
-  ///
-  /// - Parameters:
-  ///   - text: The message text. Bounded by
-  ///     `ProtocolLimits.maxChannelMessageLength(nodeNameByteCount:)`.
-  ///   - channelIndex: The channel index to send on
-  ///   - radioID: The device ID
-  ///   - textType: The text type (defaults to `.plain`)
-  ///
-  /// - Returns: The created message DTO with pending status
-  ///
-  /// - Throws:
-  ///   - `MessageServiceError.messageTooLong` if user text exceeds
-  ///     `ProtocolLimits.maxChannelMessageLength(nodeNameByteCount:)`
-  func createPendingChannelMessage(
+  /// Validates the radio's current text budget and saves the Message before queue admission.
+  internal func createPendingChannelMessage(
     text: String,
     channelIndex: UInt8,
     radioID: UUID,

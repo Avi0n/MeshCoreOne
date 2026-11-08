@@ -206,12 +206,10 @@ public protocol MessagePersisting: Actor {
   /// `messageID` is globally unique.
   func hasPendingSend(messageID: UUID) async throws -> Bool
 
-  /// Increments the `attemptCount` for the `PendingSend` row matching
-  /// `messageID`. Returns that row's ID and new count, or `nil` if no queued row matched.
-  /// Throws on SwiftData read/write failure; callers must treat a thrown
-  /// error as transient (park + retry) and `nil` as terminal (deleted row).
+  /// Atomically restores eligible unsent DMs and increments the queued row's attempt count.
+  /// Returns its ID and new count, or nil if none remains; callers park and retry persistence errors.
   @discardableResult
-  func incrementPendingSendAttemptCount(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)?
+  func preparePendingSendAttempt(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)?
 }
 
 // MARK: - Default Parameter Values

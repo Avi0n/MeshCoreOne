@@ -2756,8 +2756,14 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   }
 
   @discardableResult
-  public func incrementPendingSendAttemptCount(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
+  public func preparePendingSendAttempt(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
     guard let row = pendingSends.values.first(where: { $0.messageID == messageID && $0.ackDeadline == nil }) else { return nil }
+    if row.kind == .dm, row.attemptCount == 0, !row.isResend, !row.isSingleAttempt,
+       var message = messages[messageID], message.radioID == row.radioID,
+       message.reactionTargetMessageID == nil, message.status == .failed {
+      message.status = .pending
+      messages[messageID] = message
+    }
     let nextCount = (row.attemptCount ?? 0) + 1
     pendingSends[row.id] = PendingSendDTO(
       id: row.id,
