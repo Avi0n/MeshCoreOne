@@ -183,6 +183,19 @@ extension PersistenceStore {
 // MARK: - Merge pre-existing rows from backup metadata
 
 extension PersistenceStore {
+  func mergeBackupMetadata(into message: Message, from dto: MessageDTO) -> Bool {
+    var changed = false
+    if message.reactionTargetMessageID == nil, let targetID = dto.reactionTargetMessageID {
+      message.reactionTargetMessageID = targetID
+      changed = true
+    }
+    if message.reactionSenderName == nil, let senderName = dto.reactionSenderName {
+      message.reactionSenderName = senderName
+      changed = true
+    }
+    return changed
+  }
+
   func mergeBackupMetadata(into contact: Contact, from dto: ContactDTO) -> Bool {
     var changed = false
     if contact.nickname == nil, let backupNickname = dto.nickname {

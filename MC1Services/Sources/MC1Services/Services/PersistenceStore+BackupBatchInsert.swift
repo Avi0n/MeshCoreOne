@@ -307,8 +307,7 @@ extension PersistenceStore {
     existingKeys: Set<String>,
     existingIDsByKey: [String: [UUID]]
   ) throws -> (
-    inserted: Int,
-    skipped: Int,
+    counts: PerTypeCounts,
     messageIDByBackupID: [UUID: UUID],
     skippedIncomingParents: [(localMessageID: UUID, dto: MessageDTO)]
   ) {
@@ -317,9 +316,11 @@ extension PersistenceStore {
     var knownIDs = Set(existingIDsByKey.values.flatMap(\.self))
     var messageIDByBackupID: [UUID: UUID] = [:]
     var skippedIncomingParents: [(localMessageID: UUID, dto: MessageDTO)] = []
+    var skippedOutgoingMessages: [MessageDTO] = []
     var toInsert: [MessageDTO] = []
     toInsert.reserveCapacity(dtos.count)
     var skipped = 0
+    var merged = 0
 
     // Pass 1: resolve duplicates and build the backup→local ID remap. Doing this
     // before any insert lets pass 2 rewrite replyToID onto winning local UUIDs,
@@ -334,6 +335,8 @@ extension PersistenceStore {
         }
         if dto.direction == .incoming {
           skippedIncomingParents.append((localMessageID: winning ?? dto.id, dto: dto))
+        } else {
+          skippedOutgoingMessages.append(dto)
         }
         skipped += 1
         continue
@@ -355,12 +358,25 @@ extension PersistenceStore {
       if let replyTo = dto.replyToID, let winning = messageIDByBackupID[replyTo] {
         dto.replyToID = winning
       }
+      if let targetID = dto.reactionTargetMessageID, let winning = messageIDByBackupID[targetID] {
+        dto.reactionTargetMessageID = winning
+      }
       modelContext.insert(Message(dto: dto))
     }
 
+    for var dto in skippedOutgoingMessages {
+      if let targetID = dto.reactionTargetMessageID, let winning = messageIDByBackupID[targetID] {
+        dto.reactionTargetMessageID = winning
+      }
+      let id = dto.id
+      let predicate = #Predicate<Message> { $0.id == id }
+      if let message = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first, mergeBackupMetadata(into: message, from: dto) {
+        merged += 1
+      }
+    }
+
     return (
-      inserted: toInsert.count,
-      skipped: skipped,
+      counts: PerTypeCounts(inserted: toInsert.count, merged: merged, skipped: skipped),
       messageIDByBackupID: messageIDByBackupID,
       skippedIncomingParents: skippedIncomingParents
     )

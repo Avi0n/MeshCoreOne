@@ -447,6 +447,45 @@ public final class ChatSendQueueService {
     await channelQueue.enqueue(envelope)
   }
 
+  public func enqueueReaction(to target: MessageDTO, emoji: String, senderName: String) async throws -> MessageDTO? {
+    guard target.radioID == radioID else { throw ChatSendQueueServiceError.notConnected }
+    guard beginAdmission() else { throw CancellationError() }
+    defer { finishAdmission() }
+
+    let text: String
+    if target.channelIndex != nil {
+      guard let targetSender = target.isOutgoing ? senderName : target.senderNodeName else { return nil }
+      text = reactionService.buildReactionText(
+        emoji: emoji, targetSender: targetSender, targetText: target.text, targetTimestamp: target.reactionTimestamp
+      )
+    } else {
+      text = reactionService.buildDMReactionText(
+        emoji: emoji, targetText: target.text, targetTimestamp: target.reactionTimestamp
+      )
+    }
+    let model = Message(
+      radioID: radioID, contactID: target.contactID, channelIndex: target.channelIndex,
+      text: text, timestamp: UInt32(Date().timeIntervalSince1970),
+      directionRawValue: MessageDirection.outgoing.rawValue,
+      statusRawValue: MessageStatus.pending.rawValue
+    )
+    model.reactionTargetMessageID = target.id
+    model.reactionSenderName = senderName
+    let pending = MessageDTO(from: model)
+    try await messageService.validateOutgoingReaction(pending)
+    guard let message = try await dataStore.admitOutgoingReaction(pending) else { return nil }
+    guard !isRetired else { return message }
+    if let channelIndex = message.channelIndex {
+      await channelQueue.enqueue(ChannelMessageEnvelope(
+        messageID: message.id, channelIndex: channelIndex, isResend: false,
+        messageText: message.text, messageTimestamp: message.timestamp, localNodeName: senderName
+      ))
+    } else if let contactID = message.contactID {
+      await dmQueue.enqueue(DirectMessageEnvelope(messageID: message.id, contactID: contactID, isSingleAttempt: true))
+    }
+    return message
+  }
+
   /// Signals the DM queue that a `PendingSend` row already exists for
   /// this envelope. Used by the manual retry path where
   /// `PersistenceStore.replacePendingSendForRetry` has already written

@@ -37,6 +37,7 @@ public extension PersistenceStore {
     row.ackDeadline = dto.ackDeadline
     message.status = .sent
     do {
+      _ = try stageOutgoingReaction(message)
       #if DEBUG
         try savePendingAcknowledgementFaultInjection?()
       #endif
@@ -66,8 +67,9 @@ public extension PersistenceStore {
       if let ackCode { message.ackCode = ackCode }
       if let roundTripTime { message.roundTripTime = roundTripTime }
     }
-    if row.ackDeadline != nil { modelContext.delete(row) }
     do {
+      if let message { _ = try stageOutgoingReaction(message) }
+      if row.ackDeadline != nil { modelContext.delete(row) }
       try modelContext.save()
     } catch {
       modelContext.rollback()

@@ -2,6 +2,8 @@ import MC1Services
 import SwiftUI
 
 extension ChatViewModel {
+  private static let singleMessageDeletionCount = 1
+
   // MARK: - Message Actions
 
   /// Retry sending a failed direct message through the persistent send
@@ -28,7 +30,10 @@ extension ChatViewModel {
     errorMessage = nil
     errorBannerMessage = nil
 
-    let envelope = DirectMessageEnvelope(messageID: message.id, contactID: contact.id)
+    let envelope = DirectMessageEnvelope(
+      messageID: message.id, contactID: contact.id,
+      isSingleAttempt: message.reactionTargetMessageID != nil
+    )
     let dto = PendingSendDTO(envelope: envelope, radioID: contact.radioID)
 
     do {
@@ -88,7 +93,10 @@ extension ChatViewModel {
         return
       }
 
-      let envelope = DirectMessageEnvelope(messageID: message.id, contactID: contact.id, isResend: true)
+      let envelope = DirectMessageEnvelope(
+        messageID: message.id, contactID: contact.id, isResend: true,
+        isSingleAttempt: message.reactionTargetMessageID != nil
+      )
       let dto = PendingSendDTO(envelope: envelope, radioID: contact.radioID)
 
       do {
@@ -119,10 +127,7 @@ extension ChatViewModel {
     guard connectionStateProvider() == .ready, let dataStore else { return }
 
     do {
-      try await dataStore.deleteMessage(id: message.id)
-
-      // Remove from all local collections
-      timeline.removeMessage(message.id)
+      let deletedCount = try await dataStore.deleteMessageAndCount(id: message.id)
 
       // Clean up preview state for deleted message
       cleanupPreviewState(for: message.id)
@@ -136,6 +141,15 @@ extension ChatViewModel {
       if let currentContact {
         try await dataStore.recomputeContactLastMessageDate(contactID: currentContact.id)
         syncCoordinator?.notifyConversationsChanged()
+      }
+
+      // Cascaded wire rows can be hidden, so refetch the window to reconcile paging too.
+      if deletedCount > Self.singleMessageDeletionCount, let conversation = timeline.conversation {
+        if case let .failed(error) = await timeline.open(conversation, reactions: nil, populateMode: .refreshWindow) {
+          throw error
+        }
+      } else {
+        timeline.removeMessage(message.id)
       }
     } catch {
       errorMessage = error.userFacingMessage

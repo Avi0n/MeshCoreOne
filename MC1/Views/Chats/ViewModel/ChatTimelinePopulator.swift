@@ -33,7 +33,8 @@ enum ChatTimelinePopulator {
     envInputs: EnvInputs,
     senderTables: @MainActor () -> ChatSenderTables,
     postApply: (@MainActor () -> Void)?,
-    anchorSortDate: Date?
+    anchorSortDate: Date?,
+    isCurrent: @MainActor () -> Bool
   ) async -> Outcome {
     writer.beginLoading()
 
@@ -79,6 +80,7 @@ enum ChatTimelinePopulator {
         await writer.testPopulateAfterFetchHook?()
       #endif
       try Task.checkCancellation()
+      guard isCurrent() else { throw CancellationError() }
 
       var fetchedMessages = window.messages
       let unfilteredCount = fetchedMessages.count

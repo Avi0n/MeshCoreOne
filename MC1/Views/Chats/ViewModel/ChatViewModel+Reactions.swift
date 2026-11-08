@@ -1,4 +1,3 @@
-import Foundation
 import MC1Services
 
 extension ChatViewModel {
@@ -6,161 +5,22 @@ extension ChatViewModel {
 
   /// Send a reaction emoji to a message (channel or DM)
   func sendReaction(emoji: String, to message: MessageDTO) async {
-    guard reactionServiceProvider() != nil,
-          messageService != nil,
-          let dataStore else {
+    guard let queue = chatSendQueueServiceProvider(),
+          let localNodeName = connectedDeviceProvider()?.nodeName else {
+      sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
       return
     }
 
-    // Prevent duplicate sends from rapid taps
     let reactionKey = "\(message.id)-\(emoji)"
-    guard !inFlightReactions.contains(reactionKey) else {
-      logger.debug("Reaction \(emoji) already in flight for message \(message.id), ignoring")
-      return
-    }
+    guard !inFlightReactions.contains(reactionKey) else { return }
     inFlightReactions.insert(reactionKey)
     defer { inFlightReactions.remove(reactionKey) }
 
-    let localNodeName = connectedDeviceProvider()?.nodeName ?? "Me"
-
-    // Check if user already reacted with this emoji
-    if let alreadyReacted = try? await dataStore.reactionExists(
-      messageID: message.id,
-      senderName: localNodeName,
-      emoji: emoji
-    ), alreadyReacted {
-      logger.debug("User already reacted with \(emoji), ignoring")
-      return
-    }
-
-    // Handle channel vs DM
-    if let channelIndex = message.channelIndex {
-      await sendChannelReaction(
-        emoji: emoji,
-        to: message,
-        channelIndex: channelIndex,
-        localNodeName: localNodeName
-      )
-    } else if let contactID = message.contactID {
-      await sendDMReaction(
-        emoji: emoji,
-        to: message,
-        contactID: contactID,
-        localNodeName: localNodeName
-      )
-    }
-  }
-
-  private func sendChannelReaction(
-    emoji: String,
-    to message: MessageDTO,
-    channelIndex: UInt8,
-    localNodeName: String
-  ) async {
-    guard let reactionService = reactionServiceProvider(),
-          let messageService,
-          let dataStore else { return }
-
-    // Determine target sender name
-    let targetSenderName: String
-    if message.isOutgoing {
-      targetSenderName = localNodeName
-    } else {
-      guard let senderName = message.senderNodeName else { return }
-      targetSenderName = senderName
-    }
-
-    let reactionText = reactionService.buildReactionText(
-      emoji: emoji,
-      targetSender: targetSenderName,
-      targetText: message.text,
-      targetTimestamp: message.reactionTimestamp
-    )
-
     do {
-      _ = try await messageService.sendChannelMessage(
-        text: reactionText,
-        channelIndex: channelIndex,
-        radioID: message.radioID
-      )
-
-      // Optimistic local update
-      let messageHash = ReactionParser.generateMessageHash(
-        text: message.text,
-        timestamp: message.reactionTimestamp
-      )
-      let reactionDTO = ReactionDTO(
-        messageID: message.id,
-        emoji: emoji,
-        senderName: localNodeName,
-        messageHash: messageHash,
-        rawText: reactionText,
-        channelIndex: channelIndex,
-        radioID: message.radioID
-      )
-      if await reactionService.persistReactionAndUpdateSummary(
-        reactionDTO,
-        using: dataStore
-      ) != nil {
-        timeline.enqueueReload(messageID: message.id)
-      }
+      _ = try await queue.enqueueReaction(to: message, emoji: emoji, senderName: localNodeName)
     } catch {
-      logger.error("Failed to send channel reaction: \(error)")
-      errorMessage = error.userFacingMessage
-    }
-  }
-
-  private func sendDMReaction(
-    emoji: String,
-    to message: MessageDTO,
-    contactID: UUID,
-    localNodeName: String
-  ) async {
-    guard let reactionService = reactionServiceProvider(),
-          let messageService,
-          let dataStore else { return }
-
-    // Fetch the contact for sending
-    guard let contact = try? await dataStore.fetchContact(id: contactID) else {
-      logger.error("Failed to fetch contact for DM reaction")
-      return
-    }
-
-    let reactionText = reactionService.buildDMReactionText(
-      emoji: emoji,
-      targetText: message.text,
-      targetTimestamp: message.reactionTimestamp
-    )
-    do {
-      // Send as DM to the contact
-      _ = try await messageService.sendDirectMessage(
-        text: reactionText,
-        to: contact
-      )
-
-      // Optimistic local update
-      let messageHash = ReactionParser.generateMessageHash(
-        text: message.text,
-        timestamp: message.reactionTimestamp
-      )
-      let reactionDTO = ReactionDTO(
-        messageID: message.id,
-        emoji: emoji,
-        senderName: localNodeName,
-        messageHash: messageHash,
-        rawText: reactionText,
-        contactID: contactID,
-        radioID: message.radioID
-      )
-      if await reactionService.persistReactionAndUpdateSummary(
-        reactionDTO,
-        using: dataStore
-      ) != nil {
-        timeline.enqueueReload(messageID: message.id)
-      }
-    } catch {
-      logger.error("Failed to send DM reaction: \(error)")
-      errorMessage = error.userFacingMessage
+      logger.error("Failed to queue reaction: \(error)")
+      sendErrorMessage = Self.copyForEnqueueFailure(error)
     }
   }
 }

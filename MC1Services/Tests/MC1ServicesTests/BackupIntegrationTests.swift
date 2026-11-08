@@ -4509,6 +4509,8 @@ struct BackupIntegrationTests {
       timestampCorrected: true,
       senderTimestamp: 1_699_999_999,
       reactionSummary: "👍:3,❤️:2",
+      reactionTargetMessageID: UUID(),
+      reactionSenderName: "Nate",
       routeType: .tcDirect,
       regionScope: "Germany"
     )
@@ -4552,6 +4554,125 @@ struct BackupIntegrationTests {
     #expect(imported.linkPreviewURL == "https://example.com")
     #expect(imported.linkPreviewTitle == "Example")
     #expect(imported.reactionSummary == "👍:2")
+  }
+
+  @Test
+  func `outgoing reaction metadata survives backup export and import without replay work`() async throws {
+    let radioID = UUID()
+    let source = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let channel = ChannelDTO.testChannel(radioID: radioID)
+    try await source.saveChannel(channel)
+    let target = MessageDTO.testChannelMessage(radioID: radioID, channelIndex: channel.index, text: "Target")
+    try await source.saveMessage(target)
+    var reaction = MessageDTO.testChannelMessage(radioID: radioID, channelIndex: channel.index, text: "Reaction")
+    reaction.reactionTargetMessageID = target.id
+    reaction.reactionSenderName = "Nate"
+    try await source.saveMessage(reaction)
+
+    let service = AppBackupService()
+    let exported = try await service.export(persistenceStore: source)
+    let envelope = try parseBackup(data: exported.data)
+    let encoded = try #require(envelope.messages.first { $0.id == reaction.id })
+    #expect(encoded.reactionTargetMessageID == target.id)
+    #expect(encoded.reactionSenderName == "Nate")
+    let destination = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    _ = try await service.importBackup(envelope: envelope, into: destination)
+    let restored = try #require(try await destination.fetchMessage(id: reaction.id))
+    #expect(restored.reactionTargetMessageID == target.id)
+    #expect(restored.reactionSenderName == "Nate")
+    #expect(try await destination.fetchPendingSends(radioID: radioID).isEmpty)
+  }
+
+  @Test
+  func `legacy backup messages without outgoing reaction metadata decode with nil defaults`() async throws {
+    let radioID = UUID()
+    let source = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    var message = MessageDTO.testDirectMessage(radioID: radioID)
+    message.reactionTargetMessageID = UUID()
+    message.reactionSenderName = "Nate"
+    try await source.saveMessage(message)
+    let exported = try await AppBackupService().export(persistenceStore: source)
+    let current = try parseBackup(data: exported.data)
+    let encoded = try makeBackupJSONEncoder().encode(current)
+    var json = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    var rows = try #require(json["messages"] as? [[String: Any]])
+    rows[0].removeValue(forKey: "reactionTargetMessageID")
+    rows[0].removeValue(forKey: "reactionSenderName")
+    json["messages"] = rows
+
+    let legacy = try parseBackup(data: JSONSerialization.data(withJSONObject: json).zlibCompressed())
+    let decoded = try #require(legacy.messages.first)
+    #expect(decoded.reactionTargetMessageID == nil)
+    #expect(decoded.reactionSenderName == nil)
+    let destination = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    _ = try await AppBackupService().importBackup(envelope: legacy, into: destination)
+    let restored = try #require(try await destination.fetchMessage(id: message.id))
+    #expect(restored.reactionTargetMessageID == nil)
+    #expect(restored.reactionSenderName == nil)
+  }
+
+  @Test(arguments: [false, true])
+  func `reaction metadata remaps a merged target and only fills missing local fields`(hasLocalMetadata: Bool) async throws {
+    let radioID = UUID()
+    let destination = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+    try await destination.saveContact(contact)
+    var localTarget = MessageDTO.testDirectMessage(
+      radioID: radioID, contactID: contact.id, text: "Target", direction: .incoming
+    )
+    localTarget.deduplicationKey = "reaction-target-remap"
+    try await destination.saveMessage(localTarget)
+    let otherTarget = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id, text: "Other target")
+    try await destination.saveMessage(otherTarget)
+    var localReaction = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id, text: "Reaction")
+    if hasLocalMetadata {
+      localReaction.reactionTargetMessageID = otherTarget.id
+      localReaction.reactionSenderName = "Local"
+    }
+    try await destination.saveMessage(localReaction)
+    var backupTarget = localTarget
+    backupTarget.id = UUID()
+    var backupReaction = localReaction
+    backupReaction.reactionTargetMessageID = backupTarget.id
+    backupReaction.reactionSenderName = "Nate"
+    let envelope = AppBackupEnvelope.test(
+      devices: [.testDevice(id: radioID, radioID: radioID)],
+      contacts: [contact], messages: [backupReaction, backupTarget]
+    )
+
+    _ = try await AppBackupService().importBackup(envelope: envelope, into: destination)
+
+    let restored = try #require(try await destination.fetchMessage(id: localReaction.id))
+    #expect(restored.reactionTargetMessageID == (hasLocalMetadata ? otherTarget.id : localTarget.id))
+    #expect(restored.reactionSenderName == (hasLocalMetadata ? "Local" : "Nate"))
+  }
+
+  @Test
+  func `a newly imported outgoing reaction targets the winning local message`() async throws {
+    let radioID = UUID()
+    let destination = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+    try await destination.saveContact(contact)
+    var target = MessageDTO.testDirectMessage(
+      radioID: radioID, contactID: contact.id, text: "Target", direction: .incoming
+    )
+    target.deduplicationKey = "new-reaction-target-remap"
+    try await destination.saveMessage(target)
+    var backupTarget = target
+    backupTarget.id = UUID()
+    var reaction = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id, text: "Reaction")
+    reaction.reactionTargetMessageID = backupTarget.id
+    reaction.reactionSenderName = "Nate"
+    let envelope = AppBackupEnvelope.test(
+      devices: [.testDevice(id: radioID, radioID: radioID)],
+      contacts: [contact], messages: [reaction, backupTarget]
+    )
+
+    _ = try await AppBackupService().importBackup(envelope: envelope, into: destination)
+
+    let restored = try #require(try await destination.fetchMessage(id: reaction.id))
+    #expect(restored.reactionTargetMessageID == target.id)
+    #expect(restored.reactionSenderName == "Nate")
   }
 
   // MARK: - selectedThemeID backup contract

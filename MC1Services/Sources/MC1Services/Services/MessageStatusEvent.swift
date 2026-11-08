@@ -25,4 +25,5 @@ public enum MessageStatusEvent: Sendable {
   case routingChanged(contactID: UUID, isFlood: Bool)
   /// A message failed after exhausting retries or a terminal send error.
   case failed(messageID: UUID)
+  case reactionAccepted(messageID: UUID, summary: String)
 }

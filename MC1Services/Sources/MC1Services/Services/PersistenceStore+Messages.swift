@@ -409,6 +409,7 @@ public extension PersistenceStore {
 
   /// Update message status
   func updateMessageStatus(id: UUID, status: MessageStatus) throws {
+    try commitPendingRxLogEntries()
     let targetID = id
     let predicate = #Predicate<Message> { message in
       message.id == targetID
@@ -421,7 +422,16 @@ public extension PersistenceStore {
         message.failureSeen = false
       }
       message.status = status
-      try modelContext.save()
+      do {
+        _ = try stageOutgoingReaction(message)
+        #if DEBUG
+          try updateMessageStatusFaultInjection?(id, status)
+        #endif
+        try modelContext.save()
+      } catch {
+        modelContext.rollback()
+        throw error
+      }
     }
   }
 
@@ -448,6 +458,7 @@ public extension PersistenceStore {
     }
     message.status = status
     do {
+      _ = try stageOutgoingReaction(message)
       try modelContext.save()
     } catch {
       modelContext.rollback()
@@ -464,6 +475,7 @@ public extension PersistenceStore {
   /// row, so it can never resurrect a row the expiry checker already failed or
   /// downgrade a delivered row. Returns `true` when the row moved to `.sent`.
   func clearRetryingToSent(id: UUID) throws -> Bool {
+    try commitPendingRxLogEntries()
     let targetID = id
     let predicate = #Predicate<Message> { message in
       message.id == targetID
@@ -477,7 +489,13 @@ public extension PersistenceStore {
       return false
     }
     message.status = .sent
-    try modelContext.save()
+    do {
+      _ = try stageOutgoingReaction(message)
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
     return true
   }
 
@@ -549,6 +567,7 @@ public extension PersistenceStore {
       message.status = status
       message.roundTripTime = roundTripTime
       do {
+        _ = try stageOutgoingReaction(message)
         try modelContext.save()
       } catch {
         modelContext.rollback()
@@ -630,7 +649,17 @@ public extension PersistenceStore {
 
   /// Delete a message and its reactions
   func deleteMessage(id: UUID) throws {
+    _ = try deleteMessageReturningCount(id: id)
+  }
+
+  /// Reports all removed message rows so callers can refresh a changed reaction chain.
+  func deleteMessageAndCount(id: UUID) async throws -> Int {
+    try deleteMessageReturningCount(id: id)
+  }
+
+  private func deleteMessageReturningCount(id: UUID) throws -> Int {
     let targetID = id
+    var deletedMessageCount = try deleteOutgoingReactionsWithoutSaving(targetMessageIDs: [id])
 
     // Cascade PendingSend outside the `if let message` guard. An orphan
     // PendingSend (no matching Message row) can exist via several paths:
@@ -658,8 +687,10 @@ public extension PersistenceStore {
         reaction.messageID == targetID
       })
       modelContext.delete(message)
+      deletedMessageCount += 1
     }
     try modelContext.save()
+    return deletedMessageCount
   }
 
   /// Delete all channel messages from a specific sender for a device.
@@ -678,6 +709,7 @@ public extension PersistenceStore {
     let messageIDs = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).map(\.id)
 
     if !messageIDs.isEmpty {
+      try deleteOutgoingReactionsWithoutSaving(targetMessageIDs: messageIDs)
       try _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: messageIDs)
       // Cascade MessageRepeat alongside Reaction. Bulk `delete(model:where:)`
       // bypasses the `@Relationship(deleteRule: .cascade)` declared on
@@ -944,6 +976,18 @@ public extension PersistenceStore {
   // MARK: - Reactions
 
   func admitReaction(_ dto: ReactionDTO) throws -> ReactionAdmission? {
+    try commitPendingRxLogEntries()
+    do {
+      guard let admission = try admitReactionWithoutSaving(dto) else { return nil }
+      try modelContext.save()
+      return admission
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+  }
+
+  internal func admitReactionWithoutSaving(_ dto: ReactionDTO) throws -> ReactionAdmission? {
     let messageID = dto.messageID
     let messagePredicate = #Predicate<Message> { $0.id == messageID }
     var messageDescriptor = FetchDescriptor(predicate: messagePredicate)
@@ -958,14 +1002,18 @@ public extension PersistenceStore {
     let inserted = try modelContext.fetchCount(FetchDescriptor(predicate: existsPredicate)) == 0
     if inserted {
       modelContext.insert(Reaction(dto: dto))
-      try modelContext.save()
     }
     let reactions = try fetchReactions(for: messageID, limit: ReactionParser.summaryRowLimit)
     let summary = ReactionParser.buildSummary(from: reactions)
     message.reactionSummary = summary
-    try modelContext.save()
     return ReactionAdmission(messageID: messageID, summary: summary, inserted: inserted)
   }
+
+  #if DEBUG
+    func setUpdateMessageStatusFaultInjection(_ hook: (@Sendable (UUID, MessageStatus) throws -> Void)?) {
+      updateMessageStatusFaultInjection = hook
+    }
+  #endif
 
   /// Saves a new reaction
   func saveReaction(_ dto: ReactionDTO) throws {

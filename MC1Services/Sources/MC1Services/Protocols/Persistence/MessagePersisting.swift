@@ -39,6 +39,12 @@ public protocol MessagePersisting: Actor {
   /// Save a new message
   func saveMessage(_ dto: MessageDTO) async throws
 
+  /// Atomically admits one outgoing reaction and its durable send work.
+  func admitOutgoingReaction(_ message: MessageDTO) async throws -> MessageDTO?
+
+  /// Materializes the target badge only after this outgoing reaction is accepted.
+  func completeOutgoingReaction(messageID: UUID) async throws -> ReactionAdmission?
+
   /// Saves only while the captured receive scope and any resolved channel identity are current.
   func saveReceivedChannelMessage(_ dto: MessageDTO, scope: ReceiveScope, conversationID: UUID?) async throws -> Bool
 
@@ -225,6 +231,14 @@ extension MessagePersisting {
 }
 
 public extension MessagePersisting {
+  func admitOutgoingReaction(_ message: MessageDTO) async throws -> MessageDTO? {
+    nil
+  }
+
+  func completeOutgoingReaction(messageID: UUID) async throws -> ReactionAdmission? {
+    nil
+  }
+
   func saveReceivedChannelMessage(_ dto: MessageDTO, scope: ReceiveScope, conversationID: UUID?) async throws -> Bool {
     guard scope.isCurrent, scope.radioID == dto.radioID else { return false }
     try await saveMessage(dto)

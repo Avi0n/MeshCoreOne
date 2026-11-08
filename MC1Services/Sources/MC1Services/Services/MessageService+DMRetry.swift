@@ -14,7 +14,8 @@ extension MessageService {
     timestamp: UInt32,
     timeout: TimeInterval?,
     budget: DMSendBudget,
-    sendLease: PlainTextSendGate.Lease?
+    sendLease: PlainTextSendGate.Lease?,
+    waitForAcknowledgement: Bool
   ) async throws -> Data? {
     let maxRetryAttempts = budget.totalAttempts - 1
     let sendDate = Date(timeIntervalSince1970: TimeInterval(timestamp))
@@ -129,6 +130,8 @@ extension MessageService {
       recordDMCommandAcceptance(
         messageID: messageID, sentInfo: sentInfo, predictedAck: predictedAck, timeout: ackTimeout
       )
+
+      if !waitForAcknowledgement { return nil }
 
       let ackEvent = await session.waitForEvent(
         filter: .acknowledgement(code: sentInfo.expectedAck),

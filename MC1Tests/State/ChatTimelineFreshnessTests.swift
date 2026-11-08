@@ -157,7 +157,8 @@ struct ChatTimelineFreshnessTests {
       envInputs: .default,
       senderTables: { .empty },
       postApply: nil,
-      anchorSortDate: nil
+      anchorSortDate: nil,
+      isCurrent: { writer.isCurrent }
     )
     guard case .loaded = outcome else {
       Issue.record("populate outcome was \(outcome), expected .loaded")
@@ -224,7 +225,8 @@ struct ChatTimelineFreshnessTests {
       envInputs: .default,
       senderTables: { tables },
       postApply: nil,
-      anchorSortDate: nil
+      anchorSortDate: nil,
+      isCurrent: { writer.isCurrent }
     )
     guard case .loaded = outcome else {
       Issue.record("populate outcome was \(outcome), expected .loaded")

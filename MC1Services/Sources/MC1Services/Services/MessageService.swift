@@ -111,6 +111,8 @@ public actor MessageService {
 
   /// Tracks message IDs currently being retried to prevent concurrent retry attempts
   var inFlightRetries: Set<UUID> = []
+  /// A failed local acceptance save must not retransmit a reaction the radio already accepted.
+  var acceptedChannelReactions: Set<UUID> = []
 
   // MARK: - Initialization
 

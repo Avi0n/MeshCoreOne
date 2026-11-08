@@ -106,6 +106,7 @@ extension MessageService {
   func retryPendingAcknowledgementSaves() async {
     for messageID in pendingAcks.keys {
       if await saveAcknowledgementOwner(messageID: messageID) {
+        await notifyOutgoingReactionAccepted(messageID: messageID)
         statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
       }
     }
@@ -154,6 +155,7 @@ extension MessageService {
     guard updated else { return .unchanged }
     switch status {
     case .delivered:
+      await notifyOutgoingReactionAccepted(messageID: messageID)
       statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: tripTime))
     case .failed:
       statusEventBroadcaster.yield(.failed(messageID: messageID))

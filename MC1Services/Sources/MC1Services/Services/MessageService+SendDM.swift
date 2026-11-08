@@ -192,7 +192,8 @@ public extension MessageService {
         timestamp: timestamp,
         timeout: timeout > 0 ? timeout : nil,
         budget: dmSendBudgetProvider(),
-        sendLease: sendLease
+        sendLease: sendLease,
+        waitForAcknowledgement: true
       )
 
       return try await finalizeSend(
@@ -345,8 +346,9 @@ public extension MessageService {
         text: existingMessage.text,
         timestamp: wireTimestamp,
         timeout: nil,
-        budget: isSingleAttempt ? .singleAttempt : dmSendBudgetProvider(),
-        sendLease: sendLease
+        budget: isSingleAttempt || existingMessage.reactionTargetMessageID != nil ? .singleAttempt : dmSendBudgetProvider(),
+        sendLease: sendLease,
+        waitForAcknowledgement: existingMessage.reactionTargetMessageID == nil
       )
 
       // Bump only on a confirmed successful resend so sendCount counts
@@ -470,7 +472,7 @@ public extension MessageService {
     }
   }
 
-  private func validateDirectMessage(text: String, to contact: ContactDTO) throws {
+  func validateDirectMessage(text: String, to contact: ContactDTO) throws {
     guard contact.type != .repeater, contact.type != .sensor else { throw MessageServiceError.invalidRecipient }
     guard text.utf8.count <= ProtocolLimits.maxDirectMessageLength else { throw MessageServiceError.messageTooLong }
   }
@@ -513,6 +515,9 @@ public extension MessageService {
     )
     guard let message = try await dataStore.fetchMessage(id: messageID) else {
       throw MessageServiceError.sendFailed("Failed to fetch message")
+    }
+    if message.reactionTargetMessageID != nil {
+      await notifyOutgoingReactionAccepted(messageID: messageID)
     }
     return message
   }

@@ -9,13 +9,17 @@ extension ChatTimeline {
   func open(
     _ conversation: ChatConversationType,
     reactions: ReactionIndexing?,
-    populateMode: ChatPopulateMode
+    populateMode: ChatPopulateMode,
+    includingSortDate: Date? = nil
   ) async -> ChatTimelinePopulator.Outcome {
     guard !Task.isCancelled else { return .cancelled }
     self.conversation = conversation
+    let boundWriter = writer
     var outcome = ChatTimelinePopulator.Outcome.unavailable
-    defer { completePopulate(outcome) }
-    guard let writer else { return outcome }
+    defer {
+      if self.writer === boundWriter { completePopulate(outcome) }
+    }
+    guard let writer = boundWriter else { return outcome }
     // A zero-unread interactive open already presents at the bottom.
     // Freeze its divider before Populate can see a newer unread count.
     if role == .interactive, !openAnchorState.hasUnread {
@@ -40,14 +44,14 @@ extension ChatTimeline {
     do {
       outcome = try await writer.performWindowOperation {
         try Task.checkCancellation()
+        guard writer.isCurrent, self.writer === writer else { throw CancellationError() }
         // Read the oldest date inside the lane so Populate preserves history
         // fetched by an earlier page operation.
         let refreshWindow = populateMode == .refreshWindow
           && coordinator.conversationID == conversation.coordinatorID
           && coordinator.renderState.phase == .loaded
-          && !coordinator.messages.isEmpty
         let anchorSortDate: Date? = refreshWindow
-          ? coordinator.messages.map(\.sortDate).min()
+          ? [coordinator.messages.map(\.sortDate).min(), includingSortDate].compactMap(\.self).min()
           : nil
         return await ChatTimelinePopulator.populate(
           conversation,
@@ -57,7 +61,8 @@ extension ChatTimeline {
           envInputs: envInputs,
           senderTables: senderTablesProvider,
           postApply: postApply,
-          anchorSortDate: anchorSortDate
+          anchorSortDate: anchorSortDate,
+          isCurrent: { self.writer === writer && self.coordinator === coordinator && writer.isCurrent }
         )
       }
     } catch is CancellationError {

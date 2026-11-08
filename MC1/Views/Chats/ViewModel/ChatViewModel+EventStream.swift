@@ -50,7 +50,7 @@ extension ChatViewModel {
 
     case let .messageFailed(messageID):
       timeline.enqueueReload(messageID: messageID)
-      await markFailedSendSeenIfCurrent(messageID: messageID)
+      await handleMessageFailure(messageID: messageID)
 
     case let .heardRepeatRecorded(messageID, _),
          let .reactionReceived(messageID, _):
@@ -77,25 +77,59 @@ extension ChatViewModel {
     contactRefreshSignal &+= 1
   }
 
-  /// Local enqueue/retry threw before the send queue could emit `.messageFailed`.
-  /// Writes `.failed` (which resets `failureSeen`) then marks the open thread
-  /// seen so the list badge does not reappear on pop-back.
+  private func handleMessageFailure(messageID: UUID) async {
+    let writer = timelineWriter
+    let coordinator = self.coordinator
+    guard let dataStore, let message = try? await dataStore.fetchMessage(id: messageID) else {
+      return
+    }
+
+    let isReaction = message.isOutgoing && (message.contactID != nil
+      ? ReactionParser.parseDM(message.text) != nil
+      : ReactionParser.parse(message.text) != nil)
+    if isReaction {
+      let isCurrentConversation = currentContact.map {
+        message.radioID == $0.radioID && message.contactID == $0.id
+      } == true || currentChannel.map {
+        message.radioID == $0.radioID && message.channelIndex == $0.index
+      } == true
+      guard !Task.isCancelled, let writer, writer === timelineWriter, writer.isCurrent,
+            message.status == .failed, isCurrentConversation else { return }
+      if messagesByID[messageID] == nil {
+        guard let conversation = timeline.conversation else { return }
+        let outcome = await timeline.open(
+          conversation, reactions: nil, populateMode: .refreshWindow, includingSortDate: message.sortDate
+        )
+        guard !Task.isCancelled, writer === timelineWriter, writer.isCurrent else { return }
+        guard case .loaded = outcome else {
+          sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+          return
+        }
+        await coordinator?.buildItemsTask?.value
+        guard !Task.isCancelled, writer === timelineWriter, writer.isCurrent else { return }
+      }
+      guard messagesByID[messageID]?.status == .failed else { return }
+      sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+    }
+
+    await markFailedSendSeenIfCurrent(message: message)
+  }
+
+  /// Persists local enqueue failures before presentation because the queue emits no failure event.
   func recordLocalEnqueueFailure(messageID: UUID, error: Error) async {
     logger.error("enqueue failed for messageID=\(messageID, privacy: .public): \(String(describing: error))")
     _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
     timeline.applyStatusUpdate(messageID: messageID, status: .failed)
+    await handleMessageFailure(messageID: messageID)
     sendErrorMessage = Self.copyForEnqueueFailure(error)
-    await markFailedSendSeenIfCurrent(messageID: messageID)
   }
 
-  /// A fail that lands while this thread is open is already on screen; mark it
-  /// seen so the list badge does not reappear on pop-back.
-  private func markFailedSendSeenIfCurrent(messageID: UUID) async {
-    guard let dataStore, let message = try? await dataStore.fetchMessage(id: messageID) else {
-      return
-    }
+  /// Marks Failed-send seen in the open Conversation so its list badge stays cleared.
+  private func markFailedSendSeenIfCurrent(message: MessageDTO) async {
+    guard let dataStore else { return }
     do {
-      if let contact = currentContact, message.contactID == contact.id {
+      if let contact = currentContact,
+         message.radioID == contact.radioID, message.contactID == contact.id {
         try await dataStore.markFailedSendsSeen(contactID: contact.id)
         syncCoordinator?.notifyConversationsChanged()
       } else if let channel = currentChannel,

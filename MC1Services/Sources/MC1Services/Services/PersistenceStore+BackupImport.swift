@@ -267,7 +267,7 @@ public extension PersistenceStore {
       existingKeys: messageLookups.keys,
       existingIDsByKey: messageLookups.idsByKey
     )
-    result.record(.messages, inserted: messageResult.inserted, skipped: messageResult.skipped, dropped: droppedChildren.messages)
+    result.record(.messages, inserted: messageResult.counts.inserted, merged: messageResult.counts.merged, skipped: messageResult.counts.skipped, dropped: droppedChildren.messages)
 
     let messageIDMapping = messageResult.messageIDByBackupID
     let allMessageIDs = Set(messages.map { messageIDMapping[$0.id] ?? $0.id })

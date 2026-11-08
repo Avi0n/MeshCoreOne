@@ -158,17 +158,32 @@ public extension MessageService {
       radioID = message.radioID
       channelIndex = idx
 
-      try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
-        try await sendChannelMessageWithScope(
-          text: message.text,
-          channelIndex: channelIndex,
-          radioID: radioID,
-          timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp)),
-          expectedChannelSecret: expectedChannelSecret
-        )
+      let isReaction = message.reactionTargetMessageID != nil
+      let alreadyAccepted = isReaction && (acceptedChannelReactions.contains(messageID) || message.status == .sent)
+      if !alreadyAccepted {
+        try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
+          try await sendChannelMessageWithScope(
+            text: message.text,
+            channelIndex: channelIndex,
+            radioID: radioID,
+            timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp)),
+            expectedChannelSecret: expectedChannelSecret
+          )
+        }
+        if isReaction { acceptedChannelReactions.insert(messageID) }
       }
-      try await dataStore.updateMessageStatus(id: messageID, status: .sent)
+      do {
+        try await dataStore.updateMessageStatus(id: messageID, status: .sent)
+        if isReaction {
+          await notifyOutgoingReactionAccepted(messageID: messageID)
+          acceptedChannelReactions.remove(messageID)
+        }
+      } catch {
+        if isReaction { throw MessageServiceError.persistenceError(error) }
+        throw error
+      }
     } catch {
+      if case MessageServiceError.persistenceError = error { throw error }
       try await failMessageAndRethrow(error, messageID: messageID)
     }
 
@@ -241,18 +256,35 @@ public extension MessageService {
       if !preserveTimestamp {
         try await dataStore.updateMessageTimestamp(id: messageID, timestamp: wireTimestamp)
       }
-      try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
-        try await sendChannelMessageWithScope(
-          text: message.text,
-          channelIndex: channelIndex,
-          radioID: message.radioID,
-          timestamp: wireDate,
-          expectedChannelSecret: expectedChannelSecret
-        )
+      let isReaction = message.reactionTargetMessageID != nil
+      let alreadyAccepted = isReaction && (
+        acceptedChannelReactions.contains(messageID) || (preserveTimestamp && message.status == .sent)
+      )
+      if !alreadyAccepted {
+        try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
+          try await sendChannelMessageWithScope(
+            text: message.text,
+            channelIndex: channelIndex,
+            radioID: message.radioID,
+            timestamp: wireDate,
+            expectedChannelSecret: expectedChannelSecret
+          )
+        }
+        if isReaction { acceptedChannelReactions.insert(messageID) }
       }
-      try await dataStore.updateMessageStatus(id: messageID, status: .sent)
+      do {
+        try await dataStore.updateMessageStatus(id: messageID, status: .sent)
+        if isReaction {
+          await notifyOutgoingReactionAccepted(messageID: messageID)
+          acceptedChannelReactions.remove(messageID)
+        }
+      } catch {
+        if isReaction { throw MessageServiceError.persistenceError(error) }
+        throw error
+      }
       sentCommitted = true
     } catch {
+      if case MessageServiceError.persistenceError = error { throw error }
       try await failMessageAndRethrow(error, messageID: messageID)
     }
 
@@ -299,7 +331,7 @@ public extension MessageService {
 
   /// Cap user text so `"name: " + text` fits `maxChannelMessageTotalLength`.
   /// Firmware prepends the name before encrypting; an extra AES block overflows the RX log.
-  private func rejectIfChannelTextTooLong(_ text: String, radioID: UUID) async throws {
+  func rejectIfChannelTextTooLong(_ text: String, radioID: UUID) async throws {
     let nodeNameByteCount: Int = if let name = try? await dataStore.fetchDevice(radioID: radioID)?.nodeName {
       name.utf8.count
     } else {

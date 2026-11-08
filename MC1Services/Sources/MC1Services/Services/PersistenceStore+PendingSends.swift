@@ -60,6 +60,12 @@ public extension PersistenceStore {
     #if DEBUG
       await pendingSendInsertHandler?()
     #endif
+    let assignedSequence = try insertPendingSendAssigningSequenceWithoutSaving(dto)
+    try modelContext.save()
+    return assignedSequence
+  }
+
+  internal func insertPendingSendAssigningSequenceWithoutSaving(_ dto: PendingSendDTO) throws -> Int {
     let scopedRadioID = dto.radioID
     let radioPredicate = #Predicate<PendingSend> { row in
       row.radioID == scopedRadioID
@@ -75,7 +81,6 @@ public extension PersistenceStore {
     let inserted = PendingSend(dto: dto)
     inserted.sequence = assignedSequence
     modelContext.insert(inserted)
-    try modelContext.save()
     return assignedSequence
   }
 
