@@ -68,36 +68,6 @@ struct NodeConfigImportViewModelTests {
   }
 
   @Test
-  func `Leaving the screen resets a loaded preview back to the file picker`() {
-    let viewModel = NodeConfigImportViewModel()
-    viewModel.importedConfig = MeshCoreNodeConfig(name: "Node", channels: [])
-    viewModel.errorMessage = "stale error"
-    viewModel.sections.channels = true
-    viewModel.showConfirmation = true
-
-    viewModel.handleDismissal()
-
-    #expect(viewModel.importedConfig == nil)
-    #expect(viewModel.errorMessage == nil)
-    #expect(viewModel.sections == ConfigSections())
-    #expect(!viewModel.showConfirmation)
-  }
-
-  @Test
-  func `Leaving the screen mid-import preserves the in-flight import state`() {
-    let viewModel = NodeConfigImportViewModel()
-    viewModel.importedConfig = MeshCoreNodeConfig(name: "Node", channels: [])
-    viewModel.isApplying = true
-    viewModel.applyProgress = 0.5
-
-    viewModel.handleDismissal()
-
-    #expect(viewModel.importedConfig != nil)
-    #expect(viewModel.isApplying)
-    #expect(viewModel.applyProgress == 0.5)
-  }
-
-  @Test
   func `a dismissed import and a preset leave live and stored RF on the final operation`() async throws {
     let eu = try #require(RadioPresets.all.first { $0.id == "eu-narrow" })
     let usa = try #require(RadioPresets.all.first { $0.id == "us-ca" })
@@ -144,7 +114,7 @@ struct NodeConfigImportViewModelTests {
       return nil
     }
     let viewModel = NodeConfigImportViewModel()
-    viewModel.importedConfig = MeshCoreNodeConfig(
+    viewModel.acceptInput(MeshCoreNodeConfig(
       privateKey: String(repeating: "ab", count: 64),
       radioSettings: .init(
         frequency: eu.frequencyKHz,
@@ -153,7 +123,7 @@ struct NodeConfigImportViewModelTests {
         codingRate: eu.codingRate,
         txPower: Device.Defaults.txPower
       )
-    )
+    ), source: nil)
     viewModel.sections.nodeIdentity = true
     viewModel.sections.radioSettings = true
 

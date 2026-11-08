@@ -55,9 +55,9 @@ struct NodeConfigImportRecoveryTests {
       #expect(model.recovery == nil)
 
       model.beginImport()
-      model.importedConfig = MeshCoreNodeConfig(
+      model.acceptInput(MeshCoreNodeConfig(
         channels: [.init(name: Self.tailChannelName, secret: String(repeating: "CD", count: 16))]
-      )
+      ), source: nil)
       model.sections = ConfigSections(channels: true)
       model.prepareConfirmation()
       try await waitUntil(timeout: .seconds(35)) { model.showConfirmation || model.errorMessage != nil }
@@ -131,6 +131,40 @@ struct NodeConfigImportRecoveryTests {
       #expect(reopened.beginRecovery(recovery))
       reopened.prepareConfirmation()
       #expect(reopened.showConfirmation)
+    }
+  }
+
+  @Test
+  func `reentering the same recovery retires parsing and preserves its prior input`() async throws {
+    try await withInterruptedImport { env, model, recovery in
+      try #require(model.beginRecovery(recovery))
+      let retainedConfig = try #require(model.importedConfig)
+      let retainedInputID = model.inputID
+      let writesBefore = await identityWriteCount(env.bluetooth)
+      let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+      try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+      defer { try? FileManager.default.removeItem(at: directory) }
+      let url = directory.appendingPathComponent("config.json")
+      try JSONEncoder().encode(MeshCoreNodeConfig(privateKey: Self.replacementPrivateKey)).write(to: url)
+
+      model.parseFile(at: url)
+      let parser = model.parseTask
+      #expect(model.isParsing)
+      #expect(model.beginRecovery(recovery))
+      #expect(!model.isParsing)
+      #expect(model.importedConfig == retainedConfig)
+      #expect(model.inputID == retainedInputID)
+      await parser?.value
+
+      #expect(!model.isParsing)
+      #expect(model.importedConfig == retainedConfig)
+      #expect(model.inputID == retainedInputID)
+      #expect(model.inputReceiptID == recovery.receiptID)
+      model.prepareConfirmation()
+      #expect(model.showConfirmation)
+      #expect(model.confirmMessage.contains(recovery.targetDescription))
+      #expect(await identityWriteCount(env.bluetooth) == writesBefore)
+      model.cancelConfirmation()
     }
   }
 
@@ -215,10 +249,10 @@ struct NodeConfigImportRecoveryTests {
     let model = NodeConfigImportViewModel()
     configure(model, environment: env)
     do {
-      model.importedConfig = MeshCoreNodeConfig(
+      model.acceptInput(MeshCoreNodeConfig(
         privateKey: Self.privateKey,
         channels: [.init(name: Self.tailChannelName, secret: String(repeating: "CD", count: 16))]
-      )
+      ), source: nil)
       model.sections = ConfigSections(nodeIdentity: true, channels: true, contacts: false)
       model.prepareConfirmation()
       try await waitUntil(timeout: .seconds(35)) { model.showConfirmation || model.errorMessage != nil }

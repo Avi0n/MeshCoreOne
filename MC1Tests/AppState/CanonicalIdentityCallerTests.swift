@@ -25,7 +25,7 @@ struct CanonicalIdentityCallerTests {
         privateKey: "7065e18fd9fabb70c1ed90dca19907de698c88b709ea146eafd93d9b830c7b60"
           + "c4681193c79bbc39945ba8064104bb618f8fd7a84a0af6f57033d6e8ddcd6471"
       )
-      model.importedConfig = config
+      model.acceptInput(config, source: nil)
       model.sections = ConfigSections(nodeIdentity: true)
       model.prepareConfirmation()
       try await waitUntil { model.showConfirmation || model.errorMessage != nil }
@@ -93,13 +93,13 @@ struct CanonicalIdentityCallerTests {
       _ = try await settings.runCliCommand("set wifi.enabled 0")
       await env.bluetooth.setPublicKey(canonicalKey, for: env.device.id)
       let contactKey = Data(repeating: 0xC9, count: ProtocolLimits.publicKeySize)
-      model.importedConfig = MeshCoreNodeConfig(
+      model.acceptInput(MeshCoreNodeConfig(
         privateKey: "7065e18fd9fabb70c1ed90dca19907de698c88b709ea146eafd93d9b830c7b60"
           + "c4681193c79bbc39945ba8064104bb618f8fd7a84a0af6f57033d6e8ddcd6471",
         channels: [.init(name: "Canonical", secret: String(repeating: "CD", count: 16))],
         contacts: [.init(type: 1, name: "Imported", publicKey: contactKey.hexString, flags: 0,
                          latitude: "0", longitude: "0", lastAdvert: 0, lastModified: 0)]
-      )
+      ), source: nil)
       model.sections = ConfigSections(nodeIdentity: true, channels: true, contacts: true)
       model.prepareConfirmation()
       try await waitUntil { model.showConfirmation || model.errorMessage != nil }

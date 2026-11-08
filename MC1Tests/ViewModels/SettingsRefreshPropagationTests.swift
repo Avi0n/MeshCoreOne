@@ -240,13 +240,13 @@ struct SettingsRefreshPropagationTests {
       await radio.setIdentityImportPublicKey(importedKey)
       await env.appState.wireServicesIfConnected()
       let source = try #require(env.manager.currentConnection)
-      viewModel.importedConfig = MeshCoreNodeConfig(
+      viewModel.acceptInput(MeshCoreNodeConfig(
         name: "Imported", privateKey: String(repeating: "ab", count: 64),
         radioSettings: .init(
           frequency: eu.frequencyKHz, bandwidth: eu.bandwidthHz,
           spreadingFactor: eu.spreadingFactor, codingRate: eu.codingRate, txPower: 10
         )
-      )
+      ), source: nil)
       viewModel.configure(
         nodeConfigService: { env.manager.services?.nodeConfigService },
         settingsService: { env.manager.services?.settingsService },

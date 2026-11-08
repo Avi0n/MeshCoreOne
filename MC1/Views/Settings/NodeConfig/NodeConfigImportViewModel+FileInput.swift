@@ -6,9 +6,8 @@ extension NodeConfigImportViewModel {
   /// File reads can wait on iCloud Drive, so decoding stays off the main actor.
   func parseFile(at url: URL) {
     guard !isApplying else { return }
-    parseTask?.cancel()
-    cancelConfirmation()
-    isParsing = true
+    retireInputWork()
+    state = state.editable
     errorMessage = nil
     let taskID = UUID()
     currentParseID = taskID
@@ -37,10 +36,19 @@ extension NodeConfigImportViewModel {
     _ config: MeshCoreNodeConfig, for taskID: UUID, recovery: IdentityImportRecovery?, source: ImportSource?
   ) {
     guard currentParseID == taskID, self.recovery?.receiptID == recovery?.receiptID else { return }
-    isParsing = false
-    importedConfig = config
-    inputReceiptID = recovery?.receiptID
-    inputSource = source
+    currentParseID = nil
+    acceptInput(config, source: source)
+  }
+
+  func acceptInput(_ config: MeshCoreNodeConfig, source: ImportSource?) {
+    guard !isApplying else { return }
+    retireInputWork()
+    let input = NodeConfigImportState.Input(id: UUID(), config: config, source: source)
+    if let recovery {
+      state = .recovery(recovery, input: input)
+    } else {
+      state = .preview(input)
+    }
     errorMessage = nil
     sections.nodeIdentity = config.name != nil || config.publicKey != nil || config.privateKey != nil
     sections.radioSettings = config.radioSettings != nil
@@ -52,7 +60,7 @@ extension NodeConfigImportViewModel {
 
   private func applyParseFailure(_ error: Error, for taskID: UUID) {
     guard currentParseID == taskID else { return }
-    isParsing = false
+    currentParseID = nil
     errorMessage = error.userFacingMessage
     logger.error("Failed to parse config: \(error.localizedDescription)")
   }
@@ -72,14 +80,8 @@ extension NodeConfigImportViewModel {
   }
 
   func handleDismissal() {
-    parseTask?.cancel()
-    currentParseID = nil
-    previewTask?.cancel()
-    currentPreviewID = nil
-    isParsing = false
-    isPreparingConfirmation = false
+    retireInputWork()
     showFilePicker = false
-    cancelConfirmation()
     guard !isApplying else { return }
     if let inputReceiptID,
        connectionManager?.identityImportRecoveries.contains(where: { $0.receiptID == inputReceiptID }) == true {
@@ -88,23 +90,22 @@ extension NodeConfigImportViewModel {
     resetToFileSelection()
   }
 
+  func retireInputWork() {
+    currentParseID = nil
+    parseTask?.cancel()
+    if case .preparing = state { state = state.editable }
+    previewTask?.cancel()
+    cancelConfirmation()
+  }
+
   func resetToFileSelection() {
-    importedConfig = nil
+    guard !isApplying else { return }
+    retireInputWork()
+    state = .selectingFile
     errorMessage = nil
-    isParsing = false
     sections = ConfigSections()
     currentName = nil
     currentRadio = nil
     currentPosition = nil
-    applyProgress = 0
-    applyStepDescription = ""
-    importComplete = false
-    isApplying = false
-    isPreparingConfirmation = false
-    showConfirmation = false
-    channelsWouldOverwrite = false
-    didApplyAnyWrite = false
-    recovery = nil
-    identityRecoveryComplete = false
   }
 }

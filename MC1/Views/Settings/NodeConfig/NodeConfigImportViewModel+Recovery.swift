@@ -8,7 +8,6 @@ extension NodeConfigImportViewModel {
     if recovery != nil || inputSource != source {
       resetToFileSelection()
     }
-    recovery = nil
   }
 
   @discardableResult
@@ -16,16 +15,11 @@ extension NodeConfigImportViewModel {
     guard !isApplying, let current = connectionManager?.prepareIdentityImportRecovery(receiptID: summary.receiptID) else {
       return false
     }
-    parseTask?.cancel()
-    currentParseID = nil
-    previewTask?.cancel()
-    currentPreviewID = nil
-    cancelConfirmation()
+    retireInputWork()
     if inputReceiptID != current.receiptID {
       resetToFileSelection()
     }
-    recovery = current
-    identityRecoveryComplete = false
+    state = .recovery(current, input: state.input)
     errorMessage = L10n.Settings.ConfigImport.identityOutcomeUnknown(current.sourceName)
     return true
   }
@@ -33,13 +27,12 @@ extension NodeConfigImportViewModel {
   func prepareRecoveryConfirmation() {
     guard let recovery, let manager = connectionManager,
           let current = manager.prepareIdentityImportRecovery(receiptID: recovery.receiptID) else { return }
-    guard inputReceiptID == current.receiptID, validatedRecoveryKey != nil else {
+    guard inputReceiptID == current.receiptID, let input = state.input, let key = validatedRecoveryKey else {
       errorMessage = L10n.Settings.ConfigImport.identityRecoveryKeyRequired
       showFilePicker = true
       return
     }
-    self.recovery = current
-    confirmation = .recovery(current, inputID: inputID)
+    state = .confirming(.recovery(current, input: input, privateKey: key))
     showConfirmation = true
   }
 
@@ -49,30 +42,29 @@ extension NodeConfigImportViewModel {
     return key
   }
 
-  func applyIdentityRecovery(_ summary: IdentityImportRecovery, selectedInputID: UUID) {
-    guard inputID == selectedInputID, inputReceiptID == summary.receiptID,
-          recovery?.receiptID == summary.receiptID, let manager = connectionManager,
-          manager.prepareIdentityImportRecovery(receiptID: summary.receiptID) == summary,
-          let key = validatedRecoveryKey else { return }
-    isApplying = true
+  func applyIdentityRecovery(_ summary: IdentityImportRecovery, input: NodeConfigImportState.Input, privateKey: Data) {
+    guard inputID == input.id, inputReceiptID == summary.receiptID, let manager = connectionManager,
+          manager.prepareIdentityImportRecovery(receiptID: summary.receiptID) == summary else { return }
+    let application = NodeConfigImportState.Application(confirmation: .recovery(summary, input: input, privateKey: privateKey))
+    state = .applying(application)
     errorMessage = nil
-    identityRecoveryComplete = false
-    importComplete = false
     importTask = Task {
       do {
-        let result = try await manager.retryIdentityImport(confirmation: summary, privateKey: key)
-        guard inputID == selectedInputID, recovery?.receiptID == summary.receiptID else { return }
-        isApplying = false
+        let result = try await manager.retryIdentityImport(confirmation: summary, privateKey: privateKey)
+        guard case let .applying(current) = state, current.id == application.id else { return }
         if case .operational = result, manager.isCurrent(result) {
-          identityRecoveryComplete = true
-        } else if manager.identityImportRecoveries.contains(where: { $0.receiptID == summary.receiptID }) {
-          errorMessage = L10n.Settings.ConfigImport.identityOutcomeUnknown(summary.sourceName)
+          state = .completed(current)
+        } else {
+          state = .failed(current)
+          if manager.identityImportRecoveries.contains(where: { $0.receiptID == summary.receiptID }) {
+            errorMessage = L10n.Settings.ConfigImport.identityOutcomeUnknown(summary.sourceName)
+          }
         }
       } catch {
-        guard inputID == selectedInputID, recovery?.receiptID == summary.receiptID else { return }
-        isApplying = false
+        guard case let .applying(current) = state, current.id == application.id else { return }
+        state = .failed(current)
         if let interrupted = error as? IdentityImportRecoveryRequired {
-          retainInterruptedInput(interrupted.recovery, selectedInputID: selectedInputID)
+          retainInterruptedInput(interrupted.recovery, application: current)
         } else if error is CancellationError {
           errorMessage = L10n.Settings.ConfigImport.identityOutcomeUnknown(summary.sourceName)
         } else {
@@ -82,11 +74,9 @@ extension NodeConfigImportViewModel {
     }
   }
 
-  func retainInterruptedInput(_ summary: IdentityImportRecovery, selectedInputID: UUID) {
-    guard inputID == selectedInputID else { return }
-    inputReceiptID = summary.receiptID
-    recovery = summary
-    importComplete = false
+  func retainInterruptedInput(_ summary: IdentityImportRecovery, application: NodeConfigImportState.Application) {
+    guard inputID == application.confirmation.input.id else { return }
+    state = .interrupted(application, summary)
     errorMessage = L10n.Settings.ConfigImport.identityOutcomeUnknown(summary.sourceName)
   }
 }

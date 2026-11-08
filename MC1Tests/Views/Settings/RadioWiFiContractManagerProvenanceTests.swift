@@ -83,7 +83,7 @@ struct RadioWiFiContractManagerProvenanceTests {
         }
         try await env.manager.persistenceStore.saveDevice(ghost)
         await env.bluetooth.setPublicKey(Self.canonicalKey, for: env.device.id)
-        importer.importedConfig = MeshCoreNodeConfig(privateKey: Self.privateKey)
+        importer.acceptInput(MeshCoreNodeConfig(privateKey: Self.privateKey), source: nil)
         importer.sections = ConfigSections(nodeIdentity: true, channels: false, contacts: false)
         importer.prepareConfirmation()
         try await waitUntil("the real identity import caller presents confirmation") {
