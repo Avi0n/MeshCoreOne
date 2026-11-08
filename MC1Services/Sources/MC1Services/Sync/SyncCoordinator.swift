@@ -120,18 +120,11 @@ public actor SyncCoordinator {
 
   let logger = PersistentLogger(subsystem: "com.mc1", category: "SyncCoordinator")
 
-  /// Actor-local guard against concurrent sync execution.
-  /// Checked and set synchronously (no `await`) to eliminate the TOCTOU window
-  /// that existed when guarding via the `@MainActor`-isolated `state` property.
-  var isSyncInProgress = false
+  /// Actor-local ownership, claimed synchronously before sync work suspends.
+  var primarySyncClaim: SyncClaim?
 
-  /// True while `performAdvertContactSync` holds `isSyncInProgress`. Full sync,
-  /// connection setup, and channel-only retry wait for this claim instead of skipping.
-  var advertContactSyncActive = false
-
-  /// True while a user-initiated contact refresh holds the radio pipeline.
-  /// Advert delta sync returns `.busy` so it retries on the debounce rather
-  /// than racing progress events with pull-to-refresh.
+  /// Inhibits advert sync during manual refresh so their progress events cannot interleave.
+  /// Ordinary sync admission is independent of this inhibition.
   var manualContactSyncActive = false
 
   /// Continuations held by `waitForAdvertContactSync` until the advert claim clears.

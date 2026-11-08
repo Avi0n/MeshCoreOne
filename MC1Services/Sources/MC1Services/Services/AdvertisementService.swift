@@ -64,7 +64,7 @@ public actor AdvertisementService {
   var currentRadioID: UUID?
 
   /// When true, advert delta sync is deferred (full or manual contact sync).
-  /// Manual pull-to-refresh also sets this; it is invisible to `SyncCoordinator.isSyncInProgress`.
+  /// Manual pull-to-refresh also sets this without holding a primary sync claim.
   var isSyncingContacts = false
 
   /// 0x80 keys heard since the last delta sync.
