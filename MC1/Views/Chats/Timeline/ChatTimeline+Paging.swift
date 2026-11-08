@@ -4,9 +4,8 @@ import MC1Services
 extension ChatTimeline {
   // MARK: - Populate
 
-  /// Populates the coordinator for `conversation` and bakes render items.
-  /// Returns `.unavailable` when unbound.
-  /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
+  /// Populates and bakes the first page or refreshes the loaded window.
+  /// Returns `.unavailable` when no writer or data store is available.
   func open(
     _ conversation: ChatConversationType,
     reactions: ReactionIndexing?,
@@ -14,24 +13,20 @@ extension ChatTimeline {
   ) async -> ChatTimelinePopulator.Outcome {
     guard !Task.isCancelled else { return .cancelled }
     self.conversation = conversation
-    // Cancelled attempts preserve readiness so an unresolved open waits
-    // for its retry to resolve the anchor.
-    var shouldSettleInitialLoad = true
-    defer {
-      if shouldSettleInitialLoad { initialLoadSettled = true }
-    }
-    guard let writer else { return .unavailable }
-    // Interactive opens staged with no unread have already presented at the
-    // bottom; pre-latch so a fresher store unread count cannot bake a late
-    // divider that grows a presented row. Primes carry no anchor and skip it.
-    if role == .interactive, openUnreadCount == 0 {
+    var outcome = ChatTimelinePopulator.Outcome.unavailable
+    defer { completePopulate(outcome) }
+    guard let writer else { return outcome }
+    // A zero-unread interactive open already presents at the bottom.
+    // Freeze its divider before Populate can see a newer unread count.
+    if role == .interactive, !openAnchorState.hasUnread {
       bake.dividerComputed = true
     }
     #if DEBUG
       if let error = testPopulateError {
         writer.beginLoading()
         writer.markLoaded()
-        return .failed(error)
+        outcome = .failed(error)
+        return outcome
       }
       coordinator?.testPopulateFetchError = testPopulateFetchError
     #endif
@@ -41,13 +36,12 @@ extension ChatTimeline {
         scope: indexing.scope
       )
     }
-    guard let coordinator else { return .unavailable }
-    let outcome: ChatTimelinePopulator.Outcome
+    guard let coordinator else { return outcome }
     do {
       outcome = try await writer.performWindowOperation {
         try Task.checkCancellation()
-        // Compute the anchor inside the lane. An earlier loadOlder would
-        // extend the window; an enqueue-time anchor would truncate it.
+        // Read the oldest date inside the lane so Populate preserves history
+        // fetched by an earlier page operation.
         let refreshWindow = populateMode == .refreshWindow
           && coordinator.conversationID == conversation.coordinatorID
           && coordinator.renderState.phase == .loaded
@@ -67,13 +61,9 @@ extension ChatTimeline {
         )
       }
     } catch is CancellationError {
-      shouldSettleInitialLoad = false
-      return .cancelled
+      outcome = .cancelled
     } catch {
-      return .failed(error)
-    }
-    if case .cancelled = outcome {
-      shouldSettleInitialLoad = false
+      outcome = .failed(error)
     }
     if case .loaded = outcome,
        let context,

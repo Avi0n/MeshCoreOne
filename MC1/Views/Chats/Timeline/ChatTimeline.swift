@@ -2,21 +2,11 @@ import Foundation
 import MC1Services
 import OSLog
 
-/// Per-conversation assembly module. Owns the bake state, the write
-/// capability, and the populate → divider → filter → write → bake ordering,
-/// so callers get `open`/`rebake` verbs instead of hand-sequencing raw
-/// writer mutations.
-///
-/// Role-parameterized: the interactive conversation (`ChatViewModel`) and the
-/// speculative warm (`ChatTimelinePrimer`) drive one implementation, differing
-/// only in the `ChatWriterRole` they bind with and the hooks they supply.
-/// The writer/generation anti-clobber machinery stays in `ChatCoordinator`;
-/// this module consumes it.
+/// Assembles one conversation's timeline and owns Populate and Bake ordering.
+/// Writer authority stays with ChatCoordinator for interactive opens and Prime.
 @Observable
 @MainActor
 final class ChatTimeline {
-  /// Reaction-indexing inputs for `open`. The row-rebake hook is this
-  /// timeline's own; callers supply only what varies.
   struct ReactionIndexing {
     let service: ReactionService
     let scope: ReactionIndexScope
@@ -38,31 +28,18 @@ final class ChatTimeline {
   /// safe pre-`configure`) or `bind` (with write capability).
   private(set) var coordinator: ChatCoordinator?
 
-  /// Write capability minted by the last successful `bind`; nil when unbound
-  /// or when a `.prime` bind was denied. Stale writers no-op at the
-  /// coordinator, so holding one across a supersede is safe.
+  /// The last bound write capability; stale writers no-op at the coordinator.
   @ObservationIgnored
   private(set) var writer: ChatTimelineWriter?
 
   /// Environment-derived inputs baked into every `MessageItem`.
   var envInputs: EnvInputs = .default
 
-  /// Conversation this timeline is assembling. Captured by `stageOpen` and
-  /// `open`; owners that refresh its DTO assign it directly. Paging fetches
-  /// key off its IDs, which are stable across DTO refreshes.
+  /// DTO refreshes keep the same conversation IDs, so paging can use the latest value.
   @ObservationIgnored
   var conversation: ChatConversationType?
 
-  /// Unread count captured when the open was staged, before any clearing
-  /// side effect runs. Gates whether the open expects a divider at all.
-  private(set) var openUnreadCount = 0
-
-  /// Whether the view has consumed the one-shot open positioning.
-  private(set) var anchorConsumed = false
-
-  /// Set after a terminal populate so opens without a divider can present.
-  /// Cancellation leaves the latch unchanged until a retry finishes.
-  var initialLoadSettled = false
+  private(set) var openAnchorState = ChatOpenAnchorState(unreadCount: 0)
 
   #if DEBUG
     /// When set, `open` returns populate's failure contract without a process-global hook.
@@ -87,8 +64,7 @@ final class ChatTimeline {
   @ObservationIgnored
   var senderTablesProvider: @MainActor () -> ChatSenderTables = { .empty }
 
-  /// Runs after each full-timeline bake applies (the interactive owner's
-  /// legacy preview decode); nil for primes.
+  /// Runs after a full-timeline Bake applies; Prime leaves it nil.
   @ObservationIgnored
   var postApply: (@MainActor () -> Void)?
 
@@ -120,22 +96,14 @@ final class ChatTimeline {
 
   // MARK: - Binding
 
-  /// Attaches the shared coordinator for reads only, so a warm conversation
-  /// renders on the first frame before the load task binds. Never touches the
-  /// writer slot or hooks, so it is safe from view `init`, where transient
-  /// instances may be created and discarded.
+  /// Exposes cached messages before binding without claiming writer authority,
+  /// so transient view instances cannot displace a live owner.
   func attach(_ coordinator: ChatCoordinator) {
     self.coordinator = coordinator
   }
 
-  /// Claims the coordinator's writer slot for this timeline's role and
-  /// installs the rebake hooks as one atomic act. Returns false when the
-  /// bind was denied (a `.prime` against a live interactive owner); the
-  /// coordinator stays attached for reads either way.
-  ///
-  /// Hooks capture this timeline weakly: when the owning view model or
-  /// primer is discarded, the timeline goes with it and a late invalidation
-  /// no-ops; the next open's full rebuild repairs the items.
+  /// Claims this timeline's writer role and installs weakly captured Bake hooks.
+  /// A denied Prime retains read access; hooks no-op when their owner is gone.
   @discardableResult
   func bind(
     _ coordinator: ChatCoordinator,
@@ -160,10 +128,8 @@ final class ChatTimeline {
     return writer != nil
   }
 
-  /// Vacates the coordinator's writer slot so arrival-time prime refreshes
-  /// can service this conversation while it is off screen; the next `bind`
-  /// reclaims it. Deallocation is not a substitute: SwiftUI can keep a
-  /// popped destination's state alive.
+  /// Releases writer authority for Prime while off screen, because SwiftUI can
+  /// retain a popped destination's state beyond its visible lifetime.
   func releaseWriter() {
     if let coordinator {
       coordinator.releaseWriter(owner: self)
@@ -172,9 +138,7 @@ final class ChatTimeline {
   }
 
   #if DEBUG
-    /// Test seam: adopts an externally minted writer/coordinator pair so
-    /// suites can bind with a chosen role and custom hooks, mirroring
-    /// pre-bind states `bind` cannot produce (e.g. a stale prime holder).
+    /// Adopts a writer with custom hooks so tests can represent a stale holder.
     func adoptForTesting(coordinator: ChatCoordinator, writer: ChatTimelineWriter?) {
       self.coordinator = coordinator
       self.writer = writer
@@ -187,16 +151,13 @@ final class ChatTimeline {
   /// and there are messages to rebake. Idempotent on no-change.
   func applyEnvInputs(_ new: EnvInputs) {
     guard envInputs != new else { return }
-    // When the network transitions from unavailable to available, drop the
-    // sticky map-snapshot failures so renders that failed during the outage
-    // retry on the next rebuild. Without this, an offline-pack miss stays
-    // poisoned until a memory warning evicts the failed set.
+    // Retry cached map-snapshot failures when the network returns, rather than
+    // waiting for memory pressure to evict failures from the outage.
     if envInputs.isOffline, !new.isOffline {
       MapSnapshotStore.shared.clearFailures()
     }
     envInputs = new
-    // The environment feeds every formatting input, so its cached output is
-    // now stale for all rows and must be rebuilt under the new appearance.
+    // Cached formatting depends on the environment, so every row must be rebuilt.
     bake.formattedTextCache.removeAll()
     guard !messages.isEmpty else { return }
     rebakeAll()
@@ -204,34 +165,28 @@ final class ChatTimeline {
 
   // MARK: - Open anchor
 
-  /// Stages a conversation for opening: captures the unread count the
-  /// anchor decision keys on and resets the per-open latches and divider so
-  /// the anchor can only come from this session's bake, never one a shared
-  /// coordinator carries over from a previous open.
+  /// Captures this open's unread count and resets its divider so the Anchor cannot
+  /// come from a previous open's cached rows.
   func stageOpen(_ conversation: ChatConversationType) {
     self.conversation = conversation
-    openUnreadCount = conversation.unreadCount
-    anchorConsumed = false
-    initialLoadSettled = false
+    openAnchorState = ChatOpenAnchorState(unreadCount: conversation.unreadCount)
     bake.newMessagesDividerMessageID = nil
     bake.dividerComputed = false
   }
 
-  /// First-snapshot decision for the staged open; see
-  /// `ChatInitialScrollPolicy`. `bake` is not observable, but its divider
-  /// only moves alongside a coordinator mutation, so the observable
-  /// `itemIndexByID` read and the latch properties re-evaluate this whenever
-  /// a decision input has changed.
-  var firstSnapshot: ChatInitialScrollPolicy.FirstSnapshotDecision {
+  func completePopulate(_ outcome: ChatTimelinePopulator.Outcome) {
+    openAnchorState.completePopulate(outcome)
+  }
+
+  /// Bake's divider changes alongside coordinator mutations, so observing the
+  /// current items and open state keeps this decision current.
+  var firstSnapshot: ChatOpenAnchorState.FirstSnapshotDecision {
     let dividerMessageID = bake.newMessagesDividerMessageID
     let dividerRowOnScreen = dividerMessageID.flatMap { id -> Bool? in
       guard let index = itemIndexByID[id], items.indices.contains(index) else { return nil }
       return items[index].grouping.showNewMessagesDivider
     } ?? false
-    return ChatInitialScrollPolicy.firstSnapshotDecision(
-      hasConsumed: anchorConsumed,
-      unreadCount: openUnreadCount,
-      initialLoadSettled: initialLoadSettled,
+    return openAnchorState.firstSnapshot(
       dividerMessageID: dividerMessageID,
       dividerRowOnScreen: dividerRowOnScreen
     )
@@ -240,6 +195,6 @@ final class ChatTimeline {
   /// Marks the one-shot open positioning as spent. Called when the view's
   /// list has positioned on the anchor; later snapshots present freely.
   func consumeAnchor() {
-    anchorConsumed = true
+    openAnchorState.consumeAnchor()
   }
 }

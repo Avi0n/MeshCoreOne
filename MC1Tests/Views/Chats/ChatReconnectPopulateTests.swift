@@ -109,13 +109,11 @@ struct ChatReconnectPopulateTests {
     viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
     viewModel.bindCoordinatorForTesting(coordinator)
     viewModel.timeline.stageOpen(.dm(contact))
-    #expect(viewModel.timeline.initialLoadSettled == false)
+    #expect(viewModel.timeline.firstSnapshot == .withhold)
 
     let loaded = await viewModel.primeInitialMessages(for: contact, populateMode: .refreshWindow)
 
     #expect(loaded)
-    #expect(viewModel.timeline.initialLoadSettled,
-            "First open must run populate, not skip the warm window")
     let dividerID = try #require(viewModel.bake.newMessagesDividerMessageID,
                                  "The interactive open must bake the New Messages divider")
     await coordinator.buildItemsTask?.value
