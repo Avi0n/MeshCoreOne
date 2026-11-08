@@ -39,7 +39,7 @@ struct RemoteNodeCLICancellationTests {
         )
       }
       try await waitUntil("CLI request should be admitted while the message fetch is outstanding") {
-        await harness.service.pendingCLIRequests[destinationPrefix]?.command == "shutdown"
+        await harness.service.cliSlots[destinationPrefix]?.pendingRequest?.command == "shutdown"
       }
       #expect(await harness.transport.sentData.count == blockedFrameCount)
 

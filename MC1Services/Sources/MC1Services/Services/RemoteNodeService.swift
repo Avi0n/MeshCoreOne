@@ -31,40 +31,12 @@ public actor RemoteNodeService {
   var loginAttempts: [Data: RemoteLoginAttempt] = [:]
   var sensorConnectAttempts: [UUID: UUID] = [:]
 
-  /// The in-flight CLI request for a node. `acceptsAnyResponse` marks raw
-  /// passthrough commands whose reply shape can't be validated. `wirePrefix`
-  /// is the correlation token prepended to the command on the wire; firmware
-  /// reflects it back at the start of the reply.
-  struct PendingCLIRequest {
-    let id: UUID
-    let command: String
-    let wirePrefix: String
-    let acceptsAnyResponse: Bool
-    let continuation: CheckedContinuation<String, Error>
-    var workerTask: Task<Void, Never>?
-  }
-
-  /// The single in-flight CLI request per node, keyed by 6-byte public key
-  /// prefix. Replies echoing the request's wire prefix are attributed
-  /// deterministically; unprefixed replies (firmware that predates the echo)
-  /// fall back to single-flight shape validation, and foreign-prefixed
-  /// replies are stale by definition and dropped.
-  var pendingCLIRequests: [Data: PendingCLIRequest] = [:]
+  /// CLI slot ownership and FIFO admission keyed by the response's public key prefix.
+  var cliSlots: [Data: RemoteCLISlot] = [:]
+  static let cliPublicKeyPrefixLength = 6
 
   /// Cycling counter for CLI wire prefixes ("00|" through "FF|").
   var cliPrefixCounter: UInt8 = 0
-
-  /// A task queued for a node's CLI slot while another command is in flight.
-  struct CLISlotWaiter {
-    let id: UUID
-    let continuation: CheckedContinuation<Void, Error>
-  }
-
-  /// Nodes whose CLI slot is held by an in-flight command.
-  var cliSlotBusy: Set<Data> = []
-
-  /// FIFO waiters for a node's CLI slot, keyed by 6-byte public key prefix.
-  var cliSlotWaiters: [Data: [CLISlotWaiter]] = [:]
 
   /// Keep-alive timer tasks
   var keepAliveTasks: [UUID: Task<Void, Never>] = [:]
@@ -230,43 +202,6 @@ public actor RemoteNodeService {
     }
   }
 
-  /// Handle CLI response from a contact message. The wire prefix echoed by
-  /// firmware attributes a reply deterministically; an unprefixed reply falls
-  /// back to single-flight shape validation for older firmware, and a reply
-  /// echoing a different prefix belongs to an earlier command and is dropped.
-  private func handleCLIResponse(_ message: ContactMessage) {
-    let prefix = Data(message.senderPublicKeyPrefix.prefix(6))
-
-    guard let pending = pendingCLIRequests[prefix] else {
-      logger.debug("Unmatched CLI response (no pending request), length \(message.text.count)")
-      return
-    }
-
-    let responseText: String
-    if let echoed = CLIResponse.splitEchoedPrefix(message.text) {
-      guard echoed.prefix == pending.wirePrefix else {
-        logger.warning(
-          "Dropping stale CLI response with prefix \(echoed.prefix) while awaiting \(pending.wirePrefix)"
-        )
-        return
-      }
-      responseText = echoed.body
-    } else {
-      // Firmware without prefix echo: fall back to shape validation.
-      guard pending.acceptsAnyResponse
-        || CLIResponse.isPlausibleResponse(message.text, forQuery: pending.command) else {
-        logger.warning(
-          "Dropping CLI response that doesn't match pending command, length \(message.text.count)"
-        )
-        return
-      }
-      responseText = message.text
-    }
-
-    _ = takePendingCLIRequest(for: prefix, requestID: pending.id)
-    pending.continuation.resume(returning: responseText)
-  }
-
   /// Returns the next cycling CLI wire prefix ("00|" through "FF|").
   func makeCLIWirePrefix() -> String {
     defer { cliPrefixCounter &+= 1 }
@@ -283,11 +218,6 @@ public actor RemoteNodeService {
     guard var attempt = loginAttempts.removeValue(forKey: prefix) else { return }
     // A claimed result owns its continuation until persistence settles; removal only revokes its authority.
     attempt.claimCompletion()?.continuation.resume(throwing: RemoteNodeError.cancelled)
-  }
-
-  func cancelPendingCLIRequest(for prefix: Data, requestID: UUID) {
-    guard let cancelled = takePendingCLIRequest(for: prefix, requestID: requestID) else { return }
-    cancelled.continuation.resume(throwing: CancellationError())
   }
 
   // MARK: - Session Management
@@ -411,13 +341,10 @@ public actor RemoteNodeService {
     isRetired = true
     sensorConnectAttempts.removeAll()
     stopAllKeepAlives()
-    for (prefix, pending) in pendingCLIRequests {
-      cancelPendingCLIRequest(for: prefix, requestID: pending.id)
-    }
-    let waiters = cliSlotWaiters.values.flatMap(\.self)
-    cliSlotWaiters.removeAll()
-    for waiter in waiters {
-      waiter.continuation.resume(throwing: CancellationError())
+    let slots = cliSlots.values
+    cliSlots.removeAll()
+    for var slot in slots {
+      slot.cancelAll()
     }
   }
 

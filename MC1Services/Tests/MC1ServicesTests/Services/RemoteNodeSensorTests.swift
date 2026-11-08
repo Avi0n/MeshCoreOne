@@ -216,7 +216,7 @@ extension RemoteNodeSensorTests {
     let first = Task { try await h.service.sendRawCLICommand(sessionID: h.remote.id, command: "sensor list") }
     try await waitUntil("first command should hold the slot") { await h.session.sendCommandInvocations.count == 1 }
     let second = Task { try await h.service.sendRawCLICommand(sessionID: h.remote.id, command: "reboot") }
-    try await waitUntil("second command should wait") { await !h.service.cliSlotWaiters.isEmpty }
+    try await waitUntil("second command should wait") { await h.service.cliSlots.values.contains { $0.waiterCount > 0 } }
     await h.service.disconnect(sessionID: h.remote.id)
     try await reply("no custom var", harness: h, index: 0)
     #expect(try await first.value == "no custom var")

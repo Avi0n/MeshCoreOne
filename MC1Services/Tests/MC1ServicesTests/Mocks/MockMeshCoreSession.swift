@@ -224,9 +224,14 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   public var stubbedSendCommandResult: Result<MessageSentInfo, Error> = .success(
     MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100)
   )
+  private var sendCommandHold: (@Sendable () async throws -> Void)?
 
   public func setSendCommandResult(_ result: Result<MessageSentInfo, Error>) {
     stubbedSendCommandResult = result
+  }
+
+  public func setSendCommandHold(_ hold: (@Sendable () async throws -> Void)?) {
+    sendCommandHold = hold
   }
 
   /// Result to return from `requestStatus` when the FIFO list is empty.
@@ -864,7 +869,9 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     sendCommandInvocations.append(
       SendCommandInvocation(destination: destination, command: command, textType: textType)
     )
-    switch stubbedSendCommandResult {
+    let result = stubbedSendCommandResult
+    try await sendCommandHold?()
+    switch result {
     case let .success(info): return info
     case let .failure(error): throw error
     }
