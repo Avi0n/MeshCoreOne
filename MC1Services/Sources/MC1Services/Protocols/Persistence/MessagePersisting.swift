@@ -161,8 +161,8 @@ public protocol MessagePersisting: Actor {
   /// Update message timestamp (for resending)
   func updateMessageTimestamp(id: UUID, timestamp: UInt32) async throws
 
-  /// Update heard repeats count
-  func updateMessageHeardRepeats(id: UUID, heardRepeats: Int) async throws
+  /// Updates a new channel send's timestamp and clears prior echo evidence in one turn.
+  func prepareChannelMessageResend(id: UUID, timestamp: UInt32) async throws
 
   /// Mark a message as read
   func markMessageAsRead(id: UUID) async throws

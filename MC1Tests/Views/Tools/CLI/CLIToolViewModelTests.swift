@@ -539,7 +539,6 @@ actor ParkingContactStore: PersistenceStoreProtocol {
   func updateMessageStatus(id: UUID, status: MessageStatus) async throws {}
   func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
   func updateMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws {}
-  func updateMessageHeardRepeats(id: UUID, heardRepeats: Int) async throws {}
   func updateMessageLinkPreview(id: UUID, url: String?, title: String?, imageData: Data?, iconData: Data?, fetched: Bool) throws {}
   func fetchConversations(radioID: UUID) async throws -> [ContactDTO] {
     []
@@ -717,6 +716,7 @@ actor ParkingContactStore: PersistenceStoreProtocol {
 
   func admitSentEcho(
     messageID: UUID,
+    expectedTimestamp: UInt32,
     receivedAt: Date,
     pathNodes: Data,
     pathLength: UInt8,
@@ -727,12 +727,12 @@ actor ParkingContactStore: PersistenceStoreProtocol {
     nil
   }
 
-  func deleteMessageRepeats(messageID: UUID) async throws {}
   func incrementMessageSendCount(id: UUID) async throws -> Int {
     0
   }
 
   func updateMessageTimestamp(id: UUID, timestamp: UInt32) async throws {}
+  func prepareChannelMessageResend(id: UUID, timestamp: UInt32) async throws {}
   func saveDebugLogEntries(_ dtos: [DebugLogEntryDTO]) async throws {}
   func fetchDebugLogEntries(since date: Date, limit: Int) async throws -> [DebugLogEntryDTO] {
     []

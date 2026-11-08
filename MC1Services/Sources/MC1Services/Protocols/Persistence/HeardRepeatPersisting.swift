@@ -15,9 +15,6 @@ public protocol HeardRepeatPersisting: Actor {
   /// Fetch all repeats for a message
   func fetchMessageRepeats(messageID: UUID) async throws -> [MessageRepeatDTO]
 
-  /// Delete all repeats for a message
-  func deleteMessageRepeats(messageID: UUID) async throws
-
   /// Check if a repeat exists for the given RX log entry
   func messageRepeatExists(rxLogEntryID: UUID) async throws -> Bool
 
@@ -36,10 +33,11 @@ public protocol HeardRepeatPersisting: Actor {
     rxLogEntryID: UUID?
   ) async throws -> IncomingPathAdmission
 
-  /// Records a sent-channel echo even when the hop list matches another echo.
-  /// The same RX entry is recorded once. Returns nil when that entry already exists.
+  /// Records every sent echo, including identical paths, while its timestamp matches.
+  /// Returns nil for a duplicate RX entry or an echo from a prior send.
   func admitSentEcho(
     messageID: UUID,
+    expectedTimestamp: UInt32,
     receivedAt: Date,
     pathNodes: Data,
     pathLength: UInt8,

@@ -606,18 +606,26 @@ public extension PersistenceStore {
     }
   }
 
-  /// Updates the heard repeats count for a message
-  func updateMessageHeardRepeats(id: UUID, heardRepeats: Int) throws {
-    let targetID = id
-    let predicate = #Predicate<Message> { message in
-      message.id == targetID
+  func prepareChannelMessageResend(id: UUID, timestamp: UInt32) throws {
+    try commitPendingRxLogEntries()
+    guard let message = try fetchMessageModel(id: id) else {
+      throw PersistenceStoreError.messageNotFound
     }
-    var descriptor = FetchDescriptor(predicate: predicate)
-    descriptor.fetchLimit = 1
-
-    if let message = try modelContext.fetch(descriptor).first {
-      message.heardRepeats = heardRepeats
+    let targetMessageID = id
+    let predicate = #Predicate<MessageRepeat> { $0.messageID == targetMessageID }
+    do {
+      for repeat_ in try modelContext.fetch(FetchDescriptor(predicate: predicate)) {
+        modelContext.delete(repeat_)
+      }
+      message.timestamp = timestamp
+      message.heardRepeats = 0
+      #if DEBUG
+        try prepareChannelMessageResendSaveFaultInjection?()
+      #endif
       try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
     }
   }
 
@@ -825,21 +833,6 @@ public extension PersistenceStore {
     return results.map { MessageRepeatDTO(from: $0) }
   }
 
-  /// Deletes all repeats for a given message.
-  func deleteMessageRepeats(messageID: UUID) throws {
-    let targetMessageID = messageID
-    let predicate = #Predicate<MessageRepeat> { repeat_ in
-      repeat_.messageID == targetMessageID
-    }
-    let descriptor = FetchDescriptor(predicate: predicate)
-
-    let results = try modelContext.fetch(descriptor)
-    for repeat_ in results {
-      modelContext.delete(repeat_)
-    }
-    try modelContext.save()
-  }
-
   /// Checks if a repeat already exists for the given RX log entry.
   func messageRepeatExists(rxLogEntryID: UUID) throws -> Bool {
     let targetID: UUID? = rxLogEntryID
@@ -908,6 +901,7 @@ public extension PersistenceStore {
 
   func admitSentEcho(
     messageID: UUID,
+    expectedTimestamp: UInt32,
     receivedAt: Date,
     pathNodes: Data,
     pathLength: UInt8,
@@ -918,6 +912,7 @@ public extension PersistenceStore {
     guard let message = try fetchMessageModel(id: messageID) else {
       throw PersistenceStoreError.messageNotFound
     }
+    guard message.timestamp == expectedTimestamp else { return nil }
     if let rxLogEntryID, try messageRepeatExists(rxLogEntryID: rxLogEntryID) {
       return nil
     }

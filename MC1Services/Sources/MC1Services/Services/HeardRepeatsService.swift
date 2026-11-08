@@ -130,6 +130,7 @@ public actor HeardRepeatsService {
   private func recordSentEcho(message: MessageDTO, entry: RxLogEntryDTO) async throws -> Int? {
     guard let newCount = try await dataStore.admitSentEcho(
       messageID: message.id,
+      expectedTimestamp: message.timestamp,
       receivedAt: entry.receivedAt,
       pathNodes: entry.pathNodes,
       pathLength: entry.pathLength,

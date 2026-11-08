@@ -167,6 +167,7 @@ struct HeardRepeatSnapshotWriteTests {
     let secondRX = UUID()
     let first = try await store.admitSentEcho(
       messageID: message.id,
+      expectedTimestamp: message.timestamp,
       receivedAt: Date(timeIntervalSince1970: 1_700_000_040),
       pathNodes: Data([0x11]),
       pathLength: 1,
@@ -176,6 +177,7 @@ struct HeardRepeatSnapshotWriteTests {
     )
     let second = try await store.admitSentEcho(
       messageID: message.id,
+      expectedTimestamp: message.timestamp,
       receivedAt: Date(timeIntervalSince1970: 1_700_000_041),
       pathNodes: Data([0x11]),
       pathLength: 1,
@@ -185,6 +187,7 @@ struct HeardRepeatSnapshotWriteTests {
     )
     let sameRX = try await store.admitSentEcho(
       messageID: message.id,
+      expectedTimestamp: message.timestamp,
       receivedAt: Date(timeIntervalSince1970: 1_700_000_042),
       pathNodes: Data([0x22]),
       pathLength: 1,

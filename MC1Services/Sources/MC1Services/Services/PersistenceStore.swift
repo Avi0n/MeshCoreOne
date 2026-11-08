@@ -120,6 +120,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
 
     var preparePendingSendAttemptFaultInjection: (@Sendable () throws -> Void)?
     var pendingSendAttemptSaveFaultInjection: (@Sendable (UUID) throws -> Void)?
+    var prepareChannelMessageResendSaveFaultInjection: (@Sendable () throws -> Void)?
 
     /// Test-only hook at the top of `fetchDevice(id:)`. The pairing query skips that id on throw.
     var fetchDeviceByIDFaultInjection: (@Sendable () throws -> Void)?

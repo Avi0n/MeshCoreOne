@@ -479,32 +479,12 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
   }
 
-  public func updateMessageHeardRepeats(id: UUID, heardRepeats: Int) async throws {
-    if let message = messages[id] {
-      messages[id] = MessageDTO(
-        id: message.id,
-        radioID: message.radioID,
-        contactID: message.contactID,
-        channelIndex: message.channelIndex,
-        text: message.text,
-        timestamp: message.timestamp,
-        createdAt: message.createdAt,
-        direction: message.direction,
-        status: message.status,
-        textType: message.textType,
-        ackCode: message.ackCode,
-        pathLength: message.pathLength,
-        snr: message.snr,
-        senderKeyPrefix: message.senderKeyPrefix,
-        senderNodeName: message.senderNodeName,
-        isRead: message.isRead,
-        replyToID: message.replyToID,
-        roundTripTime: message.roundTripTime,
-        heardRepeats: heardRepeats,
-        retryAttempt: message.retryAttempt,
-        maxRetryAttempts: message.maxRetryAttempts
-      )
-    }
+  public func prepareChannelMessageResend(id: UUID, timestamp: UInt32) async throws {
+    guard var message = messages[id] else { throw PersistenceStoreError.messageNotFound }
+    message.timestamp = timestamp
+    message.heardRepeats = 0
+    repeatRows.removeAll { $0.messageID == id }
+    messages[id] = message
   }
 
   public func markMessageAsRead(id: UUID) async throws {
@@ -1808,10 +1788,6 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     [] // Stub
   }
 
-  public func deleteMessageRepeats(messageID: UUID) async throws {
-    // Stub - no-op
-  }
-
   public func messageRepeatExists(rxLogEntryID: UUID) async throws -> Bool {
     false // Stub
   }
@@ -1859,6 +1835,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func admitSentEcho(
     messageID: UUID,
+    expectedTimestamp: UInt32,
     receivedAt: Date,
     pathNodes: Data,
     pathLength: UInt8,
@@ -1867,6 +1844,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     rxLogEntryID: UUID?
   ) async throws -> Int? {
     guard var message = messages[messageID] else { throw PersistenceStoreError.messageNotFound }
+    guard message.timestamp == expectedTimestamp else { return nil }
     if let rxLogEntryID, repeatRows.contains(where: { $0.rxLogEntryID == rxLogEntryID }) {
       return nil
     }
