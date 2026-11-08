@@ -2378,6 +2378,37 @@ struct PersistenceStoreTests {
   }
 
   @Test
+  func `deleteMessagesForChannel removes a queued channel send whose message is already gone`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let orphan = PendingSendDTO(
+      envelope: ChannelMessageEnvelope(
+        messageID: UUID(), channelIndex: 0, isResend: false,
+        messageText: "gone", messageTimestamp: 1, localNodeName: nil
+      ),
+      radioID: device.id
+    )
+    let otherSlot = PendingSendDTO(
+      envelope: ChannelMessageEnvelope(
+        messageID: UUID(), channelIndex: 1, isResend: false,
+        messageText: "keep", messageTimestamp: 2, localNodeName: nil
+      ),
+      radioID: device.id
+    )
+    let direct = makePendingSendDTO(radioID: device.id, sequence: 3)
+    _ = try await store.insertPendingSendAssigningSequence(orphan)
+    _ = try await store.insertPendingSendAssigningSequence(otherSlot)
+    try await store.upsertPendingSend(direct)
+
+    try await store.deleteMessagesForChannel(radioID: device.id, channelIndex: 0)
+
+    let remaining = try await store.fetchPendingSends(radioID: device.id)
+    #expect(remaining.map(\.messageID).sorted() == [otherSlot.messageID, direct.messageID].sorted())
+  }
+
+  @Test
   func `deleteMessagesForChannel save throw rolls back messages and cascade`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()

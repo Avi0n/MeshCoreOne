@@ -551,21 +551,6 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     try await sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
   }
 
-  public func sendVerifiedChannelMessage(
-    channel: UInt8,
-    text: String,
-    timestamp: Date,
-    floodScope: ResolvedFloodScope?,
-    expectedSecret: Data
-  ) async throws {
-    let info = try await getChannel(index: channel)
-    guard info.index == channel, info.secret == expectedSecret,
-          !info.name.isEmpty || info.secret.contains(where: { $0 != 0 }) else {
-      throw MeshCoreError.invalidResponse(expected: "unchanged channel occupancy", got: "different or missing channel occupancy")
-    }
-    try await sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
-  }
-
   public func getContacts(since lastModified: Date?) async throws -> [MeshContact] {
     try await getContactsReportingTotal(since: lastModified).contacts
   }

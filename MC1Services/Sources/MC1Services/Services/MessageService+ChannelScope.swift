@@ -8,8 +8,7 @@ extension MessageService {
     text: String,
     channelIndex: UInt8,
     radioID: UUID,
-    timestamp: Date,
-    expectedChannelSecret: Data? = nil
+    timestamp: Date
   ) async throws {
     let channel = try await dataStore.fetchChannel(radioID: radioID, index: channelIndex)
     let device = try await dataStore.fetchDevice(radioID: radioID)
@@ -25,20 +24,7 @@ extension MessageService {
     } else {
       scope
     }
-    if let expectedChannelSecret {
-      do {
-        try await session.sendVerifiedChannelMessage(
-          channel: channelIndex,
-          text: text,
-          timestamp: timestamp,
-          floodScope: appliedScope,
-          expectedSecret: expectedChannelSecret
-        )
-      } catch let error as MeshCoreError {
-        guard case .invalidResponse = error else { throw error }
-        throw MessageServiceError.channelNotFound
-      }
-    } else if let appliedScope {
+    if let appliedScope {
       try await session.sendChannelMessage(
         channel: channelIndex,
         text: text,

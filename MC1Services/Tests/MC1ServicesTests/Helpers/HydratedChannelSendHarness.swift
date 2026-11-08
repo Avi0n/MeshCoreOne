@@ -10,40 +10,46 @@ final class HydratedChannelSendHarness {
   let store: PersistenceStore
   let radio: ConnectionTestRadioTransport
   let session: MeshCoreSession
+  let channelService: ChannelService
   let queue: ChatSendQueueService
   let message: MessageDTO
   let radioID: UUID
 
   private init(
     store: PersistenceStore, radio: ConnectionTestRadioTransport, session: MeshCoreSession,
-    queue: ChatSendQueueService, message: MessageDTO, radioID: UUID
+    channelService: ChannelService, queue: ChatSendQueueService, message: MessageDTO, radioID: UUID
   ) {
     self.store = store
     self.radio = radio
     self.session = session
+    self.channelService = channelService
     self.queue = queue
     self.message = message
     self.radioID = radioID
   }
 
-  static func make(clock: (any Clock<Duration>)? = nil) async throws -> HydratedChannelSendHarness {
+  static func make() async throws -> HydratedChannelSendHarness {
     let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
     let radio = ConnectionTestRadioTransport()
     let session = MeshCoreSession(
-      transport: radio, configuration: SessionConfiguration(defaultTimeout: 2), clock: clock
+      transport: radio, configuration: SessionConfiguration(defaultTimeout: 2)
     )
     try await session.start()
     let saved = DeviceDTO.testDevice(publicKey: radio.publicKey)
     try await store.saveDevice(saved)
     let message = try await seed(store: store, radioID: saved.radioID)
     await radio.setChannel(index: 0, name: "Original", secret: secretA)
+    let channelService = ChannelService(session: session, dataStore: store, rxLogService: nil)
     let queue = ChatSendQueueService(
       radioID: saved.radioID, dataStore: store,
       messageService: MessageService(session: session, dataStore: store, contactService: nil),
-      channelService: ChannelService(session: session, dataStore: store, rxLogService: nil),
+      channelService: channelService,
       reactionService: ReactionService()
     )
-    return HydratedChannelSendHarness(store: store, radio: radio, session: session, queue: queue, message: message, radioID: saved.radioID)
+    return HydratedChannelSendHarness(
+      store: store, radio: radio, session: session, channelService: channelService,
+      queue: queue, message: message, radioID: saved.radioID
+    )
   }
 
   static func seed(store: PersistenceStore, radioID: UUID) async throws -> MessageDTO {
@@ -58,21 +64,8 @@ final class HydratedChannelSendHarness {
     return message
   }
 
-  static func channelPacket(secret: Data) -> Data {
-    let name = Data("Original".utf8)
-    return Data([ResponseCode.channelInfo.rawValue, 0]) + name + Data(repeating: 0, count: 32 - name.count) + secret
-  }
-
   var sendFrames: [Data] {
     get async { await radio.sentData.filter { $0.first == CommandCode.sendChannelMessage.rawValue } }
-  }
-
-  func waitForValidation() async throws {
-    try await waitUntil("hydrated work must reach occupancy validation or expose an unchecked send") {
-      if await self.radio.heldReplyCount(for: .getChannel) == 1 { return true }
-      return await !self.sendFrames.isEmpty
-    }
-    try #require(await radio.heldReplyCount(for: .getChannel) == 1, "A hydrated envelope reached send without validating its slot")
   }
 
   func close() async {

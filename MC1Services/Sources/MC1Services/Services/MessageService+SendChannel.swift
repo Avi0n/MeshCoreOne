@@ -122,7 +122,7 @@ public extension MessageService {
   /// success or `.failed` on error.
   ///
   /// - Parameter messageID: The ID of the pending message to send
-  func sendPendingChannelMessage(messageID: UUID, expectedChannelSecret: Data? = nil) async throws {
+  func sendPendingChannelMessage(messageID: UUID) async throws {
     // Catch 1: validation guards + send + status flip. Validation lives
     // inside the do/catch so a missing message or missing channel index
     // consistently writes `.failed` to the DB before propagating — paired
@@ -149,8 +149,7 @@ public extension MessageService {
             text: message.text,
             channelIndex: channelIndex,
             radioID: radioID,
-            timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp)),
-            expectedChannelSecret: expectedChannelSecret
+            timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp))
           )
         }
         if isReaction { acceptedChannelReactions.insert(messageID) }
@@ -190,8 +189,7 @@ public extension MessageService {
   @discardableResult
   func resendChannelMessage(
     messageID: UUID,
-    preserveTimestamp: Bool = false,
-    expectedChannelSecret: Data? = nil
+    preserveTimestamp: Bool = false
   ) async throws -> UInt32 {
     // Publish .resent after .sent commits, even if send-count bookkeeping fails.
     var sentCommitted = false
@@ -228,8 +226,7 @@ public extension MessageService {
             text: message.text,
             channelIndex: channelIndex,
             radioID: message.radioID,
-            timestamp: wireDate,
-            expectedChannelSecret: expectedChannelSecret
+            timestamp: wireDate
           )
         }
         if isReaction { acceptedChannelReactions.insert(messageID) }

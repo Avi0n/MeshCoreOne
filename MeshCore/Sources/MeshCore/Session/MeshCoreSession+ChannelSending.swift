@@ -16,42 +16,24 @@ public extension MeshCoreSession {
     text: String,
     timestamp: Date = Date()
   ) async throws {
-    try await performChannelSend(channel: channel, text: text, timestamp: timestamp, floodScope: nil, expectedSecret: nil)
+    try await performChannelSend(channel: channel, text: text, timestamp: timestamp, floodScope: nil)
   }
 
-  /// Applies a temporary flood scope, sends, and restores the baseline before releasing the slot.
+  /// Writes the flood-scope command, then the channel message, then clears a non-baseline scope before releasing the slot.
   func sendChannelMessage(
     channel: UInt8,
     text: String,
     timestamp: Date,
     floodScope: ResolvedFloodScope
   ) async throws {
-    try await performChannelSend(channel: channel, text: text, timestamp: timestamp, floodScope: floodScope, expectedSecret: nil)
+    try await performChannelSend(channel: channel, text: text, timestamp: timestamp, floodScope: floodScope)
   }
-
-  /// Verifies channel occupancy and sends without allowing a channel replacement between them.
-  func sendVerifiedChannelMessage(
-    channel: UInt8,
-    text: String,
-    timestamp: Date,
-    floodScope: ResolvedFloodScope?,
-    expectedSecret: Data
-  ) async throws {
-    try await performChannelSend(channel: channel, text: text, timestamp: timestamp, floodScope: floodScope, expectedSecret: expectedSecret)
-  }
-
-  private static let unconfiguredChannelSecretByte: UInt8 = 0
-
-  private static let channelOccupancyMismatch = MeshCoreError.invalidResponse(
-    expected: "unchanged channel occupancy", got: "different or missing channel occupancy"
-  )
 
   private func performChannelSend(
     channel: UInt8,
     text: String,
     timestamp: Date,
-    floodScope: ResolvedFloodScope?,
-    expectedSecret: Data?
+    floodScope: ResolvedFloodScope?
   ) async throws {
     let cancelled = Mutex(false)
     let isCancelled: @Sendable () -> Bool = { cancelled.withLock { $0 } }
@@ -60,15 +42,11 @@ public extension MeshCoreSession {
       if let floodScope {
         try await requestResponseSerializer.withSerialization(resumeCallerOnCancel: false) { [self] in
           try await self.sendWithTemporaryFloodScope(
-            channel: channel, message: message, floodScope: floodScope,
-            expectedSecret: expectedSecret, isCancelled: isCancelled
+            message: message, floodScope: floodScope, isCancelled: isCancelled
           )
         }
       } else {
         try await requestResponseSerializer.withSerialization { [self] in
-          if let expectedSecret {
-            try await validateChannelOccupancy(channel: channel, expectedSecret: expectedSecret, isCancelled: isCancelled)
-          }
           let _: Bool = try await sendAndMatchHoldingSerialization(message, beforeSend: {
             if isCancelled() { throw CancellationError() }
           }) { event in
@@ -86,10 +64,8 @@ public extension MeshCoreSession {
   /// Keep the slot through restoration so no other command can inherit the override.
   /// An acknowledged `03` stays accepted through cancellation or cleanup failure.
   private func sendWithTemporaryFloodScope(
-    channel: UInt8,
     message: Data,
     floodScope: ResolvedFloodScope,
-    expectedSecret: Data?,
     isCancelled: @escaping @Sendable () -> Bool
   ) async throws {
     defer { notifyFloodScopeRecoveryIfNeeded() }
@@ -98,18 +74,9 @@ public extension MeshCoreSession {
       markFloodScopeRecoveryRequired()
       throw MeshCoreError.timeout
     }
-    if let expectedSecret {
-      do {
-        try await validateChannelOccupancy(channel: channel, expectedSecret: expectedSecret, isCancelled: isCancelled)
-      } catch {
-        if Self.channelWriteFailureRequiresFence(error, isCancelled: isCancelled) {
-          markFloodScopeRecoveryRequired()
-        }
-        throw error
-      }
-    }
     if isCancelled() { throw CancellationError() }
 
+    // `send_scope` lives in radio RAM. A reboot clears it, so every send writes 36 before 03.
     let setup = Self.temporaryScopeCommand(floodScope)
     switch await settleChannelCommand(setup.command, isCancelled: isCancelled) {
     case .replied(.accepted):
@@ -160,39 +127,6 @@ public extension MeshCoreSession {
       let key = scope.scopeKey()
       return (PacketBuilder.setFloodScope(key), key != FloodScope.disabled.scopeKey())
     }
-  }
-
-  private func validateChannelOccupancy(
-    channel: UInt8,
-    expectedSecret: Data,
-    isCancelled: @escaping @Sendable () -> Bool
-  ) async throws {
-    let _: Bool = try await sendAndMatchHoldingSerialization(PacketBuilder.getChannel(index: channel), beforeSend: {
-      if isCancelled() { throw CancellationError() }
-    }) { event in
-      if case let .error(code) = event, code == ErrorCode.notFound.rawValue {
-        return .failure(Self.channelOccupancyMismatch)
-      }
-      if let error = Self.deviceErrorMatcher(event) { return .failure(error) }
-      guard case let .channelInfo(info) = event, info.index == channel else { return .ignore }
-      guard info.secret == expectedSecret,
-            !info.name.isEmpty || info.secret.contains(where: { $0 != Self.unconfiguredChannelSecretByte }) else {
-        return .failure(Self.channelOccupancyMismatch)
-      }
-      return .success(true)
-    }
-  }
-
-  private static func channelWriteFailureRequiresFence(
-    _ error: Error,
-    isCancelled: @Sendable () -> Bool
-  ) -> Bool {
-    if let failure = error as? MeshCoreError {
-      if case .timeout = failure { return true }
-      return false
-    }
-    if error is CancellationError, isCancelled() { return false }
-    return true
   }
 
   /// Retain the first terminal reply even if the write fails, then close the subscription before the next command.

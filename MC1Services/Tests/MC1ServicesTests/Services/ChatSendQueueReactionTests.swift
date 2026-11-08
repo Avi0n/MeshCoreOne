@@ -130,7 +130,7 @@ struct ChatSendQueueReactionTests {
   }
 
   @Test
-  func `a reassigned channel slot rejects the reaction without a badge`() async throws {
+  func `an external slot change still sends the reaction`() async throws {
     let (env, target) = try await makeChannelEnvironment()
     do {
       await env.ble.setChannel(index: 0, name: "Replacement", secret: Self.replacementSecret)
@@ -138,10 +138,10 @@ struct ChatSendQueueReactionTests {
       let outgoing = try #require(try await queue.enqueueReaction(to: target, emoji: "👍", senderName: Self.senderName))
       await queue.awaitDrainCompletion()
 
-      #expect(try await env.manager.persistenceStore.fetchMessage(id: outgoing.id)?.status == .failed)
-      #expect(try await env.manager.persistenceStore.fetchReactions(for: target.id).isEmpty)
+      #expect(try await env.manager.persistenceStore.fetchMessage(id: outgoing.id)?.status == .sent)
+      #expect(try await env.manager.persistenceStore.fetchMessage(id: target.id)?.reactionSummary == "👍:1")
       #expect(try await !env.manager.persistenceStore.hasPendingSend(messageID: outgoing.id))
-      #expect(await sendCount(env, command: .sendChannelMessage) == 0)
+      #expect(await sendCount(env, command: .sendChannelMessage) == 1)
     } catch {
       await env.close()
       throw error

@@ -832,7 +832,7 @@ public actor ChannelService {
 
   /// Acquires the channel operation gate, runs `operation` on this task, and releases on every exit.
   /// A cancelled waiter may sit until it acquires, then leaves without a command or a store write.
-  private func withChannelOperation<T: Sendable>(
+  func withChannelOperation<T: Sendable>(
     _ operation: () async throws -> T
   ) async throws -> T {
     await channelOperationSerializer.acquire()

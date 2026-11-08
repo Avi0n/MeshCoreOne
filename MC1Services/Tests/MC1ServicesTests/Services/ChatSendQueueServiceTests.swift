@@ -280,7 +280,7 @@ struct ChatSendQueueServiceTests {
     await harness.queue.awaitDrainCompletion()
 
     #expect(try await harness.dataStore.fetchMessage(id: harness.messageID)?.status == .failed)
-    #expect(await harness.session.getChannelIndices == Array(repeating: 0, count: harness.occupancyReadCount + 1))
+    #expect(await harness.session.getChannelIndices == [0])
     #expect(await harness.session.sendChannelMessageInvocations.count == harness.poolAttempts)
     await harness.queue.shutdown()
   }
@@ -298,8 +298,7 @@ struct ChatSendQueueServiceTests {
     }
 
     #expect(try await harness.dataStore.hasPendingSend(messageID: harness.messageID))
-    #expect(await harness.session.getChannelIndices == Array(repeating: 0, count: harness.occupancyReadCount),
-            "Below the threshold, only occupancy validation may read the channel")
+    #expect(await harness.session.getChannelIndices.isEmpty)
     await harness.queue.shutdown()
   }
 
@@ -320,7 +319,7 @@ struct ChatSendQueueServiceTests {
       let fetches = await harness.session.getChannelIndices.count
       let message = try? await harness.dataStore.fetchMessage(id: harness.messageID)
       let parked = await harness.queue.parkedDrainCountForTesting
-      return fetches == harness.occupancyReadCount + 1 && message?.status == .pending && parked > 0
+      return fetches == 1 && message?.status == .pending && parked > 0
     }
     #expect(try await harness.dataStore.hasPendingSend(messageID: harness.messageID))
 
@@ -331,7 +330,7 @@ struct ChatSendQueueServiceTests {
     }
     await harness.queue.awaitDrainCompletion()
 
-    #expect(await harness.session.getChannelIndices == Array(repeating: 0, count: failureCap * (harness.occupancyReadCount + 1)))
+    #expect(await harness.session.getChannelIndices == Array(repeating: 0, count: failureCap))
     #expect(await harness.session.sendChannelMessageInvocations.count == failureCap * harness.poolAttempts)
     #expect(try await harness.dataStore.fetchMessage(id: harness.messageID)?.status == .failed)
     await harness.queue.shutdown()
@@ -347,13 +346,8 @@ struct ChatSendQueueServiceTests {
     let channel: ChannelInfo
     let poolAttempts: Int
 
-    var occupancyReadCount: Int {
-      1 + poolAttempts
-    }
-
     func channelReads(endingWith error: Error) -> [Result<ChannelInfo, Error>] {
-      // The outer read and each serialized send read succeed before disambiguation fails.
-      Array(repeating: .success(channel), count: occupancyReadCount) + [.failure(error)]
+      [.failure(error)]
     }
   }
 

@@ -36,22 +36,13 @@ public protocol MessagingSessionOps: Actor {
     timestamp: Date
   ) async throws
 
-  /// Sends with a temporary flood scope and restores the radio baseline before the next command.
+  /// Writes the flood-scope command before every channel message, then clears a non-baseline scope before the next command.
   /// If restoration fails, the session blocks further commands and preserves any accepted send.
   func sendChannelMessage(
     channel: UInt8,
     text: String,
     timestamp: Date,
     floodScope: ResolvedFloodScope
-  ) async throws
-
-  /// Verifies the slot secret and sends under one command slot, applying a temporary scope when provided.
-  func sendVerifiedChannelMessage(
-    channel: UInt8,
-    text: String,
-    timestamp: Date,
-    floodScope: ResolvedFloodScope?,
-    expectedSecret: Data
   ) async throws
 }
 

@@ -76,6 +76,11 @@ public final class ChatSendQueueService {
   /// `observeConnectionState`. Cancelled in `shutdown()`.
   private var connectionStateTask: Task<Void, Never>?
 
+  /// A database error during the attempt bump. The drain parks outside the channel gate.
+  private struct QueuedChannelPreflightFailure: Error {
+    let underlying: Error
+  }
+
   // swiftlint:disable:next function_body_length
   init(
     radioID: UUID,
@@ -246,7 +251,7 @@ public final class ChatSendQueueService {
         // terminal failure for the envelope and calls
         // `notifyMessageFailed` exactly once.
         do {
-          guard let expectedChannelSecret = try await ChatSendQueueService.validateQueuedChannel(
+          guard try await ChatSendQueueService.validateQueuedChannel(
             envelope: envelope,
             radioID: radioID,
             dataStore: dataStoreRef,
@@ -257,21 +262,40 @@ public final class ChatSendQueueService {
           ) else { return }
           try ChatSendQueueService.cancelSendIfRetired(sendsRetired)
 
-          // Pre-send gate + attemptCount bump; see DM closure for rationale.
-          let postBumpCount: Int
-          let preserveTimestamp: Bool
+          // The bump and the radio send share the channel gate. A slot rewrite
+          // deletes this pending row before it can acquire the gate and transmit.
+          let attemptBump = OSAllocatedUnfairLock(initialState: 0)
+          let indexTimestamp: UInt32
           do {
-            guard let result = try await ChatSendQueueService.preflightAndBump(
-              dataStore: dataStoreRef,
-              messageID: envelope.messageID,
-              kind: "channel",
-              logger: loggerRef,
-              osLogger: osLoggerRef
-            ) else { return }
-            postBumpCount = result.postBumpCount
-            preserveTimestamp = result.preserveTimestamp
-          } catch {
+            let transmitted = try await channelServiceRef.withChannelOperation { () -> UInt32? in
+              let prepared: (postBumpCount: Int, preserveTimestamp: Bool)
+              do {
+                guard let result = try await ChatSendQueueService.preflightAndBump(
+                  dataStore: dataStoreRef,
+                  messageID: envelope.messageID,
+                  kind: "channel",
+                  logger: loggerRef,
+                  osLogger: osLoggerRef
+                ) else { return nil }
+                prepared = (result.postBumpCount, result.preserveTimestamp)
+              } catch {
+                throw ChatSendQueueService.QueuedChannelPreflightFailure(underlying: error)
+              }
+              attemptBump.withLock { $0 = prepared.postBumpCount }
+              if envelope.isResend {
+                return try await messageServiceRef.resendChannelMessage(
+                  messageID: envelope.messageID,
+                  preserveTimestamp: prepared.preserveTimestamp
+                )
+              }
+              try await messageServiceRef.sendPendingChannelMessage(messageID: envelope.messageID)
+              return envelope.messageTimestamp
+            }
+            guard let transmitted else { return }
+            indexTimestamp = transmitted
+          } catch let failure as ChatSendQueueService.QueuedChannelPreflightFailure {
             _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
+            loggerRef.warning("channel drain preflight failed: \(String(describing: failure.underlying))")
             try await ChatSendQueueService.parkAndCancel(
               triggers: triggers,
               logger: loggerRef,
@@ -279,45 +303,10 @@ public final class ChatSendQueueService {
               kind: "channel",
               timeout: configRef.transportWaitTimeout
             )
-          }
-
-          do {
-            // resendChannelMessage stamps a fresh wire timestamp so the
-            // mesh dedup ring treats the retry as a new broadcast.
-            // Reactions hash off that exact timestamp via
-            // SHA256(text || timestamp.littleEndian), so the resent
-            // packet must be indexed under the post-resend value, not
-            // the pre-resend value captured at enqueue time.
-            let indexTimestamp: UInt32
-            if envelope.isResend {
-              indexTimestamp = try await messageServiceRef.resendChannelMessage(
-                messageID: envelope.messageID,
-                preserveTimestamp: preserveTimestamp,
-                expectedChannelSecret: expectedChannelSecret
-              )
-            } else {
-              try await messageServiceRef.sendPendingChannelMessage(
-                messageID: envelope.messageID,
-                expectedChannelSecret: expectedChannelSecret
-              )
-              indexTimestamp = envelope.messageTimestamp
-            }
-            if let nodeName = envelope.localNodeName {
-              _ = await reactionServiceRef.indexMessage(
-                id: envelope.messageID,
-                channelIndex: envelope.channelIndex,
-                senderName: nodeName,
-                text: envelope.messageText,
-                timestamp: indexTimestamp
-              )
-            }
-            try? await dataStoreRef.deletePendingSendsForMessage(messageID: envelope.messageID)
-            osLoggerRef.debug("channel drain success messageID=\(envelope.messageID)")
-            await failureCounter.reset(for: envelope.messageID)
-            await triggers.clear()
           } catch is CancellationError {
             throw CancellationError()
           } catch {
+            let postBumpCount = attemptBump.withLock { $0 }
             guard ChatSendQueueService.isTransientChannelMessageError(error) else {
               loggerRef.info("channel drain terminal messageID=\(envelope.messageID) error=\(String(describing: error))")
               throw error
@@ -390,6 +379,20 @@ public final class ChatSendQueueService {
               timeout: configRef.transportWaitTimeout
             )
           }
+
+          if let nodeName = envelope.localNodeName {
+            _ = await reactionServiceRef.indexMessage(
+              id: envelope.messageID,
+              channelIndex: envelope.channelIndex,
+              senderName: nodeName,
+              text: envelope.messageText,
+              timestamp: indexTimestamp
+            )
+          }
+          try? await dataStoreRef.deletePendingSendsForMessage(messageID: envelope.messageID)
+          osLoggerRef.debug("channel drain success messageID=\(envelope.messageID)")
+          await failureCounter.reset(for: envelope.messageID)
+          await triggers.clear()
         } catch let cancellation as CancellationError {
           throw cancellation
         } catch {
@@ -608,17 +611,15 @@ public final class ChatSendQueueService {
     triggers: BLETransportOpenedSignal,
     logger: PersistentLogger,
     timeout: TimeInterval
-  ) async throws -> Data? {
+  ) async throws -> Bool {
     do {
       try Task.checkCancellation()
-      guard try await dataStore.hasPendingSend(messageID: envelope.messageID) else { return nil }
-      guard let expected = try await channelService.getChannel(radioID: radioID, index: envelope.channelIndex),
-            let current = try await channelService.fetchChannel(index: envelope.channelIndex),
-            current.secret == expected.secret else {
+      guard try await dataStore.hasPendingSend(messageID: envelope.messageID) else { return false }
+      guard try await channelService.getChannel(radioID: radioID, index: envelope.channelIndex) != nil else {
         throw MessageServiceError.channelNotFound
       }
       try Task.checkCancellation()
-      return expected.secret
+      return true
     } catch MessageServiceError.channelNotFound {
       _ = try await dataStore.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .failed)
       throw MessageServiceError.channelNotFound

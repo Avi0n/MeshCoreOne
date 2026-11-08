@@ -79,31 +79,23 @@ struct ChannelFloodScopeLifetimeTests {
   }
 
   @Test
-  func `a raw occupancy timeout still allows a room login`() async throws {
-    let harness = try await Harness.started(clock: true)
+  func `each baseline send writes the scope command before the channel message`() async throws {
+    let harness = try await Harness.started()
     defer { Task { await harness.session.stop() } }
-    let send = Task {
-      try await harness.session.sendVerifiedChannelMessage(
-        channel: Self.channel, text: "hello", timestamp: Self.timestamp,
-        floodScope: nil, expectedSecret: Data(repeating: 0xAA, count: 16)
-      )
-    }
-    try await harness.waitForFrames(2)
-    #expect(await harness.transport.sentData[1] == PacketBuilder.getChannel(index: Self.channel))
-    try await harness.advanceCommandTimeout()
-    await #expect {
-      try await send.value
-    } throws: { error in
-      guard let error = error as? MeshCoreError, case .timeout = error else { return false }
-      return true
-    }
+    let first = harness.send(scope: .scope(.disabled))
+    try await harness.ack(Self.baselineReset)
+    try await harness.ack(Self.channelMessage)
+    try await first.value
 
-    let login = QueuedCommand.login.start(harness.session)
-    try await harness.expectFrame(CommandCode.sendLogin.rawValue)
-    await harness.transport.simulateReceive(Self.messageSent)
-    try await login.value
-    #expect(harness.recoveries.count() == 0)
-    #expect(await harness.transport.sentData.count == 3)
+    let second = harness.send(scope: .scope(.disabled))
+    try await harness.ack(Self.baselineReset)
+    try await harness.ack(Self.channelMessage)
+    try await second.value
+
+    let scopeFrames = await harness.transport.sentData.filter { $0.first == CommandCode.setFloodScope.rawValue }
+    #expect(scopeFrames == [Self.baselineReset, Self.baselineReset])
+    #expect(await Self.channelSendCount(harness.transport.sentData) == 2)
+    #expect(await harness.session.floodScopeRecoveryRequired == false)
   }
 
   @Test
