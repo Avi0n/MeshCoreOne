@@ -94,7 +94,8 @@ struct ChatConversationMessagesContent: View {
       initialScrollTargetID: initialScrollTargetID,
       onLoadOlder: { await viewModel.loadOlderMessages() },
       onInitialTargetConsumed: onDividerTargetConsumed,
-      sizeCache: appState.chatSizeCache
+      sizeCache: appState.chatSizeCache,
+      accessibilityHeadingIDs: viewModel.items.filter(\.grouping.showDayDivider).map(\.id)
     )
     .overlay {
       incomingAvatarFlight.overlay()

@@ -44,6 +44,7 @@ struct RoomMessageBubble: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityMessageLabel)
+        .accessibilityIdentifier(ChatScrollConstants.messageAccessibilityIdentifier(message.id))
         .accessibilityAction {
           onLongPress?(message)
         }

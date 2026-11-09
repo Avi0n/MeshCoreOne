@@ -171,6 +171,7 @@ struct UnifiedMessageBubble: View, Equatable {
             }
           }
         }
+        .accessibilityIdentifier(ChatScrollConstants.messageAccessibilityIdentifier(message.id))
         .messageBubbleLongPressEffect(isPressing: isLongPressing, trigger: longPressTrigger)
 
         if !item.envelope.isOutgoing {

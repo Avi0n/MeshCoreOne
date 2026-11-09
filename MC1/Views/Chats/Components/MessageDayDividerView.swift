@@ -1,21 +1,24 @@
 import SwiftUI
 
-/// Day separator shown once per calendar day in chat history. Rendered as a
-/// centered, lined divider (matching `NewMessagesDividerView`) carrying the full
-/// calendar date — e.g. "10 June 2026" — so each day's first message is clearly
-/// anchored in time now that the per-cluster time marker lives inside the bubble.
+/// Full calendar date shown once per day, matching `NewMessagesDividerView`.
+/// The date is a heading, the rules are hidden from VoiceOver, and the text wraps.
 struct MessageDayDividerView: View {
   let date: Date
 
   var body: some View {
-    HStack {
+    let label = date.formatted(.dateTime.day().month(.wide).year())
+    return HStack {
       VStack { Divider() }
-      Text(date.formatted(.dateTime.day().month(.wide).year()))
+        .accessibilityHidden(true)
+      Text(label)
         .font(.caption2)
         .fontWeight(.semibold)
         .foregroundStyle(.secondary)
-        .fixedSize()
+        .fixedSize(horizontal: false, vertical: true)
+        .multilineTextAlignment(.center)
+        .accessibilityAddTraits(.isHeader)
       VStack { Divider() }
+        .accessibilityHidden(true)
     }
     .padding(.vertical, 4)
   }

@@ -48,6 +48,7 @@ struct MessageBubbleView: View, Equatable {
         .font(.caption)
         .foregroundStyle(.secondary)
         .accessibilityLabel(L10n.Chats.Chats.Message.unavailableAccessibility)
+        .accessibilityIdentifier(ChatScrollConstants.messageAccessibilityIdentifier(item.id))
     }
   }
 }
