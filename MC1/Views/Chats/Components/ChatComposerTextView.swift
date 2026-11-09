@@ -38,7 +38,6 @@ struct ChatComposerTextView: UIViewRepresentable {
     textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     proxy.textView = textView
 
-    textView.accessibilityHint = L10n.Chats.Chats.Input.accessibilityHint
     textView.applyComposerAccessibility(isEncrypted: isEncrypted)
     return textView
   }
@@ -46,7 +45,6 @@ struct ChatComposerTextView: UIViewRepresentable {
   func updateUIView(_ textView: ChatComposerUITextView, context: Context) {
     context.coordinator.parent = self
     textView.onSend = onSend
-    textView.applyComposerAccessibility(isEncrypted: isEncrypted)
 
     if textView.text != text {
       if text.isEmpty {
@@ -55,6 +53,7 @@ struct ChatComposerTextView: UIViewRepresentable {
         textView.text = text
       }
     }
+    textView.applyComposerAccessibility(isEncrypted: isEncrypted)
 
     // Become first responder once per token increment. There is no resign
     // path, so native dismissal is left untouched.
@@ -115,7 +114,7 @@ final class ChatComposerUITextView: UITextView {
   var onSend: (() -> Bool)?
 
   /// UITextView reports its text as `accessibilityValue` when that property is left unset.
-  /// Leave it unset so encryption status stays on the label.
+  /// Leave it unset so the entered text stays readable by character and word.
   private var accessibilityValueIsUnset = true
 
   override var accessibilityValue: String? {
@@ -126,12 +125,20 @@ final class ChatComposerUITextView: UITextView {
     }
   }
 
+  /// The empty field speaks its name, encryption status, and hint.
+  /// Text clears those so VoiceOver speaks the draft.
   func applyComposerAccessibility(isEncrypted: Bool) {
-    let status = isEncrypted
-      ? L10n.Chats.Chats.Input.encrypted
-      : L10n.Chats.Chats.Input.notEncrypted
-    accessibilityLabel = "\(L10n.Chats.Chats.Input.accessibilityLabel), \(status)"
-    // accessibilityValue stays nil. UITextView speaks the field text through that property.
+    let hasText = !text.isEmpty
+    if hasText {
+      accessibilityLabel = nil
+      accessibilityHint = nil
+    } else {
+      let status = isEncrypted
+        ? L10n.Chats.Chats.Input.encrypted
+        : L10n.Chats.Chats.Input.notEncrypted
+      accessibilityLabel = "\(L10n.Chats.Chats.Input.accessibilityLabel), \(status)"
+      accessibilityHint = L10n.Chats.Chats.Input.accessibilityHint
+    }
     accessibilityValue = nil
   }
 

@@ -88,6 +88,11 @@ struct ChatInputBar<Leading: View>: View {
     .sensoryFeedback(.start, trigger: sendInvocationCounter)
     .animation(.smooth(duration: 0.28), value: canSend)
     .animation(.smooth(duration: 0.28), value: shouldShowCharacterCount)
+    .onChange(of: isEncrypted) { wasEncrypted, isEncrypted in
+      // A draft has no label, so a change to cleartext is spoken on its own.
+      guard wasEncrypted, !isEncrypted, !text.isEmpty else { return }
+      UIAccessibility.post(notification: .announcement, argument: L10n.Chats.Chats.Input.notEncrypted)
+    }
   }
 
   private var sendAccessibilityLabel: String {
