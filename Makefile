@@ -1,10 +1,5 @@
-# Makefile: local developer shortcuts.
-# Release and CI automation (certs, TestFlight, App Store) live in fastlane/Fastfile.
-
-# The pipefail wiring below relies on .SHELLFLAGS, which GNU Make honors only at 3.82+. Stock
-# macOS /usr/bin/make is 3.81 and ignores .SHELLFLAGS silently, which would let a failed
-# xcodebuild exit through xcsift's 0 status undetected. Refuse to run on such a make rather than
-# build without the guard; install a newer make (Homebrew `make`) and put it ahead on PATH.
+# GNU Make before 3.82 ignores .SHELLFLAGS, so pipefail never runs and a failed
+# xcodebuild can exit 0 through xcsift. Refuse that make.
 MIN_MAKE_VERSION := 3.82
 ifneq ($(MIN_MAKE_VERSION),$(firstword $(sort $(MAKE_VERSION) $(MIN_MAKE_VERSION))))
 $(error GNU Make $(MIN_MAKE_VERSION)+ required for pipefail support; found $(MAKE_VERSION). Install a newer make, e.g. Homebrew make)
@@ -26,19 +21,13 @@ XCODEBUILD_TEST_ARGS ?=
 
 # Use suite-level selectors for Swift Testing; method-level selectors can run zero tests.
 TEST_ARGS ?=
-# Optional raw xcodebuild output, normally under repo tmp/; the caller creates its directory.
+# Optional raw xcodebuild output. The caller creates the directory.
 TEST_LOG ?=
 # Shared build settings, e.g. a CI DerivedData path.
 XCODEBUILD_TEST_FLAGS ?=
 
-# StoreKit (SKTestSession) suites must run on an iOS 18.x simulator. Under `xcodebuild
-# test`, iOS 26.x simulators deliver 0 products to storekitd (Apple regression
-# FB22237318 / FB22774836), so every product-dependent test falsely fails. A method-level
-# `-only-testing` selector also silently runs 0 tests for Swift Testing suites, so the target
-# below pins iOS 18.x and uses suite-level (type-level) filters. These same suites gate on
-# `StoreKitTestAvailability.servesProducts`, so they auto-skip on iOS 26.x. `test-store`
-# is how you actually exercise them. Override STORE_SIM if your machine
-# has a different iOS 18.x simulator.
+# SKTestSession suites run on iOS 18 because iOS 26 simulators serve no products.
+# Override STORE_SIM to pick another iOS 18 simulator.
 STORE_SIM ?= platform=iOS Simulator,name=iPhone 16e,OS=18.6
 
 # Every suite that constructs an SKTestSession. Keep in sync with the `.enabled(if:)`
@@ -50,15 +39,9 @@ STORE_SUITES := \
 	-only-testing:MC1Tests/RefundLinkSectionTests \
 	-only-testing:MC1Tests/ThemeServiceOwnershipTests
 
-# Concurrent `xcodebuild test` runs against the same simulator fight over its single
-# test-manager connection and hang ("test runner hung before establishing connection"), the
-# usual cause of a stuck run when several agent/worktree sessions share one Mac. SIM_LOCK takes
-# a per-simulator host lock so same-sim runs serialize while runs on different sims still
-# proceed in parallel. The lock is an atomic O_EXCL create (shell noclobber); if the holding
-# process is gone (killed run) the stale lock is reclaimed after `ps -p` confirms it is dead,
-# and it is released on exit. Skipped under $CI; runners are single-tenant. macOS `shlock` is
-# deliberately avoided here: it does not reclaim a dead-owner lock, so a SIGKILLed run would
-# wedge every later run. The calling recipe sets `dest` first.
+# Same-simulator xcodebuild test runs share one connection and hang.
+# SIM_LOCK serializes them, reclaims a dead owner's lock, and releases it on exit.
+# The calling recipe sets dest first. CI skips the lock. shlock cannot reclaim a dead owner.
 SIM_LOCK = if [ -z "$$CI" ]; then \
 		lock="/tmp/mc1-xcodebuild-$$(printf '%s' "$$dest" | tr -c 'A-Za-z0-9' '-').lock"; \
 		waited=0; \
@@ -116,13 +99,17 @@ test: test-packages test-app test-store ## Run package suites, app tests (iOS 27
 
 test-packages: test-meshcore test-services ## Run both Swift package suites on the macOS host
 
+# A swift earlier on PATH can miss the selected Xcode SDK and fail the build.
+# xcrun uses that SDK's swift. Override SWIFT to select another toolchain.
+SWIFT ?= xcrun --sdk macosx swift
+
 # SwiftPM's --no-parallel does not serialize Swift Testing suites on this toolchain.
 # Width one also isolates suites that use process-wide state, including the persistent logger.
 test-meshcore: ## Run MeshCore protocol/session tests on the macOS host
-	swift test --package-path MeshCore --no-parallel --experimental-maximum-parallelization-width 1
+	$(SWIFT) test --package-path MeshCore --no-parallel --experimental-maximum-parallelization-width 1
 
 test-services: ## Run MC1Services transport/lifecycle tests on the macOS host
-	swift test --package-path MC1Services --no-parallel --experimental-maximum-parallelization-width 1
+	$(SWIFT) test --package-path MC1Services --no-parallel --experimental-maximum-parallelization-width 1
 
 # Skip sysdiagnose collection. xcodebuild can spawn simctl diagnose after the
 # suite and block the recipe for minutes even when every test passed.
