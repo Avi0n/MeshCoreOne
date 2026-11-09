@@ -18,7 +18,8 @@ public extension LPPSensorType {
 
   /// Whether this type's value will be converted for the current locale.
   var isConverted: Bool {
-    preferredUnit != nil
+    guard let target = preferredUnit, let si = siDimension else { return false }
+    return target != si
   }
 
   /// The fraction length appropriate for the converted value.
@@ -41,16 +42,13 @@ public extension LPPSensorType {
 
   // MARK: - Private
 
-  /// The locale-preferred Dimension for this sensor type, or nil if metric (no conversion needed).
+  /// The Foundation locale-preferred unit, or nil for non-locale-sensitive types.
   private var preferredUnit: Dimension? {
-    guard siDimension != nil,
-          Locale.current.measurementSystem != .metric else { return nil }
     switch self {
-    case .temperature: return UnitTemperature.fahrenheit
-    case .barometer: return UnitPressure.inchesOfMercury
-    case .altitude: return UnitLength.feet
-    case .distance: return UnitLength.feet
-    default: return nil
+    case .temperature: UnitTemperature(forLocale: .current)
+    case .barometer: UnitPressure(forLocale: .current, usage: .barometric)
+    case .altitude, .distance: UnitLength(forLocale: .current)
+    default: nil
     }
   }
 
