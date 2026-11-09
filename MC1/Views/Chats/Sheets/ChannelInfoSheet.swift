@@ -492,17 +492,13 @@ private struct ChannelInfoActionsSection: View {
         }
       }
       .disabled(isActionInProgress)
-      .confirmationDialog(
+      .controlAnchoredConfirmation(
         L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.title,
         isPresented: $showingClearMessagesConfirmation,
-        titleVisibility: .visible
+        message: L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.message,
+        confirmTitle: L10n.Chats.Chats.ChannelInfo.clearMessagesButton
       ) {
-        Button(L10n.Chats.Chats.ChannelInfo.clearMessagesButton, role: .destructive) {
-          Task { await onClearMessages() }
-        }
-        Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
-      } message: {
-        Text(L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.message)
+        Task { await onClearMessages() }
       }
 
       Button(role: .destructive) {
@@ -517,22 +513,34 @@ private struct ChannelInfoActionsSection: View {
         }
       }
       .disabled(isActionInProgress)
-      .confirmationDialog(
+      .controlAnchoredConfirmation(
         L10n.Chats.Chats.ChannelInfo.DeleteConfirm.title,
         isPresented: $showingDeleteConfirmation,
-        titleVisibility: .visible
+        message: L10n.Chats.Chats.ChannelInfo.DeleteConfirm.message,
+        confirmTitle: L10n.Chats.Chats.ChannelInfo.deleteButton
       ) {
-        Button(L10n.Chats.Chats.ChannelInfo.deleteButton, role: .destructive) {
-          Task { await onDelete() }
-        }
-        Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
-      } message: {
-        Text(L10n.Chats.Chats.ChannelInfo.DeleteConfirm.message)
+        Task { await onDelete() }
       }
     } footer: {
       Text(L10n.Chats.Chats.ChannelInfo.deleteFooter)
     }
     .themedRowBackground(theme)
+    .macDestructiveAlert(
+      L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.title,
+      isPresented: $showingClearMessagesConfirmation,
+      message: L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.message,
+      confirmTitle: L10n.Chats.Chats.ChannelInfo.clearMessagesButton
+    ) {
+      Task { await onClearMessages() }
+    }
+    .macDestructiveAlert(
+      L10n.Chats.Chats.ChannelInfo.DeleteConfirm.title,
+      isPresented: $showingDeleteConfirmation,
+      message: L10n.Chats.Chats.ChannelInfo.DeleteConfirm.message,
+      confirmTitle: L10n.Chats.Chats.ChannelInfo.deleteButton
+    ) {
+      Task { await onDelete() }
+    }
   }
 }
 
@@ -698,6 +706,49 @@ private struct ChannelInfoRegionPickerContent: View {
       .contentShape(.rect)
     }
     .buttonStyle(.plain)
+  }
+}
+
+private extension View {
+  /// A Mac confirmation dialog is a popover and can dismiss without running its confirm action, so Mac uses an alert.
+  @ViewBuilder
+  func controlAnchoredConfirmation(
+    _ title: String,
+    isPresented: Binding<Bool>,
+    message: String,
+    confirmTitle: String,
+    onConfirm: @escaping () -> Void
+  ) -> some View {
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      self
+    } else {
+      confirmationDialog(title, isPresented: isPresented, titleVisibility: .visible) {
+        Button(confirmTitle, role: .destructive, action: onConfirm)
+        Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
+      } message: {
+        Text(message)
+      }
+    }
+  }
+
+  @ViewBuilder
+  func macDestructiveAlert(
+    _ title: String,
+    isPresented: Binding<Bool>,
+    message: String,
+    confirmTitle: String,
+    onConfirm: @escaping () -> Void
+  ) -> some View {
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      alert(title, isPresented: isPresented) {
+        Button(confirmTitle, role: .destructive, action: onConfirm)
+        Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
+      } message: {
+        Text(message)
+      }
+    } else {
+      self
+    }
   }
 }
 
