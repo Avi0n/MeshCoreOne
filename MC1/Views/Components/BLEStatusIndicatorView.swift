@@ -22,7 +22,7 @@ struct BLEStatusIndicatorView: View {
   /// rebuilds the hosted toolbar item mid-update and trips a graph re-entrancy crash
   /// on iOS 26. Varying only the label and menu content by value updates it in place.
   var body: some View {
-    ToolbarMenu {
+    ToolbarMenu(accessibilityLabel: accessibilityLabel) {
       menuContent
     } label: {
       // Overflow uses the title; iconOnly keeps the bar glyph-only.
