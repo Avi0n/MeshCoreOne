@@ -649,9 +649,9 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     Date(timeIntervalSince1970: TimeInterval(senderTimestamp ?? timestamp))
   }
 
-  /// Hop count decoded from pathLength (lower 6 bits)
-  public var hopCount: Int {
-    decodePathLen(pathLength)?.hopCount ?? Int(pathLength & 63)
+  /// Hop count from a path-length byte `decodePathLen` accepts. A rejected byte, including 0xFF, has none.
+  public var hopCount: Int? {
+    decodePathLen(pathLength)?.hopCount
   }
 
   /// Whether this message was flood-routed (broadcast).

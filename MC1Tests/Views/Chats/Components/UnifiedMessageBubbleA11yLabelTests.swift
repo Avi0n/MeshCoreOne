@@ -35,7 +35,7 @@ struct UnifiedMessageBubbleA11yLabelTests {
     )
 
     let expected = "Alice: hello world"
-      + ", \(L10n.Chats.Chats.Message.HopCount.accessibilityLabel(message.hopCount))"
+      + ", \(L10n.Chats.Chats.Message.HopCount.accessibilityLabel(bundle.item.footer.hopCount))"
       + ", \(L10n.Chats.Chats.Message.Path.accessibilityLabel("A to B to C"))"
       + ", \(L10n.Chats.Chats.Message.Region.accessibilityLabel("NORTHWEST"))"
     #expect(bubble.accessibilityMessageLabel == expected)

@@ -82,6 +82,31 @@ struct MessageBubblePredicateTests {
   }
 
   @Test
+  func `showHop stays off when the path length byte does not decode`() {
+    let channel = makeMessage(channelIndex: 0, pathLength: 0xFF, routeType: nil)
+    let channelBundle = MessageBubbleTestData.messageItem(message: channel, showIncomingHopCount: true)
+    #expect(channel.hopCount == nil)
+    #expect(channel.isFloodRouted)
+    #expect(channelBundle.item.footer.showHop == false)
+
+    let direct = makeMessage(pathLength: 0xFF, routeType: nil)
+    #expect(direct.hopCount == nil)
+    #expect(direct.isDirectRouted)
+    #expect(IncomingHopDetail.hopLabel(for: direct) == L10n.Chats.Chats.Message.Hops.direct)
+    let undecodedFlood = makeMessage(channelIndex: 0, pathLength: 0xFF, routeType: .flood)
+    #expect(IncomingHopDetail.hopLabel(for: undecodedFlood) == nil)
+    let directBundle = MessageBubbleTestData.messageItem(message: direct, showIncomingHopCount: true)
+    #expect(directBundle.item.footer.showHop == false)
+
+    let flood = makeMessage(pathLength: encodePathLen(hashSize: 1, hopCount: 2), routeType: .flood)
+    #expect(IncomingHopDetail.hopLabel(for: flood) == "2")
+    let floodBundle = MessageBubbleTestData.messageItem(message: flood, showIncomingHopCount: true)
+    #expect(flood.hopCount == 2)
+    #expect(floodBundle.item.footer.showHop)
+    #expect(floodBundle.item.footer.hopCount == 2)
+  }
+
+  @Test
   func `regionToShow: legacy radio with no routeType respects pathLength 0xFF as direct`() {
     // Older radios may not populate routeType. In that case isFloodRouted falls back to
     // pathLength != 0xFF. A 0xFF marker means direct-routed, so region must hide.

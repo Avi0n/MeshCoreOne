@@ -77,13 +77,15 @@ private struct ActionsIncomingDetailsRows: View {
   let arrivalCount: Int
 
   var body: some View {
-    let hopsText = L10n.Chats.Chats.Message.Info.hops(hopCountFormatted(message))
-    ActionInfoRow(
-      text: arrivalCount > 1
-        ? "\(hopsText) · \(L10n.Chats.Chats.Path.Arrival.first)"
-        : hopsText,
-      icon: "arrowshape.bounce.right"
-    )
+    if let hopLabel = IncomingHopDetail.hopLabel(for: message) {
+      let hopsText = L10n.Chats.Chats.Message.Info.hops(hopLabel)
+      ActionInfoRow(
+        text: arrivalCount > 1
+          ? "\(hopsText) · \(L10n.Chats.Chats.Path.Arrival.first)"
+          : hopsText,
+        icon: "arrowshape.bounce.right"
+      )
+    }
 
     if let hashSize = message.pathHashSizeIfKnown {
       ActionInfoRow(text: L10n.Chats.Chats.Message.Info.pathHash(hashSize))
@@ -137,11 +139,14 @@ private struct ActionsIncomingDetailsRows: View {
     let quality = SNRQuality(snr: snr).localizedLabel
     return "\(snr.formatted(.number.precision(.fractionLength(1)))) dB (\(quality))"
   }
+}
 
-  private func hopCountFormatted(_ message: MessageDTO) -> String {
+enum IncomingHopDetail {
+  static func hopLabel(for message: MessageDTO) -> String? {
     if message.isDirectRouted {
       return L10n.Chats.Chats.Message.Hops.direct
     }
-    return "\(message.hopCount)"
+    guard let hopCount = message.hopCount else { return nil }
+    return "\(hopCount)"
   }
 }
