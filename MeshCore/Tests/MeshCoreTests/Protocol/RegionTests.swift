@@ -1,6 +1,7 @@
 import CryptoKit
 import Foundation
 @testable import MeshCore
+import MeshCoreTestSupport
 import Testing
 
 // MARK: - FloodScope.region
@@ -194,7 +195,7 @@ struct RegionsParserTests {
 
 // MARK: - requestRegions Integration
 
-@Suite("requestRegions integration")
+@Suite("requestRegions integration", .timeLimit(.minutes(1)))
 struct RequestRegionsIntegrationTests {
   /// Builds a selfInfo packet to complete session.start().
   /// Format: [0x01][advType:1][txPower:1][maxTxPower:1][pubkey:32][lat:4LE][lon:4LE]
@@ -260,6 +261,48 @@ struct RequestRegionsIntegrationTests {
       await transport.sentData.count > sentCountBefore
     }
     await transport.simulateOK()
+  }
+
+  private let regionOverallTimeout: TimeInterval = 40
+
+  private func startedClockedSession() async throws -> (MockTransport, MeshCoreSession, TestClock) {
+    let transport = MockTransport()
+    let clock = TestClock()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "Test",
+        binaryRequestOverallTimeout: regionOverallTimeout,
+        binaryRequestRetransmitInterval: nil
+      ),
+      clock: clock
+    )
+    try await startSession(session, transport: transport)
+    try #require(clock.sleeperCount == 0)
+    return (transport, session, clock)
+  }
+
+  /// Ack the flood-route setup, then advance the parked region budget so resetPath is sent.
+  private func finishTimedOutRegionRequest(
+    transport: MockTransport,
+    clock: TestClock,
+    ack: Data,
+    firstCommand: String
+  ) async throws {
+    try await acknowledgeNextCommand(transport, sentCountBefore: 0, label: firstCommand)
+    try await waitUntil("region timeout should park on the test clock") {
+      await transport.sentData.count >= 2
+        && clock.sleeperCount == 1
+        && clock.nextSleepDuration == .seconds(regionOverallTimeout)
+    }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: ack, timeoutMs: 100))
+    try #require(
+      clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(regionOverallTimeout),
+      "region timeout should stay parked until the test clock advances"
+    )
+    clock.advanceToNextSleep()
+    try await acknowledgeNextCommand(transport, sentCountBefore: 2, label: "resetPath")
   }
 
   private func makeTestContact(outPathLength: UInt8 = 0xFF, outPath: Data = Data()) -> MeshContact {
@@ -370,17 +413,7 @@ struct RequestRegionsIntegrationTests {
 
   @Test
   func `timeout when no binaryResponse arrives`() async throws {
-    let transport = MockTransport()
-    // Short overall budget with retransmits disabled so the test observes the
-    // timeout quickly.
-    let session = MeshCoreSession(
-      transport: transport,
-      configuration: SessionConfiguration(
-        defaultTimeout: 10, clientIdentifier: "Test", binaryRequestOverallTimeout: 0.2,
-        binaryRequestRetransmitInterval: nil
-      )
-    )
-    try await startSession(session, transport: transport)
+    let (transport, session, clock) = try await startedClockedSession()
 
     let contact = makeTestContact()
     let expectedAck = Data([0xDE, 0xAD, 0xBE, 0xEF])
@@ -388,19 +421,9 @@ struct RequestRegionsIntegrationTests {
     let regionsTask = Task {
       try await session.requestRegions(from: contact)
     }
-
-    // Acknowledge updateContact for flood-routed contact
-    try await acknowledgeNextCommand(transport, sentCountBefore: 0, label: "updateContact")
-
-    try await waitUntil("transport should have sent anon request") {
-      await transport.sentData.count >= 2
-    }
-
-    // Firmware acknowledges the send (unblocks timeout stream) but repeater never responds
-    await transport.simulateReceive(makeMessageSentPacket(expectedAck: expectedAck, timeoutMs: 100))
-
-    // Acknowledge resetPath after timeout fires
-    try await acknowledgeNextCommand(transport, sentCountBefore: 2, label: "resetPath")
+    try await finishTimedOutRegionRequest(
+      transport: transport, clock: clock, ack: expectedAck, firstCommand: "updateContact"
+    )
 
     await #expect(throws: MeshCoreError.self) {
       _ = try await regionsTask.value
@@ -452,38 +475,19 @@ struct RequestRegionsIntegrationTests {
 
   @Test
   func `temporarily sets zero-hop before sending for flood-routed contact`() async throws {
-    let transport = MockTransport()
-    // Short overall budget with retransmits disabled so the test can observe
-    // the path restore after a fast timeout.
-    let session = MeshCoreSession(
-      transport: transport,
-      configuration: SessionConfiguration(
-        defaultTimeout: 10, clientIdentifier: "Test", binaryRequestOverallTimeout: 0.2,
-        binaryRequestRetransmitInterval: nil
-      )
-    )
-    try await startSession(session, transport: transport)
+    let (transport, session, clock) = try await startedClockedSession()
 
     let contact = makeTestContact(outPathLength: 0xFF, outPath: Data())
 
     let regionsTask = Task {
       try await session.requestRegions(from: contact)
     }
-
-    // Acknowledge updateContact for flood-routed contact
-    try await acknowledgeNextCommand(transport, sentCountBefore: 0, label: "updateContact")
-
-    try await waitUntil("transport should have sent anon request") {
-      await transport.sentData.count >= 2
-    }
-
-    // Send messageSent to unblock timeout stream, then let it timeout (no binaryResponse)
-    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0xAA, 0xBB, 0xCC, 0xDD]), timeoutMs: 100))
-
-    // Acknowledge resetPath after timeout
-    try await acknowledgeNextCommand(transport, sentCountBefore: 2, label: "resetPath")
-
-    // Let it timeout — we just want to inspect the sent packets
+    try await finishTimedOutRegionRequest(
+      transport: transport,
+      clock: clock,
+      ack: Data([0xAA, 0xBB, 0xCC, 0xDD]),
+      firstCommand: "updateContact"
+    )
     _ = try? await regionsTask.value
 
     let sentData = await transport.sentData
@@ -513,17 +517,7 @@ struct RequestRegionsIntegrationTests {
 
   @Test(arguments: [UInt8(0x04), UInt8(0x7F)])
   func `requestRegions preserves sensor and unknown raw types in the temp write`(rawType: UInt8) async throws {
-    let transport = MockTransport()
-    // Short overall budget with retransmits disabled so the test can observe
-    // the temp contact write after a fast timeout.
-    let session = MeshCoreSession(
-      transport: transport,
-      configuration: SessionConfiguration(
-        defaultTimeout: 10, clientIdentifier: "Test", binaryRequestOverallTimeout: 0.2,
-        binaryRequestRetransmitInterval: nil
-      )
-    )
-    try await startSession(session, transport: transport)
+    let (transport, session, clock) = try await startedClockedSession()
 
     // Unknown types keep their wire byte alongside the typed fallback.
     let contact = MeshContact(
@@ -534,15 +528,12 @@ struct RequestRegionsIntegrationTests {
     )
 
     let regionsTask = Task { try await session.requestRegions(from: contact) }
-
-    // Drive the proven flood-route flow: ack the zero-hop temp write, send a messageSent to
-    // start (and quickly expire) the region timeout, then ack the resetPath restore.
-    try await acknowledgeNextCommand(transport, sentCountBefore: 0, label: "temp write")
-    try await waitUntil("transport should have sent anon request") {
-      await transport.sentData.count >= 2
-    }
-    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([0xAA, 0xBB, 0xCC, 0xDD]), timeoutMs: 100))
-    try await acknowledgeNextCommand(transport, sentCountBefore: 2, label: "resetPath")
+    try await finishTimedOutRegionRequest(
+      transport: transport,
+      clock: clock,
+      ack: Data([0xAA, 0xBB, 0xCC, 0xDD]),
+      firstCommand: "temp write"
+    )
     _ = try? await regionsTask.value
 
     // The temporary write preserves the original type byte.

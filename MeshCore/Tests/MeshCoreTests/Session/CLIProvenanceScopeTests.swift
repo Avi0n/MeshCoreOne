@@ -1,11 +1,13 @@
 import Foundation
 @testable import MeshCore
+import MeshCoreTestSupport
 import Synchronization
 import Testing
 
-@Suite("CLI correlation scope lifetime")
+@Suite("CLI correlation scope lifetime", .timeLimit(.minutes(1)))
 @MainActor
 struct CLIProvenanceScopeTests {
+  private static let commandTimeout: TimeInterval = 10
   @Test
   func `exhaustion rejects typed command before wire and fresh owner works`() async throws {
     let scope = RadioCLICorrelationScope()
@@ -54,6 +56,7 @@ struct CLIProvenanceScopeTests {
       let password = first.start { try await first.session.runCorrelatedCliCommand("get wifi.pwd") }
       try await waitUntil { await first.transport.sentData.count == before + 1 }
       previousPrefix = try #require(await first.lastPrefix())
+      try await first.expireParkedCommand()
       await #expect { try await password.value } throws: { error in
         guard let error = error as? MeshCoreError, case .timeout = error else { return false }
         return true
@@ -114,9 +117,11 @@ struct CLIProvenanceScopeTests {
   func `unprefixed timeout blocks raw authority but typed read still works`() async throws {
     let harness = try await Harness.make(scope: RadioCLICorrelationScope())
     do {
-      await #expect {
-        try await harness.session.runCliCommand("get wifi.pwd")
-      } throws: { error in
+      let sentBeforeTimeout = await harness.transport.sentData.count
+      let timedOut = harness.start { try await harness.session.runCliCommand("get wifi.pwd") }
+      try await waitUntil { await harness.transport.sentData.count == sentBeforeTimeout + 1 }
+      try await harness.expireParkedCommand()
+      await #expect { try await timedOut.value } throws: { error in
         guard let error = error as? MeshCoreError, case .timeout = error else { return false }
         return true
       }
@@ -187,7 +192,11 @@ struct CLIProvenanceScopeTests {
         let actualPacket = await harness.transport.sentData.last
         let submittedExactWireBytes = actualPacket == PacketBuilder.runCliCommand(command)
         #expect(submittedExactWireBytes)
-        if submittedExactWireBytes { await harness.transport.simulateReceive(Self.reply(expected)) }
+        if submittedExactWireBytes {
+          await harness.transport.simulateReceive(Self.reply(expected))
+        } else if !finished.withLock({ $0 }) {
+          try await harness.expireParkedCommand()
+        }
         switch await raw.result {
         case let .success(reply):
           let reflectedExactPrefixBytes = reply.utf8.elementsEqual(expected.utf8)
@@ -227,17 +236,22 @@ struct CLIProvenanceScopeTests {
   private final class Harness {
     let transport: MockTransport
     let session: MeshCoreSession
+    let clock: TestClock
     private var workers: [Task<String, any Error>] = []
 
-    private init(transport: MockTransport, session: MeshCoreSession) {
+    private init(transport: MockTransport, session: MeshCoreSession, clock: TestClock) {
       self.transport = transport
       self.session = session
+      self.clock = clock
     }
 
     static func make(scope: RadioCLICorrelationScope) async throws -> Harness {
       let transport = MockTransport()
+      let clock = TestClock()
       let session = MeshCoreSession(
-        transport: transport, configuration: SessionConfiguration(defaultTimeout: 0.1),
+        transport: transport,
+        configuration: SessionConfiguration(defaultTimeout: commandTimeout, clientIdentifier: "MCTst"),
+        clock: clock,
         radioCLICorrelationScope: scope
       )
       let start = Task { try await session.start() }
@@ -252,13 +266,20 @@ struct CLIProvenanceScopeTests {
         packet.append(contentsOf: [7, 5])
         await transport.simulateReceive(packet)
         try await start.value
-        return Harness(transport: transport, session: session)
+        try #require(clock.sleeperCount == 0)
+        return Harness(transport: transport, session: session, clock: clock)
       } catch {
         await session.stop()
         _ = await start.result
         await session.waitForQuiescence()
         throw error
       }
+    }
+
+    func expireParkedCommand() async throws {
+      let clock = clock
+      try await waitUntil("command timeout should park on the test clock") { clock.sleeperCount == 1 }
+      clock.advance(by: .seconds(CLIProvenanceScopeTests.commandTimeout))
     }
 
     func start(_ body: @escaping @MainActor @Sendable () async throws -> String) -> Task<String, any Error> {

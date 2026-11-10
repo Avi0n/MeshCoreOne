@@ -1,20 +1,16 @@
 import Foundation
 @testable import MeshCore
+import MeshCoreTestSupport
 import Testing
 
-@Suite("CLI request provenance")
+@Suite("CLI request provenance", .timeLimit(.minutes(1)))
 struct CLIProvenanceSessionTests {
+  private static let commandTimeout: TimeInterval = 10
+
   @Test
   func `bare error cannot reject tagged command`() async throws {
-    let transport = MockTransport()
-    let session = MeshCoreSession(
-      transport: transport, configuration: SessionConfiguration(defaultTimeout: 1)
-    )
-    let start = Task { try await session.start() }
+    let (transport, session, _) = try await Self.startedSession()
     do {
-      try await waitUntil("appStart was physically sent") { await transport.sentData.count == 1 }
-      await transport.simulateReceive(Self.selfInfoPacket())
-      try await start.value
       let command = Task { try await session.runCliCommand("AD|set wifi.enabled 0") }
       do {
         try await waitUntil("tagged setter is physically submitted") { await transport.sentData.count == 2 }
@@ -47,7 +43,6 @@ struct CLIProvenanceSessionTests {
       #expect(await session.subscriberCountForTest == 0)
     } catch {
       await session.stop()
-      _ = await start.result
       await session.waitForQuiescence()
       throw error
     }
@@ -55,19 +50,16 @@ struct CLIProvenanceSessionTests {
 
   @Test(arguments: [false, true])
   func `explicit prefix cannot be reused`(_ firstTimedOut: Bool) async throws {
-    let transport = MockTransport()
-    let session = MeshCoreSession(
-      transport: transport, configuration: SessionConfiguration(defaultTimeout: 0.1)
-    )
-    let start = Task { try await session.start() }
+    let (transport, session, clock) = try await Self.startedSession()
     do {
-      try await waitUntil("appStart was physically sent") { await transport.sentData.count == 1 }
-      await transport.simulateReceive(Self.selfInfoPacket())
-      try await start.value
       let first = Task { try await session.runCliCommand("AF|get wifi.enabled") }
       do {
         try await waitUntil("first use owns the prefix") { await transport.sentData.count == 2 }
-        if !firstTimedOut { await transport.simulateReceive(Self.reply("AF|> 1")) }
+        if firstTimedOut {
+          try await Self.expire(clock)
+        } else {
+          await transport.simulateReceive(Self.reply("AF|> 1"))
+        }
         let result = await first.result
         if !firstTimedOut, case .failure = result { Issue.record("First prefix use should be usable") }
         if firstTimedOut, case .success = result { Issue.record("Missing first reply should time out") }
@@ -102,7 +94,6 @@ struct CLIProvenanceSessionTests {
       #expect(await session.subscriberCountForTest == 0)
     } catch {
       await session.stop()
-      _ = await start.result
       await session.waitForQuiescence()
       throw error
     }
@@ -110,17 +101,13 @@ struct CLIProvenanceSessionTests {
 
   @Test(arguments: [false, true])
   func `timed out reply cannot certify next request`(_ nextIsPrefixed: Bool) async throws {
-    let transport = MockTransport()
-    let session = MeshCoreSession(
-      transport: transport, configuration: SessionConfiguration(defaultTimeout: 0.1)
-    )
-    let start = Task { try await session.start() }
+    let (transport, session, clock) = try await Self.startedSession()
     do {
-      try await waitUntil("appStart was physically sent") { await transport.sentData.count == 1 }
-      await transport.simulateReceive(Self.selfInfoPacket())
-      try await start.value
+      let timedOut = Task { try await session.runCliCommand("AA|get wifi.pwd") }
+      try await waitUntil("timed out command should be sent") { await transport.sentData.count == 2 }
+      try await Self.expire(clock)
       await #expect {
-        try await session.runCliCommand("AA|get wifi.pwd")
+        try await timedOut.value
       } throws: { error in
         guard let error = error as? MeshCoreError, case .timeout = error else { return false }
         return true
@@ -156,10 +143,37 @@ struct CLIProvenanceSessionTests {
       #expect(await transport.isConnected == false)
     } catch {
       await session.stop()
+      await session.waitForQuiescence()
+      throw error
+    }
+  }
+
+  private static func startedSession() async throws -> (MockTransport, MeshCoreSession, TestClock) {
+    let transport = MockTransport()
+    let clock = TestClock()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(defaultTimeout: commandTimeout, clientIdentifier: "MCTst"),
+      clock: clock
+    )
+    let start = Task { try await session.start() }
+    do {
+      try await waitUntil("appStart was physically sent") { await transport.sentData.count == 1 }
+      await transport.simulateReceive(selfInfoPacket())
+      try await start.value
+      try #require(clock.sleeperCount == 0)
+      return (transport, session, clock)
+    } catch {
+      await session.stop()
       _ = await start.result
       await session.waitForQuiescence()
       throw error
     }
+  }
+
+  private static func expire(_ clock: TestClock) async throws {
+    try await waitUntil("command timeout should park on the test clock") { clock.sleeperCount == 1 }
+    clock.advance(by: .seconds(commandTimeout))
   }
 
   private static func reply(_ text: String) -> Data {

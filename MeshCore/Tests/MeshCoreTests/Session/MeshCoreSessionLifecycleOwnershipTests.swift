@@ -3,14 +3,16 @@ import Foundation
 import MeshCoreTestSupport
 import Testing
 
-@Suite("MeshCoreSession lifecycle ownership")
+@Suite("MeshCoreSession lifecycle ownership", .timeLimit(.minutes(1)))
 struct MeshCoreSessionLifecycleOwnershipTests {
   @Test
   func `stopping during transport connect prevents a late startup handshake`() async throws {
     let transport = HeldConnectTransport()
+    let clock = TestClock()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.05, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst"),
+      clock: clock
     )
     let starting = Task {
       try await session.start(disconnectTransportOnFailure: false)
@@ -43,12 +45,15 @@ struct MeshCoreSessionLifecycleOwnershipTests {
   @Test(arguments: [false, true])
   func `owned retirement drains a cancelled caller exchange and held physical completion`(replyBeforeCompletion: Bool) async throws {
     let physical = MockTransport()
+    let clock = TestClock()
     let binding = SessionTransportBinding()
     let session = MeshCoreSession(
       transport: SessionBoundTransport(transport: physical, binding: binding),
-      configuration: SessionConfiguration(defaultTimeout: 1, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst"),
+      clock: clock
     )
     try await start(session, physical: physical, expectedSends: 1)
+    try #require(clock.sleeperCount == 0)
     await physical.holdNextSend()
     let caller = Task { try await session.factoryReset() }
     try await waitUntil { await physical.sendIsWaiting }
