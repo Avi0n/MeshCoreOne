@@ -304,18 +304,13 @@ struct RemoteAdminLifetimeTests {
     #expect(first.discoverySecondsRemaining == 0)
   }
 
-  @Test
+  @Test(.timeLimit(.minutes(1)))
   func `session stop does not publish a timeout and the replacement reply applies`() async throws {
     let transport = MockTransport()
-    let mesh = MeshCoreSession(
-      transport: transport,
-      configuration: SessionConfiguration(
-        defaultTimeout: 0.4,
-        binaryRequestOverallTimeout: 0.4,
-        binaryRequestRetransmitInterval: 0.05
-      )
-    )
+    let clock = TestClock()
+    let mesh = MeshCoreSession(transport: transport, clock: clock)
     try await startSession(mesh, transport: transport)
+    try #require(clock.sleeperCount == 0)
     let radioID = UUID()
     let services = try ServiceContainer(
       session: mesh,
@@ -348,10 +343,10 @@ struct RemoteAdminLifetimeTests {
     }
     let sentAtStop = await transport.sentData.count
     await mesh.stop()
-    try await Task.sleep(for: .milliseconds(120))
-    #expect(await transport.sentData.count == sentAtStop)
     await behavior.value
     await statusTask.value
+    #expect(await transport.sentData.count == sentAtStop)
+    #expect(clock.sleeperCount == 0)
     #expect(settings.behaviorError == false)
     #expect(settings.helper.errorMessage == nil)
     #expect(status.helper.statusSectionError == nil)

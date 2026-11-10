@@ -18,10 +18,12 @@ struct ConnectionManagerResyncLoopTests {
     let clock = TestClock()
     let (manager, _) = try ConnectionManager.createForTesting(reconnectionClock: clock)
     let transport = SimulatorMockTransport()
-    // Don't connect transport — commands fail immediately with .notConnected
+    // The session never starts, so a command returns before it waits.
+    // This clock stays separate from the reconnection clock.
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.5, clientIdentifier: "ResyncTest")
+      configuration: SessionConfiguration(clientIdentifier: "ResyncTest"),
+      clock: TestClock()
     )
     let services = try await ServiceContainer.forTesting(session: session)
 
@@ -377,7 +379,8 @@ struct ConnectionManagerResyncLoopTests {
     // reconnect that superseded the loop's container.
     let successorSession = MeshCoreSession(
       transport: SimulatorMockTransport(),
-      configuration: SessionConfiguration(defaultTimeout: 0.5, clientIdentifier: "SuccessorResyncTest")
+      configuration: SessionConfiguration(clientIdentifier: "SuccessorResyncTest"),
+      clock: TestClock()
     )
     let successorServices = try await ServiceContainer.forTesting(session: successorSession)
     manager.setTestState(

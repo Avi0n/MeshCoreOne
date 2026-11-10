@@ -4,12 +4,18 @@ import Foundation
 @testable import MeshCore
 import Testing
 
-@Suite("Sensor settings workspace")
+@Suite("Sensor settings workspace", .timeLimit(.minutes(1)))
 @MainActor
 struct SensorSettingsViewModelTests {
+  private static let commandTimeout: TimeInterval = 10
+  /// A CLI poll sleeps at most half a second. A command wait uses `commandTimeout`.
+  private static let pollSleepCeiling: Duration = .seconds(1)
+  private static let pollReleaseSettle: Duration = .milliseconds(100)
+
   @MainActor
   private final class Harness {
     let transport = MockTransport()
+    let clock: TestClock
     let session: MeshCoreSession
     let store: PersistenceStore
     let remote: RemoteNodeService
@@ -21,7 +27,12 @@ struct SensorSettingsViewModelTests {
     }
 
     init() async throws {
-      session = MeshCoreSession(transport: transport, configuration: SessionConfiguration(defaultTimeout: 1, clientIdentifier: "Test"))
+      clock = TestClock()
+      session = MeshCoreSession(
+        transport: transport,
+        configuration: SessionConfiguration(defaultTimeout: SensorSettingsViewModelTests.commandTimeout, clientIdentifier: "Test"),
+        clock: clock
+      )
       store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
       descriptor = RemoteNodeSessionDTO(radioID: UUID(), publicKey: Data(repeating: 0xA4, count: 32),
                                         name: "Sensor", role: .sensor, isConnected: true, permissionLevel: .admin)
@@ -38,6 +49,7 @@ struct SensorSettingsViewModelTests {
       info.append(contentsOf: [7, 5])
       await transport.simulateReceive(info)
       try await start.value
+      try #require(clock.sleeperCount == 0)
       await transport.clearSentData()
       await remote.startEventMonitoring()
       configure()
@@ -66,6 +78,35 @@ struct SensorSettingsViewModelTests {
       )))
       if !hostFirst { await acceptHost() }
       await session.dispatcher.dispatch(.noMoreMessages)
+      try await releaseCLIPoll()
+    }
+
+    /// The CLI poll holds the serializer until its short sleep ends. Wake that sleep after the reply.
+    /// A follow-up command then parks on the full command timeout; leave that wait for the next reply.
+    private func releaseCLIPoll() async throws {
+      let sentAtRelease = await commands.count
+      var idleSince: ContinuousClock.Instant?
+      try await waitUntil(timeout: .seconds(2), "cli poll should release the session") {
+        if self.clock.sleeperCount > 0,
+           let parked = self.clock.nextSleepDuration,
+           parked < SensorSettingsViewModelTests.pollSleepCeiling {
+          self.clock.advanceToNextSleep()
+          idleSince = nil
+          return false
+        }
+        let callers = await self.session.getMessageCallerCountForTest
+        guard callers == 0 else {
+          idleSince = nil
+          return false
+        }
+        if self.clock.sleeperCount > 0 {
+          idleSince = nil
+          return await self.commands.count > sentAtRelease
+        }
+        let start = idleSince ?? ContinuousClock.now
+        if idleSince == nil { idleSince = start }
+        return ContinuousClock.now - start >= SensorSettingsViewModelTests.pollReleaseSettle
+      }
     }
 
     func acceptHost() async {
