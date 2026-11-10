@@ -76,12 +76,6 @@ public final class ChatSendQueueService {
   /// `observeConnectionState`. Cancelled in `shutdown()`.
   private var connectionStateTask: Task<Void, Never>?
 
-  /// A database error during the attempt bump. The drain parks outside the channel gate.
-  private struct QueuedChannelPreflightFailure: Error {
-    let underlying: Error
-  }
-
-  // swiftlint:disable:next function_body_length
   init(
     radioID: UUID,
     dataStore: any MessagePersisting & ContactPersisting,
@@ -241,161 +235,22 @@ public final class ChatSendQueueService {
       }
     )
 
+    let channelDrain = ChannelDrainDependencies(
+      radioID: radioID,
+      dataStore: dataStoreRef,
+      messageService: messageServiceRef,
+      channelService: channelServiceRef,
+      reactionService: reactionServiceRef,
+      triggers: triggers,
+      logger: loggerRef,
+      osLogger: osLoggerRef,
+      failureCounter: failureCounter,
+      config: configRef,
+      sendsRetired: sendsRetired
+    )
     channelQueue = SendQueue<ChannelMessageEnvelope>(
       send: { envelope in
-        // Outer catch: see DM closure for rationale. Park-and-requeue
-        // branches throw `CancellationError`; any other escape is a
-        // terminal failure for the envelope and calls
-        // `notifyMessageFailed` exactly once.
-        do {
-          guard try await ChatSendQueueService.validateQueuedChannel(
-            envelope: envelope,
-            radioID: radioID,
-            dataStore: dataStoreRef,
-            channelService: channelServiceRef,
-            triggers: triggers,
-            logger: loggerRef,
-            timeout: configRef.transportWaitTimeout
-          ) else { return }
-          try ChatSendQueueService.cancelSendIfRetired(sendsRetired)
-
-          // The bump and the radio send share the channel gate. A slot rewrite
-          // deletes this pending row before it can acquire the gate and transmit.
-          let attemptBump = OSAllocatedUnfairLock(initialState: 0)
-          let indexTimestamp: UInt32
-          do {
-            let transmitted = try await channelServiceRef.withChannelOperation { () -> UInt32? in
-              let prepared: (postBumpCount: Int, preserveTimestamp: Bool)
-              do {
-                guard let result = try await ChatSendQueueService.preflightAndBump(
-                  dataStore: dataStoreRef,
-                  messageID: envelope.messageID,
-                  kind: "channel",
-                  logger: loggerRef,
-                  osLogger: osLoggerRef
-                ) else { return nil }
-                prepared = (result.postBumpCount, result.preserveTimestamp)
-              } catch {
-                throw ChatSendQueueService.QueuedChannelPreflightFailure(underlying: error)
-              }
-              attemptBump.withLock { $0 = prepared.postBumpCount }
-              if envelope.isResend {
-                return try await messageServiceRef.resendChannelMessage(
-                  messageID: envelope.messageID,
-                  preserveTimestamp: prepared.preserveTimestamp
-                )
-              }
-              try await messageServiceRef.sendPendingChannelMessage(messageID: envelope.messageID)
-              return envelope.messageTimestamp
-            }
-            guard let transmitted else { return }
-            indexTimestamp = transmitted
-          } catch let failure as ChatSendQueueService.QueuedChannelPreflightFailure {
-            _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
-            loggerRef.warning("channel drain preflight failed: \(String(describing: failure.underlying))")
-            try await ChatSendQueueService.parkAndCancel(
-              triggers: triggers,
-              logger: loggerRef,
-              messageID: envelope.messageID,
-              kind: "channel",
-              timeout: configRef.transportWaitTimeout
-            )
-          } catch is CancellationError {
-            throw CancellationError()
-          } catch {
-            let postBumpCount = attemptBump.withLock { $0 }
-            guard ChatSendQueueService.isTransientChannelMessageError(error) else {
-              loggerRef.info("channel drain terminal messageID=\(envelope.messageID) error=\(String(describing: error))")
-              throw error
-            }
-            if ChatSendQueueService.isChannelMessageNotFound(error) {
-              // Disambiguate pool exhaustion (transient) from a stale
-              // channel index (terminal) by refreshing the radio's
-              // view of the channel. `ChannelService.fetchChannel(index:)`
-              // reads from the device, so a nil result means the radio
-              // agrees the channel is gone (terminal).
-              //
-              // Gate on disambiguateAfterAttempts so the common
-              // pool-exhaustion burst (1-2 NOT_FOUNDs in a row) parks
-              // without an extra BLE round-trip; only persistent
-              // NOT_FOUND warrants the fetchChannel cost.
-              if postBumpCount < configRef.disambiguateAfterAttempts {
-                loggerRef.info("channel drain NOT_FOUND below disambiguate threshold messageID=\(envelope.messageID) postBumpCount=\(postBumpCount); parking envelope")
-                _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
-                try await ChatSendQueueService.parkAndCancel(
-                  triggers: triggers,
-                  logger: loggerRef,
-                  messageID: envelope.messageID,
-                  kind: "channel",
-                  timeout: configRef.transportWaitTimeout
-                )
-              }
-
-              let stillExists: Bool
-              do {
-                stillExists = try await channelServiceRef.fetchChannel(index: envelope.channelIndex) != nil
-                await failureCounter.reset(for: envelope.messageID)
-              } catch {
-                let failures = await failureCounter.increment(for: envelope.messageID)
-                if failures >= configRef.maxConsecutiveFetchChannelFailures {
-                  loggerRef.warning("Channel drain: fetchChannel persistently failing (\(failures) consecutive) for messageID=\(envelope.messageID); marking terminal")
-                  await failureCounter.reset(for: envelope.messageID)
-                  throw error
-                }
-                loggerRef.info("channel drain NOT_FOUND followup fetchChannel failed: \(String(describing: error)); parking envelope (\(failures)/\(configRef.maxConsecutiveFetchChannelFailures))")
-                _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
-                try await ChatSendQueueService.parkAndCancel(
-                  triggers: triggers,
-                  logger: loggerRef,
-                  messageID: envelope.messageID,
-                  kind: "channel",
-                  timeout: configRef.transportWaitTimeout
-                )
-              }
-              if !stillExists {
-                loggerRef.warning("Channel drain: NOT_FOUND confirmed by fetchChannel for messageID=\(envelope.messageID); treating as terminal (channel deleted)")
-                await failureCounter.reset(for: envelope.messageID)
-                throw error
-              }
-              // Channel still exists per device — NOT_FOUND was pool
-              // exhaustion. Park on the transport-open trigger. The
-              // effective per-attempt cadence under sustained
-              // exhaustion is ~37s (3.5s withPoolBackoff in-loop +
-              // 3.5s fetchChannel disambiguation + 30s
-              // transportWaitTimeout park). Transport-open only fires
-              // on entering `.ready`, so under a healthy connection
-              // the 30s park is what bounds the retry rate.
-            }
-            loggerRef.info("channel drain transient messageID=\(envelope.messageID) error=\(String(describing: error))")
-            _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
-            try await ChatSendQueueService.parkAndCancel(
-              triggers: triggers,
-              logger: loggerRef,
-              messageID: envelope.messageID,
-              kind: "channel",
-              timeout: configRef.transportWaitTimeout
-            )
-          }
-
-          if let nodeName = envelope.localNodeName {
-            _ = await reactionServiceRef.indexMessage(
-              id: envelope.messageID,
-              channelIndex: envelope.channelIndex,
-              senderName: nodeName,
-              text: envelope.messageText,
-              timestamp: indexTimestamp
-            )
-          }
-          try? await dataStoreRef.deletePendingSendsForMessage(messageID: envelope.messageID)
-          osLoggerRef.debug("channel drain success messageID=\(envelope.messageID)")
-          await failureCounter.reset(for: envelope.messageID)
-          await triggers.clear()
-        } catch let cancellation as CancellationError {
-          throw cancellation
-        } catch {
-          await messageServiceRef.notifyMessageFailed(messageID: envelope.messageID)
-          throw error
-        }
+        try await ChatSendQueueService.sendQueuedChannel(envelope: envelope, dependencies: channelDrain)
       },
       onError: { _, envelope in
         try? await dataStoreRef.deletePendingSendsForMessage(messageID: envelope.messageID)
@@ -594,13 +449,13 @@ public final class ChatSendQueueService {
     return (pendingSendID: pendingSendID, postBumpCount: postBumpCount, preserveTimestamp: preserveTimestamp)
   }
 
-  private nonisolated static func cancelSendIfRetired(_ sendsRetired: OSAllocatedUnfairLock<Bool>) throws {
+  nonisolated static func cancelSendIfRetired(_ sendsRetired: OSAllocatedUnfairLock<Bool>) throws {
     if sendsRetired.withLock({ $0 }) {
       throw CancellationError()
     }
   }
 
-  private nonisolated static func validateQueuedChannel(
+  nonisolated static func validateQueuedChannel(
     envelope: ChannelMessageEnvelope,
     radioID: UUID,
     dataStore: any MessagePersisting,
