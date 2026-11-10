@@ -40,7 +40,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   }
 
   public func eventsTracked(filter: EventFilter) async -> (id: UUID, stream: AsyncStream<MeshEvent>) {
-    makeEventStream(filter: filter)
+    let tracked = makeEventStream(filter: filter)
+    if let event = stubbedWaitForEventResult, filter.matches(event) {
+      eventSubscriptions[tracked.id]?.continuation.yield(event)
+    }
+    return tracked
   }
 
   public func finishEvents(id: UUID) async {

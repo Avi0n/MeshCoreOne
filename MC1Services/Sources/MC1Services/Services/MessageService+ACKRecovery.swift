@@ -68,7 +68,9 @@ extension MessageService {
     let saved: Bool
     do {
       saved = try await dataStore.savePendingAcknowledgement(
-        row, replacingPendingSendID: owner.phase == .saving(.convert) ? owner.id : nil
+        row,
+        replacingPendingSendID: owner.phase == .saving(.convert) ? owner.id : nil,
+        markSent: tracking.commandAccepted
       )
     } catch {
       if pendingAcks[messageID]?.owner == owner, pendingAcks[messageID]?.sentAt == tracking.sentAt {
@@ -107,7 +109,9 @@ extension MessageService {
     for messageID in pendingAcks.keys {
       if await saveAcknowledgementOwner(messageID: messageID) {
         await notifyOutgoingReactionAccepted(messageID: messageID)
-        statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
+        if let status = try? await dataStore.fetchMessage(id: messageID)?.status {
+          statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: status, roundTripTime: nil))
+        }
       }
     }
   }

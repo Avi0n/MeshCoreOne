@@ -40,6 +40,10 @@ struct ChatSendQueueServiceReconnectTests {
       timeoutMilliseconds: Self.interruptedAckTimeoutMilliseconds
     ))
     try await waitForAckWait(original, messageID: message.id)
+    let accepted = try #require(
+      try await store.fetchPendingSends(radioID: radioID).first { $0.messageID == message.id }
+    )
+    #expect(accepted.nextWireAttempt == 1)
     let beforeDisconnect = try #require(await store.fetchMessage(id: message.id))
 
     await original.session.stop()
@@ -70,16 +74,16 @@ struct ChatSendQueueServiceReconnectTests {
       to: contact.publicKey.prefix(6),
       text: message.text,
       timestamp: Date(timeIntervalSince1970: TimeInterval(beforeDisconnect.timestamp)),
-      attempt: 0
+      attempt: 1
     ))
     await replay.transport.simulateReceive(messageSentPacket(
       message: replayedMessage,
-      attempt: 0,
+      attempt: 1,
       timeoutMilliseconds: Self.interruptedAckTimeoutMilliseconds
     ))
     try await waitForAckWait(replay, messageID: message.id)
     var ackPacket = Data([ResponseCode.ack.rawValue])
-    ackPacket.append(expectedAck(message: replayedMessage, attempt: 0))
+    ackPacket.append(expectedAck(message: replayedMessage, attempt: 1))
     await replay.transport.simulateReceive(ackPacket)
 
     // finalizeSend reads the contact path after the ACK, so the drain stays in flight until that read returns.

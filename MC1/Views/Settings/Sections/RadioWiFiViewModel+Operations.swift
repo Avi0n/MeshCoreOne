@@ -140,6 +140,7 @@ extension RadioWiFiViewModel {
       if matches(owner) {
         switch error {
         case BLEError.notConnected, BLEError.operationTimeout,
+             MeshTransportError.notConnected,
              WiFiTransportError.notConnected, WiFiTransportError.sendTimeout:
           break
         default: errorMessage = error.userFacingMessage

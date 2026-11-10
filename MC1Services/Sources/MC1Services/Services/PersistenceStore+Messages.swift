@@ -544,6 +544,57 @@ public extension PersistenceStore {
     }
   }
 
+  func commitOutgoingDirectMessageTimestamp(id: UUID, timestamp: UInt32) async throws -> UInt32? {
+    let targetID = id
+    let predicate = #Predicate<Message> { message in
+      message.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    guard let message = try modelContext.fetch(descriptor).first else { return nil }
+    let replacedTimestamp = message.status == .delivered ? message.timestamp : nil
+    message.timestamp = timestamp
+    if replacedTimestamp != nil {
+      message.status = .pending
+    }
+    do {
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    return replacedTimestamp
+  }
+
+  func restoreUnacceptedDeliveredDirectMessage(id: UUID, timestamp: UInt32) async throws -> Bool {
+    let targetID = id
+    let predicate = #Predicate<Message> { message in
+      message.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    guard let message = try modelContext.fetch(descriptor).first else { return false }
+    if message.status == .delivered { return true }
+    guard message.status == .pending else { return false }
+    message.timestamp = timestamp
+    message.status = .delivered
+    // The queued bump is undone with the timestamp, so the next drain commits this send again.
+    let scopedMessageID = id
+    let queuedPredicate = #Predicate<PendingSend> { row in
+      row.messageID == scopedMessageID && row.ackDeadline == nil
+    }
+    if let row = try modelContext.fetch(FetchDescriptor(predicate: queuedPredicate)).first {
+      row.attemptCount = Self.initialAttemptCount
+    }
+    do {
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    return true
+  }
+
   /// Update message ACK info.
   ///
   /// Both `.delivered` and `.failed` are terminal for this write: once the

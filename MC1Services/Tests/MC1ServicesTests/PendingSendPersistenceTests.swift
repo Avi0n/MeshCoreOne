@@ -355,6 +355,117 @@ struct PendingSendPersistenceTests {
     #expect(unrelated.sequence == 3, "Unrelated row keeps its prior sequence")
   }
 
+  @Test
+  func `wire attempt writes stay on the owned pending row`() async throws {
+    let store = try makeStore()
+    let radioID = UUID()
+    let messageID = UUID()
+    let contactID = UUID()
+    let otherMessageID = UUID()
+    try await store.saveMessage(makeOutgoingDM(id: messageID, radioID: radioID, contactID: contactID, status: .pending))
+    try await store.saveMessage(makeOutgoingDM(id: otherMessageID, radioID: radioID, contactID: contactID, status: .pending))
+
+    let original = PendingSendDTO(
+      envelope: DirectMessageEnvelope(messageID: messageID, contactID: contactID),
+      radioID: radioID
+    )
+    _ = try await store.insertPendingSendAssigningSequence(original)
+    let other = PendingSendDTO(
+      envelope: DirectMessageEnvelope(messageID: otherMessageID, contactID: contactID),
+      radioID: radioID
+    )
+    _ = try await store.insertPendingSendAssigningSequence(other)
+
+    #expect(try await store.pendingSendWireAttempt(id: original.id) == 0)
+    #expect(try await store.setPendingSendWireAttempt(id: original.id, to: 1))
+    #expect(try await store.pendingSendWireAttempt(id: original.id) == 1)
+    #expect(try await store.setPendingSendWireAttempt(id: UUID(), to: 4) == false)
+    #expect(try await store.fetchPendingSends(radioID: radioID).count == 2)
+
+    #expect(try await store.setPendingSendWireAttempt(id: original.id, to: 3))
+    let deadline = Date().addingTimeInterval(30)
+    #expect(try await store.savePendingAcknowledgement(
+      PendingSendDTO(
+        id: original.id,
+        envelope: DirectMessageEnvelope(messageID: messageID, contactID: contactID),
+        radioID: radioID,
+        ackCodes: [Data([0x01, 0x02, 0x03, 0x04])],
+        ackSentAt: Date(),
+        ackDeadline: deadline
+      ),
+      replacingPendingSendID: original.id
+    ))
+    #expect(try await store.setPendingSendWireAttempt(id: original.id, to: 4) == false)
+    #expect(try await store.pendingSendWireAttempt(id: original.id) == nil)
+    let owned = try #require(try await store.fetchPendingSends(radioID: radioID).first { $0.id == original.id })
+    #expect(owned.nextWireAttempt == 3)
+
+    let replacement = PendingSendDTO(
+      envelope: DirectMessageEnvelope(messageID: messageID, contactID: contactID),
+      radioID: radioID
+    )
+    _ = try await store.replacePendingSendForRetry(messageID: messageID, dto: replacement)
+    #expect(try await store.setPendingSendWireAttempt(id: original.id, to: 6) == false)
+    let rows = try await store.fetchPendingSends(radioID: radioID)
+    let replaced = try #require(rows.first { $0.messageID == messageID })
+    #expect(replaced.id == replacement.id)
+    #expect(replaced.nextWireAttempt == 0)
+    let otherRow = try #require(rows.first { $0.messageID == otherMessageID })
+    #expect(otherRow.nextWireAttempt == 0)
+  }
+
+  @Test
+  func `a failed queued direct message exposes its consumed attempts and accepts delivery`() async throws {
+    let store = try makeStore()
+    let radioID = UUID()
+    let contactID = UUID()
+    let sender = Data(repeating: 0x11, count: 32)
+    let failedID = UUID()
+    try await store.saveMessage(makeOutgoingDM(id: failedID, radioID: radioID, contactID: contactID, status: .failed))
+    let failedPending = PendingSendDTO(
+      envelope: DirectMessageEnvelope(messageID: failedID, contactID: contactID),
+      radioID: radioID
+    )
+    _ = try await store.insertPendingSendAssigningSequence(failedPending)
+    #expect(try await store.setPendingSendWireAttempt(id: failedPending.id, to: 1))
+    let visible = try await store.queuedDirectMessageWireAttempts()
+    let failedAttempt = try #require(visible.first { $0.messageID == failedID })
+    #expect(failedAttempt.pendingSendID == failedPending.id)
+    #expect(failedAttempt.consumedAttempts == 1)
+    #expect(failedAttempt.timestamp == 1_700_000_000)
+    #expect(failedAttempt.text == "retry me")
+    let consumed = AckCodeBuilder.expectedAck(
+      timestamp: failedAttempt.timestamp, attempt: 0, text: failedAttempt.text, senderPublicKey: sender
+    )
+    let claimed = try await store.deliverQueuedDirectMessage(
+      pendingSendID: failedAttempt.pendingSendID,
+      ackCode: consumed.ackCodeUInt32,
+      roundTripTime: 12
+    )
+    #expect(claimed?.id == failedID)
+    #expect(claimed?.roundTripTime == 12)
+    #expect(try await store.fetchMessage(id: failedID)?.status == .delivered)
+    #expect(try await store.fetchPendingSends(radioID: radioID).contains { $0.messageID == failedID } == false)
+
+    let deliveredID = UUID()
+    try await store.saveMessage(makeOutgoingDM(id: deliveredID, radioID: radioID, contactID: contactID, status: .delivered))
+    let deliveredPending = PendingSendDTO(
+      envelope: DirectMessageEnvelope(messageID: deliveredID, contactID: contactID),
+      radioID: radioID
+    )
+    _ = try await store.insertPendingSendAssigningSequence(deliveredPending)
+    #expect(try await store.setPendingSendWireAttempt(id: deliveredPending.id, to: 1))
+    #expect(try await store.queuedDirectMessageWireAttempts().contains { $0.messageID == deliveredID } == false)
+    let ignored = try await store.deliverQueuedDirectMessage(
+      pendingSendID: deliveredPending.id,
+      ackCode: consumed.ackCodeUInt32,
+      roundTripTime: 12
+    )
+    #expect(ignored == nil)
+    #expect(try await store.fetchMessage(id: deliveredID)?.status == .delivered)
+    #expect(try await store.pendingSendWireAttempt(id: deliveredPending.id) == 1)
+  }
+
   /// Sequence assignment matches `insertPendingSendAssigningSequence`:
   /// the new row gets `max(sequence) + 1` for the radio. Verifies the
   /// per-radio monotonic invariant survives the delete-then-insert

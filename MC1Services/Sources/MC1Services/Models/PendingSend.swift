@@ -33,6 +33,10 @@ public final class PendingSend {
   /// means transmission may have started, so replay preserves the timestamp.
   public var attemptCount: Int?
 
+  /// Next `CMD_SEND_TXT_MSG` attempt byte for this row's current wire timestamp.
+  /// Bytes already handed to the radio stay below this value. `0` is a new timestamp.
+  public var nextWireAttempt: UInt8 = 0
+
   /// Non-nil ACK metadata changes this row from queued work to delivery tracking without retransmission.
   public var ackCodes: [Data]?
   public var ackSentAt: Date?
@@ -52,6 +56,7 @@ public final class PendingSend {
     sequence: Int,
     enqueuedAt: Date,
     attemptCount: Int? = nil,
+    nextWireAttempt: UInt8 = 0,
     ackCodes: [Data]? = nil,
     ackSentAt: Date? = nil,
     ackDeadline: Date? = nil,
@@ -71,6 +76,7 @@ public final class PendingSend {
     self.sequence = sequence
     self.enqueuedAt = enqueuedAt
     self.attemptCount = attemptCount
+    self.nextWireAttempt = nextWireAttempt
     self.ackCodes = ackCodes
     self.ackSentAt = ackSentAt
     self.ackDeadline = ackDeadline
@@ -104,6 +110,8 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
   public let enqueuedAt: Date
   /// Zero distinguishes new sends from legacy rows migrated to nil.
   public let attemptCount: Int?
+  /// Bytes below this value were already handed to the radio for this timestamp.
+  public let nextWireAttempt: UInt8
   public let ackCodes: [Data]?
   public let ackSentAt: Date?
   public let ackDeadline: Date?
@@ -122,6 +130,7 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     sequence: Int,
     enqueuedAt: Date,
     attemptCount: Int? = 0,
+    nextWireAttempt: UInt8 = 0,
     ackCodes: [Data]? = nil,
     ackSentAt: Date? = nil,
     ackDeadline: Date? = nil,
@@ -141,6 +150,7 @@ public struct PendingSendDTO: Sendable, Hashable, Identifiable {
     self.sequence = sequence
     self.enqueuedAt = enqueuedAt
     self.attemptCount = attemptCount
+    self.nextWireAttempt = nextWireAttempt
     self.ackCodes = ackCodes
     self.ackSentAt = ackSentAt
     self.ackDeadline = ackDeadline
@@ -163,6 +173,7 @@ public extension PendingSend {
       sequence: dto.sequence,
       enqueuedAt: dto.enqueuedAt,
       attemptCount: dto.attemptCount,
+      nextWireAttempt: dto.nextWireAttempt,
       ackCodes: dto.ackCodes,
       ackSentAt: dto.ackSentAt,
       ackDeadline: dto.ackDeadline,
@@ -185,6 +196,7 @@ public extension PendingSend {
       sequence: sequence,
       enqueuedAt: enqueuedAt,
       attemptCount: attemptCount,
+      nextWireAttempt: nextWireAttempt,
       ackCodes: ackCodes,
       ackSentAt: ackSentAt,
       ackDeadline: ackDeadline,

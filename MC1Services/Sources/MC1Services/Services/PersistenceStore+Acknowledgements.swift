@@ -2,13 +2,17 @@ import Foundation
 import SwiftData
 
 public extension PersistenceStore {
-  func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?) async throws -> Bool {
+  func savePendingAcknowledgement(
+    _ dto: PendingSendDTO, replacingPendingSendID: UUID?, markSent: Bool = true
+  ) async throws -> Bool {
     try commitPendingRxLogEntries()
     let messageID = dto.messageID
     let messagePredicate = #Predicate<Message> { $0.id == messageID }
     guard let message = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).first,
           message.radioID == dto.radioID, message.channelIndex == nil,
-          message.status != .delivered, message.status != .failed else { return false }
+          message.status != .delivered,
+          // A failed row is eligible when this save converts its queued send.
+          message.status != .failed || replacingPendingSendID != nil else { return false }
 
     let row: PendingSend
     if let replacingPendingSendID {
@@ -35,7 +39,12 @@ public extension PersistenceStore {
     row.ackCodes = dto.ackCodes
     row.ackSentAt = dto.ackSentAt
     row.ackDeadline = dto.ackDeadline
-    message.status = .sent
+    if markSent {
+      message.status = .sent
+    } else if message.status == .failed {
+      // Give-up and a late acknowledgement skip a row that is already failed.
+      message.status = .pending
+    }
     do {
       _ = try stageOutgoingReaction(message)
       #if DEBUG

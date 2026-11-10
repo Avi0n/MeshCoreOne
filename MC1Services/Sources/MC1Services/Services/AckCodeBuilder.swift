@@ -10,6 +10,9 @@ private let ackCodeByteCount = 4
 /// Attempts 4...7 reuse codes 0...3; firmware appends the full attempt byte after the text
 /// to distinguish packet hashes, while `PendingAck.ackCodes` retains each attempt's code.
 enum AckCodeBuilder {
+  /// Exclusive upper bound for a DM attempt byte. Attempts 0..<attemptCount share one timestamp.
+  static let attemptCount: UInt8 = 8
+
   static func expectedAck(
     timestamp: UInt32,
     attempt: UInt8,
@@ -17,8 +20,8 @@ enum AckCodeBuilder {
     senderPublicKey: Data
   ) -> Data {
     precondition(
-      attempt < 8,
-      "DM attempt bytes run 0...7; attempt \(attempt) exceeds the index range and would over-wrap the & 0x03 ACK mask"
+      attempt < attemptCount,
+      "DM attempt bytes run 0..<\(attemptCount); attempt \(attempt) exceeds the index range and would over-wrap the & 0x03 ACK mask"
     )
     var input = Data()
     var le = timestamp.littleEndian

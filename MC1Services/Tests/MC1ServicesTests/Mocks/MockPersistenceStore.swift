@@ -450,6 +450,53 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
   }
 
+  public func commitOutgoingDirectMessageTimestamp(id: UUID, timestamp: UInt32) async throws -> UInt32? {
+    guard var message = messages[id] else { return nil }
+    let replacedTimestamp = message.status == .delivered ? message.timestamp : nil
+    message.timestamp = timestamp
+    if replacedTimestamp != nil {
+      message.status = .pending
+    }
+    messages[id] = message
+    return replacedTimestamp
+  }
+
+  public func restoreUnacceptedDeliveredDirectMessage(id: UUID, timestamp: UInt32) async throws -> Bool {
+    guard var message = messages[id] else { return false }
+    if message.status == .delivered { return true }
+    guard message.status == .pending else { return false }
+    message.timestamp = timestamp
+    message.status = .delivered
+    messages[id] = message
+    for row in pendingSends.values where row.messageID == id && row.ackDeadline == nil {
+      pendingSends[row.id] = replacingAttemptCount(row, with: PersistenceStore.initialAttemptCount)
+    }
+    return true
+  }
+
+  private func replacingAttemptCount(_ row: PendingSendDTO, with attemptCount: Int) -> PendingSendDTO {
+    PendingSendDTO(
+      id: row.id,
+      radioID: row.radioID,
+      messageID: row.messageID,
+      kind: row.kind,
+      contactID: row.contactID,
+      channelIndex: row.channelIndex,
+      isResend: row.isResend,
+      messageText: row.messageText,
+      messageTimestamp: row.messageTimestamp,
+      localNodeName: row.localNodeName,
+      sequence: row.sequence,
+      enqueuedAt: row.enqueuedAt,
+      attemptCount: attemptCount,
+      nextWireAttempt: row.nextWireAttempt,
+      ackCodes: row.ackCodes,
+      ackSentAt: row.ackSentAt,
+      ackDeadline: row.ackDeadline,
+      isSingleAttempt: row.isSingleAttempt
+    )
+  }
+
   public func updateMessageTimestamp(id: UUID, timestamp: UInt32) async throws {
     if let message = messages[id] {
       messages[id] = MessageDTO(
@@ -2653,6 +2700,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       sequence: nextSequence,
       enqueuedAt: dto.enqueuedAt,
       attemptCount: dto.attemptCount,
+      nextWireAttempt: dto.nextWireAttempt,
       ackCodes: dto.ackCodes,
       ackSentAt: dto.ackSentAt,
       ackDeadline: dto.ackDeadline,
@@ -2662,8 +2710,12 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     return nextSequence
   }
 
-  public func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?) async throws -> Bool {
-    guard var message = messages[dto.messageID], message.status != .delivered, message.status != .failed else { return false }
+  public func savePendingAcknowledgement(
+    _ dto: PendingSendDTO, replacingPendingSendID: UUID?, markSent: Bool = true
+  ) async throws -> Bool {
+    guard var message = messages[dto.messageID],
+          message.status != .delivered,
+          message.status != .failed || replacingPendingSendID != nil else { return false }
     if let replacingPendingSendID {
       guard let existing = pendingSends[replacingPendingSendID], existing.messageID == dto.messageID,
             existing.ackDeadline == nil else { return false }
@@ -2681,6 +2733,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         sequence: existing.sequence,
         enqueuedAt: existing.enqueuedAt,
         attemptCount: existing.attemptCount,
+        nextWireAttempt: existing.nextWireAttempt,
         ackCodes: dto.ackCodes,
         ackSentAt: dto.ackSentAt,
         ackDeadline: dto.ackDeadline,
@@ -2691,7 +2744,11 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     } else {
       pendingSends[dto.id] = dto
     }
-    message.status = .sent
+    if markSent {
+      message.status = .sent
+    } else if message.status == .failed {
+      message.status = .pending
+    }
     messages[dto.messageID] = message
     return true
   }
@@ -2757,12 +2814,80 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       sequence: row.sequence,
       enqueuedAt: row.enqueuedAt,
       attemptCount: nextCount,
+      nextWireAttempt: row.nextWireAttempt,
       ackCodes: row.ackCodes,
       ackSentAt: row.ackSentAt,
       ackDeadline: row.ackDeadline,
       isSingleAttempt: row.isSingleAttempt
     )
     return (row.id, nextCount)
+  }
+
+  public func pendingSendWireAttempt(id: UUID) async throws -> UInt8? {
+    guard let row = pendingSends[id], row.ackDeadline == nil else { return nil }
+    return row.nextWireAttempt
+  }
+
+  public func queuedDirectMessageWireAttempts() async throws -> [QueuedDirectMessageWireAttempt] {
+    pendingSends.values
+      .filter { $0.ackDeadline == nil && $0.kind == .dm && $0.nextWireAttempt > 0 }
+      .sorted { $0.sequence < $1.sequence }
+      .compactMap { row in
+        guard let message = messages[row.messageID],
+              message.channelIndex == nil,
+              message.status != .delivered else { return nil }
+        return QueuedDirectMessageWireAttempt(
+          pendingSendID: row.id,
+          messageID: row.messageID,
+          timestamp: message.timestamp,
+          text: message.text,
+          consumedAttempts: row.nextWireAttempt
+        )
+      }
+  }
+
+  public func deliverQueuedDirectMessage(
+    pendingSendID: UUID,
+    ackCode: UInt32,
+    roundTripTime: UInt32?
+  ) async throws -> MessageDTO? {
+    guard let row = pendingSends[pendingSendID], row.ackDeadline == nil, row.kind == .dm else { return nil }
+    guard var message = messages[row.messageID],
+          message.channelIndex == nil,
+          message.status != .delivered else { return nil }
+    message.status = .delivered
+    message.ackCode = ackCode
+    if let roundTripTime {
+      message.roundTripTime = roundTripTime
+    }
+    messages[row.messageID] = message
+    pendingSends[pendingSendID] = nil
+    return message
+  }
+
+  public func setPendingSendWireAttempt(id: UUID, to next: UInt8) async throws -> Bool {
+    guard let row = pendingSends[id], row.ackDeadline == nil else { return false }
+    pendingSends[id] = PendingSendDTO(
+      id: row.id,
+      radioID: row.radioID,
+      messageID: row.messageID,
+      kind: row.kind,
+      contactID: row.contactID,
+      channelIndex: row.channelIndex,
+      isResend: row.isResend,
+      messageText: row.messageText,
+      messageTimestamp: row.messageTimestamp,
+      localNodeName: row.localNodeName,
+      sequence: row.sequence,
+      enqueuedAt: row.enqueuedAt,
+      attemptCount: row.attemptCount,
+      nextWireAttempt: next,
+      ackCodes: row.ackCodes,
+      ackSentAt: row.ackSentAt,
+      ackDeadline: row.ackDeadline,
+      isSingleAttempt: row.isSingleAttempt
+    )
+    return true
   }
 
   // MARK: - Test Helpers

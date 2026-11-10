@@ -161,6 +161,14 @@ public protocol MessagePersisting: Actor {
   /// Update message timestamp (for resending)
   func updateMessageTimestamp(id: UUID, timestamp: UInt32) async throws
 
+  /// Stores a direct-message timestamp immediately before its command.
+  /// A `.delivered` row becomes `.pending`, and the previous timestamp is returned for rollback.
+  func commitOutgoingDirectMessageTimestamp(id: UUID, timestamp: UInt32) async throws -> UInt32?
+
+  /// Puts a delivered direct message back after a rejected command.
+  /// Writes only while the row is still `.pending`. A row already `.delivered` is left unchanged.
+  func restoreUnacceptedDeliveredDirectMessage(id: UUID, timestamp: UInt32) async throws -> Bool
+
   /// Updates a new channel send's timestamp and clears prior echo evidence in one turn.
   func prepareChannelMessageResend(id: UUID, timestamp: UInt32) async throws
 
@@ -187,7 +195,7 @@ public protocol MessagePersisting: Actor {
   func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int
 
   /// Atomically hands an accepted DM to durable ACK tracking, only while its original queue row remains current.
-  func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?) async throws -> Bool
+  func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?, markSent: Bool) async throws -> Bool
 
   /// Resolves only this durable ACK owner; a replacement retry row must remain untouched.
   func resolvePendingAcknowledgement(id: UUID, expectedDeadline: Date?, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?) async throws -> Bool
@@ -210,6 +218,24 @@ public protocol MessagePersisting: Actor {
   /// Returns its ID and new count, or nil if none remains; callers park and retry persistence errors.
   @discardableResult
   func preparePendingSendAttempt(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)?
+
+  /// Next attempt byte while this row is still queued work. Nil when the id is gone or already an ACK owner.
+  func pendingSendWireAttempt(id: UUID) async throws -> UInt8?
+
+  /// Records the next attempt byte only while this id is still queued work.
+  func setPendingSendWireAttempt(id: UUID, to next: UInt8) async throws -> Bool
+
+  /// Queued direct messages that already handed attempt bytes to the radio.
+  /// The service hashes acknowledgement codes from these fields.
+  func queuedDirectMessageWireAttempts() async throws -> [QueuedDirectMessageWireAttempt]
+
+  /// Marks this queued direct message delivered and deletes its row.
+  /// Skips a channel message, a row that already has a deadline, and a message already delivered.
+  func deliverQueuedDirectMessage(
+    pendingSendID: UUID,
+    ackCode: UInt32,
+    roundTripTime: UInt32?
+  ) async throws -> MessageDTO?
 }
 
 // MARK: - Default Parameter Values
@@ -220,10 +246,30 @@ extension MessagePersisting {
     try await updateMessageAck(id: id, ackCode: ackCode, status: status, roundTripTime: nil)
   }
 
+  func restoreUnacceptedDeliveredDirectMessage(id: UUID, timestamp: UInt32) async throws -> Bool {
+    false
+  }
+
   /// Default no-op for lightweight stubs. Concrete stores override; the method
   /// must be `async throws` on the store so overload resolution does not pick
   /// this empty default over the real implementation.
   func newestUnreadIncomingMessage(contactID: UUID) async throws -> MessageDTO? {
+    nil
+  }
+
+  func pendingSendWireAttempt(id: UUID) async throws -> UInt8? {
+    nil
+  }
+
+  func queuedDirectMessageWireAttempts() async throws -> [QueuedDirectMessageWireAttempt] {
+    []
+  }
+
+  func deliverQueuedDirectMessage(
+    pendingSendID: UUID,
+    ackCode: UInt32,
+    roundTripTime: UInt32?
+  ) async throws -> MessageDTO? {
     nil
   }
 }

@@ -210,11 +210,8 @@ public final class ChatSendQueueService {
               throw error
             }
             loggerRef.info("DM drain transient messageID=\(envelope.messageID) error=\(String(describing: error))")
-            // Remap the .failed write that failMessageAndRethrow just
-            // made back to .pending so the bubble doesn't show
-            // "Failed" while the queue is silently parked. Duplicate
-            // prevention on the next pass is via preserveTimestamp,
-            // not via any boundary check.
+            // Remap a parked failure back to .pending so the bubble does not show Failed.
+            // The next pass keeps this timestamp and continues at the stored attempt byte.
             _ = try? await dataStoreRef.updateMessageStatusUnlessDelivered(id: envelope.messageID, status: .pending)
             try await ChatSendQueueService.parkAndCancel(
               triggers: triggers,

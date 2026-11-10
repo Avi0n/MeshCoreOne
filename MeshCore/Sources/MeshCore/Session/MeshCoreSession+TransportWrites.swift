@@ -41,6 +41,7 @@ extension MeshCoreSession {
   static func linkRejectedWriteBeforeSubmission(_ error: Error) -> Bool {
     switch error {
     case MeshTransportError.notConnected,
+         WiFiTransportError.notConnected,
          MeshCoreError.notConnected,
          MeshCoreError.bluetoothUnavailable,
          MeshCoreError.bluetoothUnauthorized,

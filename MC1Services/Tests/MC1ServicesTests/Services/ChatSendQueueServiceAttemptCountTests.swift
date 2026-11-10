@@ -38,8 +38,11 @@ struct ChatSendQueueServiceAttemptCountTests {
     try container.mainContext.save()
     let contactDTO = try #require(try await store.fetchContact(id: contact.id))
 
-    let transport = SimulatorMockTransport()
-    let session = MeshCoreSession(transport: transport)
+    let session = MockMeshCoreSession()
+    await session.setCurrentSelfInfo(.testSelfInfo())
+    await session.setSendMessageResult(.success(
+      MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 10)
+    ))
     let messageService = MessageService(session: session, dataStore: store, contactService: nil)
     let pending = try await messageService.createPendingMessage(text: "Hello", to: contactDTO)
 
@@ -106,7 +109,7 @@ struct ChatSendQueueServiceAttemptCountTests {
 
     let postDrainMessage = try await harness.store.fetchMessage(id: harness.messageID)
     #expect(postDrainMessage?.timestamp != harness.originalTimestamp,
-            "preserveTimestamp=false: updateMessageTimestamp must stamp a fresh wire timestamp")
+            "preserveTimestamp=false: the command save must stamp a fresh wire timestamp")
 
     await harness.service.shutdown()
   }

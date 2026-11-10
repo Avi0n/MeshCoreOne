@@ -3,7 +3,7 @@ import os
 import SwiftData
 
 public extension PersistenceStore {
-  private static let initialAttemptCount = 0
+  static let initialAttemptCount = 0
   private static let pendingSendLogger = Logger(
     subsystem: "com.mc1",
     category: "PersistenceStore.PendingSends"
@@ -38,6 +38,7 @@ public extension PersistenceStore {
       existing.sequence = dto.sequence
       existing.enqueuedAt = dto.enqueuedAt
       existing.attemptCount = dto.attemptCount
+      existing.nextWireAttempt = dto.nextWireAttempt
       existing.ackCodes = dto.ackCodes
       existing.ackSentAt = dto.ackSentAt
       existing.ackDeadline = dto.ackDeadline
@@ -85,24 +86,8 @@ public extension PersistenceStore {
     return assignedSequence
   }
 
-  /// Atomically replaces any existing `PendingSend` rows for the given
-  /// `messageID`, flips the matching `Message.status` to `.pending`
-  /// (unless already `.delivered`), and inserts the new `PendingSendDTO`.
-  /// All three operations land in a single `modelContext.save()` so a
-  /// crash mid-call cannot leave the row at `.pending` with no
-  /// `PendingSend` available for replay. The manual DM retry path uses
-  /// this to keep the queue authoritative for retries while the prior
-  /// multi-await sequence (delete + status flip + enqueue) had crash
-  /// windows that stranded `.pending` rows.
-  ///
-  /// `.delivered` is intentionally preserved — a late-arriving ACK that
-  /// landed while the user was reaching for the retry button must not be
-  /// clobbered. The `PendingSend` row is still inserted; the queue's
-  /// drain-time `hasPendingSend` gate notices the row but `MessageService`
-  /// short-circuits the wire send for an already-delivered message.
-  ///
-  /// Returns the assigned per-radio sequence number, matching the
-  /// `insertPendingSendAssigningSequence(_:)` contract.
+  /// Replaces this message's pending rows in one save, so a crash cannot leave `.pending` with no row.
+  /// `.delivered` stays `.delivered` until the new packet commits its timestamp immediately before the command.
   func replacePendingSendForRetry(
     messageID: UUID,
     dto: PendingSendDTO
@@ -326,8 +311,104 @@ public extension PersistenceStore {
     return rows.count
   }
 
+  func pendingSendWireAttempt(id: UUID) async throws -> UInt8? {
+    guard let row = try pendingSendRow(id: id), row.ackDeadline == nil else { return nil }
+    return row.nextWireAttempt
+  }
+
+  /// A missing id or an ACK owner writes nothing and does not create a row.
+  func setPendingSendWireAttempt(id: UUID, to next: UInt8) async throws -> Bool {
+    guard let row = try pendingSendRow(id: id), row.ackDeadline == nil else { return false }
+    row.nextWireAttempt = next
+    do {
+      #if DEBUG
+        try await pendingSendWireAttemptSaveFaultInjection?()
+      #endif
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    return true
+  }
+
+  /// Queued direct messages that already handed attempt bytes to the radio, in sequence order.
+  /// Uses the live message timestamp and text. Skips channel messages and rows already delivered.
+  func queuedDirectMessageWireAttempts() async throws -> [QueuedDirectMessageWireAttempt] {
+    let dmKind = PendingSendKind.dm.rawValue
+    let predicate = #Predicate<PendingSend> { row in
+      row.ackDeadline == nil && row.kindRawValue == dmKind
+    }
+    let rows = try modelContext.fetch(FetchDescriptor<PendingSend>(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\.sequence, order: .forward)]
+    ))
+    var attempts: [QueuedDirectMessageWireAttempt] = []
+    for row in rows where row.nextWireAttempt > 0 {
+      let messageID = row.messageID
+      let messagePredicate = #Predicate<Message> { message in
+        message.id == messageID
+      }
+      var descriptor = FetchDescriptor<Message>(predicate: messagePredicate)
+      descriptor.fetchLimit = 1
+      guard let message = try modelContext.fetch(descriptor).first else { continue }
+      guard message.channelIndex == nil, message.status != .delivered else { continue }
+      attempts.append(QueuedDirectMessageWireAttempt(
+        pendingSendID: row.id,
+        messageID: messageID,
+        timestamp: message.timestamp,
+        text: message.text,
+        consumedAttempts: row.nextWireAttempt
+      ))
+    }
+    return attempts
+  }
+
+  /// Marks this queued direct message delivered and deletes its row in one save.
+  /// A host timeout may have written `.failed` while the row still holds the offered byte.
+  func deliverQueuedDirectMessage(
+    pendingSendID: UUID,
+    ackCode: UInt32,
+    roundTripTime: UInt32?
+  ) async throws -> MessageDTO? {
+    guard let row = try pendingSendRow(id: pendingSendID),
+          row.ackDeadline == nil, row.kind == .dm else { return nil }
+    let messageID = row.messageID
+    let messagePredicate = #Predicate<Message> { message in
+      message.id == messageID
+    }
+    var descriptor = FetchDescriptor<Message>(predicate: messagePredicate)
+    descriptor.fetchLimit = 1
+    guard let message = try modelContext.fetch(descriptor).first,
+          message.channelIndex == nil, message.status != .delivered else { return nil }
+    message.status = .delivered
+    message.ackCode = ackCode
+    if let roundTripTime {
+      message.roundTripTime = roundTripTime
+    }
+    modelContext.delete(row)
+    do {
+      _ = try stageOutgoingReaction(message)
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    return MessageDTO(from: message)
+  }
+
+  private func pendingSendRow(id: UUID) throws -> PendingSend? {
+    let target = id
+    let predicate = #Predicate<PendingSend> { row in
+      row.id == target
+    }
+    var descriptor = FetchDescriptor<PendingSend>(predicate: predicate)
+    descriptor.fetchLimit = 1
+    return try modelContext.fetch(descriptor).first
+  }
+
   /// Restores eligible unsent DMs and increments the queued row's attempt count in one save.
-  /// Returns nil if no queued row remains; persistence errors leave preparation retryable.
+  /// Returns nil if no queued row remains. A persistence error leaves preparation retryable.
   @discardableResult
   func preparePendingSendAttempt(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
     #if DEBUG
@@ -381,6 +462,10 @@ public extension PersistenceStore {
 
     func setPendingSendAttemptSaveFaultInjection(_ hook: (@Sendable (UUID) throws -> Void)?) {
       pendingSendAttemptSaveFaultInjection = hook
+    }
+
+    func setPendingSendWireAttemptSaveFaultInjection(_ hook: (@Sendable () async throws -> Void)?) {
+      pendingSendWireAttemptSaveFaultInjection = hook
     }
   #endif
 }

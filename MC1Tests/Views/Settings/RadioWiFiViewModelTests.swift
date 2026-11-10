@@ -921,6 +921,7 @@ struct RadioWiFiViewModelTests {
     let errors: [any Error] = [
       BLEError.notConnected,
       BLEError.operationTimeout,
+      MeshTransportError.notConnected,
       WiFiTransportError.notConnected,
       WiFiTransportError.sendTimeout
     ]

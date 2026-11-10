@@ -120,6 +120,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
 
     var preparePendingSendAttemptFaultInjection: (@Sendable () throws -> Void)?
     var pendingSendAttemptSaveFaultInjection: (@Sendable (UUID) throws -> Void)?
+    var pendingSendWireAttemptSaveFaultInjection: (@Sendable () async throws -> Void)?
     var prepareChannelMessageResendSaveFaultInjection: (@Sendable () throws -> Void)?
 
     /// Test-only hook at the top of `fetchDevice(id:)`. The pairing query skips that id on throw.
@@ -196,6 +197,8 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   /// - v9→v10: Added local Text Rules identities, review entries, and pending radio erase targets.
   ///          Added NodeStatusSnapshot.selfRadioID (UUID?, default nil). Existing rows
   ///          stay remote history. Self telemetry rows store the Device's radioID.
+  /// - v10→v11: Added PendingSend.nextWireAttempt (UInt8, default 0). Existing rows
+  ///          migrate to 0 with no backfill from attemptCount, so one in-flight row can replay attempt 0.
   public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
     if !inMemory {
       let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!

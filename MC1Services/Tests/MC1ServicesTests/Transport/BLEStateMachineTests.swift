@@ -74,15 +74,8 @@ struct BLEStateMachineTests {
     let sm = BLEStateMachine()
     let testData = Data([0x01, 0x02, 0x03])
 
-    do {
+    await #expect(throws: MeshTransportError.notConnected) {
       try await sm.send(testData)
-      Issue.record("Expected notConnected error")
-    } catch let error as BLEError {
-      if case .notConnected = error {
-        // Expected
-      } else {
-        Issue.record("Expected notConnected error, got \(error)")
-      }
     }
   }
 

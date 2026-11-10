@@ -70,6 +70,8 @@ public actor MessageService {
     var inlineSendAcceptedGateForTesting: (@Sendable () async -> Void)?
     /// Runs after an owner save is entered and before its store commit.
     var acknowledgementSaveGateForTesting: (@Sendable () async -> Void)?
+    /// Runs after consumed attempt codes are tracked and before the radio command.
+    var directMessageSubmitGateForTesting: (@Sendable (UInt8) async -> Void)?
 
     func setAckExpiryWriteGateForTesting(_ gate: (@Sendable (UUID) async -> Void)?) {
       ackExpiryWriteGateForTesting = gate
@@ -81,6 +83,10 @@ public actor MessageService {
 
     func setAcknowledgementSaveGateForTesting(_ gate: (@Sendable () async -> Void)?) {
       acknowledgementSaveGateForTesting = gate
+    }
+
+    func setDirectMessageSubmitGateForTesting(_ gate: (@Sendable (UInt8) async -> Void)?) {
+      directMessageSubmitGateForTesting = gate
     }
 
     var acknowledgementSaveWaiterCountForTesting: Int {
@@ -201,33 +207,10 @@ public actor MessageService {
 
   // MARK: - ACK Handling
 
-  /// Processes an acknowledgement from the session event stream.
-  ///
-  /// Finds the in-flight message whose accumulated `ackCodes` contains this
-  /// CRC and commits that match. The entry stays until the terminal save
-  /// succeeds, so a thrown write can be retried with the same code.
+  /// A live tracker matches first. A queued row matches an attempt byte already handed to the radio.
   func handleAcknowledgement(code: Data, tripTime: UInt32?) async {
-    guard let (messageID, tracking) = pendingAcks.first(where: {
-      $0.value.ackCodes.contains(code) && !$0.value.isResolved
-    }) else {
-      // Diagnostic: the firmware delivered an end-to-end ACK we have no
-      // live entry for. This is either a genuinely late ACK that arrived
-      // after the message was already failed and removed, or a duplicate
-      // for an already-delivered message. `orphanSentRow` flags a `.sent`
-      // DM that lost its pending entry to a teardown and would otherwise
-      // show "Sent" forever; its field rate informs whether a
-      // reconnect-time orphan sweep is worth adding.
-      let orphanSentRow = await (try? dataStore.hasOutgoingSentDM(ackCode: code.ackCodeUInt32)) ?? false
-      logger.warning("[ack-diag] unmatched ACK code=\(code.uppercaseHexString()) livePending=\(pendingAcks.count) orphanSentRow=\(orphanSentRow) (late post-teardown or duplicate)")
-      return
-    }
-
-    pendingAcks[messageID]?.recordAcknowledgement(code: code.ackCodeUInt32, tripTime: tripTime)
-    do {
-      _ = try await commitPendingAcknowledgement(messageID: messageID, sentAt: tracking.sentAt)
-    } catch {
-      logger.error("Failed to write delivered status: \(error.localizedDescription)")
-    }
+    if await commitLiveAcknowledgement(code: code, tripTime: tripTime) { return }
+    await claimQueuedDirectMessageAcknowledgement(code: code, tripTime: tripTime)
   }
 
   // MARK: - Status Events

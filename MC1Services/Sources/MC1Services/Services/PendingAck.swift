@@ -44,6 +44,8 @@ struct PendingAck {
   private(set) var owner: Owner?
   /// Admission lease for this ACK. A restored live ACK uses its persisted owner ID.
   var sendLeaseID: UUID?
+  /// True after the radio returns `RESP_CODE_SENT` for this timestamp.
+  var commandAccepted = false
 
   var isAwaitingAck: Bool {
     if case .awaitingAck = resolution { return true }

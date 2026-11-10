@@ -476,14 +476,8 @@ struct ChatSendQueueServiceTests {
             "second hydrate on same instance must not re-enqueue persisted rows")
   }
 
-  /// Regression: when a DM send fails with a transient firmware code
-  /// (e.g. `directMessageTableFull`), `failMessageAndRethrow` writes
-  /// `.failed` and broadcasts the failure before the queue's
-  /// catch reclassifies the error and remaps the status back to
-  /// `.pending`. The broadcast propagates an in-memory `.failed`
-  /// snapshot to the UI even though the persisted state is `.pending`,
-  /// causing the bubble to flicker "Failed" while the queue is parked.
-  /// Transient errors must not broadcast `.failed` at all.
+  /// A transient firmware code such as `directMessageTableFull` stays queued.
+  /// The drain must not broadcast `.failed` while that row is parked.
   @Test
   func `Transient DM send error must not broadcast .failed`() async throws {
     // Tight pool-backoff so the failure surfaces fast. The invariant
@@ -535,6 +529,138 @@ struct ChatSendQueueServiceTests {
     let ids = await harness.messageService.drainStatusEvents(statusEvents).failedIDs
     #expect(ids.count == 1, "Terminal errors must broadcast .failed exactly once; got \(ids.count)")
     #expect(ids.first == harness.messageID, ".failed must carry the failed envelope's messageID")
+  }
+
+  @Test
+  func `a table-full rejection keeps the attempt byte for the next drain`() async throws {
+    let messageConfig = MessageServiceConfig(
+      poolBackoff: PoolBackoffConfig(attemptCap: 1, baseDelay: 0.01)
+    )
+    let harness = try await Self.setUpDMHarness(messageConfig: messageConfig)
+    defer { Task { await harness.tearDown() } }
+
+    await harness.session.setSendMessageResult(.failure(
+      MeshCoreError.deviceError(code: FirmwareDeviceErrorCode.directMessageTableFull)
+    ))
+    try await harness.drainUntilParked()
+
+    let parked = try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+      .first { $0.messageID == harness.messageID }
+    #expect(parked?.nextWireAttempt == 0)
+    let firstCount = await harness.session.sendMessageInvocations.count
+    #expect(await harness.session.sendMessageInvocations.allSatisfy { $0.attempt == 0 })
+
+    harness.queue.observeConnectionState(initial: .ready, events: AsyncStream { $0.finish() })
+    try await waitUntil(timeout: .seconds(10), "the parked drain should retry the same byte") {
+      await harness.session.sendMessageInvocations.count > firstCount
+    }
+    #expect(await harness.session.sendMessageInvocations.allSatisfy { $0.attempt == 0 })
+    let stillParked = try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+      .first { $0.messageID == harness.messageID }
+    #expect(stillParked?.nextWireAttempt == 0)
+  }
+
+  @Test
+  func `a host timeout consumes the attempt byte`() async throws {
+    let harness = try await Self.setUpDMHarness(
+      messageConfig: MessageServiceConfig(minTimeout: 0, poolBackoff: PoolBackoffConfig(attemptCap: 0, baseDelay: 0))
+    )
+    defer { Task { await harness.tearDown() } }
+
+    await harness.session.setSendMessageResult(.failure(MeshCoreError.timeout))
+    await harness.queue.hydrate()
+    try await waitUntil("a timed-out command should park with the next byte stored") {
+      let row = try? await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+        .first { $0.messageID == harness.messageID }
+      let message = try? await harness.dataStore.fetchMessage(id: harness.messageID)
+      let parked = await harness.queue.parkedDrainCountForTesting
+      return row?.nextWireAttempt == 1 && message?.status == .pending && parked > 0
+    }
+    let timedOut = await harness.session.sendMessageInvocations
+    #expect(timedOut.map(\.attempt) == [0])
+    let timestamp = try #require(timedOut.first?.timestamp)
+
+    await harness.session.setSendMessageResult(.success(
+      MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 10)
+    ))
+    harness.queue.observeConnectionState(initial: .ready, events: AsyncStream { $0.finish() })
+    try await waitUntil(timeout: .seconds(10), "the next drain should submit the unused byte") {
+      await harness.session.sendMessageInvocations.contains { $0.attempt == 1 }
+    }
+    let invocations = await harness.session.sendMessageInvocations
+    #expect(invocations.filter { $0.attempt == 0 }.count == 1)
+    #expect(invocations.first { $0.attempt == 1 }?.timestamp == timestamp)
+  }
+
+  @Test
+  func `an acknowledgement during resume stops the next attempt`() async throws {
+    let harness = try await Self.setUpDMHarness(
+      messageConfig: MessageServiceConfig(minTimeout: 0, poolBackoff: PoolBackoffConfig(attemptCap: 0, baseDelay: 0))
+    )
+    defer { Task { await harness.tearDown() } }
+
+    await harness.session.setSendMessageResult(.failure(MeshCoreError.timeout))
+    await harness.queue.hydrate()
+    try await waitUntil("a timed-out command should park before the resume") {
+      let row = try? await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+        .first { $0.messageID == harness.messageID }
+      return row?.nextWireAttempt == 1
+    }
+
+    let service = harness.messageService
+    let store = harness.dataStore
+    let messageID = harness.messageID
+    await service.setDirectMessageSubmitGateForTesting { attempt in
+      guard attempt == 1 else { return }
+      let message = try? await store.fetchMessage(id: messageID)
+      guard let message else { return }
+      let code = AckCodeBuilder.expectedAck(
+        timestamp: message.timestamp,
+        attempt: 0,
+        text: message.text,
+        senderPublicKey: Data(repeating: 0xAB, count: 32)
+      )
+      await service.handleAcknowledgement(code: code, tripTime: 40)
+    }
+    await harness.session.setSendMessageResult(.success(
+      MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 10)
+    ))
+    harness.queue.observeConnectionState(initial: .ready, events: AsyncStream { $0.finish() })
+    try await waitUntil(timeout: .seconds(10), "the resume should record delivery without another command") {
+      let message = try? await harness.dataStore.fetchMessage(id: harness.messageID)
+      let parked = await harness.queue.parkedDrainCountForTesting
+      return message?.status == .delivered && parked == 0
+    }
+    let invocations = await harness.session.sendMessageInvocations
+    #expect(invocations.map(\.attempt) == [0])
+  }
+
+  @Test
+  func `a missed attempt-byte save does not record delivery`() async throws {
+    let harness = try await Self.setUpDMHarness(
+      messageConfig: MessageServiceConfig(minTimeout: 0, poolBackoff: PoolBackoffConfig(attemptCap: 0, baseDelay: 0))
+    )
+    defer { Task { await harness.tearDown() } }
+
+    await harness.dataStore.setPendingSendWireAttemptSaveFaultInjection { () async throws in
+      throw ForcedSaveFailure()
+    }
+    await harness.session.setSendMessageResult(.success(
+      MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 10)
+    ))
+    await harness.queue.hydrate()
+    try await waitUntil(timeout: .seconds(10), "the accepted command should stay an acknowledgement owner") {
+      let message = try? await harness.dataStore.fetchMessage(id: harness.messageID)
+      return message?.status == .sent || message?.status == .delivered
+    }
+    let message = try #require(try await harness.dataStore.fetchMessage(id: harness.messageID))
+    #expect(message.status == .sent)
+    let owner = try #require(
+      try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+        .first { $0.messageID == harness.messageID }
+    )
+    #expect(owner.ackDeadline != nil)
+    #expect(await harness.session.sendMessageInvocations.map(\.attempt) == [0])
   }
 
   /// A container built after the connection already reached `.ready` receives
@@ -615,6 +741,154 @@ struct ChatSendQueueServiceTests {
     #expect(settledRow?.attemptCount == 2, "duplicate ready states must not fire another trigger")
   }
 
+  @Test
+  func `a delivery during the timeout consume sends no further command`() async throws {
+    let harness = try await Self.setUpDMHarness(
+      messageConfig: MessageServiceConfig(minTimeout: 0, poolBackoff: PoolBackoffConfig(attemptCap: 0, baseDelay: 0))
+    )
+    defer { Task { await harness.tearDown() } }
+
+    let service = harness.messageService
+    let store = harness.dataStore
+    let messageID = harness.messageID
+    let sender = Data(repeating: 0xAB, count: 32)
+    await store.setPendingSendWireAttemptSaveFaultInjection {
+      guard let message = try await store.fetchMessage(id: messageID) else { return }
+      let code = AckCodeBuilder.expectedAck(
+        timestamp: message.timestamp,
+        attempt: 0,
+        text: message.text,
+        senderPublicKey: sender
+      )
+      await service.handleAcknowledgement(code: code, tripTime: 40)
+    }
+    await harness.session.setSendMessageResult(.failure(MeshCoreError.timeout))
+    await harness.queue.hydrate()
+    try await waitUntil(timeout: .seconds(10), "delivery during the consume should finish the row") {
+      let message = try? await harness.dataStore.fetchMessage(id: harness.messageID)
+      let remaining = try? await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+        .filter { $0.messageID == harness.messageID }
+      let parked = await harness.queue.parkedDrainCountForTesting
+      return message?.status == .delivered && remaining?.isEmpty == true && parked == 0
+    }
+    let deliveredCount = await harness.session.sendMessageInvocations.count
+    #expect(await harness.session.sendMessageInvocations.map(\.attempt) == [0])
+
+    await harness.session.setSendMessageResult(.success(
+      MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 10)
+    ))
+    harness.queue.observeConnectionState(initial: .ready, events: AsyncStream { $0.finish() })
+    try await waitUntil(timeout: .seconds(10), "a second drain should find nothing to send") {
+      await harness.queue.parkedDrainCountForTesting == 0
+    }
+    #expect(await harness.session.sendMessageInvocations.count == deliveredCount)
+  }
+
+  @Test
+  func `a not submitted resend stays delivered and retries when the transport opens`() async throws {
+    let harness = try await Self.setUpDMHarness(
+      messageConfig: MessageServiceConfig(minTimeout: 0, poolBackoff: PoolBackoffConfig(attemptCap: 0, baseDelay: 0))
+    )
+    defer { Task { await harness.tearDown() } }
+    let original: UInt32 = 1_700_000_000
+    try await prepareDeliveredResend(harness, timestamp: original)
+    let statusEvents = harness.messageService.statusEvents()
+    await harness.session.setSendMessageResult(.failure(MeshCoreError.notConnected))
+    await harness.queue.hydrate()
+    try await waitUntil("a not submitted resend should park still delivered") {
+      let message = try? await harness.dataStore.fetchMessage(id: harness.messageID)
+      let row = try? await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+        .first { $0.messageID == harness.messageID }
+      let parked = await harness.queue.parkedDrainCountForTesting
+      return message?.status == .delivered
+        && message?.timestamp == original
+        && row?.attemptCount == PersistenceStore.initialAttemptCount
+        && row?.nextWireAttempt == 0
+        && parked > 0
+    }
+    let parkedCommands = await harness.session.sendMessageInvocations
+    #expect(parkedCommands.map(\.attempt) == [0])
+    #expect(await harness.messageService.drainStatusEvents(statusEvents).failedIDs.isEmpty)
+
+    await harness.session.setSendMessageResult(.success(
+      MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 10)
+    ))
+    harness.queue.observeConnectionState(initial: .ready, events: AsyncStream { $0.finish() })
+    try await waitUntil(timeout: .seconds(10), "the parked resend should submit attempt zero again") {
+      await harness.session.sendMessageInvocations.count > parkedCommands.count
+    }
+    let retried = await harness.session.sendMessageInvocations.dropFirst(parkedCommands.count)
+    #expect(retried.first?.attempt == 0)
+    let stamped = try UInt32(#require(retried.first).timestamp.timeIntervalSince1970)
+    #expect(stamped != original)
+    #expect(try await harness.dataStore.hasPendingSend(messageID: harness.messageID))
+  }
+
+  @Test
+  func `a new packet commits its timestamp with the command`() async throws {
+    let harness = try await Self.setUpDMHarness()
+    defer { Task { await harness.tearDown() } }
+    let original: UInt32 = 1_700_000_000
+    try await prepareDeliveredResend(harness, timestamp: original)
+    await harness.session.setSendMessageResult(.success(
+      MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 10)
+    ))
+    _ = try await sendQueued(harness, preserveTimestamp: false)
+    let command = try #require(await harness.session.sendMessageInvocations.first)
+    let stamped = UInt32(command.timestamp.timeIntervalSince1970)
+    let stored = try #require(try await harness.dataStore.fetchMessage(id: harness.messageID))
+    #expect(stamped != original)
+    #expect(stored.timestamp == stamped)
+    #expect(stored.status != .delivered)
+  }
+
+  @Test
+  func `a new packet keeps the old timestamp when the command is not submitted`() async throws {
+    let harness = try await Self.setUpDMHarness()
+    defer { Task { await harness.tearDown() } }
+    let original: UInt32 = 1_700_000_000
+    try await prepareDeliveredResend(harness, timestamp: original)
+    await harness.session.setCurrentSelfInfo(nil)
+    await #expect(throws: CancellationError.self) {
+      try await sendQueued(harness, preserveTimestamp: false)
+    }
+    #expect(await harness.session.sendMessageInvocations.isEmpty)
+    let stored = try #require(try await harness.dataStore.fetchMessage(id: harness.messageID))
+    #expect(stored.timestamp == original)
+    #expect(stored.status == .delivered)
+  }
+
+  @Test
+  func `a timed out new packet keeps its timestamp for the next byte`() async throws {
+    let harness = try await Self.setUpDMHarness(
+      messageConfig: MessageServiceConfig(minTimeout: 0, poolBackoff: PoolBackoffConfig(attemptCap: 0, baseDelay: 0))
+    )
+    defer { Task { await harness.tearDown() } }
+    let original: UInt32 = 1_700_000_000
+    try await prepareDeliveredResend(harness, timestamp: original)
+    await harness.session.setSendMessageResult(.failure(MeshCoreError.timeout))
+    await #expect(throws: MessageServiceError.self) {
+      try await sendQueued(harness, preserveTimestamp: false)
+    }
+    let first = await harness.session.sendMessageInvocations
+    #expect(first.map(\.attempt) == [0])
+    let stamped = try UInt32(#require(first.first).timestamp.timeIntervalSince1970)
+    #expect(stamped != original)
+    let stored = try #require(try await harness.dataStore.fetchMessage(id: harness.messageID))
+    #expect(stored.timestamp == stamped)
+    let pendingID = try await queuedPendingID(harness)
+    #expect(try await harness.dataStore.pendingSendWireAttempt(id: pendingID) == 1)
+
+    await harness.session.setSendMessageResult(.success(
+      MessageSentInfo(route: 0, expectedAck: Data([0x01, 0x02, 0x03, 0x04]), suggestedTimeoutMs: 10)
+    ))
+    _ = try await sendQueued(harness, preserveTimestamp: true)
+    let next = try #require(await harness.session.sendMessageInvocations.dropFirst(first.count).first)
+    #expect(next.attempt == 1)
+    #expect(UInt32(next.timestamp.timeIntervalSince1970) == stamped)
+    #expect(try await harness.dataStore.fetchMessage(id: harness.messageID)?.timestamp == stamped)
+  }
+
   // MARK: - DM drain helpers
 
   private struct DMHarness {
@@ -640,6 +914,36 @@ struct ChatSendQueueServiceTests {
     func tearDown() async {
       await queue.shutdown()
     }
+  }
+
+  private func prepareDeliveredResend(_ harness: DMHarness, timestamp: UInt32) async throws {
+    try await harness.dataStore.updateMessageTimestamp(id: harness.messageID, timestamp: timestamp)
+    try await harness.dataStore.updateMessageStatus(id: harness.messageID, status: .delivered)
+  }
+
+  private func queuedPendingID(_ harness: DMHarness) async throws -> UUID {
+    try #require(
+      try await harness.dataStore.fetchPendingSends(radioID: harness.radioID)
+        .first { $0.messageID == harness.messageID }?.id
+    )
+  }
+
+  private func sendQueued(_ harness: DMHarness, preserveTimestamp: Bool) async throws -> MessageDTO {
+    let contact = try #require(
+      try await harness.dataStore.fetchContact(
+        radioID: harness.radioID,
+        publicKey: Data(repeating: 0x33, count: 32)
+      )
+    )
+    return try await harness.messageService.performQueuedDirectMessageSend(
+      messageID: harness.messageID,
+      to: contact,
+      preserveTimestamp: preserveTimestamp,
+      isResend: true,
+      isSingleAttempt: false,
+      pendingSendID: queuedPendingID(harness),
+      sendLease: nil
+    )
   }
 
   private static func setUpDMHarness(
@@ -696,3 +1000,5 @@ struct ChatSendQueueServiceTests {
     )
   }
 }
+
+private struct ForcedSaveFailure: Error {}

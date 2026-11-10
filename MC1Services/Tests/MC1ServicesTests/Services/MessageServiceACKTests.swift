@@ -700,6 +700,57 @@ struct MessageServiceACKTests {
     #expect(await service.pendingAckCount == 0)
   }
 
+  @Test
+  func `a consumed attempt matches after the tracker is gone`() async throws {
+    let (service, dataStore) = try await MessageService.createForTesting()
+    let messageID = UUID()
+    let contactID = UUID()
+    let text = "parked"
+    let timestamp: UInt32 = 1_700_000_100
+    try await dataStore.saveMessage(MessageDTO.testDirectMessage(
+      id: messageID,
+      radioID: testDeviceID,
+      contactID: contactID,
+      text: text,
+      timestamp: timestamp,
+      status: .pending
+    ))
+    let pendingID = UUID()
+    _ = try await dataStore.insertPendingSendAssigningSequence(PendingSendDTO(
+      id: pendingID,
+      envelope: DirectMessageEnvelope(messageID: messageID, contactID: contactID),
+      radioID: testDeviceID
+    ))
+    #expect(try await dataStore.setPendingSendWireAttempt(id: pendingID, to: 1))
+
+    let senderKey = Data(repeating: 0xAB, count: 32)
+    await service.installSelfInfoForTest(publicKey: senderKey)
+    let restarted = await MessageService(
+      session: service.sessionForTest,
+      dataStore: dataStore,
+      contactService: nil
+    )
+    let events = restarted.statusEvents()
+    let laterAttempt = AckCodeBuilder.expectedAck(
+      timestamp: timestamp, attempt: 1, text: text, senderPublicKey: senderKey
+    )
+    await restarted.handleAcknowledgement(code: laterAttempt, tripTime: 10)
+    #expect(try await dataStore.fetchMessage(id: messageID)?.status == .pending)
+    #expect(try await dataStore.pendingSendWireAttempt(id: pendingID) == 1)
+
+    let consumed = AckCodeBuilder.expectedAck(
+      timestamp: timestamp, attempt: 0, text: text, senderPublicKey: senderKey
+    )
+    await restarted.handleAcknowledgement(code: consumed, tripTime: 25)
+
+    let delivered = try #require(try await dataStore.fetchMessage(id: messageID))
+    #expect(delivered.status == .delivered)
+    #expect(delivered.roundTripTime == 25)
+    #expect(try await dataStore.fetchPendingSends(radioID: testDeviceID).isEmpty)
+    #expect(await restarted.pendingAckCount == 0)
+    #expect(await restarted.drainStatusEvents(events).resolvedIDs == [messageID])
+  }
+
   // MARK: - failMessageAndRethrow cleanup
 
   @Test
@@ -917,14 +968,15 @@ struct MessageServiceACKTests {
   @Test
   func `finalizeSend nil branch yields .statusResolved(.sent) from a non-terminal row and gates off on a terminal one`() async throws {
     // Part A: a .retrying row moves to .sent and yields exactly one event.
+    // The nil branch runs after RESP_CODE_SENT, so the tracker records that acceptance.
     let (serviceA, storeA) = try await MessageService.createForTesting()
     let idA = UUID()
     try await storeA.saveMessage(
       MessageDTO.testDirectMessage(id: idA, radioID: testDeviceID, status: .retrying)
     )
-    await serviceA.setPendingAckForTest(
-      makePending(messageID: idA, ackCodes: [Data([0x01, 0x02, 0x03, 0x04])])
-    )
+    var accepted = makePending(messageID: idA, ackCodes: [Data([0x01, 0x02, 0x03, 0x04])])
+    accepted.commandAccepted = true
+    await serviceA.setPendingAckForTest(accepted)
     let eventsA = serviceA.statusEvents()
     _ = try await serviceA.finalizeSend(
       messageID: idA,

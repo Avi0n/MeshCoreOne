@@ -478,6 +478,14 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
   }
 
   func updateMessageTimestamp(id: UUID, timestamp: UInt32) async throws {}
+  func commitOutgoingDirectMessageTimestamp(id: UUID, timestamp: UInt32) async throws -> UInt32? {
+    nil
+  }
+
+  func setPendingSendWireAttempt(id: UUID, to next: UInt8) async throws -> Bool {
+    false
+  }
+
   func prepareChannelMessageResend(id: UUID, timestamp: UInt32) async throws {}
 
   // Debug Log Entries
@@ -627,7 +635,7 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
   }
 
   func markMessageAsRead(id: UUID) async throws {}
-  func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?) async throws -> Bool {
+  func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?, markSent _: Bool) async throws -> Bool {
     false
   }
 

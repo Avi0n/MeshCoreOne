@@ -146,4 +146,74 @@ public extension MessageService {
   var isAckExpiryCheckingActive: Bool {
     ackCheckTask != nil
   }
+
+  func commitLiveAcknowledgement(code: Data, tripTime: UInt32?) async -> Bool {
+    guard let (messageID, tracking) = pendingAcks.first(where: {
+      $0.value.ackCodes.contains(code) && !$0.value.isResolved
+    }) else { return false }
+    pendingAcks[messageID]?.recordAcknowledgement(code: code.ackCodeUInt32, tripTime: tripTime)
+    do {
+      _ = try await commitPendingAcknowledgement(messageID: messageID, sentAt: tracking.sentAt)
+    } catch {
+      logger.error("Failed to write delivered status: \(error.localizedDescription)")
+    }
+    return true
+  }
+
+  /// Matches an ACK against attempt bytes already handed to the radio for a queued direct message.
+  /// The row stays queued until a match, so the give-up timer does not fail it while it is parked.
+  func claimQueuedDirectMessageAcknowledgement(code: Data, tripTime: UInt32?) async {
+    guard let senderPublicKey = await session.currentSelfInfo?.publicKey else {
+      await logUnmatchedAcknowledgement(code)
+      return
+    }
+    do {
+      let queued = try await dataStore.queuedDirectMessageWireAttempts()
+      for row in queued where row.consumedAttempts > 0 {
+        var prior: UInt8 = 0
+        var matched = false
+        while prior < row.consumedAttempts {
+          let expected = AckCodeBuilder.expectedAck(
+            timestamp: row.timestamp,
+            attempt: prior,
+            text: row.text,
+            senderPublicKey: senderPublicKey
+          )
+          if expected == code {
+            matched = true
+            break
+          }
+          prior += 1
+        }
+        guard matched else { continue }
+        guard let message = try await dataStore.deliverQueuedDirectMessage(
+          pendingSendID: row.pendingSendID,
+          ackCode: code.ackCodeUInt32,
+          roundTripTime: tripTime
+        ) else { continue }
+        await discardTrackedAck(messageID: message.id)
+        if let contactID = message.contactID {
+          do {
+            try await dataStore.updateContactLastMessage(contactID: contactID, date: Date())
+          } catch {
+            logger.error("Failed to update contact lastMessageDate: \(error.localizedDescription)")
+          }
+        }
+        await notifyOutgoingReactionAccepted(messageID: message.id)
+        statusEventBroadcaster.yield(.statusResolved(
+          messageID: message.id, status: .delivered, roundTripTime: tripTime
+        ))
+        return
+      }
+      if await commitLiveAcknowledgement(code: code, tripTime: tripTime) { return }
+      await logUnmatchedAcknowledgement(code)
+    } catch {
+      logger.error("Queued direct-message ACK claim failed: \(error.localizedDescription)")
+    }
+  }
+
+  private func logUnmatchedAcknowledgement(_ code: Data) async {
+    let orphanSentRow = await (try? dataStore.hasOutgoingSentDM(ackCode: code.ackCodeUInt32)) ?? false
+    logger.warning("[ack-diag] unmatched ACK code=\(code.uppercaseHexString()) livePending=\(pendingAcks.count) orphanSentRow=\(orphanSentRow) (late post-teardown or duplicate)")
+  }
 }

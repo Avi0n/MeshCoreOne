@@ -204,7 +204,7 @@ actor iOSBLETransport: MeshTransport {
   /// Sends data to the connected device.
   ///
   /// - Parameter data: The data to send.
-  /// - Throws: `BLEError.notConnected` if not connected.
+  /// - Throws: `MeshTransportError.notConnected` before `writeValue`, or `BLEError.notConnected` after it.
   /// - Throws: `BLEError.writeError` if the write fails.
   func send(_ data: Data) async throws {
     try await stateMachine.send(data)
@@ -223,7 +223,7 @@ actor iOSBLETransport: MeshTransport {
   /// Sends data as an unacknowledged ATT Write Command, enabling request pipelining.
   ///
   /// - Parameter data: The data to send.
-  /// - Throws: `BLEError.notConnected` if not connected.
+  /// - Throws: `MeshTransportError.notConnected` before `writeValue`, or `BLEError.notConnected` after it.
   func sendWithoutResponse(_ data: Data) async throws {
     try await stateMachine.sendWithoutResponse(data)
   }

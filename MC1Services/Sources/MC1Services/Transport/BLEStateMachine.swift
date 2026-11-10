@@ -747,7 +747,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
     guard case let .connected(peripheral, _, _, _) = phase,
           peripheral.state == .connected else {
-      throw BLEError.notConnected
+      throw MeshTransportError.notConnected
     }
 
     guard txSupportsWriteWithoutResponse else {
@@ -763,7 +763,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
       guard case let .connected(readyPeripheral, readyTx, _, _) = phase,
             readyPeripheral.state == .connected,
             connectionGeneration == myGeneration else {
-        throw BLEError.notConnected
+        throw MeshTransportError.notConnected
       }
       guard readyPeripheral.canSendWriteWithoutResponse else { continue }
       if let sessionBinding {
@@ -791,7 +791,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     while true {
       try sessionBinding?.checkActive()
       guard connectionGeneration == myGeneration else {
-        throw BLEError.notConnected
+        throw MeshTransportError.notConnected
       }
 
       // Pacing: wait until earliestNextWrite.
@@ -799,14 +799,14 @@ actor BLEStateMachine: BLEStateMachineProtocol {
         try await operationClock.sleep(operationClock.now().duration(to: earliestNextWrite))
         try Task.checkCancellation()
         guard connectionGeneration == myGeneration else {
-          throw BLEError.notConnected
+          throw MeshTransportError.notConnected
         }
       }
 
       try Task.checkCancellation()
 
       guard case let .connected(peripheral, _, _, _) = phase, peripheral.state == .connected else {
-        throw BLEError.notConnected
+        throw MeshTransportError.notConnected
       }
 
       // Wait for any pending write to complete (serializes concurrent sends).
@@ -840,7 +840,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
         guard case let .connected(currentPeripheral, currentTx, _, _) = self.phase,
               currentPeripheral.state == .connected,
               self.pendingWriteContinuation == nil else {
-          continuation.resume(throwing: BLEError.notConnected)
+          continuation.resume(throwing: MeshTransportError.notConnected)
           return
         }
 
@@ -918,7 +918,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
           continuation.resume(throwing: CancellationError())
           return
         }
-        completeWriteWithoutResponseReadiness(error: BLEError.notConnected)
+        completeWriteWithoutResponseReadiness(error: MeshTransportError.notConnected)
         writeWithoutResponseReadyID = waitID
         writeWithoutResponseReadyContinuation = continuation
         writeWithoutResponseReadyBinding = sessionBinding
@@ -1144,15 +1144,14 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     consecutiveQueuedWrites = 0
     earliestNextWrite = operationClock.now()
 
-    // Cancel pending write
+    // The pending continuation already called writeValue. Queued waiters have not.
     if let pending = pendingWriteContinuation {
       pendingWriteContinuation = nil
       pending.resume(throwing: BLEError.notConnected)
     }
 
-    // Resume all write waiters (they'll fail on the .connected check)
     while !writeWaiters.isEmpty {
-      writeWaiters.removeFirst().continuation.resume(throwing: BLEError.notConnected)
+      writeWaiters.removeFirst().continuation.resume(throwing: MeshTransportError.notConnected)
     }
 
     // Get peripheral before cancelling
@@ -1388,12 +1387,21 @@ extension BLEStateMachine {
       pending.resume(throwing: error)
     }
 
+    let unsubmitted = Self.unsubmittedWriteError(error)
     while !writeWaiters.isEmpty {
-      writeWaiters.removeFirst().continuation.resume(throwing: error)
+      writeWaiters.removeFirst().continuation.resume(throwing: unsubmitted)
     }
 
     // Release a Write-Command sender parked on backpressure so it doesn't hang past the drop.
     resumeWriteWithoutResponseReadiness()
+  }
+
+  /// A queued waiter has not called `writeValue`. `BLEError.notConnected` after that call stays a submitted write.
+  private static func unsubmittedWriteError(_ error: Error) -> Error {
+    if let ble = error as? BLEError, case .notConnected = ble {
+      return MeshTransportError.notConnected
+    }
+    return error
   }
 
   /// Cancels the current operation, resuming any pending continuation with an error.
