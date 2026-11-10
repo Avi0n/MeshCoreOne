@@ -65,10 +65,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "플러드 라우팅";
 "remoteNodes.auth.floodRetryStatus" = "알려진 경로로 응답이 없습니다. 플러드 라우팅으로 다시 시도합니다.";
-"remoteNodes.auth.floodFooter" = "플러드 라우팅은 더 느리고 네트워크 전송 시간을 더 많이 사용합니다. 현재 위치에서 알려진 경로가 작동하지 않을 때 사용하십시오. 로그인 후 새 경로를 자동으로 학습합니다.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "이번 로그인은 저장된 경로를 삭제하고 플러드 라우팅을 사용합니다. 플러드 라우팅은 더 느리고 네트워크 전송 시간을 더 많이 사용합니다. 로그인이 성공하면 새 경로를 학습합니다.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "이 노드로 가는 알려진 경로를 사용하거나, 플러드 라우팅으로 전환하여 네트워크가 경로를 찾도록 하십시오.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "저장된 경로가 삭제되었습니다. 로그인이 플러드 라우팅을 사용 중입니다. 로그인이 성공하면 새 경로를 학습합니다.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "응답이 없으면 경로를 삭제하고 로그인을 플러드 라우팅으로 한 번 시도합니다.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "응답이 없으면 로그인이 중단되고 경로는 유지됩니다.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<알 수 없음>";

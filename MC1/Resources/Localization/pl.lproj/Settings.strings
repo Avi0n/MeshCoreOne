@@ -1171,14 +1171,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Liczba potwierdzeń wysyłanych na wiadomość bezpośrednią. Użyj 2 dla lepszego potwierdzenia dostarczenia przez zawodne łącza.";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "Próby początkowe";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Zapasowo na routing flood";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "Próby zapasowe Flood";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Próby na ścieżce";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "Próby początkowe używają Flood, gdy kontakt nie ma ścieżki wychodzącej. Przed dodatkowymi próbami zapasowy Flood próbuje zresetować ścieżkę wychodzącą. Ustaw próby zapasowe Flood na 0, aby pominąć resetowanie ścieżki wychodzącej i dodatkowe próby.";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Próby flood";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "Gdy skończą się Próby na ścieżce, trasa zostanie usunięta. Próby flood są potem wysyłane routingiem flood. Wiadomość do kontaktu, który nie ma znanej trasy, jest wysyłana routingiem flood.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "Próby na ścieżce zostają na znanej trasie, a trasa nie jest usuwana. Wiadomość do kontaktu, który nie ma znanej trasy, jest wysyłana routingiem flood.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Zapasowe przełączenie ścieżki";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Zapasowo na routing flood";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "Logowanie, polecenia do przekaźnika i pokoju, które czekają na odpowiedź, oraz telemetria kontaktu używają znanej trasy. Jeśli brak odpowiedzi, trasa zostanie usunięta i nastąpi jedna próba routingiem flood.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "Logowanie, polecenia i telemetria kontaktu zostają na znanej trasie. Jeśli brak odpowiedzi, zatrzymują się, a trasa pozostaje. Routing flood na ekranie logowania usuwa zapisaną trasę tego węzła.";
 
 // MARK: - BLE Status Indicator
 

@@ -65,10 +65,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Flood-Routing";
 "remoteNodes.auth.floodRetryStatus" = "Keine Antwort über die bekannte Route. Neuer Versuch mit Flood-Routing.";
-"remoteNodes.auth.floodFooter" = "Flood-Routing ist langsamer und beansprucht mehr Funkzeit im Netzwerk. Verwende es, wenn die bekannte Route an deinem aktuellen Standort nicht funktioniert. Nach der Anmeldung wird automatisch eine neue Route gelernt.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "Diese Anmeldung löscht die gespeicherte Route und sendet mit Flood. Flood-Routing ist langsamer und beansprucht mehr Funkzeit im Netzwerk. Eine neue Route wird nur gelernt, wenn die Anmeldung gelingt.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Verwende die bekannte Route zu diesem Knoten oder wechsle zu Flood-Routing, damit das Netzwerk einen Pfad findet.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "Die gespeicherte Route wurde gelöscht. Die Anmeldung sendet mit Flood. Eine neue Route wird nur gelernt, wenn die Anmeldung gelingt.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "Wenn keine Antwort kommt, wird die gespeicherte Route gelöscht und die Anmeldung versucht es einmal mit Flood.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "Wenn keine Antwort kommt, stoppt die Anmeldung und die gespeicherte Route bleibt erhalten.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<unbekannt>";

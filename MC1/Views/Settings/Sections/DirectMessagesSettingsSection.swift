@@ -17,14 +17,13 @@ struct DirectMessagesSettingsSection: View {
     appState.connectedDevice
   }
 
+  private var fallsBackToFlood: Bool {
+    storedFloodAttempts > 0
+  }
+
   var body: some View {
     Section {
-      Picker(L10n.Settings.DirectMessages.acknowledgments, selection: acksBinding) {
-        Text("1").tag(1)
-        Text("2").tag(2)
-      }
-      .pickerStyle(.menu)
-      .radioDisabled(for: appState.connectionState, or: isSaving)
+      Toggle(L10n.Settings.DirectMessages.fallback, isOn: fallbackBinding)
 
       Picker(L10n.Settings.DirectMessages.directAttempts, selection: directAttemptsBinding) {
         ForEach(Array(DMSendBudget.directRange), id: \.self) { count in
@@ -33,16 +32,34 @@ struct DirectMessagesSettingsSection: View {
       }
       .pickerStyle(.menu)
 
-      Picker(L10n.Settings.DirectMessages.floodAttempts, selection: floodAttemptsBinding) {
-        ForEach(Array(DMSendBudget.floodRange), id: \.self) { count in
-          Text(String(count)).tag(count)
+      if fallsBackToFlood {
+        Picker(L10n.Settings.DirectMessages.floodAttempts, selection: floodAttemptsBinding) {
+          ForEach(Array(DMSendBudget.enabledFloodRange), id: \.self) { count in
+            Text(String(count)).tag(count)
+          }
         }
+        .pickerStyle(.menu)
       }
-      .pickerStyle(.menu)
     } header: {
       Text(L10n.Settings.DirectMessages.header)
     } footer: {
-      Text(L10n.Settings.DirectMessages.footer + "\n\n" + L10n.Settings.DirectMessages.attemptsFooter)
+      Text(
+        fallsBackToFlood
+          ? L10n.Settings.DirectMessages.attemptsFooterOn
+          : L10n.Settings.DirectMessages.attemptsFooterOff
+      )
+    }
+    .themedRowBackground(theme)
+
+    Section {
+      Picker(L10n.Settings.DirectMessages.acknowledgments, selection: acksBinding) {
+        Text("1").tag(1)
+        Text("2").tag(2)
+      }
+      .pickerStyle(.menu)
+      .radioDisabled(for: appState.connectionState, or: isSaving)
+    } footer: {
+      Text(L10n.Settings.DirectMessages.footer)
     }
     .themedRowBackground(theme)
     .errorAlert($errorMessage)
@@ -50,6 +67,18 @@ struct DirectMessagesSettingsSection: View {
   }
 
   // MARK: - Binding
+
+  private var fallbackBinding: Binding<Bool> {
+    Binding(
+      get: { fallsBackToFlood },
+      set: { isOn in
+        storedFloodAttempts = DMSendBudget.floodAttempts(
+          enablingFallback: isOn,
+          stored: storedFloodAttempts
+        )
+      }
+    )
+  }
 
   private var directAttemptsBinding: Binding<Int> {
     Binding(
@@ -60,8 +89,8 @@ struct DirectMessagesSettingsSection: View {
 
   private var floodAttemptsBinding: Binding<Int> {
     Binding(
-      get: { DMSendBudget.clampedFloodAttempts(storedFloodAttempts) },
-      set: { storedFloodAttempts = DMSendBudget.clampedFloodAttempts($0) }
+      get: { DMSendBudget.menuFloodAttempts(stored: storedFloodAttempts) },
+      set: { storedFloodAttempts = DMSendBudget.clampedMenuFloodAttempts($0) }
     )
   }
 

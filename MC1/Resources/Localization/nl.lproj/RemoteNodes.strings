@@ -65,10 +65,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Flood-routing";
 "remoteNodes.auth.floodRetryStatus" = "Geen antwoord via de bekende route. Nieuwe poging met flood-routing.";
-"remoteNodes.auth.floodFooter" = "Flood-routing is trager en gebruikt meer zendtijd op het netwerk. Gebruik het wanneer de bekende route op je huidige locatie niet werkt. Na het inloggen wordt automatisch een nieuwe route geleerd.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "Dit inloggen wist de opgeslagen route en gebruikt flood-routing. Flood-routing is trager en gebruikt meer zendtijd op het netwerk. Een nieuwe route wordt alleen geleerd als het inloggen lukt.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Gebruik de bekende route naar dit knooppunt of schakel over naar flood-routing om het netwerk een pad te laten vinden.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "De opgeslagen route is gewist. Het inloggen gebruikt flood-routing. Een nieuwe route wordt alleen geleerd als het inloggen lukt.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "Als er geen antwoord komt, wordt de route gewist en doet het inloggen één poging met flood-routing.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "Als er geen antwoord komt, stopt het inloggen en blijft de route staan.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<onbekend>";

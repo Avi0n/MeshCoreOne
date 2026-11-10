@@ -101,7 +101,6 @@ struct NodeAuthenticationSheet: View {
       .sensoryFeedback(.error, trigger: errorMessage)
       .onChange(of: appState.connectionManager.currentConnection?.generation) { _, _ in
         cancelAuthentication()
-        didResetPath = false
       }
       .onDisappear { cancelAuthentication() }
     }
@@ -131,6 +130,8 @@ struct NodeAuthenticationSheet: View {
     PathSection(
       contact: contact,
       useFloodRouting: $useFloodRouting,
+      routeCleared: didResetPath,
+      isAuthenticating: isAuthenticating,
       pathViewModel: pathViewModel
     )
   }
@@ -183,8 +184,8 @@ struct NodeAuthenticationSheet: View {
             radioID: contact.radioID,
             publicKey: contact.publicKey
           )
-          guard accepts(context, ticket: ticket) else { return }
           didResetPath = true
+          guard accepts(context, ticket: ticket) else { return }
           pathLength = PacketBuilder.floodPathSentinel
         } else if useFloodRouting || didResetPath {
           pathLength = PacketBuilder.floodPathSentinel
@@ -202,8 +203,12 @@ struct NodeAuthenticationSheet: View {
             ticket: ticket,
             pathLength: pathLength
           )
-        } catch RemoteNodeError.timeout where pathLength != PacketBuilder.floodPathSentinel {
+        } catch RemoteNodeError.timeout {
           guard accepts(context, ticket: ticket) else { return }
+          guard RemoteFloodFallback.isEnabled(),
+                pathLength != PacketBuilder.floodPathSentinel else {
+            throw RemoteNodeError.timeout
+          }
           // The stored route produced no reply. Clear it and let the network find a path.
           isRetryingViaFlood = true
           cleanupCountdownState()
@@ -211,8 +216,9 @@ struct NodeAuthenticationSheet: View {
             radioID: contact.radioID,
             publicKey: contact.publicKey
           )
-          guard accepts(context, ticket: ticket) else { return }
           didResetPath = true
+          useFloodRouting = true
+          guard accepts(context, ticket: ticket) else { return }
           session = try await performLogin(
             services: services,
             context: context,
@@ -441,19 +447,36 @@ private struct AuthenticationSection: View {
 
 private struct PathSection: View {
   @Environment(\.appTheme) private var theme
+  @AppStorage(AppStorageKey.remoteFloodFallback.rawValue)
+  private var remoteFloodFallback = AppStorageKey.defaultRemoteFloodFallback
   let contact: ContactDTO
   @Binding var useFloodRouting: Bool
+  let routeCleared: Bool
+  let isAuthenticating: Bool
   let pathViewModel: NodeAuthPathViewModel
 
   @State private var isPathExpanded = false
 
-  private var hasStoredPath: Bool {
-    !contact.isFloodRouted
+  private var choice: SignInPathFooter {
+    signInPathFooter(
+      hasStoredRoute: !contact.isFloodRouted,
+      floodRouting: useFloodRouting,
+      routeCleared: routeCleared,
+      fallbackEnabled: remoteFloodFallback,
+      isAuthenticating: isAuthenticating
+    )
+  }
+
+  private var floodRoutingBinding: Binding<Bool> {
+    if choice.canChangeFloodRouting {
+      return $useFloodRouting
+    }
+    return .constant(choice.showsFloodRoutingOn)
   }
 
   var body: some View {
     Section {
-      if hasStoredPath, !useFloodRouting {
+      if choice.showsSavedHops {
         if !pathViewModel.hops.isEmpty {
           DisclosureGroup(isExpanded: $isPathExpanded) {
             ForEach(pathViewModel.hops) { hop in
@@ -465,7 +488,7 @@ private struct PathSection: View {
         } else {
           NodePathSummaryLabel(contact: contact)
         }
-      } else if !hasStoredPath {
+      } else if choice.showsNoRouteLabel {
         Label {
           Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteSet)
             .foregroundStyle(.secondary)
@@ -477,22 +500,17 @@ private struct PathSection: View {
         .accessibilityHidden(true)
       }
 
-      Toggle(L10n.RemoteNodes.RemoteNodes.Auth.floodRouting, isOn: $useFloodRouting)
-        .disabled(!hasStoredPath)
-        .accessibilityHint(hasStoredPath ? "" : L10n.RemoteNodes.RemoteNodes.Auth.noRouteFooter)
+      Toggle(L10n.RemoteNodes.RemoteNodes.Auth.floodRouting, isOn: floodRoutingBinding)
+        .disabled(!choice.canChangeFloodRouting)
+        .accessibilityHint(choice.canChangeFloodRouting ? "" : choice.message)
     } header: {
       Text(L10n.RemoteNodes.RemoteNodes.Auth.path)
     } footer: {
-      if !hasStoredPath {
-        Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteFooter)
-      } else if useFloodRouting {
-        Text(L10n.RemoteNodes.RemoteNodes.Auth.floodFooter)
-      } else {
-        Text(L10n.RemoteNodes.RemoteNodes.Auth.pathFooter)
-      }
+      Text(choice.message)
     }
     .themedRowBackground(theme)
     .animation(.default, value: useFloodRouting)
+    .animation(.default, value: routeCleared)
   }
 }
 

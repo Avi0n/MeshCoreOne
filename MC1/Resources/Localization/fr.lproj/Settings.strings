@@ -1171,14 +1171,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Nombre d'accusés de réception envoyés par message direct. Utilisez 2 pour une meilleure confirmation de livraison sur les liaisons peu fiables.";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "Tentatives initiales";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Repli vers Flood";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "Tentatives de repli Flood";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Tentatives sur le chemin";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "Les tentatives initiales utilisent Flood si le contact n'a pas de chemin sortant. Le repli Flood tente de réinitialiser le chemin sortant avant les tentatives supplémentaires. Réglez les tentatives de repli Flood sur zéro pour ignorer la réinitialisation et les tentatives supplémentaires.";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Tentatives Flood";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "Le chemin est effacé après les Tentatives sur le chemin. Les Tentatives Flood sont ensuite envoyées en routage flood. Un message à un contact sans chemin connu est envoyé en routage flood.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "Les Tentatives sur le chemin restent sur le chemin connu, et le chemin reste en place. Un message à un contact sans chemin connu est envoyé en routage flood.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Repli du chemin";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Repli vers Flood";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "La connexion, les commandes de répéteur et de salon qui attendent une réponse, et la télémétrie du contact utilisent le chemin connu. S'il n'y a aucune réponse, le chemin est effacé et une seule tentative est envoyée en routage flood.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "La connexion, les commandes et la télémétrie du contact restent sur le chemin connu. S'il n'y a aucune réponse, elles s'arrêtent et le chemin reste en place. L'option Routage Flood, sur l'écran de connexion, efface le chemin enregistré de ce nœud.";
 
 // MARK: - BLE Status Indicator
 

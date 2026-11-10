@@ -44,6 +44,24 @@ struct DMSendBudgetTests {
     #expect(lowFlood.totalAttempts == 4)
   }
 
+  @Test
+  func `turning fallback off stores zero and on restores the default only from zero`() {
+    #expect(DMSendBudget.floodAttempts(enablingFallback: false, stored: 3) == 0)
+    #expect(DMSendBudget.floodAttempts(enablingFallback: true, stored: 0) == 4)
+    #expect(DMSendBudget.floodAttempts(enablingFallback: true, stored: 2) == 2)
+    #expect(DMSendBudget.floodAttempts(enablingFallback: true, stored: 9) == 9)
+  }
+
+  @Test
+  func `the flood menu shows a count from 1 to 4 and clamps a write`() {
+    #expect(DMSendBudget.menuFloodAttempts(stored: 3) == 3)
+    #expect(DMSendBudget.menuFloodAttempts(stored: 0) == 4)
+    #expect(DMSendBudget.menuFloodAttempts(stored: 9) == 4)
+    #expect(DMSendBudget.clampedMenuFloodAttempts(0) == 1)
+    #expect(DMSendBudget.clampedMenuFloodAttempts(2) == 2)
+    #expect(DMSendBudget.clampedMenuFloodAttempts(9) == 4)
+  }
+
   private func makeDefaults() -> (UserDefaults, String) {
     let name = "test.dm-budget.\(UUID().uuidString)"
     let defaults = UserDefaults(suiteName: name)!

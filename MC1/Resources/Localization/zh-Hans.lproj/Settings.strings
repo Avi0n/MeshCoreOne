@@ -1206,14 +1206,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "每条私信发送的确认数量。在不可靠的链路上使用 2 以获得更好的送达确认。";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "初始尝试";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "回退到泛洪";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "泛洪回退尝试";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "路径尝试";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "初始尝试在联系人没有出站路径时使用泛洪。泛洪回退将先尝试重置出站路径，再进行额外尝试。将“泛洪回退尝试”设为 0 以跳过重置出站路径和额外尝试。";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "泛洪尝试";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "完成“路径尝试”后，将清除路由。随后，“泛洪尝试”会以泛洪发送。没有已知路由的联系人，消息会以泛洪发送。";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "“路径尝试”始终使用已知路由，路由将保留。没有已知路由的联系人，消息会以泛洪发送。";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "路径回退";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "回退到泛洪";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "登录、等待回复的转发节点命令和房间命令，以及联系人遥测，都使用已知路由。如果没有回复，将清除路由，并以泛洪尝试一次。";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "登录、命令和联系人遥测始终使用已知路由。如果没有回复，就会停止，路由将保留。登录界面上的“泛洪路由”会清除该节点已保存的路由。";
 
 // MARK: - BLE Status Indicator
 

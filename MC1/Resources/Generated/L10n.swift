@@ -3391,8 +3391,10 @@ public enum L10n {
         public static func errorPrefix(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.auth.errorPrefix", String(describing: p1), fallback: "Error: %@")
         }
-        /// Flood routing is slower and uses more network airtime. Use it when the known route does not work from your current location. A new route is learned automatically after login.
-        public static let floodFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.floodFooter", fallback: "Flood routing is slower and uses more network airtime. Use it when the known route does not work from your current location. A new route is learned automatically after login.")
+        /// Footer when this sign-in will clear the saved route and use flood
+        public static let floodFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.floodFooter", fallback: "This sign-in clears the saved route and uses flood. Flood routing is slower and uses more network airtime. A new route is learned if sign-in succeeds.")
+        /// Footer after this sign-in has cleared the saved route
+        public static let floodFooterCleared = L10n.tr("RemoteNodes", "remoteNodes.auth.floodFooterCleared", fallback: "The saved route is cleared. Sign-in is using flood. A new route is learned if sign-in succeeds.")
         /// No reply over the known route. Retrying with flood routing.
         public static let floodRetryStatus = L10n.tr("RemoteNodes", "remoteNodes.auth.floodRetryStatus", fallback: "No reply over the known route. Retrying with flood routing.")
         /// Location: NodeAuthenticationSheet.swift - Flood routing toggle
@@ -3421,8 +3423,10 @@ public enum L10n {
         }
         /// Location: NodeAuthenticationSheet.swift - Path section header
         public static let path = L10n.tr("RemoteNodes", "remoteNodes.auth.path", fallback: "Path")
-        /// Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists
-        public static let pathFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.pathFooter", fallback: "Use the known route to this node, or switch to flood routing to let the network find a path.")
+        /// Footer when a timeout clears the route and retries by flood
+        public static let pathFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.pathFooter", fallback: "If there is no reply, the route is cleared and sign-in tries once by flood.")
+        /// Footer when a timeout stops and leaves the route
+        public static let pathFooterKept = L10n.tr("RemoteNodes", "remoteNodes.auth.pathFooterKept", fallback: "If there is no reply, sign-in stops and the route stays.")
         /// Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known
         public static let pathHopUnknown = L10n.tr("RemoteNodes", "remoteNodes.auth.pathHopUnknown", fallback: "<unknown>")
         /// Location: NodeAuthenticationSheet.swift - Remember password toggle
@@ -5138,12 +5142,16 @@ public enum L10n {
     public enum DirectMessages {
       /// Picker label for number of acknowledgments
       public static let acknowledgments = L10n.tr("Settings", "directMessages.acknowledgments", fallback: "Acknowledgments")
-      /// Footer explaining the initial and fallback attempt pickers
-      public static let attemptsFooter = L10n.tr("Settings", "directMessages.attemptsFooter", fallback: "Initial attempts use Flood if the contact has no out path. Flood fallback tries to clear the out path before retrying. Set Flood Fallback Attempts to zero to skip the reset and extra attempts.")
-      /// Picker label for attempts before resetting the contact's out path
-      public static let directAttempts = L10n.tr("Settings", "directMessages.directAttempts", fallback: "Initial Attempts")
-      /// Picker label for extra attempts after the contact's out path reset
-      public static let floodAttempts = L10n.tr("Settings", "directMessages.floodAttempts", fallback: "Flood Fallback Attempts")
+      /// Footer when Fall Back to Flood is off
+      public static let attemptsFooterOff = L10n.tr("Settings", "directMessages.attemptsFooterOff", fallback: "Attempts on Path stay on the known route, and the route is left in place. A contact with no known route is sent by flood.")
+      /// Footer when Fall Back to Flood is on
+      public static let attemptsFooterOn = L10n.tr("Settings", "directMessages.attemptsFooterOn", fallback: "The route is cleared after Attempts on Path. Flood Attempts are sent by flood after that. A contact with no known route is sent by flood.")
+      /// Picker label for attempts on the known route
+      public static let directAttempts = L10n.tr("Settings", "directMessages.directAttempts", fallback: "Attempts on Path")
+      /// Switch that clears the known route after the path attempts
+      public static let fallback = L10n.tr("Settings", "directMessages.fallback", fallback: "Fall Back to Flood")
+      /// Picker label for attempts sent by flood after the route is cleared
+      public static let floodAttempts = L10n.tr("Settings", "directMessages.floodAttempts", fallback: "Flood Attempts")
       /// Footer explaining the acknowledgments setting
       public static let footer = L10n.tr("Settings", "directMessages.footer", fallback: "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.")
       /// Section header for direct message settings
@@ -5556,6 +5564,16 @@ public enum L10n {
         /// Topography
         public static let topo = L10n.tr("Settings", "offlineMaps.layer.topo", fallback: "Topography")
       }
+    }
+    public enum PathFallback {
+      /// Switch that clears the known route after a timeout
+      public static let fallback = L10n.tr("Settings", "pathFallback.fallback", fallback: "Fall Back to Flood")
+      /// Footer when path fallback is off
+      public static let footerOff = L10n.tr("Settings", "pathFallback.footerOff", fallback: "Sign-in, commands, and contact telemetry stay on the known route. If there is no reply, they stop and the route stays. Flood Routing on the sign-in screen clears that node's saved route.")
+      /// Footer when path fallback is on
+      public static let footerOn = L10n.tr("Settings", "pathFallback.footerOn", fallback: "Sign-in, repeater and room commands that expect a reply, and contact telemetry use the known route. If there is no reply, the route is cleared and tried once by flood.")
+      /// Section header for sign-in, command, and contact telemetry path fallback
+      public static let header = L10n.tr("Settings", "pathFallback.header", fallback: "Path Fallback")
     }
     public enum PathHashMode {
       /// Footer explaining path hash mode tradeoff

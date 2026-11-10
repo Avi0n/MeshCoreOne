@@ -10,47 +10,86 @@ struct RemoteNodePathRecoveryTests {
   private static let publicKey = Data(repeating: 0xCD, count: 32)
   private static let directPath = Data([0x0A, 0x0B, 0x0C])
 
-  private struct Harness {
+  private final class Harness {
     let service: RemoteNodeService
     let session: MockMeshCoreSession
     let dataStore: PersistenceStore
     let sessionID: UUID
     let radioID: UUID
+    let defaultsSuiteName: String
+
+    init(
+      service: RemoteNodeService,
+      session: MockMeshCoreSession,
+      dataStore: PersistenceStore,
+      sessionID: UUID,
+      radioID: UUID,
+      defaultsSuiteName: String
+    ) {
+      self.service = service
+      self.session = session
+      self.dataStore = dataStore
+      self.sessionID = sessionID
+      self.radioID = radioID
+      self.defaultsSuiteName = defaultsSuiteName
+    }
+
+    deinit {
+      UserDefaults(suiteName: defaultsSuiteName)?.removePersistentDomain(forName: defaultsSuiteName)
+    }
   }
 
-  private func makeHarness(outPathLength: UInt8, outPath: Data) async throws -> Harness {
-    let radioID = UUID()
-    let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
-    let contact = ContactDTO.testContact(
-      radioID: radioID,
-      publicKey: Self.publicKey,
-      typeRawValue: ContactType.repeater.rawValue,
-      outPathLength: outPathLength,
-      outPath: outPath
-    )
-    try await dataStore.saveContact(contact)
+  private func makeHarness(
+    outPathLength: UInt8,
+    outPath: Data,
+    fallbackEnabled: Bool? = nil
+  ) async throws -> Harness {
+    let suiteName = "RemoteNodePathRecovery.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defaults.removePersistentDomain(forName: suiteName)
+    if let fallbackEnabled {
+      defaults.set(fallbackEnabled, forKey: AppStorageKey.remoteFloodFallback.rawValue)
+    }
 
-    let remoteSession = RemoteNodeSessionDTO.testSession(
-      radioID: radioID,
-      publicKey: Self.publicKey,
-      role: .repeater,
-      permissionLevel: .admin
-    )
-    try await dataStore.saveRemoteNodeSessionDTO(remoteSession)
+    do {
+      let radioID = UUID()
+      let dataStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+      let contact = ContactDTO.testContact(
+        radioID: radioID,
+        publicKey: Self.publicKey,
+        typeRawValue: ContactType.repeater.rawValue,
+        outPathLength: outPathLength,
+        outPath: outPath
+      )
+      try await dataStore.saveContact(contact)
 
-    let session = MockMeshCoreSession()
-    let service = RemoteNodeService(
-      session: session,
-      dataStore: dataStore,
-      keychainService: KeychainService()
-    )
-    return Harness(
-      service: service,
-      session: session,
-      dataStore: dataStore,
-      sessionID: remoteSession.id,
-      radioID: radioID
-    )
+      let remoteSession = RemoteNodeSessionDTO.testSession(
+        radioID: radioID,
+        publicKey: Self.publicKey,
+        role: .repeater,
+        permissionLevel: .admin
+      )
+      try await dataStore.saveRemoteNodeSessionDTO(remoteSession)
+
+      let session = MockMeshCoreSession()
+      let service = RemoteNodeService(
+        session: session,
+        dataStore: dataStore,
+        keychainService: KeychainService(),
+        defaults: defaults
+      )
+      return Harness(
+        service: service,
+        session: session,
+        dataStore: dataStore,
+        sessionID: remoteSession.id,
+        radioID: radioID,
+        defaultsSuiteName: suiteName
+      )
+    } catch {
+      defaults.removePersistentDomain(forName: suiteName)
+      throw error
+    }
   }
 
   private func makeStatusResponse() -> StatusResponse {
@@ -191,6 +230,31 @@ struct RemoteNodePathRecoveryTests {
     }
     #expect(await harness.session.sendCommandInvocations.count == 2)
     #expect(await harness.session.resetPathPublicKeys == [Self.publicKey])
+  }
+
+  @Test
+  func `a normal command that times out keeps the path when fallback is off`() async throws {
+    let harness = try await makeHarness(
+      outPathLength: 3,
+      outPath: Self.directPath,
+      fallbackEnabled: false
+    )
+
+    await #expect(throws: RemoteNodeError.self) {
+      _ = try await harness.service.sendRawCLICommand(
+        sessionID: harness.sessionID,
+        command: "get name",
+        timeout: .milliseconds(1)
+      )
+    }
+    #expect(await harness.session.sendCommandInvocations.count == 1)
+    #expect(await harness.session.resetPathPublicKeys.isEmpty)
+
+    let contact = try await harness.dataStore.fetchContact(
+      radioID: harness.radioID,
+      publicKey: Self.publicKey
+    )
+    #expect(contact?.isFloodRouted == false)
   }
 
   @Test

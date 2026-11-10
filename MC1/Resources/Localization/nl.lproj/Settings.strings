@@ -1171,14 +1171,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Aantal bevestigingen dat per direct bericht wordt verstuurd. Gebruik 2 voor betere afleverbevestiging via onbetrouwbare verbindingen.";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "Eerste pogingen";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Terugval op flood-routing";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "Flood-terugvalpogingen";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Pogingen op het pad";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "De eerste pogingen gebruiken Flood als het contact geen uitgaand pad heeft. De Flood-terugval probeert het uitgaande pad te resetten voordat de extra pogingen beginnen. Zet Flood-terugvalpogingen op nul om het resetten van het uitgaande pad en de extra pogingen over te slaan.";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Flood-pogingen";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "De route wordt gewist na Pogingen op het pad. Flood-pogingen worden daarna met flood-routing verstuurd. Een bericht naar een contact zonder bekende route wordt met flood-routing verstuurd.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "Pogingen op het pad blijven op de bekende route en de route blijft staan. Een bericht naar een contact zonder bekende route wordt met flood-routing verstuurd.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Padterugval";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Terugval op flood-routing";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "Inloggen, opdrachten aan een repeater en een kamer die op een antwoord wachten, en telemetrie van het contact gebruiken de bekende route. Als er geen antwoord komt, wordt de route gewist en wordt er één poging met flood-routing gedaan.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "Inloggen, opdrachten en telemetrie van het contact blijven op de bekende route. Als er geen antwoord komt, stoppen ze en blijft de route staan. Flood-routing op het inlogscherm wist de opgeslagen route van dat knooppunt.";
 
 // MARK: - BLE Status Indicator
 

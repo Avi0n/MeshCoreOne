@@ -65,10 +65,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Routage Flood";
 "remoteNodes.auth.floodRetryStatus" = "Aucune réponse par le chemin connu. Nouvelle tentative en routage flood.";
-"remoteNodes.auth.floodFooter" = "Le routage flood est plus lent et consomme plus de temps d'antenne sur le réseau. Utilisez-le lorsque le chemin connu ne fonctionne pas depuis votre position actuelle. Un nouveau chemin est appris automatiquement après la connexion.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "Cette connexion efface le chemin enregistré et utilise le routage flood. Le routage flood est plus lent et consomme plus de temps d'antenne sur le réseau. Un nouveau chemin est appris seulement si la connexion réussit.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Utilisez le chemin connu vers ce nœud ou activez le routage flood pour laisser le réseau trouver un chemin.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "Le chemin enregistré est effacé. La connexion utilise le routage flood. Un nouveau chemin est appris seulement si la connexion réussit.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "S'il n'y a aucune réponse, le chemin est effacé et la connexion fait une seule tentative en routage flood.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "S'il n'y a aucune réponse, la connexion s'arrête et le chemin reste en place.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<inconnu>";

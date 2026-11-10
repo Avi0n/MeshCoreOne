@@ -1171,14 +1171,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Количество подтверждений, отправляемых на каждое прямое сообщение. Используйте 2 для лучшего подтверждения доставки по ненадёжным каналам.";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "Начальные попытки";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Переход на flood-маршрутизацию";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "Запасные попытки Flood";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Попытки по маршруту";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "Начальные попытки используют Flood, если у контакта нет исходящего пути. Исходящий путь пытаются сбросить перед запасными попытками Flood. Установите «Запасные попытки Flood» на 0, чтобы пропустить сброс и дополнительные попытки.";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Попытки flood-маршрутизации";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "Маршрут удаляется после «Попытки по маршруту». После этого «Попытки flood-маршрутизации» отправляются через flood-маршрутизацию. Сообщение контакту без известного маршрута отправляется через flood-маршрутизацию.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "«Попытки по маршруту» остаются на известном маршруте, и маршрут не удаляется. Сообщение контакту без известного маршрута отправляется через flood-маршрутизацию.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Запасной маршрут";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Переход на flood-маршрутизацию";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "Вход, команды ретрансляторам и комнатам, которые ждут ответа, и телеметрия контакта используют известный маршрут. Если ответа нет, маршрут удаляется, и делается одна попытка через flood-маршрутизацию.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "Вход, команды и телеметрия контакта остаются на известном маршруте. Если ответа нет, они прекращаются, а маршрут не удаляется. «Flood-маршрутизация» на экране входа удаляет сохранённый маршрут этого узла.";
 
 // MARK: - BLE Status Indicator
 

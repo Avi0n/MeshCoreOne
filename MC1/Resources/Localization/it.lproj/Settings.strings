@@ -1221,14 +1221,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Numero di conferme inviate per messaggio diretto. Usa 2 per una conferma di consegna migliore su collegamenti inaffidabili.";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "Tentativi iniziali";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Ripiego sul routing flood";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "Tentativi di ripiego flood";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Tentativi sul percorso";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "I tentativi iniziali usano l’instradamento flood se il contatto non ha un percorso in uscita. Il ripiego flood prova a reimpostare il percorso in uscita prima dei tentativi extra. Imposta Tentativi di ripiego flood a zero per saltare la reimpostazione del percorso in uscita e i tentativi extra.";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Tentativi con routing flood";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "Il percorso viene cancellato dopo i Tentativi sul percorso. I Tentativi con routing flood vengono poi inviati con routing flood. Un messaggio a un contatto senza un percorso noto viene inviato con routing flood.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "I Tentativi sul percorso restano sul percorso noto e il percorso resta. Un messaggio a un contatto senza un percorso noto viene inviato con routing flood.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Ripiego del percorso";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Ripiego sul routing flood";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "L’accesso, i comandi di ripetitore e di stanza in attesa di una risposta, e la telemetria del contatto usano il percorso noto. Se non c’è risposta, il percorso viene cancellato e si fa un solo tentativo con routing flood.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "L’accesso, i comandi e la telemetria del contatto restano sul percorso noto. Se non c’è risposta, si fermano e il percorso resta. Nella schermata di accesso, Routing flood cancella il percorso salvato di quel nodo.";
 
 // MARK: - BLE Status Indicator
 

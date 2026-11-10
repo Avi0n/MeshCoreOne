@@ -65,10 +65,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Routing flood";
 "remoteNodes.auth.floodRetryStatus" = "Nessuna risposta sul percorso noto. Nuovo tentativo con routing flood.";
-"remoteNodes.auth.floodFooter" = "Il routing flood è più lento e consuma più tempo in aria sulla rete. Usalo quando il percorso noto non funziona dalla tua posizione attuale. Dopo l'accesso viene appreso automaticamente un nuovo percorso.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "Questo accesso cancella il percorso salvato e usa il routing flood. Il routing flood è più lento e consuma più tempo in aria sulla rete. Un nuovo percorso viene appreso solo se l'accesso riesce.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Usa il percorso noto verso questo nodo, oppure attiva il routing flood per far trovare un percorso alla rete.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "Il percorso salvato è stato cancellato. L'accesso sta usando il routing flood. Un nuovo percorso viene appreso solo se l'accesso riesce.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "Se non c'è risposta, il percorso viene cancellato e l'accesso fa un solo tentativo con routing flood.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "Se non c'è risposta, l'accesso si ferma e il percorso resta.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<sconosciuto>";

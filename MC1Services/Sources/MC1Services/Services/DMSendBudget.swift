@@ -6,6 +6,23 @@ public struct DMSendBudget: Sendable, Equatable {
   public static let defaultFloodAttempts = 4
   public static let directRange = 1...4
   public static let floodRange = 0...4
+  /// Flood Attempts menu. Zero is stored by turning Fall Back to Flood off, not by this menu.
+  public static let enabledFloodRange = 1...4
+
+  /// Off stores zero. On stores the default only when the stored count is zero.
+  public static func floodAttempts(enablingFallback isOn: Bool, stored: Int) -> Int {
+    guard isOn else { return 0 }
+    guard stored > 0 else { return defaultFloodAttempts }
+    return stored
+  }
+
+  public static func menuFloodAttempts(stored: Int) -> Int {
+    enabledFloodRange.contains(stored) ? stored : defaultFloodAttempts
+  }
+
+  public static func clampedMenuFloodAttempts(_ value: Int) -> Int {
+    clamped(value, to: enabledFloodRange)
+  }
 
   static let `default` = DMSendBudget(
     directAttempts: defaultDirectAttempts,

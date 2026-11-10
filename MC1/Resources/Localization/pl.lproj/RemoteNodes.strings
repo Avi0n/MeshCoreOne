@@ -65,10 +65,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Routing flood";
 "remoteNodes.auth.floodRetryStatus" = "Brak odpowiedzi znaną trasą. Ponawianie z routingiem flood.";
-"remoteNodes.auth.floodFooter" = "Routing flood jest wolniejszy i zużywa więcej czasu antenowego sieci. Użyj go, gdy znana trasa nie działa w Twojej obecnej lokalizacji. Po zalogowaniu nowa trasa zostanie zapamiętana automatycznie.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "To logowanie usuwa zapisaną trasę i używa routingu flood. Routing flood jest wolniejszy i zużywa więcej czasu antenowego sieci. Nowa trasa zostanie zapamiętana, jeśli logowanie się powiedzie.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Użyj znanej trasy do tego węzła lub przełącz na routing flood, aby sieć sama znalazła ścieżkę.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "Zapisana trasa została usunięta. Logowanie używa routingu flood. Nowa trasa zostanie zapamiętana, jeśli logowanie się powiedzie.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "Jeśli brak odpowiedzi, trasa zostanie usunięta, a logowanie spróbuje raz routingiem flood.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "Jeśli brak odpowiedzi, logowanie się zatrzyma, a trasa pozostanie.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<nieznany>";

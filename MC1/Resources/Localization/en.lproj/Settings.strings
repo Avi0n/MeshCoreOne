@@ -1210,14 +1210,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "Initial Attempts";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Fall Back to Flood";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "Flood Fallback Attempts";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Attempts on Path";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "Initial attempts use Flood if the contact has no out path. Flood fallback tries to clear the out path before retrying. Set Flood Fallback Attempts to zero to skip the reset and extra attempts.";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Flood Attempts";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "The route is cleared after Attempts on Path. Flood Attempts are sent by flood after that. A contact with no known route is sent by flood.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "Attempts on Path stay on the known route, and the route is left in place. A contact with no known route is sent by flood.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Path Fallback";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Fall Back to Flood";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "Sign-in, repeater and room commands that expect a reply, and contact telemetry use the known route. If there is no reply, the route is cleared and tried once by flood.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "Sign-in, commands, and contact telemetry stay on the known route. If there is no reply, they stop and the route stays. Flood Routing on the sign-in screen clears that node's saved route.";
 
 // MARK: - BLE Status Indicator
 

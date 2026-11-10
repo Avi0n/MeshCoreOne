@@ -65,10 +65,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Flood-маршрутизація";
 "remoteNodes.auth.floodRetryStatus" = "Немає відповіді за відомим маршрутом. Повторна спроба через flood-маршрутизацію.";
-"remoteNodes.auth.floodFooter" = "Flood-маршрутизація повільніша та витрачає більше ефірного часу мережі. Використовуйте її, коли відомий маршрут не працює у вашому поточному місцезнаходженні. Після входу новий маршрут буде визначено автоматично.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "Цей вхід видаляє збережений маршрут і використовує flood-маршрутизацію. Flood-маршрутизація повільніша та витрачає більше ефірного часу мережі. Новий маршрут буде визначено, лише якщо вхід успішний.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Використовуйте відомий маршрут до цього вузла або перемкніться на flood-маршрутизацію, щоб мережа знайшла шлях.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "Збережений маршрут видалено. Вхід використовує flood-маршрутизацію. Новий маршрут буде визначено, лише якщо вхід успішний.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "Якщо немає відповіді, маршрут видаляється, і вхід робить одну спробу через flood-маршрутизацію.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "Якщо немає відповіді, вхід зупиняється, і маршрут залишається.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<невідомо>";

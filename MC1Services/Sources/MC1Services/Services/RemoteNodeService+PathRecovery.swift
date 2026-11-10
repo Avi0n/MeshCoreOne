@@ -4,10 +4,8 @@ import MeshCore
 extension RemoteNodeService {
   // MARK: - Direct-path flood recovery
 
-  /// CLI path recovery: run `operation`, and on a direct-path mesh timeout reset
-  /// the contact path to flood and run once more. Already-flood contacts skip
-  /// reset. A failed reset rethrows the original timeout. Binary admin waits use
-  /// `performBinaryExchange` instead.
+  /// On a direct-path mesh timeout, reset to flood and retry once when path fallback is on.
+  /// A failed reset rethrows the original timeout. Binary admin waits use `performBinaryExchange`.
   func performWithDirectPathFloodRecovery<T: Sendable>(
     radioID: UUID,
     publicKey: Data,
@@ -17,7 +15,8 @@ extension RemoteNodeService {
     do {
       return try await operation()
     } catch {
-      guard Self.isMeshTimeout(error), await isDirectRouted(radioID: radioID, publicKey: publicKey) else {
+      guard Self.isMeshTimeout(error), await isDirectRouted(radioID: radioID, publicKey: publicKey),
+            RemoteFloodFallback.isEnabled(defaults: defaults) else {
         throw error
       }
 

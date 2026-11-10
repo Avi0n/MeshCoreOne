@@ -65,10 +65,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Encaminhamento por difusão";
 "remoteNodes.auth.floodRetryStatus" = "Sem resposta pela rota conhecida. A tentar novamente com encaminhamento por difusão.";
-"remoteNodes.auth.floodFooter" = "O encaminhamento por difusão é mais lento e usa mais tempo de antena da rede. Utilize-o quando a rota conhecida não funcionar a partir da localização atual. Uma nova rota é aprendida automaticamente após iniciar sessão.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "Este início de sessão limpa a rota guardada e usa a difusão. O encaminhamento por difusão é mais lento e usa mais tempo de antena da rede. Uma nova rota é aprendida se iniciar sessão com sucesso.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Utilize a rota conhecida até este nó, ou mude para o encaminhamento por difusão e deixe que a rede encontre outra.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "A rota guardada foi apagada. O início de sessão está a usar a difusão. Uma nova rota é aprendida se iniciar sessão com sucesso.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "Se não houver resposta, a rota é apagada e o início de sessão tenta uma vez por difusão.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "Se não houver resposta, o início de sessão termina e a rota mantém-se.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<desconhecido>";

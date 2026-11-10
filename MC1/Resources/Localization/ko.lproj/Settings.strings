@@ -1211,14 +1211,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "다이렉트 메시지당 보내는 확인 응답 수입니다. 불안정한 링크에서 전달 확인을 개선하려면 2를 사용하십시오.";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "초기 시도";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "플러드 라우팅으로 대체";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "플러드 대체 시도";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "경로 시도";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "초기 시도는 연락처에 발신 경로가 없으면 플러드 라우팅을 사용합니다. 플러드 대체는 추가 시도 전에 발신 경로를 재설정하려고 합니다. 경로 재설정과 추가 시도를 건너뛰려면 플러드 대체 시도를 0으로 설정하십시오.";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "플러드 라우팅 시도";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "경로 시도 후에 경로가 삭제됩니다. 그 후 플러드 라우팅 시도는 플러드 라우팅으로 전송됩니다. 알려진 경로가 없는 연락처에게 보내는 메시지는 플러드 라우팅으로 전송됩니다.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "경로 시도는 알려진 경로로 전송되고 경로는 유지됩니다. 알려진 경로가 없는 연락처에게 보내는 메시지는 플러드 라우팅으로 전송됩니다.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "경로 대체";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "플러드 라우팅으로 대체";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "로그인, 리피터와 룸에 보내며 응답을 기다리는 명령, 연락처 텔레메트리는 알려진 경로를 사용합니다. 응답이 없으면 경로를 삭제하고 플러드 라우팅으로 한 번 시도합니다.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "로그인, 명령, 연락처 텔레메트리는 알려진 경로를 계속 사용합니다. 응답이 없으면 모두 중단되고 경로는 유지됩니다. 로그인 화면의 플러드 라우팅은 해당 노드의 저장된 경로를 삭제합니다.";
 
 // MARK: - BLE Status Indicator
 

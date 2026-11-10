@@ -64,10 +64,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Flood Routing";
 "remoteNodes.auth.floodRetryStatus" = "No reply over the known route. Retrying with flood routing.";
-"remoteNodes.auth.floodFooter" = "Flood routing is slower and uses more network airtime. Use it when the known route does not work from your current location. A new route is learned automatically after login.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Use the known route to this node, or switch to flood routing to let the network find a path.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "This sign-in clears the saved route and uses flood. Flood routing is slower and uses more network airtime. A new route is learned if sign-in succeeds.";
+
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "The saved route is cleared. Sign-in is using flood. A new route is learned if sign-in succeeds.";
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "If there is no reply, the route is cleared and sign-in tries once by flood.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "If there is no reply, sign-in stops and the route stays.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<unknown>";

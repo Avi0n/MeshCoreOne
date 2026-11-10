@@ -8,7 +8,7 @@ import MeshCore
 ///
 /// Also conforms to ``AdvertisingSessionOps`` so services such as
 /// `AdvertisementService` can be exercised without a second fake session type.
-public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps {
+public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps, DiagnosticsSessionOps {
   // MARK: - Connection State
 
   public var connectionState: AsyncStream<ConnectionState> {
@@ -887,6 +887,10 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     }
   }
 
+  public func requestStatus(from publicKey: Data) async throws -> StatusResponse {
+    try await requestStatus(from: publicKey, type: .repeater)
+  }
+
   public func requestStatus(from publicKey: Data, type: ContactType) async throws -> StatusResponse {
     if !stubbedRequestStatusResults.isEmpty {
       switch stubbedRequestStatusResults.removeFirst() {
@@ -911,6 +915,35 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     case let .success(response): return response
     case let .failure(error): throw error
     }
+  }
+
+  public func fetchAllNeighbours(
+    from publicKey: Data,
+    orderBy: UInt8,
+    pubkeyPrefixLength: UInt8
+  ) async throws -> NeighboursResponse {
+    throw NotStubbed.method("fetchAllNeighbours")
+  }
+
+  public func requestMMA(from publicKey: Data, start: Date, end: Date) async throws -> MMAResponse {
+    throw NotStubbed.method("requestMMA")
+  }
+
+  public func requestACL(from publicKey: Data) async throws -> ACLResponse {
+    throw NotStubbed.method("requestACL")
+  }
+
+  public func getSelfTelemetry() async throws -> TelemetryResponse {
+    throw NotStubbed.method("getSelfTelemetry")
+  }
+
+  public func sendTrace(
+    tag: UInt32?,
+    authCode: UInt32?,
+    flags: UInt8,
+    path: Data?
+  ) async throws -> MessageSentInfo {
+    throw NotStubbed.method("sendTrace")
   }
 
   public func requestNeighbours(

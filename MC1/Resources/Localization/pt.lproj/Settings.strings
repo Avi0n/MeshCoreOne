@@ -1221,14 +1221,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Número de confirmações enviadas por mensagem direta. Use 2 para melhor confirmação de entrega em ligações pouco fiáveis.";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "Tentativas iniciais";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Recorrer à difusão";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "Tentativas de recurso por difusão";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Tentativas pela rota";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "As tentativas iniciais usam a difusão se o contacto não tiver rota de saída. Com a opção «Tentativas de recurso por difusão», a app tenta repor a rota de saída antes de tentar novamente. Use 0 nessa opção para não repor a rota de saída nem fazer as tentativas extra.";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Tentativas por difusão";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "A rota é apagada depois das «Tentativas pela rota». As «Tentativas por difusão» são enviadas por difusão a seguir. Uma mensagem para um contacto sem rota conhecida é enviada por difusão.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "As «Tentativas pela rota» ficam na rota conhecida, e a rota mantém-se. Uma mensagem para um contacto sem rota conhecida é enviada por difusão.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Recurso da rota";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Recorrer à difusão";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "O início de sessão, os comandos de repetidor e de sala que esperam uma resposta, e a telemetria do contacto usam a rota conhecida. Se não houver resposta, a rota é apagada e tenta-se uma vez por difusão.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "O início de sessão, os comandos e a telemetria do contacto mantêm-se na rota conhecida. Se não houver resposta, terminam e a rota mantém-se. A opção «Encaminhamento por difusão» no ecrã de início de sessão limpa a rota guardada desse nó.";
 
 // MARK: - BLE Status Indicator
 

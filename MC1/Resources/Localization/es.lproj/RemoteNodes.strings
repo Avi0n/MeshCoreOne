@@ -65,10 +65,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Enrutamiento Flood";
 "remoteNodes.auth.floodRetryStatus" = "Sin respuesta por la ruta conocida. Reintentando con enrutamiento flood.";
-"remoteNodes.auth.floodFooter" = "El enrutamiento flood es más lento y consume más tiempo de aire de la red. Úsalo cuando la ruta conocida no funcione desde tu ubicación actual. Tras iniciar sesión se aprende automáticamente una nueva ruta.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "Al iniciar sesión se borra la ruta guardada y se usa enrutamiento flood. El enrutamiento flood es más lento y consume más tiempo de aire de la red. Solo se aprende una nueva ruta si se consigue iniciar sesión.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Usa la ruta conocida a este nodo o activa el enrutamiento flood para que la red encuentre un camino.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "La ruta guardada se ha borrado. Se usa enrutamiento flood para iniciar sesión. Solo se aprende una nueva ruta si se consigue iniciar sesión.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "Si no hay respuesta, se borra la ruta y se intenta iniciar sesión una vez con enrutamiento flood.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "Si no hay respuesta, se detiene el intento de iniciar sesión y la ruta se mantiene.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<desconocido>";

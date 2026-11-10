@@ -65,10 +65,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Flood-маршрутизация";
 "remoteNodes.auth.floodRetryStatus" = "Нет ответа по известному маршруту. Повторная попытка через flood-маршрутизацию.";
-"remoteNodes.auth.floodFooter" = "Flood-маршрутизация медленнее и расходует больше эфирного времени сети. Используйте её, когда известный маршрут не работает в вашем текущем местоположении. После входа новый маршрут будет определён автоматически.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "Этот вход удаляет сохранённый маршрут и идёт через flood-маршрутизацию. Flood-маршрутизация медленнее и расходует больше эфирного времени сети. Новый маршрут будет определён, только если вход завершится успешно.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Используйте известный маршрут к этому узлу или переключитесь на flood-маршрутизацию, чтобы сеть нашла путь.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "Сохранённый маршрут удалён. Вход идёт через flood-маршрутизацию. Новый маршрут будет определён, только если вход завершится успешно.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "Если ответа нет, маршрут удаляется, и вход делает одну попытку через flood-маршрутизацию.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "Если ответа нет, вход прекращается, а маршрут не удаляется.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<неизвестно>";

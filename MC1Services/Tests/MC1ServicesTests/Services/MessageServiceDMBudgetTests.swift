@@ -36,6 +36,16 @@ struct MessageServiceDMBudgetTests {
   }
 
   @Test
+  func `a resumed drain at the path boundary with no flood attempts does not reset`() async throws {
+    let observed = try await drainPreserved(
+      startingAttempt: 2,
+      budget: DMSendBudget(directAttempts: 2, floodAttempts: 0)
+    )
+    #expect(observed.attempts == [2, 3])
+    #expect(observed.resetIndexes.isEmpty)
+  }
+
+  @Test
   func `a resumed drain resets the path before the first byte at the flood boundary`() async throws {
     let observed = try await drainPreserved(
       startingAttempt: 2,

@@ -368,6 +368,39 @@ struct AppBackupEnvelopeTests {
   }
 
   @Test
+  func `explicit remote flood fallback false round-trips and a legacy envelope does not write it`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.remoteFloodFallback = false
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.remoteFloodFallback == false)
+
+    let suiteName = "test.remoteFlood.false.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    let snapshot = BackupUserDefaults.snapshot(from: defaults)
+    #expect(snapshot.remoteFloodFallback == nil)
+    decoded.restore(to: defaults)
+    let key = AppStorageKey.remoteFloodFallback.rawValue
+    #expect(defaults.object(forKey: key) != nil)
+    #expect(defaults.bool(forKey: key) == false)
+    #expect(RemoteFloodFallback.isEnabled(defaults: defaults) == false)
+
+    let legacy = try JSONDecoder().decode(
+      BackupUserDefaults.self,
+      from: Data(#"{"hasCompletedOnboarding":true}"#.utf8)
+    )
+    #expect(legacy.remoteFloodFallback == nil)
+    let legacySuite = "test.remoteFlood.legacy.\(UUID().uuidString)"
+    let legacyDefaults = try #require(UserDefaults(suiteName: legacySuite))
+    defer { legacyDefaults.removePersistentDomain(forName: legacySuite) }
+    let setKeys = legacy.restore(to: legacyDefaults)
+    #expect(!setKeys.contains(key))
+    #expect(legacyDefaults.object(forKey: key) == nil)
+    #expect(RemoteFloodFallback.isEnabled(defaults: legacyDefaults))
+  }
+
+  @Test
   func `Legacy envelope without showIncomingSendTime decodes to nil and restore skips it`() throws {
     // A backup predating the toggle has no key. decodeIfPresent must yield nil,
     // and write-if-missing restore must leave any existing local value untouched.

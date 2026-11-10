@@ -23,6 +23,7 @@ public actor RemoteNodeService {
   let textRulesPreference: @Sendable () async -> TextRulesPreference?
   let receiveLifetime: ReceiveScope.Lifetime
   let radioID: UUID?
+  let defaults: UserDefaults
   let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
   let auditLogger = CommandAuditLogger()
 
@@ -110,7 +111,8 @@ public actor RemoteNodeService {
     contactRadioOwner: ContactRadioOwner = ContactRadioOwner(),
     textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil },
     receiveLifetime: ReceiveScope.Lifetime = .init(),
-    radioID: UUID? = nil
+    radioID: UUID? = nil,
+    defaults: UserDefaults = .standard
   ) {
     self.session = session
     self.dataStore = dataStore
@@ -119,6 +121,7 @@ public actor RemoteNodeService {
     self.textRulesPreference = textRulesPreference
     self.receiveLifetime = receiveLifetime
     self.radioID = radioID
+    self.defaults = defaults
   }
 
   deinit {

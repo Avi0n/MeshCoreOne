@@ -1171,14 +1171,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Anzahl der pro Direktnachricht gesendeten Bestätigungen. Verwende 2 für eine bessere Zustellbestätigung über unzuverlässige Verbindungen.";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "Erste Versuche";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Auf Flood zurückfallen";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "Flood-Fallback-Versuche";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Versuche auf der Route";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "Die ersten Versuche verwenden Flood, wenn der Kontakt keinen ausgehenden Pfad hat. Der Flood-Fallback versucht, den ausgehenden Pfad zurückzusetzen, bevor erneut gesendet wird. Stelle die Flood-Fallback-Versuche auf 0, um das Zurücksetzen und die zusätzlichen Versuche zu überspringen.";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Flood-Versuche";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "Die gespeicherte Route wird nach „Versuche auf der Route“ gelöscht. Flood-Versuche werden danach mit Flood gesendet. Eine Nachricht an einen Kontakt ohne bekannte Route wird mit Flood gesendet.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "Versuche auf der Route bleiben auf der bekannten Route, und die gespeicherte Route bleibt erhalten. Eine Nachricht an einen Kontakt ohne bekannte Route wird mit Flood gesendet.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Pfad-Fallback";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Auf Flood zurückfallen";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "Anmeldung, Befehle an einen Repeater oder einen Raum, die eine Antwort erwarten, und Telemetrie für einen Kontakt verwenden die bekannte Route. Wenn keine Antwort kommt, wird die gespeicherte Route gelöscht und einmal mit Flood versucht.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "Anmeldung, Befehle und Telemetrie für einen Kontakt bleiben auf der bekannten Route. Wenn keine Antwort kommt, stoppen sie und die gespeicherte Route bleibt erhalten. Wenn du auf dem Bildschirm zur Anmeldung Flood-Routing einschaltest, wird die gespeicherte Route dieses Knotens gelöscht.";
 
 // MARK: - BLE Status Indicator
 

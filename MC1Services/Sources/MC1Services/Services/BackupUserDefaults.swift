@@ -29,6 +29,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   public var autoDeleteStaleNodesDays: Int?
   public var dmDirectAttempts: Int?
   public var dmFloodAttempts: Int?
+  public var remoteFloodFallback: Bool?
   public var discoverySortOrder: String?
   public var nodesSortOrder: String?
   public var tracePathViewMode: String?
@@ -128,6 +129,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     (\.hasSeenRepeaterDragHint, AppStorageKey.hasSeenRepeaterDragHint.rawValue),
     (\.useDefaultTranslationApp, AppStorageKey.useDefaultTranslationApp.rawValue),
     (\.translationOffersEnabled, AppStorageKey.translationOffersEnabled.rawValue),
+    (\.remoteFloodFallback, AppStorageKey.remoteFloodFallback.rawValue),
     (\.notifyContactMessages, AppStorageKey.notifyContactMessages.rawValue),
     (\.notifyChannelMessages, AppStorageKey.notifyChannelMessages.rawValue),
     (\.notifyRoomMessages, AppStorageKey.notifyRoomMessages.rawValue),

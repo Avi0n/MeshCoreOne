@@ -1171,14 +1171,34 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Número de acuses de recibo enviados por mensaje directo. Usa 2 para una mejor confirmación de entrega en enlaces poco fiables.";
 
-/* Picker label for attempts before resetting the contact's out path */
-"directMessages.directAttempts" = "Intentos iniciales";
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Recurrir al enrutamiento flood";
 
-/* Picker label for extra attempts after the contact's out path reset */
-"directMessages.floodAttempts" = "Intentos de reserva Flood";
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Intentos en la ruta";
 
-/* Footer explaining the initial and fallback attempt pickers */
-"directMessages.attemptsFooter" = "Los intentos iniciales usan Flood si el contacto no tiene ruta de salida. Con los intentos de reserva Flood se intenta restablecer la ruta de salida antes de los intentos adicionales. Usa 0 en Intentos de reserva Flood para omitir el restablecimiento y los intentos adicionales.";
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Intentos de flood";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "La ruta se borra tras los Intentos en la ruta. Los Intentos de flood se envían después con enrutamiento flood. Un mensaje a un contacto sin ruta conocida se envía con enrutamiento flood.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "Los Intentos en la ruta siguen en la ruta conocida y la ruta se mantiene. Un mensaje a un contacto sin ruta conocida se envía con enrutamiento flood.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Reserva de ruta";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Recurrir al enrutamiento flood";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "Iniciar sesión, los comandos a un Repetidor y a una Sala que esperan respuesta, y la telemetría del contacto usan la ruta conocida. Si no hay respuesta, se borra la ruta y se intenta una vez con enrutamiento flood.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "Iniciar sesión, los comandos y la telemetría del contacto siguen en la ruta conocida. Si no hay respuesta, se detienen y la ruta se mantiene. Activar Enrutamiento Flood en la pantalla para iniciar sesión borra la ruta guardada de ese nodo.";
 
 // MARK: - BLE Status Indicator
 
