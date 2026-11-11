@@ -9,6 +9,9 @@ public struct MessageTextPayload: Sendable, Hashable {
   /// Nil means no Translation offer row. `raw` / `formatted` always describe
   /// the stored original; the view chooses the visible body from `phase`.
   public let translation: MessageTranslationChrome?
+  /// Nil when the stored string did not decode. The bubble draws this reading
+  /// instead of `formatted`.
+  public let mecp: MECPBubbleChrome?
 
   public init(
     raw: String,
@@ -16,7 +19,8 @@ public struct MessageTextPayload: Sendable, Hashable {
     baseColor: BaseColorSlot,
     isOutgoing: Bool,
     currentUserName: String,
-    translation: MessageTranslationChrome? = nil
+    translation: MessageTranslationChrome? = nil,
+    mecp: MECPBubbleChrome? = nil
   ) {
     self.raw = raw
     self.formatted = formatted
@@ -24,5 +28,6 @@ public struct MessageTextPayload: Sendable, Hashable {
     self.isOutgoing = isOutgoing
     self.currentUserName = currentUserName
     self.translation = translation
+    self.mecp = mecp
   }
 }

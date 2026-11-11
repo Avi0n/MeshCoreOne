@@ -9,6 +9,7 @@ struct RoomTiledRow: Identifiable, Hashable, Sendable {
   let showSenderName: Bool
   let showAvatar: Bool
   let translation: MessageTranslationChrome?
+  let mecp: MECPBubbleChrome?
 
   var id: UUID {
     message.id

@@ -33,7 +33,7 @@ struct ActionsPreviewHeader: View {
         }
       }
 
-      Text(message.text)
+      Text(MECPCatalog.displayText(message.text))
         .font(.subheadline)
         .foregroundStyle(.secondary)
         .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)

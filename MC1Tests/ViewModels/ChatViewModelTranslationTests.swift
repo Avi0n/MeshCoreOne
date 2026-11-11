@@ -311,6 +311,28 @@ struct ChatViewModelTranslationTests {
     #expect(viewModel.translation(for: second.id)?.phase == .inProgress)
   }
 
+  @Test
+  func `decoded message with a detected language keeps nil translation and the wire displayedText`() async throws {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(coordinator)
+    let wire = "MECP/0/M01 \(german)"
+    let message = makeMessage(timestamp: 1000, text: wire)
+    viewModel.appendMessageIfNew(message)
+    await coordinator.buildItemsTask?.value
+
+    viewModel.timeline.bake.detectedLanguages[message.id] = .identified(languageCode: "de")
+    viewModel.timeline.rebakeRow(message.id)
+
+    #expect(viewModel.timeline.bake.detectedLanguages[message.id] == .identified(languageCode: "de"))
+    #expect(viewModel.translation(for: message.id) == nil)
+    #expect(viewModel.displayedText(for: message) == wire)
+    let item = try #require(viewModel.items.first { $0.id == message.id })
+    let payload = try #require(FragmentLayout(content: item.content).textPayload)
+    #expect(payload.translation == nil)
+    #expect(payload.mecp == .reading(MECPCatalog.reading(wire)))
+  }
+
   @discardableResult
   private func performCurrent(
     _ viewModel: ChatViewModel,

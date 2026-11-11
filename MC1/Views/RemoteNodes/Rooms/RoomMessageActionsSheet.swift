@@ -50,7 +50,7 @@ struct RoomMessageActionsSheet: View {
           .font(.subheadline)
           .foregroundStyle(.secondary)
       }
-      Text(message.text)
+      Text(MECPCatalog.displayText(message.text))
         .font(.subheadline)
         .foregroundStyle(.secondary)
         .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
@@ -127,6 +127,7 @@ struct RoomMessageActionsSheet: View {
       message.createdAt.formatted(date: .abbreviated, time: .standard)
     ))
     ActionInfoRow(text: message.localizedStatusText)
+    MECPPresentation.detailRow(storedText: message.text)
   }
 
   @ViewBuilder
@@ -139,6 +140,8 @@ struct RoomMessageActionsSheet: View {
     if let roundTripTime = message.roundTripTime {
       ActionInfoRow(text: L10n.Chats.Chats.Message.Info.roundTrip(Int(roundTripTime)))
     }
+
+    MECPPresentation.detailRow(storedText: message.text)
   }
 }
 

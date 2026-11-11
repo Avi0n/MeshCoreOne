@@ -298,6 +298,20 @@ public final class NotificationService: NSObject {
 
   // MARK: - Sending Notifications
 
+  /// Space-joined MECP reading, then the sender prefix. Decode runs on `messageText`
+  /// alone so a channel body is never parsed as `Ada: MECP/…`.
+  nonisolated static func arrivalBody(
+    messageText: String,
+    senderName: String? = nil,
+    bundle: Bundle = .main
+  ) -> String {
+    let body = MECPCatalog.displayText(messageText, bundle: bundle)
+    if let senderName {
+      return "\(senderName): \(body)"
+    }
+    return body
+  }
+
   /// Posts a notification for a direct message.
   public func postDirectMessageNotification(
     from contactName: String,
@@ -318,7 +332,7 @@ public final class NotificationService: NSObject {
 
     let content = UNMutableNotificationContent()
     content.title = contactName
-    content.body = messageText
+    content.body = Self.arrivalBody(messageText: messageText)
     content.sound = preferences.soundEnabled ? .default : nil
     content.categoryIdentifier = NotificationCategory.directMessage.rawValue
     content.userInfo = [
@@ -374,11 +388,7 @@ public final class NotificationService: NSObject {
 
     let content = UNMutableNotificationContent()
     content.title = channelName
-    if let sender = senderName {
-      content.body = "\(sender): \(messageText)"
-    } else {
-      content.body = messageText
-    }
+    content.body = Self.arrivalBody(messageText: messageText, senderName: senderName)
     content.sound = preferences.soundEnabled ? .default : nil
     content.categoryIdentifier = NotificationCategory.channelMessage.rawValue
     content.userInfo = [
@@ -433,11 +443,7 @@ public final class NotificationService: NSObject {
 
     let content = UNMutableNotificationContent()
     content.title = roomName
-    if let sender = senderName {
-      content.body = "\(sender): \(messageText)"
-    } else {
-      content.body = messageText
-    }
+    content.body = Self.arrivalBody(messageText: messageText, senderName: senderName)
     content.sound = preferences.soundEnabled ? .default : nil
     content.categoryIdentifier = NotificationCategory.roomMessage.rawValue
     content.userInfo = [

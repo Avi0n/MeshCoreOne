@@ -174,6 +174,18 @@ extension ChatMessageBakeState {
       isMapPreviewReady = MapSnapshotStore.shared.isResolved(request)
     }
 
+    let mecp = MECPBubbleChrome.resolve(text: message.text)
+    let translation: MessageTranslationChrome? = if mecp != nil
+      || message.isOutgoing
+      || !envInputs.translationOffersEnabled {
+      nil
+    } else {
+      MessageTranslationChrome.resolved(
+        detected: detectedLanguages[message.id],
+        phase: translationPhases[message.id],
+        preferredLanguageCode: envInputs.preferredLanguageCode
+      )
+    }
     let senderResolution = senderResolutionFor(message, senderTables: senderTables)
     let incomingAvatar: IncomingAvatarIdentity? = if flags.isClusterEnd {
       IncomingAvatarIdentity.resolve(
@@ -212,13 +224,8 @@ extension ChatMessageBakeState {
       showNewMessagesDivider: message.id == newMessagesDividerMessageID,
       showDayDivider: flags.showDayDivider,
       incomingAvatar: incomingAvatar,
-      translation: message.isOutgoing || !envInputs.translationOffersEnabled
-        ? nil
-        : MessageTranslationChrome.resolved(
-          detected: detectedLanguages[message.id],
-          phase: translationPhases[message.id],
-          preferredLanguageCode: envInputs.preferredLanguageCode
-        )
+      translation: translation,
+      mecp: mecp
     )
   }
 

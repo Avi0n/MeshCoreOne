@@ -675,7 +675,7 @@ struct ChatConversationView: View {
     case .copy:
       handleCopy(for: message)
     case .translate:
-      presentSystemTranslation(text: message.text)
+      presentSystemTranslation(text: MECPTranslateRequest.text(stored: message.text))
     case .sendAgain:
       handleSendAgain(for: message)
     case .blockSender:

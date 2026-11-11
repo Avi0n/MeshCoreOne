@@ -582,6 +582,12 @@
 /* Location: UnifiedMessageBubble.swift - VoiceOver prefix when the visible body is a translation - %@ is the translated text */
 "chats.message.translatedAccessibility" = "Переведено: %@";
 
+/* Location: MECPPresentation.swift - VoiceOver prefix when the visible body is an MECP reading - %@ is the reading */
+"chats.message.readingAccessibility" = "Чтение: %@";
+
+/* Location: MECPCatalog - Person count line in an MECP reading */
+"chats.message.mecpPersonCount" = "%lld человека";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to view repeat details */
 "chats.message.action.repeatDetails" = "Детали повторов";
 
@@ -634,6 +640,9 @@
 
 /* Location: UnifiedMessageBubble.swift - Context menu text showing SNR - %@ is formatted value */
 "chats.message.info.snr" = "SNR: %@";
+
+/* Location: ActionsDetailsSection.swift - Stored MECP wire string under SNR. %@ is the original text */
+"chats.message.info.mecp" = "MECP: %@";
 
 /* Location: MessageActionsSheet.swift - Context menu text showing the radio region the message was flooded under - %@ is region name. "Flooded" is a domain term for mesh-broadcast across all nodes in a radio region. */
 "chats.message.info.floodedUnder" = "Регион: %@";

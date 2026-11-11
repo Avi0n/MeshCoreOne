@@ -69,6 +69,8 @@ private struct ActionsOutgoingDetailsRows: View {
         : L10n.Chats.Chats.Message.Repeat.plural
       ActionInfoRow(text: L10n.Chats.Chats.Message.Info.heardRepeats(message.heardRepeats, word))
     }
+
+    MECPPresentation.detailRow(storedText: message.text)
   }
 }
 
@@ -133,6 +135,8 @@ private struct ActionsIncomingDetailsRows: View {
           : snrText
       )
     }
+
+    MECPPresentation.detailRow(storedText: message.text)
   }
 
   private func snrFormatted(_ snr: Double) -> String {

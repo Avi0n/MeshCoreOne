@@ -316,7 +316,7 @@ extension RoomConversationView {
     case .copy:
       UIPasteboard.general.string = viewModel.displayedText(for: message)
     case .translate:
-      presentSystemTranslation(text: message.text)
+      presentSystemTranslation(text: MECPTranslateRequest.text(stored: message.text))
     case .reply:
       handleReply(for: message)
     case .sendDM:
@@ -449,6 +449,7 @@ private struct MessagesView: View {
       showSenderName: row.showSenderName,
       showAvatar: row.showAvatar,
       translation: row.translation,
+      mecp: row.mecp,
       onRetry: row.message.status == .failed ? {
         onRetry(row.message.id)
       } : nil,

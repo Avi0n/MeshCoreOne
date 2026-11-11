@@ -591,6 +591,14 @@ public enum L10n {
         }
       }
       public enum Message {
+        /// Location: MECPCatalog - Person count line in an MECP reading
+        public static func mecpPersonCount(_ p1: Int) -> String {
+          return L10n.tr("Chats", "chats.message.mecpPersonCount", p1, fallback: "%lld people")
+        }
+        /// Location: MECPPresentation.swift - VoiceOver prefix when the visible body is an MECP reading - %@ is the reading
+        public static func readingAccessibility(_ p1: Any) -> String {
+          return L10n.tr("Chats", "chats.message.readingAccessibility", String(describing: p1), fallback: "Reading: %@")
+        }
         /// Location: UnifiedMessageBubble.swift - VoiceOver prefix when the visible body is a translation - %@ is the translated text
         public static func translatedAccessibility(_ p1: Any) -> String {
           return L10n.tr("Chats", "chats.message.translatedAccessibility", String(describing: p1), fallback: "Translated: %@")
@@ -697,6 +705,10 @@ public enum L10n {
           /// Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct"
           public static func hops(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.hops", String(describing: p1), fallback: "Hops: %@")
+          }
+          /// Location: ActionsDetailsSection.swift - Stored MECP wire string under SNR. %@ is the original text
+          public static func mecp(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.info.mecp", String(describing: p1), fallback: "MECP: %@")
           }
           /// Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date
           public static func originalSendTime(_ p1: Any) -> String {
