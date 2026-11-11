@@ -32,8 +32,7 @@
 /* Location: NodeAuthenticationSheet.swift - Repeater type value */
 "remoteNodes.auth.typeRepeater" = "Przekaźnik";
 
-/* TODO: translate */
-"remoteNodes.auth.typeSensor" = "Sensor";
+"remoteNodes.auth.typeSensor" = "Czujnik";
 
 /* Location: NodeAuthenticationSheet.swift - Authentication section header */
 "remoteNodes.auth.authentication" = "Uwierzytelnianie";
@@ -95,35 +94,25 @@
 /* Location: RepeaterSettingsView.swift - Navigation title */
 "remoteNodes.settings.title" = "Ustawienia przekaźnika";
 
-/* TODO: translate */
-"remoteNodes.sensor.adminRequired" = "Sensor management requires administrator access.";
+"remoteNodes.sensor.adminRequired" = "Zarządzanie czujnikiem wymaga dostępu administratora.";
 
-/* TODO: translate */
-"remoteNodes.sensor.saved" = "Setting verified.";
+"remoteNodes.sensor.saved" = "Ustawienie zweryfikowane.";
 
-/* TODO: translate */
-"remoteNodes.sensor.rebootSent" = "Reboot request sent. The sensor has not confirmed a restart. Authenticate again before sending more commands.";
+"remoteNodes.sensor.rebootSent" = "Polecenie ponownego uruchomienia wysłane. Czujnik nie potwierdził ponownego uruchomienia. Zaloguj się ponownie, zanim wyślesz kolejne polecenia.";
 
-/* TODO: translate */
-"remoteNodes.sensor.rebootConfirmation" = "Send a reboot request to this sensor?";
+"remoteNodes.sensor.rebootConfirmation" = "Wysłać polecenie ponownego uruchomienia do tego czujnika?";
 
-/* TODO: translate */
-"remoteNodes.sensor.runtimeOnly" = "Changes affect the running sensor. Persistence across reboot depends on its firmware.";
+"remoteNodes.sensor.runtimeOnly" = "Zmiany dotyczą działającego czujnika. To, czy zostaną zachowane po ponownym uruchomieniu, zależy od jego firmware'u.";
 
-/* TODO: translate */
-"remoteNodes.sensor.value" = "Value";
+"remoteNodes.sensor.value" = "Wartość";
 
-/* TODO: translate */
-"remoteNodes.sensor.save" = "Save";
+"remoteNodes.sensor.save" = "Zapisz";
 
-/* TODO: translate */
-"remoteNodes.sensor.reload" = "Reload";
+"remoteNodes.sensor.reload" = "Odśwież";
 
-/* TODO: translate */
-"remoteNodes.sensor.empty" = "This sensor exposes no settings.";
+"remoteNodes.sensor.empty" = "Ten czujnik nie udostępnia żadnych ustawień.";
 
-/* TODO: translate */
-"remoteNodes.sensor.title" = "Sensor Management";
+"remoteNodes.sensor.title" = "Zarządzanie czujnikiem";
 
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Gotowe";

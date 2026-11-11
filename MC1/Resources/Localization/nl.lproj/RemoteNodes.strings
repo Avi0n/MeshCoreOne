@@ -32,7 +32,6 @@
 /* Location: NodeAuthenticationSheet.swift - Repeater type value */
 "remoteNodes.auth.typeRepeater" = "Repeater";
 
-/* TODO: translate */
 "remoteNodes.auth.typeSensor" = "Sensor";
 
 /* Location: NodeAuthenticationSheet.swift - Authentication section header */
@@ -95,35 +94,25 @@
 /* Location: RepeaterSettingsView.swift - Navigation title */
 "remoteNodes.settings.title" = "Repeater-instellingen";
 
-/* TODO: translate */
-"remoteNodes.sensor.adminRequired" = "Sensor management requires administrator access.";
+"remoteNodes.sensor.adminRequired" = "Sensorbeheer vereist beheerderstoegang.";
 
-/* TODO: translate */
-"remoteNodes.sensor.saved" = "Setting verified.";
+"remoteNodes.sensor.saved" = "Instelling geverifieerd.";
 
-/* TODO: translate */
-"remoteNodes.sensor.rebootSent" = "Reboot request sent. The sensor has not confirmed a restart. Authenticate again before sending more commands.";
+"remoteNodes.sensor.rebootSent" = "Herstartopdracht verzonden. De sensor heeft niet bevestigd dat hij is herstart. Log opnieuw in voordat je meer opdrachten verzendt.";
 
-/* TODO: translate */
-"remoteNodes.sensor.rebootConfirmation" = "Send a reboot request to this sensor?";
+"remoteNodes.sensor.rebootConfirmation" = "Een herstartopdracht naar deze sensor verzenden?";
 
-/* TODO: translate */
-"remoteNodes.sensor.runtimeOnly" = "Changes affect the running sensor. Persistence across reboot depends on its firmware.";
+"remoteNodes.sensor.runtimeOnly" = "Wijzigingen gelden voor de draaiende sensor. Of ze behouden blijven na herstart, hangt af van de firmware.";
 
-/* TODO: translate */
-"remoteNodes.sensor.value" = "Value";
+"remoteNodes.sensor.value" = "Waarde";
 
-/* TODO: translate */
-"remoteNodes.sensor.save" = "Save";
+"remoteNodes.sensor.save" = "Opslaan";
 
-/* TODO: translate */
-"remoteNodes.sensor.reload" = "Reload";
+"remoteNodes.sensor.reload" = "Opnieuw laden";
 
-/* TODO: translate */
-"remoteNodes.sensor.empty" = "This sensor exposes no settings.";
+"remoteNodes.sensor.empty" = "Deze sensor biedt geen instellingen.";
 
-/* TODO: translate */
-"remoteNodes.sensor.title" = "Sensor Management";
+"remoteNodes.sensor.title" = "Sensorbeheer";
 
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Klaar";

@@ -839,8 +839,7 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "Companion";
 
-/* TODO: translate */
-"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+"notifications.discoveryCompanionsAndSensors" = "Companions & Sensoren";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Repeater";
@@ -1521,43 +1520,42 @@
 
 // MARK: - Text Rules
 
-/* TODO: translate Text Rules strings */
 "textRules.rules" = "Filterregels";
 "textRules.empty" = "Geen filterregels";
 "textRules.loading" = "Filterregels laden…";
 "textRules.loadFailed" = "Filterregels konden niet worden geladen. Nieuwe berichten gebruiken geen filterregels totdat het laden lukt.";
 "textRules.retryAccessibility" = "Filterregels opnieuw laden";
 "textRules.saveFailed" = "Kan filterregels niet opslaan. Probeer het opnieuw.";
-"textRules.new.title" = "New Rule";
-"textRules.new.phrase" = "Word or phrase";
-"textRules.new.lookIn" = "Look In";
-"textRules.new.match" = "Match";
+"textRules.new.title" = "Nieuwe regel";
+"textRules.new.phrase" = "Woord of tekst";
+"textRules.new.lookIn" = "Zoeken in";
+"textRules.new.match" = "Overeenkomst";
 "textRules.new.containsMessageFooter" = "Komt ergens in het bericht overeen, ook binnen een woord.";
 "textRules.new.wholeMessageFooter" = "Komt alleen overeen als het hele bericht deze tekst is.";
 "textRules.new.containsSenderFooter" = "Komt ergens in de naam van de afzender overeen, ook binnen een woord. Reacties van die afzender worden ook verborgen.";
 "textRules.new.wholeNameFooter" = "Komt alleen overeen als de naam van de afzender precies deze tekst is. Reacties van die afzender worden ook verborgen.";
 "textRules.new.containsMessageOrSenderFooter" = "Komt in het bericht of in de naam van de afzender overeen, ook binnen een woord. Reacties van een overeenkomende afzender worden ook verborgen.";
 "textRules.new.wholeMessageOrSenderFooter" = "Komt alleen overeen als het hele bericht of de hele naam van de afzender deze tekst is. Reacties van een overeenkomende afzender worden ook verborgen.";
-"textRules.field.message" = "Message";
-"textRules.field.sender" = "Sender";
-"textRules.field.messageOrSender" = "Message or Sender";
-"textRules.match.contains" = "Contains";
-"textRules.match.wholeMessage" = "Whole Message";
-"textRules.match.wholeName" = "Whole Name";
-"textRules.match.wholeField" = "Whole Field";
+"textRules.field.message" = "Bericht";
+"textRules.field.sender" = "Afzender";
+"textRules.field.messageOrSender" = "Bericht of afzender";
+"textRules.match.contains" = "Bevat";
+"textRules.match.wholeMessage" = "Heel bericht";
+"textRules.match.wholeName" = "Hele naam";
+"textRules.match.wholeField" = "Heel veld";
 "textRules.ruleSummary" = "%1$@ · %2$@";
-"textRules.types.header" = "Use rules for";
+"textRules.types.header" = "Regels gebruiken voor";
 "textRules.types.footer" = "Staat de schakelaar aan, dan geldt die voor elk gesprek van dat type, ook voor gesprekken waaraan je later deelneemt.";
-"textRules.types.publicChannel" = "Public";
-"textRules.types.hashtagChannel" = "Hashtag Channels";
-"textRules.types.privateChannel" = "Private Channels";
-"textRules.selection.all" = "All";
-"textRules.selection.none" = "None";
+"textRules.types.publicChannel" = "Openbaar";
+"textRules.types.hashtagChannel" = "Hashtag-kanalen";
+"textRules.types.privateChannel" = "Privékanalen";
+"textRules.selection.all" = "Alle";
+"textRules.selection.none" = "Geen";
 "textRules.selection.count" = "%d Chats";
-"textRules.selection.accessibilityChats" = "Chats for %@";
-"textRules.selection.footer" = "All geldt ook voor gesprekken waaraan je later deelneemt.";
-"textRules.archive.title" = "Recently Blocked";
-"textRules.archive.empty" = "No Hidden Messages";
+"textRules.selection.accessibilityChats" = "Chats voor %@";
+"textRules.selection.footer" = "Alle geldt ook voor gesprekken waaraan je later deelneemt.";
+"textRules.archive.title" = "Onlangs geblokkeerd";
+"textRules.archive.empty" = "Geen verborgen berichten";
 "textRules.archive.footer" = "De laatste %d verborgen berichten worden op dit apparaat bewaard. Ze zijn niet in de app-data back-up opgenomen.";
 "textRules.archive.labelPrefix" = "%@: ";
 /* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
@@ -1568,15 +1566,14 @@
 "textRules.archive.chat" = "Gesprek";
 "textRules.archive.myNode" = "Mijn knooppunt";
 "textRules.archive.time" = "Tijd";
-"textRules.archive.unknownConversation" = "Unknown Conversation";
-"textRules.archive.unknownRadio" = "Unknown Radio";
+"textRules.archive.unknownConversation" = "Onbekend gesprek";
+"textRules.archive.unknownRadio" = "Onbekende radio";
 
-/* TODO: translate radio Cleanup strings */
-"radioCleanup.title" = "Cleanup";
-"radioCleanup.running" = "Removing radio data";
-"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
-"radioCleanup.completed" = "Radio data removed";
-"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
+"radioCleanup.title" = "Opruimen";
+"radioCleanup.running" = "Gegevens van de radio verwijderen";
+"radioCleanup.failed" = "Verborgen berichten van deze radio staan mogelijk nog op deze installatie.";
+"radioCleanup.completed" = "Gegevens van de radio verwijderd";
+"radioCleanup.retryAccessibility" = "Probeer het opruimen van de radio opnieuw voor %@";
 
 // MARK: - Blocking Section
 

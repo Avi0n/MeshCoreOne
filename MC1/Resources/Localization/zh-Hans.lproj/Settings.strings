@@ -874,8 +874,7 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "伴侣节点";
 
-/* TODO: translate */
-"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+"notifications.discoveryCompanionsAndSensors" = "伴侣节点和传感器";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "中继器";
@@ -1521,43 +1520,42 @@
 
 // MARK: - Text Rules
 
-/* TODO: translate Text Rules strings */
 "textRules.rules" = "过滤规则";
 "textRules.empty" = "没有过滤规则";
 "textRules.loading" = "正在加载过滤规则…";
 "textRules.loadFailed" = "无法加载过滤规则。在过滤规则加载成功之前，新消息不会使用过滤规则。";
 "textRules.retryAccessibility" = "重新加载过滤规则";
 "textRules.saveFailed" = "无法保存过滤规则。请重试。";
-"textRules.new.title" = "New Rule";
-"textRules.new.phrase" = "Word or phrase";
-"textRules.new.lookIn" = "Look In";
-"textRules.new.match" = "Match";
+"textRules.new.title" = "新规则";
+"textRules.new.phrase" = "词或文字";
+"textRules.new.lookIn" = "查找范围";
+"textRules.new.match" = "匹配";
 "textRules.new.containsMessageFooter" = "只要在消息中出现就会匹配，包括某个词的一部分。";
 "textRules.new.wholeMessageFooter" = "仅当整条消息就是这段文字时才会匹配。";
 "textRules.new.containsSenderFooter" = "只要在发送者名称中出现就会匹配，包括某个词的一部分。该发送者的表情反应也会被隐藏。";
 "textRules.new.wholeNameFooter" = "仅当发送者名称正好是这段文字时才会匹配。该发送者的表情反应也会被隐藏。";
 "textRules.new.containsMessageOrSenderFooter" = "只要在消息或发送者名称中出现就会匹配，包括某个词的一部分。发送者名称匹配时，其表情反应也会被隐藏。";
 "textRules.new.wholeMessageOrSenderFooter" = "仅当整条消息或发送者的整个名称就是这段文字时才会匹配。发送者名称匹配时，其表情反应也会被隐藏。";
-"textRules.field.message" = "Message";
-"textRules.field.sender" = "Sender";
-"textRules.field.messageOrSender" = "Message or Sender";
-"textRules.match.contains" = "Contains";
-"textRules.match.wholeMessage" = "Whole Message";
-"textRules.match.wholeName" = "Whole Name";
-"textRules.match.wholeField" = "Whole Field";
+"textRules.field.message" = "消息";
+"textRules.field.sender" = "发送者";
+"textRules.field.messageOrSender" = "消息或发送者";
+"textRules.match.contains" = "包含";
+"textRules.match.wholeMessage" = "整条消息";
+"textRules.match.wholeName" = "整个名称";
+"textRules.match.wholeField" = "整个字段";
 "textRules.ruleSummary" = "%1$@ · %2$@";
-"textRules.types.header" = "Use rules for";
+"textRules.types.header" = "将规则用于";
 "textRules.types.footer" = "开启后，该类型的所有聊天都会包括在内，包括您之后加入的聊天。";
-"textRules.types.publicChannel" = "Public";
-"textRules.types.hashtagChannel" = "Hashtag Channels";
-"textRules.types.privateChannel" = "Private Channels";
-"textRules.selection.all" = "All";
-"textRules.selection.none" = "None";
-"textRules.selection.count" = "%d Chats";
-"textRules.selection.accessibilityChats" = "Chats for %@";
-"textRules.selection.footer" = "“All”会包括您之后加入的聊天。";
-"textRules.archive.title" = "Recently Blocked";
-"textRules.archive.empty" = "No Hidden Messages";
+"textRules.types.publicChannel" = "公共";
+"textRules.types.hashtagChannel" = "标签频道";
+"textRules.types.privateChannel" = "私人频道";
+"textRules.selection.all" = "全部";
+"textRules.selection.none" = "无";
+"textRules.selection.count" = "%d 个聊天";
+"textRules.selection.accessibilityChats" = "%@的聊天";
+"textRules.selection.footer" = "“全部”会包括您之后加入的聊天。";
+"textRules.archive.title" = "最近隐藏的消息";
+"textRules.archive.empty" = "没有隐藏消息";
 "textRules.archive.footer" = "最近的 %d 条隐藏消息会保留在此设备上。这些消息不会包含在应用备份中。";
 "textRules.archive.labelPrefix" = "%@: ";
 /* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
@@ -1568,15 +1566,14 @@
 "textRules.archive.chat" = "聊天";
 "textRules.archive.myNode" = "我的节点";
 "textRules.archive.time" = "时间";
-"textRules.archive.unknownConversation" = "Unknown Conversation";
-"textRules.archive.unknownRadio" = "Unknown Radio";
+"textRules.archive.unknownConversation" = "未知对话";
+"textRules.archive.unknownRadio" = "未知无线电";
 
-/* TODO: translate radio Cleanup strings */
-"radioCleanup.title" = "Cleanup";
-"radioCleanup.running" = "Removing radio data";
-"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
-"radioCleanup.completed" = "Radio data removed";
-"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
+"radioCleanup.title" = "清理";
+"radioCleanup.running" = "正在移除无线电数据";
+"radioCleanup.failed" = "此无线电的隐藏消息可能仍留在此应用安装中。";
+"radioCleanup.completed" = "无线电数据已移除";
+"radioCleanup.retryAccessibility" = "再次尝试清理 %@ 的无线电";
 
 // MARK: - Blocking Section
 

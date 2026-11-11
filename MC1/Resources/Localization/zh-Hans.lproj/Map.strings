@@ -39,8 +39,7 @@
 /* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
 "map.controls.filter" = "筛选";
 
-/* TODO: translate */
-"map.controls.contactsAndSensors" = "Contacts & Sensors";
+"map.controls.contactsAndSensors" = "联系人和传感器";
 
 /* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
 "map.controls.filterActive" = "已启用筛选";
@@ -266,8 +265,7 @@
 /* Location: MapView.swift ContactDetailSheet - Purpose: Display name for room type */
 "map.nodeKind.room" = "房间";
 
-/* TODO: translate */
-"map.nodeKind.sensor" = "Sensor";
+"map.nodeKind.sensor" = "传感器";
 
 // MARK: - Contact Callout
 
@@ -286,8 +284,7 @@
 /* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
 "map.callout.nodeKind.room" = "房间";
 
-/* TODO: translate */
-"map.callout.nodeKind.sensor" = "Sensor";
+"map.callout.nodeKind.sensor" = "传感器";
 
 
 /* Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout */

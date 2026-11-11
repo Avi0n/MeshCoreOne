@@ -879,8 +879,7 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "컴패니언";
 
-/* TODO: translate */
-"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+"notifications.discoveryCompanionsAndSensors" = "컴패니언 & 센서";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "리피터";
@@ -1509,43 +1508,42 @@
 
 // MARK: - Text Rules
 
-/* TODO: translate Text Rules strings */
 "textRules.rules" = "필터 규칙";
 "textRules.empty" = "필터 규칙 없음";
 "textRules.loading" = "필터 규칙을 불러오는 중…";
 "textRules.loadFailed" = "필터 규칙을 불러올 수 없습니다. 불러올 수 있을 때까지 새 메시지는 필터 규칙을 사용하지 않습니다.";
 "textRules.retryAccessibility" = "필터 규칙 다시 불러오기";
 "textRules.saveFailed" = "필터 규칙을 저장할 수 없습니다. 다시 시도하십시오.";
-"textRules.new.title" = "New Rule";
-"textRules.new.phrase" = "Word or phrase";
-"textRules.new.lookIn" = "Look In";
-"textRules.new.match" = "Match";
+"textRules.new.title" = "새 규칙";
+"textRules.new.phrase" = "단어 또는 문구";
+"textRules.new.lookIn" = "검색 위치";
+"textRules.new.match" = "일치 방식";
 "textRules.new.containsMessageFooter" = "메시지 어디에서든, 단어 안에서도 일치합니다.";
 "textRules.new.wholeMessageFooter" = "메시지 전체가 이 문구일 때만 일치합니다.";
 "textRules.new.containsSenderFooter" = "발신자 이름 어디에서든, 단어 안에서도 일치합니다. 그 발신자의 반응도 숨겨집니다.";
 "textRules.new.wholeNameFooter" = "발신자 이름이 정확히 이 문구일 때만 일치합니다. 그 발신자의 반응도 숨겨집니다.";
 "textRules.new.containsMessageOrSenderFooter" = "메시지 또는 발신자 이름 어디에서든, 단어 안에서도 일치합니다. 일치하는 발신자의 반응도 숨겨집니다.";
 "textRules.new.wholeMessageOrSenderFooter" = "메시지 전체 또는 발신자 이름 전체가 이 문구일 때만 일치합니다. 일치하는 발신자의 반응도 숨겨집니다.";
-"textRules.field.message" = "Message";
-"textRules.field.sender" = "Sender";
-"textRules.field.messageOrSender" = "Message or Sender";
-"textRules.match.contains" = "Contains";
-"textRules.match.wholeMessage" = "Whole Message";
-"textRules.match.wholeName" = "Whole Name";
-"textRules.match.wholeField" = "Whole Field";
+"textRules.field.message" = "메시지";
+"textRules.field.sender" = "발신자";
+"textRules.field.messageOrSender" = "메시지 또는 발신자";
+"textRules.match.contains" = "포함";
+"textRules.match.wholeMessage" = "메시지 전체";
+"textRules.match.wholeName" = "이름 전체";
+"textRules.match.wholeField" = "항목 전체";
 "textRules.ruleSummary" = "%1$@ · %2$@";
-"textRules.types.header" = "Use rules for";
+"textRules.types.header" = "규칙 적용 대상";
 "textRules.types.footer" = "켜면 해당 유형의 모든 채팅이 포함됩니다. 나중에 참여하는 채팅도 포함됩니다.";
-"textRules.types.publicChannel" = "Public";
-"textRules.types.hashtagChannel" = "Hashtag Channels";
-"textRules.types.privateChannel" = "Private Channels";
-"textRules.selection.all" = "All";
-"textRules.selection.none" = "None";
-"textRules.selection.count" = "%d Chats";
-"textRules.selection.accessibilityChats" = "Chats for %@";
-"textRules.selection.footer" = "All은 나중에 참여하는 채팅도 포함합니다.";
-"textRules.archive.title" = "Recently Blocked";
-"textRules.archive.empty" = "No Hidden Messages";
+"textRules.types.publicChannel" = "공개";
+"textRules.types.hashtagChannel" = "해시태그 채널";
+"textRules.types.privateChannel" = "비공개 채널";
+"textRules.selection.all" = "전체";
+"textRules.selection.none" = "없음";
+"textRules.selection.count" = "%d개 채팅";
+"textRules.selection.accessibilityChats" = "%@에 대한 채팅";
+"textRules.selection.footer" = "전체는 나중에 참여하는 채팅도 포함합니다.";
+"textRules.archive.title" = "최근 차단";
+"textRules.archive.empty" = "숨겨진 메시지 없음";
 "textRules.archive.footer" = "최근 숨겨진 메시지 %d개가 이 기기에 보관됩니다. 앱 백업에는 포함되지 않습니다.";
 "textRules.archive.labelPrefix" = "%@: ";
 /* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
@@ -1556,15 +1554,14 @@
 "textRules.archive.chat" = "채팅";
 "textRules.archive.myNode" = "내 노드";
 "textRules.archive.time" = "시간";
-"textRules.archive.unknownConversation" = "Unknown Conversation";
-"textRules.archive.unknownRadio" = "Unknown Radio";
+"textRules.archive.unknownConversation" = "알 수 없는 대화";
+"textRules.archive.unknownRadio" = "알 수 없는 무선 기기";
 
-/* TODO: translate radio Cleanup strings */
-"radioCleanup.title" = "Cleanup";
-"radioCleanup.running" = "Removing radio data";
-"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
-"radioCleanup.completed" = "Radio data removed";
-"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
+"radioCleanup.title" = "정리";
+"radioCleanup.running" = "무선 기기 데이터 제거 중";
+"radioCleanup.failed" = "이 무선 기기의 숨겨진 메시지가 이 앱 설치에 남아 있을 수 있습니다.";
+"radioCleanup.completed" = "무선 기기 데이터 제거됨";
+"radioCleanup.retryAccessibility" = "%@의 무선 기기 정리 다시 시도";
 
 // MARK: - Blocking Section
 

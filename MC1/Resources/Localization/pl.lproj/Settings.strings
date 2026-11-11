@@ -839,8 +839,7 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "Towarzysz";
 
-/* TODO: translate */
-"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+"notifications.discoveryCompanionsAndSensors" = "Towarzysze i czujniki";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Przekaźnik";
@@ -1521,43 +1520,42 @@
 
 // MARK: - Text Rules
 
-/* TODO: translate Text Rules strings */
 "textRules.rules" = "Reguły filtrowania";
 "textRules.empty" = "Brak reguł filtrowania";
 "textRules.loading" = "Ładowanie reguł filtrowania…";
 "textRules.loadFailed" = "Nie udało się załadować reguł filtrowania. Nowe wiadomości nie będą ich używać, dopóki reguły nie zostaną załadowane.";
 "textRules.retryAccessibility" = "Spróbuj ponownie załadować reguły filtrowania";
 "textRules.saveFailed" = "Nie udało się zapisać reguł filtrowania. Spróbuj ponownie.";
-"textRules.new.title" = "New Rule";
-"textRules.new.phrase" = "Word or phrase";
-"textRules.new.lookIn" = "Look In";
-"textRules.new.match" = "Match";
+"textRules.new.title" = "Nowa reguła";
+"textRules.new.phrase" = "Słowo lub tekst";
+"textRules.new.lookIn" = "Szukaj w";
+"textRules.new.match" = "Dopasowanie";
 "textRules.new.containsMessageFooter" = "Pasuje w dowolnym miejscu wiadomości, także wewnątrz słowa.";
 "textRules.new.wholeMessageFooter" = "Pasuje tylko wtedy, gdy cała wiadomość jest tym tekstem.";
 "textRules.new.containsSenderFooter" = "Pasuje w dowolnym miejscu nazwy nadawcy, także wewnątrz słowa. Reakcje od tego nadawcy są też ukryte.";
 "textRules.new.wholeNameFooter" = "Pasuje tylko wtedy, gdy nazwa nadawcy jest dokładnie tym tekstem. Reakcje od tego nadawcy są też ukryte.";
 "textRules.new.containsMessageOrSenderFooter" = "Pasuje w dowolnym miejscu wiadomości lub nazwy nadawcy, także wewnątrz słowa. Reakcje od pasującego nadawcy są też ukryte.";
 "textRules.new.wholeMessageOrSenderFooter" = "Pasuje tylko wtedy, gdy cała wiadomość lub cała nazwa nadawcy jest tym tekstem. Reakcje od pasującego nadawcy są też ukryte.";
-"textRules.field.message" = "Message";
-"textRules.field.sender" = "Sender";
-"textRules.field.messageOrSender" = "Message or Sender";
-"textRules.match.contains" = "Contains";
-"textRules.match.wholeMessage" = "Whole Message";
-"textRules.match.wholeName" = "Whole Name";
-"textRules.match.wholeField" = "Whole Field";
+"textRules.field.message" = "Wiadomość";
+"textRules.field.sender" = "Nadawca";
+"textRules.field.messageOrSender" = "Wiadomość lub nadawca";
+"textRules.match.contains" = "Zawiera";
+"textRules.match.wholeMessage" = "Cała wiadomość";
+"textRules.match.wholeName" = "Cała nazwa";
+"textRules.match.wholeField" = "Całe pole";
 "textRules.ruleSummary" = "%1$@ · %2$@";
-"textRules.types.header" = "Use rules for";
+"textRules.types.header" = "Używaj reguł dla";
 "textRules.types.footer" = "Włączenie obejmuje wszystkie czaty tego typu, w tym te, do których dołączysz później.";
-"textRules.types.publicChannel" = "Public";
-"textRules.types.hashtagChannel" = "Hashtag Channels";
-"textRules.types.privateChannel" = "Private Channels";
-"textRules.selection.all" = "All";
-"textRules.selection.none" = "None";
-"textRules.selection.count" = "%d Chats";
-"textRules.selection.accessibilityChats" = "Chats for %@";
-"textRules.selection.footer" = "All obejmuje czaty, do których dołączysz później.";
-"textRules.archive.title" = "Recently Blocked";
-"textRules.archive.empty" = "No Hidden Messages";
+"textRules.types.publicChannel" = "Publiczny";
+"textRules.types.hashtagChannel" = "Kanały hashtagowe";
+"textRules.types.privateChannel" = "Kanały prywatne";
+"textRules.selection.all" = "Wszystkie";
+"textRules.selection.none" = "Żadne";
+"textRules.selection.count" = "%d Czaty";
+"textRules.selection.accessibilityChats" = "Czaty dla %@";
+"textRules.selection.footer" = "Wszystkie obejmują czaty, do których dołączysz później.";
+"textRules.archive.title" = "Ostatnio zablokowane";
+"textRules.archive.empty" = "Brak ukrytych wiadomości";
 "textRules.archive.footer" = "To urządzenie przechowuje %d najnowszych ukrytych wiadomości. Kopia zapasowa danych aplikacji ich nie obejmuje.";
 "textRules.archive.labelPrefix" = "%@: ";
 /* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
@@ -1568,15 +1566,14 @@
 "textRules.archive.chat" = "Czat";
 "textRules.archive.myNode" = "Mój węzeł";
 "textRules.archive.time" = "Czas";
-"textRules.archive.unknownConversation" = "Unknown Conversation";
-"textRules.archive.unknownRadio" = "Unknown Radio";
+"textRules.archive.unknownConversation" = "Nieznana rozmowa";
+"textRules.archive.unknownRadio" = "Nieznane radio";
 
-/* TODO: translate radio Cleanup strings */
-"radioCleanup.title" = "Cleanup";
-"radioCleanup.running" = "Removing radio data";
-"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
-"radioCleanup.completed" = "Radio data removed";
-"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
+"radioCleanup.title" = "Czyszczenie";
+"radioCleanup.running" = "Usuwanie danych radia";
+"radioCleanup.failed" = "Ukryte wiadomości z tego radia mogą nadal być w tej instalacji.";
+"radioCleanup.completed" = "Dane radia usunięte";
+"radioCleanup.retryAccessibility" = "Spróbuj ponownie wyczyścić radio dla %@";
 
 // MARK: - Blocking Section
 

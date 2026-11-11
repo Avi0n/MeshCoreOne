@@ -44,8 +44,7 @@
 /* Location: Multiple files - Purpose: Room contact type label */
 "contacts.nodeKind.room" = "Кімната";
 
-/* TODO: translate */
-"contacts.nodeKind.sensor" = "Sensor";
+"contacts.nodeKind.sensor" = "Датчик";
 
 /* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Badge label for discovered nodes */
 "contacts.nodeKind.discovered" = "Виявлений";
@@ -78,8 +77,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Rooms segment */
 "contacts.segment.rooms" = "Кімнати";
 
-/* TODO: translate */
-"contacts.segment.sensors" = "Sensors";
+"contacts.segment.sensors" = "Датчики";
 
 /* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
 "contacts.segment.pickerLabel" = "Фільтр вузлів";
@@ -174,14 +172,12 @@
 /* Location: ContactsListView.swift - Purpose: No rooms empty title */
 "contacts.list.empty.rooms.title" = "Немає кімнат";
 
-/* TODO: translate */
-"contacts.list.empty.sensors.title" = "No Sensors";
+"contacts.list.empty.sensors.title" = "Немає датчиків";
 
 /* Location: ContactsListView.swift - Purpose: No rooms empty description */
 "contacts.list.empty.rooms.description" = "Кімнати — це публічні чат-сервери в mesh-мережі. Вони з'являться тут після виявлення.";
 
-/* TODO: translate */
-"contacts.list.empty.sensors.description" = "Sensors appear here when discovered on the mesh.";
+"contacts.list.empty.sensors.description" = "Датчики з'являються тут після виявлення в mesh-мережі.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Немає результатів";
@@ -635,8 +631,7 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
 "contacts.discovery.segment.rooms" = "Кімнати";
 
-/* TODO: translate */
-"contacts.discovery.segment.sensors" = "Sensors";
+"contacts.discovery.segment.sensors" = "Датчики";
 
 /* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
 "contacts.discovery.segment.pickerLabel" = "Фільтр виявлених вузлів";

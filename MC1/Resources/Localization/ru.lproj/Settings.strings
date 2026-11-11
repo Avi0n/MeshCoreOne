@@ -839,8 +839,7 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "Компаньон";
 
-/* TODO: translate */
-"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+"notifications.discoveryCompanionsAndSensors" = "Компаньоны и датчики";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Ретранслятор";
@@ -1521,43 +1520,42 @@
 
 // MARK: - Text Rules
 
-/* TODO: translate Text Rules strings */
 "textRules.rules" = "Правила фильтрации";
 "textRules.empty" = "Нет правил фильтрации";
 "textRules.loading" = "Загрузка правил фильтрации…";
 "textRules.loadFailed" = "Не удалось загрузить правила фильтрации. Новые сообщения не будут использовать эти правила, пока их не удастся загрузить.";
 "textRules.retryAccessibility" = "Попробовать загрузить правила фильтрации ещё раз";
 "textRules.saveFailed" = "Не удалось сохранить правила фильтрации. Попробуй ещё раз.";
-"textRules.new.title" = "New Rule";
-"textRules.new.phrase" = "Word or phrase";
-"textRules.new.lookIn" = "Look In";
-"textRules.new.match" = "Match";
+"textRules.new.title" = "Новое правило";
+"textRules.new.phrase" = "Слово или фраза";
+"textRules.new.lookIn" = "Искать в";
+"textRules.new.match" = "Совпадение";
 "textRules.new.containsMessageFooter" = "Совпадает в любом месте сообщения, в том числе внутри слова.";
 "textRules.new.wholeMessageFooter" = "Совпадает, только если всё сообщение равно этой фразе.";
 "textRules.new.containsSenderFooter" = "Совпадает в любом месте имени отправителя, в том числе внутри слова. Реакции от этого отправителя тоже скрыты.";
 "textRules.new.wholeNameFooter" = "Совпадает, только если имя отправителя в точности такое. Реакции от этого отправителя тоже скрыты.";
 "textRules.new.containsMessageOrSenderFooter" = "Совпадает в любом месте сообщения или имени отправителя, в том числе внутри слова. Если совпало имя, реакции этого отправителя тоже скрыты.";
 "textRules.new.wholeMessageOrSenderFooter" = "Совпадает, только если всё сообщение или всё имя отправителя равно этой фразе. Если совпало имя, реакции этого отправителя тоже скрыты.";
-"textRules.field.message" = "Message";
-"textRules.field.sender" = "Sender";
-"textRules.field.messageOrSender" = "Message or Sender";
-"textRules.match.contains" = "Contains";
-"textRules.match.wholeMessage" = "Whole Message";
-"textRules.match.wholeName" = "Whole Name";
-"textRules.match.wholeField" = "Whole Field";
+"textRules.field.message" = "Сообщение";
+"textRules.field.sender" = "Отправитель";
+"textRules.field.messageOrSender" = "Сообщение или отправитель";
+"textRules.match.contains" = "Содержит";
+"textRules.match.wholeMessage" = "Всё сообщение";
+"textRules.match.wholeName" = "Всё имя";
+"textRules.match.wholeField" = "Всё поле";
 "textRules.ruleSummary" = "%1$@ · %2$@";
-"textRules.types.header" = "Use rules for";
+"textRules.types.header" = "Использовать правила для";
 "textRules.types.footer" = "Включённый переключатель охватывает все чаты этого типа, включая те, к которым ты присоединишься позже.";
-"textRules.types.publicChannel" = "Public";
-"textRules.types.hashtagChannel" = "Hashtag Channels";
-"textRules.types.privateChannel" = "Private Channels";
-"textRules.selection.all" = "All";
-"textRules.selection.none" = "None";
-"textRules.selection.count" = "%d Chats";
-"textRules.selection.accessibilityChats" = "Chats for %@";
-"textRules.selection.footer" = "«All» включает чаты, к которым ты присоединишься позже.";
-"textRules.archive.title" = "Recently Blocked";
-"textRules.archive.empty" = "No Hidden Messages";
+"textRules.types.publicChannel" = "Публичный";
+"textRules.types.hashtagChannel" = "Хэштег-каналы";
+"textRules.types.privateChannel" = "Приватные каналы";
+"textRules.selection.all" = "Все";
+"textRules.selection.none" = "Нет";
+"textRules.selection.count" = "%d чатов";
+"textRules.selection.accessibilityChats" = "Чаты для %@";
+"textRules.selection.footer" = "«Все» включает чаты, к которым ты присоединишься позже.";
+"textRules.archive.title" = "Недавно скрытые";
+"textRules.archive.empty" = "Нет скрытых сообщений";
 "textRules.archive.footer" = "Последние %d скрытых сообщений хранятся на этом устройстве. В резервную копию приложения они не входят.";
 "textRules.archive.labelPrefix" = "%@: ";
 /* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
@@ -1568,15 +1566,14 @@
 "textRules.archive.chat" = "Чат";
 "textRules.archive.myNode" = "Мой узел";
 "textRules.archive.time" = "Время";
-"textRules.archive.unknownConversation" = "Unknown Conversation";
-"textRules.archive.unknownRadio" = "Unknown Radio";
+"textRules.archive.unknownConversation" = "Неизвестный разговор";
+"textRules.archive.unknownRadio" = "Неизвестное радио";
 
-/* TODO: translate radio Cleanup strings */
-"radioCleanup.title" = "Cleanup";
-"radioCleanup.running" = "Removing radio data";
-"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
-"radioCleanup.completed" = "Radio data removed";
-"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
+"radioCleanup.title" = "Очистка";
+"radioCleanup.running" = "Удаление данных радио";
+"radioCleanup.failed" = "Скрытые сообщения этого радио могут остаться на этой установке.";
+"radioCleanup.completed" = "Данные радио удалены";
+"radioCleanup.retryAccessibility" = "Попробовать очистку радио ещё раз для %@";
 
 // MARK: - Blocking Section
 

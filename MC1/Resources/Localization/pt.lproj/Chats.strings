@@ -338,8 +338,8 @@
 /* Location: MutedIndicator.swift - Accessibility label for mentions-only indicator */
 "chats.row.mentionsOnly" = "Só menções";
 
-/* TODO: translate - Accessibility label for the row actions menu */
-"chats.row.actionsMenu.accessibilityLabel" = "Conversation actions";
+/* Accessibility label for the row actions menu */
+"chats.row.actionsMenu.accessibilityLabel" = "Ações da conversa";
 
 // MARK: - Notification Level Picker
 

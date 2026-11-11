@@ -137,8 +137,7 @@
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "Виявлено нову кімнату";
 
-/* TODO: translate */
-"notifications.discovery.sensor" = "New Sensor Discovered";
+"notifications.discovery.sensor" = "Виявлено новий датчик";
 
 // MARK: - Notification Actions
 
@@ -503,17 +502,13 @@
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "Неприпустима відповідь віддаленого вузла";
 
-/* TODO: translate */
-"error.remoteNode.sensorOutcomeUnknown" = "The change could not be verified. Reload settings before saving again.";
+"error.remoteNode.sensorOutcomeUnknown" = "Не вдалося перевірити зміну. Оновіть налаштування, перш ніж зберігати знову.";
 
-/* TODO: translate */
-"error.remoteNode.sensorSettingRejected" = "The sensor rejected this setting.";
+"error.remoteNode.sensorSettingRejected" = "Датчик відхилив це налаштування.";
 
-/* TODO: translate */
-"error.remoteNode.invalidSensorSetting" = "Use a nonempty key and value without whitespace. The complete command must fit within 160 UTF-8 bytes.";
+"error.remoteNode.invalidSensorSetting" = "Використовуйте непорожні ключ і значення без пробілів. Уся команда має вміститися в 160 байт UTF-8.";
 
-/* TODO: translate */
-"error.remoteNode.invalidPasswordLength" = "Passwords must use no more than %d UTF-8 bytes.";
+"error.remoteNode.invalidPasswordLength" = "Паролі мають містити не більше ніж %d байт UTF-8.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation */
 "error.remoteNode.permissionDenied" = "Доступ заборонено";

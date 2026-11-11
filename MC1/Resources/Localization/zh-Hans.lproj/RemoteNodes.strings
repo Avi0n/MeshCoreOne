@@ -32,8 +32,7 @@
 /* Location: NodeAuthenticationSheet.swift - Repeater type value */
 "remoteNodes.auth.typeRepeater" = "转发节点";
 
-/* TODO: translate */
-"remoteNodes.auth.typeSensor" = "Sensor";
+"remoteNodes.auth.typeSensor" = "传感器";
 
 /* Location: NodeAuthenticationSheet.swift - Authentication section header */
 "remoteNodes.auth.authentication" = "身份验证";
@@ -95,35 +94,25 @@
 /* Location: RepeaterSettingsView.swift - Navigation title */
 "remoteNodes.settings.title" = "转发节点设置";
 
-/* TODO: translate */
-"remoteNodes.sensor.adminRequired" = "Sensor management requires administrator access.";
+"remoteNodes.sensor.adminRequired" = "传感器管理需要管理员权限。";
 
-/* TODO: translate */
-"remoteNodes.sensor.saved" = "Setting verified.";
+"remoteNodes.sensor.saved" = "设置已验证。";
 
-/* TODO: translate */
-"remoteNodes.sensor.rebootSent" = "Reboot request sent. The sensor has not confirmed a restart. Authenticate again before sending more commands.";
+"remoteNodes.sensor.rebootSent" = "已发送重启请求。传感器尚未确认已重启。请重新登录后再发送更多命令。";
 
-/* TODO: translate */
-"remoteNodes.sensor.rebootConfirmation" = "Send a reboot request to this sensor?";
+"remoteNodes.sensor.rebootConfirmation" = "是否向此传感器发送重启请求？";
 
-/* TODO: translate */
-"remoteNodes.sensor.runtimeOnly" = "Changes affect the running sensor. Persistence across reboot depends on its firmware.";
+"remoteNodes.sensor.runtimeOnly" = "更改会影响正在运行的传感器。重启后是否仍然有效取决于其固件。";
 
-/* TODO: translate */
-"remoteNodes.sensor.value" = "Value";
+"remoteNodes.sensor.value" = "值";
 
-/* TODO: translate */
-"remoteNodes.sensor.save" = "Save";
+"remoteNodes.sensor.save" = "保存";
 
-/* TODO: translate */
-"remoteNodes.sensor.reload" = "Reload";
+"remoteNodes.sensor.reload" = "重新加载";
 
-/* TODO: translate */
-"remoteNodes.sensor.empty" = "This sensor exposes no settings.";
+"remoteNodes.sensor.empty" = "此传感器没有设置。";
 
-/* TODO: translate */
-"remoteNodes.sensor.title" = "Sensor Management";
+"remoteNodes.sensor.title" = "传感器管理";
 
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "完成";

@@ -44,8 +44,7 @@
 /* Location: Multiple files - Purpose: Room contact type label */
 "contacts.nodeKind.room" = "룸";
 
-/* TODO: translate */
-"contacts.nodeKind.sensor" = "Sensor";
+"contacts.nodeKind.sensor" = "센서";
 
 /* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Badge label for discovered nodes */
 "contacts.nodeKind.discovered" = "발견됨";
@@ -78,8 +77,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Rooms segment */
 "contacts.segment.rooms" = "룸";
 
-/* TODO: translate */
-"contacts.segment.sensors" = "Sensors";
+"contacts.segment.sensors" = "센서";
 
 /* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
 "contacts.segment.pickerLabel" = "노드 필터";
@@ -174,14 +172,12 @@
 /* Location: ContactsListView.swift - Purpose: No rooms empty title */
 "contacts.list.empty.rooms.title" = "룸 없음";
 
-/* TODO: translate */
-"contacts.list.empty.sensors.title" = "No Sensors";
+"contacts.list.empty.sensors.title" = "센서 없음";
 
 /* Location: ContactsListView.swift - Purpose: No rooms empty description */
 "contacts.list.empty.rooms.description" = "룸은 메시의 공개 채팅 서버입니다. 발견되면 여기에 표시됩니다.";
 
-/* TODO: translate */
-"contacts.list.empty.sensors.description" = "Sensors appear here when discovered on the mesh.";
+"contacts.list.empty.sensors.description" = "센서는 메시에서 발견되면 여기에 표시됩니다.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "결과 없음";
@@ -635,8 +631,7 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter: Rooms */
 "contacts.discovery.segment.rooms" = "룸";
 
-/* TODO: translate */
-"contacts.discovery.segment.sensors" = "Sensors";
+"contacts.discovery.segment.sensors" = "센서";
 
 /* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
 "contacts.discovery.segment.pickerLabel" = "발견된 노드 필터";

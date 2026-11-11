@@ -44,8 +44,7 @@
 /* Location: Multiple files - Purpose: Room contact type label */
 "contacts.nodeKind.room" = "Salon";
 
-/* TODO: translate */
-"contacts.nodeKind.sensor" = "Sensor";
+"contacts.nodeKind.sensor" = "Capteur";
 
 /* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Badge label for discovered nodes */
 "contacts.nodeKind.discovered" = "Découvert";
@@ -78,8 +77,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Rooms segment */
 "contacts.segment.rooms" = "Salons";
 
-/* TODO: translate */
-"contacts.segment.sensors" = "Sensors";
+"contacts.segment.sensors" = "Capteurs";
 
 /* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
 "contacts.segment.pickerLabel" = "Filtrer les nœuds";
@@ -174,14 +172,12 @@
 /* Location: ContactsListView.swift - Purpose: No rooms empty title */
 "contacts.list.empty.rooms.title" = "Aucun salon";
 
-/* TODO: translate */
-"contacts.list.empty.sensors.title" = "No Sensors";
+"contacts.list.empty.sensors.title" = "Aucun capteur";
 
 /* Location: ContactsListView.swift - Purpose: No rooms empty description */
 "contacts.list.empty.rooms.description" = "Les salons sont des serveurs de discussion publics sur le maillage. Ils apparaîtront ici dès qu'ils seront découverts.";
 
-/* TODO: translate */
-"contacts.list.empty.sensors.description" = "Sensors appear here when discovered on the mesh.";
+"contacts.list.empty.sensors.description" = "Les capteurs apparaissent ici lorsqu'ils sont découverts sur le réseau mesh.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Aucun résultat";
@@ -635,8 +631,7 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
 "contacts.discovery.segment.rooms" = "Salons";
 
-/* TODO: translate */
-"contacts.discovery.segment.sensors" = "Sensors";
+"contacts.discovery.segment.sensors" = "Capteurs";
 
 /* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
 "contacts.discovery.segment.pickerLabel" = "Filtrer les nœuds découverts";

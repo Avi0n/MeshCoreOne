@@ -839,8 +839,7 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "Acompañante";
 
-/* TODO: translate */
-"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+"notifications.discoveryCompanionsAndSensors" = "Acompañantes y sensores";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Repetidor";
@@ -1521,43 +1520,42 @@
 
 // MARK: - Text Rules
 
-/* TODO: translate Text Rules strings */
 "textRules.rules" = "Reglas de filtro";
 "textRules.empty" = "Sin reglas de filtro";
 "textRules.loading" = "Cargando reglas de filtro…";
 "textRules.loadFailed" = "No se pudieron cargar las reglas de filtro. Hasta que se puedan cargar, los mensajes nuevos no se filtrarán.";
 "textRules.retryAccessibility" = "Reintentar la carga de las reglas de filtro";
 "textRules.saveFailed" = "No se pudieron guardar las reglas de filtro. Inténtalo de nuevo.";
-"textRules.new.title" = "New Rule";
-"textRules.new.phrase" = "Word or phrase";
-"textRules.new.lookIn" = "Look In";
-"textRules.new.match" = "Match";
+"textRules.new.title" = "Nueva regla";
+"textRules.new.phrase" = "Palabra o frase";
+"textRules.new.lookIn" = "Buscar en";
+"textRules.new.match" = "Coincidencia";
 "textRules.new.containsMessageFooter" = "Coincide en cualquier parte del mensaje, incluso dentro de una palabra.";
 "textRules.new.wholeMessageFooter" = "Coincide solo cuando todo el mensaje es esta frase.";
 "textRules.new.containsSenderFooter" = "Coincide en cualquier parte del nombre del remitente, incluso dentro de una palabra. Las reacciones de ese remitente también se ocultan.";
 "textRules.new.wholeNameFooter" = "Coincide solo cuando el nombre del remitente es exactamente este. Las reacciones de ese remitente también se ocultan.";
 "textRules.new.containsMessageOrSenderFooter" = "Coincide con el mensaje o con el nombre del remitente, incluso dentro de una palabra. Las reacciones de un remitente que coincida también se ocultan.";
 "textRules.new.wholeMessageOrSenderFooter" = "Coincide solo cuando todo el mensaje o todo el nombre del remitente es esta frase. Las reacciones de un remitente que coincida también se ocultan.";
-"textRules.field.message" = "Message";
-"textRules.field.sender" = "Sender";
-"textRules.field.messageOrSender" = "Message or Sender";
-"textRules.match.contains" = "Contains";
-"textRules.match.wholeMessage" = "Whole Message";
-"textRules.match.wholeName" = "Whole Name";
-"textRules.match.wholeField" = "Whole Field";
+"textRules.field.message" = "Mensaje";
+"textRules.field.sender" = "Remitente";
+"textRules.field.messageOrSender" = "Mensaje o remitente";
+"textRules.match.contains" = "Contiene";
+"textRules.match.wholeMessage" = "Todo el mensaje";
+"textRules.match.wholeName" = "Todo el nombre";
+"textRules.match.wholeField" = "Todo el campo";
 "textRules.ruleSummary" = "%1$@ · %2$@";
-"textRules.types.header" = "Use rules for";
+"textRules.types.header" = "Usar reglas para";
 "textRules.types.footer" = "Cuando está activado, se incluyen todos los chats de ese tipo, incluso los chats a los que te unas más tarde.";
-"textRules.types.publicChannel" = "Public";
-"textRules.types.hashtagChannel" = "Hashtag Channels";
-"textRules.types.privateChannel" = "Private Channels";
-"textRules.selection.all" = "All";
-"textRules.selection.none" = "None";
+"textRules.types.publicChannel" = "Público";
+"textRules.types.hashtagChannel" = "Canales hashtag";
+"textRules.types.privateChannel" = "Canales privados";
+"textRules.selection.all" = "Todos";
+"textRules.selection.none" = "Ninguno";
 "textRules.selection.count" = "%d Chats";
-"textRules.selection.accessibilityChats" = "Chats for %@";
-"textRules.selection.footer" = "All incluye los chats a los que te unas más tarde.";
-"textRules.archive.title" = "Recently Blocked";
-"textRules.archive.empty" = "No Hidden Messages";
+"textRules.selection.accessibilityChats" = "Chats para %@";
+"textRules.selection.footer" = "Todos incluyen los chats a los que te unas más tarde.";
+"textRules.archive.title" = "Mensajes ocultos recientes";
+"textRules.archive.empty" = "Sin mensajes ocultos";
 "textRules.archive.footer" = "Los %d mensajes ocultos más recientes se guardan en este dispositivo. No se incluyen en las copias de seguridad de la app.";
 "textRules.archive.labelPrefix" = "%@: ";
 /* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
@@ -1568,15 +1566,14 @@
 "textRules.archive.chat" = "Chat";
 "textRules.archive.myNode" = "Mi nodo";
 "textRules.archive.time" = "Hora";
-"textRules.archive.unknownConversation" = "Unknown Conversation";
-"textRules.archive.unknownRadio" = "Unknown Radio";
+"textRules.archive.unknownConversation" = "Conversación desconocida";
+"textRules.archive.unknownRadio" = "Radio desconocida";
 
-/* TODO: translate radio Cleanup strings */
-"radioCleanup.title" = "Cleanup";
-"radioCleanup.running" = "Removing radio data";
-"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
-"radioCleanup.completed" = "Radio data removed";
-"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
+"radioCleanup.title" = "Limpieza";
+"radioCleanup.running" = "Eliminando datos de la radio";
+"radioCleanup.failed" = "Los mensajes ocultos de esta radio pueden seguir en esta instalación.";
+"radioCleanup.completed" = "Datos de la radio eliminados";
+"radioCleanup.retryAccessibility" = "Reintentar la limpieza de la radio para %@";
 
 // MARK: - Blocking Section
 

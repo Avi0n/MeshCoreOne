@@ -44,8 +44,7 @@
 /* Location: Multiple files - Purpose: Room contact type label */
 "contacts.nodeKind.room" = "房间";
 
-/* TODO: translate */
-"contacts.nodeKind.sensor" = "Sensor";
+"contacts.nodeKind.sensor" = "传感器";
 
 /* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Badge label for discovered nodes */
 "contacts.nodeKind.discovered" = "已发现";
@@ -78,8 +77,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Rooms segment */
 "contacts.segment.rooms" = "房间";
 
-/* TODO: translate */
-"contacts.segment.sensors" = "Sensors";
+"contacts.segment.sensors" = "传感器";
 
 /* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
 "contacts.segment.pickerLabel" = "筛选节点";
@@ -174,14 +172,12 @@
 /* Location: ContactsListView.swift - Purpose: No rooms empty title */
 "contacts.list.empty.rooms.title" = "无房间";
 
-/* TODO: translate */
-"contacts.list.empty.sensors.title" = "No Sensors";
+"contacts.list.empty.sensors.title" = "无传感器";
 
 /* Location: ContactsListView.swift - Purpose: No rooms empty description */
 "contacts.list.empty.rooms.description" = "房间是 Mesh 网络上的公共聊天服务器。发现后会显示在这里。";
 
-/* TODO: translate */
-"contacts.list.empty.sensors.description" = "Sensors appear here when discovered on the mesh.";
+"contacts.list.empty.sensors.description" = "在 Mesh 网络上发现后，传感器会显示在这里。";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "无结果";
@@ -635,8 +631,7 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter: Rooms */
 "contacts.discovery.segment.rooms" = "房间";
 
-/* TODO: translate */
-"contacts.discovery.segment.sensors" = "Sensors";
+"contacts.discovery.segment.sensors" = "传感器";
 
 /* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
 "contacts.discovery.segment.pickerLabel" = "筛选发现的节点";

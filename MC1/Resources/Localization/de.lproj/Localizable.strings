@@ -142,8 +142,7 @@
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "Neuer Raum entdeckt";
 
-/* TODO: translate */
-"notifications.discovery.sensor" = "New Sensor Discovered";
+"notifications.discovery.sensor" = "Neuer Sensor entdeckt";
 
 // MARK: - Notification Actions
 
@@ -492,17 +491,13 @@
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "Ungültige Antwort vom Remote-Knoten";
 
-/* TODO: translate */
-"error.remoteNode.sensorOutcomeUnknown" = "The change could not be verified. Reload settings before saving again.";
+"error.remoteNode.sensorOutcomeUnknown" = "Die Änderung konnte nicht verifiziert werden. Lade die Einstellungen neu, bevor du erneut speicherst.";
 
-/* TODO: translate */
-"error.remoteNode.sensorSettingRejected" = "The sensor rejected this setting.";
+"error.remoteNode.sensorSettingRejected" = "Der Sensor hat diese Einstellung abgelehnt.";
 
-/* TODO: translate */
-"error.remoteNode.invalidSensorSetting" = "Use a nonempty key and value without whitespace. The complete command must fit within 160 UTF-8 bytes.";
+"error.remoteNode.invalidSensorSetting" = "Verwende einen Schlüssel und einen Wert, die nicht leer sind und keine Leerzeichen enthalten. Der vollständige Befehl muss in 160 UTF-8 Bytes passen.";
 
-/* TODO: translate */
-"error.remoteNode.invalidPasswordLength" = "Passwords must use no more than %d UTF-8 bytes.";
+"error.remoteNode.invalidPasswordLength" = "Passwörter dürfen höchstens %d UTF-8 Bytes lang sein.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation */
 "error.remoteNode.permissionDenied" = "Zugriff verweigert";

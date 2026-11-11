@@ -839,8 +839,7 @@
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "Компаньйон";
 
-/* TODO: translate */
-"notifications.discoveryCompanionsAndSensors" = "Companions & Sensors";
+"notifications.discoveryCompanionsAndSensors" = "Компаньйони і датчики";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Ретранслятор";
@@ -1521,62 +1520,60 @@
 
 // MARK: - Text Rules
 
-/* TODO: translate Text Rules strings */
 "textRules.rules" = "Правила фільтрації";
 "textRules.empty" = "Немає правил фільтрації";
 "textRules.loading" = "Завантаження правил фільтрації…";
 "textRules.loadFailed" = "Не вдалося завантажити правила фільтрації. Нові повідомлення не використовуватимуть правила фільтрації, доки їх не вдасться завантажити.";
 "textRules.retryAccessibility" = "Спробувати завантажити правила фільтрації ще раз";
 "textRules.saveFailed" = "Не вдалося зберегти правила фільтрації. Спробуй ще раз.";
-"textRules.new.title" = "New Rule";
-"textRules.new.phrase" = "Word or phrase";
-"textRules.new.lookIn" = "Look In";
-"textRules.new.match" = "Match";
+"textRules.new.title" = "Нове правило";
+"textRules.new.phrase" = "Слово або фраза";
+"textRules.new.lookIn" = "Шукати в";
+"textRules.new.match" = "Збіг";
 "textRules.new.containsMessageFooter" = "Збігається будь-де в повідомленні, зокрема всередині слова.";
 "textRules.new.wholeMessageFooter" = "Збігається лише тоді, коли все повідомлення — ця фраза.";
 "textRules.new.containsSenderFooter" = "Збігається будь-де в імені відправника, зокрема всередині слова. Реакції від цього відправника також приховано.";
 "textRules.new.wholeNameFooter" = "Збігається лише тоді, коли ім'я відправника — точно ця фраза. Реакції від цього відправника також приховано.";
 "textRules.new.containsMessageOrSenderFooter" = "Збігається будь-де в повідомленні або в імені відправника, зокрема всередині слова. Якщо збігається ім'я, реакції від цього відправника також приховано.";
 "textRules.new.wholeMessageOrSenderFooter" = "Збігається лише тоді, коли все повідомлення або все ім'я відправника — ця фраза. Якщо збігається ім'я, реакції від цього відправника також приховано.";
-"textRules.field.message" = "Message";
-"textRules.field.sender" = "Sender";
-"textRules.field.messageOrSender" = "Message or Sender";
-"textRules.match.contains" = "Contains";
-"textRules.match.wholeMessage" = "Whole Message";
-"textRules.match.wholeName" = "Whole Name";
-"textRules.match.wholeField" = "Whole Field";
+"textRules.field.message" = "Повідомлення";
+"textRules.field.sender" = "Відправник";
+"textRules.field.messageOrSender" = "Повідомлення або відправник";
+"textRules.match.contains" = "Містить";
+"textRules.match.wholeMessage" = "Все повідомлення";
+"textRules.match.wholeName" = "Все ім'я";
+"textRules.match.wholeField" = "Все поле";
 "textRules.ruleSummary" = "%1$@ · %2$@";
-"textRules.types.header" = "Use rules for";
+"textRules.types.header" = "Використовувати правила для";
 "textRules.types.footer" = "Коли увімкнено, це охоплює всі чати цього типу, зокрема ті, до яких ти приєднаєшся пізніше.";
-"textRules.types.publicChannel" = "Public";
-"textRules.types.hashtagChannel" = "Hashtag Channels";
-"textRules.types.privateChannel" = "Private Channels";
-"textRules.selection.all" = "All";
-"textRules.selection.none" = "None";
-"textRules.selection.count" = "%d Chats";
-"textRules.selection.accessibilityChats" = "Chats for %@";
-"textRules.selection.footer" = "«All» охоплює чати, до яких ти приєднаєшся пізніше.";
-"textRules.archive.title" = "Recently Blocked";
-"textRules.archive.empty" = "No Hidden Messages";
+"textRules.types.publicChannel" = "Публічний";
+"textRules.types.hashtagChannel" = "Хештег-канали";
+"textRules.types.privateChannel" = "Приватні канали";
+"textRules.selection.all" = "Усі";
+"textRules.selection.none" = "Немає";
+"textRules.selection.count" = "%d чатів";
+"textRules.selection.accessibilityChats" = "Чати для %@";
+"textRules.selection.footer" = "«Усі» охоплює чати, до яких ти приєднаєшся пізніше.";
+"textRules.archive.title" = "Нещодавно приховані";
+"textRules.archive.empty" = "Немає прихованих повідомлень";
 "textRules.archive.footer" = "На цьому пристрої зберігаються останні %d прихованих повідомлень. Вони не входять до резервної копії застосунку.";
 "textRules.archive.labelPrefix" = "%@: ";
 /* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
 "textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
 /* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
-"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
+"textRules.archive.captionWithoutChat" = "\U201C%1$@\U201D · %2$@";
 "textRules.archive.rule" = "Правило";
 "textRules.archive.chat" = "Чат";
 "textRules.archive.myNode" = "Мій вузол";
 "textRules.archive.time" = "Час";
-"textRules.archive.unknownConversation" = "Unknown Conversation";
-"textRules.archive.unknownRadio" = "Unknown Radio";
+"textRules.archive.unknownConversation" = "Невідома розмова";
+"textRules.archive.unknownRadio" = "Невідоме радіо";
 
-/* TODO: translate radio Cleanup strings */
-"radioCleanup.title" = "Cleanup";
-"radioCleanup.running" = "Removing radio data";
-"radioCleanup.failed" = "Hidden messages from this radio may still be on this installation.";
-"radioCleanup.completed" = "Radio data removed";
-"radioCleanup.retryAccessibility" = "Try Radio Cleanup Again for %@";
+"radioCleanup.title" = "Очищення";
+"radioCleanup.running" = "Видалення даних радіо";
+"radioCleanup.failed" = "Приховані повідомлення з цього радіо можуть досі бути в цій інсталяції.";
+"radioCleanup.completed" = "Дані радіо видалено";
+"radioCleanup.retryAccessibility" = "Спробувати очищення радіо ще раз для %@";
 
 // MARK: - Blocking Section
 

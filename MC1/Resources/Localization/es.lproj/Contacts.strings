@@ -44,7 +44,6 @@
 /* Location: Multiple files - Purpose: Room contact type label */
 "contacts.nodeKind.room" = "Sala";
 
-/* TODO: translate */
 "contacts.nodeKind.sensor" = "Sensor";
 
 /* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Badge label for discovered nodes */
@@ -78,8 +77,7 @@
 /* Location: ContactsViewModel.swift - Purpose: Rooms segment */
 "contacts.segment.rooms" = "Salas";
 
-/* TODO: translate */
-"contacts.segment.sensors" = "Sensors";
+"contacts.segment.sensors" = "Sensores";
 
 /* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
 "contacts.segment.pickerLabel" = "Filtrar nodos";
@@ -174,14 +172,12 @@
 /* Location: ContactsListView.swift - Purpose: No rooms empty title */
 "contacts.list.empty.rooms.title" = "Sin salas";
 
-/* TODO: translate */
-"contacts.list.empty.sensors.title" = "No Sensors";
+"contacts.list.empty.sensors.title" = "Sin sensores";
 
 /* Location: ContactsListView.swift - Purpose: No rooms empty description */
 "contacts.list.empty.rooms.description" = "Las salas son servidores de chat públicos en la red mesh. Aparecerán aquí cuando se descubran.";
 
-/* TODO: translate */
-"contacts.list.empty.sensors.description" = "Sensors appear here when discovered on the mesh.";
+"contacts.list.empty.sensors.description" = "Los sensores aparecen aquí cuando se descubren en la red mesh.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Sin resultados";
@@ -635,8 +631,7 @@
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
 "contacts.discovery.segment.rooms" = "Salas";
 
-/* TODO: translate */
-"contacts.discovery.segment.sensors" = "Sensors";
+"contacts.discovery.segment.sensors" = "Sensores";
 
 /* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
 "contacts.discovery.segment.pickerLabel" = "Filtrar nodos descubiertos";

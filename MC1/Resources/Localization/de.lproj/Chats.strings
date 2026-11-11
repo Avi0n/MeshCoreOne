@@ -1115,8 +1115,8 @@
 /* Location: MutedIndicator.swift - Accessibility label for mentions-only indicator */
 "chats.row.mentionsOnly" = "Nur Erwähnungen";
 
-/* TODO: translate - Accessibility label for the row actions menu */
-"chats.row.actionsMenu.accessibilityLabel" = "Conversation actions";
+/* Accessibility label for the row actions menu */
+"chats.row.actionsMenu.accessibilityLabel" = "Aktionen der Unterhaltung";
 
 // MARK: - Reaction Badges
 

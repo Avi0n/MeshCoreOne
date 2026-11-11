@@ -1156,8 +1156,8 @@
 /* Location: ConversationRow.swift - Purpose: Mentions only indicator */
 "chats.row.mentionsOnly" = "Solo menciones";
 
-/* TODO: translate - Accessibility label for the row actions menu */
-"chats.row.actionsMenu.accessibilityLabel" = "Conversation actions";
+/* Accessibility label for the row actions menu */
+"chats.row.actionsMenu.accessibilityLabel" = "Acciones de la conversación";
 
 // MARK: - Reactions
 

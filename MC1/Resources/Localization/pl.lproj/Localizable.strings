@@ -135,8 +135,7 @@
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "Odkryto nowy pokój";
 
-/* TODO: translate */
-"notifications.discovery.sensor" = "New Sensor Discovered";
+"notifications.discovery.sensor" = "Odkryto nowy czujnik";
 
 // MARK: - Notification Actions
 
@@ -501,17 +500,13 @@
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "Nieprawidłowa odpowiedź zdalnego węzła";
 
-/* TODO: translate */
-"error.remoteNode.sensorOutcomeUnknown" = "The change could not be verified. Reload settings before saving again.";
+"error.remoteNode.sensorOutcomeUnknown" = "Nie udało się zweryfikować zmiany. Odśwież ustawienia przed ponownym zapisaniem.";
 
-/* TODO: translate */
-"error.remoteNode.sensorSettingRejected" = "The sensor rejected this setting.";
+"error.remoteNode.sensorSettingRejected" = "Czujnik odrzucił to ustawienie.";
 
-/* TODO: translate */
-"error.remoteNode.invalidSensorSetting" = "Use a nonempty key and value without whitespace. The complete command must fit within 160 UTF-8 bytes.";
+"error.remoteNode.invalidSensorSetting" = "Użyj niepustego klucza i niepustej wartości bez białych znaków. Całe polecenie musi zmieścić się w 160 bajtach UTF-8.";
 
-/* TODO: translate */
-"error.remoteNode.invalidPasswordLength" = "Passwords must use no more than %d UTF-8 bytes.";
+"error.remoteNode.invalidPasswordLength" = "Hasła nie mogą mieć więcej niż %d bajtów UTF-8.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation */
 "error.remoteNode.permissionDenied" = "Odmowa dostępu";
