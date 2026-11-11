@@ -328,8 +328,7 @@ final class RoomConversationViewModel {
 
   static func tiledRows(
     in messages: [RoomMessageDTO],
-    translations: [UUID: MessageTranslationChrome] = [:],
-    mecp: [UUID: MECPBubbleChrome] = [:]
+    translations: [UUID: MessageTranslationChrome] = [:]
   ) -> [RoomTiledRow] {
     let bookends = incomingBookends(in: messages)
     return messages.enumerated().map { index, message in
@@ -338,8 +337,7 @@ final class RoomConversationViewModel {
         showTimestamp: shouldShowTimestamp(at: index, in: messages),
         showSenderName: bookends.nameIDs.contains(message.id),
         showAvatar: bookends.avatarIDs.contains(message.id),
-        translation: translations[message.id],
-        mecp: mecp[message.id]
+        translation: translations[message.id]
       )
     }
   }

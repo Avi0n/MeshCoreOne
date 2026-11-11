@@ -54,8 +54,6 @@ public struct MessageBuildInputs: Sendable, Hashable {
   /// Already-decided Translation chrome. The builder copies this onto the
   /// text payload and never calls the detector.
   public let translation: MessageTranslationChrome?
-  /// Already-decided MECP chrome. The builder copies this and does not decode.
-  public let mecp: MECPBubbleChrome?
 
   public init(
     messageID: UUID,
@@ -82,8 +80,7 @@ public struct MessageBuildInputs: Sendable, Hashable {
     showNewMessagesDivider: Bool,
     showDayDivider: Bool = false,
     incomingAvatar: IncomingAvatarIdentity? = nil,
-    translation: MessageTranslationChrome? = nil,
-    mecp: MECPBubbleChrome? = nil
+    translation: MessageTranslationChrome? = nil
   ) {
     self.messageID = messageID
     self.previewState = previewState
@@ -110,6 +107,5 @@ public struct MessageBuildInputs: Sendable, Hashable {
     self.showDayDivider = showDayDivider
     self.incomingAvatar = incomingAvatar
     self.translation = translation
-    self.mecp = mecp
   }
 }

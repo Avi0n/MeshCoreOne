@@ -23,9 +23,8 @@ struct MECPNotificationTests {
   @Test
   func `reaction quote truncates the space-joined reading`() {
     let reading = MECPCatalog.displayText(canonical, bundle: .module, preferredLocalizations: ["en"])
-    let quote = NotificationActionHandler.reactionQuote(for: canonical, bundle: .module)
+    let quote = NotificationActionHandler.reactionPreview(for: reading)
     #expect(reading.count > NotificationActionHandler.reactionPreviewMaxLength)
-    #expect(quote == NotificationActionHandler.reactionPreview(for: reading))
     #expect(quote.hasPrefix("MAYDAY"))
     #expect(quote != NotificationActionHandler.reactionPreview(for: canonical))
   }

@@ -11,7 +11,6 @@ struct RoomMessageBubble: View {
   let showSenderName: Bool
   let showAvatar: Bool
   var translation: MessageTranslationChrome?
-  var mecp: MECPBubbleChrome?
   var onRetry: (() -> Void)?
   var onLongPress: ((RoomMessageDTO) -> Void)?
   var onTranslationAction: (() -> Void)?
@@ -50,7 +49,7 @@ struct RoomMessageBubble: View {
           onLongPress?(message)
         }
         .accessibilityActions {
-          if let chrome = translation {
+          if let chrome = visibleBody.translation {
             switch chrome.phase {
             case .offer:
               Button(L10n.Chats.Chats.Message.Action.translate) {
@@ -87,19 +86,12 @@ struct RoomMessageBubble: View {
     TimestampView(date: message.date)
   }
 
+  private var visibleBody: MessageVisibleBody {
+    MessageVisibleBody(stored: message.text, translation: translation)
+  }
+
   var accessibilityMessageLabel: String {
-    let body: String = if case let .reading(reading) = mecp {
-      MECPPresentation.spokenReading(reading)
-    } else {
-      switch translation?.phase {
-      case let .showing(translated, _):
-        L10n.Chats.Chats.Message.translatedAccessibility(translated)
-      case .inProgress:
-        "\(message.text), \(L10n.Chats.Chats.Message.Action.translating)"
-      default:
-        message.text
-      }
-    }
+    let body = visibleBody.spokenText
     if isFromSelf {
       return "\(body), \(message.accessibilityStatusLabel)"
     }
@@ -142,8 +134,7 @@ struct RoomMessageBubble: View {
       showAvatar: showAvatar,
       highContrast: colorSchemeContrast == .increased,
       formattedBodyText: formattedBodyText,
-      translation: translation,
-      mecp: mecp,
+      visibleBody: visibleBody,
       onTranslationAction: onTranslationAction
     )
     .messageBubbleLongPressGesture(
@@ -187,8 +178,7 @@ private struct BubbleContent: View {
   let showAvatar: Bool
   let highContrast: Bool
   let formattedBodyText: AttributedString
-  var translation: MessageTranslationChrome?
-  var mecp: MECPBubbleChrome?
+  let visibleBody: MessageVisibleBody
   var onTranslationAction: (() -> Void)?
 
   @Environment(\.appTheme) private var theme
@@ -236,7 +226,7 @@ private struct BubbleContent: View {
 
   private var messageBox: some View {
     VStack(alignment: isFromSelf ? .trailing : .leading, spacing: 2) {
-      if mecp == nil, let chrome = translation {
+      if let chrome = visibleBody.translation {
         BubbleTranslationControl(
           phase: chrome.phase,
           onTap: { onTranslationAction?() }
@@ -252,12 +242,8 @@ private struct BubbleContent: View {
 
   @ViewBuilder
   private var messageBody: some View {
-    if case let .reading(reading) = mecp {
-      Text(reading)
-        .font(.body)
-        .foregroundStyle(textColor)
-    } else if case let .showing(translated, _) = translation?.phase {
-      Text(translated)
+    if let plainText = visibleBody.plainText {
+      Text(plainText)
         .font(.body)
         .foregroundStyle(textColor)
     } else {

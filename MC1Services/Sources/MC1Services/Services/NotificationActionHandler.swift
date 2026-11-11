@@ -24,11 +24,6 @@ public final class NotificationActionHandler {
       : text
   }
 
-  /// Space-joined MECP reading, then the same truncation as `reactionPreview`.
-  nonisolated static func reactionQuote(for text: String, bundle: Bundle = .main) -> String {
-    reactionPreview(for: MECPCatalog.displayText(text, bundle: bundle))
-  }
-
   // MARK: - Dependencies
 
   private let dataStore: any PersistenceStoreProtocol
@@ -232,7 +227,7 @@ public final class NotificationActionHandler {
 
     guard !isMuted else { return }
 
-    let truncatedPreview = Self.reactionQuote(for: message.text)
+    let truncatedPreview = Self.reactionPreview(for: MECPCatalog.displayText(message.text))
     let body = notificationService.strings?.reactionNotificationBody(
       emoji: latestReaction.emoji,
       messagePreview: truncatedPreview

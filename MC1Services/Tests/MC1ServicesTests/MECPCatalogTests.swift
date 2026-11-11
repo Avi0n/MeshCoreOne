@@ -16,8 +16,8 @@ struct MECPCatalogTests {
   ].joined(separator: "\n")
 
   @Test
-  func `the canonical reading joins severity, phrases, the count, the clock, and the leftover tail`() {
-    let reading = MECPCatalog.reading(canonical, bundle: .module, preferredLocalizations: ["en"])
+  func `the canonical reading joins severity, phrases, the count, the clock, and the leftover tail`() throws {
+    let reading = try #require(MECPCatalog.reading(canonical, bundle: .module, preferredLocalizations: ["en"]))
     #expect(reading == englishReading)
     let display = MECPCatalog.displayText(canonical, bundle: .module, preferredLocalizations: ["en"])
     #expect(display == englishReading.replacingOccurrences(of: "\n", with: " "))

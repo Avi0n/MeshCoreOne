@@ -53,13 +53,10 @@ struct BubbleFragmentStack: View, Equatable {
     if case let .disabled(url) = layout.inlineImage?.state { url } else { nil }
   }
 
-  /// Plain `Text`, so a translation skips mention runs and an MECP reading keeps one line per part.
-  private func messageBody(_ textPayload: MessageTextPayload) -> Text {
-    if case let .reading(reading) = textPayload.mecp {
-      return Text(reading)
-    }
-    if case let .showing(translated, _) = textPayload.translation?.phase {
-      return Text(translated)
+  /// Plain `Text` when the visible body replaces the stored string, so mention runs stay off.
+  private func messageBody(_ textPayload: MessageTextPayload, plainText: String?) -> Text {
+    if let plainText {
+      return Text(plainText)
     }
     return Text(textPayload.formatted ?? AttributedString(textPayload.raw))
   }
@@ -73,17 +70,18 @@ struct BubbleFragmentStack: View, Equatable {
       // self-sizing hosting cell without a resolvable intrinsic width, which
       // SwiftUI surfaces as a fatal "invalid reuse after initialization failure".
       VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 2) {
-        if layout.textPayload?.mecp == nil, let chrome = layout.textPayload?.translation {
-          BubbleTranslationControl(
-            phase: chrome.phase,
-            onTap: { callbacks.onTranslationAction?() }
-          )
-        }
         if let textPayload = layout.textPayload {
+          let visible = MessageVisibleBody(stored: textPayload.raw, translation: textPayload.translation)
+          if let chrome = visible.translation {
+            BubbleTranslationControl(
+              phase: chrome.phase,
+              onTap: { callbacks.onTranslationAction?() }
+            )
+          }
           // Native `Text`: the precomputed `formatted` string already carries every run's color,
           // underline, bold, and `.link`, so link taps route through the injected `\.openURL` and
           // Dynamic Type scales for free. `foregroundStyle` colors the raw fallback when unformatted.
-          messageBody(textPayload)
+          messageBody(textPayload, plainText: visible.plainText)
             .font(.body)
             .foregroundStyle(textPayload.baseColor.swiftUIColor)
         }

@@ -127,7 +127,7 @@ struct RoomMessageActionsSheet: View {
       message.createdAt.formatted(date: .abbreviated, time: .standard)
     ))
     ActionInfoRow(text: message.localizedStatusText)
-    MECPPresentation.detailRow(storedText: message.text)
+    MessageVisibleBody.detailRow(storedText: message.text)
   }
 
   @ViewBuilder
@@ -141,7 +141,7 @@ struct RoomMessageActionsSheet: View {
       ActionInfoRow(text: L10n.Chats.Chats.Message.Info.roundTrip(Int(roundTripTime)))
     }
 
-    MECPPresentation.detailRow(storedText: message.text)
+    MessageVisibleBody.detailRow(storedText: message.text)
   }
 }
 

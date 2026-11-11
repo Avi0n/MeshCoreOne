@@ -174,16 +174,14 @@ extension ChatMessageBakeState {
       isMapPreviewReady = MapSnapshotStore.shared.isResolved(request)
     }
 
-    let mecp = MECPBubbleChrome.resolve(text: message.text)
-    let translation: MessageTranslationChrome? = if mecp != nil
-      || message.isOutgoing
-      || !envInputs.translationOffersEnabled {
+    let translation: MessageTranslationChrome? = if message.isOutgoing || !envInputs.translationOffersEnabled {
       nil
     } else {
       MessageTranslationChrome.resolved(
         detected: detectedLanguages[message.id],
         phase: translationPhases[message.id],
-        preferredLanguageCode: envInputs.preferredLanguageCode
+        preferredLanguageCode: envInputs.preferredLanguageCode,
+        text: message.text
       )
     }
     let senderResolution = senderResolutionFor(message, senderTables: senderTables)
@@ -224,8 +222,7 @@ extension ChatMessageBakeState {
       showNewMessagesDivider: message.id == newMessagesDividerMessageID,
       showDayDivider: flags.showDayDivider,
       incomingAvatar: incomingAvatar,
-      translation: translation,
-      mecp: mecp
+      translation: translation
     )
   }
 

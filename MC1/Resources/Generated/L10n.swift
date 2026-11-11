@@ -595,7 +595,7 @@ public enum L10n {
         public static func mecpPersonCount(_ p1: Int) -> String {
           return L10n.tr("Chats", "chats.message.mecpPersonCount", p1, fallback: "%lld people")
         }
-        /// Location: MECPPresentation.swift - VoiceOver prefix when the visible body is an MECP reading - %@ is the reading
+        /// Location: MessageVisibleBody.swift - VoiceOver prefix when the visible body is an MECP reading - %@ is the reading
         public static func readingAccessibility(_ p1: Any) -> String {
           return L10n.tr("Chats", "chats.message.readingAccessibility", String(describing: p1), fallback: "Reading: %@")
         }

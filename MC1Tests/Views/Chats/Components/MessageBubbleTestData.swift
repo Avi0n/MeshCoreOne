@@ -133,8 +133,7 @@ enum MessageBubbleTestData {
     showIncomingHopCount: Bool = false,
     showIncomingRegion: Bool = false,
     showIncomingHeardCount: Bool = false,
-    senderResolution: NodeNameResolution = NodeNameResolution(displayName: "Unknown", matchKind: .unresolved),
-    mecp: MECPBubbleChrome? = nil
+    senderResolution: NodeNameResolution = NodeNameResolution(displayName: "Unknown", matchKind: .unresolved)
   ) -> ItemBundle {
     let isInlineImageURL = detectedURL.map { ImageURLClassifier.isImageURL($0) } ?? false
     let inputs = MessageBuildInputs(
@@ -154,8 +153,7 @@ enum MessageBubbleTestData {
       showTimestamp: showTimestamp,
       showDirectionGap: showDirectionGap,
       showSenderName: showSenderName,
-      showNewMessagesDivider: showNewMessagesDivider,
-      mecp: mecp
+      showNewMessagesDivider: showNewMessagesDivider
     )
     let envInputs = EnvInputs(
       autoPlayGIFs: autoPlayGIFs,

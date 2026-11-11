@@ -21,16 +21,14 @@ struct RoomConversationViewModelTranslationTests {
       showTimestamp: true,
       showSenderName: true,
       showAvatar: true,
-      translation: nil,
-      mecp: nil
+      translation: nil
     )
     let withOffer = RoomTiledRow(
       message: message,
       showTimestamp: true,
       showSenderName: true,
       showAvatar: true,
-      translation: MessageTranslationChrome(phase: .offer, sourceLanguageCode: "de"),
-      mecp: nil
+      translation: MessageTranslationChrome(phase: .offer, sourceLanguageCode: "de")
     )
     #expect(without != withOffer)
   }
@@ -48,28 +46,17 @@ struct RoomConversationViewModelTranslationTests {
   }
 
   @Test
-  func `offers off still shows the MECP reading and nil translation`() throws {
-    let viewModel = RoomConversationViewModel()
-    viewModel.preferredLanguageCode = "en"
-    viewModel.applyTranslationOffersEnabled(false)
-    let text = "MECP/0/M01 \(german)"
-    viewModel.appendMessageIfNew(roomMessage(text: text))
-
-    let row = try #require(viewModel.tiledRows.first)
-    #expect(row.translation == nil)
-    #expect(row.mecp == .reading(MECPCatalog.reading(text)))
-  }
-
-  @Test
-  func `from-self MECP message shows the reading and nil translation`() throws {
+  func `incoming reading keeps nil translation and the wire displayedText`() throws {
     let viewModel = RoomConversationViewModel()
     viewModel.preferredLanguageCode = "en"
     let text = "MECP/0/M01 \(german)"
-    viewModel.appendMessageIfNew(roomMessage(text: text, isFromSelf: true))
+    let message = roomMessage(text: text)
+    viewModel.detectedLanguages[message.id] = .identified(languageCode: "de")
+    viewModel.appendMessageIfNew(message)
 
     let row = try #require(viewModel.tiledRows.first)
+    #expect(viewModel.detectedLanguages[message.id] == .identified(languageCode: "de"))
     #expect(row.translation == nil)
-    #expect(row.mecp == .reading(MECPCatalog.reading(text)))
     #expect(viewModel.displayedText(for: row.message) == text)
   }
 

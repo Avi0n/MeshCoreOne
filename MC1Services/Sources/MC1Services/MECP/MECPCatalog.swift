@@ -2,17 +2,18 @@ import Foundation
 
 /// Phrase reading for a decoded MECP string. The JSON packs are the phrase source.
 public enum MECPCatalog {
+  /// Nil when `text` does not decode. Otherwise each part is one line.
   public static func reading(
     _ text: String,
     bundle: Bundle = .main,
     preferredLocalizations: [String]? = nil
-  ) -> String {
+  ) -> String? {
     renderedLines(
       text,
       bundle: bundle,
       preferredLocalizations: preferredLocalizations,
       resourceBundle: .module
-    )?.joined(separator: "\n") ?? text
+    )?.joined(separator: "\n")
   }
 
   public static func displayText(

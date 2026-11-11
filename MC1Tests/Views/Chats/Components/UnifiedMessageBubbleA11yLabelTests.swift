@@ -103,9 +103,9 @@ struct UnifiedMessageBubbleA11yLabelTests {
   }
 
   @Test
-  func `reading chrome speaks the reading`() throws {
+  func `a reading speaks the reading`() {
     let stored = "MECP/0/M01"
-    let bubble = try chatBubble(stored: stored)
+    let bubble = chatBubble(stored: stored)
     let reading = MECPCatalog.displayText(stored)
     #expect(
       bubble.accessibilityMessageLabel
@@ -113,17 +113,15 @@ struct UnifiedMessageBubbleA11yLabelTests {
     )
   }
 
-  private func chatBubble(stored: String) throws -> UnifiedMessageBubble {
+  private func chatBubble(stored: String) -> UnifiedMessageBubble {
     let message = MessageBubbleTestData.incomingChannel(
       text: stored,
       pathLength: 0,
       pathNodes: nil
     )
-    let chrome = try #require(MECPBubbleChrome.resolve(text: stored))
     let bundle = MessageBubbleTestData.messageItem(
       message: message,
-      senderResolution: NodeNameResolution(displayName: "Alice", matchKind: .exact),
-      mecp: chrome
+      senderResolution: NodeNameResolution(displayName: "Alice", matchKind: .exact)
     )
     return UnifiedMessageBubble(
       message: message,

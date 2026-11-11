@@ -26,9 +26,9 @@ struct RoomMessageBubbleA11yLabelTests {
   }
 
   @Test
-  func `reading chrome speaks the reading`() throws {
+  func `a reading speaks the reading`() {
     let stored = "MECP/0/M01"
-    let bubble = try roomBubble(stored: stored)
+    let bubble = roomBubble(stored: stored)
     let reading = MECPCatalog.displayText(stored)
     #expect(
       bubble.accessibilityMessageLabel
@@ -36,9 +36,8 @@ struct RoomMessageBubbleA11yLabelTests {
     )
   }
 
-  private func roomBubble(stored: String) throws -> RoomMessageBubble {
-    let chrome = try #require(MECPBubbleChrome.resolve(text: stored))
-    return RoomMessageBubble(
+  private func roomBubble(stored: String) -> RoomMessageBubble {
+    RoomMessageBubble(
       message: RoomMessageDTO(
         sessionID: UUID(),
         authorKeyPrefix: Data([0xAA]),
@@ -48,8 +47,7 @@ struct RoomMessageBubbleA11yLabelTests {
       ),
       showTimestamp: false,
       showSenderName: true,
-      showAvatar: true,
-      mecp: chrome
+      showAvatar: true
     )
   }
 

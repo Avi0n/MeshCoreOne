@@ -588,7 +588,7 @@
 /* Location: UnifiedMessageBubble.swift - VoiceOver prefix when the visible body is a translation - %@ is the translated text */
 "chats.message.translatedAccessibility" = "Traducido: %@";
 
-/* Location: MECPPresentation.swift - VoiceOver prefix when the visible body is an MECP reading - %@ is the reading */
+/* Location: MessageVisibleBody.swift - VoiceOver prefix when the visible body is an MECP reading - %@ is the reading */
 "chats.message.readingAccessibility" = "Lectura: %@";
 
 /* Location: MECPCatalog - Person count line in an MECP reading */

@@ -135,34 +135,24 @@ extension RoomConversationViewModel {
   }
 
   func refreshTiledRows() {
-    let mecp = mecpChromeByID()
     guard translationOffersEnabled else {
-      tiledRows = Self.tiledRows(in: messages, translations: [:], mecp: mecp)
+      tiledRows = Self.tiledRows(in: messages, translations: [:])
       return
     }
     seedDetectedLanguages()
     var translations: [UUID: MessageTranslationChrome] = [:]
     for message in messages {
-      guard mecp[message.id] == nil, !message.isFromSelf else { continue }
+      guard !message.isFromSelf else { continue }
       if let chrome = MessageTranslationChrome.resolved(
         detected: detectedLanguages[message.id],
         phase: translationPhases[message.id],
-        preferredLanguageCode: preferredLanguageCode
+        preferredLanguageCode: preferredLanguageCode,
+        text: message.text
       ) {
         translations[message.id] = chrome
       }
     }
-    tiledRows = Self.tiledRows(in: messages, translations: translations, mecp: mecp)
-  }
-
-  private func mecpChromeByID() -> [UUID: MECPBubbleChrome] {
-    var chrome: [UUID: MECPBubbleChrome] = [:]
-    for message in messages {
-      if let resolved = MECPBubbleChrome.resolve(text: message.text) {
-        chrome[message.id] = resolved
-      }
-    }
-    return chrome
+    tiledRows = Self.tiledRows(in: messages, translations: translations)
   }
 
   private func seedDetectedLanguages() {

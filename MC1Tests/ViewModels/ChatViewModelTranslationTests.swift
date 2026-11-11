@@ -312,7 +312,7 @@ struct ChatViewModelTranslationTests {
   }
 
   @Test
-  func `decoded message with a detected language keeps nil translation and the wire displayedText`() async throws {
+  func `decoded message with a detected language keeps nil translation and the wire displayedText`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
     viewModel.bindCoordinatorForTesting(coordinator)
@@ -327,10 +327,6 @@ struct ChatViewModelTranslationTests {
     #expect(viewModel.timeline.bake.detectedLanguages[message.id] == .identified(languageCode: "de"))
     #expect(viewModel.translation(for: message.id) == nil)
     #expect(viewModel.displayedText(for: message) == wire)
-    let item = try #require(viewModel.items.first { $0.id == message.id })
-    let payload = try #require(FragmentLayout(content: item.content).textPayload)
-    #expect(payload.translation == nil)
-    #expect(payload.mecp == .reading(MECPCatalog.reading(wire)))
   }
 
   @discardableResult
