@@ -2,6 +2,8 @@
 
 "Disconnected" = "Rozłączono";
 "%lld packets per minute" = "%lld pakietów na minutę";
+/* Visible unit beside the packet rate */
+"packets/min" = "pakiety/min";
 "Battery %lld percent" = "Bateria %lld procent";
 
 /* Control Center button: opens the app */

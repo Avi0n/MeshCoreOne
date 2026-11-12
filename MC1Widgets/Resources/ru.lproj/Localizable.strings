@@ -2,6 +2,8 @@
 
 "Disconnected" = "Отключено";
 "%lld packets per minute" = "%lld пакетов в минуту";
+/* Visible unit beside the packet rate */
+"packets/min" = "пакеты/мин";
 "Battery %lld percent" = "Батарея %lld процентов";
 
 /* Control Center button: opens the app */
