@@ -19,7 +19,16 @@ struct SettingsListContent: View {
   private var settingSelection: Binding<SettingsDetail?> {
     Binding(
       get: { appState.navigation.selectedSetting },
-      set: { appState.navigation.selectedSetting = $0 }
+      set: { proposed in
+        // The My Device rows leave while `identityRebuildUnpublished` is set. Ignoring
+        // that nil write keeps the open page.
+        if proposed == nil,
+           appState.navigation.selectedSetting?.requiresDevice == true,
+           appState.connectionManager.identityRebuildUnpublished {
+          return
+        }
+        appState.navigation.selectedSetting = proposed
+      }
     )
   }
 

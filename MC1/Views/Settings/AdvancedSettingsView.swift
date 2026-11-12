@@ -111,10 +111,17 @@ struct AdvancedSettingsView: View {
       discovery.noteRegionsChanged()
     }
     .onChange(of: appState.connectedDevice) { _, newDevice in
-      if newDevice == nil {
-        dismiss()
-      }
+      dismissAdvancedIfImportEnded(device: newDevice)
     }
+    .onChange(of: appState.connectionManager.identityRebuildUnpublished) { _, _ in
+      dismissAdvancedIfImportEnded(device: appState.connectedDevice)
+    }
+  }
+
+  /// `identityRebuildUnpublished` is not a disconnect, so a nil device keeps this page.
+  private func dismissAdvancedIfImportEnded(device: DeviceDTO?) {
+    guard device == nil, !appState.connectionManager.identityRebuildUnpublished else { return }
+    dismiss()
   }
 
   /// Advanced and Manage Regions share one run. Another push, another tab, or another root cancels it.

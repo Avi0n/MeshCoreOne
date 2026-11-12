@@ -1,3 +1,4 @@
+import MC1Services
 import SwiftUI
 
 /// Keeps tab state alive while Nodes replaces navigation containers during resizing.
@@ -43,11 +44,10 @@ struct MainTabView: View {
     .onChange(of: appState.connectedDevice) { _, newDevice in
       // Status-menu disconnect does not fire onConnectionLost; radio-to-radio
       // switches use clearPerRadioSelection instead.
-      if newDevice == nil {
-        appState.navigation.clearPerDeviceSelection(
-          preservingConnection: appState.connectionLinkSwitch?.target != nil
-        )
-      }
+      clearDeviceSettingsIfImportEnded(device: newDevice)
+    }
+    .onChange(of: appState.connectionManager.identityRebuildUnpublished) { _, _ in
+      clearDeviceSettingsIfImportEnded(device: appState.connectedDevice)
     }
     .sheet(isPresented: $showingDeviceSelection, onDismiss: {
       appState.handleDeviceSelectionSheetDismissed()
@@ -56,5 +56,13 @@ struct MainTabView: View {
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
     }
+  }
+
+  /// `identityRebuildUnpublished` is not a disconnect, so a nil device keeps the open route.
+  private func clearDeviceSettingsIfImportEnded(device: DeviceDTO?) {
+    guard device == nil, !appState.connectionManager.identityRebuildUnpublished else { return }
+    appState.navigation.clearPerDeviceSelection(
+      preservingConnection: appState.connectionLinkSwitch?.target != nil
+    )
   }
 }

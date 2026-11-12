@@ -35,6 +35,10 @@ public final class ConnectionManager {
   /// Connected device info (nil when disconnected)
   public private(set) var connectedDevice: DeviceDTO?
 
+  /// The open request unpublished its link to rebuild an imported identity.
+  /// Cleared when the replacement link publishes or the request disconnects.
+  public internal(set) var identityRebuildUnpublished = false
+
   /// Allowed repeat frequency ranges from connected device (empty when disconnected or unsupported)
   public var allowedRepeatFreqRanges: [MeshCore.FrequencyRange] = []
 
@@ -769,6 +773,7 @@ public final class ConnectionManager {
     wifiTransport = link.resource.wifi
     allowedRepeatFreqRanges = repeatRanges
     connectionState = .syncing
+    identityRebuildUnpublished = false
     logLifecycle("published", context: lifecycleContext(request: desiredRequest, attempt: desiredRequest?.attempt, link: link))
   }
 
@@ -777,12 +782,14 @@ public final class ConnectionManager {
       logLifecycle("publicationRejected", context: lifecycleContext(request: request, attempt: request.attempt, link: nil), reason: "requestOrInstalledLink")
       return
     }
+    if phase == .disconnected { identityRebuildUnpublished = false }
     currentTransportType = phase == .disconnected ? nil : request.target.transportType
     connectionState = phase
   }
 
   @discardableResult
   func detachPublication(phase: DeviceConnectionState) -> ConnectionLink? {
+    if phase == .disconnected { identityRebuildUnpublished = false }
     let old = installedLink
     installedLink = nil
     session = nil
@@ -872,7 +879,8 @@ public final class ConnectionManager {
       isPairingFlowActive: Bool? = nil,
       detectedPlatform: DevicePlatform? = nil,
       lastCleanChannelSync: (radioID: UUID, completedAt: Date)?? = nil,
-      lastAttemptedChannelSync: (radioID: UUID, attemptedAt: Date)?? = nil
+      lastAttemptedChannelSync: (radioID: UUID, attemptedAt: Date)?? = nil,
+      identityRebuildUnpublished: Bool? = nil
     ) {
       suppressInvariantChecks = true
       defer { suppressInvariantChecks = false }
@@ -940,6 +948,9 @@ public final class ConnectionManager {
       }
       if let attemptedSync = lastAttemptedChannelSync {
         self.lastAttemptedChannelSync = attemptedSync
+      }
+      if let identityRebuildUnpublished {
+        self.identityRebuildUnpublished = identityRebuildUnpublished
       }
     }
   #endif

@@ -9,7 +9,12 @@ extension ConnectionManager {
   ) async throws -> (attempt: ConnectionAttempt, resource: ConnectionResource, prepared: PreparedConnection) {
     try requireAttemptOwnership(request, attempt)
     guard !cancelled() else { throw CancellationError() }
-    if let retainedSource, installedLink === retainedSource { detachPublication(phase: .connected) }
+    if let retainedSource, installedLink === retainedSource {
+      // Set the flag before detachPublication. The device nils in that call, and the
+      // settings observers read the flag when they see the nil device.
+      identityRebuildUnpublished = true
+      detachPublication(phase: .connected)
+    }
     await previousResource.retire(closePhysical: false)
     await retainedSource?.services.tearDown()
     try requireAttemptOwnership(request, attempt)

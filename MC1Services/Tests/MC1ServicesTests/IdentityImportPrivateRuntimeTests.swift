@@ -46,6 +46,7 @@ struct IdentityImportPrivateRuntimeTests {
       let unpublishedBeforeLoss = harness.manager.currentConnection == nil
       let activeBeforeLoss = candidate.binding.isActive
       #expect(unpublishedBeforeLoss)
+      #expect(harness.manager.identityRebuildUnpublished)
       #expect(activeBeforeLoss)
 
       await harness.wifi.simulateSocketReceiveLoss()
@@ -71,6 +72,7 @@ struct IdentityImportPrivateRuntimeTests {
       let actualTailApplied = await harness.wifi.channelWriteIndices == (atSelection ? [0] : [])
       #expect(failed)
       #expect(stillUnpublished)
+      #expect(!harness.manager.identityRebuildUnpublished)
       #expect(disconnected)
       #expect(candidateRetired)
       #expect(!publishedCanonical)
