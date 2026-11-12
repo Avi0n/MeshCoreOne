@@ -13,6 +13,8 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   private var deviceTime: Date
   private var customVars: [String: String]
   private var suppressWrites = false
+  /// When set, `exportPrivateKey` returns this key instead of failing the read.
+  var stubbedExportedPrivateKey: Data?
   private var nextSetCustomVarErrorCode: UInt8?
   private var nextGetCustomVarsErrorCode: UInt8?
   private var nextSetPathHashModeErrorCode: UInt8?
@@ -518,7 +520,12 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     throw MeshCoreError.timeout
   }
 
+  func setStubbedExportedPrivateKey(_ key: Data?) {
+    stubbedExportedPrivateKey = key
+  }
+
   func exportPrivateKey() async throws -> Data {
+    if let stubbedExportedPrivateKey { return stubbedExportedPrivateKey }
     throw MeshCoreError.timeout
   }
 

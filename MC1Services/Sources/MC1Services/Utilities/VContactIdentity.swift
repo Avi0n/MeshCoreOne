@@ -32,4 +32,14 @@ public enum VContactIdentity {
     guard publicKey.count == ProtocolLimits.publicKeySize else { return false }
     return publicKey == Self.publicKey(forSelfPublicKey: selfPublicKey)
   }
+
+  /// Whether `publicKeyHex` is the V-contact for any of `selfPublicKeys`.
+  /// Either hex case matches. An unparseable key returns false so validation still sees it.
+  public static func isVContact(publicKeyHex: String, selfPublicKeys: [Data]) -> Bool {
+    guard let publicKey = Data(hexString: publicKeyHex),
+          publicKey.count == ProtocolLimits.publicKeySize else {
+      return false
+    }
+    return selfPublicKeys.contains { isVContact(publicKey: publicKey, selfPublicKey: $0) }
+  }
 }

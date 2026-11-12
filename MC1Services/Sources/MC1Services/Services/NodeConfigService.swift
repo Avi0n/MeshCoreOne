@@ -201,7 +201,10 @@ public actor NodeConfigService {
     if sections.contacts {
       guard !publicAdmissionRetired else { throw CancellationError() }
       let meshContacts = try await capturedSession.getContacts(since: nil)
-      config.contacts = meshContacts.map { Self.buildContactConfig(from: $0) }
+      let exportable = meshContacts.filter {
+        !VContactIdentity.isVContact(publicKey: $0.publicKey, selfPublicKey: selfInfo.publicKey)
+      }
+      config.contacts = exportable.map { Self.buildContactConfig(from: $0) }
     }
 
     return config
@@ -367,13 +370,9 @@ public actor NodeConfigService {
       : []
     guard !publicAdmissionRetired else { throw CancellationError() }
 
-    // Existing contacts credit firmware updates (which consume no slot) against free capacity,
-    // so an over-capacity import is rejected up front instead of failing partway through the
-    // writes. The full records (not just keys) also let the planner drop contacts the device
-    // already stores byte-for-byte, sparing a redundant /contacts3 commit per unchanged contact.
-    // ZephCore's virtual V-contact is streamed in GET_CONTACTS but uses no real table slot, so
-    // exclude it from occupancy; never ADD its derived key either (when V is disabled the
-    // firmware no longer intercepts ADD and would store it as a real contact).
+    // Full records let the planner skip a contact the device already stores unchanged.
+    // The V-contact uses no slot. Omit the live key and the file public key's V-contact;
+    // contact writes run after the private key changes identity.
     var existingContacts: [String: MeshContact] = try await sections.contacts
       ? Dictionary(
         capturedSession.getContacts(since: nil).map { ($0.publicKey.hexString, $0) },
@@ -389,12 +388,23 @@ public actor NodeConfigService {
     guard !publicAdmissionRetired else { throw CancellationError() }
 
     var planConfig = config
-    if sections.contacts, let selfPublicKey = selfInfo?.publicKey,
-       let vKey = VContactIdentity.publicKey(forSelfPublicKey: selfPublicKey) {
-      let vKeyHex = vKey.hexString
-      existingContacts.removeValue(forKey: vKeyHex)
+    if sections.contacts {
+      var selfKeys: [Data] = []
+      if let selfPublicKey = selfInfo?.publicKey {
+        selfKeys.append(selfPublicKey)
+        if let vKey = VContactIdentity.publicKey(forSelfPublicKey: selfPublicKey) {
+          existingContacts.removeValue(forKey: vKey.hexString)
+        }
+      }
+      if let publicKeyHex = planConfig.publicKey,
+         let fileKey = Data(hexString: publicKeyHex),
+         fileKey.count == ProtocolLimits.publicKeySize {
+        selfKeys.append(fileKey)
+      }
       if let contacts = planConfig.contacts {
-        planConfig.contacts = contacts.filter { $0.publicKey.lowercased() != vKeyHex.lowercased() }
+        planConfig.contacts = contacts.filter {
+          !VContactIdentity.isVContact(publicKeyHex: $0.publicKey, selfPublicKeys: selfKeys)
+        }
       }
     }
 
