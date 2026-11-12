@@ -1,58 +1,52 @@
 import SwiftUI
 import UIKit
 
-/// Use the window home-indicator inset on compact layouts.
-/// Descendant insets can briefly include the tab bar while it hides.
+/// Reserves the window home-indicator inset on compact layouts.
+/// The chrome supplies the height. A descendant inset can include the tab bar while it hides.
 struct ChatWindowBottomInset: View {
+  private let heightOverride: CGFloat?
+  @Environment(\.chatWindowHomeInset) private var homeInset
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
+  init() {
+    heightOverride = nil
+  }
+
+  init(height: CGFloat) {
+    heightOverride = height
+  }
+
+  private var height: CGFloat {
+    heightOverride ?? homeInset
+  }
+
   var body: some View {
-    if horizontalSizeClass == .compact {
-      Representable()
-        .fixedSize(horizontal: false, vertical: true)
+    if horizontalSizeClass == .compact, height > 0 {
+      Representable(height: height)
+        .frame(height: height)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
   }
 
   private struct Representable: UIViewRepresentable {
-    func makeUIView(context: Context) -> Host {
-      let host = Host()
-      host.seedHeight = ChatKeyboardLift.keyWindow()?.safeAreaInsets.bottom
+    var height: CGFloat
+
+    func makeUIView(context: Context) -> ChatWindowBottomInsetHost {
+      let host = ChatWindowBottomInsetHost()
+      host.isUserInteractionEnabled = false
+      host.accessibilityElementsHidden = true
+      host.reservedHeight = height
       return host
     }
 
-    func updateUIView(_ uiView: Host, context: Context) {}
-
-    final class Host: UIView {
-      var seedHeight: CGFloat?
-      private var appliedHeight: CGFloat?
-
-      override var intrinsicContentSize: CGSize {
-        CGSize(width: UIView.noIntrinsicMetric, height: resolvedHeight)
-      }
-
-      override func didMoveToWindow() {
-        super.didMoveToWindow()
-        invalidateIfNeeded()
-      }
-
-      override func safeAreaInsetsDidChange() {
-        super.safeAreaInsetsDidChange()
-        // The view inset changes when the tab bar hides. The window inset does not.
-        invalidateIfNeeded()
-      }
-
-      private var resolvedHeight: CGFloat {
-        window?.safeAreaInsets.bottom ?? seedHeight ?? 0
-      }
-
-      private func invalidateIfNeeded() {
-        let height = resolvedHeight
-        guard height != appliedHeight else { return }
-        appliedHeight = height
-        invalidateIntrinsicContentSize()
-      }
+    func updateUIView(_ uiView: ChatWindowBottomInsetHost, context: Context) {
+      uiView.reservedHeight = height
     }
   }
+}
+
+extension EnvironmentValues {
+  /// Window home-indicator inset reserved under the compact composer and mention list.
+  @Entry var chatWindowHomeInset: CGFloat = 0
 }
