@@ -8,7 +8,8 @@ struct MeshStatusLiveActivity: Widget {
       LockScreenView(context: context)
         .activityBackgroundTint(Color(red: 51 / 255, green: 102 / 255, blue: 136 / 255).opacity(0.4)) // slate blue (#336688)
     } dynamicIsland: { context in
-      DynamicIsland {
+      let rate = context.displayedPacketRate
+      return DynamicIsland {
         DynamicIslandExpandedRegion(.leading) {
           HStack(spacing: LiveActivityLayout.identitySpacing) {
             Image(systemName: context.state.antennaIconName)
@@ -24,13 +25,9 @@ struct MeshStatusLiveActivity: Widget {
         }
         DynamicIslandExpandedRegion(.trailing) {
           if context.state.showsUnread {
-            UnreadCountLabel(count: context.state.unreadCount, prominent: true)
+            UnreadCountLabel(count: context.state.unreadCount, style: .expanded)
           } else if context.state.isConnected {
-            PacketRateLabel(
-              packetsPerMinute: context.state.packetsPerMinute,
-              isStale: context.isStale,
-              prominent: true
-            )
+            PacketRateLabel(rate: rate, style: .expanded)
           } else {
             Text("Disconnected")
               .font(.caption)
@@ -38,43 +35,69 @@ struct MeshStatusLiveActivity: Widget {
           }
         }
         DynamicIslandExpandedRegion(.bottom) {
-          if context.state.showsSecondRow {
-            LiveActivityDetailRow(context: context) {
-              Image(systemName: context.state.antennaIconName)
-                .font(.headline)
-                .accessibilityHidden(true)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+          if context.state.showsBattery || context.state.showsUnread {
+            ExpandedDetailRow(context: context, rate: rate)
           }
         }
       } compactLeading: {
-        CompactConnectionMark(
-          systemName: context.state.antennaIconName,
-          isConnected: context.state.isConnected
-        )
+        if #available(iOS 27, *) {
+          AdaptiveConnectionMark(
+            systemName: context.state.antennaIconName,
+            isConnected: context.state.isConnected
+          )
+        } else {
+          ConnectionMark(
+            systemName: context.state.antennaIconName,
+            isConnected: context.state.isConnected
+          )
+        }
       } compactTrailing: {
         if context.state.isConnected {
-          CompactPacketRate(rate: context.isStale ? 0 : context.state.packetsPerMinute)
+          if #available(iOS 27, *) {
+            AdaptiveCompactRate(rate: rate)
+          } else {
+            CompactLabeledRate(rate: rate)
+          }
         } else {
           Text("—")
         }
       } minimal: {
         if context.state.isConnected {
-          let rate = context.isStale ? 0 : context.state.packetsPerMinute
-          Text("\(rate)")
-            .font(.caption2)
-            .monospacedDigit()
-            .lineLimit(1)
-            .minimumScaleFactor(CompactIslandMetrics.limitedRateMinimumScale)
-            .contentTransition(.numericText())
-            .accessibilityLabel(Text("\(rate) packets per minute"))
+          CompactDigitRate(rate: rate)
         } else {
-          Image(systemName: context.state.antennaIconName)
-            .foregroundStyle(.orange)
+          ConnectionMark(
+            systemName: context.state.antennaIconName,
+            isConnected: false
+          )
         }
       }
       .widgetURL(URL(string: "meshcoreone://status"))
     }
+  }
+}
+
+/// Battery under the radio name, and the packet rate once unread takes the top row.
+private struct ExpandedDetailRow: View {
+  let context: ActivityViewContext<MeshStatusAttributes>
+  let rate: Int
+
+  var body: some View {
+    HStack(alignment: .firstTextBaseline, spacing: LiveActivityLayout.identitySpacing) {
+      if context.state.showsBattery {
+        // Reserves the antenna width so the battery starts under the name.
+        Image(systemName: context.state.antennaIconName)
+          .font(.headline)
+          .hidden()
+          .accessibilityHidden(true)
+        BatteryLabel(percent: context.state.batteryPercent)
+      }
+      Spacer(minLength: 0)
+      if context.state.showsUnread {
+        PacketRateLabel(rate: rate, style: .secondary)
+          .layoutPriority(1)
+      }
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 }
 
@@ -87,53 +110,44 @@ private enum CompactIslandMetrics {
   static let limitedRateMinimumScale: CGFloat = 0.7
 }
 
-private struct CompactConnectionMark: View {
+private struct ConnectionMark: View {
   let systemName: String
   let isConnected: Bool
+  var limitedWidth = false
 
   var body: some View {
-    if #available(iOS 27, *) {
-      LimitedWidthConnectionMark(systemName: systemName, isConnected: isConnected)
-    } else {
-      connectionImage
-    }
+    symbol
+      .foregroundStyle(isConnected ? .green : .orange)
   }
 
-  private var connectionImage: some View {
-    Image(systemName: systemName)
-      .foregroundStyle(isConnected ? .green : .orange)
+  @ViewBuilder
+  private var symbol: some View {
+    if limitedWidth {
+      Image(systemName: systemName)
+        .resizable()
+        .scaledToFit()
+        .frame(
+          width: CompactIslandMetrics.limitedSymbolWidth,
+          height: CompactIslandMetrics.limitedSymbolHeight
+        )
+    } else {
+      Image(systemName: systemName)
+    }
   }
 }
 
 @available(iOS 27, *)
-private struct LimitedWidthConnectionMark: View {
+private struct AdaptiveConnectionMark: View {
   @Environment(\.isDynamicIslandLimitedInWidth) private var isDynamicIslandLimitedInWidth
   let systemName: String
   let isConnected: Bool
 
   var body: some View {
-    if isDynamicIslandLimitedInWidth {
-      Image(systemName: systemName)
-        .resizable()
-        .scaledToFit()
-        .frame(width: CompactIslandMetrics.limitedSymbolWidth, height: CompactIslandMetrics.limitedSymbolHeight)
-        .foregroundStyle(isConnected ? .green : .orange)
-    } else {
-      Image(systemName: systemName)
-        .foregroundStyle(isConnected ? .green : .orange)
-    }
-  }
-}
-
-private struct CompactPacketRate: View {
-  let rate: Int
-
-  var body: some View {
-    if #available(iOS 27, *) {
-      LimitedWidthPacketRate(rate: rate)
-    } else {
-      CompactLabeledRate(rate: rate)
-    }
+    ConnectionMark(
+      systemName: systemName,
+      isConnected: isConnected,
+      limitedWidth: isDynamicIslandLimitedInWidth
+    )
   }
 }
 
@@ -148,20 +162,28 @@ private struct CompactLabeledRate: View {
   }
 }
 
+private struct CompactDigitRate: View {
+  let rate: Int
+
+  var body: some View {
+    Text("\(rate)")
+      .font(.system(size: CompactIslandMetrics.limitedRatePointSize, weight: .semibold))
+      .monospacedDigit()
+      .lineLimit(1)
+      .minimumScaleFactor(CompactIslandMetrics.limitedRateMinimumScale)
+      .contentTransition(.numericText())
+      .accessibilityLabel(Text("\(rate) packets per minute"))
+  }
+}
+
 @available(iOS 27, *)
-private struct LimitedWidthPacketRate: View {
+private struct AdaptiveCompactRate: View {
   @Environment(\.isDynamicIslandLimitedInWidth) private var isDynamicIslandLimitedInWidth
   let rate: Int
 
   var body: some View {
     if isDynamicIslandLimitedInWidth {
-      Text("\(rate)")
-        .font(.system(size: CompactIslandMetrics.limitedRatePointSize, weight: .semibold))
-        .monospacedDigit()
-        .lineLimit(1)
-        .minimumScaleFactor(CompactIslandMetrics.limitedRateMinimumScale)
-        .contentTransition(.numericText())
-        .accessibilityLabel(Text("\(rate) packets per minute"))
+      CompactDigitRate(rate: rate)
     } else {
       CompactLabeledRate(rate: rate)
     }
