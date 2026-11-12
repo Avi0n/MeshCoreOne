@@ -213,8 +213,10 @@ struct MC1App: App {
       // (a failing reconnect is exactly that window) services is nil, and unflushed
       // entries die with the process if iOS terminates the suspended app.
       Task {
-        await DebugLogBuffer.shared?.flush()
-        try? await appState.connectionManager.persistenceStore.flushPendingRxLogEntries()
+        await BackgroundTaskRunner.live.run(named: "FlushBufferedWrites") {
+          await DebugLogBuffer.shared?.flush()
+          try? await appState.connectionManager.persistenceStore.flushPendingRxLogEntries()
+        }
       }
     case .inactive:
       break
