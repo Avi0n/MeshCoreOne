@@ -36,7 +36,10 @@ final class LiveActivityManager {
   static let decayInterval: TimeInterval = 15
   static let packetWindowSeconds: TimeInterval = 60
   static let secondsPerMinute: TimeInterval = 60
-  static let connectedStaleInterval: TimeInterval = 30
+  /// `displayedPacketRate` shows 0 past this date. It matches `packetWindowSeconds`
+  /// because `handleEnterBackground` stops the decay timer.
+  static let connectedStaleInterval: TimeInterval = packetWindowSeconds
+  static let staleRefreshLeadTime: TimeInterval = connectedStaleInterval / 2
   static let disconnectGracePeriod: TimeInterval = 300
   static let updateInterval: TimeInterval = 15
 
@@ -172,6 +175,13 @@ final class LiveActivityManager {
 
   func handleEnterBackground() {
     stopDecayTimer()
+    // `throttleTask` pauses while suspended, so the coalesced rate is published here.
+    guard pendingUpdate != nil else { return }
+    Task {
+      await BackgroundTaskRunner.live.run(named: "FlushLiveActivity") {
+        await flushPendingUpdate()
+      }
+    }
   }
 
   func handleReturnToForeground() {
@@ -549,13 +559,34 @@ final class LiveActivityManager {
       unreadCount: unreadCount ?? current.unreadCount,
       disconnectedDate: disconnectedDate ?? current.disconnectedDate
     )
+    let now = Date.now
     let staleDate: Date? = if state.isConnected, state.packetsPerMinute > 0 {
-      Date.now.addingTimeInterval(Self.connectedStaleInterval)
+      now.addingTimeInterval(Self.connectedStaleInterval)
     } else {
-      Calendar.current.date(byAdding: .minute, value: 5, to: .now)
+      Calendar.current.date(byAdding: .minute, value: 5, to: now)
     }
+    // Republish unchanged content before its stale date. `displayedPacketRate` shows 0 after that.
+    guard Self.shouldPublishUpdate(
+      current: current,
+      proposed: state,
+      currentStaleDate: activity.content.staleDate,
+      now: now,
+      refreshLeadTime: Self.staleRefreshLeadTime
+    ) else { return }
     let content = ActivityContent(state: state, staleDate: staleDate)
     await activity.update(content)
+  }
+
+  static func shouldPublishUpdate(
+    current: MeshStatusAttributes.ContentState,
+    proposed: MeshStatusAttributes.ContentState,
+    currentStaleDate: Date?,
+    now: Date,
+    refreshLeadTime: TimeInterval
+  ) -> Bool {
+    if current != proposed { return true }
+    guard let currentStaleDate else { return true }
+    return currentStaleDate.timeIntervalSince(now) <= refreshLeadTime
   }
 
   /// Checks whether the current activity reference is still valid.

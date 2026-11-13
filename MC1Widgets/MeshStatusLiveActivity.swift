@@ -157,7 +157,7 @@ private struct CompactLabeledRate: View {
   var body: some View {
     Text("↓\(rate)/m")
       .monospacedDigit()
-      .contentTransition(.numericText())
+      .liveActivityInPlaceUpdate(rate: rate)
       .accessibilityLabel(Text("\(rate) packets per minute"))
   }
 }
@@ -171,7 +171,7 @@ private struct CompactDigitRate: View {
       .monospacedDigit()
       .lineLimit(1)
       .minimumScaleFactor(CompactIslandMetrics.limitedRateMinimumScale)
-      .contentTransition(.numericText())
+      .liveActivityInPlaceUpdate(rate: rate)
       .accessibilityLabel(Text("\(rate) packets per minute"))
   }
 }
@@ -184,8 +184,10 @@ private struct AdaptiveCompactRate: View {
   var body: some View {
     if isDynamicIslandLimitedInWidth {
       CompactDigitRate(rate: rate)
+        .transition(.identity)
     } else {
       CompactLabeledRate(rate: rate)
+        .transition(.identity)
     }
   }
 }

@@ -40,4 +40,33 @@ struct LiveActivityManagerTests {
     let timestamps = (1...3).map { now.addingTimeInterval(-Double($0)) }
     #expect(LiveActivityManager.packetsPerMinute(timestamps: timestamps, now: now, window: 15) == 12)
   }
+
+  @Test
+  func `unchanged content waits until the stale date is close`() {
+    let state = sampleState(packetsPerMinute: 4)
+    #expect(!LiveActivityManager.shouldPublishUpdate(
+      current: state,
+      proposed: state,
+      currentStaleDate: now.addingTimeInterval(50),
+      now: now,
+      refreshLeadTime: 30
+    ))
+    #expect(LiveActivityManager.shouldPublishUpdate(
+      current: state,
+      proposed: state,
+      currentStaleDate: now.addingTimeInterval(30),
+      now: now,
+      refreshLeadTime: 30
+    ))
+  }
+
+  private func sampleState(packetsPerMinute: Int) -> MeshStatusAttributes.ContentState {
+    MeshStatusAttributes.ContentState(
+      isConnected: true,
+      batteryPercent: nil,
+      packetsPerMinute: packetsPerMinute,
+      unreadCount: 0,
+      disconnectedDate: nil
+    )
+  }
 }

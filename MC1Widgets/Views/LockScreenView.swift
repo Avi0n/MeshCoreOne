@@ -106,7 +106,7 @@ struct PacketRateLabel: View {
         Text("\(rate)")
           .font(style.numberFont)
           .monospacedDigit()
-          .contentTransition(.numericText())
+          .liveActivityInPlaceUpdate(rate: rate)
       }
       Text("packets/min")
         .font(style.unitFont)
@@ -115,6 +115,7 @@ struct PacketRateLabel: View {
         .accessibilityHidden(true)
     }
     .foregroundStyle(style == .secondary ? .secondary : .primary)
+    .animation(nil, value: rate)
     .accessibilityElement(children: .combine)
     .accessibilityLabel(Text("\(rate) packets per minute"))
   }
@@ -187,6 +188,15 @@ extension MeshStatusAttributes.ContentState {
 
   var showsUnread: Bool {
     isConnected && unreadCount > 0
+  }
+}
+
+extension View {
+  /// Holds the rate glyphs in place. Live Activity text transitions animate them on each update.
+  func liveActivityInPlaceUpdate(rate: Int) -> some View {
+    contentTransition(.identity)
+      .animation(nil, value: rate)
+      .transition(.identity)
   }
 }
 
