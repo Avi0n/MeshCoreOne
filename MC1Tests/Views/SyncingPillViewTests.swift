@@ -59,6 +59,28 @@ struct SyncingPillViewTests {
     #expect(state.isFailure == false)
     #expect(state.textColor == .primary)
   }
+
+  @Test
+  func `busy progress title stays on Connecting while hidden or disconnected`() {
+    #expect(StatusPillState.hidden.busyProgressTitle == L10n.Localizable.Common.Status.connecting)
+    #expect(StatusPillState.disconnected.busyProgressTitle == L10n.Localizable.Common.Status.connecting)
+  }
+
+  @Test
+  func `busy progress title matches the pill for every other state`() {
+    let states: [StatusPillState] = [
+      .connecting,
+      .reconnecting,
+      .waitingToReconnect,
+      .syncing,
+      .syncingMessages,
+      .ready,
+      .failed(message: L10n.Localizable.StatusPill.syncFailed),
+    ]
+    for state in states {
+      #expect(state.busyProgressTitle == state.displayText)
+    }
+  }
 }
 
 private final class FixedHeightTabBar: UITabBar {

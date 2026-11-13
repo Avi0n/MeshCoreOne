@@ -26,6 +26,16 @@ enum StatusPillState: Hashable {
     }
   }
 
+  /// Hidden and disconnected keep the connecting label. A blank title or the disconnect warning would look like pairing had stopped.
+  var busyProgressTitle: String {
+    switch self {
+    case .hidden, .disconnected:
+      L10n.Localizable.Common.Status.connecting
+    default:
+      displayText
+    }
+  }
+
   var systemImageName: String {
     switch self {
     case .failed: "exclamationmark.triangle.fill"

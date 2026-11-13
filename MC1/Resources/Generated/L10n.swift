@@ -3126,8 +3126,6 @@ public enum L10n {
       public static let addDevice = L10n.tr("Onboarding", "deviceScan.addDevice", fallback: "Add Device")
       /// Location: DeviceScanView.swift - Message shown when device is already paired
       public static let alreadyPaired = L10n.tr("Onboarding", "deviceScan.alreadyPaired", fallback: "Your device is already paired")
-      /// Location: DeviceScanView.swift - Button label while connecting
-      public static let connecting = L10n.tr("Onboarding", "deviceScan.connecting", fallback: "Connecting...")
       /// Location: DeviceScanView.swift - Button to connect simulator (debug)
       public static let connectSimulator = L10n.tr("Onboarding", "deviceScan.connectSimulator", fallback: "Connect Simulator")
       /// Location: DeviceScanView.swift - Button to connect via WiFi

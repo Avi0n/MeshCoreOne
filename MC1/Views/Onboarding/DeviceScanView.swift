@@ -2,7 +2,11 @@ import MC1Services
 import SwiftUI
 
 struct DeviceScanView: View {
+  private static let busyLabelLineLimit = 2
+  private static let busyLabelMinimumScale: CGFloat = 0.8
+
   @Environment(\.appState) private var appState
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var showTroubleshooting = false
   @State private var showingWiFiConnection = false
   @State private var showingNoDeviceSheet = false
@@ -137,22 +141,26 @@ struct DeviceScanView: View {
                                                         text: L10n.Onboarding.DeviceScan.connectSimulator) }
           .liquidGlassProminentButtonStyle()
           .disabled(appState.connectionUI.isBusy)
+          .accessibilityAddTraits(appState.connectionUI.isBusy ? .updatesFrequently : [])
       #else
         if demoModeManager.isEnabled {
           Button { connectSimulator() } label: { ctaLabel(systemImage: "play.circle.fill",
                                                           text: L10n.Onboarding.DeviceScan.continueDemo) }
             .liquidGlassProminentButtonStyle()
             .disabled(appState.connectionUI.isBusy)
+            .accessibilityAddTraits(appState.connectionUI.isBusy ? .updatesFrequently : [])
         } else if let deviceID = otherAppDeviceID {
           Button { retryConnection(deviceID: deviceID) } label: { ctaLabel(systemImage: "arrow.clockwise.circle.fill",
                                                                            text: L10n.Onboarding.DeviceScan.retryConnection) }
             .liquidGlassProminentButtonStyle()
             .disabled(appState.connectionUI.isBusy)
+            .accessibilityAddTraits(appState.connectionUI.isBusy ? .updatesFrequently : [])
         } else {
           Button { startPairing() } label: { ctaLabel(systemImage: "plus.circle.fill",
                                                       text: L10n.Onboarding.DeviceScan.addDevice) }
             .liquidGlassProminentButtonStyle()
             .disabled(appState.connectionUI.isBusy)
+            .accessibilityAddTraits(appState.connectionUI.isBusy ? .updatesFrequently : [])
         }
       #endif
     }
@@ -169,11 +177,20 @@ struct DeviceScanView: View {
       .foregroundStyle(.secondary)
   }
 
+  private var busyTitle: String {
+    appState.statusPillState.busyProgressTitle
+  }
+
   private func ctaLabel(systemImage: String, text: String) -> some View {
     HStack(spacing: 8) {
       if appState.connectionUI.isBusy {
         ProgressView().controlSize(.small)
-        Text(L10n.Onboarding.DeviceScan.connecting)
+        Text(busyTitle)
+          .lineLimit(Self.busyLabelLineLimit)
+          .multilineTextAlignment(.center)
+          .minimumScaleFactor(Self.busyLabelMinimumScale)
+          .contentTransition(reduceMotion ? .identity : .opacity)
+          .animation(reduceMotion ? nil : .default, value: busyTitle)
       } else {
         Image(systemName: systemImage)
         Text(text)
@@ -182,6 +199,10 @@ struct DeviceScanView: View {
     .font(.headline)
     .frame(maxWidth: .infinity)
     .padding()
+    .onChange(of: busyTitle) { _, newTitle in
+      guard appState.connectionUI.isBusy, newTitle != L10n.Localizable.Common.Status.connecting else { return }
+      appState.connectionUI.announceConnectionState(newTitle)
+    }
   }
 
   private func startPairing() {
