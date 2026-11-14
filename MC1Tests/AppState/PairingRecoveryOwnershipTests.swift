@@ -229,6 +229,39 @@ struct PairingRecoveryOwnershipTests {
     }
   }
 
+  @Test
+  func `cancelling an admitted pairing lets the next scan start`() async throws {
+    try await withHarness(connected: false) { env in
+      let deviceID = UUID()
+      env.picker.setPickerResult(.success(deviceID))
+      await env.ble.holdConnect()
+      env.app.startDeviceScan()
+      try await waitUntil("pairing must reach the held connect") {
+        env.manager.isPairingInProgress && env.manager.connectionState == .connecting
+          && env.manager.admittedPairingRequestID != nil
+      }
+      try await waitUntil("the transport connect must be held") { await env.ble.connectIsHeld }
+
+      env.app.cancelDeviceScanAttempt()
+      try await waitUntil("cancel must disconnect the admitted pairing") {
+        env.manager.connectionIntent == .userDisconnected
+      }
+      await env.ble.releaseConnect()
+      try await waitUntil("the cancelled pairing must leave the in-progress latch") {
+        !env.manager.isPairingInProgress && !env.app.connectionUI.isBusy
+          && env.manager.connectionState == .disconnected
+          && !env.app.connectionUI.showingConnectionFailedAlert
+      }
+
+      env.picker.setPickerResult(.failure(AccessorySetupKitError.pickerDismissed))
+      env.app.startDeviceScan()
+      try await waitUntil("the next scan must present instead of reporting pairing in progress") {
+        env.picker.showPickerCallCount == 2 && !env.app.connectionUI.isBusy
+          && !env.manager.isPairingInProgress && !env.app.connectionUI.showingConnectionFailedAlert
+      }
+    }
+  }
+
   enum PresentationSurface: CaseIterable, Sendable {
     case onboarding
     case emptySelection

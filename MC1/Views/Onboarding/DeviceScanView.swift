@@ -16,6 +16,7 @@ struct DeviceScanView: View {
   @State private var didInitiatePairing = false
   @State private var showDemoModeAlert = false
   @State private var otherAppDeviceID: UUID?
+  @State private var directConnectionAttempt: Task<Void, Never>?
   private var demoModeManager = DemoModeManager.shared
 
   private var hasConnectedDevice: Bool {
@@ -168,9 +169,19 @@ struct DeviceScanView: View {
 
   @ViewBuilder
   private var secondaryButtons: some View {
-    Button(L10n.Onboarding.DeviceScan.connectViaWifi) { showingWiFiConnection = true }
+    if appState.connectionUI.isBusy {
+      Button(action: cancelInProgressConnection) {
+        Text(L10n.Localizable.Common.cancel)
+      }
       .font(.subheadline)
       .foregroundStyle(.secondary)
+    } else {
+      Button { showingWiFiConnection = true } label: {
+        Text(L10n.Onboarding.DeviceScan.connectViaWifi)
+      }
+      .font(.subheadline)
+      .foregroundStyle(.secondary)
+    }
 
     Button(L10n.Onboarding.DeviceScan.deviceNotAppearing) { showTroubleshooting = true }
       .font(.subheadline)
@@ -210,19 +221,32 @@ struct DeviceScanView: View {
     appState.startDeviceScan()
   }
 
+  private func cancelInProgressConnection() {
+    let directRequestID = directConnectionAttempt == nil
+      ? nil
+      : appState.connectionManager.connectionActivity?.requestID
+    directConnectionAttempt?.cancel()
+    directConnectionAttempt = nil
+    appState.cancelDeviceScanAttempt()
+    guard let directRequestID else { return }
+    Task { await appState.disconnect(requestID: directRequestID, reason: .userInitiated) }
+  }
+
   private func retryConnection(deviceID: UUID) {
     let actionID = appState.connectionUI.beginConnectionAction()
-    Task { @MainActor in
+    directConnectionAttempt?.cancel()
+    directConnectionAttempt = Task { @MainActor in
       guard appState.connectionUI.isCurrentConnectionAction(actionID) else { return }
       defer { appState.connectionUI.finishConnectionAction(actionID) }
       do {
         let result = try await appState.connectionManager.connect(to: deviceID, forceReconnect: true)
-        guard case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else { return }
+        guard !Task.isCancelled,
+              case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else { return }
         await appState.wireServices(for: snapshot)
-        guard appState.connectionManager.isCurrent(snapshot) else { return }
+        guard !Task.isCancelled, appState.connectionManager.isCurrent(snapshot) else { return }
         appState.onboarding.onboardingPath.append(.region)
       } catch {
-        guard let failure = appState.currentConnectionFailure(error) else { return }
+        guard !Task.isCancelled, let failure = appState.currentConnectionFailure(error) else { return }
         appState.connectionUI.presentSavedDeviceConnectFailure(deviceID: deviceID, error: failure)
       }
     }
@@ -231,17 +255,19 @@ struct DeviceScanView: View {
   private func connectSimulator() {
     let actionID = appState.connectionUI.beginConnectionAction()
     didInitiatePairing = true
-    Task { @MainActor in
+    directConnectionAttempt?.cancel()
+    directConnectionAttempt = Task { @MainActor in
       guard appState.connectionUI.isCurrentConnectionAction(actionID) else { return }
       defer { appState.connectionUI.finishConnectionAction(actionID) }
       do {
         let result = try await appState.connectionManager.simulatorConnect()
-        guard case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else { return }
+        guard !Task.isCancelled,
+              case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else { return }
         await appState.wireServices(for: snapshot)
-        guard appState.connectionManager.isCurrent(snapshot) else { return }
+        guard !Task.isCancelled, appState.connectionManager.isCurrent(snapshot) else { return }
         appState.onboarding.onboardingPath.append(.region)
       } catch {
-        guard let failure = appState.currentConnectionFailure(error) else { return }
+        guard !Task.isCancelled, let failure = appState.currentConnectionFailure(error) else { return }
         appState.connectionUI.presentConnectionFailure(message: failure.userFacingMessage)
       }
     }

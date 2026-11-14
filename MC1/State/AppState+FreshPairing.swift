@@ -113,6 +113,23 @@ extension AppState {
     }
   }
 
+  /// Stops an onboarding scan. Disconnects only a request this scan already
+  /// admitted, and stays busy until that attempt releases.
+  func cancelDeviceScanAttempt() {
+    let pairingRequestID = connectionManager.admittedPairingRequestID
+    let pairingTask = freshPairingTask
+    guard pairingTask != nil || pairingRequestID != nil || freshPairingOperation != nil else { return }
+    cancelFreshPairingOperation()
+    let actionID = connectionUI.beginConnectionAction()
+    Task {
+      if let pairingRequestID {
+        await disconnect(requestID: pairingRequestID, reason: .userInitiated)
+      }
+      await pairingTask?.value
+      connectionUI.finishConnectionAction(actionID)
+    }
+  }
+
   private func completeFreshPairing(actionID: UUID) async throws {
     guard ownsFreshPairingOperation(actionID), !Task.isCancelled,
           freshPairingOperation?.requestID == connectionManager.connectionRequestID else { return }
