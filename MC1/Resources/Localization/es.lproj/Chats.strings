@@ -1058,47 +1058,50 @@
 
 // MARK: - MCOimg
 
-/* TODO: translate - Editor title and the compose-menu action for a pixel drawing */
-"chats.mcoimg.title" = "Pixel Paint";
+/* Editor title and the compose-menu action for a pixel drawing */
+"chats.mcoimg.title" = "Pintura de píxeles";
 
-/* TODO: translate - Placeholder when an MCOimg version cannot be shown */
-"chats.mcoimg.unsupported" = "Unsupported image format";
+/* Placeholder when an MCOimg version cannot be shown */
+"chats.mcoimg.unsupported" = "Formato de imagen no compatible";
 
-/* TODO: translate - Placeholder when an MCOimg payload cannot be decoded */
-"chats.mcoimg.damaged" = "Damaged image";
+/* Placeholder when an MCOimg payload cannot be decoded */
+"chats.mcoimg.damaged" = "Imagen dañada";
 
-/* TODO: translate - VoiceOver name for a rendered MCOimg */
-"chats.mcoimg.image" = "MCOimg image";
+/* VoiceOver name for a rendered MCOimg */
+"chats.mcoimg.image" = "Imagen MCOimg";
 
-/* TODO: translate - Erases every pixel in the editor */
-"chats.mcoimg.clear" = "Clear Drawing";
+/* Erases every pixel in the editor */
+"chats.mcoimg.clear" = "Borrar dibujo";
 
-/* TODO: translate - Removes a staged pixel drawing from the composer */
-"chats.mcoimg.remove" = "Remove Drawing";
+/* Sends the open pixel drawing */
+"chats.mcoimg.send" = "Enviar";
 
-/* TODO: translate - Reopens the editor for a staged pixel drawing */
-"chats.mcoimg.edit" = "Edit Drawing";
-
-/* TODO: translate - VoiceOver name for a palette swatch; the argument is 1-based */
+/* VoiceOver name for a palette swatch; the argument is 1-based */
 "chats.mcoimg.color" = "Color %d";
 
-/* TODO: translate - VoiceOver name for the pixel drawing canvas */
-"chats.mcoimg.canvas" = "Pixel canvas";
+/* VoiceOver name for the pixel drawing canvas */
+"chats.mcoimg.canvas" = "Lienzo de píxeles";
 
-/* TODO: translate - VoiceOver name for one cell; arguments are 1-based column and row */
-"chats.mcoimg.pixel" = "Pixel %d, %d";
+/* VoiceOver name for one cell; arguments are 1-based column and row */
+"chats.mcoimg.pixel" = "Píxel %d, %d";
 
-/* TODO: translate - Status shown when a pixel drawing is staged for Send */
-"chats.mcoimg.draft" = "Drawing ready to send";
+/* Alert title when a pixel drawing exceeds the conversation limit */
+"chats.mcoimg.tooLargeTitle" = "Dibujo demasiado grande";
 
-/* TODO: translate - Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
-"chats.mcoimg.tooLarge" = "Drawing is %d bytes; this conversation allows %d. Simplify the drawing and try again.";
+/* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
+"chats.mcoimg.tooLarge" = "El dibujo es de %d bytes; esta conversación permite %d. Simplifica el dibujo e inténtalo de nuevo.";
 
-/* TODO: translate - Error when a pixel drawing cannot be encoded */
-"chats.mcoimg.encodingFailed" = "Unable to encode the drawing.";
+/* Alert title when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailedTitle" = "No se puede codificar";
 
-/* TODO: translate - Progress label while a pixel drawing is encoded */
-"chats.mcoimg.encoding" = "Encoding Drawing";
+/* Error when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailed" = "No se puede codificar el dibujo.";
+
+/* Progress label while a pixel drawing is encoded */
+"chats.mcoimg.encoding" = "Codificando el dibujo";
+
+/* Progress label once a pixel drawing has been handed to the conversation */
+"chats.mcoimg.sending" = "Enviando el dibujo";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Imagen";

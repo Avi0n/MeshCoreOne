@@ -569,28 +569,30 @@ public enum L10n {
         }
         /// Placeholder when an MCOimg payload cannot be decoded
         public static let damaged = L10n.tr("Chats", "chats.mcoimg.damaged", fallback: "Damaged image")
-        /// Status shown when a pixel drawing is staged for Send
-        public static let draft = L10n.tr("Chats", "chats.mcoimg.draft", fallback: "Drawing ready to send")
-        /// Reopens the editor for a staged pixel drawing
-        public static let edit = L10n.tr("Chats", "chats.mcoimg.edit", fallback: "Edit Drawing")
         /// Progress label while a pixel drawing is encoded
         public static let encoding = L10n.tr("Chats", "chats.mcoimg.encoding", fallback: "Encoding Drawing")
         /// Error when a pixel drawing cannot be encoded
         public static let encodingFailed = L10n.tr("Chats", "chats.mcoimg.encodingFailed", fallback: "Unable to encode the drawing.")
+        /// Alert title when a pixel drawing cannot be encoded
+        public static let encodingFailedTitle = L10n.tr("Chats", "chats.mcoimg.encodingFailedTitle", fallback: "Unable to Encode")
         /// VoiceOver name for a rendered MCOimg
         public static let image = L10n.tr("Chats", "chats.mcoimg.image", fallback: "MCOimg image")
         /// VoiceOver name for one cell; arguments are 1-based column and row
         public static func pixel(_ p1: Int, _ p2: Int) -> String {
           return L10n.tr("Chats", "chats.mcoimg.pixel", p1, p2, fallback: "Pixel %d, %d")
         }
-        /// Removes a staged pixel drawing from the composer
-        public static let remove = L10n.tr("Chats", "chats.mcoimg.remove", fallback: "Remove Drawing")
+        /// Sends the open pixel drawing
+        public static let send = L10n.tr("Chats", "chats.mcoimg.send", fallback: "Send")
+        /// Progress label once a pixel drawing has been handed to the conversation
+        public static let sending = L10n.tr("Chats", "chats.mcoimg.sending", fallback: "Sending drawing")
         /// Editor title and the compose-menu action for a pixel drawing
         public static let title = L10n.tr("Chats", "chats.mcoimg.title", fallback: "Pixel Paint")
         /// Error when a pixel drawing exceeds the conversation limit; arguments are size then limit
         public static func tooLarge(_ p1: Int, _ p2: Int) -> String {
           return L10n.tr("Chats", "chats.mcoimg.tooLarge", p1, p2, fallback: "Drawing is %d bytes; this conversation allows %d. Simplify the drawing and try again.")
         }
+        /// Alert title when a pixel drawing exceeds the conversation limit
+        public static let tooLargeTitle = L10n.tr("Chats", "chats.mcoimg.tooLargeTitle", fallback: "Drawing Too Large")
         /// Placeholder when an MCOimg version cannot be shown
         public static let unsupported = L10n.tr("Chats", "chats.mcoimg.unsupported", fallback: "Unsupported image format")
       }

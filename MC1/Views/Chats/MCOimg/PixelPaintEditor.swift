@@ -3,7 +3,9 @@ import SwiftUI
 
 struct PixelPaintEditor: View {
   @Bindable var draft: PixelPaintDraft
+  let onSend: () -> Void
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.appState) private var appState
   private static let swatchSize: CGFloat = 36
   private static let maximumCanvasSize: CGFloat = 480
   private static let gridWidth: CGFloat = 0.5
@@ -15,6 +17,7 @@ struct PixelPaintEditor: View {
     NavigationStack {
       ScrollView {
         VStack(spacing: Self.contentSpacing) {
+          coverStatus
           canvas
             .aspectRatio(1, contentMode: .fit)
             .frame(maxWidth: Self.maximumCanvasSize)
@@ -39,6 +42,7 @@ struct PixelPaintEditor: View {
             }
           }
           Button(L10n.Chats.Chats.Mcoimg.clear, systemImage: "eraser") { draft.clear() }
+            .disabled(draft.isSubmitting)
         }
         .padding()
         .frame(maxWidth: .infinity)
@@ -46,18 +50,55 @@ struct PixelPaintEditor: View {
       .navigationTitle(L10n.Chats.Chats.Mcoimg.title)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .topBarTrailing) {
-          Button(L10n.Localizable.Common.done) {
+        ToolbarItem(placement: .cancellationAction) {
+          Button(L10n.Localizable.Common.cancel, systemImage: "xmark") {
             draft.endStroke()
-            draft.isStaged = true
+            draft.remove()
             dismiss()
           }
-          .accessibilityIdentifier("pixelPaintDone")
+          .disabled(draft.isAdmitting)
+          .accessibilityHint(draft.isAdmitting ? L10n.Chats.Chats.Mcoimg.sending : "")
+          .accessibilityIdentifier("pixelPaintCancel")
+        }
+        ToolbarItem(placement: .confirmationAction) {
+          Button(L10n.Chats.Chats.Mcoimg.send, systemImage: "arrow.up") {
+            draft.endStroke()
+            onSend()
+          }
+          .disabled(!canSend)
+          .accessibilityHint(sendAccessibilityHint)
+          .accessibilityIdentifier("pixelPaintSend")
         }
       }
     }
     .interactiveDismissDisabled()
+    .errorAlert($draft.errorMessage, title: draft.errorTitle)
     .accessibilityIdentifier("pixelPaintEditor")
+  }
+
+  private var canSend: Bool {
+    appState.connectionState == .ready && !draft.isSubmitting
+  }
+
+  private var sendAccessibilityHint: String {
+    if draft.isSubmitting {
+      return draft.isAdmitting ? L10n.Chats.Chats.Mcoimg.sending : L10n.Chats.Chats.Mcoimg.encoding
+    }
+    if appState.connectionState != .ready {
+      return L10n.Chats.Chats.Input.requiresConnection
+    }
+    return ""
+  }
+
+  @ViewBuilder
+  private var coverStatus: some View {
+    if draft.isSubmitting {
+      ProgressView(draft.isAdmitting ? L10n.Chats.Chats.Mcoimg.sending : L10n.Chats.Chats.Mcoimg.encoding)
+    } else if appState.connectionState != .ready {
+      Text(L10n.Chats.Chats.Input.requiresConnection)
+        .font(.footnote)
+        .foregroundStyle(.secondary)
+    }
   }
 
   private var canvas: some View {
@@ -81,10 +122,11 @@ struct PixelPaintEditor: View {
       draft.paint(x: Int(floor(value.location.x / side * Double(PixelPaintDraft.side))),
                   y: Int(floor(value.location.y / side * Double(PixelPaintDraft.side))))
     }.onEnded { _ in draft.endStroke() })
+    .allowsHitTesting(!draft.isSubmitting)
     .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { canvasWidth = $0 }
     .accessibilityLabel(L10n.Chats.Chats.Mcoimg.canvas)
     .accessibilityIdentifier("pixelPaintCanvas")
-    .accessibilityRepresentation { accessiblePixels }
+    .accessibilityRepresentation { accessiblePixels.disabled(draft.isSubmitting) }
   }
 
   @State private var canvasWidth: CGFloat = 0

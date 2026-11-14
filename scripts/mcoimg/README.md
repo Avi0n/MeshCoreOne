@@ -111,14 +111,15 @@ preserving their compressed raster bytes and nonce. User retry upgrades and
 persists v4 before capturing its queue envelope.
 
 The fixed 16×16 Master 8 editor supports painting and erasing with palette
-colors. Done stages its pixels for the normal Send button. It never modifies
-composer text. The conversation input owns unsent pixels in memory until
-admission or conversation closure; closing the app also discards those pixels.
-Reopening the editor resumes them. Encoding runs off the main actor from an
-immutable snapshot. Editing is disabled during admission. Disconnection and
-encoding/admission failure retain the drawing. Closing the conversation cancels
-encoding before admission; after persistence, the service queue owns the send
-and continues after UI dismissal. Existing text remains a separate Draft.
+colors. Send on the cover admits the current pixels. Cancel discards them.
+Neither changes composer text. The conversation input owns unsent pixels in
+memory until admission, cancellation, or conversation closure; closing the app
+also discards those pixels. Encoding runs off the main actor from an immutable
+snapshot. Painting and Clear do nothing during admission, and Cancel stays
+enabled until admission begins. Disconnection and encoding or admission failure
+keep the pixels on the cover. Closing the conversation retires the drawing
+before admission. After a successful admission, the service queue owns the send
+and continues after the cover closes. Existing text remains a separate Draft.
 
 V4 rendering clips overscan geometry, preserves paint order, uses cell-center
 vector anchors and cell-edge raster origins, non-zero fills, square stroke caps,
@@ -174,9 +175,9 @@ On 2026-10-26:
 - Tagged Dart independently decoded 80 Swift v4 mixed rasters. Seven white-raster
   dimension cases matched its canonical encoder bytes exactly.
 - 65 focused app regressions passed after the binary change on iPhone 17e/iOS
-  27.0. Two presentation tests passed separately: full-screen cover, dismissal guard,
-  upper-right Done, retained pixels on reopen/disconnect, and hardware Send
-  preserving the existing text while preventing repeated submission.
+  27.0. Presentation coverage is the full-screen cover, the dismissal guard,
+  Cancel discarding pixels, Send admitting once, one cover alert when admission
+  fails, and hardware Return sending only typed text.
 - SwiftLint and whitespace checks passed. SwiftGen was regenerated and stable.
   The final simulator build passed with three warnings in unchanged concurrency
   code (`MessageBubbleSecondaryClick` and `MessagePathPreviewSnapshot`).
