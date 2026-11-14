@@ -2212,6 +2212,8 @@ actor OrderTrackingMessagePollingService: MessagePollingServiceProtocol {
 
   func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {}
 
+  func setChannelDatagramHandler(_ handler: @escaping @Sendable (ChannelDatagram, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {}
+
   func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ReceiveScope) async -> Void) {}
 
   func setCLIMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {}

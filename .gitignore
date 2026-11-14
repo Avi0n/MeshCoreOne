@@ -29,6 +29,7 @@ tmp/
 scripts/
 !/scripts/
 /scripts/*
+!/scripts/mcoimg/
 !/scripts/test-app-ci.py
 !/scripts/tests/
 /scripts/tests/*

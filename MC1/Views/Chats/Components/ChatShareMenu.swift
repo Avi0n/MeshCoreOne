@@ -2,14 +2,11 @@ import CoreLocation
 import MC1Services
 import SwiftUI
 
-/// Liquid Glass "+" menu for the chat input bar.
-///
-/// Each action produces a bare formatted string and hands it to `onInsert`; the
-/// caller is responsible for appending it to the compose field. This view never
-/// reads the compose text. The contact list is fetched lazily inside
-/// `ShareContactPickerSheet`, so no contact array is built here.
+/// Text actions hand a bare string to `onInsert` and never read the compose field.
+/// Pixel painting opens the conversation-owned editor; contacts load in `ShareContactPickerSheet`.
 struct ChatShareMenu: View {
   let onInsert: (String) -> Void
+  var onPaint: (() -> Void)?
 
   @Environment(\.appState) private var appState
 
@@ -83,6 +80,13 @@ struct ChatShareMenu: View {
         Label(L10n.Chats.Chats.Share.location, systemImage: "location.fill")
       }
       .disabled(!canShareLocation)
+
+      if let onPaint {
+        Button(action: onPaint) {
+          Label(L10n.Chats.Chats.Mcoimg.title, systemImage: "paintpalette")
+        }
+        .accessibilityIdentifier("pixelPaintAction")
+      }
 
       Button {
         isShowingContactPicker = true

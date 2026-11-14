@@ -118,7 +118,8 @@ struct ChatInputBar<Leading: View>: View {
   private var canSend: Bool {
     !isCoolingDown &&
       appState.connectionState == .ready &&
-      !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isOverLimit
+      !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+      !isOverLimit
   }
 
   /// Hardware Return: `true` consumes it and sends under the same gates as the send

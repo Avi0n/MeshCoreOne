@@ -9,6 +9,7 @@ import Foundation
 public enum MessageFragment: Sendable, Hashable {
   case text(MessageTextPayload)
   case inlineImage(InlineImage)
+  case mcoImage(MCOImageContent)
   case linkPreview(LinkPreviewFragmentState)
   case mapPreview(MapPreviewFragmentState)
   case malwareWarning(URL)

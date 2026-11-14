@@ -26,7 +26,21 @@ public extension MeshCoreSession {
     timestamp: Date,
     floodScope: ResolvedFloodScope
   ) async throws {
-    try await performChannelSend(channel: channel, text: text, timestamp: timestamp, floodScope: floodScope)
+    let message = PacketBuilder.sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
+    try await performChannelCommand(message, floodScope: floodScope)
+  }
+
+  /// Applies a channel's flood scope and sends binary GROUP_DATA without interleaving another command.
+  func sendChannelData(
+    channelIndex: UInt8,
+    dataType: UInt16,
+    payload: Data,
+    floodScope: ResolvedFloodScope
+  ) async throws {
+    let message = try PacketBuilder.sendChannelData(
+      channelIndex: channelIndex, dataType: dataType, payload: payload
+    )
+    try await performChannelCommand(message, floodScope: floodScope)
   }
 
   private func performChannelSend(
@@ -35,9 +49,13 @@ public extension MeshCoreSession {
     timestamp: Date,
     floodScope: ResolvedFloodScope?
   ) async throws {
+    let message = PacketBuilder.sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
+    try await performChannelCommand(message, floodScope: floodScope)
+  }
+
+  private func performChannelCommand(_ message: Data, floodScope: ResolvedFloodScope?) async throws {
     let cancelled = Mutex(false)
     let isCancelled: @Sendable () -> Bool = { cancelled.withLock { $0 } }
-    let message = PacketBuilder.sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
     try await withTaskCancellationHandler {
       if let floodScope {
         try await requestResponseSerializer.withSerialization(resumeCallerOnCancel: false) { [self] in

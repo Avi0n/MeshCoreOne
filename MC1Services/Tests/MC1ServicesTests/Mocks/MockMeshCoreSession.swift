@@ -101,6 +101,8 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   /// Result to return from sendChannelMessage
   public var stubbedSendChannelMessageError: Error?
+  public var stubbedSendChannelDataError: Error?
+  private var sendChannelDataErrors: [MeshCoreError?] = []
 
   /// Contacts to return from getContacts
   public var stubbedContacts: [MeshContact] = []
@@ -218,6 +220,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   /// Result to return from getMessage
   public var stubbedGetMessageResult: Result<MessageResult, Error> = .success(.noMoreMessages)
+  private var queuedMessageResults: [MessageResult] = []
+
+  func setQueuedMessageResults(_ results: [MessageResult]) {
+    queuedMessageResults = results
+  }
 
   /// Results to return from successive `sendLogin` calls, consumed FIFO.
   public var stubbedSendLoginResults: [Result<MessageSentInfo, Error>] = []
@@ -275,6 +282,14 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     public let timestamp: Date
   }
 
+  public struct SendChannelDataInvocation: Sendable, Equatable {
+    public let channelIndex: UInt8
+    public let dataType: UInt16
+    public let payload: Data
+    /// Nil when the send omitted the flood-scope preface.
+    public let floodScope: ResolvedFloodScope?
+  }
+
   public struct AddContactInvocation: Sendable, Equatable {
     public let contact: MeshContact
   }
@@ -303,6 +318,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   public private(set) var sendMessageInvocations: [SendMessageInvocation] = []
   public private(set) var sendChannelMessageInvocations: [SendChannelMessageInvocation] = []
+  public private(set) var sendChannelDataInvocations: [SendChannelDataInvocation] = []
   public private(set) var getContactsInvocations: [Date?] = []
   public private(set) var getContactPublicKeys: [Data] = []
   public private(set) var addContactInvocations: [AddContactInvocation] = []
@@ -373,6 +389,14 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   public func setSendChannelMessageError(_ error: Error?) {
     stubbedSendChannelMessageError = error
+  }
+
+  public func setSendChannelDataError(_ error: Error?) {
+    stubbedSendChannelDataError = error
+  }
+
+  public func setSendChannelDataErrors(_ errors: [MeshCoreError?]) {
+    sendChannelDataErrors = errors
   }
 
   public func setGetChannelError(_ error: Error?) {
@@ -553,6 +577,42 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     floodScope: ResolvedFloodScope
   ) async throws {
     try await sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
+  }
+
+  public func sendChannelData(
+    channelIndex: UInt8, dataType: UInt16, payload: Data, floodScope: ResolvedFloodScope
+  ) async throws {
+    try await recordChannelData(
+      channelIndex: channelIndex, dataType: dataType, payload: payload, floodScope: floodScope
+    )
+  }
+
+  public func sendChannelData(
+    channelIndex: UInt8,
+    dataType: UInt16,
+    payload: Data,
+    pathLength _: UInt8,
+    pathBytes _: Data
+  ) async throws {
+    try await recordChannelData(
+      channelIndex: channelIndex, dataType: dataType, payload: payload, floodScope: nil
+    )
+  }
+
+  private func recordChannelData(
+    channelIndex: UInt8,
+    dataType: UInt16,
+    payload: Data,
+    floodScope: ResolvedFloodScope?
+  ) async throws {
+    sendChannelDataInvocations.append(SendChannelDataInvocation(
+      channelIndex: channelIndex, dataType: dataType, payload: payload, floodScope: floodScope
+    ))
+    if !sendChannelDataErrors.isEmpty {
+      if let error = sendChannelDataErrors.removeFirst() { throw error }
+      return
+    }
+    if let error = stubbedSendChannelDataError { throw error }
   }
 
   public func getContacts(since lastModified: Date?) async throws -> [MeshContact] {
@@ -785,6 +845,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   public func getMessage(timeout: TimeInterval?) async throws -> MessageResult {
     getMessageTimeouts.append(timeout)
+    if !queuedMessageResults.isEmpty { return queuedMessageResults.removeFirst() }
     switch stubbedGetMessageResult {
     case let .success(result):
       return result
@@ -814,6 +875,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   public func reset() {
     sendMessageInvocations = []
     sendChannelMessageInvocations = []
+    sendChannelDataInvocations = []
     getContactsInvocations = []
     getContactPublicKeys = []
     addContactInvocations = []

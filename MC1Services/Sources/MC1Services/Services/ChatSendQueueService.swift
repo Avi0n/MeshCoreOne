@@ -284,6 +284,9 @@ public final class ChatSendQueueService {
     guard target.radioID == radioID else { throw ChatSendQueueServiceError.notConnected }
     guard beginAdmission() else { throw CancellationError() }
     defer { finishAdmission() }
+    if MCOImageCodec.isChannelImage(channelIndex: target.channelIndex, text: target.text) {
+      return nil
+    }
 
     let text: String
     if target.channelIndex != nil {
@@ -567,8 +570,9 @@ public final class ChatSendQueueService {
     isTransientError(error, deviceCode: FirmwareDeviceErrorCode.directMessageTableFull)
   }
 
-  nonisolated static func isTransientChannelMessageError(_ error: Error) -> Bool {
+  nonisolated static func isTransientChannelMessageError(_ error: Error, isImage: Bool = false) -> Bool {
     isTransientError(error, deviceCode: FirmwareDeviceErrorCode.channelMessageNotFound)
+      || (isImage && isTransientError(error, deviceCode: FirmwareDeviceErrorCode.channelDataTableFull))
   }
 
   /// Returns true if `error` is `MeshCoreError.deviceError(channelMessageNotFound)`

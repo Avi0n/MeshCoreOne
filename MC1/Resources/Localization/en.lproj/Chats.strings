@@ -1066,6 +1066,53 @@
 /* Location: InlineImageFragmentView.swift - VoiceOver identity for a failed inline image */
 "chats.inlineImage.failedLabel" = "Image failed to load";
 
+// MARK: - MCOimg
+
+/* Editor title and the compose-menu action for a pixel drawing */
+"chats.mcoimg.title" = "Pixel Paint";
+
+/* Placeholder when an MCOimg version cannot be shown */
+"chats.mcoimg.unsupported" = "Unsupported image format";
+
+/* Placeholder when an MCOimg payload cannot be decoded */
+"chats.mcoimg.damaged" = "Damaged image";
+
+/* VoiceOver name for a rendered MCOimg */
+"chats.mcoimg.image" = "MCOimg image";
+
+/* Erases every pixel in the editor */
+"chats.mcoimg.clear" = "Clear Drawing";
+
+/* Sends the open pixel drawing */
+"chats.mcoimg.send" = "Send";
+
+/* VoiceOver name for a palette swatch; the argument is 1-based */
+"chats.mcoimg.color" = "Color %d";
+
+/* VoiceOver name for the pixel drawing canvas */
+"chats.mcoimg.canvas" = "Pixel canvas";
+
+/* VoiceOver name for one cell; arguments are 1-based column and row */
+"chats.mcoimg.pixel" = "Pixel %d, %d";
+
+/* Alert title when a pixel drawing exceeds the conversation limit */
+"chats.mcoimg.tooLargeTitle" = "Drawing Too Large";
+
+/* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
+"chats.mcoimg.tooLarge" = "Drawing is %d bytes; this conversation allows %d. Simplify the drawing and try again.";
+
+/* Alert title when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailedTitle" = "Unable to Encode";
+
+/* Error when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailed" = "Unable to encode the drawing.";
+
+/* Progress label while a pixel drawing is encoded */
+"chats.mcoimg.encoding" = "Encoding Drawing";
+
+/* Progress label once a pixel drawing has been handed to the conversation */
+"chats.mcoimg.sending" = "Sending drawing";
+
 // MARK: - Image Viewer
 
 /* Location: FullScreenImageViewer.swift - Close button label */

@@ -19,6 +19,7 @@ extension SyncCoordinator {
 
     await wireContactMessageHandler(dependencies: dependencies, radioID: radioID, selfNodeName: selfNodeName)
     await wireChannelMessageHandler(dependencies: dependencies, radioID: radioID, selfNodeName: selfNodeName)
+    await wireChannelDatagramHandler(dependencies: dependencies, radioID: radioID, selfNodeName: selfNodeName)
     await wireSignedMessageHandler(dependencies: dependencies)
     await wireCLIMessageHandler(dependencies: dependencies)
 
@@ -54,6 +55,30 @@ extension SyncCoordinator {
         selfNodeName: selfNodeName,
         scope: scope,
         preference: preference
+      )
+    }
+  }
+
+  private func wireChannelDatagramHandler(dependencies: SyncDependencies, radioID: UUID, selfNodeName: String) async {
+    await dependencies.messagePollingService.setChannelDatagramHandler { [weak self] datagram, channel, context, scope, preference, arrivedAt in
+      guard let self, scope.radioID == radioID, scope.isCurrent, let image = MCOImageTransport.decode(datagram) else { return }
+      let message = ChannelMessage(
+        channelIndex: datagram.channelIndex,
+        pathLength: datagram.pathLength,
+        textType: MeshTextType.plain.rawValue,
+        senderTimestamp: Date(timeIntervalSince1970: 0),
+        text: image.text,
+        snr: datagram.snr
+      )
+      await handleIncomingMessage(
+        kind: .channel(message, channel: channel),
+        receivedAt: arrivedAt,
+        context: context,
+        dependencies: dependencies,
+        selfNodeName: selfNodeName,
+        scope: scope,
+        preference: preference,
+        datagramSenderName: image.senderName
       )
     }
   }
@@ -175,7 +200,8 @@ extension SyncCoordinator {
     dependencies: SyncDependencies,
     selfNodeName: String,
     scope: ReceiveScope,
-    preference: TextRulesPreference?
+    preference: TextRulesPreference?,
+    datagramSenderName: String? = nil
   ) async {
     guard scope.isCurrent else { return }
     let radioID = scope.radioID
@@ -213,7 +239,12 @@ extension SyncCoordinator {
       senderKeyPrefix = message.senderPublicKeyPrefix
     case let .channel(message, _):
       // Parse "NodeName: text" format for sender name
-      (senderNodeName, text) = Self.parseChannelMessage(message.text)
+      if let datagramSenderName {
+        senderNodeName = datagramSenderName
+        text = message.text
+      } else {
+        (senderNodeName, text) = Self.parseChannelMessage(message.text)
+      }
       senderTimestampDate = message.senderTimestamp
       textTypeRaw = message.textType
       snr = message.snr
@@ -239,7 +270,9 @@ extension SyncCoordinator {
     // retries with different attempt counters, so it must not drive dedup.
     let deduplicationKey = Self.fallbackDeduplicationKey(
       contactID: contactID, channelIndex: channelIndex,
-      senderNodeName: senderNodeName, timestamp: timestamp, content: text
+      senderNodeName: senderNodeName,
+      timestamp: datagramSenderName == nil ? timestamp : finalTimestamp,
+      content: text
     )
 
     // Channel lookup joins decrypted 0x88 rows by DeduplicationKey; DMs still
@@ -248,7 +281,7 @@ extension SyncCoordinator {
       dependencies: dependencies,
       radioID: radioID,
       channelIndex: channelIndex,
-      senderTimestamp: timestamp,
+      senderTimestamp: datagramSenderName == nil ? timestamp : nil,
       senderPublicKeyPrefix: senderKeyPrefix,
       defaultPathLength: reportedPathLength,
       channelDeduplicationKey: channelIndex != nil ? deduplicationKey : nil
@@ -363,15 +396,21 @@ extension SyncCoordinator {
                 messageDTO, scope: scope, conversationID: channel?.textRulesID
               ),
               scope.isCurrent else { return }
-        let savedDTO = try await harvestAndRefreshChannelMessage(
-          messageDTO: messageDTO,
-          radioID: radioID,
-          dependencies: dependencies,
-          scope: scope
-        )
+        let savedDTO: MessageDTO
+        if datagramSenderName == nil {
+          savedDTO = try await harvestAndRefreshChannelMessage(
+            messageDTO: messageDTO,
+            radioID: radioID,
+            dependencies: dependencies,
+            scope: scope
+          )
+        } else {
+          savedDTO = messageDTO
+        }
         try await indexAndNotifyChannelMessage(
           messageDTO: savedDTO,
           channel: channel,
+          indexesReactions: datagramSenderName == nil,
           dependencies: dependencies,
           scope: scope
         )
@@ -487,12 +526,16 @@ extension SyncCoordinator {
   private func indexAndNotifyChannelMessage(
     messageDTO: MessageDTO,
     channel: ChannelDTO?,
+    indexesReactions: Bool = true,
     dependencies: SyncDependencies,
     scope: ReceiveScope
   ) async throws {
     guard scope.isCurrent, let channelIndex = messageDTO.channelIndex else { return }
-    // Use the sender timestamp so pending reactions match corrected-clock messages.
-    if let senderName = messageDTO.senderNodeName {
+    // A channel image is not a reaction target. Indexing it still runs so a
+    // reaction queued before the image arrived drops that pending key.
+    let isChannelImage = MCOImageCodec.isChannelImage(channelIndex: channelIndex, text: messageDTO.text)
+    let senderName = messageDTO.senderNodeName ?? (isChannelImage ? "Unknown" : nil)
+    if indexesReactions || isChannelImage, let senderName {
       let pendingMatches = await dependencies.reactionService.indexMessage(
         id: messageDTO.id,
         channelIndex: channelIndex,

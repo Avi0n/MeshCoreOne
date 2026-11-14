@@ -61,7 +61,7 @@ struct ChatKeyboardTransitionTests {
           ChatConversationInputBar(
             conversationType: .channel(channel), composingText: $composerModel.text,
             focusRequest: $focusRequest, nodeNameByteCount: 0,
-            onSend: { _ in true }, onWillSend: {}
+            onSend: { _ in true }, onWillSend: {}, onDrawingRejected: {}
           )
           .overlay(alignment: .bottomLeading) {
             Color(red: 1, green: 0, blue: 0)

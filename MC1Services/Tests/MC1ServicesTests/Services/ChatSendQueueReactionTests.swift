@@ -209,6 +209,31 @@ struct ChatSendQueueReactionTests {
     await env.close()
   }
 
+  @Test
+  func `a channel image does not enqueue a reaction`() async throws {
+    let (env, _) = try await makeChannelEnvironment()
+    do {
+      let connection = try #require(env.manager.currentConnection)
+      let image = MessageDTO.testChannelMessage(
+        radioID: connection.device.radioID,
+        text: "im4:pixel",
+        direction: .incoming,
+        status: .delivered,
+        senderNodeName: "Ada"
+      )
+      try await env.manager.persistenceStore.saveMessage(image)
+      let queue = try #require(connection.services.chatSendQueueService)
+      let outgoing = try await queue.enqueueReaction(to: image, emoji: "👍", senderName: Self.senderName)
+      #expect(outgoing == nil)
+      #expect(try await env.manager.persistenceStore.fetchPendingSends(radioID: image.radioID).isEmpty)
+      #expect(try await env.manager.persistenceStore.fetchReactions(for: image.id).isEmpty)
+    } catch {
+      await env.close()
+      throw error
+    }
+    await env.close()
+  }
+
   private func makeChannelEnvironment() async throws -> (ConnectionManagerRadioTestHarness, MessageDTO) {
     let env = try ConnectionManagerRadioTestHarness()
     configureNotifications(env)

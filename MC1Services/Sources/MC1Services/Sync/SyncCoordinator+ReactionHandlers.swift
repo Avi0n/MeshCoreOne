@@ -252,6 +252,17 @@ extension SyncCoordinator {
       return true
     }
 
+    if (try? await dependencies.dataStore.channelImageMatchesReaction(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      parsedReaction: parsed,
+      localNodeName: selfNodeName.isEmpty ? nil : selfNodeName,
+      timestampWindow: timestampWindow,
+      limit: 200
+    )) == true {
+      return true
+    }
+
     // Queue reaction for later matching when target message arrives
     await dependencies.reactionService.queuePendingReaction(
       parsed: parsed,
@@ -360,6 +371,7 @@ extension SyncCoordinator {
     for candidate in candidates {
       // Skip messages that are themselves reactions
       if ReactionParser.isReactionText(candidate.text, isDM: false) { continue }
+      if MCOImageCodec.isChannelImage(channelIndex: candidate.channelIndex, text: candidate.text) { continue }
 
       // For channel messages, the Dart hash includes the sender name
       let candidateSenderName: String? = if candidate.direction == .outgoing {
@@ -472,6 +484,7 @@ extension SyncCoordinator {
 
     for candidate in candidates {
       if ReactionParser.isReactionText(candidate.text, isDM: false) { continue }
+      if MCOImageCodec.isChannelImage(channelIndex: candidate.channelIndex, text: candidate.text) { continue }
 
       // Verify sender name hash
       let candidateSenderName: String? = if candidate.direction == .outgoing {

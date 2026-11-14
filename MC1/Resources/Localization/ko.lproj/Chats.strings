@@ -1049,6 +1049,53 @@
 
 // MARK: - Inline Image
 
+// MARK: - MCOimg
+
+/* Editor title and the compose-menu action for a pixel drawing */
+"chats.mcoimg.title" = "픽셀 그리기";
+
+/* Placeholder when an MCOimg version cannot be shown */
+"chats.mcoimg.unsupported" = "지원되지 않는 이미지 형식";
+
+/* Placeholder when an MCOimg payload cannot be decoded */
+"chats.mcoimg.damaged" = "손상된 이미지";
+
+/* VoiceOver name for a rendered MCOimg */
+"chats.mcoimg.image" = "MCOimg 이미지";
+
+/* Erases every pixel in the editor */
+"chats.mcoimg.clear" = "그림 지우기";
+
+/* Sends the open pixel drawing */
+"chats.mcoimg.send" = "보내기";
+
+/* VoiceOver name for a palette swatch; the argument is 1-based */
+"chats.mcoimg.color" = "색상 %d";
+
+/* VoiceOver name for the pixel drawing canvas */
+"chats.mcoimg.canvas" = "픽셀 캔버스";
+
+/* VoiceOver name for one cell; arguments are 1-based column and row */
+"chats.mcoimg.pixel" = "픽셀 %d, %d";
+
+/* Alert title when a pixel drawing exceeds the conversation limit */
+"chats.mcoimg.tooLargeTitle" = "그림이 너무 큼";
+
+/* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
+"chats.mcoimg.tooLarge" = "그림이 %d바이트입니다. 이 대화는 %d바이트까지 허용합니다. 그림을 단순화한 후 다시 시도하십시오.";
+
+/* Alert title when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailedTitle" = "인코딩할 수 없음";
+
+/* Error when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailed" = "그림을 인코딩할 수 없습니다.";
+
+/* Progress label while a pixel drawing is encoded */
+"chats.mcoimg.encoding" = "그림 인코딩 중...";
+
+/* Progress label once a pixel drawing has been handed to the conversation */
+"chats.mcoimg.sending" = "그림 보내는 중...";
+
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "이미지";
 

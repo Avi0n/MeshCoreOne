@@ -11,11 +11,11 @@ struct ChannelSendSerializationTests {
   private static let secondScope = FloodScope.region("Beta")
   private static let selectedScope = FloodScope.region("Gamma")
 
-  @Test
-  func `concurrent channel sends and scope writes keep each send together`() async throws {
+  @Test(arguments: [false, true])
+  func `concurrent channel sends and scope writes keep each send together`(binary: Bool) async throws {
     let (session, transport) = try await startSession()
     let first = Task {
-      try await session.sendChannelMessage(
+      try await send(session: session, binary: binary,
         channel: Self.firstChannel, text: "first", timestamp: Self.timestamp,
         floodScope: .scope(Self.firstScope)
       )
@@ -24,7 +24,7 @@ struct ChannelSendSerializationTests {
     #expect(await transport.sentData[1] == PacketBuilder.setFloodScope(Self.firstScope.scopeKey()))
 
     let second = Task {
-      try await session.sendChannelMessage(
+      try await send(session: session, binary: binary,
         channel: Self.secondChannel, text: "second", timestamp: Self.timestamp,
         floodScope: .scope(Self.secondScope)
       )
@@ -35,9 +35,9 @@ struct ChannelSendSerializationTests {
 
     await transport.simulateOK()
     try await waitForFrameCount(3, transport: transport)
-    #expect(await transport.sentData[2] == PacketBuilder.sendChannelMessage(
+    #expect(await transport.sentData[2] == (try command(binary: binary,
       channel: Self.firstChannel, text: "first", timestamp: Self.timestamp
-    ))
+    )))
     await transport.simulateOK()
     try await waitForFrameCount(4, transport: transport)
     #expect(await transport.sentData[3] == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
@@ -56,11 +56,12 @@ struct ChannelSendSerializationTests {
     let frames = await Array(transport.sentData.dropFirst())
     let secondScopeFrame = PacketBuilder.setFloodScope(Self.secondScope.scopeKey())
     let secondScopeIndex = try #require(frames.firstIndex(of: secondScopeFrame))
-    #expect(frames[secondScopeIndex + 1] == PacketBuilder.sendChannelMessage(
+    #expect(frames[secondScopeIndex + 1] == (try command(binary: binary,
       channel: Self.secondChannel, text: "second", timestamp: Self.timestamp
-    ))
+    )))
     #expect(frames[secondScopeIndex + 2] == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
-    #expect(frames.filter { $0.first == CommandCode.sendChannelMessage.rawValue }.count == 2)
+    let commandCode = binary ? CommandCode.sendChannelData : CommandCode.sendChannelMessage
+    #expect(frames.filter { $0.first == commandCode.rawValue }.count == 2)
     await session.stop()
   }
 
@@ -172,6 +173,26 @@ struct ChannelSendSerializationTests {
     #expect(messageCount == (afterScopeACK ? 1 : 0))
     #expect(await session.floodScopeRecoveryRequired == false)
     await session.stop()
+  }
+
+  private func command(binary: Bool, channel: UInt8, text: String, timestamp: Date) throws -> Data {
+    if binary {
+      return try PacketBuilder.sendChannelData(channelIndex: channel, dataType: 0x0120, payload: Data(text.utf8))
+    }
+    return PacketBuilder.sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
+  }
+
+  private func send(
+    session: MeshCoreSession, binary: Bool, channel: UInt8, text: String,
+    timestamp: Date, floodScope: ResolvedFloodScope
+  ) async throws {
+    if binary {
+      try await session.sendChannelData(
+        channelIndex: channel, dataType: 0x0120, payload: Data(text.utf8), floodScope: floodScope
+      )
+    } else {
+      try await session.sendChannelMessage(channel: channel, text: text, timestamp: timestamp, floodScope: floodScope)
+    }
   }
 
   private func waitForFrameCount(_ count: Int, transport: MockTransport) async throws {

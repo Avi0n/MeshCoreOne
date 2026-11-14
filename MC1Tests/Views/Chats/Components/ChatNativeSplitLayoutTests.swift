@@ -1031,7 +1031,8 @@ private struct ChatNativeSplitHarness: View {
         focusRequest: $model.inputFocusRequest,
         nodeNameByteCount: 0,
         onSend: { _ in true },
-        onWillSend: { model.scrollToBottomRequest += 1 }
+        onWillSend: { model.scrollToBottomRequest += 1 },
+        onDrawingRejected: {}
       )
       .background {
         GateAIdentifierView(identifier: "gateA.composer")

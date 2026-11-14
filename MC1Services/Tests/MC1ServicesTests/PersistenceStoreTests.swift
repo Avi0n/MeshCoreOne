@@ -1091,6 +1091,104 @@ struct PersistenceStoreTests {
   }
 
   @Test
+  func `Channel image is not a reaction match`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let timestamp: UInt32 = 1_700_000_200
+    let channelIndex: UInt8 = 0
+    let createdAt = Date(timeIntervalSince1970: TimeInterval(timestamp))
+    let image = MessageDTO.testChannelMessage(
+      radioID: device.id,
+      channelIndex: channelIndex,
+      text: "im4:pixel",
+      timestamp: timestamp,
+      createdAt: createdAt,
+      direction: .incoming,
+      status: .delivered,
+      senderNodeName: "RemoteNode"
+    )
+    let text = MessageDTO.testChannelMessage(
+      radioID: device.id,
+      channelIndex: channelIndex,
+      text: "Plain channel text",
+      timestamp: timestamp,
+      createdAt: createdAt,
+      direction: .incoming,
+      status: .delivered,
+      senderNodeName: "RemoteNode"
+    )
+    try await store.saveMessage(image)
+    try await store.saveMessage(text)
+
+    let reactionService = ReactionService()
+    let imageReaction = reactionService.buildReactionText(
+      emoji: "👍",
+      targetSender: "RemoteNode",
+      targetText: image.text,
+      targetTimestamp: image.reactionTimestamp
+    )
+    let textReaction = reactionService.buildReactionText(
+      emoji: "👍",
+      targetSender: "RemoteNode",
+      targetText: text.text,
+      targetTimestamp: text.reactionTimestamp
+    )
+    let imageParsed = try #require(ReactionParser.parse(imageReaction))
+    let textParsed = try #require(ReactionParser.parse(textReaction))
+    let window = (timestamp - 300)...(timestamp + 300)
+
+    let foundImage = try await store.findChannelMessageForReaction(
+      radioID: device.id,
+      channelIndex: channelIndex,
+      parsedReaction: imageParsed,
+      localNodeName: "LocalNode",
+      timestampWindow: window,
+      limit: 200
+    )
+    let foundText = try await store.findChannelMessageForReaction(
+      radioID: device.id,
+      channelIndex: channelIndex,
+      parsedReaction: textParsed,
+      localNodeName: "LocalNode",
+      timestampWindow: window,
+      limit: 200
+    )
+    #expect(foundImage == nil)
+    #expect(foundText?.id == text.id)
+    #expect(try await store.channelImageMatchesReaction(
+      radioID: device.id,
+      channelIndex: channelIndex,
+      parsedReaction: imageParsed,
+      localNodeName: "LocalNode",
+      timestampWindow: window,
+      limit: 200
+    ))
+    #expect(try await store.channelImageMatchesReaction(
+      radioID: device.id,
+      channelIndex: channelIndex,
+      parsedReaction: textParsed,
+      localNodeName: "LocalNode",
+      timestampWindow: window,
+      limit: 200
+    ) == false)
+
+    let admission = try await store.admitReaction(ReactionDTO(
+      messageID: image.id,
+      emoji: "👍",
+      senderName: "RemoteNode",
+      messageHash: imageParsed.messageHash,
+      rawText: imageReaction,
+      channelIndex: image.channelIndex,
+      radioID: device.id
+    ))
+    #expect(admission == nil)
+    #expect(try await store.fetchReactions(for: image.id).isEmpty)
+    #expect(try await store.fetchMessage(id: image.id)?.reactionSummary == nil)
+  }
+
+  @Test
   func `Update message status`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()

@@ -1047,6 +1047,53 @@
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
 "chats.tip.deviceMenu.message" = "Керуйте з'єднанням, надсилайте оголошення та перевіряйте заряд. Радіо залишається підключеним навіть після примусового закриття застосунку. Натисніть «Відключити», щоб розірвати зв'язок.";
 
+// MARK: - MCOimg
+
+/* Editor title and the compose-menu action for a pixel drawing */
+"chats.mcoimg.title" = "Піксельний малюнок";
+
+/* Placeholder when an MCOimg version cannot be shown */
+"chats.mcoimg.unsupported" = "Непідтримуваний формат зображення";
+
+/* Placeholder when an MCOimg payload cannot be decoded */
+"chats.mcoimg.damaged" = "Пошкоджене зображення";
+
+/* VoiceOver name for a rendered MCOimg */
+"chats.mcoimg.image" = "Зображення MCOimg";
+
+/* Erases every pixel in the editor */
+"chats.mcoimg.clear" = "Очистити малюнок";
+
+/* Sends the open pixel drawing */
+"chats.mcoimg.send" = "Надіслати";
+
+/* VoiceOver name for a palette swatch; the argument is 1-based */
+"chats.mcoimg.color" = "Колір %d";
+
+/* VoiceOver name for the pixel drawing canvas */
+"chats.mcoimg.canvas" = "Піксельне полотно";
+
+/* VoiceOver name for one cell; arguments are 1-based column and row */
+"chats.mcoimg.pixel" = "Піксель %d, %d";
+
+/* Alert title when a pixel drawing exceeds the conversation limit */
+"chats.mcoimg.tooLargeTitle" = "Малюнок занадто великий";
+
+/* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
+"chats.mcoimg.tooLarge" = "Малюнок займає %d байт; ця розмова дозволяє %d. Спрости малюнок і спробуй ще раз.";
+
+/* Alert title when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailedTitle" = "Не вдалося закодувати";
+
+/* Error when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailed" = "Не вдалося закодувати малюнок.";
+
+/* Progress label while a pixel drawing is encoded */
+"chats.mcoimg.encoding" = "Кодування малюнка";
+
+/* Progress label once a pixel drawing has been handed to the conversation */
+"chats.mcoimg.sending" = "Надсилання малюнка";
+
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Зображення";
 

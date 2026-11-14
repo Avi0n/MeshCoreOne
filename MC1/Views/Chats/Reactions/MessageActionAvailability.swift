@@ -10,6 +10,7 @@ struct MessageActionAvailability {
   let canShowRepeatDetails: Bool
   let canViewPath: Bool
   let canDelete: Bool
+  let canReact: Bool
   /// True when the actions sheet shows the path disclosure.
   let showsPathDetail: Bool
 
@@ -25,6 +26,7 @@ struct MessageActionAvailability {
       && message.isFloodRouted
       && !(message.pathNodes?.isEmpty ?? true)
     canDelete = true
+    canReact = !MCOImageCodec.isChannelImage(channelIndex: message.channelIndex, text: message.text)
     showsPathDetail = canViewPath || canShowRepeatDetails || (!message.isOutgoing && message.heardRepeats > 0)
   }
 }

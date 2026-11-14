@@ -91,7 +91,7 @@ struct RoomMessageBubble: View {
   }
 
   var accessibilityMessageLabel: String {
-    let body = visibleBody.spokenText
+    let body = MCOImageCodec.content(from: message.text)?.accessibilityLabel ?? visibleBody.spokenText
     if isFromSelf {
       return "\(body), \(message.accessibilityStatusLabel)"
     }
@@ -242,7 +242,9 @@ private struct BubbleContent: View {
 
   @ViewBuilder
   private var messageBody: some View {
-    if let plainText = visibleBody.plainText {
+    if let image = MCOImageCodec.content(from: message.text) {
+      MCOImageView(content: image)
+    } else if let plainText = visibleBody.plainText {
       Text(plainText)
         .font(.body)
         .foregroundStyle(textColor)

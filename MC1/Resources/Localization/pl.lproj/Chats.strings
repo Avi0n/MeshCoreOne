@@ -1048,6 +1048,53 @@
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
 "chats.tip.deviceMenu.message" = "Zarządzaj połączeniem, wysyłaj ogłoszenia i sprawdzaj baterię. Radio pozostaje połączone nawet po wymuszonym zamknięciu aplikacji. Dotknij Rozłącz, aby wyłączyć łącze.";
 
+// MARK: - MCOimg
+
+/* Editor title and the compose-menu action for a pixel drawing */
+"chats.mcoimg.title" = "Malowanie pikseli";
+
+/* Placeholder when an MCOimg version cannot be shown */
+"chats.mcoimg.unsupported" = "Nieobsługiwany format obrazu";
+
+/* Placeholder when an MCOimg payload cannot be decoded */
+"chats.mcoimg.damaged" = "Uszkodzony obraz";
+
+/* VoiceOver name for a rendered MCOimg */
+"chats.mcoimg.image" = "Obraz MCOimg";
+
+/* Erases every pixel in the editor */
+"chats.mcoimg.clear" = "Wyczyść rysunek";
+
+/* Sends the open pixel drawing */
+"chats.mcoimg.send" = "Wyślij";
+
+/* VoiceOver name for a palette swatch; the argument is 1-based */
+"chats.mcoimg.color" = "Kolor %d";
+
+/* VoiceOver name for the pixel drawing canvas */
+"chats.mcoimg.canvas" = "Płótno pikseli";
+
+/* VoiceOver name for one cell; arguments are 1-based column and row */
+"chats.mcoimg.pixel" = "Piksel %d, %d";
+
+/* Alert title when a pixel drawing exceeds the conversation limit */
+"chats.mcoimg.tooLargeTitle" = "Rysunek za duży";
+
+/* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
+"chats.mcoimg.tooLarge" = "Rysunek ma %d bajtów; ta rozmowa pozwala na %d. Uprość rysunek i spróbuj ponownie.";
+
+/* Alert title when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailedTitle" = "Nie można zakodować";
+
+/* Error when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailed" = "Nie można zakodować rysunku.";
+
+/* Progress label while a pixel drawing is encoded */
+"chats.mcoimg.encoding" = "Kodowanie rysunku";
+
+/* Progress label once a pixel drawing has been handed to the conversation */
+"chats.mcoimg.sending" = "Wysyłanie rysunku";
+
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Obraz";
 

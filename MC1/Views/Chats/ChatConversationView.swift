@@ -200,7 +200,8 @@ struct ChatConversationView: View {
             await chatViewModel.sendChannelMessage(text: text)
           }
         },
-        onWillSend: { scrollToBottomRequest += 1 }
+        onWillSend: { scrollToBottomRequest += 1 },
+        onDrawingRejected: { chatViewModel.sendErrorMessage = nil }
       )
     }
     .navigationHeader(

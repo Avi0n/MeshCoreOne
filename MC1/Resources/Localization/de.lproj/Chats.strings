@@ -1056,6 +1056,53 @@
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
 "chats.tip.deviceMenu.message" = "Verwalte deine Verbindung, sende Ankündigungen und prüfe den Akku. Das Funkgerät bleibt auch nach erzwungenem Beenden verbunden. Tippe auf „Trennen“, um die Verbindung zu beenden.";
 
+// MARK: - MCOimg
+
+/* Editor title and the compose-menu action for a pixel drawing */
+"chats.mcoimg.title" = "Pixel malen";
+
+/* Placeholder when an MCOimg version cannot be shown */
+"chats.mcoimg.unsupported" = "Nicht unterstütztes Bildformat";
+
+/* Placeholder when an MCOimg payload cannot be decoded */
+"chats.mcoimg.damaged" = "Beschädigtes Bild";
+
+/* VoiceOver name for a rendered MCOimg */
+"chats.mcoimg.image" = "MCOimg Bild";
+
+/* Erases every pixel in the editor */
+"chats.mcoimg.clear" = "Zeichnung löschen";
+
+/* Sends the open pixel drawing */
+"chats.mcoimg.send" = "Senden";
+
+/* VoiceOver name for a palette swatch; the argument is 1-based */
+"chats.mcoimg.color" = "Farbe %d";
+
+/* VoiceOver name for the pixel drawing canvas */
+"chats.mcoimg.canvas" = "Pixel-Leinwand";
+
+/* VoiceOver name for one cell; arguments are 1-based column and row */
+"chats.mcoimg.pixel" = "Pixel %d, %d";
+
+/* Alert title when a pixel drawing exceeds the conversation limit */
+"chats.mcoimg.tooLargeTitle" = "Zeichnung zu groß";
+
+/* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
+"chats.mcoimg.tooLarge" = "Die Zeichnung ist %d Bytes groß; diese Unterhaltung erlaubt %d Bytes. Vereinfache die Zeichnung und versuche es erneut.";
+
+/* Alert title when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailedTitle" = "Kodieren nicht möglich";
+
+/* Error when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailed" = "Die Zeichnung konnte nicht kodiert werden.";
+
+/* Progress label while a pixel drawing is encoded */
+"chats.mcoimg.encoding" = "Zeichnung wird kodiert";
+
+/* Progress label once a pixel drawing has been handed to the conversation */
+"chats.mcoimg.sending" = "Zeichnung wird gesendet";
+
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Bild";
 
