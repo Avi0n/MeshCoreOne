@@ -60,7 +60,7 @@ extension ChatSendQueueService {
           timeout: dependencies.config.transportWaitTimeout
         )
       case let .sent(indexTimestamp):
-        if let nodeName = envelope.localNodeName {
+        if let nodeName = envelope.localNodeName, !MCOImageCodec.isImageText(envelope.messageText) {
           _ = await dependencies.reactionService.indexMessage(
             id: envelope.messageID,
             channelIndex: envelope.channelIndex,
@@ -134,7 +134,9 @@ extension ChatSendQueueService {
     envelope: ChannelMessageEnvelope,
     dependencies: ChannelDrainDependencies
   ) async throws {
-    guard isTransientChannelMessageError(error) else {
+    guard isTransientChannelMessageError(
+      error, isImage: MCOImageCodec.isImageText(envelope.messageText)
+    ) else {
       dependencies.logger.info(
         "channel drain terminal messageID=\(envelope.messageID) error=\(String(describing: error))"
       )

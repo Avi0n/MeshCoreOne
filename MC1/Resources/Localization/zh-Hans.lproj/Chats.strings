@@ -1113,6 +1113,50 @@
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
 "chats.tip.deviceMenu.message" = "管理您的连接、发送广播并查看电池电量。即使在强制退出应用后，无线电仍保持连接。点击断开连接以关闭链路。";
 
+// MARK: - MCOimg
+
+/* TODO: translate - Editor title and the compose-menu action for a pixel drawing */
+"chats.mcoimg.title" = "Pixel Paint";
+
+/* TODO: translate - Placeholder when an MCOimg version cannot be shown */
+"chats.mcoimg.unsupported" = "Unsupported image format";
+
+/* TODO: translate - Placeholder when an MCOimg payload cannot be decoded */
+"chats.mcoimg.damaged" = "Damaged image";
+
+/* TODO: translate - VoiceOver name for a rendered MCOimg */
+"chats.mcoimg.image" = "MCOimg image";
+
+/* TODO: translate - Erases every pixel in the editor */
+"chats.mcoimg.clear" = "Clear Drawing";
+
+/* TODO: translate - Removes a staged pixel drawing from the composer */
+"chats.mcoimg.remove" = "Remove Drawing";
+
+/* TODO: translate - Reopens the editor for a staged pixel drawing */
+"chats.mcoimg.edit" = "Edit Drawing";
+
+/* TODO: translate - VoiceOver name for a palette swatch; the argument is 1-based */
+"chats.mcoimg.color" = "Color %d";
+
+/* TODO: translate - VoiceOver name for the pixel drawing canvas */
+"chats.mcoimg.canvas" = "Pixel canvas";
+
+/* TODO: translate - VoiceOver name for one cell; arguments are 1-based column and row */
+"chats.mcoimg.pixel" = "Pixel %d, %d";
+
+/* TODO: translate - Status shown when a pixel drawing is staged for Send */
+"chats.mcoimg.draft" = "Drawing ready to send";
+
+/* TODO: translate - Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
+"chats.mcoimg.tooLarge" = "Drawing is %d bytes; this conversation allows %d. Simplify the drawing and try again.";
+
+/* TODO: translate - Error when a pixel drawing cannot be encoded */
+"chats.mcoimg.encodingFailed" = "Unable to encode the drawing.";
+
+/* TODO: translate - Progress label while a pixel drawing is encoded */
+"chats.mcoimg.encoding" = "Encoding Drawing";
+
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "图片";
 

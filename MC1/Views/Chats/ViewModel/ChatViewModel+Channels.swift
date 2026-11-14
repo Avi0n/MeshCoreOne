@@ -154,6 +154,15 @@ extension ChatViewModel {
     errorMessage = nil
     errorBannerMessage = nil
 
+    let originalMessage = message
+    let message: MessageDTO
+    do {
+      message = try await messageService?.prepareImageForResend(originalMessage) ?? originalMessage
+    } catch {
+      errorMessage = error.userFacingMessage
+      return
+    }
+
     // Capture once so the three status-update writes below all target the
     // same container even if a reconnect fires between the awaits.
     let dataStore = dataStore

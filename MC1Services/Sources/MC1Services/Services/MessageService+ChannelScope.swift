@@ -24,6 +24,26 @@ extension MessageService {
     } else {
       scope
     }
+    if MCOImageCodec.isImageText(text) {
+      let payload = try await channelImagePayload(text, radioID: radioID)
+      if let appliedScope {
+        try await session.sendChannelData(
+          channelIndex: channelIndex,
+          dataType: MCOImageTransport.applicationDataType,
+          payload: payload,
+          floodScope: appliedScope
+        )
+      } else {
+        try await session.sendChannelData(
+          channelIndex: channelIndex,
+          dataType: MCOImageTransport.applicationDataType,
+          payload: payload,
+          pathLength: PacketBuilder.floodPathSentinel,
+          pathBytes: Data()
+        )
+      }
+      return
+    }
     if let appliedScope {
       try await session.sendChannelMessage(
         channel: channelIndex,

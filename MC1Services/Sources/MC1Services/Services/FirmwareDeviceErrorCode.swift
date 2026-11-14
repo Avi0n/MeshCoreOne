@@ -22,6 +22,9 @@ public enum FirmwareDeviceErrorCode {
   ///   `.failed` so the user can resend into a different channel.
   public static let channelMessageNotFound: UInt8 = 2
 
+  /// `TABLE_FULL` on binary GROUP_DATA. The outbound packet pool is temporarily full.
+  public static let channelDataTableFull: UInt8 = 3
+
   /// `RESP_CODE_NO_MORE_MESSAGES` surfaced on the remote-node section path. The
   /// companion radio's offline-message queue is empty, meaning the awaited
   /// repeater/room reply hasn't arrived yet; the section request backs off and

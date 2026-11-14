@@ -21,6 +21,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public var stubbedUpdateMessageStatusError: Error?
   public var stubbedResolvePendingAcknowledgementError: Error?
   public var stubbedSaveContactError: Error?
+  var stubbedUpdateContactLastMessageError: Error?
   public var stubbedFetchContactError: Error?
   public var stubbedFetchContactPublicKeysError: Error?
   public var stubbedDeleteContactError: Error?
@@ -71,6 +72,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func setUpdateMessageAckObserver(_ observer: (@Sendable (MessageStatus) async -> Void)?) {
     updateMessageAckObserver = observer
+  }
+
+  public func setStubbedUpdateContactLastMessageError(_ error: Error?) {
+    stubbedUpdateContactLastMessageError = error
   }
 
   public func setStubbedFetchContactError(_ error: Error?) {
@@ -1150,6 +1155,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   }
 
   public func updateContactLastMessage(contactID: UUID, date: Date?) async throws {
+    if let error = stubbedUpdateContactLastMessageError { throw error }
     if let contact = contacts[contactID] {
       contacts[contactID] = ContactDTO(
         id: contact.id,

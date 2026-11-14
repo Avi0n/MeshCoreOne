@@ -97,6 +97,17 @@ public protocol MessagePersisting: Actor {
     limit: Int
   ) async throws -> MessageDTO?
 
+  /// True when a stored channel image matches this reaction hash.
+  /// The text lookup returns nil for that row, which is also how a missing text message looks.
+  func channelImageMatchesReaction(
+    radioID: UUID,
+    channelIndex: UInt8,
+    parsedReaction: ParsedReaction,
+    localNodeName: String?,
+    timestampWindow: ClosedRange<UInt32>,
+    limit: Int
+  ) async throws -> Bool
+
   /// Fetches channel message candidates for meshcore-open reaction matching
   func fetchChannelMessageCandidates(
     radioID: UUID,
@@ -157,6 +168,9 @@ public protocol MessagePersisting: Actor {
 
   /// Update message retry status
   func updateMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws
+
+  /// Update the exact wire text before a user-initiated image resend.
+  func updateMessageText(id: UUID, text: String) async throws
 
   /// Update message timestamp (for resending)
   func updateMessageTimestamp(id: UUID, timestamp: UInt32) async throws
@@ -241,6 +255,12 @@ public protocol MessagePersisting: Actor {
 // MARK: - Default Parameter Values
 
 extension MessagePersisting {
+  public func updateMessageText(id: UUID, text: String) async throws {
+    guard var message = try await fetchMessage(id: id) else { return }
+    message.text = text
+    try await saveMessage(message)
+  }
+
   /// Update message ACK info with no round-trip time
   func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus) async throws {
     try await updateMessageAck(id: id, ackCode: ackCode, status: status, roundTripTime: nil)
@@ -275,6 +295,17 @@ extension MessagePersisting {
 }
 
 public extension MessagePersisting {
+  func channelImageMatchesReaction(
+    radioID _: UUID,
+    channelIndex _: UInt8,
+    parsedReaction _: ParsedReaction,
+    localNodeName _: String?,
+    timestampWindow _: ClosedRange<UInt32>,
+    limit _: Int
+  ) async throws -> Bool {
+    false
+  }
+
   func admitOutgoingReaction(_ message: MessageDTO) async throws -> MessageDTO? {
     nil
   }

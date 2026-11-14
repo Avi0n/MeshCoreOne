@@ -558,6 +558,42 @@ public enum L10n {
         /// Location: MalwareWarningCard.swift - Warning title for flagged domains
         public static let title = L10n.tr("Chats", "chats.malwareWarning.title", fallback: "Link flagged as suspicious")
       }
+      public enum Mcoimg {
+        /// VoiceOver name for the pixel drawing canvas
+        public static let canvas = L10n.tr("Chats", "chats.mcoimg.canvas", fallback: "Pixel canvas")
+        /// Erases every pixel in the editor
+        public static let clear = L10n.tr("Chats", "chats.mcoimg.clear", fallback: "Clear Drawing")
+        /// VoiceOver name for a palette swatch; the argument is 1-based
+        public static func color(_ p1: Int) -> String {
+          return L10n.tr("Chats", "chats.mcoimg.color", p1, fallback: "Color %d")
+        }
+        /// Placeholder when an MCOimg payload cannot be decoded
+        public static let damaged = L10n.tr("Chats", "chats.mcoimg.damaged", fallback: "Damaged image")
+        /// Status shown when a pixel drawing is staged for Send
+        public static let draft = L10n.tr("Chats", "chats.mcoimg.draft", fallback: "Drawing ready to send")
+        /// Reopens the editor for a staged pixel drawing
+        public static let edit = L10n.tr("Chats", "chats.mcoimg.edit", fallback: "Edit Drawing")
+        /// Progress label while a pixel drawing is encoded
+        public static let encoding = L10n.tr("Chats", "chats.mcoimg.encoding", fallback: "Encoding Drawing")
+        /// Error when a pixel drawing cannot be encoded
+        public static let encodingFailed = L10n.tr("Chats", "chats.mcoimg.encodingFailed", fallback: "Unable to encode the drawing.")
+        /// VoiceOver name for a rendered MCOimg
+        public static let image = L10n.tr("Chats", "chats.mcoimg.image", fallback: "MCOimg image")
+        /// VoiceOver name for one cell; arguments are 1-based column and row
+        public static func pixel(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Chats", "chats.mcoimg.pixel", p1, p2, fallback: "Pixel %d, %d")
+        }
+        /// Removes a staged pixel drawing from the composer
+        public static let remove = L10n.tr("Chats", "chats.mcoimg.remove", fallback: "Remove Drawing")
+        /// Editor title and the compose-menu action for a pixel drawing
+        public static let title = L10n.tr("Chats", "chats.mcoimg.title", fallback: "Pixel Paint")
+        /// Error when a pixel drawing exceeds the conversation limit; arguments are size then limit
+        public static func tooLarge(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Chats", "chats.mcoimg.tooLarge", p1, p2, fallback: "Drawing is %d bytes; this conversation allows %d. Simplify the drawing and try again.")
+        }
+        /// Placeholder when an MCOimg version cannot be shown
+        public static let unsupported = L10n.tr("Chats", "chats.mcoimg.unsupported", fallback: "Unsupported image format")
+      }
       public enum Mention {
         public enum Accessibility {
           /// Location: MentionSuggestionRow.swift - Accessibility hint for channel sender mention

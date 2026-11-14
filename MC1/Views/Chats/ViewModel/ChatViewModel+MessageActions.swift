@@ -30,6 +30,13 @@ extension ChatViewModel {
     errorMessage = nil
     errorBannerMessage = nil
 
+    do {
+      _ = try await messageService?.prepareImageForResend(message)
+    } catch {
+      errorMessage = error.userFacingMessage
+      return
+    }
+
     let envelope = DirectMessageEnvelope(
       messageID: message.id, contactID: contact.id,
       isSingleAttempt: message.reactionTargetMessageID != nil
@@ -61,11 +68,17 @@ extension ChatViewModel {
   /// Resend a channel message in place, or copy text for direct messages.
   /// Used for "Send Again" context menu action.
   func sendAgain(_ message: MessageDTO) async {
+    let originalMessage = message
+    let message: MessageDTO
+    do {
+      message = try await messageService?.prepareImageForResend(originalMessage) ?? originalMessage
+    } catch {
+      errorMessage = error.userFacingMessage
+      return
+    }
     if let channelIndex = message.channelIndex {
-      // Channel messages: enqueue with isResend: true so the queue drain
-      // refreshes the mesh timestamp via resendChannelMessage. Reusing the
-      // original timestamp would hash identically to the failed packet and
-      // be dropped by the 128-slot cyclic dedup table at every neighbor.
+      // Text resends need a fresh wire timestamp; image nonces were prepared
+      // before enqueue so automatic queue retries can preserve their payload.
       let envelope = ChannelMessageEnvelope(
         messageID: message.id,
         channelIndex: channelIndex,

@@ -197,11 +197,33 @@ struct MessageActionAvailabilityTests {
     #expect(availability.canBlockSender == false)
   }
 
+  @Test
+  func `channel image cannot react`() {
+    let message = makeMessage(channelIndex: 0, text: "im4:pixel")
+    let availability = MessageActionAvailability(message: message)
+    #expect(availability.canReact == false)
+  }
+
+  @Test
+  func `direct image can react`() {
+    let message = makeMessage(contactID: UUID(), text: "im4:pixel")
+    let availability = MessageActionAvailability(message: message)
+    #expect(availability.canReact == true)
+  }
+
+  @Test
+  func `channel text can react`() {
+    let message = makeMessage(channelIndex: 0, text: "Hello")
+    let availability = MessageActionAvailability(message: message)
+    #expect(availability.canReact == true)
+  }
+
   // MARK: - Helper
 
   private func makeMessage(
     contactID: UUID? = nil,
     channelIndex: UInt8? = nil,
+    text: String = "Test",
     pathLength: UInt8 = 0x02,
     pathNodes: Data? = Data([0xA3, 0x7F]),
     direction: MessageDirection = .incoming,
@@ -214,7 +236,7 @@ struct MessageActionAvailabilityTests {
       radioID: UUID(),
       contactID: contactID,
       channelIndex: channelIndex,
-      text: "Test",
+      text: text,
       timestamp: 0,
       createdAt: Date(),
       direction: direction,

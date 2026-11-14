@@ -35,6 +35,15 @@ public enum MessageFragmentBuilder {
   ) -> [MessageFragment] {
     var fragments: [MessageFragment] = []
 
+    if let image = MCOImageCodec.content(from: message.text) {
+      fragments.append(.mcoImage(image))
+      if !MCOImageCodec.isChannelImage(channelIndex: message.channelIndex, text: message.text),
+         let summary = message.reactionSummary, !summary.isEmpty {
+        fragments.append(.reactionSummary(summary))
+      }
+      return fragments
+    }
+
     fragments.append(.text(makeText(message: message, inputs: inputs, envInputs: envInputs)))
 
     if let summary = message.reactionSummary, !summary.isEmpty {
@@ -274,7 +283,8 @@ public enum MessageFragmentBuilder {
     inputs: MessageBuildInputs,
     message: MessageDTO
   ) -> Bool {
-    inputs.previewState == .idle
+    !MCOImageCodec.isImageText(message.text)
+      && inputs.previewState == .idle
       && inputs.cachedURL != nil
       && message.linkPreviewURL == nil
   }

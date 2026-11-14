@@ -138,12 +138,13 @@ struct FragmentLayoutTests {
     let expectedBoxImage = content.contains { if case .inlineImage = $0 { true } else { false } }
     #expect((layout.textPayload != nil) == expectedBoxText)
     #expect((layout.inlineImage != nil) == expectedBoxImage)
+    #expect((layout.mcoImage != nil) == content.contains { if case .mcoImage = $0 { true } else { false } })
 
     // Siblings: content minus text/inlineImage, in order, exactly as the old
     // UnifiedMessageBubble ForEach + EmptyView arm produced them.
     let expectedSiblings = content.filter {
       switch $0 {
-      case .text, .inlineImage: false
+      case .text, .inlineImage, .mcoImage: false
       case .linkPreview, .mapPreview, .malwareWarning, .reactionSummary: true
       }
     }
@@ -154,6 +155,7 @@ struct FragmentLayoutTests {
     KindScenario(name: "text only", kinds: [.text]),
     KindScenario(name: "text + reaction", kinds: [.text, .reactionSummary]),
     KindScenario(name: "text + malware + map", kinds: [.text, .malwareWarning, .mapPreview]),
+    KindScenario(name: "MCOimg + reaction", kinds: [.mcoImage, .reactionSummary]),
     KindScenario(name: "text + inline image", kinds: [.text, .inlineImage]),
     KindScenario(name: "text + link preview", kinds: [.text, .linkPreview]),
     KindScenario(name: "text + map preview", kinds: [.text, .mapPreview]),
@@ -171,13 +173,14 @@ struct FragmentLayoutTests {
   // MARK: - Helpers
 
   enum FragmentKind: Equatable {
-    case text, inlineImage, linkPreview, mapPreview, malwareWarning, reactionSummary
+    case text, inlineImage, mcoImage, linkPreview, mapPreview, malwareWarning, reactionSummary
   }
 
   private static func fragment(for kind: FragmentKind) -> MessageFragment {
     switch kind {
     case .text: textFragment()
     case .inlineImage: inlineImageFragment()
+    case .mcoImage: .mcoImage(.unsupported)
     case .linkPreview: linkPreviewFragment
     case .mapPreview: mapPreviewFragment
     case .malwareWarning: malwareFragment
@@ -189,6 +192,7 @@ struct FragmentLayoutTests {
     switch fragment {
     case .text: .text
     case .inlineImage: .inlineImage
+    case .mcoImage: .mcoImage
     case .linkPreview: .linkPreview
     case .mapPreview: .mapPreview
     case .malwareWarning: .malwareWarning

@@ -156,12 +156,15 @@ enum ChatTimelinePopulator {
         } else {
           message.senderNodeName
         }
-        guard let senderName else { continue }
+        let reactionSender = senderName ?? (
+          MCOImageCodec.isChannelImage(channelIndex: message.channelIndex, text: message.text) ? "Unknown" : nil
+        )
+        guard let reactionSender else { continue }
 
         let pendingMatches = await reactionService.indexMessage(
           id: message.id,
           channelIndex: channel.index,
-          senderName: senderName,
+          senderName: reactionSender,
           text: message.text,
           timestamp: message.reactionTimestamp
         )

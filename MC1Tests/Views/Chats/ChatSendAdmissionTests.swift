@@ -66,6 +66,29 @@ struct ChatSendAdmissionTests {
   }
 
   @Test(arguments: [false, true])
+  func `message creation rejection returns false without admitting or queuing a Message`(isChannel: Bool) async throws {
+    let radioID = UUID()
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let service = MessageService(session: MeshCoreSession(transport: MockTransport()), dataStore: store, contactService: nil)
+    let viewModel = ChatViewModel()
+    viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { store }, messageService: { service }))
+    viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
+    selectConversation(viewModel, radioID: radioID, isChannel: isChannel)
+    let text = String(repeating: "a", count: ProtocolLimits.maxDirectMessageLength + 1)
+
+    #expect(await !submit(text, to: viewModel, isChannel: isChannel))
+    #expect(viewModel.messages.isEmpty)
+    #expect(viewModel.errorMessage != nil)
+    #expect(try await store.fetchPendingSends(radioID: radioID).isEmpty)
+    if let contact = viewModel.currentContact {
+      #expect(try await store.fetchMessages(contactID: contact.id).isEmpty)
+    }
+    if let channel = viewModel.currentChannel {
+      #expect(try await store.fetchMessages(radioID: radioID, channelIndex: channel.index).isEmpty)
+    }
+  }
+
+  @Test(arguments: [false, true])
   func `production tabs retain the draft when service loss wins the send handoff`(isChannel: Bool) async throws {
     let suiteName = "test.send-admission.\(UUID().uuidString)"
     let defaults = try #require(UserDefaults(suiteName: suiteName))

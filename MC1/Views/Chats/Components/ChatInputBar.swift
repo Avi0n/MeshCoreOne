@@ -34,6 +34,9 @@ struct ChatInputBar<Leading: View>: View {
   let isEncrypted: Bool
   @ViewBuilder let leading: () -> Leading
   let onSend: (String) -> Void
+  var hasAttachment = false
+  var isSubmittingAttachment = false
+  var onSendAttachment: (() -> Void)?
 
   @State private var isCoolingDown = false
   @State private var sendInvocationCounter: Int = 0
@@ -45,11 +48,11 @@ struct ChatInputBar<Leading: View>: View {
   }
 
   private var isOverLimit: Bool {
-    byteCount > maxBytes
+    !hasAttachment && byteCount > maxBytes
   }
 
   private var shouldShowCharacterCount: Bool {
-    byteCount >= maxBytes - 20
+    !hasAttachment && byteCount >= maxBytes - 20
   }
 
   var body: some View {
@@ -118,7 +121,8 @@ struct ChatInputBar<Leading: View>: View {
   private var canSend: Bool {
     !isCoolingDown &&
       appState.connectionState == .ready &&
-      !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isOverLimit
+      !isSubmittingAttachment &&
+      (hasAttachment || !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) && !isOverLimit
   }
 
   /// Hardware Return: `true` consumes it and sends under the same gates as the send
@@ -131,6 +135,10 @@ struct ChatInputBar<Leading: View>: View {
 
   private func send() {
     composerProxy.commitPendingInput()
+    if hasAttachment {
+      onSendAttachment?()
+      return
+    }
     let captured = text.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !captured.isEmpty else { return }
     isCoolingDown = true

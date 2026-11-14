@@ -6,6 +6,16 @@ import Testing
 @MainActor
 @Suite("RoomMessageBubble accessibility label")
 struct RoomMessageBubbleA11yLabelTests {
+  @Test(arguments: ["im3:g/5WjAL`NA", "im4:AAAAA", "im5:unknown", "im3:"])
+  func imageMessagesAnnounceTheirLocalizedContent(_ text: String) throws {
+    let message = RoomMessageDTO(sessionID: UUID(), authorKeyPrefix: Data([0xAA]),
+                                 authorName: "Alice", text: text, timestamp: 100)
+    let content = try #require(MCOImageCodec.content(from: text))
+    let bubble = RoomMessageBubble(message: message, showTimestamp: false, showSenderName: false, showAvatar: true)
+    #expect(bubble.accessibilityMessageLabel == "Alice: " + content.accessibilityLabel)
+    #expect(!bubble.accessibilityMessageLabel.contains(text))
+  }
+
   @Test
   func `incoming follow-up label still includes the author`() {
     let message = RoomMessageDTO(

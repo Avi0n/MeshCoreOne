@@ -15,6 +15,7 @@ public enum MessageLanguageDetector: Sendable {
 
   /// Dominant language of the mention-stripped body, or `.undetermined`.
   public static func dominantLanguage(for text: String) -> DetectedLanguage {
+    guard !MCOImageCodec.isImageText(text) else { return .undetermined }
     let sample = detectionSample(from: text)
     guard !sample.isEmpty else { return .undetermined }
 

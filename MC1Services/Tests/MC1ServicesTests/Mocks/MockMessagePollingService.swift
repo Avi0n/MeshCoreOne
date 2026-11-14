@@ -61,6 +61,8 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
   /// Captured channel message handler (set via setChannelMessageHandler)
   public private(set) var capturedChannelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)?
 
+  private(set) var capturedChannelDatagramHandler: (@Sendable (ChannelDatagram, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)?
+
   /// Captured signed message handler (set via setSignedMessageHandler)
   public private(set) var capturedSignedMessageHandler: (@Sendable (ContactMessage, ReceiveScope) async -> Void)?
 
@@ -75,6 +77,10 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
 
   public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {
     capturedChannelMessageHandler = handler
+  }
+
+  public func setChannelDatagramHandler(_ handler: @escaping @Sendable (ChannelDatagram, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {
+    capturedChannelDatagramHandler = handler
   }
 
   public func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ReceiveScope) async -> Void) {
@@ -96,6 +102,7 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
     resumeAutoFetchCallCount = 0
     capturedContactMessageHandler = nil
     capturedChannelMessageHandler = nil
+    capturedChannelDatagramHandler = nil
     capturedSignedMessageHandler = nil
     capturedCLIMessageHandler = nil
   }

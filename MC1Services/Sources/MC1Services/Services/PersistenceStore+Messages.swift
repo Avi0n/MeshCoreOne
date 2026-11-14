@@ -241,12 +241,50 @@ public extension PersistenceStore {
         continue
       }
 
+      guard !MCOImageCodec.isChannelImage(channelIndex: candidate.channelIndex, text: candidate.text) else {
+        logger.debug("[REACTION-MATCH] Skip channel image")
+        continue
+      }
+
       logger.debug("[REACTION-MATCH] Found match!")
       return candidate
     }
 
     logger.debug("[REACTION-MATCH] No match found")
     return nil
+  }
+
+  /// True when a channel image in the window hashes to this reaction.
+  /// A text lookup miss looks the same as this, so the caller must not queue it.
+  func channelImageMatchesReaction(
+    radioID: UUID,
+    channelIndex: UInt8,
+    parsedReaction: ParsedReaction,
+    localNodeName: String?,
+    timestampWindow: ClosedRange<UInt32>,
+    limit: Int
+  ) async throws -> Bool {
+    let candidates = try fetchChannelMessageCandidates(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      timestampWindow: timestampWindow,
+      limit: limit
+    )
+    for candidate in candidates {
+      guard MCOImageCodec.isChannelImage(channelIndex: candidate.channelIndex, text: candidate.text) else {
+        continue
+      }
+      if candidate.direction == .outgoing {
+        guard let localNodeName, parsedReaction.targetSender == localNodeName else { continue }
+      } else {
+        guard candidate.senderNodeName == parsedReaction.targetSender else { continue }
+      }
+      let candidateHash = ReactionParser.generateMessageHash(
+        text: candidate.text, timestamp: candidate.reactionTimestamp
+      )
+      if candidateHash == parsedReaction.messageHash { return true }
+    }
+    return false
   }
 
   /// Fetches channel message candidates within a timestamp window for meshcore-open reaction matching.
@@ -525,6 +563,19 @@ public extension PersistenceStore {
       message.status = status
       message.retryAttempt = retryAttempt
       message.maxRetryAttempts = maxRetryAttempts
+      try modelContext.save()
+    }
+  }
+
+  func updateMessageText(id: UUID, text: String) async throws {
+    let targetID = id
+    let predicate = #Predicate<Message> { message in
+      message.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    if let message = try modelContext.fetch(descriptor).first {
+      message.text = text
       try modelContext.save()
     }
   }
@@ -1039,6 +1090,9 @@ public extension PersistenceStore {
     var messageDescriptor = FetchDescriptor(predicate: messagePredicate)
     messageDescriptor.fetchLimit = 1
     guard let message = try modelContext.fetch(messageDescriptor).first else { return nil }
+    if MCOImageCodec.isChannelImage(channelIndex: message.channelIndex, text: message.text) {
+      return nil
+    }
 
     let senderName = dto.senderName
     let emoji = dto.emoji

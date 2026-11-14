@@ -44,6 +44,24 @@ public protocol MessagingSessionOps: Actor {
     timestamp: Date,
     floodScope: ResolvedFloodScope
   ) async throws
+
+  /// Applies the channel's flood scope and sends binary GROUP_DATA in the same command-response slot.
+  func sendChannelData(
+    channelIndex: UInt8,
+    dataType: UInt16,
+    payload: Data,
+    floodScope: ResolvedFloodScope
+  ) async throws
+
+  /// Sends binary GROUP_DATA without a flood-scope preface.
+  /// Radios older than the scope command use this when the resolved scope is disabled.
+  func sendChannelData(
+    channelIndex: UInt8,
+    dataType: UInt16,
+    payload: Data,
+    pathLength: UInt8,
+    pathBytes: Data
+  ) async throws
 }
 
 // MARK: - Default Implementations

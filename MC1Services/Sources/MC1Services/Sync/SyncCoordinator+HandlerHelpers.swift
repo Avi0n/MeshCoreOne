@@ -20,11 +20,18 @@ extension SyncCoordinator {
     dependencies: SyncDependencies,
     radioID: UUID,
     channelIndex: UInt8?,
-    senderTimestamp: UInt32,
+    senderTimestamp: UInt32?,
     senderPublicKeyPrefix: Data?,
     defaultPathLength: UInt8,
     channelDeduplicationKey: String?
   ) async -> RxLogLookupResult {
+    // GROUP_DATA has no sender timestamp and cannot join timestamp-indexed text packets.
+    guard let senderTimestamp else {
+      return RxLogLookupResult(
+        pathNodes: nil, pathLength: defaultPathLength, packetHash: nil,
+        routeType: nil, regionScope: nil, regionScopeMatches: []
+      )
+    }
     if let channelIndex {
       logger.debug("Looking up RxLogEntry for channel \(channelIndex) with senderTimestamp: \(senderTimestamp)")
     }

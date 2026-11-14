@@ -42,7 +42,7 @@ public extension MessageService {
     // Keep this send in the retirement barrier through the Sent write if scope cleanup triggers recovery.
     try beginInlineSend()
     defer { endInlineSend() }
-    try await rejectIfChannelTextTooLong(text, radioID: radioID)
+    let text = try await prepareChannelMessage(text, radioID: radioID)
 
     let messageID = UUID()
     let timestamp = UInt32(Date().timeIntervalSince1970)
@@ -59,7 +59,7 @@ public extension MessageService {
     try await dataStore.saveMessage(messageDTO)
 
     do {
-      try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
+      try await withPoolBackoff(transientCode: channelPoolErrorCode(text), config: config.poolBackoff, logger: logger) {
         try await sendChannelMessageWithScope(
           text: text,
           channelIndex: channelIndex,
@@ -97,7 +97,7 @@ public extension MessageService {
     radioID: UUID,
     textType: TextType = .plain
   ) async throws -> MessageDTO {
-    try await rejectIfChannelTextTooLong(text, radioID: radioID)
+    let text = try await prepareChannelMessage(text, radioID: radioID)
 
     let messageID = UUID()
     let timestamp = UInt32(Date().timeIntervalSince1970)
@@ -144,7 +144,7 @@ public extension MessageService {
       let isReaction = message.reactionTargetMessageID != nil
       let alreadyAccepted = isReaction && (acceptedChannelReactions.contains(messageID) || message.status == .sent)
       if !alreadyAccepted {
-        try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
+        try await withPoolBackoff(transientCode: channelPoolErrorCode(message.text), config: config.poolBackoff, logger: logger) {
           try await sendChannelMessageWithScope(
             text: message.text,
             channelIndex: channelIndex,
@@ -184,7 +184,7 @@ public extension MessageService {
     }
   }
 
-  /// Resends a channel message, preserving its wire timestamp only during recovery.
+  /// Recovery keeps the wire timestamp; a user resend stamps a new one. An MCOimg keeps the nonce prepared before admission.
   /// Returns that timestamp so reaction indexing matches the send.
   @discardableResult
   func resendChannelMessage(
@@ -221,7 +221,7 @@ public extension MessageService {
         acceptedChannelReactions.contains(messageID) || (preserveTimestamp && message.status == .sent)
       )
       if !alreadyAccepted {
-        try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
+        try await withPoolBackoff(transientCode: channelPoolErrorCode(message.text), config: config.poolBackoff, logger: logger) {
           try await sendChannelMessageWithScope(
             text: message.text,
             channelIndex: channelIndex,
@@ -259,6 +259,10 @@ public extension MessageService {
     }
 
     return wireTimestamp
+  }
+
+  private func channelPoolErrorCode(_ text: String) -> UInt8 {
+    MCOImageCodec.isImageText(text) ? FirmwareDeviceErrorCode.channelDataTableFull : FirmwareDeviceErrorCode.channelMessageNotFound
   }
 
   private func createOutgoingChannelMessage(
