@@ -76,7 +76,8 @@ public extension MeshCoreSession {
     }
     if isCancelled() { throw CancellationError() }
 
-    // `send_scope` lives in radio RAM. A reboot clears it, so every send writes 36 before 03.
+    // `send_scope` is one register for every interface, and this session cannot read it back.
+    // Every zero-key send writes that command before the text.
     let setup = Self.temporaryScopeCommand(floodScope)
     switch await settleChannelCommand(setup.command, isCancelled: isCancelled) {
     case .replied(.accepted):
