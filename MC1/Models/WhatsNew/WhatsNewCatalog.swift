@@ -5,6 +5,32 @@ import Foundation
 enum WhatsNewCatalog {
   static let releases: [WhatsNewRelease] = [
     WhatsNewRelease(
+      version: WhatsNewVersion(major: 1, minor: 7),
+      items: [
+        WhatsNewItem(
+          symbol: "line.3.horizontal.decrease",
+          title: L10n.WhatsNew.WhatsNew.BlocksAndFilters.title,
+          description: L10n.WhatsNew.WhatsNew.BlocksAndFilters.description
+        ),
+        WhatsNewItem(
+          symbol: "paperplane",
+          title: L10n.WhatsNew.WhatsNew.DirectMessages.title,
+          description: L10n.WhatsNew.WhatsNew.DirectMessages.description
+        ),
+        WhatsNewItem(
+          symbol: "gauge.with.dots.needle.67percent",
+          title: L10n.WhatsNew.WhatsNew.NodeTelemetry.title,
+          description: L10n.WhatsNew.WhatsNew.NodeTelemetry.description
+        ),
+        WhatsNewItem(
+          symbol: "platter.filled.bottom.and.arrow.down.iphone",
+          title: L10n.WhatsNew.WhatsNew.LiveActivity.title,
+          description: L10n.WhatsNew.WhatsNew.LiveActivity.description
+        )
+      ],
+      releaseNotesURL: URL(string: "https://github.com/Avi0n/MeshCoreOne/releases/tag/v1.7.0")!
+    ),
+    WhatsNewRelease(
       version: WhatsNewVersion(major: 1, minor: 6),
       items: [
         WhatsNewItem(

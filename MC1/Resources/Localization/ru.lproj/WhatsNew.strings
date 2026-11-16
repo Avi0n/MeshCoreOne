@@ -65,3 +65,23 @@
 "whatsNew.moreChanges.title" = "Другие изменения";
 /* What's New v1.6 - More changes, description */
 "whatsNew.moreChanges.description" = "Нажмите \"Смотреть все новые изменения\" ниже, чтобы увидеть полный список исправлений ошибок и других функций.";
+
+/* What's New v1.7 - Direct messages, title */
+"whatsNew.directMessages.title" = "Прямые сообщения";
+/* What's New v1.7 - Direct messages, description */
+"whatsNew.directMessages.description" = "Прямые сообщения теперь делают 4 попытки по маршруту, затем 4 попытки flood-маршрутизации. Измените «Попытки по маршруту», «Попытки flood-маршрутизации» и «Переход на flood-маршрутизацию» в «Расширенные настройки».";
+
+/* What's New v1.7 - Blocks and filters, title */
+"whatsNew.blocksAndFilters.title" = "Блокировка и фильтры";
+/* What's New v1.7 - Blocks and filters, description */
+"whatsNew.blocksAndFilters.description" = "Скрывайте сообщения, которые совпадают со словом или фразой. Правило может проверять «Сообщение», «Отправитель» или и то, и другое, а вы выбираете, к каким чатам оно применяется. Скрытые сообщения можно увидеть в «Недавно скрытые» в «Настройки» > «Блокировка и фильтры».";
+
+/* What's New v1.7 - Node telemetry, title */
+"whatsNew.nodeTelemetry.title" = "Телеметрия узла";
+/* What's New v1.7 - Node telemetry, description */
+"whatsNew.nodeTelemetry.description" = "«Настройки» > «Информация об устройстве» показывает телеметрию узла, к которому вы подключены.";
+
+/* What's New v1.7 - Live Activity, title */
+"whatsNew.liveActivity.title" = "Live Activity";
+/* What's New v1.7 - Live Activity, description */
+"whatsNew.liveActivity.description" = "Непрочитанные сообщения заметнее, а частота пакетов в минуту понятнее.";

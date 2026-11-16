@@ -65,3 +65,23 @@
 "whatsNew.moreChanges.title" = "Więcej zmian";
 /* What's New v1.6 - More changes, description */
 "whatsNew.moreChanges.description" = "Stuknij \"Zobacz wszystkie nowe zmiany\" poniżej, aby zobaczyć pełną listę poprawek błędów i innych funkcji.";
+
+/* What's New v1.7 - Direct messages, title */
+"whatsNew.directMessages.title" = "Wiadomości bezpośrednie";
+/* What's New v1.7 - Direct messages, description */
+"whatsNew.directMessages.description" = "Wiadomości bezpośrednie wykonują teraz 4 próby na ścieżce, a potem 4 próby flood. Zmień Próby na ścieżce, Próby flood i Zapasowo na routing flood w Ustawieniach zaawansowanych.";
+
+/* What's New v1.7 - Blocks and filters, title */
+"whatsNew.blocksAndFilters.title" = "Blokowanie i filtry";
+/* What's New v1.7 - Blocks and filters, description */
+"whatsNew.blocksAndFilters.description" = "Możesz ukrywać wiadomości, które pasują do słowa lub tekstu. Reguła może szukać w polu Wiadomość, w polu Nadawca albo w obu polach, a Ty wybierasz, których czatów dotyczy. Ukryte wiadomości możesz zobaczyć w Ostatnio zablokowane w Ustawienia > Blokowanie i filtry.";
+
+/* What's New v1.7 - Node telemetry, title */
+"whatsNew.nodeTelemetry.title" = "Telemetria węzła";
+/* What's New v1.7 - Node telemetry, description */
+"whatsNew.nodeTelemetry.description" = "Ustawienia > Informacje o urządzeniu pokazują telemetrię z węzła, z którym masz połączenie.";
+
+/* What's New v1.7 - Live Activity, title */
+"whatsNew.liveActivity.title" = "Aktywność na żywo";
+/* What's New v1.7 - Live Activity, description */
+"whatsNew.liveActivity.description" = "Nieprzeczytane wiadomości są bardziej widoczne, a tempo pakietów na minutę jest łatwiejsze do zrozumienia.";
