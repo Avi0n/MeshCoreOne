@@ -7,7 +7,21 @@ import os
 /// Service for managing device settings via MeshCore session.
 /// Handles radio configuration, node settings, Bluetooth settings, and device info.
 public actor SettingsService {
-  private let session: any ConfigurationSessionOps
+  let session: any ConfigurationSessionOps
+  public nonisolated let radioWiFiBinding: RadioWiFiBinding
+  public nonisolated var radioWiFiContextID: UUID {
+    radioWiFiBinding.contextID
+  }
+
+  public nonisolated var radioWiFiState: RadioWiFiState {
+    radioWiFiBinding.state
+  }
+
+  var radioWiFiOperationsRetired = false
+  var radioWiFiEditorID: UUID?
+  // Only a fresh read or an uncontended mutation receipt advances this certificate.
+  var radioWiFiEditorRead: (id: UUID, revision: UInt64)?
+  var radioWiFiWorkers: [UUID: Task<RadioWiFiWorkResult, any Error>] = [:]
   let logger = PersistentLogger(subsystem: "com.mc1", category: "SettingsService")
 
   /// Orders radio-parameter writes, path-hash work that belongs to a preset, and publication.
@@ -21,13 +35,28 @@ public actor SettingsService {
   var eventContinuation: AsyncStream<SettingsEvent>.Continuation?
   private var eventSubscriptionID: UUID?
 
+  #if DEBUG
+    private var testSelfInfoResultHandler: (@Sendable () async -> Void)?
+
+    func setTestSelfInfoResultHandler(_ handler: (@Sendable () async -> Void)?) {
+      testSelfInfoResultHandler = handler
+    }
+  #endif
+
   public init(session: any ConfigurationSessionOps) {
     self.session = session
+    radioWiFiBinding = RadioWiFiBinding(state: RadioWiFiState(radioID: UUID()))
   }
 
-  /// True after this connection accepts a `set wifi.` line.
-  /// A new service starts false, and nothing here clears the flag.
-  public private(set) var radioWiFiRebootPending = false
+  public init(session: any ConfigurationSessionOps, radioWiFiState: RadioWiFiState) {
+    self.session = session
+    radioWiFiBinding = RadioWiFiBinding(state: radioWiFiState)
+  }
+
+  /// Apply evidence survives replacement services for the same Radio ID.
+  public var radioWiFiRebootPending: Bool {
+    get async { await radioWiFiState.rebootPending }
+  }
 
   /// Stream of settings change events.
   /// Only one active subscriber is supported. Subsequent calls replace the previous subscriber.
@@ -271,15 +300,6 @@ public actor SettingsService {
     }
   }
 
-  /// Reboot the device
-  public func reboot() async throws {
-    do {
-      try await session.reboot()
-    } catch let error as MeshCoreError {
-      throw SettingsServiceError.sessionError(error)
-    }
-  }
-
   /// Asks the paired radio to cut power.
   /// A CLI reply means the board stayed on. Only silence after a submitted frame counts as powered off.
   public func powerOff() async throws {
@@ -311,8 +331,12 @@ public actor SettingsService {
 
   /// Query device capabilities
   public func queryDevice() async throws -> DeviceCapabilities {
+    try await queryDevice(using: session)
+  }
+
+  func queryDevice(using capturedSession: any ConfigurationSessionOps) async throws -> DeviceCapabilities {
     do {
-      return try await session.queryDevice()
+      return try await capturedSession.queryDevice()
     } catch let error as MeshCoreError {
       throw SettingsServiceError.sessionError(error)
     }
@@ -320,8 +344,19 @@ public actor SettingsService {
 
   /// Get self info by sending appStart
   public func getSelfInfo() async throws -> MeshCore.SelfInfo {
+    try await getSelfInfo(using: session)
+  }
+
+  func getSelfInfo(using capturedSession: any ConfigurationSessionOps) async throws -> MeshCore.SelfInfo {
+    #if DEBUG
+      let resultHandler = testSelfInfoResultHandler
+    #endif
     do {
-      return try await session.sendAppStart()
+      let selfInfo = try await capturedSession.sendAppStart()
+      #if DEBUG
+        await resultHandler?()
+      #endif
+      return selfInfo
     } catch let error as MeshCoreError {
       throw SettingsServiceError.sessionError(error)
     }
@@ -526,10 +561,34 @@ public actor SettingsService {
     }
   }
 
-  public func runCliCommand(_ command: String) async throws -> String {
-    let reply = try await sendRadioCLI(command)
-    noteWiFiRebootPending(command: command, reply: reply)
-    return reply
+  private enum RadioCLISyntax {
+    static let spaceByte: UInt8 = 0x20
+    static let pipeByte: UInt8 = 0x7C
+    static let prefixMarkerOffset = 2
+    static let prefixByteCount = 3
+    static let minimumPrefixedByteCount = 5
+    static let wifiSetterPrefix = "set wifi."
+  }
+
+  public func runCliCommand(_ command: String, expectedContextID: UUID? = nil) async throws -> String {
+    let binding = radioWiFiBinding
+    let capturedSession = session
+    guard !radioWiFiOperationsRetired,
+          expectedContextID == nil || expectedContextID == binding.contextID else { throw CancellationError() }
+    var effectiveBytes = command.utf8.drop(while: { $0 == RadioCLISyntax.spaceByte })
+    var replyPrefix: String?
+    if effectiveBytes.count >= RadioCLISyntax.minimumPrefixedByteCount,
+       effectiveBytes[effectiveBytes.index(effectiveBytes.startIndex, offsetBy: RadioCLISyntax.prefixMarkerOffset)]
+       == RadioCLISyntax.pipeByte {
+      replyPrefix = String(decoding: effectiveBytes.prefix(RadioCLISyntax.prefixByteCount), as: UTF8.self)
+      effectiveBytes = effectiveBytes.dropFirst(RadioCLISyntax.prefixByteCount)
+    }
+    if String(decoding: effectiveBytes, as: UTF8.self).hasPrefix(RadioCLISyntax.wifiSetterPrefix) {
+      return try await sendTrackedRadioWiFiCommand(
+        command, expectedContextID: binding.contextID, replyPrefix: replyPrefix
+      ).reply
+    }
+    return try await sendCapturedRadioCLI(command, using: capturedSession)
   }
 
   /// CommonCLI prints this, then the key, for an unknown get.
@@ -538,7 +597,11 @@ public actor SettingsService {
 
   /// Read one Radio CLI key. `nil` means this build has no such key.
   public func getRadioCLIValue(_ key: String) async throws -> String? {
-    let reply = try await sendRadioCLI("get \(key)")
+    try await getRadioCLIValue(key, session: session)
+  }
+
+  func getRadioCLIValue(_ key: String, session: any ConfigurationSessionOps) async throws -> String? {
+    let reply = try await sendCorrelatedRadioCLI("get \(key)", using: session)
     switch RadioCLIReply(text: reply) {
     case let .value(value):
       return value
@@ -561,8 +624,15 @@ public actor SettingsService {
     } else {
       "set \(key)"
     }
-    let reply = try await sendRadioCLI(command)
-    noteWiFiRebootPending(command: command, reply: reply)
+    let reply: String = if key.hasPrefix("wifi.") {
+      try await sendTrackedRadioWiFiCommand(command, correlated: true).reply
+    } else {
+      try await sendCorrelatedRadioCLI(command, using: session)
+    }
+    try Self.validateRadioCLIWrite(reply)
+  }
+
+  static func validateRadioCLIWrite(_ reply: String) throws {
     switch RadioCLIReply(text: reply) {
     case .ok, .value:
       return
@@ -572,25 +642,6 @@ public actor SettingsService {
       throw SettingsServiceError.radioCLIRejected("Unknown command")
     case .other:
       throw SettingsServiceError.invalidResponse
-    }
-  }
-
-  private func sendRadioCLI(_ command: String) async throws -> String {
-    do {
-      return try await session.runCliCommand(command)
-    } catch let error as MeshCoreError {
-      throw SettingsServiceError.sessionError(error)
-    }
-  }
-
-  private func noteWiFiRebootPending(command: String, reply: String) {
-    let line = command.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard line.hasPrefix("set wifi.") else { return }
-    switch RadioCLIReply(text: reply) {
-    case .ok, .value:
-      radioWiFiRebootPending = true
-    case .error, .unknownCommand, .other:
-      break
     }
   }
 
@@ -633,11 +684,19 @@ public actor SettingsService {
 
   /// Export private key from device
   public func exportPrivateKey() async throws -> Data {
+    try await exportPrivateKey(using: session)
+  }
+
+  func exportPrivateKey(using capturedSession: any ConfigurationSessionOps) async throws -> Data {
     do {
-      return try await session.exportPrivateKey()
+      return try await capturedSession.exportPrivateKey()
     } catch let error as MeshCoreError {
       throw SettingsServiceError.sessionError(error)
     }
+  }
+
+  func configurationSessionForRead() -> any ConfigurationSessionOps {
+    session
   }
 
   /// Import private key to device

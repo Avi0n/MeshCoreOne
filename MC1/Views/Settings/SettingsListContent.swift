@@ -13,12 +13,22 @@ struct SettingsListContent: View {
   /// `true` when this list is the iPad split-view sidebar column, whose `.sidebar` style draws
   /// rows transparent so the column canvas shows through and the native selection highlight shows.
   let isSidebar: Bool
+  let requestIdentityRecovery: (IdentityImportRecovery) -> Void
   private let liveActivityTip = LiveActivityTip()
 
   private var settingSelection: Binding<SettingsDetail?> {
     Binding(
       get: { appState.navigation.selectedSetting },
-      set: { appState.navigation.selectedSetting = $0 }
+      set: { proposed in
+        // The My Device rows leave while `identityRebuildUnpublished` is set. Ignoring
+        // that nil write keeps the open page.
+        if proposed == nil,
+           appState.navigation.selectedSetting?.requiresDevice == true,
+           appState.connectionManager.identityRebuildUnpublished {
+          return
+        }
+        appState.navigation.selectedSetting = proposed
+      }
     )
   }
 
@@ -58,6 +68,26 @@ struct SettingsListContent: View {
       NoDeviceSection(showingDeviceSelection: $showingDeviceSelection, isSidebar: isSidebar)
     }
 
+    if !appState.connectionManager.identityImportRecoveries.isEmpty {
+      Section {
+        ForEach(appState.connectionManager.identityImportRecoveries, id: \.receiptID) { recovery in
+          Button {
+            requestIdentityRecovery(recovery)
+          } label: {
+            VStack(alignment: .leading) {
+              TintedLabel(L10n.Settings.ConfigImport.retryIdentityImport, systemImage: "arrow.clockwise")
+              Text(recovery.sourceName)
+              Text(recovery.targetDescription)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            }
+          }
+          .accessibilityIdentifier("settings.identityImportRecovery.\(recovery.receiptID)")
+        }
+      }
+      .themedRowBackground(theme, flatten: isSidebar)
+    }
+
     Section {
       SettingsDetailRow(detail: .notifications) {
         TintedLabel(L10n.Settings.Notifications.header, systemImage: "bell.badge")
@@ -65,6 +95,10 @@ struct SettingsListContent: View {
 
       SettingsDetailRow(detail: .chats) {
         TintedLabel(L10n.Settings.ChatSettings.title, systemImage: "bubble.left.and.bubble.right")
+      }
+
+      SettingsDetailRow(detail: .blocksAndFilters) {
+        TintedLabel(L10n.Settings.BlocksAndFilters.title, systemImage: "line.3.horizontal.decrease")
       }
 
       AppearanceSection()

@@ -33,6 +33,77 @@ private final class AsyncGate<Value: Sendable> {
 @Suite("Node Discovery lifetime")
 @MainActor
 struct NodeDiscoveryLifetimeTests {
+  @Test
+  func `reset before add task runs prevents dispatch`() async {
+    let (model, _) = makeViewModel()
+    var sends = 0
+    model.addContactForTesting = { _ in sends += 1 }
+    model.addNode(result(publicKey: Data(repeating: 0xA4, count: 32)))
+    model.reset()
+    await Task.yield()
+    #expect(sends == 0)
+    #expect(model.addedPublicKeys.isEmpty)
+  }
+
+  @Test
+  func `sensor add requires full key and matching modeled type`() async throws {
+    let (model, _) = makeViewModel()
+    var frames: [ContactFrame] = []
+    model.addContactForTesting = { frames.append($0) }
+    func sensor(_ type: UInt8 = 4, size: Int = 32, filter: NodeDiscoveryFilter = .sensors) -> NodeDiscoveryResult {
+      NodeDiscoveryResult(name: "Sensor", publicKey: Data(repeating: 0xAA, count: size), nodeType: type,
+                          snr: 1, snrIn: 1, rssi: -70, scanFilter: filter, receivedAt: Date())
+    }
+    for invalid in [sensor(size: 8), sensor(size: 31), sensor(size: 33), sensor(0x7F), sensor(filter: .repeaters)] {
+      #expect(!model.canAdd(invalid))
+      model.addNode(invalid)
+    }
+    #expect(frames.isEmpty)
+    model.addNode(sensor())
+    model.addNode(sensor())
+    try await waitUntil(timeout: .seconds(1), "sensor should be added once") { frames.count == 1 }
+    #expect(frames[0].typeRawValue == 4)
+    #expect(frames[0].type == .sensor)
+  }
+
+  @Test
+  func `response before host acceptance is buffered and late response is ignored`() async throws {
+    let session = MeshCoreSession(transport: MockTransport())
+    let (model, box) = makeViewModel(session: session)
+    let gate = AsyncGate<UInt32>()
+    model.sendDiscoverForTesting = { _ in try await gate.wait() }
+    model.scanDurationForTesting = 30
+    model.scan()
+    try await waitUntil(timeout: .seconds(1), "host send should start") { gate.started }
+    let firstKey = Data(repeating: 0xAA, count: 32)
+    await session.dispatcher.dispatch(discover(tag: box.discoverTag, publicKey: firstKey))
+    #expect(model.results.isEmpty)
+    gate.succeed(box.discoverTag)
+    try await waitUntil(timeout: .seconds(1), "early response should be published") { model.results.count == 1 }
+    model.setScanDeadlineForTesting(Date().addingTimeInterval(-1))
+    model.expireScanIfDeadlinePassed()
+    await session.dispatcher.dispatch(discover(tag: box.discoverTag, publicKey: Data(repeating: 0xBB, count: 32)))
+    #expect(model.results.map(\.publicKey) == [firstKey])
+    #expect(!model.isScanning)
+    await session.stop()
+  }
+
+  @Test
+  func `early response followed by host failure never publishes`() async throws {
+    let session = MeshCoreSession(transport: MockTransport())
+    let (model, box) = makeViewModel(session: session)
+    let gate = AsyncGate<UInt32>()
+    model.sendDiscoverForTesting = { _ in try await gate.wait() }
+    model.scan()
+    try await waitUntil(timeout: .seconds(1), "host send should start") { gate.started }
+    await session.dispatcher.dispatch(discover(tag: box.discoverTag, publicKey: Data(repeating: 0xAA, count: 32)))
+    gate.fail(MeshCoreError.timeout)
+    try await waitUntil(timeout: .seconds(1), "scan should fail") { !model.isScanning }
+    #expect(model.results.isEmpty)
+    #expect(model.errorMessage != nil)
+    await session.stop()
+  }
+
   private let radioID = UUID()
 
   private func makeViewModel(session: MeshCoreSession? = nil) -> (NodeDiscoveryViewModel, Box) {

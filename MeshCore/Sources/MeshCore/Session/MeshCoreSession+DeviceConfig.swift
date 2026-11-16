@@ -378,23 +378,7 @@ public extension MeshCoreSession {
   /// Runs a UTF-8 CLI command on the paired radio (firmware v14+).
   /// Sent verbatim. A too-short frame is unsupported on the radio, and a frame over `MAX_FRAME_SIZE` is dropped.
   func runCliCommand(_ command: String) async throws -> String {
-    let isBlank = command.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    guard !isBlank, command.utf8.count >= PacketBuilder.runCliCommandMinUTF8Bytes else {
-      throw MeshCoreError.invalidInput(
-        isBlank ? "CLI command is empty" : "CLI command is too short"
-      )
-    }
-    guard command.utf8.count <= PacketBuilder.runCliCommandMaxUTF8Bytes else {
-      throw MeshCoreError.invalidInput("CLI command exceeds maximum length")
-    }
-    return try await sendAndWaitWithError(
-      PacketBuilder.runCliCommand(command),
-      matching: { event in
-        if case let .cliReply(text) = event { return text }
-        return nil
-      },
-      errorMatcher: Self.deviceErrorMatcher
-    )
+    try await runVerbatimCLICommand(command)
   }
 
   /// Sets a custom variable on the device.

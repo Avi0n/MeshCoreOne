@@ -320,7 +320,6 @@ private actor StubDataStore: PersistenceStoreProtocol {
   func updateMessageStatus(id: UUID, status: MessageStatus) async throws {}
   func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {}
   func updateMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws {}
-  func updateMessageHeardRepeats(id: UUID, heardRepeats: Int) async throws {}
   func updateMessageLinkPreview(id: UUID, url: String?, title: String?, imageData: Data?, iconData: Data?, fetched: Bool) throws {}
 
   func fetchContacts(radioID: UUID) async throws -> [ContactDTO] {
@@ -507,6 +506,7 @@ private actor StubDataStore: PersistenceStoreProtocol {
 
   func admitSentEcho(
     messageID: UUID,
+    expectedTimestamp: UInt32,
     receivedAt: Date,
     pathNodes: Data,
     pathLength: UInt8,
@@ -517,12 +517,20 @@ private actor StubDataStore: PersistenceStoreProtocol {
     nil
   }
 
-  func deleteMessageRepeats(messageID: UUID) async throws {}
   func incrementMessageSendCount(id: UUID) async throws -> Int {
     0
   }
 
   func updateMessageTimestamp(id: UUID, timestamp: UInt32) async throws {}
+  func commitOutgoingDirectMessageTimestamp(id: UUID, timestamp: UInt32) async throws -> UInt32? {
+    nil
+  }
+
+  func setPendingSendWireAttempt(id: UUID, to next: UInt8) async throws -> Bool {
+    false
+  }
+
+  func prepareChannelMessageResend(id: UUID, timestamp: UInt32) async throws {}
 
   func saveDebugLogEntries(_ dtos: [DebugLogEntryDTO]) async throws {}
   func fetchDebugLogEntries(since date: Date, limit: Int) async throws -> [DebugLogEntryDTO] {
@@ -656,28 +664,23 @@ private actor StubDataStore: PersistenceStoreProtocol {
   }
 
   func markMessageAsRead(id: UUID) async throws {}
-  func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int? {
+  func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?, markSent _: Bool) async throws -> Bool {
+    false
+  }
+
+  func resolvePendingAcknowledgement(id: UUID, expectedDeadline: Date?, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?) async throws -> Bool {
+    false
+  }
+
+  func preparePendingSendAttempt(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
     nil
   }
 
   func saveDevice(_ dto: DeviceDTO) async throws {}
-  func updateDeviceNodeName(radioID: UUID, name: String) async throws {}
-  func updateDeviceCoordinates(radioID: UUID, latitude: Double, longitude: Double) async throws {}
-  func updateDeviceRadio(
-    radioID: UUID,
-    frequency: UInt32,
-    bandwidth: UInt32,
-    spreadingFactor: UInt8,
-    codingRate: UInt8,
-    appliedRadioPresetID: String?
-  ) async throws {}
-  func updateDeviceTxPower(radioID: UUID, txPower: Int8) async throws {}
-  func updateDeviceObservation(radioID: UUID, mapped: DeviceDTO) async throws {}
-  func updateDeviceOtherParams(radioID: UUID, intent: OtherParamsIntent) async throws {}
-  func updateDeviceClientRepeat(radioID: UUID, enabled: Bool) async throws {}
-  func updateDevicePathHashMode(radioID: UUID, mode: UInt8) async throws {}
-  func updateDeviceAutoAdd(radioID: UUID, config: UInt8, maxHops: UInt8) async throws {}
-  func updateDeviceDefaultFloodScopeName(radioID: UUID, name: String?) async throws {}
+  func updateDeviceOCVSettings(id: UUID, preset: String, customArray: String?) async throws -> DeviceDTO? {
+    nil
+  }
+
   func fetchRemoteNodeSessionByPrefix(_ prefix: Data) async throws -> RemoteNodeSessionDTO? {
     nil
   }
@@ -782,6 +785,23 @@ private actor StubDataStore: PersistenceStoreProtocol {
   }
 
   func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws {}
+
+  func recordSelfTelemetrySnapshot(
+    deviceID: UUID,
+    radioID: UUID,
+    nodePublicKey: Data,
+    telemetry: [TelemetrySnapshotEntry]?,
+    location: NodeLocationFix?
+  ) async throws -> UUID? {
+    nil
+  }
+
+  func fetchSelfTelemetrySnapshots(
+    radioID: UUID,
+    nodePublicKey: Data
+  ) async throws -> [NodeStatusSnapshotDTO] {
+    []
+  }
 
   func upsertPendingSend(_ dto: PendingSendDTO) async throws {}
   func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int {

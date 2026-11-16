@@ -4,7 +4,7 @@ import SwiftUI
 
 private let logger = Logger(subsystem: "com.mc1", category: "NodeAuthenticationSheet")
 
-/// Reusable password entry sheet for both room servers and repeaters
+/// Reusable password entry sheet for remote nodes
 struct NodeAuthenticationSheet: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
@@ -12,6 +12,7 @@ struct NodeAuthenticationSheet: View {
 
   let contact: ContactDTO
   let role: RemoteNodeRole
+  let requireAdmin: Bool
   /// When true, hides the Node Details section (used when re-joining known rooms from chat list)
   let hideNodeDetails: Bool
   /// Optional custom title. If nil, uses default based on role ("Join Room" or "Admin Access")
@@ -35,18 +36,22 @@ struct NodeAuthenticationSheet: View {
   @State private var countdownTask: Task<Void, Never>?
   @State private var authenticationTask: Task<Void, Never>?
 
-  private let maxPasswordLength = 15
+  @State private var authEpoch = Epoch()
+
+  private let maxPasswordBytes = ProtocolLimits.maxRemotePasswordBytes
 
   init(
     contact: ContactDTO,
     role: RemoteNodeRole,
     hideNodeDetails: Bool = false,
+    requireAdmin: Bool = true,
     customTitle: String? = nil,
     onSuccess: @escaping (RemoteNodeSessionDTO) -> Void
   ) {
     self.contact = contact
     self.role = role
     self.hideNodeDetails = hideNodeDetails
+    self.requireAdmin = requireAdmin
     self.customTitle = customTitle
     self.onSuccess = onSuccess
     _useFloodRouting = State(initialValue: contact.isFloodRouted)
@@ -67,33 +72,37 @@ struct NodeAuthenticationSheet: View {
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button(L10n.RemoteNodes.RemoteNodes.Auth.cancel) {
-            authenticationTask?.cancel()
+            cancelAuthentication()
             dismiss()
           }
         }
       }
       .task {
-        if let remoteNodeService = appState.services?.remoteNodeService,
-           let saved = await remoteNodeService.retrievePassword(forContact: contact) {
+        guard let source = appState.connectionSnapshot(for: contact.radioID) else { return }
+        let context = ConnectionCallbackContext(source)
+        if let saved = await source.services.remoteNodeService.retrievePassword(forContact: contact) {
+          guard accepts(context), password.isEmpty, !isAuthenticating else { return }
           password = saved
           hasSavedPassword = true
         }
       }
       .task {
         guard !contact.isFloodRouted, contact.pathHopCount > 0,
-              let radioID = appState.connectedDevice?.radioID else { return }
+              let source = appState.connectionSnapshot(for: contact.radioID) else { return }
+        let context = ConnectionCallbackContext(source)
         await pathViewModel.load(
           contact: contact,
-          services: appState.services,
-          radioID: radioID,
-          userLocation: appState.bestAvailableLocation
+          services: source.services,
+          radioID: contact.radioID,
+          userLocation: appState.bestAvailableLocation,
+          isCurrent: { accepts(context) }
         )
       }
       .sensoryFeedback(.error, trigger: errorMessage)
-      .onDisappear {
-        authenticationTask?.cancel()
-        cleanupCountdownState()
+      .onChange(of: appState.connectionManager.currentConnection?.generation) { _, _ in
+        cancelAuthentication()
       }
+      .onDisappear { cancelAuthentication() }
     }
   }
 
@@ -113,8 +122,7 @@ struct NodeAuthenticationSheet: View {
       errorMessage: $errorMessage,
       authSecondsRemaining: $authSecondsRemaining,
       isRetryingViaFlood: isRetryingViaFlood,
-      role: role,
-      maxPasswordLength: maxPasswordLength
+      maxPasswordBytes: maxPasswordBytes
     )
   }
 
@@ -122,6 +130,8 @@ struct NodeAuthenticationSheet: View {
     PathSection(
       contact: contact,
       useFloodRouting: $useFloodRouting,
+      routeCleared: didResetPath,
+      isAuthenticating: isAuthenticating,
       pathViewModel: pathViewModel
     )
   }
@@ -136,35 +146,46 @@ struct NodeAuthenticationSheet: View {
 
   // MARK: - Authentication
 
+  private func cancelAuthentication() {
+    authEpoch.bump()
+    authenticationTask?.cancel()
+    authenticationTask = nil
+    isAuthenticating = false
+    isRetryingViaFlood = false
+    cleanupCountdownState()
+  }
+
   private func authenticate() {
-    // Clear any previous error
+    guard password.utf8.count <= maxPasswordBytes else {
+      errorMessage = RemoteNodeError.invalidPasswordLength.userFacingMessage
+      return
+    }
+    guard let source = appState.connectionSnapshot(for: contact.radioID) else {
+      errorMessage = RemoteNodeError.notConnected.userFacingMessage
+      return
+    }
+    let context = ConnectionCallbackContext(source)
+    let submittedPassword = password
+    let submittedRememberPassword = rememberPassword
+    cancelAuthentication()
+    let ticket = authEpoch.ticket()
     errorMessage = nil
     isAuthenticating = true
-    isRetryingViaFlood = false
-    authenticationTask?.cancel()
-    cleanupCountdownState()
 
     authenticationTask = Task {
       do {
-        guard let device = appState.connectedDevice else {
-          throw RemoteNodeError.notConnected
-        }
+        guard accepts(context, ticket: ticket) else { return }
+        let services = source.services
 
-        guard let services = appState.services else {
-          throw RemoteNodeError.notConnected
-        }
-
-        // Reset the firmware's stored path so the login packet is flood-routed.
-        // Only needed once per session — subsequent retries skip the BLE round-trip.
-        // Once any reset has run, the radio's path is gone regardless of what
-        // this sheet's contact snapshot says, so later attempts are flood.
+        // Once any reset has run, later attempts flood-route even if this contact snapshot still has a path.
         let pathLength: UInt8
         if useFloodRouting && !contact.isFloodRouted && !didResetPath {
           try await services.contactService.resetPath(
-            radioID: device.radioID,
+            radioID: contact.radioID,
             publicKey: contact.publicKey
           )
           didResetPath = true
+          guard accepts(context, ticket: ticket) else { return }
           pathLength = PacketBuilder.floodPathSentinel
         } else if useFloodRouting || didResetPath {
           pathLength = PacketBuilder.floodPathSentinel
@@ -172,41 +193,45 @@ struct NodeAuthenticationSheet: View {
           pathLength = contact.outPathLength
         }
 
-        // MeshCore repeaters and rooms only support 15-character passwords, truncate if needed
-        let passwordToUse = password.count > maxPasswordLength
-          ? String(password.prefix(maxPasswordLength))
-          : password
-
         let session: RemoteNodeSessionDTO
         do {
           session = try await performLogin(
             services: services,
-            device: device,
-            password: passwordToUse,
+            context: context,
+            password: submittedPassword,
+            rememberPassword: submittedRememberPassword,
+            ticket: ticket,
             pathLength: pathLength
           )
-        } catch RemoteNodeError.timeout where pathLength != PacketBuilder.floodPathSentinel {
-          // The stored route produced no reply; clear it and let the network
-          // find a path, mirroring what the flood toggle would have done.
-          await MainActor.run {
-            isRetryingViaFlood = true
-            cleanupCountdownState()
+        } catch RemoteNodeError.timeout {
+          guard accepts(context, ticket: ticket) else { return }
+          guard RemoteFloodFallback.isEnabled(),
+                pathLength != PacketBuilder.floodPathSentinel else {
+            throw RemoteNodeError.timeout
           }
+          // The stored route produced no reply. Clear it and let the network find a path.
+          isRetryingViaFlood = true
+          cleanupCountdownState()
           try await services.contactService.resetPath(
-            radioID: device.radioID,
+            radioID: contact.radioID,
             publicKey: contact.publicKey
           )
           didResetPath = true
+          useFloodRouting = true
+          guard accepts(context, ticket: ticket) else { return }
           session = try await performLogin(
             services: services,
-            device: device,
-            password: passwordToUse,
+            context: context,
+            password: submittedPassword,
+            rememberPassword: submittedRememberPassword,
+            ticket: ticket,
             pathLength: PacketBuilder.floodPathSentinel
           )
         }
+        guard accepts(context, ticket: ticket) else { return }
 
-        // Delete saved password if user unchecked "Remember Password"
-        if hasSavedPassword, !rememberPassword {
+        // Sensor login handles its own credential update.
+        if role != .sensor, hasSavedPassword, !submittedRememberPassword {
           do {
             try await services.remoteNodeService.deletePassword(forContact: contact)
           } catch {
@@ -214,35 +239,26 @@ struct NodeAuthenticationSheet: View {
           }
         }
 
-        await MainActor.run {
-          authenticationTask = nil
-          isRetryingViaFlood = false
-          cleanupCountdownState()
-          dismiss()
-          onSuccess(session)
-        }
+        guard accepts(context, ticket: ticket) else { return }
+        authenticationTask = nil
+        isRetryingViaFlood = false
+        cleanupCountdownState()
+        dismiss()
+        onSuccess(session)
       } catch is CancellationError {
-        await MainActor.run {
-          authenticationTask = nil
-          isRetryingViaFlood = false
-          cleanupCountdownState()
-          isAuthenticating = false
-        }
+        guard accepts(context, ticket: ticket) else { return }
+        cancelAuthentication()
       } catch RemoteNodeError.timeout {
-        await MainActor.run {
-          authenticationTask = nil
-          isRetryingViaFlood = false
-          cleanupCountdownState()
-          errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
-          isAuthenticating = false
-        }
+        guard accepts(context, ticket: ticket) else { return }
+        cancelAuthentication()
+        errorMessage = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut
       } catch {
-        await MainActor.run {
-          authenticationTask = nil
-          isRetryingViaFlood = false
-          cleanupCountdownState()
+        guard accepts(context, ticket: ticket) else { return }
+        cancelAuthentication()
+        if role == .sensor, requireAdmin, case RemoteNodeError.permissionDenied = error {
+          errorMessage = L10n.RemoteNodes.RemoteNodes.Sensor.adminRequired
+        } else {
           errorMessage = error.userFacingMessage
-          isAuthenticating = false
         }
       }
     }
@@ -250,32 +266,42 @@ struct NodeAuthenticationSheet: View {
 
   private func performLogin(
     services: ServiceContainer,
-    device: DeviceDTO,
+    context: ConnectionCallbackContext,
     password: String,
+    rememberPassword: Bool,
+    ticket: Epoch.Ticket,
     pathLength: UInt8
   ) async throws -> RemoteNodeSessionDTO {
-    // Callback to start countdown when firmware timeout is known
     let onTimeoutKnown: @Sendable (Int) async -> Void = { [self] seconds in
       await MainActor.run {
+        guard accepts(context, ticket: ticket) else { return }
         authTimeoutSeconds = seconds
         authStartTime = Date.now
         authSecondsRemaining = seconds
-        startCountdownTask()
+        startCountdownTask(context: context, ticket: ticket)
       }
     }
 
-    if role == .roomServer {
+    guard accepts(context, ticket: ticket) else { throw CancellationError() }
+    switch role {
+    case .roomServer:
       return try await services.roomServerService.joinRoom(
-        radioID: device.radioID,
+        radioID: contact.radioID,
         contact: contact,
         password: password,
         rememberPassword: rememberPassword,
         pathLength: pathLength,
         onTimeoutKnown: onTimeoutKnown
       )
-    } else {
+    case .sensor:
+      return try await services.remoteNodeService.connectSensor(
+        radioID: contact.radioID, contact: contact, password: password,
+        rememberPassword: rememberPassword, requireAdmin: requireAdmin,
+        pathLength: pathLength, onTimeoutKnown: onTimeoutKnown
+      )
+    case .repeater:
       return try await services.repeaterAdminService.connectAsAdmin(
-        radioID: device.radioID,
+        radioID: contact.radioID,
         contact: contact,
         password: password,
         rememberPassword: rememberPassword,
@@ -285,11 +311,17 @@ struct NodeAuthenticationSheet: View {
     }
   }
 
+  private func accepts(_ context: ConnectionCallbackContext, ticket: Epoch.Ticket? = nil) -> Bool {
+    !Task.isCancelled && context.isCurrent(appState.connectionManager)
+      && appState.connectionSnapshot(for: contact.radioID) != nil
+      && (ticket?.isCurrent(in: authEpoch) ?? true)
+  }
+
   // MARK: - Countdown
 
   private static let countdownTickInterval: Duration = .seconds(1)
 
-  private func startCountdownTask() {
+  private func startCountdownTask(context: ConnectionCallbackContext, ticket: Epoch.Ticket) {
     countdownTask = Task {
       while !Task.isCancelled, let timeout = authTimeoutSeconds, let startTime = authStartTime {
         do {
@@ -297,6 +329,7 @@ struct NodeAuthenticationSheet: View {
         } catch {
           break
         }
+        guard accepts(context, ticket: ticket) else { return }
 
         let elapsed = Date.now.timeIntervalSince(startTime)
         let remaining = max(0, timeout - Int(elapsed))
@@ -320,6 +353,14 @@ struct NodeAuthenticationSheet: View {
 // MARK: - Node Details Section
 
 private struct NodeDetailsSection: View {
+  private var typeLabel: String {
+    switch role {
+    case .roomServer: L10n.RemoteNodes.RemoteNodes.Auth.typeRoom
+    case .repeater: L10n.RemoteNodes.RemoteNodes.Auth.typeRepeater
+    case .sensor: L10n.RemoteNodes.RemoteNodes.Auth.typeSensor
+    }
+  }
+
   @Environment(\.appTheme) private var theme
   let displayName: String
   let role: RemoteNodeRole
@@ -327,7 +368,7 @@ private struct NodeDetailsSection: View {
   var body: some View {
     Section {
       LabeledContent(L10n.RemoteNodes.RemoteNodes.Auth.name, value: displayName)
-      LabeledContent(L10n.RemoteNodes.RemoteNodes.Auth.type, value: role == .roomServer ? L10n.RemoteNodes.RemoteNodes.Auth.typeRoom : L10n.RemoteNodes.RemoteNodes.Auth.typeRepeater)
+      LabeledContent(L10n.RemoteNodes.RemoteNodes.Auth.type, value: typeLabel)
     } header: {
       Text(L10n.RemoteNodes.RemoteNodes.Auth.nodeDetails)
     }
@@ -349,8 +390,7 @@ private struct AuthenticationSection: View {
   @Binding var errorMessage: String?
   @Binding var authSecondsRemaining: Int?
   let isRetryingViaFlood: Bool
-  let role: RemoteNodeRole
-  let maxPasswordLength: Int
+  let maxPasswordBytes: Int
 
   var body: some View {
     Section {
@@ -366,8 +406,8 @@ private struct AuthenticationSection: View {
         Label(errorMessage, systemImage: "exclamationmark.circle.fill")
           .foregroundStyle(.orange)
           .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Auth.errorPrefix(errorMessage))
-      } else if password.count > maxPasswordLength {
-        Text(role == .repeater ? L10n.RemoteNodes.RemoteNodes.Auth.passwordTooLongRepeaters(maxPasswordLength) : L10n.RemoteNodes.RemoteNodes.Auth.passwordTooLongRooms(maxPasswordLength))
+      } else if password.utf8.count > maxPasswordBytes {
+        Text(L10n.Localizable.Error.RemoteNode.invalidPasswordLength(maxPasswordBytes))
       } else if isRetryingViaFlood {
         VStack(alignment: .leading, spacing: 2) {
           Text(L10n.RemoteNodes.RemoteNodes.Auth.floodRetryStatus)
@@ -407,19 +447,36 @@ private struct AuthenticationSection: View {
 
 private struct PathSection: View {
   @Environment(\.appTheme) private var theme
+  @AppStorage(AppStorageKey.remoteFloodFallback.rawValue)
+  private var remoteFloodFallback = AppStorageKey.defaultRemoteFloodFallback
   let contact: ContactDTO
   @Binding var useFloodRouting: Bool
+  let routeCleared: Bool
+  let isAuthenticating: Bool
   let pathViewModel: NodeAuthPathViewModel
 
   @State private var isPathExpanded = false
 
-  private var hasStoredPath: Bool {
-    !contact.isFloodRouted
+  private var choice: SignInPathFooter {
+    signInPathFooter(
+      hasStoredRoute: !contact.isFloodRouted,
+      floodRouting: useFloodRouting,
+      routeCleared: routeCleared,
+      fallbackEnabled: remoteFloodFallback,
+      isAuthenticating: isAuthenticating
+    )
+  }
+
+  private var floodRoutingBinding: Binding<Bool> {
+    if choice.canChangeFloodRouting {
+      return $useFloodRouting
+    }
+    return .constant(choice.showsFloodRoutingOn)
   }
 
   var body: some View {
     Section {
-      if hasStoredPath, !useFloodRouting {
+      if choice.showsSavedHops {
         if !pathViewModel.hops.isEmpty {
           DisclosureGroup(isExpanded: $isPathExpanded) {
             ForEach(pathViewModel.hops) { hop in
@@ -431,7 +488,7 @@ private struct PathSection: View {
         } else {
           NodePathSummaryLabel(contact: contact)
         }
-      } else if !hasStoredPath {
+      } else if choice.showsNoRouteLabel {
         Label {
           Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteSet)
             .foregroundStyle(.secondary)
@@ -443,22 +500,17 @@ private struct PathSection: View {
         .accessibilityHidden(true)
       }
 
-      Toggle(L10n.RemoteNodes.RemoteNodes.Auth.floodRouting, isOn: $useFloodRouting)
-        .disabled(!hasStoredPath)
-        .accessibilityHint(hasStoredPath ? "" : L10n.RemoteNodes.RemoteNodes.Auth.noRouteFooter)
+      Toggle(L10n.RemoteNodes.RemoteNodes.Auth.floodRouting, isOn: floodRoutingBinding)
+        .disabled(!choice.canChangeFloodRouting)
+        .accessibilityHint(choice.canChangeFloodRouting ? "" : choice.message)
     } header: {
       Text(L10n.RemoteNodes.RemoteNodes.Auth.path)
     } footer: {
-      if !hasStoredPath {
-        Text(L10n.RemoteNodes.RemoteNodes.Auth.noRouteFooter)
-      } else if useFloodRouting {
-        Text(L10n.RemoteNodes.RemoteNodes.Auth.floodFooter)
-      } else {
-        Text(L10n.RemoteNodes.RemoteNodes.Auth.pathFooter)
-      }
+      Text(choice.message)
     }
     .themedRowBackground(theme)
     .animation(.default, value: useFloodRouting)
+    .animation(.default, value: routeCleared)
   }
 }
 

@@ -227,7 +227,7 @@ public final class NotificationActionHandler {
 
     guard !isMuted else { return }
 
-    let truncatedPreview = Self.reactionPreview(for: message.text)
+    let truncatedPreview = Self.reactionPreview(for: MECPCatalog.displayText(message.text))
     let body = notificationService.strings?.reactionNotificationBody(
       emoji: latestReaction.emoji,
       messagePreview: truncatedPreview

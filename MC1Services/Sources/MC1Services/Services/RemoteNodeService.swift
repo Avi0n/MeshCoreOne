@@ -12,7 +12,7 @@ private let cliResponseTextType: UInt8 = 0x01
 // MARK: - Remote Node Service
 
 /// Shared service for remote node operations.
-/// Handles login, keep-alive, status, telemetry, and CLI for both room servers and repeaters.
+/// Handles authentication and commands for sensors, repeaters, and room servers.
 public actor RemoteNodeService {
   // MARK: - Properties
 
@@ -20,67 +20,47 @@ public actor RemoteNodeService {
   let dataStore: any PersistenceStoreProtocol
   let keychainService: KeychainService
   let contactRadioOwner: ContactRadioOwner
+  let textRulesPreference: @Sendable () async -> TextRulesPreference?
+  let receiveLifetime: ReceiveScope.Lifetime
+  let radioID: UUID?
+  let defaults: UserDefaults
   let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
   let auditLogger = CommandAuditLogger()
 
-  struct PendingLogin {
-    /// Session that called `login`, so a prefix match cannot update another radio's row.
-    let sessionID: UUID
-    let continuation: CheckedContinuation<LoginResult, Error>
-  }
+  var isRetired = false
+  /// Login ownership keyed by the public key prefix carried in login responses.
+  var loginAttempts: [Data: RemoteLoginAttempt] = [:]
+  var sensorConnectAttempts: [UUID: UUID] = [:]
 
-  /// Pending login continuations keyed by 6-byte public key prefix.
-  /// Using 6-byte prefix matches MeshCore protocol format for login results.
-  var pendingLogins: [Data: PendingLogin] = [:]
-
-  /// Timeout tasks for pending logins, keyed by 6-byte public key prefix.
-  /// Cancelled when login succeeds/fails before timeout.
-  var pendingLoginTimeoutTasks: [Data: Task<Void, Never>] = [:]
-
-  /// The in-flight CLI request for a node. `acceptsAnyResponse` marks raw
-  /// passthrough commands whose reply shape can't be validated. `wirePrefix`
-  /// is the correlation token prepended to the command on the wire; firmware
-  /// reflects it back at the start of the reply.
-  struct PendingCLIRequest {
-    let id: UUID
-    let command: String
-    let wirePrefix: String
-    let acceptsAnyResponse: Bool
-    let continuation: CheckedContinuation<String, Error>
-    var workerTask: Task<Void, Never>?
-  }
-
-  /// The single in-flight CLI request per node, keyed by 6-byte public key
-  /// prefix. Replies echoing the request's wire prefix are attributed
-  /// deterministically; unprefixed replies (firmware that predates the echo)
-  /// fall back to single-flight shape validation, and foreign-prefixed
-  /// replies are stale by definition and dropped.
-  var pendingCLIRequests: [Data: PendingCLIRequest] = [:]
+  /// CLI slot ownership and FIFO admission keyed by the response's public key prefix.
+  var cliSlots: [Data: RemoteCLISlot] = [:]
+  static let cliPublicKeyPrefixLength = 6
 
   /// Cycling counter for CLI wire prefixes ("00|" through "FF|").
   var cliPrefixCounter: UInt8 = 0
 
-  /// A task queued for a node's CLI slot while another command is in flight.
-  struct CLISlotWaiter {
-    let id: UUID
-    let continuation: CheckedContinuation<Void, Error>
-  }
-
-  /// Nodes whose CLI slot is held by an in-flight command.
-  var cliSlotBusy: Set<Data> = []
-
-  /// FIFO waiters for a node's CLI slot, keyed by 6-byte public key prefix.
-  var cliSlotWaiters: [Data: [CLISlotWaiter]] = [:]
-
   /// Keep-alive timer tasks
   var keepAliveTasks: [UUID: Task<Void, Never>] = [:]
+  var retiredKeepAliveTasks: [Task<Void, Never>] = []
+  private var retirementTask: Task<Void, Never>?
+
+  /// Recovery and refresh outlive timer restarts on this Link record.
+  struct RoomKeepAliveSchedule {
+    let sessionID: UUID
+    let lifetime = ReceiveScope.Lifetime()
+    let recoverySubmitted = OSAllocatedUnfairLock(initialState: false)
+    var recovery: Task<Void, Error>?
+    var refresh: Task<Void, Error>?
+  }
+
+  var roomKeepAliveSchedules: [UUID: RoomKeepAliveSchedule] = [:]
 
   /// Keep-alive intervals per session (from login response, in seconds)
   /// Default to 90 seconds if not specified
   var keepAliveIntervals: [UUID: Duration] = [:]
   static let defaultKeepAliveInterval: Duration = .seconds(90)
 
-  /// Reentrancy guard for BLE reconnection handling
+  /// Reentrancy guard for Link reconnection handling
   var isReauthenticating = false
 
   /// Event monitoring task
@@ -128,12 +108,20 @@ public actor RemoteNodeService {
     session: any RemoteAccessSessionOps & SessionEventStreaming & ContactSessionOps,
     dataStore: any PersistenceStoreProtocol,
     keychainService: KeychainService,
-    contactRadioOwner: ContactRadioOwner = ContactRadioOwner()
+    contactRadioOwner: ContactRadioOwner = ContactRadioOwner(),
+    textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil },
+    receiveLifetime: ReceiveScope.Lifetime = .init(),
+    radioID: UUID? = nil,
+    defaults: UserDefaults = .standard
   ) {
     self.session = session
     self.dataStore = dataStore
     self.keychainService = keychainService
     self.contactRadioOwner = contactRadioOwner
+    self.textRulesPreference = textRulesPreference
+    self.receiveLifetime = receiveLifetime
+    self.radioID = radioID
+    self.defaults = defaults
   }
 
   deinit {
@@ -147,6 +135,7 @@ public actor RemoteNodeService {
 
   /// Start monitoring MeshCore events for login results
   public func startEventMonitoring() {
+    guard !isRetired else { return }
     eventMonitorTask?.cancel()
 
     eventMonitorTask = Task { [weak self] in
@@ -173,9 +162,11 @@ public actor RemoteNodeService {
   }
 
   /// Stop monitoring events
-  public func stopEventMonitoring() {
-    eventMonitorTask?.cancel()
+  public func stopEventMonitoring() async {
+    let worker = eventMonitorTask
     eventMonitorTask = nil
+    worker?.cancel()
+    await worker?.value
   }
 
   /// Handle incoming MeshCore event
@@ -214,43 +205,6 @@ public actor RemoteNodeService {
     }
   }
 
-  /// Handle CLI response from a contact message. The wire prefix echoed by
-  /// firmware attributes a reply deterministically; an unprefixed reply falls
-  /// back to single-flight shape validation for older firmware, and a reply
-  /// echoing a different prefix belongs to an earlier command and is dropped.
-  private func handleCLIResponse(_ message: ContactMessage) {
-    let prefix = Data(message.senderPublicKeyPrefix.prefix(6))
-
-    guard let pending = pendingCLIRequests[prefix] else {
-      logger.debug("Unmatched CLI response (no pending request), length \(message.text.count)")
-      return
-    }
-
-    let responseText: String
-    if let echoed = CLIResponse.splitEchoedPrefix(message.text) {
-      guard echoed.prefix == pending.wirePrefix else {
-        logger.warning(
-          "Dropping stale CLI response with prefix \(echoed.prefix) while awaiting \(pending.wirePrefix)"
-        )
-        return
-      }
-      responseText = echoed.body
-    } else {
-      // Firmware without prefix echo: fall back to shape validation.
-      guard pending.acceptsAnyResponse
-        || CLIResponse.isPlausibleResponse(message.text, forQuery: pending.command) else {
-        logger.warning(
-          "Dropping CLI response that doesn't match pending command, length \(message.text.count)"
-        )
-        return
-      }
-      responseText = message.text
-    }
-
-    _ = takePendingCLIRequest(for: prefix, requestID: pending.id)
-    pending.continuation.resume(returning: responseText)
-  }
-
   /// Returns the next cycling CLI wire prefix ("00|" through "FF|").
   func makeCLIWirePrefix() -> String {
     defer { cliPrefixCounter &+= 1 }
@@ -262,16 +216,11 @@ public actor RemoteNodeService {
     return TimeInterval(seconds) + TimeInterval(attoseconds) / 1e18
   }
 
-  func cancelPendingLogin(for prefix: Data) {
-    pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
-    if let pending = pendingLogins.removeValue(forKey: prefix) {
-      pending.continuation.resume(throwing: RemoteNodeError.cancelled)
-    }
-  }
-
-  func cancelPendingCLIRequest(for prefix: Data, requestID: UUID) {
-    guard let cancelled = takePendingCLIRequest(for: prefix, requestID: requestID) else { return }
-    cancelled.continuation.resume(throwing: CancellationError())
+  func cancelPendingLogin(for prefix: Data, attemptID: UUID? = nil) {
+    if let attemptID, loginAttempts[prefix]?.id != attemptID { return }
+    guard var attempt = loginAttempts.removeValue(forKey: prefix) else { return }
+    // A claimed result owns its continuation until persistence settles; removal only revokes its authority.
+    attempt.claimCompletion()?.continuation.resume(throwing: RemoteNodeError.cancelled)
   }
 
   // MARK: - Session Management
@@ -281,6 +230,15 @@ public actor RemoteNodeService {
     radioID: UUID,
     contact: ContactDTO
   ) async throws -> RemoteNodeSessionDTO {
+    try await createSession(radioID: radioID, contact: contact, sensorAttemptID: nil)
+  }
+
+  func createSession(
+    radioID: UUID,
+    contact: ContactDTO,
+    sensorAttemptID: UUID?
+  ) async throws -> RemoteNodeSessionDTO {
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     guard let role = RemoteNodeRole(contactType: contact.type) else {
       throw RemoteNodeError.invalidResponse
     }
@@ -295,6 +253,7 @@ public actor RemoteNodeService {
         await hold()
       }
     #endif
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     let saved = try await dataStore.reuseOrCreateRemoteNodeSession(
       RoomSessionPresentation(
         radioID: radioID,
@@ -305,8 +264,15 @@ public actor RemoteNodeService {
         longitude: contact.longitude
       )
     )
+    try validateSessionCreation(contactID: contact.id, sensorAttemptID: sensorAttemptID)
     logger.info("createSession: saved session \(saved.id) for \(pubKeyHex), isConnected=\(saved.isConnected)")
     return saved
+  }
+
+  private func validateSessionCreation(contactID: UUID, sensorAttemptID: UUID?) throws {
+    try Task.checkCancellation()
+    guard !isRetired else { throw RemoteNodeError.notConnected }
+    if let sensorAttemptID, sensorConnectAttempts[contactID] != sensorAttemptID { throw RemoteNodeError.cancelled }
   }
 
   /// Remove a session and its associated data
@@ -314,6 +280,12 @@ public actor RemoteNodeService {
     stopKeepAlive(sessionID: id)
     try await keychainService.deletePassword(forNodeKey: publicKey)
     try await dataStore.deleteRemoteNodeSession(id: id)
+    for (key, schedule) in roomKeepAliveSchedules where schedule.sessionID == id {
+      schedule.lifetime.retire()
+      schedule.recovery?.cancel()
+      schedule.refresh?.cancel()
+      roomKeepAliveSchedules.removeValue(forKey: key)
+    }
   }
 
   /// Check if a password is stored for a contact's public key.
@@ -358,18 +330,48 @@ public actor RemoteNodeService {
   public func stopAllKeepAlives() {
     for task in keepAliveTasks.values {
       task.cancel()
+      retiredKeepAliveTasks.append(task)
     }
     keepAliveTasks.removeAll()
 
-    // Resume parked logins before dropping their timeout tasks; otherwise the
-    // continuation that would have resumed them is gone and the caller hangs.
-    for prefix in Array(pendingLogins.keys) {
+    for prefix in Array(loginAttempts.keys) {
       cancelPendingLogin(for: prefix)
     }
   }
 
+  func beginRetirement() {
+    guard !isRetired else { return }
+    isRetired = true
+    sensorConnectAttempts.removeAll()
+    stopAllKeepAlives()
+    let slots = cliSlots.values
+    cliSlots.removeAll()
+    for var slot in slots {
+      slot.cancelAll()
+    }
+  }
+
+  func retire() async {
+    if let retirementTask {
+      await retirementTask.value
+      return
+    }
+
+    beginRetirement()
+    let workers = retiredKeepAliveTasks
+    retiredKeepAliveTasks.removeAll()
+    let drain = Task {
+      await stopEventMonitoring()
+      for worker in workers {
+        await worker.value
+      }
+    }
+    retirementTask = drain
+    await drain.value
+  }
+
   /// Number of login continuations currently parked. Exposed for teardown tests.
   var pendingLoginCount: Int {
-    pendingLogins.count
+    loginAttempts.values.count(where: \.isAwaitingResult)
   }
 }

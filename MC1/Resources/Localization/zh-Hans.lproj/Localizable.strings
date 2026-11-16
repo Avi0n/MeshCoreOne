@@ -151,6 +151,8 @@
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "发现新房间";
 
+"notifications.discovery.sensor" = "发现新传感器";
+
 // MARK: - Notification Actions
 
 /* Notification action button to reply to a message */
@@ -495,6 +497,14 @@
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "远程节点响应无效";
+
+"error.remoteNode.sensorOutcomeUnknown" = "无法验证此更改。请重新加载设置后再保存。";
+
+"error.remoteNode.sensorSettingRejected" = "传感器拒绝了此设置。";
+
+"error.remoteNode.invalidSensorSetting" = "请使用不含空白字符的非空键和值。完整命令必须在 160 个 UTF-8 字节以内。";
+
+"error.remoteNode.invalidPasswordLength" = "密码不得超过 %d 个 UTF-8 字节。";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation */
 "error.remoteNode.permissionDenied" = "权限被拒绝";

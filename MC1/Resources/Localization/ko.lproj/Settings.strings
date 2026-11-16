@@ -46,9 +46,6 @@
 /* Section header for device information */
 "device.header" = "기기";
 
-/* Status shown when device is connected */
-"device.connected" = "연결됨";
-
 /* Footer shown when no device is connected */
 "device.noDeviceConnected" = "연결된 MeshCore 기기 없음";
 
@@ -59,12 +56,6 @@
 
 /* Navigation title for device info screen */
 "deviceInfo.title" = "기기 정보";
-
-/* Section header for connection status */
-"deviceInfo.connection.header" = "연결";
-
-/* Label for connection status */
-"deviceInfo.connection.status" = "상태";
 
 /* Section header for power and storage */
 "deviceInfo.powerStorage.header" = "전원 및 저장 공간";
@@ -110,6 +101,12 @@
 
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
+
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "마지막으로 성공한 측정값";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "노드 텔레메트리";
 
 /* Section header for identity information */
 /* Label for public key */
@@ -164,6 +161,9 @@
 
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Bluetooth 기기 검색";
+
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "다시 페어링 중...";
 
 /* Trailing control on a previously paired row that still needs iPhone setup */
 "deviceSelection.setup" = "설정";
@@ -735,6 +735,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "저장된 모든 디버그 로그가 삭제됩니다. 내보낸 로그 파일에는 영향을 주지 않습니다.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "디버그 로그 수집";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "로컬 디버그 로그가 수집되지 않습니다.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "디버그 로그 수집 끄기";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "끄기";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "저장된 모든 디버그 로그가 삭제되고 수집이 중단됩니다. 내보낸 로그 파일에는 영향을 주지 않습니다.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "내보내기 파일을 만들지 못함";
 
@@ -742,6 +757,8 @@
 
 /* Navigation title for chat settings page */
 "chatSettings.title" = "채팅";
+
+"blocksAndFilters.title" = "차단 및 필터";
 
 // MARK: - Link Preview Settings Section
 
@@ -861,6 +878,8 @@
 
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "컴패니언";
+
+"notifications.discoveryCompanionsAndSensors" = "컴패니언 & 센서";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "리피터";
@@ -1022,6 +1041,9 @@
 
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "암호는 최대 63바이트입니다.";
+
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "네트워크 이름 또는 암호에 이 무선 기기가 저장할 수 없는 문자가 포함되어 있습니다.";
 
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Wi-Fi 설정 지우기";
@@ -1188,6 +1210,35 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "다이렉트 메시지당 보내는 확인 응답 수입니다. 불안정한 링크에서 전달 확인을 개선하려면 2를 사용하십시오.";
 
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "플러드 라우팅으로 대체";
+
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "경로 시도";
+
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "플러드 라우팅 시도";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "경로 시도 후에 경로가 삭제됩니다. 그 후 플러드 라우팅 시도는 플러드 라우팅으로 전송됩니다. 알려진 경로가 없는 연락처에게 보내는 메시지는 플러드 라우팅으로 전송됩니다.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "경로 시도는 알려진 경로로 전송되고 경로는 유지됩니다. 알려진 경로가 없는 연락처에게 보내는 메시지는 플러드 라우팅으로 전송됩니다.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "경로 대체";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "플러드 라우팅으로 대체";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "로그인, 리피터와 룸에 보내며 응답을 기다리는 명령, 연락처 텔레메트리는 알려진 경로를 사용합니다. 응답이 없으면 경로를 삭제하고 플러드 라우팅으로 한 번 시도합니다.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "로그인, 명령, 연락처 텔레메트리는 알려진 경로를 계속 사용합니다. 응답이 없으면 모두 중단되고 경로는 유지됩니다. 로그인 화면의 플러드 라우팅은 해당 노드의 저장된 경로를 삭제합니다.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */
@@ -1202,11 +1253,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "연결 해제";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "다시 연결 중지";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "연결 취소";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "연결 끊김";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "연결 중...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "다시 연결하는 중...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "다시 연결 대기 중";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "연결됨";
@@ -1219,6 +1282,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Bluetooth 연결 상태";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "기기를 연결하려면 이중 탭하십시오";
@@ -1323,6 +1389,24 @@
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ 일부 설정이 이미 기기에 기록되었을 수 있습니다. 기기의 구성을 검토하십시오.";
 
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "%@에 ID를 가져오는 동안 연결이 중단되었습니다. 무선 기기의 ID가 변경되었을 수 있습니다. 구성 가져오기가 완료되지 않았습니다.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "ID 가져오기 재시도";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "선택한 파일의 개인 키를 사용하여 %@을(를) 통해 연결되는 무선 기기의 ID를 교체합니다. 구성 가져오기는 계속되지 않습니다.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "무선 기기의 ID를 교체하겠습니까?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "ID가 다시 적용되었습니다. 구성 가져오기가 완료되지 않았습니다. 다른 설정을 적용하려면 파일을 다시 가져오십시오.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "ID 가져오기를 다시 시도하려면 개인 키가 포함된 구성 파일을 선택하십시오.";
+
 /* Import success */
 "configImport.importSuccess" = "구성을 가져왔습니다";
 
@@ -1421,6 +1505,63 @@
 
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "\"%@\"에 사용할 빈 채널 슬롯이 없습니다";
+
+// MARK: - Text Rules
+
+"textRules.rules" = "필터 규칙";
+"textRules.empty" = "필터 규칙 없음";
+"textRules.loading" = "필터 규칙을 불러오는 중…";
+"textRules.loadFailed" = "필터 규칙을 불러올 수 없습니다. 불러올 수 있을 때까지 새 메시지는 필터 규칙을 사용하지 않습니다.";
+"textRules.retryAccessibility" = "필터 규칙 다시 불러오기";
+"textRules.saveFailed" = "필터 규칙을 저장할 수 없습니다. 다시 시도하십시오.";
+"textRules.new.title" = "새 규칙";
+"textRules.new.phrase" = "단어 또는 문구";
+"textRules.new.lookIn" = "검색 위치";
+"textRules.new.match" = "일치 방식";
+"textRules.new.containsMessageFooter" = "메시지 어디에서든, 단어 안에서도 일치합니다.";
+"textRules.new.wholeMessageFooter" = "메시지 전체가 이 문구일 때만 일치합니다.";
+"textRules.new.containsSenderFooter" = "발신자 이름 어디에서든, 단어 안에서도 일치합니다. 그 발신자의 반응도 숨겨집니다.";
+"textRules.new.wholeNameFooter" = "발신자 이름이 정확히 이 문구일 때만 일치합니다. 그 발신자의 반응도 숨겨집니다.";
+"textRules.new.containsMessageOrSenderFooter" = "메시지 또는 발신자 이름 어디에서든, 단어 안에서도 일치합니다. 일치하는 발신자의 반응도 숨겨집니다.";
+"textRules.new.wholeMessageOrSenderFooter" = "메시지 전체 또는 발신자 이름 전체가 이 문구일 때만 일치합니다. 일치하는 발신자의 반응도 숨겨집니다.";
+"textRules.field.message" = "메시지";
+"textRules.field.sender" = "발신자";
+"textRules.field.messageOrSender" = "메시지 또는 발신자";
+"textRules.match.contains" = "포함";
+"textRules.match.wholeMessage" = "메시지 전체";
+"textRules.match.wholeName" = "이름 전체";
+"textRules.match.wholeField" = "항목 전체";
+"textRules.ruleSummary" = "%1$@ · %2$@";
+"textRules.types.header" = "규칙 적용 대상";
+"textRules.types.footer" = "켜면 해당 유형의 모든 채팅이 포함됩니다. 나중에 참여하는 채팅도 포함됩니다.";
+"textRules.types.publicChannel" = "공개";
+"textRules.types.hashtagChannel" = "해시태그 채널";
+"textRules.types.privateChannel" = "비공개 채널";
+"textRules.selection.all" = "전체";
+"textRules.selection.none" = "없음";
+"textRules.selection.count" = "%d개 채팅";
+"textRules.selection.accessibilityChats" = "%@에 대한 채팅";
+"textRules.selection.footer" = "전체는 나중에 참여하는 채팅도 포함합니다.";
+"textRules.archive.title" = "최근 차단";
+"textRules.archive.empty" = "숨겨진 메시지 없음";
+"textRules.archive.footer" = "최근 숨겨진 메시지 %d개가 이 기기에 보관됩니다. 앱 백업에는 포함되지 않습니다.";
+"textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
+"textRules.archive.rule" = "규칙";
+"textRules.archive.chat" = "채팅";
+"textRules.archive.myNode" = "내 노드";
+"textRules.archive.time" = "시간";
+"textRules.archive.unknownConversation" = "알 수 없는 대화";
+"textRules.archive.unknownRadio" = "알 수 없는 무선 기기";
+
+"radioCleanup.title" = "정리";
+"radioCleanup.running" = "무선 기기 데이터 제거 중";
+"radioCleanup.failed" = "이 무선 기기의 숨겨진 메시지가 이 앱 설치에 남아 있을 수 있습니다.";
+"radioCleanup.completed" = "무선 기기 데이터 제거됨";
+"radioCleanup.retryAccessibility" = "%@의 무선 기기 정리 다시 시도";
 
 // MARK: - Blocking Section
 
@@ -1983,7 +2124,7 @@
 "settings.backup.export.alert.title" = "보안 알림";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "이 백업에는 채널 암호화 키, 메시지 기록, 연락처 목록, Wi-Fi 노드의 로컬 네트워크 주소와 포트가 포함됩니다. 내보낸 파일을 안전하게 보관하십시오.";
+"settings.backup.export.alert.message" = "이 백업에는 채널 암호화 키, 메시지 기록, 연락처 목록, Wi-Fi 노드의 로컬 네트워크 주소와 포트가 포함됩니다. 무전기에서 수집한 GPS 좌표도 포함될 수 있습니다. 내보낸 파일을 안전하게 보관하십시오.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "내보내기";

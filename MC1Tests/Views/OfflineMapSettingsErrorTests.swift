@@ -26,7 +26,7 @@ struct OfflineMapSettingsErrorTests {
     try #require(try await harness.waitUntil { harness.appState.offlineMapService.errorMessage == message })
 
     let destination = SettingsDestination.offlineMaps
-    try #require(try await harness.openChild(
+    try #require(try await harness.openRow(
       row: destination.row, title: destination.title, markers: [message], detail: maps.detail
     ))
     try #require(try await harness.waitUntil { harness.controller.presentedViewController is UIAlertController })

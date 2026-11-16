@@ -10,6 +10,7 @@ extension MockDataProvider {
     case bayAreaChannelIndex: return bayAreaChannelMessages(now: now)
     case trailCrewChannelIndex: return trailCrewChannelMessages(now: now)
     case meshHQChannelIndex: return meshHQChannelMessages(now: now)
+    case emergencyChannelIndex: return emergencyChannelMessages(now: now)
     default: return []
     }
   }
@@ -184,6 +185,78 @@ extension MockDataProvider {
         pathLength: path
       )
     ]
+  }
+
+  /// Wire strings for `#emergency`. `MECP/5/M01` does not decode. The two
+  /// newest incoming rows are unread, matching the channel's unread count.
+  private static func emergencyChannelMessages(now: Date) -> [MessageDTO] {
+    let path = encodePathLen(hashSize: 1, hopCount: 1)
+    return [
+      emergencyIncoming(
+        "C4000000-0000-0000-0000-000000000001",
+        now.addingTimeInterval(-800),
+        "MECP/0/M01 M02 T04 3pax 37.7849,-122.4094 @1430 @en",
+        sender: "Alice Chen", snr: 8.4, path: path
+      ),
+      emergencyIncoming(
+        "C4000000-0000-0000-0000-000000000002",
+        now.addingTimeInterval(-500),
+        "MECP/1/R03 15",
+        sender: "Bob Martinez", snr: 7.1, path: path
+      ),
+      emergencyIncoming(
+        "C4000000-0000-0000-0000-000000000003",
+        now.addingTimeInterval(-300),
+        "MECP/5/M01",
+        sender: "Hannah Lee", snr: 6.4, path: path
+      ),
+      MockMessageFactory.message(
+        id: UUID(uuidString: "C4000000-0000-0000-0000-000000000004")!,
+        createdAt: now.addingTimeInterval(-120),
+        text: "MECP/1/R02",
+        direction: .outgoing,
+        status: .sent,
+        channelIndex: emergencyChannelIndex,
+        ackCode: 50004,
+        pathLength: path
+      ),
+      emergencyIncoming(
+        "C4000000-0000-0000-0000-000000000005",
+        now.addingTimeInterval(-40),
+        "MECP/3/H07 4pax",
+        sender: "Frank Wilson", snr: 5.8, path: path,
+        isRead: false
+      ),
+      emergencyIncoming(
+        "C4000000-0000-0000-0000-000000000006",
+        now.addingTimeInterval(-10),
+        "MECP/2/P03 S01 2pax",
+        sender: "Carol Diaz", snr: 9.2, path: path,
+        isRead: false
+      )
+    ]
+  }
+
+  private static func emergencyIncoming(
+    _ id: String,
+    _ createdAt: Date,
+    _ text: String,
+    sender: String,
+    snr: Double,
+    path: UInt8,
+    isRead: Bool = true
+  ) -> MessageDTO {
+    MockMessageFactory.message(
+      id: UUID(uuidString: id)!,
+      createdAt: createdAt,
+      text: text,
+      direction: .incoming,
+      channelIndex: emergencyChannelIndex,
+      pathLength: path,
+      snr: snr,
+      senderNodeName: sender,
+      isRead: isRead
+    )
   }
 
   /// Builds an incoming channel message, resolving the slot index from the id prefix.

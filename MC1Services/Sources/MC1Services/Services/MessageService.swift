@@ -41,6 +41,9 @@ public actor MessageService {
   let session: any MeshCoreSessionProtocol
   let dataStore: any PersistenceStoreProtocol
   let config: MessageServiceConfig
+  /// Read once at the start of each DM retry loop.
+  let dmSendBudgetProvider: @Sendable () -> DMSendBudget
+  let plainTextSendGate: PlainTextSendGate?
 
   /// Contact service for path management (optional - retry with reset requires this).
   /// Injected by `ServiceContainer` at construction.
@@ -52,14 +55,46 @@ public actor MessageService {
   /// CRCs accumulated across retry attempts, so a late ACK from any attempt
   /// can still mark the message delivered.
   var pendingAcks: [UUID: PendingAck] = [:]
+  /// Keeps teardown waiting for store writes even if their trackers disappear.
+  var acknowledgementSavesInFlight: Set<UUID> = []
+  var inlineSendsInFlight = 0
+  var inlineSendAdmissionClosed = false
+  var inlineSendWaiters: [CheckedContinuation<Void, Never>] = []
+
+  var acknowledgementSaveWaiters: [CheckedContinuation<Void, Never>] = []
 
   #if DEBUG
     /// Runs before each expired entry's status write. A renewal of a later
     /// candidate can land while the checker is still on an earlier one.
     var ackExpiryWriteGateForTesting: (@Sendable (UUID) async -> Void)?
+    var inlineSendAcceptedGateForTesting: (@Sendable () async -> Void)?
+    /// Runs after an owner save is entered and before its store commit.
+    var acknowledgementSaveGateForTesting: (@Sendable () async -> Void)?
+    /// Runs after consumed attempt codes are tracked and before the radio command.
+    var directMessageSubmitGateForTesting: (@Sendable (UInt8) async -> Void)?
 
     func setAckExpiryWriteGateForTesting(_ gate: (@Sendable (UUID) async -> Void)?) {
       ackExpiryWriteGateForTesting = gate
+    }
+
+    func setInlineSendAcceptedGateForTesting(_ gate: (@Sendable () async -> Void)?) {
+      inlineSendAcceptedGateForTesting = gate
+    }
+
+    func setAcknowledgementSaveGateForTesting(_ gate: (@Sendable () async -> Void)?) {
+      acknowledgementSaveGateForTesting = gate
+    }
+
+    func setDirectMessageSubmitGateForTesting(_ gate: (@Sendable (UInt8) async -> Void)?) {
+      directMessageSubmitGateForTesting = gate
+    }
+
+    var acknowledgementSaveWaiterCountForTesting: Int {
+      acknowledgementSaveWaiters.count
+    }
+
+    var inlineSendWaiterCountForTesting: Int {
+      inlineSendWaiters.count
     }
   #endif
 
@@ -75,12 +110,15 @@ public actor MessageService {
 
   /// Task for listening to session events
   private var eventListenerTask: Task<Void, Never>?
+  private var bufferedAckEvents: AsyncStream<MeshEvent>?
 
   /// Interval between ACK expiry checks (in seconds)
   var checkInterval: TimeInterval = 5.0
 
   /// Tracks message IDs currently being retried to prevent concurrent retry attempts
   var inFlightRetries: Set<UUID> = []
+  /// A failed local acceptance save must not retransmit a reaction the radio already accepted.
+  var acceptedChannelReactions: Set<UUID> = []
 
   // MARK: - Initialization
 
@@ -95,12 +133,18 @@ public actor MessageService {
     session: any MeshCoreSessionProtocol,
     dataStore: any PersistenceStoreProtocol,
     contactService: ContactService?,
-    config: MessageServiceConfig = .default
+    config: MessageServiceConfig = .default,
+    ackEvents: AsyncStream<MeshEvent>? = nil,
+    dmSendBudget: @escaping @Sendable () -> DMSendBudget = { .default },
+    plainTextSendGate: PlainTextSendGate? = nil
   ) {
     self.session = session
     self.dataStore = dataStore
     self.contactService = contactService
     self.config = config
+    dmSendBudgetProvider = dmSendBudget
+    self.plainTextSendGate = plainTextSendGate
+    bufferedAckEvents = ackEvents
   }
 
   /// Whether a contact service was injected at construction.
@@ -109,6 +153,12 @@ public actor MessageService {
   }
 
   // MARK: - Event Listening
+
+  func captureAcknowledgementEvents() async {
+    if bufferedAckEvents == nil {
+      bufferedAckEvents = await session.events(filter: .anyAcknowledgement)
+    }
+  }
 
   /// Starts the session ACK event listener.
   ///
@@ -124,13 +174,15 @@ public actor MessageService {
   /// which has its own `stopAckExpiryChecking()` / `stopAndFailAllPending()`
   /// counterparts. `ServiceContainer` pairs both lifecycles together; direct
   /// callers must do the same.
-  public func startEventMonitoring() {
-    eventListenerTask?.cancel()
-
+  public func startEventMonitoring() async {
+    await stopEventMonitoring()
+    await captureAcknowledgementEvents()
+    guard let events = bufferedAckEvents else { return }
+    bufferedAckEvents = nil
     eventListenerTask = Task { [weak self] in
       guard let self else { return }
 
-      for await event in await session.events(filter: .anyAcknowledgement) {
+      for await event in events {
         guard !Task.isCancelled else { break }
 
         if case let .acknowledgement(code, tripTime) = event {
@@ -146,70 +198,19 @@ public actor MessageService {
   /// expiry checker — for that, call `stopAckExpiryChecking()` (just stop
   /// the checker, used on a routine disconnect) or `stopAndFailAllPending()`
   /// (stop the checker and fail every in-flight DM, for explicit full teardown).
-  public func stopEventMonitoring() {
-    eventListenerTask?.cancel()
+  public func stopEventMonitoring() async {
+    let eventListenerTaskToStop = eventListenerTask
     eventListenerTask = nil
+    eventListenerTaskToStop?.cancel()
+    await eventListenerTaskToStop?.value
   }
 
   // MARK: - ACK Handling
 
-  /// Processes an acknowledgement from the session event stream.
-  ///
-  /// Finds the in-flight message whose accumulated `ackCodes` contains this
-  /// CRC, marks it delivered, writes the delivery status + round-trip time
-  /// to the database, and removes the entry. This is the sole DB writer for
-  /// delivered status on the late-ACK path.
+  /// A live tracker matches first. A queued row matches an attempt byte already handed to the radio.
   func handleAcknowledgement(code: Data, tripTime: UInt32?) async {
-    guard let (messageID, tracking) = pendingAcks.first(where: {
-      $0.value.ackCodes.contains(code) && !$0.value.isDelivered
-    }) else {
-      // Diagnostic: the firmware delivered an end-to-end ACK we have no
-      // live entry for. This is either a genuinely late ACK that arrived
-      // after the message was already failed and removed, or a duplicate
-      // for an already-delivered message. `orphanSentRow` flags a `.sent`
-      // DM that lost its pending entry to a teardown and would otherwise
-      // show "Sent" forever; its field rate informs whether a
-      // reconnect-time orphan sweep is worth adding.
-      let orphanSentRow = await (try? dataStore.hasOutgoingSentDM(ackCode: code.ackCodeUInt32)) ?? false
-      logger.warning("[ack-diag] unmatched ACK code=\(code.uppercaseHexString()) livePending=\(pendingAcks.count) orphanSentRow=\(orphanSentRow) (late post-teardown or duplicate)")
-      return
-    }
-
-    pendingAcks[messageID]?.isDelivered = true
-
-    // Persist `tripTime` only when firmware supplied it. Date()-based
-    // fallbacks against `tracking.sentAt` would be wrong in either
-    // direction once retries reset the timestamp, so we prefer a nil
-    // `roundTripTime` over a fabricated value.
-    let ackCodeUInt32 = code.ackCodeUInt32
-
-    do {
-      try await dataStore.updateMessageAck(
-        id: messageID,
-        ackCode: ackCodeUInt32,
-        status: .delivered,
-        roundTripTime: tripTime
-      )
-    } catch {
-      logger.error("Failed to write delivered status: \(error.localizedDescription)")
-    }
-
-    do {
-      try await dataStore.updateContactLastMessage(contactID: tracking.contactID, date: Date())
-    } catch {
-      logger.error("Failed to update contact lastMessageDate: \(error.localizedDescription)")
-    }
-
-    pendingAcks.removeValue(forKey: messageID)
-
-    statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .delivered, roundTripTime: tripTime))
-
-    // Diagnostic: how long the ACK took relative to the last send attempt
-    // (sentAt is re-stamped per retry), the firmware-reported round trip,
-    // and how many other entries were in flight. Distinguishes late-but-
-    // arriving ACKs from never-arriving ones and measures table pressure.
-    let ackDelta = Date().timeIntervalSince(tracking.sentAt)
-    logger.info("[ack-diag] ACK matched deltaSinceLastSend=\(String(format: "%.2f", ackDelta))s firmwareTrip=\(tripTime.map { "\($0)ms" } ?? "nil") livePending=\(pendingAcks.count)")
+    if await commitLiveAcknowledgement(code: code, tripTime: tripTime) { return }
+    await claimQueuedDirectMessageAcknowledgement(code: code, tripTime: tripTime)
   }
 
   // MARK: - Status Events

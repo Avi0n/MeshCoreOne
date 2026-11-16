@@ -146,7 +146,8 @@ extension RoomConversationViewModel {
       if let chrome = MessageTranslationChrome.resolved(
         detected: detectedLanguages[message.id],
         phase: translationPhases[message.id],
-        preferredLanguageCode: preferredLanguageCode
+        preferredLanguageCode: preferredLanguageCode,
+        text: message.text
       ) {
         translations[message.id] = chrome
       }

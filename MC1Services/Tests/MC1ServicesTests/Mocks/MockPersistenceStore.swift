@@ -19,6 +19,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public var stubbedSaveMessageError: Error?
   public var stubbedFetchMessageError: Error?
   public var stubbedUpdateMessageStatusError: Error?
+  public var stubbedResolvePendingAcknowledgementError: Error?
   public var stubbedSaveContactError: Error?
   public var stubbedFetchContactError: Error?
   public var stubbedFetchContactPublicKeysError: Error?
@@ -41,12 +42,36 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public private(set) var deletedChannelMessagesFromSenderCalls: [(senderName: String, radioID: UUID)] = []
   public private(set) var updatedMessageStatuses: [(id: UUID, status: MessageStatus)] = []
   public private(set) var updatedMessageAcks: [(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?)] = []
+  public private(set) var resolvePendingAcknowledgementCallCount = 0
+  private var resolvePendingAcknowledgementObserver: (@Sendable () async -> Void)?
+  private var resolvePendingAcknowledgementCompletionObserver: (@Sendable () async -> Void)?
+  private var updateMessageAckObserver: (@Sendable (MessageStatus) async -> Void)?
 
   // MARK: - Initialization
 
   public init() {}
 
   // MARK: - Stub Configuration
+
+  public func setStubbedUpdateMessageStatusError(_ error: Error?) {
+    stubbedUpdateMessageStatusError = error
+  }
+
+  public func setStubbedResolvePendingAcknowledgementError(_ error: Error?) {
+    stubbedResolvePendingAcknowledgementError = error
+  }
+
+  public func setResolvePendingAcknowledgementObserver(_ observer: (@Sendable () async -> Void)?) {
+    resolvePendingAcknowledgementObserver = observer
+  }
+
+  public func setResolvePendingAcknowledgementCompletionObserver(_ observer: (@Sendable () async -> Void)?) {
+    resolvePendingAcknowledgementCompletionObserver = observer
+  }
+
+  public func setUpdateMessageAckObserver(_ observer: (@Sendable (MessageStatus) async -> Void)?) {
+    updateMessageAckObserver = observer
+  }
 
   public func setStubbedFetchContactError(_ error: Error?) {
     stubbedFetchContactError = error
@@ -62,6 +87,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func setStubbedDeleteContactError(_ error: Error?) {
     stubbedDeleteContactError = error
+  }
+
+  public func setStubbedDebugLogError(_ error: Error?) {
+    stubbedDebugLogError = error
   }
 
   // MARK: - Message Operations
@@ -352,6 +381,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus, roundTripTime: UInt32?) async throws {
     updatedMessageAcks.append((id: id, ackCode: ackCode, status: status, roundTripTime: roundTripTime))
+    await updateMessageAckObserver?(status)
     if let error = stubbedUpdateMessageStatusError {
       throw error
     }
@@ -420,6 +450,53 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
   }
 
+  public func commitOutgoingDirectMessageTimestamp(id: UUID, timestamp: UInt32) async throws -> UInt32? {
+    guard var message = messages[id] else { return nil }
+    let replacedTimestamp = message.status == .delivered ? message.timestamp : nil
+    message.timestamp = timestamp
+    if replacedTimestamp != nil {
+      message.status = .pending
+    }
+    messages[id] = message
+    return replacedTimestamp
+  }
+
+  public func restoreUnacceptedDeliveredDirectMessage(id: UUID, timestamp: UInt32) async throws -> Bool {
+    guard var message = messages[id] else { return false }
+    if message.status == .delivered { return true }
+    guard message.status == .pending else { return false }
+    message.timestamp = timestamp
+    message.status = .delivered
+    messages[id] = message
+    for row in pendingSends.values where row.messageID == id && row.ackDeadline == nil {
+      pendingSends[row.id] = replacingAttemptCount(row, with: PersistenceStore.initialAttemptCount)
+    }
+    return true
+  }
+
+  private func replacingAttemptCount(_ row: PendingSendDTO, with attemptCount: Int) -> PendingSendDTO {
+    PendingSendDTO(
+      id: row.id,
+      radioID: row.radioID,
+      messageID: row.messageID,
+      kind: row.kind,
+      contactID: row.contactID,
+      channelIndex: row.channelIndex,
+      isResend: row.isResend,
+      messageText: row.messageText,
+      messageTimestamp: row.messageTimestamp,
+      localNodeName: row.localNodeName,
+      sequence: row.sequence,
+      enqueuedAt: row.enqueuedAt,
+      attemptCount: attemptCount,
+      nextWireAttempt: row.nextWireAttempt,
+      ackCodes: row.ackCodes,
+      ackSentAt: row.ackSentAt,
+      ackDeadline: row.ackDeadline,
+      isSingleAttempt: row.isSingleAttempt
+    )
+  }
+
   public func updateMessageTimestamp(id: UUID, timestamp: UInt32) async throws {
     if let message = messages[id] {
       messages[id] = MessageDTO(
@@ -449,32 +526,12 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
   }
 
-  public func updateMessageHeardRepeats(id: UUID, heardRepeats: Int) async throws {
-    if let message = messages[id] {
-      messages[id] = MessageDTO(
-        id: message.id,
-        radioID: message.radioID,
-        contactID: message.contactID,
-        channelIndex: message.channelIndex,
-        text: message.text,
-        timestamp: message.timestamp,
-        createdAt: message.createdAt,
-        direction: message.direction,
-        status: message.status,
-        textType: message.textType,
-        ackCode: message.ackCode,
-        pathLength: message.pathLength,
-        snr: message.snr,
-        senderKeyPrefix: message.senderKeyPrefix,
-        senderNodeName: message.senderNodeName,
-        isRead: message.isRead,
-        replyToID: message.replyToID,
-        roundTripTime: message.roundTripTime,
-        heardRepeats: heardRepeats,
-        retryAttempt: message.retryAttempt,
-        maxRetryAttempts: message.maxRetryAttempts
-      )
-    }
+  public func prepareChannelMessageResend(id: UUID, timestamp: UInt32) async throws {
+    guard var message = messages[id] else { throw PersistenceStoreError.messageNotFound }
+    message.timestamp = timestamp
+    message.heardRepeats = 0
+    repeatRows.removeAll { $0.messageID == id }
+    messages[id] = message
   }
 
   public func markMessageAsRead(id: UUID) async throws {
@@ -1778,10 +1835,6 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     [] // Stub
   }
 
-  public func deleteMessageRepeats(messageID: UUID) async throws {
-    // Stub - no-op
-  }
-
   public func messageRepeatExists(rxLogEntryID: UUID) async throws -> Bool {
     false // Stub
   }
@@ -1829,6 +1882,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func admitSentEcho(
     messageID: UUID,
+    expectedTimestamp: UInt32,
     receivedAt: Date,
     pathNodes: Data,
     pathLength: UInt8,
@@ -1837,6 +1891,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     rxLogEntryID: UUID?
   ) async throws -> Int? {
     guard var message = messages[messageID] else { throw PersistenceStoreError.messageNotFound }
+    guard message.timestamp == expectedTimestamp else { return nil }
     if let rxLogEntryID, repeatRows.contains(where: { $0.rxLogEntryID == rxLogEntryID }) {
       return nil
     }
@@ -1979,107 +2034,14 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     devices[dto.radioID] = dto
   }
 
-  public func updateDeviceNodeName(radioID: UUID, name: String) async throws {
-    try mutateDevice(radioID) { $0.nodeName = name }
-  }
-
-  public func updateDeviceCoordinates(radioID: UUID, latitude: Double, longitude: Double) async throws {
-    try mutateDevice(radioID) {
-      $0.latitude = latitude
-      $0.longitude = longitude
+  public func updateDeviceOCVSettings(id: UUID, preset: String, customArray: String?) async throws -> DeviceDTO? {
+    guard let current = devices.values.first(where: { $0.id == id }) else { return nil }
+    let updated = current.copy {
+      $0.ocvPreset = preset
+      $0.customOCVArrayString = customArray
     }
-  }
-
-  public func updateDeviceRadio(
-    radioID: UUID,
-    frequency: UInt32,
-    bandwidth: UInt32,
-    spreadingFactor: UInt8,
-    codingRate: UInt8,
-    appliedRadioPresetID: String?
-  ) async throws {
-    try mutateDevice(radioID) {
-      $0.frequency = frequency
-      $0.bandwidth = bandwidth
-      $0.spreadingFactor = spreadingFactor
-      $0.codingRate = codingRate
-      $0.appliedRadioPresetID = appliedRadioPresetID
-    }
-  }
-
-  public func updateDeviceTxPower(radioID: UUID, txPower: Int8) async throws {
-    try mutateDevice(radioID) { $0.txPower = txPower }
-  }
-
-  public func updateDeviceObservation(radioID: UUID, mapped: DeviceDTO) async throws {
-    try mutateDevice(radioID) { device in
-      device.publicKey = mapped.publicKey
-      device.nodeName = mapped.nodeName
-      device.latitude = mapped.latitude
-      device.longitude = mapped.longitude
-      device.frequency = mapped.frequency
-      device.bandwidth = mapped.bandwidth
-      device.spreadingFactor = mapped.spreadingFactor
-      device.codingRate = mapped.codingRate
-      device.txPower = mapped.txPower
-      device.manualAddContacts = mapped.manualAddContacts
-      device.multiAcks = mapped.multiAcks
-      device.telemetryModeBase = mapped.telemetryModeBase
-      device.telemetryModeLoc = mapped.telemetryModeLoc
-      device.telemetryModeEnv = mapped.telemetryModeEnv
-      device.advertLocationPolicy = mapped.advertLocationPolicy
-      device.appliedRadioPresetID = mapped.appliedRadioPresetID
-    }
-  }
-
-  public func updateDeviceOtherParams(radioID: UUID, intent: OtherParamsIntent) async throws {
-    try mutateDevice(radioID) { device in
-      if let manualAddContacts = intent.manualAddContacts {
-        device.manualAddContacts = manualAddContacts
-      }
-      if let telemetryModeBase = intent.telemetryModeBase {
-        device.telemetryModeBase = telemetryModeBase
-      }
-      if let telemetryModeLocation = intent.telemetryModeLocation {
-        device.telemetryModeLoc = telemetryModeLocation
-      }
-      if let telemetryModeEnvironment = intent.telemetryModeEnvironment {
-        device.telemetryModeEnv = telemetryModeEnvironment
-      }
-      if let advertisementLocationPolicy = intent.advertisementLocationPolicy {
-        device.advertLocationPolicy = advertisementLocationPolicy
-      }
-      if let multiAcks = intent.multiAcks {
-        device.multiAcks = multiAcks
-      }
-    }
-  }
-
-  public func updateDeviceClientRepeat(radioID: UUID, enabled: Bool) async throws {
-    try mutateDevice(radioID) { $0.clientRepeat = enabled }
-  }
-
-  public func updateDevicePathHashMode(radioID: UUID, mode: UInt8) async throws {
-    try mutateDevice(radioID) { $0.pathHashMode = mode }
-  }
-
-  public func updateDeviceAutoAdd(radioID: UUID, config: UInt8, maxHops: UInt8) async throws {
-    try mutateDevice(radioID) {
-      $0.autoAddConfig = config
-      $0.autoAddMaxHops = maxHops
-    }
-  }
-
-  public func updateDeviceDefaultFloodScopeName(radioID: UUID, name: String?) async throws {
-    try mutateDevice(radioID) { $0.defaultFloodScopeName = name }
-  }
-
-  private func mutateDevice(_ radioID: UUID, _ body: (inout DeviceDTO) -> Void) throws {
-    guard var device = devices[radioID] else {
-      throw PersistenceStoreError.deviceNotFound
-    }
-    body(&device)
-    devices[radioID] = device
+    devices[updated.radioID] = updated
+    return updated
   }
 
   // MARK: - Room Session State
@@ -2091,6 +2053,11 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public private(set) var savedRemoteNodeSessions: [RemoteNodeSessionDTO] = []
   public private(set) var updatedSessionConnections: [(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel)] = []
   public private(set) var deletedRemoteNodeSessionIDs: [UUID] = []
+  private var updateRemoteNodeSessionConnectionHold: (@Sendable () async -> Void)?
+
+  public func setUpdateRemoteNodeSessionConnectionHold(_ hold: (@Sendable () async -> Void)?) {
+    updateRemoteNodeSessionConnectionHold = hold
+  }
 
   public func fetchRemoteNodeSession(id: UUID) async throws -> RemoteNodeSessionDTO? {
     remoteNodeSessions[id]
@@ -2167,6 +2134,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func updateRemoteNodeSessionConnection(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel) async throws {
     updatedSessionConnections.append((id: id, isConnected: isConnected, permissionLevel: permissionLevel))
+    await updateRemoteNodeSessionConnectionHold?()
     if let session = remoteNodeSessions[id] {
       remoteNodeSessions[id] = RemoteNodeSessionDTO(
         id: session.id,
@@ -2659,6 +2627,23 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     return id
   }
 
+  public func recordSelfTelemetrySnapshot(
+    deviceID: UUID,
+    radioID: UUID,
+    nodePublicKey: Data,
+    telemetry: [TelemetrySnapshotEntry]?,
+    location: NodeLocationFix?
+  ) async throws -> UUID? {
+    nil
+  }
+
+  public func fetchSelfTelemetrySnapshots(
+    radioID: UUID,
+    nodePublicKey: Data
+  ) async throws -> [NodeStatusSnapshotDTO] {
+    []
+  }
+
   /// Rewrites the stored DTO's location by index. The DTO is a value type, so an
   /// in-place mutation is a full rebuild; the mock keeps this in one helper.
   private func applyLocation(_ location: NodeLocationFix, to id: UUID) {
@@ -2714,10 +2699,76 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       localNodeName: dto.localNodeName,
       sequence: nextSequence,
       enqueuedAt: dto.enqueuedAt,
-      attemptCount: dto.attemptCount
+      attemptCount: dto.attemptCount,
+      nextWireAttempt: dto.nextWireAttempt,
+      ackCodes: dto.ackCodes,
+      ackSentAt: dto.ackSentAt,
+      ackDeadline: dto.ackDeadline,
+      isSingleAttempt: dto.isSingleAttempt
     )
     pendingSends[dto.id] = assigned
     return nextSequence
+  }
+
+  public func savePendingAcknowledgement(
+    _ dto: PendingSendDTO, replacingPendingSendID: UUID?, markSent: Bool = true
+  ) async throws -> Bool {
+    guard var message = messages[dto.messageID],
+          message.status != .delivered,
+          message.status != .failed || replacingPendingSendID != nil else { return false }
+    if let replacingPendingSendID {
+      guard let existing = pendingSends[replacingPendingSendID], existing.messageID == dto.messageID,
+            existing.ackDeadline == nil else { return false }
+      pendingSends[existing.id] = PendingSendDTO(
+        id: existing.id,
+        radioID: existing.radioID,
+        messageID: existing.messageID,
+        kind: existing.kind,
+        contactID: existing.contactID,
+        channelIndex: existing.channelIndex,
+        isResend: existing.isResend,
+        messageText: existing.messageText,
+        messageTimestamp: existing.messageTimestamp,
+        localNodeName: existing.localNodeName,
+        sequence: existing.sequence,
+        enqueuedAt: existing.enqueuedAt,
+        attemptCount: existing.attemptCount,
+        nextWireAttempt: existing.nextWireAttempt,
+        ackCodes: dto.ackCodes,
+        ackSentAt: dto.ackSentAt,
+        ackDeadline: dto.ackDeadline,
+        isSingleAttempt: existing.isSingleAttempt
+      )
+    } else if pendingSends.values.contains(where: { $0.messageID == dto.messageID }) {
+      return false
+    } else {
+      pendingSends[dto.id] = dto
+    }
+    if markSent {
+      message.status = .sent
+    } else if message.status == .failed {
+      message.status = .pending
+    }
+    messages[dto.messageID] = message
+    return true
+  }
+
+  public func resolvePendingAcknowledgement(
+    id: UUID, expectedDeadline: Date?, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?
+  ) async throws -> Bool {
+    resolvePendingAcknowledgementCallCount += 1
+    await resolvePendingAcknowledgementObserver?()
+    if let error = stubbedResolvePendingAcknowledgementError { throw error }
+    guard let row = pendingSends[id], row.ackDeadline == expectedDeadline else { return false }
+    if row.ackDeadline != nil { pendingSends[id] = nil }
+    guard var message = messages[row.messageID], message.status != .delivered, message.status != .failed else { return false }
+    message.status = status
+    if status == .failed { message.failureSeen = false }
+    if let ackCode { message.ackCode = ackCode }
+    if let roundTripTime { message.roundTripTime = roundTripTime }
+    messages[row.messageID] = message
+    await resolvePendingAcknowledgementCompletionObserver?()
+    return true
   }
 
   public func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO] {
@@ -2740,8 +2791,14 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   }
 
   @discardableResult
-  public func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int? {
-    guard let row = pendingSends.values.first(where: { $0.messageID == messageID }) else { return nil }
+  public func preparePendingSendAttempt(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)? {
+    guard let row = pendingSends.values.first(where: { $0.messageID == messageID && $0.ackDeadline == nil }) else { return nil }
+    if row.kind == .dm, row.attemptCount == 0, !row.isResend, !row.isSingleAttempt,
+       var message = messages[messageID], message.radioID == row.radioID,
+       message.reactionTargetMessageID == nil, message.status == .failed {
+      message.status = .pending
+      messages[messageID] = message
+    }
     let nextCount = (row.attemptCount ?? 0) + 1
     pendingSends[row.id] = PendingSendDTO(
       id: row.id,
@@ -2756,9 +2813,81 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       localNodeName: row.localNodeName,
       sequence: row.sequence,
       enqueuedAt: row.enqueuedAt,
-      attemptCount: nextCount
+      attemptCount: nextCount,
+      nextWireAttempt: row.nextWireAttempt,
+      ackCodes: row.ackCodes,
+      ackSentAt: row.ackSentAt,
+      ackDeadline: row.ackDeadline,
+      isSingleAttempt: row.isSingleAttempt
     )
-    return nextCount
+    return (row.id, nextCount)
+  }
+
+  public func pendingSendWireAttempt(id: UUID) async throws -> UInt8? {
+    guard let row = pendingSends[id], row.ackDeadline == nil else { return nil }
+    return row.nextWireAttempt
+  }
+
+  public func queuedDirectMessageWireAttempts() async throws -> [QueuedDirectMessageWireAttempt] {
+    pendingSends.values
+      .filter { $0.ackDeadline == nil && $0.kind == .dm && $0.nextWireAttempt > 0 }
+      .sorted { $0.sequence < $1.sequence }
+      .compactMap { row in
+        guard let message = messages[row.messageID],
+              message.channelIndex == nil,
+              message.status != .delivered else { return nil }
+        return QueuedDirectMessageWireAttempt(
+          pendingSendID: row.id,
+          messageID: row.messageID,
+          timestamp: message.timestamp,
+          text: message.text,
+          consumedAttempts: row.nextWireAttempt
+        )
+      }
+  }
+
+  public func deliverQueuedDirectMessage(
+    pendingSendID: UUID,
+    ackCode: UInt32,
+    roundTripTime: UInt32?
+  ) async throws -> MessageDTO? {
+    guard let row = pendingSends[pendingSendID], row.ackDeadline == nil, row.kind == .dm else { return nil }
+    guard var message = messages[row.messageID],
+          message.channelIndex == nil,
+          message.status != .delivered else { return nil }
+    message.status = .delivered
+    message.ackCode = ackCode
+    if let roundTripTime {
+      message.roundTripTime = roundTripTime
+    }
+    messages[row.messageID] = message
+    pendingSends[pendingSendID] = nil
+    return message
+  }
+
+  public func setPendingSendWireAttempt(id: UUID, to next: UInt8) async throws -> Bool {
+    guard let row = pendingSends[id], row.ackDeadline == nil else { return false }
+    pendingSends[id] = PendingSendDTO(
+      id: row.id,
+      radioID: row.radioID,
+      messageID: row.messageID,
+      kind: row.kind,
+      contactID: row.contactID,
+      channelIndex: row.channelIndex,
+      isResend: row.isResend,
+      messageText: row.messageText,
+      messageTimestamp: row.messageTimestamp,
+      localNodeName: row.localNodeName,
+      sequence: row.sequence,
+      enqueuedAt: row.enqueuedAt,
+      attemptCount: row.attemptCount,
+      nextWireAttempt: next,
+      ackCodes: row.ackCodes,
+      ackSentAt: row.ackSentAt,
+      ackDeadline: row.ackDeadline,
+      isSingleAttempt: row.isSingleAttempt
+    )
+    return true
   }
 
   // MARK: - Test Helpers

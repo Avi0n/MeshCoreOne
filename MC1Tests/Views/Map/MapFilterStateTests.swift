@@ -6,6 +6,17 @@ import Testing
 
 @Suite("MapFilterState")
 struct MapFilterStateTests {
+  @Test(arguments: [true, false])
+  func `sensors share the stored contact gate`(enabled: Bool) {
+    let state = MapFilterState(showChat: enabled)
+    #expect(state.allowsContactType(.sensor) == enabled)
+    #expect(state.allowsContactType(.repeater))
+    #expect(state.allowsContactType(.room))
+    var favorites = state
+    favorites.setFavoritesOnly(true)
+    #expect(favorites.allowsContactType(.sensor))
+  }
+
   @Test
   func `struct defaults match design`() {
     let s = MapFilterState()

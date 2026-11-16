@@ -200,7 +200,7 @@ struct ContactServiceSyncTests {
       cleanupCoordinator: nil
     )
 
-    let gated = GatedSyncContactService()
+    let gated = GatedContactService()
     let advertTask = Task {
       await coordinator.performAdvertContactSync(
         fullRefetch: false,
@@ -252,7 +252,7 @@ struct ContactServiceSyncTests {
       cleanupCoordinator: nil
     )
 
-    let gated = GatedSyncContactService()
+    let gated = GatedContactService()
     let firstAdvert = Task {
       await coordinator.performAdvertContactSync(
         fullRefetch: false,
@@ -309,7 +309,7 @@ struct ContactServiceSyncTests {
       cleanupCoordinator: nil
     )
 
-    let gated = GatedSyncContactService()
+    let gated = GatedContactService()
     let advertTask = Task {
       await coordinator.performAdvertContactSync(
         fullRefetch: false,
@@ -454,36 +454,5 @@ struct ContactServiceSyncTests {
     #expect(await session.addContactInvocations.count == 1)
     #expect(try await store.fetchContact(radioID: radioID, publicKey: blockedKey) == nil)
     #expect(try await store.fetchContact(radioID: radioID, publicKey: listedKey)?.name == "Listed")
-  }
-}
-
-/// Contact service stub that parks inside `syncContacts` until released, so a test can
-/// hold an advert-driven delta sync open.
-private actor GatedSyncContactService: ContactServiceProtocol {
-  private var hasStarted = false
-  private var startWaiters: [CheckedContinuation<Void, Never>] = []
-  private var gate: CheckedContinuation<Void, Never>?
-  private var isReleased = false
-
-  func waitForSyncStart() async {
-    if hasStarted { return }
-    await withCheckedContinuation { startWaiters.append($0) }
-  }
-
-  func release() {
-    isReleased = true
-    gate?.resume()
-    gate = nil
-  }
-
-  func syncContacts(radioID _: UUID, since _: Date?) async throws -> ContactSyncResult {
-    hasStarted = true
-    while !startWaiters.isEmpty {
-      startWaiters.removeFirst().resume()
-    }
-    if !isReleased {
-      await withCheckedContinuation { gate = $0 }
-    }
-    return ContactSyncResult(contactsReceived: 0, lastSyncTimestamp: 0, isIncremental: true)
   }
 }

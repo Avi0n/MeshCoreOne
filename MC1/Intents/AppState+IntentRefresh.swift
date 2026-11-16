@@ -10,8 +10,7 @@ func shouldPublishRecipientIDs(
   currentRadioID: UUID?,
   fresh: Set<String>
 ) -> Bool {
-  guard let capturedRadioID, capturedRadioID == currentRadioID else { return false }
-  guard fresh == captured else { return false }
+  guard let capturedRadioID, capturedRadioID == currentRadioID, fresh == captured else { return false }
   return captured != previous
 }
 
@@ -44,8 +43,7 @@ extension AppState {
       fresh = []
     }
 
-    guard !Task.isCancelled, connectionManager.services === expectedServices else { return }
-    guard shouldPublishRecipientIDs(
+    guard !Task.isCancelled, connectionManager.services === expectedServices, shouldPublishRecipientIDs(
       previous: lastPublishedRecipientIDs,
       capturedRadioID: capturedRadioID,
       captured: captured,

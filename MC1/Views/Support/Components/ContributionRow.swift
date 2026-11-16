@@ -18,16 +18,6 @@ struct ContributionRow: View {
       Spacer()
       priceButton
     }
-    .confirmationDialog(
-      L10n.Settings.Support.Contributions.highValueConfirm(displayName),
-      isPresented: $showingConfirmation,
-      titleVisibility: .visible
-    ) {
-      Button(L10n.Settings.Support.Contributions.confirmButton(displayPrice ?? displayName)) {
-        Task { await runPurchase() }
-      }
-      Button(L10n.Localizable.Common.cancel, role: .cancel) {}
-    }
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(L10n.Settings.Support.Accessibility.ContributionRow.label(displayName, displayPrice ?? ""))
     .accessibilityHint(L10n.Settings.Support.Accessibility.ContributionRow.hint)
@@ -49,6 +39,16 @@ struct ContributionRow: View {
     }
     .buttonStyle(.bordered)
     .disabled(displayPrice == nil || isPurchasing)
+    .confirmationDialog(
+      L10n.Settings.Support.Contributions.highValueConfirm(displayName),
+      isPresented: $showingConfirmation,
+      titleVisibility: .visible
+    ) {
+      Button(L10n.Settings.Support.Contributions.confirmButton(displayPrice ?? displayName)) {
+        Task { await runPurchase() }
+      }
+      Button(L10n.Localizable.Common.cancel, role: .cancel) {}
+    }
   }
 
   private func runPurchase() async {

@@ -9,10 +9,14 @@ struct NodeTelemetryView: View {
   let contact: ContactDTO
   @State private var viewModel = NodeTelemetryViewModel()
 
+  private var connectionState: DeviceConnectionState {
+    appState.connectionSnapshot(for: contact.radioID) == nil ? .disconnected : appState.connectionState
+  }
+
   var body: some View {
     NavigationStack {
       List {
-        NodeTelemetryDisclosureSection(helper: viewModel.helper, connectionState: appState.connectionState) {
+        NodeTelemetryDisclosureSection(helper: viewModel.helper, connectionState: connectionState) {
           await viewModel.requestTelemetry()
         }
       }
@@ -31,22 +35,23 @@ struct NodeTelemetryView: View {
           }
           .labelStyle(.iconOnly)
           .radioDisabled(
-            for: appState.connectionState,
+            for: connectionState,
             or: viewModel.helper.isLoadingTelemetry
           )
         }
       }
       .task {
+        let radioID = contact.radioID
         viewModel.configure(
-          binaryProtocolService: { appState.services?.binaryProtocolService },
-          contactService: { appState.services?.contactService },
-          nodeSnapshotService: { appState.services?.nodeSnapshotService },
+          binaryProtocolService: { appState.connectionSnapshot(for: radioID)?.services.binaryProtocolService },
+          contactService: { appState.connectionSnapshot(for: radioID)?.services.contactService },
+          nodeSnapshotService: { appState.connectionSnapshot(for: radioID)?.services.nodeSnapshotService },
           contact: contact
         )
 
         viewModel.helper.telemetryExpanded = true
 
-        if let radioID = appState.connectedDevice?.radioID {
+        if appState.connectionSnapshot(for: radioID) != nil {
           await viewModel.helper.loadOCVSettings(
             publicKey: contact.publicKey,
             radioID: radioID

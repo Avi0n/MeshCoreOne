@@ -7,6 +7,9 @@
 /* Accessibility: packet rate */
 "%lld packets per minute" = "분당 패킷 %lld개";
 
+/* Visible unit beside the packet rate */
+"packets/min" = "패킷/분";
+
 /* Accessibility: battery level */
 "Battery %lld percent" = "배터리 %lld퍼센트";
 

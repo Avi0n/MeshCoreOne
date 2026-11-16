@@ -383,7 +383,7 @@ struct ChatConversationView: View {
     }
 
     chatViewModel.configure(
-      dependencies: appState.makeChatViewModelDependencies(),
+      dependencies: appState.makeChatViewModelDependencies(radioID: conversationType.radioID),
       onNavigateToMap: { appState.navigation.navigateToMap(coordinate: $0) },
       linkPreviewCache: linkPreviewCache,
       chatCoordinatorRegistry: appState.ensureChatCoordinatorRegistry(),
@@ -536,7 +536,7 @@ struct ChatConversationView: View {
   private func refreshChannel() async throws {
     guard case let .channel(channel) = conversationType else { return }
     guard let dataStore = appState.offlineDataStore else { throw ConnectionError.notConnected }
-    guard let updated = try await dataStore.fetchChannel(id: channel.id) else {
+    guard let updated = try await dataStore.fetchChannelForInfo(id: channel.id) else {
       throw PersistenceStoreError.channelNotFound
     }
     try Task.checkCancellation()
@@ -675,7 +675,7 @@ struct ChatConversationView: View {
     case .copy:
       handleCopy(for: message)
     case .translate:
-      presentSystemTranslation(text: message.text)
+      presentSystemTranslation(text: MECPCatalog.displayText(message.text))
     case .sendAgain:
       handleSendAgain(for: message)
     case .blockSender:

@@ -5,6 +5,14 @@ extension RemoteNodeError {
   /// package-level `errorDescription` stays the developer-facing fallback.
   var userFacingMessage: String {
     switch self {
+    case .invalidPasswordLength:
+      L10n.Localizable.Error.RemoteNode.invalidPasswordLength(ProtocolLimits.maxRemotePasswordBytes)
+    case .invalidSensorSetting:
+      L10n.Localizable.Error.RemoteNode.invalidSensorSetting
+    case .sensorSettingRejected:
+      L10n.Localizable.Error.RemoteNode.sensorSettingRejected
+    case .sensorOutcomeUnknown:
+      L10n.Localizable.Error.RemoteNode.sensorOutcomeUnknown
     case .notConnected:
       L10n.Localizable.Error.RemoteNode.notConnected
     case .loginFailed:

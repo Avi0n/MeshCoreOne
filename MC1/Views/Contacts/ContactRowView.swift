@@ -3,6 +3,7 @@ import MC1Services
 import SwiftUI
 
 struct ContactRowView: View {
+  private static let avatarSize: CGFloat = 44
   @Environment(\.appState) private var appState
   let contact: ContactDTO
   let timestamp: UInt32?
@@ -105,11 +106,13 @@ struct ContactRowView: View {
   private var avatarView: some View {
     switch contact.type {
     case .chat:
-      ContactAvatar(contact: contact, size: 44)
+      ContactAvatar(contact: contact, size: Self.avatarSize)
     case .repeater:
-      NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 44)
+      NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: Self.avatarSize)
     case .room:
-      NodeAvatar(publicKey: contact.publicKey, role: .roomServer, size: 44)
+      NodeAvatar(publicKey: contact.publicKey, role: .roomServer, size: Self.avatarSize)
+    case .sensor:
+      NodeAvatar(publicKey: contact.publicKey, role: .sensor, size: Self.avatarSize)
     }
   }
 

@@ -2,6 +2,8 @@
 
 "Disconnected" = "Niet verbonden";
 "%lld packets per minute" = "%lld pakketten per minuut";
+/* Visible unit beside the packet rate */
+"packets/min" = "pakketten/min";
 "Battery %lld percent" = "Batterij %lld procent";
 
 /* Control Center button: opens the app */

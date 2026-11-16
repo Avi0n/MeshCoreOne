@@ -108,17 +108,6 @@ private struct TracePathWorkspace: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
     }
-    .confirmationDialog(
-      L10n.Contacts.Contacts.Trace.clearPath,
-      isPresented: $showingClearConfirmation,
-      titleVisibility: .visible
-    ) {
-      Button(L10n.Contacts.Contacts.Trace.clearPath, role: .destructive) {
-        viewModel.clearPath()
-      }
-    } message: {
-      Text(L10n.Contacts.Contacts.Trace.clearPathMessage)
-    }
     .alert(L10n.Contacts.Contacts.Trace.failed, isPresented: Binding(
       get: { viewModel.errorMessage != nil },
       set: { if !$0 { viewModel.clearError() } }

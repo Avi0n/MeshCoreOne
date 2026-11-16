@@ -23,6 +23,12 @@ struct ContactsEmptyView: View {
         systemImage: "antenna.radiowaves.left.and.right",
         description: Text(L10n.Contacts.Contacts.List.Empty.Repeaters.description)
       )
+    case .sensors:
+      ContentUnavailableView(
+        L10n.Contacts.Contacts.List.Empty.Sensors.title,
+        systemImage: "sensor",
+        description: Text(L10n.Contacts.Contacts.List.Empty.Sensors.description)
+      )
     case .rooms:
       ContentUnavailableView(
         L10n.Contacts.Contacts.List.Empty.Rooms.title,

@@ -366,6 +366,7 @@ struct AdvertisementServiceTests {
     #expect(await waitForEventProcessing(service, session: session))
     #expect(await service.contactsDeletedDuringSync.contains(key))
     let round = try #require(await service.deltaSyncTask)
+    await service.flushPendingDeletedKeys()
     await hold.release()
     await round.value
 
@@ -1272,8 +1273,11 @@ struct AdvertisementServiceTests {
     #expect(deleted)
 
     // Teardown cancels the round and clears the handler while the commit runs.
-    await service.stopEventMonitoring()
+    let stopping = Task { await service.stopEventMonitoring() }
+    let handlerDropped = await waitUntil { await service.deltaSyncHandler == nil }
+    #expect(handlerDropped)
     await hold.release()
+    await stopping.value
 
     let committed = await waitUntil { await marker.committed }
     #expect(committed)
@@ -2159,6 +2163,7 @@ struct AdvertisementServiceTests {
     // A DM in the debounce window needs a Contact row immediately so the live
     // notify path can run. Materialize from the pending 0x80 key.
     let store = try await makeStore()
+    let scope = try #require(await store.captureReceiveScope(radioID: radioID, link: .init()))
     let session = MockMeshCoreSession()
     let service = makeService(session: session, store: store)
 
@@ -2175,7 +2180,7 @@ struct AdvertisementServiceTests {
 
     let prefix = Data(key.prefix(6))
     let contact = try #require(
-      await service.materializeContactForPendingAdvert(matchingPrefix: prefix, radioID: radioID)
+      await service.materializeContactForPendingAdvert(matchingPrefix: prefix, scope: scope)
     )
     #expect(contact.publicKey == key)
     #expect(contact.name == "DebounceNode")
@@ -2189,8 +2194,40 @@ struct AdvertisementServiceTests {
   }
 
   @Test
+  func `materializeContactForPendingAdvert discards response after partition retirement`() async throws {
+    let store = try await makeStore()
+    let scope = try #require(await store.captureReceiveScope(radioID: radioID, link: .init()))
+    let device = try #require(await store.fetchDevice(radioID: radioID))
+    let session = MockMeshCoreSession()
+    let service = makeService(session: session, store: store)
+    let key = makePublicKey(seed: 0xB8)
+    await service.recordPendingAdvertKey(key)
+    await session.setStubbedContact(makeMeshContact(publicKey: key, name: "Retired"), for: key)
+    await session.holdNextGetContact(for: key)
+    let task = Task {
+      await service.materializeContactForPendingAdvert(matchingPrefix: Data(key.prefix(6)), scope: scope)
+    }
+
+    let held = await waitUntil { await session.isGetContactHeld(for: key) }
+    do {
+      try #require(held)
+      _ = try await store.beginRadioErase(device)
+    } catch {
+      await session.releaseGetContact(for: key)
+      task.cancel()
+      throw error
+    }
+
+    await session.releaseGetContact(for: key)
+    #expect(await task.value == nil)
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: key) == nil)
+    #expect(try await store.fetchDiscoveredNodes(radioID: radioID).isEmpty)
+  }
+
+  @Test
   func `materializeContactForPendingAdvert returns nil without pending match`() async throws {
     let store = try await makeStore()
+    let scope = try #require(await store.captureReceiveScope(radioID: radioID, link: .init()))
     let session = MockMeshCoreSession()
     let service = makeService(session: session, store: store)
     let key = makePublicKey(seed: 0x8E)
@@ -2199,7 +2236,7 @@ struct AdvertisementServiceTests {
     await startMonitoring(service, session: session)
     let result = await service.materializeContactForPendingAdvert(
       matchingPrefix: Data(key.prefix(6)),
-      radioID: radioID
+      scope: scope
     )
     #expect(result == nil)
     #expect(await session.getContactPublicKeys.isEmpty)
@@ -2209,6 +2246,7 @@ struct AdvertisementServiceTests {
   @Test
   func `materializeContactForPendingAdvert returns nil on multi-match prefix`() async throws {
     let store = try await makeStore()
+    let scope = try #require(await store.captureReceiveScope(radioID: radioID, link: .init()))
     let session = MockMeshCoreSession()
     let service = makeService(session: session, store: store)
 
@@ -2223,7 +2261,7 @@ struct AdvertisementServiceTests {
     await service.recordPendingAdvertKey(keyB)
     let result = await service.materializeContactForPendingAdvert(
       matchingPrefix: Data([0xAB]),
-      radioID: radioID
+      scope: scope
     )
     #expect(result == nil)
     #expect(await session.getContactPublicKeys.isEmpty)
@@ -2795,6 +2833,7 @@ struct AdvertisementServiceTests {
   @Test
   func `materializeContactForPendingAdvert still works while backgrounded`() async throws {
     let store = try await makeStore()
+    let scope = try #require(await store.captureReceiveScope(radioID: radioID, link: .init()))
     let session = MockMeshCoreSession()
     let scene = MockAppStateProvider(isInForeground: false)
     let service = makeService(session: session, store: store, appStateProvider: scene)
@@ -2812,7 +2851,7 @@ struct AdvertisementServiceTests {
 
     let contact = try #require(
       await service.materializeContactForPendingAdvert(
-        matchingPrefix: Data(key.prefix(6)), radioID: radioID
+        matchingPrefix: Data(key.prefix(6)), scope: scope
       )
     )
     #expect(contact.publicKey == key)
@@ -3433,11 +3472,12 @@ struct AdvertisementServiceTests {
     }
 
     await startMonitoring(service, session: session)
+    let attemptsBeforeFailure = await store.deleteContactsCallCount
     await store.setStubbedDeleteContactError(AdvertisementServiceTestError.storeUnavailable)
     await session.yieldEvent(.contactDeleted(publicKey: key))
 
     let requeued = await waitUntil {
-      let attempted = await store.deletedContactIDs.contains(saved.id)
+      let attempted = await store.deleteContactsCallCount > attemptsBeforeFailure
       let queued = await service.pendingDeletedKeys.contains(key)
       return attempted && queued
     }

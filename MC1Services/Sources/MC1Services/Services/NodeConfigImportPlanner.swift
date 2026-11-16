@@ -57,8 +57,8 @@ struct ConfigImportPlan: Equatable {
 /// Validates a `MeshCoreNodeConfig` against the device's capabilities and current channel
 /// state, returning a ready-to-execute ``ConfigImportPlan`` or throwing the first problem.
 ///
-/// Pure and synchronous so it is unit-testable without a live `MeshCoreSession` — mirrors the
-/// `resolveEffectiveRadioID` seam pattern. Only sections present in `sections` are planned.
+/// Pure and synchronous so it is unit-testable without a live `MeshCoreSession`.
+/// Only sections present in `sections` are planned.
 func planConfigImport(
   config: MeshCoreNodeConfig,
   sections: ConfigSections,

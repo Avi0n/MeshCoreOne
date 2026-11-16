@@ -1,8 +1,8 @@
-/// A zero-key ``FloodScope/disabled`` uses the radio's persisted default.
-/// ``unscoped`` overrides that default so packets carry no region.
+/// A flood scope for a channel send. The send restores the radio baseline before the next command.
+/// A zero-key ``FloodScope/disabled`` selects the radio's persisted default.
 public enum ResolvedFloodScope: Sendable, Equatable {
-  /// Force unscoped floods, overriding the radio's default. Requires firmware v12+.
+  /// Force unscoped floods, overriding the radio's default. Requires protocol capability 12+.
   case unscoped
-  /// Set the session's flood scope, or reset it with ``FloodScope/disabled``.
+  /// Set the session's flood scope, or select the persisted default with ``FloodScope/disabled``.
   case scope(FloodScope)
 }

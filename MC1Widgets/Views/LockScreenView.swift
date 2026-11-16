@@ -6,71 +6,150 @@ struct LockScreenView: View {
   let context: ActivityViewContext<MeshStatusAttributes>
 
   var body: some View {
-    VStack(alignment: .leading) {
-      HStack {
-        Image(systemName: context.state.antennaIconName)
-          .foregroundStyle(context.state.isConnected ? .green : .orange)
-          .accessibilityHidden(true)
-
+    HStack(alignment: .firstTextBaseline, spacing: LiveActivityLayout.identitySpacing) {
+      antenna
+      VStack(alignment: .leading, spacing: LiveActivityLayout.rowSpacing) {
         Text(context.attributes.deviceName)
           .bold()
           .lineLimit(1)
           .truncationMode(.tail)
-
-        Spacer()
-
-        if context.state.isConnected {
-          PacketRateLabel(packetsPerMinute: context.state.packetsPerMinute, isStale: context.isStale)
+        if context.state.showsBattery {
           BatteryLabel(percent: context.state.batteryPercent)
-        } else {
-          Text("Disconnected")
-            .foregroundStyle(.orange)
         }
       }
+      // minWidth lets the name truncate before the metric column.
+      .frame(minWidth: 0, alignment: .leading)
 
-      if context.state.isConnected, context.state.unreadCount > 0 {
-        HStack {
-          Spacer()
-          Image(systemName: "envelope.badge")
-            .accessibilityHidden(true)
-          Text("\(context.state.unreadCount) unread")
-            .contentTransition(.numericText())
+      Spacer(minLength: LiveActivityLayout.identitySpacing)
+
+      VStack(alignment: .trailing, spacing: LiveActivityLayout.rowSpacing) {
+        primaryMetric
+        if context.state.showsUnread {
+          PacketRateLabel(rate: context.displayedPacketRate, style: .secondary)
         }
-        .font(.caption)
-        .foregroundStyle(.secondary)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(context.state.unreadCount) unread messages")
       }
+      .layoutPriority(1)
     }
     .padding()
     .accessibilityElement(children: .combine)
     .widgetURL(URL(string: "meshcoreone://status"))
   }
+
+  private var antenna: some View {
+    Image(systemName: context.state.antennaIconName)
+      .foregroundStyle(context.state.isConnected ? .green : .orange)
+      .accessibilityHidden(true)
+  }
+
+  @ViewBuilder
+  private var primaryMetric: some View {
+    if context.state.showsUnread {
+      UnreadCountLabel(count: context.state.unreadCount, style: .lockScreen)
+    } else if context.state.isConnected {
+      PacketRateLabel(rate: context.displayedPacketRate, style: .lockScreen)
+    } else {
+      Text("Disconnected")
+        .foregroundStyle(.orange)
+    }
+  }
 }
 
 // MARK: - Subviews
 
-struct PacketRateLabel: View {
-  let packetsPerMinute: Int
-  var isStale: Bool = false
+enum LiveActivityLayout {
+  /// Shared antenna-to-name gap, so the expanded battery starts under the name.
+  static let identitySpacing: CGFloat = 8
+  static let rowSpacing: CGFloat = 2
+  static let symbolSpacing: CGFloat = 2
+  static let rateUnitSpacing: CGFloat = 4
+}
 
-  private var displayRate: Int {
-    isStale ? 0 : packetsPerMinute
+enum PacketRateStyle {
+  case lockScreen
+  case expanded
+  /// Drawn smaller than the unread label, on the row beneath it.
+  case secondary
+
+  var numberFont: Font {
+    switch self {
+    case .lockScreen: .caption
+    case .expanded: .title3.bold()
+    case .secondary: .caption2
+    }
   }
 
+  var unitFont: Font {
+    switch self {
+    case .lockScreen, .expanded: .caption
+    case .secondary: .caption2
+    }
+  }
+
+  var unitSpacing: CGFloat {
+    switch self {
+    case .lockScreen, .expanded: LiveActivityLayout.rateUnitSpacing
+    case .secondary: LiveActivityLayout.symbolSpacing
+    }
+  }
+}
+
+struct PacketRateLabel: View {
+  let rate: Int
+  let style: PacketRateStyle
+
   var body: some View {
-    HStack(spacing: 2) {
-      Image(systemName: "arrow.down")
-        .font(.caption2)
+    HStack(alignment: .firstTextBaseline, spacing: style.unitSpacing) {
+      HStack(alignment: .firstTextBaseline, spacing: LiveActivityLayout.symbolSpacing) {
+        Image(systemName: "arrow.down")
+          .font(style.unitFont)
+          .accessibilityHidden(true)
+        Text("\(rate)")
+          .font(style.numberFont)
+          .monospacedDigit()
+          .liveActivityInPlaceUpdate(rate: rate)
+      }
+      Text("packets/min")
+        .font(style.unitFont)
+        .foregroundStyle(.secondary)
+        .lineLimit(1)
         .accessibilityHidden(true)
-      Text("\(displayRate)/m")
-        .monospacedDigit()
+    }
+    .foregroundStyle(style == .secondary ? .secondary : .primary)
+    .animation(nil, value: rate)
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(Text("\(rate) packets per minute"))
+  }
+}
+
+enum UnreadLabelStyle {
+  case lockScreen
+  case expanded
+
+  var font: Font {
+    switch self {
+    case .lockScreen: .body
+    case .expanded: .headline
+    }
+  }
+}
+
+struct UnreadCountLabel: View {
+  let count: Int
+  let style: UnreadLabelStyle
+
+  var body: some View {
+    HStack(spacing: LiveActivityLayout.symbolSpacing) {
+      Image(systemName: "envelope.badge")
+        .imageScale(.small)
+        .accessibilityHidden(true)
+      Text("\(count) unread")
         .contentTransition(.numericText())
     }
-    .font(.caption)
+    .font(style.font)
+    .fontWeight(.regular)
     .foregroundStyle(.primary)
     .accessibilityElement(children: .combine)
-    .accessibilityLabel("\(displayRate) packets per minute")
+    .accessibilityLabel(Text("\(count) unread messages"))
   }
 }
 
@@ -79,7 +158,7 @@ struct BatteryLabel: View {
 
   var body: some View {
     if let percent {
-      HStack(spacing: 2) {
+      HStack(spacing: LiveActivityLayout.symbolSpacing) {
         Image(systemName: batteryIconName(for: percent))
           .accessibilityHidden(true)
         Text("\(percent)%")
@@ -87,7 +166,7 @@ struct BatteryLabel: View {
       }
       .font(.caption)
       .foregroundStyle(.primary)
-      .accessibilityLabel("Battery \(percent) percent")
+      .accessibilityLabel(Text("Battery \(percent) percent"))
     }
   }
 
@@ -99,5 +178,31 @@ struct BatteryLabel: View {
     case 13..<38: "battery.25"
     default: "battery.0"
     }
+  }
+}
+
+extension MeshStatusAttributes.ContentState {
+  var showsBattery: Bool {
+    isConnected && batteryPercent != nil
+  }
+
+  var showsUnread: Bool {
+    isConnected && unreadCount > 0
+  }
+}
+
+extension View {
+  /// Holds the rate glyphs in place. Live Activity text transitions animate them on each update.
+  func liveActivityInPlaceUpdate(rate: Int) -> some View {
+    contentTransition(.identity)
+      .animation(nil, value: rate)
+      .transition(.identity)
+  }
+}
+
+extension ActivityViewContext where Attributes == MeshStatusAttributes {
+  /// Stale content shows 0 so the last rate does not stay on screen.
+  var displayedPacketRate: Int {
+    isStale ? 0 : state.packetsPerMinute
   }
 }

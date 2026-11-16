@@ -7,6 +7,9 @@
 /* Accessibility: packet rate */
 "%lld packets per minute" = "%lld packets per minute";
 
+/* Visible unit beside the packet rate */
+"packets/min" = "packets/min";
+
 /* Accessibility: battery level */
 "Battery %lld percent" = "Battery %lld percent";
 

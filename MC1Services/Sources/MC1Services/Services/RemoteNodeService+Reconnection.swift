@@ -1,24 +1,24 @@
 import Foundation
 
 public extension RemoteNodeService {
-  // MARK: - BLE Disconnection
+  // MARK: - Link Disconnection
 
-  /// Called when BLE connection is lost.
-  /// Marks all connected sessions as disconnected, stops keep-alive timers,
-  /// and broadcasts `RemoteNodeEvent.sessionStateChanged` for each.
-  /// Returns the set of session IDs that were connected, for re-auth on reconnect.
-  func handleBLEDisconnection() async -> Set<UUID> {
+  /// Stops remote work and publishes disconnected sessions, returning their IDs
+  /// so only previously connected sessions are re-authenticated after link recovery.
+  func handleLinkDisconnection(radioID: UUID) async -> Set<UUID> {
+    beginRetirement()
+    await stopEventMonitoring()
     let connectedSessions: [RemoteNodeSessionDTO]
     do {
-      connectedSessions = try await dataStore.fetchConnectedRemoteNodeSessions()
+      connectedSessions = try await dataStore.fetchRemoteNodeSessions(radioID: radioID).filter(\.isConnected)
     } catch {
-      logger.error("Failed to fetch connected sessions for BLE disconnection: \(error)")
+      logger.error("Failed to fetch connected sessions for Link disconnection: \(error)")
       return []
     }
 
     guard !connectedSessions.isEmpty else { return [] }
 
-    logger.info("BLE disconnection: marking \(connectedSessions.count) session(s) disconnected")
+    logger.info("Link disconnection: marking \(connectedSessions.count) session(s) disconnected")
     var sessionIDs: Set<UUID> = []
 
     for session in connectedSessions {
@@ -35,25 +35,24 @@ public extension RemoteNodeService {
     return sessionIDs
   }
 
-  // MARK: - BLE Reconnection
+  // MARK: - Link Reconnection
 
-  /// Called when BLE connection is re-established.
-  /// Re-authenticates sessions that were connected before BLE loss.
-  /// - Parameter sessionIDs: Session IDs from `handleBLEDisconnection()`.
-  ///   If empty (e.g., after app restart), no sessions are re-authenticated;
-  ///   the user can manually reconnect.
-  func handleBLEReconnection(sessionIDs: Set<UUID>) async {
+  /// Re-authenticates the sessions captured before link loss.
+  /// An empty set leaves reconnection to the user.
+  func handleLinkReconnection(radioID: UUID, sessionIDs: Set<UUID>) async {
     guard !isReauthenticating else {
       logger.info("Skipping re-auth: already in progress")
       return
     }
 
-    guard !sessionIDs.isEmpty else { return }
+    guard !sessionIDs.isEmpty, !isRetired else { return }
+    isReauthenticating = true
+    defer { isReauthenticating = false }
 
     // Fetch current session state for each ID
     var sessionsToReauth: [RemoteNodeSessionDTO] = []
     for id in sessionIDs {
-      if let session = try? await dataStore.fetchRemoteNodeSession(id: id) {
+      if let session = try? await dataStore.fetchRemoteNodeSession(id: id), session.radioID == radioID {
         sessionsToReauth.append(session)
       } else {
         logger.warning("Session \(id) not found for re-auth, skipping")
@@ -62,35 +61,24 @@ public extension RemoteNodeService {
 
     guard !sessionsToReauth.isEmpty else { return }
 
-    logger.info("BLE reconnection: re-authenticating \(sessionsToReauth.count) session(s)")
-    isReauthenticating = true
-    defer { isReauthenticating = false }
-
-    await withTaskGroup(of: Void.self) { group in
-      for remoteSession in sessionsToReauth {
-        group.addTask { [self] in
-          let previousPermission = remoteSession.permissionLevel
-          do {
-            let result = try await login(sessionID: remoteSession.id)
-            let newPermission = result.permissionLevel
-            if newPermission < previousPermission {
-              logger.warning(
-                "Re-auth returned degraded permission for session \(remoteSession.id): "
-                  + "\(previousPermission) -> \(newPermission), marking disconnected"
-              )
-              try? await dataStore.markSessionDisconnected(remoteSession.id)
-              eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: false))
-            }
-          } catch {
-            logger.warning("Re-auth failed for session \(remoteSession.id): \(error)")
-            do {
-              try await dataStore.markSessionDisconnected(remoteSession.id)
-            } catch {
-              logger.error("Failed to persist disconnected state for session \(remoteSession.id): \(error)")
-            }
-            eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: false))
-          }
+    logger.info("Link reconnection: re-authenticating \(sessionsToReauth.count) session(s)")
+    for remoteSession in sessionsToReauth {
+      guard !Task.isCancelled, !isRetired else { return }
+      let previousPermission = remoteSession.permissionLevel
+      do {
+        let result = try await login(sessionID: remoteSession.id)
+        guard !Task.isCancelled, !isRetired else { return }
+        let permission = result.permissionLevel(for: remoteSession.role)
+        if permission < previousPermission {
+          await disconnect(sessionID: remoteSession.id)
         }
+      } catch RemoteNodeError.cancelled {
+        // A newer login for this node can supersede background re-authentication.
+        continue
+      } catch {
+        guard !Task.isCancelled, !isRetired else { return }
+        await disconnect(sessionID: remoteSession.id)
+        logger.warning("Re-auth failed for session \(remoteSession.id): \(error)")
       }
     }
   }

@@ -16,6 +16,13 @@ enum NodeDiscoveryFilter: String, CaseIterable {
     }
   }
 
+  func matches(_ type: ContactType) -> Bool {
+    switch self {
+    case .repeaters: type == .repeater
+    case .sensors: type == .sensor
+    }
+  }
+
   var localizedTitle: String {
     switch self {
     case .repeaters: L10n.Tools.Tools.NodeDiscovery.repeaters
@@ -62,7 +69,7 @@ struct NodeDiscoveryResult: Identifiable {
 @MainActor
 final class NodeDiscoveryViewModel {
   private static let logger = Logger(subsystem: "com.mc1", category: "NodeDiscoveryViewModel")
-  private static let scanDuration: Duration = .seconds(15)
+  private static let scanSeconds: TimeInterval = 15
 
   // MARK: - Published state
 
@@ -184,11 +191,14 @@ final class NodeDiscoveryViewModel {
         }
         guard ticket.isCurrent(in: self.scanEpoch), !Task.isCancelled else { return }
 
-        let tag = try await self.sendDiscover(filter: activeFilter.filterValue)
+        let subscribed = self.session
+        let events = await subscribed?.events(filter: Self.discoverFilter)
+        guard ticket.isCurrent(in: self.scanEpoch), !Task.isCancelled else { return }
+        let tag = try await self.sendDiscover(filter: activeFilter.filterValue, tag: UInt32.random(in: 1...UInt32.max))
         guard ticket.isCurrent(in: self.scanEpoch), !Task.isCancelled else { return }
         let tagData = withUnsafeBytes(of: tag.littleEndian) { Data($0) }
         self.armScanDeadline(ticket: ticket)
-        await self.listen(ticket: ticket, tag: tagData)
+        await self.listen(ticket: ticket, tag: tagData, filter: activeFilter, events: events, subscribed: subscribed)
       } catch is CancellationError {
         return
       } catch {
@@ -239,6 +249,7 @@ final class NodeDiscoveryViewModel {
     for key in Array(addEpochs.keys) {
       addEpochs[key]?.bump()
     }
+    addTickets.removeAll()
     stopScan()
     results.removeAll()
     addedPublicKeys.removeAll()
@@ -278,17 +289,17 @@ final class NodeDiscoveryViewModel {
         return scanDurationForTesting
       }
     #endif
-    return 15
+    return Self.scanSeconds
   }
 
-  private func sendDiscover(filter: UInt8) async throws -> UInt32 {
+  private func sendDiscover(filter: UInt8, tag: UInt32) async throws -> UInt32 {
     #if DEBUG
       if let sendDiscoverForTesting {
         return try await sendDiscoverForTesting(filter)
       }
     #endif
     guard let session else { throw CancellationError() }
-    return try await session.sendNodeDiscoverRequest(filter: filter, prefixOnly: false)
+    return try await session.sendNodeDiscoverRequest(filter: filter, prefixOnly: false, tag: tag)
   }
 
   private func armScanDeadline(ticket: Epoch.Ticket) {
@@ -299,34 +310,51 @@ final class NodeDiscoveryViewModel {
       if seconds > 0 {
         try? await Task.sleep(for: .seconds(seconds))
       }
-      guard let self, ticket.isCurrent(in: self.scanEpoch) else { return }
+      guard let self, !Task.isCancelled, ticket.isCurrent(in: self.scanEpoch) else { return }
       self.finishScan()
     }
   }
 
-  private func listen(ticket: Epoch.Ticket, tag: Data) async {
-    let discoverFilter = EventFilter.eventType { event in
-      if case .discoverResponse = event { return true }
-      return false
-    }
+  private static let discoverFilter = EventFilter.eventType { event in
+    if case .discoverResponse = event { return true }
+    return false
+  }
+
+  private func listen(
+    ticket: Epoch.Ticket,
+    tag: Data,
+    filter: NodeDiscoveryFilter,
+    events initialEvents: AsyncStream<MeshEvent>?,
+    subscribed initialSession: MeshCoreSession?
+  ) async {
+    var bufferedEvents = initialEvents
+    var bufferedSession = initialSession
     while ticket.isCurrent(in: scanEpoch), acceptResponses, !Task.isCancelled {
-      guard let session else {
+      guard let subscribed = bufferedSession ?? session else {
         await waitForSession()
         continue
       }
+      let events: AsyncStream<MeshEvent> = if let bufferedEvents {
+        bufferedEvents
+      } else {
+        await subscribed.events(filter: Self.discoverFilter)
+      }
+      bufferedEvents = nil
+      bufferedSession = nil
       let generation = listenGeneration
-      let subscribed = session
       #if DEBUG
         isListeningForTesting = true
       #endif
-      let events = await session.events(filter: discoverFilter)
       for await event in events {
         #if DEBUG
           listenLoopIterationsForTesting += 1
         #endif
         guard generation == listenGeneration, ticket.isCurrent(in: scanEpoch), acceptResponses else { break }
         if case let .discoverResponse(response) = event, response.tag == tag {
-          appendOrUpdateResult(from: response)
+          guard (scanDeadline.map { Date() < $0 } ?? false),
+                let type = ContactType(rawValue: response.nodeType),
+                filter.matches(type) else { continue }
+          appendOrUpdateResult(from: response, filter: filter)
         }
       }
       #if DEBUG
@@ -398,7 +426,7 @@ final class NodeDiscoveryViewModel {
     return "\(L10n.Tools.Tools.NodeDiscovery.unknownNode) (\(hexPrefix))"
   }
 
-  private func appendOrUpdateResult(from response: DiscoverResponse) {
+  private func appendOrUpdateResult(from response: DiscoverResponse, filter: NodeDiscoveryFilter) {
     let result = NodeDiscoveryResult(
       name: resolveName(for: response.publicKey),
       publicKey: response.publicKey,
@@ -417,6 +445,15 @@ final class NodeDiscoveryViewModel {
   }
 
   private func finishScan() {
+    acceptResponses = false
+    wakeListener()
+    scanTask?.cancel()
+    scanTask = nil
+    timeoutTask?.cancel()
+    timeoutTask = nil
+    #if DEBUG
+      isListeningForTesting = false
+    #endif
     isScanning = false
     if results.contains(where: { $0.scanFilter == filter }) {
       scanSuccessHapticTrigger += 1
@@ -431,7 +468,16 @@ final class NodeDiscoveryViewModel {
     addedPublicKeys.contains(publicKey)
   }
 
+  func canAdd(_ result: NodeDiscoveryResult) -> Bool {
+    guard result.publicKey.count == ProtocolLimits.publicKeySize,
+          let type = ContactType(rawValue: result.nodeType) else { return false }
+    return result.scanFilter.matches(type)
+  }
+
   func addNode(_ result: NodeDiscoveryResult) {
+    guard canAdd(result), !isAdded(publicKey: result.publicKey),
+          addTickets[result.publicKey] == nil,
+          let type = ContactType(rawValue: result.nodeType) else { return }
     guard (contactService != nil && radioID != nil) || hasAddTestHook else { return }
 
     var epoch = addEpochs[result.publicKey] ?? Epoch()
@@ -440,14 +486,15 @@ final class NodeDiscoveryViewModel {
     let ticket = epoch.ticket()
     addTickets[result.publicKey] = ticket
     let capturedRadioID = radioID
+    let admittedContactService = contactService
 
     addingPublicKey = result.publicKey
     Task { [weak self] in
-      guard let self else { return }
+      guard let self, self.addTicketIsCurrent(result.publicKey, ticket: ticket) else { return }
       do {
         let contact = ContactFrame(
           publicKey: result.publicKey,
-          type: ContactType(rawValue: result.nodeType) ?? .repeater,
+          type: type,
           flags: 0,
           outPathLength: PacketBuilder.floodPathSentinel,
           outPath: Data(),
@@ -457,12 +504,12 @@ final class NodeDiscoveryViewModel {
           longitude: 0,
           lastModified: 0
         )
-        try await self.performAdd(contact: contact, capturedRadioID: capturedRadioID)
-        guard self.addTicketIsCurrent(result.publicKey) else { return }
+        try await self.performAdd(contact: contact, capturedRadioID: capturedRadioID, admittedContactService: admittedContactService)
+        guard self.addTicketIsCurrent(result.publicKey, ticket: ticket) else { return }
         self.addedPublicKeys.insert(result.publicKey)
         self.addSuccessHapticTrigger += 1
       } catch ContactServiceError.contactTableFull {
-        guard self.addTicketIsCurrent(result.publicKey) else { return }
+        guard self.addTicketIsCurrent(result.publicKey, ticket: ticket) else { return }
         if let maxContacts = self.maxContacts {
           self.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFull(Int(maxContacts))
         } else {
@@ -470,12 +517,13 @@ final class NodeDiscoveryViewModel {
         }
         self.addErrorHapticTrigger += 1
       } catch {
-        guard self.addTicketIsCurrent(result.publicKey) else { return }
+        guard self.addTicketIsCurrent(result.publicKey, ticket: ticket) else { return }
         self.errorMessage = error.userFacingMessage
         self.addErrorHapticTrigger += 1
       }
-      guard self.addTicketIsCurrent(result.publicKey) else { return }
-      self.addingPublicKey = nil
+      guard self.addTicketIsCurrent(result.publicKey, ticket: ticket) else { return }
+      self.addTickets[result.publicKey] = nil
+      if self.addingPublicKey == result.publicKey { self.addingPublicKey = nil }
     }
   }
 
@@ -487,21 +535,27 @@ final class NodeDiscoveryViewModel {
     #endif
   }
 
-  private func performAdd(contact: ContactFrame, capturedRadioID: UUID?) async throws {
+  private func performAdd(
+    contact: ContactFrame,
+    capturedRadioID: UUID?,
+    admittedContactService: ContactService?
+  ) async throws {
     #if DEBUG
       if let addContactForTesting {
         try await addContactForTesting(contact)
         return
       }
     #endif
-    guard let contactService, let capturedRadioID else { throw CancellationError() }
+    guard let contactService = admittedContactService, self.contactService === contactService,
+          let capturedRadioID else { throw CancellationError() }
     try await contactService.addOrUpdateContact(radioID: capturedRadioID, contact: contact) {
-      self.radioID
+      guard self.contactService === contactService else { return nil }
+      return self.radioID
     }
   }
 
-  private func addTicketIsCurrent(_ publicKey: Data) -> Bool {
-    guard let ticket = addTickets[publicKey], let epoch = addEpochs[publicKey] else { return false }
+  private func addTicketIsCurrent(_ publicKey: Data, ticket: Epoch.Ticket) -> Bool {
+    guard let epoch = addEpochs[publicKey] else { return false }
     return ticket.isCurrent(in: epoch)
   }
 }

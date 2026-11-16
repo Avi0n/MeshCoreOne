@@ -227,7 +227,7 @@ struct MapFilterState: Sendable, Equatable, Codable {
   func allowsContactType(_ type: ContactType) -> Bool {
     if favoritesOnly { return true }
     switch type {
-    case .chat: return showChat
+    case .chat, .sensor: return showChat
     case .repeater: return showRepeater
     case .room: return showRoom
     }

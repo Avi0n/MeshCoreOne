@@ -2,6 +2,7 @@ import CoreBluetooth
 import Foundation
 @testable import MC1Services
 import ObjectiveC
+import os
 import Testing
 
 /// Covers phase-continuation safety around state restoration and teardown:
@@ -255,7 +256,7 @@ private final class ContinuationBox: @unchecked Sendable {
 /// allocated instance never set up, so releasing one crashes; never freeing
 /// them keeps the doubles usable.
 private enum RestorationPeripheralStore {
-  nonisolated(unsafe) static var retained: [CBPeripheral] = []
+  static let retained = OSAllocatedUnfairLock(uncheckedState: [CBPeripheral]())
 }
 
 /// A `CBPeripheral` double with a stable identity and `.disconnected` state.
@@ -287,7 +288,7 @@ private final class RestorationConnectedPeripheral: CBPeripheral, @unchecked Sen
 private func makeLeakedPeripheral<T: CBPeripheral>(_ type: T.Type) -> T {
   // swiftlint:disable:next force_cast
   let peripheral = class_createInstance(type, 0) as! T
-  RestorationPeripheralStore.retained.append(peripheral)
+  RestorationPeripheralStore.retained.withLockUnchecked { $0.append(peripheral) }
   return peripheral
 }
 

@@ -3,9 +3,6 @@ import Foundation
 import MeshCore
 import Testing
 
-/// Covers CLI response correlation: one command in flight per node, replies
-/// that don't match the pending command's shape are dropped, and queued
-/// commands wait for the slot instead of racing for replies.
 @Suite("RemoteNodeService CLI correlation")
 struct RemoteNodeCLICorrelationTests {
   private static let publicKey = Data(repeating: 0xCC, count: 32)
@@ -107,35 +104,6 @@ struct RemoteNodeCLICorrelationTests {
     } catch RemoteNodeError.timeout {
       // Expected: the mismatched reply must not satisfy the request.
     }
-  }
-
-  @Test
-  func `second command waits for the slot until the first resolves`() async throws {
-    let harness = try await makeHarness()
-
-    let firstTask = Task {
-      try await harness.service.sendCLICommand(sessionID: harness.sessionID, command: "get tx")
-    }
-    try await waitUntil("first command was never sent") {
-      await harness.session.sendCommandInvocations.count == 1
-    }
-
-    let secondTask = Task {
-      try await harness.service.sendCLICommand(sessionID: harness.sessionID, command: "get radio")
-    }
-
-    // The second command must not reach the radio while the first is pending.
-    try await Task.sleep(for: .milliseconds(100))
-    #expect(await harness.session.sendCommandInvocations.count == 1)
-
-    await yieldReply("> 22", to: harness.session)
-    #expect(try await firstTask.value == "> 22")
-
-    try await waitUntil("second command was never sent") {
-      await harness.session.sendCommandInvocations.count == 2
-    }
-    await yieldReply("> 915.000,250.0,10,5", to: harness.session)
-    #expect(try await secondTask.value == "> 915.000,250.0,10,5")
   }
 
   @Test

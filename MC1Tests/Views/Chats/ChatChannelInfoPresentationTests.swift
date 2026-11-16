@@ -36,6 +36,28 @@ struct ChatChannelInfoPresentationTests {
     try await host.expectPin(initialPin)
   }
 
+  @Test
+  func `opening Channel Info offline initializes a legacy Text Rules identity`() async throws {
+    let host = try Host(initialPin: false, legacyChannel: true)
+    defer { host.tearDown() }
+    let store = host.appState.connectionManager.persistenceStore
+    host.appState.connectionManager.setTestState(connectionState: .disconnected, connectedDevice: .some(nil))
+    #expect(try await store.fetchChannel(id: host.channel.id)?.textRulesID == nil)
+
+    host.mount()
+    try await host.openInfo()
+
+    let conversationID = try #require(try await store.fetchChannel(id: host.channel.id)?.textRulesID)
+    try await store.setTextRulesOverride(
+      .on, kind: .privateChannel, key: .init(radioID: host.channel.radioID, conversationID: conversationID)
+    )
+    try await host.closeInfo()
+    try await host.openInfo()
+    let reopened = try #require(try await store.fetchChannel(id: host.channel.id))
+    #expect(reopened.textRulesID == conversationID)
+    #expect(reopened.textRulesOverride == .on)
+  }
+
   @MainActor
   private final class Host {
     let preferences = IsolatedUserDefaults()
@@ -44,16 +66,25 @@ struct ChatChannelInfoPresentationTests {
     let window: UIWindow
     private(set) var controller: UIViewController = .init()
 
-    init(initialPin: Bool) throws {
+    init(initialPin: Bool, legacyChannel: Bool = false) throws {
       let container = try PersistenceStore.createContainer(inMemory: true)
-      appState = AppState(modelContainer: container, isPlaceholder: true, defaults: preferences.defaults)
-      let device = DeviceDTO(from: Device(publicKey: Data(repeating: 1, count: ProtocolLimits.publicKeySize), nodeName: "Radio"))
-      appState.connectionManager.setTestState(connectionState: .ready, connectedDevice: .some(device))
-      appState.connectionManager.persistConnection(deviceID: device.id, radioID: device.radioID, deviceName: device.nodeName)
-      channel = ChannelDTO(from: Channel(
+      let device = Device(publicKey: Data(repeating: 1, count: ProtocolLimits.publicKeySize), nodeName: "Radio")
+      let model = Channel(
         radioID: device.radioID, index: 1, name: "General",
         secret: Data(repeating: 1, count: ProtocolLimits.channelSecretSize), isPinned: initialPin
-      ))
+      )
+      if legacyChannel {
+        model.textRulesID = nil
+        let context = ModelContext(container)
+        context.insert(device)
+        context.insert(model)
+        try context.save()
+      }
+      let deviceDTO = DeviceDTO(from: device)
+      channel = ChannelDTO(from: model)
+      appState = AppState(modelContainer: container, isPlaceholder: true, defaults: preferences.defaults)
+      appState.connectionManager.setTestState(connectionState: .ready, connectedDevice: .some(deviceDTO))
+      appState.connectionManager.persistConnection(deviceID: deviceDTO.id, radioID: deviceDTO.radioID, deviceName: deviceDTO.nodeName)
       let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
       window = UIWindow(windowScene: scene)
       window.frame = ChatChannelInfoPresentationTests.viewport

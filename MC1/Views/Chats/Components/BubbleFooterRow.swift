@@ -293,8 +293,8 @@ private struct BubbleStatusFooter: View {
       case .retrying:
         HStack(spacing: 3) {
           spinner
-          if footer.maxRetryAttempts > 0 {
-            Text("\(footer.retryAttempt + 1)/\(footer.maxRetryAttempts)")
+          if let progress = footer.sendAttemptProgress {
+            Text("\(progress.attempt)/\(progress.total)")
               .font(.caption2)
           }
         }
@@ -377,12 +377,18 @@ enum MessageStatusText {
     case .failed:
       return L10n.Chats.Chats.Message.Status.failed
     case .retrying:
-      let displayAttempt = footer.retryAttempt + 1
-      let maxAttempts = footer.maxRetryAttempts
-      if maxAttempts > 0 {
-        return L10n.Chats.Chats.Message.Status.retryingAttempt(displayAttempt, maxAttempts)
+      if let progress = footer.sendAttemptProgress {
+        return L10n.Chats.Chats.Message.Status.retryingAttempt(progress.attempt, progress.total)
       }
       return L10n.Chats.Chats.Message.Status.retrying
     }
+  }
+}
+
+private extension MessageFooter {
+  var sendAttemptProgress: (attempt: Int, total: Int)? {
+    guard maxRetryAttempts > 0 else { return nil }
+    // The retry index starts at zero and the retry budget excludes the initial send.
+    return (retryAttempt + 2, maxRetryAttempts + 1)
   }
 }

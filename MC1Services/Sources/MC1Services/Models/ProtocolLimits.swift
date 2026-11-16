@@ -18,6 +18,7 @@ public enum ProtocolLimits {
   public static let maxNameLength = 32
   public static let channelSecretSize = 16
   public static let maxMessageLength = 160
+  public static let maxRemotePasswordBytes = 15
 
   /// Maximum usable bytes for names (firmware char[32] minus null terminator)
   public static let maxUsableNameBytes = 31

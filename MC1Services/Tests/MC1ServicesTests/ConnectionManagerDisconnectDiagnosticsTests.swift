@@ -13,7 +13,9 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
 
   @Test
   func `auto-reconnect entry persists disconnect diagnostic with error info`() async throws {
-    let (manager, mock) = try ConnectionManager.createForTesting(defaults: defaults)
+    let env = try ConnectionManager.createForPairingTesting(defaults: defaults)
+    defer { env.cleanup() }
+    let manager = env.manager
     let deviceID = UUID()
     manager.setTestState(
       connectionState: .ready,
@@ -21,24 +23,20 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
       connectionIntent: .wantsConnection()
     )
 
-    // Wait for ConnectionManager init to wire auto-reconnect handler.
+    _ = manager.seedBLERecoveryRequest(deviceID: deviceID)
     try await waitUntil("auto-reconnect handler should be installed") {
-      await mock.hasAutoReconnectingHandler
+      await env.transport.hasLifecycleHandler
     }
 
-    await mock.simulateAutoReconnecting(
+    await env.transport.simulateAutoReconnecting(
       deviceID: deviceID,
       errorInfo: "domain=CBErrorDomain, code=15, desc=Failed to encrypt"
     )
 
-    // Wait for both the .connecting state transition and the diagnostic write —
-    // the handler claims the cycle (sync) before running the state-machine
-    // queries that feed the diagnostic, so observing only the state can race
-    // ahead of the persistDisconnectDiagnostic call.
     try await waitUntil("connectionState should transition to .connecting and diagnostic should be persisted") {
       manager.connectionState == .connecting
         && (manager.lastDisconnectDiagnostic ?? "")
-        .localizedStandardContains("source=bleStateMachine.autoReconnectingHandler")
+        .localizedStandardContains("source=ble.autoReconnecting")
     }
 
     let diagnostic = manager.lastDisconnectDiagnostic ?? ""
@@ -48,7 +46,9 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
 
   @Test
   func `auto-reconnect entry skips the claim but tears down the stale OLD session during pairing`() async throws {
-    let (manager, mock) = try ConnectionManager.createForTesting(defaults: defaults)
+    let env = try ConnectionManager.createForPairingTesting(defaults: defaults)
+    defer { env.cleanup() }
+    let manager = env.manager
     let oldDeviceID = UUID()
 
     manager.setTestState(
@@ -59,28 +59,23 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
       isPairingInProgress: true
     )
 
+    _ = manager.seedBLERecoveryRequest(deviceID: oldDeviceID)
     try await waitUntil("auto-reconnect handler should be installed") {
-      await mock.hasAutoReconnectingHandler
+      await env.transport.hasLifecycleHandler
     }
 
-    await mock.simulateAutoReconnecting(deviceID: oldDeviceID)
+    await env.transport.simulateAutoReconnecting(deviceID: oldDeviceID)
 
-    // Wait for the gate's teardown path to run. handleConnectionLoss transitions
-    // state to .disconnected and clears connectedDevice; observing both confirms
-    // teardown completed without claiming a reconnect cycle.
     try await waitUntil("suppression branch should tear down OLD session") {
       manager.connectionState == .disconnected && manager.connectedDevice == nil
     }
 
-    #expect(manager.activeReconnectDeviceID == nil, "Claim must remain unset so pairing's connect(to:) is not preempted")
+    #expect(manager.reconnectionCoordinator.reconnectingDeviceID == nil, "Claim must remain unset so pairing's connect(to:) is not preempted")
     #expect(manager.connectionState == .disconnected, "OLD session is dead — UI must not stay on .ready")
     #expect(manager.connectedDevice == nil, "Stale connectedDevice must be cleared so message sends fail loudly instead of silently")
 
-    // The suppression gate runs before the diagnostic preamble, so
-    // `handleConnectionLoss`'s diagnostic is the only writer for this branch
-    // and is the observable proof the suppression branch took the loss path.
     let diagnostic = manager.lastDisconnectDiagnostic ?? ""
-    #expect(diagnostic.localizedStandardContains("source=handleConnectionLoss"))
+    #expect(diagnostic.localizedStandardContains("source=ble.autoReconnecting"))
   }
 
   @Test
@@ -103,7 +98,7 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
 
     let diagnostic = manager.lastDisconnectDiagnostic ?? ""
     #expect(
-      diagnostic.localizedStandardContains("source=checkBLEConnectionHealth.otherAppConnected")
+      diagnostic.localizedStandardContains("source=ble.otherAppConnected")
     )
     #expect(manager.connectionIntent.wantsConnection)
     #expect(manager.isReconnectionWatchdogRunning)
@@ -136,7 +131,7 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
 
     let diagnostic = manager.lastDisconnectDiagnostic ?? ""
     #expect(
-      diagnostic.localizedStandardContains("source=checkBLEConnectionHealth.adoptSystemConnectedPeripheral")
+      diagnostic.localizedStandardContains("source=ble.adoptSystemConnectedPeripheral")
     )
     #expect(manager.connectionState == .connecting)
     #expect(manager.connectionIntent.wantsConnection)
@@ -156,7 +151,7 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
     manager.setTestState(
       connectionState: .disconnected,
       currentTransportType: .bluetooth,
-      connectionIntent: .none
+      connectionIntent: ConnectionIntent.none
     )
     manager.testLastConnectedDeviceID = deviceID
 
@@ -166,7 +161,7 @@ struct ConnectionManagerDisconnectDiagnosticsTests {
     #expect(calls == [deviceID])
 
     let diagnostic = manager.lastDisconnectDiagnostic ?? ""
-    #expect(diagnostic.localizedStandardContains("source=connect(to:).adoptSystemConnectedPeripheral"))
+    #expect(diagnostic.localizedStandardContains("source=ble.adoptSystemConnectedPeripheral"))
     #expect(manager.connectionState == .connecting)
     #expect(manager.connectionIntent.wantsConnection)
   }

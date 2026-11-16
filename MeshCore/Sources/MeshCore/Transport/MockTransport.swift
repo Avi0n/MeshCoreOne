@@ -58,6 +58,8 @@ public actor MockTransport: MeshTransport {
   /// 1-based index of the first send that should fail, simulating a mid-burst transport drop.
   private var failSendsFromIndex: Int?
 
+  private var shouldRejectNextSendBeforeSubmission = false
+
   /// Parks the next `send` until `releaseHeldSend()`.
   private var parkNextSend = false
   private var heldSendShouldFail = false
@@ -70,6 +72,11 @@ public actor MockTransport: MeshTransport {
   /// strikes after some commands have already gone out.
   public func failSends(fromSendIndex index: Int) {
     failSendsFromIndex = index
+  }
+
+  /// The next send throws ``MeshTransportError/notConnected`` and is not recorded.
+  public func rejectNextSendBeforeSubmission() {
+    shouldRejectNextSendBeforeSubmission = true
   }
 
   /// Parks the next send so a test can inject a reply or a loss before the write returns.
@@ -125,6 +132,10 @@ public actor MockTransport: MeshTransport {
   /// - Throws: ``MeshTransportError/notConnected`` if the transport is not connected.
   public func send(_ data: Data) async throws {
     guard isConnected else {
+      throw MeshTransportError.notConnected
+    }
+    if shouldRejectNextSendBeforeSubmission {
+      shouldRejectNextSendBeforeSubmission = false
       throw MeshTransportError.notConnected
     }
     if let threshold = failSendsFromIndex, sentData.count + 1 >= threshold {

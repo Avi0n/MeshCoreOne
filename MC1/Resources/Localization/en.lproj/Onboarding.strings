@@ -69,6 +69,9 @@
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
 "deviceScan.subtitle" = "Power your radio on, disconnect it from all other apps and devices, then tap Add Device.";
 
+/* Location: DeviceScanView.swift - Subtitle while bond-loss recovery is re-pairing */
+"deviceScan.rePairingSubtitle" = "Power your radio on and disconnect it from all other apps and devices.";
+
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "Your device is already paired";
 
@@ -77,9 +80,6 @@
 
 /* Location: DeviceScanView.swift - Button to continue after pairing */
 "deviceScan.continue" = "Continue";
-
-/* Location: DeviceScanView.swift - Button label while connecting */
-"deviceScan.connecting" = "Connecting...";
 
 /* Location: DeviceScanView.swift - Button to connect simulator (debug) */
 "deviceScan.connectSimulator" = "Connect Simulator";

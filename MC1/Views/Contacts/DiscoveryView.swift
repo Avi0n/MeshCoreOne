@@ -62,7 +62,8 @@ struct DiscoveryView: View {
       ToolbarItem(placement: .automatic) {
         DiscoveryMoreMenu(
           isEmpty: viewModel.discoveredNodes.isEmpty,
-          showClearConfirmation: $state.showClearConfirmation
+          showClearConfirmation: clearConfirmationPresented,
+          onClear: { state.clearAll() }
         )
       }
     }
@@ -85,6 +86,16 @@ struct DiscoveryView: View {
       guard isMounted else { return }
       state.updateSearchFocus(focused, rendererRevision: rendererRevision)
     }
+  }
+
+  private var clearConfirmationPresented: Binding<Bool> {
+    Binding(
+      get: { state.rendererRevision == rendererRevision && state.showClearConfirmation },
+      set: { value in
+        guard state.rendererRevision == rendererRevision else { return }
+        state.showClearConfirmation = value
+      }
+    )
   }
 
   private var filterHeader: some View {
@@ -194,6 +205,7 @@ private enum DiscoveryListLayout {
 // MARK: - Node Row
 
 private struct DiscoveryNodeRow: View {
+  private static let avatarSize: CGFloat = 44
   @Environment(\.appState) private var appState
   let node: DiscoveredNodeDTO
   let isAdded: Bool
@@ -289,11 +301,13 @@ private struct DiscoveryNodeRow: View {
   private var avatarView: some View {
     switch node.nodeType {
     case .chat:
-      ContactAvatar(name: node.name, size: 44)
+      ContactAvatar(name: node.name, size: Self.avatarSize)
     case .repeater:
-      NodeAvatar(publicKey: node.publicKey, role: .repeater, size: 44)
+      NodeAvatar(publicKey: node.publicKey, role: .repeater, size: Self.avatarSize)
     case .room:
-      NodeAvatar(publicKey: node.publicKey, role: .roomServer, size: 44)
+      NodeAvatar(publicKey: node.publicKey, role: .roomServer, size: Self.avatarSize)
+    case .sensor:
+      NodeAvatar(publicKey: node.publicKey, role: .sensor, size: Self.avatarSize)
     }
   }
 
@@ -302,6 +316,7 @@ private struct DiscoveryNodeRow: View {
     case .chat: L10n.Contacts.Contacts.NodeKind.chat
     case .repeater: L10n.Contacts.Contacts.NodeKind.repeater
     case .room: L10n.Contacts.Contacts.NodeKind.room
+    case .sensor: L10n.Contacts.Contacts.NodeKind.sensor
     }
   }
 
@@ -365,6 +380,7 @@ private struct DiscoverySortMenu: View {
 private struct DiscoveryMoreMenu: View {
   let isEmpty: Bool
   @Binding var showClearConfirmation: Bool
+  let onClear: () -> Void
 
   var body: some View {
     Menu {
@@ -378,6 +394,15 @@ private struct DiscoveryMoreMenu: View {
       Label(L10n.Contacts.Contacts.Discovery.menu, systemImage: "ellipsis.circle")
     }
     .liquidGlassSecondaryButtonStyle()
+    .confirmationDialog(
+      L10n.Contacts.Contacts.Discovery.Clear.title,
+      isPresented: $showClearConfirmation,
+      titleVisibility: .visible
+    ) {
+      Button(L10n.Contacts.Contacts.Discovery.Clear.confirm, role: .destructive, action: onClear)
+    } message: {
+      Text(L10n.Contacts.Contacts.Discovery.Clear.message)
+    }
   }
 }
 

@@ -137,6 +137,8 @@
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "Виявлено нову кімнату";
 
+"notifications.discovery.sensor" = "Виявлено новий датчик";
+
 // MARK: - Notification Actions
 
 /* Notification action button to reply to a message */
@@ -499,6 +501,14 @@
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "Неприпустима відповідь віддаленого вузла";
+
+"error.remoteNode.sensorOutcomeUnknown" = "Не вдалося перевірити зміну. Оновіть налаштування, перш ніж зберігати знову.";
+
+"error.remoteNode.sensorSettingRejected" = "Датчик відхилив це налаштування.";
+
+"error.remoteNode.invalidSensorSetting" = "Використовуйте непорожні ключ і значення без пробілів. Уся команда має вміститися в 160 байт UTF-8.";
+
+"error.remoteNode.invalidPasswordLength" = "Паролі мають містити не більше ніж %d байт UTF-8.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation */
 "error.remoteNode.permissionDenied" = "Доступ заборонено";

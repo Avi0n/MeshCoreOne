@@ -17,13 +17,15 @@ public struct MessageTranslationChrome: Sendable, Hashable {
     self.sourceLanguageCode = sourceLanguageCode
   }
 
-  /// In-flight wins; showing wins only if its target still matches preferred.
-  /// Otherwise an offer exists only when detection differs from preferred.
+  /// Nil when `text` decodes as an MECP reading. In-flight wins, and showing wins only when its target still matches preferred.
+  /// An offer exists only when detection differs from preferred.
   public static func resolved(
     detected: DetectedLanguage?,
     phase: Phase?,
-    preferredLanguageCode: String
+    preferredLanguageCode: String,
+    text: String
   ) -> MessageTranslationChrome? {
+    guard MECPCatalog.reading(text) == nil else { return nil }
     guard case let .identified(languageCode: sourceLanguageCode) = detected else { return nil }
     if let phase {
       switch phase {

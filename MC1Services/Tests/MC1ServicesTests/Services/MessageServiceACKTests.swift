@@ -21,7 +21,7 @@ struct MessageServiceACKTests {
       ackCodes: ackCodes,
       sentAt: sentAt,
       timeout: timeout,
-      isDelivered: isDelivered
+      resolution: isDelivered ? .resolved : .awaitingAck
     )
   }
 
@@ -624,18 +624,13 @@ struct MessageServiceACKTests {
             "Listener should have written RTT=500 before finalizeSend runs")
 
     // Retry loop's waitForEvent matched the same ACK, so finalizeSend runs
-    // with sentInfo != nil. It must NOT clobber the listener-written RTT.
-    let sentInfo = MessageSentInfo(
-      route: 0,
-      expectedAck: ackCode,
-      suggestedTimeoutMs: 5000
-    )
+    // with the ACK code and must preserve the listener-written RTT.
     _ = try await service.finalizeSend(
       messageID: messageID,
       contactID: contactID,
       radioID: radioID,
       publicKey: publicKey,
-      sentInfo: sentInfo,
+      acknowledgedCode: ackCode,
       initialPathLength: 0
     )
 
@@ -665,23 +660,16 @@ struct MessageServiceACKTests {
 
     let statusEvents = service.statusEvents()
 
-    // Seed a non-delivered pendingAcks entry so finalizeSend's `if let sentInfo`
-    // branch is taken (isDelivered == false, sentInfo != nil).
     await service.setPendingAckForTest(
       makePending(messageID: messageID, contactID: contactID, ackCodes: [ackCode])
     )
 
-    let sentInfo = MessageSentInfo(
-      route: 0,
-      expectedAck: ackCode,
-      suggestedTimeoutMs: 5000
-    )
     _ = try await service.finalizeSend(
       messageID: messageID,
       contactID: contactID,
       radioID: radioID,
       publicKey: publicKey,
-      sentInfo: sentInfo,
+      acknowledgedCode: ackCode,
       initialPathLength: 0
     )
 
@@ -710,6 +698,57 @@ struct MessageServiceACKTests {
     #expect(fetched?.status == .sent,
             "Unmatched ACK must not change message status")
     #expect(await service.pendingAckCount == 0)
+  }
+
+  @Test
+  func `a consumed attempt matches after the tracker is gone`() async throws {
+    let (service, dataStore) = try await MessageService.createForTesting()
+    let messageID = UUID()
+    let contactID = UUID()
+    let text = "parked"
+    let timestamp: UInt32 = 1_700_000_100
+    try await dataStore.saveMessage(MessageDTO.testDirectMessage(
+      id: messageID,
+      radioID: testDeviceID,
+      contactID: contactID,
+      text: text,
+      timestamp: timestamp,
+      status: .pending
+    ))
+    let pendingID = UUID()
+    _ = try await dataStore.insertPendingSendAssigningSequence(PendingSendDTO(
+      id: pendingID,
+      envelope: DirectMessageEnvelope(messageID: messageID, contactID: contactID),
+      radioID: testDeviceID
+    ))
+    #expect(try await dataStore.setPendingSendWireAttempt(id: pendingID, to: 1))
+
+    let senderKey = Data(repeating: 0xAB, count: 32)
+    await service.installSelfInfoForTest(publicKey: senderKey)
+    let restarted = await MessageService(
+      session: service.sessionForTest,
+      dataStore: dataStore,
+      contactService: nil
+    )
+    let events = restarted.statusEvents()
+    let laterAttempt = AckCodeBuilder.expectedAck(
+      timestamp: timestamp, attempt: 1, text: text, senderPublicKey: senderKey
+    )
+    await restarted.handleAcknowledgement(code: laterAttempt, tripTime: 10)
+    #expect(try await dataStore.fetchMessage(id: messageID)?.status == .pending)
+    #expect(try await dataStore.pendingSendWireAttempt(id: pendingID) == 1)
+
+    let consumed = AckCodeBuilder.expectedAck(
+      timestamp: timestamp, attempt: 0, text: text, senderPublicKey: senderKey
+    )
+    await restarted.handleAcknowledgement(code: consumed, tripTime: 25)
+
+    let delivered = try #require(try await dataStore.fetchMessage(id: messageID))
+    #expect(delivered.status == .delivered)
+    #expect(delivered.roundTripTime == 25)
+    #expect(try await dataStore.fetchPendingSends(radioID: testDeviceID).isEmpty)
+    #expect(await restarted.pendingAckCount == 0)
+    #expect(await restarted.drainStatusEvents(events).resolvedIDs == [messageID])
   }
 
   // MARK: - failMessageAndRethrow cleanup
@@ -828,7 +867,7 @@ struct MessageServiceACKTests {
       contactID: contactID,
       radioID: radioID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: MessageSentInfo(route: 0, expectedAck: ackCode, suggestedTimeoutMs: 5000),
+      acknowledgedCode: ackCode,
       initialPathLength: 0
     )
 
@@ -857,7 +896,7 @@ struct MessageServiceACKTests {
       contactID: UUID(),
       radioID: testDeviceID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
 
@@ -886,7 +925,7 @@ struct MessageServiceACKTests {
       contactID: UUID(),
       radioID: testDeviceID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
 
@@ -915,7 +954,7 @@ struct MessageServiceACKTests {
       contactID: UUID(),
       radioID: testDeviceID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
 
@@ -929,21 +968,22 @@ struct MessageServiceACKTests {
   @Test
   func `finalizeSend nil branch yields .statusResolved(.sent) from a non-terminal row and gates off on a terminal one`() async throws {
     // Part A: a .retrying row moves to .sent and yields exactly one event.
+    // The nil branch runs after RESP_CODE_SENT, so the tracker records that acceptance.
     let (serviceA, storeA) = try await MessageService.createForTesting()
     let idA = UUID()
     try await storeA.saveMessage(
       MessageDTO.testDirectMessage(id: idA, radioID: testDeviceID, status: .retrying)
     )
-    await serviceA.setPendingAckForTest(
-      makePending(messageID: idA, ackCodes: [Data([0x01, 0x02, 0x03, 0x04])])
-    )
+    var accepted = makePending(messageID: idA, ackCodes: [Data([0x01, 0x02, 0x03, 0x04])])
+    accepted.commandAccepted = true
+    await serviceA.setPendingAckForTest(accepted)
     let eventsA = serviceA.statusEvents()
     _ = try await serviceA.finalizeSend(
       messageID: idA,
       contactID: UUID(),
       radioID: testDeviceID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
     #expect(try await storeA.fetchMessage(id: idA)?.status == .sent)
@@ -965,7 +1005,7 @@ struct MessageServiceACKTests {
       contactID: UUID(),
       radioID: testDeviceID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in 0 }),
-      sentInfo: nil,
+      acknowledgedCode: nil,
       initialPathLength: 0
     )
     #expect(try await storeB.fetchMessage(id: idB)?.status == .failed)

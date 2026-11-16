@@ -75,6 +75,7 @@ private final class PowerOffReplyInbox: @unchecked Sendable {
   private struct Waiter {
     let id: UUID
     let continuation: CheckedContinuation<MeshEvent?, Never>
+    var timeout: Task<Void, Never>?
   }
 
   private struct State {
@@ -101,6 +102,7 @@ private final class PowerOffReplyInbox: @unchecked Sendable {
       return waiters
     }
     for waiter in waiters {
+      waiter.timeout?.cancel()
       waiter.continuation.resume(returning: matched)
     }
     return true
@@ -114,6 +116,7 @@ private final class PowerOffReplyInbox: @unchecked Sendable {
       return waiters
     }
     for waiter in waiters {
+      waiter.timeout?.cancel()
       waiter.continuation.resume(returning: nil)
     }
   }
@@ -122,7 +125,7 @@ private final class PowerOffReplyInbox: @unchecked Sendable {
     lock.withLock { $0.ended && $0.event == nil }
   }
 
-  func take(waiting seconds: TimeInterval) async -> MeshEvent? {
+  func take(waiting seconds: TimeInterval, clock: any Clock<Duration>) async -> MeshEvent? {
     let first = lock.withLock { state -> Immediate in
       if let event = state.event { return .event(event) }
       if state.ended { return .ended }
@@ -143,7 +146,7 @@ private final class PowerOffReplyInbox: @unchecked Sendable {
       let immediate = lock.withLock { state -> Immediate in
         if let event = state.event { return .event(event) }
         if state.ended { return .ended }
-        state.waiters.append(Waiter(id: id, continuation: continuation))
+        state.waiters.append(Waiter(id: id, continuation: continuation, timeout: nil))
         return .waiting
       }
       switch immediate {
@@ -152,14 +155,20 @@ private final class PowerOffReplyInbox: @unchecked Sendable {
       case .ended:
         continuation.resume(returning: nil)
       case .waiting:
-        Task {
-          try? await Task.sleep(for: .seconds(seconds))
+        let timeout = Task {
+          try? await clock.sleep(for: .seconds(seconds))
           let removed = lock.withLock { state -> Waiter? in
             guard let index = state.waiters.firstIndex(where: { $0.id == id }) else { return nil }
             return state.waiters.remove(at: index)
           }
           removed?.continuation.resume(returning: nil)
         }
+        let stillWaiting = lock.withLock { state -> Bool in
+          guard let index = state.waiters.firstIndex(where: { $0.id == id }) else { return false }
+          state.waiters[index].timeout = timeout
+          return true
+        }
+        if !stillWaiting { timeout.cancel() }
       }
     }
   }
@@ -214,7 +223,7 @@ public extension MeshCoreSession {
     }
 
     let grace = sendFailed ? Self.powerOffBufferedReplyGrace : Self.powerOffReplyWindow
-    if let event = await inbox.take(waiting: grace) {
+    if let event = await inbox.take(waiting: grace, clock: clock) {
       return Self.classifyPowerOffReply(event)
     }
     if inbox.streamEnded {

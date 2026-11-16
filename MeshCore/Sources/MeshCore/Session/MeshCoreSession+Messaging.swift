@@ -12,8 +12,8 @@ public extension MeshCoreSession {
   ///   - timestamp: Message timestamp. Defaults to current time.
   ///   - attempt: Retry attempt counter (0 for first attempt). Included in ACK hash.
   /// - Returns: Information about the sent message, including the expected ACK code.
-  /// - Throws: ``MeshCoreError/timeout`` if no response.
-  ///           ``MeshCoreError/deviceError(code:)`` on error.
+  /// - Throws: ``MeshCoreError/notConnected`` when the write never reached the radio,
+  ///   ``MeshCoreError/timeout`` when it was issued and no frame came back, or ``MeshCoreError/deviceError(code:)`` when the radio refused it.
   func sendMessage(
     to destination: Data,
     text: String,
@@ -21,14 +21,9 @@ public extension MeshCoreSession {
     attempt: UInt8 = 0
   ) async throws -> MessageSentInfo {
     let data = PacketBuilder.sendMessage(to: destination, text: text, timestamp: timestamp, attempt: attempt)
-    return try await sendAndWaitWithError(
-      data,
-      matching: { event in
-        if case let .messageSent(info) = event { return info }
-        return nil
-      },
-      errorMatcher: Self.deviceErrorMatcher
-    )
+    return try await requestResponseSerializer.withSerialization { [self] in
+      try await self.settleDirectMessageSend(data)
+    }
   }
 
   /// Sends a text message to a destination.
@@ -48,6 +43,87 @@ public extension MeshCoreSession {
   ) async throws -> MessageSentInfo {
     let publicKey = try destination.publicKey(prefixLength: 6)
     return try await sendMessage(to: publicKey, text: text, timestamp: timestamp, attempt: attempt)
+  }
+
+  /// Accepted returns the radio's `RESP_CODE_SENT`. A clear write-attempted bit is not submitted, and `CancellationError` stays a cancellation so a flood-scope fence does not look like a dead link.
+  /// A set bit with no frame is no reply, including a link that died after `writeValue`.
+  private func settleDirectMessageSend(_ data: Data) async throws -> MessageSentInfo {
+    let (subscriptionID, events) = await dispatcher.subscribeTracked(filter: Self.isDirectMessageCommandReply)
+    let collector = Task { () -> DirectMessageCommandReply? in
+      for await event in events {
+        if let reply = Self.directMessageCommandReply(event) { return reply }
+      }
+      return nil
+    }
+
+    let uncertainBeforeWrite = await requestResponseSerializer.responseAttributionIsUncertain()
+    let writeError: Error?
+    do {
+      try await sendSessionData(data)
+      writeError = nil
+    } catch {
+      writeError = error
+    }
+
+    if let writeError {
+      let writeAttempted = await requestResponseSerializer.responseAttributionIsUncertain() && !uncertainBeforeWrite
+      if writeAttempted {
+        await Task.yield()
+      }
+      await dispatcher.finishSubscription(id: subscriptionID)
+      let reply = await collector.value
+      if !writeAttempted {
+        if writeError is CancellationError { throw writeError }
+        throw MeshCoreError.notConnected
+      }
+      if let reply {
+        return try reply.sent()
+      }
+      throw MeshCoreError.timeout
+    }
+
+    let timeout = configuration.defaultTimeout
+    await withTaskGroup(of: Void.self) { group in
+      group.addTask { _ = await collector.value }
+      group.addTask { [clock] in
+        try? await clock.sleep(for: .seconds(timeout))
+      }
+      _ = await group.next()
+      await dispatcher.finishSubscription(id: subscriptionID)
+      group.cancelAll()
+    }
+    if let reply = await collector.value {
+      return try reply.sent()
+    }
+    await requestResponseSerializer.noteUncertainResponseHistory()
+    throw MeshCoreError.timeout
+  }
+
+  private static func isDirectMessageCommandReply(_ event: MeshEvent) -> Bool {
+    switch event {
+    case .messageSent, .error: true
+    default: false
+    }
+  }
+
+  private static func directMessageCommandReply(_ event: MeshEvent) -> DirectMessageCommandReply? {
+    if case let .messageSent(info) = event { return .accepted(info) }
+    if case let .error(code) = event { return .refused(code ?? 0) }
+    return nil
+  }
+
+  private enum DirectMessageCommandReply {
+    case accepted(MessageSentInfo)
+    case refused(UInt8)
+
+    func sent() throws -> MessageSentInfo {
+      switch self {
+      case let .accepted(info):
+        info
+      case let .refused(code):
+        throw MeshCoreError.deviceError(code: code)
+      }
+    }
   }
 
   /// Sends a message with automatic retry logic and optional path reset.
@@ -182,6 +258,7 @@ public extension MeshCoreSession {
   ///            channel datagram (firmware v11+), or ``MessageResult/noMoreMessages``.
   /// - Throws: ``MeshCoreError`` if the fetch fails.
   func getMessage(timeout: TimeInterval? = nil) async throws -> MessageResult {
+    guard !isMessageFetchingSuspended else { throw CancellationError() }
     getMessageCallerCountForTest += 1
     defer { getMessageCallerCountForTest -= 1 }
 
@@ -300,23 +377,6 @@ public extension MeshCoreSession {
       },
       errorMatcher: Self.deviceErrorMatcher
     )
-  }
-
-  /// Sends a message to a channel.
-  ///
-  /// Channel messages are broadcast to all nodes with the same channel configuration.
-  ///
-  /// - Parameters:
-  ///   - channel: Channel index (0-255).
-  ///   - text: The message text to send.
-  ///   - timestamp: Message timestamp. Defaults to current time.
-  /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
-  func sendChannelMessage(
-    channel: UInt8,
-    text: String,
-    timestamp: Date = Date()
-  ) async throws {
-    try await sendSimpleCommand(PacketBuilder.sendChannelMessage(channel: channel, text: text, timestamp: timestamp))
   }
 
   /// Sends a binary datagram to a channel.
@@ -485,7 +545,7 @@ public extension MeshCoreSession {
   ///
   /// The flood scope limits broadcast flooding to nodes with matching scope.
   ///
-  /// - Parameter scopeKey: The 32-byte scope key.
+  /// - Parameter scopeKey: The 16-byte scope key. A zero key clears the RAM override.
   /// - Throws: ``MeshCoreError/timeout`` or ``MeshCoreError/deviceError(code:)`` on failure.
   func setFloodScope(scopeKey: Data) async throws {
     try await sendSimpleCommand(PacketBuilder.setFloodScope(scopeKey))
@@ -583,32 +643,32 @@ public extension MeshCoreSession {
 
   // MARK: - Keep-Alive
 
-  /// Sends a keep-alive request to a room server with the client's sync watermark.
-  ///
-  /// The companion radio passes the payload through to the mesh layer, producing:
-  /// `[tag(4)][REQ_TYPE_KEEP_ALIVE(1)][sync_since(4)]` — 9 bytes total.
-  ///
-  /// The room server uses `sync_since` as a force-resync hint to update the client's
-  /// message watermark. The normal push-and-ACK cycle also advances `sync_since`
-  /// independently, so this serves as a correction mechanism.
-  ///
-  /// - Parameters:
-  ///   - publicKey: The full 32-byte public key of the room server.
-  ///   - syncSince: The client's last-received message timestamp (little-endian on wire).
-  /// - Returns: Information about the sent message.
-  /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
-  func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo {
+  /// Sends the room bookmark as a four-byte little-endian value.
+  /// A zero bookmark preserves the server’s replay cursor.
+  func sendKeepAlive(
+    to publicKey: Data,
+    syncSince: @escaping @Sendable () async throws -> UInt32,
+    beforeSend: @escaping @Sendable () throws -> Void
+  ) async throws -> MessageSentInfo {
     try requireFullPublicKey(publicKey, operation: "sendKeepAlive")
-    var syncSinceLE = syncSince.littleEndian
-    let payload = withUnsafeBytes(of: &syncSinceLE) { Data($0) }
-    let data = PacketBuilder.binaryRequest(to: publicKey, type: .keepAlive, payload: payload)
-    return try await sendAndWaitWithError(
-      data,
-      matching: { event in
-        if case let .messageSent(info) = event { return info }
-        return nil
-      },
-      errorMatcher: Self.deviceErrorMatcher
-    )
+    let cancelled = OSAllocatedUnfairLock(initialState: false)
+
+    return try await withTaskCancellationHandler {
+      try await requestResponseSerializer.withSerialization { [self] in
+        var watermark = try await syncSince().littleEndian
+        let payload = withUnsafeBytes(of: &watermark) { Data($0) }
+        let data = PacketBuilder.binaryRequest(to: publicKey, type: .keepAlive, payload: payload)
+        return try await sendAndMatchHoldingSerialization(data, beforeSend: {
+          if cancelled.withLock({ $0 }) { throw CancellationError() }
+          try beforeSend()
+        }) { event in
+          if let error = Self.deviceErrorMatcher(event) { return .failure(error) }
+          if case let .messageSent(info) = event { return .success(info) }
+          return .ignore
+        }
+      }
+    } onCancel: {
+      cancelled.withLock { $0 = true }
+    }
   }
 }

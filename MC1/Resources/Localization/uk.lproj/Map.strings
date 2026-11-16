@@ -40,6 +40,8 @@
 /* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
 "map.controls.filter" = "Фільтр";
 
+"map.controls.contactsAndSensors" = "Контакти і датчики";
+
 /* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
 "map.controls.filterActive" = "Фільтри активні";
 
@@ -264,6 +266,8 @@
 /* Location: MapView.swift ContactDetailSheet - Purpose: Display name for room type */
 "map.nodeKind.room" = "Кімната";
 
+"map.nodeKind.sensor" = "Датчик";
+
 // MARK: - Contact Callout
 
 /* Location: ContactCalloutContent.swift - Purpose: Button to view contact details */
@@ -280,6 +284,8 @@
 
 /* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
 "map.callout.nodeKind.room" = "Кімната";
+
+"map.callout.nodeKind.sensor" = "Датчик";
 
 
 /* Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout */

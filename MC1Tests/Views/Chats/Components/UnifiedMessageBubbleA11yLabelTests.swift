@@ -35,7 +35,7 @@ struct UnifiedMessageBubbleA11yLabelTests {
     )
 
     let expected = "Alice: hello world"
-      + ", \(L10n.Chats.Chats.Message.HopCount.accessibilityLabel(message.hopCount))"
+      + ", \(L10n.Chats.Chats.Message.HopCount.accessibilityLabel(bundle.item.footer.hopCount))"
       + ", \(L10n.Chats.Chats.Message.Path.accessibilityLabel("A to B to C"))"
       + ", \(L10n.Chats.Chats.Message.Region.accessibilityLabel("NORTHWEST"))"
     #expect(bubble.accessibilityMessageLabel == expected)
@@ -100,5 +100,40 @@ struct UnifiedMessageBubbleA11yLabelTests {
     let second = bubble.accessibilityMessageLabel
     #expect(first == second)
     #expect(first.contains("stable"))
+  }
+
+  @Test
+  func `a reading speaks the reading`() {
+    let stored = "MECP/0/M01"
+    let bubble = chatBubble(stored: stored)
+    let reading = MECPCatalog.displayText(stored)
+    #expect(
+      bubble.accessibilityMessageLabel
+        == "Alice: \(L10n.Chats.Chats.Message.readingAccessibility(reading))"
+    )
+  }
+
+  private func chatBubble(stored: String) -> UnifiedMessageBubble {
+    let message = MessageBubbleTestData.incomingChannel(
+      text: stored,
+      pathLength: 0,
+      pathNodes: nil
+    )
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      senderResolution: NodeNameResolution(displayName: "Alice", matchKind: .exact)
+    )
+    return UnifiedMessageBubble(
+      message: message,
+      contactName: "Alice",
+      deviceName: "Me",
+      configuration: MessageBubbleConfiguration(
+        showSenderName: true,
+        showsIncomingAvatars: false
+      ),
+      item: bundle.item,
+      layout: FragmentLayout(content: bundle.item.content),
+      imageResolver: bundle.imageResolver
+    )
   }
 }

@@ -14,21 +14,25 @@ extension MessageService {
     let device = try await dataStore.fetchDevice(radioID: radioID)
     let scope = ChannelFloodScopeResolver.resolve(
       channelFloodScope: channel?.floodScope ?? .inherit,
-      deviceDefaultFloodScopeName: device?.defaultFloodScopeName,
       supportsUnscopedFloodSend: device?.supportsUnscopedFloodSend ?? false
     )
 
-    if let device,
-       device.firmwareVersion < Self.floodScopeMinimumFirmwareVersion,
-       scope == .scope(.disabled) {
-      try await session.sendChannelMessage(channel: channelIndex, text: text, timestamp: timestamp)
+    let appliedScope: ResolvedFloodScope? = if let device,
+                                               device.firmwareVersion < Self.floodScopeMinimumFirmwareVersion,
+                                               scope == .scope(.disabled) {
+      nil
     } else {
+      scope
+    }
+    if let appliedScope {
       try await session.sendChannelMessage(
         channel: channelIndex,
         text: text,
         timestamp: timestamp,
-        floodScope: scope
+        floodScope: appliedScope
       )
+    } else {
+      try await session.sendChannelMessage(channel: channelIndex, text: text, timestamp: timestamp)
     }
   }
 }

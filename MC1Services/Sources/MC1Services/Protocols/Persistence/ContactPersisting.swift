@@ -2,6 +2,23 @@ import Foundation
 
 /// Store operations for contact rows, contact mention tracking, and blocked senders.
 public protocol ContactPersisting: Actor {
+  func currentDirectMessageContact(_ contact: ContactDTO, scope: ReceiveScope) async throws -> ContactDTO?
+
+  func materializeContactForDirectMessage(
+    from frame: ContactFrame,
+    receivedAt: Date,
+    scope: ReceiveScope
+  ) async throws -> ContactDTO?
+
+  func touchDirectMessageContact(_ contact: ContactDTO, scope: ReceiveScope, at date: Date) async throws
+
+  func updateContactAfterDirectMessage(
+    _ message: MessageDTO,
+    contact: ContactDTO,
+    scope: ReceiveScope,
+    isViewingContact: Bool
+  ) async throws -> ContactDTO?
+
   // MARK: - Contact Operations
 
   /// Fetch all confirmed contacts for a device
@@ -103,14 +120,8 @@ public protocol ContactPersisting: Actor {
     skippingPublicKeys: @Sendable () -> Set<Data>
   ) async throws -> [UUID]
 
-  /// Deletes the contact only when no messages reference it. Insert-only
-  /// rollback of a mid-sync radio delete: prefer an orphan contact over a
-  /// cascade that wipes a concurrent DM. Implementations that share a
-  /// ModelActor with message storage must keep probe and delete in one
-  /// isolation region with no suspension between them.
-  ///
-  /// PendingSend and Reaction cascade with their Message rows on
-  /// `deleteContact`, so a Message probe is sufficient.
+  /// Deletes a Contact only when no message or review entry references it.
+  /// Check references and delete without suspension so a concurrent DM cannot be cascaded.
   func deleteContactIfUnreferenced(id: UUID) async throws
 
   /// Links direct messages stored before their contact row existed. Channel
@@ -242,5 +253,30 @@ public extension ContactPersisting where Self: MessagePersisting {
     contacts: [(id: UUID, publicKey: Data)]
   ) async throws -> [UUID: Int] {
     [:]
+  }
+}
+
+public extension ContactPersisting {
+  func currentDirectMessageContact(_ contact: ContactDTO, scope: ReceiveScope) async throws -> ContactDTO? {
+    nil
+  }
+
+  func materializeContactForDirectMessage(
+    from frame: ContactFrame,
+    receivedAt: Date,
+    scope: ReceiveScope
+  ) async throws -> ContactDTO? {
+    nil
+  }
+
+  func touchDirectMessageContact(_ contact: ContactDTO, scope: ReceiveScope, at date: Date) async throws {}
+
+  func updateContactAfterDirectMessage(
+    _ message: MessageDTO,
+    contact: ContactDTO,
+    scope: ReceiveScope,
+    isViewingContact: Bool
+  ) async throws -> ContactDTO? {
+    nil
   }
 }

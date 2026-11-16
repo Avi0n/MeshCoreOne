@@ -32,6 +32,8 @@
 /* Location: NodeAuthenticationSheet.swift - Repeater type value */
 "remoteNodes.auth.typeRepeater" = "转发节点";
 
+"remoteNodes.auth.typeSensor" = "传感器";
+
 /* Location: NodeAuthenticationSheet.swift - Authentication section header */
 "remoteNodes.auth.authentication" = "身份验证";
 
@@ -62,10 +64,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "泛洪路由";
 "remoteNodes.auth.floodRetryStatus" = "已知路由无响应。正在改用泛洪路由重试。";
-"remoteNodes.auth.floodFooter" = "泛洪路由速度更慢，且占用更多网络空中时间。当已知路由在当前位置不可用时再使用。登录后会自动学习新路由。";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "此次登录会清除已保存的路由，并使用泛洪。泛洪路由速度更慢，且占用更多网络空中时间。登录成功后才会学习新路由。";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "使用已知路由到此节点，或切换到泛洪路由让网络自动寻找路径。";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "已保存的路由已清除。正在使用泛洪登录。登录成功后才会学习新路由。";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "如果没有回复，将清除路由，登录会以泛洪尝试一次。";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "如果没有回复，登录会停止，路由将保留。";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<未知>";
@@ -83,6 +93,26 @@
 
 /* Location: RepeaterSettingsView.swift - Navigation title */
 "remoteNodes.settings.title" = "转发节点设置";
+
+"remoteNodes.sensor.adminRequired" = "传感器管理需要管理员权限。";
+
+"remoteNodes.sensor.saved" = "设置已验证。";
+
+"remoteNodes.sensor.rebootSent" = "已发送重启请求。传感器尚未确认已重启。请重新登录后再发送更多命令。";
+
+"remoteNodes.sensor.rebootConfirmation" = "是否向此传感器发送重启请求？";
+
+"remoteNodes.sensor.runtimeOnly" = "更改会影响正在运行的传感器。重启后是否仍然有效取决于其固件。";
+
+"remoteNodes.sensor.value" = "值";
+
+"remoteNodes.sensor.save" = "保存";
+
+"remoteNodes.sensor.reload" = "重新加载";
+
+"remoteNodes.sensor.empty" = "此传感器没有设置。";
+
+"remoteNodes.sensor.title" = "传感器管理";
 
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "完成";

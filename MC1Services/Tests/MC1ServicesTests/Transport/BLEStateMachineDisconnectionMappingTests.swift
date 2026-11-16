@@ -4,11 +4,8 @@ import Foundation
 import ObjectiveC
 import Testing
 
-/// Drives the callback handlers that route disconnection errors through
-/// `ReconnectPolicy.makeConnectionError` before invoking `onDisconnection`,
-/// proving each site surfaces a bond-invalidation CoreBluetooth error as the
-/// typed `BLEError.authenticationFailed` and preserves `nil` for a clean
-/// disconnect in the `.connected` branch.
+/// Verifies callback handlers preserve bond-invalidation errors as authentication failures
+/// and retain nil for a clean disconnect.
 @Suite("BLEStateMachine disconnection error mapping")
 struct BLEStateMachineDisconnectionMappingTests {
   /// A CoreBluetooth error every mapped site must surface as `.authenticationFailed`.
@@ -25,12 +22,13 @@ struct BLEStateMachineDisconnectionMappingTests {
     )
   }
 
-  /// Installs a recording `onDisconnection` handler and returns the box collecting
+  /// Installs a recording `BLELifecycleEvent.disconnected` handler and returns the box collecting
   /// every `(deviceID, error)` pair it receives.
   private func recordDisconnections(on sm: BLEStateMachine) async -> DisconnectionRecorder {
     let recorder = DisconnectionRecorder()
-    await sm.setDisconnectionHandler { deviceID, error in
-      recorder.append(deviceID: deviceID, error: error)
+    await sm.setLifecycleEventHandler { event, _ in
+      guard case let .disconnected(origin, error) = event else { return }
+      recorder.append(deviceID: origin.deviceID, error: error)
     }
     return recorder
   }
@@ -160,9 +158,7 @@ struct BLEStateMachineDisconnectionMappingTests {
 
 // MARK: - Test doubles and seams
 
-/// Collects `(deviceID, error)` pairs delivered to `onDisconnection`.
-/// The handler is `@Sendable`; the state machine invokes it from its own
-/// isolation, and each test awaits the driving call before reading `events`.
+/// Records disconnected lifecycle events; tests await the actor callback before reading.
 private final class DisconnectionRecorder: @unchecked Sendable {
   private(set) var events: [(deviceID: UUID, error: Error?)] = []
 

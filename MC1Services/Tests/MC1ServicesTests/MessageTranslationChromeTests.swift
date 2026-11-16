@@ -4,8 +4,20 @@ import Testing
 @Suite("MessageTranslationChrome.resolved")
 struct MessageTranslationChromeTests {
   @Test
+  func `a reading is none even when a translation is in flight`() {
+    #expect(
+      resolve(
+        detected: .identified(languageCode: "de"),
+        phase: .inProgress,
+        preferredLanguageCode: "en",
+        text: "MECP/0/M01"
+      ) == nil
+    )
+  }
+
+  @Test
   func `detected German against English is an offer`() {
-    let chrome = MessageTranslationChrome.resolved(
+    let chrome = resolve(
       detected: .identified(languageCode: "de"),
       phase: nil,
       preferredLanguageCode: "en"
@@ -17,21 +29,21 @@ struct MessageTranslationChromeTests {
   @Test
   func `same language as preferred is none`() {
     #expect(
-      MessageTranslationChrome.resolved(
+      resolve(
         detected: .identified(languageCode: "de"),
         phase: nil,
         preferredLanguageCode: "de"
       ) == nil
     )
     #expect(
-      MessageTranslationChrome.resolved(
+      resolve(
         detected: .identified(languageCode: "de"),
         phase: nil,
         preferredLanguageCode: "de-DE"
       ) == nil
     )
     #expect(
-      MessageTranslationChrome.resolved(
+      resolve(
         detected: .identified(languageCode: "zh"),
         phase: nil,
         preferredLanguageCode: "zh-Hans"
@@ -42,21 +54,21 @@ struct MessageTranslationChromeTests {
   @Test
   func `present nil detection is none`() {
     #expect(
-      MessageTranslationChrome.resolved(
+      resolve(
         detected: nil,
         phase: nil,
         preferredLanguageCode: "en"
       ) == nil
     )
     #expect(
-      MessageTranslationChrome.resolved(
+      resolve(
         detected: nil,
         phase: .offer,
         preferredLanguageCode: "en"
       ) == nil
     )
     #expect(
-      MessageTranslationChrome.resolved(
+      resolve(
         detected: .undetermined,
         phase: .offer,
         preferredLanguageCode: "en"
@@ -66,7 +78,7 @@ struct MessageTranslationChromeTests {
 
   @Test
   func `inProgress is kept`() {
-    let chrome = MessageTranslationChrome.resolved(
+    let chrome = resolve(
       detected: .identified(languageCode: "de"),
       phase: .inProgress,
       preferredLanguageCode: "en"
@@ -80,7 +92,7 @@ struct MessageTranslationChromeTests {
       translatedText: "Hello",
       targetLanguageCode: "en"
     )
-    let chrome = MessageTranslationChrome.resolved(
+    let chrome = resolve(
       detected: .identified(languageCode: "de"),
       phase: showing,
       preferredLanguageCode: "en"
@@ -90,7 +102,7 @@ struct MessageTranslationChromeTests {
 
   @Test
   func `showing for a different target falls back to offer`() {
-    let chrome = MessageTranslationChrome.resolved(
+    let chrome = resolve(
       detected: .identified(languageCode: "de"),
       phase: .showing(translatedText: "Hello", targetLanguageCode: "en"),
       preferredLanguageCode: "fr"
@@ -101,11 +113,25 @@ struct MessageTranslationChromeTests {
   @Test
   func `showing for a different target that matches the source is none`() {
     #expect(
-      MessageTranslationChrome.resolved(
+      resolve(
         detected: .identified(languageCode: "de"),
         phase: .showing(translatedText: "Hello", targetLanguageCode: "en"),
         preferredLanguageCode: "de"
       ) == nil
+    )
+  }
+
+  private func resolve(
+    detected: DetectedLanguage?,
+    phase: MessageTranslationChrome.Phase?,
+    preferredLanguageCode: String,
+    text: String = "Hello"
+  ) -> MessageTranslationChrome? {
+    MessageTranslationChrome.resolved(
+      detected: detected,
+      phase: phase,
+      preferredLanguageCode: preferredLanguageCode,
+      text: text
     )
   }
 }

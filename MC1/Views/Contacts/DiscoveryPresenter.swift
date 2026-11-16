@@ -46,19 +46,5 @@ struct DiscoveryPresenter: ViewModifier {
         get: { state?.viewModel.errorMessage },
         set: { state?.viewModel.errorMessage = $0 }
       ), title: L10n.Contacts.Contacts.Common.error)
-      .confirmationDialog(
-        L10n.Contacts.Contacts.Discovery.Clear.title,
-        isPresented: Binding(
-          get: { state?.showClearConfirmation ?? false },
-          set: { state?.showClearConfirmation = $0 }
-        ),
-        titleVisibility: .visible
-      ) {
-        Button(L10n.Contacts.Contacts.Discovery.Clear.confirm, role: .destructive) {
-          state?.clearAll()
-        }
-      } message: {
-        Text(L10n.Contacts.Contacts.Discovery.Clear.message)
-      }
   }
 }

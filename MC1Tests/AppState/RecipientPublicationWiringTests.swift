@@ -42,7 +42,8 @@ struct RecipientPublicationWiringTests {
         await session.stop()
       }
     }
-    appState.connectionManager.setTestState(connectionState: .connected, services: services)
+    try await installDevice(store: services.dataStore, appState: appState)
+    appState.connectionManager.setTestState(connectionState: .connected, services: services, session: session)
 
     await appState.wireServicesIfConnected()
 
@@ -55,7 +56,7 @@ struct RecipientPublicationWiringTests {
     let run = try await prepareRadio()
     defer { run.finish() }
     try await saveChannel(store: run.store, index: 0, name: "Ops", secret: Self.secret)
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
 
     await callback(true)
     await callback(true)
@@ -68,7 +69,7 @@ struct RecipientPublicationWiringTests {
   @Test func `an empty read publishes once and records the empty set`() async throws {
     let run = try await prepareRadio()
     defer { run.finish() }
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
 
     await callback(true)
     await callback(true)
@@ -83,7 +84,7 @@ struct RecipientPublicationWiringTests {
     let run = try await prepareRadio()
     defer { run.finish() }
     try await saveChannel(store: run.store, index: 0, name: "Ops", secret: Self.secret)
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
     await callback(true)
     #expect(run.counter.count == 1)
     let published = try #require(run.appState.lastPublishedRecipientIDs)
@@ -132,7 +133,7 @@ struct RecipientPublicationWiringTests {
       (1, "Copy", Self.secret)
     ])
     defer { run.finish() }
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
 
     await callback(false)
     let task = try #require(run.appState.staleNodeCleanupTask)
@@ -161,7 +162,7 @@ struct RecipientPublicationWiringTests {
     let run = try await prepareCleanup(channels: [(0, "Ops", Self.secret)])
     defer { run.finish() }
     let before = try await offeredIDs(store: run.store)
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
 
     await callback(true)
     let task = try #require(run.appState.staleNodeCleanupTask)
@@ -181,7 +182,7 @@ struct RecipientPublicationWiringTests {
   @Test func `a cancelled cleanup does not publish`() async throws {
     let run = try await prepareCleanup(channels: [(0, "Ops", Self.secret)])
     defer { run.finish() }
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
 
     await callback(true)
     let task = try #require(run.appState.staleNodeCleanupTask)
@@ -197,7 +198,7 @@ struct RecipientPublicationWiringTests {
   @Test func `replaced services do not publish after cleanup`() async throws {
     let run = try await prepareCleanup(channels: [(0, "Ops", Self.secret)])
     defer { run.finish() }
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
 
     await callback(true)
     let task = try #require(run.appState.staleNodeCleanupTask)
@@ -221,7 +222,7 @@ struct RecipientPublicationWiringTests {
   @Test func `a second callback publishes once after the same cleanup`() async throws {
     let run = try await prepareCleanup(channels: [(0, "Ops", Self.secret)])
     defer { run.finish() }
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
 
     await callback(true)
     let task = try #require(run.appState.staleNodeCleanupTask)
@@ -250,9 +251,14 @@ struct RecipientPublicationWiringTests {
     let run = try await prepareRadio()
     defer { run.finish() }
     try await saveChannel(store: run.store, index: 0, name: "Ops", secret: Self.secret)
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
     await callback(true)
     #expect(run.counter.count == 1)
+    let device = try #require(run.appState.connectedDevice)
+    run.appState.connectionManager.persistConnection(
+      deviceID: device.id, radioID: device.radioID, deviceName: device.nodeName
+    )
+    await run.appState.disconnect(reason: .userInitiated)
 
     await run.appState.notifyDataRestored().value
     #expect(run.counter.count == 1)
@@ -274,7 +280,7 @@ struct RecipientPublicationWiringTests {
     run.appState.beforeShortcutRecipientRereadForTesting = { [weak appState = run.appState] in
       appState?.connectionManager.setTestState(connectedDevice: .some(nil))
     }
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
 
     await callback(true)
 
@@ -306,7 +312,7 @@ struct RecipientPublicationWiringTests {
         appState.cancelStaleNodeCleanup()
       }
     }
-    let callback = try #require(run.appState.connectionManager.onDeviceSynced)
+    let callback = try syncCallback(for: run.appState)
     await callback(true)
     let task = try #require(run.appState.staleNodeCleanupTask)
     try await waitForCommands(1, transport: run.transport)
@@ -359,10 +365,10 @@ struct RecipientPublicationWiringTests {
     let cleanup = Task { await cleanupRelease.wait() }
     appState.staleNodeCleanupTask = cleanup
     appState.staleNodeCleanupServiceID = ObjectIdentifier(attached.services)
-    manager.onDeviceSynced = { eligible in
+    manager.onDeviceSynced = { snapshot, eligible in
       callbackEntered = true
       callbackSignal.open()
-      await originalCallback(eligible)
+      await originalCallback(snapshot, eligible)
     }
     defer {
       cleanupRelease.open()
@@ -373,12 +379,11 @@ struct RecipientPublicationWiringTests {
         await attached.session.stop()
       }
     }
+    let link = try #require(manager.installedLink)
     let promotion = Task {
       defer { callbackSignal.open() }
-      let result = await manager.promoteToReady(
-        syncResult: FullSyncResult(contacts: .clean, channels: .clean, messages: .clean),
-        expectedServices: attached.services,
-        transportType: .bluetooth
+      let result = await manager.completeSync(
+        link, syncResult: FullSyncResult(contacts: .clean, channels: .clean, messages: .clean)
       )
       promotionReturned = true
       return result
@@ -387,13 +392,14 @@ struct RecipientPublicationWiringTests {
     try #require(callbackEntered)
     #expect(!promotionReturned)
     #expect(manager.connectionState == .ready)
-    await manager.handleConnectionLoss(deviceID: deviceID, error: nil)
-    #expect(manager.connectionState == .disconnected)
+    let origin = BLELifecycleOrigin(deviceID: deviceID, generation: 1, eventTime: CFAbsoluteTimeGetCurrent())
+    let loss = Task { await manager.handleBLELifecycleEvent(.disconnected(origin, error: nil)) }
+    try await waitUntil("connection loss should detach the retiring stack") { manager.connectionState == .disconnected }
     #expect(manager.services == nil)
-    #expect(manager.isReconnectionWatchdogRunning)
     #expect(!promotionReturned)
     cleanupRelease.open()
     let promoted = await promotion.value
+    await loss.value
     #expect(!promoted)
     #expect(manager.connectionState == .disconnected)
     #expect(manager.services == nil)
@@ -455,6 +461,7 @@ extension RecipientPublicationWiringTests {
     let appState = try makeAppState()
     let store = appState.connectionManager.persistenceStore
     try await installDevice(store: store, appState: appState)
+    _ = attachIdleServices(appState: appState, store: store)
     let counter = installCounter(on: appState)
     return RadioRun(appState: appState, store: store, counter: counter)
   }
@@ -508,6 +515,12 @@ extension RecipientPublicationWiringTests {
     )))
     let device = try #require(try await store.fetchDevice(radioID: Self.radioID))
     appState.connectionManager.setTestState(connectionState: .ready, connectedDevice: device)
+  }
+
+  private func syncCallback(for appState: AppState) throws -> (Bool) async -> Void {
+    let callback = try #require(appState.connectionManager.onDeviceSynced)
+    let snapshot = try #require(appState.connectionManager.currentConnection)
+    return { eligible in await callback(snapshot, eligible) }
   }
 
   private func saveChannel(store: PersistenceStore, index: UInt8, name: String, secret: Data) async throws {

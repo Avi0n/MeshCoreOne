@@ -34,14 +34,12 @@ public protocol RemoteAccessSessionOps: Actor {
     timestamp: Date
   ) async throws -> MessageSentInfo
 
-  /// Sends a keep-alive request to a room server with the client's sync watermark.
-  ///
-  /// - Parameters:
-  ///   - publicKey: The full 32-byte public key of the room server.
-  ///   - syncSince: The client's last-received message timestamp.
-  /// - Returns: Information about the sent message.
-  /// - Throws: `MeshCoreError` if the device doesn't respond.
-  func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo
+  /// Resolves the room bookmark after serializing the request and checks ownership just before sending.
+  func sendKeepAlive(
+    to publicKey: Data,
+    syncSince: @escaping @Sendable () async throws -> UInt32,
+    beforeSend: @escaping @Sendable () throws -> Void
+  ) async throws -> MessageSentInfo
 
   /// Requests owner information from a repeater using the binary protocol.
   ///
@@ -127,6 +125,10 @@ public protocol RemoteAccessSessionOps: Actor {
 // MARK: - Default Implementations
 
 public extension RemoteAccessSessionOps {
+  func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo {
+    try await sendKeepAlive(to: publicKey, syncSince: { syncSince }, beforeSend: {})
+  }
+
   /// Sends a command message stamped with the current time.
   func sendCommand(
     to destination: Data,

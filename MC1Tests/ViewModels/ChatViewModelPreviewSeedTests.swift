@@ -101,7 +101,6 @@ struct ChatViewModelPreviewSeedTests {
         connectionState: { .disconnected },
         connectedDevice: { nil },
         currentRadioID: { nil },
-        session: { nil },
         reactionService: { nil },
         chatSendQueueService: { nil },
         inlineImageDimensionsStore: { dimensionsStore },

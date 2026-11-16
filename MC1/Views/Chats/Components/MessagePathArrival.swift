@@ -11,9 +11,9 @@ struct MessagePathArrival: Identifiable, Equatable, Hashable, Sendable {
   let receivedAt: Date
   let isFirst: Bool
 
-  /// Hop count decoded from `pathLength` (lower 6 bits).
-  var hopCount: Int {
-    decodePathLen(pathLength)?.hopCount ?? Int(pathLength & 63)
+  /// Hop count from a path-length byte `decodePathLen` accepts. A rejected byte, including 0xFF, has none.
+  var hopCount: Int? {
+    decodePathLen(pathLength)?.hopCount
   }
 
   /// Empty path bytes with hop count 0 is a 0-hop arrival, not missing path data.

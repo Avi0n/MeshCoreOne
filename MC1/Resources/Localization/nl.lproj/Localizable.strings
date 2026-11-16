@@ -137,6 +137,8 @@
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "Nieuwe ruimte ontdekt";
 
+"notifications.discovery.sensor" = "Nieuwe sensor ontdekt";
+
 // MARK: - Notification Actions
 
 /* Notification action button to reply to a message */
@@ -499,6 +501,14 @@
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "Ongeldig antwoord van de externe node";
+
+"error.remoteNode.sensorOutcomeUnknown" = "De wijziging kon niet worden geverifieerd. Laad de instellingen opnieuw voordat je opnieuw opslaat.";
+
+"error.remoteNode.sensorSettingRejected" = "De sensor heeft deze instelling geweigerd.";
+
+"error.remoteNode.invalidSensorSetting" = "Gebruik een sleutel en waarde die niet leeg zijn en geen witruimte bevatten. De volledige opdracht moet binnen 160 UTF-8 bytes passen.";
+
+"error.remoteNode.invalidPasswordLength" = "Wachtwoorden mogen niet meer dan %d UTF-8 bytes gebruiken.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation */
 "error.remoteNode.permissionDenied" = "Toegang geweigerd";

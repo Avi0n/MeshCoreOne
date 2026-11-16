@@ -57,13 +57,13 @@ enum PresetLocationPolicy {
   static func useMyLocationAction(status: CLAuthorizationStatus) -> UseMyLocationAction {
     switch status {
     case .authorizedWhenInUse, .authorizedAlways:
-      return .resolve
+      .resolve
     case .notDetermined:
-      return .waitForAuthorization
+      .waitForAuthorization
     case .denied, .restricted:
-      return .openSettings
+      .openSettings
     @unknown default:
-      return .openSettings
+      .openSettings
     }
   }
 
@@ -72,13 +72,13 @@ enum PresetLocationPolicy {
   ) -> AfterAuthorizationWait {
     switch status {
     case .authorizedWhenInUse, .authorizedAlways:
-      return .resolve
+      .resolve
     case .denied, .restricted:
-      return .openSettings
+      .openSettings
     case .notDetermined:
-      return .none
+      .none
     @unknown default:
-      return .openSettings
+      .openSettings
     }
   }
 

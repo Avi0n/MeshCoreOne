@@ -2,6 +2,7 @@ import Foundation
 @testable import MC1
 @testable import MC1Services
 import MeshCore
+import Testing
 
 extension RegionDiscoveryStateTests {
   @MainActor
@@ -60,17 +61,31 @@ extension RegionDiscoveryStateTests {
     let sessions: SessionBox
     private let defaults: UserDefaults
     private let suiteName: String
+    private var containers: [ServiceContainer] = []
+    private var ownedSessions: [MeshCoreSession] = []
+    private var startups: [Task<Void, Error>] = []
 
-    init() throws {
+    init() async throws {
       suiteName = "region-discovery-\(UUID().uuidString)"
       guard let defaults = UserDefaults(suiteName: suiteName) else {
         throw DiscoveryFixtureError.defaultsUnavailable
       }
       defaults.removePersistentDomain(forName: suiteName)
       self.defaults = defaults
-      appState = AppState(defaults: defaults)
+      let modelContainer = try PersistenceStore.createContainer(inMemory: true)
+      let manager = ConnectionManager(
+        modelContainer: modelContainer, defaults: defaults, stateMachine: MockBLEStateMachine(), transport: MockMeshTransport()
+      )
+      appState = AppState(
+        modelContainer: modelContainer, isPlaceholder: true, defaults: defaults, injectedConnectionManager: manager
+      )
       sessions = SessionBox(MeshCoreSession(transport: MockTransport()))
-      install(device: device())
+      do {
+        try await install(device: device())
+      } catch {
+        await tearDown()
+        throw error
+      }
       let box = sessions
       let state = appState
       owner.configure(
@@ -83,18 +98,29 @@ extension RegionDiscoveryStateTests {
       )
     }
 
-    func install(device: DeviceDTO) {
+    func install(device: DeviceDTO) async throws {
+      let store = appState.connectionManager.persistenceStore
+      try await store.saveDevice(device)
+      let services = ServiceContainer(session: sessions.session, dataStore: store, radioID: device.radioID)
+      containers.append(services)
       appState.connectionManager.setTestState(
         connectionState: .ready,
-        services: .some(nil),
+        services: .some(services),
         session: .some(sessions.session),
-        connectedDevice: .some(device)
+        connectedDevice: .some(device),
+        currentTransportType: .bluetooth,
+        connectionIntent: .wantsConnection()
       )
     }
 
-    func replaceSession() {
+    func replaceSession() async throws {
       sessions.session = MeshCoreSession(transport: MockTransport())
-      appState.connectionManager.setTestState(session: .some(sessions.session))
+      try await install(device: #require(appState.connectedDevice))
+    }
+
+    func own(session: MeshCoreSession, startup: Task<Void, Error>) {
+      ownedSessions.append(session)
+      startups.append(startup)
     }
 
     func device(
@@ -143,10 +169,34 @@ extension RegionDiscoveryStateTests {
       }
     }
 
-    func tearDown() {
+    func tearDown() async {
+      owner.setWorkflowActive(false)
+      startups.forEach { $0.cancel() }
+      for session in ownedSessions {
+        await session.stop()
+      }
+      for startup in startups {
+        _ = await startup.result
+      }
+      await appState.disconnect(reason: .userInitiated)
+      for container in containers {
+        await container.tearDown()
+        await container.session.stop()
+      }
       appState.shutdown()
       defaults.removePersistentDomain(forName: suiteName)
     }
+  }
+
+  func withFixture(_ body: @MainActor (DiscoveryFixture) async throws -> Void) async throws {
+    let fixture = try await DiscoveryFixture()
+    do {
+      try await body(fixture)
+    } catch {
+      await fixture.tearDown()
+      throw error
+    }
+    await fixture.tearDown()
   }
 
   enum Wait {

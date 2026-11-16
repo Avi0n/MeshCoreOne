@@ -2,18 +2,19 @@ import MC1Services
 import SwiftUI
 
 struct NodeConfigImportView: View {
-  @Environment(\.appState) private var appState
-  @State private var viewModel = NodeConfigImportViewModel()
+  @Bindable var viewModel: NodeConfigImportViewModel
 
   var body: some View {
     Group {
-      if let config = viewModel.importedConfig {
+      if let recovery = viewModel.recovery {
+        NodeConfigImportRecoveryList(viewModel: viewModel, recovery: recovery)
+      } else if let config = viewModel.importedConfig {
         ImportPreviewList(viewModel: viewModel, config: config)
       } else {
         SelectFileList(viewModel: viewModel)
       }
     }
-    .navigationTitle(L10n.Settings.ConfigImport.title)
+    .navigationTitle(viewModel.recovery == nil ? L10n.Settings.ConfigImport.title : L10n.Settings.ConfigImport.retryIdentityImport)
     .onDisappear { viewModel.handleDismissal() }
     .fileImporter(
       isPresented: $viewModel.showFilePicker,
@@ -22,7 +23,7 @@ struct NodeConfigImportView: View {
       switch result {
       case let .success(url):
         viewModel.parseFile(at: url)
-        Task { await viewModel.loadCurrentDeviceState(settingsService: appState.services?.settingsService) }
+        Task { await viewModel.loadCurrentDeviceState() }
       case let .failure(error):
         viewModel.errorMessage = error.userFacingMessage
       }
@@ -31,16 +32,12 @@ struct NodeConfigImportView: View {
       viewModel.confirmTitle,
       isPresented: $viewModel.showConfirmation
     ) {
-      Button(viewModel.applyButtonLabel) {
-        viewModel.applyConfig(
-          nodeConfigService: appState.services?.nodeConfigService,
-          settingsService: appState.services?.settingsService,
-          radioID: appState.connectedDevice?.radioID
-        )
+      Button(viewModel.applyButtonLabel, role: viewModel.confirmButtonRole) {
+        viewModel.applyConfig()
       }
-      Button(L10n.Localizable.Common.cancel, role: .cancel) {}
+      Button(L10n.Localizable.Common.cancel, role: .cancel) { viewModel.cancelConfirmation() }
     } message: {
-      Text(viewModel.confirmMessage(deviceName: appState.connectedDevice?.nodeName ?? L10n.Settings.ConfigImport.thisDevice))
+      Text(viewModel.confirmMessage)
     }
   }
 }
@@ -270,7 +267,6 @@ private struct ContactsSection: View {
 
 private struct ApplySection: View {
   @Environment(\.appTheme) private var theme
-  @Environment(\.appState) private var appState
   @Bindable var viewModel: NodeConfigImportViewModel
 
   var body: some View {
@@ -287,7 +283,7 @@ private struct ApplySection: View {
         }
       } else if !viewModel.importComplete {
         Button(viewModel.applyButtonLabel) {
-          viewModel.prepareConfirmation(nodeConfigService: appState.services?.nodeConfigService)
+          viewModel.prepareConfirmation()
         }
         .disabled(viewModel.isPreparingConfirmation)
       }

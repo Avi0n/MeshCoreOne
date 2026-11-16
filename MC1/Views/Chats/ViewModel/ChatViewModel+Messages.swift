@@ -155,29 +155,27 @@ extension ChatViewModel {
   func sendMessage(text: String) async -> Bool {
     guard !text.isEmpty else { return true }
     guard let contact = currentContact,
-          let messageService else {
+          let queue = chatSendQueueServiceProvider() else {
       sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
       return false
     }
 
     errorMessage = nil
 
-    let message: MessageDTO
     do {
-      message = try await messageService.createPendingMessage(text: text, to: contact)
-      appendMessageIfNew(message)
-      schedulePrefetchForMessage(message, isChannelMessage: false)
-      syncCoordinator?.notifyConversationsChanged()
+      let admission = try await queue.enqueueDirectMessage(text: text, to: contact) { message in
+        self.appendMessageIfNew(message)
+        self.schedulePrefetchForMessage(message, isChannelMessage: false)
+        self.syncCoordinator?.notifyConversationsChanged()
+      }
+      if case let .enqueueFailed(message, error) = admission {
+        await presentLocalEnqueueFailure(messageID: message.id, error: error)
+      }
+    } catch ChatSendQueueServiceError.notConnected {
+      sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+      return false
     } catch {
       errorMessage = error.userFacingMessage
-      return true
-    }
-
-    let envelope = DirectMessageEnvelope(messageID: message.id, contactID: contact.id)
-    do {
-      try await enqueueDM(envelope)
-    } catch {
-      await recordLocalEnqueueFailure(messageID: message.id, error: error)
     }
     return true
   }

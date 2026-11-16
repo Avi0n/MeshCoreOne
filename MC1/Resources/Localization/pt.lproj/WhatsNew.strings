@@ -64,3 +64,23 @@
 "whatsNew.moreChanges.title" = "Mais alterações";
 /* What's New v1.6 - More changes, description */
 "whatsNew.moreChanges.description" = "Toque em \"Ver todas as novas alterações\" abaixo para ver a lista completa de correções e outras funcionalidades.";
+
+/* What's New v1.7 - Direct messages, title */
+"whatsNew.directMessages.title" = "Mensagens diretas";
+/* What's New v1.7 - Direct messages, description */
+"whatsNew.directMessages.description" = "As mensagens diretas tentam agora pela rota 4 vezes e depois por difusão 4 vezes. Altere Tentativas pela rota, Tentativas por difusão e Recorrer à difusão em Definições avançadas.";
+
+/* What's New v1.7 - Blocks and filters, title */
+"whatsNew.blocksAndFilters.title" = "Bloqueio e filtros";
+/* What's New v1.7 - Blocks and filters, description */
+"whatsNew.blocksAndFilters.description" = "Oculte as mensagens que correspondam a uma palavra ou frase. Uma regra pode pesquisar na mensagem, no nome do remetente ou em ambos, e pode escolher as conversas a que se aplica. As mensagens ocultas podem ser vistas em Recentemente bloqueadas, em Definições > Bloqueio e filtros.";
+
+/* What's New v1.7 - Node telemetry, title */
+"whatsNew.nodeTelemetry.title" = "Telemetria do nó";
+/* What's New v1.7 - Node telemetry, description */
+"whatsNew.nodeTelemetry.description" = "Definições > Sobre o dispositivo mostra a telemetria do nó a que está ligado.";
+
+/* What's New v1.7 - Live Activity, title */
+"whatsNew.liveActivity.title" = "Atividade em tempo real";
+/* What's New v1.7 - Live Activity, description */
+"whatsNew.liveActivity.description" = "As mensagens por ler estão mais em destaque e a taxa de pacotes por minuto é mais fácil de perceber.";

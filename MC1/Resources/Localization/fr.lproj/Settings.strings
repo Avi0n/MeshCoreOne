@@ -46,9 +46,6 @@
 /* Section header for device information */
 "device.header" = "Appareil";
 
-/* Status shown when device is connected */
-"device.connected" = "Connecté";
-
 /* Footer shown when no device is connected */
 "device.noDeviceConnected" = "Aucun appareil MeshCore connecté";
 
@@ -59,12 +56,6 @@
 
 /* Navigation title for device info screen */
 "deviceInfo.title" = "Infos de l'appareil";
-
-/* Section header for connection status */
-"deviceInfo.connection.header" = "Connexion";
-
-/* Label for connection status */
-"deviceInfo.connection.status" = "Statut";
 
 /* Section header for power and storage */
 "deviceInfo.powerStorage.header" = "Batterie et stockage";
@@ -110,6 +101,12 @@
 
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
+
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "Dernière mesure réussie";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "Télémétrie du nœud";
 
 /* Section header for identity information */
 /* Label for public key */
@@ -164,6 +161,9 @@
 
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Rechercher un appareil Bluetooth";
+
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "Nouveau jumelage...";
 
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
@@ -746,6 +746,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Cela supprimera tous les journaux de débogage stockés. Les fichiers de journaux exportés ne seront pas affectés.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Collecter les journaux de débogage";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Les journaux de débogage locaux ne sont pas collectés.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Désactiver la collecte";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Désactiver la collecte";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Cela supprimera tous les journaux de débogage stockés et arrêtera leur collecte. Les fichiers de journaux exportés ne seront pas affectés.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Échec de la création du fichier d'exportation";
 
@@ -753,6 +768,8 @@
 
 /* Navigation title for chat settings page */
 "chatSettings.title" = "Discussions";
+
+"blocksAndFilters.title" = "Blocage et filtres";
 
 // MARK: - Link Preview Settings Section
 
@@ -821,6 +838,8 @@
 
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "Compagnon";
+
+"notifications.discoveryCompanionsAndSensors" = "Compagnons & Capteurs";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Répéteur";
@@ -982,6 +1001,9 @@
 
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "Un mot de passe peut contenir jusqu'à 63 octets.";
+
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "Le nom du réseau ou le mot de passe contient un caractère que cette radio ne peut pas enregistrer.";
 
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Effacer les réglages WiFi";
@@ -1148,6 +1170,35 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Nombre d'accusés de réception envoyés par message direct. Utilisez 2 pour une meilleure confirmation de livraison sur les liaisons peu fiables.";
 
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Repli vers Flood";
+
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Tentatives sur le chemin";
+
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Tentatives Flood";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "Le chemin est effacé après les Tentatives sur le chemin. Les Tentatives Flood sont ensuite envoyées en routage flood. Un message à un contact sans chemin connu est envoyé en routage flood.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "Les Tentatives sur le chemin restent sur le chemin connu, et le chemin reste en place. Un message à un contact sans chemin connu est envoyé en routage flood.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Repli du chemin";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Repli vers Flood";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "La connexion, les commandes de répéteur et de salon qui attendent une réponse, et la télémétrie du contact utilisent le chemin connu. S'il n'y a aucune réponse, le chemin est effacé et une seule tentative est envoyée en routage flood.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "La connexion, les commandes et la télémétrie du contact restent sur le chemin connu. S'il n'y a aucune réponse, elles s'arrêtent et le chemin reste en place. L'option Routage Flood, sur l'écran de connexion, efface le chemin enregistré de ce nœud.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */
@@ -1162,11 +1213,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "Déconnecter";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "Arrêter la reconnexion";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "Annuler la connexion";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "Déconnecté";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "Connexion...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "Reconnexion...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "En attente de reconnexion";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Connecté";
@@ -1179,6 +1242,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "État de la connexion Bluetooth";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "Touchez deux fois pour connecter l'appareil";
@@ -1318,6 +1384,24 @@
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ Certains paramètres ont peut-être déjà été écrits sur l'appareil. Vérifiez la configuration de l'appareil.";
 
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "La connexion a été interrompue pendant l'importation de l'identité sur %@. La radio a peut-être changé d'identité. L'importation de la configuration n'a pas été terminée.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "Réessayer l'importation de l'identité";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "Ceci remplacera l'identité de la radio atteinte à %@ à l'aide de la clé privée du fichier sélectionné. L'importation de la configuration ne se poursuivra pas.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "Remplacer l'identité de la radio ?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "L'identité a été réappliquée. L'importation de la configuration n'a pas été terminée. Importez à nouveau le fichier pour appliquer ses autres paramètres.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "Sélectionnez un fichier de configuration contenant la clé privée pour réessayer l'importation de l'identité.";
+
 /* Import success */
 "configImport.importSuccess" = "Configuration importée avec succès";
 
@@ -1433,6 +1517,63 @@
 /* Footer explaining map preview privacy implications */
 /* AI-translated - please verify with native speakers. */
 "mapPreviews.footer" = "L'affichage des vignettes de carte télécharge les tuiles pour la coordonnée depuis un serveur tiers, ce qui peut révéler votre adresse IP.";
+
+// MARK: - Text Rules
+
+"textRules.rules" = "Règles de filtrage";
+"textRules.empty" = "Aucune règle de filtrage";
+"textRules.loading" = "Chargement des règles de filtrage…";
+"textRules.loadFailed" = "Impossible de charger les règles de filtrage. Les nouveaux messages ne les utiliseront pas jusqu’à ce qu’elles puissent être chargées.";
+"textRules.retryAccessibility" = "Réessayer de charger les règles de filtrage";
+"textRules.saveFailed" = "Impossible d’enregistrer les règles de filtrage. Réessayez.";
+"textRules.new.title" = "Nouvelle règle";
+"textRules.new.phrase" = "Mot ou texte";
+"textRules.new.lookIn" = "Chercher dans";
+"textRules.new.match" = "Correspondance";
+"textRules.new.containsMessageFooter" = "Ce texte correspond s’il figure n’importe où dans le message, y compris à l’intérieur d’un mot.";
+"textRules.new.wholeMessageFooter" = "Ce texte ne correspond que si le message entier est ce texte.";
+"textRules.new.containsSenderFooter" = "Ce texte correspond s’il figure n’importe où dans le nom de l’expéditeur, y compris à l’intérieur d’un mot. Les réactions de cet expéditeur sont aussi masquées.";
+"textRules.new.wholeNameFooter" = "Ce texte ne correspond que si le nom de l’expéditeur est exactement ce texte. Les réactions de cet expéditeur sont aussi masquées.";
+"textRules.new.containsMessageOrSenderFooter" = "Ce texte correspond s’il figure n’importe où dans le message ou n’importe où dans le nom de l’expéditeur, y compris à l’intérieur d’un mot. Les réactions d’un expéditeur dont le nom correspond sont aussi masquées.";
+"textRules.new.wholeMessageOrSenderFooter" = "Ce texte ne correspond que si le message entier ou le nom entier de l’expéditeur est ce texte. Les réactions d’un expéditeur dont le nom correspond sont aussi masquées.";
+"textRules.field.message" = "Message";
+"textRules.field.sender" = "Expéditeur";
+"textRules.field.messageOrSender" = "Message ou expéditeur";
+"textRules.match.contains" = "Contient";
+"textRules.match.wholeMessage" = "Message entier";
+"textRules.match.wholeName" = "Nom entier";
+"textRules.match.wholeField" = "Champ entier";
+"textRules.ruleSummary" = "%1$@ · %2$@";
+"textRules.types.header" = "Utiliser les règles pour";
+"textRules.types.footer" = "Si cette option est activée, toutes les discussions de ce type sont incluses, y compris celles que vous rejoignez plus tard.";
+"textRules.types.publicChannel" = "Public";
+"textRules.types.hashtagChannel" = "Canaux hashtag";
+"textRules.types.privateChannel" = "Canaux privés";
+"textRules.selection.all" = "Tous";
+"textRules.selection.none" = "Aucun";
+"textRules.selection.count" = "%d Messages";
+"textRules.selection.accessibilityChats" = "Messages pour %@";
+"textRules.selection.footer" = "Tous incluent les discussions que vous rejoignez plus tard.";
+"textRules.archive.title" = "Masqués récemment";
+"textRules.archive.empty" = "Aucun message masqué";
+"textRules.archive.footer" = "Les %d derniers messages masqués sont conservés sur cet appareil. Ils ne sont pas inclus dans les sauvegardes des données de l’app.";
+"textRules.archive.labelPrefix" = "%@ : ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
+"textRules.archive.rule" = "Règle";
+"textRules.archive.chat" = "Discussion";
+"textRules.archive.myNode" = "Mon nœud";
+"textRules.archive.time" = "Heure";
+"textRules.archive.unknownConversation" = "Conversation inconnue";
+"textRules.archive.unknownRadio" = "Radio inconnue";
+
+"radioCleanup.title" = "Nettoyage";
+"radioCleanup.running" = "Suppression des données de la radio";
+"radioCleanup.failed" = "Les messages masqués de cette radio peuvent encore se trouver sur cette installation.";
+"radioCleanup.completed" = "Données de la radio supprimées";
+"radioCleanup.retryAccessibility" = "Réessayer le nettoyage de la radio pour %@";
 
 // MARK: - Blocking Section
 
@@ -1978,7 +2119,7 @@
 "settings.backup.export.alert.title" = "Avis de sécurité";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Cette sauvegarde inclut les clés de chiffrement des canaux, l'historique des messages, votre liste de contacts ainsi que l'adresse réseau locale et le port du nœud WiFi. Conservez le fichier exporté en lieu sûr.";
+"settings.backup.export.alert.message" = "Cette sauvegarde inclut les clés de chiffrement des canaux, l'historique des messages, votre liste de contacts ainsi que l'adresse réseau locale et le port du nœud WiFi. La sauvegarde peut également inclure des coordonnées GPS relevées sur les radios. Conservez le fichier exporté en lieu sûr.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Exporter";

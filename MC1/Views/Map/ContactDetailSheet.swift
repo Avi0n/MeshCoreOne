@@ -38,6 +38,8 @@ struct ContactDetailSheet: View {
 
   @State private var activeSheet: ActiveSheet?
   @State private var pendingSheet: ActiveSheet?
+  @State private var pendingSheetContext: ContactDetailState.OperationContext?
+  @State private var hasPresentationOwnership = true
   @State private var isPinging = false
   @State private var pingResult: PingResult?
   @State private var showingDeleteAlert = false
@@ -123,7 +125,7 @@ struct ContactDetailSheet: View {
         // Actions section
         Section {
           switch contact.type {
-          case .repeater:
+          case .repeater, .sensor:
             Button {
               activeSheet = .telemetryAuth
             } label: {
@@ -138,7 +140,14 @@ struct ContactDetailSheet: View {
             }
             .radioDisabled(for: appState.connectionState)
 
-            pingButton
+            if contact.type == .sensor {
+              ContactSavedHistoryLink(
+                route: ContactRoute.TelemetryHistory(publicKey: contact.publicKey, radioID: contact.radioID, showNeighbors: false),
+                nodesRoute: nil
+              )
+            } else {
+              pingButton
+            }
 
           case .room:
             Button {
@@ -212,12 +221,16 @@ struct ContactDetailSheet: View {
       .sheet(item: $activeSheet, onDismiss: presentPendingSheet) { sheet in
         switch sheet {
         case .telemetryAuth:
+          let context = operationContext
           if let role = RemoteNodeRole(contactType: contact.type) {
             NodeAuthenticationSheet(
               contact: contact,
               role: role,
+              requireAdmin: false,
               customTitle: L10n.Map.Map.Detail.Action.telemetryAccessTitle
             ) { session in
+              guard accepts(context), session.isConnected else { return }
+              pendingSheetContext = context
               pendingSheet = .telemetryStatus(session)
               activeSheet = nil
             }
@@ -225,11 +238,18 @@ struct ContactDetailSheet: View {
           }
 
         case let .telemetryStatus(session):
-          RepeaterStatusView(session: session)
+          if session.isSensor {
+            NodeTelemetryView(contact: contact)
+          } else {
+            RepeaterStatusView(session: session)
+          }
 
         case .adminAuth:
+          let context = operationContext
           if let role = RemoteNodeRole(contactType: contact.type) {
             NodeAuthenticationSheet(contact: contact, role: role) { session in
+              guard accepts(context), !session.isSensor || (session.isConnected && session.isAdmin) else { return }
+              pendingSheetContext = context
               pendingSheet = .adminSettings(session)
               activeSheet = nil
             }
@@ -238,20 +258,28 @@ struct ContactDetailSheet: View {
 
         case let .adminSettings(session):
           NavigationStack {
-            RepeaterSettingsView(session: session)
-              .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                  Button(L10n.Map.Map.Common.done) {
-                    activeSheet = nil
-                  }
+            Group {
+              if session.isSensor {
+                SensorSettingsView(session: session)
+              } else {
+                RepeaterSettingsView(session: session)
+              }
+            }
+            .toolbar {
+              ToolbarItem(placement: .confirmationAction) {
+                Button(L10n.Map.Map.Common.done) {
+                  activeSheet = nil
                 }
               }
+            }
           }
           .presentationSizing(.page)
 
         case .roomJoin:
+          let context = operationContext
           if let role = RemoteNodeRole(contactType: contact.type) {
             NodeAuthenticationSheet(contact: contact, role: role) { session in
+              guard accepts(context) else { return }
               activeSheet = nil
               dismiss()
               appState.navigation.navigateToRoom(with: session)
@@ -270,6 +298,13 @@ struct ContactDetailSheet: View {
         }
       } message: {
         Text(L10n.Contacts.Contacts.Detail.Alert.Delete.message(contact.displayName))
+      }
+      .onAppear { hasPresentationOwnership = true }
+      .onDisappear { hasPresentationOwnership = false; pendingSheet = nil; pendingSheetContext = nil }
+      .onChange(of: appState.servicesVersion) { _, _ in
+        activeSheet = nil
+        pendingSheet = nil
+        pendingSheetContext = nil
       }
       .errorAlert($errorMessage)
     }
@@ -350,11 +385,18 @@ struct ContactDetailSheet: View {
 
   // MARK: - Sheet Management
 
+  private var operationContext: ContactDetailState.OperationContext {
+    .init(servicesVersion: appState.servicesVersion, radioID: appState.connectedDevice?.radioID)
+  }
+
+  private func accepts(_ context: ContactDetailState.OperationContext) -> Bool {
+    hasPresentationOwnership && !Task.isCancelled && operationContext == context
+  }
+
   private func presentPendingSheet() {
-    if let next = pendingSheet {
-      pendingSheet = nil
-      activeSheet = next
-    }
+    defer { pendingSheet = nil; pendingSheetContext = nil }
+    guard let context = pendingSheetContext, accepts(context), let next = pendingSheet else { return }
+    activeSheet = next
   }
 
   // MARK: - Computed Properties
@@ -367,6 +409,8 @@ struct ContactDetailSheet: View {
       L10n.Map.Map.NodeKind.repeater
     case .room:
       L10n.Map.Map.NodeKind.room
+    case .sensor:
+      L10n.Map.Map.NodeKind.sensor
     }
   }
 }

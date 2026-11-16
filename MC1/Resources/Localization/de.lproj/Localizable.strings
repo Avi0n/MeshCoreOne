@@ -142,6 +142,8 @@
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "Neuer Raum entdeckt";
 
+"notifications.discovery.sensor" = "Neuer Sensor entdeckt";
+
 // MARK: - Notification Actions
 
 /* Notification action button to reply to a message */
@@ -488,6 +490,14 @@
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "Ungültige Antwort vom Remote-Knoten";
+
+"error.remoteNode.sensorOutcomeUnknown" = "Die Änderung konnte nicht verifiziert werden. Lade die Einstellungen neu, bevor du erneut speicherst.";
+
+"error.remoteNode.sensorSettingRejected" = "Der Sensor hat diese Einstellung abgelehnt.";
+
+"error.remoteNode.invalidSensorSetting" = "Verwende einen Schlüssel und einen Wert, die nicht leer sind und keine Leerzeichen enthalten. Der vollständige Befehl muss in 160 UTF-8 Bytes passen.";
+
+"error.remoteNode.invalidPasswordLength" = "Passwörter dürfen höchstens %d UTF-8 Bytes lang sein.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation */
 "error.remoteNode.permissionDenied" = "Zugriff verweigert";

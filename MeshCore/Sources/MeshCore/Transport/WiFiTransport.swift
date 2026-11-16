@@ -102,6 +102,15 @@ public actor WiFiTransport: MeshTransport {
   /// Establishes a TCP connection to the configured host and port.
   /// Call `setConnectionInfo(host:port:)` first.
   public func connect() async throws {
+    try await performConnect(sessionBinding: nil)
+  }
+
+  public func connect(sessionBinding: SessionTransportBinding) async throws {
+    try await performConnect(sessionBinding: sessionBinding)
+  }
+
+  private func performConnect(sessionBinding: SessionTransportBinding?) async throws {
+    try sessionBinding?.checkActive()
     // Idempotent: skip if already connected. Without this guard,
     // session.start() orphans the TCP connection the caller already established.
     if _isConnected {
@@ -136,7 +145,7 @@ public actor WiFiTransport: MeshTransport {
     // Race connection against timeout
     try await withThrowingTaskGroup(of: Void.self) { group in
       group.addTask {
-        try await self.performConnection(newConnection)
+        try await self.performConnection(newConnection, sessionBinding: sessionBinding)
       }
 
       group.addTask {
@@ -162,7 +171,7 @@ public actor WiFiTransport: MeshTransport {
   }
 
   /// Performs the actual connection wait via continuation.
-  private func performConnection(_ newConnection: NWConnection) async throws {
+  private func performConnection(_ newConnection: NWConnection, sessionBinding: SessionTransportBinding?) async throws {
     try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
       self.connectContinuation = continuation
 
@@ -172,7 +181,18 @@ public actor WiFiTransport: MeshTransport {
         }
       }
 
-      newConnection.start(queue: .global(qos: .userInitiated))
+      do {
+        if let sessionBinding {
+          try sessionBinding.performIfActive {
+            newConnection.start(queue: .global(qos: .userInitiated))
+          }
+        } else {
+          newConnection.start(queue: .global(qos: .userInitiated))
+        }
+      } catch {
+        connectContinuation = nil
+        continuation.resume(throwing: error)
+      }
     }
   }
 
@@ -208,6 +228,19 @@ public actor WiFiTransport: MeshTransport {
   }
 
   public func send(_ data: Data) async throws {
+    try await performSend(data, sessionBinding: nil)
+  }
+
+  public func send(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
+    try await performSend(data, sessionBinding: sessionBinding)
+  }
+
+  public func sendWithoutResponse(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
+    try await performSend(data, sessionBinding: sessionBinding)
+  }
+
+  private func performSend(_ data: Data, sessionBinding: SessionTransportBinding?) async throws {
+    try sessionBinding?.checkActive()
     guard let connection, _isConnected else {
       throw WiFiTransportError.notConnected
     }
@@ -234,15 +267,38 @@ public actor WiFiTransport: MeshTransport {
               return
             }
 
-            connection.send(content: frame, completion: .contentProcessed { error in
-              if let cont = state.withLock({ let cont = $0; $0 = nil; return cont }) {
-                if let error {
-                  cont.resume(throwing: WiFiTransportError.sendFailed(error.localizedDescription))
-                } else {
-                  cont.resume()
+            let submit = {
+              connection.send(content: frame, completion: .contentProcessed { error in
+                sessionBinding?.endOperation()
+                if let cont = state.withLock({ let cont = $0; $0 = nil; return cont }) {
+                  if let error {
+                    cont.resume(throwing: WiFiTransportError.sendFailed(error.localizedDescription))
+                  } else {
+                    cont.resume()
+                  }
                 }
+              })
+            }
+            do {
+              if let sessionBinding {
+                try sessionBinding.beginOperation()
+                do {
+                  try sessionBinding.performIfActive(submit)
+                } catch {
+                  sessionBinding.endOperation()
+                  throw error
+                }
+              } else {
+                submit()
               }
-            })
+            } catch {
+              let waiting = state.withLock { stored -> CheckedContinuation<Void, Error>? in
+                let waiting = stored
+                stored = nil
+                return waiting
+              }
+              waiting?.resume(throwing: error)
+            }
           }
         } onCancel: {
           if let cont = state.withLock({ let cont = $0; $0 = nil; return cont }) {

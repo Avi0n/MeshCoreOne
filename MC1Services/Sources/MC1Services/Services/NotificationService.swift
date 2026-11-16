@@ -298,16 +298,30 @@ public final class NotificationService: NSObject {
 
   // MARK: - Sending Notifications
 
+  /// Space-joined MECP reading, then the sender prefix. Decode runs on `messageText`
+  /// alone so a channel body is never parsed as `Ada: MECP/…`.
+  nonisolated static func arrivalBody(
+    messageText: String,
+    senderName: String? = nil,
+    bundle: Bundle = .main
+  ) -> String {
+    let body = MECPCatalog.displayText(messageText, bundle: bundle)
+    if let senderName {
+      return "\(senderName): \(body)"
+    }
+    return body
+  }
+
   /// Posts a notification for a direct message.
   public func postDirectMessageNotification(
     from contactName: String,
     contactID: UUID,
     messageText: String,
     messageID: UUID,
-    isMuted: Bool = false
+    isMuted: Bool = false,
+    scope: ReceiveScope? = nil
   ) async {
-    guard !isMuted else { return }
-    guard isAuthorized else { return }
+    guard !isMuted, scope?.isCurrent != false, isAuthorized else { return }
 
     // Check granular preference (uses cached preferences)
     guard preferences.contactMessagesEnabled else { return }
@@ -318,7 +332,7 @@ public final class NotificationService: NSObject {
 
     let content = UNMutableNotificationContent()
     content.title = contactName
-    content.body = messageText
+    content.body = Self.arrivalBody(messageText: messageText)
     content.sound = preferences.soundEnabled ? .default : nil
     content.categoryIdentifier = NotificationCategory.directMessage.rawValue
     content.userInfo = [
@@ -361,11 +375,10 @@ public final class NotificationService: NSObject {
     messageText: String,
     messageID: UUID,
     notificationLevel: NotificationLevel,
-    hasSelfMention: Bool
+    hasSelfMention: Bool,
+    scope: ReceiveScope
   ) async {
-    guard notificationLevel != .muted else { return }
-    guard notificationLevel != .mentionsOnly || hasSelfMention else { return }
-    guard isAuthorized else { return }
+    guard scope.isCurrent, notificationLevel != .muted, notificationLevel != .mentionsOnly || hasSelfMention, isAuthorized else { return }
 
     // Check granular preference (uses cached preferences)
     guard preferences.channelMessagesEnabled else { return }
@@ -375,11 +388,7 @@ public final class NotificationService: NSObject {
 
     let content = UNMutableNotificationContent()
     content.title = channelName
-    if let sender = senderName {
-      content.body = "\(sender): \(messageText)"
-    } else {
-      content.body = messageText
-    }
+    content.body = Self.arrivalBody(messageText: messageText, senderName: senderName)
     content.sound = preferences.soundEnabled ? .default : nil
     content.categoryIdentifier = NotificationCategory.channelMessage.rawValue
     content.userInfo = [
@@ -421,10 +430,10 @@ public final class NotificationService: NSObject {
     senderName: String?,
     messageText: String,
     messageID: UUID,
-    notificationLevel: NotificationLevel
+    notificationLevel: NotificationLevel,
+    scope: ReceiveScope? = nil
   ) async {
-    guard notificationLevel != .muted else { return }
-    guard isAuthorized else { return }
+    guard notificationLevel != .muted, isAuthorized else { return }
 
     // Check granular preference
     guard preferences.roomMessagesEnabled else { return }
@@ -434,11 +443,7 @@ public final class NotificationService: NSObject {
 
     let content = UNMutableNotificationContent()
     content.title = roomName
-    if let sender = senderName {
-      content.body = "\(sender): \(messageText)"
-    } else {
-      content.body = messageText
-    }
+    content.body = Self.arrivalBody(messageText: messageText, senderName: senderName)
     content.sound = preferences.soundEnabled ? .default : nil
     content.categoryIdentifier = NotificationCategory.roomMessage.rawValue
     content.userInfo = [
@@ -459,6 +464,7 @@ public final class NotificationService: NSObject {
       trigger: nil
     )
 
+    guard scope?.isCurrent != false else { return }
     do {
       try await UNUserNotificationCenter.current().add(request)
     } catch {
@@ -487,7 +493,7 @@ public final class NotificationService: NSObject {
 
     // Per-type filtering
     switch contactType {
-    case .chat: guard preferences.discoveryContactEnabled else { return }
+    case .chat, .sensor: guard preferences.discoveryContactEnabled else { return }
     case .repeater: guard preferences.discoveryRepeaterEnabled else { return }
     case .room: guard preferences.discoveryRoomEnabled else { return }
     }
@@ -527,6 +533,7 @@ public final class NotificationService: NSObject {
     case .chat: "New Contact Discovered"
     case .repeater: "New Repeater Discovered"
     case .room: "New Room Discovered"
+    case .sensor: "New Sensor Discovered"
     }
   }
 
@@ -596,9 +603,7 @@ public final class NotificationService: NSObject {
     deviceName: String,
     batteryPercentage: Int
   ) async {
-    guard isAuthorized else { return }
-
-    guard preferences.lowBatteryEnabled else { return }
+    guard isAuthorized, preferences.lowBatteryEnabled else { return }
 
     let content = UNMutableNotificationContent()
     content.title = stringProvider?.lowBatteryTitle ?? "Low Battery"

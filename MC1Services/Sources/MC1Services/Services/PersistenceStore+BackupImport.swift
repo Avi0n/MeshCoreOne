@@ -83,12 +83,24 @@ public extension PersistenceStore {
     return Set(senders.map { blockedChannelSenderKey(radioID: $0.radioID, name: $0.name) })
   }
 
-  func existingNodeStatusSnapshotKeys() throws -> Set<String> {
+  func existingNodeStatusSnapshotIdentity() throws -> (keys: Set<String>, ids: Set<UUID>) {
     let descriptor = FetchDescriptor<NodeStatusSnapshot>()
     let snapshots = try modelContext.fetch(descriptor)
-    return Set(snapshots.map {
-      nodeStatusSnapshotKey(nodePublicKey: $0.nodePublicKey, timestamp: $0.timestamp)
-    })
+    var keys = Set<String>()
+    var ids = Set<UUID>()
+    keys.reserveCapacity(snapshots.count)
+    ids.reserveCapacity(snapshots.count)
+    for snapshot in snapshots {
+      keys.insert(
+        nodeStatusSnapshotKey(
+          nodePublicKey: snapshot.nodePublicKey,
+          timestamp: snapshot.timestamp,
+          selfRadioID: snapshot.selfRadioID
+        )
+      )
+      ids.insert(snapshot.id)
+    }
+    return (keys, ids)
   }
 
   func existingDiscoveredNodeKeys(radioIDs: Set<UUID>) throws -> Set<String> {
@@ -130,9 +142,7 @@ public extension PersistenceStore {
     modelContext.autosaveEnabled = false
 
     defer {
-      if !didCommit {
-        modelContext.rollback()
-      }
+      if !didCommit { modelContext.rollback() }
       modelContext.autosaveEnabled = originalAutosaveEnabled
     }
 
@@ -257,7 +267,7 @@ public extension PersistenceStore {
       existingKeys: messageLookups.keys,
       existingIDsByKey: messageLookups.idsByKey
     )
-    result.record(.messages, inserted: messageResult.inserted, skipped: messageResult.skipped, dropped: droppedChildren.messages)
+    result.record(.messages, inserted: messageResult.counts.inserted, merged: messageResult.counts.merged, skipped: messageResult.counts.skipped, dropped: droppedChildren.messages)
 
     let messageIDMapping = messageResult.messageIDByBackupID
     let allMessageIDs = Set(messages.map { messageIDMapping[$0.id] ?? $0.id })
@@ -319,10 +329,12 @@ public extension PersistenceStore {
     )
     result.record(.blockedChannelSenders, inserted: blockedResult.inserted, skipped: blockedResult.skipped)
 
-    let existingSnapshotKeys = try existingNodeStatusSnapshotKeys()
+    let snapshotIdentity = try existingNodeStatusSnapshotIdentity()
     let snapshotResult = try batchInsertNodeStatusSnapshots(
       envelope.nodeStatusSnapshots,
-      existingKeys: existingSnapshotKeys
+      existingKeys: snapshotIdentity.keys,
+      existingIDs: snapshotIdentity.ids,
+      radioIDMapping: radioMap.mapping
     )
     result.record(.nodeStatusSnapshots, inserted: snapshotResult.inserted, skipped: snapshotResult.skipped)
 
@@ -351,6 +363,7 @@ public extension PersistenceStore {
     #endif
     try modelContext.save()
     didCommit = true
+    publishRecentlyBlockedChange()
 
     #if DEBUG
       backupImportPostCommitHook?()

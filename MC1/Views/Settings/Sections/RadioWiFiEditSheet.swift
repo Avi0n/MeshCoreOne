@@ -14,6 +14,11 @@ struct RadioWiFiEditSheet: View {
             .autocorrectionDisabled()
             .disabled(viewModel.isBusy)
           passwordField
+          if viewModel.needsEditorRead, !viewModel.isBusy {
+            Button(L10n.Localizable.Common.tryAgain) {
+              Task { await viewModel.loadEditor() }
+            }
+          }
         } footer: {
           Text(viewModel.editorFooter)
         }
@@ -24,7 +29,7 @@ struct RadioWiFiEditSheet: View {
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button(L10n.Localizable.Common.cancel) {
-            viewModel.editorOpen = false
+            Task { await viewModel.closeEditor() }
           }
           .disabled(viewModel.isWriting)
         }
@@ -44,12 +49,12 @@ struct RadioWiFiEditSheet: View {
           viewModel.cancelWiFiWarning()
         }
         Button(viewModel.linkWarningConfirmTitle) {
-          Task { await viewModel.continuePastWiFiWarning() }
+          viewModel.confirmFromAlert(.wifiWarning)
         }
       } message: {
         Text(L10n.Settings.RadioWiFi.Alert.WifiTransport.message)
       }
-      .errorAlert($viewModel.errorMessage)
+      .errorAlert($viewModel.errorMessage, retryAction: { Task { await viewModel.loadEditor() } })
       .interactiveDismissDisabled(viewModel.isWriting)
     }
   }

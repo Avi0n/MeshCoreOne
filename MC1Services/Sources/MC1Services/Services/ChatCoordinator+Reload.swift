@@ -61,6 +61,7 @@ extension ChatCoordinator {
           update(messageID: id) { dto in
             dto = fetched
           }
+          if removeHiddenOutgoingReaction(messageID: id) { continue }
           refreshedIDs.append(id)
         } else if messagesByID[id] != nil {
           inconsistencyDetected = true

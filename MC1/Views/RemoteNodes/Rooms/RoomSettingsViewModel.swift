@@ -105,6 +105,7 @@ final class RoomSettingsViewModel {
         self.helper.handleCommonLateResponse(message.text)
       }
     }
+    guard !Task.isCancelled else { return }
 
     if !didScheduleDeviceInfo, !helper.deviceInfoLoaded, !helper.isLoadingDeviceInfo {
       didScheduleDeviceInfo = true

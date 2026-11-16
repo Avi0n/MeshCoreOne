@@ -4,7 +4,7 @@ import Foundation
 ///
 /// - `publicKeyHex` is the 32-byte public key as 64 hex characters (uppercase on emit,
 ///   case-insensitive on parse).
-/// - `type` is a ``ContactType`` raw value (1 chat, 2 repeater, 3 room).
+/// - `type` is a ``ContactType`` raw value (1 chat, 2 repeater, 3 room, 4 sensor).
 /// - `name` is the node's advertised name. `>` is the reserved terminator and is stripped
 ///   from the name on emit; the name may legitimately contain `:`.
 public enum ContactShareUtilities {

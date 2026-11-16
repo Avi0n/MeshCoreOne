@@ -60,6 +60,11 @@ import Foundation
 /// Implementations must conform to `Sendable`. Using an `actor` is the recommended way to
 /// manage internal state and ensure concurrency safety in a modern Swift environment.
 public protocol MeshTransport: Sendable {
+  func connect(sessionBinding: SessionTransportBinding) async throws
+  func disconnect(sessionBinding: SessionTransportBinding) async
+  func send(_ data: Data, sessionBinding: SessionTransportBinding) async throws
+  func sendWithoutResponse(_ data: Data, sessionBinding: SessionTransportBinding) async throws
+  func receivedData(sessionBinding: SessionTransportBinding) async -> AsyncStream<Data>
   /// Establishes a connection to the MeshCore device.
   ///
   /// This method initializes the underlying physical layer and prepares the transport
@@ -127,6 +132,30 @@ public protocol MeshTransport: Sendable {
 }
 
 public extension MeshTransport {
+  func connect(sessionBinding: SessionTransportBinding) async throws {
+    try sessionBinding.checkActive()
+    try await connect()
+  }
+
+  func disconnect(sessionBinding: SessionTransportBinding) async {
+    await disconnect()
+  }
+
+  func send(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
+    try sessionBinding.checkActive()
+    try await send(data)
+  }
+
+  func sendWithoutResponse(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
+    try sessionBinding.checkActive()
+    try await sendWithoutResponse(data)
+  }
+
+  func receivedData(sessionBinding: SessionTransportBinding) async -> AsyncStream<Data> {
+    guard sessionBinding.isActive else { return AsyncStream { $0.finish() } }
+    return await receivedData
+  }
+
   /// Routes unacknowledged writes to the acknowledged ``send(_:)`` path. Transports that
   /// support Write Commands override this; everyone else degrades safely to a Write Request.
   func sendWithoutResponse(_ data: Data) async throws {

@@ -59,6 +59,19 @@ extension MockDataProvider {
         unreadCount: meshHQUnreadCount,
         notificationLevel: .all,
         isPinned: false
+      ),
+      // Hashtag channel. The secret is the hash of the name, including the `#`.
+      ChannelDTO(
+        id: emergencyChannelID,
+        radioID: simulatorDeviceID,
+        index: emergencyChannelIndex,
+        name: "#emergency",
+        secret: ChannelService.hashSecret("#emergency"),
+        isEnabled: true,
+        lastMessageDate: now.addingTimeInterval(-10),
+        unreadCount: 2,
+        notificationLevel: .all,
+        isPinned: false
       )
     ]
   }

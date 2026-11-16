@@ -32,6 +32,8 @@
 /* Location: NodeAuthenticationSheet.swift - Repeater type value */
 "remoteNodes.auth.typeRepeater" = "Ретранслятор";
 
+"remoteNodes.auth.typeSensor" = "Датчик";
+
 /* Location: NodeAuthenticationSheet.swift - Authentication section header */
 "remoteNodes.auth.authentication" = "Аутентификация";
 
@@ -62,10 +64,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Flood-маршрутизация";
 "remoteNodes.auth.floodRetryStatus" = "Нет ответа по известному маршруту. Повторная попытка через flood-маршрутизацию.";
-"remoteNodes.auth.floodFooter" = "Flood-маршрутизация медленнее и расходует больше эфирного времени сети. Используйте её, когда известный маршрут не работает в вашем текущем местоположении. После входа новый маршрут будет определён автоматически.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "Этот вход удаляет сохранённый маршрут и идёт через flood-маршрутизацию. Flood-маршрутизация медленнее и расходует больше эфирного времени сети. Новый маршрут будет определён, только если вход завершится успешно.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Используйте известный маршрут к этому узлу или переключитесь на flood-маршрутизацию, чтобы сеть нашла путь.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "Сохранённый маршрут удалён. Вход идёт через flood-маршрутизацию. Новый маршрут будет определён, только если вход завершится успешно.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "Если ответа нет, маршрут удаляется, и вход делает одну попытку через flood-маршрутизацию.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "Если ответа нет, вход прекращается, а маршрут не удаляется.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<неизвестно>";
@@ -83,6 +93,26 @@
 
 /* Location: RepeaterSettingsView.swift - Navigation title */
 "remoteNodes.settings.title" = "Настройки ретранслятора";
+
+"remoteNodes.sensor.adminRequired" = "Управление датчиком требует доступа администратора.";
+
+"remoteNodes.sensor.saved" = "Настройка проверена.";
+
+"remoteNodes.sensor.rebootSent" = "Запрос на перезагрузку отправлен. Датчик не подтвердил перезапуск. Войди в датчик снова, прежде чем отправлять ещё команды.";
+
+"remoteNodes.sensor.rebootConfirmation" = "Отправить запрос на перезагрузку этому датчику?";
+
+"remoteNodes.sensor.runtimeOnly" = "Изменения действуют на работающий датчик. Сохранение после перезагрузки зависит от его прошивки.";
+
+"remoteNodes.sensor.value" = "Значение";
+
+"remoteNodes.sensor.save" = "Сохранить";
+
+"remoteNodes.sensor.reload" = "Обновить";
+
+"remoteNodes.sensor.empty" = "У этого датчика нет настроек.";
+
+"remoteNodes.sensor.title" = "Управление датчиком";
 
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Готово";

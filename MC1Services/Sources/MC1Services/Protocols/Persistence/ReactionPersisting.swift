@@ -2,6 +2,11 @@ import Foundation
 
 /// Store operations for message reactions and their summary cache.
 public protocol ReactionPersisting: Actor {
+  func admitDirectMessageReaction(
+    _ reaction: ReactionDTO,
+    contact: ContactDTO,
+    scope: ReceiveScope
+  ) async throws -> ReactionAdmission?
   /// Fetch reactions for a message, ordered by most recent first
   func fetchReactions(for messageID: UUID, limit: Int) async throws -> [ReactionDTO]
 
@@ -28,5 +33,15 @@ extension ReactionPersisting {
   /// Fetch reactions with default limit of 100
   func fetchReactions(for messageID: UUID) async throws -> [ReactionDTO] {
     try await fetchReactions(for: messageID, limit: ReactionParser.summaryRowLimit)
+  }
+}
+
+public extension ReactionPersisting {
+  func admitDirectMessageReaction(
+    _ reaction: ReactionDTO,
+    contact: ContactDTO,
+    scope: ReceiveScope
+  ) async throws -> ReactionAdmission? {
+    nil
   }
 }

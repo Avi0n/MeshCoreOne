@@ -8,18 +8,26 @@ import Testing
 @MainActor
 struct ConnectionStatusLifecycleTests {
   private func makeAppState(clock: TestClock? = nil) throws -> AppState {
-    try AppState(
+    let appState = try AppState(
       modelContainer: PersistenceStore.createContainer(inMemory: true),
       isPlaceholder: true,
       injectedConnectionUI: ConnectionUIState(clock: clock)
     )
+    appState.connectionManager.testForceNeverPaired = true
+    return appState
   }
 
   private func wireConnection(_ appState: AppState) async throws -> ServiceContainer {
+    let radioID = UUID()
     let services = try await ServiceContainer.forTesting(
-      session: MeshCoreSession(transport: MockTransport())
+      session: MeshCoreSession(transport: MockTransport()), radioID: radioID
     )
-    appState.connectionManager.setTestState(connectionState: .connected, services: services)
+    let device = DeviceDTO(from: Device(
+      radioID: radioID, publicKey: Data(repeating: 1, count: ProtocolLimits.publicKeySize), nodeName: "Fixture"
+    ))
+    appState.connectionManager.setTestState(
+      connectionState: .connected, services: services, session: services.session, connectedDevice: device
+    )
     await appState.wireServicesIfConnected()
     return services
   }
@@ -147,7 +155,7 @@ struct ConnectionStatusLifecycleTests {
     clock.advance(by: .milliseconds(500))
     try await waitUntil("message label should reveal") { appState.connectionUI.showMessageSyncPill }
     #expect(appState.statusPillState == .syncingMessages)
-    appState.connectionManager.onResyncFailed?()
+    try appState.connectionManager.onResyncFailed?(#require(appState.connectionManager.currentConnection))
     #expect(!appState.connectionUI.showMessageSyncPill)
     #expect(appState.statusPillState == .failed(message: L10n.Localizable.StatusPill.syncFailed))
     appState.connectionUI.hideSyncFailedPill()
@@ -205,8 +213,7 @@ struct ConnectionStatusLifecycleTests {
     await services.syncCoordinator.beginResyncActivity()
     services.syncCoordinator.setState(.syncing(progress: SyncProgress(phase: .messages, current: 0, total: 0)))
     try await waitUntil("message label timer should park") { clock.sleeperCount == 1 }
-    appState.connectionManager.setTestState(connectionState: .disconnected, services: .some(nil))
-    await appState.wireServicesIfConnected()
+    await appState.disconnect()
     await services.syncCoordinator.endResyncActivity(succeeded: true)
     await services.syncCoordinator.beginResyncActivity()
     services.syncCoordinator.setState(.syncing(progress: SyncProgress(phase: .messages, current: 0, total: 0)))
@@ -263,9 +270,9 @@ struct ConnectionStatusLifecycleTests {
     func startAutoFetch(radioID: UUID) async {}
     func pauseAutoFetch() async {}
     func resumeAutoFetch() async {}
-    func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {}
-    func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {}
-    func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {}
+    func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?) async -> Void) {}
+    func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {}
+    func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ReceiveScope) async -> Void) {}
     func setCLIMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {}
   }
 }

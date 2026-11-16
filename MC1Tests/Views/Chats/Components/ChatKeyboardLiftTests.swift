@@ -24,7 +24,9 @@ struct ChatKeyboardLiftTests {
         Color.clear
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .chatBottomChrome(canvas: Color(.systemBackground)) {
-            Color.gray.frame(height: HostedLayout.composerHeight)
+            Color.gray
+              .frame(height: HostedLayout.composerHeight)
+              .background { LiftBarMarker() }
           }
           .navigationTitle("Keyboard bounds")
           .navigationBarTitleDisplayMode(.inline)
@@ -97,6 +99,83 @@ struct ChatKeyboardLiftTests {
     })
     let tracker = try #require(trackingLimit.firstItem as? UIView)
     #expect(tracker.superview === container)
+  }
+
+  @Test
+  @MainActor
+  func `composer clears the home indicator when the window inset arrives after attachment`() async throws {
+    let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+      .first { $0.activationState == .foregroundActive && $0.keyWindow != nil })
+    let previousKeyWindow = scene.keyWindow
+    let controller = UIHostingController(rootView: NativeChromeBoundsHost())
+    controller.traitOverrides.horizontalSizeClass = .compact
+    controller.traitOverrides.verticalSizeClass = .regular
+    let window = AdjustableSafeAreaWindow(windowScene: scene)
+    window.bottomInset = 0
+    window.frame = CGRect(origin: .zero, size: HostedLayout.compactSize)
+    window.rootViewController = controller
+    controller.view.frame = window.bounds
+    window.makeKeyAndVisible()
+    defer {
+      window.rootViewController = nil
+      window.isHidden = true
+      window.windowScene = nil
+      previousKeyWindow?.makeKey()
+    }
+
+    let early = try await waitForBar(in: window)
+    #expect(abs(window.bounds.maxY - early.maxY) <= HostedLayout.tolerance)
+    window.bottomInset = homeIndicator
+    let late = try await waitForBarGap(controller: controller, expected: homeIndicator)
+    #expect(abs((window.bounds.maxY - late.maxY) - homeIndicator) <= HostedLayout.tolerance)
+  }
+
+  @MainActor
+  private func waitForBar(in window: UIWindow) async throws -> CGRect {
+    let deadline = Date(timeIntervalSinceNow: HostedLayout.startupTimeout)
+    while Date() < deadline {
+      window.layoutIfNeeded()
+      if let bar = findBar(in: window), bar.height > 1 { return bar }
+      try await Task.sleep(for: .seconds(HostedLayout.runLoopSlice))
+    }
+    return try #require(findBar(in: window), "Composer marker did not mount")
+  }
+
+  @MainActor
+  private func waitForBarGap(controller: UIViewController, expected: CGFloat) async throws -> CGRect {
+    let window = try #require(controller.view.window)
+    let deadline = Date(timeIntervalSinceNow: HostedLayout.startupTimeout)
+    var latest = CGRect.zero
+    while Date() < deadline {
+      // `AdjustableSafeAreaWindow`'s inset override does not mark the hierarchy dirty, so layout has to be requested explicitly.
+      markNeedsLayout(controller.view)
+      controller.view.layoutIfNeeded()
+      if let bar = findBar(in: window), bar.height > 1 {
+        latest = bar
+        if abs((window.bounds.maxY - bar.maxY) - expected) <= HostedLayout.tolerance {
+          return bar
+        }
+      }
+      try await Task.sleep(for: .seconds(HostedLayout.runLoopSlice))
+    }
+    return latest
+  }
+
+  @MainActor
+  private func markNeedsLayout(_ view: UIView) {
+    view.setNeedsLayout()
+    view.subviews.forEach(markNeedsLayout)
+  }
+
+  @MainActor
+  private func findBar(in view: UIView) -> CGRect? {
+    if view.accessibilityIdentifier == LiftBarMarker.identifier {
+      return view.convert(view.bounds, to: nil)
+    }
+    for child in view.subviews {
+      if let frame = findBar(in: child) { return frame }
+    }
+    return nil
   }
 
   @Test
@@ -273,5 +352,30 @@ struct ChatKeyboardLiftTests {
       isInteractivePopActive: true
     )
     #expect(resolved == 302)
+  }
+}
+
+private struct LiftBarMarker: UIViewRepresentable {
+  static let identifier = "lift.bar"
+
+  func makeUIView(context: Context) -> UIView {
+    let view = UIView()
+    view.isUserInteractionEnabled = false
+    view.backgroundColor = .clear
+    view.accessibilityIdentifier = Self.identifier
+    return view
+  }
+
+  func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+@MainActor
+private final class AdjustableSafeAreaWindow: UIWindow {
+  var bottomInset: CGFloat?
+  override var safeAreaInsets: UIEdgeInsets {
+    guard let bottomInset else { return super.safeAreaInsets }
+    var insets = super.safeAreaInsets
+    insets.bottom = bottomInset
+    return insets
   }
 }

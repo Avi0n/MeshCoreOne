@@ -174,6 +174,16 @@ extension ChatMessageBakeState {
       isMapPreviewReady = MapSnapshotStore.shared.isResolved(request)
     }
 
+    let translation: MessageTranslationChrome? = if message.isOutgoing || !envInputs.translationOffersEnabled {
+      nil
+    } else {
+      MessageTranslationChrome.resolved(
+        detected: detectedLanguages[message.id],
+        phase: translationPhases[message.id],
+        preferredLanguageCode: envInputs.preferredLanguageCode,
+        text: message.text
+      )
+    }
     let senderResolution = senderResolutionFor(message, senderTables: senderTables)
     let incomingAvatar: IncomingAvatarIdentity? = if flags.isClusterEnd {
       IncomingAvatarIdentity.resolve(
@@ -212,13 +222,7 @@ extension ChatMessageBakeState {
       showNewMessagesDivider: message.id == newMessagesDividerMessageID,
       showDayDivider: flags.showDayDivider,
       incomingAvatar: incomingAvatar,
-      translation: message.isOutgoing || !envInputs.translationOffersEnabled
-        ? nil
-        : MessageTranslationChrome.resolved(
-          detected: detectedLanguages[message.id],
-          phase: translationPhases[message.id],
-          preferredLanguageCode: envInputs.preferredLanguageCode
-        )
+      translation: translation
     )
   }
 

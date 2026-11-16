@@ -33,12 +33,19 @@ extension CLIToolViewModel {
   }
 
   /// Sends an unmapped local line via Radio CLI and prints the UTF-8 reply.
-  func runRadioCLI(_ raw: String) async {
-    guard let settingsService else { return notConnected() }
+  func runRadioCLI(_ raw: String, intent: RadioCLIIntent?) async {
+    guard let intent else { return notConnected() }
+    guard isCurrent(intent), let settingsService else { return }
     do {
-      let reply = try await settingsService.runCliCommand(raw)
+      let reply = try await settingsService.runCliCommand(raw, expectedContextID: intent.contextID)
+      guard isCurrent(intent) else { return }
       output(reply)
-    } catch { renderError(error) }
+    } catch is CancellationError {
+      return
+    } catch {
+      guard isCurrent(intent) else { return }
+      renderError(error)
+    }
   }
 
   /// Renders a parser error as a usage or error output line.

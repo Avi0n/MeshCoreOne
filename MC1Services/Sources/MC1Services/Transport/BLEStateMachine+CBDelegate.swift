@@ -5,23 +5,8 @@ import os
 
 // MARK: - Delegate Handler
 
-/// Bridges CoreBluetooth delegate callbacks to the actor.
-///
-/// This class is necessary because actors cannot directly conform to
-/// Objective-C delegate protocols. All callbacks dispatch to the actor.
-///
-/// ## Callback ordering (C11)
-/// Control callbacks (didConnect, didDiscoverServices, etc.) are forwarded via
-/// unstructured `Task {}`, which does not guarantee FIFO ordering on the actor.
-/// This is safe because each handler validates the expected phase before proceeding.
-/// An out-of-order callback (e.g., didDiscoverServices arriving before didConnect
-/// has been processed) will fail the phase guard and be ignored. The timeout
-/// mechanism will then retry the operation.
-///
-/// For data reception (`didUpdateValueFor`), data is yielded directly to an AsyncStream
-/// continuation rather than spawning Tasks. This preserves the ordering guaranteed by
-/// the serial CBCentralManager queue, avoiding the race conditions that occur when
-/// multiple unstructured Tasks compete for actor access with priority-based scheduling.
+/// Validates native callback origins before forwarding control events to the actor.
+/// Receive values yield under the ingress lock on the serial central queue to preserve order.
 final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, @unchecked Sendable {
   weak var stateMachine: BLEStateMachine?
 
@@ -29,35 +14,85 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
 
   /// Lock-protected continuation for yielding received data directly.
   /// Using OSAllocatedUnfairLock ensures thread-safe access from the CBCentralManager queue.
-  private let dataContinuationLock = OSAllocatedUnfairLock<AsyncStream<Data>.Continuation?>(initialState: nil)
-
-  /// FIFO of sequence numbers for `.withResponse` writes issued but not yet
-  /// acknowledged. CoreBluetooth delivers exactly one `didWriteValueFor` per
-  /// write request, in issue order, on the serial queue, so popping the head
-  /// tags each callback with the sequence of the write that produced it.
-  /// Tagging at write time (not delivery time) lets a callback that arrives
-  /// after its write already timed out be recognized as the old write instead
-  /// of being mistaken for the current one.
-  private let issuedWriteSequencesLock = OSAllocatedUnfairLock<[UInt64]>(initialState: [])
-
-  /// Records a write's sequence as issued. The actor calls this immediately
-  /// before `writeValue` so the callback can never outrun the record.
-  func recordIssuedWriteSequence(_ sequence: UInt64) {
-    issuedWriteSequencesLock.withLock { $0.append(sequence) }
+  private struct Ingress: Sendable {
+    let continuation: AsyncStream<Data>.Continuation
+    let peripheral: ObjectIdentifier
+    let characteristic: ObjectIdentifier
+    var diagnostics: BLEIngressDiagnostics
   }
 
-  /// Drops all recorded write sequences. Called when pending writes are
-  /// cancelled (disconnect, auto-reconnect teardown), where the outstanding
-  /// callbacks either never arrive or no longer have a continuation; a stale
-  /// entry left behind would mis-tag the next connection's first callback.
+  private let dataContinuationLock = OSAllocatedUnfairLock<Ingress?>(initialState: nil)
+  private static let ingressReportInterval = 64
+
+  private struct IssuedWrite: Sendable {
+    let sequence: UInt64
+    let peripheral: ObjectIdentifier
+    let characteristic: ObjectIdentifier
+  }
+
+  /// Validate native origin before consuming the issued-write order.
+  private let issuedWriteSequencesLock = OSAllocatedUnfairLock<[IssuedWrite]>(initialState: [])
+
+  func recordIssuedWriteSequence(_ sequence: UInt64, peripheral: CBPeripheral, characteristic: CBCharacteristic) {
+    let write = IssuedWrite(
+      sequence: sequence, peripheral: ObjectIdentifier(peripheral), characteristic: ObjectIdentifier(characteristic)
+    )
+    issuedWriteSequencesLock.withLock { $0.append(write) }
+  }
+
   func clearIssuedWriteSequences() {
     issuedWriteSequencesLock.withLock { $0.removeAll() }
   }
 
-  /// Sets the data continuation for direct yielding from delegate callbacks.
-  /// Call this when transitioning to connected state.
-  func setDataContinuation(_ continuation: AsyncStream<Data>.Continuation?) {
-    dataContinuationLock.withLock { $0 = continuation }
+  var ingressDiagnostics: BLEIngressDiagnostics? {
+    dataContinuationLock.withLock { $0?.diagnostics }
+  }
+
+  func setDataContinuation(
+    _ continuation: AsyncStream<Data>.Continuation,
+    peripheral: CBPeripheral,
+    characteristic: CBCharacteristic,
+    instanceID: String,
+    generation: UInt64,
+    streamSequence: UInt64,
+    binding: String?
+  ) {
+    let ingress = Ingress(
+      continuation: continuation,
+      peripheral: ObjectIdentifier(peripheral),
+      characteristic: ObjectIdentifier(characteristic),
+      diagnostics: BLEIngressDiagnostics(
+        deviceID: peripheral.identifier, instanceID: instanceID, connectionGeneration: generation,
+        streamSequence: streamSequence, binding: binding
+      )
+    )
+    let previous = dataContinuationLock.withLock { current in
+      defer { current = ingress }
+      return current?.diagnostics
+    }
+    reportFinishedIngress(previous)
+    logger.info("[BLE] Ingress installed \(ingress.diagnostics.context)")
+  }
+
+  func clearDataContinuation() {
+    let previous = dataContinuationLock.withLock { current in
+      defer { current = nil }
+      return current?.diagnostics
+    }
+    reportFinishedIngress(previous)
+  }
+
+  private func reportFinishedIngress(_ diagnostics: BLEIngressDiagnostics?) {
+    guard let diagnostics else { return }
+    logger.info("[BLE] Ingress finished \(diagnostics.context) accepted=\(diagnostics.acceptedFrames) dropped=\(diagnostics.droppedFrames) rejected=\(diagnostics.rejectedFrames) terminated=\(diagnostics.terminatedFrames)")
+  }
+
+  private func generation(for peripheral: CBPeripheral) -> UInt64? {
+    let origin = ObjectIdentifier(peripheral)
+    return dataContinuationLock.withLock { ingress in
+      guard ingress?.peripheral == origin else { return nil }
+      return ingress?.diagnostics.connectionGeneration
+    }
   }
 
   // MARK: - CBCentralManagerDelegate
@@ -68,13 +103,17 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
   }
 
   func centralManager(_ central: CBCentralManager, willRestoreState dict: [String: Any]) {
-    guard let sm = stateMachine else { return }
     // Extract peripheral synchronously before crossing actor boundary
     guard let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral],
           let peripheral = peripherals.first else {
       return
     }
-    Task { await sm.handleWillRestoreState(peripheral) }
+    _ = restoreState(from: peripheral)
+  }
+
+  func restoreState(from peripheral: CBPeripheral) -> Task<Void, Never>? {
+    guard let sm = stateMachine else { return nil }
+    return Task { await sm.handleWillRestoreState(peripheral) }
   }
 
   func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
@@ -137,29 +176,81 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
       logger.debug("[BLE] didUpdateValueFor: empty data from \(peripheral.identifier.uuidString.prefix(8)), char: \(characteristic.uuid.uuidString.prefix(8))")
       return
     }
-    _ = dataContinuationLock.withLock { $0?.yield(data) }
+    let origin = ObjectIdentifier(peripheral)
+    let characteristicOrigin = ObjectIdentifier(characteristic)
+    let report = dataContinuationLock.withLock { current -> String? in
+      guard var ingress = current else { return nil }
+      defer { current = ingress }
+      guard ingress.peripheral == origin, ingress.characteristic == characteristicOrigin else {
+        ingress.diagnostics.rejectedFrames += 1
+        let rejected = ingress.diagnostics.rejectedFrames
+        guard rejected == 1 || rejected.isMultiple(of: Self.ingressReportInterval) else { return nil }
+        return "[BLE] Ingress rejected origin \(ingress.diagnostics.context) rejected=\(rejected)"
+      }
+      switch ingress.continuation.yield(data) {
+      case .enqueued:
+        ingress.diagnostics.acceptedFrames += 1
+        return nil
+      case .dropped:
+        ingress.diagnostics.droppedFrames += 1
+        let dropped = ingress.diagnostics.droppedFrames
+        guard dropped == 1 || dropped.isMultiple(of: Self.ingressReportInterval) else { return nil }
+        return "[BLE] Ingress dropped frame \(ingress.diagnostics.context) reason=buffer-full dropped=\(dropped)"
+      case .terminated:
+        ingress.diagnostics.terminatedFrames += 1
+        let terminated = ingress.diagnostics.terminatedFrames
+        guard terminated == 1 || terminated.isMultiple(of: Self.ingressReportInterval) else { return nil }
+        return "[BLE] Ingress terminated frame \(ingress.diagnostics.context) reason=stream-terminated terminated=\(terminated)"
+      @unknown default:
+        return nil
+      }
+    }
+    if let report { logger.warning(report) }
   }
 
   func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
-    guard let sm = stateMachine else { return }
-    Task { await sm.handleDidReadRSSI(RSSI: RSSI, error: error) }
+    _ = readRSSI(from: peripheral, RSSI: RSSI, error: error)
+  }
+
+  func readRSSI(from peripheral: CBPeripheral, RSSI: NSNumber, error: Error?) -> Task<Void, Never>? {
+    guard let sm = stateMachine, let generation = generation(for: peripheral) else { return nil }
+    return Task { await sm.handleDidReadRSSI(peripheral, RSSI: RSSI, error: error, generation: generation) }
   }
 
   func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
     guard let sm = stateMachine else { return }
-    // Pop the oldest unacknowledged write's sequence (callbacks arrive in
-    // issue order on this serial queue) so the callback is tagged with the
-    // write that produced it, not whichever write is current by delivery time.
-    let seq = issuedWriteSequencesLock.withLock { $0.isEmpty ? nil : $0.removeFirst() }
-    guard let seq else {
-      logger.debug("[BLE] didWriteValueFor with no recorded write, ignoring")
+    let origin = ObjectIdentifier(peripheral)
+    let characteristicOrigin = ObjectIdentifier(characteristic)
+    let (sequence, rejectedOrigin) = issuedWriteSequencesLock.withLock { writes -> (UInt64?, Bool) in
+      guard let first = writes.first else { return (nil, false) }
+      guard first.peripheral == origin, first.characteristic == characteristicOrigin else { return (nil, true) }
+      return (writes.removeFirst().sequence, false)
+    }
+    guard let seq = sequence else {
+      if rejectedOrigin {
+        logger.warning("[BLE] ACK rejected origin \(ingressDiagnostics?.context ?? "stream=none") reason=originMismatch")
+      } else {
+        logger.debug("[BLE] didWriteValueFor with no recorded write, ignoring")
+      }
       return
     }
     Task { await sm.handleDidWriteValue(peripheral, characteristic: characteristic, error: error, writeSequence: seq) }
   }
 
   func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
-    guard let sm = stateMachine else { return }
-    Task { await sm.handlePeripheralReadyForWriteWithoutResponse() }
+    _ = readyForWrite(from: peripheral)
+  }
+
+  func readyForWrite(from peripheral: CBPeripheral) -> Task<Void, Never>? {
+    guard let sm = stateMachine else { return nil }
+    let generation = generation(for: peripheral)
+    return Task {
+      if let generation {
+        await sm.handlePeripheralReadyForWriteWithoutResponse(peripheral, generation: generation)
+      }
+      #if DEBUG
+        await sm.noteWriteReadinessHandled(peripheral.identifier)
+      #endif
+    }
   }
 }

@@ -9,7 +9,7 @@ import Testing
 @Suite("ConnectionManager Reconnect Abandonment Tests")
 @MainActor
 struct ConnectionManagerReconnectAbandonmentTests {
-  // MARK: - handleReconnectionFailure
+  // MARK: - Recovery failure policy
 
   @Test
   func `reconnection failure preserves a live link and keeps the watchdog armed`() async throws {
@@ -26,13 +26,13 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionIntent: .wantsConnection()
     )
 
-    await env.manager.handleReconnectionFailure()
+    await env.manager.finishSeededBLERecovery()
 
     #expect(await env.transport.disconnectInvocations == 0)
     #expect(env.manager.connectionState == .disconnected)
     #expect(env.manager.isReconnectionWatchdogRunning)
     #expect(env.manager.consecutiveRebuildFailures == 1)
-    #expect(env.manager.activeReconnectDeviceID == nil)
+    #expect(env.manager.reconnectionCoordinator.reconnectingDeviceID == nil)
   }
 
   @Test
@@ -47,7 +47,7 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionIntent: .wantsConnection()
     )
 
-    await env.manager.handleReconnectionFailure()
+    await env.manager.finishSeededBLERecovery()
 
     #expect(await env.transport.disconnectInvocations == 1)
     #expect(env.manager.connectionState == .disconnected)
@@ -68,7 +68,7 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionIntent: .userDisconnected
     )
 
-    await env.manager.handleReconnectionFailure()
+    await env.manager.finishSeededBLERecovery()
 
     #expect(await env.transport.disconnectInvocations == 1)
     #expect(!env.manager.isReconnectionWatchdogRunning)
@@ -95,11 +95,11 @@ struct ConnectionManagerReconnectAbandonmentTests {
 
     let budget = ConnectionManager.maxRebuildFailuresPreservingLink
     for _ in 0..<budget {
-      await env.manager.handleReconnectionFailure()
+      await env.manager.finishSeededBLERecovery()
       #expect(await env.transport.disconnectInvocations == 0)
     }
 
-    await env.manager.handleReconnectionFailure()
+    await env.manager.finishSeededBLERecovery()
     #expect(await env.transport.disconnectInvocations == 1)
     #expect(env.manager.consecutiveRebuildFailures == budget + 1)
     #expect(env.manager.lastDisconnectDiagnostic?.contains("preserveBudgetExhausted") == true)
@@ -121,77 +121,10 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionIntent: .wantsConnection()
     )
 
-    await env.manager.handleReconnectionFailure()
+    await env.manager.finishSeededBLERecovery()
 
     #expect(await env.transport.disconnectInvocations == 0)
     #expect(env.manager.isReconnectionWatchdogRunning)
-  }
-
-  @Test
-  func `switchDevice success path refills preserve budget via named reset site`() async throws {
-    let env = try ConnectionManager.createForPairingTesting()
-    defer { env.cleanup() }
-
-    await env.stateMachine.setStubbedIsConnected(true)
-    env.manager.setTestState(
-      connectionState: .connecting,
-      currentTransportType: .bluetooth,
-      connectionIntent: .wantsConnection()
-    )
-
-    let budget = ConnectionManager.maxRebuildFailuresPreservingLink
-    for _ in 0...budget {
-      await env.manager.handleReconnectionFailure()
-    }
-    #expect(await env.transport.disconnectInvocations == 1)
-    #expect(env.manager.consecutiveRebuildFailures == budget + 1)
-
-    // Semantics of the helper used by switchDevice after promoteToReady.
-    env.manager.resetPreserveBudgetAfterDeviceSwitch()
-    #expect(env.manager.consecutiveRebuildFailures == 0)
-
-    await env.manager.handleReconnectionFailure()
-    #expect(await env.transport.disconnectInvocations == 1)
-  }
-
-  @Test
-  func `resetPreserveBudgetAfterDeviceSwitch has exactly one production call site in switchDevice`() throws {
-    // Removing the sole production call fails this test. Walk production sources
-    // and require exactly one non-definition invocation of the reset helper
-    // (the switchDevice success path after promoteToReady).
-    let testsDir = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-    let sourcesRoot = testsDir
-      .deletingLastPathComponent() // MC1ServicesTests
-      .deletingLastPathComponent() // Tests
-      .appendingPathComponent("Sources/MC1Services", isDirectory: true)
-
-    let callPattern = "resetPreserveBudgetAfterDeviceSwitch()"
-    let definitionPattern = "func resetPreserveBudgetAfterDeviceSwitch()"
-    var callSites: [(relativePath: String, line: String)] = []
-
-    let enumerator = FileManager.default.enumerator(
-      at: sourcesRoot,
-      includingPropertiesForKeys: [.isRegularFileKey],
-      options: [.skipsHiddenFiles]
-    )
-    while let item = enumerator?.nextObject() as? URL {
-      guard item.pathExtension == "swift" else { continue }
-      let text = try String(contentsOf: item, encoding: .utf8)
-      let relative = item.path.replacingOccurrences(of: sourcesRoot.path + "/", with: "")
-      for line in text.split(separator: "\n", omittingEmptySubsequences: false) {
-        let trimmed = line.trimmingCharacters(in: .whitespaces)
-        guard trimmed.contains(callPattern) else { continue }
-        if trimmed.contains(definitionPattern) { continue }
-        // Skip doc comments that mention the symbol.
-        if trimmed.hasPrefix("//") || trimmed.hasPrefix("///") { continue }
-        callSites.append((relative, String(trimmed)))
-      }
-    }
-
-    #expect(callSites.count == 1, "Expected one production call site, found \(callSites)")
-    let site = try #require(callSites.first)
-    #expect(site.relativePath.hasSuffix("Connection/ConnectionManager+Lifecycle.swift"))
-    #expect(site.line.contains(callPattern))
   }
 
   @Test
@@ -229,7 +162,7 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionState: .connecting,
       connectionIntent: .wantsConnection()
     )
-    await env.manager.handleReconnectionFailure()
+    await env.manager.finishSeededBLERecovery()
 
     #expect(env.manager.isReconnectionWatchdogRunning)
     #expect(env.manager.reconnectionWatchdogGeneration > armedGeneration)
@@ -248,7 +181,7 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionIntent: .userDisconnected
     )
 
-    await env.manager.handleReconnectionFailure()
+    await env.manager.finishSeededBLERecovery()
 
     #expect(env.manager.consecutiveRebuildFailures == 0)
   }
@@ -267,7 +200,7 @@ struct ConnectionManagerReconnectAbandonmentTests {
 
     let budget = ConnectionManager.maxRebuildFailuresPreservingLink
     for _ in 0...budget {
-      await env.manager.handleReconnectionFailure()
+      await env.manager.finishSeededBLERecovery()
     }
     #expect(await env.transport.disconnectInvocations == 1)
 
@@ -276,7 +209,7 @@ struct ConnectionManagerReconnectAbandonmentTests {
     #expect(env.manager.consecutiveRebuildFailures == 0)
 
     // Further failure still preserves.
-    await env.manager.handleReconnectionFailure()
+    await env.manager.finishSeededBLERecovery()
     #expect(await env.transport.disconnectInvocations == 1)
   }
 
@@ -297,14 +230,14 @@ struct ConnectionManagerReconnectAbandonmentTests {
     #expect(env.manager.isReconnectionWatchdogRunning)
 
     env.manager.setTestState(connectionState: .connecting)
-    await env.manager.handleReconnectionFailure()
+    await env.manager.finishSeededBLERecovery()
 
     // Preserve must not cancel+restart (generation would advance via stop).
     #expect(env.manager.reconnectionWatchdogGeneration == firstGeneration)
     #expect(env.manager.isReconnectionWatchdogRunning)
   }
 
-  // MARK: - notifyConnectionLost
+  // MARK: - Source loss policy
 
   @Test
   func `connection-lost notification while wanting connection arms the watchdog`() async throws {
@@ -316,7 +249,7 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionIntent: .wantsConnection()
     )
 
-    await manager.notifyConnectionLost()
+    await manager.acceptSeededBLELoss()
 
     #expect(manager.isReconnectionWatchdogRunning)
   }
@@ -331,7 +264,7 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionIntent: .userDisconnected
     )
 
-    await manager.notifyConnectionLost()
+    await manager.acceptSeededBLELoss()
 
     #expect(!manager.isReconnectionWatchdogRunning)
   }
@@ -346,7 +279,11 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionIntent: .wantsConnection()
     )
 
-    await manager.notifyConnectionLost()
+    manager.desiredRequest = ConnectionRequest(
+      targets: [.wifi(host: "radio.test", port: 5123)], origin: .recovery,
+      forceFullSync: false, forceReconnect: false, continuing: nil
+    )
+    await manager.acceptSeededBLELoss()
 
     #expect(!manager.isReconnectionWatchdogRunning)
   }
@@ -361,7 +298,13 @@ struct ConnectionManagerReconnectAbandonmentTests {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
     let deviceID = UUID()
+    env.accessorySetupKit.setPairedAccessories([ASAccessory(bluetoothIdentifier: deviceID, displayName: "Radio")])
+    try await env.accessorySetupKit.activateSession()
+    await env.transport.setConnectError(BLEError.deviceNotFound)
 
+    let request = env.manager.seedBLERecoveryRequest(deviceID: deviceID)
+    request.handedOff = true
+    _ = env.manager.reconnectionCoordinator.begin(deviceID: deviceID, requestID: request.id)
     env.manager.reconnectionCoordinator.restartTimeout(deviceID: deviceID)
     env.manager.setTestState(
       connectionState: .disconnected,
@@ -369,14 +312,14 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionIntent: .wantsConnection()
     )
 
-    // The mock pairing registry has no paired accessories, so the fresh attempt
-    // fails fast with the real "device not found" error instead of hanging - proof
-    // the call reached a genuine connect attempt rather than deferring.
-    await #expect(throws: ConnectionError.self) {
+    // The valid paired target reaches the transport, which rejects the fresh dial.
+    // This distinguishes a new attempt from joining the abandoned OS cycle.
+    await #expect(throws: ConnectionRequestFailure.self) {
       try await env.manager.connect(to: deviceID, forceReconnect: true)
     }
 
-    #expect(await env.transport.disconnectInvocations == 1)
+    #expect(await env.transport.connectInvocations.count == 1)
+    #expect(await env.transport.disconnectInvocations == 2)
     #expect(env.manager.reconnectionCoordinator.reconnectingDeviceID == nil)
     #expect(env.manager.connectionState == .disconnected)
   }
@@ -388,7 +331,13 @@ struct ConnectionManagerReconnectAbandonmentTests {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
     let deviceID = UUID()
+    env.accessorySetupKit.setPairedAccessories([ASAccessory(bluetoothIdentifier: deviceID, displayName: "Radio")])
+    try await env.accessorySetupKit.activateSession()
+    await env.transport.setConnectError(BLEError.deviceNotFound)
 
+    let request = env.manager.seedBLERecoveryRequest(deviceID: deviceID)
+    request.handedOff = true
+    _ = env.manager.reconnectionCoordinator.begin(deviceID: deviceID, requestID: request.id)
     env.manager.reconnectionCoordinator.restartTimeout(deviceID: deviceID)
     env.manager.setTestState(
       connectionState: .connecting,
@@ -410,7 +359,13 @@ struct ConnectionManagerReconnectAbandonmentTests {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
     let deviceID = UUID()
+    env.accessorySetupKit.setPairedAccessories([ASAccessory(bluetoothIdentifier: deviceID, displayName: "Radio")])
+    try await env.accessorySetupKit.activateSession()
+    await env.transport.setConnectError(BLEError.deviceNotFound)
 
+    let request = env.manager.seedBLERecoveryRequest(deviceID: deviceID)
+    request.handedOff = true
+    _ = env.manager.reconnectionCoordinator.begin(deviceID: deviceID, requestID: request.id)
     env.manager.reconnectionCoordinator.restartTimeout(deviceID: deviceID)
     env.manager.setTestState(
       connectionState: .disconnected,
@@ -426,26 +381,33 @@ struct ConnectionManagerReconnectAbandonmentTests {
   }
 
   @Test
-  func `forceReconnect connect while a session rebuild is in flight for the device defers instead of breaking glass`() async throws {
-    // A live session rebuild is progress, not a stuck wait: tearing down the
-    // transport under it would destroy a reconnect that is about to succeed.
-    let env = try ConnectionManager.createForPairingTesting()
-    defer { env.cleanup() }
-    let deviceID = UUID()
-
-    env.manager.reconnectionCoordinator.restartTimeout(deviceID: deviceID)
-    env.manager.setTestState(
-      connectionState: .disconnected,
-      currentTransportType: .bluetooth,
-      connectionIntent: .wantsConnection(),
-      sessionRebuildDeviceID: deviceID
-    )
-
-    try await env.manager.connect(to: deviceID, forceReconnect: true)
-
-    #expect(await env.transport.disconnectInvocations == 0)
-    #expect(env.manager.reconnectionCoordinator.reconnectingDeviceID == deviceID)
-    #expect(env.manager.connectionState == .disconnected)
+  func `forceReconnect during an actual rebuild joins the cycle even after UI abandonment`() async throws {
+    let harness = try ConnectionManagerRadioTestHarness()
+    do {
+      _ = try await harness.connect(.bluetooth)
+      await harness.ble.holdReplies(for: .appStart)
+      await harness.ble.simulateAutoReconnecting(deviceID: harness.deviceID)
+      try await waitUntil("loss should claim recovery") { harness.manager.reconnectionCoordinator.reconnectingDeviceID == harness.deviceID }
+      await harness.ble.simulateReconnected()
+      try await waitUntil("a real rebuild should hold the handshake") {
+        guard let cycle = harness.manager.reconnectionCoordinator.currentCycle else { return false }
+        return harness.manager.reconnectionCoordinator.isRebuilding(cycle)
+      }
+      harness.manager.setTestState(connectionState: .disconnected)
+      let owner = harness.manager.connectionRequestID
+      let result = try await harness.manager.connect(to: harness.deviceID, forceReconnect: true)
+      guard case let .handoff(requestID) = result else {
+        Issue.record("forced connect should join the live rebuild")
+        await harness.close()
+        return
+      }
+      #expect(requestID == owner)
+      #expect(await harness.ble.connectCount == 1)
+      await harness.ble.releaseReplies(for: .appStart)
+      try await waitUntil("the joined rebuild should become ready") { harness.manager.connectionState == .ready }
+      _ = try await harness.manager.session?.getTime()
+      await harness.close()
+    } catch { await harness.close(); throw error }
   }
 
   @Test
@@ -456,7 +418,12 @@ struct ConnectionManagerReconnectAbandonmentTests {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
     let deviceID = UUID()
+    env.accessorySetupKit.setPairedAccessories([ASAccessory(bluetoothIdentifier: deviceID, displayName: "Radio")])
+    try await env.accessorySetupKit.activateSession()
+    await env.transport.setConnectError(BLEError.deviceNotFound)
 
+    let request = env.manager.seedBLERecoveryRequest(deviceID: deviceID)
+    request.handedOff = true
     await env.stateMachine.setStubbedIsAutoReconnecting(true)
     await env.stateMachine.setStubbedConnectedDeviceID(deviceID)
     env.manager.setTestState(
@@ -465,11 +432,12 @@ struct ConnectionManagerReconnectAbandonmentTests {
       connectionIntent: .wantsConnection()
     )
 
-    await #expect(throws: ConnectionError.self) {
+    await #expect(throws: ConnectionRequestFailure.self) {
       try await env.manager.connect(to: deviceID, forceReconnect: true)
     }
 
-    #expect(await env.transport.disconnectInvocations == 1)
+    #expect(await env.transport.connectInvocations.count == 1)
+    #expect(await env.transport.disconnectInvocations == 2)
     #expect(env.manager.connectionState == .disconnected)
   }
 
@@ -477,72 +445,49 @@ struct ConnectionManagerReconnectAbandonmentTests {
 
   @Test
   func `overlapping health checks on a connected missing stack rebuild once`() async throws {
-    let env = try ConnectionManager.createForPairingTesting()
-    defer { env.cleanup() }
-    let deviceID = UUID()
-
-    await env.stateMachine.setStubbedIsConnected(true)
-    env.manager.testLastConnectedDeviceID = deviceID
-    env.manager.setTestState(
-      connectionState: .disconnected,
-      services: .some(nil),
-      session: .some(nil),
-      connectedDevice: .some(nil),
-      currentTransportType: .bluetooth,
-      connectionIntent: .wantsConnection()
-    )
-
-    var rebuildCount = 0
-    env.manager.rebuildSessionForHealthCheckOverride = { _ in
-      rebuildCount += 1
-      try await Task.sleep(for: .milliseconds(50))
-      throw ConnectionError.initializationFailed("test rebuild fail")
-    }
-
-    async let first: Void = env.manager.checkBLEConnectionHealth()
-    async let second: Void = env.manager.checkBLEConnectionHealth()
-    _ = await (first, second)
-
-    #expect(rebuildCount == 1)
-    // Failure path preserves the link under budget.
-    #expect(await env.transport.disconnectInvocations == 0)
+    let harness = try ConnectionManagerRadioTestHarness()
+    do {
+      await harness.ble.primePhysicalLink(deviceID: harness.deviceID)
+      await harness.ble.holdReplies(for: .appStart)
+      await harness.stateMachine.setStubbedIsConnected(true)
+      await harness.stateMachine.setStubbedConnectedDeviceID(harness.deviceID)
+      harness.manager.testLastConnectedDeviceID = harness.deviceID
+      harness.manager.setTestState(connectionIntent: .wantsConnection())
+      let first = Task { await harness.manager.checkBLEConnectionHealth() }
+      let second = Task { await harness.manager.checkBLEConnectionHealth() }
+      try await waitUntil("exactly one rebuild should submit the held handshake") {
+        await harness.ble.sentData.filter { $0.first == CommandCode.appStart.rawValue }.count == 1
+      }
+      await harness.ble.releaseReplies(for: .appStart)
+      await first.value
+      await second.value
+      #expect(harness.manager.connectionState == .ready)
+      #expect(await harness.ble.sentData.filter { $0.first == CommandCode.appStart.rawValue }.count == 1)
+      #expect(await harness.ble.connectCount == 0)
+      _ = try await harness.manager.session?.getTime()
+      await harness.close()
+    } catch { await harness.close(); throw error }
   }
 
   @Test
-  func `coordinator cycle claim blocks health rebuild during retry gap`() async throws {
-    let env = try ConnectionManager.createForPairingTesting()
-    defer { env.cleanup() }
-    let deviceID = UUID()
-
-    await env.stateMachine.setStubbedIsConnected(true)
-    env.manager.testLastConnectedDeviceID = deviceID
-    env.manager.setTestState(
-      connectionState: .disconnected,
-      services: .some(nil),
-      session: .some(nil),
-      connectedDevice: .some(nil),
-      currentTransportType: .bluetooth,
-      connectionIntent: .wantsConnection()
-    )
-
-    // Claim via the real entry path so reconnectingDeviceID is set the same way
-    // handleReconnectionComplete keeps it across first-fail → sleep.
-    await env.manager.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
-    #expect(env.manager.reconnectionCoordinator.reconnectingDeviceID == deviceID)
-
-    // After entry, state is .connecting; health path for connected transport needs
-    // BLE connected + missing stack. Keep the claim and flip UI to disconnected
-    // while SM stays connected so health would rebuild if unclaimed.
-    env.manager.setTestState(connectionState: .disconnected)
-
-    var rebuildCount = 0
-    env.manager.rebuildSessionForHealthCheckOverride = { _ in
-      rebuildCount += 1
-    }
-
-    await env.manager.checkBLEConnectionHealth()
-
-    #expect(env.manager.activeReconnectDeviceID == deviceID)
-    #expect(rebuildCount == 0)
+  func `coordinator cycle blocks health rebuild until the OS reconnect completes`() async throws {
+    let harness = try ConnectionManagerRadioTestHarness()
+    do {
+      _ = try await harness.connect(.bluetooth)
+      await harness.ble.simulateAutoReconnecting(deviceID: harness.deviceID)
+      try await waitUntil("source loss should retain its cycle") {
+        harness.manager.reconnectionCoordinator.reconnectingDeviceID == harness.deviceID && harness.manager.connectionTeardownCount == 0
+      }
+      harness.manager.setTestState(connectionState: .disconnected)
+      await harness.stateMachine.setStubbedIsConnected(true)
+      await harness.stateMachine.setStubbedConnectedDeviceID(harness.deviceID)
+      await harness.manager.checkBLEConnectionHealth()
+      #expect(harness.manager.reconnectionCoordinator.reconnectingDeviceID == harness.deviceID)
+      #expect(await harness.ble.sentData.filter { $0.first == CommandCode.appStart.rawValue }.count == 1)
+      await harness.ble.simulateReconnected()
+      try await waitUntil("the retained cycle should still rebuild") { harness.manager.connectionState == .ready }
+      _ = try await harness.manager.session?.getTime()
+      await harness.close()
+    } catch { await harness.close(); throw error }
   }
 }

@@ -35,8 +35,10 @@ public actor RoomServerService {
 
   private let session: any RemoteAccessSessionOps
   private let remoteNodeService: RemoteNodeService
-  private let dataStore: any PersistenceStoreProtocol
+  private let dataStore: PersistenceStore
+  private let textRulesPreference: @Sendable () async -> TextRulesPreference?
   private let radioID: UUID
+  private let receiveLifetime: ReceiveScope.Lifetime
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "RoomServer")
   private let auditLogger = CommandAuditLogger()
 
@@ -44,8 +46,10 @@ public actor RoomServerService {
   /// Set from SelfInfo when device connects.
   private var selfPublicKeyPrefix: Data?
 
-  /// Configuration for retry behavior (shared with MessageService)
-  private let config: MessageServiceConfig
+  private static let initialSendAttempts = 4
+  private static let fallbackSendAttempts = 1
+  private static let totalSendAttempts = initialSendAttempts + fallbackSendAttempts
+  private let plainTextSendGate: PlainTextSendGate?
 
   /// Multicast broadcaster for status-update and connection-recovery events.
   private nonisolated let eventBroadcaster = EventBroadcaster<RoomServerEvent>()
@@ -53,20 +57,27 @@ public actor RoomServerService {
   /// Tracks message IDs currently being retried to prevent concurrent retry attempts
   private var inFlightRetries: Set<UUID> = []
 
+  private static let wireTimestampStep: TimeInterval = 1
+  private var lastWireTimestampByRoom: [Data: TimeInterval] = [:]
+
   // MARK: - Initialization
 
   init(
     session: any RemoteAccessSessionOps,
     remoteNodeService: RemoteNodeService,
-    dataStore: any PersistenceStoreProtocol,
+    dataStore: PersistenceStore,
     radioID: UUID,
-    config: MessageServiceConfig = MessageServiceConfig()
+    plainTextSendGate: PlainTextSendGate? = nil,
+    textRulesPreference: @escaping @Sendable () async -> TextRulesPreference? = { nil },
+    receiveLifetime: ReceiveScope.Lifetime = .init()
   ) {
     self.session = session
     self.remoteNodeService = remoteNodeService
     self.dataStore = dataStore
     self.radioID = radioID
-    self.config = config
+    self.plainTextSendGate = plainTextSendGate
+    self.textRulesPreference = textRulesPreference
+    self.receiveLifetime = receiveLifetime
   }
 
   /// Set self public key prefix from SelfInfo.
@@ -182,6 +193,12 @@ public actor RoomServerService {
     try await remoteNodeService.removeSession(id: sessionID, publicKey: publicKey)
   }
 
+  /// Requests a fresh replay from this room's saved bookmark.
+  public func refreshMessages(for room: RemoteNodeSessionDTO) async throws {
+    guard room.radioID == radioID else { throw RoomServerError.notConnected }
+    try await remoteNodeService.refreshRoom(room)
+  }
+
   // MARK: - Message Posting
 
   /// Post a message to a room server.
@@ -194,13 +211,7 @@ public actor RoomServerService {
   ///   - text: The message text
   /// - Returns: The saved message DTO
   public func postMessage(sessionID: UUID, text: String) async throws -> RoomMessageDTO {
-    guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: sessionID) else {
-      throw RoomServerError.sessionNotFound
-    }
-
-    guard remoteSession.canPost else {
-      throw RoomServerError.permissionDenied
-    }
+    let remoteSession = try await postableRoomSession(id: sessionID)
 
     let timestamp = Date()
     let messageID = UUID()
@@ -215,7 +226,7 @@ public actor RoomServerService {
       timestamp: UInt32(timestamp.timeIntervalSince1970),
       isFromSelf: true,
       status: .pending,
-      maxRetryAttempts: config.maxAttempts
+      maxRetryAttempts: Self.totalSendAttempts
     )
 
     try await dataStore.saveRoomMessage(messageDTO)
@@ -227,65 +238,7 @@ public actor RoomServerService {
     Task { [weak self] in
       guard let self else { return }
 
-      // Send message with retry logic
-      // NOTE: sendMessageWithRetry requires full 32-byte public key for path reset
-      do {
-        let sentInfo = try await session.sendMessageWithRetry(
-          to: remoteSession.publicKey, // Full 32-byte key required
-          text: text,
-          timestamp: timestamp,
-          maxAttempts: config.maxAttempts,
-          floodAfter: config.floodAfter,
-          maxFloodAttempts: config.maxFloodAttempts
-        )
-
-        if let sentInfo {
-          // Success - update to delivered
-          let ackCodeUInt32 = sentInfo.expectedAck.ackCodeUInt32
-          // Handle database errors gracefully - don't lose send success state
-          do {
-            try await dataStore.updateRoomMessageStatus(
-              id: messageID,
-              status: .delivered,
-              ackCode: ackCodeUInt32,
-              roundTripTime: UInt32(sentInfo.suggestedTimeoutMs)
-            )
-          } catch {
-            logger.error("Failed to update message status after successful send: \(error)")
-          }
-          eventBroadcaster.yield(.statusUpdated(messageID: messageID, status: .delivered))
-        } else {
-          // All retries exhausted — radio transmitted but no ACK received.
-          // Mark as sent (not failed) since the message likely reached the room server.
-          do {
-            try await dataStore.updateRoomMessageStatus(
-              id: messageID,
-              status: .sent,
-              ackCode: nil,
-              roundTripTime: nil
-            )
-          } catch {
-            logger.error("Failed to update message status to sent: \(error)")
-          }
-          eventBroadcaster.yield(.statusUpdated(messageID: messageID, status: .sent))
-        }
-        // Update sort date only (no sync bookmark — avoids clock skew issues)
-        try? await dataStore.updateRoomActivity(sessionID)
-      } catch {
-        // Send failed with error — do not update activity
-        do {
-          try await dataStore.updateRoomMessageStatus(
-            id: messageID,
-            status: .failed,
-            ackCode: nil,
-            roundTripTime: nil
-          )
-        } catch let dbError {
-          logger.error("Failed to update message status after send error: \(dbError)")
-        }
-        eventBroadcaster.yield(.statusUpdated(messageID: messageID, status: .failed))
-        logger.warning("Room message send failed: \(error)")
-      }
+      await performRoomMessageSend(id: messageID, room: remoteSession)
     }
 
     // Return pending message immediately so UI can display it
@@ -313,9 +266,7 @@ public actor RoomServerService {
       throw RoomServerError.sendFailed("Message is not in failed state")
     }
 
-    guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: message.sessionID) else {
-      throw RoomServerError.sessionNotFound
-    }
+    let remoteSession = try await postableRoomSession(id: message.sessionID)
 
     // Update to pending/retrying
     let newRetryAttempt = message.retryAttempt + 1
@@ -323,52 +274,43 @@ public actor RoomServerService {
       id: id,
       status: .pending,
       retryAttempt: newRetryAttempt,
-      maxRetryAttempts: config.maxAttempts
+      maxRetryAttempts: Self.totalSendAttempts
     )
     eventBroadcaster.yield(.statusUpdated(messageID: id, status: .pending))
 
-    // Retry send with retry logic
-    // NOTE: sendMessageWithRetry requires full 32-byte public key for path reset
-    do {
-      let sentInfo = try await session.sendMessageWithRetry(
-        to: remoteSession.publicKey, // Full 32-byte key required
-        text: message.text,
-        timestamp: Date(),
-        maxAttempts: config.maxAttempts,
-        floodAfter: config.floodAfter,
-        maxFloodAttempts: config.maxFloodAttempts
-      )
+    await performRoomMessageSend(id: id, room: remoteSession)
 
-      if let sentInfo {
-        let ackCodeUInt32 = sentInfo.expectedAck.ackCodeUInt32
-        do {
-          try await dataStore.updateRoomMessageStatus(
-            id: id,
-            status: .delivered,
-            ackCode: ackCodeUInt32,
-            roundTripTime: UInt32(sentInfo.suggestedTimeoutMs)
-          )
-        } catch {
-          logger.error("Failed to update message status after successful retry: \(error)")
+    guard let updatedMessage = try await dataStore.fetchRoomMessage(id: id) else {
+      throw RoomServerError.sendFailed("Failed to fetch message after retry")
+    }
+    return updatedMessage
+  }
+
+  private func performRoomMessageSend(id: UUID, room: RemoteNodeSessionDTO) async {
+    do {
+      let sendLease = try await plainTextSendGate?.acquire()
+      defer {
+        if let sendLease {
+          await plainTextSendGate?.stopIssuing(sendLease)
         }
-        eventBroadcaster.yield(.statusUpdated(messageID: id, status: .delivered))
-      } else {
-        // All retries exhausted — radio transmitted but no ACK received.
-        // Mark as sent (not failed) since the message likely reached the room server.
-        do {
-          try await dataStore.updateRoomMessageStatus(
-            id: id,
-            status: .sent,
-            ackCode: nil,
-            roundTripTime: nil
-          )
-        } catch {
-          logger.error("Failed to update message status to sent: \(error)")
-        }
-        eventBroadcaster.yield(.statusUpdated(messageID: id, status: .sent))
       }
-      // Update sort date so room moves to top of conversation list
-      try? await dataStore.updateRoomActivity(message.sessionID)
+      let sentInfo = try await sendRoomMessage(id: id, roomPublicKey: room.publicKey)
+      let status: MessageStatus = sentInfo == nil ? .sent : .delivered
+
+      // The radio accepted the post even when every ACK wait expired.
+      // A status-write failure must not turn that acceptance into a failed send.
+      do {
+        try await dataStore.updateRoomMessageStatus(
+          id: id,
+          status: status,
+          ackCode: sentInfo?.expectedAck.ackCodeUInt32,
+          roundTripTime: sentInfo.map { UInt32($0.suggestedTimeoutMs) }
+        )
+      } catch {
+        logger.error("Failed to update room message status after send: \(error)")
+      }
+      eventBroadcaster.yield(.statusUpdated(messageID: id, status: status))
+      try? await dataStore.updateRoomActivity(room.id)
     } catch {
       do {
         try await dataStore.updateRoomMessageStatus(
@@ -378,16 +320,51 @@ public actor RoomServerService {
           roundTripTime: nil
         )
       } catch let dbError {
-        logger.error("Failed to update message status after retry error: \(dbError)")
+        logger.error("Failed to update room message status after send error: \(dbError)")
       }
       eventBroadcaster.yield(.statusUpdated(messageID: id, status: .failed))
-      logger.warning("Room message retry failed: \(error)")
+      logger.warning("Room message send failed: \(error)")
+    }
+  }
+
+  private func postableRoomSession(id: UUID) async throws -> RemoteNodeSessionDTO {
+    guard let room = try await dataStore.fetchRemoteNodeSession(id: id) else {
+      throw RoomServerError.sessionNotFound
+    }
+    guard room.canPost else { throw RoomServerError.permissionDenied }
+    return room
+  }
+
+  private func sendRoomMessage(id: UUID, roomPublicKey: Data) async throws -> MessageSentInfo? {
+    // The room treats equal timestamps as retries. Wait for the next wall-clock
+    // second to avoid sending a future timestamp.
+    let now = Date().timeIntervalSince1970
+    let second = now.rounded(.down)
+    if lastWireTimestampByRoom[roomPublicKey] == second {
+      try await Task.sleep(for: .seconds(second + Self.wireTimestampStep - now))
     }
 
-    guard let updatedMessage = try await dataStore.fetchRoomMessage(id: id) else {
-      throw RoomServerError.sendFailed("Failed to fetch message after retry")
+    guard let message = try await dataStore.fetchRoomMessage(id: id) else {
+      throw RoomServerError.sendFailed("Message not found")
     }
-    return updatedMessage
+    if let plainTextSendGate, await plainTextSendGate.isInvalidated {
+      throw CancellationError()
+    }
+    let room = try await postableRoomSession(id: message.sessionID)
+    let timestamp = Date().timeIntervalSince1970.rounded(.down)
+    if let previous = lastWireTimestampByRoom[room.publicKey], timestamp <= previous {
+      throw RoomServerError.sendFailed("Room timestamp did not advance")
+    }
+    lastWireTimestampByRoom[room.publicKey] = timestamp
+
+    return try await session.sendMessageWithRetry(
+      to: room.publicKey,
+      text: message.text,
+      timestamp: Date(timeIntervalSince1970: timestamp),
+      maxAttempts: Self.totalSendAttempts,
+      floodAfter: Self.initialSendAttempts,
+      maxFloodAttempts: Self.fallbackSendAttempts
+    )
   }
 
   // MARK: - Incoming Messages
@@ -414,69 +391,53 @@ public actor RoomServerService {
     authorPrefix: Data,
     text: String
   ) async throws -> RoomMessageDTO? {
-    guard let remoteSession = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
-      .first(where: { $0.publicKey.prefix(6) == senderPublicKeyPrefix && $0.isRoom }) else {
+    guard let scope = try await dataStore.captureReceiveScope(radioID: radioID, link: receiveLifetime) else {
       return nil
     }
-
-    // Receiving any message (even duplicate) proves session is active
-    if !remoteSession.isConnected {
-      let recovered = await (try? dataStore.markRoomSessionConnected(remoteSession.id)) ?? false
-      if recovered {
-        eventBroadcaster.yield(.connectionRecovered(sessionID: remoteSession.id))
-      }
-    }
-
-    // Generate deduplication key
-    let dedupKey = RoomMessage.generateDeduplicationKey(
+    return try await handleIncomingMessage(
+      senderPublicKeyPrefix: senderPublicKeyPrefix,
       timestamp: timestamp,
-      authorKeyPrefix: authorPrefix,
-      text: text
-    )
+      authorPrefix: authorPrefix,
+      text: text,
+      scope: scope
+    )?.message
+  }
 
-    // Check for duplicate using deduplication key
-    if try await dataStore.isDuplicateRoomMessage(
-      sessionID: remoteSession.id,
-      deduplicationKey: dedupKey
-    ) {
+  func handleIncomingMessage(
+    senderPublicKeyPrefix: Data,
+    timestamp: UInt32,
+    authorPrefix: Data,
+    text: String,
+    scope: ReceiveScope
+  ) async throws -> (message: RoomMessageDTO, room: RemoteNodeSessionDTO)? {
+    let arrivedAt = Date()
+    let preference = await textRulesPreference()
+    guard scope.isCurrent, scope.radioID == radioID,
+          let room = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
+            .first(where: { $0.publicKey.prefix(6) == senderPublicKeyPrefix && $0.isRoom }) else {
       return nil
     }
 
-    // Log room message received (metadata only, no content)
+    let post = RoomMessageDTO(
+      sessionID: room.id,
+      authorKeyPrefix: authorPrefix,
+      text: text,
+      timestamp: timestamp,
+      createdAt: arrivedAt,
+      isFromSelf: selfPublicKeyPrefix == authorPrefix
+    )
+    let result = try await dataStore.receiveRoomPost(post, in: room, scope: scope, preference: preference)
+    guard scope.isCurrent else { return nil }
+    if result.recovered {
+      eventBroadcaster.yield(.connectionRecovered(sessionID: room.id))
+    }
+    guard let message = result.message else { return nil }
     await auditLogger.logRoomMessageReceived(
       roomPublicKey: senderPublicKeyPrefix,
       authorPrefix: authorPrefix,
       messageLength: text.count
     )
-
-    // Defensive check: room servers shouldn't push our own messages back
-    let isFromSelf = selfPublicKeyPrefix?.prefix(4) == authorPrefix.prefix(4)
-    if isFromSelf {
-      logger.info("Received self message from room server (unexpected)")
-    }
-
-    let authorName = try await resolveAuthorName(keyPrefix: authorPrefix)
-
-    let messageDTO = RoomMessageDTO(
-      sessionID: remoteSession.id,
-      authorKeyPrefix: authorPrefix,
-      authorName: authorName,
-      text: text,
-      timestamp: timestamp,
-      isFromSelf: isFromSelf
-    )
-
-    try await dataStore.saveRoomMessage(messageDTO)
-
-    // Update sync bookmark and sort date
-    try await dataStore.updateRoomActivity(remoteSession.id, syncTimestamp: timestamp)
-
-    // Increment unread count if not from self
-    if !isFromSelf {
-      try await dataStore.incrementRoomUnreadCount(remoteSession.id)
-    }
-
-    return messageDTO
+    return (message, room)
   }
 
   // MARK: - Message Retrieval
@@ -520,12 +481,6 @@ public actor RoomServerService {
   }
 
   // MARK: - Private Helpers
-
-  private func resolveAuthorName(keyPrefix: Data) async throws -> String? {
-    // Try to find contact with matching public key prefix
-    // Returns nil if no matching contact found
-    try await dataStore.findContactNameByKeyPrefix(keyPrefix)
-  }
 
   /// Attempt to sync history, using advert path first, then falling back to path discovery.
   private func syncHistoryIfPossible(sessionID: UUID) async {

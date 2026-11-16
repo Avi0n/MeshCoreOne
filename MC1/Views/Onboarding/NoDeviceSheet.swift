@@ -28,6 +28,7 @@ struct NoDeviceSheet: View {
       VStack(spacing: OnboardingMetrics.mediumSpacing) {
         Button {
           dismissTrigger.toggle()
+          appState.cancelDeviceScanAttempt()
           appState.completeOnboarding()
           dismiss()
         } label: {

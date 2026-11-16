@@ -20,6 +20,13 @@ public final class Contact {
   @Attribute(originalName: "deviceID")
   public var radioID: UUID
 
+  var textRulesID: UUID?
+  var textRulesOverrideRawValue: String = TextRulesPreference.Override.inherit.rawValue
+
+  var textRulesOverride: TextRulesPreference.Override {
+    TextRulesPreference.Override(rawValue: textRulesOverrideRawValue) ?? .inherit
+  }
+
   /// The 32-byte public key of the contact
   public var publicKey: Data
 
@@ -117,6 +124,7 @@ public final class Contact {
   ) {
     self.id = id
     self.radioID = radioID
+    textRulesID = UUID()
     self.publicKey = publicKey
     self.name = name
     self.typeRawValue = typeRawValue
@@ -301,6 +309,8 @@ public extension Contact {
 public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, RepeaterResolvable {
   public let id: UUID
   public var radioID: UUID
+  public internal(set) var textRulesID: UUID?
+  public internal(set) var textRulesOverride: TextRulesPreference.Override = .inherit
   public let publicKey: Data
   public let name: String
   public let typeRawValue: UInt8
@@ -315,15 +325,15 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
   public let lastHeardTimestamp: UInt32?
   public let nickname: String?
   public let isBlocked: Bool
-  public let isMuted: Bool
-  public let isFavorite: Bool
-  public let isPinned: Bool
+  public private(set) var isMuted: Bool
+  public private(set) var isFavorite: Bool
+  public private(set) var isPinned: Bool
   public let lastMessageDate: Date?
   public let unreadCount: Int
   public let unreadMentionCount: Int
   public let ocvPreset: String?
   public let customOCVArrayString: String?
-  public let avatarImageData: Data?
+  public private(set) var avatarImageData: Data?
 
   /// A missing `isPinned` key decodes as `isFavorite`. An explicit false stays unpinned.
   private enum CodingKeys: String, CodingKey {
@@ -396,6 +406,8 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
   public init(from contact: Contact) {
     id = contact.id
     radioID = contact.radioID
+    textRulesID = contact.textRulesID
+    textRulesOverride = contact.textRulesOverride
     publicKey = contact.publicKey
     name = contact.name
     typeRawValue = contact.typeRawValue
@@ -549,66 +561,30 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
 
   /// Returns a copy with only `isMuted` changed.
   public func with(isMuted: Bool) -> ContactDTO {
-    ContactDTO(
-      id: id, radioID: radioID, publicKey: publicKey, name: name,
-      typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
-      outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
-      latitude: latitude, longitude: longitude, lastModified: lastModified,
-      lastHeardTimestamp: lastHeardTimestamp,
-      nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
-      isFavorite: isFavorite, isPinned: isPinned, lastMessageDate: lastMessageDate,
-      unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
-      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
-      avatarImageData: avatarImageData
-    )
+    var copy = self
+    copy.isMuted = isMuted
+    return copy
   }
 
   /// Returns a copy with only `isFavorite` changed.
   public func with(isFavorite: Bool) -> ContactDTO {
-    ContactDTO(
-      id: id, radioID: radioID, publicKey: publicKey, name: name,
-      typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
-      outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
-      latitude: latitude, longitude: longitude, lastModified: lastModified,
-      lastHeardTimestamp: lastHeardTimestamp,
-      nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
-      isFavorite: isFavorite, isPinned: isPinned, lastMessageDate: lastMessageDate,
-      unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
-      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
-      avatarImageData: avatarImageData
-    )
+    var copy = self
+    copy.isFavorite = isFavorite
+    return copy
   }
 
   /// Returns a copy with only `isPinned` changed.
   public func with(isPinned: Bool) -> ContactDTO {
-    ContactDTO(
-      id: id, radioID: radioID, publicKey: publicKey, name: name,
-      typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
-      outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
-      latitude: latitude, longitude: longitude, lastModified: lastModified,
-      lastHeardTimestamp: lastHeardTimestamp,
-      nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
-      isFavorite: isFavorite, isPinned: isPinned, lastMessageDate: lastMessageDate,
-      unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
-      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
-      avatarImageData: avatarImageData
-    )
+    var copy = self
+    copy.isPinned = isPinned
+    return copy
   }
 
   /// Returns a copy with only `avatarImageData` changed.
   public func with(avatarImageData: Data?) -> ContactDTO {
-    ContactDTO(
-      id: id, radioID: radioID, publicKey: publicKey, name: name,
-      typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
-      outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
-      latitude: latitude, longitude: longitude, lastModified: lastModified,
-      lastHeardTimestamp: lastHeardTimestamp,
-      nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
-      isFavorite: isFavorite, isPinned: isPinned, lastMessageDate: lastMessageDate,
-      unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
-      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
-      avatarImageData: avatarImageData
-    )
+    var copy = self
+    copy.avatarImageData = avatarImageData
+    return copy
   }
 
   /// The active OCV array for this contact (preset or custom)

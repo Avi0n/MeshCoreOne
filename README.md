@@ -18,12 +18,12 @@ Download from the App Store or sideload using unsigned IPA files under [Releases
 - Heard repeats tracking
 - Message reactions (emoji)
 - View Path Hops (list and map)
-- Link previews and inline images
+- Link/gif previews and inline images
 - Coordinate map previews
 - @Mentions
 - Per-conversation notification levels
 - Hashtag channel deep links
-- Blocking (contacts and channel sender names)
+- Filtering and blocking
 
 ### Contacts
 - Auto-discovery on the mesh
@@ -70,7 +70,6 @@ Download from the App Store or sideload using unsigned IPA files under [Releases
 ## Requirements
 
 -   **iOS/iPadOS 18.0+, or Apple Silicon Mac**
--   **Xcode 26.0+**
 -   **MeshCore-compatible hardware**
 
 ## Getting Started
@@ -81,7 +80,15 @@ Download from the App Store or sideload using unsigned IPA files under [Releases
 
 For more details, see the [Development Guide](docs/Development.md).
 
-  
+## Acknowledgements
+Thank you to the MeshCore dev team and all its contributors for contributing their time, money, and energy. This project would not exist without their hard work and dedication.
+- [MeshCore](https://github.com/meshcore-dev/meshcore)
+- [meshcore_py](https://github.com/meshcore-dev/meshcore_py)
+
+This project uses a fork of [swiftui-messaging-ui](https://github.com/FluidGroup/swiftui-messaging-ui) which has helped tremendously with the chat view experience.
+
+Maps use [MapLibre Native](https://maplibre.org/). Emoji data comes from [Emojibase](https://github.com/milesj/emojibase), through the [emojibase-bindings](https://github.com/matrix-org/emojibase-bindings) package. 
+
 ## License
 
 MeshCore One - GNU General Public License v3.0   

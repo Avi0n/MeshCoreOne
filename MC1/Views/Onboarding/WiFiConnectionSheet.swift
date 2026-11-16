@@ -154,18 +154,22 @@ struct WiFiConnectionSheet: View {
 
     Task {
       do {
-        try await appState.connectViaWiFi(
+        let result = try await appState.connectViaWiFi(
           host: WiFiAddressFields.normalizedHost(ipAddress),
           port: portNumber,
           forceFullSync: true
         )
-        await appState.wireServicesIfConnected()
+        guard case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else {
+          isConnecting = false
+          return
+        }
         dismiss()
         // Navigate directly to radio settings
         appState.onboarding.onboardingPath.append(.region)
       } catch {
-        errorMessage = error.userFacingMessage
         isConnecting = false
+        guard let failure = appState.currentConnectionFailure(error) else { return }
+        errorMessage = failure.userFacingMessage
       }
     }
   }

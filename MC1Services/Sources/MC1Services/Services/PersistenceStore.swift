@@ -65,6 +65,12 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     self.modelContainer = modelContainer
   }
 
+  var receivePartitions: [UUID: ReceiveScope.Lifetime] = [:]
+  var pendingEraseRadioIDs: Set<UUID>?
+
+  public static let recentlyBlockedRetentionLimit = 100
+  nonisolated let recentlyBlockedChanges = EventBroadcaster<Void>()
+
   var rxLogEntryCountsByDevice: [UUID: Int] = [:]
   var unsavedRxLogInsertCount = 0
   var rxLogFlushTask: Task<Void, Never>?
@@ -84,6 +90,9 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   }
 
   #if DEBUG
+    var pendingSendInsertHandler: (@Sendable () async throws -> Void)?
+    var pendingSendAttemptHandler: (@Sendable () async -> Void)?
+    var identityReconciliationFaultInjection: (@Sendable () throws -> Void)?
     /// Inserts since the last RxLog-initiated `modelContext.save()`. Does not
     /// count piggyback saves from other store APIs.
     var rxLogInitiatedSaveCount = 0
@@ -109,20 +118,29 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     /// they can assert post-commit behaviour of `importBackup`.
     var backupImportPostCommitHook: (@Sendable () -> Void)?
 
-    /// Test-only fault injection fired at the top of
-    /// `incrementPendingSendAttemptCount`. Tests use it to verify the
-    /// bump-failure park-and-requeue path in `ChatSendQueueService`'s drain
-    /// closures — a real SwiftData save failure here is otherwise hard to
-    /// provoke from a well-formed row.
-    var incrementPendingSendAttemptCountFaultInjection: (@Sendable () throws -> Void)?
+    var preparePendingSendAttemptFaultInjection: (@Sendable () throws -> Void)?
+    var pendingSendAttemptSaveFaultInjection: (@Sendable (UUID) throws -> Void)?
+    var pendingSendWireAttemptSaveFaultInjection: (@Sendable () async throws -> Void)?
+    var prepareChannelMessageResendSaveFaultInjection: (@Sendable () throws -> Void)?
 
     /// Test-only hook at the top of `fetchDevice(id:)`. The pairing query skips that id on throw.
     var fetchDeviceByIDFaultInjection: (@Sendable () throws -> Void)?
 
+    var beginRadioEraseFaultInjection: (@Sendable () throws -> Void)?
+    var completeRadioEraseFaultInjection: (@Sendable () throws -> Void)?
+
     /// Test-only hook at the top of `fetchContactIDs`. A throw leaves that fetch unfinished.
     var fetchContactIDsFaultInjection: (@Sendable () throws -> Void)?
 
+    var recordRecentlyBlockedFaultInjection: (@Sendable () throws -> Void)?
+
+    public func setRecordRecentlyBlockedFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      recordRecentlyBlockedFaultInjection = hook
+    }
+
     var updateContactLastMessageFaultInjection: (@Sendable () throws -> Void)?
+    var updateMessageStatusFaultInjection: (@Sendable (UUID, MessageStatus) throws -> Void)?
+    var savePendingAcknowledgementFaultInjection: (@Sendable () throws -> Void)?
 
     func setDeleteContactsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
       deleteContactsFaultInjection = hook
@@ -147,7 +165,9 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     DiscoveredNode.self,
     NodeStatusSnapshot.self,
     BlockedChannelSender.self,
-    PendingSend.self
+    PendingRadioErase.self,
+    PendingSend.self,
+    RecentlyBlockedMessage.self
   ])
 
   /// Creates a ModelContainer for the app.
@@ -174,6 +194,11 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   ///          Int8 flood sentinel. DTO still exposes UInt8 via truncatingIfNeeded.
   /// - v8→v9: Added Contact.isPinned (Bool, default false). Channel.isFavorite and
   ///          RemoteNodeSession.isFavorite renamed to isPinned via originalName (same column).
+  /// - v9→v10: Added local Text Rules identities, review entries, and pending radio erase targets.
+  ///          Added NodeStatusSnapshot.selfRadioID (UUID?, default nil). Existing rows
+  ///          stay remote history. Self telemetry rows store the Device's radioID.
+  /// - v10→v11: Added PendingSend.nextWireAttempt (UInt8, default 0). Existing rows
+  ///          migrate to 0 with no backfill from attemptCount, so one in-flight row can replay attempt 0.
   public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
     if !inMemory {
       let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -196,14 +221,8 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     // Perform a simple fetch to trigger modelContext initialization
     _ = try modelContext.fetchCount(FetchDescriptor<Device>())
 
-    // Both inner operations are idempotent under their own predicates:
-    // purgeOrphanPendingSends filters by absence of a matching
-    // Device.radioID and returns an empty row set once Device rows catch
-    // up; purgeLegacyAttemptCountRows filters by `attemptCount == nil`
-    // and returns empty after the first purge across the lifetime of
-    // the storage. Running both on every connect costs an empty fetch and
-    // self-heals the "erase device then re-pair" path — a process-level
-    // latch would suppress that recovery.
+    // Repeat both idempotent purges on each connection so removal and re-pairing
+    // can recover without requiring a process restart.
     let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore.warmUp")
     do {
       try purgeOrphanPendingSends()
@@ -253,7 +272,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     let isNew: Bool
     if let existingNode = existing.first {
       existingNode.name = frame.name
-      existingNode.typeRawValue = frame.type.rawValue
+      existingNode.typeRawValue = frame.typeRawValue
       existingNode.lastHeard = Date()
       existingNode.lastAdvertTimestamp = frame.lastAdvertTimestamp
       existingNode.latitude = frame.latitude
@@ -267,7 +286,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
         radioID: radioID,
         publicKey: frame.publicKey,
         name: frame.name,
-        typeRawValue: frame.type.rawValue,
+        typeRawValue: frame.typeRawValue,
         lastAdvertTimestamp: frame.lastAdvertTimestamp,
         latitude: frame.latitude,
         longitude: frame.longitude,

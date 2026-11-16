@@ -46,9 +46,6 @@
 /* Section header for device information */
 "device.header" = "Пристрій";
 
-/* Status shown when device is connected */
-"device.connected" = "Підключено";
-
 /* Footer shown when no device is connected */
 "device.noDeviceConnected" = "Пристрій MeshCore не підключено";
 
@@ -59,12 +56,6 @@
 
 /* Navigation title for device info screen */
 "deviceInfo.title" = "Інформація про пристрій";
-
-/* Section header for connection status */
-"deviceInfo.connection.header" = "Підключення";
-
-/* Label for connection status */
-"deviceInfo.connection.status" = "Статус";
 
 /* Section header for power and storage */
 "deviceInfo.powerStorage.header" = "Живлення та пам'ять";
@@ -110,6 +101,12 @@
 
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
+
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "Останній успішний показник";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "Телеметрія вузла";
 
 /* Section header for identity information */
 /* Label for public key */
@@ -164,6 +161,9 @@
 
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Пошук Bluetooth-пристроїв";
+
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "Спарування заново...";
 
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
@@ -746,6 +746,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "Це видалить усі збережені журнали налагодження. Експортовані файли журналів не будуть зачеплені.";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "Збирати журнали налагодження";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "Локальні журнали налагодження не збираються.";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "Вимкнути збір";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "Вимкнути збір";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "Це видалить усі збережені журнали налагодження та припинить їх збір. Експортовані файли журналів не будуть зачеплені.";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Не вдалося створити файл експорту";
 
@@ -753,6 +768,8 @@
 
 /* Navigation title for chat settings page */
 "chatSettings.title" = "Чати";
+
+"blocksAndFilters.title" = "Блокування та фільтри";
 
 // MARK: - Link Preview Settings Section
 
@@ -821,6 +838,8 @@
 
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "Компаньйон";
+
+"notifications.discoveryCompanionsAndSensors" = "Компаньйони і датчики";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Ретранслятор";
@@ -982,6 +1001,9 @@
 
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "Пароль може містити до 63 байт.";
+
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "Назва мережі або пароль містить символ, який це радіо не може зберегти.";
 
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "Очистити налаштування WiFi";
@@ -1148,6 +1170,35 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Кількість підтверджень, що надсилаються на кожне особисте повідомлення. Використовуйте 2 для кращого підтвердження доставки через ненадійні з'єднання.";
 
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "Запасна flood-маршрутизація";
+
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "Спроби за маршрутом";
+
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "Спроби flood-маршрутизації";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "Після «Спроби за маршрутом» маршрут видаляється. Після цього «Спроби flood-маршрутизації» надсилаються через flood-маршрутизацію. Повідомлення для контакту без відомого маршруту надсилається через flood-маршрутизацію.";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "«Спроби за маршрутом» залишаються на відомому маршруті, і маршрут залишається. Повідомлення для контакту без відомого маршруту надсилається через flood-маршрутизацію.";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "Запасний маршрут";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "Запасна flood-маршрутизація";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "Вхід, команди з очікуванням відповіді для ретранслятора та кімнати, а також телеметрія контакту використовують відомий маршрут. Якщо немає відповіді, маршрут видаляється, і вони роблять одну спробу через flood-маршрутизацію.";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "Вхід, команди та телеметрія контакту залишаються на відомому маршруті. Якщо немає відповіді, вони зупиняються, і маршрут залишається. Flood-маршрутизація на екрані входу видаляє збережений маршрут цього вузла.";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */
@@ -1162,11 +1213,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "Відключитися";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "Зупинити перепідключення";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "Скасувати підключення";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "Відключено";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "Підключення...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "Перепідключення...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "Очікування перепідключення";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "Підключено";
@@ -1179,6 +1242,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "Стан Bluetooth-підключення";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "Подвійний дотик для підключення пристрою";
@@ -1318,6 +1384,24 @@
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ Деякі налаштування, можливо, вже було записано на пристрій. Перевірте конфігурацію пристрою.";
 
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "З'єднання було перервано під час імпорту ідентифікації на %@. Ідентифікація радіо могла змінитися. Імпорт конфігурації не було завершено.";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "Повторити імпорт ідентифікації";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "Це замінить ідентифікацію радіо, доступного через %@, за допомогою закритого ключа з вибраного файлу. Імпорт конфігурації не буде продовжено.";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "Замінити ідентифікацію радіо?";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "Ідентифікацію застосовано повторно. Імпорт конфігурації не було завершено. Імпортуйте файл ще раз, щоб застосувати інші налаштування.";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "Виберіть файл конфігурації із закритим ключем, щоб повторити імпорт ідентифікації.";
+
 /* Import success */
 "configImport.importSuccess" = "Конфігурацію успішно імпортовано";
 
@@ -1433,6 +1517,63 @@
 /* Footer explaining map preview privacy implications */
 /* AI-translated - please verify with native speakers. */
 "mapPreviews.footer" = "Відображення мініатюр карти завантажує плитки для координати зі стороннього сервера, що може розкрити вашу IP-адресу.";
+
+// MARK: - Text Rules
+
+"textRules.rules" = "Правила фільтрації";
+"textRules.empty" = "Немає правил фільтрації";
+"textRules.loading" = "Завантаження правил фільтрації…";
+"textRules.loadFailed" = "Не вдалося завантажити правила фільтрації. Нові повідомлення не використовуватимуть правила фільтрації, доки їх не вдасться завантажити.";
+"textRules.retryAccessibility" = "Спробувати завантажити правила фільтрації ще раз";
+"textRules.saveFailed" = "Не вдалося зберегти правила фільтрації. Спробуй ще раз.";
+"textRules.new.title" = "Нове правило";
+"textRules.new.phrase" = "Слово або фраза";
+"textRules.new.lookIn" = "Шукати в";
+"textRules.new.match" = "Збіг";
+"textRules.new.containsMessageFooter" = "Збігається будь-де в повідомленні, зокрема всередині слова.";
+"textRules.new.wholeMessageFooter" = "Збігається лише тоді, коли все повідомлення — ця фраза.";
+"textRules.new.containsSenderFooter" = "Збігається будь-де в імені відправника, зокрема всередині слова. Реакції від цього відправника також приховано.";
+"textRules.new.wholeNameFooter" = "Збігається лише тоді, коли ім'я відправника — точно ця фраза. Реакції від цього відправника також приховано.";
+"textRules.new.containsMessageOrSenderFooter" = "Збігається будь-де в повідомленні або в імені відправника, зокрема всередині слова. Якщо збігається ім'я, реакції від цього відправника також приховано.";
+"textRules.new.wholeMessageOrSenderFooter" = "Збігається лише тоді, коли все повідомлення або все ім'я відправника — ця фраза. Якщо збігається ім'я, реакції від цього відправника також приховано.";
+"textRules.field.message" = "Повідомлення";
+"textRules.field.sender" = "Відправник";
+"textRules.field.messageOrSender" = "Повідомлення або відправник";
+"textRules.match.contains" = "Містить";
+"textRules.match.wholeMessage" = "Все повідомлення";
+"textRules.match.wholeName" = "Все ім'я";
+"textRules.match.wholeField" = "Все поле";
+"textRules.ruleSummary" = "%1$@ · %2$@";
+"textRules.types.header" = "Використовувати правила для";
+"textRules.types.footer" = "Коли увімкнено, це охоплює всі чати цього типу, зокрема ті, до яких ти приєднаєшся пізніше.";
+"textRules.types.publicChannel" = "Публічний";
+"textRules.types.hashtagChannel" = "Хештег-канали";
+"textRules.types.privateChannel" = "Приватні канали";
+"textRules.selection.all" = "Усі";
+"textRules.selection.none" = "Немає";
+"textRules.selection.count" = "%d чатів";
+"textRules.selection.accessibilityChats" = "Чати для %@";
+"textRules.selection.footer" = "«Усі» охоплює чати, до яких ти приєднаєшся пізніше.";
+"textRules.archive.title" = "Нещодавно приховані";
+"textRules.archive.empty" = "Немає прихованих повідомлень";
+"textRules.archive.footer" = "На цьому пристрої зберігаються останні %d прихованих повідомлень. Вони не входять до резервної копії застосунку.";
+"textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "\U201C%1$@\U201D · %2$@";
+"textRules.archive.rule" = "Правило";
+"textRules.archive.chat" = "Чат";
+"textRules.archive.myNode" = "Мій вузол";
+"textRules.archive.time" = "Час";
+"textRules.archive.unknownConversation" = "Невідома розмова";
+"textRules.archive.unknownRadio" = "Невідоме радіо";
+
+"radioCleanup.title" = "Очищення";
+"radioCleanup.running" = "Видалення даних радіо";
+"radioCleanup.failed" = "Приховані повідомлення з цього радіо можуть досі бути в цій інсталяції.";
+"radioCleanup.completed" = "Дані радіо видалено";
+"radioCleanup.retryAccessibility" = "Спробувати очищення радіо ще раз для %@";
 
 // MARK: - Blocking Section
 
@@ -1978,7 +2119,7 @@
 "settings.backup.export.alert.title" = "Попередження про безпеку";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Ця резервна копія містить ключі шифрування каналів, історію повідомлень, список контактів, а також локальну мережеву адресу та порт вузла Wi-Fi. Зберігайте експортований файл у безпечному місці.";
+"settings.backup.export.alert.message" = "Ця резервна копія містить ключі шифрування каналів, історію повідомлень, список контактів, а також локальну мережеву адресу та порт вузла Wi-Fi. Резервна копія також може містити збережені GPS-координати радіопристроїв. Зберігайте експортований файл у безпечному місці.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Експортувати";

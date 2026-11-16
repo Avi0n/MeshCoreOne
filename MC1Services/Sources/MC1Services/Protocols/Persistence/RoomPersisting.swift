@@ -49,6 +49,8 @@ public protocol RoomPersisting: Actor {
 
   // MARK: - Room Message Operations
 
+  func hasRecentlyBlockedMessages(radioID: UUID, conversationID: UUID) async throws -> Bool
+
   /// Save a new room message
   func saveRoomMessage(_ dto: RoomMessageDTO) async throws
 
@@ -85,6 +87,12 @@ public protocol RoomPersisting: Actor {
 }
 
 // MARK: - Default Parameter Values
+
+public extension RoomPersisting {
+  func hasRecentlyBlockedMessages(radioID: UUID, conversationID: UUID) async throws -> Bool {
+    false
+  }
+}
 
 extension RoomPersisting {
   /// Update room activity with nil sync timestamp (sort date only)

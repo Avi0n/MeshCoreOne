@@ -33,12 +33,12 @@ struct NodesContactRefreshTests {
     appState.connectionManager.persistConnection(deviceID: device.id, radioID: radioID, deviceName: device.nodeName)
     let session = MeshCoreSession(transport: MockTransport())
     let services = ServiceContainer(session: session, dataStore: store, radioID: radioID)
-    appState.connectionManager.setTestState(connectionState: .ready, services: services, connectedDevice: device)
+    appState.connectionManager.setTestState(connectionState: .ready, services: services, session: session, connectedDevice: device)
     let key = Data(repeating: 0x42, count: ProtocolLimits.publicKeySize)
     let inserted = try await store.saveContact(radioID: radioID, from: frame(key, favorite: false))
     let contact = try #require(try await store.fetchContact(id: inserted.id))
     appState.navigation.selectedTab = AppTab.nodes.rawValue
-    appState.wireSyncDataEvents(services: services)
+    try appState.wireSyncDataEvents(snapshot: #require(appState.connectionManager.currentConnection))
     appState.navigation.navigateToContactDetail(contact)
     let revision = appState.navigation.nodesPresentationRevision
 

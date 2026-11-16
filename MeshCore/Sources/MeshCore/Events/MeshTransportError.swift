@@ -11,6 +11,8 @@ public enum MeshTransportError: Error, Sendable, Equatable {
   case connectionFailed(String)
   /// Indicates sending data failed with a specific reason.
   case sendFailed(String)
+  /// Confirms that this send was cancelled before physical submission.
+  case cancelledBeforeSubmission
   /// Indicates the target device could not be found.
   case deviceNotFound
   /// Indicates a required service was not found on the device.

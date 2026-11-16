@@ -1,5 +1,7 @@
 import Foundation
 @testable import MeshCore
+import MeshCoreTestSupport
+import os
 import Testing
 
 @Suite("MeshCoreSession command correlation")
@@ -97,15 +99,18 @@ struct MeshCoreSessionCommandCorrelationTests {
     await session.stop()
   }
 
-  @Test
+  @Test(.timeLimit(.minutes(1)))
   func `simple commands ignore OK responses with payloads`() async throws {
     let transport = MockTransport()
+    let clock = TestClock()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: commandTimeout, clientIdentifier: "MCTst"),
+      clock: clock
     )
 
     try await startSession(session, transport: transport)
+    try #require(clock.sleeperCount == 0)
 
     let resetTask = Task {
       try await session.factoryReset()
@@ -114,8 +119,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     try await waitUntil("factoryReset should be sent") {
       await transport.sentData.count == 2
     }
-
-    await transport.simulateOK(value: 7)
+    try await expireAfterIgnoredPayloadOK(session: session, transport: transport, clock: clock)
 
     let error = await #expect(throws: MeshCoreError.self) {
       try await resetTask.value
@@ -496,15 +500,18 @@ struct MeshCoreSessionCommandCorrelationTests {
     await session.stop()
   }
 
-  @Test
+  @Test(.timeLimit(.minutes(1)))
   func `importPrivateKey ignores OK responses with payloads`() async throws {
     let transport = MockTransport()
+    let clock = TestClock()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 0.2, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: commandTimeout, clientIdentifier: "MCTst"),
+      clock: clock
     )
 
     try await startSession(session, transport: transport)
+    try #require(clock.sleeperCount == 0)
 
     let importTask = Task {
       try await session.importPrivateKey(Data(repeating: 0x33, count: 64))
@@ -513,8 +520,7 @@ struct MeshCoreSessionCommandCorrelationTests {
     try await waitUntil("importPrivateKey should be sent") {
       await transport.sentData.count == 2
     }
-
-    await transport.simulateOK(value: 7)
+    try await expireAfterIgnoredPayloadOK(session: session, transport: transport, clock: clock)
 
     let error = await #expect(throws: MeshCoreError.self) {
       try await importTask.value
@@ -722,20 +728,25 @@ struct MeshCoreSessionCommandCorrelationTests {
     await session.stop()
   }
 
-  @Test
+  @Test(.timeLimit(.minutes(1)))
   func `requestStatus retransmits until a matching response arrives`() async throws {
+    let overallTimeout: TimeInterval = 2
+    let retransmitFloor: TimeInterval = 0.05
     let transport = MockTransport()
+    let clock = TestClock()
     let session = MeshCoreSession(
       transport: transport,
       configuration: SessionConfiguration(
-        defaultTimeout: 10,
+        defaultTimeout: commandTimeout,
         clientIdentifier: "MCTst",
-        binaryRequestOverallTimeout: 2.0,
-        binaryRequestRetransmitInterval: 0.05
-      )
+        binaryRequestOverallTimeout: overallTimeout,
+        binaryRequestRetransmitInterval: retransmitFloor
+      ),
+      clock: clock
     )
 
     try await startSession(session, transport: transport)
+    try #require(clock.sleeperCount == 0)
 
     let target = Data(repeating: 0x31, count: 32)
     let firstTag = Data([0x11, 0x22, 0x33, 0x44])
@@ -748,11 +759,9 @@ struct MeshCoreSessionCommandCorrelationTests {
     try await waitUntil("first status request should be sent") {
       await transport.sentData.count == 2
     }
+    // suggested 500ms × headroom 2 = 1s, still inside the 2s overall budget.
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: firstTag, timeoutMs: 500))
-
-    try await waitUntil("status request should retransmit") {
-      await transport.sentData.count >= 3
-    }
+    try await fireNextRetransmit(on: clock, transport: transport, minimumSentCount: 3)
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: secondTag, timeoutMs: 500))
 
     // Status is routed by public-key prefix, not tag.
@@ -764,6 +773,144 @@ struct MeshCoreSessionCommandCorrelationTests {
     #expect(status.battery == 2200)
     #expect(await transport.sentData.filter { $0.first == CommandCode.sendStatusRequest.rawValue }.count >= 2)
     await session.stop()
+  }
+
+  @Test(arguments: [true, false])
+  func `status settlement owns the last retry host reply before a channel scope write`(replyArrives: Bool) async throws {
+    let transport = MockTransport()
+    let clock = TestClock()
+    let session = MeshCoreSession(
+      transport: CancellationSensitiveTransport(base: transport),
+      configuration: SessionConfiguration(
+        defaultTimeout: 5, binaryRequestOverallTimeout: 10, binaryRequestRetransmitInterval: 0.1
+      ),
+      clock: clock
+    )
+    try await startSession(session, transport: transport)
+    defer {
+      Task {
+        await transport.releaseHeldSend()
+        await session.stop()
+      }
+    }
+
+    let target = Data(repeating: 0x31, count: 32)
+    let requestFrame = PacketBuilder.sendStatusRequest(to: target)
+    let status = Task { try await session.requestStatus(from: target) }
+    try await waitUntil("initial status request") { await transport.sentData.count == 2 }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: Data([1, 2, 3, 4]), timeoutMs: 50))
+    try await waitUntil("retry timer starts") { clock.sleeperCount == 2 }
+    await transport.holdNextSend()
+    clock.advanceToNextSleep()
+    try await waitUntil("status retry is submitted and its write is pending") { await transport.sendIsWaiting }
+
+    let timestamp = Date(timeIntervalSince1970: 1_700_000_000)
+    let scope = FloodScope.region("Alpha")
+    let channel = Task {
+      try await session.sendChannelMessage(channel: 1, text: "hello", timestamp: timestamp, floodScope: .scope(scope))
+    }
+    try await waitUntil("channel waits for status slot") {
+      await session.requestResponseSerializer.waiterCountForTest == 1
+    }
+    await transport.simulateReceive(makeStatusResponsePacket(publicKeyPrefix: Data(target.prefix(6)), battery: 2200))
+    try await waitUntil("the RF deadline is cancelled while the retry write is pending") {
+      clock.sleeperCount == 0
+    }
+    await transport.releaseHeldSend()
+    try await waitUntil("only the local host-reply timer remains") {
+      clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(5)
+    }
+    try #require(await Array(transport.sentData.dropFirst()) == [requestFrame, requestFrame])
+
+    if replyArrives {
+      await transport.simulateError(code: ErrorCode.tableFull.rawValue)
+      try await acknowledgeChannelFrames(on: transport, after: 3, scope: scope, timestamp: timestamp)
+      try await channel.value
+    } else {
+      clock.advanceToNextSleep()
+      await #expect {
+        try await channel.value
+      } throws: { error in
+        if case MeshCoreError.timeout = error { return true }
+        return false
+      }
+      #expect(await transport.sentData.count == 3)
+    }
+    #expect(try await status.value.battery == 2200)
+  }
+
+  @Test(arguments: [true, false])
+  func `telemetry timeout leaves channel replies attributable only when the host replied`(hostReplied: Bool) async throws {
+    let transport = MockTransport()
+    let clock = TestClock()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(binaryRequestOverallTimeout: 1, binaryRequestRetransmitInterval: nil),
+      clock: clock
+    )
+    try await startSession(session, transport: transport)
+    defer { Task { await session.stop() } }
+
+    let target = Data(repeating: 0x31, count: 32)
+    let telemetry = Task { try await session.requestTelemetry(from: target) }
+    try await waitUntil("telemetry is submitted and waiting") {
+      await transport.sentData.count == 2 && clock.nextSleepDuration == .seconds(1)
+    }
+    if hostReplied {
+      await session.dispatchForTesting(.messageSent(MessageSentInfo(
+        route: 1, expectedAck: Data([1, 2, 3, 4]), suggestedTimeoutMs: 500
+      )))
+    }
+    clock.advanceToNextSleep()
+    await #expect {
+      try await telemetry.value
+    } throws: { error in
+      if case MeshCoreError.timeout = error { return true }
+      return false
+    }
+
+    let timestamp = Date(timeIntervalSince1970: 1_700_000_000)
+    let scope = FloodScope.region("Alpha")
+    let channel = Task {
+      try await session.sendChannelMessage(channel: 1, text: "hello", timestamp: timestamp, floodScope: .scope(scope))
+    }
+    if hostReplied {
+      try await acknowledgeChannelFrames(on: transport, after: 2, scope: scope, timestamp: timestamp)
+      try await channel.value
+    } else {
+      await #expect {
+        try await channel.value
+      } throws: { error in
+        if case MeshCoreError.timeout = error { return true }
+        return false
+      }
+      #expect(await transport.sentData.count == 2)
+    }
+  }
+
+  private struct CancellationSensitiveTransport: MeshTransport {
+    let base: MockTransport
+
+    var receivedData: AsyncStream<Data> {
+      get async { await base.receivedData }
+    }
+
+    var isConnected: Bool {
+      get async { await base.isConnected }
+    }
+
+    func connect() async throws {
+      try await base.connect()
+    }
+
+    func disconnect() async {
+      await base.disconnect()
+    }
+
+    func send(_ data: Data) async throws {
+      try await base.send(data)
+      if Task.isCancelled { throw MeshTransportError.sendFailed("cancelled after submission") }
+    }
   }
 
   @Test(arguments: ["", "  KD7ABC\nch 31\n"], [Data(), Data(repeating: 0, count: 8)])
@@ -795,20 +942,25 @@ struct MeshCoreSessionCommandCorrelationTests {
     await session.stop()
   }
 
-  @Test
+  @Test(.timeLimit(.minutes(1)))
   func `binary response matches any retransmit tag from the same exchange`() async throws {
+    let overallTimeout: TimeInterval = 2
+    let retransmitFloor: TimeInterval = 0.05
     let transport = MockTransport()
+    let clock = TestClock()
     let session = MeshCoreSession(
       transport: transport,
       configuration: SessionConfiguration(
-        defaultTimeout: 10,
+        defaultTimeout: commandTimeout,
         clientIdentifier: "MCTst",
-        binaryRequestOverallTimeout: 2.0,
-        binaryRequestRetransmitInterval: 0.05
-      )
+        binaryRequestOverallTimeout: overallTimeout,
+        binaryRequestRetransmitInterval: retransmitFloor
+      ),
+      clock: clock
     )
 
     try await startSession(session, transport: transport)
+    try #require(clock.sleeperCount == 0)
 
     let target = Data(repeating: 0x31, count: 32)
     let firstTag = Data([0x11, 0x22, 0x33, 0x44])
@@ -823,10 +975,7 @@ struct MeshCoreSessionCommandCorrelationTests {
       await transport.sentData.count == 2
     }
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: firstTag, timeoutMs: 500))
-
-    try await waitUntil("telemetry request should retransmit") {
-      await transport.sentData.count >= 3
-    }
+    try await fireNextRetransmit(on: clock, transport: transport, minimumSentCount: 3)
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: secondTag, timeoutMs: 500))
 
     await transport.simulateReceive(makeBinaryTelemetryResponsePacket(tag: firstTag, lppPayload: firstPayload))
@@ -909,21 +1058,26 @@ struct MeshCoreSessionCommandCorrelationTests {
     await session.stop()
   }
 
-  @Test
+  @Test(.timeLimit(.minutes(1)))
   func `requestStatus times out after the overall budget without a reply`() async throws {
+    // Overall stays longer than suggested 50ms × headroom 2 (100ms) so one resend lands first.
+    let overallTimeout: TimeInterval = 0.5
+    let retransmitFloor: TimeInterval = 0.05
     let transport = MockTransport()
+    let clock = TestClock()
     let session = MeshCoreSession(
       transport: transport,
       configuration: SessionConfiguration(
-        defaultTimeout: 10,
+        defaultTimeout: commandTimeout,
         clientIdentifier: "MCTst",
-        // Keep overall longer than retransmit spacing so a resend is observed.
-        binaryRequestOverallTimeout: 0.5,
-        binaryRequestRetransmitInterval: 0.05
-      )
+        binaryRequestOverallTimeout: overallTimeout,
+        binaryRequestRetransmitInterval: retransmitFloor
+      ),
+      clock: clock
     )
 
     try await startSession(session, transport: transport)
+    try #require(clock.sleeperCount == 0)
 
     let target = Data(repeating: 0x31, count: 32)
     let statusTask = Task {
@@ -933,10 +1087,14 @@ struct MeshCoreSessionCommandCorrelationTests {
     try await waitUntil("requestStatus should be sent") {
       await transport.sentData.count == 2
     }
-    // suggested 50ms × headroom 2 = 100ms between retransmits.
+    try await waitUntil("overall budget should park on the test clock") {
+      clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(overallTimeout)
+    }
     await transport.simulateReceive(
       makeMessageSentPacket(expectedAck: Data([0x01, 0x02, 0x03, 0x04]), timeoutMs: 50)
     )
+    try await fireNextRetransmit(on: clock, transport: transport, minimumSentCount: 3)
+    clock.advance(by: .seconds(overallTimeout))
 
     let error = await #expect(throws: MeshCoreError.self) {
       try await statusTask.value
@@ -1358,6 +1516,77 @@ struct MeshCoreSessionCommandCorrelationTests {
       "a command cancelled before acquiring the serializer must not commit a write"
     )
     await session.stop()
+  }
+}
+
+private let commandTimeout: TimeInterval = 10
+
+/// Delivers an OK that carries a payload, proves the waiter ignored it, then fires the command timeout.
+private func expireAfterIgnoredPayloadOK(
+  session: MeshCoreSession,
+  transport: MockTransport,
+  clock: TestClock
+) async throws {
+  try await waitUntil("command timeout should park on the test clock") {
+    clock.sleeperCount == 1
+  }
+  let delivered = OSAllocatedUnfairLock(initialState: false)
+  let events = await session.events()
+  let watcher = Task {
+    for await event in events {
+      if case let .ok(value) = event, value == 7 {
+        delivered.withLock { $0 = true }
+        return
+      }
+    }
+  }
+  await transport.simulateOK(value: 7)
+  try await waitUntil("payload OK should be dispatched") {
+    delivered.withLock { $0 }
+  }
+  watcher.cancel()
+  // The matcher shares that dispatch. Let it ignore the payload before the timeout sleeper resumes.
+  for _ in 0..<8 {
+    await Task.yield()
+  }
+  try #require(clock.sleeperCount == 1, "payload OK must not complete the command")
+  clock.advance(by: .seconds(commandTimeout))
+}
+
+/// Wakes the earliest parked sleeper, which is the retransmit spacing while the overall budget is longer.
+private func fireNextRetransmit(
+  on clock: TestClock,
+  transport: MockTransport,
+  minimumSentCount: Int
+) async throws {
+  try await waitUntil("retransmit timer should park on the test clock") {
+    clock.sleeperCount == 2
+  }
+  clock.advanceToNextSleep()
+  try await waitUntil("request should retransmit") {
+    await transport.sentData.count >= minimumSentCount
+  }
+  try #require(clock.sleeperCount >= 1, "overall budget should stay parked after one retransmit")
+}
+
+private func acknowledgeChannelFrames(
+  on transport: MockTransport,
+  after priorFrameCount: Int,
+  scope: FloodScope,
+  timestamp: Date
+) async throws {
+  let frames = [
+    PacketBuilder.setFloodScope(scope.scopeKey()),
+    PacketBuilder.sendChannelMessage(channel: 1, text: "hello", timestamp: timestamp),
+    PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey())
+  ]
+  for (offset, frame) in frames.enumerated() {
+    let index = priorFrameCount + offset
+    try await waitUntil("channel scope, message and reset must be sent in order") {
+      await transport.sentData.count > index
+    }
+    try #require(await transport.sentData[index] == frame)
+    await transport.simulateOK()
   }
 }
 

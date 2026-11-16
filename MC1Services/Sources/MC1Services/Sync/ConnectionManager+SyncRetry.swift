@@ -24,12 +24,16 @@ extension ConnectionManager {
   /// handleDisconnect zeroes syncActivityCount independently, and the onEnded callback's
   /// guard (syncActivityCount > 0) prevents underflow.
   func cancelResyncLoop() {
+    if let resyncTask { retiringWorkers.append(resyncTask) }
+    resyncSlotID = nil
     resyncTask?.cancel()
     resyncTask = nil
     resyncAttemptCount = 0
   }
 
   func cancelChannelRetry() {
+    if let channelRetryTask { retiringWorkers.append(channelRetryTask) }
+    channelRetrySlotID = nil
     channelRetryTask?.cancel()
     channelRetryTask = nil
   }
@@ -52,6 +56,7 @@ extension ConnectionManager {
     context: String = "",
     forceFullSync: Bool = false
   ) async -> FullSyncResult? {
+    guard self.services === services, services.isAcceptingRuntimeWork else { return nil }
     let channelSyncConfig = currentChannelSyncConfig(for: radioID, transportType: transportType)
     do {
       let result = try await services.syncCoordinator.onConnectionEstablished(
@@ -62,6 +67,7 @@ extension ConnectionManager {
         platformName: "\(detectedPlatform)"
       )
 
+      guard self.services === services, services.isAcceptingRuntimeWork, connectionIntent.wantsConnection else { return nil }
       if !result.channelRetryIndices.isEmpty {
         scheduleChannelOnlyRetry(
           radioID: radioID,
@@ -78,7 +84,7 @@ extension ConnectionManager {
       return result
     } catch {
       // Don't start resync if user disconnected while sync was in progress
-      guard connectionIntent.wantsConnection else { return nil }
+      guard connectionIntent.wantsConnection, self.services === services, services.isAcceptingRuntimeWork else { return nil }
       let prefix = context.isEmpty ? "" : "\(context): "
       logger.warning("\(prefix)Initial sync failed, starting resync loop: \(error.localizedDescription)")
       startResyncLoop(radioID: radioID, services: services, transportType: transportType, forceFullSync: forceFullSync)
@@ -99,117 +105,50 @@ extension ConnectionManager {
     transportType: TransportType = .bluetooth,
     forceFullSync: Bool = false
   ) {
-    guard self.services === services else { return }
-    resyncTask?.cancel()
+    guard let link = installedLink, link.services === services, ownsRuntime(link) else { return }
+    cancelResyncLoop()
+    let slot = UUID()
+    resyncSlotID = slot
     resyncAttemptCount = 0
-
-    // Note: No [weak self] needed - Task is stored property, self is @MainActor class.
-    // Task inherits MainActor isolation, no retain cycle risk.
-    resyncTask = Task {
-      // Hold sync activity for the entire resync loop so the "Syncing" pill stays visible.
-      // Must be inside the task body: placing it before task assignment introduced a
-      // suspension point where resyncTask was still nil, breaking the dedup guard in
-      // checkSyncHealth().
+    resyncTask = Task { @MainActor in
+      defer {
+        if self.resyncSlotID == slot {
+          self.resyncTask = nil
+          self.resyncSlotID = nil
+          self.resyncAttemptCount = 0
+        }
+      }
       await services.syncCoordinator.beginResyncActivity()
-      var didEndResyncActivity = false
-
-      while !Task.isCancelled {
-        try? await Task.sleep(for: Self.resyncInterval)
-        guard !Task.isCancelled else { break }
-
-        // Fence on services identity so a loop orphaned by a later reconnect
-        // cycle neither resyncs nor disconnects against a container the manager
-        // has since replaced; without it the exhaustion branch below could tear
-        // down a healthy successor connection.
-        guard connectionIntent.wantsConnection,
-              connectionState.isOperational,
-              self.services === services else { break }
-
-        resyncAttemptCount += 1
-        logger.info("Resync attempt \(resyncAttemptCount)/\(Self.maxResyncAttempts)")
-
-        let channelSyncConfig = self.currentChannelSyncConfig(for: radioID, transportType: transportType)
+      var ended = false
+      for attempt in 1...Self.maxResyncAttempts {
+        do { try await reconnectionClock.sleep(for: Self.resyncInterval) } catch { break }
+        guard self.ownsRuntime(link), self.resyncSlotID == slot, !Task.isCancelled else { break }
+        self.resyncAttemptCount = attempt
+        let config = self.currentChannelSyncConfig(for: radioID, transportType: transportType)
         let result = await services.syncCoordinator.performResync(
-          radioID: radioID,
-          dependencies: services.syncDependencies,
-          forceFullSync: forceFullSync,
-          channelSyncConfig: channelSyncConfig,
-          platformName: "\(self.detectedPlatform)"
+          radioID: radioID, dependencies: services.syncDependencies, forceFullSync: forceFullSync,
+          channelSyncConfig: config, platformName: "\(self.detectedPlatform)"
         )
-
+        guard self.ownsRuntime(link), self.resyncSlotID == slot, !Task.isCancelled else { break }
         if let result, result.isConnectionUsable {
-          logger.info("Resync succeeded")
-          resyncAttemptCount = 0
-
-          // Run post-sync hooks deferred when initial sync failed.
-          // Guard each await: disconnect(), device switch, or a new
-          // reconnect cycle may have torn down the connection.
-          guard !Task.isCancelled,
-                connectionIntent.wantsConnection,
-                connectionState.isOperational,
-                self.services === services else { break }
-
-          // Promote before the post-sync hooks, matching promoteToReady's
-          // ordering: room re-auth is a bounded but multi-second await, and
-          // holding the "Syncing" pill and the send queue's .ready gate
-          // through it delays the user for work that isn't sync.
-          // Not using promoteToReady() because: (1) its guards (services identity,
-          // connectionIntent) are already checked above, and (2) it would re-run
-          // time sync and onDeviceSynced, duplicating the resync loop's own post-sync work.
           await services.syncCoordinator.endResyncActivity(succeeded: true)
-          didEndResyncActivity = true
-          connectionState = .ready
-
-          await syncDeviceTimeIfNeeded()
-
-          guard !Task.isCancelled,
-                connectionIntent.wantsConnection,
-                connectionState.isOperational,
-                self.services === services else { break }
-
-          // Re-authenticate room sessions before onDeviceSynced to avoid
-          // BLE contention with stale node cleanup's fire-and-forget Task.
-          let sessionIDs = sessionsAwaitingReauth
-          if !sessionIDs.isEmpty {
-            await services.remoteNodeService.handleBLEReconnection(sessionIDs: sessionIDs)
-          }
-
-          guard !Task.isCancelled,
-                connectionIntent.wantsConnection,
-                connectionState.isOperational,
-                self.services === services else { break }
-
-          // Only clear consumed IDs after confirming the loop is still valid.
-          // Any IDs appended during the await (via teardownSessionForReconnect) survive.
-          sessionsAwaitingReauth.subtract(sessionIDs)
-
-          await onDeviceSynced?(result.hasCleanRecipientData)
-
+          ended = true
+          guard self.ownsRuntime(link), self.resyncSlotID == slot, !Task.isCancelled else { break }
+          _ = await self.completeSync(link, syncResult: result)
           break
         }
-
-        if resyncAttemptCount >= Self.maxResyncAttempts {
-          logger.warning("Resync failed \(Self.maxResyncAttempts) times, disconnecting")
+        if attempt == Self.maxResyncAttempts {
           await services.syncCoordinator.endResyncActivity(succeeded: false)
-          didEndResyncActivity = true
-          onResyncFailed?()
-          await disconnect(reason: .resyncFailed)
-          break
+          ended = true
+          guard self.ownsRuntime(link), self.resyncSlotID == slot, !Task.isCancelled else { break }
+          self.onResyncFailed?(link.snapshot)
+          Task { @MainActor in
+            guard self.ownsRuntime(link) else { return }
+            await self.disconnect(reason: .resyncFailed)
+          }
         }
       }
-
-      // Catch-all for cancellation or guard exits
-      if !didEndResyncActivity {
-        await services.syncCoordinator.endResyncActivity(succeeded: false)
-      }
-
-      // Only nil resyncTask if this task wasn't cancelled. When startResyncLoop()
-      // is called while a previous loop is running, it cancels the old task and
-      // assigns a new one. The old task's catch-all must not nil resyncTask or it
-      // would destroy the replacement.
-      if !Task.isCancelled {
-        resyncTask = nil
-      }
+      if !ended { await services.syncCoordinator.endResyncActivity(succeeded: false) }
     }
   }
 
@@ -220,11 +159,13 @@ extension ConnectionManager {
     services: ServiceContainer,
     indices: [UInt8]
   ) {
-    guard self.services === services else { return }
+    guard self.services === services, services.isAcceptingRuntimeWork else { return }
     let initialIndices = Array(Set(indices)).sorted()
     guard !initialIndices.isEmpty else { return }
 
-    channelRetryTask?.cancel()
+    cancelChannelRetry()
+    let slot = UUID()
+    channelRetrySlotID = slot
 
     channelRetryTask = Task {
       var pendingIndices = initialIndices
@@ -242,7 +183,7 @@ extension ConnectionManager {
 
         guard connectionIntent.wantsConnection,
               connectionState.isOperational,
-              self.services === services else { break }
+              self.services === services, services.isAcceptingRuntimeWork else { break }
 
         logger.info("Channel-only retry \(attempt)/\(Self.maxChannelRetryAttempts) for \(pendingIndices.count) channel(s)")
         let result = await services.syncCoordinator.retryChannels(
@@ -251,6 +192,7 @@ extension ConnectionManager {
           indices: pendingIndices
         )
 
+        guard !Task.isCancelled, self.services === services, channelRetrySlotID == slot else { return }
         if result.isComplete {
           logger.info("Channel-only retry recovered all pending channels")
           pendingIndices = []
@@ -264,11 +206,12 @@ extension ConnectionManager {
         }
       }
 
-      if !Task.isCancelled {
+      if channelRetrySlotID == slot {
         if !pendingIndices.isEmpty {
           logger.warning("Channel-only retry exhausted with \(pendingIndices.count) retryable channel(s) still pending")
         }
         channelRetryTask = nil
+        channelRetrySlotID = nil
       }
     }
   }

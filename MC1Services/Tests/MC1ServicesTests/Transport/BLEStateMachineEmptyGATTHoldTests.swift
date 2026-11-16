@@ -23,8 +23,9 @@ struct BLEStateMachineEmptyGATTHoldTests {
     await sm.injectCentralManager(central)
     let peripheral = makeLeakedHoldPeripheral()
     let recorder = HoldDisconnectionRecorder()
-    await sm.setDisconnectionHandler { deviceID, error in
-      recorder.append(deviceID: deviceID, error: error)
+    await sm.setLifecycleEventHandler { event, _ in
+      guard case let .disconnected(origin, error) = event else { return }
+      recorder.append(deviceID: origin.deviceID, error: error)
     }
     await sm.primeAutoReconnectingPhase(peripheral: peripheral)
     return (sm, central, peripheral, recorder)
@@ -190,7 +191,7 @@ struct BLEStateMachineEmptyGATTHoldTests {
     await sm.disconnect()
 
     #expect(await sm.currentPhase.name == "idle")
-    #expect(recorder.events.isEmpty, "Explicit disconnect must never fire onDisconnection")
+    #expect(recorder.events.isEmpty, "Explicit disconnect must never emit a disconnected event")
     #expect(central.cancelledPeripherals.contains(peripheral.identifier),
             "Explicit disconnect must cancel the standing auto-reconnect")
   }
@@ -198,7 +199,7 @@ struct BLEStateMachineEmptyGATTHoldTests {
 
 // MARK: - Test doubles and seams
 
-/// Collects `(deviceID, error)` pairs delivered to `onDisconnection`.
+/// Collects `(deviceID, error)` pairs delivered to `BLELifecycleEvent.disconnected`.
 private final class HoldDisconnectionRecorder: @unchecked Sendable {
   private(set) var events: [(deviceID: UUID, error: Error?)] = []
 

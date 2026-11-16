@@ -62,4 +62,16 @@ struct VContactIdentityTests {
     #expect(!VContactIdentity.isVContact(publicKey: Self.expectedVA, selfPublicKey: Data()))
     #expect(!VContactIdentity.isVContact(publicKey: Data(), selfPublicKey: Self.selfKeyA))
   }
+
+  @Test
+  func `Hex V-contact matches any of the given self keys in either case`() {
+    let uppercaseA = Self.expectedVA.hexString.uppercased()
+    #expect(VContactIdentity.isVContact(
+      publicKeyHex: uppercaseA, selfPublicKeys: [Self.selfKeyB, Self.selfKeyA]
+    ))
+    #expect(!VContactIdentity.isVContact(
+      publicKeyHex: Self.expectedVA.hexString, selfPublicKeys: [Self.selfKeyB]
+    ))
+    #expect(!VContactIdentity.isVContact(publicKeyHex: "abcd", selfPublicKeys: [Self.selfKeyA]))
+  }
 }

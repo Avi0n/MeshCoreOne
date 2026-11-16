@@ -36,8 +36,8 @@ public protocol MessagingSessionOps: Actor {
     timestamp: Date
   ) async throws
 
-  /// Applies the channel's flood scope and sends without another command
-  /// changing the scope between the two exchanges.
+  /// Writes the flood-scope command before every channel message, then clears a non-baseline scope before the next command.
+  /// If restoration fails, the session blocks further commands and preserves any accepted send.
   func sendChannelMessage(
     channel: UInt8,
     text: String,

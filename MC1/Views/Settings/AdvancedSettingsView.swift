@@ -9,6 +9,7 @@ struct AdvancedSettingsView: View {
 
   let descendantPath: [SettingsSubpage]
   let requestRegionAdd: SettingsEditorPresentation.RegionRequest
+  let configImport: NodeConfigImportViewModel
 
   @State private var selectedOCVPreset: OCVPreset = .liIon
   @State private var ocvValues: [Int] = OCVPreset.liIon.ocvArray
@@ -36,6 +37,8 @@ struct AdvancedSettingsView: View {
 
       // Direct Messages Settings
       DirectMessagesSettingsSection()
+
+      PathFallbackSettingsSection()
 
       // Battery Curve
       BatteryCurveSection(
@@ -65,7 +68,7 @@ struct AdvancedSettingsView: View {
     }
     .themedCanvas(theme)
     .environment(discovery)
-    .settingsSubpageDestinations(regions: discovery, requestRegionAdd: requestRegionAdd)
+    .settingsSubpageDestinations(regions: discovery, requestRegionAdd: requestRegionAdd, configImport: configImport)
     .sheet(isPresented: $showingImportKeySheet) {
       ImportKeySheet()
     }
@@ -108,10 +111,17 @@ struct AdvancedSettingsView: View {
       discovery.noteRegionsChanged()
     }
     .onChange(of: appState.connectedDevice) { _, newDevice in
-      if newDevice == nil {
-        dismiss()
-      }
+      dismissAdvancedIfImportEnded(device: newDevice)
     }
+    .onChange(of: appState.connectionManager.identityRebuildUnpublished) { _, _ in
+      dismissAdvancedIfImportEnded(device: appState.connectedDevice)
+    }
+  }
+
+  /// `identityRebuildUnpublished` is not a disconnect, so a nil device keeps this page.
+  private func dismissAdvancedIfImportEnded(device: DeviceDTO?) {
+    guard device == nil, !appState.connectionManager.identityRebuildUnpublished else { return }
+    dismiss()
   }
 
   /// Advanced and Manage Regions share one run. Another push, another tab, or another root cancels it.

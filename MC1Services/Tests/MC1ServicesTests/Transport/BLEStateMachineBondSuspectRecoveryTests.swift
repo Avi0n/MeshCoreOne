@@ -30,8 +30,9 @@ struct BLEStateMachineBondSuspectRecoveryTests {
     await sm.injectTestCentralManager()
     let peripheral = makeLeakedPeripheral(BondSuspectConnectedPeripheral.self)
     let recorder = BondSuspectDisconnectionRecorder()
-    await sm.setDisconnectionHandler { deviceID, error in
-      recorder.append(deviceID: deviceID, error: error)
+    await sm.setLifecycleEventHandler { event, _ in
+      guard case let .disconnected(origin, error) = event else { return }
+      recorder.append(deviceID: origin.deviceID, error: error)
     }
 
     await sm.appDidBecomeActive()
@@ -63,12 +64,16 @@ struct BLEStateMachineBondSuspectRecoveryTests {
     let peripheral = makeLeakedPeripheral(BondSuspectConnectedPeripheral.self)
 
     let autoReconnectRecorder = BondSuspectAutoReconnectRecorder()
-    await sm.setAutoReconnectingHandler { deviceID, reason in
-      autoReconnectRecorder.append(deviceID: deviceID, reason: reason)
-    }
     let disconnectionRecorder = BondSuspectDisconnectionRecorder()
-    await sm.setDisconnectionHandler { deviceID, error in
-      disconnectionRecorder.append(deviceID: deviceID, error: error)
+    await sm.setLifecycleEventHandler { event, _ in
+      switch event {
+      case let .autoReconnecting(origin, reason):
+        autoReconnectRecorder.append(deviceID: origin.deviceID, reason: reason)
+      case let .disconnected(origin, error):
+        disconnectionRecorder.append(deviceID: origin.deviceID, error: error)
+      default:
+        break
+      }
     }
 
     await sm.primeDiscoveryComplete(peripheral: peripheral)
@@ -98,7 +103,7 @@ struct BLEStateMachineBondSuspectRecoveryTests {
 
 // MARK: - Test doubles and seams
 
-/// Collects `(deviceID, error)` pairs delivered to `onDisconnection`.
+/// Collects `(deviceID, error)` pairs delivered to `BLELifecycleEvent.disconnected`.
 private final class BondSuspectDisconnectionRecorder: @unchecked Sendable {
   private(set) var events: [(deviceID: UUID, error: Error?)] = []
 
@@ -107,7 +112,7 @@ private final class BondSuspectDisconnectionRecorder: @unchecked Sendable {
   }
 }
 
-/// Collects `(deviceID, reason)` pairs delivered to `onAutoReconnecting`.
+/// Collects `(deviceID, reason)` pairs delivered to `BLELifecycleEvent.autoReconnecting`.
 private final class BondSuspectAutoReconnectRecorder: @unchecked Sendable {
   private(set) var events: [(deviceID: UUID, reason: String)] = []
 

@@ -54,6 +54,14 @@ final class TestClock: Clock, @unchecked Sendable {
     return sleepers.count
   }
 
+  /// Time until the earliest parked deadline. `nil` when nobody is parked.
+  var nextSleepDuration: Duration? {
+    lock.lock()
+    defer { lock.unlock() }
+    guard let deadline = sleepers.map(\.deadline).min() else { return nil }
+    return _now.duration(to: deadline)
+  }
+
   func sleep(until deadline: Instant, tolerance: Duration? = nil) async throws {
     let id = UUID()
     try await withTaskCancellationHandler {
@@ -81,6 +89,22 @@ final class TestClock: Clock, @unchecked Sendable {
       let sleeper = sleepers.remove(at: index)
       lock.unlock()
       sleeper.continuation.resume(throwing: CancellationError())
+    }
+  }
+
+  /// Moves virtual time to the earliest parked deadline and resumes those sleepers.
+  func advanceToNextSleep() {
+    lock.lock()
+    guard let next = sleepers.map(\.deadline).min() else {
+      lock.unlock()
+      return
+    }
+    _now = next
+    let due = sleepers.filter { $0.deadline <= _now }
+    sleepers.removeAll { $0.deadline <= _now }
+    lock.unlock()
+    for sleeper in due {
+      sleeper.continuation.resume()
     }
   }
 

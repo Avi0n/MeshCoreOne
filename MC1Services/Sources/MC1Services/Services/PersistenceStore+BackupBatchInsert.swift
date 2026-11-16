@@ -82,13 +82,8 @@ extension PersistenceStore {
     _ dtos: [DeviceDTO],
     existingKeys: Set<Data>
   ) throws -> (inserted: Int, skipped: Int) {
-    // Assign a fresh Device.id on insert: the backup UUID was `CBPeripheral.identifier`
-    // from the source phone, and `Device.id` is `@Attribute(.unique)`. Reusing the
-    // backup UUID here could collide with a live local peripheral identifier and
-    // trigger SwiftData's upsert, silently overwriting the current Device row.
-    // Child records key by `radioID`, not `Device.id`, so the fresh id breaks no
-    // linkage; `ConnectionManager.buildServicesAndSaveDevice` cleans up the stub
-    // row when the user reconnects to the real radio.
+    // Remint Device ID to avoid upserting a local row with the source phone's handle.
+    // Children retain their Radio ID; public-key reconciliation reconnects the imported record.
     insertUnique(
       dtos,
       existingKeys: existingKeys,
@@ -130,6 +125,9 @@ extension PersistenceStore {
       inserted += 1
     }
 
+    for radioID in Set(dtos.map(\.radioID)) {
+      try bindRecentlyBlockedContacts(radioID: radioID)
+    }
     return (inserted, skipped, merged, contactIDsByKey)
   }
 
@@ -309,8 +307,7 @@ extension PersistenceStore {
     existingKeys: Set<String>,
     existingIDsByKey: [String: [UUID]]
   ) throws -> (
-    inserted: Int,
-    skipped: Int,
+    counts: PerTypeCounts,
     messageIDByBackupID: [UUID: UUID],
     skippedIncomingParents: [(localMessageID: UUID, dto: MessageDTO)]
   ) {
@@ -319,9 +316,11 @@ extension PersistenceStore {
     var knownIDs = Set(existingIDsByKey.values.flatMap(\.self))
     var messageIDByBackupID: [UUID: UUID] = [:]
     var skippedIncomingParents: [(localMessageID: UUID, dto: MessageDTO)] = []
+    var skippedOutgoingMessages: [MessageDTO] = []
     var toInsert: [MessageDTO] = []
     toInsert.reserveCapacity(dtos.count)
     var skipped = 0
+    var merged = 0
 
     // Pass 1: resolve duplicates and build the backup→local ID remap. Doing this
     // before any insert lets pass 2 rewrite replyToID onto winning local UUIDs,
@@ -336,6 +335,8 @@ extension PersistenceStore {
         }
         if dto.direction == .incoming {
           skippedIncomingParents.append((localMessageID: winning ?? dto.id, dto: dto))
+        } else {
+          skippedOutgoingMessages.append(dto)
         }
         skipped += 1
         continue
@@ -357,12 +358,25 @@ extension PersistenceStore {
       if let replyTo = dto.replyToID, let winning = messageIDByBackupID[replyTo] {
         dto.replyToID = winning
       }
+      if let targetID = dto.reactionTargetMessageID, let winning = messageIDByBackupID[targetID] {
+        dto.reactionTargetMessageID = winning
+      }
       modelContext.insert(Message(dto: dto))
     }
 
+    for var dto in skippedOutgoingMessages {
+      if let targetID = dto.reactionTargetMessageID, let winning = messageIDByBackupID[targetID] {
+        dto.reactionTargetMessageID = winning
+      }
+      let id = dto.id
+      let predicate = #Predicate<Message> { $0.id == id }
+      if let message = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first, mergeBackupMetadata(into: message, from: dto) {
+        merged += 1
+      }
+    }
+
     return (
-      inserted: toInsert.count,
-      skipped: skipped,
+      counts: PerTypeCounts(inserted: toInsert.count, merged: merged, skipped: skipped),
       messageIDByBackupID: messageIDByBackupID,
       skippedIncomingParents: skippedIncomingParents
     )
@@ -454,8 +468,7 @@ extension PersistenceStore {
         continue
       }
 
-      guard let foreignPath, foreignPath != parent.pathNodes else { continue }
-      guard extrasByMessage[localID, default: []].insert(foreignPath).inserted else { continue }
+      guard let foreignPath, foreignPath != parent.pathNodes, extrasByMessage[localID, default: []].insert(foreignPath).inserted else { continue }
       modelContext.insert(MessageRepeat(
         dto: MessageRepeatDTO(
           messageID: localID,
@@ -643,14 +656,42 @@ extension PersistenceStore {
   @discardableResult
   func batchInsertNodeStatusSnapshots(
     _ dtos: [NodeStatusSnapshotDTO],
-    existingKeys: Set<String>
+    existingKeys: Set<String>,
+    existingIDs: Set<UUID>,
+    radioIDMapping: [UUID: UUID]
   ) throws -> (inserted: Int, skipped: Int) {
-    insertUnique(
-      dtos,
-      existingKeys: existingKeys,
-      key: { nodeStatusSnapshotKey(nodePublicKey: $0.nodePublicKey, timestamp: $0.timestamp) },
-      construct: NodeStatusSnapshot.init(dto:)
-    )
+    let devices = try modelContext.fetch(FetchDescriptor<Device>())
+    let validRadioIDs = Set(devices.map(\.radioID))
+    var knownKeys = existingKeys
+    var knownIDs = existingIDs
+    var inserted = 0
+
+    for incoming in dtos {
+      let owner: UUID?
+      if let incomingOwner = incoming.selfRadioID {
+        // A backup made before ghost reconciliation must not overwrite the adopted owner.
+        guard !knownIDs.contains(incoming.id),
+              let remapped = radioIDMapping[incomingOwner],
+              validRadioIDs.contains(remapped) else { continue }
+        owner = remapped
+      } else {
+        owner = nil
+      }
+
+      let key = nodeStatusSnapshotKey(
+        nodePublicKey: incoming.nodePublicKey,
+        timestamp: incoming.timestamp,
+        selfRadioID: owner
+      )
+      guard knownKeys.insert(key).inserted else { continue }
+
+      let snapshot = NodeStatusSnapshot(dto: incoming)
+      snapshot.selfRadioID = owner
+      modelContext.insert(snapshot)
+      knownIDs.insert(incoming.id)
+      inserted += 1
+    }
+    return (inserted, dtos.count - inserted)
   }
 
   @discardableResult

@@ -21,8 +21,8 @@ extension SettingsTabHarness {
   }
 
   @discardableResult
-  func openChild(row: String, title: String, markers: [String], detail: SettingsDetail) async throws -> Bool {
-    note = "open child \(row)"
+  func openRow(row: String, title: String, markers: [String], detail: SettingsDetail) async throws -> Bool {
+    note = "open row \(row)"
     guard try await activateRow(row) else { return false }
     return try await waitUntil {
       navigation.selectedSetting == detail && showsPage(title: title, markers: markers)

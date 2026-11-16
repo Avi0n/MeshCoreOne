@@ -125,10 +125,12 @@ final class SimulatorConnectionMode {
     guard try await dataStore.fetchLatestNodeStatusSnapshot(nodePublicKey: nodeKey) == nil else {
       return
     }
-    let existingKeys = try await dataStore.existingNodeStatusSnapshotKeys()
+    let identity = try await dataStore.existingNodeStatusSnapshotIdentity()
     try await dataStore.batchInsertNodeStatusSnapshots(
       MockDataProvider.nodeStatusSnapshots,
-      existingKeys: existingKeys
+      existingKeys: identity.keys,
+      existingIDs: identity.ids,
+      radioIDMapping: [:]
     )
   }
 }

@@ -246,12 +246,24 @@ extension ChatCoordinator {
         dto.roundTripTime = roundTripTime
       }
     }
+    guard !removeHiddenOutgoingReaction(messageID: messageID) else { return }
     updateRenderItem(id: messageID) { item in
       item.with(
         envelope: item.envelope.with(status: status),
         footer: item.footer.with(status: status)
       )
     }
+  }
+
+  @discardableResult
+  func removeHiddenOutgoingReaction(messageID: UUID) -> Bool {
+    guard let message = messagesByID[messageID],
+          message.isHiddenOutgoingReaction(isDM: message.contactID != nil) else { return false }
+    // The persisted row still occupies its page, so retain totalFetchedCount.
+    remove(messageID: messageID)
+    removeRenderItem(id: messageID)
+    renderStateInvalidated?()
+    return true
   }
 
   /// Resumes its continuation at most once.

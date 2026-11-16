@@ -9,6 +9,7 @@ enum SettingsRoot: CaseIterable, Sendable, CustomTestStringConvertible {
   case advanced
   case notifications
   case chats
+  case blocksAndFilters
   case appearance
   case maps
   case language
@@ -25,6 +26,7 @@ enum SettingsRoot: CaseIterable, Sendable, CustomTestStringConvertible {
     case .advanced: .advanced
     case .notifications: .notifications
     case .chats: .chats
+    case .blocksAndFilters: .blocksAndFilters
     case .appearance: .appearance
     case .maps: .maps
     case .language: .language
@@ -47,6 +49,7 @@ enum SettingsRoot: CaseIterable, Sendable, CustomTestStringConvertible {
     case .advanced: L10n.Settings.AdvancedSettings.title
     case .notifications: L10n.Settings.Notifications.header
     case .chats: L10n.Settings.ChatSettings.title
+    case .blocksAndFilters: L10n.Settings.BlocksAndFilters.title
     case .appearance: L10n.Settings.Appearance.title
     case .maps: L10n.Settings.Maps.title
     case .language: L10n.Settings.Language.title
@@ -72,6 +75,8 @@ enum SettingsRoot: CaseIterable, Sendable, CustomTestStringConvertible {
       [L10n.Settings.Notifications.enable, L10n.Settings.Notifications.disabled, L10n.Settings.Notifications.contactMessages]
     case .chats:
       [L10n.Settings.ReplyWithQuote.toggle]
+    case .blocksAndFilters:
+      [L10n.Settings.Blocking.channelSenders]
     case .appearance:
       [L10n.Settings.Appearance.Scheme.header]
     case .maps:
@@ -96,6 +101,7 @@ enum SettingsRoot: CaseIterable, Sendable, CustomTestStringConvertible {
     case .advanced: "advanced"
     case .notifications: "notifications"
     case .chats: "chats"
+    case .blocksAndFilters: "blocksAndFilters"
     case .appearance: "appearance"
     case .maps: "maps"
     case .language: "language"

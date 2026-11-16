@@ -2,10 +2,7 @@ import Foundation
 import MC1Services
 import OSLog
 
-/// Best-effort local flood-scope preference after a channel join from URL/QR.
-///
-/// Does not touch session flood scope (global). That is applied when the
-/// conversation loads via `ChatViewModel.syncFloodScope`.
+/// Saves the flood-scope preference from a join link for later channel sends.
 enum ChannelJoinFloodScopeApplier {
   /// Persists `.region(name)` when `regionScope` is non-empty after normalization.
   /// On store failure, logs and returns the original channel so the radio join

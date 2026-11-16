@@ -136,7 +136,7 @@ extension NodeDiscoveryWorkspace {
               result: result,
               isAdded: viewModel.isAdded(publicKey: result.publicKey),
               isAdding: viewModel.addingPublicKey == result.publicKey,
-              onAdd: ContactType(rawValue: result.nodeType) != nil
+              onAdd: viewModel.canAdd(result)
                 ? { viewModel.addNode(result) }
                 : nil
             )

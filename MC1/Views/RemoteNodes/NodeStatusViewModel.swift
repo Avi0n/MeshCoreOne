@@ -30,11 +30,6 @@ final class NodeStatusViewModel {
     session?.publicKey ?? directPublicKey
   }
 
-  /// 6-byte prefix for response matching.
-  var effectivePublicKeyPrefix: Data? {
-    session?.publicKeyPrefix ?? directPublicKey?.prefix(6)
-  }
-
   /// Last received status
   var status: RemoteNodeStatus?
 
@@ -273,60 +268,24 @@ final class NodeStatusViewModel {
   // MARK: - Telemetry Response Handling
 
   func handleTelemetryResponse(_ response: TelemetryResponse) async {
-    guard let expectedPrefix = effectivePublicKeyPrefix,
-          response.publicKeyPrefix == expectedPrefix else {
+    guard let nodePublicKey = effectivePublicKey,
+          let reading = TelemetryReading.accepted(from: response, expectedPublicKey: nodePublicKey) else {
       return
     }
     telemetry = response
-    cachedDataPoints = response.dataPoints.filter { $0.channel != 0 }
+    cachedDataPoints = reading.dataPoints
     isLoadingTelemetry = false
     telemetryLoaded = true
     telemetrySectionError = nil
 
-    let entries: [TelemetrySnapshotEntry] = cachedDataPoints.compactMap { dp in
-      let numericValue: Double? = switch dp.value {
-      case let .float(value):
-        value
-      case let .integer(value):
-        Double(value)
-      default:
-        nil
-      }
-      guard let value = numericValue else { return nil }
-      return TelemetrySnapshotEntry(channel: Int(dp.channel), type: dp.typeName, value: value)
-    }
-
-    let location = currentLocationFix
-
-    guard !entries.isEmpty || location != nil,
-          let nodeSnapshotService,
-          let nodePublicKey = effectivePublicKey else { return }
+    guard !reading.entries.isEmpty || reading.location != nil,
+          let nodeSnapshotService else { return }
 
     _ = await nodeSnapshotService.recordSnapshot(
       nodePublicKey: nodePublicKey,
-      telemetry: entries.isEmpty ? nil : entries,
-      location: location
+      telemetry: reading.entries.isEmpty ? nil : reading.entries,
+      location: reading.location
     )
-  }
-
-  // MARK: - Telemetry Grouping
-
-  var hasMultipleChannels: Bool {
-    let channels = Set(cachedDataPoints.map(\.channel))
-    return channels.count > 1
-  }
-
-  var groupedDataPoints: [(channel: UInt8, dataPoints: [LPPDataPoint])] {
-    Dictionary(grouping: cachedDataPoints, by: \.channel)
-      .sorted { $0.key < $1.key }
-      .map { (channel: $0.key, dataPoints: $0.value) }
-  }
-
-  /// The node's reported location from the last telemetry response, or nil when it
-  /// reports no plottable coordinate. A node without a current GPS lock still reports
-  /// its last known or manually set position. Drives the live "View on Map" affordance.
-  var currentLocationFix: NodeLocationFix? {
-    NodeLocationFix.primaryFix(from: cachedDataPoints)
   }
 
   // MARK: - Display Formatters
@@ -492,8 +451,7 @@ final class NodeStatusViewModel {
 
   /// Load OCV settings for a contact by public key. Skips reload if already loaded.
   func loadOCVSettings(publicKey: Data, radioID: UUID) async {
-    guard contactID == nil else { return }
-    guard let contactService else { return }
+    guard contactID == nil, let contactService else { return }
 
     do {
       if let contact = try await contactService.getContact(radioID: radioID, publicKey: publicKey) {

@@ -7,7 +7,7 @@ public extension MessageService {
   /// Sends a broadcast message to a channel.
   ///
   /// Channel messages are broadcast to all devices listening on the specified channel.
-  /// No acknowledgement is expected or tracked for channel messages.
+  /// A radio acknowledgement confirms acceptance for transmission.
   ///
   /// - Parameters:
   ///   - text: The message text to broadcast. Bounded by
@@ -39,6 +39,9 @@ public extension MessageService {
     radioID: UUID,
     textType: TextType = .plain
   ) async throws -> (id: UUID, timestamp: UInt32) {
+    // Keep this send in the retirement barrier through the Sent write if scope cleanup triggers recovery.
+    try beginInlineSend()
+    defer { endInlineSend() }
     try await rejectIfChannelTextTooLong(text, radioID: radioID)
 
     let messageID = UUID()
@@ -69,13 +72,11 @@ public extension MessageService {
       try await failMessageAndRethrow(error, messageID: messageID)
     }
 
-    // Post-broadcast bookkeeping. The broadcast already left the radio,
-    // so a throw here must not mark `.failed` — that would lie about
-    // delivery. Log and continue; the message stays `.sent` (or sticks
-    // `.pending` if `updateMessageStatus` itself threw, which a subsequent
-    // ack or user retry can reconverge). No queue row exists on this
-    // inline path, so the "retry button hidden via missing PendingSend"
-    // pathology from the queue-routed path does not apply.
+    #if DEBUG
+      if let gate = inlineSendAcceptedGateForTesting { await gate() }
+    #endif
+
+    // Preserve radio acceptance if updating the local record fails.
     do {
       try await dataStore.updateMessageStatus(id: messageID, status: .sent)
       statusEventBroadcaster.yield(.statusResolved(messageID: messageID, status: .sent, roundTripTime: nil))
@@ -83,31 +84,14 @@ public extension MessageService {
         try await dataStore.updateChannelLastMessage(channelID: channel.id, date: Date())
       }
     } catch {
-      logger.warning("Channel post-broadcast bookkeeping failed (inline path) messageID=\(messageID) broadcast already out: \(String(describing: error))")
+      logger.warning("Inline channel bookkeeping failed after radio acceptance messageID=\(messageID): \(String(describing: error))")
     }
 
     return (id: messageID, timestamp: timestamp)
   }
 
-  /// Creates a pending channel message without sending it.
-  ///
-  /// Use this for optimistic UI — the message is saved immediately and can be
-  /// displayed in the conversation while the actual send happens in the background
-  /// via ``sendPendingChannelMessage(messageID:channelIndex:radioID:)``.
-  ///
-  /// - Parameters:
-  ///   - text: The message text. Bounded by
-  ///     `ProtocolLimits.maxChannelMessageLength(nodeNameByteCount:)`.
-  ///   - channelIndex: The channel index to send on
-  ///   - radioID: The device ID
-  ///   - textType: The text type (defaults to `.plain`)
-  ///
-  /// - Returns: The created message DTO with pending status
-  ///
-  /// - Throws:
-  ///   - `MessageServiceError.messageTooLong` if user text exceeds
-  ///     `ProtocolLimits.maxChannelMessageLength(nodeNameByteCount:)`
-  func createPendingChannelMessage(
+  /// Validates the radio's current text budget and saves the Message before queue admission.
+  internal func createPendingChannelMessage(
     text: String,
     channelIndex: UInt8,
     radioID: UUID,
@@ -157,16 +141,31 @@ public extension MessageService {
       radioID = message.radioID
       channelIndex = idx
 
-      try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
-        try await sendChannelMessageWithScope(
-          text: message.text,
-          channelIndex: channelIndex,
-          radioID: radioID,
-          timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp))
-        )
+      let isReaction = message.reactionTargetMessageID != nil
+      let alreadyAccepted = isReaction && (acceptedChannelReactions.contains(messageID) || message.status == .sent)
+      if !alreadyAccepted {
+        try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
+          try await sendChannelMessageWithScope(
+            text: message.text,
+            channelIndex: channelIndex,
+            radioID: radioID,
+            timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp))
+          )
+        }
+        if isReaction { acceptedChannelReactions.insert(messageID) }
       }
-      try await dataStore.updateMessageStatus(id: messageID, status: .sent)
+      do {
+        try await dataStore.updateMessageStatus(id: messageID, status: .sent)
+        if isReaction {
+          await notifyOutgoingReactionAccepted(messageID: messageID)
+          acceptedChannelReactions.remove(messageID)
+        }
+      } catch {
+        if isReaction { throw MessageServiceError.persistenceError(error) }
+        throw error
+      }
     } catch {
+      if case MessageServiceError.persistenceError = error { throw error }
       try await failMessageAndRethrow(error, messageID: messageID)
     }
 
@@ -185,37 +184,16 @@ public extension MessageService {
     }
   }
 
-  /// Resend an existing channel message, incrementing its send count.
-  ///
-  /// This is used for "Send Again" - it re-transmits the same message
-  /// rather than creating a duplicate. Uses a new timestamp so the mesh
-  /// treats it as a fresh broadcast.
-  ///
-  /// - Returns: The new wire timestamp written to the message row.
-  ///   Reaction indexing keys off this value via
-  ///   `SHA256(text || timestamp.littleEndian)`; callers that index reactions
-  ///   for the resent packet must pass this value rather than the pre-resend
-  ///   timestamp from the queued envelope.
+  /// Resends a channel message, preserving its wire timestamp only during recovery.
+  /// Returns that timestamp so reaction indexing matches the send.
   @discardableResult
   func resendChannelMessage(
     messageID: UUID,
     preserveTimestamp: Bool = false
   ) async throws -> UInt32 {
-    // Broadcast .resent only after .sent is committed. The sentCommitted
-    // flag suppresses a spurious broadcast if catch 1 rethrows;
-    // failMessageAndRethrow always re-throws, so a catch-1 failure exits
-    // the function before the broadcast site is reached and the guard is
-    // belt-and-braces. The event still fires when catch 2 bookkeeping
-    // throws, since sentCommitted is set before catch 2 runs. Yielding
-    // after catch 2 and before return preserves the committed-before-
-    // broadcast ordering the resend tests assert.
+    // Publish .resent after .sent commits, even if send-count bookkeeping fails.
     var sentCommitted = false
 
-    // Catch 1: validation guards + timestamp update + send + status flip.
-    // Validation lives inside the do/catch so a missing message or missing
-    // channel index consistently writes `.failed` before propagating —
-    // paired with the queue's outer catch. Once `.sent` is committed, the
-    // per-attempt bookkeeping below cannot retroactively flip it.
     let wireTimestamp: UInt32
     do {
       guard let message = try await dataStore.fetchMessage(id: messageID) else {
@@ -236,31 +214,42 @@ public extension MessageService {
       }
 
       if !preserveTimestamp {
-        try await dataStore.updateMessageTimestamp(id: messageID, timestamp: wireTimestamp)
+        try await dataStore.prepareChannelMessageResend(id: messageID, timestamp: wireTimestamp)
       }
-      try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
-        try await sendChannelMessageWithScope(
-          text: message.text,
-          channelIndex: channelIndex,
-          radioID: message.radioID,
-          timestamp: wireDate
-        )
+      let isReaction = message.reactionTargetMessageID != nil
+      let alreadyAccepted = isReaction && (
+        acceptedChannelReactions.contains(messageID) || (preserveTimestamp && message.status == .sent)
+      )
+      if !alreadyAccepted {
+        try await withPoolBackoff(transientCode: FirmwareDeviceErrorCode.channelMessageNotFound, config: config.poolBackoff, logger: logger) {
+          try await sendChannelMessageWithScope(
+            text: message.text,
+            channelIndex: channelIndex,
+            radioID: message.radioID,
+            timestamp: wireDate
+          )
+        }
+        if isReaction { acceptedChannelReactions.insert(messageID) }
       }
-      try await dataStore.updateMessageStatus(id: messageID, status: .sent)
+      do {
+        try await dataStore.updateMessageStatus(id: messageID, status: .sent)
+        if isReaction {
+          await notifyOutgoingReactionAccepted(messageID: messageID)
+          acceptedChannelReactions.remove(messageID)
+        }
+      } catch {
+        if isReaction { throw MessageServiceError.persistenceError(error) }
+        throw error
+      }
       sentCommitted = true
     } catch {
+      if case MessageServiceError.persistenceError = error { throw error }
       try await failMessageAndRethrow(error, messageID: messageID)
     }
 
-    // Catch 2: per-attempt bookkeeping. Status is already .sent in DB and
-    // the radio broadcast happened. Failures here log only — the message
-    // is correctly marked .sent and the missing metadata (sendCount,
-    // heardRepeats clear) is non-load-bearing for delivery semantics; the
-    // next inbound ack/repeat event will reconverge.
+    // Status is already .sent. A send-count failure cannot undo radio acceptance.
     do {
       _ = try await dataStore.incrementMessageSendCount(id: messageID)
-      try await dataStore.updateMessageHeardRepeats(id: messageID, heardRepeats: 0)
-      try await dataStore.deleteMessageRepeats(messageID: messageID)
     } catch {
       logger.warning("Resend post-status bookkeeping failed messageID=\(messageID) status=.sent already committed: \(String(describing: error))")
     }
@@ -295,7 +284,7 @@ public extension MessageService {
 
   /// Cap user text so `"name: " + text` fits `maxChannelMessageTotalLength`.
   /// Firmware prepends the name before encrypting; an extra AES block overflows the RX log.
-  private func rejectIfChannelTextTooLong(_ text: String, radioID: UUID) async throws {
+  func rejectIfChannelTextTooLong(_ text: String, radioID: UUID) async throws {
     let nodeNameByteCount: Int = if let name = try? await dataStore.fetchDevice(radioID: radioID)?.nodeName {
       name.utf8.count
     } else {

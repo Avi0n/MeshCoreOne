@@ -11,7 +11,7 @@ struct RoundTripTests {
   // MARK: - Contact Round-Trip
 
   @Test
-  func `Contact round trip`() {
+  func `Contact round trip`() throws {
     // Build a 147-byte contact response packet
     var data = Data()
     let publicKey = Data(repeating: 0xAA, count: 32)
@@ -19,7 +19,7 @@ struct RoundTripTests {
     let flags: UInt8 = 0x02
     let pathLen: Int8 = 3
     let pathBytes = Data([0x11, 0x22, 0x33]) + Data(repeating: 0, count: 61) // 64 bytes total
-    let nameBytes = "TestContact".data(using: .utf8)!.prefix(32)
+    let nameBytes = try #require("TestContact".data(using: .utf8)?.prefix(32))
     let namePadded = nameBytes + Data(repeating: 0, count: 32 - nameBytes.count)
     let lastAdvert: UInt32 = 1_704_067_200
     let lat: Int32 = 37_774_900 // 37.7749 * 1e6

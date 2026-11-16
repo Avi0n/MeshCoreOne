@@ -150,6 +150,8 @@
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "새 룸 발견";
 
+"notifications.discovery.sensor" = "새 센서 발견";
+
 // MARK: - Notification Actions
 
 /* Notification action button to reply to a message */
@@ -494,6 +496,14 @@
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
 "error.remoteNode.invalidResponse" = "원격 노드의 응답이 잘못됨";
+
+"error.remoteNode.sensorOutcomeUnknown" = "변경을 확인하지 못했습니다. 다시 저장하기 전에 설정을 다시 불러오십시오.";
+
+"error.remoteNode.sensorSettingRejected" = "센서가 이 설정을 거부했습니다.";
+
+"error.remoteNode.invalidSensorSetting" = "공백 없는 비어 있지 않은 키와 값을 사용하십시오. 전체 명령은 160 UTF-8 바이트 이내여야 합니다.";
+
+"error.remoteNode.invalidPasswordLength" = "암호는 %d UTF-8 바이트를 넘을 수 없습니다.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation */
 "error.remoteNode.permissionDenied" = "권한이 거부됨";

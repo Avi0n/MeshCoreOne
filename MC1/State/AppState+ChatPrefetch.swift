@@ -17,23 +17,22 @@ extension AppState {
   /// live conversation view and the navigation-time prefetch so the two cannot
   /// drift into wiring different services.
   @MainActor
-  func makeChatViewModelDependencies() -> ChatViewModel.Dependencies {
+  func makeChatViewModelDependencies(radioID: UUID) -> ChatViewModel.Dependencies {
     ChatViewModel.Dependencies(
-      dataStore: { self.offlineDataStore },
-      messageService: { self.services?.messageService },
-      notificationService: { self.services?.notificationService },
-      channelService: { self.services?.channelService },
-      roomServerService: { self.services?.roomServerService },
-      contactService: { self.services?.contactService },
-      syncCoordinator: { self.syncCoordinator },
+      dataStore: { self.currentRadioID == radioID ? self.offlineDataStore : nil },
+      messageService: { self.connectionSnapshot(for: radioID)?.services.messageService },
+      notificationService: { self.connectionSnapshot(for: radioID)?.services.notificationService },
+      channelService: { self.connectionSnapshot(for: radioID)?.services.channelService },
+      roomServerService: { self.connectionSnapshot(for: radioID)?.services.roomServerService },
+      contactService: { self.connectionSnapshot(for: radioID)?.services.contactService },
+      syncCoordinator: { self.connectionSnapshot(for: radioID)?.services.syncCoordinator },
       connectionState: { self.connectionState },
-      connectedDevice: { self.connectedDevice },
+      connectedDevice: { self.connectionSnapshot(for: radioID)?.device },
       currentRadioID: { self.currentRadioID },
-      session: { self.services?.session },
-      reactionService: { self.services?.reactionService },
-      chatSendQueueService: { self.services?.chatSendQueueService },
-      inlineImageDimensionsStore: { self.services?.inlineImageDimensionsStore },
-      prefetchDataStore: { self.services?.dataStore }
+      reactionService: { self.connectionSnapshot(for: radioID)?.services.reactionService },
+      chatSendQueueService: { self.connectionSnapshot(for: radioID)?.services.chatSendQueueService },
+      inlineImageDimensionsStore: { self.connectionSnapshot(for: radioID)?.services.inlineImageDimensionsStore },
+      prefetchDataStore: { self.connectionSnapshot(for: radioID)?.services.dataStore }
     )
   }
 
@@ -111,17 +110,8 @@ extension AppState {
     )
   }
 
-  /// Warms the shared `ChatCoordinator` for `conversation` before its view is
-  /// pushed, so the conversation renders populated on the first frame instead of
-  /// popping in a frame after the push transition (the cold-open jump). The
-  /// coordinator persists in the registry, so a re-open reuses the warm entry —
-  /// this no-ops when it is already loaded.
-  ///
-  /// Fire-and-forget on a `ChatTimelinePrimer`: only the shared coordinator
-  /// (held by the registry) outlives the prime, and `ChatConversationView`
-  /// rebinds it on open. The prime deliberately skips notification
-  /// suppression, unread clearing, and flood-scope pushes — those belong to
-  /// the real open, not a speculative warm.
+  /// Primes a closed conversation for first-frame rendering. The registry keeps
+  /// the populated coordinator so `ChatConversationView` can reuse it on open.
   @MainActor
   func prefetchConversation(_ conversation: ChatConversationType, envInputs: EnvInputs) {
     guard let registry = ensureChatCoordinatorRegistry() else { return }

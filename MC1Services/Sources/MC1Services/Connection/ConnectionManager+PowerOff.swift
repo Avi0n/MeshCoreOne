@@ -142,7 +142,7 @@ extension ConnectionManager {
     powerOffCancelGeneration &+= 1
     guard resumeReconnect, !operation.invalidated else { return }
     guard connectionIntent.wantsConnection else { return }
-    if currentTransportType == .wifi, connectionState == .connecting {
+    if desiredRequest?.target.transportType == .wifi, connectionState == .connecting {
       if !isHandlingWiFiDisconnection {
         startWiFiReconnection()
       }

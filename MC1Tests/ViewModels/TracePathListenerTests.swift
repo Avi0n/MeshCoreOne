@@ -67,7 +67,7 @@ struct TracePathListenerTests {
     currentServices = services
     viewModel.startListening()
 
-    viewModel.setPendingTagForTesting(Self.testTag)
+    viewModel.setPendingTraceForTesting(Self.testTag)
     services.advertisementService.eventBroadcaster.yield(
       .traceResponse(traceInfo: makeTraceInfo(tag: Self.testTag), radioID: UUID())
     )
@@ -98,7 +98,7 @@ struct TracePathListenerTests {
     currentServices = newServices
     viewModel.startListening()
 
-    viewModel.setPendingTagForTesting(Self.testTag)
+    viewModel.setPendingTraceForTesting(Self.testTag)
     newServices.advertisementService.eventBroadcaster.yield(
       .traceResponse(traceInfo: makeTraceInfo(tag: Self.testTag), radioID: UUID())
     )

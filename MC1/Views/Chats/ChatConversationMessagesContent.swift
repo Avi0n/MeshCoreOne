@@ -25,7 +25,7 @@ struct ChatConversationMessagesContent: View {
 
   /// Whether the timeline is ready to show and, if so, the "New Messages"
   /// divider id it opens scrolled to (nil opens at the bottom).
-  let firstSnapshotDecision: ChatInitialScrollPolicy.FirstSnapshotDecision
+  let firstSnapshotDecision: ChatOpenAnchorState.FirstSnapshotDecision
 
   /// Fired once the tiled view has consumed the presented divider target, so the
   /// owner can retire it and a later `.id` rebuild won't re-jump to the divider.
@@ -94,7 +94,8 @@ struct ChatConversationMessagesContent: View {
       initialScrollTargetID: initialScrollTargetID,
       onLoadOlder: { await viewModel.loadOlderMessages() },
       onInitialTargetConsumed: onDividerTargetConsumed,
-      sizeCache: appState.chatSizeCache
+      sizeCache: appState.chatSizeCache,
+      accessibilityHeadingIDs: viewModel.items.filter(\.grouping.showDayDivider).map(\.id)
     )
     .overlay {
       incomingAvatarFlight.overlay()

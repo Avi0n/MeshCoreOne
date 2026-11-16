@@ -8,7 +8,7 @@ import MeshCore
 ///
 /// Also conforms to ``AdvertisingSessionOps`` so services such as
 /// `AdvertisementService` can be exercised without a second fake session type.
-public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps {
+public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps, DiagnosticsSessionOps {
   // MARK: - Connection State
 
   public var connectionState: AsyncStream<ConnectionState> {
@@ -32,14 +32,26 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   private var eventSubscriptions: [UUID: EventSubscription] = [:]
 
   public func events() async -> AsyncStream<MeshEvent> {
-    makeEventStream(filter: nil)
+    makeEventStream(filter: nil).stream
   }
 
   public func events(filter: EventFilter) async -> AsyncStream<MeshEvent> {
-    makeEventStream(filter: filter)
+    makeEventStream(filter: filter).stream
   }
 
-  private func makeEventStream(filter: EventFilter?) -> AsyncStream<MeshEvent> {
+  public func eventsTracked(filter: EventFilter) async -> (id: UUID, stream: AsyncStream<MeshEvent>) {
+    let tracked = makeEventStream(filter: filter)
+    if let event = stubbedWaitForEventResult, filter.matches(event) {
+      eventSubscriptions[tracked.id]?.continuation.yield(event)
+    }
+    return tracked
+  }
+
+  public func finishEvents(id: UUID) async {
+    eventSubscriptions.removeValue(forKey: id)?.continuation.finish()
+  }
+
+  private func makeEventStream(filter: EventFilter?) -> (id: UUID, stream: AsyncStream<MeshEvent>) {
     let id = UUID()
     let (stream, continuation) = AsyncStream<MeshEvent>.makeStream()
     eventSubscriptions[id] = EventSubscription(filter: filter, continuation: continuation)
@@ -47,7 +59,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
       guard let self else { return }
       Task { await self.removeEventSubscription(id: id) }
     }
-    return stream
+    return (id, stream)
   }
 
   private func removeEventSubscription(id: UUID) {
@@ -143,6 +155,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   /// Channel info to return from getChannel, keyed by index
   public var stubbedChannels: [UInt8: ChannelInfo] = [:]
+  private var stubbedGetChannelResults: [Result<ChannelInfo, Error>] = []
 
   public func setStubbedChannels(_ channels: [UInt8: ChannelInfo]) {
     stubbedChannels = channels
@@ -208,15 +221,21 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   /// Results to return from successive `sendLogin` calls, consumed FIFO.
   public var stubbedSendLoginResults: [Result<MessageSentInfo, Error>] = []
+  private var sendLoginHold: (@Sendable () async throws -> Void)?
 
   /// Result to return from `sendCommand`. The short suggested timeout keeps
   /// CLI polling loops in tests brief.
   public var stubbedSendCommandResult: Result<MessageSentInfo, Error> = .success(
     MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100)
   )
+  private var sendCommandHold: (@Sendable () async throws -> Void)?
 
   public func setSendCommandResult(_ result: Result<MessageSentInfo, Error>) {
     stubbedSendCommandResult = result
+  }
+
+  public func setSendCommandHold(_ hold: (@Sendable () async throws -> Void)?) {
+    sendCommandHold = hold
   }
 
   /// Result to return from `requestStatus` when the FIFO list is empty.
@@ -288,6 +307,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   public private(set) var getContactPublicKeys: [Data] = []
   public private(set) var addContactInvocations: [AddContactInvocation] = []
   public private(set) var sendLoginInvocations: [SendLoginInvocation] = []
+  public private(set) var completedSendLoginCount = 0
   public private(set) var sendCommandInvocations: [SendCommandInvocation] = []
   public private(set) var removeContactPublicKeys: [Data] = []
   public private(set) var resetPathPublicKeys: [Data] = []
@@ -347,6 +367,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     sendMessageObserver = observer
   }
 
+  public func setWaitForEventResult(_ event: MeshEvent?) {
+    stubbedWaitForEventResult = event
+  }
+
   public func setSendChannelMessageError(_ error: Error?) {
     stubbedSendChannelMessageError = error
   }
@@ -355,9 +379,17 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     stubbedGetChannelError = error
   }
 
+  public func setGetChannelResults(_ results: [Result<ChannelInfo, Error>]) {
+    stubbedGetChannelResults = results
+  }
+
   /// Sets the results returned by successive `sendLogin` calls (isolated setter).
   public func setSendLoginResults(_ results: [Result<MessageSentInfo, Error>]) {
     stubbedSendLoginResults = results
+  }
+
+  public func setSendLoginHold(_ hold: (@Sendable () async throws -> Void)?) {
+    sendLoginHold = hold
   }
 
   /// Sets the result returned by `requestStatus` (isolated setter).
@@ -640,6 +672,9 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   public func getChannel(index: UInt8) async throws -> ChannelInfo {
     getChannelIndices.append(index)
+    if !stubbedGetChannelResults.isEmpty {
+      return try stubbedGetChannelResults.removeFirst().get()
+    }
     if let error = stubbedGetChannelErrorsByIndex[index] ?? stubbedGetChannelError {
       throw error
     }
@@ -762,6 +797,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     startAutoMessageFetchingCallCount += 1
   }
 
+  public func suspendMessageFetching() async throws {}
+
+  public func resumeMessageFetching() {}
+
   public func stopAutoMessageFetching() {
     stopAutoMessageFetchingCallCount += 1
   }
@@ -779,6 +818,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     getContactPublicKeys = []
     addContactInvocations = []
     sendLoginInvocations = []
+    completedSendLoginCount = 0
     sendCommandInvocations = []
     removeContactPublicKeys = []
     resetPathPublicKeys = []
@@ -797,8 +837,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 extension MockMeshCoreSession: RemoteAccessSessionOps {
   public func sendLogin(to destination: Data, password: String) async throws -> MessageSentInfo {
     sendLoginInvocations.append(SendLoginInvocation(destination: destination, password: password))
+    defer { completedSendLoginCount += 1 }
     guard !stubbedSendLoginResults.isEmpty else { throw NotStubbed.method("sendLogin") }
-    switch stubbedSendLoginResults.removeFirst() {
+    let result = stubbedSendLoginResults.removeFirst()
+    try await sendLoginHold?()
+    switch result {
     case let .success(info): return info
     case let .failure(error): throw error
     }
@@ -815,13 +858,19 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     sendCommandInvocations.append(
       SendCommandInvocation(destination: destination, command: command, textType: textType)
     )
-    switch stubbedSendCommandResult {
+    let result = stubbedSendCommandResult
+    try await sendCommandHold?()
+    switch result {
     case let .success(info): return info
     case let .failure(error): throw error
     }
   }
 
-  public func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo {
+  public func sendKeepAlive(
+    to publicKey: Data,
+    syncSince: @escaping @Sendable () async throws -> UInt32,
+    beforeSend: @escaping @Sendable () throws -> Void
+  ) async throws -> MessageSentInfo {
     throw NotStubbed.method("sendKeepAlive")
   }
 
@@ -836,6 +885,10 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     case let .success(response): return response
     case let .failure(error): throw error
     }
+  }
+
+  public func requestStatus(from publicKey: Data) async throws -> StatusResponse {
+    try await requestStatus(from: publicKey, type: .repeater)
   }
 
   public func requestStatus(from publicKey: Data, type: ContactType) async throws -> StatusResponse {
@@ -862,6 +915,35 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
     case let .success(response): return response
     case let .failure(error): throw error
     }
+  }
+
+  public func fetchAllNeighbours(
+    from publicKey: Data,
+    orderBy: UInt8,
+    pubkeyPrefixLength: UInt8
+  ) async throws -> NeighboursResponse {
+    throw NotStubbed.method("fetchAllNeighbours")
+  }
+
+  public func requestMMA(from publicKey: Data, start: Date, end: Date) async throws -> MMAResponse {
+    throw NotStubbed.method("requestMMA")
+  }
+
+  public func requestACL(from publicKey: Data) async throws -> ACLResponse {
+    throw NotStubbed.method("requestACL")
+  }
+
+  public func getSelfTelemetry() async throws -> TelemetryResponse {
+    throw NotStubbed.method("getSelfTelemetry")
+  }
+
+  public func sendTrace(
+    tag: UInt32?,
+    authCode: UInt32?,
+    flags: UInt8,
+    path: Data?
+  ) async throws -> MessageSentInfo {
+    throw NotStubbed.method("sendTrace")
   }
 
   public func requestNeighbours(

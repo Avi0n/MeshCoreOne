@@ -36,6 +36,42 @@ public actor NodeSnapshotService {
     }
   }
 
+  public func recordSelfTelemetry(
+    deviceID: UUID,
+    radioID: UUID,
+    nodePublicKey: Data,
+    telemetry: [TelemetrySnapshotEntry]?,
+    location: NodeLocationFix?
+  ) async -> UUID? {
+    do {
+      return try await dataStore.recordSelfTelemetrySnapshot(
+        deviceID: deviceID,
+        radioID: radioID,
+        nodePublicKey: nodePublicKey,
+        telemetry: telemetry,
+        location: location
+      )
+    } catch {
+      logger.error("Failed to record self telemetry: \(error)")
+      return nil
+    }
+  }
+
+  public func fetchSelfTelemetry(
+    radioID: UUID,
+    nodePublicKey: Data
+  ) async -> [NodeStatusSnapshotDTO] {
+    do {
+      return try await dataStore.fetchSelfTelemetrySnapshots(
+        radioID: radioID,
+        nodePublicKey: nodePublicKey
+      )
+    } catch {
+      logger.error("Failed to fetch self telemetry: \(error)")
+      return []
+    }
+  }
+
   /// The neighbor baseline for a node: the previous neighbor-bearing snapshot (for
   /// the SNR delta) plus every neighbor prefix seen across history (for the "New"
   /// badge). Skips status- or telemetry-only rows and the current in-window capture.

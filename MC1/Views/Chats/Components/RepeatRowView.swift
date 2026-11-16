@@ -46,10 +46,10 @@ struct RepeatRowView: View {
       }
     }
     .padding(.vertical, 4)
-    // .combine would swallow FallbackMatchIndicatorView; .contain keeps the popover a rotor stop.
+    // Containment keeps the possible-match button accessible apart from the repeat row.
     .accessibilityElement(children: resolution.isFallback ? .contain : .combine)
     .accessibilityLabel(L10n.Chats.Chats.Repeats.Row.accessibility(resolution.displayName))
-    .accessibilityValue(L10n.Chats.Chats.Repeats.Row.accessibilityValue(signalQuality, repeatEntry.snrFormatted, repeatEntry.rssiFormatted))
+    .accessibilityValue(accessibilityValueText)
   }
 
   /// NeighborNameResolver, not RepeaterResolver.bestMatch: only the former reports `.fallback`.
@@ -97,6 +97,14 @@ struct RepeatRowView: View {
 
   private var signalQuality: String {
     snrQuality.localizedLabel
+  }
+
+  private var accessibilityValueText: String {
+    [
+      L10n.Chats.Chats.Path.Hop.nodeId(repeatEntry.repeaterHashFormatted),
+      hopCountText,
+      L10n.Chats.Chats.Repeats.Row.accessibilityValue(signalQuality, repeatEntry.snrFormatted, repeatEntry.rssiFormatted)
+    ].joined(separator: ", ")
   }
 
   private var hopCountText: String {

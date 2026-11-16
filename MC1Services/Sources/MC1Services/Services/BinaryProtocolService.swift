@@ -34,6 +34,7 @@ public actor BinaryProtocolService {
   private let session: any DiagnosticsSessionOps & SessionEventStreaming & ContactSessionOps
   private let radioID: UUID
   private let contactRadio: any ContactRadioOwning
+  private let defaults: UserDefaults
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "BinaryProtocol")
 
   /// Handler for status responses (from push notifications)
@@ -53,11 +54,13 @@ public actor BinaryProtocolService {
   public init(
     session: any DiagnosticsSessionOps & SessionEventStreaming & ContactSessionOps,
     radioID: UUID,
-    contactRadio: any ContactRadioOwning
+    contactRadio: any ContactRadioOwning,
+    defaults: UserDefaults = .standard
   ) {
     self.session = session
     self.radioID = radioID
     self.contactRadio = contactRadio
+    self.defaults = defaults
   }
 
   deinit {
@@ -229,8 +232,8 @@ public actor BinaryProtocolService {
 
   // MARK: - Direct-path flood recovery
 
-  /// On mesh timeout, calls `resetPath` and retries once. Always resets because
-  /// this path has no radio-scoped contact to check for flood routing.
+  /// On mesh timeout, calls `resetPath` and retries once when path fallback is on.
+  /// This path has no radio-scoped contact to check for flood routing.
   private func performWithPathResetOnTimeout<T: Sendable>(
     publicKey: Data,
     operationName: String,
@@ -240,6 +243,9 @@ public actor BinaryProtocolService {
       return try await operation()
     } catch let error as MeshCoreError {
       guard case .timeout = error else { throw BinaryProtocolError.sessionError(error) }
+      guard RemoteFloodFallback.isEnabled(defaults: defaults) else {
+        throw BinaryProtocolError.sessionError(error)
+      }
       logger.info(
         "\(operationName): mesh timeout; resetting path to flood and retrying once"
       )

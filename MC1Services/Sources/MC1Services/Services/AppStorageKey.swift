@@ -54,6 +54,12 @@ public enum AppStorageKey: String {
   /// in-bubble Translate button.
   case translationOffersEnabled
   case autoDeleteStaleNodesDays
+  /// Initial attempts use the contact's current out path, which can be Flood.
+  case dmDirectAttempts
+  /// Zero disables the out path reset and fallback sends.
+  case dmFloodAttempts
+  /// Off keeps the known route after a timeout. A missing key means on.
+  case remoteFloodFallback
   case lastStaleCleanupDate
   case frequentEmojis
   case recentReactionEmojis
@@ -63,6 +69,8 @@ public enum AppStorageKey: String {
   /// hardware still shows the current release's notes once. Registering it would
   /// suppress the sheet on a genuinely new device.
   case lastShownWhatsNewVersion
+  /// Left out of `BackupUserDefaults`, so a restored on value cannot enable collection. A missing key stays off.
+  case collectDebugLogs
 
   // Notification toggles read by NotificationPreferences and
   // NotificationPreferencesStore; all share defaultNotificationEnabled.
@@ -103,6 +111,9 @@ public enum AppStorageKey: String {
   public static let defaultLiveActivityEnabled: Bool = true
   /// Days before a non-favorite node is auto-deleted; 0 disables cleanup.
   public static let defaultAutoDeleteStaleNodesDays: Int = 0
+  public static let defaultDMDirectAttempts: Int = DMSendBudget.defaultDirectAttempts
+  public static let defaultDMFloodAttempts: Int = DMSendBudget.defaultFloodAttempts
+  public static let defaultRemoteFloodFallback: Bool = RemoteFloodFallback.defaultEnabled
   /// `timeIntervalSinceReferenceDate` of the last cleanup; 0 means never ran.
   public static let defaultLastStaleCleanupDate: Double = 0
   /// Shared default for every notification toggle case.

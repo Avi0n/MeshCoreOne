@@ -6,6 +6,8 @@ enum SettingsSubpage: Hashable {
   case publicKey(Data)
   case configExport
   case configImport
+  case textRuleChats(TextRulesPreference.Kind)
+  case recentlyBlocked
   case blockedChannelSenders
   case blockedContacts
   case trustedContacts
@@ -17,6 +19,8 @@ enum SettingsSubpage: Hashable {
   case support
   case bluetoothLink
   case wifiLink
+  case deviceInfoTelemetryHistory(publicKey: Data)
+  case deviceInfoLocationMap(publicKey: Data, fix: NodeLocationFix, name: String?)
 
   func isAdmitted(for detail: SettingsDetail?, device: DeviceDTO?) -> Bool {
     switch self {
@@ -24,12 +28,16 @@ enum SettingsSubpage: Hashable {
       detail == .connection
     case .publicKey:
       detail == .deviceInfo
+    case let .deviceInfoTelemetryHistory(publicKey):
+      detail == .deviceInfo && device?.publicKey == publicKey
+    case let .deviceInfoLocationMap(publicKey, _, _):
+      detail == .deviceInfo && device?.publicKey == publicKey
     case .configExport, .configImport, .trustedContacts:
       detail == .advanced
     case .remoteCLIContacts:
       detail == .advanced && device?.supportsRadioCLI == true
-    case .blockedChannelSenders, .blockedContacts:
-      detail == .chats
+    case .textRuleChats, .recentlyBlocked, .blockedChannelSenders, .blockedContacts:
+      detail == .blocksAndFilters
     case .translateIntoLanguage:
       detail == .language
     case .presetLocation:
@@ -56,8 +64,9 @@ enum SettingsSubpage: Hashable {
 private enum SettingsSubpageContext {
   case standard
   case radio(PresetLocationSession)
-  case advanced(RegionDiscoveryState, SettingsEditorPresentation.RegionRequest)
+  case advanced(RegionDiscoveryState, SettingsEditorPresentation.RegionRequest, NodeConfigImportViewModel)
   case connection(RadioWiFiViewModel)
+  case deviceInfo(DeviceInfoTelemetryViewModel)
 }
 
 extension View {
@@ -71,13 +80,18 @@ extension View {
 
   func settingsSubpageDestinations(
     regions discovery: RegionDiscoveryState,
-    requestRegionAdd: @escaping SettingsEditorPresentation.RegionRequest
+    requestRegionAdd: @escaping SettingsEditorPresentation.RegionRequest,
+    configImport: NodeConfigImportViewModel
   ) -> some View {
-    modifier(SettingsSubpageRegistration(context: .advanced(discovery, requestRegionAdd)))
+    modifier(SettingsSubpageRegistration(context: .advanced(discovery, requestRegionAdd, configImport)))
   }
 
   func settingsSubpageDestinations(radioWiFi: RadioWiFiViewModel) -> some View {
     modifier(SettingsSubpageRegistration(context: .connection(radioWiFi)))
+  }
+
+  func settingsSubpageDestinations(deviceInfoTelemetry model: DeviceInfoTelemetryViewModel) -> some View {
+    modifier(SettingsSubpageRegistration(context: .deviceInfo(model)))
   }
 }
 
@@ -103,7 +117,14 @@ private struct SettingsSubpageDestination: View {
     case .configExport:
       NodeConfigExportView()
     case .configImport:
-      NodeConfigImportView()
+      if case let .advanced(_, _, configImport) = context {
+        NodeConfigImportView(viewModel: configImport)
+          .onAppear { configImport.beginImport() }
+      }
+    case let .textRuleChats(kind):
+      TextRuleChatsView(kind: kind)
+    case .recentlyBlocked:
+      RecentlyBlockedView()
     case .blockedChannelSenders:
       BlockedChannelSendersView()
     case .blockedContacts:
@@ -124,7 +145,7 @@ private struct SettingsSubpageDestination: View {
           .environment(session)
       }
     case .manageRegions:
-      if case let .advanced(discovery, requestRegionAdd) = context {
+      if case let .advanced(discovery, requestRegionAdd, _) = context {
         ManageRegionsPage(discovery: discovery, requestRegionAdd: requestRegionAdd)
       }
     case .bluetoothLink:
@@ -133,6 +154,12 @@ private struct SettingsSubpageDestination: View {
       if case let .connection(radioWiFi) = context {
         ConnectionWiFiPage(radioWiFi: radioWiFi)
       }
+    case .deviceInfoTelemetryHistory:
+      if case let .deviceInfo(model) = context {
+        TelemetryHistoryView(fetchSnapshots: model.fetchHistory, ocvArray: model.ocvValues)
+      }
+    case let .deviceInfoLocationMap(_, fix, name):
+      nodeLocationMap(fix: fix, name: name)
     }
   }
 }

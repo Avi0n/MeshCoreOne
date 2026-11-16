@@ -30,7 +30,10 @@ struct ContactDetailContent: View {
           contactTypeLabel: state.contactTypeLabel,
           measuredHeight: $headerHeight,
           isSavingAvatar: state.isSavingAvatar,
-          showAvatarSourceMenu: $state.showAvatarSourceMenu,
+          showAvatarSourceMenu: avatarSourceMenuPresented,
+          onChoosePhoto: { state.showAvatarPhotosPicker = true },
+          onChooseFile: { state.showAvatarFileImporter = true },
+          onRemovePhoto: { state.removeAvatarPhoto() },
           onRowPosition: recordRowPosition
         )
 
@@ -137,6 +140,16 @@ struct ContactDetailContent: View {
     state.rendererRevision == rendererRevision && state.rendererID == rendererID && state.hasPresentationOwnership
   }
 
+  private var avatarSourceMenuPresented: Binding<Bool> {
+    Binding(
+      get: { isCurrentRenderer && state.showAvatarSourceMenu },
+      set: { value in
+        guard isCurrentRenderer else { return }
+        state.showAvatarSourceMenu = value
+      }
+    )
+  }
+
   private func restoredSection(_ saved: ContactDetailState.ScrollSection) -> ContactDetailState.ScrollSection {
     if saved == .location, !state.currentContact.hasLocation { return .outPath }
     if saved == .danger, state.isVContact, state.currentContact.type != .chat { return .technical }
@@ -159,8 +172,7 @@ struct ContactDetailContent: View {
   }
 
   private func updateVisibleSection() {
-    guard isCurrentRenderer else { return }
-    guard let section = visibleSection else { return }
+    guard isCurrentRenderer, let section = visibleSection else { return }
     if !restoredScroll {
       guard section == restorationTarget else { return }
       restoredScroll = true

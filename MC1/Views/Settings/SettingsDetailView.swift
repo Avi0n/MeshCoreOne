@@ -8,6 +8,7 @@ struct SettingsDetailView: View {
   let requestNameEdit: SettingsEditorPresentation.NameRequest
   let requestRegionAdd: SettingsEditorPresentation.RegionRequest
   let backupPresentation: SettingsBackupPresentation?
+  let configImport: NodeConfigImportViewModel
 
   var body: some View {
     switch detail {
@@ -20,11 +21,15 @@ struct SettingsDetailView: View {
     case .connection:
       ConnectionSettingsView(descendantPath: descendantPath)
     case .advanced:
-      AdvancedSettingsView(descendantPath: descendantPath, requestRegionAdd: requestRegionAdd)
+      AdvancedSettingsView(
+        descendantPath: descendantPath, requestRegionAdd: requestRegionAdd, configImport: configImport
+      )
     case .notifications:
       NotificationSettingsView()
     case .chats:
       ChatSettingsView()
+    case .blocksAndFilters:
+      BlocksAndFiltersSettingsView()
     case .appearance:
       AppearanceView()
     case .maps:

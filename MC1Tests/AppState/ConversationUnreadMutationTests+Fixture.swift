@@ -105,8 +105,9 @@ extension ConversationUnreadMutationTests {
         currentRadioID: { self.currentRadioID }
       ))
       appState.connectionManager.persistConnection(deviceID: UUID(), radioID: radioID, deviceName: "Radio")
-      appState.connectionManager.setTestState(services: services)
-      appState.wireSyncDataEvents(services: services)
+      let device = DeviceDTO(from: Device(radioID: radioID, publicKey: Data(repeating: 0xA1, count: 32), nodeName: "Radio"))
+      appState.connectionManager.setTestState(connectionState: .ready, services: services, session: services.session, connectedDevice: device)
+      try appState.wireSyncDataEvents(snapshot: #require(appState.connectionManager.currentConnection))
       await appState.refreshConversations().value
       await viewModel.requestConversationReload()?.value
       try #require(await recorder.publications == [total()])
@@ -121,8 +122,10 @@ extension ConversationUnreadMutationTests {
         session: MeshCoreSession(transport: MockTransport()), dataStore: store, radioID: radioID
       )
       containers.append(services)
-      appState.connectionManager.setTestState(services: services)
-      appState.wireSyncDataEvents(services: services)
+      guard let device = appState.connectedDevice else { return }
+      appState.connectionManager.setTestState(connectionState: .ready, services: services, session: services.session, connectedDevice: device)
+      guard let snapshot = appState.connectionManager.currentConnection else { return }
+      appState.wireSyncDataEvents(snapshot: snapshot)
     }
 
     func finishEvents() async {

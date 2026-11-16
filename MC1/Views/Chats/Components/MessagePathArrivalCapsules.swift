@@ -109,14 +109,21 @@ struct MessagePathArrivalCapsules: View {
   }
 
   private func title(for arrival: MessagePathArrival) -> String {
-    let hops = arrival.hopCount == 1
-      ? L10n.Chats.Chats.Repeats.Hop.singular
-      : L10n.Chats.Chats.Repeats.Hop.plural(arrival.hopCount)
-    guard let snr = arrival.snr else { return hops }
+    let hopText: String? = if let hopCount = arrival.hopCount {
+      hopCount == 1
+        ? L10n.Chats.Chats.Repeats.Hop.singular
+        : L10n.Chats.Chats.Repeats.Hop.plural(hopCount)
+    } else {
+      nil
+    }
+    guard let snr = arrival.snr else {
+      return hopText ?? L10n.Chats.Chats.Path.Unavailable.title
+    }
     let snrText = snr.formatted(.number.precision(.fractionLength(1)))
       + " "
       + L10n.RemoteNodes.RemoteNodes.Status.snrBadgeUnit
-    return "\(hops) · \(snrText)"
+    guard let hopText else { return snrText }
+    return "\(hopText) · \(snrText)"
   }
 
   private func subtitle(for arrival: MessagePathArrival) -> String {

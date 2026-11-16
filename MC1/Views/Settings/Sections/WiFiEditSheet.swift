@@ -118,17 +118,20 @@ struct WiFiEditSheet: View {
 
     Task {
       do {
-        // Disconnect from current connection, then connect to new address
-        await appState.disconnect(reason: .wifiAddressChange)
-        try await appState.connectViaWiFi(
+        let result = try await appState.connectViaWiFi(
           host: WiFiAddressFields.normalizedHost(ipAddress),
           port: portNumber,
           forceFullSync: true
         )
+        guard case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else {
+          isReconnecting = false
+          return
+        }
         dismiss()
       } catch {
-        errorMessage = error.userFacingMessage
         isReconnecting = false
+        guard let failure = appState.currentConnectionFailure(error) else { return }
+        errorMessage = failure.userFacingMessage
       }
     }
   }

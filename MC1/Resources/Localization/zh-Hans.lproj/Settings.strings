@@ -46,9 +46,6 @@
 /* Section header for device information */
 "device.header" = "设备";
 
-/* Status shown when device is connected */
-"device.connected" = "已连接";
-
 /* Footer shown when no device is connected */
 "device.noDeviceConnected" = "未连接 MeshCore 设备";
 
@@ -59,12 +56,6 @@
 
 /* Navigation title for device info screen */
 "deviceInfo.title" = "设备信息";
-
-/* Section header for connection status */
-"deviceInfo.connection.header" = "连接";
-
-/* Label for connection status */
-"deviceInfo.connection.status" = "状态";
 
 /* Section header for power and storage */
 "deviceInfo.powerStorage.header" = "电源和存储";
@@ -110,6 +101,12 @@
 
 /* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
 "deviceInfo.firmwareVersionFormat" = "v%@";
+
+/* Heading above retained telemetry after a Device Info reload fails */
+"deviceInfo.lastSuccessfulReading" = "上次成功读数";
+
+/* Section header for Device Info telemetry */
+"deviceInfo.telemetry.header" = "节点遥测数据";
 
 /* Section header for identity information */
 /* Label for public key */
@@ -164,6 +161,9 @@
 
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "扫描蓝牙设备";
+
+/* Button title while this radio is being paired again */
+"deviceSelection.rePairing" = "重新配对中...";
 
 /* Trailing control on a previously paired row that still needs iPhone setup */
 /* AI-translated - please verify with native speakers. */
@@ -746,6 +746,21 @@
 /* Alert message for clear logs */
 "diagnostics.alert.clear.message" = "这将删除所有存储的调试日志。导出的日志文件不会受到影响。";
 
+/* Toggle to enable collecting local debug logs */
+"diagnostics.collectLogs" = "收集调试日志";
+
+/* Footer shown when debug log collection is off */
+"diagnostics.footer.disabled" = "不收集本地调试日志。";
+
+/* Alert title for disabling collection */
+"diagnostics.alert.disable.title" = "停用收集";
+
+/* Button to confirm disabling collection */
+"diagnostics.alert.disable.confirm" = "停用收集";
+
+/* Alert message for disabling collection */
+"diagnostics.alert.disable.message" = "这将删除所有存储的调试日志并停止收集。导出的日志文件不会受到影响。";
+
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "创建导出文件失败";
 
@@ -753,6 +768,8 @@
 
 /* Navigation title for chat settings page */
 "chatSettings.title" = "聊天";
+
+"blocksAndFilters.title" = "屏蔽与过滤";
 
 // MARK: - Link Preview Settings Section
 
@@ -856,6 +873,8 @@
 
 /* Toggle label for companion discovery notifications */
 "notifications.discoveryContact" = "伴侣节点";
+
+"notifications.discoveryCompanionsAndSensors" = "伴侣节点和传感器";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "中继器";
@@ -1017,6 +1036,9 @@
 
 /* Editor footer when the password is too long */
 "radioWiFi.editor.passwordLength" = "密码最多为 63 字节。";
+
+/* Editor footer when a credential contains a character the firmware cannot store */
+"radioWiFi.editor.unsupportedCharacter" = "网络名称或密码包含此无线电无法存储的字符。";
 
 /* Button that clears the radio's saved WiFi settings */
 "radioWiFi.clear" = "清除 WiFi 设置";
@@ -1183,6 +1205,35 @@
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "每条私信发送的确认数量。在不可靠的链路上使用 2 以获得更好的送达确认。";
 
+/* Switch that clears the known route after the path attempts */
+"directMessages.fallback" = "回退到泛洪";
+
+/* Picker label for attempts on the known route */
+"directMessages.directAttempts" = "路径尝试";
+
+/* Picker label for attempts sent by flood after the route is cleared */
+"directMessages.floodAttempts" = "泛洪尝试";
+
+/* Footer when Fall Back to Flood is on */
+"directMessages.attemptsFooterOn" = "完成“路径尝试”后，将清除路由。随后，“泛洪尝试”会以泛洪发送。没有已知路由的联系人，消息会以泛洪发送。";
+
+/* Footer when Fall Back to Flood is off */
+"directMessages.attemptsFooterOff" = "“路径尝试”始终使用已知路由，路由将保留。没有已知路由的联系人，消息会以泛洪发送。";
+
+// MARK: - Path Fallback
+
+/* Section header for sign-in, command, and contact telemetry path fallback */
+"pathFallback.header" = "路径回退";
+
+/* Switch that clears the known route after a timeout */
+"pathFallback.fallback" = "回退到泛洪";
+
+/* Footer when path fallback is on */
+"pathFallback.footerOn" = "登录、等待回复的转发节点命令和房间命令，以及联系人遥测，都使用已知路由。如果没有回复，将清除路由，并以泛洪尝试一次。";
+
+/* Footer when path fallback is off */
+"pathFallback.footerOff" = "登录、命令和联系人遥测始终使用已知路由。如果没有回复，就会停止，路由将保留。登录界面上的“泛洪路由”会清除该节点已保存的路由。";
+
 // MARK: - BLE Status Indicator
 
 /* Menu item to send a zero-hop advertisement */
@@ -1197,11 +1248,23 @@
 /* Menu item to disconnect from the current device */
 "bleStatus.disconnect" = "断开连接";
 
+/* Menu item to stop automatic reconnection until another explicit connection */
+"bleStatus.stopReconnecting" = "停止重新连接";
+
+/* Menu item to cancel the current connection request */
+"bleStatus.cancelConnection" = "取消连接";
+
 /* Status shown when device is disconnected */
 "bleStatus.status.disconnected" = "已断开";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "连接中...";
+
+/* Status shown while reconnecting to the selected device */
+"bleStatus.status.reconnecting" = "正在重新连接...";
+
+/* Status shown while automatic reconnection remains enabled between attempts */
+"bleStatus.status.waitingToReconnect" = "等待重新连接";
 
 /* Status shown when device is connected but not ready */
 "bleStatus.status.connected" = "已连接";
@@ -1214,6 +1277,9 @@
 
 /* Accessibility label for BLE status indicator */
 "bleStatus.accessibilityLabel" = "蓝牙连接状态";
+
+/* TODO: translate - Accessibility text combining a descriptive prefix and connection state or context; arguments may themselves contain a radio name and status */
+"bleStatus.accessibilityValue" = "%1$@, %2$@";
 
 /* Accessibility hint when disconnected */
 "bleStatus.accessibilityHint.disconnected" = "双击以连接设备";
@@ -1317,6 +1383,24 @@
 
 /* Import failed after one or more settings were already written; %@ is the underlying error message */
 "configImport.failedPartial" = "%@ 部分设置可能已写入设备。请检查设备的配置。";
+
+/* Interrupted identity import recovery */
+"configImport.identityOutcomeUnknown" = "向 %@ 导入身份时连接中断。无线电的身份可能已更改。配置导入未完成。";
+
+/* Interrupted identity import recovery */
+"configImport.retryIdentityImport" = "重试身份导入";
+
+/* Interrupted identity import recovery */
+"configImport.confirmIdentityRecovery" = "此操作将使用所选文件中的私钥，替换通过 %@ 连接的无线电的身份。配置导入不会继续。";
+
+/* Confirmation alert title when retrying an interrupted identity import */
+"configImport.confirmTitleIdentityRecovery" = "替换无线电身份？";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryComplete" = "身份已重新应用。配置导入未完成。请再次导入文件以应用其他设置。";
+
+/* Interrupted identity import recovery */
+"configImport.identityRecoveryKeyRequired" = "请选择包含私钥的配置文件以重试身份导入。";
 
 /* Import success */
 "configImport.importSuccess" = "配置导入成功";
@@ -1433,6 +1517,63 @@
 /* Footer explaining map preview privacy implications */
 /* AI-translated - please verify with native speakers. */
 "mapPreviews.footer" = "显示地图缩略图会从第三方服务器获取该坐标的地图图块，可能会暴露您的IP地址。";
+
+// MARK: - Text Rules
+
+"textRules.rules" = "过滤规则";
+"textRules.empty" = "没有过滤规则";
+"textRules.loading" = "正在加载过滤规则…";
+"textRules.loadFailed" = "无法加载过滤规则。在过滤规则加载成功之前，新消息不会使用过滤规则。";
+"textRules.retryAccessibility" = "重新加载过滤规则";
+"textRules.saveFailed" = "无法保存过滤规则。请重试。";
+"textRules.new.title" = "新规则";
+"textRules.new.phrase" = "词或文字";
+"textRules.new.lookIn" = "查找范围";
+"textRules.new.match" = "匹配";
+"textRules.new.containsMessageFooter" = "只要在消息中出现就会匹配，包括某个词的一部分。";
+"textRules.new.wholeMessageFooter" = "仅当整条消息就是这段文字时才会匹配。";
+"textRules.new.containsSenderFooter" = "只要在发送者名称中出现就会匹配，包括某个词的一部分。该发送者的表情反应也会被隐藏。";
+"textRules.new.wholeNameFooter" = "仅当发送者名称正好是这段文字时才会匹配。该发送者的表情反应也会被隐藏。";
+"textRules.new.containsMessageOrSenderFooter" = "只要在消息或发送者名称中出现就会匹配，包括某个词的一部分。发送者名称匹配时，其表情反应也会被隐藏。";
+"textRules.new.wholeMessageOrSenderFooter" = "仅当整条消息或发送者的整个名称就是这段文字时才会匹配。发送者名称匹配时，其表情反应也会被隐藏。";
+"textRules.field.message" = "消息";
+"textRules.field.sender" = "发送者";
+"textRules.field.messageOrSender" = "消息或发送者";
+"textRules.match.contains" = "包含";
+"textRules.match.wholeMessage" = "整条消息";
+"textRules.match.wholeName" = "整个名称";
+"textRules.match.wholeField" = "整个字段";
+"textRules.ruleSummary" = "%1$@ · %2$@";
+"textRules.types.header" = "将规则用于";
+"textRules.types.footer" = "开启后，该类型的所有聊天都会包括在内，包括您之后加入的聊天。";
+"textRules.types.publicChannel" = "公共";
+"textRules.types.hashtagChannel" = "标签频道";
+"textRules.types.privateChannel" = "私人频道";
+"textRules.selection.all" = "全部";
+"textRules.selection.none" = "无";
+"textRules.selection.count" = "%d 个聊天";
+"textRules.selection.accessibilityChats" = "%@的聊天";
+"textRules.selection.footer" = "“全部”会包括您之后加入的聊天。";
+"textRules.archive.title" = "最近隐藏的消息";
+"textRules.archive.empty" = "没有隐藏消息";
+"textRules.archive.footer" = "最近的 %d 条隐藏消息会保留在此设备上。这些消息不会包含在应用备份中。";
+"textRules.archive.labelPrefix" = "%@: ";
+/* Recently Blocked row. %1$@ is the chat, %2$@ is the matched phrase, %3$@ is the rule summary. */
+"textRules.archive.caption" = "%1$@ · “%2$@” · %3$@";
+/* Recently Blocked row when the chat name is missing. %1$@ is the matched phrase, %2$@ is the rule summary. */
+"textRules.archive.captionWithoutChat" = "“%1$@” · %2$@";
+"textRules.archive.rule" = "规则";
+"textRules.archive.chat" = "聊天";
+"textRules.archive.myNode" = "我的节点";
+"textRules.archive.time" = "时间";
+"textRules.archive.unknownConversation" = "未知对话";
+"textRules.archive.unknownRadio" = "未知无线电";
+
+"radioCleanup.title" = "清理";
+"radioCleanup.running" = "正在移除无线电数据";
+"radioCleanup.failed" = "此无线电的隐藏消息可能仍留在此应用安装中。";
+"radioCleanup.completed" = "无线电数据已移除";
+"radioCleanup.retryAccessibility" = "再次尝试清理 %@ 的无线电";
 
 // MARK: - Blocking Section
 
@@ -1978,7 +2119,7 @@
 "settings.backup.export.alert.title" = "安全提示";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史、联系人列表以及 WiFi 节点的本地网络地址和端口。请妥善保管导出的文件。";
+"settings.backup.export.alert.message" = "此备份包含频道加密密钥、消息历史、联系人列表以及 WiFi 节点的本地网络地址和端口。此备份还可能包含已记录的电台 GPS 坐标。请妥善保管导出的文件。";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "导出";

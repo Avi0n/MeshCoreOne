@@ -68,36 +68,6 @@ struct NodeConfigImportViewModelTests {
   }
 
   @Test
-  func `Leaving the screen resets a loaded preview back to the file picker`() {
-    let viewModel = NodeConfigImportViewModel()
-    viewModel.importedConfig = MeshCoreNodeConfig(name: "Node", channels: [])
-    viewModel.errorMessage = "stale error"
-    viewModel.sections.channels = true
-    viewModel.showConfirmation = true
-
-    viewModel.handleDismissal()
-
-    #expect(viewModel.importedConfig == nil)
-    #expect(viewModel.errorMessage == nil)
-    #expect(viewModel.sections == ConfigSections())
-    #expect(!viewModel.showConfirmation)
-  }
-
-  @Test
-  func `Leaving the screen mid-import preserves the in-flight import state`() {
-    let viewModel = NodeConfigImportViewModel()
-    viewModel.importedConfig = MeshCoreNodeConfig(name: "Node", channels: [])
-    viewModel.isApplying = true
-    viewModel.applyProgress = 0.5
-
-    viewModel.handleDismissal()
-
-    #expect(viewModel.importedConfig != nil)
-    #expect(viewModel.isApplying)
-    #expect(viewModel.applyProgress == 0.5)
-  }
-
-  @Test
   func `a dismissed import and a preset leave live and stored RF on the final operation`() async throws {
     let eu = try #require(RadioPresets.all.first { $0.id == "eu-narrow" })
     let usa = try #require(RadioPresets.all.first { $0.id == "us-ca" })
@@ -124,9 +94,11 @@ struct NodeConfigImportViewModelTests {
     appState.connectionManager.setTestState(
       connectionState: .ready,
       services: services,
+      session: session,
       connectedDevice: device
     )
-    await appState.wireSettingsEventStream(services: services)
+    let snapshot = try #require(appState.connectionManager.currentConnection)
+    await appState.wireSettingsEventStream(snapshot: snapshot)
     defer {
       appState.shutdown()
       Task {
@@ -136,12 +108,13 @@ struct NodeConfigImportViewModelTests {
     }
 
     let gate = ImportSuspendGate()
-    await services.nodeConfigService.setOnPostIdentityImport {
+    await services.nodeConfigService.setIdentityImportHandler { key in
+      try await services.settingsService.importPrivateKey(key)
       await gate.park()
       return nil
     }
     let viewModel = NodeConfigImportViewModel()
-    viewModel.importedConfig = MeshCoreNodeConfig(
+    viewModel.acceptInput(MeshCoreNodeConfig(
       privateKey: String(repeating: "ab", count: 64),
       radioSettings: .init(
         frequency: eu.frequencyKHz,
@@ -150,15 +123,17 @@ struct NodeConfigImportViewModelTests {
         codingRate: eu.codingRate,
         txPower: Device.Defaults.txPower
       )
-    )
+    ), source: nil)
     viewModel.sections.nodeIdentity = true
     viewModel.sections.radioSettings = true
 
-    viewModel.applyConfig(
-      nodeConfigService: services.nodeConfigService,
-      settingsService: services.settingsService,
-      radioID: radioID
+    viewModel.configure(
+      nodeConfigService: { services.nodeConfigService }, settingsService: { services.settingsService },
+      connectedDevice: { appState.connectedDevice }, connectionManager: appState.connectionManager
     )
+    viewModel.prepareConfirmation()
+    try await waitUntil("the import preview should be ready") { viewModel.showConfirmation || viewModel.errorMessage != nil }
+    viewModel.applyConfig()
     try await waitUntil("import should park after its early radio read") {
       gate.isParked && viewModel.isApplying
     }

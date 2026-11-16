@@ -2,6 +2,7 @@
 
 @preconcurrency import CoreBluetooth
 import Foundation
+import MeshCore
 
 /// Protocol for BLE state machine operations used by ConnectionManager.
 /// Enables dependency injection for testing.
@@ -48,17 +49,6 @@ public protocol BLEStateMachineProtocol: Actor {
   /// Activates the central manager if needed.
   func activate()
 
-  /// Sets a handler for auto-reconnecting events.
-  /// Called when device disconnects but iOS is attempting automatic reconnection.
-  /// - Parameters:
-  ///   - deviceID: The disconnected device ID.
-  ///   - errorInfo: Best-effort error summary from CoreBluetooth.
-  func setAutoReconnectingHandler(_ handler: @escaping @Sendable (UUID, String) -> Void)
-
-  /// Peripheral link loss with the CoreBluetooth event time.
-  /// Not fired for local shutdown or the phone's own Bluetooth power-off.
-  func setRemoteLinkLostHandler(_ handler: @escaping @Sendable (UUID, CFAbsoluteTime) -> Void)
-
   /// Sets a handler called when Bluetooth powers on
   func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void)
 
@@ -67,6 +57,7 @@ public protocol BLEStateMachineProtocol: Actor {
   /// budget. Seeded from persistence at wiring time and refreshed after every
   /// verified session.
   func recordBondVerification(deviceID: UUID, at date: Date)
+  func recordBondVerification(deviceID: UUID, at date: Date, sessionBinding: SessionTransportBinding)
 
   /// Clears a device's bond-verification record when its pairing is
   /// forgotten, so a stale verification cannot shield the next episode.
@@ -76,6 +67,7 @@ public protocol BLEStateMachineProtocol: Actor {
   /// `deviceID` (non-nil) or that no session is live (nil). Awaited from
   /// ConnectionManager so RSSI bond refresh cannot race a stale flag.
   func setAppSessionLive(deviceID: UUID?)
+  func setAppSessionLive(deviceID: UUID?, sessionBinding: SessionTransportBinding)
 
   /// Whether the given device currently has a bond-verification stamp. Used by
   /// ConnectionManager to re-validate before persisting an RSSI bond refresh.
@@ -98,6 +90,7 @@ public protocol BLEStateMachineProtocol: Actor {
 
   /// Sets the delay between write operations for pacing.
   func setWritePacingDelay(_ delay: TimeInterval)
+  func setWritePacingDelay(_ delay: TimeInterval, sessionBinding: SessionTransportBinding)
 
   /// Sets a handler called when a device is discovered during scanning.
   func setDeviceDiscoveredHandler(_ handler: @escaping @Sendable (UUID, String?, Int) -> Void)

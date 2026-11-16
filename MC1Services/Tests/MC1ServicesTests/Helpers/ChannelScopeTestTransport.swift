@@ -3,19 +3,28 @@ import Foundation
 import MeshCore
 
 actor ChannelScopeTestTransport: MeshTransport {
+  enum ChannelCommandOutcome: Sendable {
+    case failWrite
+    case accept
+  }
+
   let receivedData: AsyncStream<Data>
   private let continuation: AsyncStream<Data>.Continuation
   private let scopeError: UInt8?
+  private let channelOutcome: ChannelCommandOutcome
   private let beforePoolRetry: (@Sendable () async throws -> Void)?
   private(set) var isConnected = false
   private(set) var scopePackets: [Data] = []
   private(set) var scopesAtChannelSend: [Data] = []
+  private(set) var sentFrames: [Data] = []
 
   init(
     scopeError: UInt8? = nil,
+    channelOutcome: ChannelCommandOutcome = .failWrite,
     beforePoolRetry: (@Sendable () async throws -> Void)? = nil
   ) {
     self.scopeError = scopeError
+    self.channelOutcome = channelOutcome
     self.beforePoolRetry = beforePoolRetry
     (receivedData, continuation) = AsyncStream.makeStream(of: Data.self)
   }
@@ -30,6 +39,7 @@ actor ChannelScopeTestTransport: MeshTransport {
   }
 
   func send(_ data: Data) async throws {
+    sentFrames.append(data)
     switch data.first {
     case CommandCode.appStart.rawValue:
       continuation.yield(selfInfoPacket())
@@ -47,8 +57,15 @@ actor ChannelScopeTestTransport: MeshTransport {
         continuation.yield(Data([ResponseCode.error.rawValue, FirmwareDeviceErrorCode.channelMessageNotFound]))
         return
       }
-      // Stop before post-send bookkeeping reaches the OS notification center.
-      throw MeshTransportError.sendFailed("Test transport send failure")
+      switch channelOutcome {
+      case .failWrite:
+        // Stop before post-send bookkeeping reaches the OS notification center.
+        throw MeshTransportError.sendFailed("Test transport send failure")
+      case .accept:
+        continuation.yield(Data([ResponseCode.ok.rawValue]))
+      }
+    case CommandCode.sendMessage.rawValue:
+      continuation.yield(Data([ResponseCode.messageSent.rawValue, 0, 1, 2, 3, 4, 0x88, 0x13, 0, 0]))
     default:
       throw MeshTransportError.sendFailed("Unexpected test command")
     }

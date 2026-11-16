@@ -25,6 +25,12 @@ public protocol SessionEventStreaming: Actor {
   /// - Returns: An async stream yielding only events that pass `filter`.
   func events(filter: EventFilter) async -> AsyncStream<MeshEvent>
 
+  /// Subscribes to filtered events with a handle for finishing the stream.
+  func eventsTracked(filter: EventFilter) async -> (id: UUID, stream: AsyncStream<MeshEvent>)
+
+  /// Finishes a tracked stream, letting its consumer drain buffered events.
+  func finishEvents(id: UUID) async
+
   /// Waits for an event matching an ``EventFilter`` with timeout.
   ///
   /// - Parameters:

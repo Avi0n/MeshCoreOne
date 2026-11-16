@@ -10,6 +10,12 @@ final class CLIToolViewModel {
   private static let maxHistoryEntries = 100
   static let logger = Logger(subsystem: "com.mc1", category: "CLIToolViewModel")
 
+  struct RadioCLIIntent {
+    let serviceID: ObjectIdentifier
+    let contextID: UUID
+    let radioID: UUID
+  }
+
   // MARK: - State
 
   private(set) var outputLines: [CLIOutputLine] = []
@@ -312,7 +318,10 @@ final class CLIToolViewModel {
       return
     }
 
-    let recorded = radioCLILine(original: command, normalized: trimmed)
+    let isRadioCLI = activeSession?.isLocal == true
+      && connectedDevice?.supportsRadioCLI == true && RadioCLIPassthrough.shouldSend(trimmed)
+    let intent = isRadioCLI ? captureRadioCLIIntent() : nil
+    let recorded = isRadioCLI ? command : trimmed
     addToHistory(recorded)
     appendOutput("\(promptPrefix) \(recorded)", type: .command)
 
@@ -327,7 +336,11 @@ final class CLIToolViewModel {
     var task: Task<Void, Never>!
     task = Task {
       defer { clearWaitingIfCurrent(task) }
-      await handleCommand(cmd, args: args, raw: recorded)
+      if isRadioCLI {
+        await runRadioCLI(recorded, intent: intent)
+      } else {
+        await handleCommand(cmd, args: args, raw: recorded)
+      }
     }
     currentCommandTask = task
 
@@ -361,14 +374,21 @@ final class CLIToolViewModel {
     isWaitingForResponse = false
   }
 
-  /// Radio CLI passthrough keeps the submitted line. App commands keep the trimmed line.
-  private func radioCLILine(original: String, normalized: String) -> String {
-    guard activeSession?.isLocal == true,
-          connectedDevice?.supportsRadioCLI == true,
-          RadioCLIPassthrough.shouldSend(normalized) else {
-      return normalized
-    }
-    return original
+  func captureRadioCLIIntent() -> RadioCLIIntent? {
+    guard let settingsService, let radioID = connectedDevice?.radioID else { return nil }
+    let binding = settingsService.radioWiFiBinding
+    guard binding.state.radioID == radioID else { return nil }
+    return RadioCLIIntent(
+      serviceID: ObjectIdentifier(settingsService), contextID: binding.contextID, radioID: radioID
+    )
+  }
+
+  func isCurrent(_ intent: RadioCLIIntent) -> Bool {
+    guard activeSession?.isLocal == true, connectedDevice?.radioID == intent.radioID,
+          let settingsService else { return false }
+    let binding = settingsService.radioWiFiBinding
+    return ObjectIdentifier(settingsService) == intent.serviceID
+      && binding.contextID == intent.contextID && binding.state.radioID == intent.radioID
   }
 
   private func addToHistory(_ command: String) {
@@ -383,15 +403,6 @@ final class CLIToolViewModel {
     // Handle "s1", "s2", etc. as shorthand for "session 1", "session 2"
     if let number = parseSessionShortcut(cmd) {
       handleSessionCommand(String(number))
-      return
-    }
-
-    // Local radio commands are interpreted app-side; the same words keep passing
-    // through to repeaters on remote sessions.
-    if activeSession?.isLocal == true,
-       connectedDevice?.supportsRadioCLI == true,
-       RadioCLIPassthrough.shouldSend(raw) {
-      await runRadioCLI(raw)
       return
     }
 

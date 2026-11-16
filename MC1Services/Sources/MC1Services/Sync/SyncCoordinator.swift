@@ -120,18 +120,11 @@ public actor SyncCoordinator {
 
   let logger = PersistentLogger(subsystem: "com.mc1", category: "SyncCoordinator")
 
-  /// Actor-local guard against concurrent sync execution.
-  /// Checked and set synchronously (no `await`) to eliminate the TOCTOU window
-  /// that existed when guarding via the `@MainActor`-isolated `state` property.
-  var isSyncInProgress = false
+  /// Actor-local ownership, claimed synchronously before sync work suspends.
+  var primarySyncClaim: SyncClaim?
 
-  /// True while `performAdvertContactSync` holds `isSyncInProgress`. Full sync,
-  /// connection setup, and channel-only retry wait for this claim instead of skipping.
-  var advertContactSyncActive = false
-
-  /// True while a user-initiated contact refresh holds the radio pipeline.
-  /// Advert delta sync returns `.busy` so it retries on the debounce rather
-  /// than racing progress events with pull-to-refresh.
+  /// Inhibits advert sync during manual refresh so their progress events cannot interleave.
+  /// Ordinary sync admission is independent of this inhibition.
   var manualContactSyncActive = false
 
   /// Continuations held by `waitForAdvertContactSync` until the advert claim clears.
@@ -251,6 +244,13 @@ public actor SyncCoordinator {
     /// Nil stands in for a thrown sync. A completed result keeps its eligibility.
     var performResyncOverride: ((_ radioID: UUID, _ dependencies: SyncDependencies) async -> FullSyncResult?)?
 
+    /// Runs immediately before the real message save. Nil leaves that save unchanged.
+    var testBeforeMessageSave: (@Sendable (MessageDTO) async -> Void)?
+
+    func setTestBeforeMessageSave(_ hook: (@Sendable (MessageDTO) async -> Void)?) {
+      testBeforeMessageSave = hook
+    }
+
     /// Sets the test override for `performResync`.
     func setPerformResyncOverride(
       _ override: @escaping @Sendable (_ radioID: UUID, _ dependencies: SyncDependencies) async -> FullSyncResult?
@@ -258,6 +258,13 @@ public actor SyncCoordinator {
       performResyncOverride = override
     }
   #endif
+
+  /// Parks an admitted save when a test hook is installed. Release builds return immediately.
+  func runTestBeforeMessageSave(_ message: MessageDTO) async {
+    #if DEBUG
+      await testBeforeMessageSave?(message)
+    #endif
+  }
 
   // MARK: - Initialization
 
@@ -365,7 +372,10 @@ public actor SyncCoordinator {
 
   /// Notify that conversations data changed (triggers UI refresh)
   @MainActor
-  public func notifyConversationsChanged() {
+  public func notifyConversationsChanged(
+    scope: ReceiveScope? = nil
+  ) {
+    guard scope?.isCurrent != false else { return }
     conversationsVersion += 1
     dataEventBroadcaster.yield(.conversationsChanged)
   }

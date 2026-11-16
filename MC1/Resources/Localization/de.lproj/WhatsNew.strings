@@ -65,3 +65,23 @@
 "whatsNew.moreChanges.title" = "Weitere Änderungen";
 /* What's New v1.6 - More changes, description */
 "whatsNew.moreChanges.description" = "Tippe unten auf \"Alle neuen Änderungen anzeigen\", um die vollständige Liste der behobenen Fehler und der anderen Funktionen zu sehen.";
+
+/* What's New v1.7 - Direct messages, title */
+"whatsNew.directMessages.title" = "Direktnachrichten";
+/* What's New v1.7 - Direct messages, description */
+"whatsNew.directMessages.description" = "Direktnachrichten versuchen jetzt 4-mal die Route, danach 4-mal mit Flood. Ändere „Versuche auf der Route“, „Flood-Versuche“ und „Auf Flood zurückfallen“ in den Erweiterten Einstellungen.";
+
+/* What's New v1.7 - Blocks and filters, title */
+"whatsNew.blocksAndFilters.title" = "Blockierung & Filter";
+/* What's New v1.7 - Blocks and filters, description */
+"whatsNew.blocksAndFilters.description" = "Blende Nachrichten aus, die einem Wort oder Text entsprechen. Eine Regel kann in der Nachricht, im Namen des Absenders oder in beiden suchen, und du wählst, für welche Chats sie gilt. Ausgeblendete Nachrichten kannst du in „Zuletzt ausgeblendet“ unter Einstellungen > Blockierung & Filter sehen.";
+
+/* What's New v1.7 - Node telemetry, title */
+"whatsNew.nodeTelemetry.title" = "Knoten-Telemetrie";
+/* What's New v1.7 - Node telemetry, description */
+"whatsNew.nodeTelemetry.description" = "Einstellungen > Geräteinfo zeigt die Telemetrie des Knotens, mit dem du verbunden bist.";
+
+/* What's New v1.7 - Live Activity, title */
+"whatsNew.liveActivity.title" = "Live-Aktivität";
+/* What's New v1.7 - Live Activity, description */
+"whatsNew.liveActivity.description" = "Ungelesene Nachrichten sind auffälliger, und die Rate in Paketen pro Minute ist leichter zu verstehen.";

@@ -108,7 +108,7 @@ struct SystemPairingSetupAppStateTests {
     harness.appState.confirmSystemPairingSetup()
     try await waitUntil(timeout: .seconds(2), "first picker attempt should finish") {
       !harness.appState.connectionUI.isBusy
-        && harness.appState.connectionUI.shouldCompleteFreshPairingOnForeground
+        && harness.appState.shouldCompleteFreshPairingOnForeground
     }
 
     #expect(harness.appState.connectionUI.showingConnectionFailedAlert == false)
@@ -123,8 +123,67 @@ struct SystemPairingSetupAppStateTests {
     }
 
     #expect(harness.appState.connectionUI.showingConnectionFailedAlert == false)
-    #expect(harness.appState.connectionUI.shouldCompleteFreshPairingOnForeground == false)
+    #expect(harness.appState.shouldCompleteFreshPairingOnForeground == false)
     #expect(!harness.appState.connectionManager.shouldDeferOpportunisticReconnect)
+  }
+
+  @Test
+  func `a second restricted picker ends the foreground retry with an error`() async throws {
+    let harness = try makeHarness()
+    defer { harness.cleanup() }
+    harness.mockASK.setPickerResult(.failure(AccessorySetupKitError.pickerRestricted))
+
+    harness.appState.startDeviceScan()
+    await harness.appState.freshPairingTask?.value
+    #expect(harness.appState.shouldCompleteFreshPairingOnForeground)
+
+    harness.appState.handleBecameActive()
+    await harness.appState.freshPairingTask?.value
+
+    #expect(harness.mockASK.showPickerCallCount == 2)
+    #expect(harness.appState.connectionUI.showingConnectionFailedAlert)
+    #expect(harness.appState.connectionUI.connectionFailedMessage == L10n.Localizable.Error.AccessorySetup.pickerRestricted)
+    #expect(!harness.appState.shouldCompleteFreshPairingOnForeground)
+    #expect(!harness.appState.connectionUI.isBusy)
+    #expect(!harness.appState.connectionManager.shouldDeferOpportunisticReconnect)
+    harness.appState.handleBecameActive()
+    #expect(harness.mockASK.showPickerCallCount == 2)
+    harness.appState.shutdown()
+  }
+
+  @Test
+  func `repeated foreground callbacks admit only one picker retry`() async throws {
+    let harness = try makeHarness()
+    defer { harness.cleanup() }
+    harness.mockASK.setPickerResult(.failure(AccessorySetupKitError.pickerRestricted))
+    harness.appState.startDeviceScan()
+    await harness.appState.freshPairingTask?.value
+    #expect(harness.appState.shouldCompleteFreshPairingOnForeground)
+
+    let gate = AsyncStream<Void>.makeStream()
+    defer { gate.continuation.finish() }
+    harness.mockASK.beforePickerResultAsync = {
+      for await _ in gate.stream {
+        break
+      }
+    }
+    harness.mockASK.setPickerResult(.failure(AccessorySetupKitError.pickerDismissed))
+    harness.appState.handleBecameActive()
+    harness.appState.handleBecameActive()
+    try await waitUntil(timeout: .seconds(2), "the retry should enter the picker") {
+      harness.mockASK.showPickerCallCount == 2
+    }
+    harness.appState.handleBecameActive()
+
+    #expect(harness.appState.connectionUI.isBusy)
+    #expect(!harness.appState.shouldCompleteFreshPairingOnForeground)
+    gate.continuation.finish()
+    await harness.appState.freshPairingTask?.value
+    #expect(harness.mockASK.showPickerCallCount == 2)
+    #expect(!harness.appState.connectionUI.isBusy)
+    #expect(!harness.appState.connectionManager.shouldDeferOpportunisticReconnect)
+    #expect(!harness.appState.connectionUI.showingConnectionFailedAlert)
+    harness.appState.shutdown()
   }
 
   @Test
@@ -300,35 +359,26 @@ struct SystemPairingSetupAppStateTests {
     harness.appState.connectionUI.pendingSystemPairingSetup = SystemPairingSetupPrompt(
       accessories: [SystemPairedAccessory(id: id, name: "B")]
     )
-    harness.appState.connectionUI.shouldShowPickerOnForeground = true
     harness.appState.connectionManager.isPairingFlowActive = true
 
     harness.appState.handleBecameActive()
 
-    #expect(harness.appState.connectionUI.shouldShowPickerOnForeground)
     #expect(harness.appState.connectionUI.pendingSystemPairingSetup?.accessories.map(\.id) == [id])
     #expect(harness.appState.connectionUI.isBusy == false)
     #expect(harness.mockASK.showPickerCallCount == 0)
   }
 
   @Test
-  func `became-active picker retry still scans when no setup prompt is pending`() async throws {
+  func `became-active without a pairing operation does not open a picker`() throws {
     let harness = try makeHarness()
     defer { harness.cleanup() }
     let id = UUID()
-    harness.mockASK.setPairedAccessories([
-      ASAccessory(bluetoothIdentifier: id, displayName: "B")
-    ])
-    harness.appState.connectionUI.shouldShowPickerOnForeground = true
+    harness.mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: id, displayName: "B")])
 
     harness.appState.handleBecameActive()
-    try await waitUntil(timeout: .seconds(2), "foreground scan should set the prompt") {
-      harness.appState.connectionUI.pendingSystemPairingSetup != nil
-        && !harness.appState.connectionUI.isBusy
-    }
 
-    #expect(harness.appState.connectionUI.shouldShowPickerOnForeground == false)
-    #expect(harness.appState.connectionUI.pendingSystemPairingSetup?.accessories.map(\.id) == [id])
+    #expect(harness.appState.connectionUI.pendingSystemPairingSetup == nil)
+    #expect(!harness.appState.connectionUI.isBusy)
     #expect(harness.mockASK.showPickerCallCount == 0)
   }
 
@@ -345,6 +395,42 @@ struct SystemPairingSetupAppStateTests {
 
     #expect(harness.appState.connectionUI.pendingSystemPairingSetup == nil)
     #expect(!harness.appState.connectionManager.shouldDeferOpportunisticReconnect)
+  }
+
+  @Test
+  func `setup-sheet dismissal after removal preserves the initial picker`() async throws {
+    let harness = try makeHarness()
+    defer { harness.cleanup() }
+    let id = UUID()
+    harness.mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: id, displayName: "Radio")])
+    harness.appState.connectionUI.pendingSystemPairingSetup = SystemPairingSetupPrompt(
+      accessories: [SystemPairedAccessory(id: id, name: "Radio")]
+    )
+    let gate = AsyncStream<Void>.makeStream()
+    defer { gate.continuation.finish() }
+    harness.mockASK.beforePickerResultAsync = {
+      for await _ in gate.stream {
+        break
+      }
+    }
+    harness.mockASK.setPickerResult(.failure(AccessorySetupKitError.pickerDismissed))
+
+    harness.appState.confirmSystemPairingSetup()
+    try await waitUntil(timeout: .seconds(2), "removal should advance to the picker") {
+      harness.mockASK.showPickerCallCount == 1
+    }
+    harness.appState.handleSystemPairingSetupSheetDismissed()
+
+    #expect(harness.mockASK.removeAccessoryCallCount == 1)
+    #expect(harness.appState.connectionUI.isBusy)
+    #expect(harness.appState.connectionManager.shouldDeferOpportunisticReconnect)
+    let worker = try #require(harness.appState.freshPairingTask)
+    #expect(!worker.isCancelled)
+    gate.continuation.finish()
+    await worker.value
+    #expect(!harness.appState.connectionUI.isBusy)
+    #expect(!harness.appState.connectionManager.shouldDeferOpportunisticReconnect)
+    #expect(!harness.appState.connectionUI.showingConnectionFailedAlert)
   }
 
   @Test

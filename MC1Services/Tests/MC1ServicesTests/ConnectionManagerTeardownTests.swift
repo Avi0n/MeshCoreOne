@@ -1,490 +1,351 @@
 import Foundation
 @testable import MC1Services
-@testable import MeshCore
+import MeshCore
 import Testing
 
 @Suite("ConnectionManager teardown ownership")
 @MainActor
 struct ConnectionManagerTeardownTests {
   @Test(arguments: [false, true])
-  func `stale sync schedulers leave the current recovery tasks intact`(channelRetry: Bool) async throws {
-    let harness = try await TeardownHarness.make()
-    let staleServices = try await ServiceContainer.forTesting(
-      session: MeshCoreSession(transport: MockTransport()), radioID: harness.device.radioID
-    )
-    let resyncGate = TeardownGate()
-    let channelGate = TeardownGate()
-    let resync = Task { await resyncGate.wait() }
-    let channel = Task { await channelGate.wait() }
-    harness.manager.resyncTask = resync
-    harness.manager.resyncAttemptCount = 2
-    harness.manager.channelRetryTask = channel
-
-    if channelRetry {
-      harness.manager.scheduleChannelOnlyRetry(radioID: harness.device.radioID, services: staleServices, indices: [0])
-    } else {
-      harness.manager.startResyncLoop(radioID: harness.device.radioID, services: staleServices)
-    }
-
-    #expect(resync.isCancelled == false)
-    #expect(channel.isCancelled == false)
-    #expect(harness.manager.resyncAttemptCount == 2)
-    harness.manager.resyncTask?.cancel()
-    harness.manager.channelRetryTask?.cancel()
-    resyncGate.release()
-    channelGate.release()
-    await resync.value
-    await channel.value
-    await staleServices.tearDown()
-    await harness.finish(replacement: nil)
-  }
-
-  @Test(arguments: [false, true])
-  func `a connection resumed after power-off cannot disconnect its shared replacement`(
-    duringSync: Bool
-  ) async throws {
-    let harness = try await TeardownHarness.make()
-    await harness.manager.disconnect()
-    let ready = TeardownGate()
-    harness.manager.onConnectionReady = {
-      if duringSync, let services = harness.manager.services {
-        await services.syncCoordinator.setSyncActivityCallbacks(
-          onStarted: { await ready.wait() }, onEnded: { _ in }, onPhaseChanged: { _ in }
-        )
-      } else {
-        await ready.wait()
-      }
-    }
-    await harness.transport.setAnswerSetup(true)
-    let firstID = UUID()
-    let first = Task { try await harness.manager.connectViaBluetooth(peripheralID: firstID) }
-    var replacement: Task<Void, Error>?
-    let recoveryGate = TeardownGate()
-    var replacementRecovery: Task<Void, Never>?
-    do {
-      try await waitUntil("first connection should park before sync") { ready.isWaiting }
-      #expect(harness.manager.connectedDevice?.id == firstID)
-      try await harness.manager.powerOffCurrentLink()
-      await harness.transport.setAnswerSetup(false)
-      let replacementID = firstID
-      replacement = Task {
-        try await harness.manager.connect(to: replacementID, forceFullSync: true, forceReconnect: true)
-      }
-      try await waitUntil("replacement should send app start") { await harness.transport.appStartCount == 3 }
-      let currentSession = try #require(harness.manager.session)
-      let recovery = Task { await recoveryGate.wait() }
-      replacementRecovery = recovery
-      harness.manager.resyncTask = recovery
+  func `stale sync schedulers leave current recovery workers intact`(channelRetry: Bool) async throws {
+    try await withHarness { harness in
+      let current = try #require(harness.manager.currentConnection)
+      let stale = try await ServiceContainer.forTesting(
+        session: MeshCoreSession(transport: MockTransport()), radioID: current.device.radioID
+      )
+      let resyncGate = harness.gate()
+      let channelGate = harness.gate()
+      let resync = harness.track(Task { await resyncGate.wait() })
+      let channel = harness.track(Task { await channelGate.wait() })
+      harness.manager.resyncTask = resync
       harness.manager.resyncAttemptCount = 2
-      ready.release()
-      _ = await first.result
-      #expect(await harness.transport.isConnected)
-      #expect(harness.manager.session === currentSession)
-      #expect(harness.manager.connectingDeviceID == replacementID)
-      #expect(harness.manager.connectionIntent == .wantsConnection(forceFullSync: true))
-      #expect(recovery.isCancelled == false)
+      harness.manager.channelRetryTask = channel
+      if channelRetry {
+        harness.manager.scheduleChannelOnlyRetry(radioID: current.device.radioID, services: stale, indices: [0])
+      } else {
+        harness.manager.startResyncLoop(radioID: current.device.radioID, services: stale)
+      }
+      #expect(!resync.isCancelled && !channel.isCancelled)
       #expect(harness.manager.resyncAttemptCount == 2)
-      recoveryGate.release()
-      await recovery.value
-      await harness.finish(replacement: replacement)
-    } catch {
-      ready.release()
-      recoveryGate.release()
-      _ = await first.result
-      await replacementRecovery?.value
-      await harness.finish(replacement: replacement)
-      throw error
-    }
-  }
-
-  @Test
-  func `opportunistic BLE rebuild stands down during teardown`() async throws {
-    let harness = try await TeardownHarness.make()
-    let gate = TeardownGate()
-    harness.manager.testConnectionTeardownHandler = { await gate.wait() }
-    harness.manager.testLastConnectedDeviceID = harness.device.id
-    await harness.stateMachine.setStubbedIsConnected(true)
-    await harness.stateMachine.setStubbedConnectedDeviceID(harness.device.id)
-    var rebuilt = false
-    harness.manager.rebuildSessionForHealthCheckOverride = { _ in rebuilt = true }
-    let disconnect = Task { await harness.manager.disconnect(reason: .resyncFailed) }
-    do {
-      try await waitUntil("transient disconnect should park in teardown") { gate.isWaiting }
-      await harness.manager.checkBLEConnectionHealth()
-      #expect(rebuilt == false)
-      await #expect(throws: CancellationError.self) {
-        try await harness.manager.rebuildSession(deviceID: harness.device.id)
-      }
-      #expect(harness.manager.connectionState == .disconnected)
-      #expect(harness.manager.session == nil)
-      gate.release()
-      await disconnect.value
-      await harness.finish(replacement: nil)
-    } catch {
-      gate.release()
-      await disconnect.value
-      await harness.finish(replacement: nil)
-      throw error
-    }
-  }
-
-  @Test
-  func `cancelling a replacement parked behind teardown never connects`() async throws {
-    let harness = try await TeardownHarness.make()
-    let gate = TeardownGate()
-    harness.manager.testConnectionTeardownHandler = { await gate.wait() }
-    let powerOff = Task { try await harness.manager.powerOffCurrentLink() }
-    var replacement: Task<Void, Error>?
-    do {
-      try await waitUntil("power-off should park in teardown") { gate.isWaiting }
-      let baseline = await harness.transport.connectCount
-      let attempt = Task { try await harness.manager.connectViaBluetooth(peripheralID: UUID()) }
-      replacement = attempt
-      try await waitUntil("replacement should wait for teardown") {
-        harness.manager.testConnectionTeardownWaiterCount == 1
-      }
-      attempt.cancel()
-      gate.release()
-      _ = await powerOff.result
-      await #expect(throws: CancellationError.self) { try await attempt.value }
-      #expect(await harness.transport.connectCount == baseline)
-      #expect(harness.manager.testConnectionTeardownWaiterCount == 0)
-      #expect(harness.manager.connectionTeardownCount == 0)
-      await harness.finish(replacement: replacement)
-    } catch {
-      gate.release()
-      _ = await powerOff.result
-      await harness.finish(replacement: replacement)
-      throw error
+      resyncGate.open()
+      channelGate.open()
+      await stale.tearDown()
     }
   }
 
   @Test(arguments: [false, true])
-  func `duplicate disconnects drain before a manual test override runs`(wifi: Bool) async throws {
-    let harness = try await TeardownHarness.make()
-    let gate = TeardownGate()
-    harness.manager.testConnectionTeardownHandler = { await gate.wait() }
-    let powerOff = Task { try await harness.manager.powerOffCurrentLink() }
-    var replacement: Task<Void, Error>?
-    do {
-      try await waitUntil("power-off should park in teardown") { gate.isWaiting }
-      await harness.manager.disconnect()
-      #expect(harness.manager.connectionTeardownCount == 1)
-      var attempted = false
-      harness.manager.testBluetoothConnectHandler = { _ in attempted = true }
-      harness.manager.testWiFiConnectHandler = { _, _ in attempted = true }
-      let attempt = Task {
-        if wifi {
-          try await harness.manager.connectViaWiFi(host: "radio.local", port: 4242)
+  func `retirement joins old wiring and sync before a replacement can dial`(duringSync: Bool) async throws {
+    try await withHarness { harness in
+      _ = await harness.manager.disconnect()
+      let ready = harness.gate()
+      harness.manager.onConnectionReady = { snapshot in
+        if duringSync {
+          await snapshot.services.syncCoordinator.setSyncActivityCallbacks(
+            onStarted: { await ready.wait() }, onEnded: { _ in }, onPhaseChanged: { _ in }
+          )
         } else {
-          try await harness.manager.connectViaBluetooth(peripheralID: UUID())
+          await ready.wait()
         }
       }
-      replacement = attempt
-      try await waitUntil("manual entry should wait for all teardown") {
-        harness.manager.testConnectionTeardownWaiterCount == 1 || attempted
+      let firstID = UUID()
+      let first = harness.track(Task { try await harness.manager.connectViaBluetooth(peripheralID: firstID) })
+      try await waitUntil("old setup should enter its gate") { ready.isWaiting }
+      let firstRequest = harness.manager.connectionRequestID
+      let baseline = await harness.radio.connectCount
+      let retiring = harness.track(Task { await harness.manager.disconnect(reason: .powerOff) })
+      try await waitUntil("old publication should retire") { harness.manager.currentConnection == nil }
+      let replacementID = UUID()
+      let replacement = harness.track(Task { try await harness.manager.connect(to: replacementID, forceReconnect: true) })
+      try await waitUntil("replacement should be admitted") {
+        harness.manager.connectionRequestID != firstRequest && harness.manager.desiredRequest?.target.deviceID == replacementID
       }
-      #expect(attempted == false)
-      gate.release()
-      _ = await powerOff.result
-      try await attempt.value
-      #expect(attempted)
+      #expect(await harness.radio.connectCount == baseline)
+      ready.open()
+      _ = await first.result
+      _ = await retiring.value
+      let outcome = try await replacement.value
+      if case .operational = outcome {} else { Issue.record("Replacement did not become operational") }
+      #expect(harness.manager.connectedDevice?.id == replacementID)
+      #expect(harness.manager.connectionState == .ready)
+      #expect(await harness.radio.isConnected)
+      _ = try await harness.manager.currentConnection?.services.session.getTime()
+    }
+  }
+
+  @Test
+  func `opportunistic health and an old rebuild cannot cross a terminal cleanup barrier`() async throws {
+    try await withHarness { harness in
+      let request = try #require(harness.manager.desiredRequest)
+      let oldCycle = harness.manager.reconnectionCoordinator.begin(deviceID: harness.deviceID, requestID: request.id)
+      let gate = harness.gate()
+      harness.manager.testConnectionTeardownHandler = { await gate.wait() }
+      let closing = harness.track(Task { await harness.manager.disconnect(reason: .resyncFailed) })
+      try await waitUntil("cleanup should park") { gate.isWaiting }
+      let baseline = await harness.radio.connectCount
+      var healthFinished = false
+      let health = harness.track(Task {
+        await harness.manager.checkBLEConnectionHealth()
+        healthFinished = true
+      })
+      try await waitUntil("health should return or join the physical retirement barrier") {
+        healthFinished || harness.manager.desiredRequest?.target.deviceID == harness.deviceID
+      }
+      await #expect(throws: CancellationError.self) { try await harness.manager.rebuildBLEStack(oldCycle) }
+      #expect(await harness.radio.connectCount == baseline)
+      #expect(harness.manager.currentConnection == nil)
+      gate.open()
+      _ = await closing.value
+      await health.value
+    }
+  }
+
+  @Test
+  func `cancelling a replacement behind retirement never submits a physical connect`() async throws {
+    try await withHarness { harness in
+      let gate = harness.gate()
+      var losses: [ConnectionLossReceipt] = []
+      harness.manager.onConnectionLost = { losses.append($0) }
+      harness.manager.testConnectionTeardownHandler = { await gate.wait() }
+      let closing = harness.track(Task { await harness.manager.disconnect() })
+      try await waitUntil("cleanup should park") { gate.isWaiting }
+      let baseline = await harness.radio.connectCount
+      let target = UUID()
+      let replacement = harness.track(Task { try await harness.manager.connectViaBluetooth(peripheralID: target) })
+      try await waitUntil("replacement should be admitted") { harness.manager.desiredRequest?.target.deviceID == target }
+      let admitted = harness.manager.connectionRequestID
+      let admittedIntent = harness.manager.connectionIntent
+      replacement.cancel()
+      try await waitUntil("caller cancellation should cancel the admitted worker") {
+        harness.manager.desiredRequest?.worker?.isCancelled == true
+      }
+      gate.open()
+      _ = await closing.value
+      let outcome = try await replacement.value
+      if case .cancelled = outcome {} else { Issue.record("Cancelled caller returned another outcome") }
+      #expect(await harness.radio.connectCount == baseline)
       #expect(harness.manager.connectionTeardownCount == 0)
-      #expect(harness.manager.testConnectionTeardownWaiterCount == 0)
-      await harness.finish(replacement: replacement)
-    } catch {
-      gate.release()
-      _ = await powerOff.result
-      await harness.finish(replacement: replacement)
-      throw error
-    }
-  }
-
-  @Test
-  func `power-off finishes shared transport teardown before a replacement connects`() async throws {
-    let harness = try await TeardownHarness.make()
-    let gate = TeardownGate()
-    harness.manager.testConnectionTeardownHandler = { await gate.wait() }
-    let powerOff = Task { try await harness.manager.powerOffCurrentLink() }
-    var replacement: Task<Void, Error>?
-    do {
-      try await waitUntil("power-off should park in teardown") { gate.isWaiting }
-      let target = harness.device.id
-      let baseline = await harness.transport.connectCount
-      replacement = Task { try await harness.manager.connectViaBluetooth(peripheralID: target) }
-      try await waitUntil("replacement should reach teardown or transport") {
-        let connectCount = await harness.transport.connectCount
-        return harness.manager.testConnectionTeardownWaiterCount > 0 || connectCount > baseline
+      #expect(harness.manager.currentConnection == nil)
+      #expect(harness.manager.connectionState == .disconnected)
+      #expect(harness.manager.desiredRequest?.attempt == nil)
+      #expect(harness.manager.desiredRequest?.target.deviceID == target)
+      #expect(harness.manager.connectionIntent == admittedIntent)
+      #expect(harness.manager.connectionIntent == .wantsConnection(forceFullSync: false))
+      #expect(losses.map(\.requestID) == [admitted])
+      harness.manager.testConnectionTeardownHandler = nil
+      await harness.manager.checkBLEConnectionHealth()
+      await harness.manager.checkWiFiConnectionHealth()
+      #expect(harness.manager.connectionState != .connecting)
+      if harness.manager.connectionState == .ready {
+        #expect(try await harness.manager.session?.getTime() != nil)
       }
-      #expect(await harness.transport.connectCount == baseline)
+    }
+  }
 
-      gate.release()
-      _ = await powerOff.result
-      try await harness.waitForReplacementHandshake()
-      #expect(await harness.transport.isConnected)
-      #expect(await harness.transport.lastConnectFollowsLastDisconnect)
-      #expect(harness.manager.connectionIntent.wantsConnection)
-      #expect(harness.manager.session != nil)
-      await harness.finish(replacement: replacement)
-    } catch {
-      gate.release()
-      _ = await powerOff.result
-      await harness.finish(replacement: replacement)
-      throw error
+  @Test(arguments: [false, true])
+  func `overlapping retirement callers join the old close before replacement setup`(wifi: Bool) async throws {
+    try await withHarness { harness in
+      let gate = harness.gate()
+      harness.manager.testConnectionTeardownHandler = { await gate.wait() }
+      let first = harness.track(Task { await harness.manager.disconnect() })
+      try await waitUntil("first retirement should park") { gate.isWaiting }
+      let firstTerminal = harness.manager.connectionRequestID
+      let second = harness.track(Task { await harness.manager.disconnect() })
+      try await waitUntil("second terminal request should be admitted") {
+        harness.manager.connectionRequestID != firstTerminal
+      }
+      let baseline = await harness.radio.connectCount
+      let replacement = harness.track(Task {
+        if wifi { return try await harness.manager.connectViaWiFi(host: "radio.local", port: 4242) }
+        return try await harness.manager.connectViaBluetooth(peripheralID: UUID())
+      })
+      try await waitUntil("replacement request should replace terminal request") {
+        harness.manager.desiredRequest?.target != .disconnected
+      }
+      #expect(await harness.radio.connectCount == baseline)
+      gate.open()
+      _ = await first.value
+      _ = await second.value
+      _ = try await replacement.value
+      #expect(harness.manager.connectionState == .ready)
+      #expect(harness.manager.connectionTeardownCount == 0)
+      #expect(await harness.radio.disconnectCount == 1)
     }
   }
 
   @Test
-  func `an admitted replacement revokes settled cleanup before session publication`() async throws {
-    let harness = try await TeardownHarness.make()
-    let token = try await harness.manager.powerOffCurrentLink()
-    #expect(harness.manager.powerOffOwnsCleanup(token))
-    await harness.transport.holdConnect()
-    let replacement = Task { try await harness.manager.connect(to: UUID(), forceReconnect: true) }
-    do {
-      try await waitUntil("replacement connect should park") { await harness.transport.connectIsWaiting }
+  func `power off retirement finishes before an admitted Bluetooth replacement dials`() async throws {
+    try await withHarness { harness in
+      let gate = harness.gate()
+      harness.manager.testConnectionTeardownHandler = { await gate.wait() }
+      let powerOff = harness.track(Task { try await harness.manager.powerOffCurrentLink() })
+      try await waitUntil("power off cleanup should park") { gate.isWaiting }
+      let baseline = await harness.radio.connectCount
+      let replacement = harness.track(Task { try await harness.manager.connectViaBluetooth(peripheralID: UUID()) })
+      try await waitUntil("replacement should be admitted") { harness.manager.connectionIntent.wantsConnection }
+      #expect(await harness.radio.connectCount == baseline)
+      gate.open()
+      _ = await powerOff.result
+      _ = try await replacement.value
+      #expect(harness.manager.connectionState == .ready)
+      #expect(await harness.radio.isConnected)
+    }
+  }
+
+  @Test
+  func `an admitted replacement revokes settled power off cleanup before session publication`() async throws {
+    try await withHarness { harness in
+      let token = try await harness.manager.powerOffCurrentLink()
+      #expect(harness.manager.powerOffOwnsCleanup(token))
+      await harness.radio.holdConnect()
+      let replacement = harness.track(Task { try await harness.manager.connect(to: UUID(), forceReconnect: true) })
+      try await waitUntil("replacement connect should park") { await harness.radio.connectIsHeld }
       #expect(harness.manager.session == nil)
-      #expect(harness.manager.powerOffOwnsCleanup(token) == false)
-      await harness.transport.releaseConnect()
-      try await harness.waitForReplacementHandshake()
-      #expect(await harness.transport.isConnected)
-      await harness.finish(replacement: replacement)
-    } catch {
-      await harness.transport.releaseConnect()
-      await harness.finish(replacement: replacement)
-      throw error
+      #expect(!harness.manager.powerOffOwnsCleanup(token))
+      await harness.radio.releaseConnect()
+      _ = try await replacement.value
+      #expect(harness.manager.connectionState == .ready)
     }
   }
 
   @Test
-  func `an admitted switch invalidates an unsettled power-off before transport connect`() async throws {
-    let harness = try await TeardownHarness.make()
-    await harness.transport.inner.holdNextSend()
-    let powerOff = Task { try await harness.manager.powerOffCurrentLink() }
-    var replacement: Task<Void, Error>?
-    do {
-      try await waitUntil("power-off send should park") { await harness.transport.inner.sendIsWaiting }
-      await harness.transport.holdConnect()
-      replacement = Task { try await harness.manager.switchDevice(to: UUID()) }
-      try await waitUntil("replacement switch should park") { await harness.transport.connectIsWaiting }
-      await harness.transport.inner.releaseHeldSend()
+  func `admitting a replacement revokes unsettled power off and drains its actual send first`() async throws {
+    try await withHarness { harness in
+      await harness.radio.holdNextSendCompletion()
+      let powerOff = harness.track(Task { try await harness.manager.powerOffCurrentLink() })
+      try await waitUntil("power off send completion should park") { await harness.radio.sendCompletionIsHeld }
+      let previous = harness.manager.connectionRequestID
+      let baseline = await harness.radio.connectCount
+      let replacement = harness.track(Task { try await harness.manager.connect(to: UUID(), forceReconnect: true) })
+      try await waitUntil("replacement should be admitted") { harness.manager.connectionRequestID != previous }
+      #expect(await harness.radio.connectCount == baseline)
+      await harness.radio.releaseSendCompletion()
       await #expect(throws: PowerOffSuperseded.self) { try await powerOff.value }
+      _ = try await replacement.value
+      #expect(harness.manager.connectionState == .ready)
       #expect(harness.manager.connectionIntent.wantsConnection)
-      await harness.transport.releaseConnect()
-      await harness.finish(replacement: replacement)
-    } catch {
-      await harness.transport.inner.releaseHeldSend()
-      await harness.transport.releaseConnect()
-      _ = await powerOff.result
-      await harness.finish(replacement: replacement)
-      throw error
     }
   }
 
   @Test
-  func `socket loss teardown finishes before a manual Bluetooth replacement`() async throws {
-    let harness = try await TeardownHarness.make()
-    let gate = TeardownGate()
-    harness.manager.setTestState(currentTransportType: .wifi)
-    harness.manager.testConnectionTeardownHandler = { await gate.wait() }
-    harness.manager.testWiFiMaxReconnectDuration = .seconds(-1)
-    let loss = Task {
-      await harness.manager.handleWiFiDisconnection(error: WiFiTransportError.notConnected, remoteLossAt: nil)
-    }
-    var replacement: Task<Void, Error>?
-    do {
-      try await waitUntil("socket loss should park in teardown") { gate.isWaiting }
-      let baseline = await harness.transport.connectCount
-      replacement = Task { try await harness.manager.connectViaBluetooth(peripheralID: UUID()) }
-      try await waitUntil("replacement should reach teardown or transport") {
-        let connectCount = await harness.transport.connectCount
-        return harness.manager.testConnectionTeardownWaiterCount > 0 || connectCount > baseline
-      }
-      #expect(await harness.transport.connectCount == baseline)
-      harness.manager.testConnectionTeardownHandler = nil
-      gate.release()
+  func `socket loss retirement finishes before a manual Bluetooth replacement`() async throws {
+    try await withHarness(wifi: true) { harness in
+      let gate = harness.gate()
+      harness.manager.testConnectionTeardownHandler = { await gate.wait() }
+      let socket = try #require(harness.manager.installedLink?.resource.wifi)
+      let loss = harness.track(Task {
+        await harness.manager.handleWiFiDisconnection(error: WiFiTransportError.notConnected, remoteLossAt: nil, source: socket)
+      })
+      try await waitUntil("socket retirement should park") { gate.isWaiting }
+      let baseline = await harness.radio.connectCount
+      let replacement = harness.track(Task { try await harness.manager.connectViaBluetooth(peripheralID: UUID()) })
+      try await waitUntil("Bluetooth replacement should be admitted") { harness.manager.desiredRequest?.target.transportType == .bluetooth }
+      #expect(await harness.radio.connectCount == baseline)
+      gate.open()
       await loss.value
-      try await harness.waitForReplacementHandshake()
-      #expect(await harness.transport.isConnected)
-      #expect(harness.manager.connectionState == .connected)
+      _ = try await replacement.value
+      #expect(harness.manager.connectionState == .ready)
       #expect(harness.manager.wifiReconnectTask == nil)
-      await harness.finish(replacement: replacement)
-    } catch {
-      harness.manager.testConnectionTeardownHandler = nil
-      gate.release()
-      await loss.value
-      await harness.finish(replacement: replacement)
-      throw error
     }
   }
-}
 
-extension ConnectionManagerTeardownTests {
+  private func withHarness(wifi: Bool = false, _ body: (Harness) async throws -> Void) async throws {
+    let harness = try await Harness.make(wifi: wifi)
+    do { try await body(harness) } catch { await harness.finish(); throw error }
+    await harness.finish()
+  }
+
   @MainActor
-  private struct TeardownHarness {
+  private final class Harness {
     let manager: ConnectionManager
-    let transport: SharedTeardownTransport
-    let device: DeviceDTO
-    let stateMachine: MockBLEStateMachine
+    let radio: ConnectionTestRadioTransport
+    let deviceID: UUID
     let suiteName: String
+    private var gates: [Gate] = []
+    private var cancellations: [() -> Void] = []
+    private var joins: [() async -> Void] = []
 
-    static func make() async throws -> TeardownHarness {
-      let suiteName = "test.teardown.\(UUID().uuidString)"
-      let defaults = try #require(UserDefaults(suiteName: suiteName))
+    private init(manager: ConnectionManager, radio: ConnectionTestRadioTransport, deviceID: UUID, suiteName: String) {
+      self.manager = manager
+      self.radio = radio
+      self.deviceID = deviceID
+      self.suiteName = suiteName
+    }
+
+    static func make(wifi: Bool) async throws -> Harness {
+      let suite = "test.teardown.\(UUID().uuidString)"
+      let defaults = try #require(UserDefaults(suiteName: suite))
       let container = try PersistenceStore.createContainer(inMemory: true)
-      let transport = SharedTeardownTransport()
+      let radio = ConnectionTestRadioTransport()
       let stateMachine = MockBLEStateMachine()
+      let pairing = MockAccessorySetupKitService()
+      pairing.isSessionActive = false
       let manager = ConnectionManager(
-        modelContainer: container, defaults: defaults,
-        stateMachine: stateMachine, transport: transport
+        modelContainer: container, defaults: defaults, stateMachine: stateMachine, transport: radio,
+        pairing: AccessorySetupPairingService(accessorySetupKit: pairing), makeWiFiTransport: { radio }
       )
-      let session = MeshCoreSession(transport: transport)
-      let device = DeviceDTO.testDevice(firmwareVersion: 14)
-      let services = try await ServiceContainer.forTesting(session: session, radioID: device.radioID)
-      manager.setTestState(
-        connectionState: .ready, services: services, session: session,
-        connectedDevice: device, currentTransportType: .bluetooth, connectionIntent: .wantsConnection()
-      )
-      let start = Task { try await session.start() }
-      try await waitUntil("session should send app start") { await transport.appStartCount == 1 }
-      await transport.inner.simulateReceive(selfInfoPacket())
-      try await start.value
-      return TeardownHarness(
-        manager: manager, transport: transport, device: device, stateMachine: stateMachine, suiteName: suiteName
-      )
+      let deviceID = UUID()
+      let harness = Harness(manager: manager, radio: radio, deviceID: deviceID, suiteName: suite)
+      do {
+        if wifi {
+          _ = try await manager.connectViaWiFi(host: "radio.local", port: 4242)
+        } else {
+          _ = try await manager.connect(to: deviceID, forceReconnect: true)
+        }
+        #expect(manager.connectionState == .ready)
+        return harness
+      } catch {
+        await harness.finish()
+        throw error
+      }
     }
 
-    func waitForReplacementHandshake() async throws {
-      try await waitUntil("replacement should send app start") { await transport.appStartCount == 2 }
+    func gate() -> Gate {
+      let gate = Gate(); gates.append(gate); return gate
     }
 
-    func finish(replacement: Task<Void, Error>?) async {
+    func track<Success: Sendable, Failure: Error>(_ task: Task<Success, Failure>) -> Task<Success, Failure> {
+      cancellations.append { task.cancel() }
+      joins.append { _ = await task.result }
+      return task
+    }
+
+    func finish() async {
       manager.testConnectionTeardownHandler = nil
-      await transport.releaseConnect()
-      await transport.inner.releaseHeldSend()
-      replacement?.cancel()
-      await manager.disconnect()
-      _ = await replacement?.result
+      for gate in gates {
+        gate.open()
+      }
+      await radio.releaseAllGates()
+      for cancel in cancellations {
+        cancel()
+      }
+      _ = await manager.disconnect()
+      for join in joins {
+        await join()
+      }
       UserDefaults().removePersistentDomain(forName: suiteName)
     }
-
-    nonisolated static func selfInfoPacket() -> Data {
-      var packet = Data([ResponseCode.selfInfo.rawValue, 1, 22, 22])
-      packet.append(Data(repeating: 0x01, count: 32))
-      packet.append(Data(repeating: 0, count: 12))
-      for value: UInt32 in [915_000, 125_000] {
-        packet.append(withUnsafeBytes(of: value.littleEndian) { Data($0) })
-      }
-      packet.append(contentsOf: [7, 5])
-      return packet
-    }
   }
 
   @MainActor
-  private final class TeardownGate {
-    private var continuation: CheckedContinuation<Void, Never>?
+  private final class Gate {
+    private var waiters: [CheckedContinuation<Void, Never>] = []
     private var isOpen = false
-    private(set) var isWaiting = false
+    var isWaiting: Bool {
+      !waiters.isEmpty
+    }
 
     func wait() async {
-      guard !isOpen, !isWaiting else { return }
-      isWaiting = true
-      await withCheckedContinuation { continuation = $0 }
-      isWaiting = false
+      guard !isOpen else { return }
+      await withCheckedContinuation { waiters.append($0) }
     }
 
-    func release() {
+    func open() {
       isOpen = true
-      let pending = continuation
-      continuation = nil
-      pending?.resume()
-    }
-  }
-
-  private actor SharedTeardownTransport: iOSMeshTransport {
-    let inner = MockTransport()
-    private var events: [String] = []
-    private var shouldHoldConnect = false
-    private var connectContinuation: CheckedContinuation<Void, Never>?
-    private var answerSetup = false
-    private(set) var connectIsWaiting = false
-    private(set) var connectCount = 0
-
-    var isConnected: Bool {
-      get async { await inner.isConnected }
-    }
-
-    var receivedData: AsyncStream<Data> {
-      get async { await inner.receivedData }
-    }
-
-    var appStartCount: Int {
-      get async { await inner.sentData.filter { $0.first == CommandCode.appStart.rawValue }.count }
-    }
-
-    var lastConnectFollowsLastDisconnect: Bool {
-      guard let connect = events.lastIndex(of: "connect"), let disconnect = events.lastIndex(of: "disconnect") else { return false }
-      return connect > disconnect
-    }
-
-    func connect() async throws {
-      connectCount += 1
-      if shouldHoldConnect {
-        connectIsWaiting = true
-        await withCheckedContinuation { connectContinuation = $0 }
-        connectIsWaiting = false
+      let pending = waiters
+      waiters.removeAll()
+      for waiter in pending {
+        waiter.resume()
       }
-      events.append("connect")
-      try await inner.connect()
-    }
-
-    func disconnect() async {
-      events.append("disconnect")
-      await inner.disconnect()
-    }
-
-    func send(_ data: Data) async throws {
-      try await inner.send(data)
-      guard answerSetup else { return }
-      switch data.first {
-      case CommandCode.appStart.rawValue:
-        await inner.simulateReceive(TeardownHarness.selfInfoPacket())
-      case CommandCode.deviceQuery.rawValue:
-        var response = Data([ResponseCode.deviceInfo.rawValue, 14, 1, 1])
-        response.append(Data(repeating: 0, count: 76))
-        await inner.simulateReceive(response)
-      case CommandCode.getAutoAddConfig.rawValue:
-        await inner.simulateReceive(Data([ResponseCode.autoAddConfig.rawValue, 0]))
-      case CommandCode.runCliCommand.rawValue:
-        break
-      default:
-        await inner.simulateReceive(Data([ResponseCode.error.rawValue, 1]))
-      }
-    }
-
-    func setDeviceID(_ id: UUID) {}
-    func switchDevice(to deviceID: UUID) async throws {
-      await disconnect()
-      try await connect()
-    }
-
-    func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) {}
-    func setReconnectionHandler(_ handler: @escaping @Sendable (UUID) -> Void) {}
-    func refreshDataStream() {}
-
-    func holdConnect() {
-      shouldHoldConnect = true
-    }
-
-    func setAnswerSetup(_ answer: Bool) {
-      answerSetup = answer
-    }
-
-    func releaseConnect() {
-      shouldHoldConnect = false
-      let pending = connectContinuation
-      connectContinuation = nil
-      pending?.resume()
     }
   }
 }

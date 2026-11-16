@@ -44,6 +44,8 @@
 /* Location: Multiple files - Purpose: Room contact type label */
 "contacts.nodeKind.room" = "Кімната";
 
+"contacts.nodeKind.sensor" = "Датчик";
+
 /* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Badge label for discovered nodes */
 "contacts.nodeKind.discovered" = "Виявлений";
 
@@ -74,6 +76,8 @@
 
 /* Location: ContactsViewModel.swift - Purpose: Rooms segment */
 "contacts.segment.rooms" = "Кімнати";
+
+"contacts.segment.sensors" = "Датчики";
 
 /* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
 "contacts.segment.pickerLabel" = "Фільтр вузлів";
@@ -168,8 +172,12 @@
 /* Location: ContactsListView.swift - Purpose: No rooms empty title */
 "contacts.list.empty.rooms.title" = "Немає кімнат";
 
+"contacts.list.empty.sensors.title" = "Немає датчиків";
+
 /* Location: ContactsListView.swift - Purpose: No rooms empty description */
 "contacts.list.empty.rooms.description" = "Кімнати — це публічні чат-сервери в mesh-мережі. Вони з'являться тут після виявлення.";
+
+"contacts.list.empty.sensors.description" = "Датчики з'являються тут після виявлення в mesh-мережі.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Немає результатів";
@@ -622,6 +630,8 @@
 
 /* Location: DiscoveryView.swift - Purpose: Segment filter - Rooms */
 "contacts.discovery.segment.rooms" = "Кімнати";
+
+"contacts.discovery.segment.sensors" = "Датчики";
 
 /* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
 "contacts.discovery.segment.pickerLabel" = "Фільтр виявлених вузлів";

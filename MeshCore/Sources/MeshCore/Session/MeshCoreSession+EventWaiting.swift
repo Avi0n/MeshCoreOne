@@ -170,6 +170,7 @@ extension MeshCoreSession {
     _ data: Data,
     timeout: TimeInterval? = nil,
     beforeSend: @escaping @Sendable () throws -> Void = {},
+    identityImport: Bool = false,
     matching matcher: @escaping @Sendable (MeshEvent) -> ResponseDisposition<T>
   ) async throws -> T {
     let effectiveTimeout = timeout ?? configuration.defaultTimeout
@@ -179,7 +180,7 @@ extension MeshCoreSession {
     let (subscriptionID, events) = await dispatcher.subscribeTracked()
 
     do {
-      try await sendSessionData(data, beforeSend: beforeSend)
+      try await sendSessionData(data, beforeSend: beforeSend, identityImport: identityImport)
 
       return try await withThrowingTaskGroup(of: T?.self) { group in
         group.addTask {

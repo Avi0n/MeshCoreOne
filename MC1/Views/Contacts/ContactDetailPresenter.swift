@@ -33,18 +33,6 @@ struct ContactDetailPresenter: ViewModifier {
       } message: {
         Text(L10n.Contacts.Contacts.Detail.Alert.ClearMessages.message(state?.currentContact.displayName ?? ""))
       }
-      .confirmationDialog(
-        L10n.Contacts.Contacts.Detail.Avatar.chooseSource,
-        isPresented: binding(\.showAvatarSourceMenu, fallback: false),
-        titleVisibility: .visible
-      ) {
-        Button(L10n.Contacts.Contacts.Detail.Avatar.choosePhoto) { state?.showAvatarPhotosPicker = true }
-        Button(L10n.Contacts.Contacts.Detail.Avatar.chooseFile) { state?.showAvatarFileImporter = true }
-        if state?.currentContact.avatarImageData != nil {
-          Button(L10n.Contacts.Contacts.Detail.Avatar.removePhoto, role: .destructive) { state?.removeAvatarPhoto() }
-        }
-        Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
-      }
       .photosPicker(
         isPresented: binding(\.showAvatarPhotosPicker, fallback: false),
         selection: binding(\.avatarPickerItem, fallback: nil),

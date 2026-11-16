@@ -11,11 +11,11 @@ enum NodeStatusRoute: Hashable {
   case locationMap(fix: NodeLocationFix, name: String?)
 }
 
+@MainActor
 extension View {
   /// Registers the `NodeStatusRoute` destinations on the enclosing navigation stack,
   /// resolving each route against the host's `NodeStatusViewModel`. Apply to the `List`
   /// hosting the shared status sections, not to rows inside it.
-  @MainActor
   func nodeStatusDestinations(helper: NodeStatusViewModel) -> some View {
     navigationDestination(for: NodeStatusRoute.self) { route in
       switch route {
@@ -30,22 +30,27 @@ extension View {
           fetchSnapshots: helper.fetchHistory
         )
       case let .locationMap(fix, name):
-        NodeLocationMapView(
-          points: [MapPoint(
-            id: UUID(),
-            coordinate: fix.coordinate,
-            pinStyle: .locationFixLatest,
-            label: name,
-            isClusterable: false,
-            hopIndex: nil,
-            badgeText: nil
-          )],
-          lines: [],
-          reports: [:],
-          title: L10n.RemoteNodes.RemoteNodes.Status.locationMapTitle,
-          initialSelectionID: nil
-        )
+        nodeLocationMap(fix: fix, name: name)
       }
     }
   }
+}
+
+@MainActor
+func nodeLocationMap(fix: NodeLocationFix, name: String?) -> some View {
+  NodeLocationMapView(
+    points: [MapPoint(
+      id: UUID(),
+      coordinate: fix.coordinate,
+      pinStyle: .locationFixLatest,
+      label: name,
+      isClusterable: false,
+      hopIndex: nil,
+      badgeText: nil
+    )],
+    lines: [],
+    reports: [:],
+    title: L10n.RemoteNodes.RemoteNodes.Status.locationMapTitle,
+    initialSelectionID: nil
+  )
 }

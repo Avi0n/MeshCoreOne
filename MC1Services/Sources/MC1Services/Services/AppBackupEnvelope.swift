@@ -6,7 +6,11 @@ import Foundation
 /// All model data is stored as DTO arrays; non-SwiftData items (UserDefaults) have
 /// dedicated fields.
 public struct AppBackupEnvelope: Codable, Sendable {
-  public static let currentVersion = 1
+  /// Archives with no self telemetry. An older reader still accepts this version.
+  public static let legacyVersion = 1
+
+  /// Self telemetry requires this version so older readers cannot import it without its owner.
+  public static let currentVersion = 2
 
   public let version: Int
   public let exportDate: Date

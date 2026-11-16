@@ -43,19 +43,19 @@ enum ChatConversationType {
 
   // MARK: - Private Helpers
 
-  /// Resolves the region name shown as the channel header subtitle. Delegates to
-  /// ``ChannelFloodScopeResolver`` so the header matches the FloodScope actually pushed to the radio.
   private func effectiveRegionName(
     for channel: ChannelDTO,
     deviceDefaultFloodScopeName: String?
   ) -> String? {
-    let resolved = ChannelFloodScopeResolver.resolve(
-      channelFloodScope: channel.floodScope,
-      deviceDefaultFloodScopeName: deviceDefaultFloodScopeName,
-      supportsUnscopedFloodSend: false
-    )
-    if case let .scope(.region(name)) = resolved { return name }
-    return nil
+    switch channel.floodScope {
+    case .inherit:
+      guard let name = deviceDefaultFloodScopeName, !name.isEmpty else { return nil }
+      return name
+    case .allRegions:
+      return nil
+    case let .region(name):
+      return name
+    }
   }
 
   var conversationID: UUID {

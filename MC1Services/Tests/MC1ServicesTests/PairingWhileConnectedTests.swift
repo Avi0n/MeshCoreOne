@@ -21,7 +21,7 @@ struct PairingWhileConnectedTests {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
     let manager = env.manager
-    let stateMachine = env.stateMachine
+    let transport = env.transport
     let mockASK = env.accessorySetupKit
     let oldDeviceID = UUID()
     let newDeviceID = UUID()
@@ -35,6 +35,7 @@ struct PairingWhileConnectedTests {
       currentTransportType: .bluetooth,
       connectionIntent: .wantsConnection()
     )
+    _ = manager.seedBLERecoveryRequest(deviceID: oldDeviceID)
 
     let waitStarted = AsyncStream<Void>.makeStream()
     let releaseWait = AsyncStream<Void>.makeStream()
@@ -47,7 +48,7 @@ struct PairingWhileConnectedTests {
     }
 
     try await waitUntil("auto-reconnect handler should be installed") {
-      await stateMachine.hasAutoReconnectingHandler
+      await transport.hasLifecycleHandler
     }
 
     let pairTask = Task { try? await manager.pairNewDevice() }
@@ -57,7 +58,7 @@ struct PairingWhileConnectedTests {
       break
     }
 
-    await stateMachine.simulateAutoReconnecting(deviceID: oldDeviceID)
+    await transport.simulateAutoReconnecting(deviceID: oldDeviceID)
 
     // The suppression branch routes through handleConnectionLoss to clear the
     // stale old-device session. Observing the state transition and connectedDevice
@@ -66,7 +67,7 @@ struct PairingWhileConnectedTests {
       manager.connectionState == .disconnected && manager.connectedDevice == nil
     }
 
-    #expect(manager.activeReconnectDeviceID == nil)
+    #expect(manager.reconnectionCoordinator.reconnectingDeviceID == nil)
     #expect(manager.connectedDevice == nil)
 
     releaseWait.continuation.finish()
@@ -111,8 +112,8 @@ struct PairingWhileConnectedTests {
       return false
     }
 
-    try await waitUntil("reconnection handler should be installed") {
-      await mockTransport.hasReconnectionHandler
+    try await waitUntil("lifecycle handler should be installed") {
+      await mockTransport.hasLifecycleHandler
     }
 
     let pairTask = Task { try? await manager.pairNewDevice() }
@@ -142,79 +143,46 @@ struct PairingWhileConnectedTests {
     _ = await pairTask.value
   }
 
-  /// pairNewDevice routes through `connect(to:)`'s switch-device branch when an
-  /// old radio is still connected. Without the catch in `switchDevice`, a mid-
-  /// switch throw propagates without resetting `connectionState`, `connectedDevice`,
-  /// or `services` — leaving the UI on `.ready` pointing at the old device while
-  /// the failure-alert recovery actions act on stale state.
-  ///
-  /// The mock ASK starts with empty `pairedAccessories`, so `switchDevice`'s ASK
-  /// validation throws `ConnectionError.deviceNotFound` for the new device. That
-  /// throw must drive a clean teardown.
   @Test
-  func `pair-while-connected with switchDevice throw leaves state .disconnected`() async throws {
-    let env = try ConnectionManager.createForPairingTesting()
-    defer { env.cleanup() }
-    let manager = env.manager
-    let mockASK = env.accessorySetupKit
-    let oldDeviceID = UUID()
-    let newDeviceID = UUID()
-
-    mockASK.setPickerResult(.success(newDeviceID))
-
-    // Skip the polling wait so the test exercises the connect/switch path directly.
-    manager.otherAppWaitStrategyOverride = { _ in false }
-
-    manager.testLastConnectedDeviceID = oldDeviceID
-    manager.setTestState(
-      connectionState: .ready,
-      connectedDevice: DeviceDTO.testDevice(id: oldDeviceID),
-      currentTransportType: .bluetooth,
-      connectionIntent: .wantsConnection()
-    )
-
-    await #expect(throws: PairingError.self) {
-      try await manager.pairNewDevice()
+  func `failed pairing replacement leaves state disconnected`() async throws {
+    try await withFailedReplacement { manager in
+      await #expect(throws: ConnectionRequestFailure.self) { try await manager.pairNewDevice() }
+      #expect(manager.connectionState == .disconnected)
+      #expect(manager.connectedDevice == nil)
+      #expect(manager.services == nil)
     }
-
-    #expect(manager.connectionState == .disconnected, "switchDevice catch must reset state")
-    #expect(manager.connectedDevice == nil, "switchDevice catch must clear stale device")
-    #expect(manager.services == nil, "switchDevice catch must clear stale services")
   }
 
-  /// `cleanupConnection` in switchDevice's catch resets state without firing
-  /// `onConnectionLost`, so AppState observers — and the old radio's Live Activity —
-  /// would stay stranded on the prior device's connected state. The catch must route
-  /// through `onConnectionLost` like the transport-loss and reconnect-failure paths.
   @Test
-  func `failed switchDevice fires onConnectionLost so observers tear down`() async throws {
-    let env = try ConnectionManager.createForPairingTesting()
-    defer { env.cleanup() }
-    let manager = env.manager
-    let mockASK = env.accessorySetupKit
-    let oldDeviceID = UUID()
-    let newDeviceID = UUID()
-
-    mockASK.setPickerResult(.success(newDeviceID))
-    manager.otherAppWaitStrategyOverride = { _ in false }
-
-    manager.testLastConnectedDeviceID = oldDeviceID
-    manager.setTestState(
-      connectionState: .ready,
-      connectedDevice: DeviceDTO.testDevice(id: oldDeviceID),
-      currentTransportType: .bluetooth,
-      connectionIntent: .wantsConnection()
-    )
-
-    let tracker = SwitchFailureLostTracker()
-    manager.onConnectionLost = { await tracker.markConnectionLost() }
-
-    await #expect(throws: PairingError.self) {
-      try await manager.pairNewDevice()
+  func `failed pairing replacement fires onConnectionLost so observers tear down`() async throws {
+    try await withFailedReplacement { manager in
+      let tracker = SwitchFailureLostTracker()
+      manager.onConnectionLost = { _ in await tracker.markConnectionLost() }
+      await #expect(throws: ConnectionRequestFailure.self) { try await manager.pairNewDevice() }
+      #expect(await tracker.connectionLostCalled)
     }
+  }
 
-    let wasCalled = await tracker.connectionLostCalled
-    #expect(wasCalled, "switchDevice catch must fire onConnectionLost so AppState retires the orphaned Live Activity")
+  private func withFailedReplacement(_ body: (ConnectionManager) async throws -> Void) async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    do {
+      _ = try await env.connect(.bluetooth)
+      let target = UUID()
+      env.pairing.isSessionActive = true
+      env.pairing.setPairedAccessories([
+        ASAccessory(bluetoothIdentifier: env.deviceID, displayName: "Current"),
+        ASAccessory(bluetoothIdentifier: target, displayName: "Replacement")
+      ])
+      try await env.pairing.activateSession()
+      env.pairing.setPickerResult(.success(target))
+      env.manager.otherAppWaitStrategyOverride = { _ in false }
+      await env.ble.setConnectError(BLEError.deviceNotFound)
+      try await body(env.manager)
+      await env.close()
+    } catch {
+      await env.close()
+      throw error
+    }
   }
 }
 

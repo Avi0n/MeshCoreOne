@@ -17,6 +17,7 @@ public enum MessageServiceError: Error, Sendable {
   case messageTooLong
   /// Underlying MeshCore session error
   case sessionError(MeshCoreError)
+  case persistenceError(any Error)
 }
 
 extension MessageServiceError: LocalizedError {
@@ -29,6 +30,7 @@ extension MessageServiceError: LocalizedError {
     case .invalidRecipient: "Cannot send messages to this recipient."
     case .messageTooLong: "Message exceeds the maximum allowed length."
     case let .sessionError(e): e.localizedDescription
+    case let .persistenceError(error): error.localizedDescription
     }
   }
 }

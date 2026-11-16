@@ -126,6 +126,7 @@ final class RepeaterSettingsViewModel {
         self.helper.handleCommonLateResponse(message.text)
       }
     }
+    guard !Task.isCancelled else { return }
 
     // Detached so configure returns immediately and the node CLI send
     // closure wires without waiting on the owner-info round-trip (matches

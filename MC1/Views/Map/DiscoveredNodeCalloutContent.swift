@@ -65,6 +65,8 @@ struct DiscoveredNodeCalloutContent: View {
       L10n.Map.Map.Callout.NodeKind.repeater
     case .room:
       L10n.Map.Map.Callout.NodeKind.room
+    case .sensor:
+      L10n.Map.Map.Callout.NodeKind.sensor
     }
   }
 }

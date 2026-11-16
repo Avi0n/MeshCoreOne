@@ -27,6 +27,7 @@ extension BLEStateMachine {
       // Cancel any poweredOff grace period — Bluetooth is now available
       bluetoothPowerOffGraceTask?.cancel()
       bluetoothPowerOffGraceTask = nil
+      bluetoothPowerOffGraceID = nil
 
       // Resume waiting continuation if any
       if case let .waitingForBluetooth(continuation) = phase {
@@ -58,20 +59,13 @@ extension BLEStateMachine {
         // A freshly created CBCentralManager may briefly report poweredOff
         // before settling on poweredOn. Start a grace period instead of
         // failing immediately, so the initialization can complete.
-        if bluetoothPowerOffGraceTask == nil {
-          logger.info("[BLE] poweredOff during waitingForBluetooth — starting grace period")
-          bluetoothPowerOffGraceTask = Task {
-            try? await Task.sleep(for: .seconds(1))
-            guard !Task.isCancelled else { return }
-            self.handleBluetoothPowerOffGraceExpired()
-          }
-        }
+        startBluetoothPowerOffGraceIfNeeded()
       } else {
         // Not waiting — cancel any active operation immediately
         let deviceID = phase.deviceID
         cancelCurrentOperation(with: BLEError.bluetoothPoweredOff)
         if let deviceID {
-          onDisconnection?(deviceID, nil)
+          notifyDisconnection(deviceID, nil)
         }
       }
 
@@ -86,15 +80,29 @@ extension BLEStateMachine {
     }
   }
 
+  func startBluetoothPowerOffGraceIfNeeded() {
+    guard bluetoothPowerOffGraceTask == nil else { return }
+    let graceID = UUID()
+    bluetoothPowerOffGraceID = graceID
+    logger.info("[BLE] poweredOff during waitingForBluetooth — starting grace period")
+    bluetoothPowerOffGraceTask = Task {
+      try? await operationClock.sleep(Self.bluetoothPowerOffGrace)
+      guard !Task.isCancelled else { return }
+      self.handleBluetoothPowerOffGraceExpired(id: graceID)
+    }
+  }
+
   /// Called when the poweredOff grace period expires without poweredOn arriving.
-  private func handleBluetoothPowerOffGraceExpired() {
+  private func handleBluetoothPowerOffGraceExpired(id: UUID) {
+    guard bluetoothPowerOffGraceID == id else { return }
     bluetoothPowerOffGraceTask = nil
+    bluetoothPowerOffGraceID = nil
     guard case .waitingForBluetooth = phase else { return }
     logger.info("[BLE] poweredOff grace period expired — Bluetooth is off")
     let deviceID = phase.deviceID
     cancelCurrentOperation(with: BLEError.bluetoothPoweredOff)
     if let deviceID {
-      onDisconnection?(deviceID, nil)
+      notifyDisconnection(deviceID, nil)
     }
   }
 
@@ -108,13 +116,13 @@ extension BLEStateMachine {
     }
     if case let .restoringState(peripheral) = phase {
       transition(to: .idle)
-      onDisconnection?(peripheral.identifier, nil)
+      notifyDisconnection(peripheral.identifier, nil)
     }
     // Auto-reconnect waits indefinitely on the OS pending connect, which can
     // never complete once Bluetooth is unavailable; tear down explicitly.
     if case let .autoReconnecting(peripheral, _, _) = phase {
       transition(to: .idle)
-      onDisconnection?(peripheral.identifier, error)
+      notifyDisconnection(peripheral.identifier, error)
     }
   }
 
@@ -133,12 +141,10 @@ extension BLEStateMachine {
     reconnectPolicy.episodeBegan()
     transition(to: .autoReconnecting(peripheral: peripheral, tx: nil, rx: nil))
 
-    // State-restoration paths claim the reconnect cycle here so the coordinator's
-    // strict completion guard accepts the eventual onReconnection. The adoption
-    // path already claimed via startAdoptingLastSystemConnectedPeripheralIfAvailable
-    // and passes .adoption to skip and avoid double-claiming.
+    // Restoration claims the reconnect cycle here; adoption already claimed it
+    // before emitting its lifecycle event.
     if source == .stateRestoration {
-      onAutoReconnecting?(peripheral.identifier, "state-restoration")
+      notifyAutoReconnecting(peripheral.identifier, "state-restoration")
     }
 
     if peripheral.state == .connected {
@@ -157,6 +163,14 @@ extension BLEStateMachine {
   }
 
   func handleWillRestoreState(_ peripheral: CBPeripheral) {
+    switch phase {
+    case .idle, .waitingForBluetooth, .restoringState:
+      break
+    default:
+      logger.info("[BLE] Restoration stood down for active owner instance=\(instanceID) generation=\(connectionGeneration) phase=\(phase.name)")
+      if phase.deviceID != peripheral.identifier { cancelUnexpectedPeripheral(peripheral) }
+      return
+    }
     let pState = peripheralStateString(peripheral.state)
     logger.info("[BLE] State restoration callback: \(peripheral.identifier.uuidString.prefix(8)), state: \(pState)")
 
@@ -271,7 +285,7 @@ extension BLEStateMachine {
           logger.warning("Auto-reconnect connect failures exhausted budget for \(peripheral.identifier) - transitioning to idle")
         }
         transition(to: .idle)
-        onDisconnection?(peripheral.identifier, teardownError)
+        notifyDisconnection(peripheral.identifier, teardownError)
       }
       return
     }
@@ -397,7 +411,7 @@ extension BLEStateMachine {
       handleFullDisconnect(deviceID: deviceID, error: error, eventTime: eventTime)
       return
     }
-    onRemoteLinkLost?(deviceID, eventTime)
+    notifyRemoteLinkLost(deviceID, eventTime)
 
     logger.info("[BLE] iOS auto-reconnect started: \(deviceID.uuidString.prefix(8)), will attempt automatic reconnection")
 
@@ -435,7 +449,7 @@ extension BLEStateMachine {
     armAutoReconnectDiscoveryTimeout(for: peripheral, generation: connectionGeneration)
 
     // Notify handler so UI can show "connecting" state
-    onAutoReconnecting?(deviceID, errorInfo)
+    notifyAutoReconnecting(deviceID, errorInfo, eventTime: eventTime)
   }
 
   /// Handles a full (non-reconnecting) disconnection.
@@ -446,13 +460,11 @@ extension BLEStateMachine {
       break
 
     case .connected, .autoReconnecting:
-      // Unexpected disconnection. Map through makeConnectionError like the
-      // sibling onDisconnection sites so bond invalidation arriving here still
-      // surfaces as the typed BLEError.authenticationFailed; nil stays nil to
-      // keep a clean disconnect distinguishable from a failure.
-      onRemoteLinkLost?(deviceID, eventTime)
+      // Preserve bond-invalidation errors as `BLEError.authenticationFailed`;
+      // a nil error still represents a clean disconnect.
+      notifyRemoteLinkLost(deviceID, eventTime)
       cancelCurrentOperation(with: BLEError.notConnected)
-      onDisconnection?(deviceID, error.map { ReconnectPolicy.makeConnectionError($0) })
+      notifyDisconnection(deviceID, error.map { ReconnectPolicy.makeConnectionError($0) }, eventTime: eventTime)
 
     default:
       // Disconnection during connection attempt
@@ -471,7 +483,7 @@ extension BLEStateMachine {
       if let error {
         logger.warning("Auto-reconnect service discovery failed: \(error.localizedDescription)")
         transition(to: .idle)
-        onDisconnection?(expected.identifier, ReconnectPolicy.makeConnectionError(error))
+        notifyDisconnection(expected.identifier, ReconnectPolicy.makeConnectionError(error))
         return
       }
 
@@ -528,7 +540,7 @@ extension BLEStateMachine {
       if let error {
         logger.warning("Auto-reconnect characteristic discovery failed: \(error.localizedDescription)")
         transition(to: .idle)
-        onDisconnection?(expected.identifier, ReconnectPolicy.makeConnectionError(error))
+        notifyDisconnection(expected.identifier, ReconnectPolicy.makeConnectionError(error))
         return
       }
 
@@ -638,7 +650,7 @@ extension BLEStateMachine {
     if let error {
       logger.warning("Auto-reconnect notification subscription failed: \(error.localizedDescription)")
       transition(to: .idle)
-      onDisconnection?(peripheral.identifier, ReconnectPolicy.makeConnectionError(error))
+      notifyDisconnection(peripheral.identifier, ReconnectPolicy.makeConnectionError(error))
       return
     }
 
@@ -669,7 +681,7 @@ extension BLEStateMachine {
     )
 
     // Pass continuation to delegate handler for direct yielding (preserves ordering)
-    delegateHandler.setDataContinuation(continuation)
+    installDataContinuation(continuation, peripheral: peripheral, rx: rx)
 
     transition(to: .connected(
       peripheral: peripheral,
@@ -680,7 +692,7 @@ extension BLEStateMachine {
     startRSSIKeepalive(for: peripheral)
 
     logger.info("[BLE] iOS auto-reconnect complete: \(peripheral.identifier.uuidString.prefix(8))")
-    onReconnection?(peripheral.identifier, stream)
+    notifyReconnection(peripheral.identifier, stream)
   }
 
   func handleDidWriteValue(_ peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?, writeSequence: UInt64) {
@@ -720,8 +732,14 @@ extension BLEStateMachine {
       continuation.resume()
     }
 
-    earliestNextWrite = ContinuousClock.now.advanced(by: .seconds(writePacingDelay))
+    earliestNextWrite = operationClock.now().advanced(by: .seconds(writePacingDelay))
     resumeNextWriteWaiter()
+  }
+
+  func handleDidReadRSSI(_ peripheral: CBPeripheral, RSSI: NSNumber, error: Error?, generation: UInt64) {
+    guard case let .connected(expected, _, _, _) = phase,
+          expected === peripheral, connectionGeneration == generation else { return }
+    handleDidReadRSSI(RSSI: RSSI, error: error)
   }
 
   func handleDidReadRSSI(RSSI: NSNumber, error: Error?) {

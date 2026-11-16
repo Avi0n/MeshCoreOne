@@ -41,28 +41,6 @@ struct SavedPathsSheet: View {
         await viewModel.loadSavedPaths()
       }
       .errorAlert($viewModel.errorMessage)
-      .confirmationDialog(
-        L10n.Contacts.Contacts.SavedPaths.deleteTitle,
-        isPresented: .init(
-          get: { pathToDelete != nil },
-          set: { if !$0 { pathToDelete = nil } }
-        ),
-        titleVisibility: .visible
-      ) {
-        Button(L10n.Contacts.Contacts.Common.delete, role: .destructive) {
-          if let path = pathToDelete {
-            let pathId = path.id
-            Task {
-              await viewModel.deletePath(path)
-              onDelete?(pathId)
-            }
-          }
-        }
-      } message: {
-        if let path = pathToDelete {
-          Text(L10n.Contacts.Contacts.SavedPaths.deleteMessage(path.name))
-        }
-      }
       .alert(L10n.Contacts.Contacts.SavedPaths.renameTitle, isPresented: .init(
         get: { pathToRename != nil },
         set: { if !$0 { pathToRename = nil } }
@@ -115,6 +93,28 @@ struct SavedPathsSheet: View {
             }
             Button(L10n.Contacts.Contacts.Common.delete, systemImage: "trash", role: .destructive) {
               pathToDelete = path
+            }
+          }
+          .confirmationDialog(
+            L10n.Contacts.Contacts.SavedPaths.deleteTitle,
+            isPresented: .init(
+              get: { pathToDelete?.id == path.id },
+              set: { if !$0, pathToDelete?.id == path.id { pathToDelete = nil } }
+            ),
+            titleVisibility: .visible
+          ) {
+            Button(L10n.Contacts.Contacts.Common.delete, role: .destructive) {
+              if let path = pathToDelete {
+                let pathId = path.id
+                Task {
+                  await viewModel.deletePath(path)
+                  onDelete?(pathId)
+                }
+              }
+            }
+          } message: {
+            if let path = pathToDelete {
+              Text(L10n.Contacts.Contacts.SavedPaths.deleteMessage(path.name))
             }
           }
           .transition(.opacity)

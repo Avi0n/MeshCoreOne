@@ -8,6 +8,7 @@ enum DiscoverSegment: String, CaseIterable {
   case contacts
   case repeaters
   case rooms
+  case sensors
 
   var localizedTitle: String {
     switch self {
@@ -15,6 +16,7 @@ enum DiscoverSegment: String, CaseIterable {
     case .contacts: L10n.Contacts.Contacts.Discovery.Segment.contacts
     case .repeaters: L10n.Contacts.Contacts.Discovery.Segment.repeaters
     case .rooms: L10n.Contacts.Contacts.Discovery.Segment.rooms
+    case .sensors: L10n.Contacts.Contacts.Discovery.Segment.sensors
     }
   }
 }
@@ -247,6 +249,8 @@ final class DiscoveryViewModel {
         result = result.filter { $0.nodeType == .repeater }
       case .rooms:
         result = result.filter { $0.nodeType == .room }
+      case .sensors:
+        result = result.filter { $0.nodeType == .sensor }
       }
     } else {
       let query = searchText.lowercased()

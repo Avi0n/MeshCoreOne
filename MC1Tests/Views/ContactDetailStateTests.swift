@@ -7,6 +7,21 @@ import UIKit
 @MainActor
 struct ContactDetailStateTests {
   @Test
+  func `nonadmin sensor cannot handoff to repeater or management`() {
+    let contact = ContactDTO(from: Contact(radioID: UUID(), publicKey: Data(repeating: 0xA4, count: 32),
+                                           name: "Sensor", typeRawValue: ContactType.sensor.rawValue, lastHeardTimestamp: 0))
+    let state = ContactDetailState(contact: contact)
+    state.configure(appState: AppState(), onClose: {})
+    let session = RemoteNodeSessionDTO(radioID: contact.radioID, publicKey: contact.publicKey,
+                                       name: contact.name, role: .sensor, isConnected: true, permissionLevel: .guest)
+    state.queueAdminSheet(for: session, context: state.operationContext)
+    #expect(state.pendingSheet == nil)
+    state.presentPendingSheet()
+    #expect(state.activeSheet == nil)
+    state.end()
+  }
+
+  @Test
   func `payload refresh preserves the nickname draft and rejects a different contact`() {
     let contact = refreshed(makeContact(), nickname: "Stored nickname")
     let state = ContactDetailState(contact: contact)

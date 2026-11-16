@@ -10,6 +10,7 @@ enum SettingsDetail: Hashable {
   case advanced
   case notifications
   case chats
+  case blocksAndFilters
   case appearance
   case maps
   case language
@@ -23,7 +24,7 @@ enum SettingsDetail: Hashable {
     switch self {
     case .deviceInfo, .radio, .location, .connection, .advanced:
       true
-    case .notifications, .chats, .appearance, .maps, .language, .backup, .support, .feedback:
+    case .notifications, .chats, .blocksAndFilters, .appearance, .maps, .language, .backup, .support, .feedback:
       false
     }
   }

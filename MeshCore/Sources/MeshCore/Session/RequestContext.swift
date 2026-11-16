@@ -15,6 +15,16 @@ import os
 public actor RequestResponseSerializer {
   private var isRequestInFlight = false
   private var waiters: [CheckedContinuation<Void, Never>] = []
+  private var settlementWaiters: [CheckedContinuation<Void, Never>] = []
+  private var hasUncertainResponseHistory = false
+
+  func requireIdentityImportResponseAttribution() throws {
+    guard !hasUncertainResponseHistory else { throw IdentityImportReconnectionError.uncertainResponseHistory }
+  }
+
+  func noteUncertainResponseHistory() {
+    hasUncertainResponseHistory = true
+  }
 
   /// ContactService lives outside MeshCore, and the memberwise initializer is internal.
   public init() {}
@@ -22,6 +32,12 @@ public actor RequestResponseSerializer {
   public var waiterCountForTest: Int {
     waiters.count
   }
+
+  #if DEBUG
+    var quiescenceWaiterCountForTesting: Int {
+      settlementWaiters.count
+    }
+  #endif
 
   /// Acquires the serializer, waiting if another request/response exchange is active.
   public func acquire() async {
@@ -42,19 +58,29 @@ public actor RequestResponseSerializer {
       next.resume()
     } else {
       isRequestInFlight = false
+      let settled = settlementWaiters
+      settlementWaiters.removeAll()
+      for waiter in settled {
+        waiter.resume()
+      }
     }
   }
 
-  /// Executes a request/response operation while holding the serializer.
-  ///
-  /// The slot is held until the wire exchange the operation owns actually terminates —
-  /// a matching response is consumed or the command's own timeout elapses — even after
-  /// the caller has been resumed. If the caller's task is cancelled mid-flight, it is
-  /// resumed immediately with `CancellationError`, but the operation keeps running so a
-  /// late (orphaned) response is drained here under the held slot instead of leaking to
-  /// the next command, which would otherwise consume it as its own. A command cancelled
-  /// before its exchange begins releases the slot without writing.
+  /// Joins the exchanges themselves, rather than their cancellable callers.
+  public func waitForQuiescence() async {
+    guard isRequestInFlight else { return }
+    await withCheckedContinuation { settlementWaiters.append($0) }
+  }
+
+  func responseAttributionIsUncertain() -> Bool {
+    hasUncertainResponseHistory
+  }
+
+  /// Holds the slot through reply or timeout so a cancelled caller cannot leave a reply for the next command.
+  /// Pass `resumeCallerOnCancel: false` to wait for settlement when acceptance must survive cancellation.
+  /// Cancellation before the exchange starts prevents the write.
   public func withSerialization<T: Sendable>(
+    resumeCallerOnCancel: Bool = true,
     _ operation: @escaping @Sendable () async throws -> T
   ) async throws -> T {
     await acquire()
@@ -85,6 +111,9 @@ public actor RequestResponseSerializer {
           do {
             outcome = try await .success(operation())
           } catch {
+            if let failure = error as? MeshCoreError, case .timeout = failure {
+              noteUncertainResponseHistory()
+            }
             outcome = .failure(error)
           }
           release()
@@ -97,6 +126,7 @@ public actor RequestResponseSerializer {
         }
       }
     } onCancel: {
+      guard resumeCallerOnCancel else { return }
       let waiting = pending.withLock { stored -> CheckedContinuation<T, Error>? in
         let continuation = stored
         stored = nil

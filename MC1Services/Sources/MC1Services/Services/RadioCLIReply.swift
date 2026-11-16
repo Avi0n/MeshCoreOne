@@ -1,6 +1,6 @@
 import Foundation
 
-/// One Radio CLI reply, classified after trailing CR and LF are removed.
+/// A framed Radio CLI value preserves its payload; reply markers ignore trailing CR and LF.
 public enum RadioCLIReply: Sendable, Equatable {
   case unknownCommand
   case error(String)
@@ -16,24 +16,24 @@ public enum RadioCLIReply: Sendable, Equatable {
   public static let notConnected = "(not connected)"
 
   public init(text: String) {
-    let text = Self.strippingTrailingLineEndings(text)
-    if text == "Unknown command" {
+    let marker = Self.strippingTrailingLineEndings(text)
+    if marker == "Unknown command" {
       self = .unknownCommand
       return
     }
-    if text.hasPrefix("Error") || text.hasPrefix("ERROR") || text.hasPrefix("ERR") {
-      self = .error(text)
+    if marker.hasPrefix("Error") || marker.hasPrefix("ERROR") || marker.hasPrefix("ERR") {
+      self = .error(marker)
       return
     }
     if text.hasPrefix("> ") {
       self = .value(String(text.dropFirst(2)))
       return
     }
-    if text.hasPrefix("OK") {
-      self = .ok(text)
+    if marker.hasPrefix("OK") {
+      self = .ok(marker)
       return
     }
-    self = .other(text)
+    self = .other(marker)
   }
 
   /// Drops trailing U+000D and U+000A scalars. `"\r\n"` is one `Character`,

@@ -5,9 +5,7 @@ import SwiftData
 
 /// Capture-rate policy for node status snapshots.
 enum NodeSnapshotPolicy {
-  /// Minimum interval between persisted snapshots for the same node.
-  /// A status, telemetry, or neighbor capture arriving within this window of
-  /// the latest snapshot enriches that row rather than inserting a new one.
+  /// Window for coalescing captures for the same public key and owner.
   static let minimumInterval: TimeInterval = 15 * 60
 }
 
@@ -133,7 +131,7 @@ public struct TelemetrySnapshotEntry: Codable, Sendable, Equatable {
   }
 }
 
-/// Point-in-time snapshot of a remote node's status, captured when the user views it.
+/// Point-in-time snapshot of node status or the connected radio's own telemetry.
 @Model
 final class NodeStatusSnapshot {
   #Index<NodeStatusSnapshot>([\.nodePublicKey, \.timestamp])
@@ -144,8 +142,11 @@ final class NodeStatusSnapshot {
   /// When this snapshot was captured
   var timestamp: Date
 
-  /// The node's full public key (32 bytes) -- links to RemoteNodeSession
+  /// Full public key at capture. Keeping it separates readings taken before and after key rotation.
   var nodePublicKey: Data
+
+  /// Radio ID for self telemetry so deletion covers every captured key. Nil denotes remote history.
+  var selfRadioID: UUID?
 
   // MARK: - Radio metrics
 
@@ -198,6 +199,7 @@ final class NodeStatusSnapshot {
     id: UUID = UUID(),
     timestamp: Date = .now,
     nodePublicKey: Data,
+    selfRadioID: UUID? = nil,
     batteryMillivolts: UInt16? = nil,
     lastSNR: Double? = nil,
     lastRSSI: Int16? = nil,
@@ -224,6 +226,7 @@ final class NodeStatusSnapshot {
     self.id = id
     self.timestamp = timestamp
     self.nodePublicKey = nodePublicKey
+    self.selfRadioID = selfRadioID
     self.batteryMillivolts = batteryMillivolts
     self.lastSNR = lastSNR
     self.lastRSSI = lastRSSI
@@ -276,6 +279,7 @@ final class NodeStatusSnapshot {
       id: dto.id,
       timestamp: dto.timestamp,
       nodePublicKey: dto.nodePublicKey,
+      selfRadioID: dto.selfRadioID,
       batteryMillivolts: dto.batteryMillivolts,
       lastSNR: dto.lastSNR,
       lastRSSI: dto.lastRSSI,
@@ -308,6 +312,7 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
   public let id: UUID
   public let timestamp: Date
   public let nodePublicKey: Data
+  public let selfRadioID: UUID?
   public let batteryMillivolts: UInt16?
   public let lastSNR: Double?
   public let lastRSSI: Int16?
@@ -338,6 +343,7 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     id = model.id
     timestamp = model.timestamp
     nodePublicKey = model.nodePublicKey
+    selfRadioID = model.selfRadioID
     batteryMillivolts = model.batteryMillivolts
     lastSNR = model.lastSNR
     lastRSSI = model.lastRSSI
@@ -366,6 +372,7 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     id: UUID = UUID(),
     timestamp: Date = .now,
     nodePublicKey: Data,
+    selfRadioID: UUID? = nil,
     batteryMillivolts: UInt16? = nil,
     lastSNR: Double? = nil,
     lastRSSI: Int16? = nil,
@@ -392,6 +399,7 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     self.id = id
     self.timestamp = timestamp
     self.nodePublicKey = nodePublicKey
+    self.selfRadioID = selfRadioID
     self.batteryMillivolts = batteryMillivolts
     self.lastSNR = lastSNR
     self.lastRSSI = lastRSSI

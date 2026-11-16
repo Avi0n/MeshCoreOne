@@ -199,26 +199,34 @@ public extension PersistenceStore {
 
   /// Delete remote node session and all associated room messages
   func deleteRemoteNodeSession(id: UUID) throws {
-    let targetID = id
+    try commitPendingRxLogEntries()
+    do {
+      let targetID = id
 
-    // Delete associated room messages
-    let messagePredicate = #Predicate<RoomMessage> { message in
-      message.sessionID == targetID
-    }
-    let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
-    for message in messages {
-      modelContext.delete(message)
-    }
+      let messagePredicate = #Predicate<RoomMessage> { message in
+        message.sessionID == targetID
+      }
+      let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
+      for message in messages {
+        modelContext.delete(message)
+      }
 
-    // Delete the session
-    let sessionPredicate = #Predicate<RemoteNodeSession> { session in
-      session.id == targetID
-    }
-    if let session = try modelContext.fetch(FetchDescriptor(predicate: sessionPredicate)).first {
-      modelContext.delete(session)
-    }
+      let sessionPredicate = #Predicate<RemoteNodeSession> { session in
+        session.id == targetID
+      }
+      if let session = try modelContext.fetch(FetchDescriptor(predicate: sessionPredicate)).first {
+        if let conversationID = session.textRulesID {
+          try stageRecentlyBlockedRoomDeletion(radioID: session.radioID, conversationID: conversationID)
+        }
+        modelContext.delete(session)
+      }
 
-    try modelContext.save()
+      try modelContext.save()
+      publishRecentlyBlockedChange()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
   }
 
   /// Mark a room session as connected. Called when an incoming message proves

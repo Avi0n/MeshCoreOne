@@ -554,6 +554,8 @@ public extension PersistenceStore {
 
   // MARK: - Node Status Snapshots
 
+  private static let snapshotFetchBatchSize = 32
+
   func saveNodeStatusSnapshot(
     nodePublicKey: Data,
     batteryMillivolts: UInt16?,
@@ -623,27 +625,18 @@ public extension PersistenceStore {
   }
 
   func fetchLatestNodeStatusSnapshot(nodePublicKey: Data) throws -> NodeStatusSnapshotDTO? {
-    var descriptor = FetchDescriptor<NodeStatusSnapshot>(
-      predicate: #Predicate { $0.nodePublicKey == nodePublicKey },
-      sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
-    )
-    descriptor.fetchLimit = 1
-    return try modelContext.fetch(descriptor).first.map(NodeStatusSnapshotDTO.init)
+    try latestSnapshot(nodePublicKey: nodePublicKey, selfRadioID: nil).map(NodeStatusSnapshotDTO.init)
   }
 
   func fetchNodeStatusSnapshots(nodePublicKey: Data, since: Date?) throws -> [NodeStatusSnapshotDTO] {
-    let descriptor = if let since {
-      FetchDescriptor<NodeStatusSnapshot>(
-        predicate: #Predicate { $0.nodePublicKey == nodePublicKey && $0.timestamp >= since },
-        sortBy: [SortDescriptor(\.timestamp)]
-      )
-    } else {
-      FetchDescriptor<NodeStatusSnapshot>(
-        predicate: #Predicate { $0.nodePublicKey == nodePublicKey },
-        sortBy: [SortDescriptor(\.timestamp)]
-      )
-    }
-    return try modelContext.fetch(descriptor).map(NodeStatusSnapshotDTO.init)
+    try snapshots(nodePublicKey: nodePublicKey, selfRadioID: nil, since: since).map(NodeStatusSnapshotDTO.init)
+  }
+
+  func fetchSelfTelemetrySnapshots(
+    radioID: UUID,
+    nodePublicKey: Data
+  ) throws -> [NodeStatusSnapshotDTO] {
+    try snapshots(nodePublicKey: nodePublicKey, selfRadioID: radioID, since: nil).map(NodeStatusSnapshotDTO.init)
   }
 
   func updateSnapshotNeighbors(id: UUID, neighbors: [NeighborSnapshotEntry]) throws {
@@ -679,21 +672,7 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
-  /// Atomically capture a status, telemetry, and/or neighbor snapshot for a node.
-  ///
-  /// The fetch-latest decision and the insert-or-enrich both run in this single
-  /// `@ModelActor` method body with no `await`, so two concurrent captures
-  /// serialize and the second observes the first's row — there is no window for a
-  /// duplicate in-window insert. Keeping the body suspension-free is the whole
-  /// point; an `await` here would reopen that race. Mirrors the same-isolation
-  /// guarantee `insertPendingSendAssigningSequence` relies on.
-  ///
-  /// Within `NodeSnapshotPolicy.minimumInterval` of the latest snapshot the
-  /// capture enriches that row: status fields are applied only when the row is
-  /// still telemetry-only (`uptimeSeconds == nil`), preserving the
-  /// one-status-point-per-window throttle; telemetry and neighbor arrays are
-  /// applied whenever supplied. A location fix is first-wins: it is written
-  /// only when the row has none yet. Outside the window a new snapshot is inserted.
+  /// Coalesces remote captures in one store turn so concurrent reads share the same window.
   func recordNodeStatusSnapshot(
     nodePublicKey: Data,
     status: NodeStatusMetrics?,
@@ -701,14 +680,104 @@ public extension PersistenceStore {
     neighbors: [NeighborSnapshotEntry]?,
     location: NodeLocationFix?
   ) throws -> UUID {
-    var latestDescriptor = FetchDescriptor<NodeStatusSnapshot>(
-      predicate: #Predicate { $0.nodePublicKey == nodePublicKey },
-      sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+    let capturedAt = Date.now
+    let latest = try latestSnapshot(
+      nodePublicKey: nodePublicKey,
+      selfRadioID: nil,
+      since: capturedAt.addingTimeInterval(-NodeSnapshotPolicy.minimumInterval)
     )
-    latestDescriptor.fetchLimit = 1
+    return try insertOrEnrichSnapshot(
+      latest: latest,
+      capturedAt: capturedAt,
+      nodePublicKey: nodePublicKey,
+      selfRadioID: nil,
+      status: status,
+      telemetry: telemetry,
+      neighbors: neighbors,
+      location: location
+    )
+  }
 
-    if let latest = try modelContext.fetch(latestDescriptor).first,
-       latest.timestamp.distance(to: .now) < NodeSnapshotPolicy.minimumInterval {
+  func recordSelfTelemetrySnapshot(
+    deviceID: UUID,
+    radioID: UUID,
+    nodePublicKey: Data,
+    telemetry: [TelemetrySnapshotEntry]?,
+    location: NodeLocationFix?
+  ) throws -> UUID? {
+    let targetID = deviceID
+    var descriptor = FetchDescriptor<Device>(predicate: #Predicate { $0.id == targetID })
+    descriptor.fetchLimit = 1
+    // Keep the identity check and write in one turn so deletion cannot interleave.
+    guard let device = try modelContext.fetch(descriptor).first,
+          device.radioID == radioID, device.publicKey == nodePublicKey else { return nil }
+    let capturedAt = Date.now
+    let latest = try latestSnapshot(
+      nodePublicKey: nodePublicKey,
+      selfRadioID: radioID,
+      since: capturedAt.addingTimeInterval(-NodeSnapshotPolicy.minimumInterval)
+    )
+    // Give the first fix its own row so History uses the time it was captured.
+    let addsFirstFix = location != nil && latest?.latitude == nil
+    return try insertOrEnrichSnapshot(
+      latest: addsFirstFix ? nil : latest,
+      capturedAt: capturedAt,
+      nodePublicKey: nodePublicKey,
+      selfRadioID: radioID,
+      status: nil,
+      telemetry: telemetry,
+      neighbors: nil,
+      location: location
+    )
+  }
+
+  private func latestSnapshot(
+    nodePublicKey: Data,
+    selfRadioID: UUID?,
+    since: Date? = nil
+  ) throws -> NodeStatusSnapshot? {
+    var descriptor = snapshotDescriptor(nodePublicKey: nodePublicKey, since: since, order: .reverse)
+    if since != nil || modelContext.hasChanges {
+      return try modelContext.fetch(descriptor).first { $0.selfRadioID == selfRadioID }
+    }
+    descriptor.includePendingChanges = false
+    let rows = try modelContext.fetch(descriptor, batchSize: Self.snapshotFetchBatchSize)
+    return rows.first { $0.selfRadioID == selfRadioID }
+  }
+
+  /// Match the optional owner in Swift to include legacy nil-owner rows.
+  private func snapshots(nodePublicKey: Data, selfRadioID: UUID?, since: Date?) throws -> [NodeStatusSnapshot] {
+    let descriptor = snapshotDescriptor(nodePublicKey: nodePublicKey, since: since, order: .forward)
+    return try modelContext.fetch(descriptor).filter { $0.selfRadioID == selfRadioID }
+  }
+
+  private func snapshotDescriptor(
+    nodePublicKey: Data,
+    since: Date?,
+    order: SortOrder
+  ) -> FetchDescriptor<NodeStatusSnapshot> {
+    let key = nodePublicKey
+    let sortBy = [SortDescriptor(\NodeStatusSnapshot.timestamp, order: order)]
+    if let since {
+      return FetchDescriptor(
+        predicate: #Predicate { $0.nodePublicKey == key && $0.timestamp >= since },
+        sortBy: sortBy
+      )
+    }
+    return FetchDescriptor(predicate: #Predicate { $0.nodePublicKey == key }, sortBy: sortBy)
+  }
+
+  private func insertOrEnrichSnapshot(
+    latest: NodeStatusSnapshot?,
+    capturedAt: Date,
+    nodePublicKey: Data,
+    selfRadioID: UUID?,
+    status: NodeStatusMetrics?,
+    telemetry: [TelemetrySnapshotEntry]?,
+    neighbors: [NeighborSnapshotEntry]?,
+    location: NodeLocationFix?
+  ) throws -> UUID {
+    if let latest, latest.timestamp.distance(to: capturedAt) < NodeSnapshotPolicy.minimumInterval {
       if let status, latest.uptimeSeconds == nil {
         latest.apply(status)
       }
@@ -718,9 +787,6 @@ public extension PersistenceStore {
       if let neighbors {
         latest.neighborSnapshots = neighbors
       }
-      // Location is first-wins, unlike telemetry/neighbors: the in-window row is
-      // stamped with the first capture's timestamp, so writing a later fix here
-      // would mis-plot it in time, and a later no-fix would erase a good fix.
       if let location, latest.latitude == nil {
         latest.latitude = location.latitude
         latest.longitude = location.longitude
@@ -731,7 +797,9 @@ public extension PersistenceStore {
     }
 
     let snapshot = NodeStatusSnapshot(
+      timestamp: capturedAt,
       nodePublicKey: nodePublicKey,
+      selfRadioID: selfRadioID,
       telemetryEntries: telemetry
     )
     if let status {

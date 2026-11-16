@@ -26,6 +26,32 @@ struct RoomMessageBubbleA11yLabelTests {
   }
 
   @Test
+  func `a reading speaks the reading`() {
+    let stored = "MECP/0/M01"
+    let bubble = roomBubble(stored: stored)
+    let reading = MECPCatalog.displayText(stored)
+    #expect(
+      bubble.accessibilityMessageLabel
+        == "Alice: \(L10n.Chats.Chats.Message.readingAccessibility(reading))"
+    )
+  }
+
+  private func roomBubble(stored: String) -> RoomMessageBubble {
+    RoomMessageBubble(
+      message: RoomMessageDTO(
+        sessionID: UUID(),
+        authorKeyPrefix: Data([0xAA]),
+        authorName: "Alice",
+        text: stored,
+        timestamp: 100
+      ),
+      showTimestamp: false,
+      showSenderName: true,
+      showAvatar: true
+    )
+  }
+
+  @Test
   func `incoming cluster-start announces the author once`() {
     let message = RoomMessageDTO(
       sessionID: UUID(),

@@ -56,28 +56,28 @@ public actor MockMessagePollingService: MessagePollingServiceProtocol {
   // MARK: - Captured Handlers
 
   /// Captured contact message handler (set via setContactMessageHandler)
-  public private(set) var capturedContactMessageHandler: (@Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void)?
+  public private(set) var capturedContactMessageHandler: (@Sendable (ContactMessage, ContactDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?) async -> Void)?
 
   /// Captured channel message handler (set via setChannelMessageHandler)
-  public private(set) var capturedChannelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void)?
+  public private(set) var capturedChannelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)?
 
   /// Captured signed message handler (set via setSignedMessageHandler)
-  public private(set) var capturedSignedMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
+  public private(set) var capturedSignedMessageHandler: (@Sendable (ContactMessage, ReceiveScope) async -> Void)?
 
   /// Captured CLI message handler (set via setCLIMessageHandler)
   public private(set) var capturedCLIMessageHandler: (@Sendable (ContactMessage, ContactDTO?) async -> Void)?
 
   // MARK: - Handler Setter Methods (matching MessagePollingService)
 
-  public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext) async -> Void) {
+  public func setContactMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?) async -> Void) {
     capturedContactMessageHandler = handler
   }
 
-  public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext) async -> Void) {
+  public func setChannelMessageHandler(_ handler: @escaping @Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {
     capturedChannelMessageHandler = handler
   }
 
-  public func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ContactDTO?) async -> Void) {
+  public func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ReceiveScope) async -> Void) {
     capturedSignedMessageHandler = handler
   }
 

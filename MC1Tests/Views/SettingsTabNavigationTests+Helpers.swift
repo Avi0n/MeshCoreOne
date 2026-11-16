@@ -15,7 +15,7 @@ extension SettingsTabNavigationTests {
   func requireChild(_ destination: SettingsDestination, on harness: SettingsTabHarness) async throws {
     try await requireRoot(destination.root, on: harness)
     try #require(
-      try await harness.openChild(row: destination.row, title: destination.title, markers: destination.markers, detail: destination.root.detail),
+      try await harness.openRow(row: destination.row, title: destination.title, markers: destination.markers, detail: destination.root.detail),
       "\(harness.describe())"
     )
   }

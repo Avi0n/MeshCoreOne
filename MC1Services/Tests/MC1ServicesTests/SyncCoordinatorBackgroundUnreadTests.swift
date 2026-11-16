@@ -11,8 +11,8 @@ struct SyncCoordinatorBackgroundUnreadTests {
     isChannel: Bool,
     isInForeground: Bool
   ) async throws {
-    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
     let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
     let services = ServiceContainer(
       session: MeshCoreSession(transport: SimulatorMockTransport()),
       dataStore: store,
@@ -32,16 +32,12 @@ struct SyncCoordinatorBackgroundUnreadTests {
         channelRadioID: radioID
       )
       let message = MessageDTO.testChannelMessage(radioID: radioID, channelIndex: channel.index)
+      let scope = try #require(await store.captureReceiveScope(radioID: radioID, link: .init()))
       try await services.syncCoordinator.updateChannelUnreadsAndNotify(
         messageDTO: message,
         channel: channel,
-        channelIndex: channel.index,
-        senderNodeName: nil,
-        messageText: message.text,
-        timestamp: message.timestamp,
-        hasSelfMention: false,
-        radioID: radioID,
-        dependencies: services.syncDependencies
+        dependencies: services.syncDependencies,
+        scope: scope
       )
       let saved = try #require(await store.fetchChannel(id: channel.id))
       #expect(saved.unreadCount == expectedUnread)
@@ -50,13 +46,13 @@ struct SyncCoordinatorBackgroundUnreadTests {
       try await store.saveContact(contact)
       services.notificationService.setActiveConversation(contactID: contact.id)
       let message = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id)
+      let scope = try #require(await store.captureReceiveScope(radioID: radioID, link: .init()))
+      let persisted = try #require(await store.fetchContact(id: contact.id))
       try await services.syncCoordinator.updateDMUnreadsAndNotify(
         messageDTO: message,
-        contactID: contact.id,
-        contact: contact,
-        messageText: message.text,
-        hasSelfMention: false,
-        dependencies: services.syncDependencies
+        contact: persisted,
+        dependencies: services.syncDependencies,
+        scope: scope
       )
       let saved = try #require(await store.fetchContact(id: contact.id))
       #expect(saved.unreadCount == expectedUnread)

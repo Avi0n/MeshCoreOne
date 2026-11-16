@@ -196,14 +196,12 @@ final class LocationService: NSObject, CLLocationManagerDelegate {
         authorizationContinuation.resume(returning: status)
       }
 
-      if status == .denied || status == .restricted {
-        if let continuation = self.requestContinuation {
-          self.requestContinuation = nil
-          self.locationTimeoutTask?.cancel()
-          self.locationTimeoutTask = nil
-          self.isRequestingLocation = false
-          continuation.resume(throwing: LocationServiceError.notAuthorized(status))
-        }
+      if status == .denied || status == .restricted, let continuation = self.requestContinuation {
+        self.requestContinuation = nil
+        self.locationTimeoutTask?.cancel()
+        self.locationTimeoutTask = nil
+        self.isRequestingLocation = false
+        continuation.resume(throwing: LocationServiceError.notAuthorized(status))
       }
     }
   }

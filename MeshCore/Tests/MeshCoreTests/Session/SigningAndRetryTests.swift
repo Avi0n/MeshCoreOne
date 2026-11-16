@@ -1,19 +1,24 @@
 import CryptoKit
 import Foundation
 @testable import MeshCore
+import MeshCoreTestSupport
 import Testing
 
-@Suite("Signing and retry workflows")
+@Suite("Signing and retry workflows", .timeLimit(.minutes(1)))
 struct SigningAndRetryTests {
+  private static let commandTimeout: TimeInterval = 10
+  private static let acknowledgementTimeout: TimeInterval = 4
+
   @Test(arguments: [1, 2])
   func `retry observes an acknowledgement received before send completes`(attempts: Int) async throws {
-    let (session, transport) = try await startedSession()
+    let (session, transport, clock) = try await startedSession()
     let observed = await session.events(filter: .anyAcknowledgement)
     let ackObserved = Task { await observed.first { _ in true } }
     await transport.holdNextSend()
     let sending = Task {
       try await session.sendMessageWithRetry(
-        to: Data(repeating: 2, count: 32), text: "Message", maxAttempts: attempts, timeout: attempts == 1 ? 1 : 0.05
+        to: Data(repeating: 2, count: 32), text: "Message", maxAttempts: attempts,
+        timeout: Self.acknowledgementTimeout
       )
     }
     try await waitUntil { await transport.sendIsWaiting }
@@ -22,6 +27,11 @@ struct SigningAndRetryTests {
     #expect(await ackObserved.value != nil)
     await transport.releaseHeldSend()
     if attempts == 2 {
+      // The first acknowledgement does not match, so the attempt stays parked until its deadline.
+      try await waitUntil("unmatched acknowledgement should park the attempt") {
+        clock.sleeperCount == 1 && clock.nextSleepDuration == .seconds(Self.acknowledgementTimeout)
+      }
+      clock.advance(by: .seconds(Self.acknowledgementTimeout))
       try await waitUntil { await transport.sentData.count == 2 }
       await transport.simulateReceive(Data([0x82, 1, 2, 3, 4, 50, 0, 0, 0]))
       await transport.simulateReceive(Data([0x06, 0, 5, 6, 7, 8, 50, 0, 0, 0]))
@@ -35,11 +45,11 @@ struct SigningAndRetryTests {
 
   @Test(arguments: [true, false])
   func `cancelling retry releases its acknowledgement subscription`(duringSend: Bool) async throws {
-    let (session, transport) = try await startedSession()
+    let (session, transport, _) = try await startedSession()
     if duringSend { await transport.holdNextSend() }
     let sending = Task {
       try await session.sendMessageWithRetry(
-        to: Data(repeating: 2, count: 32), text: "Message", maxAttempts: 1, timeout: 1
+        to: Data(repeating: 2, count: 32), text: "Message", maxAttempts: 1, timeout: Self.acknowledgementTimeout
       )
     }
     try await waitUntil { await transport.sentData.count == 1 }
@@ -62,12 +72,12 @@ struct SigningAndRetryTests {
 
   @Test(arguments: [false, true])
   func `concurrent signing workflows each sign their own input`(cancelFirst: Bool) async throws {
-    let (session, transport) = try await startedSession()
+    let (session, transport, _) = try await startedSession()
     let firstData = Data("AAAA".utf8)
     let secondData = Data("BBBB".utf8)
-    let first = Task { try await session.sign(firstData, chunkSize: 2, timeout: 1) }
+    let first = Task { try await session.sign(firstData, chunkSize: 2, timeout: Self.commandTimeout) }
     try await waitUntil { await transport.sentData.count == 1 }
-    let second = Task { try await session.sign(secondData, chunkSize: 2, timeout: 1) }
+    let second = Task { try await session.sign(secondData, chunkSize: 2, timeout: Self.commandTimeout) }
     await Task.yield()
     if cancelFirst { first.cancel() }
 
@@ -112,9 +122,14 @@ struct SigningAndRetryTests {
     await session.stop()
   }
 
-  private func startedSession() async throws -> (MeshCoreSession, MockTransport) {
+  private func startedSession() async throws -> (MeshCoreSession, MockTransport, TestClock) {
     let transport = MockTransport()
-    let session = MeshCoreSession(transport: transport, configuration: SessionConfiguration(defaultTimeout: 1))
+    let clock = TestClock()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(defaultTimeout: Self.commandTimeout),
+      clock: clock
+    )
     let start = Task { try await session.start() }
     try await waitUntil { await transport.sentData.count == 1 }
     var selfInfo = Data([ResponseCode.selfInfo.rawValue, 1, 22, 22])
@@ -123,7 +138,8 @@ struct SigningAndRetryTests {
     selfInfo.append(contentsOf: [0x38, 0xF6, 0x0D, 0, 0x48, 0xE8, 1, 0, 7, 5])
     await transport.simulateReceive(selfInfo)
     try await start.value
+    try #require(clock.sleeperCount == 0)
     await transport.clearSentData()
-    return (session, transport)
+    return (session, transport, clock)
   }
 }

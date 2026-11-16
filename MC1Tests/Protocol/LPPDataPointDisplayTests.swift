@@ -92,15 +92,49 @@ struct LPPDataPointDisplayTests {
 
   // MARK: - Locale Conversion Tests
 
-  @Test
-  func `Temperature conversion from Celsius to Fahrenheit`() {
-    let celsius = 25.0
-    let converted = LPPSensorType.temperature.convertedValue(celsius)
-    if Locale.current.measurementSystem == .metric {
-      #expect(converted == celsius)
-    } else {
-      #expect(abs(converted - 77.0) < 0.01)
-    }
+  @Test(arguments: [
+    (identifier: "en_US", expected: 77.0, symbol: "°F"),
+    (identifier: "en_GB", expected: 25.0, symbol: "°C"),
+    (identifier: "en_LR", expected: 25.0, symbol: "°C"),
+    (identifier: "de_DE", expected: 25.0, symbol: "°C"),
+  ])
+  func `temperature uses the locale temperature unit`(
+    identifier: String,
+    expected: Double,
+    symbol: String
+  ) {
+    let locale = Locale(identifier: identifier)
+    let converted = LPPSensorType.temperature.convertedValue(25.0, locale: locale)
+    #expect(abs(converted - expected) < 0.01)
+    #expect(LPPSensorType.temperature.localizedUnitSymbol(for: locale) == symbol)
+  }
+
+  @Test(arguments: [
+    (identifier: "en_US", text: "29.92 inHg"),
+    (identifier: "en_GB", text: "1,013.2 mbar"),
+    (identifier: "en_LR", text: "1,013.2 hPa"),
+    (identifier: "de_DE", text: "1.013,2 hPa"),
+    (identifier: "ru_RU", text: "760 mmHg"),
+  ])
+  func `barometer reading uses the locale pressure unit`(identifier: String, text: String) {
+    let locale = Locale(identifier: identifier)
+    let sample = 1013.2
+    let value = LPPSensorType.barometer.convertedValue(sample, locale: locale)
+    let digits = LPPSensorType.barometer.convertedFractionLength(for: locale)
+    let symbol = LPPSensorType.barometer.localizedUnitSymbol(for: locale)
+    let formatted = value.formatted(.number.precision(.fractionLength(digits)).locale(locale))
+    #expect(text == "\(formatted) \(symbol)")
+  }
+
+  @Test(arguments: [
+    (identifier: "en_US", symbol: "ft"),
+    (identifier: "en_GB", symbol: "ft"),
+    (identifier: "en_LR", symbol: "m"),
+    (identifier: "de_DE", symbol: "m"),
+  ])
+  func `altitude uses the locale length unit`(identifier: String, symbol: String) {
+    let locale = Locale(identifier: identifier)
+    #expect(LPPSensorType.altitude.localizedUnitSymbol(for: locale) == symbol)
   }
 
   @Test
@@ -109,15 +143,5 @@ struct LPPDataPointDisplayTests {
     let converted = LPPSensorType.voltage.convertedValue(volts)
     #expect(converted == volts)
     #expect(LPPSensorType.voltage.localizedUnitSymbol == "V")
-  }
-
-  @Test
-  func `Altitude uses locale-appropriate unit symbol`() {
-    let symbol = LPPSensorType.altitude.localizedUnitSymbol
-    if Locale.current.measurementSystem == .metric {
-      #expect(symbol == "m")
-    } else {
-      #expect(symbol == "ft")
-    }
   }
 }

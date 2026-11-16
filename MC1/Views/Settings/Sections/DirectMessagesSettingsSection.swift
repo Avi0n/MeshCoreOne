@@ -1,11 +1,14 @@
 import MC1Services
 import SwiftUI
 
-/// Settings section for direct message acknowledgment count
 struct DirectMessagesSettingsSection: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.dismiss) private var dismiss
+  @AppStorage(AppStorageKey.dmDirectAttempts.rawValue)
+  private var storedDirectAttempts = AppStorageKey.defaultDMDirectAttempts
+  @AppStorage(AppStorageKey.dmFloodAttempts.rawValue)
+  private var storedFloodAttempts = AppStorageKey.defaultDMFloodAttempts
   @State private var errorMessage: String?
   @State private var retryAlert = RetryAlertState()
   @State private var isSaving = false
@@ -14,7 +17,40 @@ struct DirectMessagesSettingsSection: View {
     appState.connectedDevice
   }
 
+  private var fallsBackToFlood: Bool {
+    storedFloodAttempts > 0
+  }
+
   var body: some View {
+    Section {
+      Toggle(L10n.Settings.DirectMessages.fallback, isOn: fallbackBinding)
+
+      Picker(L10n.Settings.DirectMessages.directAttempts, selection: directAttemptsBinding) {
+        ForEach(Array(DMSendBudget.directRange), id: \.self) { count in
+          Text(String(count)).tag(count)
+        }
+      }
+      .pickerStyle(.menu)
+
+      if fallsBackToFlood {
+        Picker(L10n.Settings.DirectMessages.floodAttempts, selection: floodAttemptsBinding) {
+          ForEach(Array(DMSendBudget.enabledFloodRange), id: \.self) { count in
+            Text(String(count)).tag(count)
+          }
+        }
+        .pickerStyle(.menu)
+      }
+    } header: {
+      Text(L10n.Settings.DirectMessages.header)
+    } footer: {
+      Text(
+        fallsBackToFlood
+          ? L10n.Settings.DirectMessages.attemptsFooterOn
+          : L10n.Settings.DirectMessages.attemptsFooterOff
+      )
+    }
+    .themedRowBackground(theme)
+
     Section {
       Picker(L10n.Settings.DirectMessages.acknowledgments, selection: acksBinding) {
         Text("1").tag(1)
@@ -22,8 +58,6 @@ struct DirectMessagesSettingsSection: View {
       }
       .pickerStyle(.menu)
       .radioDisabled(for: appState.connectionState, or: isSaving)
-    } header: {
-      Text(L10n.Settings.DirectMessages.header)
     } footer: {
       Text(L10n.Settings.DirectMessages.footer)
     }
@@ -33,6 +67,32 @@ struct DirectMessagesSettingsSection: View {
   }
 
   // MARK: - Binding
+
+  private var fallbackBinding: Binding<Bool> {
+    Binding(
+      get: { fallsBackToFlood },
+      set: { isOn in
+        storedFloodAttempts = DMSendBudget.floodAttempts(
+          enablingFallback: isOn,
+          stored: storedFloodAttempts
+        )
+      }
+    )
+  }
+
+  private var directAttemptsBinding: Binding<Int> {
+    Binding(
+      get: { DMSendBudget.clampedDirectAttempts(storedDirectAttempts) },
+      set: { storedDirectAttempts = DMSendBudget.clampedDirectAttempts($0) }
+    )
+  }
+
+  private var floodAttemptsBinding: Binding<Int> {
+    Binding(
+      get: { DMSendBudget.menuFloodAttempts(stored: storedFloodAttempts) },
+      set: { storedFloodAttempts = DMSendBudget.clampedMenuFloodAttempts($0) }
+    )
+  }
 
   private var acksBinding: Binding<Int> {
     Binding(

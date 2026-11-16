@@ -32,6 +32,8 @@
 /* Location: NodeAuthenticationSheet.swift - Repeater type value */
 "remoteNodes.auth.typeRepeater" = "Ретранслятор";
 
+"remoteNodes.auth.typeSensor" = "Датчик";
+
 /* Location: NodeAuthenticationSheet.swift - Authentication section header */
 "remoteNodes.auth.authentication" = "Автентифікація";
 
@@ -62,10 +64,18 @@
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Flood-маршрутизація";
 "remoteNodes.auth.floodRetryStatus" = "Немає відповіді за відомим маршрутом. Повторна спроба через flood-маршрутизацію.";
-"remoteNodes.auth.floodFooter" = "Flood-маршрутизація повільніша та витрачає більше ефірного часу мережі. Використовуйте її, коли відомий маршрут не працює у вашому поточному місцезнаходженні. Після входу новий маршрут буде визначено автоматично.";
+/* Footer when this sign-in will clear the saved route and use flood */
+"remoteNodes.auth.floodFooter" = "Цей вхід видаляє збережений маршрут і використовує flood-маршрутизацію. Flood-маршрутизація повільніша та витрачає більше ефірного часу мережі. Новий маршрут буде визначено, лише якщо вхід успішний.";
 
-/* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Використовуйте відомий маршрут до цього вузла або перемкніться на flood-маршрутизацію, щоб мережа знайшла шлях.";
+/* Footer after this sign-in has cleared the saved route */
+"remoteNodes.auth.floodFooterCleared" = "Збережений маршрут видалено. Вхід використовує flood-маршрутизацію. Новий маршрут буде визначено, лише якщо вхід успішний.";
+
+
+/* Footer when a timeout clears the route and retries by flood */
+"remoteNodes.auth.pathFooter" = "Якщо немає відповіді, маршрут видаляється, і вхід робить одну спробу через flood-маршрутизацію.";
+
+/* Footer when a timeout stops and leaves the route */
+"remoteNodes.auth.pathFooterKept" = "Якщо немає відповіді, вхід зупиняється, і маршрут залишається.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<невідомо>";
@@ -83,6 +93,26 @@
 
 /* Location: RepeaterSettingsView.swift - Navigation title */
 "remoteNodes.settings.title" = "Налаштування ретранслятора";
+
+"remoteNodes.sensor.adminRequired" = "Керування датчиком потребує доступу адміністратора.";
+
+"remoteNodes.sensor.saved" = "Налаштування перевірено.";
+
+"remoteNodes.sensor.rebootSent" = "Запит на перезавантаження надіслано. Датчик не підтвердив перезапуск. Увійди знову, перш ніж надсилати інші команди.";
+
+"remoteNodes.sensor.rebootConfirmation" = "Надіслати запит на перезавантаження цьому датчику?";
+
+"remoteNodes.sensor.runtimeOnly" = "Зміни впливають на запущений датчик. Чи збережуться вони після перезавантаження, залежить від його прошивки.";
+
+"remoteNodes.sensor.value" = "Значення";
+
+"remoteNodes.sensor.save" = "Зберегти";
+
+"remoteNodes.sensor.reload" = "Оновити";
+
+"remoteNodes.sensor.empty" = "Цей датчик не надає налаштувань.";
+
+"remoteNodes.sensor.title" = "Керування датчиком";
 
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Готово";

@@ -104,6 +104,34 @@ struct MessagePathArrivalTests {
   }
 
   @Test
+  func `a rejected path length has no hop count and an encoded 63 stays 63`() throws {
+    let rejected = incomingMessage(pathNodes: Data(), pathLength: 0xFF, heardRepeats: 0)
+    let rejectedArrival = try #require(MessagePathArrivals.assemble(message: rejected, repeats: []).first)
+    #expect(rejected.hopCount == nil)
+    #expect(rejectedArrival.hopCount == nil)
+    #expect(rejectedArrival.isZeroHop == false)
+    #expect(rejectedArrival.isPathUnavailable)
+
+    let encoded63 = encodePathLen(hashSize: 1, hopCount: 63)
+    let flood = incomingMessage(pathNodes: Data([0x11]), pathLength: encoded63, heardRepeats: 0)
+    let floodArrival = try #require(MessagePathArrivals.assemble(message: flood, repeats: []).first)
+    #expect(flood.hopCount == 63)
+    #expect(floodArrival.hopCount == 63)
+
+    let zero = incomingMessage(pathNodes: Data(), pathLength: 0, heardRepeats: 0)
+    let zeroArrival = try #require(MessagePathArrivals.assemble(message: zero, repeats: []).first)
+    #expect(zero.hopCount == 0)
+    #expect(zeroArrival.hopCount == 0)
+    #expect(zeroArrival.isZeroHop)
+    #expect(zeroArrival.isPathUnavailable == false)
+
+    let hidden = PathDistanceBanner(hopCount: 63, totalPathDistance: nil, showsHopCount: false)
+    #expect(hidden.spokenTexts.isEmpty)
+    let shown = PathDistanceBanner(hopCount: 63, totalPathDistance: nil, showsHopCount: true)
+    #expect(shown.spokenTexts.contains(L10n.Contacts.Contacts.Trace.Map.hops(63)))
+  }
+
+  @Test
   func `incoming 0-hop canonical is not Path Unavailable`() throws {
     let message = incomingMessage(pathNodes: Data(), pathLength: 0, heardRepeats: 0)
     let arrival = try #require(MessagePathArrivals.assemble(message: message, repeats: []).first)

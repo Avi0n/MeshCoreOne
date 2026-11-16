@@ -136,7 +136,9 @@ struct ChannelInfoSheet: View {
           isClearingMessages: isClearingMessages,
           isDeleting: isDeleting,
           showingClearMessagesConfirmation: $showingClearMessagesConfirmation,
-          showingDeleteConfirmation: $showingDeleteConfirmation
+          showingDeleteConfirmation: $showingDeleteConfirmation,
+          onClearMessages: clearMessages,
+          onDelete: deleteChannel
         )
       }
       .themedCanvas(theme)
@@ -176,34 +178,6 @@ struct ChannelInfoSheet: View {
           }
         }
       }
-    }
-    .confirmationDialog(
-      L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.title,
-      isPresented: $showingClearMessagesConfirmation,
-      titleVisibility: .visible
-    ) {
-      Button(L10n.Chats.Chats.ChannelInfo.clearMessagesButton, role: .destructive) {
-        Task {
-          await clearMessages()
-        }
-      }
-      Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
-    } message: {
-      Text(L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.message)
-    }
-    .confirmationDialog(
-      L10n.Chats.Chats.ChannelInfo.DeleteConfirm.title,
-      isPresented: $showingDeleteConfirmation,
-      titleVisibility: .visible
-    ) {
-      Button(L10n.Chats.Chats.ChannelInfo.deleteButton, role: .destructive) {
-        Task {
-          await deleteChannel()
-        }
-      }
-      Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
-    } message: {
-      Text(L10n.Chats.Chats.ChannelInfo.DeleteConfirm.message)
     }
     .sensoryFeedback(.success, trigger: copyHapticTrigger)
   }
@@ -310,21 +284,6 @@ struct ChannelInfoSheet: View {
     } catch {
       logger.error("Failed to save flood scope: \(error.localizedDescription)")
       selectedFloodScope = previous
-      return
-    }
-
-    if let session = appState.services?.session {
-      let resolved = ChannelFloodScopeResolver.resolve(
-        channelFloodScope: scope,
-        deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName,
-        supportsUnscopedFloodSend: appState.connectedDevice?.supportsUnscopedFloodSend ?? false
-      )
-      switch resolved {
-      case .unscoped:
-        try? await session.setFloodScopeUnscoped()
-      case let .scope(scope):
-        try? await session.setFloodScope(scope)
-      }
     }
   }
 
@@ -516,6 +475,8 @@ private struct ChannelInfoActionsSection: View {
   let isDeleting: Bool
   @Binding var showingClearMessagesConfirmation: Bool
   @Binding var showingDeleteConfirmation: Bool
+  let onClearMessages: () async -> Void
+  let onDelete: () async -> Void
 
   var body: some View {
     Section {
@@ -531,6 +492,14 @@ private struct ChannelInfoActionsSection: View {
         }
       }
       .disabled(isActionInProgress)
+      .anchoredDestructiveConfirm(
+        L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.title,
+        isPresented: $showingClearMessagesConfirmation,
+        message: L10n.Chats.Chats.ChannelInfo.ClearMessagesConfirm.message,
+        confirmTitle: L10n.Chats.Chats.ChannelInfo.clearMessagesButton
+      ) {
+        Task { await onClearMessages() }
+      }
 
       Button(role: .destructive) {
         showingDeleteConfirmation = true
@@ -544,6 +513,14 @@ private struct ChannelInfoActionsSection: View {
         }
       }
       .disabled(isActionInProgress)
+      .anchoredDestructiveConfirm(
+        L10n.Chats.Chats.ChannelInfo.DeleteConfirm.title,
+        isPresented: $showingDeleteConfirmation,
+        message: L10n.Chats.Chats.ChannelInfo.DeleteConfirm.message,
+        confirmTitle: L10n.Chats.Chats.ChannelInfo.deleteButton
+      ) {
+        Task { await onDelete() }
+      }
     } footer: {
       Text(L10n.Chats.Chats.ChannelInfo.deleteFooter)
     }
@@ -713,6 +690,34 @@ private struct ChannelInfoRegionPickerContent: View {
       .contentShape(.rect)
     }
     .buttonStyle(.plain)
+  }
+}
+
+private extension View {
+  /// A Mac confirmation dialog is a popover and can dismiss without running its confirm action, so Mac uses an alert.
+  @ViewBuilder
+  func anchoredDestructiveConfirm(
+    _ title: String,
+    isPresented: Binding<Bool>,
+    message: String,
+    confirmTitle: String,
+    onConfirm: @escaping () -> Void
+  ) -> some View {
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      alert(title, isPresented: isPresented) {
+        Button(confirmTitle, role: .destructive, action: onConfirm)
+        Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
+      } message: {
+        Text(message)
+      }
+    } else {
+      confirmationDialog(title, isPresented: isPresented, titleVisibility: .visible) {
+        Button(confirmTitle, role: .destructive, action: onConfirm)
+        Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {}
+      } message: {
+        Text(message)
+      }
+    }
   }
 }
 

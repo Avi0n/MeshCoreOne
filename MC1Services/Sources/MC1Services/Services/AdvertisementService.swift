@@ -52,6 +52,7 @@ public actor AdvertisementService {
   let session: any AdvertisingSessionOps & SessionEventStreaming
   let dataStore: any PersistenceStoreProtocol
   let contactService: ContactService
+  let notificationService: NotificationService?
 
   private var eventMonitorTask: Task<Void, Never>?
   /// In-flight `flushPendingDeletedKeys`. Callers wait through
@@ -63,7 +64,7 @@ public actor AdvertisementService {
   var currentRadioID: UUID?
 
   /// When true, advert delta sync is deferred (full or manual contact sync).
-  /// Manual pull-to-refresh also sets this; it is invisible to `SyncCoordinator.isSyncInProgress`.
+  /// Manual pull-to-refresh also sets this without holding a primary sync claim.
   var isSyncingContacts = false
 
   /// 0x80 keys heard since the last delta sync.
@@ -138,7 +139,8 @@ public actor AdvertisementService {
     advertSyncDebounce: Duration = .seconds(5),
     advertSyncMinInterval: Duration = .seconds(30),
     advertSyncBusyBackoff: Duration = .seconds(5),
-    appStateProvider: AppStateProvider? = nil
+    appStateProvider: AppStateProvider? = nil,
+    notificationService: NotificationService? = nil
   ) {
     self.session = session
     self.dataStore = dataStore
@@ -147,6 +149,7 @@ public actor AdvertisementService {
     self.advertSyncMinInterval = advertSyncMinInterval
     self.advertSyncBusyBackoff = advertSyncBusyBackoff
     self.appStateProvider = appStateProvider
+    self.notificationService = notificationService
   }
 
   func isInForeground() async -> Bool {
@@ -219,11 +222,13 @@ public actor AdvertisementService {
     // Drop the handler and bump deltaSyncGeneration before any await so the
     // in-flight round cannot reconcile or re-arm.
     deltaSyncHandler = nil
-    deltaSyncTask?.cancel()
+    let delta = deltaSyncTask
+    delta?.cancel()
     deltaSyncGeneration &+= 1
     // Await `flushPendingDeletedKeys` before clearing `currentRadioID` so a queued
     // 0x8F cannot outlive `stopEventMonitoring`.
     await monitor?.value
+    await delta?.value
     await flushPendingDeletedKeys()
     let receiveTimes = pendingAdvertReceiveTimes
     await stampAdvertReceiveTimes(receiveTimes, radioID: currentRadioID)
@@ -257,10 +262,13 @@ public actor AdvertisementService {
       await deletionFlushTask.value
       return
     }
-    guard !pendingDeletedKeys.isEmpty, let radioID = currentRadioID else { return }
+    await startDeletionFlush()?.value
+  }
 
-    // Await this Task through `.contactDeletedCleanup` and the catch requeue, which
-    // run after `deleteContacts`. A store error ends this flush.
+  private func startDeletionFlush() -> Task<Void, Never>? {
+    if let deletionFlushTask { return deletionFlushTask }
+    guard !pendingDeletedKeys.isEmpty, let radioID = currentRadioID else { return nil }
+
     let task = Task {
       defer {
         revivedDuringDeleteFlush.withLock { $0.removeAll() }
@@ -270,28 +278,39 @@ public actor AdvertisementService {
         let keys = pendingDeletedKeys
         pendingDeletedKeys.removeAll()
         do {
+          var contacts: [ContactDTO] = []
+          for key in keys {
+            if let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: key) {
+              contacts.append(contact)
+            }
+          }
           let deletedIDs = try await dataStore.deleteContacts(
             radioID: radioID,
             publicKeys: keys,
             skippingPublicKeys: { revivedDuringDeleteFlush.withLock { $0 } }
           )
           guard !deletedIDs.isEmpty else { continue }
-          logger.notice("Overwrite oldest: applying \(deletedIDs.count) deferred deletion(s)")
+          for contact in contacts where deletedIDs.contains(contact.id) {
+            lastOverwriteDeletion = (
+              name: contact.name.isEmpty ? "(unnamed)" : contact.name,
+              pubKeyHex: contact.publicKey.prefix(6).uppercaseHexString(), time: Date()
+            )
+          }
+          logger.notice("Overwrite oldest: applying \(deletedIDs.count) deletion(s)")
+          await notificationService?.removeDeliveredNotifications(forContactIDs: Set(deletedIDs))
           eventBroadcaster.yield(.contactDeletedCleanup(contactIDs: deletedIDs))
           eventBroadcaster.yield(.nodeStorageFullChanged(isFull: false))
-          eventBroadcaster.yield(.contactUpdated)
+          eventBroadcaster.yield(.contactUpdated())
         } catch {
           pendingDeletedKeys.formUnion(keys)
           pendingDeletedKeys.subtract(pendingAdvertKeys)
-          logger.error(
-            "Overwrite oldest: deferred delete flush failed: \(error.localizedDescription)"
-          )
+          logger.error("Overwrite oldest: delete flush failed: \(error.localizedDescription)")
           return
         }
       }
     }
     deletionFlushTask = task
-    await task.value
+    return task
   }
 
   /// Records a 0x80 key for the next delta sync.
@@ -361,9 +380,9 @@ public actor AdvertisementService {
   ///   or the radio fetch / save fails.
   public func materializeContactForPendingAdvert(
     matchingPrefix prefix: Data,
-    radioID: UUID
+    scope: ReceiveScope
   ) async -> ContactDTO? {
-    guard !prefix.isEmpty else { return nil }
+    guard scope.isCurrent, !prefix.isEmpty else { return nil }
 
     let matches = pendingAdvertKeys.filter { $0.starts(with: prefix) }
     guard matches.count == 1, let publicKey = matches.first else { return nil }
@@ -374,29 +393,15 @@ public actor AdvertisementService {
         logger.info("materialize pending advert: getContact nil key=\(pubKeyHex)")
         return nil
       }
-      let frame = meshContact.toContactFrame()
-      let saveResult = try await dataStore.insertContactIfAbsent(radioID: radioID, from: frame)
-      // Stamp phone recency before the returned DTO is read so a debounce-window
-      // insert is not prune-eligible under a stale radio lastModified.
+      guard scope.isCurrent, !isRadioDeleted(publicKey) else { return nil }
       let receivedAt = pendingAdvertReceiveTimes[publicKey] ?? Date()
-      do {
-        _ = try await dataStore.touchContactHeard(
-          radioID: radioID, publicKey: publicKey, at: receivedAt
-        )
-      } catch {
-        logger.error(
-          "materialize pending advert lastHeard stamp failed key=\(pubKeyHex): \(error.localizedDescription)"
-        )
+      guard let contact = try await dataStore.materializeContactForDirectMessage(
+        from: meshContact.toContactFrame(), receivedAt: receivedAt, scope: scope
+      ) else { return nil }
+      if scope.isCurrent {
+        eventBroadcaster.yield(.contactUpdated(contact: contact, scope: scope))
       }
-      do {
-        _ = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
-      } catch {
-        logger.error(
-          "materialize pending advert Discover upsert failed key=\(pubKeyHex): \(error.localizedDescription)"
-        )
-      }
-      eventBroadcaster.yield(.contactUpdated)
-      return try await dataStore.fetchContact(id: saveResult.id)
+      return contact
     } catch {
       logger.error(
         "materialize pending advert failed key=\(pubKeyHex): \(error.localizedDescription)"
@@ -547,7 +552,7 @@ public actor AdvertisementService {
 
     if let known {
       if known {
-        eventBroadcaster.yield(.contactUpdated)
+        eventBroadcaster.yield(.contactUpdated())
       } else {
         discoverTrace.debug("B2 0x80 no local contact key=\(pubKeyHex) syncing=\(isSyncingContacts)")
         logger.debug("ADVERT received for unknown contact - scheduling delta sync")
@@ -570,7 +575,7 @@ public actor AdvertisementService {
       let (node, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: contactFrame)
       discoverTrace.debug("B2 0x8A upsert key=\(pubKeyHex) isNew=\(isNew)")
 
-      eventBroadcaster.yield(.contactUpdated)
+      eventBroadcaster.yield(.contactUpdated())
 
       // Notify only first-time discoveries, not repeat adverts for the same contact.
       if isNew {
@@ -666,7 +671,6 @@ public actor AdvertisementService {
 
   /// Handle contact deleted event (0x8F) - device auto-deleted a contact via overwrite oldest
   private func handleContactDeletedEvent(publicKey: Data, radioID: UUID) async {
-    let fullPubKeyHex = publicKey.uppercaseHexString()
     let pubKeyPrefix = publicKey.prefix(6).uppercaseHexString()
 
     // ZephCore CLI `set v.contact off` also pushes 0x8F for the V-key. That is
@@ -697,46 +701,7 @@ public actor AdvertisementService {
       return
     }
 
-    guard pendingDeletedKeys.remove(publicKey) != nil else { return }
-
-    logger.debug("Overwrite oldest: device deleted contact with key \(pubKeyPrefix)...")
-
-    do {
-      guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) else {
-        logger.warning("Overwrite oldest: contact not found in local database for key \(pubKeyPrefix)... (may have been deleted already)")
-        return
-      }
-
-      let contactName = contact.name.isEmpty ? "(unnamed)" : contact.name
-      let contactTypeDesc = ContactType(rawValue: contact.typeRawValue).map { "\($0)" } ?? "unknown(\(contact.typeRawValue))"
-      let lastModifiedDate = Date(timeIntervalSince1970: TimeInterval(contact.lastModified))
-      let lastAdvertDate = Date(timeIntervalSince1970: TimeInterval(contact.lastAdvertTimestamp))
-
-      logger.notice(
-        """
-        Overwrite oldest: deleting contact '\(contactName)' \
-        [key=\(fullPubKeyHex), type=\(contactTypeDesc), favorite=\(contact.isFavorite), \
-        pathLen=\(contact.outPathLength), lastModified=\(lastModifiedDate), lastAdvert=\(lastAdvertDate)]
-        """
-      )
-
-      lastOverwriteDeletion = (name: contactName, pubKeyHex: pubKeyPrefix, time: Date())
-
-      let contactID = contact.id
-
-      try await dataStore.deleteContact(id: contactID)
-      logger.debug("Overwrite oldest: deleted contact '\(contactName)' and its messages from local database")
-
-      eventBroadcaster.yield(.contactDeletedCleanup(contactIDs: [contactID]))
-      eventBroadcaster.yield(.nodeStorageFullChanged(isFull: false))
-      logger.debug("Overwrite oldest: cleanup complete for '\(contactName)', storage full flag cleared")
-      eventBroadcaster.yield(.contactUpdated)
-    } catch {
-      pendingDeletedKeys.insert(publicKey)
-      logger.error(
-        "Overwrite oldest: failed to delete contact \(pubKeyPrefix)...: \(error.localizedDescription)"
-      )
-    }
+    _ = startDeletionFlush()
   }
 
   /// Correlates an overwrite-oldest deletion with a replacement contact seen soon after.

@@ -5,76 +5,18 @@ import Testing
 @Suite("ConnectionManager Session Tests")
 @MainActor
 struct ConnectionManagerSessionTests {
-  // MARK: - setConnectionState Tests
-
-  @Test
-  func `setConnectionState updates to connected`() throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    manager.setTestState(connectionIntent: .wantsConnection())
-
-    manager.setConnectionState(.connected)
-
-    #expect(manager.connectionState == .connected)
-  }
-
-  @Test
-  func `setConnectionState updates to disconnected`() throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    manager.setTestState(connectionState: .connected, connectionIntent: .wantsConnection())
-
-    manager.setConnectionState(.disconnected)
-
-    #expect(manager.connectionState == .disconnected)
-  }
-
-  // MARK: - setConnectedDevice Tests
-
-  @Test
-  func `setConnectedDevice sets device`() throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let device = DeviceDTO.testDevice(nodeName: "TestDevice")
-
-    manager.setConnectedDevice(device)
-
-    #expect(manager.connectedDevice?.nodeName == "TestDevice")
-  }
-
-  @Test
-  func `setConnectedDevice sets nil`() throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    let device = DeviceDTO.testDevice()
-    manager.setConnectedDevice(device)
-    #expect(manager.connectedDevice != nil)
-
-    manager.setConnectedDevice(nil)
-
-    #expect(manager.connectedDevice == nil)
-  }
-
-  // MARK: - isTransportAutoReconnecting Tests
-
-  @Test
-  func `isTransportAutoReconnecting delegates to stateMachine`() async throws {
-    let (manager, mock) = try ConnectionManager.createForTesting()
-
-    await mock.setStubbedIsAutoReconnecting(false)
-    var result = await manager.isTransportAutoReconnecting()
-    #expect(!result)
-
-    await mock.setStubbedIsAutoReconnecting(true)
-    result = await manager.isTransportAutoReconnecting()
-    #expect(result)
-  }
+  // MARK: - Request and cycle projections
 
   @Test
   func `activeConnectionAttemptDeviceID prefers session rebuild device`() throws {
     let (manager, _) = try ConnectionManager.createForTesting()
     let deviceID = UUID()
 
-    manager.setTestState(sessionRebuildDeviceID: deviceID)
+    let request = manager.seedBLERecoveryRequest(deviceID: deviceID)
+    _ = manager.reconnectionCoordinator.begin(deviceID: deviceID, requestID: request.id)
 
     #expect(manager.activeConnectionAttemptDeviceID == deviceID)
-    #expect(manager.activeReconnectDeviceID == deviceID)
+    #expect(manager.reconnectionCoordinator.reconnectingDeviceID == deviceID)
   }
 
   @Test
@@ -83,6 +25,7 @@ struct ConnectionManagerSessionTests {
     let deviceID = UUID()
 
     manager.testLastConnectedDeviceID = deviceID
+    _ = manager.seedBLERecoveryRequest(deviceID: deviceID)
     manager.setTestState(
       connectionState: .disconnected,
       currentTransportType: .bluetooth,
@@ -93,15 +36,14 @@ struct ConnectionManagerSessionTests {
     try await manager.connect(to: deviceID)
 
     #expect(manager.connectionState == .disconnected)
-    #expect(manager.sessionRebuildDeviceID == deviceID)
+    #expect(manager.reconnectionCoordinator.reconnectingDeviceID == deviceID)
     #expect(manager.connectionIntent == .wantsConnection())
-    #expect(manager.reconnectionCoordinator.reconnectingDeviceID == nil)
   }
 
-  // MARK: - handleReconnectionFailure Tests
+  // MARK: - Recovery failure policy
 
   @Test
-  func `handleReconnectionFailure clears state and sets disconnected`() async throws {
+  func `owned recovery failure clears state and notifies connection loss`() async throws {
     let (manager, _) = try ConnectionManager.createForTesting()
     manager.updateDevice(with: DeviceDTO.testDevice())
     manager.setTestState(
@@ -109,87 +51,70 @@ struct ConnectionManagerSessionTests {
       connectionIntent: ConnectionIntent.none
     )
 
-    await manager.handleReconnectionFailure()
+    var lossCount = 0
+    manager.onConnectionLost = { _ in lossCount += 1 }
+    await manager.finishSeededBLERecovery()
 
+    #expect(lossCount == 1)
     #expect(manager.connectionState == .disconnected)
     #expect(manager.connectedDevice == nil)
     #expect(manager.allowedRepeatFreqRanges.isEmpty)
   }
 
-  // MARK: - WiFi Health Check Early Returns
-
-  @Test
-  func `checkWiFiConnectionHealth returns early when reconnect in progress`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    manager.setTestState(
-      connectionState: .ready,
-      currentTransportType: .wifi,
-      connectionIntent: .wantsConnection()
-    )
-
-    manager.wifiReconnectTask = Task {}
-
-    await manager.checkWiFiConnectionHealth()
-
-    #expect(manager.connectionState == .ready)
-
-    manager.wifiReconnectTask?.cancel()
-    manager.wifiReconnectTask = nil
+  @Test(.timeLimit(.minutes(1)), arguments: HealthCheckExclusion.allCases)
+  func `WiFi health checks preserve an excluded request without dialing`(_ exclusion: HealthCheckExclusion) async throws {
+    let env = try ConnectionManagerRadioTestHarness()
+    var releaseRecovery: CheckedContinuation<Void, Never>?
+    do {
+      switch exclusion {
+      case .recoveryInProgress:
+        await env.wifi.setConnectError(MeshTransportError.notConnected)
+        await #expect(throws: ConnectionRequestFailure.self) { _ = try await env.connect(.wifi) }
+        var recoveryEntered = false
+        env.manager.testWiFiRecoveryEntryHandler = {
+          await withCheckedContinuation {
+            releaseRecovery = $0
+            recoveryEntered = true
+          }
+        }
+        env.manager.startWiFiReconnection()
+        try await waitUntil("the recovery worker should enter before the health check") { recoveryEntered }
+        #expect(env.manager.wifiReconnectTask != nil)
+      case .withoutIntent:
+        _ = try await env.connect(.wifi)
+        _ = await env.manager.disconnect(reason: .userInitiated)
+        #expect(!env.manager.connectionIntent.wantsConnection)
+      case .bluetoothRequest:
+        _ = try await env.connect(.wifi)
+        await env.ble.setConnectError(BLEError.deviceNotFound)
+        await #expect(throws: ConnectionRequestFailure.self) { _ = try await env.connect(.bluetooth) }
+        #expect(env.manager.desiredRequest?.target == .bluetooth(env.deviceID))
+      }
+      #expect(env.manager.connectionState == .disconnected)
+      let requestID = env.manager.connectionRequestID
+      let recoverySlot = env.manager.wifiRecoverySlotID
+      let wifiDials = await env.wifi.connectCount
+      let bleDials = await env.ble.connectCount
+      await env.manager.checkWiFiConnectionHealth()
+      #expect(env.manager.connectionRequestID == requestID)
+      #expect(env.manager.wifiRecoverySlotID == recoverySlot)
+      #expect(await env.wifi.connectCount == wifiDials)
+      #expect(await env.ble.connectCount == bleDials)
+      #expect(env.manager.connectionState == .disconnected)
+    } catch {
+      releaseRecovery?.resume()
+      env.manager.testWiFiRecoveryEntryHandler = nil
+      await env.close()
+      throw error
+    }
+    releaseRecovery?.resume()
+    env.manager.testWiFiRecoveryEntryHandler = nil
+    await env.close()
   }
 
-  @Test
-  func `checkWiFiConnectionHealth returns early when disconnected without intent`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    manager.setTestState(
-      connectionState: .disconnected,
-      currentTransportType: nil,
-      connectionIntent: ConnectionIntent.none
-    )
-
-    await manager.checkWiFiConnectionHealth()
-
-    #expect(manager.connectionState == .disconnected)
-  }
-
-  @Test
-  func `checkWiFiConnectionHealth returns early when transport is bluetooth`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    manager.setTestState(
-      connectionState: .ready,
-      currentTransportType: .bluetooth,
-      connectionIntent: .wantsConnection()
-    )
-
-    await manager.checkWiFiConnectionHealth()
-
-    #expect(manager.connectionState == .ready)
-  }
-
-  @Test
-  func `handleReconnectionFailure notifies onConnectionLost so UI can react`() async throws {
-    let (manager, _) = try ConnectionManager.createForTesting()
-    manager.updateDevice(with: DeviceDTO.testDevice())
-    manager.setTestState(
-      connectionState: .connected,
-      connectionIntent: ConnectionIntent.none
-    )
-
-    let tracker = ReconnectionFailureLostTracker()
-    manager.onConnectionLost = { await tracker.markConnectionLost() }
-
-    await manager.handleReconnectionFailure()
-
-    let wasCalled = await tracker.connectionLostCalled
-    #expect(wasCalled, "onConnectionLost must fire so AppState can update the Live Activity to disconnected")
-  }
-}
-
-// MARK: - Test Helpers
-
-private actor ReconnectionFailureLostTracker {
-  var connectionLostCalled = false
-
-  func markConnectionLost() {
-    connectionLostCalled = true
+  enum HealthCheckExclusion: CaseIterable, Sendable {
+    case recoveryInProgress
+    case withoutIntent
+    case bluetoothRequest
   }
 }

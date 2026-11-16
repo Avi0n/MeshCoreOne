@@ -17,7 +17,7 @@ public extension MeshCoreSession {
   ///           ``MeshCoreError/invalidResponse`` if an unexpected response is received.
   func requestStatus(from publicKey: Data) async throws -> StatusResponse {
     try requireFullPublicKey(publicKey, operation: "requestStatus")
-    return try await requestResponseSerializer.withSerialization { [self] in
+    return try await withSerializedBinaryRequest { [self] in
       try await performStatusRequest(from: publicKey, layout: .repeater)
     }
   }
@@ -37,7 +37,7 @@ public extension MeshCoreSession {
   ) async throws -> StatusResponse {
     try requireFullPublicKey(publicKey, operation: "requestStatus")
     let layout: StatusResponse.Layout = type == .room ? .roomServer : .repeater
-    return try await requestResponseSerializer.withSerialization { [self] in
+    return try await withSerializedBinaryRequest { [self] in
       try await performStatusRequest(from: publicKey, layout: layout)
     }
   }
@@ -140,10 +140,24 @@ public extension MeshCoreSession {
   ///           ``MeshCoreError/invalidResponse`` if unexpected response received.
   func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {
     try requireFullPublicKey(publicKey, operation: "requestTelemetry")
-    // Serialize binary requests to prevent messageSent race conditions
-    return try await requestResponseSerializer.withSerialization { [self] in
+    return try await withSerializedBinaryRequest { [self] in
       try await performTelemetryRequest(from: publicKey)
     }
+  }
+
+  /// Binary exchanges settle host replies before releasing serialization.
+  /// Unwrap the RF result afterward so an RF timeout does not mark host replies uncertain.
+  internal func withSerializedBinaryRequest<Response: Sendable>(
+    _ operation: @escaping @Sendable () async throws -> Response
+  ) async throws -> Response {
+    let outcome: Result<Response, Error> = try await requestResponseSerializer.withSerialization {
+      do {
+        return try await .success(operation())
+      } catch {
+        return .failure(error)
+      }
+    }
+    return try outcome.get()
   }
 
   /// Send `request` and resolve the first matching `.binaryResponse` or
@@ -173,18 +187,76 @@ public extension MeshCoreSession {
     let startTime = ContinuousClock.now
     let overallTimeout = configuration.binaryRequestOverallTimeout
     let retransmitFloor = configuration.binaryRequestRetransmitInterval
-    let cadence = BinaryExchangeCadence(minimumSeconds: retransmitFloor ?? 0)
+    let state = BinaryExchangeState(minimumSeconds: retransmitFloor ?? 0)
 
     let floorDesc = retransmitFloor.map { String(format: "%.1f", $0) } ?? "off"
     logger.info(
       "\(operation) request to \(prefixHex): sending (overall=\(String(format: "%.1f", overallTimeout))s, retransmitFloor=\(floorDesc)s)"
     )
 
-    // Subscribe before sending to avoid the race where the response arrives
-    // before the consumer is listening.
-    let events = await dispatcher.subscribe()
-    try await sendSessionData(request)
+    // The host reply stream survives RF completion and cancellation of the RF listener.
+    let (hostID, hostReplies) = await dispatcher.subscribeTracked { event in
+      switch event {
+      case .messageSent, .error: true
+      default: false
+      }
+    }
+    let (rfID, rfEvents) = await dispatcher.subscribeTracked()
+    let (progress, updates) = AsyncStream.makeStream(of: Int.self, bufferingPolicy: .bufferingNewest(1))
+    let hostCollector = Task {
+      var received = 0
+      for await _ in hostReplies {
+        received += 1
+        updates.yield(received)
+      }
+      updates.finish()
+      return received
+    }
 
+    do {
+      try await sendSessionData(request)
+    } catch {
+      await dispatcher.finishSubscription(id: rfID)
+      await dispatcher.finishSubscription(id: hostID)
+      _ = await hostCollector.value
+      throw error
+    }
+
+    let outcome: Result<Response, Error>
+    let waitForLateHostReplies: Bool
+    do {
+      outcome = try await .success(waitForBinaryResponse(
+        request: request, events: rfEvents, state: state, prefixHex: prefixHex,
+        operation: operation, startTime: startTime, matchRoutedEvent: matchRoutedEvent, parseResponse: parseResponse
+      ))
+      waitForLateHostReplies = true
+    } catch MeshCoreError.timeout {
+      outcome = .failure(MeshCoreError.timeout)
+      waitForLateHostReplies = false
+    } catch {
+      outcome = .failure(error)
+      waitForLateHostReplies = true
+    }
+
+    await dispatcher.finishSubscription(id: rfID)
+    await settleBinaryHostReplies(
+      progress, collector: hostCollector, id: hostID, expectedCount: state.submittedCount,
+      waitForLateReplies: waitForLateHostReplies && sessionIsRunning
+    )
+    return try outcome.get()
+  }
+
+  private func waitForBinaryResponse<Response: Sendable>(
+    request: Data,
+    events: AsyncStream<MeshEvent>,
+    state: BinaryExchangeState,
+    prefixHex: String,
+    operation: String,
+    startTime: ContinuousClock.Instant,
+    matchRoutedEvent: (@Sendable (MeshEvent) -> Response?)?,
+    parseResponse: @escaping @Sendable (_ payload: Data, _ tag: Data) throws -> Response?
+  ) async throws -> Response {
+    let overallTimeout = configuration.binaryRequestOverallTimeout
     return try await withThrowingTaskGroup(of: BinaryExchangeSignal<Response>.self) { group in
       group.addTask { [self, logger] in
         // From firmware v14 a reply to a replaced tag still arrives, so keep every tag this exchange sent.
@@ -199,7 +271,7 @@ public extension MeshCoreSession {
           case let .messageSent(info):
             sentTags.insert(info.expectedAck)
             acceptedMessageSent = true
-            await cadence.applySuggestedTimeoutMs(info.suggestedTimeoutMs)
+            await state.applySuggestedTimeoutMs(info.suggestedTimeoutMs)
             let tagHex = info.expectedAck.map { String(format: "%02x", $0) }.joined()
             logger.info(
               "\(operation) request to \(prefixHex): messageSent #\(sendCount) tag=\(tagHex) suggestedTimeoutMs=\(info.suggestedTimeoutMs)"
@@ -258,11 +330,11 @@ public extension MeshCoreSession {
         return .timedOut
       }
 
-      if retransmitFloor != nil {
+      if configuration.binaryRequestRetransmitInterval != nil {
         group.addTask { [self, logger, clock = self.clock] in
           var attempt = 1
           while !Task.isCancelled {
-            let delay = await cadence.waitForInterval()
+            let delay = await state.waitForInterval()
             do {
               try await clock.sleep(for: .seconds(delay))
             } catch is CancellationError {
@@ -271,12 +343,13 @@ public extension MeshCoreSession {
             guard !Task.isCancelled else { break }
             guard await self.sessionIsRunning else { return .stopped }
             attempt += 1
-            let interval = await cadence.currentSeconds()
+            let interval = await state.currentSeconds()
             logger.info(
               "\(operation) request to \(prefixHex): retransmit #\(attempt) (interval=\(String(format: "%.1f", interval))s)"
             )
             do {
-              try await self.sendSessionData(request)
+              try await self.submitBinaryRetry(request)
+              await state.recordSubmission()
             } catch is CancellationError {
               return .idle
             } catch {
@@ -315,6 +388,45 @@ public extension MeshCoreSession {
         throw CancellationError()
       }
       throw MeshCoreError.timeout
+    }
+  }
+
+  /// Once admitted on the session actor, the write outlives cancellation of the RF wait.
+  private func submitBinaryRetry(_ request: Data) async throws {
+    try Task.checkCancellation()
+    try await Task { try await sendSessionData(request) }.value
+  }
+
+  /// Drain one host reply per submitted request, even if an earlier attempt answered over RF.
+  private func settleBinaryHostReplies(
+    _ progress: AsyncStream<Int>,
+    collector: Task<Int, Never>,
+    id: UUID,
+    expectedCount: Int,
+    waitForLateReplies: Bool
+  ) async {
+    if waitForLateReplies {
+      let timeout = configuration.defaultTimeout
+      await withTaskGroup(of: Void.self) { group in
+        group.addTask { [clock, dispatcher] in
+          do {
+            try await clock.sleep(for: .seconds(timeout))
+          } catch {
+            return
+          }
+          await dispatcher.finishSubscription(id: id)
+        }
+        for await received in progress {
+          if received >= expectedCount { break }
+        }
+        group.cancelAll()
+      }
+    }
+
+    // At the RF deadline, account for buffered replies without extending that deadline.
+    await dispatcher.finishSubscription(id: id)
+    if await collector.value < expectedCount {
+      await requestResponseSerializer.noteUncertainResponseHistory()
     }
   }
 
@@ -357,7 +469,7 @@ public extension MeshCoreSession {
   /// - Throws: ``MeshCoreError/timeout`` if no response within timeout period.
   func requestOwnerInfo(from publicKey: Data) async throws -> OwnerInfoResponse {
     try requireFullPublicKey(publicKey, operation: "requestOwnerInfo")
-    return try await requestResponseSerializer.withSerialization { [self] in
+    return try await withSerializedBinaryRequest { [self] in
       try await performOwnerInfoRequest(from: publicKey)
     }
   }
@@ -395,7 +507,7 @@ public extension MeshCoreSession {
   ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
   func requestMMA(from publicKey: Data, start: Date, end: Date) async throws -> MMAResponse {
     try requireFullPublicKey(publicKey, operation: "requestMMA")
-    return try await requestResponseSerializer.withSerialization { [self] in
+    return try await withSerializedBinaryRequest { [self] in
       try await performMMARequest(from: publicKey, start: start, end: end)
     }
   }
@@ -439,7 +551,7 @@ public extension MeshCoreSession {
   ///           ``MeshCoreError/deviceError(code:)`` if the device rejects the request.
   func requestACL(from publicKey: Data) async throws -> ACLResponse {
     try requireFullPublicKey(publicKey, operation: "requestACL")
-    return try await requestResponseSerializer.withSerialization { [self] in
+    return try await withSerializedBinaryRequest { [self] in
       try await performACLRequest(from: publicKey)
     }
   }
@@ -478,7 +590,7 @@ public extension MeshCoreSession {
     pubkeyPrefixLength: UInt8 = 4
   ) async throws -> NeighboursResponse {
     try requireFullPublicKey(publicKey, operation: "requestNeighbours")
-    return try await requestResponseSerializer.withSerialization { [self] in
+    return try await withSerializedBinaryRequest { [self] in
       try await performNeighboursRequest(
         from: publicKey,
         count: count,
@@ -562,11 +674,11 @@ private enum BinaryExchangeSignal<Response: Sendable>: Sendable {
   case idle
 }
 
-/// Live retransmit spacing shared from `messageSent` into the resend loop.
-/// Floor starts at the config minimum; rises to
-/// `suggestedTimeoutMs × binaryRetransmitRTTHeadroom` so multi-hop waits cover
-/// a full return trip before another copy.
-private actor BinaryExchangeCadence {
+/// Tracks submitted writes and adjusts retry spacing from `messageSent` to allow a full return trip.
+private actor BinaryExchangeState {
+  /// The first write completed before the retransmit loop starts.
+  private(set) var submittedCount = 1
+
   private var seconds: TimeInterval
   private var hasSuggested = false
   private var waiters: [CheckedContinuation<TimeInterval, Never>] = []
@@ -606,6 +718,10 @@ private actor BinaryExchangeCadence {
     } onCancel: {
       Task { await self.resumeWaitersWithFloor() }
     }
+  }
+
+  func recordSubmission() {
+    submittedCount += 1
   }
 
   func currentSeconds() -> TimeInterval {

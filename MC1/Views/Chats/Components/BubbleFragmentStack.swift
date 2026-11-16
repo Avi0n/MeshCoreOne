@@ -31,7 +31,9 @@ struct BubbleFragmentStack: View, Equatable {
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   nonisolated static func == (lhs: BubbleFragmentStack, rhs: BubbleFragmentStack) -> Bool {
-    lhs.item == rhs.item && lhs.bubbleColor == rhs.bubbleColor && lhs.timeColor == rhs.timeColor
+    lhs.item == rhs.item
+      && lhs.bubbleColor == rhs.bubbleColor
+      && lhs.timeColor == rhs.timeColor
   }
 
   private var hasFooter: Bool {
@@ -51,13 +53,12 @@ struct BubbleFragmentStack: View, Equatable {
     if case let .disabled(url) = layout.inlineImage?.state { url } else { nil }
   }
 
-  /// Showing uses the translated string as plain `Text` so mention/hashtag runs are not applied.
-  private func translationBody(_ textPayload: MessageTextPayload) -> Text {
-    if case let .showing(translated, _) = textPayload.translation?.phase {
-      Text(translated)
-    } else {
-      Text(textPayload.formatted ?? AttributedString(textPayload.raw))
+  /// Plain `Text` when the visible body replaces the stored string, so mention runs stay off.
+  private func messageBody(_ textPayload: MessageTextPayload, plainText: String?) -> Text {
+    if let plainText {
+      return Text(plainText)
     }
+    return Text(textPayload.formatted ?? AttributedString(textPayload.raw))
   }
 
   var body: some View {
@@ -69,17 +70,18 @@ struct BubbleFragmentStack: View, Equatable {
       // self-sizing hosting cell without a resolvable intrinsic width, which
       // SwiftUI surfaces as a fatal "invalid reuse after initialization failure".
       VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 2) {
-        if let chrome = layout.textPayload?.translation {
-          BubbleTranslationControl(
-            phase: chrome.phase,
-            onTap: { callbacks.onTranslationAction?() }
-          )
-        }
         if let textPayload = layout.textPayload {
+          let visible = MessageVisibleBody(stored: textPayload.raw, translation: textPayload.translation)
+          if let chrome = visible.translation {
+            BubbleTranslationControl(
+              phase: chrome.phase,
+              onTap: { callbacks.onTranslationAction?() }
+            )
+          }
           // Native `Text`: the precomputed `formatted` string already carries every run's color,
           // underline, bold, and `.link`, so link taps route through the injected `\.openURL` and
           // Dynamic Type scales for free. `foregroundStyle` colors the raw fallback when unformatted.
-          translationBody(textPayload)
+          messageBody(textPayload, plainText: visible.plainText)
             .font(.body)
             .foregroundStyle(textPayload.baseColor.swiftUIColor)
         }

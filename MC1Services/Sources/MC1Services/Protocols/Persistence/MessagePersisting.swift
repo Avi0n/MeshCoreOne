@@ -2,6 +2,26 @@ import Foundation
 
 /// Store operations for message rows and their pending-send queue entries.
 public protocol MessagePersisting: Actor {
+  // MARK: - Incoming Messages
+
+  func captureReceiveScope(radioID: UUID, link: ReceiveScope.Lifetime) async throws -> ReceiveScope?
+
+  func admitDirectMessage(
+    _ message: MessageDTO,
+    wireTextType: UInt8,
+    contact: ContactDTO?,
+    scope: ReceiveScope,
+    preference: TextRulesPreference?
+  ) async throws -> DirectMessageAdmission
+
+  func shouldSuppressChannelMessage(
+    _ message: MessageDTO,
+    frame: ChannelMessage,
+    channel: ChannelDTO,
+    scope: ReceiveScope,
+    preference: TextRulesPreference?
+  ) async throws -> Bool
+
   // MARK: - Message Operations
 
   /// Check if a message with this deduplication key already exists for the given radio.
@@ -18,6 +38,15 @@ public protocol MessagePersisting: Actor {
 
   /// Save a new message
   func saveMessage(_ dto: MessageDTO) async throws
+
+  /// Atomically admits one outgoing reaction and its durable send work.
+  func admitOutgoingReaction(_ message: MessageDTO) async throws -> MessageDTO?
+
+  /// Materializes the target badge only after this outgoing reaction is accepted.
+  func completeOutgoingReaction(messageID: UUID) async throws -> ReactionAdmission?
+
+  /// Saves only while the captured receive scope and any resolved channel identity are current.
+  func saveReceivedChannelMessage(_ dto: MessageDTO, scope: ReceiveScope, conversationID: UUID?) async throws -> Bool
 
   /// Fetch a message by ID
   func fetchMessage(id: UUID) async throws -> MessageDTO?
@@ -132,8 +161,16 @@ public protocol MessagePersisting: Actor {
   /// Update message timestamp (for resending)
   func updateMessageTimestamp(id: UUID, timestamp: UInt32) async throws
 
-  /// Update heard repeats count
-  func updateMessageHeardRepeats(id: UUID, heardRepeats: Int) async throws
+  /// Stores a direct-message timestamp immediately before its command.
+  /// A `.delivered` row becomes `.pending`, and the previous timestamp is returned for rollback.
+  func commitOutgoingDirectMessageTimestamp(id: UUID, timestamp: UInt32) async throws -> UInt32?
+
+  /// Puts a delivered direct message back after a rejected command.
+  /// Writes only while the row is still `.pending`. A row already `.delivered` is left unchanged.
+  func restoreUnacceptedDeliveredDirectMessage(id: UUID, timestamp: UInt32) async throws -> Bool
+
+  /// Updates a new channel send's timestamp and clears prior echo evidence in one turn.
+  func prepareChannelMessageResend(id: UUID, timestamp: UInt32) async throws
 
   /// Mark a message as read
   func markMessageAsRead(id: UUID) async throws
@@ -157,6 +194,12 @@ public protocol MessagePersisting: Actor {
   /// Returns the assigned sequence number.
   func insertPendingSendAssigningSequence(_ dto: PendingSendDTO) async throws -> Int
 
+  /// Atomically hands an accepted DM to durable ACK tracking, only while its original queue row remains current.
+  func savePendingAcknowledgement(_ dto: PendingSendDTO, replacingPendingSendID: UUID?, markSent: Bool) async throws -> Bool
+
+  /// Resolves only this durable ACK owner; a replacement retry row must remain untouched.
+  func resolvePendingAcknowledgement(id: UUID, expectedDeadline: Date?, status: MessageStatus, ackCode: UInt32?, roundTripTime: UInt32?) async throws -> Bool
+
   /// Fetch all pending sends for a given radio, ordered by sequence ascending.
   func fetchPendingSends(radioID: UUID) async throws -> [PendingSendDTO]
 
@@ -171,12 +214,28 @@ public protocol MessagePersisting: Actor {
   /// `messageID` is globally unique.
   func hasPendingSend(messageID: UUID) async throws -> Bool
 
-  /// Increments the `attemptCount` for the `PendingSend` row matching
-  /// `messageID`. Returns the new count, or `nil` if no row matched.
-  /// Throws on SwiftData read/write failure; callers must treat a thrown
-  /// error as transient (park + retry) and `nil` as terminal (deleted row).
+  /// Atomically restores eligible unsent DMs and increments the queued row's attempt count.
+  /// Returns its ID and new count, or nil if none remains; callers park and retry persistence errors.
   @discardableResult
-  func incrementPendingSendAttemptCount(messageID: UUID) async throws -> Int?
+  func preparePendingSendAttempt(messageID: UUID) async throws -> (pendingSendID: UUID, attemptCount: Int)?
+
+  /// Next attempt byte while this row is still queued work. Nil when the id is gone or already an ACK owner.
+  func pendingSendWireAttempt(id: UUID) async throws -> UInt8?
+
+  /// Records the next attempt byte only while this id is still queued work.
+  func setPendingSendWireAttempt(id: UUID, to next: UInt8) async throws -> Bool
+
+  /// Queued direct messages that already handed attempt bytes to the radio.
+  /// The service hashes acknowledgement codes from these fields.
+  func queuedDirectMessageWireAttempts() async throws -> [QueuedDirectMessageWireAttempt]
+
+  /// Marks this queued direct message delivered and deletes its row.
+  /// Skips a channel message, a row that already has a deadline, and a message already delivered.
+  func deliverQueuedDirectMessage(
+    pendingSendID: UUID,
+    ackCode: UInt32,
+    roundTripTime: UInt32?
+  ) async throws -> MessageDTO?
 }
 
 // MARK: - Default Parameter Values
@@ -187,10 +246,71 @@ extension MessagePersisting {
     try await updateMessageAck(id: id, ackCode: ackCode, status: status, roundTripTime: nil)
   }
 
+  func restoreUnacceptedDeliveredDirectMessage(id: UUID, timestamp: UInt32) async throws -> Bool {
+    false
+  }
+
   /// Default no-op for lightweight stubs. Concrete stores override; the method
   /// must be `async throws` on the store so overload resolution does not pick
   /// this empty default over the real implementation.
   func newestUnreadIncomingMessage(contactID: UUID) async throws -> MessageDTO? {
     nil
+  }
+
+  func pendingSendWireAttempt(id: UUID) async throws -> UInt8? {
+    nil
+  }
+
+  func queuedDirectMessageWireAttempts() async throws -> [QueuedDirectMessageWireAttempt] {
+    []
+  }
+
+  func deliverQueuedDirectMessage(
+    pendingSendID: UUID,
+    ackCode: UInt32,
+    roundTripTime: UInt32?
+  ) async throws -> MessageDTO? {
+    nil
+  }
+}
+
+public extension MessagePersisting {
+  func admitOutgoingReaction(_ message: MessageDTO) async throws -> MessageDTO? {
+    nil
+  }
+
+  func completeOutgoingReaction(messageID: UUID) async throws -> ReactionAdmission? {
+    nil
+  }
+
+  func saveReceivedChannelMessage(_ dto: MessageDTO, scope: ReceiveScope, conversationID: UUID?) async throws -> Bool {
+    guard scope.isCurrent, scope.radioID == dto.radioID else { return false }
+    try await saveMessage(dto)
+    return true
+  }
+
+  func captureReceiveScope(radioID: UUID, link: ReceiveScope.Lifetime) async throws -> ReceiveScope? {
+    guard link.isCurrent else { return nil }
+    return ReceiveScope(radioID: radioID, link: link, partition: .init())
+  }
+
+  func admitDirectMessage(
+    _ message: MessageDTO,
+    wireTextType: UInt8,
+    contact: ContactDTO?,
+    scope: ReceiveScope,
+    preference: TextRulesPreference?
+  ) async throws -> DirectMessageAdmission {
+    .discarded
+  }
+
+  func shouldSuppressChannelMessage(
+    _ message: MessageDTO,
+    frame: ChannelMessage,
+    channel: ChannelDTO,
+    scope: ReceiveScope,
+    preference: TextRulesPreference?
+  ) async throws -> Bool {
+    false
   }
 }

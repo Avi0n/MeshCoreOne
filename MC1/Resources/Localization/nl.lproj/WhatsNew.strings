@@ -65,3 +65,23 @@
 "whatsNew.moreChanges.title" = "Meer wijzigingen";
 /* What's New v1.6 - More changes, description */
 "whatsNew.moreChanges.description" = "Tik op \"Bekijk alle nieuwe wijzigingen\" hieronder om de volledige lijst met opgeloste fouten en andere functies te zien.";
+
+/* What's New v1.7 - Direct messages, title */
+"whatsNew.directMessages.title" = "Directe berichten";
+/* What's New v1.7 - Direct messages, description */
+"whatsNew.directMessages.description" = "Directe berichten proberen het pad nu 4 keer en doen daarna 4 Flood-pogingen. Wijzig Pogingen op het pad, Flood-pogingen en Terugval op flood-routing in Geavanceerde instellingen.";
+
+/* What's New v1.7 - Blocks and filters, title */
+"whatsNew.blocksAndFilters.title" = "Blokkering en filters";
+/* What's New v1.7 - Blocks and filters, description */
+"whatsNew.blocksAndFilters.description" = "Verberg berichten die overeenkomen met een woord of tekst. Een regel kan zoeken in het bericht, de naam van de afzender of beide, en je kiest voor welke chats die geldt. Verborgen berichten kun je zien in Onlangs geblokkeerd onder Instellingen > Blokkering en filters.";
+
+/* What's New v1.7 - Node telemetry, title */
+"whatsNew.nodeTelemetry.title" = "Knooppunttelemetrie";
+/* What's New v1.7 - Node telemetry, description */
+"whatsNew.nodeTelemetry.description" = "Instellingen > Apparaatinfo toont de telemetrie van het knooppunt waarmee je verbonden bent.";
+
+/* What's New v1.7 - Live Activity, title */
+"whatsNew.liveActivity.title" = "Live Activity";
+/* What's New v1.7 - Live Activity, description */
+"whatsNew.liveActivity.description" = "Ongelezen berichten vallen meer op en de snelheid in pakketten per minuut is makkelijker te begrijpen.";

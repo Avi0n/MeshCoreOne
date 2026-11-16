@@ -309,12 +309,15 @@ struct ChatViewModelFailedSendTests {
     let messageID = UUID()
     let contact = makeContact()
     let message = makeMessage(radioID: contact.radioID, contactID: contact.id)
+    let scope = ReceiveScope(radioID: contact.radioID, link: .init(), partition: .init())
 
     #expect(!viewModel.shouldRefreshFailedSendIndicators(
-      for: .directMessageReceived(message: message, contact: contact)
+      for: .directMessageReceived(message: message, contact: contact, scope: scope)
     ))
     #expect(!viewModel.shouldRefreshFailedSendIndicators(
-      for: .channelMessageReceived(message: message, channelIndex: 0)
+      for: .channelMessageReceived(
+        message: message, channelIndex: 0, scope: scope
+      )
     ))
     #expect(!viewModel.shouldRefreshFailedSendIndicators(
       for: .roomMessageReceived(
@@ -324,7 +327,8 @@ struct ChatViewModelFailedSendTests {
           text: "hi",
           timestamp: 1
         ),
-        sessionID: UUID()
+        sessionID: UUID(),
+        scope: scope
       )
     ))
     #expect(!viewModel.shouldRefreshFailedSendIndicators(

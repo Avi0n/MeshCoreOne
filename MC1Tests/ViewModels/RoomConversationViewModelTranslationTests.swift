@@ -46,6 +46,21 @@ struct RoomConversationViewModelTranslationTests {
   }
 
   @Test
+  func `incoming reading keeps nil translation and the wire displayedText`() throws {
+    let viewModel = RoomConversationViewModel()
+    viewModel.preferredLanguageCode = "en"
+    let text = "MECP/0/M01 \(german)"
+    let message = roomMessage(text: text)
+    viewModel.detectedLanguages[message.id] = .identified(languageCode: "de")
+    viewModel.appendMessageIfNew(message)
+
+    let row = try #require(viewModel.tiledRows.first)
+    #expect(viewModel.detectedLanguages[message.id] == .identified(languageCode: "de"))
+    #expect(row.translation == nil)
+    #expect(viewModel.displayedText(for: row.message) == text)
+  }
+
+  @Test
   func `detector maps land chrome on the materialized row`() throws {
     let viewModel = RoomConversationViewModel()
     viewModel.preferredLanguageCode = "en"

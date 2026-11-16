@@ -4,14 +4,8 @@ import SwiftUI
 
 private let logger = Logger(subsystem: "com.mc1", category: "DeviceSelectionSheet")
 
-/// Filters saved `Device` rows to those the user can actually reach from this phone.
-///
-/// A backup restore inserts "shadow" `Device` rows: their Bluetooth connection methods
-/// were stripped by `cleanedForImport()` and their `id` is a fresh `UUID` that isn't
-/// registered with AccessorySetupKit on this phone. Those rows stay in SwiftData so
-/// `ConnectionManager.buildServicesAndSaveDevice` can reconcile them by `publicKey`
-/// when the user later pairs the radio, but they must not appear in the picker until
-/// then — they look like saved devices but no tap can connect them.
+/// Includes only Device records reachable through this phone's connection methods.
+/// Imported records remain available for public-key reconciliation until the radio is paired.
 enum DeviceSelectionFilter {
   static func isConnectable(_ device: DeviceDTO, pairedAccessoryIDs: Set<UUID>, hasSystemPairingRegistry: Bool = true) -> Bool {
     if device.connectionMethods.contains(where: \.isWiFi) { return true }
@@ -80,14 +74,16 @@ struct DeviceSelectionSheet: View {
       onConnect: { connectToDevice($0, target: $1) },
       onDelete: { deleteDevice($0) },
       onSetup: { setupAccessory($0) },
-      onScanForNew: { scanForNewDevice() }
+      onScanForNew: { scanForNewDevice() },
+      isRecoveringPairing: appState.isRecoveringPairing
     )
   }
 
   private func makeEmptyStateView() -> some View {
     EmptyStateView(
       showingWiFiConnection: $showingWiFiConnection,
-      onScanForNew: { scanForNewDevice() }
+      onScanForNew: { scanForNewDevice() },
+      isRecoveringPairing: appState.isRecoveringPairing
     )
   }
 
@@ -128,10 +124,8 @@ struct DeviceSelectionSheet: View {
 
     var connectedElsewhere: Set<UUID> = []
     for device in result.connectable {
-      if case let .bluetooth(peripheralID) = device.savedDeviceConnectTarget {
-        if await appState.connectionManager.isDeviceConnectedToOtherApp(peripheralID) {
-          connectedElsewhere.insert(device.id)
-        }
+      if case let .bluetooth(peripheralID) = device.savedDeviceConnectTarget, await appState.connectionManager.isDeviceConnectedToOtherApp(peripheralID) {
+        connectedElsewhere.insert(device.id)
       }
     }
     devicesConnectedElsewhere = connectedElsewhere
@@ -186,6 +180,7 @@ private struct DeviceListView: View {
   let onDelete: (DeviceDTO) -> Void
   let onSetup: (SystemPairedAccessory) -> Void
   let onScanForNew: () -> Void
+  let isRecoveringPairing: Bool
 
   var body: some View {
     List {
@@ -261,10 +256,14 @@ private struct DeviceListView: View {
       .themedRowBackground(theme)
 
       Section {
-        Button {
-          onScanForNew()
-        } label: {
-          Label(L10n.Settings.DeviceSelection.scanBluetooth, systemImage: "antenna.radiowaves.left.and.right")
+        if isRecoveringPairing {
+          PairingRecoveryStatus()
+        } else {
+          Button {
+            onScanForNew()
+          } label: {
+            Label(L10n.Settings.DeviceSelection.scanBluetooth, systemImage: "antenna.radiowaves.left.and.right")
+          }
         }
 
         Button {
@@ -292,6 +291,7 @@ private struct DeviceListView: View {
 private struct EmptyStateView: View {
   @Binding var showingWiFiConnection: Bool
   let onScanForNew: () -> Void
+  let isRecoveringPairing: Bool
 
   var body: some View {
     ContentUnavailableView {
@@ -301,13 +301,17 @@ private struct EmptyStateView: View {
         Text(L10n.Settings.DeviceSelection.noPairedDescription)
 
         VStack(spacing: 12) {
-          Button(
-            L10n.Settings.DeviceSelection.scanForDevices,
-            systemImage: "antenna.radiowaves.left.and.right"
-          ) {
-            onScanForNew()
+          if isRecoveringPairing {
+            PairingRecoveryStatus()
+          } else {
+            Button(
+              L10n.Settings.DeviceSelection.scanForDevices,
+              systemImage: "antenna.radiowaves.left.and.right"
+            ) {
+              onScanForNew()
+            }
+            .liquidGlassProminentButtonStyle()
           }
-          .liquidGlassProminentButtonStyle()
 
           Button(L10n.Settings.DeviceSelection.connectViaWifi, systemImage: "wifi.circle") {
             showingWiFiConnection = true

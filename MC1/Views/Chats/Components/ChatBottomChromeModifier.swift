@@ -13,6 +13,7 @@ extension View {
 private struct ChatBottomChromeModifier<Chrome: View>: ViewModifier {
   @Environment(\.scenePhase) private var scenePhase
   @State private var lift: CGFloat = 0
+  @State private var homeInset: CGFloat = 0
   let canvas: Color
   let chrome: Chrome
 
@@ -25,11 +26,16 @@ private struct ChatBottomChromeModifier<Chrome: View>: ViewModifier {
         var transaction = Transaction(animation: nil)
         transaction.disablesAnimations = true
         withTransaction(transaction) { lift = next }
+      },
+      onHomeInsetChange: { next in
+        guard next != homeInset else { return }
+        homeInset = next
       }
     )
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .ignoresSafeArea([.container, .keyboard], edges: .vertical)
     .environment(\.chatKeyboardLift, scenePhase == .active ? lift : 0)
+    .environment(\.chatWindowHomeInset, homeInset)
   }
 
   private struct Host<Timeline: View>: UIViewControllerRepresentable {
@@ -55,10 +61,11 @@ private struct ChatBottomChromeModifier<Chrome: View>: ViewModifier {
     struct Root: View {
       let canvas: Color
       let chrome: Chrome
+      var homeInset: CGFloat
       let environment: EnvironmentValues
 
       var body: some View {
-        ChatBottomChrome(canvas: canvas) {
+        ChatBottomChrome(canvas: canvas, homeInset: homeInset) {
           chrome
         }
         .environment(\.chatKeyboardLift, 0)
@@ -71,23 +78,27 @@ private struct ChatBottomChromeModifier<Chrome: View>: ViewModifier {
     let chrome: Chrome
     let isActive: Bool
     let onLiftChange: @MainActor (CGFloat) -> Void
+    let onHomeInsetChange: @MainActor (CGFloat) -> Void
 
     func makeUIViewController(context: Context) -> Controller {
       Controller(
         timeline: TimelineRoot(timeline: timeline, chromeHeight: 0, topInset: 0, environment: context.environment),
-        root: Root(canvas: canvas, chrome: chrome, environment: context.environment)
+        root: Root(canvas: canvas, chrome: chrome, homeInset: 0, environment: context.environment)
       )
     }
 
     func updateUIViewController(_ controller: Controller, context: Context) {
       controller.onLiftChange = onLiftChange
+      controller.onHomeInsetChange = onHomeInsetChange
       controller.isCompact = context.environment.horizontalSizeClass == .compact
       controller.isSceneActive = isActive
       withTransaction(context.transaction) {
         controller.timelineHost.rootView = TimelineRoot(
           timeline: timeline, chromeHeight: controller.chromeHeight, topInset: controller.topInset, environment: context.environment
         )
-        controller.hosted.rootView = Root(canvas: canvas, chrome: chrome, environment: context.environment)
+        controller.hosted.rootView = Root(
+          canvas: canvas, chrome: chrome, homeInset: controller.homeInset, environment: context.environment
+        )
       }
       controller.refreshActivity()
     }
@@ -100,6 +111,7 @@ private struct ChatBottomChromeModifier<Chrome: View>: ViewModifier {
       let timelineHost: UIHostingController<TimelineRoot>
       let hosted: UIHostingController<Root>
       var onLiftChange: @MainActor (CGFloat) -> Void = { _ in }
+      var onHomeInsetChange: @MainActor (CGFloat) -> Void = { _ in }
       var isCompact = false
       var isSceneActive = false
 
@@ -111,8 +123,14 @@ private struct ChatBottomChromeModifier<Chrome: View>: ViewModifier {
       private var popGestures: [UIGestureRecognizer] = []
       private(set) var chromeHeight: CGFloat = 0
       private(set) var topInset: CGFloat = 0
+      /// Home-indicator height requested from the window and written into the chrome.
+      private(set) var homeInset: CGFloat = 0
+      /// Spacer height already laid out in the chrome.
+      /// The keyboard offset follows it so the pill stays above the keyboard while that spacer is still short.
+      private var appliedHomeInset: CGFloat = 0
       private var lift: CGFloat = 0
       private var hasQueuedLiftReport = false
+      private var hasQueuedHomeInsetReport = false
       private var isVisible = false
 
       init(timeline: TimelineRoot, root: Root) {
@@ -212,6 +230,7 @@ private struct ChatBottomChromeModifier<Chrome: View>: ViewModifier {
 
       override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        syncHomeInset()
         let restingInset = isCompact ? 0 : view.safeAreaInsets.bottom
         updateKeyboardLimit()
         restingLimit.constant = -restingInset
@@ -262,7 +281,49 @@ private struct ChatBottomChromeModifier<Chrome: View>: ViewModifier {
       }
 
       private var keyboardHomeInset: CGFloat {
-        isCompact ? view.window?.safeAreaInsets.bottom ?? 0 : 0
+        appliedHomeInset
+      }
+
+      /// Home-indicator inset from the window. The view inset can include the tab bar while it hides.
+      private func windowHomeInset() -> CGFloat {
+        guard isCompact, let window = view.window else { return 0 }
+        return window.safeAreaInsets.bottom
+      }
+
+      private func syncHomeInset() {
+        let live = windowHomeInset()
+        if live != homeInset {
+          homeInset = live
+          var root = hosted.rootView
+          root.homeInset = live
+          var transaction = Transaction(animation: nil)
+          transaction.disablesAnimations = true
+          withTransaction(transaction) { hosted.rootView = root }
+          reportHomeInset()
+        }
+        let hosts = bottomInsetHosts(in: hosted.view)
+        appliedHomeInset = hosts.map(\.reservedHeight).max() ?? 0
+      }
+
+      private func reportHomeInset() {
+        guard !hasQueuedHomeInsetReport else { return }
+        hasQueuedHomeInsetReport = true
+        DispatchQueue.main.async { [weak self] in
+          guard let self else { return }
+          hasQueuedHomeInsetReport = false
+          onHomeInsetChange(homeInset)
+        }
+      }
+
+      private func bottomInsetHosts(in root: UIView) -> [ChatWindowBottomInsetHost] {
+        var found: [ChatWindowBottomInsetHost] = []
+        if let host = root as? ChatWindowBottomInsetHost {
+          found.append(host)
+        }
+        for child in root.subviews {
+          found.append(contentsOf: bottomInsetHosts(in: child))
+        }
+        return found
       }
 
       func deactivate() {

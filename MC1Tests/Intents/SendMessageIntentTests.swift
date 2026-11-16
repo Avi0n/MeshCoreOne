@@ -330,35 +330,40 @@ struct SendMessageIntentTests {
     #expect(pending.isEmpty)
   }
 
-  // MARK: - enqueue-failure orphan recovery primitive
+  // MARK: - Enqueue failure
 
-  /// `performSend`'s catch marks a persisted-but-unenqueued row `.failed` via
-  /// `updateMessageStatusUnlessDelivered` so an enqueue-write failure surfaces a
-  /// retry instead of hanging `.pending`. Forcing the enqueue itself to throw is
-  /// not reachable through any existing test seam (the queue persists through the
-  /// concrete in-memory `PersistenceStore`, which does not fail), so this pins
-  /// the recovery primitive on a real row built by production `createPendingMessage`:
-  /// a `.pending` row flips to `.failed`, while a `.delivered` row is left intact
-  /// so the recovery can never downgrade a delivered send.
-  @Test func `update message status unless delivered fails pending but spares delivered`() async throws {
+  @Test(arguments: [false, true])
+  func `enqueue failure retains one failed Message and reports send failed`(isChannel: Bool) async throws {
     let appState = AppState()
+    defer { appState.shutdown() }
     let services = try seedReady(appState, state: .ready)
     let contact = Self.makeContact()
+    let channel = Self.makeChannel()
     try await services.dataStore.saveContact(contact)
+    try await services.dataStore.saveChannel(channel)
+    await services.dataStore.setPendingSendInsertHandler { throw CocoaError(.fileWriteUnknown) }
+    let recipient: MessageRecipient = isChannel ? .channel(channel) : .contact(contact)
+    let text = "Keep one failed Message"
 
-    let pending = try await services.messageService.createPendingMessage(text: "queued", to: contact)
-    #expect(try await services.dataStore.fetchMessage(id: pending.id)?.status == .pending)
+    let thrown = await #expect(throws: IntentError.self) {
+      try await SendMessageIntent.performSend(message: text, recipient: recipient, in: appState)
+    }
 
-    let flipped = try await services.dataStore.updateMessageStatusUnlessDelivered(id: pending.id, status: .failed)
-    #expect(flipped)
-    #expect(try await services.dataStore.fetchMessage(id: pending.id)?.status == .failed)
-
-    let delivered = try await services.messageService.createPendingMessage(text: "acked", to: contact)
-    try await services.dataStore.updateMessageAck(id: delivered.id, ackCode: 0x1234_5678, status: .delivered)
-
-    let spared = try await services.dataStore.updateMessageStatusUnlessDelivered(id: delivered.id, status: .failed)
-    #expect(!spared)
-    #expect(try await services.dataStore.fetchMessage(id: delivered.id)?.status == .delivered)
+    #expect(try isCase(#require(thrown), .sendFailed))
+    let messages = if isChannel {
+      try await services.dataStore.fetchMessages(radioID: Self.radioID, channelIndex: channel.index)
+    } else {
+      try await services.dataStore.fetchMessages(contactID: contact.id)
+    }
+    #expect(messages.count == 1)
+    let message = try #require(messages.first)
+    #expect(message.text == text)
+    #expect(message.status == .failed)
+    #expect(!message.failureSeen)
+    #expect(try await services.dataStore.fetchPendingSends(radioID: Self.radioID).isEmpty)
+    if !isChannel {
+      #expect(try await services.dataStore.fetchContact(id: contact.id)?.lastMessageDate == message.date)
+    }
   }
 
   // MARK: - .syncing takes the queue

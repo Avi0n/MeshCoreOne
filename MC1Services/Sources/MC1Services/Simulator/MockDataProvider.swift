@@ -21,6 +21,7 @@ public enum MockDataProvider {
   public static let hannahLeeID = UUID(uuidString: "00000000-0000-0000-0000-000000000080")!
   public static let northRidgeRepeaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000091")!
   public static let twinPeaksRepeaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000092")!
+  public static let creekSensorID = UUID(uuidString: "00000000-0000-0000-0000-000000000094")!
   public static let oaklandRepeaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000093")!
 
   /// Byte 0 of `mockPublicKey(seed:)`. A 1-byte hop hash of this value matches that repeater only.
@@ -33,12 +34,14 @@ public enum MockDataProvider {
   public static let bayAreaChannelID = UUID(uuidString: "000000C0-0000-0000-0000-000000000001")!
   public static let trailCrewChannelID = UUID(uuidString: "000000C0-0000-0000-0000-000000000002")!
   public static let meshHQChannelID = UUID(uuidString: "000000C0-0000-0000-0000-000000000003")!
+  public static let emergencyChannelID = UUID(uuidString: "000000C0-0000-0000-0000-000000000004")!
 
   /// Channel slot indices (mirror firmware slot positions)
   public static let publicChannelIndex: UInt8 = 0
   public static let bayAreaChannelIndex: UInt8 = 1
   public static let trailCrewChannelIndex: UInt8 = 2
   public static let meshHQChannelIndex: UInt8 = 3
+  public static let emergencyChannelIndex: UInt8 = 4
 
   /// Message IDs referenced by more than one seed helper (reaction / repeat /
   /// link-preview targets) so the builders and the post-save mutators agree.

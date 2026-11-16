@@ -31,7 +31,7 @@ struct WhatsNewVersionTests {
     let lhs = WhatsNewVersion(marketingVersion: current)
     let rhs = WhatsNewVersion(marketingVersion: baseline)
     #expect(lhs == rhs)
-    #expect(try !(#require(lhs) > rhs!))
+    #expect(try !(#require(lhs) > #require(rhs)))
   }
 
   @Test(arguments: [
