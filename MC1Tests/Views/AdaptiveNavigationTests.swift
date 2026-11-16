@@ -24,16 +24,19 @@ struct AdaptiveNavigationTests {
 
   // MARK: - Presentation recipe
 
-  @Test
-  func `collapsed compact detail hides tabs`() {
+  @Test(arguments: [true, false])
+  func `collapsed compact detail hides tabs only for the selected section`(
+    sectionIsSelected: Bool
+  ) {
     let visibility = SectionSplitPresentation.tabBarVisibility(
       sizeClass: .compact,
       columnVisibility: .all,
       tabBarPlacement: .bottomBar,
       preferredColumn: .detail,
-      hasSelection: true
+      hasSelection: true,
+      sectionIsSelected: sectionIsSelected
     )
-    #expect(visibility == .hidden)
+    #expect(visibility == (sectionIsSelected ? .hidden : .automatic))
   }
 
   @Test
@@ -43,7 +46,8 @@ struct AdaptiveNavigationTests {
       columnVisibility: .all,
       tabBarPlacement: .bottomBar,
       preferredColumn: .sidebar,
-      hasSelection: false
+      hasSelection: false,
+      sectionIsSelected: true
     )
     #expect(visibility == .automatic)
   }
@@ -59,7 +63,8 @@ struct AdaptiveNavigationTests {
         columnVisibility: columnVisibility,
         tabBarPlacement: placement,
         preferredColumn: .sidebar,
-        hasSelection: hasSelection
+        hasSelection: hasSelection,
+        sectionIsSelected: true
       )
       let hidesBottomTabs = placement == .bottomBar && columnVisibility == .detailOnly && hasSelection
       #expect(visibility == (hidesBottomTabs ? .hidden : .automatic))

@@ -17,7 +17,8 @@ struct ChatsView: View {
       columnVisibility: columnVisibility,
       tabBarPlacement: tabBarPlacement,
       preferredColumn: preferredCompactColumn,
-      hasSelection: appState.navigation.chatsSelectedRoute != nil
+      hasSelection: appState.navigation.chatsSelectedRoute != nil,
+      sectionIsSelected: appState.navigation.selectedTab == AppTab.chats.rawValue
     )
   }
 
