@@ -43,7 +43,9 @@ struct MCOImageV4Parser {
   var remainingFigures = Field.maximumExpandedFigures
   var groupDepth = 0
 
-  init(_ data: Data) { reader = MCOImageV4BitReader(data) }
+  init(_ data: Data) {
+    reader = MCOImageV4BitReader(data)
+  }
 
   mutating func decode() throws -> MCOImageV4Document {
     mode = try reader.read(Field.modeBits)
@@ -72,16 +74,16 @@ struct MCOImageV4Parser {
       guard flags & ~Field.knownTailFlags == 0 else { throw MCOImageCodecError.damaged }
       if flags & Field.targetFlag != 0 {
         let count = try reader.varUInt()
-        guard count > 0, let name = String(data: try reader.data(count), encoding: .utf8) else {
+        guard count > 0, let name = try String(data: reader.data(count), encoding: .utf8) else {
           throw MCOImageCodecError.damaged
         }
         targetName = name
       }
       if flags & Field.replyFlag != 0 {
-        replyTimestamp = UInt32(try reader.read(Field.byteBits))
-          | UInt32(try reader.read(Field.byteBits)) << Field.byteBits
-          | UInt32(try reader.read(Field.byteBits)) << (2 * Field.byteBits)
-          | UInt32(try reader.read(Field.byteBits)) << (3 * Field.byteBits)
+        replyTimestamp = try UInt32(reader.read(Field.byteBits))
+          | UInt32(reader.read(Field.byteBits)) << Field.byteBits
+          | UInt32(reader.read(Field.byteBits)) << (2 * Field.byteBits)
+          | UInt32(reader.read(Field.byteBits)) << (3 * Field.byteBits)
       }
       guard reader.remaining == 0 else { throw MCOImageCodecError.damaged }
     }
@@ -95,7 +97,7 @@ struct MCOImageV4Parser {
     var figures: [MCOImageFigure] = []
     var history: [MCOImageFigure] = []
     while count == nil || figures.count < count! {
-      let opcode = Opcode(rawValue: try reader.read(Field.opcodeBits))!
+      let opcode = try Opcode(rawValue: reader.read(Field.opcodeBits))!
       var next: [MCOImageFigure] = []
       switch opcode {
       case .end:
@@ -114,7 +116,7 @@ struct MCOImageV4Parser {
         next = try extended(history: history, nested: count != nil, style: &style, alignment: &alignment, fontSize: &fontSize)
       default:
         try consume(1)
-        next = [try figure(opcode, style: style)]
+        next = try [figure(opcode, style: style)]
       }
       if let count, next.count > count - figures.count { throw MCOImageCodecError.damaged }
       for figure in next {
@@ -155,7 +157,9 @@ struct MCOImageV4Parser {
     }
   }
 
-  mutating func optionalColor() throws -> Int? { try reader.bit() ? color() : nil }
+  mutating func optionalColor() throws -> Int? {
+    try reader.bit() ? color() : nil
+  }
 
   mutating func color() throws -> Int {
     try MCOImagePalette.ref(fromStored: reader.read(colorBits), profile: profile)
@@ -176,9 +180,13 @@ struct MCOImageV4Parser {
     return try MCOImageV4Point(x: reader.signed(shortBits ?? (xBits + 1)), y: reader.signed(shortBits ?? (yBits + 1)))
   }
 
-  func margin(_ size: Int) -> Int { min(Field.maximumOverscan, max(1, (size + Field.overscanDivisor - 1) / Field.overscanDivisor)) }
+  func margin(_ size: Int) -> Int {
+    min(Field.maximumOverscan, max(1, (size + Field.overscanDivisor - 1) / Field.overscanDivisor))
+  }
 
-  static func bits(_ maximum: Int) -> Int { max(1, Int.bitWidth - maximum.leadingZeroBitCount) }
+  static func bits(_ maximum: Int) -> Int {
+    max(1, Int.bitWidth - maximum.leadingZeroBitCount)
+  }
 
   mutating func consume(_ count: Int) throws {
     guard count <= remainingFigures else { throw MCOImageCodecError.unsupported }

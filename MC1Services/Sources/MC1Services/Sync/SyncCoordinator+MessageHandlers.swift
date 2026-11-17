@@ -396,16 +396,15 @@ extension SyncCoordinator {
                 messageDTO, scope: scope, conversationID: channel?.textRulesID
               ),
               scope.isCurrent else { return }
-        let savedDTO: MessageDTO
-        if datagramSenderName == nil {
-          savedDTO = try await harvestAndRefreshChannelMessage(
+        let savedDTO: MessageDTO = if datagramSenderName == nil {
+          try await harvestAndRefreshChannelMessage(
             messageDTO: messageDTO,
             radioID: radioID,
             dependencies: dependencies,
             scope: scope
           )
         } else {
-          savedDTO = messageDTO
+          messageDTO
         }
         try await indexAndNotifyChannelMessage(
           messageDTO: savedDTO,

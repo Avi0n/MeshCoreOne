@@ -1,9 +1,9 @@
 import Foundation
-import Testing
 @testable import MC1Services
+import Testing
 
 struct MCOTextCodecTests {
-  @Test func frozenGenerationZeroReferenceVectors() throws {
+  @Test func `frozen generation zero reference vectors`() throws {
     let url = try #require(Bundle.module.url(forResource: "MCOTextFixtures", withExtension: "json", subdirectory: "Fixtures"))
     let root = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
     let fixtures = try #require(root["fixtures"] as? [[String: Any]])
@@ -17,26 +17,28 @@ struct MCOTextCodecTests {
     }
   }
 
-  @Test func rawUTF8DoesNotRequireKnownModelGeneration() throws {
+  @Test func `raw UTF 8 does not require known model generation`() throws {
     let bits = [0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0]
     let header = bytes(bits)
     #expect(try MCOTextCodec.decode(header + Data("Help".utf8), bitLength: 48) == "Help")
   }
 
-  @Test func rejectsPendingShiftAndInvalidUTF8() {
+  @Test func `rejects pending shift and invalid UTF 8`() {
     // Version 1, generation 0, English/no partner, then an unfinished SHIFT.
     let shift = [0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0]
     #expect(throws: MCOImageCodecError.damaged) {
       try MCOTextCodec.decode(bytes(shift), bitLength: shift.count)
     }
     #expect(throws: MCOImageCodecError.damaged) {
-      try MCOTextCodec.decode(Data([0x23, 0x90, 0xff]), bitLength: 24)
+      try MCOTextCodec.decode(Data([0x23, 0x90, 0xFF]), bitLength: 24)
     }
   }
 
   private func bytes(_ bits: [Int]) -> Data {
     var bytes = [UInt8](repeating: 0, count: (bits.count + 7) / 8)
-    for (index, bit) in bits.enumerated() where bit != 0 { bytes[index / 8] |= 1 << (7 - index % 8) }
+    for (index, bit) in bits.enumerated() where bit != 0 {
+      bytes[index / 8] |= 1 << (7 - index % 8)
+    }
     return Data(bytes)
   }
 }

@@ -9,7 +9,7 @@ public enum MCOImageCodec {
   private static let maximumVersionDigits = 2
   private static let textPrefixLength = 2
   private static let subtype: UInt8 = 1
-  private static let versionMask: UInt8 = 0x0f
+  private static let versionMask: UInt8 = 0x0F
   private static let subtypeShift = 4
 
   public static func isImageText(_ text: String) -> Bool {
@@ -30,8 +30,8 @@ public enum MCOImageCodec {
       let payload = try appPayload(fromText: text)
       let body = Data(payload.dropFirst())
       switch version {
-      case v3Version: return .raster(try MCOImageV3Codec.decodeBody(body))
-      case v4Version: return .document(try MCOImageV4Codec.decodeBody(body))
+      case v3Version: return try .raster(MCOImageV3Codec.decodeBody(body))
+      case v4Version: return try .document(MCOImageV4Codec.decodeBody(body))
       default: return .unsupported
       }
     } catch MCOImageCodecError.unsupported {

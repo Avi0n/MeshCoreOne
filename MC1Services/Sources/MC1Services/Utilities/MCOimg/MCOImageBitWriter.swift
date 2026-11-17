@@ -40,5 +40,7 @@ struct MCOImageBitWriter {
     }
   }
 
-  var data: Data { Data(bytes) }
+  var data: Data {
+    Data(bytes)
+  }
 }

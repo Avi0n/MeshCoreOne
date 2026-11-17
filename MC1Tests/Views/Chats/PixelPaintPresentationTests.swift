@@ -1,20 +1,22 @@
 import Foundation
+@testable import MC1
 @testable import MC1Services
 import SwiftUI
 import Testing
 import UIKit
-@testable import MC1
 
 private struct AccessibilityDump: Error, CustomStringConvertible {
   var description: String
-  init(_ description: String) { self.description = description }
+  init(_ description: String) {
+    self.description = description
+  }
 }
 
 @Suite("Pixel paint presentation", .serialized)
 @MainActor
 struct PixelPaintPresentationTests {
-  @Test func fullScreenCoverBlocksDismissalAndCancelDiscardsPixels() async throws {
-    let appState = AppState(modelContainer: try PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
+  @Test func `full screen cover blocks dismissal and cancel discards pixels`() async throws {
+    let appState = try AppState(modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
     appState.connectionManager.setTestState(connectionState: .ready)
     let draft = PixelPaintDraft()
     let presentation = Presentation()
@@ -61,8 +63,8 @@ struct PixelPaintPresentationTests {
     #expect(draft.image.pixels.allSatisfy { $0 == PixelPaintDraft.background })
   }
 
-  @Test func sendAdmitsOnceWithoutChangingTheTextDraft() async throws {
-    let appState = AppState(modelContainer: try PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
+  @Test func `send admits once without changing the text draft`() async throws {
+    let appState = try AppState(modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
     appState.connectionManager.setTestState(connectionState: .ready)
     let draft = PixelPaintDraft()
     draft.paint(x: 2, y: 3)
@@ -100,8 +102,8 @@ struct PixelPaintPresentationTests {
     #expect(draft.image != snapshot)
   }
 
-  @Test func rejectedAdmissionShowsOneCoverAlertAndKeepsPixels() async throws {
-    let appState = AppState(modelContainer: try PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
+  @Test func `rejected admission shows one cover alert and keeps pixels`() async throws {
+    let appState = try AppState(modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
     appState.connectionManager.setTestState(connectionState: .ready)
     let draft = PixelPaintDraft()
     draft.paint(x: 4, y: 1)
@@ -132,8 +134,8 @@ struct PixelPaintPresentationTests {
     #expect(model.text == SendModel.originalText)
   }
 
-  @Test func disconnectAfterTheTapShowsOneCoverAlertAndKeepsPixels() async throws {
-    let appState = AppState(modelContainer: try PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
+  @Test func `disconnect after the tap shows one cover alert and keeps pixels`() async throws {
+    let appState = try AppState(modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
     appState.connectionManager.setTestState(connectionState: .ready)
     let draft = PixelPaintDraft()
     draft.paint(x: 5, y: 6)
@@ -189,8 +191,8 @@ struct PixelPaintPresentationTests {
     #expect(presentedController(in: window) != nil)
   }
 
-  @Test func hardwareReturnSendsOnlyNonEmptyText() async throws {
-    let appState = AppState(modelContainer: try PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
+  @Test func `hardware return sends only non empty text`() async throws {
+    let appState = try AppState(modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
     appState.connectionManager.setTestState(connectionState: .ready)
     let model = InputModel()
     model.text = String(repeating: "a", count: InputModel.maxBytes + 1)
@@ -311,7 +313,7 @@ struct PixelPaintPresentationTests {
     }
   }
 
-  private func host<Content: View>(_ view: Content) throws -> UIWindow {
+  private func host(_ view: some View) throws -> UIWindow {
     let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
     let window = UIWindow(windowScene: scene)
     let controller = UIHostingController(rootView: view)

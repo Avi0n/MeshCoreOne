@@ -2,7 +2,9 @@ extension MCOImageV3Codec.Decoder {
   mutating func compactRows(count: Int, rowLength: Int, valueBits: Int, maximum: Int, residuals: Bool) throws -> [Int] {
     let virtual = try reader.read(1) != 0
     var pixels = Array(repeating: 0, count: count)
-    if !virtual { for x in 0..<rowLength { pixels[x] = try rowValue(valueBits, maximum: maximum) } }
+    if !virtual { for x in 0..<rowLength {
+      pixels[x] = try rowValue(valueBits, maximum: maximum)
+    } }
     let rows = count / rowLength
     var row = virtual ? 0 : 1
     while row < rows {
@@ -10,12 +12,16 @@ extension MCOImageV3Codec.Decoder {
       let op = try reader.read(3)
       if op == 0 || op == 6 {
         let repeats = try op == 0 ? 1 : reader.range(rows - row - 2) + 2
-        for index in row..<(row + repeats) { copyRow(&pixels, row: index, rowLength: rowLength, virtual: virtual) }
+        for index in row..<(row + repeats) {
+          copyRow(&pixels, row: index, rowLength: rowLength, virtual: virtual)
+        }
         row += repeats
         continue
       }
       if op == 1 {
-        for x in 0..<rowLength { pixels[start + x] = try rowValue(valueBits, maximum: maximum) }
+        for x in 0..<rowLength {
+          pixels[start + x] = try rowValue(valueBits, maximum: maximum)
+        }
         row += 1
         continue
       }
@@ -28,7 +34,9 @@ extension MCOImageV3Codec.Decoder {
         guard let first = positions.first else { throw MCOImageCodecError.damaged }
         let base = predicted(pixels, row: row, x: first, rowLength: rowLength, predictor: prediction, virtual: virtual)
         let value = try compactValue(valueBits, maximum: maximum, base: base, residual: residual)
-        for x in positions { pixels[start + x] = value }
+        for x in positions {
+          pixels[start + x] = value
+        }
       } else {
         for x in positions {
           let base = predicted(pixels, row: row, x: x, rowLength: rowLength, predictor: prediction, virtual: virtual)
@@ -64,7 +72,9 @@ extension MCOImageV3Codec.Decoder {
     } else if op == 5 {
       let start = try reader.range(rowLength - 1)
       let span = try reader.range(rowLength - start - 1) + 1
-      for offset in 0..<span { if try reader.read(1) != 0 { positions.append(start + offset) } }
+      for offset in 0..<span {
+        if try reader.read(1) != 0 { positions.append(start + offset) }
+      }
       guard !positions.isEmpty else { throw MCOImageCodecError.damaged }
     } else { throw MCOImageCodecError.damaged }
     return positions

@@ -29,8 +29,13 @@ public enum MCOImageV3Codec {
     case bitplanes = 8, adaptiveBitplanes = 9, directBitplanes = 10, compactRowDelta = 11, directRowDelta = 12, rowDelta = 13
     case varRle = 14, varSparse = 15
 
-    var compact: Bool { self == .rawGlobal || self == .rawLocal || self == .biColor }
-    var usesBackground: Bool { self == .sparse || self == .varSparse || self == .biColor }
+    var compact: Bool {
+      self == .rawGlobal || self == .rawLocal || self == .biColor
+    }
+
+    var usesBackground: Bool {
+      self == .sparse || self == .varSparse || self == .biColor
+    }
   }
 
   struct Decoder {
@@ -129,7 +134,9 @@ public enum MCOImageV3Codec {
   static func fromScan(_ linear: [Int], width: Int, height: Int, scan: Int) -> [Int] {
     if scan == 0 { return linear }
     var result = Array(repeating: 0, count: linear.count)
-    for (position, index) in scanIndexes(width: width, height: height, scan: scan).enumerated() { result[index] = linear[position] }
+    for (position, index) in scanIndexes(width: width, height: height, scan: scan).enumerated() {
+      result[index] = linear[position]
+    }
     return result
   }
 }

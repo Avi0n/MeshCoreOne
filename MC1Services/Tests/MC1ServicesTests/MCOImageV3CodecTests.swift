@@ -34,7 +34,7 @@ struct MCOImageV3CodecTests {
     return try JSONDecoder().decode(Fixtures.self, from: Data(contentsOf: file)).fixtures
   }
 
-  @Test func decodesAllUpstreamContainersAndAlgorithms() throws {
+  @Test func `decodes all upstream containers and algorithms`() throws {
     let fixtures = try fixtures()
     #expect(fixtures.count == 39)
     for fixture in fixtures {
@@ -45,7 +45,7 @@ struct MCOImageV3CodecTests {
     }
   }
 
-  @Test func encodingPreservesPixelsAcrossProfilesAndNonces() throws {
+  @Test func `encoding preserves pixels across profiles and nonces`() throws {
     for profile in 0..<MCOImagePalette.profileCount {
       let refs = MCOImagePalette.profileReferences(profile)
       let pixels = (0..<256).map { refs[($0 % 16 + $0 / 16) % refs.count] }
@@ -59,7 +59,7 @@ struct MCOImageV3CodecTests {
     }
   }
 
-  @Test func truncationAndTrailingBytesDoNotRenderPartialImages() throws {
+  @Test func `truncation and trailing bytes do not render partial images`() throws {
     for fixture in try fixtures() {
       let body = try #require(Data(base64Encoded: fixture.bodyBase64))
       for count in 0..<body.count {
@@ -69,7 +69,7 @@ struct MCOImageV3CodecTests {
     }
   }
 
-  @Test func distinguishesUnknownAlgorithmsFromDamagedGeometryAndPadding() throws {
+  @Test func `distinguishes unknown algorithms from damaged geometry and padding`() throws {
     #expect(throws: MCOImageCodecError.unsupported) { try MCOImageV3Codec.decodeBody(Data([0, 0, 0, 31])) }
     var noncanonical = MCOImageBitWriter()
     noncanonical.write(0, 8)
@@ -85,7 +85,7 @@ struct MCOImageV3CodecTests {
     #expect(throws: MCOImageCodecError.damaged) { try MCOImageV3Codec.decodeBody(corruptPadding) }
   }
 
-  @Test func rejectsInvalidPixelReferencesAndDimensions() {
+  @Test func `rejects invalid pixel references and dimensions`() {
     for image in [
       MCOImageRaster(width: 0, height: 1, profile: 0, pixels: []),
       MCOImageRaster(width: 257, height: 1, profile: 0, pixels: Array(repeating: 0, count: 257)),
@@ -98,7 +98,7 @@ struct MCOImageV3CodecTests {
     #expect(throws: MCOImageCodecError.damaged) { try MCOImageBase91.decode("A\\") }
   }
 
-  @Test func dynamicProfilesUseGlobal512ReferencesAndExactPaletteColors() throws {
+  @Test func `dynamic profiles use global 512 references and exact palette colors`() throws {
     for profile in 0..<MCOImagePalette.profileCount {
       let references = MCOImagePalette.profileReferences(profile)
       #expect(MCOImagePalette.colors(profile: profile).count == references.count)

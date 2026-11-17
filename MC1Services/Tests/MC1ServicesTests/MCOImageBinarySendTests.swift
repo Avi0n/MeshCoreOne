@@ -39,10 +39,10 @@ struct MCOImageBinarySendTests {
     let original = try MCOImageCodec.appPayload(fromText: fixture)
     #expect(payload[1] == original[1])
     let document = try MCOImageV4Codec.decodeBody(Data(payload.dropFirst()))
-    #expect(document.figures == [.raster(origin: .init(x: 0, y: 0), image:
-      try MCOImageV3Codec.decodeBody(Data(original.dropFirst())))])
+    #expect(try document.figures == [.raster(origin: .init(x: 0, y: 0), image:
+      MCOImageV3Codec.decodeBody(Data(original.dropFirst())))])
     let frame = try PacketBuilder.sendChannelData(channelIndex: channel.index, dataType: call.dataType, payload: call.payload)
-    #expect(frame.prefix(5) == Data([0x3e, channel.index, 0xff, 0x20, 0x01]))
+    #expect(frame.prefix(5) == Data([0x3E, channel.index, 0xFF, 0x20, 0x01]))
     #expect(frame.count == call.payload.count + 5)
   }
 
@@ -141,14 +141,14 @@ struct MCOImageBinarySendTests {
   @Test(arguments: [MeshCoreError.notConnected, .deviceError(code: 3)])
   @MainActor
   func `persisted legacy image replays as identical binary after disconnect`(failure: MeshCoreError) async throws {
-    let store = PersistenceStore(modelContainer: try PersistenceStore.createContainer(inMemory: true))
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
     let radioID = UUID()
     try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "Radio"))
     try await store.saveChannel(ChannelDTO.testChannel(radioID: radioID, index: 0))
     let message = MessageDTO.testChannelMessage(radioID: radioID, text: fixture, status: .pending)
     try await store.saveMessage(message)
     let envelope = ChannelMessageEnvelope(messageID: message.id, channelIndex: 0, isResend: false,
-                                         messageText: message.text, messageTimestamp: message.timestamp, localNodeName: "Radio")
+                                          messageText: message.text, messageTimestamp: message.timestamp, localNodeName: "Radio")
     _ = try await store.insertPendingSendAssigningSequence(PendingSendDTO(envelope: envelope, radioID: radioID))
     let firstSession = MockMeshCoreSession()
     await firstSession.setSendChannelDataError(failure)

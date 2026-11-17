@@ -20,7 +20,9 @@ public enum MCOImagePalette {
     return fixed[profile][reference]
   }
 
-  public static func white(profile: Int) -> Int { 0 }
+  public static func white(profile: Int) -> Int {
+    0
+  }
 
   public static func black(profile: Int) -> Int {
     guard (0..<profileCount).contains(profile) else { return 0 }
@@ -43,5 +45,7 @@ public enum MCOImagePalette {
     return profile >= firstDynamicProfile ? dynamicReferences[profile - firstDynamicProfile] : Array(fixed[profile].indices)
   }
 
-  static func bits(_ profile: Int) -> Int { MCOImageBitReader.width(count(profile: profile) - 1) }
+  static func bits(_ profile: Int) -> Int {
+    MCOImageBitReader.width(count(profile: profile) - 1)
+  }
 }

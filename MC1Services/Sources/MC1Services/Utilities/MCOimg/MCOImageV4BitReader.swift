@@ -6,12 +6,16 @@ struct MCOImageV4BitReader {
   private static let bitsPerByte = 8
   private static let varUIntBytes = 5
   private static let varUIntPayloadBits = 7
-  private static let varUIntPayloadMask = 0x7f
+  private static let varUIntPayloadMask = 0x7F
   private static let varUIntContinuation = 0x80
 
-  init(_ data: Data) { bytes = Array(data) }
+  init(_ data: Data) {
+    bytes = Array(data)
+  }
 
-  var remaining: Int { bytes.count * Self.bitsPerByte - offset }
+  var remaining: Int {
+    bytes.count * Self.bitsPerByte - offset
+  }
 
   mutating func read(_ bits: Int) throws -> Int {
     guard bits >= 0, bits <= Int.bitWidth - 1, bits <= remaining else { throw MCOImageCodecError.damaged }
@@ -23,7 +27,9 @@ struct MCOImageV4BitReader {
     return value
   }
 
-  mutating func bit() throws -> Bool { try read(1) != 0 }
+  mutating func bit() throws -> Bool {
+    try read(1) != 0
+  }
 
   mutating func signed(_ bits: Int) throws -> Int {
     let value = try read(bits)
@@ -55,7 +61,7 @@ struct MCOImageV4BitReader {
 
   mutating func data(_ count: Int) throws -> Data {
     guard count >= 0, count <= remaining / Self.bitsPerByte else { throw MCOImageCodecError.damaged }
-    return Data(try (0..<count).map { _ in UInt8(try read(Self.bitsPerByte)) })
+    return try Data((0..<count).map { _ in try UInt8(read(Self.bitsPerByte)) })
   }
 
   mutating func finishByte() throws {

@@ -1,9 +1,9 @@
 import Foundation
-import Testing
 @testable import MC1Services
+import Testing
 
 struct MCOImageV4CodecTests {
-  @Test func decodesEmptyVectorDocument() throws {
+  @Test func `decodes empty vector document`() throws {
     // Nonce, vector/mono header, canonical 1×1 dimensions, default background, END.
     let document = try MCOImageV4Codec.decodeBody(Data([0, 0, 0, 0]))
     #expect(document.width == 1)
@@ -12,19 +12,19 @@ struct MCOImageV4CodecTests {
     #expect(document.figures.isEmpty)
   }
 
-  @Test func rejectsReservedModeAsUnsupported() {
+  @Test func `rejects reserved mode as unsupported`() {
     #expect(throws: MCOImageCodecError.unsupported) {
       try MCOImageV4Codec.decodeBody(Data([0, 2, 0]))
     }
   }
 
-  @Test func rejectsTruncatedDocumentAsDamaged() {
+  @Test func `rejects truncated document as damaged`() {
     #expect(throws: MCOImageCodecError.damaged) {
       try MCOImageV4Codec.decodeBody(Data([0]))
     }
   }
 
-  @Test func boundsZeroDeltaRepeatExpansionBeforeAllocating() throws {
+  @Test func `bounds zero delta repeat expansion before allocating`() throws {
     let supported = try MCOImageV4Codec.decodeBody(repeatedDots(count: 4095))
     #expect(supported.figures.count == 4096)
     let amplified = repeatedDots(count: 1 << 30)
@@ -34,14 +34,14 @@ struct MCOImageV4CodecTests {
     }
   }
 
-  @Test func boundsNestedGroupDepth() throws {
+  @Test func `bounds nested group depth`() throws {
     #expect(try MCOImageV4Codec.decodeBody(nestedGroups(depth: 64)).figures.count == 1)
     #expect(throws: MCOImageCodecError.unsupported) {
       try MCOImageV4Codec.decodeBody(nestedGroups(depth: 65))
     }
   }
 
-  @Test func taggedDartCommandFixtures() throws {
+  @Test func `tagged dart command fixtures`() throws {
     let url = try #require(Bundle.module.url(forResource: "MCOimgV4Fixtures", withExtension: "json", subdirectory: "Fixtures"))
     let root = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
     let fixtures = try #require(root["fixtures"] as? [[String: Any]])
@@ -54,7 +54,7 @@ struct MCOImageV4CodecTests {
           try MCOImageV4Codec.decodeBody(body)
         }
       } else {
-        let actual = dump(try MCOImageV4Codec.decodeBody(body))
+        let actual = try dump(MCOImageV4Codec.decodeBody(body))
         let expected = try #require(fixture["document"] as? [String: Any])
         #expect(try canonicalJSON(actual) == canonicalJSON(expected), "Body: \(encoded)")
       }
@@ -92,11 +92,13 @@ struct MCOImageV4CodecTests {
   }
 
   private struct FixtureBits {
-    // Vector/mono, canonical 1×1 dimensions, implicit white background.
+    /// Vector/mono, canonical 1×1 dimensions, implicit white background.
     private var bits = [Int](repeating: 0, count: 15)
 
     mutating func put(_ value: Int, _ count: Int) {
-      for shift in 0..<count { bits.append((value >> shift) & 1) }
+      for shift in 0..<count {
+        bits.append((value >> shift) & 1)
+      }
     }
 
     mutating func compact(_ value: Int) {
@@ -106,19 +108,23 @@ struct MCOImageV4CodecTests {
         put(7, 3)
         var remaining = value
         repeat {
-          let low = remaining & 0x7f
+          let low = remaining & 0x7F
           remaining >>= 7
           put(low | (remaining == 0 ? 0 : 0x80), 8)
         } while remaining != 0
       }
     }
 
-    mutating func dot() { put(4, 4); put(1, 2); put(1, 2) }
+    mutating func dot() {
+      put(4, 4); put(1, 2); put(1, 2)
+    }
 
     mutating func body() -> Data {
       put(0, 4)
       var bytes = [UInt8](repeating: 0, count: (bits.count + 7) / 8)
-      for (index, bit) in bits.enumerated() where bit != 0 { bytes[index / 8] |= 1 << (index % 8) }
+      for (index, bit) in bits.enumerated() where bit != 0 {
+        bytes[index / 8] |= 1 << (index % 8)
+      }
       return Data([0] + bytes)
     }
   }
@@ -136,7 +142,9 @@ struct MCOImageV4CodecTests {
      "strokeWidth": style.strokeWidth]
   }
 
-  private func point(_ point: MCOImageV4Point) -> [Int] { [point.x, point.y] }
+  private func point(_ point: MCOImageV4Point) -> [Int] {
+    [point.x, point.y]
+  }
 
   private func dump(_ figure: MCOImageFigure, canvasWidth: Int) -> [String: Any] {
     var result: [String: Any] = ["style": dump(figure.style)]

@@ -10,7 +10,9 @@ struct MCOImageBitReader {
     position = byteOffset * 8
   }
 
-  static func width(_ value: Int) -> Int { value <= 0 ? 0 : Int.bitWidth - value.leadingZeroBitCount }
+  static func width(_ value: Int) -> Int {
+    value <= 0 ? 0 : Int.bitWidth - value.leadingZeroBitCount
+  }
 
   mutating func read(_ bits: Int) throws -> Int {
     guard (0...32).contains(bits), position >= 0, position + bits <= bytes.count * 8 else { throw MCOImageCodecError.damaged }
@@ -33,16 +35,18 @@ struct MCOImageBitReader {
   }
 
   mutating func prefix(limit: Int) throws -> Int {
-    for length in 0..<limit { if try read(1) == 0 { return length } }
+    for length in 0..<limit {
+      if try read(1) == 0 { return length }
+    }
     return limit
   }
 
   mutating func compact() throws -> Int {
     switch try prefix(limit: 3) {
-    case 0: return try read(2)
-    case 1: return try read(4) + 4
-    case 2: return try read(8) + 20
-    default: return try varUint()
+    case 0: try read(2)
+    case 1: try read(4) + 4
+    case 2: try read(8) + 20
+    default: try varUint()
     }
   }
 

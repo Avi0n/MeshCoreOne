@@ -252,7 +252,7 @@ extension SyncCoordinator {
       return true
     }
 
-    if (try? await dependencies.dataStore.channelImageMatchesReaction(
+    if await (try? dependencies.dataStore.channelImageMatchesReaction(
       radioID: radioID,
       channelIndex: channelIndex,
       parsedReaction: parsed,

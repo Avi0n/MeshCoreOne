@@ -1,18 +1,18 @@
 import Foundation
+@testable import MC1
 import MC1Services
 import Testing
-@testable import MC1
 
 @Suite("MCOimg message content")
 struct MCOImageMessageTests {
-  @Test func encodedPixelsBakeWithoutTextPreviewsOrTranslation() throws {
+  @Test func `encoded pixels bake without text previews or translation`() throws {
     let image = MCOImageRaster(width: 2, height: 2, profile: 0, pixels: [0, 1, 1, 0])
     let body = try MCOImageV3Codec.encode(image, nonce: 42)
     let text = try MCOImageCodec.text(fromAppPayload: Data([MCOImageCodec.v3Subtype]) + body)
     let message = MessageFragmentBuilderFixtures.makeMessage(text: text)
     let inputs = MessageFragmentBuilderFixtures.makeMinimalInputs(messageID: message.id)
     let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs,
-                                             envInputs: MessageFragmentBuilderFixtures.makeEnvInputs())
+                                               envInputs: MessageFragmentBuilderFixtures.makeEnvInputs())
     #expect(item.content == [.mcoImage(.raster(image))])
     #expect(!item.shouldRequestPreviewFetch)
     #expect(item.translation == nil)
@@ -23,7 +23,7 @@ struct MCOImageMessageTests {
     #expect(layout.siblings.isEmpty)
   }
 
-  @Test func terminalPlaceholdersDifferAndParticipateInItemIdentity() {
+  @Test func `terminal placeholders differ and participate in item identity`() {
     let id = UUID()
     let unsupported = MessageFragmentBuilderFixtures.makeMessage(id: id, text: "im5:anything")
     let damaged = MessageFragmentBuilderFixtures.makeMessage(id: id, text: "im3:")

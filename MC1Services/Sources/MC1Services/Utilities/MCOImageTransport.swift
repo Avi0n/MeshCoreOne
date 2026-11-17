@@ -6,7 +6,7 @@ public enum MCOImageTransport {
   public static let applicationDataType: UInt16 = 0x0120
   public static let imageSubtype: UInt8 = 0x01
   private static let subtypeShift: UInt8 = 4
-  private static let varintPayloadMask: UInt8 = 0x7f
+  private static let varintPayloadMask: UInt8 = 0x7F
   private static let varintContinuation: UInt8 = 0x80
   private static let varintPayloadBits = 7
   private static let maxVarintBytes = 5

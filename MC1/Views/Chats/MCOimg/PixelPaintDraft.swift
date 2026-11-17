@@ -42,7 +42,9 @@ final class PixelPaintDraft {
     previousCell = (x, y)
   }
 
-  func endStroke() { previousCell = nil }
+  func endStroke() {
+    previousCell = nil
+  }
 
   func clear() {
     guard !isSubmitting else { return }

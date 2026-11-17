@@ -6,5 +6,7 @@ struct MCOTextModel: Sendable {
   let top4: [Int]
   let uppercase: [UInt32: UInt32]
 
-  var symbols: [UInt32] { primary + extensionSymbols }
+  var symbols: [UInt32] {
+    primary + extensionSymbols
+  }
 }

@@ -11,7 +11,7 @@ extension MCOImageV4Parser {
     history: [MCOImageFigure], nested: Bool,
     style: inout MCOImageV4Style, alignment: inout Int, fontSize: inout Int
   ) throws -> [MCOImageFigure] {
-    let opcode = Extended(rawValue: try reader.read(Field.opcodeBits))!
+    let opcode = try Extended(rawValue: reader.read(Field.opcodeBits))!
     switch opcode {
     case .style, .repeatBack, .repeatColors, .dots, .group: break
     default: try consume(1)
@@ -69,17 +69,17 @@ extension MCOImageV4Parser {
       return [previous.translated(x: delta.x, y: delta.y, style: style)]
     case .repeatColors: return try repeatedColors(history: history, style: &style)
     case .dots: return try dots(style: style)
-    case .pathOrthogonal: return [try orthogonalPath(style: style)]
-    case .pathBounds: return [try boundsPath(delta: false, style: style)]
-    case .pathBoundsDelta: return [try boundsPath(delta: true, style: style)]
+    case .pathOrthogonal: return try [orthogonalPath(style: style)]
+    case .pathBounds: return try [boundsPath(delta: false, style: style)]
+    case .pathBoundsDelta: return try [boundsPath(delta: true, style: style)]
     case .escape:
       let textCommand = 0
       guard try reader.read(Field.opcodeBits) == textCommand else { throw MCOImageCodecError.unsupported }
-      return [try text(style: style, alignment: &alignment, fontSize: &fontSize)]
+      return try [text(style: style, alignment: &alignment, fontSize: &fontSize)]
     case .raster:
       let mixedMode = 1
       guard mode == mixedMode, !nested else { throw MCOImageCodecError.damaged }
-      return [try raster()]
+      return try [raster()]
     case .group:
       let count = try reader.compact() + 1
       guard groupDepth < Field.maximumGroupDepth else { throw MCOImageCodecError.unsupported }

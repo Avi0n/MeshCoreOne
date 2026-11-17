@@ -23,7 +23,9 @@ extension MCOImageV4Codec {
     let bytes = Array(body)
     writer.write(Int(bytes[1]) >> headerBits, headerBits)
     writer.compact(bytes.count - 2)
-    for byte in bytes.dropFirst(2) { writer.write(Int(byte), field.byteBits) }
+    for byte in bytes.dropFirst(2) {
+      writer.write(Int(byte), field.byteBits)
+    }
     writer.write(MCOImageV4Parser.Opcode.end.rawValue, field.opcodeBits)
     return Data([bytes[0]]) + writer.data
   }
@@ -31,7 +33,7 @@ extension MCOImageV4Codec {
   private static func writeRasterDimensions(_ width: Int, _ height: Int, writer: inout MCOImageBitWriter) {
     let field = MCOImageV4Parser.Field.self
     let squareMode = 0, smallMode = 1, mediumMode = 2, extendedMode = 3
-    if width == height && width <= field.mediumDimensionMaximum {
+    if width == height, width <= field.mediumDimensionMaximum {
       writer.write(squareMode, field.modeBits)
       writer.write(width - 1, field.mediumDimensionBits)
     } else if max(width, height) <= field.smallDimensionMaximum {

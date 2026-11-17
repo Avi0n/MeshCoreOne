@@ -44,7 +44,7 @@ struct MCOImageTransportTests {
   @Test
   func `complete binary envelope accepts the exact packet boundary and rejects one byte over`() throws {
     let name = String(repeating: "a", count: 155)
-    let exact = Data([0x9b, 0x01]) + Data(name.utf8) + appPayload
+    let exact = Data([0x9B, 0x01]) + Data(name.utf8) + appPayload
     #expect(exact.count == MCOImageWireBudget.maximumChannelDataBytes)
     let decoded = try #require(MCOImageTransport.decode(datagram(payload: exact)))
     #expect(decoded.senderName == name)
@@ -60,7 +60,7 @@ struct MCOImageTransportTests {
   @Test(arguments: [
     Data(), Data([0x80]), Data([0x80, 0x00, 0x13]),
     Data([0x81, 0x80, 0x80, 0x80, 0x80, 0, 0x13]),
-    Data([3, 0x61, 0x62]), Data([1, 0xff, 0x13]), Data([0])
+    Data([3, 0x61, 0x62]), Data([1, 0xFF, 0x13]), Data([0])
   ])
   func `damaged sender envelopes do not become text messages`(payload: Data) {
     #expect(MCOImageTransport.decode(datagram(payload: payload)) == nil)
@@ -72,14 +72,14 @@ struct MCOImageTransportTests {
     let time = Date(timeIntervalSince1970: 100)
     var duplicates = MCOImageDatagramDuplicates()
     let packet = datagram()
-    #expect({ duplicates.admit(packet, radioID: radioID, receivedAt: time) }())
-    #expect({ !duplicates.admit(packet, radioID: radioID, receivedAt: time.addingTimeInterval(1)) }())
-    #expect({ duplicates.admit(packet, radioID: UUID(), receivedAt: time.addingTimeInterval(2)) }())
-    #expect({ duplicates.admit(datagram(channelIndex: 3), radioID: radioID, receivedAt: time.addingTimeInterval(3)) }())
+    #expect(duplicates.admit(packet, radioID: radioID, receivedAt: time))
+    #expect(!duplicates.admit(packet, radioID: radioID, receivedAt: time.addingTimeInterval(1)))
+    #expect(duplicates.admit(packet, radioID: UUID(), receivedAt: time.addingTimeInterval(2)))
+    #expect(duplicates.admit(datagram(channelIndex: 3), radioID: radioID, receivedAt: time.addingTimeInterval(3)))
     var newNonce = packet.data
     newNonce[newNonce.startIndex + 1 + "Peer:名".utf8.count + 1] ^= 1
-    #expect({ duplicates.admit(datagram(payload: newNonce), radioID: radioID, receivedAt: time.addingTimeInterval(4)) }())
-    #expect({ duplicates.admit(packet, radioID: radioID, receivedAt: time.addingTimeInterval(MCOImageDatagramDuplicates.lifetime)) }())
+    #expect(duplicates.admit(datagram(payload: newNonce), radioID: radioID, receivedAt: time.addingTimeInterval(4)))
+    #expect(duplicates.admit(packet, radioID: radioID, receivedAt: time.addingTimeInterval(MCOImageDatagramDuplicates.lifetime)))
   }
 
   @Test
@@ -89,9 +89,9 @@ struct MCOImageTransportTests {
     var duplicates = MCOImageDatagramDuplicates()
     for nonce in 0...MCOImageDatagramDuplicates.capacity {
       let packet = datagram(payload: Data([0, 0x13, UInt8(nonce)]))
-      #expect({ duplicates.admit(packet, radioID: radioID, receivedAt: time) }())
+      #expect(duplicates.admit(packet, radioID: radioID, receivedAt: time))
     }
-    #expect({ duplicates.admit(datagram(payload: Data([0, 0x13, 0])), radioID: radioID, receivedAt: time) }())
+    #expect(duplicates.admit(datagram(payload: Data([0, 0x13, 0])), radioID: radioID, receivedAt: time))
   }
 
   private actor Receipt {
@@ -115,7 +115,7 @@ struct MCOImageTransportTests {
     await polling.startMessageEventMonitoring(radioID: radioID)
     let packet = datagram()
     await session.setQueuedMessageResults([
-      .channelDatagram(datagram(dataType: 0xffff)), .channelDatagram(packet),
+      .channelDatagram(datagram(dataType: 0xFFFF)), .channelDatagram(packet),
       .channelDatagram(packet), .noMoreMessages
     ])
     #expect(try await polling.pollAllMessages() == 1)

@@ -6,7 +6,9 @@ extension MCOImageV3Codec {
           (0..<MCOImagePalette.profileCount).contains(image.profile), image.pixels.count == image.width * image.height else {
       throw MCOImageCodecError.damaged
     }
-    for pixel in image.pixels { _ = try MCOImagePalette.stored(fromRef: pixel, profile: image.profile) }
+    for pixel in image.pixels {
+      _ = try MCOImagePalette.stored(fromRef: pixel, profile: image.profile)
+    }
     if let transparent = image.transparentColor { _ = try MCOImagePalette.stored(fromRef: transparent, profile: image.profile) }
     let palette = Array(Set(image.pixels)).sorted()
     var candidates: [Data] = []
@@ -36,7 +38,9 @@ extension MCOImageV3Codec {
       let bounds = Decoder.Bounds(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1)
       if bounds.width * bounds.height == image.pixels.count { continue }
       var cropped: [Int] = []
-      for y in minY...maxY { cropped.append(contentsOf: image.pixels[(y * image.width + minX)...(y * image.width + maxX)]) }
+      for y in minY...maxY {
+        cropped.append(contentsOf: image.pixels[(y * image.width + minX)...(y * image.width + maxX)])
+      }
       try addBlockCandidates(image, nonce: nonce, pixels: cropped, bounds: bounds, background: background, candidates: &candidates)
     }
     guard let best = candidates.min(by: {
@@ -81,9 +85,9 @@ extension MCOImageV3Codec {
   }
 
   private static func writeDimensions(_ width: Int, _ height: Int, writer: inout MCOImageBitWriter) {
-    if width == height && width <= mediumDimensionLimit { writer.write(0, dimensionModeBits); writer.write(width - 1, squareDimensionBits) } else if width <= smallDimensionLimit && height <= smallDimensionLimit {
+    if width == height, width <= mediumDimensionLimit { writer.write(0, dimensionModeBits); writer.write(width - 1, squareDimensionBits) } else if width <= smallDimensionLimit, height <= smallDimensionLimit {
       writer.write(1, dimensionModeBits); writer.write(width - 1, smallDimensionBits); writer.write(height - 1, smallDimensionBits)
-    } else if width <= mediumDimensionLimit && height <= mediumDimensionLimit {
+    } else if width <= mediumDimensionLimit, height <= mediumDimensionLimit {
       writer.write(2, dimensionModeBits); writer.write(width - 1, squareDimensionBits); writer.write(height - 1, squareDimensionBits)
     } else {
       writer.write(3, dimensionModeBits); writer.write(width == height ? 0 : 1, 1); writer.write(width - 1, extendedDimensionBits)
@@ -92,7 +96,7 @@ extension MCOImageV3Codec {
   }
 
   private static func writeColor(_ color: Int, profile: Int, writer: inout MCOImageBitWriter) throws {
-    writer.write(try MCOImagePalette.stored(fromRef: color, profile: profile), MCOImagePalette.bits(profile))
+    try writer.write(MCOImagePalette.stored(fromRef: color, profile: profile), MCOImagePalette.bits(profile))
   }
 
   private static func writePalette(_ palette: [Int], profile: Int, writer: inout MCOImageBitWriter) throws {
@@ -103,12 +107,16 @@ extension MCOImageV3Codec {
     } else if palette.count <= 384 {
       writer.write(3, 3); writer.write(palette.count - 129, 8)
     } else { writer.write(7, 4); writer.write(palette.count - 385, 7) }
-    for color in palette { try writeColor(color, profile: profile, writer: &writer) }
+    for color in palette {
+      try writeColor(color, profile: profile, writer: &writer)
+    }
   }
 
   private static func writeBlock(_ pixels: [Int], profile: Int, algorithm: Algorithm, rowLength: Int, writer: inout MCOImageBitWriter) throws {
     if algorithm == .rawGlobal {
-      for color in pixels { try writeColor(color, profile: profile, writer: &writer) }
+      for color in pixels {
+        try writeColor(color, profile: profile, writer: &writer)
+      }
       return
     }
     let palette = Array(Set(pixels)).sorted()
@@ -120,7 +128,9 @@ extension MCOImageV3Codec {
       var position = 0
       while position < indexes.count {
         var end = position + 1
-        while end < indexes.count && indexes[end] == indexes[position] { end += 1 }
+        while end < indexes.count, indexes[end] == indexes[position] {
+          end += 1
+        }
         writer.write(indexes[position], bits)
         writer.bounded(end - position - 1, indexes.count - position - 1)
         position = end
@@ -130,9 +140,13 @@ extension MCOImageV3Codec {
         let start = row * rowLength
         let same = row > 0 && indexes[start..<(start + rowLength)].elementsEqual(indexes[(start - rowLength)..<start])
         if row > 0 { writer.write(same ? 1 : 0, 1) }
-        if !same { for index in indexes[start..<(start + rowLength)] { writer.write(index, bits) } }
+        if !same { for index in indexes[start..<(start + rowLength)] {
+          writer.write(index, bits)
+        } }
       }
-    } else { for index in indexes { writer.write(index, bits) } }
+    } else { for index in indexes {
+      writer.write(index, bits)
+    } }
   }
 
   private static func writeSparse(_ pixels: [Int], background: Int, profile: Int, writer: inout MCOImageBitWriter) throws {
@@ -144,7 +158,9 @@ extension MCOImageV3Codec {
     while position < pixels.count {
       if pixels[position] == background { position += 1; continue }
       var end = position + 1
-      while end < pixels.count && pixels[end] == pixels[position] { end += 1 }
+      while end < pixels.count, pixels[end] == pixels[position] {
+        end += 1
+      }
       runs.append((position, end - position, pixels[position]))
       position = end
     }

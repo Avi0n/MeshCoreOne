@@ -12,7 +12,9 @@ struct MCOTextBitReader {
     limit = bitLength
   }
 
-  var remaining: Int { limit - offset }
+  var remaining: Int {
+    limit - offset
+  }
 
   mutating func read(_ count: Int) throws -> Int {
     guard count >= 0, count < Int.bitWidth, count <= remaining else { throw MCOImageCodecError.damaged }
@@ -24,7 +26,9 @@ struct MCOTextBitReader {
     return value
   }
 
-  mutating func bit() throws -> Bool { try read(1) != 0 }
+  mutating func bit() throws -> Bool {
+    try read(1) != 0
+  }
 
   mutating func headerField() throws -> Int {
     let shortBits = 3

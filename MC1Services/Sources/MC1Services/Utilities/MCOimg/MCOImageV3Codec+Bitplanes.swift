@@ -3,7 +3,9 @@ extension MCOImageV3Codec.Decoder {
     var pixels = Array(repeating: 0, count: count)
     for bit in 0..<MCOImageBitReader.width(palette.count - 1) {
       if try reader.read(1) == 0 {
-        for index in 0..<count { pixels[index] |= try reader.read(1) << bit }
+        for index in 0..<count {
+          pixels[index] |= try reader.read(1) << bit
+        }
       } else if !adaptive {
         try bitplaneRuns(&pixels, bit: bit, short: false)
       } else {
@@ -13,7 +15,9 @@ extension MCOImageV3Codec.Decoder {
           continue
         }
         let mode = try reader.read(2)
-        if mode == 1 || mode == 3 { for index in 0..<count { pixels[index] |= 1 << bit } }
+        if mode == 1 || mode == 3 { for index in 0..<count {
+          pixels[index] |= 1 << bit
+        } }
         if mode == 2 || mode == 3 { try sparseBitplane(&pixels, bit: bit, value: mode == 2) }
       }
     }
@@ -26,7 +30,9 @@ extension MCOImageV3Codec.Decoder {
     while position < pixels.count {
       let remaining = pixels.count - position
       let length = try short ? shortRun(remaining: remaining) : reader.range(remaining - 1) + 1
-      if value != 0 { for offset in 0..<length { pixels[position + offset] |= 1 << bit } }
+      if value != 0 { for offset in 0..<length {
+        pixels[position + offset] |= 1 << bit
+      } }
       position += length
       value ^= 1
     }

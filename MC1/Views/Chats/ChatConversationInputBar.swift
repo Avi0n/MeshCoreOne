@@ -17,14 +17,14 @@ struct ChatConversationInputBar: View {
 
   var body: some View {
     inputBar
-    .fullScreenCover(isPresented: $isShowingPainter) {
-      PixelPaintEditor(draft: drawing, onSend: sendDrawing)
-    }
-    .onChange(of: conversationType.coordinatorID) {
-      drawing.remove()
-      isShowingPainter = false
-    }
-    .onDisappear { drawing.remove() }
+      .fullScreenCover(isPresented: $isShowingPainter) {
+        PixelPaintEditor(draft: drawing, onSend: sendDrawing)
+      }
+      .onChange(of: conversationType.coordinatorID) {
+        drawing.remove()
+        isShowingPainter = false
+      }
+      .onDisappear { drawing.remove() }
   }
 
   @ViewBuilder
@@ -66,7 +66,7 @@ struct ChatConversationInputBar: View {
   }
 
   private func sendDrawing() {
-    let isChannel: Bool = if case .channel = conversationType { true } else { false }
+    let isChannel = if case .channel = conversationType { true } else { false }
     let radioID = conversationType.radioID
     let ready = {
       appState.connectionState == .ready && appState.connectedDevice?.radioID == radioID

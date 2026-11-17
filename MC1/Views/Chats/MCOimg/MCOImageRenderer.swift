@@ -37,9 +37,9 @@ struct MCOImageRenderer: View {
   static func color(_ reference: Int, profile: Int) -> Color {
     let rgb = MCOImagePalette.color(reference, profile: profile)
     let maximumComponent = 255.0
-    return Color(.sRGB, red: Double((rgb >> 16) & 0xff) / maximumComponent,
-                 green: Double((rgb >> 8) & 0xff) / maximumComponent,
-                 blue: Double(rgb & 0xff) / maximumComponent, opacity: 1)
+    return Color(.sRGB, red: Double((rgb >> 16) & 0xFF) / maximumComponent,
+                 green: Double((rgb >> 8) & 0xFF) / maximumComponent,
+                 blue: Double(rgb & 0xFF) / maximumComponent, opacity: 1)
   }
 
   static func raster(_ image: MCOImageRaster, origin: CGPoint, context: inout GraphicsContext) {
@@ -60,7 +60,7 @@ struct MCOImageRenderer: View {
       let center = MCOImageGeometry.point(point)
       let radius = CGFloat(style.strokeWidth) / 2
       context.fill(Path(ellipseIn: CGRect(x: center.x - radius, y: center.y - radius,
-                                         width: radius * 2, height: radius * 2)), with: .color(color(stroke, profile: profile)))
+                                          width: radius * 2, height: radius * 2)), with: .color(color(stroke, profile: profile)))
     case let .line(start, end, style):
       var path = Path()
       path.move(to: MCOImageGeometry.point(start))
@@ -77,7 +77,9 @@ struct MCOImageRenderer: View {
       guard let first = points.first else { return }
       var path = Path()
       path.move(to: MCOImageGeometry.point(first))
-      for point in points.dropFirst() { path.addLine(to: MCOImageGeometry.point(point)) }
+      for point in points.dropFirst() {
+        path.addLine(to: MCOImageGeometry.point(point))
+      }
       paint(path, closed: closed, style: style, profile: profile, context: &context)
     case let .wave(start, end, depth, closed, style):
       guard let path = MCOImageGeometry.wave(start, end, depth: depth) else { return }
@@ -86,7 +88,9 @@ struct MCOImageRenderer: View {
       drawText(text, origin: origin, width: width, alignment: alignment, fontSize: fontSize,
                style: style, profile: profile, canvasWidth: canvasWidth, context: &context)
     case let .group(figures, _):
-      for child in figures { self.figure(child, profile: profile, canvasWidth: canvasWidth, context: &context) }
+      for child in figures {
+        self.figure(child, profile: profile, canvasWidth: canvasWidth, context: &context)
+      }
     case let .raster(origin, image):
       raster(image, origin: CGPoint(x: origin.x, y: origin.y), context: &context)
     }

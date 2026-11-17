@@ -5,12 +5,14 @@ extension MCOImageV3Codec.Decoder {
     try MCOImagePalette.ref(fromStored: reader.read(MCOImagePalette.bits(profile)), profile: profile)
   }
 
-  mutating func background() throws -> Int { try implicitWhite ? MCOImagePalette.white(profile: profile) : color() }
+  mutating func background() throws -> Int {
+    try implicitWhite ? MCOImagePalette.white(profile: profile) : color()
+  }
 
   mutating func pixels(container: MCOImageV3Codec.Container, algorithm: MCOImageV3Codec.Algorithm, scan: Int, context: Int) throws -> [Int] {
     switch container {
     case .block, .compactBlock:
-      return MCOImageV3Codec.fromScan(try block(width: width, height: height, algorithm: algorithm, scan: scan), width: width, height: height, scan: scan)
+      return try MCOImageV3Codec.fromScan(block(width: width, height: height, algorithm: algorithm, scan: scan), width: width, height: height, scan: scan)
     case .boundsBlock, .compactBoundsBlock:
       let background = try background()
       let bounds = try geometry(compact: container == .compactBoundsBlock)
@@ -29,7 +31,7 @@ extension MCOImageV3Codec.Decoder {
       let lowBits = min(bits, MCOImageV3Codec.containerShift)
       guard context < 1 << lowBits else { throw MCOImageCodecError.damaged }
       let ref = try context | reader.read(bits - lowBits) << lowBits
-      return Array(repeating: try MCOImagePalette.ref(fromStored: ref, profile: profile), count: width * height)
+      return try Array(repeating: MCOImagePalette.ref(fromStored: ref, profile: profile), count: width * height)
     case .solidRects:
       let background = try background()
       let palette = try localPalette()

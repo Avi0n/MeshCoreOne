@@ -16,18 +16,16 @@ struct ChannelSendSerializationTests {
     let (session, transport) = try await startSession()
     let first = Task {
       try await send(session: session, binary: binary,
-        channel: Self.firstChannel, text: "first", timestamp: Self.timestamp,
-        floodScope: .scope(Self.firstScope)
-      )
+                     channel: Self.firstChannel, text: "first", timestamp: Self.timestamp,
+                     floodScope: .scope(Self.firstScope))
     }
     try await waitForFrameCount(2, transport: transport)
     #expect(await transport.sentData[1] == PacketBuilder.setFloodScope(Self.firstScope.scopeKey()))
 
     let second = Task {
       try await send(session: session, binary: binary,
-        channel: Self.secondChannel, text: "second", timestamp: Self.timestamp,
-        floodScope: .scope(Self.secondScope)
-      )
+                     channel: Self.secondChannel, text: "second", timestamp: Self.timestamp,
+                     floodScope: .scope(Self.secondScope))
     }
     let selection = Task { try await session.setFloodScope(Self.selectedScope) }
     try await waitForSerializerWaiters(2, session: session)
@@ -35,9 +33,8 @@ struct ChannelSendSerializationTests {
 
     await transport.simulateOK()
     try await waitForFrameCount(3, transport: transport)
-    #expect(await transport.sentData[2] == (try command(binary: binary,
-      channel: Self.firstChannel, text: "first", timestamp: Self.timestamp
-    )))
+    #expect(try await transport.sentData[2] == command(binary: binary,
+                                                       channel: Self.firstChannel, text: "first", timestamp: Self.timestamp))
     await transport.simulateOK()
     try await waitForFrameCount(4, transport: transport)
     #expect(await transport.sentData[3] == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
@@ -56,9 +53,8 @@ struct ChannelSendSerializationTests {
     let frames = await Array(transport.sentData.dropFirst())
     let secondScopeFrame = PacketBuilder.setFloodScope(Self.secondScope.scopeKey())
     let secondScopeIndex = try #require(frames.firstIndex(of: secondScopeFrame))
-    #expect(frames[secondScopeIndex + 1] == (try command(binary: binary,
-      channel: Self.secondChannel, text: "second", timestamp: Self.timestamp
-    )))
+    #expect(try frames[secondScopeIndex + 1] == command(binary: binary,
+                                                        channel: Self.secondChannel, text: "second", timestamp: Self.timestamp))
     #expect(frames[secondScopeIndex + 2] == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
     let commandCode = binary ? CommandCode.sendChannelData : CommandCode.sendChannelMessage
     #expect(frames.filter { $0.first == commandCode.rawValue }.count == 2)

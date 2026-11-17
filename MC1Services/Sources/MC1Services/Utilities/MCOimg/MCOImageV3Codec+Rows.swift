@@ -18,15 +18,21 @@ extension MCOImageV3Codec.Decoder {
   }
 
   func copyRow(_ pixels: inout [Int], row: Int, rowLength: Int, predictor: Int = 0, virtual: Bool) {
-    for x in 0..<rowLength { pixels[row * rowLength + x] = predicted(pixels, row: row, x: x, rowLength: rowLength, predictor: predictor, virtual: virtual) }
+    for x in 0..<rowLength {
+      pixels[row * rowLength + x] = predicted(pixels, row: row, x: x, rowLength: rowLength, predictor: predictor, virtual: virtual)
+    }
   }
 
   mutating func repeatRows(count: Int, rowLength: Int, bits: Int) throws -> [Int] {
     var pixels = Array(repeating: 0, count: count)
-    for x in 0..<rowLength { pixels[x] = try reader.read(bits) }
+    for x in 0..<rowLength {
+      pixels[x] = try reader.read(bits)
+    }
     for row in 1..<(count / rowLength) {
       if try reader.read(1) != 0 { copyRow(&pixels, row: row, rowLength: rowLength, virtual: false) } else {
-        for x in 0..<rowLength { pixels[row * rowLength + x] = try reader.read(bits) }
+        for x in 0..<rowLength {
+          pixels[row * rowLength + x] = try reader.read(bits)
+        }
       }
     }
     return pixels
@@ -36,14 +42,18 @@ extension MCOImageV3Codec.Decoder {
     let virtual = try reader.read(1) != 0
     let shifted = try reader.read(1) != 0
     var pixels = Array(repeating: 0, count: count)
-    if !virtual { for x in 0..<rowLength { pixels[x] = try rowValue(valueBits, maximum: maximum) } }
+    if !virtual { for x in 0..<rowLength {
+      pixels[x] = try rowValue(valueBits, maximum: maximum)
+    } }
     let rowCount = count / rowLength
     var row = virtual ? 0 : 1
     while row < rowCount {
       let start = row * rowLength
       let op = try reader.read(2)
       if op == 0 {
-        for x in 0..<rowLength { pixels[start + x] = try rowValue(valueBits, maximum: maximum) }
+        for x in 0..<rowLength {
+          pixels[start + x] = try rowValue(valueBits, maximum: maximum)
+        }
       } else if op == 1 {
         copyRow(&pixels, row: row, rowLength: rowLength, virtual: virtual)
       } else if op == 2 {
@@ -62,7 +72,9 @@ extension MCOImageV3Codec.Decoder {
         let extended = try reader.read(2)
         if extended == 3 {
           let repeats = try reader.range(rowCount - row - 2) + 2
-          for index in row..<(row + repeats) { copyRow(&pixels, row: index, rowLength: rowLength, virtual: virtual) }
+          for index in row..<(row + repeats) {
+            copyRow(&pixels, row: index, rowLength: rowLength, virtual: virtual)
+          }
           row += repeats
           continue
         }
@@ -76,9 +88,13 @@ extension MCOImageV3Codec.Decoder {
         let positions = try legacyPositions(rowLength: rowLength)
         if extended == 2 {
           let value = try rowValue(valueBits, maximum: maximum)
-          for x in positions { pixels[start + x] = value }
+          for x in positions {
+            pixels[start + x] = value
+          }
         } else {
-          for x in positions { pixels[start + x] = try rowValue(valueBits, maximum: maximum) }
+          for x in positions {
+            pixels[start + x] = try rowValue(valueBits, maximum: maximum)
+          }
         }
       }
       row += 1
@@ -88,7 +104,9 @@ extension MCOImageV3Codec.Decoder {
 
   mutating func legacyPositions(rowLength: Int) throws -> [Int] {
     var positions: [Int] = []
-    for x in 0..<rowLength { if try reader.read(1) != 0 { positions.append(x) } }
+    for x in 0..<rowLength {
+      if try reader.read(1) != 0 { positions.append(x) }
+    }
     guard !positions.isEmpty else { throw MCOImageCodecError.damaged }
     return positions
   }
@@ -101,7 +119,9 @@ extension MCOImageV3Codec.Decoder {
       let x = try reader.read(positionBits)
       let length = try reader.read(positionBits) + 1
       guard x > previousEnd, x + length <= rowLength else { throw MCOImageCodecError.damaged }
-      for offset in x..<(x + length) { pixels[start + offset] = try rowValue(bits, maximum: maximum) }
+      for offset in x..<(x + length) {
+        pixels[start + offset] = try rowValue(bits, maximum: maximum)
+      }
       previousEnd = x + length - 1
     }
   }

@@ -12,7 +12,7 @@ struct MCOTextDecoder {
     static let rawPaddingBits = 4
     static let predictionCount = 4
     static let space: UInt32 = 0x20
-    static let lineFeed: UInt32 = 0x0a
+    static let lineFeed: UInt32 = 0x0A
   }
 
   private enum Context { case start, punctuation, symbol }
@@ -26,7 +26,9 @@ struct MCOTextDecoder {
   private var capitals = false
   private var output = String.UnicodeScalarView()
 
-  init(_ data: Data, bitLength: Int) throws { reader = try MCOTextBitReader(data, bitLength: bitLength) }
+  init(_ data: Data, bitLength: Int) throws {
+    reader = try MCOTextBitReader(data, bitLength: bitLength)
+  }
 
   mutating func decode() throws -> String {
     guard try reader.headerField() == Field.version else { throw MCOImageCodecError.unsupported }
@@ -52,7 +54,9 @@ struct MCOTextDecoder {
           languageB == nil || MCOTextModels.all.indices.contains(languageB!) else { throw MCOImageCodecError.damaged }
     guard generation == MCOTextModels.generation else { throw MCOImageCodecError.unsupported }
     language = languageA
-    while reader.remaining > 0 { try token() }
+    while reader.remaining > 0 {
+      try token()
+    }
     guard !shift else { throw MCOImageCodecError.damaged }
     return String(output)
   }
@@ -78,7 +82,7 @@ struct MCOTextDecoder {
       try emit(model.primary[index], model: model)
     case 2:
       try requireNoShift()
-      let rune = MCOTextModels.punctuation[try reader.read(Field.symbolBits)]
+      let rune = try MCOTextModels.punctuation[reader.read(Field.symbolBits)]
       try append(rune)
       if rune == Field.lineFeed { reset() } else if rune == Field.space {
         if context != .symbol { reset() }
@@ -102,7 +106,9 @@ struct MCOTextDecoder {
 
   private mutating func tokenPrefix() throws -> Int {
     let maximumPrefixLength = 6
-    for count in 0..<maximumPrefixLength where try !reader.bit() { return count }
+    for count in 0..<maximumPrefixLength where try !reader.bit() {
+      return count
+    }
     return maximumPrefixLength
   }
 
@@ -123,7 +129,7 @@ struct MCOTextDecoder {
     case 1: reset()
     case 2:
       let count = try reader.read(Field.symbolBits) + 1
-      output.append(contentsOf: try utf8(count: count).unicodeScalars)
+      try output.append(contentsOf: utf8(count: count).unicodeScalars)
       reset()
     case 3: capitals.toggle()
     default: throw MCOImageCodecError.damaged
@@ -146,7 +152,7 @@ struct MCOTextDecoder {
 
   private mutating func utf8(count: Int) throws -> String {
     guard count <= reader.remaining / Field.byteBits else { throw MCOImageCodecError.damaged }
-    let bytes = try (0..<count).map { _ in UInt8(try reader.read(Field.byteBits)) }
+    let bytes = try (0..<count).map { _ in try UInt8(reader.read(Field.byteBits)) }
     guard let text = String(bytes: bytes, encoding: .utf8) else { throw MCOImageCodecError.damaged }
     return text
   }
@@ -155,5 +161,7 @@ struct MCOTextDecoder {
     if shift { throw MCOImageCodecError.damaged }
   }
 
-  private mutating func reset() { context = .start; previous = nil }
+  private mutating func reset() {
+    context = .start; previous = nil
+  }
 }

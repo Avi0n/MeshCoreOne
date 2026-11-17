@@ -34,7 +34,7 @@ extension MCOImageV4Parser {
 
   mutating func pointSequence(count: Int) throws -> [MCOImageV4Point] {
     let bits = try Field.shortWidths[reader.read(Field.shortSelectorBits)]
-    var points = [try point()]
+    var points = try [point()]
     for _ in 1..<count {
       let previous = points[points.count - 1]
       let next = try previous.translated(x: reader.signed(bits), y: reader.signed(bits))

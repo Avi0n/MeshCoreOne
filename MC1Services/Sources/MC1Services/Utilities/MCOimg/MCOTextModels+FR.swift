@@ -1,4 +1,4 @@
-// Frozen MCOtxt generation 0 wire tables.
+/// Frozen MCOtxt generation 0 wire tables.
 extension MCOTextModels {
   static let fr = MCOTextModel(
     primary: [

@@ -1,11 +1,11 @@
+@testable import MC1
 import MC1Services
 import Testing
-@testable import MC1
 
 @Suite("Pixel paint drafts")
 @MainActor
 struct PixelPaintDraftTests {
-  @Test func paintingInterpolatesAcrossTheCanvas() {
+  @Test func `painting interpolates across the canvas`() {
     let draft = PixelPaintDraft()
     draft.paint(x: 0, y: 0)
     draft.paint(x: PixelPaintDraft.side - 1, y: PixelPaintDraft.side - 1)
@@ -18,7 +18,7 @@ struct PixelPaintDraftTests {
     #expect(draft.image == painted)
   }
 
-  @Test func blankCanvasIsAdmittedOnceAndClears() async throws {
+  @Test func `blank canvas is admitted once and clears`() async {
     let draft = PixelPaintDraft()
     let probe = AdmissionProbe()
     await probe.submit(draft)?.value
@@ -27,7 +27,7 @@ struct PixelPaintDraftTests {
     #expect(draft.image.pixels.allSatisfy { $0 == PixelPaintDraft.background })
   }
 
-  @Test func paintAndClearDuringSubmitDoNotChangeTheCapturedRaster() async throws {
+  @Test func `paint and clear during submit do not change the captured raster`() async {
     let draft = PixelPaintDraft()
     draft.paint(x: 1, y: 2)
     draft.endStroke()
@@ -51,7 +51,7 @@ struct PixelPaintDraftTests {
     #expect(draft.image.pixels.allSatisfy { $0 == PixelPaintDraft.background })
   }
 
-  @Test func cancelBeforeAdmissionSendsNothingAndLeavesABlankCanvas() async throws {
+  @Test func `cancel before admission sends nothing and leaves A blank canvas`() async {
     let draft = PixelPaintDraft()
     draft.paint(x: 4, y: 5)
     draft.endStroke()
@@ -74,7 +74,7 @@ struct PixelPaintDraftTests {
     #expect(!draft.isSubmitting)
   }
 
-  @Test func rejectedAdmissionKeepsPixelsAndClearsTheConversationSendError() async throws {
+  @Test func `rejected admission keeps pixels and clears the conversation send error`() async {
     let draft = PixelPaintDraft()
     draft.paint(x: 2, y: 3)
     draft.endStroke()
@@ -94,7 +94,7 @@ struct PixelPaintDraftTests {
     #expect(draft.image.pixels.allSatisfy { $0 == PixelPaintDraft.background })
   }
 
-  @Test func disconnectAfterTheTapKeepsPixelsAndDoesNotAdmit() async throws {
+  @Test func `disconnect after the tap keeps pixels and does not admit`() async {
     let draft = PixelPaintDraft()
     draft.paint(x: 6, y: 1)
     draft.endStroke()
@@ -116,7 +116,7 @@ struct PixelPaintDraftTests {
     #expect(!draft.isAdmitting)
   }
 
-  @Test func encodeFailureKeepsPixelsAndSetsTheEncodeTitle() async throws {
+  @Test func `encode failure keeps pixels and sets the encode title`() async {
     let draft = PixelPaintDraft()
     draft.paint(x: 1, y: 1)
     draft.endStroke()
@@ -132,7 +132,7 @@ struct PixelPaintDraftTests {
     #expect(!draft.isSubmitting)
   }
 
-  @Test func oversizedPayloadKeepsPixelsAndSetsTheSizeTitle() async throws {
+  @Test func `oversized payload keeps pixels and sets the size title`() async {
     let draft = PixelPaintDraft()
     draft.paint(x: 2, y: 2)
     draft.endStroke()
@@ -148,7 +148,7 @@ struct PixelPaintDraftTests {
     #expect(!draft.isSubmitting)
   }
 
-  @Test func canvasEdgesDoNotWrapIntoOtherRows() {
+  @Test func `canvas edges do not wrap into other rows`() {
     let draft = PixelPaintDraft()
     draft.paint(x: PixelPaintDraft.side, y: 0)
     draft.paint(x: -1, y: 0)

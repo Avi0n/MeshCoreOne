@@ -94,7 +94,9 @@ extension MCOImageV3Codec.Decoder {
       guard palette.indices.contains(index), palette[index] != background, length > 0, length <= count - position else {
         throw MCOImageCodecError.damaged
       }
-      for offset in 0..<length { result[position + offset] = palette[index] }
+      for offset in 0..<length {
+        result[position + offset] = palette[index]
+      }
       position += length
     }
     return result
@@ -110,7 +112,9 @@ extension MCOImageV3Codec.Decoder {
         guard !result.isEmpty, remaining >= minimumMatch else { throw MCOImageCodecError.damaged }
         let distance = try reader.range(result.count - 1) + 1
         let length = try reader.range(remaining - minimumMatch) + minimumMatch
-        for _ in 0..<length { result.append(result[result.count - distance]) }
+        for _ in 0..<length {
+          result.append(result[result.count - distance])
+        }
       } else {
         let length = try reader.range(count - result.count - 1) + 1
         for _ in 0..<length {
@@ -128,7 +132,9 @@ extension MCOImageV3Codec.Decoder {
       let index = try reader.read(MCOImageBitReader.width(palette.count - 1))
       guard palette.indices.contains(index) else { throw MCOImageCodecError.damaged }
       for row in 0..<bounds.height {
-        for column in 0..<bounds.width { pixels[(bounds.y + row) * stride + bounds.x + column] = palette[index] }
+        for column in 0..<bounds.width {
+          pixels[(bounds.y + row) * stride + bounds.x + column] = palette[index]
+        }
       }
       return
     }

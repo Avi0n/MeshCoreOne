@@ -43,11 +43,15 @@ extension MCOImageV3Codec.Decoder {
     var refs: [Int] = []
     switch descriptor {
     case 0:
-      for ref in 0..<size { if try reader.read(1) != 0 { refs.append(ref) } }
+      for ref in 0..<size {
+        if try reader.read(1) != 0 { refs.append(ref) }
+      }
     case 1:
       let count = try paletteLength()
-      refs.append(try reader.read(MCOImagePalette.bits(profile)))
-      while refs.count < count { refs.append(try refs[refs.count - 1] + reader.compact() + 1) }
+      try refs.append(reader.read(MCOImagePalette.bits(profile)))
+      while refs.count < count {
+        try refs.append(refs[refs.count - 1] + reader.compact() + 1)
+      }
     case 2:
       let runs = try reader.range(size - 1) + 1
       var previousEnd = -1
@@ -72,7 +76,9 @@ extension MCOImageV3Codec.Decoder {
     var refs: [Int] = []
     for bank in 0..<8 where bankMask & (1 << bank) != 0 {
       let before = refs.count
-      for offset in 0..<64 { if try reader.read(1) != 0 { refs.append((bank << 6) | offset) } }
+      for offset in 0..<64 {
+        if try reader.read(1) != 0 { refs.append((bank << 6) | offset) }
+      }
       guard refs.count > before else { throw MCOImageCodecError.damaged }
     }
     return refs
@@ -94,7 +100,7 @@ extension MCOImageV3Codec.Decoder {
       let index = try reader.read(MCOImageBitReader.width(banks.count - 1))
       guard banks.indices.contains(index) else { throw MCOImageCodecError.damaged }
       used.insert(index)
-      refs.append(try (banks[index] << 6) | reader.read(6))
+      try refs.append((banks[index] << 6) | reader.read(6))
     }
     guard used.count == banks.count else { throw MCOImageCodecError.damaged }
     return refs

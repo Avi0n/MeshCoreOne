@@ -19,7 +19,9 @@ public indirect enum MCOImageFigure: Sendable, Hashable {
   }
 
   func translated(x: Int, y: Int, style nextStyle: MCOImageV4Style) -> Self {
-    func moved(_ point: MCOImageV4Point) -> MCOImageV4Point { point.translated(x: x, y: y) }
+    func moved(_ point: MCOImageV4Point) -> MCOImageV4Point {
+      point.translated(x: x, y: y)
+    }
     switch self {
     case let .dot(point, _): return .dot(moved(point), nextStyle)
     case let .line(start, end, _): return .line(moved(start), moved(end), nextStyle)
@@ -42,7 +44,9 @@ public indirect enum MCOImageFigure: Sendable, Hashable {
     guard limit > 0 else { throw MCOImageCodecError.unsupported }
     if case let .group(figures, _) = self {
       var total = 0
-      for figure in figures { total += try figure.expandedCount(upTo: limit - total) }
+      for figure in figures {
+        total += try figure.expandedCount(upTo: limit - total)
+      }
       return total
     }
     return 1
