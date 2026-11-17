@@ -32,6 +32,22 @@ struct MessagePathArrivalCapsules: View {
     }
     .scrollIndicators(.hidden)
     .scrollClipDisabled()
+    // ScrollView does not publish these buttons, so pillControls keeps each arrival a separate control.
+    .accessibilityRepresentation {
+      pillControls
+    }
+  }
+
+  private var pillControls: some View {
+    HStack {
+      ForEach(arrivals) { arrival in
+        Button(accessibilityTitle(for: arrival)) {
+          selectedID = arrival.id
+        }
+        .accessibilityAddTraits(isSelected(arrival) ? .isSelected : [])
+      }
+    }
+    .accessibilityElement(children: .contain)
   }
 
   @ViewBuilder
@@ -53,11 +69,10 @@ struct MessagePathArrivalCapsules: View {
     }
   }
 
-  @ViewBuilder
   private func capsuleButton(for arrival: MessagePathArrival) -> some View {
     let selected = isSelected(arrival)
     let accentFill = usesAccentFill
-    let button = Button {
+    return Button {
       selectedID = arrival.id
     } label: {
       VStack(alignment: .leading, spacing: Self.subtitleSpacing) {
@@ -79,14 +94,15 @@ struct MessagePathArrivalCapsules: View {
     .buttonStyle(.plain)
     .arrivalCapsuleChrome(chrome, selected: selected, id: arrival.id, glassNamespace: glassNamespace)
     .accessibilityAddTraits(selected ? .isSelected : [])
+    .accessibilityLabel(accessibilityTitle(for: arrival))
+  }
 
-    if let seconds = offsetDuration(fromFirstFor: arrival) {
-      button.accessibilityLabel(
-        L10n.Chats.Chats.Path.Arrival.offsetAccessibility(title(for: arrival), seconds)
-      )
-    } else {
-      button
+  private func accessibilityTitle(for arrival: MessagePathArrival) -> String {
+    let visibleTitle = title(for: arrival)
+    guard let seconds = offsetDuration(fromFirstFor: arrival) else {
+      return [visibleTitle, L10n.Chats.Chats.Path.Arrival.first].joined(separator: ", ")
     }
+    return L10n.Chats.Chats.Path.Arrival.offsetAccessibility(visibleTitle, seconds)
   }
 
   /// Opaque accent chips use Theme.outgoingTextColor. Glass pills keep primary/secondary

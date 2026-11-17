@@ -53,7 +53,8 @@ struct MessagePathContent: View {
         hopType: .receiver,
         nodeName: receiverName,
         nodeID: nil,
-        snr: arrival.snr
+        snr: arrival.snr,
+        rssi: arrival.rssi
       )
 
       if !pathHops.isEmpty {

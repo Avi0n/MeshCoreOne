@@ -920,6 +920,10 @@ public enum L10n {
           public static let possibleMatchExplanation = L10n.tr("Chats", "chats.path.hop.possibleMatchExplanation", fallback: "Multiple nodes share this prefix. The displayed name may not be correct.")
           /// Location: FallbackMatchIndicatorView.swift - Title for possible match explanation popover
           public static let possibleMatchTitle = L10n.tr("Chats", "chats.path.hop.possibleMatchTitle", fallback: "Possible Match")
+          /// Location: PathHopRowView.swift - RSSI on the receiver row. %d is dBm
+          public static func rssi(_ p1: Int) -> String {
+            return L10n.tr("Chats", "chats.path.hop.rssi", p1, fallback: "RSSI %d dBm")
+          }
           /// Location: PathHopRowView.swift - Label for sender (first hop)
           public static let sender = L10n.tr("Chats", "chats.path.hop.sender", fallback: "Sender")
           /// Location: PathHopRowView.swift - Accessibility value format for last hop - %@ is quality, %@ is SNR

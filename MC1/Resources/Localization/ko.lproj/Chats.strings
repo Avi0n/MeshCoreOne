@@ -981,6 +981,9 @@
 /* Location: PathHopRowView.swift - Accessibility value format for last hop - %@ is quality, %@ is SNR */
 "chats.path.hop.signalQuality" = "신호 품질: %@, SNR %@ dB";
 
+/* Location: PathHopRowView.swift - RSSI on the receiver row. %d is dBm */
+"chats.path.hop.rssi" = "RSSI %d dBm";
+
 /* Location: PathHopRowView.swift - Accessibility value format for non-last hops - %@ is hex ID */
 "chats.path.hop.nodeId" = "노드 ID: %@";
 
