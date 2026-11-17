@@ -30,6 +30,8 @@ scripts/
 !/scripts/
 /scripts/*
 !/scripts/mcoimg/
+/scripts/mcoimg/fixtures/v3-swift-encoded.json
+/scripts/mcoimg/fixtures/v4-swift-raster.json
 !/scripts/test-app-ci.py
 !/scripts/tests/
 /scripts/tests/*
