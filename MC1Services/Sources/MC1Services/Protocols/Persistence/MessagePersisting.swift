@@ -97,16 +97,13 @@ public protocol MessagePersisting: Actor {
     limit: Int
   ) async throws -> MessageDTO?
 
-  /// True when a stored channel image matches this reaction hash.
-  /// The text lookup returns nil for that row, which is also how a missing text message looks.
-  func channelImageMatchesReaction(
+  /// Newest saved channel MCOimg with no packet sender timestamp that matches this reaction.
+  /// No timestamp window and no row cap.
+  func findChannelDatagramForReaction(
     radioID: UUID,
     channelIndex: UInt8,
-    parsedReaction: ParsedReaction,
-    localNodeName: String?,
-    timestampWindow: ClosedRange<UInt32>,
-    limit: Int
-  ) async throws -> Bool
+    parsedReaction: ParsedReaction
+  ) async throws -> MessageDTO?
 
   /// Fetches channel message candidates for meshcore-open reaction matching
   func fetchChannelMessageCandidates(
@@ -169,7 +166,7 @@ public protocol MessagePersisting: Actor {
   /// Update message retry status
   func updateMessageRetryStatus(id: UUID, status: MessageStatus, retryAttempt: Int, maxRetryAttempts: Int) async throws
 
-  /// Update the exact wire text before a user-initiated image resend.
+  /// Update the exact wire text before a user-initiated MCOimg resend.
   func updateMessageText(id: UUID, text: String) async throws
 
   /// Update message timestamp (for resending)
@@ -295,15 +292,12 @@ extension MessagePersisting {
 }
 
 public extension MessagePersisting {
-  func channelImageMatchesReaction(
+  func findChannelDatagramForReaction(
     radioID _: UUID,
     channelIndex _: UInt8,
-    parsedReaction _: ParsedReaction,
-    localNodeName _: String?,
-    timestampWindow _: ClosedRange<UInt32>,
-    limit _: Int
-  ) async throws -> Bool {
-    false
+    parsedReaction _: ParsedReaction
+  ) async throws -> MessageDTO? {
+    nil
   }
 
   func admitOutgoingReaction(_ message: MessageDTO) async throws -> MessageDTO? {

@@ -1,7 +1,7 @@
 import Foundation
 import MeshCore
 
-/// Reads the sender name and stored MCOimg text without decoding the image.
+/// Reads the sender name and stored MCOimg text without decoding the pixels.
 public enum MCOImageTransport {
   public static let applicationDataType: UInt16 = 0x0120
   public static let imageSubtype: UInt8 = 0x01
@@ -12,7 +12,16 @@ public enum MCOImageTransport {
   private static let maxVarintBytes = 5
 
   public static func encode(text: String, senderName: String) throws -> Data {
-    let payload = try MCOImageCodec.channelAppPayload(fromText: text)
+    try framed(MCOImageCodec.channelAppPayload(fromText: text), senderName: senderName)
+  }
+
+  /// The group-datagram `data` field for a stored row: varint name framing plus the stored app payload.
+  /// Transmit still uses `encode`, which upgrades a v3 payload before it goes on the air.
+  public static func dataField(text: String, senderName: String) throws -> Data {
+    try framed(MCOImageCodec.appPayload(fromText: text), senderName: senderName)
+  }
+
+  private static func framed(_ payload: Data, senderName: String) -> Data {
     let name = Data(senderName.utf8)
     var writer = MCOImageBitWriter()
     writer.varUint(name.count)

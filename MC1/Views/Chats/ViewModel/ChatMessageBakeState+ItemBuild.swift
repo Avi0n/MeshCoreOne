@@ -112,10 +112,10 @@ extension ChatMessageBakeState {
     envInputs: EnvInputs,
     senderTables: ChatSenderTables
   ) -> MessageBuildInputs {
-    if !MCOImageCodec.isImageText(message.text) {
+    if message.mcoImage == nil {
       seedPreviewStateIfNeeded(for: message, envInputs: envInputs)
     }
-    if envInputs.translationOffersEnabled, !MCOImageCodec.isImageText(message.text) {
+    if envInputs.translationOffersEnabled, message.mcoImage == nil {
       seedDetectedLanguageIfNeeded(for: message)
     }
     let flags = Self.computeDisplayFlags(for: message, previous: previous, next: next)

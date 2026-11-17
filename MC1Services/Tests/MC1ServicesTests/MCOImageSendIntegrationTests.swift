@@ -39,12 +39,12 @@ struct MCOImageSendIntegrationTests {
   }
 
   @Test
-  func `image resend persists exactly the text that queue envelopes and ACK prediction use`() async throws {
+  func `MCOimg resend persists exactly the text that queue envelopes and ACK prediction use`() async throws {
     let store = MockPersistenceStore()
     let service = MessageService(session: MockMeshCoreSession(), dataStore: store, contactService: nil)
     let contact = ContactDTO.testContact(radioID: UUID())
     let original = try await service.createPendingMessage(text: fixture, to: contact)
-    let refreshed = try await service.prepareImageForResend(original)
+    let refreshed = try await service.prepareMCOImageForResend(original)
     let originalPayload = try MCOImageCodec.appPayload(fromText: original.text)
     let refreshedPayload = try MCOImageCodec.appPayload(fromText: refreshed.text)
     #expect(originalPayload.dropFirst(2) == refreshedPayload.dropFirst(2))
@@ -54,11 +54,11 @@ struct MCOImageSendIntegrationTests {
   }
 
   @Test
-  func `nonimage resend preparation preserves the original wire text`() async throws {
+  func `text resend preparation preserves the original wire text`() async throws {
     let store = MockPersistenceStore()
     let service = MessageService(session: MockMeshCoreSession(), dataStore: store, contactService: nil)
     let contact = ContactDTO.testContact(radioID: UUID())
     let original = try await service.createPendingMessage(text: "hello", to: contact)
-    #expect(try await service.prepareImageForResend(original) == original)
+    #expect(try await service.prepareMCOImageForResend(original) == original)
   }
 }

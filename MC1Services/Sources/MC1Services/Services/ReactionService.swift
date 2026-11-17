@@ -73,27 +73,23 @@ public actor ReactionService {
     channelIndex: UInt8,
     senderName: String,
     text: String,
-    timestamp: UInt32
+    timestamp: UInt32,
+    messageHash: String? = nil
   ) async -> [PendingReaction] {
-    let hash = ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
+    let hash = messageHash ?? ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
     let key = PendingReactionKey(
       channelIndex: channelIndex,
       targetSender: senderName,
       messageHash: hash
     )
-    // A channel image is not a reaction target. Drop a reaction that arrived
-    // first, and do not leave the image in the cache for a later lookup.
-    if MCOImageCodec.isChannelImage(channelIndex: channelIndex, text: text) {
-      discardPendingReaction(for: key)
-      return []
-    }
 
     await messageCache.index(
       messageID: id,
       channelIndex: channelIndex,
       senderName: senderName,
       text: text,
-      timestamp: timestamp
+      timestamp: timestamp,
+      messageHash: hash
     )
 
     guard let matched = pendingReactions.removeValue(forKey: key) else {
@@ -290,11 +286,6 @@ public actor ReactionService {
 
     evictDMIfNeeded()
     logger.debug("Queued pending DM reaction \(parsed.emoji)")
-  }
-
-  private func discardPendingReaction(for key: PendingReactionKey) {
-    guard pendingReactions.removeValue(forKey: key) != nil else { return }
-    pendingOrder.removeAll { $0 == key }
   }
 
   private func evictIfNeeded() {

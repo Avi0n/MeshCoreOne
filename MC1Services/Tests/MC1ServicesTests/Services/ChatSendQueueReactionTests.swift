@@ -210,7 +210,7 @@ struct ChatSendQueueReactionTests {
   }
 
   @Test
-  func `a channel image does not enqueue a reaction`() async throws {
+  func `a channel MCOimg with an empty sender does not enqueue a reaction`() async throws {
     let (env, _) = try await makeChannelEnvironment()
     do {
       let connection = try #require(env.manager.currentConnection)
@@ -219,7 +219,7 @@ struct ChatSendQueueReactionTests {
         text: "im4:pixel",
         direction: .incoming,
         status: .delivered,
-        senderNodeName: "Ada"
+        senderNodeName: ""
       )
       try await env.manager.persistenceStore.saveMessage(image)
       let queue = try #require(connection.services.chatSendQueueService)

@@ -6,7 +6,7 @@ import SwiftUI
 /// Pixel painting opens the conversation-owned editor; contacts load in `ShareContactPickerSheet`.
 struct ChatShareMenu: View {
   let onInsert: (String) -> Void
-  var onPaint: (() -> Void)?
+  let onPaint: () -> Void
 
   @Environment(\.appState) private var appState
 
@@ -81,12 +81,10 @@ struct ChatShareMenu: View {
       }
       .disabled(!canShareLocation)
 
-      if let onPaint {
-        Button(action: onPaint) {
-          Label(L10n.Chats.Chats.Mcoimg.title, systemImage: "paintpalette")
-        }
-        .accessibilityIdentifier("pixelPaintAction")
+      Button(action: onPaint) {
+        Label(L10n.Chats.Chats.Mcoimg.title, systemImage: "paintpalette")
       }
+      .accessibilityIdentifier("pixelPaintAction")
 
       Button {
         isShowingContactPicker = true
@@ -159,6 +157,6 @@ private extension View {
 }
 
 #Preview {
-  ChatShareMenu(onInsert: { _ in })
+  ChatShareMenu(onInsert: { _ in }, onPaint: {})
     .padding()
 }

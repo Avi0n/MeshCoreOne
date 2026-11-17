@@ -234,6 +234,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     )
 
     for candidate in candidates {
+      guard !candidate.isDatagramMCOImage else { continue }
       if candidate.direction == .outgoing {
         guard let localNodeName, parsedReaction.targetSender == localNodeName else {
           continue
@@ -254,6 +255,25 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     return nil
+  }
+
+  public func findChannelDatagramForReaction(
+    radioID: UUID,
+    channelIndex: UInt8,
+    parsedReaction: ParsedReaction
+  ) async throws -> MessageDTO? {
+    if let error = stubbedFetchMessageError {
+      throw error
+    }
+    return messages.values
+      .filter { $0.radioID == radioID && $0.channelIndex == channelIndex }
+      .sorted { $0.createdAt > $1.createdAt }
+      .first { candidate in
+        guard candidate.isDatagramMCOImage,
+              let target = candidate.mcoImageReactionTarget() else { return false }
+        return target.senderName == parsedReaction.targetSender
+          && target.messageHash == parsedReaction.messageHash
+      }
   }
 
   public func fetchChannelMessageCandidates(

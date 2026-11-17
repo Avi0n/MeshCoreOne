@@ -44,9 +44,16 @@ actor MessageLRUCache {
     self.maxCandidatesPerKey = maxCandidatesPerKey
   }
 
-  /// Indexes a message for later lookup
-  func index(messageID: UUID, channelIndex: UInt8, senderName: String, text: String, timestamp: UInt32) {
-    let hash = ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
+  /// A supplied hash replaces the timed hash.
+  func index(
+    messageID: UUID,
+    channelIndex: UInt8,
+    senderName: String,
+    text: String,
+    timestamp: UInt32,
+    messageHash: String? = nil
+  ) {
+    let hash = messageHash ?? ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
     let key = MessageCacheKey(channelIndex: channelIndex, senderName: senderName, messageHash: hash)
     let candidate = MessageCandidate(messageID: messageID, text: text, timestamp: timestamp)
 

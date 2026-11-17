@@ -59,7 +59,7 @@ struct MCOImageV3CodecTests {
     }
   }
 
-  @Test func `truncation and trailing bytes do not render partial images`() throws {
+  @Test func `truncation and trailing bytes do not render a partial MCOimg`() throws {
     for fixture in try fixtures() {
       let body = try #require(Data(base64Encoded: fixture.bodyBase64))
       for count in 0..<body.count {

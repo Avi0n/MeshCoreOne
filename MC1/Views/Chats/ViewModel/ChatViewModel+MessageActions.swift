@@ -6,6 +6,16 @@ extension ChatViewModel {
 
   // MARK: - Message Actions
 
+  func messagePreparedForResend(_ message: MessageDTO) async -> MessageDTO? {
+    guard let messageService else { return message }
+    do {
+      return try await messageService.prepareMCOImageForResend(message)
+    } catch {
+      errorMessage = error.userFacingMessage
+      return nil
+    }
+  }
+
   /// Retry sending a failed direct message through the persistent send
   /// queue. Replaces the prior multi-await sequence (delete +
   /// status flip + direct service call) with a single
@@ -30,12 +40,7 @@ extension ChatViewModel {
     errorMessage = nil
     errorBannerMessage = nil
 
-    do {
-      _ = try await messageService?.prepareImageForResend(message)
-    } catch {
-      errorMessage = error.userFacingMessage
-      return
-    }
+    guard await messagePreparedForResend(message) != nil else { return }
 
     let envelope = DirectMessageEnvelope(
       messageID: message.id, contactID: contact.id,
@@ -68,14 +73,7 @@ extension ChatViewModel {
   /// Resend a channel message in place, or copy text for direct messages.
   /// Used for "Send Again" context menu action.
   func sendAgain(_ message: MessageDTO) async {
-    let originalMessage = message
-    let message: MessageDTO
-    do {
-      message = try await messageService?.prepareImageForResend(originalMessage) ?? originalMessage
-    } catch {
-      errorMessage = error.userFacingMessage
-      return
-    }
+    guard let message = await messagePreparedForResend(message) else { return }
     if let channelIndex = message.channelIndex {
       // Text resends need a fresh wire timestamp; image nonces were prepared
       // before enqueue so automatic queue retries can preserve their payload.

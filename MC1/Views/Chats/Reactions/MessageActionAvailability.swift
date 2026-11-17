@@ -26,7 +26,7 @@ struct MessageActionAvailability {
       && message.isFloodRouted
       && !(message.pathNodes?.isEmpty ?? true)
     canDelete = true
-    canReact = !MCOImageCodec.isChannelImage(channelIndex: message.channelIndex, text: message.text)
+    canReact = message.mcoImageReactionTarget() != nil || !message.isChannelMCOImage
     showsPathDetail = canViewPath || canShowRepeatDetails || (!message.isOutgoing && message.heardRepeats > 0)
   }
 }

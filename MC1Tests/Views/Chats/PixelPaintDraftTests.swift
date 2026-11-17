@@ -67,14 +67,13 @@ struct PixelPaintDraftTests {
     await task?.value
     #expect(probe.payloads.isEmpty)
     #expect(probe.admitted == 0)
-    #expect(probe.rejected == 0)
     #expect(draft.errorTitle == nil)
     #expect(draft.errorMessage == nil)
     #expect(draft.image.pixels.allSatisfy { $0 == PixelPaintDraft.background })
     #expect(!draft.isSubmitting)
   }
 
-  @Test func `rejected admission keeps pixels and clears the conversation send error`() async {
+  @Test func `rejected admission keeps pixels and leaves the conversation alert unset`() async {
     let draft = PixelPaintDraft()
     draft.paint(x: 2, y: 3)
     draft.endStroke()
@@ -83,7 +82,6 @@ struct PixelPaintDraftTests {
     probe.accept = false
     await probe.submit(draft)?.value
     #expect(probe.payloads.count == 1)
-    #expect(probe.rejected == 1)
     #expect(probe.sendErrorMessage == nil)
     #expect(draft.errorTitle == L10n.Chats.Chats.Alert.UnableToSend.title)
     #expect(draft.errorMessage == L10n.Chats.Chats.Alert.UnableToSend.message)
@@ -108,7 +106,6 @@ struct PixelPaintDraftTests {
     probe.pause.resume()
     await task?.value
     #expect(probe.payloads.isEmpty)
-    #expect(probe.rejected == 0)
     #expect(probe.sendErrorMessage == nil)
     #expect(draft.errorTitle == L10n.Chats.Chats.Alert.UnableToSend.title)
     #expect(draft.errorMessage == L10n.Chats.Chats.Alert.UnableToSend.message)
@@ -125,7 +122,6 @@ struct PixelPaintDraftTests {
     probe.failEncode = true
     await probe.submit(draft)?.value
     #expect(probe.payloads.isEmpty)
-    #expect(probe.rejected == 0)
     #expect(draft.errorTitle == L10n.Chats.Chats.Mcoimg.encodingFailedTitle)
     #expect(draft.errorMessage == L10n.Chats.Chats.Mcoimg.encodingFailed)
     #expect(draft.image == snapshot)
@@ -161,7 +157,6 @@ struct PixelPaintDraftTests {
 private final class AdmissionProbe {
   var payloads: [String] = []
   var captured: [MCOImageRaster] = []
-  var rejected = 0
   var admitted = 0
   var ready = true
   var accept = true
@@ -188,16 +183,9 @@ private final class AdmissionProbe {
         onSend: { text in
           self.payloads.append(text)
           if pauseOnSend { await pause.pause() }
-          if !self.accept {
-            self.sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
-          }
           return self.accept
         },
         onWillSend: {},
-        onRejected: {
-          self.rejected += 1
-          self.sendErrorMessage = nil
-        },
         onAdmitted: { self.admitted += 1 },
         encode: { image, isChannel in
           await MainActor.run { self.captured.append(image) }

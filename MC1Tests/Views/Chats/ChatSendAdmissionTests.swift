@@ -1,6 +1,7 @@
 import Foundation
 @testable import MC1
 @testable import MC1Services
+import Observation
 import SwiftUI
 import Testing
 import UIKit
@@ -42,7 +43,7 @@ struct ChatSendAdmissionTests {
   }
 
   @Test(arguments: [false, true])
-  func `retired queue rejects before creation so the composer restores the Draft`(isChannel: Bool) async throws {
+  func `retired queue rejects before creation and leaves the conversation alert unset`(isChannel: Bool) async throws {
     let radioID = UUID()
     let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
     let services = ServiceContainer(
@@ -62,7 +63,48 @@ struct ChatSendAdmissionTests {
     #expect(!reachedService)
     #expect(viewModel.messages.isEmpty)
     #expect(try await store.fetchPendingSends(radioID: radioID).isEmpty)
-    #expect(viewModel.sendErrorMessage == L10n.Chats.Chats.Alert.UnableToSend.message)
+    #expect(viewModel.sendErrorMessage == nil)
+  }
+
+  @Test func `keyboard false writes the conversation alert and restores the draft`() async throws {
+    let appState = try AppState(
+      modelContainer: PersistenceStore.createContainer(inMemory: true),
+      isPlaceholder: true
+    )
+    appState.connectionManager.setTestState(connectionState: .ready)
+    let contact = ContactDTO(from: Contact(
+      radioID: UUID(),
+      publicKey: Data(repeating: 1, count: ProtocolLimits.publicKeySize),
+      name: "Test", typeRawValue: ContactType.chat.rawValue,
+      lastHeardTimestamp: 0
+    ))
+    let model = KeyboardAdmissionModel()
+    let controller = UIHostingController(
+      rootView: KeyboardAdmissionHarness(contact: contact, model: model)
+        .environment(\.appState, appState)
+    )
+    let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+    let window = UIWindow(windowScene: scene)
+    window.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+    window.rootViewController = controller
+    window.makeKeyAndVisible()
+    defer {
+      window.rootViewController = nil
+      window.isHidden = true
+      window.windowScene = nil
+      appState.shutdown()
+    }
+
+    try await waitUntil(timeout: timeout, "composer should show the draft") {
+      composer(in: window)?.text == "Retain this text"
+    }
+    let field = try #require(composer(in: window))
+    let accepted = field.onSend?() == true
+    #expect(accepted)
+    try await waitUntil(timeout: timeout, "rejected send should restore the draft and write the alert") {
+      model.text == "Retain this text" && model.notAdmitted == 1
+    }
+    #expect(model.sendErrorMessage == L10n.Chats.Chats.Alert.UnableToSend.message)
   }
 
   @Test(arguments: [false, true])
@@ -78,7 +120,8 @@ struct ChatSendAdmissionTests {
 
     #expect(await !submit(text, to: viewModel, isChannel: isChannel))
     #expect(viewModel.messages.isEmpty)
-    #expect(viewModel.errorMessage != nil)
+    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.sendErrorMessage == nil)
     #expect(try await store.fetchPendingSends(radioID: radioID).isEmpty)
     if let contact = viewModel.currentContact {
       #expect(try await store.fetchMessages(contactID: contact.id).isEmpty)
@@ -172,5 +215,34 @@ struct ChatSendAdmissionTests {
     } else {
       await viewModel.sendMessage(text: text)
     }
+  }
+}
+
+@Observable
+@MainActor
+private final class KeyboardAdmissionModel {
+  var text = "Retain this text"
+  var focusRequest = 0
+  var notAdmitted = 0
+  var sendErrorMessage: String?
+}
+
+private struct KeyboardAdmissionHarness: View {
+  let contact: ContactDTO
+  @Bindable var model: KeyboardAdmissionModel
+
+  var body: some View {
+    ChatConversationInputBar(
+      conversationType: .dm(contact),
+      composingText: $model.text,
+      focusRequest: $model.focusRequest,
+      nodeNameByteCount: 0,
+      onSend: { _ in false },
+      onWillSend: {},
+      onNotAdmitted: {
+        model.notAdmitted += 1
+        model.sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+      }
+    )
   }
 }

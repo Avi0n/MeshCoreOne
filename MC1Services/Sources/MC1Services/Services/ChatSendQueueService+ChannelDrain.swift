@@ -43,6 +43,8 @@ extension ChatSendQueueService {
       ) else { return }
       try cancelSendIfRetired(dependencies.sendsRetired)
 
+      let capturedText = envelope.messageText
+      let sentDatagram = MCOImageCodec.isMCOImageText(capturedText)
       switch try await transmitQueuedChannel(envelope: envelope, dependencies: dependencies) {
       case .dropped:
         return
@@ -60,12 +62,24 @@ extension ChatSendQueueService {
           timeout: dependencies.config.transportWaitTimeout
         )
       case let .sent(indexTimestamp):
-        if let nodeName = envelope.localNodeName, !MCOImageCodec.isImageText(envelope.messageText) {
+        if sentDatagram {
+          if let saved = try? await dependencies.dataStore.fetchMessage(id: envelope.messageID),
+             let target = saved.mcoImageReactionTarget() {
+            _ = await dependencies.reactionService.indexMessage(
+              id: saved.id,
+              channelIndex: envelope.channelIndex,
+              senderName: target.senderName,
+              text: saved.text,
+              timestamp: saved.reactionTimestamp,
+              messageHash: target.messageHash
+            )
+          }
+        } else if let nodeName = envelope.localNodeName {
           _ = await dependencies.reactionService.indexMessage(
             id: envelope.messageID,
             channelIndex: envelope.channelIndex,
             senderName: nodeName,
-            text: envelope.messageText,
+            text: capturedText,
             timestamp: indexTimestamp
           )
         }
@@ -78,6 +92,7 @@ extension ChatSendQueueService {
           error,
           postBumpCount: postBumpCount,
           envelope: envelope,
+          sentDatagram: sentDatagram,
           dependencies: dependencies
         )
       }
@@ -132,11 +147,10 @@ extension ChatSendQueueService {
     _ error: Error,
     postBumpCount: Int,
     envelope: ChannelMessageEnvelope,
+    sentDatagram: Bool,
     dependencies: ChannelDrainDependencies
   ) async throws {
-    guard isTransientChannelMessageError(
-      error, isImage: MCOImageCodec.isImageText(envelope.messageText)
-    ) else {
+    guard isTransientChannelMessageError(error, sentDatagram: sentDatagram) else {
       dependencies.logger.info(
         "channel drain terminal messageID=\(envelope.messageID) error=\(String(describing: error))"
       )

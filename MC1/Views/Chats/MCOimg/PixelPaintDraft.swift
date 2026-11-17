@@ -93,7 +93,6 @@ final class PixelPaintDraft {
     isReady: @escaping () -> Bool,
     onSend: @escaping (String) async -> Bool,
     onWillSend: @escaping () -> Void,
-    onRejected: @escaping () -> Void,
     onAdmitted: @escaping () -> Void,
     encode: @escaping @Sendable (MCOImageRaster, Bool) async throws -> String = encodePixelDrawing
   ) async {
@@ -108,7 +107,7 @@ final class PixelPaintDraft {
       onWillSend: onWillSend,
       encode: encode
     )
-    settle(result, generation: attempt.generation, onRejected: onRejected, onAdmitted: onAdmitted)
+    settle(result, generation: attempt.generation, onAdmitted: onAdmitted)
   }
 
   private func resetPixels() {
@@ -166,7 +165,6 @@ final class PixelPaintDraft {
   private func settle(
     _ result: SubmissionResult,
     generation: UInt,
-    onRejected: () -> Void,
     onAdmitted: () -> Void
   ) {
     guard isCurrent(generation) else { return }
@@ -175,7 +173,6 @@ final class PixelPaintDraft {
       remove()
       onAdmitted()
     case .rejected:
-      onRejected()
       errorTitle = L10n.Chats.Chats.Alert.UnableToSend.title
       errorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
       isSubmitting = false

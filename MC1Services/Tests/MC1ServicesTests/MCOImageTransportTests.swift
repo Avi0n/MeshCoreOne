@@ -32,7 +32,7 @@ struct MCOImageTransportTests {
   }
 
   @Test
-  func `v4 text omits subtype byte and unknown image versions survive for placeholders`() throws {
+  func `v4 text omits subtype byte and unknown MCOimg versions survive for placeholders`() throws {
     for version: UInt8 in [0x14, 0x15] {
       let payload = Data([0, version, 0, 0])
       let image = try #require(MCOImageTransport.decode(datagram(payload: payload)))
@@ -72,14 +72,20 @@ struct MCOImageTransportTests {
     let time = Date(timeIntervalSince1970: 100)
     var duplicates = MCOImageDatagramDuplicates()
     let packet = datagram()
-    #expect(duplicates.admit(packet, radioID: radioID, receivedAt: time))
-    #expect(!duplicates.admit(packet, radioID: radioID, receivedAt: time.addingTimeInterval(1)))
-    #expect(duplicates.admit(packet, radioID: UUID(), receivedAt: time.addingTimeInterval(2)))
-    #expect(duplicates.admit(datagram(channelIndex: 3), radioID: radioID, receivedAt: time.addingTimeInterval(3)))
+    let sameRadio = duplicates.admit(packet, radioID: radioID, receivedAt: time)
+    let repeatPacket = duplicates.admit(packet, radioID: radioID, receivedAt: time.addingTimeInterval(1))
+    let otherRadio = duplicates.admit(packet, radioID: UUID(), receivedAt: time.addingTimeInterval(2))
+    let otherChannel = duplicates.admit(datagram(channelIndex: 3), radioID: radioID, receivedAt: time.addingTimeInterval(3))
     var newNonce = packet.data
     newNonce[newNonce.startIndex + 1 + "Peer:名".utf8.count + 1] ^= 1
-    #expect(duplicates.admit(datagram(payload: newNonce), radioID: radioID, receivedAt: time.addingTimeInterval(4)))
-    #expect(duplicates.admit(packet, radioID: radioID, receivedAt: time.addingTimeInterval(MCOImageDatagramDuplicates.lifetime)))
+    let changedNonce = duplicates.admit(datagram(payload: newNonce), radioID: radioID, receivedAt: time.addingTimeInterval(4))
+    let expired = duplicates.admit(packet, radioID: radioID, receivedAt: time.addingTimeInterval(MCOImageDatagramDuplicates.lifetime))
+    #expect(sameRadio)
+    #expect(!repeatPacket)
+    #expect(otherRadio)
+    #expect(otherChannel)
+    #expect(changedNonce)
+    #expect(expired)
   }
 
   @Test
@@ -89,9 +95,11 @@ struct MCOImageTransportTests {
     var duplicates = MCOImageDatagramDuplicates()
     for nonce in 0...MCOImageDatagramDuplicates.capacity {
       let packet = datagram(payload: Data([0, 0x13, UInt8(nonce)]))
-      #expect(duplicates.admit(packet, radioID: radioID, receivedAt: time))
+      let admitted = duplicates.admit(packet, radioID: radioID, receivedAt: time)
+      #expect(admitted)
     }
-    #expect(duplicates.admit(datagram(payload: Data([0, 0x13, 0])), radioID: radioID, receivedAt: time))
+    let evicted = duplicates.admit(datagram(payload: Data([0, 0x13, 0])), radioID: radioID, receivedAt: time)
+    #expect(evicted)
   }
 
   private actor Receipt {
@@ -103,7 +111,7 @@ struct MCOImageTransportTests {
   }
 
   @Test
-  func `initial sync admits image datagrams while continuing to drain unknown application data`() async throws {
+  func `initial sync admits MCOimg datagrams while continuing to drain unknown application data`() async throws {
     let radioID = UUID()
     let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
     let session = MockMeshCoreSession()

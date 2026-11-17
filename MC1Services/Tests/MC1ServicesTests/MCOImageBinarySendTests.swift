@@ -18,7 +18,9 @@ struct MCOImageBinarySendTests {
     try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "救援隊", firmwareVersion: 12))
     let channel = ChannelDTO.testChannel(radioID: radioID, floodScope: .region("Alpha"))
     try await store.saveChannel(channel)
-    let legacy = MessageDTO.testChannelMessage(radioID: radioID, channelIndex: channel.index, text: fixture)
+    let legacy = MessageDTO.testChannelMessage(
+      radioID: radioID, channelIndex: channel.index, text: fixture, senderNodeName: "救援隊"
+    )
     try await store.saveMessage(legacy)
     switch path {
     case .inline:
@@ -58,7 +60,7 @@ struct MCOImageBinarySendTests {
     try await service.sendPendingChannelMessage(messageID: message.id)
     let firstCalls = await session.sendChannelDataInvocations
     #expect(firstCalls[0].payload == firstCalls[1].payload)
-    let prepared = try await service.prepareImageForResend(message)
+    let prepared = try await service.prepareMCOImageForResend(message)
     #expect(prepared.text.hasPrefix("im4:"))
     #expect(try await store.fetchMessage(id: message.id)?.text == prepared.text)
     let expected = try MCOImageTransport.encode(text: prepared.text, senderName: "Radio")
@@ -72,7 +74,7 @@ struct MCOImageBinarySendTests {
   }
 
   @Test
-  func `complete UTF8 binary budget accepts 165 and rejects 166 before admission or drain`() async throws {
+  func `complete UTF8 binary budget accepts 165 and rejects 166 at admission`() async throws {
     let radioID = UUID()
     let store = MockPersistenceStore()
     let session = MockMeshCoreSession()
@@ -90,16 +92,17 @@ struct MCOImageBinarySendTests {
     }
     #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 0, limit: 10, offset: 0).count == 1)
     try await store.saveDevice(.testDevice(radioID: radioID, nodeName: name + "A"))
-    await #expect(throws: MessageServiceError.self) {
-      try await service.sendPendingChannelMessage(messageID: message.id)
-    }
-    #expect(await session.sendChannelDataInvocations.count == 1)
+    try await service.sendPendingChannelMessage(messageID: message.id)
+    let calls = await session.sendChannelDataInvocations
+    #expect(calls.count == 2)
+    #expect(calls[0].payload == calls[1].payload)
+    #expect(calls[0].payload.count == 165)
     #expect(await session.sendChannelMessageInvocations.isEmpty)
-    #expect(try await store.fetchMessage(id: message.id)?.status == .failed)
+    #expect(try await store.fetchMessage(id: message.id)?.status == .sent)
   }
 
   @Test(arguments: ["im3:!", "im4:!", "im5:AA"])
-  func `damaged and unsupported image text never falls through to channel text`(text: String) async throws {
+  func `damaged and unsupported MCOimg text never falls through to channel text`(text: String) async throws {
     let radioID = UUID()
     let store = MockPersistenceStore()
     let session = MockMeshCoreSession()
@@ -140,7 +143,7 @@ struct MCOImageBinarySendTests {
 
   @Test(arguments: [MeshCoreError.notConnected, .deviceError(code: 3)])
   @MainActor
-  func `persisted legacy image replays as identical binary after disconnect`(failure: MeshCoreError) async throws {
+  func `persisted legacy MCOimg replays as identical binary after disconnect`(failure: MeshCoreError) async throws {
     let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
     let radioID = UUID()
     try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "Radio"))
@@ -200,8 +203,8 @@ struct MCOImageBinarySendTests {
     #expect(calls.count == 2)
     #expect(calls[0].payload == calls[1].payload)
     #expect(await session.sendChannelMessageInvocations.isEmpty)
-    #expect(ChatSendQueueService.isTransientChannelMessageError(MeshCoreError.deviceError(code: 3), isImage: true))
-    #expect(!ChatSendQueueService.isTransientChannelMessageError(MeshCoreError.deviceError(code: 3), isImage: false))
+    #expect(ChatSendQueueService.isTransientChannelMessageError(MeshCoreError.deviceError(code: 3), sentDatagram: true))
+    #expect(!ChatSendQueueService.isTransientChannelMessageError(MeshCoreError.deviceError(code: 3), sentDatagram: false))
   }
 
   @Test

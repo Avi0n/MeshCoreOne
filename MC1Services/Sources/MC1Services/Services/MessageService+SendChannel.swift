@@ -42,7 +42,7 @@ public extension MessageService {
     // Keep this send in the retirement barrier through the Sent write if scope cleanup triggers recovery.
     try beginInlineSend()
     defer { endInlineSend() }
-    let text = try await prepareChannelMessage(text, radioID: radioID)
+    let prepared = try await prepareChannelMessage(text, radioID: radioID)
 
     let messageID = UUID()
     let timestamp = UInt32(Date().timeIntervalSince1970)
@@ -52,16 +52,22 @@ public extension MessageService {
       id: messageID,
       radioID: radioID,
       channelIndex: channelIndex,
-      text: text,
+      text: prepared.text,
       timestamp: timestamp,
-      textType: textType
+      textType: textType,
+      mcoImageSenderName: prepared.mcoImageSenderName
     )
     try await dataStore.saveMessage(messageDTO)
 
     do {
-      try await withPoolBackoff(transientCode: channelPoolErrorCode(text), config: config.poolBackoff, logger: logger) {
+      let transmission = try await channelTransmission(
+        text: prepared.text,
+        senderNodeName: prepared.mcoImageSenderName,
+        radioID: radioID
+      )
+      try await withPoolBackoff(transientCode: channelPoolErrorCode(transmission), config: config.poolBackoff, logger: logger) {
         try await sendChannelMessageWithScope(
-          text: text,
+          transmission,
           channelIndex: channelIndex,
           radioID: radioID,
           timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp))
@@ -97,7 +103,7 @@ public extension MessageService {
     radioID: UUID,
     textType: TextType = .plain
   ) async throws -> MessageDTO {
-    let text = try await prepareChannelMessage(text, radioID: radioID)
+    let prepared = try await prepareChannelMessage(text, radioID: radioID)
 
     let messageID = UUID()
     let timestamp = UInt32(Date().timeIntervalSince1970)
@@ -106,9 +112,10 @@ public extension MessageService {
       id: messageID,
       radioID: radioID,
       channelIndex: channelIndex,
-      text: text,
+      text: prepared.text,
       timestamp: timestamp,
-      textType: textType
+      textType: textType,
+      mcoImageSenderName: prepared.mcoImageSenderName
     )
     try await dataStore.saveMessage(messageDTO)
 
@@ -144,9 +151,14 @@ public extension MessageService {
       let isReaction = message.reactionTargetMessageID != nil
       let alreadyAccepted = isReaction && (acceptedChannelReactions.contains(messageID) || message.status == .sent)
       if !alreadyAccepted {
-        try await withPoolBackoff(transientCode: channelPoolErrorCode(message.text), config: config.poolBackoff, logger: logger) {
+        let transmission = try await channelTransmission(
+          text: message.text,
+          senderNodeName: message.senderNodeName,
+          radioID: radioID
+        )
+        try await withPoolBackoff(transientCode: channelPoolErrorCode(transmission), config: config.poolBackoff, logger: logger) {
           try await sendChannelMessageWithScope(
-            text: message.text,
+            transmission,
             channelIndex: channelIndex,
             radioID: radioID,
             timestamp: Date(timeIntervalSince1970: TimeInterval(message.timestamp))
@@ -221,9 +233,14 @@ public extension MessageService {
         acceptedChannelReactions.contains(messageID) || (preserveTimestamp && message.status == .sent)
       )
       if !alreadyAccepted {
-        try await withPoolBackoff(transientCode: channelPoolErrorCode(message.text), config: config.poolBackoff, logger: logger) {
+        let transmission = try await channelTransmission(
+          text: message.text,
+          senderNodeName: message.senderNodeName,
+          radioID: message.radioID
+        )
+        try await withPoolBackoff(transientCode: channelPoolErrorCode(transmission), config: config.poolBackoff, logger: logger) {
           try await sendChannelMessageWithScope(
-            text: message.text,
+            transmission,
             channelIndex: channelIndex,
             radioID: message.radioID,
             timestamp: wireDate
@@ -261,8 +278,13 @@ public extension MessageService {
     return wireTimestamp
   }
 
-  private func channelPoolErrorCode(_ text: String) -> UInt8 {
-    MCOImageCodec.isImageText(text) ? FirmwareDeviceErrorCode.channelDataTableFull : FirmwareDeviceErrorCode.channelMessageNotFound
+  private func channelPoolErrorCode(_ transmission: ChannelTransmission) -> UInt8 {
+    switch transmission {
+    case .text:
+      FirmwareDeviceErrorCode.channelMessageNotFound
+    case .mcoImage:
+      FirmwareDeviceErrorCode.channelDataTableFull
+    }
   }
 
   private func createOutgoingChannelMessage(
@@ -271,7 +293,8 @@ public extension MessageService {
     channelIndex: UInt8,
     text: String,
     timestamp: UInt32,
-    textType: TextType
+    textType: TextType,
+    mcoImageSenderName: String?
   ) -> MessageDTO {
     let message = Message(
       id: id,
@@ -283,6 +306,10 @@ public extension MessageService {
       statusRawValue: MessageStatus.pending.rawValue,
       textTypeRawValue: textType.rawValue
     )
+    if let mcoImageSenderName {
+      // The datagram sender. A later node rename must not change this field.
+      message.senderNodeName = mcoImageSenderName
+    }
     return MessageDTO(from: message)
   }
 

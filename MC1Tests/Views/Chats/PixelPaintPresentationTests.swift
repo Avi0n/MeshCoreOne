@@ -165,7 +165,6 @@ struct PixelPaintPresentationTests {
           return true
         },
         onWillSend: {},
-        onRejected: { model.sendErrorMessage = nil },
         onAdmitted: {},
         encode: { image, isChannel in
           await pause.pause()
@@ -252,13 +251,9 @@ struct PixelPaintPresentationTests {
                 onSend: { text in
                   model.payloads.append(text)
                   await model.pause.pause()
-                  if !model.accept {
-                    model.sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
-                  }
                   return model.accept
                 },
                 onWillSend: {},
-                onRejected: { model.sendErrorMessage = nil },
                 onAdmitted: { model.isPresented = false }
               )
             }

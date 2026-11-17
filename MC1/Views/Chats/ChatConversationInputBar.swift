@@ -9,7 +9,7 @@ struct ChatConversationInputBar: View {
   let nodeNameByteCount: Int
   let onSend: (String) async -> Bool
   let onWillSend: () -> Void
-  let onDrawingRejected: () -> Void
+  let onNotAdmitted: () -> Void
 
   @Environment(\.appState) private var appState
   @State private var drawing = PixelPaintDraft()
@@ -80,7 +80,6 @@ struct ChatConversationInputBar: View {
         isReady: ready,
         onSend: onSend,
         onWillSend: onWillSend,
-        onRejected: onDrawingRejected,
         onAdmitted: { isShowingPainter = false }
       )
     }
@@ -94,6 +93,7 @@ struct ChatConversationInputBar: View {
       guard await !onSend(text) else { return }
       let newerText = draft.wrappedValue
       draft.wrappedValue = newerText.isEmpty ? text : text + "\n" + newerText
+      onNotAdmitted()
     }
   }
 

@@ -215,7 +215,8 @@ struct ChatSendQueueServiceTests {
   @Test
   func `isTransientChannelMessageError unwraps sessionError on deviceError(2)`() {
     let wrapped = MessageServiceError.sessionError(.deviceError(code: 2))
-    #expect(ChatSendQueueService.isTransientChannelMessageError(wrapped) == true)
+    #expect(ChatSendQueueService.isTransientChannelMessageError(wrapped, sentDatagram: false) == true)
+    #expect(ChatSendQueueService.isTransientChannelMessageError(wrapped, sentDatagram: true) == true)
   }
 
   /// A DM-path classifier must not park on code 2 — only code 3 is the DM
@@ -226,12 +227,11 @@ struct ChatSendQueueServiceTests {
     #expect(ChatSendQueueService.isTransientDirectMessageError(wrapped) == false)
   }
 
-  /// Symmetric guard for the channel classifier: code 3 is the DM signal,
-  /// not the channel one.
   @Test
-  func `isTransientChannelMessageError treats deviceError(3) as terminal`() {
+  func `isTransientChannelMessageError treats deviceError(3) as terminal for text`() {
     let wrapped = MessageServiceError.sessionError(.deviceError(code: 3))
-    #expect(ChatSendQueueService.isTransientChannelMessageError(wrapped) == false)
+    #expect(ChatSendQueueService.isTransientChannelMessageError(wrapped, sentDatagram: false) == false)
+    #expect(ChatSendQueueService.isTransientChannelMessageError(wrapped, sentDatagram: true) == true)
   }
 
   /// Regression: the channel-cap helper recognises the raw
@@ -998,6 +998,47 @@ struct ChatSendQueueServiceTests {
       radioID: radioID,
       messageID: pending.id
     )
+  }
+
+  @Test
+  func `enqueueReaction returns a row for a channel MCOimg and nil when the sender name is empty`() async throws {
+    let store = try Self.makeStore()
+    let radioID = UUID()
+    try await store.saveDevice(.testDevice(id: radioID, radioID: radioID, nodeName: "Painter"))
+    try await store.saveChannel(.testChannel(radioID: radioID, index: 0))
+    let text = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
+    let image = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: text,
+      direction: .outgoing,
+      status: .sent,
+      senderNodeName: "Painter"
+    )
+    try await store.saveMessage(image)
+    let queue = await ChatSendQueueService(
+      radioID: radioID,
+      dataStore: store,
+      messageService: Self.makeMessageService(dataStore: store),
+      channelService: Self.makeChannelService(dataStore: store),
+      reactionService: ReactionService(),
+      config: ChatSendQueueConfig(transportWaitTimeout: 0.05)
+    )
+    let outgoing = try await queue.enqueueReaction(to: image, emoji: "👍", senderName: "Painter")
+    let saved = try #require(outgoing)
+    let hash = try ReactionParser.generateUntimedHash(MCOImageTransport.dataField(text: text, senderName: "Painter"))
+    #expect(saved.text == "@[Painter]👍\n\(hash)")
+    #expect(try await store.fetchMessage(id: saved.id) != nil)
+
+    var unnamed = image
+    unnamed.id = UUID()
+    unnamed.senderNodeName = ""
+    try await store.saveMessage(unnamed)
+    let refused = try await queue.enqueueReaction(to: unnamed, emoji: "👍", senderName: "Painter")
+    #expect(refused == nil)
+    let messages = try await store.fetchMessages(radioID: radioID, channelIndex: 0)
+    #expect(messages.contains { $0.reactionTargetMessageID == unnamed.id } == false)
+    await queue.shutdown()
   }
 }
 

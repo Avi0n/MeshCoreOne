@@ -156,7 +156,6 @@ extension ChatViewModel {
     guard !text.isEmpty else { return true }
     guard let contact = currentContact,
           let queue = chatSendQueueServiceProvider() else {
-      sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
       return false
     }
 
@@ -172,7 +171,6 @@ extension ChatViewModel {
         await presentLocalEnqueueFailure(messageID: message.id, error: error)
       }
     } catch ChatSendQueueServiceError.notConnected {
-      sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
       return false
     } catch {
       errorMessage = error.userFacingMessage

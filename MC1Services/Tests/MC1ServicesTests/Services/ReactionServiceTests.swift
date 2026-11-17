@@ -580,17 +580,16 @@ struct ReactionServiceTests {
   }
 
   @Test
-  func `Indexing a channel image drops only that pending hash`() async throws {
+  func `Indexing a datagram hash returns that pending reaction and leaves the text reaction`() async throws {
     let service = ReactionService()
     let radioID = UUID()
     let timestamp: UInt32 = 1_704_067_200
-    let imageText = "im4:pixel"
-    let imageReactionText = service.buildReactionText(
-      emoji: "👍",
-      targetSender: "Ada",
-      targetText: imageText,
-      targetTimestamp: timestamp
+    let imageText = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
+    let sender = "Ada"
+    let hash = try ReactionParser.generateUntimedHash(
+      MCOImageTransport.dataField(text: imageText, senderName: sender)
     )
+    let imageReactionText = "@[\(sender)]👍\n\(hash)"
     let imageParsed = try #require(ReactionParser.parse(imageReactionText))
     await service.queuePendingReaction(
       parsed: imageParsed,
@@ -602,7 +601,7 @@ struct ReactionServiceTests {
 
     let textReactionText = service.buildReactionText(
       emoji: "🔥",
-      targetSender: "Ada",
+      targetSender: sender,
       targetText: "Hello world",
       targetTimestamp: timestamp
     )
@@ -618,17 +617,18 @@ struct ReactionServiceTests {
     let imageMatches = await service.indexMessage(
       id: UUID(),
       channelIndex: 0,
-      senderName: "Ada",
+      senderName: sender,
       text: imageText,
-      timestamp: timestamp
+      timestamp: 0,
+      messageHash: hash
     )
-    #expect(imageMatches.isEmpty)
-    #expect(await service.findTargetMessage(parsed: imageParsed, channelIndex: 0) == nil)
+    #expect(imageMatches.count == 1)
+    #expect(imageMatches.first?.parsed.emoji == "👍")
 
     let textMatches = await service.indexMessage(
       id: UUID(),
       channelIndex: 0,
-      senderName: "Ada",
+      senderName: sender,
       text: "Hello world",
       timestamp: timestamp
     )

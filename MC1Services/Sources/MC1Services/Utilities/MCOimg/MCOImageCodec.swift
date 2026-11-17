@@ -12,14 +12,14 @@ public enum MCOImageCodec {
   private static let versionMask: UInt8 = 0x0F
   private static let subtypeShift = 4
 
-  public static func isImageText(_ text: String) -> Bool {
+  public static func isMCOImageText(_ text: String) -> Bool {
     version(in: text.trimmingCharacters(in: .whitespacesAndNewlines)) != nil
   }
 
   /// A channel row whose text is MCOimg. Group data and a channel text packet
   /// with an `im3:` or `im4:` body are the same stored shape.
-  public static func isChannelImage(channelIndex: UInt8?, text: String) -> Bool {
-    channelIndex != nil && isImageText(text)
+  public static func isChannelMCOImage(channelIndex: UInt8?, text: String) -> Bool {
+    channelIndex != nil && isMCOImageText(text)
   }
 
   public static func content(from text: String) -> MCOImageContent? {

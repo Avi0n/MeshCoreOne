@@ -3,14 +3,14 @@ import Foundation
 import MeshCoreTestSupport
 import Testing
 
-@Suite("Channel image reactions")
+@Suite("Channel MCOimg reactions")
 @MainActor
-struct SyncCoordinatorChannelImageReactionTests {
+struct SyncCoordinatorChannelMCOImageReactionTests {
   /// Matches `ReactionService`'s pending cap. One more entry evicts the oldest.
   private static let pendingReactionCap = 100
 
   @Test
-  func `Reactions that match a stored channel image do not evict a pending text reaction`() async throws {
+  func `Reactions that match a stored channel MCOimg do not evict a pending text reaction`() async throws {
     let radioID = UUID()
     let session = MeshCoreSession(transport: SimulatorMockTransport())
     let services = try await ServiceContainer.forTesting(session: session, radioID: radioID)
@@ -71,11 +71,11 @@ struct SyncCoordinatorChannelImageReactionTests {
     )
     #expect(matches.count == 1)
     #expect(matches.first?.parsed.emoji == "🔥")
-    #expect(try await services.dataStore.fetchReactions(for: image.id).isEmpty)
+    #expect(try await services.dataStore.fetchReactions(for: image.id).count == 1)
   }
 
   @Test
-  func `A channel image arrival drops a reaction queued for that image`() async throws {
+  func `A reaction queued before an MCOimg attaches when the MCOimg is indexed`() async throws {
     let radioID = UUID()
     let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
     try await store.saveDevice(.testDevice(id: radioID))
@@ -91,7 +91,6 @@ struct SyncCoordinatorChannelImageReactionTests {
 
     let sender = "Ada"
     let appPayload = Data([0x14, 0, 0, 0, 0])
-    let expectedText = try MCOImageCodec.text(fromAppPayload: appPayload)
     try await queueReaction(
       on: services.reactionService,
       emoji: "🔥",
@@ -101,13 +100,15 @@ struct SyncCoordinatorChannelImageReactionTests {
       channelIndex: channel.index,
       radioID: radioID
     )
-    try await queueReaction(
-      on: services.reactionService,
-      emoji: "👍",
-      targetSender: sender,
-      targetText: expectedText,
-      targetTimestamp: 0,
+    let packetData = Data([UInt8(sender.utf8.count)]) + Data(sender.utf8) + appPayload
+    let imageHash = ReactionParser.generateUntimedHash(packetData)
+    let imageReaction = "@[\(sender)]👍\n\(imageHash)"
+    let imageParsed = try #require(ReactionParser.parse(imageReaction))
+    await services.reactionService.queuePendingReaction(
+      parsed: imageParsed,
       channelIndex: channel.index,
+      senderNodeName: "Bea",
+      rawText: imageReaction,
       radioID: radioID
     )
 
@@ -121,34 +122,17 @@ struct SyncCoordinatorChannelImageReactionTests {
       channelIndex: channel.index,
       pathLength: 2,
       dataType: MCOImageTransport.applicationDataType,
-      data: Data([UInt8(sender.utf8.count)]) + Data(sender.utf8) + appPayload,
+      data: packetData,
       snr: 6.25
     )
     let handler = try #require(await poller.capturedChannelDatagramHandler)
     let scope = try #require(try await store.captureReceiveScope(radioID: radioID, link: ReceiveScope.Lifetime()))
     await handler(packet, channel, .live, scope, nil, Date())
 
-    let imageReaction = services.reactionService.buildReactionText(
-      emoji: "👍",
-      targetSender: sender,
-      targetText: expectedText,
-      targetTimestamp: 0
-    )
-    let imageParsed = try #require(ReactionParser.parse(imageReaction))
-    #expect(await services.reactionService.findTargetMessage(parsed: imageParsed, channelIndex: channel.index) == nil)
-
-    // Filling back to the cap evicts the text reaction only if the image key is still queued.
-    for index in 0..<(Self.pendingReactionCap - 1) {
-      try await queueReaction(
-        on: services.reactionService,
-        emoji: "👀",
-        targetSender: "Filler",
-        targetText: "filler \(index)",
-        targetTimestamp: 1_700_000_200,
-        channelIndex: channel.index,
-        radioID: radioID
-      )
-    }
+    let messages = try await store.fetchMessages(radioID: radioID, channelIndex: channel.index)
+    let image = try #require(messages.first)
+    #expect(try await store.fetchReactions(for: image.id).count == 1)
+    #expect(await services.reactionService.findTargetMessage(parsed: imageParsed, channelIndex: channel.index) == image.id)
 
     let matches = await services.reactionService.indexMessage(
       id: UUID(),
@@ -158,9 +142,42 @@ struct SyncCoordinatorChannelImageReactionTests {
       timestamp: 1_700_000_100
     )
     #expect(matches.count == 1)
-    let messages = try await store.fetchMessages(radioID: radioID, channelIndex: channel.index)
-    let image = try #require(messages.first)
-    #expect(try await store.fetchReactions(for: image.id).isEmpty)
+  }
+
+  @Test
+  func `A reaction that arrives after a stored MCOimg attaches`() async throws {
+    let radioID = UUID()
+    let session = MeshCoreSession(transport: SimulatorMockTransport())
+    let services = try await ServiceContainer.forTesting(session: session, radioID: radioID)
+    defer { Task { await services.tearDown() } }
+
+    let sender = "Ada"
+    let text = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
+    var image = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: text,
+      timestamp: 1_000_000,
+      createdAt: Date(timeIntervalSince1970: 1_000_000),
+      direction: .incoming,
+      status: .delivered,
+      senderNodeName: sender
+    )
+    image.senderTimestamp = 0
+    try await services.dataStore.saveMessage(image)
+    let hash = try ReactionParser.generateUntimedHash(MCOImageTransport.dataField(text: text, senderName: sender))
+    let reaction = "@[\(sender)]👍\n\(hash)"
+    let consumed = await SyncCoordinator().handleChannelReaction(
+      text: reaction,
+      channelIndex: 0,
+      senderNodeName: "Bea",
+      selfNodeName: "Local",
+      receiveTime: Date(),
+      radioID: radioID,
+      dependencies: services.syncDependencies
+    )
+    #expect(consumed)
+    #expect(try await services.dataStore.fetchReactions(for: image.id).count == 1)
   }
 
   private func queueReaction(

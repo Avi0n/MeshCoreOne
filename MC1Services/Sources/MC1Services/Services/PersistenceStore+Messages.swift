@@ -241,8 +241,8 @@ public extension PersistenceStore {
         continue
       }
 
-      guard !MCOImageCodec.isChannelImage(channelIndex: candidate.channelIndex, text: candidate.text) else {
-        logger.debug("[REACTION-MATCH] Skip channel image")
+      guard !candidate.isDatagramMCOImage else {
+        logger.debug("[REACTION-MATCH] Skip datagram image")
         continue
       }
 
@@ -254,37 +254,29 @@ public extension PersistenceStore {
     return nil
   }
 
-  /// True when a channel image in the window hashes to this reaction.
-  /// A text lookup miss looks the same as this, so the caller must not queue it.
-  func channelImageMatchesReaction(
+  func findChannelDatagramForReaction(
     radioID: UUID,
     channelIndex: UInt8,
-    parsedReaction: ParsedReaction,
-    localNodeName: String?,
-    timestampWindow: ClosedRange<UInt32>,
-    limit: Int
-  ) async throws -> Bool {
-    let candidates = try fetchChannelMessageCandidates(
-      radioID: radioID,
-      channelIndex: channelIndex,
-      timestampWindow: timestampWindow,
-      limit: limit
-    )
-    for candidate in candidates {
-      guard MCOImageCodec.isChannelImage(channelIndex: candidate.channelIndex, text: candidate.text) else {
-        continue
-      }
-      if candidate.direction == .outgoing {
-        guard let localNodeName, parsedReaction.targetSender == localNodeName else { continue }
-      } else {
-        guard candidate.senderNodeName == parsedReaction.targetSender else { continue }
-      }
-      let candidateHash = ReactionParser.generateMessageHash(
-        text: candidate.text, timestamp: candidate.reactionTimestamp
-      )
-      if candidateHash == parsedReaction.messageHash { return true }
+    parsedReaction: ParsedReaction
+  ) async throws -> MessageDTO? {
+    let targetRadioID = radioID
+    let targetChannelIndex: UInt8? = channelIndex
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
     }
-    return false
+    let descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)]
+    )
+    for message in try modelContext.fetch(descriptor) {
+      let candidate = MessageDTO(from: message)
+      guard let target = candidate.mcoImageReactionTarget(),
+            candidate.isDatagramMCOImage,
+            target.senderName == parsedReaction.targetSender,
+            target.messageHash == parsedReaction.messageHash else { continue }
+      return candidate
+    }
+    return nil
   }
 
   /// Fetches channel message candidates within a timestamp window for meshcore-open reaction matching.
@@ -1090,7 +1082,8 @@ public extension PersistenceStore {
     var messageDescriptor = FetchDescriptor(predicate: messagePredicate)
     messageDescriptor.fetchLimit = 1
     guard let message = try modelContext.fetch(messageDescriptor).first else { return nil }
-    if MCOImageCodec.isChannelImage(channelIndex: message.channelIndex, text: message.text) {
+    let messageDTO = MessageDTO(from: message)
+    if messageDTO.isChannelMCOImage, messageDTO.mcoImageReactionTarget() == nil {
       return nil
     }
 

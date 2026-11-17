@@ -201,7 +201,9 @@ struct ChatConversationView: View {
           }
         },
         onWillSend: { scrollToBottomRequest += 1 },
-        onDrawingRejected: { chatViewModel.sendErrorMessage = nil }
+        onNotAdmitted: {
+          chatViewModel.sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+        }
       )
     }
     .navigationHeader(

@@ -86,14 +86,14 @@ struct MessageFragmentBuilderTests {
   }
 
   @Test
-  func `channel image omits a stored reaction summary`() {
+  func `channel MCOimg keeps a stored reaction summary`() {
     let message = makeMessage(text: "im4:pixel", reactionSummary: "👍:1", channelIndex: 0, contactID: nil)
     let item = MessageFragmentBuilder.makeItem(for: message, inputs: makeInputs(messageID: message.id), envInputs: makeEnvInputs())
-    #expect(item.content.map(Self.kind(of:)) == [.mcoImage])
+    #expect(item.content.map(Self.kind(of:)) == [.mcoImage, .reactionSummary])
   }
 
   @Test
-  func `direct image keeps a stored reaction summary`() {
+  func `direct MCOimg keeps a stored reaction summary`() {
     let message = makeMessage(text: "im4:pixel", reactionSummary: "👍:1")
     let item = MessageFragmentBuilder.makeItem(for: message, inputs: makeInputs(messageID: message.id), envInputs: makeEnvInputs())
     #expect(item.content.map(Self.kind(of:)) == [.mcoImage, .reactionSummary])

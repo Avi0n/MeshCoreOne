@@ -80,4 +80,77 @@ struct MCOImageReceiveIntegrationTests {
       }
     }
   }
+
+  @Test
+  func `a recently blocked MCOimg is suppressed and an unblocked MCOimg is saved`() async throws {
+    let radioID = UUID()
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    try await store.saveDevice(.testDevice(id: radioID))
+    let channel = ChannelDTO.testChannel(radioID: radioID, index: 2)
+    try await store.saveChannel(channel)
+    let savedChannel = try #require(try await store.fetchChannel(radioID: radioID, index: channel.index))
+    let conversationID = try #require(savedChannel.textRulesID)
+    let services = ServiceContainer(
+      session: MeshCoreSession(transport: SimulatorMockTransport()),
+      dataStore: store,
+      radioID: radioID
+    )
+    services.notificationService.isSuppressingNotifications = true
+    defer { Task { await services.tearDown() } }
+    let poller = MockMessagePollingService()
+    let coordinator = SyncCoordinator()
+    await coordinator.wireMessageHandlers(
+      dependencies: services.syncDependencies.with(dataStore: store, messagePollingService: poller),
+      radioID: radioID
+    )
+
+    let sender = "Peer"
+    let blockedPayload = Data([0x14, 0, 0, 0, 0])
+    let allowedPayload = try #require(Data(base64Encoded: "E3oBjQBCvgE="))
+    let blockedText = try MCOImageCodec.text(fromAppPayload: blockedPayload)
+    let allowedText = try MCOImageCodec.text(fromAppPayload: allowedPayload)
+    var preference = TextRulesPreference()
+    preference.append(.init(phrase: "blocked", lookIn: .message, match: .contains))
+    try await store.recordRecentlyBlockedMessage(RecentlyBlockedMessageDTO(
+      identity: .init(
+        radioID: radioID,
+        conversationID: conversationID,
+        senderPrefix: nil,
+        senderTimestamp: 0,
+        textType: MeshTextType.plain.rawValue,
+        wireText: Data(blockedText.utf8)
+      ),
+      arrivedAt: Date(),
+      body: "blocked",
+      sender: nil,
+      conversationName: savedChannel.name,
+      radioName: nil,
+      match: #require(preference.firstMatch(body: "blocked", sender: nil))
+    ))
+
+    let handler = try #require(await poller.capturedChannelDatagramHandler)
+    let scope = try #require(try await store.captureReceiveScope(radioID: radioID, link: ReceiveScope.Lifetime()))
+    await handler(
+      datagram(channel: savedChannel, sender: sender, payload: blockedPayload),
+      savedChannel, .live, scope, nil, Date()
+    )
+    await handler(
+      datagram(channel: savedChannel, sender: sender, payload: allowedPayload),
+      savedChannel, .live, scope, nil, Date()
+    )
+
+    let messages = try await store.fetchMessages(radioID: radioID, channelIndex: savedChannel.index)
+    #expect(messages.map(\.text) == [allowedText])
+    #expect(messages.first?.senderNodeName == sender)
+  }
+
+  private func datagram(channel: ChannelDTO, sender: String, payload: Data) -> ChannelDatagram {
+    ChannelDatagram(
+      channelIndex: channel.index,
+      pathLength: 2,
+      dataType: MCOImageTransport.applicationDataType,
+      data: Data([UInt8(sender.utf8.count)]) + Data(sender.utf8) + payload,
+      snr: 6.25
+    )
+  }
 }

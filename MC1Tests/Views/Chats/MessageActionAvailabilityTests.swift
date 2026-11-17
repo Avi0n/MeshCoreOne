@@ -198,14 +198,26 @@ struct MessageActionAvailabilityTests {
   }
 
   @Test
-  func `channel image cannot react`() {
-    let message = makeMessage(channelIndex: 0, text: "im4:pixel")
-    let availability = MessageActionAvailability(message: message)
-    #expect(availability.canReact == false)
+  func `channel MCOimg with a sender can react`() throws {
+    let incoming = makeMessage(channelIndex: 0, text: "im4:pixel")
+    #expect(MessageActionAvailability(message: incoming).canReact)
+
+    let text = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
+    let outgoing = makeMessage(channelIndex: 0, text: text, direction: .outgoing)
+    #expect(MessageActionAvailability(message: outgoing).canReact)
   }
 
   @Test
-  func `direct image can react`() {
+  func `channel MCOimg with an empty sender cannot react`() {
+    var message = makeMessage(channelIndex: 0, text: "im4:pixel")
+    message.senderNodeName = ""
+    #expect(MessageActionAvailability(message: message).canReact == false)
+    message.senderNodeName = nil
+    #expect(MessageActionAvailability(message: message).canReact == false)
+  }
+
+  @Test
+  func `direct MCOimg can react`() {
     let message = makeMessage(contactID: UUID(), text: "im4:pixel")
     let availability = MessageActionAvailability(message: message)
     #expect(availability.canReact == true)

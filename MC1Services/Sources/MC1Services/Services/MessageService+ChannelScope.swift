@@ -5,7 +5,7 @@ extension MessageService {
   private static let floodScopeMinimumFirmwareVersion: UInt8 = 8
 
   func sendChannelMessageWithScope(
-    text: String,
+    _ transmission: ChannelTransmission,
     channelIndex: UInt8,
     radioID: UUID,
     timestamp: Date
@@ -24,8 +24,8 @@ extension MessageService {
     } else {
       scope
     }
-    if MCOImageCodec.isImageText(text) {
-      let payload = try await channelImagePayload(text, radioID: radioID)
+    switch transmission {
+    case let .mcoImage(payload):
       if let appliedScope {
         try await session.sendChannelData(
           channelIndex: channelIndex,
@@ -42,17 +42,17 @@ extension MessageService {
           pathBytes: Data()
         )
       }
-      return
-    }
-    if let appliedScope {
-      try await session.sendChannelMessage(
-        channel: channelIndex,
-        text: text,
-        timestamp: timestamp,
-        floodScope: appliedScope
-      )
-    } else {
-      try await session.sendChannelMessage(channel: channelIndex, text: text, timestamp: timestamp)
+    case let .text(text):
+      if let appliedScope {
+        try await session.sendChannelMessage(
+          channel: channelIndex,
+          text: text,
+          timestamp: timestamp,
+          floodScope: appliedScope
+        )
+      } else {
+        try await session.sendChannelMessage(channel: channelIndex, text: text, timestamp: timestamp)
+      }
     }
   }
 }
