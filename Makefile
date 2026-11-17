@@ -14,7 +14,7 @@ SCHEME  := MC1
 PROJECT := MC1.xcodeproj
 
 # The full app suite runs on the project-standard iOS 27 simulator. Override SIM to retarget.
-SIM ?= platform=iOS Simulator,name=iPhone 17e,OS=27.0
+SIM ?= platform=iOS Simulator,name=iPhone 17e,OS=27.2
 
 # Additional test options, including result-bundle paths and repetition settings.
 XCODEBUILD_TEST_ARGS ?=

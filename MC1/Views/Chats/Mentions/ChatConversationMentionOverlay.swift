@@ -3,8 +3,8 @@ import SwiftUI
 
 /// Floating mention suggestions overlay for the chat input.
 struct ChatConversationMentionOverlay: View {
-  /// Clearance above the compose bar when the keyboard is down (bar ~height).
-  private static let composeBarClearance: CGFloat = 60
+  /// Space under the card. The timeline safe area ends at the composer, so this is only the gap.
+  private static let gapAboveComposer: CGFloat = 0
 
   let suggestions: [ContactDTO]
   let onSelectMention: (ContactDTO) -> Void
@@ -17,9 +17,7 @@ struct ChatConversationMentionOverlay: View {
           onSelectMention(contact)
         }
         .padding(.horizontal)
-        // Clearance above the compose bar, then `chatKeyboardLift` for the keyboard.
-        .padding(.bottom, Self.composeBarClearance)
-        .chatKeyboardLiftPadding()
+        .padding(.bottom, Self.gapAboveComposer)
         .transition(
           .asymmetric(
             insertion: .move(edge: .bottom)
@@ -28,8 +26,6 @@ struct ChatConversationMentionOverlay: View {
             removal: .move(edge: .bottom).combined(with: .opacity)
           )
         )
-        // `ChatWindowBottomInset` keeps suggestions above the bar once the container inset is ignored.
-        ChatWindowBottomInset()
       }
       .animation(.spring(response: 0.3, dampingFraction: 0.8), value: suggestions.isEmpty)
     }
