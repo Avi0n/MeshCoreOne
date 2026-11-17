@@ -20,8 +20,12 @@ enum SectionSplitPresentation {
     columnVisibility: NavigationSplitViewVisibility,
     tabBarPlacement: TabBarPlacement?,
     preferredColumn: NavigationSplitViewColumn,
-    hasSelection: Bool
+    hasSelection: Bool,
+    sectionIsSelected: Bool
   ) -> Visibility {
+    // An unselected section returns automatic. The tab stays mounted, so a hidden
+    // preference would hide the bar on the selected tab.
+    guard sectionIsSelected else { return .automatic }
     let collapsedDetail = sizeClass == .compact
       && preferredColumn == .detail
       && hasSelection

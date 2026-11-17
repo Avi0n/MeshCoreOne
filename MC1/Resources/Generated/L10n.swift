@@ -3164,8 +3164,6 @@ public enum L10n {
       public static let addDevice = L10n.tr("Onboarding", "deviceScan.addDevice", fallback: "Add Device")
       /// Location: DeviceScanView.swift - Message shown when device is already paired
       public static let alreadyPaired = L10n.tr("Onboarding", "deviceScan.alreadyPaired", fallback: "Your device is already paired")
-      /// Location: DeviceScanView.swift - Button label while connecting
-      public static let connecting = L10n.tr("Onboarding", "deviceScan.connecting", fallback: "Connecting...")
       /// Location: DeviceScanView.swift - Button to connect simulator (debug)
       public static let connectSimulator = L10n.tr("Onboarding", "deviceScan.connectSimulator", fallback: "Connect Simulator")
       /// Location: DeviceScanView.swift - Button to connect via WiFi
@@ -7086,11 +7084,23 @@ public enum L10n {
         /// What's New v1.6 - Advanced map filters, title
         public static let title = L10n.tr("WhatsNew", "whatsNew.advancedMapFilters.title", fallback: "Advanced map filters")
       }
+      public enum BlocksAndFilters {
+        /// What's New v1.7 - Blocks and filters, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.blocksAndFilters.description", fallback: "Hide messages that match a word or phrase. A rule can look at the message, the sender's name, or both, and you choose which chats it applies to. Hidden messages can be seen in Recently Blocked under Settings > Blocks & Filters.")
+        /// What's New v1.7 - Blocks and filters, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.blocksAndFilters.title", fallback: "Blocks & Filters")
+      }
       public enum BluetoothAndWiFi {
         /// What's New v1.6 - Bluetooth and Wi-Fi, description
         public static let description = L10n.tr("WhatsNew", "whatsNew.bluetoothAndWiFi.description", fallback: "If a radio is on firmware 1.18 or later and paired over both Bluetooth and Wi-Fi, you can switch between them in Connect Device and in Settings > Connection.")
         /// What's New v1.6 - Bluetooth and Wi-Fi, title
         public static let title = L10n.tr("WhatsNew", "whatsNew.bluetoothAndWiFi.title", fallback: "Bluetooth and Wi-Fi")
+      }
+      public enum DirectMessages {
+        /// What's New v1.7 - Direct messages, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.directMessages.description", fallback: "Direct messages now try the path 4 times, then flood 4 times. Change Attempts on Path, Flood Attempts, and Fall Back to Flood in Advanced Settings.")
+        /// What's New v1.7 - Direct messages, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.directMessages.title", fallback: "Direct messages")
       }
       public enum FasterChatLoading {
         /// What's New v1.5 - Faster chat loading, description
@@ -7110,11 +7120,23 @@ public enum L10n {
         /// What's New v1.6 - iPhone Duo, title
         public static let title = L10n.tr("WhatsNew", "whatsNew.iPhoneDuo.title", fallback: "iPhone Duo")
       }
+      public enum LiveActivity {
+        /// What's New v1.7 - Live Activity, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.liveActivity.description", fallback: "Unread messages are more prominent and the packets per minute rate is easier to understand.")
+        /// What's New v1.7 - Live Activity, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.liveActivity.title", fallback: "Live Activity")
+      }
       public enum MoreChanges {
         /// What's New v1.6 - More changes, description
         public static let description = L10n.tr("WhatsNew", "whatsNew.moreChanges.description", fallback: "Tap \"See all new changes\" below to view the full list of bug fixes and other features.")
         /// What's New v1.6 - More changes, title
         public static let title = L10n.tr("WhatsNew", "whatsNew.moreChanges.title", fallback: "More changes")
+      }
+      public enum NodeTelemetry {
+        /// What's New v1.7 - Node telemetry, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.nodeTelemetry.description", fallback: "Settings > Device Info shows telemetry from the node you are connected to.")
+        /// What's New v1.7 - Node telemetry, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.nodeTelemetry.title", fallback: "Node telemetry")
       }
       public enum PathDetails {
         /// What's New v1.5 - Path Details feature, description

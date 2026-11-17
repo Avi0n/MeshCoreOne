@@ -65,3 +65,23 @@
 "whatsNew.moreChanges.title" = "Більше змін";
 /* What's New v1.6 - More changes, description */
 "whatsNew.moreChanges.description" = "Натисніть \"Переглянути всі нові зміни\" нижче, щоб побачити повний список виправлень помилок та інших функцій.";
+
+/* What's New v1.7 - Direct messages, title */
+"whatsNew.directMessages.title" = "Особисті повідомлення";
+/* What's New v1.7 - Direct messages, description */
+"whatsNew.directMessages.description" = "Особисті повідомлення тепер роблять 4 спроби за маршрутом, а потім 4 спроби flood-маршрутизації. Змініть «Спроби за маршрутом», «Спроби flood-маршрутизації» і «Запасна flood-маршрутизація» в «Розширені налаштування».";
+
+/* What's New v1.7 - Blocks and filters, title */
+"whatsNew.blocksAndFilters.title" = "Блокування та фільтри";
+/* What's New v1.7 - Blocks and filters, description */
+"whatsNew.blocksAndFilters.description" = "Приховуйте повідомлення, які збігаються зі словом або фразою. Правило може шукати в «Повідомлення», в «Відправник» або в обох, і ви вибираєте, до яких чатів воно застосовується. Приховані повідомлення можна побачити в «Нещодавно приховані» в Налаштування > Блокування та фільтри.";
+
+/* What's New v1.7 - Node telemetry, title */
+"whatsNew.nodeTelemetry.title" = "Телеметрія вузла";
+/* What's New v1.7 - Node telemetry, description */
+"whatsNew.nodeTelemetry.description" = "Налаштування > Інформація про пристрій показує телеметрію вузла, до якого ви підключені.";
+
+/* What's New v1.7 - Live Activity, title */
+"whatsNew.liveActivity.title" = "Онлайн-активність";
+/* What's New v1.7 - Live Activity, description */
+"whatsNew.liveActivity.description" = "Непрочитані повідомлення тепер помітніші, а показник пакетів за хвилину легше зрозуміти.";

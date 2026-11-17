@@ -65,3 +65,23 @@
 "whatsNew.moreChanges.title" = "Altre modifiche";
 /* What's New v1.6 - More changes, description */
 "whatsNew.moreChanges.description" = "Tocca \"Vedi tutte le nuove modifiche\" qui sotto per vedere l'elenco completo delle correzioni di bug e delle altre funzionalità.";
+
+/* What's New v1.7 - Direct messages, title */
+"whatsNew.directMessages.title" = "Messaggi diretti";
+/* What's New v1.7 - Direct messages, description */
+"whatsNew.directMessages.description" = "I messaggi diretti ora provano il percorso 4 volte, poi 4 volte con routing flood. Cambia Tentativi sul percorso, Tentativi con routing flood e Ripiego sul routing flood in Impostazioni avanzate.";
+
+/* What's New v1.7 - Blocks and filters, title */
+"whatsNew.blocksAndFilters.title" = "Blocco e filtri";
+/* What's New v1.7 - Blocks and filters, description */
+"whatsNew.blocksAndFilters.description" = "Nascondi i messaggi che corrispondono a una parola o una frase. Una regola può cercare nel messaggio, nel nome del mittente o in entrambi, e scegli a quali chat si applica. I messaggi nascosti si vedono in Bloccati di recente in Impostazioni > Blocco e filtri.";
+
+/* What's New v1.7 - Node telemetry, title */
+"whatsNew.nodeTelemetry.title" = "Telemetria del nodo";
+/* What's New v1.7 - Node telemetry, description */
+"whatsNew.nodeTelemetry.description" = "Impostazioni > Info dispositivo mostra la telemetria del nodo a cui sei connesso.";
+
+/* What's New v1.7 - Live Activity, title */
+"whatsNew.liveActivity.title" = "Attività Live";
+/* What's New v1.7 - Live Activity, description */
+"whatsNew.liveActivity.description" = "I messaggi non letti sono più in evidenza e il tasso di pacchetti al minuto è più facile da capire.";

@@ -22,6 +22,7 @@ struct MC1App: App {
   private let pendingExternalURL = PendingExternalURL()
 
   init() {
+    MacSuspendLockMarker.markIfNeeded()
     OfflineMapNetwork.configure()
     // Register the bridge synchronously here: a background-launched intent
     // runs only `App.init` (no scene, no `.task`), so a deferred
@@ -198,6 +199,7 @@ struct MC1App: App {
   }
 
   private func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
+    MacSuspendLockMarker.markIfNeeded()
     appState.logToolbarResumeProbe(
       source: "scenePhase",
       scene: "\(scenePhaseName(oldPhase))->\(scenePhaseName(newPhase))"
@@ -213,10 +215,8 @@ struct MC1App: App {
       // (a failing reconnect is exactly that window) services is nil, and unflushed
       // entries die with the process if iOS terminates the suspended app.
       Task {
-        await BackgroundTaskRunner.live.run(named: "FlushBufferedWrites") {
-          await DebugLogBuffer.shared?.flush()
-          try? await appState.connectionManager.persistenceStore.flushPendingRxLogEntries()
-        }
+        await DebugLogBuffer.shared?.flush()
+        try? await appState.connectionManager.persistenceStore.flushPendingRxLogEntries()
       }
     case .inactive:
       break

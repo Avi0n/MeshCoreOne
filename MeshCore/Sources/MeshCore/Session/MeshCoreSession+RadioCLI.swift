@@ -3,7 +3,8 @@ import Foundation
 extension MeshCoreSession {
   private static let cliNullByte: UInt8 = 0
 
-  /// Typed commands accept only the exact request tag reflected by supported firmware.
+  /// Typed commands prefer the echoed request tag.
+  /// A tag-less reply is accepted only while attribution is still clean.
   public func runCorrelatedCliCommand(_ command: String) async throws -> String {
     try validateCLICommand(command)
     return try await requestResponseSerializer.withSerialization { [self] in
@@ -11,6 +12,7 @@ extension MeshCoreSession {
       let taggedCommand = prefix + command
       try await validateCLICommand(taggedCommand)
       let reply = try await performCLIExchange(taggedCommand, expectedPrefix: prefix)
+      guard reply.utf8.starts(with: prefix.utf8) else { return reply }
       return String(decoding: reply.utf8.dropFirst(prefix.utf8.count), as: UTF8.self)
     }
   }
@@ -35,10 +37,17 @@ extension MeshCoreSession {
 
   private func performCLIExchange(_ command: String, expectedPrefix: String?) async throws -> String {
     let scope = radioCLICorrelationScope
+    // A timeout here marks the session uncertain, and the next scoped channel send reconnects.
+    let attributionIsClean = await requestResponseSerializer.responseAttributionIsUncertain() == false
+    let acceptUntaggedReply = expectedPrefix != nil
+      && !scope.unprefixedRepliesAreUncertain()
+      && attributionIsClean
     return try await sendAndMatchHoldingSerialization(PacketBuilder.runCliCommand(command)) { event in
       if case let .cliReply(text) = event {
         if let expectedPrefix {
-          return text.utf8.starts(with: expectedPrefix.utf8) ? .success(text) : .ignore
+          if text.utf8.starts(with: expectedPrefix.utf8) { return .success(text) }
+          if scope.recognizesReplyPrefix(text) || !acceptUntaggedReply { return .ignore }
+          return .success(text)
         }
         return scope.recognizesReplyPrefix(text) ? .ignore : .success(text)
       }

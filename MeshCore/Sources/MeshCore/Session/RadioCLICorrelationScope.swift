@@ -56,6 +56,10 @@ public final class RadioCLICorrelationScope: Sendable {
     state.withLock { $0.unprefixedReplyIsUncertain = true }
   }
 
+  func unprefixedRepliesAreUncertain() -> Bool {
+    state.withLock { $0.unprefixedReplyIsUncertain }
+  }
+
   func recognizesReplyPrefix(_ reply: String) -> Bool {
     let bytes = Array(reply.utf8.prefix(Self.prefixSize))
     guard bytes.count == Self.prefixSize, bytes.last == Self.prefixMarker else { return false }

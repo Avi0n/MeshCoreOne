@@ -2,7 +2,11 @@ import MC1Services
 import SwiftUI
 
 struct DeviceScanView: View {
+  private static let busyLabelLineLimit = 2
+  private static let busyLabelMinimumScale: CGFloat = 0.8
+
   @Environment(\.appState) private var appState
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var showTroubleshooting = false
   @State private var showingWiFiConnection = false
   @State private var showingNoDeviceSheet = false
@@ -12,6 +16,7 @@ struct DeviceScanView: View {
   @State private var didInitiatePairing = false
   @State private var showDemoModeAlert = false
   @State private var otherAppDeviceID: UUID?
+  @State private var directConnectionAttempt: Task<Void, Never>?
   private var demoModeManager = DemoModeManager.shared
 
   private var hasConnectedDevice: Bool {
@@ -137,22 +142,26 @@ struct DeviceScanView: View {
                                                         text: L10n.Onboarding.DeviceScan.connectSimulator) }
           .liquidGlassProminentButtonStyle()
           .disabled(appState.connectionUI.isBusy)
+          .accessibilityAddTraits(appState.connectionUI.isBusy ? .updatesFrequently : [])
       #else
         if demoModeManager.isEnabled {
           Button { connectSimulator() } label: { ctaLabel(systemImage: "play.circle.fill",
                                                           text: L10n.Onboarding.DeviceScan.continueDemo) }
             .liquidGlassProminentButtonStyle()
             .disabled(appState.connectionUI.isBusy)
+            .accessibilityAddTraits(appState.connectionUI.isBusy ? .updatesFrequently : [])
         } else if let deviceID = otherAppDeviceID {
           Button { retryConnection(deviceID: deviceID) } label: { ctaLabel(systemImage: "arrow.clockwise.circle.fill",
                                                                            text: L10n.Onboarding.DeviceScan.retryConnection) }
             .liquidGlassProminentButtonStyle()
             .disabled(appState.connectionUI.isBusy)
+            .accessibilityAddTraits(appState.connectionUI.isBusy ? .updatesFrequently : [])
         } else {
           Button { startPairing() } label: { ctaLabel(systemImage: "plus.circle.fill",
                                                       text: L10n.Onboarding.DeviceScan.addDevice) }
             .liquidGlassProminentButtonStyle()
             .disabled(appState.connectionUI.isBusy)
+            .accessibilityAddTraits(appState.connectionUI.isBusy ? .updatesFrequently : [])
         }
       #endif
     }
@@ -160,20 +169,39 @@ struct DeviceScanView: View {
 
   @ViewBuilder
   private var secondaryButtons: some View {
-    Button(L10n.Onboarding.DeviceScan.connectViaWifi) { showingWiFiConnection = true }
+    if appState.connectionUI.isBusy {
+      Button(action: cancelInProgressConnection) {
+        Text(L10n.Localizable.Common.cancel)
+      }
       .font(.subheadline)
       .foregroundStyle(.secondary)
+    } else {
+      Button { showingWiFiConnection = true } label: {
+        Text(L10n.Onboarding.DeviceScan.connectViaWifi)
+      }
+      .font(.subheadline)
+      .foregroundStyle(.secondary)
+    }
 
     Button(L10n.Onboarding.DeviceScan.deviceNotAppearing) { showTroubleshooting = true }
       .font(.subheadline)
       .foregroundStyle(.secondary)
   }
 
+  private var busyTitle: String {
+    appState.statusPillState.busyProgressTitle
+  }
+
   private func ctaLabel(systemImage: String, text: String) -> some View {
     HStack(spacing: 8) {
       if appState.connectionUI.isBusy {
         ProgressView().controlSize(.small)
-        Text(L10n.Onboarding.DeviceScan.connecting)
+        Text(busyTitle)
+          .lineLimit(Self.busyLabelLineLimit)
+          .multilineTextAlignment(.center)
+          .minimumScaleFactor(Self.busyLabelMinimumScale)
+          .contentTransition(reduceMotion ? .identity : .opacity)
+          .animation(reduceMotion ? nil : .default, value: busyTitle)
       } else {
         Image(systemName: systemImage)
         Text(text)
@@ -182,6 +210,10 @@ struct DeviceScanView: View {
     .font(.headline)
     .frame(maxWidth: .infinity)
     .padding()
+    .onChange(of: busyTitle) { _, newTitle in
+      guard appState.connectionUI.isBusy, newTitle != L10n.Localizable.Common.Status.connecting else { return }
+      appState.connectionUI.announceConnectionState(newTitle)
+    }
   }
 
   private func startPairing() {
@@ -189,19 +221,32 @@ struct DeviceScanView: View {
     appState.startDeviceScan()
   }
 
+  private func cancelInProgressConnection() {
+    let directRequestID = directConnectionAttempt == nil
+      ? nil
+      : appState.connectionManager.connectionActivity?.requestID
+    directConnectionAttempt?.cancel()
+    directConnectionAttempt = nil
+    appState.cancelDeviceScanAttempt()
+    guard let directRequestID else { return }
+    Task { await appState.disconnect(requestID: directRequestID, reason: .userInitiated) }
+  }
+
   private func retryConnection(deviceID: UUID) {
     let actionID = appState.connectionUI.beginConnectionAction()
-    Task { @MainActor in
+    directConnectionAttempt?.cancel()
+    directConnectionAttempt = Task { @MainActor in
       guard appState.connectionUI.isCurrentConnectionAction(actionID) else { return }
       defer { appState.connectionUI.finishConnectionAction(actionID) }
       do {
         let result = try await appState.connectionManager.connect(to: deviceID, forceReconnect: true)
-        guard case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else { return }
+        guard !Task.isCancelled,
+              case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else { return }
         await appState.wireServices(for: snapshot)
-        guard appState.connectionManager.isCurrent(snapshot) else { return }
+        guard !Task.isCancelled, appState.connectionManager.isCurrent(snapshot) else { return }
         appState.onboarding.onboardingPath.append(.region)
       } catch {
-        guard let failure = appState.currentConnectionFailure(error) else { return }
+        guard !Task.isCancelled, let failure = appState.currentConnectionFailure(error) else { return }
         appState.connectionUI.presentSavedDeviceConnectFailure(deviceID: deviceID, error: failure)
       }
     }
@@ -210,17 +255,19 @@ struct DeviceScanView: View {
   private func connectSimulator() {
     let actionID = appState.connectionUI.beginConnectionAction()
     didInitiatePairing = true
-    Task { @MainActor in
+    directConnectionAttempt?.cancel()
+    directConnectionAttempt = Task { @MainActor in
       guard appState.connectionUI.isCurrentConnectionAction(actionID) else { return }
       defer { appState.connectionUI.finishConnectionAction(actionID) }
       do {
         let result = try await appState.connectionManager.simulatorConnect()
-        guard case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else { return }
+        guard !Task.isCancelled,
+              case let .operational(snapshot) = result, appState.connectionManager.isCurrent(snapshot) else { return }
         await appState.wireServices(for: snapshot)
-        guard appState.connectionManager.isCurrent(snapshot) else { return }
+        guard !Task.isCancelled, appState.connectionManager.isCurrent(snapshot) else { return }
         appState.onboarding.onboardingPath.append(.region)
       } catch {
-        guard let failure = appState.currentConnectionFailure(error) else { return }
+        guard !Task.isCancelled, let failure = appState.currentConnectionFailure(error) else { return }
         appState.connectionUI.presentConnectionFailure(message: failure.userFacingMessage)
       }
     }

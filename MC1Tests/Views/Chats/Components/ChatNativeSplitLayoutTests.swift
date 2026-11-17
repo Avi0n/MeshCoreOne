@@ -896,7 +896,8 @@ private final class ChatNativeSplitHarnessModel {
       columnVisibility: columnVisibility,
       tabBarPlacement: placement,
       preferredColumn: preferredCompactColumn,
-      hasSelection: selectedRoute != nil
+      hasSelection: selectedRoute != nil,
+      sectionIsSelected: true
     )
   }
 

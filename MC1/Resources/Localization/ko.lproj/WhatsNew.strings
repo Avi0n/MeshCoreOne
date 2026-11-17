@@ -64,3 +64,23 @@
 "whatsNew.moreChanges.title" = "기타 변경 사항";
 /* What's New v1.6 - More changes, description */
 "whatsNew.moreChanges.description" = "아래의 \"모든 변경 사항 보기\"를 탭하면 버그 수정과 기타 기능의 전체 목록을 볼 수 있습니다.";
+
+/* What's New v1.7 - Direct messages, title */
+"whatsNew.directMessages.title" = "다이렉트 메시지";
+/* What's New v1.7 - Direct messages, description */
+"whatsNew.directMessages.description" = "다이렉트 메시지는 이제 경로를 4번 시도한 다음 플러드 라우팅을 4번 시도합니다. 고급 설정에서 경로 시도, 플러드 라우팅 시도 및 플러드 라우팅으로 대체를 변경할 수 있습니다.";
+
+/* What's New v1.7 - Blocks and filters, title */
+"whatsNew.blocksAndFilters.title" = "차단 및 필터";
+/* What's New v1.7 - Blocks and filters, description */
+"whatsNew.blocksAndFilters.description" = "단어 또는 문구와 일치하는 메시지는 숨겨집니다. 규칙은 메시지, 발신자 이름 또는 둘 다를 볼 수 있으며, 적용할 채팅을 선택할 수 있습니다. 숨겨진 메시지는 설정 > 차단 및 필터의 최근 차단에서 볼 수 있습니다.";
+
+/* What's New v1.7 - Node telemetry, title */
+"whatsNew.nodeTelemetry.title" = "노드 텔레메트리";
+/* What's New v1.7 - Node telemetry, description */
+"whatsNew.nodeTelemetry.description" = "연결된 노드의 텔레메트리가 설정 > 기기 정보에 표시됩니다.";
+
+/* What's New v1.7 - Live Activity, title */
+"whatsNew.liveActivity.title" = "실시간 현황";
+/* What's New v1.7 - Live Activity, description */
+"whatsNew.liveActivity.description" = "읽지 않은 메시지가 더 눈에 띄며, 분당 패킷 수가 더 이해하기 쉽습니다.";

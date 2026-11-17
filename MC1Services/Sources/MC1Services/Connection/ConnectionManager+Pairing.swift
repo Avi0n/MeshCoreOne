@@ -4,6 +4,13 @@ import MeshCore
 // MARK: - Pairing
 
 public extension ConnectionManager {
+  /// The request `pairNewDevice()` has already admitted. Nil during the picker,
+  /// so cancelling discovery does not drop a radio that is already connected.
+  var admittedPairingRequestID: UUID? {
+    guard isPairingInProgress, let request = desiredRequest, request.origin == .pairing else { return nil }
+    return request.id
+  }
+
   /// Pairs through the platform picker, then joins the admitted connection request.
   @discardableResult
   func pairNewDevice() async throws -> ConnectionResult {

@@ -228,6 +228,52 @@ struct CLIProvenanceScopeTests {
     }
   }
 
+  @Test
+  func `fresh correlated read accepts an untagged reply`() async throws {
+    let harness = try await Harness.make(scope: RadioCLICorrelationScope())
+    do {
+      let before = await harness.transport.sentData.count
+      let command = harness.start { try await harness.session.runCorrelatedCliCommand("get tz.offset") }
+      try await waitUntil { await harness.transport.sentData.count == before + 1 }
+      await harness.transport.simulateReceive(Self.reply("> -8"))
+      #expect(try await command.value == "> -8")
+      let uncertain = await harness.session.requestResponseSerializer.responseAttributionIsUncertain()
+      #expect(uncertain == false)
+      await harness.close()
+    } catch {
+      await harness.close()
+      throw error
+    }
+  }
+
+  @Test
+  func `correlated timeout still rejects a later untagged reply`() async throws {
+    let harness = try await Harness.make(scope: RadioCLICorrelationScope())
+    do {
+      let sentBeforeTimeout = await harness.transport.sentData.count
+      let timedOut = harness.start { try await harness.session.runCorrelatedCliCommand("get wifi.pwd") }
+      try await waitUntil { await harness.transport.sentData.count == sentBeforeTimeout + 1 }
+      try await harness.expireParkedCommand()
+      await #expect { try await timedOut.value } throws: { error in
+        guard let error = error as? MeshCoreError, case .timeout = error else { return false }
+        return true
+      }
+      let before = await harness.transport.sentData.count
+      let typed = harness.start { try await harness.session.runCorrelatedCliCommand("get wifi.ssid") }
+      try await waitUntil { await harness.transport.sentData.count == before + 1 }
+      let prefix = try #require(await harness.lastPrefix())
+      await harness.transport.simulateReceive(Self.reply("> synthetic-private-value"))
+      await harness.transport.simulateReceive(Self.reply(prefix + "> configured"))
+      #expect(try await typed.value == "> configured")
+      let uncertain = await harness.session.requestResponseSerializer.responseAttributionIsUncertain()
+      #expect(uncertain)
+      await harness.close()
+    } catch {
+      await harness.close()
+      throw error
+    }
+  }
+
   private static func reply(_ text: String) -> Data {
     Data([ResponseCode.cliReply.rawValue]) + Data(text.utf8)
   }

@@ -81,9 +81,6 @@
 /* Location: DeviceScanView.swift - Button to continue after pairing */
 "deviceScan.continue" = "Kontynuuj";
 
-/* Location: DeviceScanView.swift - Button label while connecting */
-"deviceScan.connecting" = "Łączenie...";
-
 /* Location: DeviceScanView.swift - Button to connect simulator (debug) */
 "deviceScan.connectSimulator" = "Połącz symulator";
 
