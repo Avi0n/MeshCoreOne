@@ -12,19 +12,13 @@ struct MECPDecodeTests {
   }
 
   @Test
-  func `a valid severity is a message when the slash is missing`() throws {
-    let bare = try #require(MECPDecode.decode("MECP/0"))
-    #expect(bare.severity == .mayday)
-    #expect(bare.codes.isEmpty)
-    #expect(bare.freetext == nil)
-
-    let skippedDelimiter = try #require(MECPDecode.decode("MECP/0XM01"))
-    #expect(skippedDelimiter.codes == ["M01"])
-    #expect(skippedDelimiter.freetext == nil)
-
-    let emptyBody = try #require(MECPDecode.decode("MECP/0/"))
-    #expect(emptyBody.codes.isEmpty)
-    #expect(emptyBody.freetext == nil)
+  func `a message needs the slash after the severity and at least one code`() {
+    #expect(MECPDecode.decode("MECP/0") == nil)
+    #expect(MECPDecode.decode("MECP/0XM01") == nil)
+    #expect(MECPDecode.decode("MECP/0/") == nil)
+    #expect(MECPDecode.decode("MECP/01/M01") == nil)
+    #expect(MECPDecode.decode("MECP/1/t05 x") == nil)
+    #expect(MECPDecode.decode("MECP/0/M011") == nil)
   }
 
   @Test
@@ -47,19 +41,57 @@ struct MECPDecodeTests {
   }
 
   @Test
-  func `empty tokens are dropped before the code scan`() throws {
-    let message = try #require(MECPDecode.decode("MECP/0/M01  M02"))
-    #expect(message.codes == ["M01", "M02"])
-    #expect(message.freetext == nil)
+  func `codes and free text are separated by exactly one space`() {
+    #expect(MECPDecode.decode("MECP/0/M01  M02") == nil)
+    #expect(MECPDecode.decode("MECP/0/M01\tM02") == nil)
+    #expect(MECPDecode.decode("MECP/0/M01\u{A0}help") == nil)
+    #expect(MECPDecode.decode("MECP/1/R03  15") == nil)
+    #expect(MECPDecode.decode("MECP/1/T05 ") == nil)
+    #expect(MECPDecode.decode("MECP/1/T05 help ") == nil)
+    #expect(MECPDecode.decode("MECP/1/T05 help\t") == nil)
   }
 
   @Test
-  func `a repeated space before an R03 eta still fills eta and clears the tail`() throws {
-    let message = try #require(MECPDecode.decode("MECP/1/R03  15"))
-    #expect(message.codes == ["R03"])
-    #expect(message.eta == 15)
-    #expect(message.displayTail == nil)
+  func `a code-shaped word that is not a whole code starts the free text`() throws {
+    let glued = try #require(MECPDecode.decode("MECP/1/T05 T05x"))
+    #expect(glued.codes == ["T05"])
+    #expect(glued.freetext == "T05x")
 
+    let spaced = try #require(MECPDecode.decode("MECP/1/T05 T05  x"))
+    #expect(spaced.codes == ["T05"])
+    #expect(spaced.freetext == "T05  x")
+  }
+
+  @Test
+  func `free text is kept as sent`() throws {
+    let message = try #require(MECPDecode.decode("MECP/3/L01 see  you\tthere"))
+    #expect(message.freetext == "see  you\tthere")
+  }
+
+  @Test
+  func `one trailing line ending is removed before matching`() throws {
+    for input in ["MECP/2/B03\n", "MECP/2/B03\r", "MECP/2/B03\r\n"] {
+      let message = try #require(MECPDecode.decode(input))
+      #expect(message.codes == ["B03"])
+      #expect(message.freetext == nil)
+    }
+    let text = try #require(MECPDecode.decode("MECP/3/L01 see you\r\n"))
+    #expect(text.freetext == "see you")
+
+    #expect(MECPDecode.decode("MECP/2/B03\n\n") == nil)
+    #expect(MECPDecode.decode("MECP/2/B03\n\r") == nil)
+    #expect(MECPDecode.decode("MECP/2/B03\r\n\r\n") == nil)
+  }
+
+  @Test
+  func `a line break inside the message is not MECP`() {
+    for lineBreak in ["\n", "\r", "\r\n", "\u{0C}", "\u{85}", "\u{2028}", "\u{2029}"] {
+      #expect(MECPDecode.decode("MECP/3/L01 a\(lineBreak)b") == nil)
+    }
+  }
+
+  @Test
+  func `an R03 eta fills eta and clears the tail`() throws {
     let spaced = try #require(MECPDecode.decode("MECP/1/R03 15"))
     #expect(spaced.eta == 15)
     #expect(spaced.displayTail == nil)
@@ -87,10 +119,10 @@ struct MECPDecodeTests {
   @Test
   func `decode keeps a string longer than the sender byte budget`() throws {
     #expect(MECPMessage.maxUTF8Bytes == 200)
-    let input = "MECP/0/" + String(repeating: "A", count: MECPMessage.maxUTF8Bytes)
+    let input = "MECP/0/M01 " + String(repeating: "A", count: MECPMessage.maxUTF8Bytes)
     let message = try #require(MECPDecode.decode(input))
     #expect(message.severity == .mayday)
-    #expect(message.codes.isEmpty)
+    #expect(message.codes == ["M01"])
     #expect(message.freetext == String(repeating: "A", count: MECPMessage.maxUTF8Bytes))
   }
 }
