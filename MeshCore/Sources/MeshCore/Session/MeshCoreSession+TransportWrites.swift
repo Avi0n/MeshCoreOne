@@ -5,13 +5,18 @@ extension MeshCoreSession {
   func sendSessionData(
     _ data: Data,
     beforeSend: @Sendable () throws -> Void = {},
-    identityImport: Bool = false
+    identityImport: Bool = false,
+    notifyingSubmitted: (@Sendable () -> Void)? = nil
   ) async throws {
     guard !identityImportInProgress || identityImport else { throw CancellationError() }
-    guard sessionIsRunning, !floodScopeRecoveryRequired else { throw CancellationError() }
+    guard sessionIsRunning else { throw CancellationError() }
     try beforeSend()
     do {
-      try await transport.send(data)
+      if let notifyingSubmitted {
+        try await transport.send(data, notifyingSubmitted: notifyingSubmitted)
+      } else {
+        try await transport.send(data)
+      }
     } catch MeshTransportError.cancelledBeforeSubmission {
       throw CancellationError()
     } catch {
@@ -24,7 +29,7 @@ extension MeshCoreSession {
 
   func sendSessionDataWithoutResponse(_ data: Data) async throws {
     guard !identityImportInProgress else { throw CancellationError() }
-    guard sessionIsRunning, !floodScopeRecoveryRequired else { throw CancellationError() }
+    guard sessionIsRunning else { throw CancellationError() }
     do {
       try await transport.sendWithoutResponse(data)
     } catch MeshTransportError.cancelledBeforeSubmission {
@@ -52,5 +57,11 @@ extension MeshCoreSession {
       if case MeshCoreError.connectionLost = error { return true }
       return false
     }
+  }
+
+  /// Cancellation or a rejection before `writeValue` means the write was not submitted.
+  static func replyCanProveFailedWrite(_ error: Error) -> Bool {
+    if error is CancellationError { return false }
+    return !linkRejectedWriteBeforeSubmission(error)
   }
 }

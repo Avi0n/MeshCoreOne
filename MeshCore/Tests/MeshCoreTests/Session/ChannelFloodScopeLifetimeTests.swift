@@ -1,7 +1,6 @@
 import Foundation
 @testable import MeshCore
 import MeshCoreTestSupport
-import Synchronization
 import Testing
 
 @Suite("Channel flood scope lifetime")
@@ -40,8 +39,6 @@ struct ChannelFloodScopeLifetimeTests {
     try await harness.expectFrame(command.code)
     await harness.transport.simulateReceive(Self.messageSent)
     _ = try await queued.value
-    #expect(await harness.session.floodScopeRecoveryRequired == false)
-    #expect(harness.recoveries.count() == 0)
     #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
   }
 
@@ -75,7 +72,6 @@ struct ChannelFloodScopeLifetimeTests {
     try await harness.ack(Self.channelMessage)
     try await send.value
     #expect(await harness.transport.sentData.allSatisfy { $0.first != CommandCode.setFloodScope.rawValue })
-    #expect(await harness.session.floodScopeRecoveryRequired == false)
   }
 
   @Test
@@ -95,7 +91,6 @@ struct ChannelFloodScopeLifetimeTests {
     let scopeFrames = await harness.transport.sentData.filter { $0.first == CommandCode.setFloodScope.rawValue }
     #expect(scopeFrames == [Self.baselineReset, Self.baselineReset])
     #expect(await Self.channelSendCount(harness.transport.sentData) == 2)
-    #expect(await harness.session.floodScopeRecoveryRequired == false)
   }
 
   @Test
@@ -116,7 +111,6 @@ struct ChannelFloodScopeLifetimeTests {
     try await harness.expectFrame(CommandCode.getSelfTelemetry.rawValue)
     await harness.transport.simulateReceive(Self.messageSent)
     _ = try await queued.value
-    #expect(await harness.session.floodScopeRecoveryRequired == false)
     #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
   }
 
@@ -138,7 +132,6 @@ struct ChannelFloodScopeLifetimeTests {
       return
     }
     #expect(code == rejected)
-    #expect(await harness.session.floodScopeRecoveryRequired == false)
     let queued = QueuedCommand.login.start(harness.session)
     try await harness.expectFrame(CommandCode.sendLogin.rawValue)
     await harness.transport.simulateReceive(Self.messageSent)
@@ -146,7 +139,7 @@ struct ChannelFloodScopeLifetimeTests {
   }
 
   @Test
-  func `reset rejection preserves the accepted send and fences the session`() async throws {
+  func `reset rejection preserves the accepted send and the next command runs`() async throws {
     let harness = try await Harness.started()
     defer { Task { await harness.session.stop() } }
     let send = harness.send(scope: .unscoped)
@@ -155,38 +148,49 @@ struct ChannelFloodScopeLifetimeTests {
     try await harness.waitForFrames(4)
     await harness.transport.simulateError(code: 3)
     try await send.value
-    #expect(await harness.session.floodScopeRecoveryRequired)
-    #expect(harness.recoveries.count() == 1)
     #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
     let queued = QueuedCommand.directMessage.start(harness.session)
-    await #expect(throws: CancellationError.self) { try await queued.value }
+    try await harness.finish(queued, code: CommandCode.sendMessage.rawValue)
     #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
-    #expect(await harness.transport.sentData.allSatisfy { $0.first != CommandCode.sendMessage.rawValue })
   }
 
   @Test
-  func `reset timeout preserves the accepted send and a late OK cannot clear the fence`() async throws {
+  func `reset timeout preserves the accepted send and a late OK before the next submission does not prove it`() async throws {
     let harness = try await Harness.started(clock: true)
     defer { Task { await harness.session.stop() } }
     let send = harness.send(scope: .scope(Self.namedScope))
     try await harness.ack(Self.scopeKey(Self.namedScope))
     try await harness.ack(Self.channelMessage)
     try await harness.waitForFrames(4)
-    let queued = QueuedCommand.login.start(harness.session)
-    try await harness.waitForWaiters(1)
     try await harness.advanceCommandTimeout()
     try await harness.waitUntilSubscribers(0)
     await harness.transport.simulateOK()
     try await send.value
-    #expect(await harness.session.floodScopeRecoveryRequired)
-    #expect(harness.recoveries.count() == 1)
-    await #expect(throws: CancellationError.self) { try await queued.value }
-    #expect(await harness.transport.sentData.count == 4)
     #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
+
+    await harness.transport.holdNextSendBeforeSubmission()
+    let rename = Task { try await harness.session.setName("Relay") }
+    try await waitUntil("name write should park before submission") {
+      await harness.transport.submissionIsWaiting
+    }
+    try await harness.waitUntilSubscribers(1)
+    await harness.session.dispatchForTesting(.ok(value: nil))
+    await harness.transport.releaseHeldSubmission()
+    try await harness.advanceCommandTimeout()
+    await #expect {
+      try await rename.value
+    } throws: { error in
+      guard let error = error as? MeshCoreError, case .timeout = error else { return false }
+      return true
+    }
+    #expect(await harness.transport.sentData.contains { $0 == PacketBuilder.setName("Relay") })
+    #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
+    let scopeFrames = await harness.transport.sentData.filter { $0.first == CommandCode.setFloodScope.rawValue }
+    #expect(scopeFrames.count == 2)
   }
 
   @Test
-  func `channel command timeout fences before another command and ignores a late OK`() async throws {
+  func `channel command timeout skips the clear and the next command runs`() async throws {
     let harness = try await Harness.started(clock: true)
     defer { Task { await harness.session.stop() } }
     let send = harness.send(scope: .scope(Self.namedScope))
@@ -195,23 +199,20 @@ struct ChannelFloodScopeLifetimeTests {
     let queued = QueuedCommand.telemetry.start(harness.session)
     try await harness.waitForWaiters(1)
     try await harness.advanceCommandTimeout()
-    try await harness.waitUntilSubscribers(0)
-    await harness.transport.simulateOK()
     await #expect {
       try await send.value
     } throws: { error in
       guard let error = error as? MeshCoreError, case .timeout = error else { return false }
       return true
     }
-    #expect(await harness.session.floodScopeRecoveryRequired)
-    #expect(harness.recoveries.count() == 1)
-    await #expect(throws: CancellationError.self) { try await queued.value }
-    #expect(await harness.transport.sentData.count == 3)
+    await harness.transport.simulateOK()
     #expect(await harness.transport.sentData.allSatisfy { $0 != Self.baselineReset })
+    try await harness.finish(queued, code: CommandCode.getSelfTelemetry.rawValue)
+    #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
   }
 
   @Test
-  func `preexisting response uncertainty fences the channel send before its first write`() async throws {
+  func `preexisting response uncertainty does not block the next channel send`() async throws {
     let harness = try await Harness.started(clock: true)
     defer { Task { await harness.session.stop() } }
     let stuck = Task { try await harness.session.setFloodScope(.region("Gamma")) }
@@ -223,20 +224,13 @@ struct ChannelFloodScopeLifetimeTests {
       guard let error = error as? MeshCoreError, case .timeout = error else { return false }
       return true
     }
-    #expect(await harness.session.floodScopeRecoveryRequired == false)
+
     let send = harness.send(scope: .scope(Self.namedScope))
-    await #expect {
-      try await send.value
-    } throws: { error in
-      guard let error = error as? MeshCoreError, case .timeout = error else { return false }
-      return true
-    }
-    #expect(await harness.transport.sentData.count == 2)
-    #expect(await harness.session.floodScopeRecoveryRequired)
-    #expect(harness.recoveries.count() == 1)
-    let queued = QueuedCommand.login.start(harness.session)
-    await #expect(throws: CancellationError.self) { try await queued.value }
-    #expect(await harness.transport.sentData.count == 2)
+    try await harness.ack(Self.scopeKey(Self.namedScope))
+    try await harness.ack(Self.channelMessage)
+    try await harness.ack(Self.baselineReset)
+    try await send.value
+    #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
   }
 
   @Test
@@ -253,7 +247,6 @@ struct ChannelFloodScopeLifetimeTests {
     await harness.transport.releaseHeldSend()
     try await harness.ack(Self.baselineReset)
     try await send.value
-    #expect(await harness.session.floodScopeRecoveryRequired == false)
     #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
   }
 
@@ -271,13 +264,10 @@ struct ChannelFloodScopeLifetimeTests {
     await harness.session.dispatchForTesting(.ok(value: nil))
     await harness.transport.releaseHeldSend()
     try await send.value
-    #expect(await harness.session.floodScopeRecoveryRequired)
-    #expect(harness.recoveries.count() == 1)
     #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
     #expect(await harness.transport.sentData.allSatisfy { $0 != Self.baselineReset })
     let queued = QueuedCommand.telemetry.start(harness.session)
-    await #expect(throws: CancellationError.self) { try await queued.value }
-    #expect(await harness.transport.sentData.count == 3)
+    try await harness.finish(queued, code: CommandCode.getSelfTelemetry.rawValue)
   }
 
   @Test(arguments: [true, false])
@@ -308,18 +298,14 @@ struct ChannelFloodScopeLifetimeTests {
       return
     }
     #expect(code == rejectedCode)
-    #expect(await harness.session.floodScopeRecoveryRequired)
-    #expect(harness.recoveries.count() == 1)
-    await #expect(throws: CancellationError.self) { try await queued.value }
+    try await harness.finish(queued, code: CommandCode.sendLogin.rawValue)
     let frames = await harness.transport.sentData
-    #expect(frames.count == (duringSetup ? 2 : 3))
     #expect(Self.channelSendCount(frames) == (duringSetup ? 0 : 1))
     #expect(frames.allSatisfy { $0 != Self.baselineReset })
-    #expect(frames.allSatisfy { $0.first != CommandCode.sendLogin.rawValue })
   }
 
   @Test
-  func `a buffered setup OK with a failed write fences before sending the channel message`() async throws {
+  func `a buffered setup OK with a failed write does not send the channel message`() async throws {
     let harness = try await Harness.started()
     defer { Task { await harness.session.stop() } }
     await harness.transport.holdNextSend()
@@ -337,24 +323,87 @@ struct ChannelFloodScopeLifetimeTests {
       Issue.record("Expected the write failure, got \(String(describing: error))")
       return
     }
-    #expect(await harness.session.floodScopeRecoveryRequired)
-    #expect(harness.recoveries.count() == 1)
-    await #expect(throws: CancellationError.self) { try await queued.value }
+    try await harness.finish(queued, code: CommandCode.sendLogin.rawValue)
     let frames = await harness.transport.sentData
-    #expect(frames.count == 2)
     #expect(Self.channelSendCount(frames) == 0)
     #expect(frames.allSatisfy { $0 != Self.baselineReset })
-    #expect(frames.allSatisfy { $0.first != CommandCode.sendLogin.rawValue })
   }
 
   @Test
-  func `stopping the session does not deliver flood scope recovery`() async throws {
-    let harness = try await Harness.started()
+  func `a reply delivered before submission does not prove the write`() async throws {
+    let harness = try await Harness.started(clock: true)
+    defer { Task { await harness.session.stop() } }
+    await harness.transport.holdNextSendBeforeSubmission()
     let send = harness.send(scope: .scope(Self.namedScope))
-    try await harness.waitForFrames(2)
-    await harness.session.stop()
-    await #expect(throws: CancellationError.self) { try await send.value }
-    #expect(harness.recoveries.count() == 0)
+    try await waitUntil("scope write should park before submission") {
+      await harness.transport.submissionIsWaiting
+    }
+    try await harness.waitUntilSubscribers(1)
+    await harness.session.dispatchForTesting(.ok(value: nil))
+    await harness.transport.releaseHeldSubmission()
+    try await harness.advanceCommandTimeout()
+    await #expect {
+      try await send.value
+    } throws: { error in
+      guard let error = error as? MeshCoreError, case .timeout = error else { return false }
+      return true
+    }
+    let frames = await harness.transport.sentData
+    #expect(Self.channelSendCount(frames) == 0)
+    #expect(frames.allSatisfy { $0 != Self.baselineReset })
+    let queued = QueuedCommand.login.start(harness.session)
+    try await harness.finish(queued, code: CommandCode.sendLogin.rawValue)
+  }
+
+  @Test
+  func `a late OK after the next submission proves that command and leaves the channel send Sent`() async throws {
+    let harness = try await Harness.started(clock: true)
+    defer { Task { await harness.session.stop() } }
+    let send = harness.send(scope: .scope(Self.namedScope))
+    try await harness.ack(Self.scopeKey(Self.namedScope))
+    try await harness.ack(Self.channelMessage)
+    try await harness.waitForFrames(4)
+    #expect(await harness.transport.sentData[3] == Self.baselineReset)
+    try await harness.advanceCommandTimeout()
+    try await send.value
+    #expect(await Self.channelSendCount(harness.transport.sentData) == 1)
+
+    let rename = Task { try await harness.session.setName("Relay") }
+    try await harness.waitForFrames(5)
+    #expect(await harness.transport.sentData[4] == PacketBuilder.setName("Relay"))
+    await harness.transport.simulateOK()
+    try await rename.value
+    let frames = await harness.transport.sentData
+    #expect(Self.channelSendCount(frames) == 1)
+    #expect(frames.filter { $0.first == CommandCode.setFloodScope.rawValue }.count == 2)
+  }
+
+  @Test
+  func `a late error after direct-message submission fails that send and a bare OK does not`() async throws {
+    let harness = try await Harness.started(clock: true)
+    defer { Task { await harness.session.stop() } }
+    await harness.transport.holdNextSendBeforeSubmission()
+    let send = Task {
+      try await harness.session.sendMessage(to: Self.contactKey, text: "dm", timestamp: Self.timestamp)
+    }
+    try await waitUntil("direct message should park before submission") {
+      await harness.transport.submissionIsWaiting
+    }
+    try await harness.waitUntilSubscribers(1)
+    await harness.session.dispatchForTesting(.error(code: 4))
+    await harness.transport.releaseHeldSubmission()
+    try await waitUntil("the direct message should wait for its own reply") {
+      harness.clock?.sleeperCount == 1
+    }
+    await harness.session.dispatchForTesting(.ok(value: nil))
+    #expect(harness.clock?.sleeperCount == 1)
+    await harness.session.dispatchForTesting(.error(code: 9))
+    let error = await #expect(throws: MeshCoreError.self) { try await send.value }
+    guard case let .deviceError(code)? = error else {
+      Issue.record("Expected the late error, got \(String(describing: error))")
+      return
+    }
+    #expect(code == 9)
   }
 
   private static func scopeKey(_ scope: FloodScope) -> Data {
@@ -404,22 +453,10 @@ struct ChannelFloodScopeLifetimeTests {
     }
   }
 
-  private final class RecoveryNotifications: Sendable {
-    private let value = Mutex(0)
-    func record() {
-      value.withLock { $0 += 1 }
-    }
-
-    func count() -> Int {
-      value.withLock { $0 }
-    }
-  }
-
   private struct Harness {
     let session: MeshCoreSession
     let transport: MockTransport
     let clock: TestClock?
-    let recoveries: RecoveryNotifications
 
     static func started(clock useClock: Bool = false) async throws -> Harness {
       let transport = MockTransport()
@@ -429,9 +466,7 @@ struct ChannelFloodScopeLifetimeTests {
         configuration: SessionConfiguration(defaultTimeout: commandTimeout, clientIdentifier: "MCTst"),
         clock: clock
       )
-      let recoveries = RecoveryNotifications()
-      await session.setFloodScopeRecoveryHandler { recoveries.record() }
-      let harness = Harness(session: session, transport: transport, clock: clock, recoveries: recoveries)
+      let harness = Harness(session: session, transport: transport, clock: clock)
       let start = Task { try await session.start() }
       try await harness.waitForFrames(1)
       await transport.simulateReceive(selfInfo)
@@ -482,6 +517,12 @@ struct ChannelFloodScopeLifetimeTests {
       let clock = try #require(clock)
       try await waitUntil("command timeout should park on the test clock") { clock.sleeperCount == 1 }
       clock.advance(by: .seconds(ChannelFloodScopeLifetimeTests.commandTimeout))
+    }
+
+    func finish(_ queued: Task<Void, Error>, code: UInt8) async throws {
+      try await expectFrame(code)
+      await transport.simulateReceive(ChannelFloodScopeLifetimeTests.messageSent)
+      _ = try await queued.value
     }
   }
 }

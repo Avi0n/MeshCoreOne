@@ -88,6 +88,9 @@ public protocol MeshTransport: Sendable {
   ///   - ``MeshTransportError/sendFailed(_:)`` if the underlying physical layer fails to transmit.
   func send(_ data: Data) async throws
 
+  /// Calls `notifyingSubmitted` once a later reply can prove this write.
+  func send(_ data: Data, notifyingSubmitted: @escaping @Sendable () -> Void) async throws
+
   /// Transmits raw data as an unacknowledged write (ATT Write Command).
   ///
   /// Unlike ``send(_:)`` (an acknowledged ATT Write Request, one round-trip per call),
@@ -143,6 +146,11 @@ public extension MeshTransport {
 
   func send(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
     try sessionBinding.checkActive()
+    try await send(data)
+  }
+
+  func send(_ data: Data, notifyingSubmitted: @escaping @Sendable () -> Void) async throws {
+    notifyingSubmitted()
     try await send(data)
   }
 

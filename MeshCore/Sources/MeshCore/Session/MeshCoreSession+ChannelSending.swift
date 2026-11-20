@@ -61,19 +61,13 @@ public extension MeshCoreSession {
     }
   }
 
-  /// Keep the slot through restoration so no other command can inherit the override.
-  /// An acknowledged `03` stays accepted through cancellation or cleanup failure.
+  /// Keep the slot through the clear so no other command can inherit the override.
+  /// An acknowledged channel text stays accepted when the clear gets no matching OK.
   private func sendWithTemporaryFloodScope(
     message: Data,
     floodScope: ResolvedFloodScope,
     isCancelled: @escaping @Sendable () -> Bool
   ) async throws {
-    defer { notifyFloodScopeRecoveryIfNeeded() }
-    if floodScopeRecoveryRequired { throw CancellationError() }
-    if await requestResponseSerializer.responseAttributionIsUncertain() {
-      markFloodScopeRecoveryRequired()
-      throw MeshCoreError.timeout
-    }
     if isCancelled() { throw CancellationError() }
 
     // `send_scope` is one register for every interface, and this session cannot read it back.
@@ -111,11 +105,7 @@ public extension MeshCoreSession {
 
   private func restoreTemporaryScope(needed: Bool) async {
     guard needed else { return }
-    let reset = await settleChannelCommand(Self.floodScopeBaselineCommand)
-    guard case .replied(.accepted) = reset else {
-      markFloodScopeRecoveryRequired()
-      return
-    }
+    _ = await settleChannelCommand(Self.floodScopeBaselineCommand)
   }
 
   private static let floodScopeBaselineCommand = PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey())
@@ -130,12 +120,15 @@ public extension MeshCoreSession {
     }
   }
 
-  /// Retain the first terminal reply even if the write fails, then close the subscription before the next command.
+  /// A bare OK or error proves this write only after submission, so an earlier frame cannot match it.
   private func settleChannelCommand(
     _ data: Data,
     isCancelled: @Sendable () -> Bool = { false }
   ) async -> ChannelCommandSettlement {
-    let (subscriptionID, events) = await dispatcher.subscribeTracked(filter: Self.isTerminalCommandReply)
+    let window = SubmittedCommandWindow()
+    let (subscriptionID, events) = await dispatcher.subscribeTracked { event in
+      window.isOpen && Self.isTerminalCommandReply(event)
+    }
     let collector = Task { () -> ChannelCommandSettlement.Reply? in
       for await event in events {
         if let reply = Self.channelCommandReply(event) { return reply }
@@ -143,30 +136,27 @@ public extension MeshCoreSession {
       return nil
     }
 
-    let uncertainBeforeWrite = await requestResponseSerializer.responseAttributionIsUncertain()
     let writeError: Error?
     do {
       try await sendSessionData(data, beforeSend: {
         if isCancelled() { throw CancellationError() }
-      })
+      }, notifyingSubmitted: { window.begin() })
       writeError = nil
     } catch {
       writeError = error
     }
 
     if let writeError {
-      let writeAttempted = await requestResponseSerializer.responseAttributionIsUncertain() && !uncertainBeforeWrite
-      if writeAttempted {
+      let submitted = window.isOpen && Self.replyCanProveFailedWrite(writeError)
+      if submitted {
         // Give the receive loop a chance to publish a buffered reply before closing the subscription.
         await Task.yield()
       }
       await dispatcher.finishSubscription(id: subscriptionID)
       let reply = await collector.value
-      if !writeAttempted {
-        if !sessionIsRunning { markFloodScopeRecoveryRequired() }
+      if !submitted {
         return .notSubmitted(writeError)
       }
-      markFloodScopeRecoveryRequired()
       return .uncertain(reply, writeError)
     }
 
@@ -184,7 +174,6 @@ public extension MeshCoreSession {
     if let reply = await collector.value {
       return .replied(reply)
     }
-    markFloodScopeRecoveryRequired()
     await requestResponseSerializer.noteUncertainResponseHistory()
     if !sessionIsRunning {
       return .uncertain(nil, CancellationError())
