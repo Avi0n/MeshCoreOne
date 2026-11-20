@@ -40,9 +40,10 @@ public enum MECPDecode {
     var removal: [Range<String.Index>] = []
     var extraction = Extraction()
 
-    if let match = firstPax(in: freetext) {
-      extraction.personCount = match.count
-      removal.append(match.range)
+    let pax = firstPax(in: freetext)
+    if let pax {
+      extraction.personCount = pax.count
+      removal.append(pax.range)
     }
 
     if let match = firstTimestamp(in: freetext), isAcceptedClock(match.digits) {
@@ -50,7 +51,9 @@ public enum MECPDecode {
       removal.append(match.range)
     }
 
-    if codes.contains(etaCode), let match = leadingEta(in: freetext) {
+    // mecp-org/MECP#48: a bare eta that is the number of a person count at the same start is not an eta.
+    if codes.contains(etaCode), let match = leadingEta(in: freetext),
+       pax?.range.lowerBound != match.range.lowerBound {
       extraction.eta = match.minutes
       removal.append(match.range)
     }

@@ -141,6 +141,29 @@ struct MECPDecodeTests {
   }
 
   @Test
+  func `a leading spaced person count is not an R03 eta`() throws {
+    let alone = try #require(MECPDecode.decode("MECP/2/R03 4 pax"))
+    #expect(alone.eta == nil)
+    #expect(alone.personCount == 4)
+    #expect(alone.displayTail == nil)
+
+    let followed = try #require(MECPDecode.decode("MECP/2/R03 4 pax water"))
+    #expect(followed.eta == nil)
+    #expect(followed.personCount == 4)
+    #expect(followed.displayTail == "water")
+
+    let padded = try #require(MECPDecode.decode("MECP/2/R03 04 pax water"))
+    #expect(padded.eta == nil)
+    #expect(padded.personCount == 4)
+    #expect(padded.displayTail == "water")
+
+    let separate = try #require(MECPDecode.decode("MECP/2/R03 45 4pax"))
+    #expect(separate.eta == 45)
+    #expect(separate.personCount == 4)
+    #expect(separate.displayTail == nil)
+  }
+
+  @Test
   func `a person count too large for Int is clamped`() {
     #expect(MECPDecode.decode("MECP/1/S01 99999999999999999999pax")?.personCount == Int.max)
   }
