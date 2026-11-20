@@ -1,37 +1,31 @@
 /// The MECP wire grammar. A string that does not match returns nil.
 public enum MECPDecode {
   public static func decode(_ input: String) -> MECPMessage? {
-    guard input.hasPrefix(prefix) else { return nil }
-    let severityIndex = input.index(input.startIndex, offsetBy: prefix.count, limitedBy: input.endIndex)
-    guard let severityIndex, severityIndex < input.endIndex else { return nil }
-    guard isASCIIDigit(input[severityIndex]),
-          let severityDigit = input[severityIndex].wholeNumberValue,
-          let severity = MECPMessage.Severity(rawValue: severityDigit) else {
+    guard let match = removingLineEnding(input).wholeMatch(of: messagePattern),
+          let digit = Int(match.1),
+          let severity = MECPMessage.Severity(rawValue: digit) else {
       return nil
     }
+    let codes = match.2.split(separator: " ").map(String.init)
+    return MECPMessage(severity: severity, codes: codes, freetext: match.3.map(String.init))
+  }
 
-    let bodyOffset = prefix.count + bodyLead
-    let body = if let bodyIndex = input.index(input.startIndex, offsetBy: bodyOffset, limitedBy: input.endIndex), bodyIndex < input.endIndex {
-      String(input[bodyIndex...])
-    } else {
-      ""
-    }
+  /// MECP 1.4.0 §6.1, as written in the protocol's freetext/patterns.json: a severity, one or more
+  /// codes separated by single spaces, and optional free text after one more space that does not
+  /// begin or end with a space or tab and has no line break in it. Matched by Unicode scalar, as the
+  /// pattern is in other languages: by `Character`, a CRLF is one character that the line-break
+  /// classes do not exclude.
+  ///
+  /// Marked `nonisolated(unsafe)` because `Regex` is not `Sendable`; it is an immutable value.
+  private nonisolated(unsafe) static let messagePattern = #/^MECP/([0-3])/([A-Z][0-9]{2}(?: [A-Z][0-9]{2})*)(?: ([^ \t\n\f\r\u0085\u2028\u2029](?:[^\n\f\r\u0085\u2028\u2029]*[^ \t\n\f\r\u0085\u2028\u2029])?))?$/#
+    .matchingSemantics(.unicodeScalar)
 
-    var codes: [String] = []
-    var tailTokens: [String] = []
-    var readingTail = false
-    for token in body.split(separator: " ", omittingEmptySubsequences: true) {
-      let text = String(token)
-      if !readingTail, isCodeToken(text) {
-        codes.append(text)
-      } else {
-        readingTail = true
-        tailTokens.append(text)
-      }
-    }
-
-    let freetext = tailTokens.isEmpty ? nil : tailTokens.joined(separator: " ")
-    return MECPMessage(severity: severity, codes: codes, freetext: freetext)
+  /// MECP §6.1: before matching, a decoder removes at most one trailing line ending: `\n`, `\r` or `\r\n`.
+  private static func removingLineEnding(_ input: String) -> String {
+    var scalars = Substring(input).unicodeScalars
+    if scalars.last == "\n" { scalars.removeLast() }
+    if scalars.last == "\r" { scalars.removeLast() }
+    return String(scalars)
   }
 
   struct Extraction: Equatable {
@@ -65,28 +59,14 @@ public enum MECPDecode {
     return extraction
   }
 
-  private static let prefix = "MECP/"
-  private static let bodyLead = 2
   private static let etaCode = "R03"
   private static let maxHour = 23
   private static let maxMinute = 59
-  private static let codeLength = 3
   private static let clockDigits = 4
   private static let paxSuffix = "pax"
 
   private static func isASCIIDigit(_ character: Character) -> Bool {
     character.isASCII && character.isNumber
-  }
-
-  private static func isCodeToken(_ token: String) -> Bool {
-    guard token.count == codeLength else { return false }
-    var characters = token.makeIterator()
-    guard let letter = characters.next(), letter.isASCII, letter.isUppercase, letter.isLetter,
-          let tens = characters.next(), isASCIIDigit(tens),
-          let ones = characters.next(), isASCIIDigit(ones) else {
-      return false
-    }
-    return true
   }
 
   private static func firstPax(in text: String) -> (count: Int, range: Range<String.Index>)? {
