@@ -8,6 +8,7 @@ excluded:
   - MC1.xcodeproj
   - MC1/Resources/Generated
   - MeshCore/.build
+  - MeshCoreBridge/.build
   - mc-ref
   - MC1Services/.build
   - fastlane

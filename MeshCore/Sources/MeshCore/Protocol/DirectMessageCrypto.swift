@@ -1,5 +1,11 @@
-import CommonCrypto
-import CryptoKit
+#if canImport(CommonCrypto)
+  import CommonCrypto
+#endif
+#if canImport(CryptoKit)
+  import CryptoKit
+#else
+  import Crypto
+#endif
 import Foundation
 
 /// Cryptographic operations for MeshCore direct (peer-to-peer) messages.
@@ -165,32 +171,39 @@ public enum DirectMessageCrypto {
   }
 
   /// Decrypt data using AES-128 ECB mode.
-  private static func decryptAES128ECB(ciphertext: Data, key: Data) -> Data? {
-    guard key.count >= kCCKeySizeAES128 else { return nil }
-    guard ciphertext.count % kCCBlockSizeAES128 == 0 else { return nil }
+  ///
+  /// Internal rather than private so cross-backend fixtures can pin its output.
+  /// The non-Apple backend must reproduce that output byte for byte.
+  static func decryptAES128ECB(ciphertext: Data, key: Data) -> Data? {
+    #if canImport(CommonCrypto)
+      guard key.count >= kCCKeySizeAES128 else { return nil }
+      guard ciphertext.count % kCCBlockSizeAES128 == 0 else { return nil }
 
-    let keyBytes = key.prefix(kCCKeySizeAES128)
-    var decrypted = Data(count: ciphertext.count)
-    var numBytesDecrypted: size_t = 0
+      let keyBytes = key.prefix(kCCKeySizeAES128)
+      var decrypted = Data(count: ciphertext.count)
+      var numBytesDecrypted: size_t = 0
 
-    let status = decrypted.withUnsafeMutableBytes { decryptedPtr in
-      ciphertext.withUnsafeBytes { ciphertextPtr in
-        keyBytes.withUnsafeBytes { keyPtr in
-          CCCrypt(
-            CCOperation(kCCDecrypt),
-            CCAlgorithm(kCCAlgorithmAES),
-            CCOptions(kCCOptionECBMode),
-            keyPtr.baseAddress, kCCKeySizeAES128,
-            nil,
-            ciphertextPtr.baseAddress, ciphertext.count,
-            decryptedPtr.baseAddress, ciphertext.count,
-            &numBytesDecrypted
-          )
+      let status = decrypted.withUnsafeMutableBytes { decryptedPtr in
+        ciphertext.withUnsafeBytes { ciphertextPtr in
+          keyBytes.withUnsafeBytes { keyPtr in
+            CCCrypt(
+              CCOperation(kCCDecrypt),
+              CCAlgorithm(kCCAlgorithmAES),
+              CCOptions(kCCOptionECBMode),
+              keyPtr.baseAddress, kCCKeySizeAES128,
+              nil,
+              ciphertextPtr.baseAddress, ciphertext.count,
+              decryptedPtr.baseAddress, ciphertext.count,
+              &numBytesDecrypted
+            )
+          }
         }
       }
-    }
 
-    guard status == kCCSuccess else { return nil }
-    return Data(decrypted.prefix(numBytesDecrypted))
+      guard status == kCCSuccess else { return nil }
+      return Data(decrypted.prefix(numBytesDecrypted))
+    #else
+      return AES128ECBFallback.decrypt(ciphertext: ciphertext, key: key)
+    #endif
   }
 }

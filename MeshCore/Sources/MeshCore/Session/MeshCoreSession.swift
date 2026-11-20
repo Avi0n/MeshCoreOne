@@ -1,5 +1,7 @@
 import Foundation
-import os
+#if canImport(os)
+  import os
+#endif
 
 /// Main session actor for MeshCore device communication.
 ///
@@ -188,7 +190,7 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   public init(
     transport: any MeshTransport,
     configuration: SessionConfiguration = .default,
-    clock: (any Clock<Duration>)? = nil,
+    clock: any Clock<Duration>? = nil,
     radioCLICorrelationScope: RadioCLICorrelationScope = RadioCLICorrelationScope()
   ) {
     self.transport = transport

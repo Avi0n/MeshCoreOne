@@ -1,8 +1,10 @@
 import Foundation
 @testable import MeshCore
 import MeshCoreTestSupport
-import os
 import Testing
+#if canImport(os)
+  import os
+#endif
 
 @Suite("MeshCoreSession connection state", .timeLimit(.minutes(1)))
 struct ConnectionStateTests {

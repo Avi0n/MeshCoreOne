@@ -1,411 +1,413 @@
-import Foundation
-import Network
-import os
+#if canImport(Network)
+  import Foundation
+  import Network
+  import os
 
-/// Errors that can occur during WiFi transport operations.
-public enum WiFiTransportError: Error, Sendable, Equatable {
-  case connectionFailed(String)
-  case connectionTimeout
-  case notConnected
-  case sendFailed(String)
-  case sendTimeout
-  case invalidHost
-  case invalidPort
-  case notConfigured
-}
-
-/// TCP transport for connecting to MeshCore devices over WiFi.
-///
-/// Configure connection info before calling `connect()`:
-/// ```swift
-/// let transport = WiFiTransport()
-/// await transport.setConnectionInfo(host: "192.168.1.50", port: 5000)
-/// try await transport.connect()
-/// ```
-public actor WiFiTransport: MeshTransport {
-  private let logger = Logger(subsystem: "MeshCore", category: "WiFiTransport")
-
-  private var connection: NWConnection?
-  private var frameDecoder = WiFiFrameDecoder()
-
-  // AsyncStream created in init so receivedData is valid before connect()
-  private let dataStream: AsyncStream<Data>
-  private let dataContinuation: AsyncStream<Data>.Continuation
-
-  private var _isConnected = false
-
-  // Connection configuration (set before connect())
-  private var configuredHost: String?
-  private var configuredPort: UInt16?
-
-  /// Thread-safe continuation state (protects against multiple resumes)
-  private var connectContinuation: CheckedContinuation<Void, Error>?
-
-  /// Disconnection notification
-  private var disconnectionHandler: (@Sendable (Error?, CFAbsoluteTime) -> Void)?
-
-  // MARK: - Configuration
-
-  /// Connection timeout duration
-  public static let connectionTimeout: Duration = .seconds(10)
-
-  /// Write timeout duration
-  public static let writeTimeout: Duration = .seconds(5)
-
-  // MARK: - MeshTransport Protocol
-
-  public var receivedData: AsyncStream<Data> {
-    dataStream
+  /// Errors that can occur during WiFi transport operations.
+  public enum WiFiTransportError: Error, Sendable, Equatable {
+    case connectionFailed(String)
+    case connectionTimeout
+    case notConnected
+    case sendFailed(String)
+    case sendTimeout
+    case invalidHost
+    case invalidPort
+    case notConfigured
   }
 
-  public var isConnected: Bool {
-    _isConnected
-  }
+  /// TCP transport for connecting to MeshCore devices over WiFi.
+  ///
+  /// Configure connection info before calling `connect()`:
+  /// ```swift
+  /// let transport = WiFiTransport()
+  /// await transport.setConnectionInfo(host: "192.168.1.50", port: 5000)
+  /// try await transport.connect()
+  /// ```
+  public actor WiFiTransport: MeshTransport {
+    private let logger = Logger(subsystem: "MeshCore", category: "WiFiTransport")
 
-  /// TCP streams pipeline natively: back-to-back sends queue in the socket buffer and the radio
-  /// drains them at its loop cadence, so windowed channel reads avoid the per-round-trip stall
-  /// that serial reads pay over WiFi. There is no ATT write characteristic, so
-  /// `supportsWriteWithoutResponse` stays false and `sendWithoutResponse` routes to `send`.
-  public var supportsPipelinedReads: Bool {
-    true
-  }
+    private var connection: NWConnection?
+    private var frameDecoder = WiFiFrameDecoder()
 
-  public init() {
-    // Create stream in init so receivedData is valid before connect()
-    let (stream, continuation) = AsyncStream<Data>.makeStream()
-    dataStream = stream
-    dataContinuation = continuation
-  }
+    // AsyncStream created in init so receivedData is valid before connect()
+    private let dataStream: AsyncStream<Data>
+    private let dataContinuation: AsyncStream<Data>.Continuation
 
-  /// Configures the connection target. Must be called before `connect()`.
-  public func setConnectionInfo(host: String, port: UInt16) {
-    configuredHost = host
-    configuredPort = port
-  }
+    private var _isConnected = false
 
-  /// Sets a handler to be called when the connection is unexpectedly lost.
-  public func setDisconnectionHandler(_ handler: @escaping @Sendable (Error?, CFAbsoluteTime) -> Void) {
-    disconnectionHandler = handler
-  }
+    // Connection configuration (set before connect())
+    private var configuredHost: String?
+    private var configuredPort: UInt16?
 
-  /// Clears the disconnection handler (call before user-initiated disconnect)
-  public func clearDisconnectionHandler() {
-    disconnectionHandler = nil
-  }
+    /// Thread-safe continuation state (protects against multiple resumes)
+    private var connectContinuation: CheckedContinuation<Void, Error>?
 
-  /// Returns the configured connection info, if set.
-  public var connectionInfo: (host: String, port: UInt16)? {
-    guard let host = configuredHost, let port = configuredPort else { return nil }
-    return (host, port)
-  }
+    /// Disconnection notification
+    private var disconnectionHandler: (@Sendable (Error?, CFAbsoluteTime) -> Void)?
 
-  /// Establishes a TCP connection to the configured host and port.
-  /// Call `setConnectionInfo(host:port:)` first.
-  public func connect() async throws {
-    try await performConnect(sessionBinding: nil)
-  }
+    // MARK: - Configuration
 
-  public func connect(sessionBinding: SessionTransportBinding) async throws {
-    try await performConnect(sessionBinding: sessionBinding)
-  }
+    /// Connection timeout duration
+    public static let connectionTimeout: Duration = .seconds(10)
 
-  private func performConnect(sessionBinding: SessionTransportBinding?) async throws {
-    try sessionBinding?.checkActive()
-    // Idempotent: skip if already connected. Without this guard,
-    // session.start() orphans the TCP connection the caller already established.
-    if _isConnected {
-      logger.info("Already connected, skipping redundant connect()")
-      return
+    /// Write timeout duration
+    public static let writeTimeout: Duration = .seconds(5)
+
+    // MARK: - MeshTransport Protocol
+
+    public var receivedData: AsyncStream<Data> {
+      dataStream
     }
 
-    guard let host = configuredHost, let port = configuredPort else {
-      throw WiFiTransportError.notConfigured
+    public var isConnected: Bool {
+      _isConnected
     }
 
-    logger.info("Connecting to \(host):\(port)")
-
-    let hostEndpoint = NWEndpoint.Host(host)
-    guard let portEndpoint = NWEndpoint.Port(rawValue: port) else {
-      throw WiFiTransportError.invalidPort
+    /// TCP streams pipeline natively: back-to-back sends queue in the socket buffer and the radio
+    /// drains them at its loop cadence, so windowed channel reads avoid the per-round-trip stall
+    /// that serial reads pay over WiFi. There is no ATT write characteristic, so
+    /// `supportsWriteWithoutResponse` stays false and `sendWithoutResponse` routes to `send`.
+    public var supportsPipelinedReads: Bool {
+      true
     }
 
-    let endpoint = NWEndpoint.hostPort(host: hostEndpoint, port: portEndpoint)
+    public init() {
+      // Create stream in init so receivedData is valid before connect()
+      let (stream, continuation) = AsyncStream<Data>.makeStream()
+      dataStream = stream
+      dataContinuation = continuation
+    }
 
-    // Disable Nagle's algorithm. The companion protocol is small-frame request-response
-    // (each getChannel is one command and one reply), and Nagle interacting with the peer's
-    // delayed-ACK injects a fixed per-round-trip stall that serial channel reads pay once per
-    // channel. Streamed traffic such as contacts coalesces and hides it; ping-pong reads do not.
-    let tcpOptions = NWProtocolTCP.Options()
-    tcpOptions.noDelay = true
-    let parameters = NWParameters(tls: nil, tcp: tcpOptions)
+    /// Configures the connection target. Must be called before `connect()`.
+    public func setConnectionInfo(host: String, port: UInt16) {
+      configuredHost = host
+      configuredPort = port
+    }
 
-    let newConnection = NWConnection(to: endpoint, using: parameters)
-    connection = newConnection
+    /// Sets a handler to be called when the connection is unexpectedly lost.
+    public func setDisconnectionHandler(_ handler: @escaping @Sendable (Error?, CFAbsoluteTime) -> Void) {
+      disconnectionHandler = handler
+    }
 
-    // Race connection against timeout
-    try await withThrowingTaskGroup(of: Void.self) { group in
-      group.addTask {
-        try await self.performConnection(newConnection, sessionBinding: sessionBinding)
+    /// Clears the disconnection handler (call before user-initiated disconnect)
+    public func clearDisconnectionHandler() {
+      disconnectionHandler = nil
+    }
+
+    /// Returns the configured connection info, if set.
+    public var connectionInfo: (host: String, port: UInt16)? {
+      guard let host = configuredHost, let port = configuredPort else { return nil }
+      return (host, port)
+    }
+
+    /// Establishes a TCP connection to the configured host and port.
+    /// Call `setConnectionInfo(host:port:)` first.
+    public func connect() async throws {
+      try await performConnect(sessionBinding: nil)
+    }
+
+    public func connect(sessionBinding: SessionTransportBinding) async throws {
+      try await performConnect(sessionBinding: sessionBinding)
+    }
+
+    private func performConnect(sessionBinding: SessionTransportBinding?) async throws {
+      try sessionBinding?.checkActive()
+      // Idempotent: skip if already connected. Without this guard,
+      // session.start() orphans the TCP connection the caller already established.
+      if _isConnected {
+        logger.info("Already connected, skipping redundant connect()")
+        return
       }
 
-      group.addTask {
-        try await Task.sleep(for: Self.connectionTimeout)
-        throw WiFiTransportError.connectionTimeout
+      guard let host = configuredHost, let port = configuredPort else {
+        throw WiFiTransportError.notConfigured
       }
 
-      // Wait for first task to complete or throw
-      do {
-        try await group.next()
-        group.cancelAll()
-      } catch {
-        group.cancelAll()
-        // Resume the parked connection continuation on every failure path,
-        // including caller-task cancellation; the group cannot finish
-        // tearing down while that child stays suspended.
-        self.cancelPendingConnection(throwing: error)
-        throw error
+      logger.info("Connecting to \(host):\(port)")
+
+      let hostEndpoint = NWEndpoint.Host(host)
+      guard let portEndpoint = NWEndpoint.Port(rawValue: port) else {
+        throw WiFiTransportError.invalidPort
       }
-    }
 
-    startReceiving()
-  }
+      let endpoint = NWEndpoint.hostPort(host: hostEndpoint, port: portEndpoint)
 
-  /// Performs the actual connection wait via continuation.
-  private func performConnection(_ newConnection: NWConnection, sessionBinding: SessionTransportBinding?) async throws {
-    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-      self.connectContinuation = continuation
+      // Disable Nagle's algorithm. The companion protocol is small-frame request-response
+      // (each getChannel is one command and one reply), and Nagle interacting with the peer's
+      // delayed-ACK injects a fixed per-round-trip stall that serial channel reads pay once per
+      // channel. Streamed traffic such as contacts coalesces and hides it; ping-pong reads do not.
+      let tcpOptions = NWProtocolTCP.Options()
+      tcpOptions.noDelay = true
+      let parameters = NWParameters(tls: nil, tcp: tcpOptions)
 
-      newConnection.stateUpdateHandler = { [weak self] state in
-        Task { [weak self] in
-          await self?.handleStateChange(state)
+      let newConnection = NWConnection(to: endpoint, using: parameters)
+      connection = newConnection
+
+      // Race connection against timeout
+      try await withThrowingTaskGroup(of: Void.self) { group in
+        group.addTask {
+          try await self.performConnection(newConnection, sessionBinding: sessionBinding)
+        }
+
+        group.addTask {
+          try await Task.sleep(for: Self.connectionTimeout)
+          throw WiFiTransportError.connectionTimeout
+        }
+
+        // Wait for first task to complete or throw
+        do {
+          try await group.next()
+          group.cancelAll()
+        } catch {
+          group.cancelAll()
+          // Resume the parked connection continuation on every failure path,
+          // including caller-task cancellation; the group cannot finish
+          // tearing down while that child stays suspended.
+          self.cancelPendingConnection(throwing: error)
+          throw error
         }
       }
 
-      do {
-        if let sessionBinding {
-          try sessionBinding.performIfActive {
+      startReceiving()
+    }
+
+    /// Performs the actual connection wait via continuation.
+    private func performConnection(_ newConnection: NWConnection, sessionBinding: SessionTransportBinding?) async throws {
+      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        self.connectContinuation = continuation
+
+        newConnection.stateUpdateHandler = { [weak self] state in
+          Task { [weak self] in
+            await self?.handleStateChange(state)
+          }
+        }
+
+        do {
+          if let sessionBinding {
+            try sessionBinding.performIfActive {
+              newConnection.start(queue: .global(qos: .userInitiated))
+            }
+          } else {
             newConnection.start(queue: .global(qos: .userInitiated))
           }
-        } else {
-          newConnection.start(queue: .global(qos: .userInitiated))
+        } catch {
+          connectContinuation = nil
+          continuation.resume(throwing: error)
         }
-      } catch {
+      }
+    }
+
+    /// Cancels a pending connection attempt, resuming the parked
+    /// continuation with the error that caused the failure.
+    private func cancelPendingConnection(throwing error: Error) {
+      connection?.stateUpdateHandler = nil
+      connection?.cancel()
+      connection = nil
+      _isConnected = false
+
+      if let continuation = connectContinuation {
         connectContinuation = nil
         continuation.resume(throwing: error)
       }
     }
-  }
 
-  /// Cancels a pending connection attempt, resuming the parked
-  /// continuation with the error that caused the failure.
-  private func cancelPendingConnection(throwing error: Error) {
-    connection?.stateUpdateHandler = nil
-    connection?.cancel()
-    connection = nil
-    _isConnected = false
-
-    if let continuation = connectContinuation {
-      connectContinuation = nil
-      continuation.resume(throwing: error)
-    }
-  }
-
-  public func disconnect() async {
-    logger.info("Disconnecting")
-    disconnectionHandler = nil // Clear BEFORE cancel to prevent spurious callback
-    connection?.stateUpdateHandler = nil
-    connection?.cancel()
-    connection = nil
-    _isConnected = false
-    frameDecoder.reset()
-    dataContinuation.finish()
-
-    // Clear any pending continuation
-    if let continuation = connectContinuation {
-      continuation.resume(throwing: WiFiTransportError.connectionFailed("Disconnected"))
-      connectContinuation = nil
-    }
-  }
-
-  public func send(_ data: Data) async throws {
-    try await performSend(data, sessionBinding: nil)
-  }
-
-  public func send(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
-    try await performSend(data, sessionBinding: sessionBinding)
-  }
-
-  public func sendWithoutResponse(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
-    try await performSend(data, sessionBinding: sessionBinding)
-  }
-
-  private func performSend(_ data: Data, sessionBinding: SessionTransportBinding?) async throws {
-    try sessionBinding?.checkActive()
-    guard let connection, _isConnected else {
-      throw WiFiTransportError.notConnected
-    }
-
-    let frame = WiFiFrameCodec.encode(data)
-
-    try await withThrowingTaskGroup(of: Void.self) { group in
-      group.addTask {
-        // Lock-protected continuation prevents double-resume when both
-        // contentProcessed and onCancel fire
-        let state = OSAllocatedUnfairLock<CheckedContinuation<Void, Error>?>(initialState: nil)
-
-        try await withTaskCancellationHandler {
-          try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            let alreadyCancelled = state.withLock { stored -> Bool in
-              if Task.isCancelled {
-                return true
-              }
-              stored = continuation
-              return false
-            }
-            if alreadyCancelled {
-              continuation.resume(throwing: WiFiTransportError.sendTimeout)
-              return
-            }
-
-            let submit = {
-              connection.send(content: frame, completion: .contentProcessed { error in
-                sessionBinding?.endOperation()
-                if let cont = state.withLock({ let cont = $0; $0 = nil; return cont }) {
-                  if let error {
-                    cont.resume(throwing: WiFiTransportError.sendFailed(error.localizedDescription))
-                  } else {
-                    cont.resume()
-                  }
-                }
-              })
-            }
-            do {
-              if let sessionBinding {
-                try sessionBinding.beginOperation()
-                do {
-                  try sessionBinding.performIfActive(submit)
-                } catch {
-                  sessionBinding.endOperation()
-                  throw error
-                }
-              } else {
-                submit()
-              }
-            } catch {
-              let waiting = state.withLock { stored -> CheckedContinuation<Void, Error>? in
-                let waiting = stored
-                stored = nil
-                return waiting
-              }
-              waiting?.resume(throwing: error)
-            }
-          }
-        } onCancel: {
-          if let cont = state.withLock({ let cont = $0; $0 = nil; return cont }) {
-            cont.resume(throwing: WiFiTransportError.sendTimeout)
-          }
-        }
-      }
-
-      group.addTask {
-        try await Task.sleep(for: Self.writeTimeout)
-        throw WiFiTransportError.sendTimeout
-      }
-
-      try await group.next()
-      group.cancelAll()
-    }
-  }
-
-  // MARK: - Private
-
-  /// Handles NWConnection state changes with safe one-time continuation resume.
-  private func handleStateChange(_ state: NWConnection.State) {
-    switch state {
-    case .ready:
-      logger.info("Connection ready")
-      _isConnected = true
-      // Safe one-time resume: consume and nil the continuation
-      if let continuation = connectContinuation {
-        connectContinuation = nil
-        continuation.resume()
-      }
-
-    case let .failed(error):
-      logger.error("Connection failed: \(error.localizedDescription)")
-      if let continuation = connectContinuation {
-        _isConnected = false
-        connectContinuation = nil
-        continuation.resume(throwing: WiFiTransportError.connectionFailed(error.localizedDescription))
-      } else {
-        handleReceiveTermination(error)
-      }
-
-    case .cancelled:
-      logger.info("Connection cancelled")
-      handleReceiveTermination(nil)
-
-    case let .waiting(error):
-      logger.warning("Connection waiting: \(error.localizedDescription)")
-      // For invalid addresses, the connection goes to waiting state with an error
-      // Treat this as a connection failure
+    public func disconnect() async {
+      logger.info("Disconnecting")
+      disconnectionHandler = nil // Clear BEFORE cancel to prevent spurious callback
+      connection?.stateUpdateHandler = nil
+      connection?.cancel()
+      connection = nil
       _isConnected = false
+      frameDecoder.reset()
+      dataContinuation.finish()
+
+      // Clear any pending continuation
       if let continuation = connectContinuation {
+        continuation.resume(throwing: WiFiTransportError.connectionFailed("Disconnected"))
         connectContinuation = nil
-        continuation.resume(throwing: WiFiTransportError.connectionFailed(error.localizedDescription))
-      }
-
-    default:
-      break
-    }
-  }
-
-  private func startReceiving() {
-    guard let connection else { return }
-
-    connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { [weak self] content, _, isComplete, error in
-      Task { [weak self] in
-        guard let self else { return }
-
-        if let data = content {
-          await processReceivedData(data)
-        }
-
-        if let error {
-          logger.error("Receive error: \(error.localizedDescription)")
-          await handleReceiveTermination(error)
-          return
-        }
-
-        if isComplete {
-          logger.info("Connection closed by peer")
-          await handleReceiveTermination(nil)
-          return
-        }
-
-        guard await _isConnected else { return }
-        await startReceiving()
       }
     }
-  }
 
-  /// Finishes the stream on connection loss. The connected guard makes state and
-  /// receive callbacks share one teardown and one disconnection notification.
-  private func handleReceiveTermination(_ error: Error?) {
-    guard _isConnected else { return }
-    _isConnected = false
-    connection?.stateUpdateHandler = nil
-    connection?.cancel()
-    connection = nil
-    frameDecoder.reset()
-    dataContinuation.finish()
-    disconnectionHandler?(error, CFAbsoluteTimeGetCurrent())
-  }
+    public func send(_ data: Data) async throws {
+      try await performSend(data, sessionBinding: nil)
+    }
 
-  private func processReceivedData(_ data: Data) {
-    let frames = frameDecoder.decode(data)
-    for frame in frames {
-      dataContinuation.yield(frame)
+    public func send(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
+      try await performSend(data, sessionBinding: sessionBinding)
+    }
+
+    public func sendWithoutResponse(_ data: Data, sessionBinding: SessionTransportBinding) async throws {
+      try await performSend(data, sessionBinding: sessionBinding)
+    }
+
+    private func performSend(_ data: Data, sessionBinding: SessionTransportBinding?) async throws {
+      try sessionBinding?.checkActive()
+      guard let connection, _isConnected else {
+        throw WiFiTransportError.notConnected
+      }
+
+      let frame = WiFiFrameCodec.encode(data)
+
+      try await withThrowingTaskGroup(of: Void.self) { group in
+        group.addTask {
+          // Lock-protected continuation prevents double-resume when both
+          // contentProcessed and onCancel fire
+          let state = OSAllocatedUnfairLock<CheckedContinuation<Void, Error>?>(initialState: nil)
+
+          try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+              let alreadyCancelled = state.withLock { stored -> Bool in
+                if Task.isCancelled {
+                  return true
+                }
+                stored = continuation
+                return false
+              }
+              if alreadyCancelled {
+                continuation.resume(throwing: WiFiTransportError.sendTimeout)
+                return
+              }
+
+              let submit = {
+                connection.send(content: frame, completion: .contentProcessed { error in
+                  sessionBinding?.endOperation()
+                  if let cont = state.withLock({ let cont = $0; $0 = nil; return cont }) {
+                    if let error {
+                      cont.resume(throwing: WiFiTransportError.sendFailed(error.localizedDescription))
+                    } else {
+                      cont.resume()
+                    }
+                  }
+                })
+              }
+              do {
+                if let sessionBinding {
+                  try sessionBinding.beginOperation()
+                  do {
+                    try sessionBinding.performIfActive(submit)
+                  } catch {
+                    sessionBinding.endOperation()
+                    throw error
+                  }
+                } else {
+                  submit()
+                }
+              } catch {
+                let waiting = state.withLock { stored -> CheckedContinuation<Void, Error>? in
+                  let waiting = stored
+                  stored = nil
+                  return waiting
+                }
+                waiting?.resume(throwing: error)
+              }
+            }
+          } onCancel: {
+            if let cont = state.withLock({ let cont = $0; $0 = nil; return cont }) {
+              cont.resume(throwing: WiFiTransportError.sendTimeout)
+            }
+          }
+        }
+
+        group.addTask {
+          try await Task.sleep(for: Self.writeTimeout)
+          throw WiFiTransportError.sendTimeout
+        }
+
+        try await group.next()
+        group.cancelAll()
+      }
+    }
+
+    // MARK: - Private
+
+    /// Handles NWConnection state changes with safe one-time continuation resume.
+    private func handleStateChange(_ state: NWConnection.State) {
+      switch state {
+      case .ready:
+        logger.info("Connection ready")
+        _isConnected = true
+        // Safe one-time resume: consume and nil the continuation
+        if let continuation = connectContinuation {
+          connectContinuation = nil
+          continuation.resume()
+        }
+
+      case let .failed(error):
+        logger.error("Connection failed: \(error.localizedDescription)")
+        if let continuation = connectContinuation {
+          _isConnected = false
+          connectContinuation = nil
+          continuation.resume(throwing: WiFiTransportError.connectionFailed(error.localizedDescription))
+        } else {
+          handleReceiveTermination(error)
+        }
+
+      case .cancelled:
+        logger.info("Connection cancelled")
+        handleReceiveTermination(nil)
+
+      case let .waiting(error):
+        logger.warning("Connection waiting: \(error.localizedDescription)")
+        // For invalid addresses, the connection goes to waiting state with an error
+        // Treat this as a connection failure
+        _isConnected = false
+        if let continuation = connectContinuation {
+          connectContinuation = nil
+          continuation.resume(throwing: WiFiTransportError.connectionFailed(error.localizedDescription))
+        }
+
+      default:
+        break
+      }
+    }
+
+    private func startReceiving() {
+      guard let connection else { return }
+
+      connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { [weak self] content, _, isComplete, error in
+        Task { [weak self] in
+          guard let self else { return }
+
+          if let data = content {
+            await processReceivedData(data)
+          }
+
+          if let error {
+            logger.error("Receive error: \(error.localizedDescription)")
+            await handleReceiveTermination(error)
+            return
+          }
+
+          if isComplete {
+            logger.info("Connection closed by peer")
+            await handleReceiveTermination(nil)
+            return
+          }
+
+          guard await _isConnected else { return }
+          await startReceiving()
+        }
+      }
+    }
+
+    /// Finishes the stream on connection loss. The connected guard makes state and
+    /// receive callbacks share one teardown and one disconnection notification.
+    private func handleReceiveTermination(_ error: Error?) {
+      guard _isConnected else { return }
+      _isConnected = false
+      connection?.stateUpdateHandler = nil
+      connection?.cancel()
+      connection = nil
+      frameDecoder.reset()
+      dataContinuation.finish()
+      disconnectionHandler?(error, CFAbsoluteTimeGetCurrent())
+    }
+
+    private func processReceivedData(_ data: Data) {
+      let frames = frameDecoder.decode(data)
+      for frame in frames {
+        dataContinuation.yield(frame)
+      }
     }
   }
-}
+#endif

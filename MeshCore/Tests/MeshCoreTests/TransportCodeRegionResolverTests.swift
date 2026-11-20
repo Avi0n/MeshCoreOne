@@ -229,6 +229,27 @@ struct TransportCodeRegionResolverTests {
   }
 
   @Test
+  func `Ambiguous names sort with localized standard compare`() throws {
+    let scopeKey = try #require(TransportCodeRegionResolver.deriveScopeKey(regionName: "Germany"))
+    let expectedCode = TransportCodeRegionResolver.calcTransportCode(
+      scopeKey: scopeKey,
+      payloadTypeBits: groupTextPayloadBits,
+      payload: samplePayload
+    )
+    let names = ["Beta", "alpha"]
+    let match = TransportCodeRegionResolver.matchRegions(
+      scopeKeys: names.map { ($0, scopeKey) },
+      expectedTransportCode0: expectedCode,
+      payloadTypeBits: groupTextPayloadBits,
+      payload: samplePayload
+    )
+    let localized = names.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+
+    #expect(localized != names.sorted())
+    #expect(match == .ambiguous(localized))
+  }
+
+  @Test
   func `Dollar-prefixed private regions never match via empty scope key`() {
     // deriveScopeKey returns nil for $ names, so callers never put them in the
     // cache; matchRegions with an empty list is the production path.

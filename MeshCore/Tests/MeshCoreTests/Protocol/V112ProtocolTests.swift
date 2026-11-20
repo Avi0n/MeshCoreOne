@@ -182,6 +182,29 @@ struct V112ProtocolTests {
     #expect(manager.needsRefresh)
   }
 
+  @Test
+  func `contactManager localized name search matches diacritics`() {
+    var manager = ContactManager()
+    let publicKey = Data(repeating: 0x22, count: 32)
+    let contact = MeshContact(
+      id: publicKey.hexString,
+      publicKey: publicKey,
+      type: .chat,
+      flags: [],
+      outPathLength: 0,
+      outPath: Data(),
+      advertisedName: "José",
+      lastAdvertisement: Date(),
+      latitude: 0,
+      longitude: 0,
+      lastModified: Date()
+    )
+    manager.store(contact)
+
+    #expect(manager.getByName("jose")?.advertisedName == "José")
+    #expect(manager.getByName("jose", exactMatch: true) == nil)
+  }
+
   // MARK: - Auto-Add Config PacketBuilder Tests
 
   @Test
