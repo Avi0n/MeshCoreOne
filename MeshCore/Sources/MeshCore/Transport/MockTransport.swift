@@ -65,8 +65,15 @@ public actor MockTransport: MeshTransport {
   private var heldSendShouldFail = false
   private var heldSendContinuation: CheckedContinuation<Void, Error>?
 
+  /// Parks the next `send` before the frame is recorded.
+  private var parkBeforeSubmission = false
+  private var beforeSubmissionContinuation: CheckedContinuation<Void, Error>?
+
   /// True while a send is parked in `holdNextSend`.
   public private(set) var sendIsWaiting = false
+
+  /// True while a send is parked before the frame is recorded.
+  public private(set) var submissionIsWaiting = false
 
   /// Makes the `index`-th (1-based) and all later sends throw, simulating a disconnect that
   /// strikes after some commands have already gone out.
@@ -82,6 +89,19 @@ public actor MockTransport: MeshTransport {
   /// Parks the next send so a test can inject a reply or a loss before the write returns.
   public func holdNextSend() {
     parkNextSend = true
+  }
+
+  /// Parks the next send before the frame is recorded and before a reply can prove it.
+  public func holdNextSendBeforeSubmission() {
+    parkBeforeSubmission = true
+  }
+
+  /// Resumes a send parked by `holdNextSendBeforeSubmission`. A no-op when nothing is parked.
+  public func releaseHeldSubmission() {
+    let continuation = beforeSubmissionContinuation
+    beforeSubmissionContinuation = nil
+    submissionIsWaiting = false
+    continuation?.resume()
   }
 
   /// The parked send throws `MeshTransportError.sendFailed` when released.
@@ -131,6 +151,10 @@ public actor MockTransport: MeshTransport {
   /// - Parameter data: The raw bytes to be recorded.
   /// - Throws: ``MeshTransportError/notConnected`` if the transport is not connected.
   public func send(_ data: Data) async throws {
+    try await send(data, notifyingSubmitted: {})
+  }
+
+  public func send(_ data: Data, notifyingSubmitted: @escaping @Sendable () -> Void) async throws {
     guard isConnected else {
       throw MeshTransportError.notConnected
     }
@@ -141,7 +165,15 @@ public actor MockTransport: MeshTransport {
     if let threshold = failSendsFromIndex, sentData.count + 1 >= threshold {
       throw MeshTransportError.sendFailed("simulated send failure")
     }
+    if parkBeforeSubmission {
+      parkBeforeSubmission = false
+      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        beforeSubmissionContinuation = continuation
+        submissionIsWaiting = true
+      }
+    }
     sentData.append(data)
+    notifyingSubmitted()
     if parkNextSend {
       try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
         heldSendContinuation = continuation

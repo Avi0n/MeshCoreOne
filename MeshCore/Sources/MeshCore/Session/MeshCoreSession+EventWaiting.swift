@@ -174,13 +174,18 @@ extension MeshCoreSession {
     matching matcher: @escaping @Sendable (MeshEvent) -> ResponseDisposition<T>
   ) async throws -> T {
     let effectiveTimeout = timeout ?? configuration.defaultTimeout
+    let window = SubmittedCommandWindow()
 
-    // Subscribe before sending to avoid race condition, then ignore all
-    // non-matching events until this request sees its own response.
-    let (subscriptionID, events) = await dispatcher.subscribeTracked()
+    // Subscribe before the write. A reply dispatched before submission does not prove it.
+    // Unmatched events stay ignored until this exchange sees its own response.
+    let (subscriptionID, events) = await dispatcher.subscribeTracked { _ in
+      window.isOpen
+    }
 
     do {
-      try await sendSessionData(data, beforeSend: beforeSend, identityImport: identityImport)
+      try await sendSessionData(
+        data, beforeSend: beforeSend, identityImport: identityImport, notifyingSubmitted: { window.begin() }
+      )
 
       return try await withThrowingTaskGroup(of: T?.self) { group in
         group.addTask {

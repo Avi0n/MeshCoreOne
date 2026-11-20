@@ -828,13 +828,18 @@ struct MeshCoreSessionCommandCorrelationTests {
       try await channel.value
     } else {
       clock.advanceToNextSleep()
+      // The scope command waits on its own clock after status releases the slot.
+      try await waitUntil("scope command is submitted after status settles") {
+        await transport.sentData.count == 4 && clock.sleeperCount == 1
+      }
+      clock.advanceToNextSleep()
       await #expect {
         try await channel.value
       } throws: { error in
         if case MeshCoreError.timeout = error { return true }
         return false
       }
-      #expect(await transport.sentData.count == 3)
+      #expect(await transport.sentData.count == 4)
     }
     #expect(try await status.value.battery == 2200)
   }
@@ -878,13 +883,18 @@ struct MeshCoreSessionCommandCorrelationTests {
       try await acknowledgeChannelFrames(on: transport, after: 2, scope: scope, timestamp: timestamp)
       try await channel.value
     } else {
+      // The scope command waits on its own clock after telemetry releases the slot.
+      try await waitUntil("scope command is submitted after telemetry times out") {
+        await transport.sentData.count == 3 && clock.sleeperCount == 1
+      }
+      clock.advanceToNextSleep()
       await #expect {
         try await channel.value
       } throws: { error in
         if case MeshCoreError.timeout = error { return true }
         return false
       }
-      #expect(await transport.sentData.count == 2)
+      #expect(await transport.sentData.count == 3)
     }
   }
 

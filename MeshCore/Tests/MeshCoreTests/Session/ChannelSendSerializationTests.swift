@@ -167,7 +167,6 @@ struct ChannelSendSerializationTests {
     try await advertisement.value
     let messageCount = await transport.sentData.filter { $0.first == CommandCode.sendChannelMessage.rawValue }.count
     #expect(messageCount == (afterScopeACK ? 1 : 0))
-    #expect(await session.floodScopeRecoveryRequired == false)
     await session.stop()
   }
 

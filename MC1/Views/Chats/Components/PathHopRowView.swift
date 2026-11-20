@@ -15,6 +15,7 @@ struct PathHopRowView: View {
   let nodeName: String
   let nodeID: String?
   let snr: Double?
+  let rssi: Int?
   let matchKind: NodeNameMatchKind
 
   init(
@@ -22,12 +23,14 @@ struct PathHopRowView: View {
     nodeName: String,
     nodeID: String?,
     snr: Double?,
+    rssi: Int? = nil,
     matchKind: NodeNameMatchKind = .exact
   ) {
     self.hopType = hopType
     self.nodeName = nodeName
     self.nodeID = nodeID
     self.snr = snr
+    self.rssi = rssi
     self.matchKind = matchKind
   }
 
@@ -57,22 +60,35 @@ struct PathHopRowView: View {
 
       Spacer()
 
-      // Show signal info only on receiver (where we have SNR)
-      if case .receiver = hopType, let snr {
+      if showsSignal {
         VStack(alignment: .trailing, spacing: 2) {
-          Image(systemName: "cellularbars", variableValue: snrQuality.barLevel)
-            .foregroundStyle(snrQuality.color)
+          if let snr {
+            Image(systemName: "cellularbars", variableValue: snrQuality.barLevel)
+              .foregroundStyle(snrQuality.color)
 
-          Text("SNR \(snr, format: .number.precision(.fractionLength(1))) dB")
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Text("SNR \(snr, format: .number.precision(.fractionLength(1))) dB")
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          }
+
+          if let rssi {
+            Text(L10n.Chats.Chats.Path.Hop.rssi(rssi))
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          }
         }
       }
     }
     .padding(.vertical, 1)
-    .accessibilityElement(children: .combine)
+    .accessibilityElement(children: matchKind == .fallback ? .contain : .combine)
     .accessibilityLabel("\(hopLabel): \(nodeName)")
     .accessibilityValue(accessibilityValueText)
+  }
+
+  /// SNR and RSSI describe the packet this radio heard, so they belong on the receiver row.
+  private var showsSignal: Bool {
+    guard case .receiver = hopType else { return false }
+    return snr != nil || rssi != nil
   }
 
   private var hopLabel: String {
@@ -91,6 +107,9 @@ struct PathHopRowView: View {
     if case .receiver = hopType, let snr {
       let snrText = snr.formatted(.number.precision(.fractionLength(1)))
       values.append(L10n.Chats.Chats.Path.Hop.signalQuality(signalQualityText, snrText))
+    }
+    if case .receiver = hopType, let rssi {
+      values.append(L10n.Chats.Chats.Path.Hop.rssi(rssi))
     }
     if let nodeID {
       values.append(L10n.Chats.Chats.Path.Hop.nodeId(nodeID))

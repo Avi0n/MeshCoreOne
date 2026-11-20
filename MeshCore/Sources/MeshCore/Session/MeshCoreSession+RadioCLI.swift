@@ -37,7 +37,7 @@ extension MeshCoreSession {
 
   private func performCLIExchange(_ command: String, expectedPrefix: String?) async throws -> String {
     let scope = radioCLICorrelationScope
-    // A timeout here marks the session uncertain, and the next scoped channel send reconnects.
+    // An earlier timeout leaves attribution uncertain, so an untagged reply is not this command.
     let attributionIsClean = await requestResponseSerializer.responseAttributionIsUncertain() == false
     let acceptUntaggedReply = expectedPrefix != nil
       && !scope.unprefixedRepliesAreUncertain()

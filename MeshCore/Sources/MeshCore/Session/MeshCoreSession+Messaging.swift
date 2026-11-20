@@ -45,10 +45,13 @@ public extension MeshCoreSession {
     return try await sendMessage(to: publicKey, text: text, timestamp: timestamp, attempt: attempt)
   }
 
-  /// Accepted returns the radio's `RESP_CODE_SENT`. A clear write-attempted bit is not submitted, and `CancellationError` stays a cancellation so a flood-scope fence does not look like a dead link.
-  /// A set bit with no frame is no reply, including a link that died after `writeValue`.
+  /// Accepted is `RESP_CODE_SENT` after submission. A bare OK does not complete the send, and a reply before submission does not prove the write.
+  /// `CancellationError` stays a cancellation. A submitted write with no frame is no reply, including a link that died after `writeValue`.
   private func settleDirectMessageSend(_ data: Data) async throws -> MessageSentInfo {
-    let (subscriptionID, events) = await dispatcher.subscribeTracked(filter: Self.isDirectMessageCommandReply)
+    let window = SubmittedCommandWindow()
+    let (subscriptionID, events) = await dispatcher.subscribeTracked { event in
+      window.isOpen && Self.isDirectMessageCommandReply(event)
+    }
     let collector = Task { () -> DirectMessageCommandReply? in
       for await event in events {
         if let reply = Self.directMessageCommandReply(event) { return reply }
@@ -56,23 +59,22 @@ public extension MeshCoreSession {
       return nil
     }
 
-    let uncertainBeforeWrite = await requestResponseSerializer.responseAttributionIsUncertain()
     let writeError: Error?
     do {
-      try await sendSessionData(data)
+      try await sendSessionData(data, notifyingSubmitted: { window.begin() })
       writeError = nil
     } catch {
       writeError = error
     }
 
     if let writeError {
-      let writeAttempted = await requestResponseSerializer.responseAttributionIsUncertain() && !uncertainBeforeWrite
-      if writeAttempted {
+      let submitted = window.isOpen && Self.replyCanProveFailedWrite(writeError)
+      if submitted {
         await Task.yield()
       }
       await dispatcher.finishSubscription(id: subscriptionID)
       let reply = await collector.value
-      if !writeAttempted {
+      if !submitted {
         if writeError is CancellationError { throw writeError }
         throw MeshCoreError.notConnected
       }

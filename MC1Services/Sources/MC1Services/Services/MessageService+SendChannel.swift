@@ -39,7 +39,7 @@ public extension MessageService {
     radioID: UUID,
     textType: TextType = .plain
   ) async throws -> (id: UUID, timestamp: UInt32) {
-    // Keep this send in the retirement barrier through the Sent write if scope cleanup triggers recovery.
+    // retireInlineSends waits until the Sent write in this function finishes.
     try beginInlineSend()
     defer { endInlineSend() }
     let prepared = try await prepareChannelMessage(text, radioID: radioID)

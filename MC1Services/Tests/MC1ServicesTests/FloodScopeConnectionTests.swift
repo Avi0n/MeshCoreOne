@@ -2,7 +2,6 @@ import Foundation
 @testable import MC1Services
 import MeshCore
 import MeshCoreTestSupport
-import os
 import Testing
 
 @Suite("Flood scope connection baseline")
@@ -98,118 +97,6 @@ struct FloodScopeConnectionTests {
     }
   }
 
-  @Test
-  func `a stale recovery callback cannot reconnect after disconnect or replacement`() async throws {
-    let harness = try ConnectionManagerRadioTestHarness()
-    do {
-      _ = try await harness.connect(.bluetooth)
-      let original = try #require(harness.manager.installedLink)
-      _ = await harness.manager.disconnect(reason: .userInitiated)
-      await harness.manager.recoverFloodScope(
-        resource: original.resource, requestID: original.requestID
-      )
-      #expect(harness.manager.connectionState == .disconnected)
-      #expect(await harness.ble.connectCount == 1)
-
-      _ = try await harness.connect(.bluetooth)
-      let replaced = try #require(harness.manager.installedLink)
-      _ = try await harness.connect(.bluetooth)
-      let successor = try #require(harness.manager.installedLink)
-      #expect(successor.resource !== replaced.resource)
-      await harness.manager.recoverFloodScope(
-        resource: replaced.resource, requestID: replaced.requestID
-      )
-      #expect(harness.manager.installedLink === successor)
-      #expect(await harness.ble.connectCount == 3)
-      await harness.close()
-    } catch {
-      await harness.close()
-      throw error
-    }
-  }
-
-  @Test(arguments: [false, true])
-  func `scope recovery replaces the link only when Power Off leaves the radio on`(radioStaysOn: Bool) async throws {
-    let harness = try ConnectionManagerRadioTestHarness()
-    do {
-      _ = try await harness.connect(.bluetooth)
-      let link = try #require(harness.manager.installedLink)
-      let session = link.resource.session
-      let recovery = OSAllocatedUnfairLock(initialState: (started: false, task: Task<Void, Never>?.none))
-      await session.setFloodScopeRecoveryHandler { [weak manager = harness.manager, weak link] in
-        let task = Task { @MainActor in
-          guard let manager, let link else { return }
-          recovery.withLock { $0.started = true }
-          await manager.recoverFloodScope(
-            resource: link.resource, requestID: link.requestID
-          )
-        }
-        recovery.withLock { $0.task = task }
-      }
-
-      await harness.ble.enqueueResponsePackets(for: .setFloodScope, packets: [Data([ResponseCode.ok.rawValue])])
-      await harness.ble.enqueueResponsePackets(for: .setFloodScope, packets: [Data([ResponseCode.error.rawValue, 1])])
-      await harness.ble.holdSubmissions(for: .sendChannelMessage)
-      let send = Task {
-        try await session.sendChannelMessage(
-          channel: 0, text: "accepted", timestamp: Date(), floodScope: .scope(.region("Selected"))
-        )
-      }
-      try await waitUntil("the channel write should park after scope is applied") {
-        await harness.ble.submissionIsHeld(for: .sendChannelMessage)
-      }
-      await harness.ble.holdReplies(for: .setFloodScope)
-      await harness.ble.releaseSubmissions(for: .sendChannelMessage)
-      try await waitUntil("the cleanup rejection should be held") {
-        await harness.ble.heldReplyCount(for: .setFloodScope) == 1
-      }
-
-      if radioStaysOn {
-        await harness.ble.enqueueResponsePackets(
-          for: .runCliCommand, packets: [Data([ResponseCode.cliReply.rawValue]) + Data("still on".utf8)]
-        )
-      }
-      await harness.ble.holdSubmissions(for: .runCliCommand)
-      let powerOff = Task { try await harness.manager.powerOffCurrentLink() }
-      try await waitUntil("Power Off should own reconnect") { harness.manager.powerOffBlocksReconnect }
-      await harness.ble.releaseReplies(for: .setFloodScope)
-      try await send.value
-      try await waitUntil("scope recovery should start while Power Off is held") {
-        guard recovery.withLock({ $0.started }) else { return false }
-        return await harness.ble.submissionIsHeld(for: .runCliCommand)
-      }
-      #expect(harness.manager.installedLink === link)
-      #expect(await harness.ble.connectCount == 1)
-
-      let recoveryTask = try #require(recovery.withLock { $0.task })
-      await harness.ble.releaseSubmissions(for: .runCliCommand)
-      if radioStaysOn {
-        let error = await #expect(throws: SettingsServiceError.self) { try await powerOff.value }
-        switch error {
-        case .powerOffUnsupported?: break
-        default: Issue.record("Expected an unsupported Power Off reply")
-        }
-        await recoveryTask.value
-        #expect(await harness.ble.connectCount == 2)
-        #expect(harness.manager.installedLink !== link)
-        let successor = try #require(harness.manager.session)
-        let baseline = PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey())
-        #expect(await harness.ble.sentData.filter { $0 == baseline }.count == 3)
-        _ = try await successor.getTime()
-      } else {
-        let token = try await powerOff.value
-        await recoveryTask.value
-        #expect(harness.manager.powerOffOwnsCleanup(token))
-        #expect(harness.manager.connectionState == .disconnected)
-        #expect(await harness.ble.connectCount == 1)
-      }
-      await harness.close()
-    } catch {
-      await harness.close()
-      throw error
-    }
-  }
-
   @Test(arguments: QueueRecoveryCase.allCases)
   func `accepted channel queue sends survive cleanup failure`(recovery: QueueRecoveryCase) async throws {
     let harness = try ConnectionManagerRadioTestHarness()
@@ -226,9 +113,6 @@ struct FloodScopeConnectionTests {
       let message = try await services.messageService.createPendingChannelMessage(
         text: "queued", channelIndex: channel.index, radioID: radioID
       )
-      if recovery == .failedReplacement {
-        await harness.ble.setConnectError(BLEError.deviceNotFound)
-      }
       await harness.ble.enqueueResponsePackets(for: .setFloodScope, packets: [Data([ResponseCode.ok.rawValue])])
       await harness.ble.enqueueResponsePackets(
         for: .setFloodScope, packets: [Data([ResponseCode.error.rawValue, 1])]
@@ -241,18 +125,14 @@ struct FloodScopeConnectionTests {
         let stored = try await harness.manager.persistenceStore.fetchMessage(id: message.id)
         let pending = try await harness.manager.persistenceStore.fetchPendingSends(radioID: radioID)
         return stored?.status == .sent && pending.isEmpty
+          && harness.manager.connectionState == .ready && harness.manager.services === services
       }
-      try await waitUntil("recovery should settle the fenced session") {
-        if recovery == .failedReplacement { return harness.manager.connectionState == .disconnected }
-        return harness.manager.connectionState == .ready && harness.manager.services !== services
-      }
-      if recovery != .failedReplacement {
-        let successor = try #require(harness.manager.session)
-        _ = try await successor.getTime()
-      }
+      let session = try #require(harness.manager.session)
+      _ = try await session.getTime()
       let channelSends = await harness.ble.sentData.filter { $0.first == CommandCode.sendChannelMessage.rawValue }
       #expect(channelSends.count == 1)
       #expect(channelSends.first?.dropFirst(2).first == channel.index)
+      #expect(await harness.ble.connectCount == 1)
       await harness.close()
     } catch {
       await harness.close()
@@ -263,7 +143,6 @@ struct FloodScopeConnectionTests {
   enum QueueRecoveryCase: CaseIterable {
     case initialSend
     case resend
-    case failedReplacement
   }
 
   private func radio(_ type: TransportType, _ harness: ConnectionManagerRadioTestHarness) -> ConnectionTestRadioTransport {

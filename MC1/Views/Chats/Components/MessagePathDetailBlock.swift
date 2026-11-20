@@ -2,7 +2,7 @@ import CoreLocation
 import MC1Services
 import SwiftUI
 
-/// Outgoing repeat rows or incoming arrival paths and maps.
+/// Paths and maps for each arrival. Heard repeats of a sent message are arrivals too.
 struct MessagePathDetailBlock: View {
   private static let expandedContentTopPadding: CGFloat = 8
   private static let outgoingDisclosureSymbol = "arrow.triangle.branch"
@@ -45,7 +45,6 @@ struct MessagePathDetailBlock: View {
       proxy.size.width
     } action: { containerWidth = $0 }
     .task(id: prefetchID) {
-      guard !message.isOutgoing else { return }
       await pathViewModel.prefetchPreviews(
         message: message,
         arrivals: arrivals,
@@ -126,34 +125,42 @@ struct MessagePathDetailBlock: View {
 
   private var expandedContent: some View {
     VStack(alignment: .leading, spacing: 12) {
-      if message.isOutgoing {
-        RepeatDetailsContent(
-          repeats: pathViewModel.isLoading ? nil : repeats,
-          contacts: pathViewModel.contacts,
-          discoveredNodes: pathViewModel.discoveredRepeaters,
-          userLocation: appState.bestAvailableLocation
+      if message.isOutgoing, repeats == nil {
+        ProgressView()
+          .frame(maxWidth: .infinity, alignment: .center)
+          .padding()
+      } else if message.isOutgoing, arrivals.isEmpty {
+        ContentUnavailableView(
+          L10n.Chats.Chats.Repeats.EmptyState.title,
+          systemImage: "arrow.triangle.branch",
+          description: Text(L10n.Chats.Chats.Repeats.EmptyState.description)
         )
       } else {
-        if arrivals.count > 1 {
-          MessagePathArrivalCapsules(
-            arrivals: arrivals,
-            selectedID: selectedBinding,
-            reduceMotion: reduceMotion
-          )
-        }
-
-        previewMap
-
-        if let selectedArrival {
-          MessagePathContent(
-            message: message,
-            arrival: selectedArrival,
-            viewModel: pathViewModel,
-            receiverName: appState.connectedDevice?.nodeName ?? L10n.Chats.Chats.Path.Receiver.you,
-            userLocation: appState.bestAvailableLocation
-          )
-        }
+        pathDetail
       }
+    }
+  }
+
+  @ViewBuilder
+  private var pathDetail: some View {
+    if arrivals.count > 1 {
+      MessagePathArrivalCapsules(
+        arrivals: arrivals,
+        selectedID: selectedBinding,
+        reduceMotion: reduceMotion
+      )
+    }
+
+    previewMap
+
+    if let selectedArrival {
+      MessagePathContent(
+        message: message,
+        arrival: selectedArrival,
+        viewModel: pathViewModel,
+        receiverName: appState.connectedDevice?.nodeName ?? L10n.Chats.Chats.Path.Receiver.you,
+        userLocation: appState.bestAvailableLocation
+      )
     }
   }
 
