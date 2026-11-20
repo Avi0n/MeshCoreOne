@@ -1,5 +1,7 @@
 import Foundation
-import os
+#if canImport(os)
+  import os
+#endif
 
 /// Serializes every command-response exchange that relies on event matching.
 ///

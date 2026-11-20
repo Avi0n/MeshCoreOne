@@ -78,7 +78,7 @@ XCSIFT_WITH_HEARTBEAT = { \
 .NOTPARALLEL:
 
 help: ## List available targets
-	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+	@grep -h -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  %-14s %s\n", $$1, $$2}'
 
 define DEV_YML_STUB
@@ -132,3 +132,6 @@ test-store: generate ## Run every StoreKit/IAP SKTestSession suite on iOS 18.x
 		-collect-test-diagnostics never \
 		2>&1 | { if [ -n "$(TEST_LOG)" ]; then tee "$(TEST_LOG)"; else cat; fi; } \
 		| $(XCSIFT_WITH_HEARTBEAT)
+
+# Optional branch-local targets (e.g. Android port parity/bridge helpers on multiplatform).
+-include multiplatform/Makefile

@@ -1,4 +1,8 @@
-import CryptoKit
+#if canImport(CryptoKit)
+  import CryptoKit
+#else
+  import Crypto
+#endif
 import Foundation
 
 /// Resolves the per-message flood region a packet was transmitted under, by

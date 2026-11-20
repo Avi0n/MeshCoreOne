@@ -1,5 +1,9 @@
+// Android's Foundation overlay does not re-export CFAbsoluteTime.
+import CoreFoundation
 import Foundation
-import os
+#if canImport(os)
+  import os
+#endif
 
 /// Silence is the only submitted result that means the radio powered off.
 /// A reply, rejection, write error, or stopped session does not.
