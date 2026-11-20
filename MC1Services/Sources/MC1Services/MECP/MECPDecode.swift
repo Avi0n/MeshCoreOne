@@ -63,29 +63,45 @@ public enum MECPDecode {
   private static let maxHour = 23
   private static let maxMinute = 59
   private static let clockDigits = 4
-  private static let paxSuffix = "pax"
 
   private static func isASCIIDigit(_ character: Character) -> Bool {
     character.isASCII && character.isNumber
   }
 
+  /// MECP 1.4.0 §6.1 person count decoding pattern, without the boundaries `isBounded` checks.
+  private nonisolated(unsafe) static let paxPattern = #/0*([1-9][0-9]*) ?[Pp][Aa][Xx]/#
+    .matchingSemantics(.unicodeScalar)
+
+  /// The first bounded person count. A zero count does not match, so a later value is used. Checking the
+  /// boundaries after matching finds the same value as the wrapped pattern, because the only boundary a
+  /// match can contain is the space before `pax`, so no bounded match can start inside a rejected one.
   private static func firstPax(in text: String) -> (count: Int, range: Range<String.Index>)? {
-    var index = text.startIndex
-    while index < text.endIndex {
-      guard isASCIIDigit(text[index]) else {
-        index = text.index(after: index)
-        continue
-      }
-      let start = index
-      while index < text.endIndex, isASCIIDigit(text[index]) {
-        index = text.index(after: index)
-      }
-      guard text[index...].hasPrefix(paxSuffix) else { continue }
-      guard let count = Int(text[start..<index]) else { return nil }
-      let end = text.index(index, offsetBy: paxSuffix.count)
-      return (count, start..<end)
+    guard let match = text.matches(of: paxPattern).first(where: { isBounded($0.range, in: text) }) else {
+      return nil
     }
-    return nil
+    // The pattern does not limit the digits; a count too large for Int is clamped, not dropped.
+    return (Int(match.1) ?? Int.max, match.range)
+  }
+
+  /// MECP 1.4.0 §6.1 rule 4: the boundary class B.
+  private static let boundary: Set<Unicode.Scalar> = {
+    let listed = "\t\n\u{0C}\r ,.;:!?'\"()[]{}"
+      + "\u{00A0}\u{1680}\u{202F}\u{205F}\u{3000}"
+      + "\u{060C}\u{061B}\u{061F}\u{06D4}"
+      + "\u{00AB}\u{00BB}\u{2013}\u{2014}\u{2026}"
+      + "\u{3001}\u{3002}\u{3010}\u{3011}"
+      + "\u{FF01}\u{FF08}\u{FF09}\u{FF0C}\u{FF0E}\u{FF1A}\u{FF1B}\u{FF1F}"
+    let ranges: [ClosedRange<UInt32>] = [0x2000...0x200A, 0x2018...0x201D, 0x300C...0x300F]
+    return Set(listed.unicodeScalars).union(ranges.joined().compactMap(Unicode.Scalar.init))
+  }()
+
+  /// MECP 1.4.0 §6.1 rule 4: a decoding match needs the start of the free text or one B scalar before
+  /// it, and one B scalar or the end of the free text after it.
+  private static func isBounded(_ range: Range<String.Index>, in text: String) -> Bool {
+    let scalars = text.unicodeScalars
+    let before = range.lowerBound == scalars.startIndex || boundary.contains(scalars[scalars.index(before: range.lowerBound)])
+    let after = range.upperBound == scalars.endIndex || boundary.contains(scalars[range.upperBound])
+    return before && after
   }
 
   private static func firstTimestamp(in text: String) -> (digits: String, range: Range<String.Index>)? {

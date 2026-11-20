@@ -102,6 +102,50 @@ struct MECPDecodeTests {
   }
 
   @Test
+  func `a person count must stand between boundaries`() {
+    for tail in ["x4pax", "3paxmore", "#4pax", "*4pax*", "4pax\u{0B}water", "0pax"] {
+      #expect(MECPDecode.decode("MECP/1/S01 \(tail)")?.personCount == nil, "\(tail)")
+    }
+  }
+
+  @Test
+  func `a person count accepts a space, any case, leading zeros, and boundary punctuation`() {
+    for tail in ["4 pax", "4PAX", "4Pax.", "04pax", "(4pax)", "4pax\u{A0}water", "4pax\u{2009}water", "\u{201C}4pax\u{201D}", "need,4pax"] {
+      #expect(MECPDecode.decode("MECP/1/S01 \(tail)")?.personCount == 4, "\(tail)")
+    }
+  }
+
+  @Test
+  func `a zero person count is skipped for a later one`() throws {
+    let message = try #require(MECPDecode.decode("MECP/1/S01 0pax 2pax"))
+    #expect(message.personCount == 2)
+    #expect(message.displayTail == "0pax")
+  }
+
+  @Test
+  func `a person count without boundaries is skipped for a later one`() throws {
+    let before = try #require(MECPDecode.decode("MECP/1/S01 x4pax 2pax"))
+    #expect(before.personCount == 2)
+    #expect(before.displayTail == "x4pax")
+
+    let after = try #require(MECPDecode.decode("MECP/1/S01 4paxy 2pax"))
+    #expect(after.personCount == 2)
+    #expect(after.displayTail == "4paxy")
+  }
+
+  @Test
+  func `a spaced person count is removed from the tail`() throws {
+    let message = try #require(MECPDecode.decode("MECP/1/S01 4 pax water"))
+    #expect(message.personCount == 4)
+    #expect(message.displayTail == "water")
+  }
+
+  @Test
+  func `a person count too large for Int is clamped`() {
+    #expect(MECPDecode.decode("MECP/1/S01 99999999999999999999pax")?.personCount == Int.max)
+  }
+
+  @Test
   func `a timestamp must be four digits at a token boundary and in range`() throws {
     let punctuated = try #require(MECPDecode.decode("MECP/1/M01 arrived @1430."))
     #expect(punctuated.timestampHHMM == nil)
