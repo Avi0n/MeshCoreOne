@@ -167,7 +167,7 @@ struct MECPDecodeTests {
   func `a person count too large for Int is clamped`() {
     #expect(MECPDecode.decode("MECP/1/S01 99999999999999999999pax")?.personCount == Int.max)
   }
-  
+
   @Test
   func `a timestamp must be four digits at a token boundary and in range`() throws {
     let punctuated = try #require(MECPDecode.decode("MECP/1/M01 arrived @1430."))
