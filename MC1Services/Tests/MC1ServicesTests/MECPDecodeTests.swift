@@ -171,16 +171,43 @@ struct MECPDecodeTests {
   @Test
   func `a timestamp must be four digits at a token boundary and in range`() throws {
     let punctuated = try #require(MECPDecode.decode("MECP/1/M01 arrived @1430."))
-    #expect(punctuated.timestampHHMM == nil)
-    #expect(punctuated.displayTail == "arrived @1430.")
+    #expect(punctuated.timestampHHMM == "1430")
+    #expect(punctuated.displayTail == "arrived .")
 
     let invalid = try #require(MECPDecode.decode("MECP/3/R01 @2400 @1430"))
-    #expect(invalid.timestampHHMM == nil)
-    #expect(invalid.displayTail == "@2400 @1430")
+    #expect(invalid.timestampHHMM == "1430")
+    #expect(invalid.displayTail == "@2400")
 
     let accepted = try #require(MECPDecode.decode("MECP/0/M01 @1430 @en"))
     #expect(accepted.timestampHHMM == "1430")
     #expect(accepted.displayTail == "@en")
+  }
+
+  @Test
+  func `a timestamp is removed from the tail`() throws {
+    let message = try #require(MECPDecode.decode("MECP/0/M01 @1430 @en"))
+    #expect(message.timestampHHMM == "1430")
+    #expect(message.displayTail == "@en")
+  }
+
+  @Test
+  func `a timestamp may have a one-digit hour and a colon`() {
+    #expect(MECPDecode.decode("MECP/3/L01 @123")?.timestampHHMM == "0123")
+    #expect(MECPDecode.decode("MECP/2/T01 @6:30")?.timestampHHMM == "0630")
+    // The one-digit hour `@230` is tried first and fails the boundary after it.
+    #expect(MECPDecode.decode("MECP/3/L01 @2300")?.timestampHHMM == "2300")
+  }
+
+  @Test
+  func `a timestamp needs a boundary on each side`() {
+    #expect(MECPDecode.decode("MECP/2/T05 @1430,")?.timestampHHMM == "1430")
+    #expect(MECPDecode.decode("MECP/2/T05 meet@1430")?.timestampHHMM == nil)
+    #expect(MECPDecode.decode("MECP/3/L06 @14300")?.timestampHHMM == nil)
+  }
+
+  @Test
+  func `an out-of-range timestamp is skipped for the next one`() {
+    #expect(MECPDecode.decode("MECP/3/L06 @2460 @1400 @1530")?.timestampHHMM == "1400")
   }
 
   @Test

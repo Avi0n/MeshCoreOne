@@ -1,3 +1,5 @@
+import RegexBuilder
+
 /// The MECP wire grammar. A string that does not match returns nil.
 public enum MECPDecode {
   public static func decode(_ input: String) -> MECPMessage? {
@@ -46,7 +48,7 @@ public enum MECPDecode {
       removal.append(pax.range)
     }
 
-    if let match = firstTimestamp(in: freetext), isAcceptedClock(match.digits) {
+    if let match = firstTimestamp(in: freetext) {
       extraction.timestampHHMM = match.digits
       removal.append(match.range)
     }
@@ -63,9 +65,6 @@ public enum MECPDecode {
   }
 
   private static let etaCode = "R03"
-  private static let maxHour = 23
-  private static let maxMinute = 59
-  private static let clockDigits = 4
 
   private static func isASCIIDigit(_ character: Character) -> Bool {
     character.isASCII && character.isNumber
@@ -107,23 +106,29 @@ public enum MECPDecode {
     return before && after
   }
 
-  private static func firstTimestamp(in text: String) -> (digits: String, range: Range<String.Index>)? {
-    var search = text.startIndex
-    while search < text.endIndex, let at = text[search...].firstIndex(of: "@") {
-      var cursor = text.index(after: at)
-      var count = 0
-      while cursor < text.endIndex, count < clockDigits, isASCIIDigit(text[cursor]) {
-        cursor = text.index(after: cursor)
-        count += 1
+  /// MECP 1.4.0 §6.1 timestamp decoding pattern, followed by one B scalar or the end of the free text.
+  /// The boundary after is part of the pattern because the matcher must backtrack into it: `@2300`
+  /// first tries `@230`, which a boundary check after matching would reject. Swift `Regex` has no
+  /// lookbehind, so `firstTimestamp` checks the boundary before.
+  private nonisolated(unsafe) static let timestampPattern = Regex {
+    #/@([01]?[0-9]|2[0-3]):?([0-5][0-9])/#
+    Lookahead {
+      ChoiceOf {
+        CharacterClass.anyOf(boundary)
+        Anchor.endOfSubject
       }
-      let atBoundary = cursor == text.endIndex || text[cursor] == " "
-      if count == clockDigits, atBoundary {
-        let digitsStart = text.index(after: at)
-        return (String(text[digitsStart..<cursor]), at..<cursor)
-      }
-      search = text.index(after: at)
     }
-    return nil
+  }
+  .matchingSemantics(.unicodeScalar)
+
+  /// The first bounded timestamp, as four digits. A rejected match has only one `@`, at its start, so
+  /// skipping it does not skip a later timestamp. An out-of-range value such as `@2460` does not match.
+  private static func firstTimestamp(in text: String) -> (digits: String, range: Range<String.Index>)? {
+    guard let match = text.matches(of: timestampPattern).first(where: { isBounded($0.range, in: text) }) else {
+      return nil
+    }
+    let hour = match.1.count == 1 ? "0\(match.1)" : String(match.1)
+    return (hour + match.2, match.range)
   }
 
   private static func leadingEta(in text: String) -> (minutes: Int, range: Range<String.Index>)? {
@@ -135,15 +140,6 @@ public enum MECPDecode {
     }
     guard index == text.endIndex || text[index] == " ", let minutes = Int(text[start..<index]) else { return nil }
     return (minutes, start..<index)
-  }
-
-  private static func isAcceptedClock(_ digits: String) -> Bool {
-    guard digits.count == 4,
-          let hour = Int(digits.prefix(2)),
-          let minute = Int(digits.suffix(2)) else {
-      return false
-    }
-    return hour <= maxHour && minute <= maxMinute
   }
 
   private static func removing(_ ranges: [Range<String.Index>], from text: String) -> String? {
