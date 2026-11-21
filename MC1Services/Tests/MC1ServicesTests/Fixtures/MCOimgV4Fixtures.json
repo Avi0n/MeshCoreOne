@@ -1,0 +1,4083 @@
+{
+  "source": "independent command-test bit assembly",
+  "fixtures": [
+    {
+      "bodyBase64": "AAgPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AEgzAQ==",
+      "document": {
+        "width": 20,
+        "height": 10,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AIjnDwA=",
+      "document": {
+        "width": 40,
+        "height": 64,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AIjgAQA=",
+      "document": {
+        "width": 33,
+        "height": 8,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AMjGAA==",
+      "document": {
+        "width": 100,
+        "height": 100,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AMjHjgE=",
+      "document": {
+        "width": 100,
+        "height": 200,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AMj/AQA=",
+      "document": {
+        "width": 256,
+        "height": 1,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AEgpAQ==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AIjnCQA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AIhTAgA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AMh+AA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AMjHxgA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AMhPfgA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAjPAw==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 3,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAhPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": null,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAAPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 0,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAQPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 1,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAwPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 3,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ABAPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 4,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ABQPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 5,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ABgPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 6,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ABwPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 7,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ACAPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 8,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ACQPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 9,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ACgPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 10,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ACwPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 11,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ADAPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 12,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ADQPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 13,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ADgPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 14,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "ADwPAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 15,
+        "backgroundColor": 0,
+        "figures": [],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAoPAA==",
+      "error": "unsupported"
+    },
+    {
+      "bodyBase64": "AAsPAA==",
+      "error": "unsupported"
+    },
+    {
+      "bodyBase64": "AAkPAA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAgPIiSO4AM=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              2,
+              2
+            ]
+          },
+          {
+            "style": {
+              "fillColor": 3,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              14,
+              13
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPIuT3l0HwAQ==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              2,
+              2
+            ]
+          },
+          {
+            "style": {
+              "fillColor": 3,
+              "strokeColor": 4,
+              "strokeWidth": 2
+            },
+            "kind": "dot",
+            "point": [
+              14,
+              13
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPOMkhKgYA",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": 3,
+              "strokeColor": 4,
+              "strokeWidth": 5
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              4
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPUWMcBA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": null,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              1,
+              1
+            ],
+            "end": [
+              5,
+              6
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPXwA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AEgzGUxkAA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAgPKgYA",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              4
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPGiQtAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              1,
+              2
+            ],
+            "end": [
+              7,
+              9
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPI2QlVQA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "rectangle",
+            "first": [
+              2,
+              2
+            ],
+            "second": [
+              9,
+              7
+            ],
+            "third": [
+              8,
+              3
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPI2QlVQA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "ellipse",
+            "first": [
+              2,
+              2
+            ],
+            "second": [
+              9,
+              7
+            ],
+            "third": [
+              8,
+              3
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPRMhKAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "rectangle",
+            "first": [
+              2,
+              2
+            ],
+            "second": [
+              9,
+              7
+            ],
+            "third": [
+              2,
+              7
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPTMhKAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "rectangle",
+            "first": [
+              2,
+              2
+            ],
+            "second": [
+              9,
+              7
+            ],
+            "third": [
+              9,
+              2
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPRshKAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "ellipse",
+            "first": [
+              2,
+              2
+            ],
+            "second": [
+              9,
+              7
+            ],
+            "third": [
+              2,
+              7
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPRQhDBAA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "wave",
+            "start": [
+              2,
+              2
+            ],
+            "end": [
+              10,
+              6
+            ],
+            "depth": 3,
+            "closed": false
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPTQhDAwA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "wave",
+            "start": [
+              2,
+              2
+            ],
+            "end": [
+              10,
+              6
+            ],
+            "depth": -2,
+            "closed": true
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPI4SQcwA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAgPQYQA",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AEgzWWRYwQA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiPBwjxAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              2,
+              2
+            ],
+            "end": [
+              5,
+              0
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AMj+PKChYQI=",
+      "document": {
+        "width": 128,
+        "height": 128,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              10,
+              10
+            ],
+            "end": [
+              13,
+              12
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPv2QsAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              2,
+              1
+            ],
+            "end": [
+              2,
+              9
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPP2UsAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              1,
+              3
+            ],
+            "end": [
+              9,
+              3
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPj5HBAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              2,
+              1
+            ],
+            "end": [
+              2,
+              7
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPFxBiwAA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "rectangle",
+            "first": [
+              2,
+              2
+            ],
+            "second": [
+              5,
+              2
+            ],
+            "third": [
+              5,
+              5
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPlxBiwAA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "ellipse",
+            "first": [
+              2,
+              2
+            ],
+            "second": [
+              5,
+              2
+            ],
+            "third": [
+              5,
+              5
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPFxBipgA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "rectangle",
+            "first": [
+              2,
+              2
+            ],
+            "second": [
+              5,
+              4
+            ],
+            "third": [
+              4,
+              1
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPnwVCLAA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "wave",
+            "start": [
+              2,
+              2
+            ],
+            "end": [
+              5,
+              3
+            ],
+            "depth": -3,
+            "closed": true
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPR2KYIQA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "ellipse",
+            "first": [
+              2,
+              4
+            ],
+            "second": [
+              10,
+              4
+            ],
+            "third": [
+              6,
+              7
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPR2KYGQA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "ellipse",
+            "first": [
+              2,
+              4
+            ],
+            "second": [
+              10,
+              4
+            ],
+            "third": [
+              6,
+              2
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPRyGKAAA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiP14gQSQI=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              2,
+              2
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              3
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              4,
+              4
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPVyTEleLeAw==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              2,
+              2
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              12,
+              3
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              12
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              13,
+              13
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPB2I0AA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiPrDHQQGggAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                1,
+                1
+              ],
+              [
+                6,
+                1
+              ],
+              [
+                6,
+                6
+              ],
+              [
+                1,
+                6
+              ]
+            ],
+            "closed": true
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPhcYg6gAA",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                12,
+                2
+              ]
+            ],
+            "closed": false
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPJ2gMbgA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                1,
+                1
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                4
+              ]
+            ],
+            "closed": false
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPp2gMbgU=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                1,
+                1
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                4
+              ],
+              [
+                1,
+                4
+              ]
+            ],
+            "closed": true
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPryqFCEAoBA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                3,
+                3
+              ],
+              [
+                7,
+                3
+              ],
+              [
+                7,
+                5
+              ],
+              [
+                3,
+                5
+              ]
+            ],
+            "closed": true
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPN6kUIgACEAA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                3,
+                3
+              ],
+              [
+                7,
+                3
+              ],
+              [
+                7,
+                5
+              ]
+            ],
+            "closed": false
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPL4DwBEgA",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiPLyiFACgA",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiPFAgxBBFFGHEEAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                5,
+                0
+              ]
+            ],
+            "closed": false
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPNAAhhiCiCCOOQCIJJZZgogknnoAiCjHGIKMMM84A",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                5,
+                0
+              ],
+              [
+                6,
+                0
+              ],
+              [
+                7,
+                0
+              ],
+              [
+                8,
+                0
+              ],
+              [
+                9,
+                0
+              ],
+              [
+                10,
+                0
+              ],
+              [
+                11,
+                0
+              ],
+              [
+                12,
+                0
+              ],
+              [
+                13,
+                0
+              ],
+              [
+                14,
+                0
+              ],
+              [
+                15,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                5,
+                1
+              ]
+            ],
+            "closed": false
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPdEoBIYYgoggjjkAiCSWWYKIJJ56AIgoxxiCjDDPOQCMNNdZgow033oAjDkEGIaQQQw5BJBFFFmGkEUcegSQSUUYhpRRTTkElFVVWYaUVV16BJRZhhiGmGGOOQSYZZZZhphlnnoEmGnHGIaccc85BJx111mGnHXfegScegQYiqCCDDkIoIYUWYqghhx6CKCKRRiKpJJNOQikllVZiqSWXXoIpJqGGIqooo45CKimllmKqKaeegioqscYiqyyzzkIrLbXWYqstt96CKy7BBiOsMMMOQywxxRZjrDHHHoMsMtFGI600005DLTXVVmOtNddegy024YYjrjjjjkMuOeWWY645556DLjrxxiOvPPPOQy899dZjrz333oMvPgEHJLBAAw9EMEEFF2SwQQcfhDBCEUcksUQTT0QxRRVXZLFFF1+EMUYhhiCiCCOOQCIJJZZgogknnoAiCjHGIKMMM84A",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                5,
+                0
+              ],
+              [
+                6,
+                0
+              ],
+              [
+                7,
+                0
+              ],
+              [
+                8,
+                0
+              ],
+              [
+                9,
+                0
+              ],
+              [
+                10,
+                0
+              ],
+              [
+                11,
+                0
+              ],
+              [
+                12,
+                0
+              ],
+              [
+                13,
+                0
+              ],
+              [
+                14,
+                0
+              ],
+              [
+                15,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                5,
+                1
+              ],
+              [
+                6,
+                1
+              ],
+              [
+                7,
+                1
+              ],
+              [
+                8,
+                1
+              ],
+              [
+                9,
+                1
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                1
+              ],
+              [
+                12,
+                1
+              ],
+              [
+                13,
+                1
+              ],
+              [
+                14,
+                1
+              ],
+              [
+                15,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                2
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                5,
+                2
+              ],
+              [
+                6,
+                2
+              ],
+              [
+                7,
+                2
+              ],
+              [
+                8,
+                2
+              ],
+              [
+                9,
+                2
+              ],
+              [
+                10,
+                2
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                2
+              ],
+              [
+                13,
+                2
+              ],
+              [
+                14,
+                2
+              ],
+              [
+                15,
+                2
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                1,
+                3
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                3,
+                3
+              ],
+              [
+                4,
+                3
+              ],
+              [
+                5,
+                3
+              ],
+              [
+                6,
+                3
+              ],
+              [
+                7,
+                3
+              ],
+              [
+                8,
+                3
+              ],
+              [
+                9,
+                3
+              ],
+              [
+                10,
+                3
+              ],
+              [
+                11,
+                3
+              ],
+              [
+                12,
+                3
+              ],
+              [
+                13,
+                3
+              ],
+              [
+                14,
+                3
+              ],
+              [
+                15,
+                3
+              ],
+              [
+                0,
+                4
+              ],
+              [
+                1,
+                4
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                3,
+                4
+              ],
+              [
+                4,
+                4
+              ],
+              [
+                5,
+                4
+              ],
+              [
+                6,
+                4
+              ],
+              [
+                7,
+                4
+              ],
+              [
+                8,
+                4
+              ],
+              [
+                9,
+                4
+              ],
+              [
+                10,
+                4
+              ],
+              [
+                11,
+                4
+              ],
+              [
+                12,
+                4
+              ],
+              [
+                13,
+                4
+              ],
+              [
+                14,
+                4
+              ],
+              [
+                15,
+                4
+              ],
+              [
+                0,
+                5
+              ],
+              [
+                1,
+                5
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                3,
+                5
+              ],
+              [
+                4,
+                5
+              ],
+              [
+                5,
+                5
+              ],
+              [
+                6,
+                5
+              ],
+              [
+                7,
+                5
+              ],
+              [
+                8,
+                5
+              ],
+              [
+                9,
+                5
+              ],
+              [
+                10,
+                5
+              ],
+              [
+                11,
+                5
+              ],
+              [
+                12,
+                5
+              ],
+              [
+                13,
+                5
+              ],
+              [
+                14,
+                5
+              ],
+              [
+                15,
+                5
+              ],
+              [
+                0,
+                6
+              ],
+              [
+                1,
+                6
+              ],
+              [
+                2,
+                6
+              ],
+              [
+                3,
+                6
+              ],
+              [
+                4,
+                6
+              ],
+              [
+                5,
+                6
+              ],
+              [
+                6,
+                6
+              ],
+              [
+                7,
+                6
+              ],
+              [
+                8,
+                6
+              ],
+              [
+                9,
+                6
+              ],
+              [
+                10,
+                6
+              ],
+              [
+                11,
+                6
+              ],
+              [
+                12,
+                6
+              ],
+              [
+                13,
+                6
+              ],
+              [
+                14,
+                6
+              ],
+              [
+                15,
+                6
+              ],
+              [
+                0,
+                7
+              ],
+              [
+                1,
+                7
+              ],
+              [
+                2,
+                7
+              ],
+              [
+                3,
+                7
+              ],
+              [
+                4,
+                7
+              ],
+              [
+                5,
+                7
+              ],
+              [
+                6,
+                7
+              ],
+              [
+                7,
+                7
+              ],
+              [
+                8,
+                7
+              ],
+              [
+                9,
+                7
+              ],
+              [
+                10,
+                7
+              ],
+              [
+                11,
+                7
+              ],
+              [
+                12,
+                7
+              ],
+              [
+                13,
+                7
+              ],
+              [
+                14,
+                7
+              ],
+              [
+                15,
+                7
+              ],
+              [
+                0,
+                8
+              ],
+              [
+                1,
+                8
+              ],
+              [
+                2,
+                8
+              ],
+              [
+                3,
+                8
+              ],
+              [
+                4,
+                8
+              ],
+              [
+                5,
+                8
+              ],
+              [
+                6,
+                8
+              ],
+              [
+                7,
+                8
+              ],
+              [
+                8,
+                8
+              ],
+              [
+                9,
+                8
+              ],
+              [
+                10,
+                8
+              ],
+              [
+                11,
+                8
+              ],
+              [
+                12,
+                8
+              ],
+              [
+                13,
+                8
+              ],
+              [
+                14,
+                8
+              ],
+              [
+                15,
+                8
+              ],
+              [
+                0,
+                9
+              ],
+              [
+                1,
+                9
+              ],
+              [
+                2,
+                9
+              ],
+              [
+                3,
+                9
+              ],
+              [
+                4,
+                9
+              ],
+              [
+                5,
+                9
+              ],
+              [
+                6,
+                9
+              ],
+              [
+                7,
+                9
+              ],
+              [
+                8,
+                9
+              ],
+              [
+                9,
+                9
+              ],
+              [
+                10,
+                9
+              ],
+              [
+                11,
+                9
+              ],
+              [
+                12,
+                9
+              ],
+              [
+                13,
+                9
+              ],
+              [
+                14,
+                9
+              ],
+              [
+                15,
+                9
+              ],
+              [
+                0,
+                10
+              ],
+              [
+                1,
+                10
+              ],
+              [
+                2,
+                10
+              ],
+              [
+                3,
+                10
+              ],
+              [
+                4,
+                10
+              ],
+              [
+                5,
+                10
+              ],
+              [
+                6,
+                10
+              ],
+              [
+                7,
+                10
+              ],
+              [
+                8,
+                10
+              ],
+              [
+                9,
+                10
+              ],
+              [
+                10,
+                10
+              ],
+              [
+                11,
+                10
+              ],
+              [
+                12,
+                10
+              ],
+              [
+                13,
+                10
+              ],
+              [
+                14,
+                10
+              ],
+              [
+                15,
+                10
+              ],
+              [
+                0,
+                11
+              ],
+              [
+                1,
+                11
+              ],
+              [
+                2,
+                11
+              ],
+              [
+                3,
+                11
+              ],
+              [
+                4,
+                11
+              ],
+              [
+                5,
+                11
+              ],
+              [
+                6,
+                11
+              ],
+              [
+                7,
+                11
+              ],
+              [
+                8,
+                11
+              ],
+              [
+                9,
+                11
+              ],
+              [
+                10,
+                11
+              ],
+              [
+                11,
+                11
+              ],
+              [
+                12,
+                11
+              ],
+              [
+                13,
+                11
+              ],
+              [
+                14,
+                11
+              ],
+              [
+                15,
+                11
+              ],
+              [
+                0,
+                12
+              ],
+              [
+                1,
+                12
+              ],
+              [
+                2,
+                12
+              ],
+              [
+                3,
+                12
+              ],
+              [
+                4,
+                12
+              ],
+              [
+                5,
+                12
+              ],
+              [
+                6,
+                12
+              ],
+              [
+                7,
+                12
+              ],
+              [
+                8,
+                12
+              ],
+              [
+                9,
+                12
+              ],
+              [
+                10,
+                12
+              ],
+              [
+                11,
+                12
+              ],
+              [
+                12,
+                12
+              ],
+              [
+                13,
+                12
+              ],
+              [
+                14,
+                12
+              ],
+              [
+                15,
+                12
+              ],
+              [
+                0,
+                13
+              ],
+              [
+                1,
+                13
+              ],
+              [
+                2,
+                13
+              ],
+              [
+                3,
+                13
+              ],
+              [
+                4,
+                13
+              ],
+              [
+                5,
+                13
+              ],
+              [
+                6,
+                13
+              ],
+              [
+                7,
+                13
+              ],
+              [
+                8,
+                13
+              ],
+              [
+                9,
+                13
+              ],
+              [
+                10,
+                13
+              ],
+              [
+                11,
+                13
+              ],
+              [
+                12,
+                13
+              ],
+              [
+                13,
+                13
+              ],
+              [
+                14,
+                13
+              ],
+              [
+                15,
+                13
+              ],
+              [
+                0,
+                14
+              ],
+              [
+                1,
+                14
+              ],
+              [
+                2,
+                14
+              ],
+              [
+                3,
+                14
+              ],
+              [
+                4,
+                14
+              ],
+              [
+                5,
+                14
+              ],
+              [
+                6,
+                14
+              ],
+              [
+                7,
+                14
+              ],
+              [
+                8,
+                14
+              ],
+              [
+                9,
+                14
+              ],
+              [
+                10,
+                14
+              ],
+              [
+                11,
+                14
+              ],
+              [
+                12,
+                14
+              ],
+              [
+                13,
+                14
+              ],
+              [
+                14,
+                14
+              ],
+              [
+                15,
+                14
+              ],
+              [
+                0,
+                15
+              ],
+              [
+                1,
+                15
+              ],
+              [
+                2,
+                15
+              ],
+              [
+                3,
+                15
+              ],
+              [
+                4,
+                15
+              ],
+              [
+                5,
+                15
+              ],
+              [
+                6,
+                15
+              ],
+              [
+                7,
+                15
+              ],
+              [
+                8,
+                15
+              ],
+              [
+                9,
+                15
+              ],
+              [
+                10,
+                15
+              ],
+              [
+                11,
+                15
+              ],
+              [
+                12,
+                15
+              ],
+              [
+                13,
+                15
+              ],
+              [
+                14,
+                15
+              ],
+              [
+                15,
+                15
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                5,
+                0
+              ],
+              [
+                6,
+                0
+              ],
+              [
+                7,
+                0
+              ],
+              [
+                8,
+                0
+              ],
+              [
+                9,
+                0
+              ],
+              [
+                10,
+                0
+              ],
+              [
+                11,
+                0
+              ],
+              [
+                12,
+                0
+              ],
+              [
+                13,
+                0
+              ],
+              [
+                14,
+                0
+              ],
+              [
+                15,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                1
+              ],
+              [
+                3,
+                1
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                5,
+                1
+              ]
+            ],
+            "closed": false
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiP9EkBAA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiPdEAAAA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiPdEBAQEDAAAA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiPdFaBMQA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAgPIsQRAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              2,
+              2
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              2
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AMj+PEkQELQyFAAA",
+      "document": {
+        "width": 128,
+        "height": 128,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                5,
+                0
+              ],
+              [
+                5,
+                5
+              ]
+            ],
+            "closed": false
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                40,
+                0
+              ],
+              [
+                45,
+                0
+              ],
+              [
+                45,
+                5
+              ]
+            ],
+            "closed": false
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPIoSNAAA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              2,
+              2
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              5,
+              1
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPJ2gMbmLsM5EA",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                1,
+                1
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                4
+              ]
+            ],
+            "closed": false
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              10,
+              10
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                2,
+                2
+              ],
+              [
+                5,
+                2
+              ],
+              [
+                5,
+                5
+              ]
+            ],
+            "closed": false
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPIoTW+gxBAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              2,
+              2
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              9,
+              9
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              3
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPIkTOkQA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              2,
+              2
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 3,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              3
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPGgMZueeRNBcA",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              1,
+              1
+            ],
+            "end": [
+              6,
+              4
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 3,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              2,
+              2
+            ],
+            "end": [
+              7,
+              5
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 4,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              3,
+              3
+            ],
+            "end": [
+              8,
+              6
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 5,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              4,
+              4
+            ],
+            "end": [
+              9,
+              7
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPGsOMZwACl9YC",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              1,
+              1
+            ],
+            "end": [
+              4,
+              1
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              1,
+              3
+            ],
+            "end": [
+              4,
+              3
+            ]
+          },
+          {
+            "style": {
+              "fillColor": 5,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              1,
+              5
+            ],
+            "end": [
+              4,
+              5
+            ]
+          },
+          {
+            "style": {
+              "fillColor": 5,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              9,
+              9
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPGuN5CAE=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              1,
+              1
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              1
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              5,
+              1
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              7,
+              1
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPFgQA",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiP55EAAA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAgPIoQK+UQkAA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAgPIoQK+VQkAA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAgPitGxAQ==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiPbxEhjgA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "group",
+            "figures": [
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 2,
+                  "strokeWidth": 1
+                },
+                "kind": "dot",
+                "point": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 2,
+                  "strokeWidth": 1
+                },
+                "kind": "dot",
+                "point": [
+                  3,
+                  2
+                ]
+              }
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPuW8QIeQcAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 3,
+              "strokeWidth": 1
+            },
+            "kind": "group",
+            "figures": [
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 3,
+                  "strokeWidth": 1
+                },
+                "kind": "dot",
+                "point": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 3,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              12,
+              12
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPIuQbcnQOrQU=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              2,
+              2
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "group",
+            "figures": [
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 3,
+                  "strokeWidth": 1
+                },
+                "kind": "dot",
+                "point": [
+                  5,
+                  5
+                ]
+              }
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              9,
+              9
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPb3yLCKG1AA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "group",
+            "figures": [
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 2,
+                  "strokeWidth": 1
+                },
+                "kind": "group",
+                "figures": [
+                  {
+                    "style": {
+                      "fillColor": null,
+                      "strokeColor": 2,
+                      "strokeWidth": 1
+                    },
+                    "kind": "dot",
+                    "point": [
+                      2,
+                      2
+                    ]
+                  },
+                  {
+                    "style": {
+                      "fillColor": null,
+                      "strokeColor": 2,
+                      "strokeWidth": 1
+                    },
+                    "kind": "dot",
+                    "point": [
+                      9,
+                      9
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPGuNbdI4jAQ==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              1,
+              1
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "group",
+            "figures": [
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 2,
+                  "strokeWidth": 1
+                },
+                "kind": "dot",
+                "point": [
+                  5,
+                  5
+                ]
+              },
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 2,
+                  "strokeWidth": 1
+                },
+                "kind": "dot",
+                "point": [
+                  6,
+                  6
+                ]
+              }
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPb32LCKG1agxkCEIA",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "group",
+            "figures": [
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 2,
+                  "strokeWidth": 1
+                },
+                "kind": "group",
+                "figures": [
+                  {
+                    "style": {
+                      "fillColor": null,
+                      "strokeColor": 2,
+                      "strokeWidth": 1
+                    },
+                    "kind": "dot",
+                    "point": [
+                      2,
+                      2
+                    ]
+                  },
+                  {
+                    "style": {
+                      "fillColor": null,
+                      "strokeColor": 2,
+                      "strokeWidth": 1
+                    },
+                    "kind": "dot",
+                    "point": [
+                      9,
+                      9
+                    ]
+                  }
+                ]
+              },
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 2,
+                  "strokeWidth": 1
+                },
+                "kind": "line",
+                "start": [
+                  1,
+                  1
+                ],
+                "end": [
+                  6,
+                  4
+                ]
+              }
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              14,
+              14
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiPbwAA",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiPb7wCIecA",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAmP9zHIBCQyxBgA",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": null,
+              "strokeWidth": 1
+            },
+            "kind": "raster",
+            "origin": [
+              1,
+              1
+            ],
+            "width": 2,
+            "height": 2,
+            "profile": 2,
+            "pixels": [
+              0,
+              2,
+              2,
+              0
+            ],
+            "transparentColor": null
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              10,
+              10
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAmP9zHIBCQyLAgA",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiP9zHIBCQyAA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAmPb7yPQSYgkQE=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAmP9zFAAAA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AMj+/AMGBjZA4A8H",
+      "document": {
+        "width": 128,
+        "height": 128,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "text",
+            "origin": [
+              8,
+              8
+            ],
+            "width": 120,
+            "fontSize": 15,
+            "alignment": 0,
+            "text": "Hi"
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAiP/wA=",
+      "error": "unsupported"
+    },
+    {
+      "bodyBase64": "AMj+/AMGhu4JPAw=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AEgz+QcywT2BhwE=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AEgz+QcyxD2BhwE=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AMj+/AMGBkIBBw==",
+      "error": "unsupported"
+    },
+    {
+      "bodyBase64": "AAgPygQA",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAiPAmBOAA==",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              -2,
+              -2
+            ],
+            "end": [
+              17,
+              17
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgP+A==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAgPKgY=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "BwgPKgYAAwNCb2IEAwIB",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              4
+            ]
+          }
+        ],
+        "targetName": "Bob",
+        "replyTimestamp": 16909060
+      }
+    },
+    {
+      "bodyBase64": "AAgPKgYAAQFB",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              4
+            ]
+          }
+        ],
+        "targetName": "A",
+        "replyTimestamp": null
+      }
+    },
+    {
+      "bodyBase64": "AAgPKgYAAgEAAAA=",
+      "document": {
+        "width": 16,
+        "height": 16,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              3,
+              4
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": 1
+      }
+    },
+    {
+      "bodyBase64": "AAgPKgYABA==",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAgPKgYAAQA=",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AAgPKgYAAgEAAACZ",
+      "error": "damaged"
+    },
+    {
+      "bodyBase64": "AMj+kITEQxES7HEvJiFBqWH5vRQ8CgmBCUlIDUAnNY10SHZxfmnQMfk1yH6L6OgcSeofKBA/VmEwBPGQ56QhPmFOiIgA",
+      "document": {
+        "width": 128,
+        "height": 128,
+        "profile": 2,
+        "backgroundColor": 0,
+        "figures": [
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              2,
+              2
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "line",
+            "start": [
+              1,
+              2
+            ],
+            "end": [
+              7,
+              9
+            ]
+          },
+          {
+            "style": {
+              "fillColor": 3,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "rectangle",
+            "first": [
+              20,
+              20
+            ],
+            "second": [
+              40,
+              30
+            ],
+            "third": [
+              38,
+              24
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 4,
+              "strokeWidth": 3
+            },
+            "kind": "ellipse",
+            "first": [
+              50,
+              50
+            ],
+            "second": [
+              80,
+              50
+            ],
+            "third": [
+              65,
+              60
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "path",
+            "points": [
+              [
+                90,
+                10
+              ],
+              [
+                100,
+                12
+              ],
+              [
+                95,
+                30
+              ],
+              [
+                91,
+                22
+              ]
+            ],
+            "closed": true
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "wave",
+            "start": [
+              10,
+              100
+            ],
+            "end": [
+              60,
+              110
+            ],
+            "depth": -7,
+            "closed": false
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 5,
+              "strokeWidth": 1
+            },
+            "kind": "group",
+            "figures": [
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 5,
+                  "strokeWidth": 1
+                },
+                "kind": "dot",
+                "point": [
+                  100,
+                  100
+                ]
+              },
+              {
+                "style": {
+                  "fillColor": null,
+                  "strokeColor": 5,
+                  "strokeWidth": 1
+                },
+                "kind": "dot",
+                "point": [
+                  101,
+                  101
+                ]
+              }
+            ]
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "text",
+            "origin": [
+              4,
+              120
+            ],
+            "width": 100,
+            "fontSize": 6,
+            "alignment": 1,
+            "text": "Привет, mesh"
+          },
+          {
+            "style": {
+              "fillColor": null,
+              "strokeColor": 2,
+              "strokeWidth": 1
+            },
+            "kind": "dot",
+            "point": [
+              120,
+              120
+            ]
+          }
+        ],
+        "targetName": null,
+        "replyTimestamp": null
+      }
+    }
+  ],
+  "decoderTag": "9.5.1-mod-1.9.0",
+  "decoderCommit": "fe375741226588440e268002b4975349b2e95ffe",
+  "assemblyCommit": "d388ee8444078635d74dd98ab288269c3a8a9162"
+}

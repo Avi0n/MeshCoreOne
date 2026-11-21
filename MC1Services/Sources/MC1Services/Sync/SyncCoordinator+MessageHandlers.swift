@@ -19,6 +19,7 @@ extension SyncCoordinator {
 
     await wireContactMessageHandler(dependencies: dependencies, radioID: radioID, selfNodeName: selfNodeName)
     await wireChannelMessageHandler(dependencies: dependencies, radioID: radioID, selfNodeName: selfNodeName)
+    await wireChannelDatagramHandler(dependencies: dependencies, radioID: radioID, selfNodeName: selfNodeName)
     await wireSignedMessageHandler(dependencies: dependencies)
     await wireCLIMessageHandler(dependencies: dependencies)
 
@@ -58,19 +59,47 @@ extension SyncCoordinator {
     }
   }
 
+  private func wireChannelDatagramHandler(dependencies: SyncDependencies, radioID: UUID, selfNodeName: String) async {
+    await dependencies.messagePollingService.setChannelDatagramHandler { [weak self] datagram, channel, context, scope, preference, arrivedAt in
+      guard let self, scope.radioID == radioID, scope.isCurrent, let decoded = MCOImageTransport.decode(datagram) else { return }
+      await handleIncomingMessage(
+        kind: .mcoImage(
+          channelIndex: datagram.channelIndex,
+          text: decoded.text,
+          senderName: decoded.senderName,
+          pathLength: datagram.pathLength,
+          snr: datagram.snr,
+          channel: channel
+        ),
+        receivedAt: arrivedAt,
+        context: context,
+        dependencies: dependencies,
+        selfNodeName: selfNodeName,
+        scope: scope,
+        preference: preference
+      )
+    }
+  }
+
   // MARK: - Incoming Message Pipeline
 
-  /// Discriminates the two text-message ingestion paths, carrying the wire
-  /// message and the resolved conversation for each.
   private enum IncomingMessageKind {
     case direct(ContactMessage, contact: ContactDTO?)
     case channel(ChannelMessage, channel: ChannelDTO?)
+    case mcoImage(
+      channelIndex: UInt8,
+      text: String,
+      senderName: String,
+      pathLength: UInt8,
+      snr: Double,
+      channel: ChannelDTO?
+    )
 
-    /// Log noun distinguishing the two paths in shared diagnostics.
+    /// Channel text and an MCOimg share one log noun.
     var logLabel: String {
       switch self {
       case .direct: "direct"
-      case .channel: "channel"
+      case .channel, .mcoImage: "channel"
       }
     }
   }
@@ -186,17 +215,20 @@ extension SyncCoordinator {
       kind, dependencies: dependencies, scope: scope
     )
 
-    // Per-kind wire fields. Channel messages embed the sender as a
-    // "NodeName: text" prefix; direct messages carry the sender key prefix.
+    // Channel text embeds the sender as a "NodeName: text" prefix.
+    // An MCOimg already has its name. A direct message carries the key prefix.
     let text: String
     let senderNodeName: String?
-    let senderTimestampDate: Date
     let textTypeRaw: UInt8
     let snr: Double?
     let reportedPathLength: UInt8
     let contactID: UUID?
     let channelIndex: UInt8?
     let senderKeyPrefix: Data?
+    let conversation: ChannelDTO?
+    let wireTimestamp: UInt32?
+    let harvestIncomingPaths: Bool
+    let suppressionFrame: ChannelMessage?
     switch resolvedKind {
     case let .direct(message, contact):
       // The firmware cannot surface a self-DM here: decrypt runs against a
@@ -204,32 +236,75 @@ extension SyncCoordinator {
       // contacts[], so an echo of the user's own DM never reaches this arm.
       text = message.text
       senderNodeName = nil
-      senderTimestampDate = message.senderTimestamp
       textTypeRaw = message.textType
       snr = message.snr
       reportedPathLength = message.pathLength
       contactID = contact?.id
       channelIndex = nil
       senderKeyPrefix = message.senderPublicKeyPrefix
-    case let .channel(message, _):
-      // Parse "NodeName: text" format for sender name
+      conversation = nil
+      wireTimestamp = UInt32(message.senderTimestamp.timeIntervalSince1970)
+      harvestIncomingPaths = false
+      suppressionFrame = nil
+    case let .channel(message, channel):
       (senderNodeName, text) = Self.parseChannelMessage(message.text)
-      senderTimestampDate = message.senderTimestamp
       textTypeRaw = message.textType
       snr = message.snr
       reportedPathLength = message.pathLength
       contactID = nil
       channelIndex = message.channelIndex
       senderKeyPrefix = nil
+      conversation = channel
+      wireTimestamp = UInt32(message.senderTimestamp.timeIntervalSince1970)
+      harvestIncomingPaths = true
+      suppressionFrame = message
+    case let .mcoImage(index, mcoImageText, senderName, pathLength, mcoImageSNR, channel):
+      text = mcoImageText
+      senderNodeName = senderName
+      textTypeRaw = MeshTextType.plain.rawValue
+      snr = mcoImageSNR
+      reportedPathLength = pathLength
+      contactID = nil
+      channelIndex = index
+      senderKeyPrefix = nil
+      conversation = channel
+      wireTimestamp = nil
+      harvestIncomingPaths = false
+      // Text Rules identify an MCOimg by its stored text, plain type, and sender time 0.
+      suppressionFrame = ChannelMessage(
+        channelIndex: index,
+        pathLength: pathLength,
+        textType: MeshTextType.plain.rawValue,
+        senderTimestamp: Date(timeIntervalSince1970: 0),
+        text: mcoImageText,
+        snr: mcoImageSNR
+      )
     }
 
-    let timestamp = UInt32(senderTimestampDate.timeIntervalSince1970)
-
-    // Correct invalid timestamps (sender clock wrong)
     let receiveTime = receivedAt
-    let (finalTimestamp, timestampCorrected) = Self.correctTimestampIfNeeded(timestamp, receiveTime: receiveTime)
-    if timestampCorrected {
-      logger.debug("Corrected invalid \(resolvedKind.logLabel) message timestamp from \(Date(timeIntervalSince1970: TimeInterval(timestamp))) to \(receiveTime)")
+    let finalTimestamp: UInt32
+    let timestampCorrected: Bool
+    let storedSenderTimestamp: UInt32?
+    let dedupTimestamp: UInt32
+    let rxSenderTimestamp: UInt32?
+    if let wireTimestamp {
+      let corrected = Self.correctTimestampIfNeeded(wireTimestamp, receiveTime: receiveTime)
+      finalTimestamp = corrected.correctedTimestamp
+      timestampCorrected = corrected.wasCorrected
+      storedSenderTimestamp = timestampCorrected ? wireTimestamp : nil
+      dedupTimestamp = wireTimestamp
+      rxSenderTimestamp = wireTimestamp
+      if timestampCorrected {
+        logger.debug("Corrected invalid \(resolvedKind.logLabel) message timestamp from \(Date(timeIntervalSince1970: TimeInterval(wireTimestamp))) to \(receiveTime)")
+      }
+    } else {
+      // An MCOimg has no wire time. The receive second sorts and dedups the row.
+      // senderTimestamp 0 is that absence, and it is not a packet clock.
+      finalTimestamp = UInt32(receiveTime.timeIntervalSince1970)
+      timestampCorrected = true
+      storedSenderTimestamp = 0
+      dedupTimestamp = finalTimestamp
+      rxSenderTimestamp = nil
     }
 
     let sortDate = Self.sortDate(for: context, receiveTime: receiveTime)
@@ -239,16 +314,18 @@ extension SyncCoordinator {
     // retries with different attempt counters, so it must not drive dedup.
     let deduplicationKey = Self.fallbackDeduplicationKey(
       contactID: contactID, channelIndex: channelIndex,
-      senderNodeName: senderNodeName, timestamp: timestamp, content: text
+      senderNodeName: senderNodeName,
+      timestamp: dedupTimestamp,
+      content: text
     )
 
     // Channel lookup joins decrypted 0x88 rows by DeduplicationKey; DMs still
-    // match timestamp then sender-prefix.
+    // match timestamp then sender-prefix. An MCOimg has no sender timestamp.
     let rxResult = await lookupRxLogEntry(
       dependencies: dependencies,
       radioID: radioID,
       channelIndex: channelIndex,
-      senderTimestamp: timestamp,
+      senderTimestamp: rxSenderTimestamp,
       senderPublicKeyPrefix: senderKeyPrefix,
       defaultPathLength: reportedPathLength,
       channelDeduplicationKey: channelIndex != nil ? deduplicationKey : nil
@@ -260,7 +337,7 @@ extension SyncCoordinator {
     case .direct:
       !selfNodeName.isEmpty &&
         MentionUtilities.containsSelfMention(in: text, selfName: selfNodeName)
-    case .channel:
+    case .channel, .mcoImage:
       !selfNodeName.isEmpty &&
         senderNodeName != selfNodeName &&
         MentionUtilities.containsSelfMention(in: text, selfName: selfNodeName)
@@ -308,7 +385,7 @@ extension SyncCoordinator {
       containsSelfMention: hasSelfMention,
       mentionSeen: false,
       timestampCorrected: timestampCorrected,
-      senderTimestamp: timestampCorrected ? timestamp : nil,
+      senderTimestamp: storedSenderTimestamp,
       routeType: rxResult.routeType,
       regionScope: rxResult.regionScope,
       regionScopeMatches: rxResult.regionScopeMatches
@@ -321,64 +398,95 @@ extension SyncCoordinator {
         scope: scope, preference: preference, dependencies: dependencies
       )
 
-    case let .channel(message, channel):
-      if await recordChannelArrivalAndSkipDuplicate(
+    case .channel, .mcoImage:
+      guard let suppressionFrame else { return }
+      await receiveChannelMessage(
+        messageDTO,
+        frame: suppressionFrame,
         deduplicationKey: deduplicationKey,
-        radioID: radioID,
         rxResult: rxResult,
-        snr: snr,
-        receiveTime: receiveTime,
+        conversation: conversation,
+        harvestIncomingPaths: harvestIncomingPaths,
+        selfNodeName: selfNodeName,
+        scope: scope,
+        preference: preference,
+        dependencies: dependencies
+      )
+    }
+  }
+
+  private func receiveChannelMessage(
+    _ message: MessageDTO,
+    frame: ChannelMessage,
+    deduplicationKey: String,
+    rxResult: RxLogLookupResult,
+    conversation: ChannelDTO?,
+    harvestIncomingPaths: Bool,
+    selfNodeName: String,
+    scope: ReceiveScope,
+    preference: TextRulesPreference?,
+    dependencies: SyncDependencies
+  ) async {
+    if await recordChannelArrivalAndSkipDuplicate(
+      deduplicationKey: deduplicationKey,
+      radioID: message.radioID,
+      rxResult: rxResult,
+      snr: message.snr,
+      receiveTime: message.createdAt,
+      dependencies: dependencies,
+      scope: scope
+    ) {
+      return
+    }
+    guard scope.isCurrent else { return }
+    if isBlockedSender(message.senderNodeName) {
+      return
+    }
+    do {
+      if let conversation, try await dependencies.dataStore.shouldSuppressChannelMessage(
+        message, frame: frame, channel: conversation, scope: scope, preference: preference
+      ) { return }
+    } catch {
+      logger.error("Failed to evaluate channel Text Rules: \(error)")
+      return
+    }
+    guard scope.isCurrent else { return }
+    if await handleChannelReaction(
+      text: message.text,
+      channelIndex: frame.channelIndex,
+      senderNodeName: message.senderNodeName,
+      selfNodeName: selfNodeName,
+      receiveTime: message.createdAt,
+      radioID: message.radioID,
+      dependencies: dependencies
+    ) {
+      return
+    }
+    do {
+      await runTestBeforeMessageSave(message)
+      guard try await dependencies.dataStore.saveReceivedChannelMessage(
+              message, scope: scope, conversationID: conversation?.textRulesID
+            ),
+            scope.isCurrent else { return }
+      let savedDTO: MessageDTO = if harvestIncomingPaths {
+        try await harvestAndRefreshChannelMessage(
+          messageDTO: message,
+          radioID: message.radioID,
+          dependencies: dependencies,
+          scope: scope
+        )
+      } else {
+        message
+      }
+      try await indexAndNotifyChannelMessage(
+        messageDTO: savedDTO,
+        channel: conversation,
         dependencies: dependencies,
         scope: scope
-      ) {
-        return
-      }
-      guard scope.isCurrent else { return }
-      if isBlockedSender(senderNodeName) {
-        return
-      }
-      do {
-        if let channel, try await dependencies.dataStore.shouldSuppressChannelMessage(
-          messageDTO, frame: message, channel: channel, scope: scope, preference: preference
-        ) { return }
-      } catch {
-        logger.error("Failed to evaluate channel Text Rules: \(error)")
-        return
-      }
-      guard scope.isCurrent else { return }
-      if await handleChannelReaction(
-        text: text,
-        channelIndex: message.channelIndex,
-        senderNodeName: senderNodeName,
-        selfNodeName: selfNodeName,
-        receiveTime: receiveTime,
-        radioID: radioID,
-        dependencies: dependencies
-      ) {
-        return
-      }
-      do {
-        await runTestBeforeMessageSave(messageDTO)
-        guard try await dependencies.dataStore.saveReceivedChannelMessage(
-                messageDTO, scope: scope, conversationID: channel?.textRulesID
-              ),
-              scope.isCurrent else { return }
-        let savedDTO = try await harvestAndRefreshChannelMessage(
-          messageDTO: messageDTO,
-          radioID: radioID,
-          dependencies: dependencies,
-          scope: scope
-        )
-        try await indexAndNotifyChannelMessage(
-          messageDTO: savedDTO,
-          channel: channel,
-          dependencies: dependencies,
-          scope: scope
-        )
-        await notifyConversationsChanged(scope: scope)
-      } catch {
-        logger.error("Failed to save channel message: \(error)")
-      }
+      )
+      await notifyConversationsChanged(scope: scope)
+    } catch {
+      logger.error("Failed to save channel message: \(error)")
     }
   }
 
@@ -491,29 +599,23 @@ extension SyncCoordinator {
     scope: ReceiveScope
   ) async throws {
     guard scope.isCurrent, let channelIndex = messageDTO.channelIndex else { return }
-    // Use the sender timestamp so pending reactions match corrected-clock messages.
-    if let senderName = messageDTO.senderNodeName {
-      let pendingMatches = await dependencies.reactionService.indexMessage(
-        id: messageDTO.id,
-        channelIndex: channelIndex,
-        senderName: senderName,
-        text: messageDTO.text,
-        timestamp: messageDTO.reactionTimestamp
+    let pendingMatches = await pendingChannelReactions(
+      for: messageDTO,
+      channelIndex: channelIndex,
+      dependencies: dependencies
+    )
+    for pending in pendingMatches {
+      guard scope.isCurrent else { return }
+      let reactionDTO = ReactionDTO(
+        messageID: messageDTO.id,
+        emoji: pending.parsed.emoji,
+        senderName: pending.senderNodeName,
+        messageHash: pending.parsed.messageHash,
+        rawText: pending.rawText,
+        channelIndex: pending.channelIndex,
+        radioID: pending.radioID
       )
-
-      for pending in pendingMatches {
-        guard scope.isCurrent else { return }
-        let reactionDTO = ReactionDTO(
-          messageID: messageDTO.id,
-          emoji: pending.parsed.emoji,
-          senderName: pending.senderNodeName,
-          messageHash: pending.parsed.messageHash,
-          rawText: pending.rawText,
-          channelIndex: pending.channelIndex,
-          radioID: pending.radioID
-        )
-        await persistReactionIfNew(reactionDTO, dependencies: dependencies)
-      }
+      await persistReactionIfNew(reactionDTO, dependencies: dependencies)
     }
 
     guard scope.isCurrent else { return }
@@ -529,6 +631,35 @@ extension SyncCoordinator {
         scope: scope
       )
     }
+  }
+
+  /// A channel MCOimg with no reaction target is not indexed.
+  private func pendingChannelReactions(
+    for messageDTO: MessageDTO,
+    channelIndex: UInt8,
+    dependencies: SyncDependencies
+  ) async -> [PendingReaction] {
+    if let target = messageDTO.mcoImageReactionTarget() {
+      return await dependencies.reactionService.indexMessage(
+        id: messageDTO.id,
+        channelIndex: channelIndex,
+        senderName: target.senderName,
+        text: messageDTO.text,
+        timestamp: messageDTO.reactionTimestamp,
+        messageHash: target.messageHash
+      )
+    }
+    if MCOImageCodec.isChannelMCOImage(channelIndex: channelIndex, text: messageDTO.text) {
+      return []
+    }
+    guard let senderName = messageDTO.senderNodeName else { return [] }
+    return await dependencies.reactionService.indexMessage(
+      id: messageDTO.id,
+      channelIndex: channelIndex,
+      senderName: senderName,
+      text: messageDTO.text,
+      timestamp: messageDTO.reactionTimestamp
+    )
   }
 
   // MARK: - Signed Message Handler

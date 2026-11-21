@@ -26,7 +26,8 @@ let package = Package(
         .product(name: "MeshCoreTestSupport", package: "MeshCore")
       ],
       resources: [
-        .process("MECP")
+        .process("MECP"),
+        .copy("Fixtures")
       ]
     )
   ]

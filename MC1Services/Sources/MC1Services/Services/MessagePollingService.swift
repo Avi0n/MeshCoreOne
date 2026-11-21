@@ -41,6 +41,9 @@ actor MessagePollingService {
   /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
   private var channelMessageHandler: (@Sendable (ChannelMessage, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)?
 
+  private var channelDatagramHandler: (@Sendable (ChannelDatagram, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void)?
+  private var imageDatagramDuplicates = MCOImageDatagramDuplicates()
+
   /// Handler for signed messages (from room servers).
   /// Installed by `SyncCoordinator.wireMessageHandlers`; cleared by `clearMessageHandlers`.
   private var signedMessageHandler: (@Sendable (ContactMessage, ReceiveScope) async -> Void)?
@@ -100,6 +103,10 @@ actor MessagePollingService {
     channelMessageHandler = handler
   }
 
+  func setChannelDatagramHandler(_ handler: @escaping @Sendable (ChannelDatagram, ChannelDTO?, DeliveryContext, ReceiveScope, TextRulesPreference?, Date) async -> Void) {
+    channelDatagramHandler = handler
+  }
+
   /// Set handler for signed messages (from room servers)
   func setSignedMessageHandler(_ handler: @escaping @Sendable (ContactMessage, ReceiveScope) async -> Void) {
     signedMessageHandler = handler
@@ -116,13 +123,14 @@ actor MessagePollingService {
   func clearMessageHandlers() {
     contactMessageHandler = nil
     channelMessageHandler = nil
+    channelDatagramHandler = nil
     signedMessageHandler = nil
     cliMessageHandler = nil
   }
 
   /// Whether any message handler is currently wired.
   var hasMessageHandlersWired: Bool {
-    contactMessageHandler != nil || channelMessageHandler != nil
+    contactMessageHandler != nil || channelMessageHandler != nil || channelDatagramHandler != nil
       || signedMessageHandler != nil || cliMessageHandler != nil
   }
 
@@ -263,10 +271,10 @@ actor MessagePollingService {
       case let .channelMessage(msg):
         count += 1
         await handleChannelMessage(msg, context: .initialSync(anchor: blockAnchor))
-      case .channelDatagram:
-        // Datagrams are not user-visible messages; drain queue without counting.
-        // A follow-up plan will add a dedicated MC1Services listener for them.
-        break
+      case let .channelDatagram(datagram):
+        if await handleChannelDatagram(datagram, context: .initialSync(anchor: blockAnchor)) {
+          count += 1
+        }
       case .noMoreMessages:
         return count
       }
@@ -297,7 +305,11 @@ actor MessagePollingService {
     guard !isSuspendedForRadioErase else { return }
     eventMonitorTask?.cancel()
     let subscription = Task { [session] in
-      await session.eventsTracked(filter: EventFilter.anyContactMessage.or(.anyChannelMessage))
+      let channelData = EventFilter.eventType { event in
+        if case .channelDataReceived = event { return true }
+        return false
+      }
+      return await session.eventsTracked(filter: EventFilter.anyContactMessage.or(.anyChannelMessage).or(channelData))
     }
     eventSubscription = subscription
     eventMonitorTask = Task { [weak self, session] in
@@ -334,9 +346,28 @@ actor MessagePollingService {
       defer { pendingHandlerCount -= 1 }
       await handleChannelMessage(message, context: .live)
 
+    case let .channelDataReceived(datagram):
+      guard !isPolling else { return }
+      pendingHandlerCount += 1
+      defer { pendingHandlerCount -= 1 }
+      _ = await handleChannelDatagram(datagram, context: .live)
+
     default:
       break
     }
+  }
+
+  private func handleChannelDatagram(_ datagram: ChannelDatagram, context: DeliveryContext) async -> Bool {
+    guard MCOImageTransport.decode(datagram) != nil else { return false }
+    let arrivedAt = Date()
+    guard let radioID = currentRadioID,
+          let scope = try? await dataStore.captureReceiveScope(radioID: radioID, link: receiveLifetime),
+          imageDatagramDuplicates.admit(datagram, radioID: radioID, receivedAt: arrivedAt) else { return false }
+    let preference = await textRulesPreference()
+    let channel = try? await dataStore.fetchChannel(radioID: radioID, index: datagram.channelIndex)
+    guard scope.isCurrent else { return false }
+    await channelDatagramHandler?(datagram, channel, context, scope, preference, arrivedAt)
+    return true
   }
 
   // MARK: - Private Message Handlers

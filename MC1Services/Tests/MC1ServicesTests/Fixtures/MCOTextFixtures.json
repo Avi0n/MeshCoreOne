@@ -1,0 +1,108 @@
+{
+  "reference": "9.5.1-mod-1.9.0",
+  "source": "independent field assembly and frozen generation 0 Dart model tables",
+  "fixtures": [
+    {
+      "name": "all predictions en",
+      "dataBase64": "IHgEBQGgPBIKgtBeEQlCaE8MhqG0N4hEURojxSKorRXjEZRmjPHI6jtHeQSFIaQ8kkqS0l5RKUppTyyWpbS3mExTGmPNJqmtNecTlOac88nqe096BQVBqD0SiqLUXpFJUmpPTKaptTeoVFUao9Uqqq1V6xWVZqz1yuq7V3sFhWGsPZLKstZe0Wlaa09stq21t7hcVxrj3S6rrXXvF5XmvPfL6vtffgHAXAbgPwTgrgtwX4Rwlwm4T8M4a4bcN+IcRcRuI/5ME/KwV+WwW/L4Lg==",
+      "bitLength": 1663,
+      "text": " t a i sonoro oud dodedaanatala initisi lllol lerer rnromemom may yoyeyst thtotecochcacepepsp powewiwaw s stseshf fofrfig goghgehehahohibebubobangn ninee eresenkek kskiutusu urveviv4vax xtxpxi101 1512jujojaje3 30363d2 2225208 8m86804 404446zezzzyzi5 505652quq qmqt6 6069687 7l7c7r9 969d990 000m09h. m.st.ti.m"
+    },
+    {
+      "name": "all predictions ru",
+      "dataBase64": "IPgEBQGgPBIKgtBeEQlCaE8MhqG0N4hEURojxSKorRXjEZRmjPHI6jtHeQSFIaQ8kkqS0l5RKUppTyyWpbS3mExTGmPNJqmtNecTlOac88nqe096BQVBqD0SiqLUXpFJUmpPTKaptTeoVFUao9Uqqq1V6xWVZqz1yuq7V3sFhWGsPZLKstZe0Wlaa09stq21t7hcVxrj3S6rrXXvF5XmvPfL6vtffgHAXAbgPwTgrgtwX4Rwlwm4T8M4a4bcN+IcRcRuI/FOKuK3FfjHGXGbjPxzjrjtx35ByFyG5D8k5K5Lcl+UcpcpuU/LOWuW3Lf8mCflYK/LYLfl8Fw=",
+      "bitLength": 2006,
+      "text": " н п с встсес сом мемомау утудужрорарерикокак кие етенерлильлоленанонении итиниля ятязялтотат тьбобрбыбедадодедив вевавогогдгагичечтчачиа алакатзаз знзио отодовы ыйышылпопрпипай йтйчйкхох хахужежнжджишешишашкю ютючюсь ьнькьсэтэкэнэлщещащёщицицецац фифофлфе1 1011142 2025223 303332ё ётёмёл4 4043455 5055568 8680827 7770756 6568609 9990950 000м0къеъяъёъип. н.т .1д.к"
+    },
+    {
+      "name": "all predictions fr",
+      "dataBase64": "IXgEBQGgPBIKgtBeEQlCaE8MhqG0N4hEURojxSKorRXjEZRmjPHI6jtHeQSFIaQ8kkqS0l5RKUppTyyWpbS3mExTGmPNJqmtNecTlOac88nqe096BQVBqD0SiqLUXpFJUmpPTKaptTeoVFUao9Uqqq1V6xWVZqz1yuq7V3sFhWGsPZLKstZe0Wlaa09stq21t7hcVxrj3S6rrXXvF5XmvPfL6vtffgHAXAbgPwTgrgtwX4Rwlwm4T8M4a4bcN+IcRcRuI/FOKuK3FfjHGXGbjPxzjrjtx35ByFyG5D8k5K5Lcl+UcpcpuU/LOWuW3LfmHMXMbmPzTmrmtzX5xzlzm5z885657c9+gdBdBug/ROiui3RfpHSXSbpP0zprpt036h1F1G6j/kwT8rBX5bBb8vgu",
+      "bitLength": 2447,
+      "text": " d p l suru utuit tetitocochcecamemamomir rerarolelalll onouoiori isinire eseneraia anass stsesan ntnensvevovivapapopeprété éeépjejojujabobiblbededid dugegrgagnhehohah fafrfifoquq qqqry yeyoytçaçuçoç à àeàsàak kekaki2 202129x xextxo1 1311175 505952z zazezi4 494443wiwewawo3 3334387371707 6 686264èsèrètèm0 0006078 868m8fêtêmêvê 9 9a9f9eôtôlôpô înîtîlîcù ùeùsùaûrû ûeûsürü üeüsëlë ëeësœiœ œeœsâ âeâsâaæ æeæsæaï ïeïsïaÿ ÿeÿsÿab. s.at.ec.n"
+    },
+    {
+      "name": "all predictions de",
+      "dataBase64": "IfgEBQGgPBIKgtBeEQlCaE8MhqG0N4hEURojxSKorRXjEZRmjPHI6jtHeQSFIaQ8kkqS0l5RKUppTyyWpbS3mExTGmPNJqmtNecTlOac88nqe096BQVBqD0SiqLUXpFJUmpPTKaptTeoVFUao9Uqqq1V6xWVZqz1yuq7V3sFhWGsPZLKstZe0Wlaa09stq21t7hcVxrj3S6rrXXvF5XmvPfL6vtffgHAXAbgPwTgrgtwX4Rwlwm4T8M4a4bcN+IcRcRuI/FOKuK3FfjHGXGbjPxzjrjtx35ByFyG5D/kwT8rBX5bBb8vguA=",
+      "bitLength": 1859,
+      "text": " a d m is stsesct tetattbebibab h hahehtoroionopgegugrg lllelil inicieitmomemiman ndnenar rergrausutunurwewiwawokekokak fefaf frenere eichckcoc auanalacdedad dizuzeztz pspepppfüßürübücvovevivujejajojuönörölögätäääuän1 1011123 3130382 202723yty yeyo5 505h579 9h90984 4740466 6163667 7371748 818386ßeß ßtßix xixtxe0 000607quq qtqsg. m.bh.dd.a"
+    },
+    {
+      "name": "all predictions it",
+      "dataBase64": "IngEBQGgPBIKgtBeEQlCaE8MhqG0N4hEURojxSKorRXjEZRmjPHI6jtHeQSFIaQ8kkqS0l5RKUppTyyWpbS3mExTGmPNJqmtNecTlOac88nqe096BQVBqD0SiqLUXpFJUmpPTKaptTeoVFUao9Uqqq1V6xWVZqz1yuq7V3sFhWGsPZLKstZe0Wlaa09stq21t7hcVxrj3S6rrXXvF5XmvPfL6vtffgHAXAbgPwTgrgtwX4Rwlwm4T8M4a4bcN+IcRcRuI/FOKuK3FfjHGXGbjPxzjrjtx35ByFyG5D8k5K5Lcl+UcpcpuU/LOWuW3LfmHMXMbmPzTmrmtzX/Jgn5WCvy2C35fBc=",
+      "bitLength": 2104,
+      "text": " a s d ctetitottlal lelimemimamopepopspruounutuai ioiainrerarirococichcesesastsigigggrgavevavovie ereneso onoropa analarnon nantdadidodebubebibahohehihazizazzzofafifefoquqtq qrè èoèaèi1 10121a3 3b333h2 2028294 49454hwiwaw wek kikrku737 7f756 6168658 868b8f5 505156yty ygysà àoàaàiì ìaìnìo9 9o9192ò òeòoòa0 000206ù ùoùaùijnjoj jaé éoéaéix xcxuxdí íoíaíió óoóaóiú úoúaúib. c.is.ai.r"
+    },
+    {
+      "name": "all predictions uk",
+      "dataBase64": "IvgEBQGgPBIKgtBeEQlCaE8MhqG0N4hEURojxSKorRXjEZRmjPHI6jtHeQSFIaQ8kkqS0l5RKUppTyyWpbS3mExTGmPNJqmtNecTlOac88nqe096BQVBqD0SiqLUXpFJUmpPTKaptTeoVFUao9Uqqq1V6xWVZqz1yuq7V3sFhWGsPZLKstZe0Wlaa09stq21t7hcVxrj3S6rrXXvF5XmvPfL6vtffgHAXAbgPwTgrgtwX4Rwlwm4T8M4a4bcN+IcRcRuI/FOKuK3FfjHGXGbjPxzjrjtx35ByFyG5D8k5K5Lcl+UcpcpuU/LOWuW3Lf8mCflYK/LYLfl8Fw=",
+      "bitLength": 2006,
+      "text": " п в н ткокакикустсьсяспрорарериі ідінілмомам меу увутулнаноненізаз знзібубабобілельлилядодадедуо омоводи ивитися якятява анатале енеремтатитотьв вавивішишошешучичачечой йнйтйогогагігрпрпопіпежежнж жию юєютювцеціцюцях хохихтє єтємєдщощещащуфіфофафтї їхїїїн2 2226203 323330ь ьнькьс12101 154 4347405 5в5052808 8682686 62637 707к7м0 000к0м969 999гґ ґоґаґн . т.5н.0д.1"
+    },
+    {
+      "name": "all predictions be",
+      "dataBase64": "I3gEBQGgPBIKgtBeEQlCaE8MhqG0N4hEURojxSKorRXjEZRmjPHI6jtHeQSFIaQ8kkqS0l5RKUppTyyWpbS3mExTGmPNJqmtNecTlOac88nqe096BQVBqD0SiqLUXpFJUmpPTKaptTeoVFUao9Uqqq1V6xWVZqz1yuq7V3sFhWGsPZLKstZe0Wlaa09stq21t7hcVxrj3S6rrXXvF5XmvPfL6vtffgHAXAbgPwTgrgtwX4Rwlwm4T8M4a4bcN+IcRcRuI/FOKuK3FfjHGXGbjPxzjrjtx35ByFyG5D8k5K5Lcl+UcpcpuU/5ME/KwV+WwW/L4Lg=",
+      "bitLength": 1957,
+      "text": " н п в скакок кллольл ламом мемастс сесое етенеррорарерув вавевонаноненуя ятязяндедодадуу утужустотат тьчечачтчно одоботпопрпапезаз знзоы ыйылытй йтйкйсгогргдгабобыбубржежнжужаа аласатшешьшаштючю ютюдхох хахзь ьньшьтэтэкэфэв2 222024фофафффуцецацвцы10151 114 454840ё ётёмёо3 3032346 686769868 858о5 50565с7 767275000 0205909 9м93і іоіеіаў ўоўеўа . т.тн.2е.7"
+    },
+    {
+      "name": "encoded text 0",
+      "dataBase64": "IH8EUTemQVFhFh7WHv/uY0RH7nJL1AiywA==",
+      "bitLength": 194,
+      "text": "Hello World 123!\nWAIT for Help"
+    },
+    {
+      "name": "encoded text 1",
+      "dataBase64": "IP8J5yTQpMTBP2iE122cTgg=",
+      "bitLength": 133,
+      "text": "Привет мир. ПОМОЩЬ 42"
+    },
+    {
+      "name": "encoded text 2",
+      "dataBase64": "IX9Sn0LJFVhYp6fWHnMWSHyifhg=",
+      "bitLength": 157,
+      "text": "Déjà reçu: Équipe à côté!"
+    },
+    {
+      "name": "encoded text 3",
+      "dataBase64": "If9BUt+KYR+4zVpR+5jJozWeKLBA",
+      "bitLength": 162,
+      "text": "Straße, GRÜN und größer."
+    },
+    {
+      "name": "encoded text 4",
+      "dataBase64": "In8lBfhYp6sSjhFUjYI=",
+      "bitLength": 111,
+      "text": "Città: È già qui."
+    },
+    {
+      "name": "encoded text 5",
+      "dataBase64": "Iv9XHT0cI9fsT4MCIctkoOCA",
+      "bitLength": 137,
+      "text": "Привіт, Їжак і ґанок."
+    },
+    {
+      "name": "encoded text 6",
+      "dataBase64": "IN8Kp9SeiKO2Eek0JU+HGhLD",
+      "bitLength": 144,
+      "text": "Прывітанне, Беларусь!"
+    },
+    {
+      "name": "encoded text 7",
+      "dataBase64": "IV9JanGkKp8ehxoUKC1U+9VTNYBHggtLhp/SIUqNIlNH+PRoMNX3hJkek0JU+HGhQVOA",
+      "bitLength": 402,
+      "text": "English Русский Français Deutsch Italiano Українська Беларуская"
+    },
+    {
+      "name": "encoded text 8",
+      "dataBase64": "I5Dwn5mCIOadseS6rCDOms6xzrvOt868zq3Pgc6x",
+      "bitLength": 240,
+      "text": "🙂 東京 Καλημέρα"
+    },
+    {
+      "name": "encoded text 9",
+      "dataBase64": "IHA=",
+      "bitLength": 12,
+      "text": ""
+    }
+  ]
+}

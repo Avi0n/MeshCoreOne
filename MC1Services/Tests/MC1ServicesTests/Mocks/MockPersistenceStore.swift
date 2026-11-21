@@ -21,6 +21,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public var stubbedUpdateMessageStatusError: Error?
   public var stubbedResolvePendingAcknowledgementError: Error?
   public var stubbedSaveContactError: Error?
+  var stubbedUpdateContactLastMessageError: Error?
   public var stubbedFetchContactError: Error?
   public var stubbedFetchContactPublicKeysError: Error?
   public var stubbedDeleteContactError: Error?
@@ -71,6 +72,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func setUpdateMessageAckObserver(_ observer: (@Sendable (MessageStatus) async -> Void)?) {
     updateMessageAckObserver = observer
+  }
+
+  public func setStubbedUpdateContactLastMessageError(_ error: Error?) {
+    stubbedUpdateContactLastMessageError = error
   }
 
   public func setStubbedFetchContactError(_ error: Error?) {
@@ -229,6 +234,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     )
 
     for candidate in candidates {
+      guard !candidate.isDatagramMCOImage else { continue }
       if candidate.direction == .outgoing {
         guard let localNodeName, parsedReaction.targetSender == localNodeName else {
           continue
@@ -249,6 +255,25 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
 
     return nil
+  }
+
+  public func findChannelDatagramForReaction(
+    radioID: UUID,
+    channelIndex: UInt8,
+    parsedReaction: ParsedReaction
+  ) async throws -> MessageDTO? {
+    if let error = stubbedFetchMessageError {
+      throw error
+    }
+    return messages.values
+      .filter { $0.radioID == radioID && $0.channelIndex == channelIndex }
+      .sorted { $0.createdAt > $1.createdAt }
+      .first { candidate in
+        guard candidate.isDatagramMCOImage,
+              let target = candidate.mcoImageReactionTarget() else { return false }
+        return target.senderName == parsedReaction.targetSender
+          && target.messageHash == parsedReaction.messageHash
+      }
   }
 
   public func fetchChannelMessageCandidates(
@@ -1150,6 +1175,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   }
 
   public func updateContactLastMessage(contactID: UUID, date: Date?) async throws {
+    if let error = stubbedUpdateContactLastMessageError { throw error }
     if let contact = contacts[contactID] {
       contacts[contactID] = ContactDTO(
         id: contact.id,

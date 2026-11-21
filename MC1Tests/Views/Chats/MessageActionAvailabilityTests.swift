@@ -197,11 +197,45 @@ struct MessageActionAvailabilityTests {
     #expect(availability.canBlockSender == false)
   }
 
+  @Test
+  func `channel MCOimg with a sender can react`() throws {
+    let incoming = makeMessage(channelIndex: 0, text: "im4:pixel")
+    #expect(MessageActionAvailability(message: incoming).canReact)
+
+    let text = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
+    let outgoing = makeMessage(channelIndex: 0, text: text, direction: .outgoing)
+    #expect(MessageActionAvailability(message: outgoing).canReact)
+  }
+
+  @Test
+  func `channel MCOimg with an empty sender cannot react`() {
+    var message = makeMessage(channelIndex: 0, text: "im4:pixel")
+    message.senderNodeName = ""
+    #expect(MessageActionAvailability(message: message).canReact == false)
+    message.senderNodeName = nil
+    #expect(MessageActionAvailability(message: message).canReact == false)
+  }
+
+  @Test
+  func `direct MCOimg can react`() {
+    let message = makeMessage(contactID: UUID(), text: "im4:pixel")
+    let availability = MessageActionAvailability(message: message)
+    #expect(availability.canReact == true)
+  }
+
+  @Test
+  func `channel text can react`() {
+    let message = makeMessage(channelIndex: 0, text: "Hello")
+    let availability = MessageActionAvailability(message: message)
+    #expect(availability.canReact == true)
+  }
+
   // MARK: - Helper
 
   private func makeMessage(
     contactID: UUID? = nil,
     channelIndex: UInt8? = nil,
+    text: String = "Test",
     pathLength: UInt8 = 0x02,
     pathNodes: Data? = Data([0xA3, 0x7F]),
     direction: MessageDirection = .incoming,
@@ -214,7 +248,7 @@ struct MessageActionAvailabilityTests {
       radioID: UUID(),
       contactID: contactID,
       channelIndex: channelIndex,
-      text: "Test",
+      text: text,
       timestamp: 0,
       createdAt: Date(),
       direction: direction,

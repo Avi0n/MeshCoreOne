@@ -241,11 +241,41 @@ public extension PersistenceStore {
         continue
       }
 
+      guard !candidate.isDatagramMCOImage else {
+        logger.debug("[REACTION-MATCH] Skip datagram image")
+        continue
+      }
+
       logger.debug("[REACTION-MATCH] Found match!")
       return candidate
     }
 
     logger.debug("[REACTION-MATCH] No match found")
+    return nil
+  }
+
+  func findChannelDatagramForReaction(
+    radioID: UUID,
+    channelIndex: UInt8,
+    parsedReaction: ParsedReaction
+  ) async throws -> MessageDTO? {
+    let targetRadioID = radioID
+    let targetChannelIndex: UInt8? = channelIndex
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
+    }
+    let descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)]
+    )
+    for message in try modelContext.fetch(descriptor) {
+      let candidate = MessageDTO(from: message)
+      guard let target = candidate.mcoImageReactionTarget(),
+            candidate.isDatagramMCOImage,
+            target.senderName == parsedReaction.targetSender,
+            target.messageHash == parsedReaction.messageHash else { continue }
+      return candidate
+    }
     return nil
   }
 
@@ -525,6 +555,19 @@ public extension PersistenceStore {
       message.status = status
       message.retryAttempt = retryAttempt
       message.maxRetryAttempts = maxRetryAttempts
+      try modelContext.save()
+    }
+  }
+
+  func updateMessageText(id: UUID, text: String) async throws {
+    let targetID = id
+    let predicate = #Predicate<Message> { message in
+      message.id == targetID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    if let message = try modelContext.fetch(descriptor).first {
+      message.text = text
       try modelContext.save()
     }
   }
@@ -1039,6 +1082,10 @@ public extension PersistenceStore {
     var messageDescriptor = FetchDescriptor(predicate: messagePredicate)
     messageDescriptor.fetchLimit = 1
     guard let message = try modelContext.fetch(messageDescriptor).first else { return nil }
+    let messageDTO = MessageDTO(from: message)
+    if messageDTO.isChannelMCOImage, messageDTO.mcoImageReactionTarget() == nil {
+      return nil
+    }
 
     let senderName = dto.senderName
     let emoji = dto.emoji

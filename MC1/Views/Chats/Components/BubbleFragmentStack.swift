@@ -86,6 +86,10 @@ struct BubbleFragmentStack: View, Equatable {
             .foregroundStyle(textPayload.baseColor.swiftUIColor)
         }
 
+        if let image = layout.mcoImage {
+          MCOImageView(content: image)
+        }
+
         if let disabledImageURL {
           TapToLoadPreview(
             url: disabledImageURL,

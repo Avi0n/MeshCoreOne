@@ -73,21 +73,22 @@ public actor ReactionService {
     channelIndex: UInt8,
     senderName: String,
     text: String,
-    timestamp: UInt32
+    timestamp: UInt32,
+    messageHash: String? = nil
   ) async -> [PendingReaction] {
+    let hash = messageHash ?? ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
+    let key = PendingReactionKey(
+      channelIndex: channelIndex,
+      targetSender: senderName,
+      messageHash: hash
+    )
+
     await messageCache.index(
       messageID: id,
       channelIndex: channelIndex,
       senderName: senderName,
       text: text,
-      timestamp: timestamp
-    )
-
-    // Check pending queue for matching reactions
-    let hash = ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
-    let key = PendingReactionKey(
-      channelIndex: channelIndex,
-      targetSender: senderName,
+      timestamp: timestamp,
       messageHash: hash
     )
 

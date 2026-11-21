@@ -200,7 +200,10 @@ struct ChatConversationView: View {
             await chatViewModel.sendChannelMessage(text: text)
           }
         },
-        onWillSend: { scrollToBottomRequest += 1 }
+        onWillSend: { scrollToBottomRequest += 1 },
+        onNotAdmitted: {
+          chatViewModel.sendErrorMessage = L10n.Chats.Chats.Alert.UnableToSend.message
+        }
       )
     }
     .navigationHeader(

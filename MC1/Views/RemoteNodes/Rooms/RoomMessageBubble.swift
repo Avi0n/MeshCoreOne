@@ -28,6 +28,7 @@ struct RoomMessageBubble: View {
   }
 
   var body: some View {
+    let mcoImage = MCOImageCodec.content(from: message.text)
     VStack(spacing: 4) {
       if showTimestamp {
         makeTimestampView()
@@ -39,11 +40,11 @@ struct RoomMessageBubble: View {
         }
 
         VStack(alignment: isFromSelf ? .trailing : .leading, spacing: 2) {
-          makeBubbleContent()
+          makeBubbleContent(mcoImage: mcoImage)
           makeStatusIndicator()
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityMessageLabel)
+        .accessibilityLabel(spokenLabel(mcoImage: mcoImage))
         .accessibilityIdentifier(ChatScrollConstants.messageAccessibilityIdentifier(message.id))
         .accessibilityAction {
           onLongPress?(message)
@@ -91,7 +92,11 @@ struct RoomMessageBubble: View {
   }
 
   var accessibilityMessageLabel: String {
-    let body = visibleBody.spokenText
+    spokenLabel(mcoImage: MCOImageCodec.content(from: message.text))
+  }
+
+  private func spokenLabel(mcoImage: MCOImageContent?) -> String {
+    let body = mcoImage?.accessibilityLabel ?? visibleBody.spokenText
     if isFromSelf {
       return "\(body), \(message.accessibilityStatusLabel)"
     }
@@ -126,9 +131,10 @@ struct RoomMessageBubble: View {
     ).text
   }
 
-  private func makeBubbleContent() -> some View {
+  private func makeBubbleContent(mcoImage: MCOImageContent?) -> some View {
     BubbleContent(
       message: message,
+      mcoImage: mcoImage,
       isFromSelf: isFromSelf,
       showSenderName: showSenderName,
       showAvatar: showAvatar,
@@ -173,6 +179,7 @@ private struct TimestampView: View {
 
 private struct BubbleContent: View {
   let message: RoomMessageDTO
+  let mcoImage: MCOImageContent?
   let isFromSelf: Bool
   let showSenderName: Bool
   let showAvatar: Bool
@@ -242,7 +249,9 @@ private struct BubbleContent: View {
 
   @ViewBuilder
   private var messageBody: some View {
-    if let plainText = visibleBody.plainText {
+    if let mcoImage {
+      MCOImageView(content: mcoImage)
+    } else if let plainText = visibleBody.plainText {
       Text(plainText)
         .font(.body)
         .foregroundStyle(textColor)

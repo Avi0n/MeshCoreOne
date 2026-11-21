@@ -284,9 +284,12 @@ public final class ChatSendQueueService {
     guard target.radioID == radioID else { throw ChatSendQueueServiceError.notConnected }
     guard beginAdmission() else { throw CancellationError() }
     defer { finishAdmission() }
-
     let text: String
-    if target.channelIndex != nil {
+    if let indexed = target.mcoImageReactionTarget() {
+      text = "@[\(indexed.senderName)]\(emoji)\n\(indexed.messageHash)"
+    } else if target.isChannelMCOImage {
+      return nil
+    } else if target.channelIndex != nil {
       guard let targetSender = target.isOutgoing ? senderName : target.senderNodeName else { return nil }
       text = reactionService.buildReactionText(
         emoji: emoji, targetSender: targetSender, targetText: target.text, targetTimestamp: target.reactionTimestamp
@@ -567,8 +570,9 @@ public final class ChatSendQueueService {
     isTransientError(error, deviceCode: FirmwareDeviceErrorCode.directMessageTableFull)
   }
 
-  nonisolated static func isTransientChannelMessageError(_ error: Error) -> Bool {
+  nonisolated static func isTransientChannelMessageError(_ error: Error, sentDatagram: Bool) -> Bool {
     isTransientError(error, deviceCode: FirmwareDeviceErrorCode.channelMessageNotFound)
+      || (sentDatagram && isTransientError(error, deviceCode: FirmwareDeviceErrorCode.channelDataTableFull))
   }
 
   /// Returns true if `error` is `MeshCoreError.deviceError(channelMessageNotFound)`
