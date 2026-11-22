@@ -113,3 +113,6 @@ __pycache__
 .idea/
 # Brainstorming visual companion mockups
 .superpowers/
+
+# Local
+radio-dev.env

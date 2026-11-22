@@ -1,0 +1,32 @@
+name: MeshCore Portability
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'MeshCore/**'
+      - '.github/workflows/meshcore-portability.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  linux-build:
+    name: Build MeshCore on Linux
+    runs-on: ubuntu-latest
+    container:
+      image: swift:6.2-noble
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Build MeshCore library target
+        run: swift build --package-path MeshCore --target MeshCore

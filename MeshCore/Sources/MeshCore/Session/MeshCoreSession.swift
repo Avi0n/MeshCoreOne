@@ -1,5 +1,7 @@
 import Foundation
-import os
+#if canImport(os)
+  import os
+#endif
 
 /// Main session actor for MeshCore device communication.
 ///

@@ -1,5 +1,7 @@
 import Foundation
-import Synchronization
+#if canImport(Synchronization)
+  import Synchronization
+#endif
 
 public extension MeshCoreSession {
   /// Sends a message to a channel.
@@ -27,6 +29,56 @@ public extension MeshCoreSession {
     floodScope: ResolvedFloodScope
   ) async throws {
     try await performChannelSend(channel: channel, text: text, timestamp: timestamp, floodScope: floodScope)
+  }
+
+  /// Reads the channel and sends while holding one command slot, so another command cannot land between them.
+  func sendVerifiedChannelMessage(
+    channel: UInt8,
+    text: String,
+    timestamp: Date,
+    floodScope: ResolvedFloodScope?,
+    expectedSecret: Data
+  ) async throws {
+    let cancelled = Mutex(false)
+    let isCancelled: @Sendable () -> Bool = { cancelled.withLock { $0 } }
+    let message = PacketBuilder.sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
+    try await withTaskCancellationHandler {
+      try await requestResponseSerializer.withSerialization(resumeCallerOnCancel: false) { [self] in
+        let _: Bool = try await sendAndMatchHoldingSerialization(
+          PacketBuilder.getChannel(index: channel),
+          beforeSend: {
+            if isCancelled() { throw CancellationError() }
+          }
+        ) { event in
+          if case let .error(code) = event, code == ErrorCode.notFound.rawValue {
+            return .failure(Self.channelOccupancyMismatch)
+          }
+          if let error = Self.deviceErrorMatcher(event) { return .failure(error) }
+          guard case let .channelInfo(info) = event, info.index == channel else { return .ignore }
+          guard info.secret == expectedSecret,
+                !info.name.isEmpty || info.secret.contains(where: { $0 != 0 }) else {
+            return .failure(Self.channelOccupancyMismatch)
+          }
+          return .success(true)
+        }
+        if isCancelled() { throw CancellationError() }
+        if let floodScope {
+          try await sendWithTemporaryFloodScope(
+            message: message, floodScope: floodScope, isCancelled: isCancelled
+          )
+        } else {
+          let _: Bool = try await sendAndMatchHoldingSerialization(message, beforeSend: {
+            if isCancelled() { throw CancellationError() }
+          }) { event in
+            if let error = Self.deviceErrorMatcher(event) { return .failure(error) }
+            if case .ok(nil) = event { return .success(true) }
+            return .ignore
+          }
+        }
+      }
+    } onCancel: {
+      cancelled.withLock { $0 = true }
+    }
   }
 
   private func performChannelSend(
@@ -107,6 +159,10 @@ public extension MeshCoreSession {
     guard needed else { return }
     _ = await settleChannelCommand(Self.floodScopeBaselineCommand)
   }
+
+  private static let channelOccupancyMismatch = MeshCoreError.invalidResponse(
+    expected: "unchanged channel occupancy", got: "different or missing channel occupancy"
+  )
 
   private static let floodScopeBaselineCommand = PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey())
 

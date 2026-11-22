@@ -1,4 +1,6 @@
-import Synchronization
+#if canImport(Synchronization)
+  import Synchronization
+#endif
 
 /// Revocable command admission for one session over a caller-owned transport.
 public final class SessionTransportBinding: Sendable {

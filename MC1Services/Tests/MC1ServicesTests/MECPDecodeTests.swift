@@ -66,6 +66,7 @@ struct MECPDecodeTests {
   func `free text is kept as sent`() throws {
     let message = try #require(MECPDecode.decode("MECP/3/L01 see  you\tthere"))
     #expect(message.freetext == "see  you\tthere")
+    #expect(message.displayTail == "see  you\tthere")
   }
 
   @Test
@@ -102,6 +103,16 @@ struct MECPDecodeTests {
   }
 
   @Test
+  func `an R03 bare hour before a colon clock is not an eta`() throws {
+    for tail in ["14:30", "14:300"] {
+      let message = try #require(MECPDecode.decode("MECP/2/R03 \(tail)"), "\(tail)")
+      #expect(message.eta == nil, "\(tail)")
+      #expect(message.personCount == nil, "\(tail)")
+      #expect(message.displayTail == tail, "\(tail)")
+    }
+  }
+
+  @Test
   func `a person count must stand between boundaries`() {
     for tail in ["x4pax", "3paxmore", "#4pax", "*4pax*", "4pax\u{0B}water", "0pax"] {
       #expect(MECPDecode.decode("MECP/1/S01 \(tail)")?.personCount == nil, "\(tail)")
@@ -110,7 +121,7 @@ struct MECPDecodeTests {
 
   @Test
   func `a person count accepts a space, any case, leading zeros, and boundary punctuation`() {
-    for tail in ["4 pax", "4PAX", "4Pax.", "04pax", "(4pax)", "4pax\u{A0}water", "4pax\u{2009}water", "\u{201C}4pax\u{201D}", "need,4pax"] {
+    for tail in ["4 pax", "4PAX", "4Pax.", "04pax", "(4pax)", "4pax\u{A0}water", "4pax\u{2009}water", "\u{201C}4pax\u{201D}", "need,4pax", "need.4pax"] {
       #expect(MECPDecode.decode("MECP/1/S01 \(tail)")?.personCount == 4, "\(tail)")
     }
   }
@@ -164,8 +175,59 @@ struct MECPDecodeTests {
   }
 
   @Test
-  func `a person count too large for Int is clamped`() {
-    #expect(MECPDecode.decode("MECP/1/S01 99999999999999999999pax")?.personCount == Int.max)
+  func `a decimal fraction is not a person count`() throws {
+    for tail in ["1.5 pax", "2,5 pax"] {
+      let message = try #require(MECPDecode.decode("MECP/1/S01 \(tail)"), "\(tail)")
+      #expect(message.personCount == nil, "\(tail)")
+      #expect(message.displayTail == tail, "\(tail)")
+    }
+
+    let resumed = try #require(MECPDecode.decode("MECP/1/S01 1.5 pax 2 pax"))
+    #expect(resumed.personCount == 2)
+    #expect(resumed.displayTail == "1.5 pax")
+  }
+
+  @Test
+  func `colon clock minutes are not person counts`() throws {
+    for tail in ["@6:30pax", "14:30pax"] {
+      let message = try #require(MECPDecode.decode("MECP/1/S01 \(tail)"), "\(tail)")
+      #expect(message.personCount == nil, "\(tail)")
+      #expect(message.displayTail == tail, "\(tail)")
+    }
+
+    let longerHour = try #require(MECPDecode.decode("MECP/1/S01 006:30pax"))
+    #expect(longerHour.personCount == 30)
+    #expect(longerHour.displayTail == "006:")
+
+    let claimed = try #require(MECPDecode.decode("MECP/1/S01 @6:30 pax"))
+    #expect(claimed.timestampHHMM == "0630")
+    #expect(claimed.personCount == nil)
+    #expect(claimed.displayTail == "pax")
+
+    let resumed = try #require(MECPDecode.decode("MECP/1/S01 @6:30 pax 2 pax"))
+    #expect(resumed.timestampHHMM == "0630")
+    #expect(resumed.personCount == 2)
+    #expect(resumed.displayTail == "pax")
+
+    let invalidHour = try #require(MECPDecode.decode("MECP/1/S01 @24:30pax"))
+    #expect(invalidHour.personCount == 30)
+    #expect(invalidHour.displayTail == "@24:")
+
+    let nonTimestamp = try #require(MECPDecode.decode("MECP/1/S01 id:30pax"))
+    #expect(nonTimestamp.personCount == 30)
+    #expect(nonTimestamp.displayTail == "id:")
+  }
+
+  @Test
+  func `whitespace left after a removal collapses, and a following word stays`() throws {
+    let onlyWhitespace = try #require(MECPDecode.decode("MECP/1/S01 4pax\t@1430"))
+    #expect(onlyWhitespace.personCount == 4)
+    #expect(onlyWhitespace.timestampHHMM == "1430")
+    #expect(onlyWhitespace.displayTail == nil)
+
+    let word = try #require(MECPDecode.decode("MECP/1/S01 4pax\twater"))
+    #expect(word.personCount == 4)
+    #expect(word.displayTail == "water")
   }
 
   @Test
@@ -194,7 +256,6 @@ struct MECPDecodeTests {
   func `a timestamp may have a one-digit hour and a colon`() {
     #expect(MECPDecode.decode("MECP/3/L01 @123")?.timestampHHMM == "0123")
     #expect(MECPDecode.decode("MECP/2/T01 @6:30")?.timestampHHMM == "0630")
-    // The one-digit hour `@230` is tried first and fails the boundary after it.
     #expect(MECPDecode.decode("MECP/3/L01 @2300")?.timestampHHMM == "2300")
   }
 

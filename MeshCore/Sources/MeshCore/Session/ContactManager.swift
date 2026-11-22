@@ -1,5 +1,7 @@
 import Foundation
-import os
+#if canImport(os)
+  import os
+#endif
 
 /// Manages contact storage, caching, and lifecycle.
 ///
@@ -49,7 +51,8 @@ struct ContactManager {
   ///
   /// - Parameters:
   ///   - name: The name to search for.
-  ///   - exactMatch: If true, requires an exact case-insensitive match; otherwise, uses localized search.
+  ///   - exactMatch: If true, requires an exact case-insensitive match.
+  ///     Otherwise uses localized search.
   /// - Returns: The matching `MeshContact`, or `nil` if not found.
   func getByName(_ name: String, exactMatch: Bool = false) -> MeshContact? {
     if exactMatch {
