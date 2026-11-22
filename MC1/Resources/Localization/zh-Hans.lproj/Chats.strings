@@ -1127,8 +1127,8 @@
 /* Placeholder when an MCOimg payload cannot be decoded */
 "chats.mcoimg.damaged" = "图片已损坏";
 
-/* VoiceOver name for a rendered MCOimg */
-"chats.mcoimg.image" = "MCOimg 图片";
+/* Name for an MCOimg in VoiceOver, notifications, and the chat list */
+"chats.mcoimg.image" = "像素画";
 
 /* Erases every pixel in the editor */
 "chats.mcoimg.clear" = "清除绘图";
@@ -1136,8 +1136,29 @@
 /* Sends the open pixel drawing */
 "chats.mcoimg.send" = "发送";
 
-/* VoiceOver name for a palette swatch; the argument is 1-based */
-"chats.mcoimg.color" = "颜色 %d";
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.white" = "白色";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.gray" = "灰色";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.black" = "黑色";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.red" = "红色";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.yellow" = "黄色";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.green" = "绿色";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.blue" = "蓝色";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.purple" = "紫色";
 
 /* VoiceOver name for the pixel drawing canvas */
 "chats.mcoimg.canvas" = "像素画布";
@@ -1150,6 +1171,9 @@
 
 /* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
 "chats.mcoimg.tooLarge" = "绘图为 %d 字节，此对话允许 %d 字节。请简化绘图并重试。";
+
+/* Error when a channel pixel drawing exceeds the limit; the size counts the sender node name; arguments are size then limit */
+"chats.mcoimg.tooLargeChannel" = "绘图大小为 %d 字节（含节点名称）；此频道最多允许 %d 字节。请简化绘图后重试。";
 
 /* Alert title when a pixel drawing cannot be encoded */
 "chats.mcoimg.encodingFailedTitle" = "无法编码";

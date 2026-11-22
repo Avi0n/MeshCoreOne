@@ -17,7 +17,7 @@ struct MCOImageReceiveIntegrationTests {
   ) async throws {
     let radioID = UUID()
     let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
-    try await store.saveDevice(.testDevice(id: radioID))
+    try await store.saveDevice(.testDevice(id: radioID, firmwareVersion: 11))
     let channel = ChannelDTO.testChannel(radioID: radioID, index: 2)
     try await store.saveChannel(channel)
     let services = ServiceContainer(
@@ -58,6 +58,7 @@ struct MCOImageReceiveIntegrationTests {
     #expect(message.senderNodeName == sender)
     #expect(message.timestampCorrected)
     #expect(message.senderTimestamp == 0)
+    #expect(!message.hasWireSendTime)
     #expect(message.createdAt >= before)
     #expect(message.snr == packet.snr)
     #expect(message.pathLength == packet.pathLength)
@@ -87,7 +88,7 @@ struct MCOImageReceiveIntegrationTests {
   func `a recently blocked MCOimg is suppressed and an unblocked MCOimg is saved`() async throws {
     let radioID = UUID()
     let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
-    try await store.saveDevice(.testDevice(id: radioID))
+    try await store.saveDevice(.testDevice(id: radioID, firmwareVersion: 11))
     let channel = ChannelDTO.testChannel(radioID: radioID, index: 2)
     try await store.saveChannel(channel)
     let savedChannel = try #require(try await store.fetchChannel(radioID: radioID, index: channel.index))
@@ -151,7 +152,7 @@ struct MCOImageReceiveIntegrationTests {
     let opened = try await openChannel()
     defer { Task { await opened.services.tearDown() } }
     let payload = try v3Payload()
-    let first = Date(timeIntervalSince1970: 1_700_000_000)
+    let first = Date() // Planted RX rows use the current receive time.
     try await push(opened, payload: payload, at: first)
     try await plantRX(opened, payload: payload, path: [0x21])
     try await push(opened, payload: payload, at: first.addingTimeInterval(61))
@@ -165,6 +166,20 @@ struct MCOImageReceiveIntegrationTests {
     #expect(message.snr == 6.25)
     #expect(message.heardRepeats == 0)
     #expect(try await opened.store.fetchMessageRepeats(messageID: message.id).isEmpty)
+  }
+
+  @Test
+  func `two identical MCOimg pushes outside the match window stay two rows`() async throws {
+    let opened = try await openChannel()
+    defer { Task { await opened.services.tearDown() } }
+    let payload = try v3Payload()
+    let first = Date(timeIntervalSince1970: 1_700_000_000)
+    let outside = TimeInterval(MCOImageTransport.datagramMatchWindowSeconds + 1)
+    try await push(opened, payload: payload, at: first)
+    try await push(opened, payload: payload, at: first.addingTimeInterval(outside))
+
+    let messages = try await opened.store.fetchMessages(radioID: opened.radioID, channelIndex: opened.channel.index)
+    #expect(messages.count == 2)
   }
 
   @Test
@@ -319,7 +334,7 @@ struct MCOImageReceiveIntegrationTests {
   private func openChannel(secret: Data = Data(repeating: 0x42, count: 16)) async throws -> OpenedChannel {
     let radioID = UUID()
     let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
-    try await store.saveDevice(.testDevice(id: radioID))
+    try await store.saveDevice(.testDevice(id: radioID, firmwareVersion: 11))
     let channel = ChannelDTO.testChannel(radioID: radioID, index: 2, secret: secret)
     try await store.saveChannel(channel)
     let services = ServiceContainer(

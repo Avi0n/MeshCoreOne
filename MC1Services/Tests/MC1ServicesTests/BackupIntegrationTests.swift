@@ -5716,6 +5716,45 @@ struct BackupIntegrationTests {
   }
 
   @Test
+  func `import keeps two identical MCOimg keys outside the match window as two rows`() async throws {
+    let radioID = UUID()
+    let secret = Data(repeating: 0x42, count: 16)
+    let slot: UInt8 = 2
+    let fixture = try adaMCOImage()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let key = DeduplicationKey.channelMCOImage(channelIndex: slot, dataField: fixture.field)
+    let earlier: UInt32 = 1_700_000_000
+    let local = incomingMCOImage(
+      radioID: radioID, channelIndex: slot, text: fixture.text,
+      deduplicationKey: key, pathNodes: Data([0x11]), pathLength: 1, timestamp: earlier
+    )
+    try await destStore.saveMessage(local)
+    let later = earlier + MCOImageTransport.datagramMatchWindowSeconds + 1
+    let first = incomingMCOImage(
+      radioID: radioID, channelIndex: slot, text: fixture.text,
+      deduplicationKey: key, pathNodes: Data([0x22]), pathLength: 1, timestamp: later
+    )
+    let second = incomingMCOImage(
+      radioID: radioID, channelIndex: slot, text: fixture.text,
+      deduplicationKey: key, pathNodes: Data([0x33]), pathLength: 1,
+      timestamp: later + MCOImageTransport.datagramMatchWindowSeconds + 1
+    )
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        channels: [ChannelDTO.testChannel(
+          id: UUID(), radioID: radioID, index: slot, name: "#north", secret: secret
+        )],
+        messages: [first, second]
+      ),
+      into: destStore
+    )
+
+    #expect(result.messagesInserted == 2)
+    #expect(try await destStore.fetchAllMessages(radioID: radioID).count == 3)
+  }
+
+  @Test
   func `import of two receive-second MCOimg keys for one data field keeps one row and the second reaction`() async throws {
     let radioID = UUID()
     let secret = Data(repeating: 0x42, count: 16)
@@ -5871,14 +5910,15 @@ struct BackupIntegrationTests {
     text: String,
     deduplicationKey: String,
     pathNodes: Data?,
-    pathLength: UInt8
+    pathLength: UInt8,
+    timestamp: UInt32 = 1_700_000_000
   ) -> MessageDTO {
     var message = MessageDTO.testChannelMessage(
       id: id,
       radioID: radioID,
       channelIndex: channelIndex,
       text: text,
-      timestamp: 1_700_000_000,
+      timestamp: timestamp,
       direction: .incoming,
       pathLength: pathLength,
       senderNodeName: "Ada"

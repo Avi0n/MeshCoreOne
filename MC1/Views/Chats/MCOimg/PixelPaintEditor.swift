@@ -12,6 +12,17 @@ struct PixelPaintEditor: View {
   private static let contentSpacing: CGFloat = 24
   private static let paletteColumns = 4
   private static let swatchPadding: CGFloat = 4
+  /// Spoken names in `PixelPaintDraft.profile` palette order.
+  private static let colorNames = [
+    L10n.Chats.Chats.Mcoimg.ColorName.white, L10n.Chats.Chats.Mcoimg.ColorName.gray,
+    L10n.Chats.Chats.Mcoimg.ColorName.black, L10n.Chats.Chats.Mcoimg.ColorName.red,
+    L10n.Chats.Chats.Mcoimg.ColorName.yellow, L10n.Chats.Chats.Mcoimg.ColorName.green,
+    L10n.Chats.Chats.Mcoimg.ColorName.blue, L10n.Chats.Chats.Mcoimg.ColorName.purple,
+  ]
+
+  private static func colorName(_ index: Int) -> String {
+    colorNames.indices.contains(index) ? colorNames[index] : ""
+  }
 
   var body: some View {
     NavigationStack {
@@ -36,7 +47,7 @@ struct PixelPaintEditor: View {
                   .padding(Self.swatchPadding)
               }
               .buttonStyle(.plain)
-              .accessibilityLabel(L10n.Chats.Chats.Mcoimg.color(index + 1))
+              .accessibilityLabel(Self.colorName(index))
               .accessibilityAddTraits(index == draft.selectedColor ? .isSelected : [])
               .accessibilityIdentifier("pixelColor\(index)")
             }
@@ -141,6 +152,7 @@ struct PixelPaintEditor: View {
               draft.paint(x: column, y: row)
               draft.endStroke()
             }
+            .accessibilityValue(Self.colorName(draft.pixels[row * PixelPaintDraft.side + column]))
           }
         }
       }

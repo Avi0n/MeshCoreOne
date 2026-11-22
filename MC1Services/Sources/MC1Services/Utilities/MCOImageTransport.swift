@@ -11,6 +11,33 @@ public enum MCOImageTransport {
   private static let varintPayloadBits = 7
   private static let maxVarintBytes = 5
 
+  /// A datagram has no clock, so two copies with the same data field are one picture only
+  /// within this many seconds of each other. Flood repeats land well inside it; a later
+  /// identical drawing is a new picture.
+  public static let datagramMatchWindowSeconds: UInt32 = 300
+
+  /// Unix seconds within `datagramMatchWindowSeconds` either side of `anchor`, clamped to `UInt32`.
+  public static func datagramMatchWindow(around anchor: UInt32) -> ClosedRange<UInt32> {
+    let lower = anchor > datagramMatchWindowSeconds ? anchor - datagramMatchWindowSeconds : 0
+    let upper = anchor > UInt32.max - datagramMatchWindowSeconds ? UInt32.max : anchor + datagramMatchWindowSeconds
+    return lower...upper
+  }
+
+  public static func datagramMatchWindow(around date: Date) -> ClosedRange<UInt32> {
+    datagramMatchWindow(around: UInt32(clamping: Int64(date.timeIntervalSince1970)))
+  }
+
+  /// RX receive times within `datagramMatchWindowSeconds` either side of `anchor`.
+  public static func datagramReceiveWindow(around anchor: Date) -> ClosedRange<Date> {
+    let span = TimeInterval(datagramMatchWindowSeconds)
+    return anchor.addingTimeInterval(-span)...anchor.addingTimeInterval(span)
+  }
+
+  /// RX receive times within the window of a row's `timestamp` (Unix seconds).
+  public static func datagramReceiveWindow(around timestamp: UInt32) -> ClosedRange<Date> {
+    datagramReceiveWindow(around: Date(timeIntervalSince1970: TimeInterval(timestamp)))
+  }
+
   public static func encode(text: String, senderName: String) throws -> Data {
     try framed(MCOImageCodec.channelAppPayload(fromText: text), senderName: senderName)
   }

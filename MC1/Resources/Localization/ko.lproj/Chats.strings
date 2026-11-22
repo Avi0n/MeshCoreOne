@@ -1063,8 +1063,8 @@
 /* Placeholder when an MCOimg payload cannot be decoded */
 "chats.mcoimg.damaged" = "손상된 이미지";
 
-/* VoiceOver name for a rendered MCOimg */
-"chats.mcoimg.image" = "MCOimg 이미지";
+/* Name for an MCOimg in VoiceOver, notifications, and the chat list */
+"chats.mcoimg.image" = "픽셀 그림";
 
 /* Erases every pixel in the editor */
 "chats.mcoimg.clear" = "그림 지우기";
@@ -1072,8 +1072,29 @@
 /* Sends the open pixel drawing */
 "chats.mcoimg.send" = "보내기";
 
-/* VoiceOver name for a palette swatch; the argument is 1-based */
-"chats.mcoimg.color" = "색상 %d";
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.white" = "흰색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.gray" = "회색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.black" = "검은색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.red" = "빨간색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.yellow" = "노란색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.green" = "초록색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.blue" = "파란색";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.purple" = "보라색";
 
 /* VoiceOver name for the pixel drawing canvas */
 "chats.mcoimg.canvas" = "픽셀 캔버스";
@@ -1086,6 +1107,9 @@
 
 /* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
 "chats.mcoimg.tooLarge" = "그림이 %d바이트입니다. 이 대화는 %d바이트까지 허용합니다. 그림을 단순화한 후 다시 시도하십시오.";
+
+/* Error when a channel pixel drawing exceeds the limit; the size counts the sender node name; arguments are size then limit */
+"chats.mcoimg.tooLargeChannel" = "그림 크기는 노드 이름을 포함해 %d바이트이며, 이 채널은 %d바이트까지 허용합니다. 그림을 단순하게 만든 후 다시 시도하세요.";
 
 /* Alert title when a pixel drawing cannot be encoded */
 "chats.mcoimg.encodingFailedTitle" = "인코딩할 수 없음";

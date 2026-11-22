@@ -26,7 +26,7 @@ struct MCOImageMessageTests {
   @Test func `terminal placeholders differ and participate in item identity`() {
     let id = UUID()
     let unsupported = MessageFragmentBuilderFixtures.makeMessage(id: id, text: "im5:anything")
-    let damaged = MessageFragmentBuilderFixtures.makeMessage(id: id, text: "im3:")
+    let damaged = MessageFragmentBuilderFixtures.makeMessage(id: id, text: "im3:!")
     let inputs = MessageFragmentBuilderFixtures.makeMinimalInputs(messageID: id)
     let environment = MessageFragmentBuilderFixtures.makeEnvInputs()
     let first = MessageFragmentBuilder.makeItem(for: unsupported, inputs: inputs, envInputs: environment)

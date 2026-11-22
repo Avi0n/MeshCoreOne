@@ -167,7 +167,8 @@ extension SyncCoordinator {
       let raw = try await dependencies.dataStore.fetchRxLogEntries(
         radioID: messageDTO.radioID,
         channelIndex: channelIndex,
-        payloadType: .groupData
+        payloadType: .groupData,
+        receivedWithin: MCOImageTransport.datagramReceiveWindow(around: messageDTO.timestamp)
       )
       let decoded = await dependencies.rxLogService.decodedEntries(raw)
       guard scope.isCurrent else { return messageDTO }
@@ -205,7 +206,8 @@ extension SyncCoordinator {
     return true
   }
 
-  /// Outgoing MCOimg first, then any incoming MCOimg with the same data field.
+  /// Outgoing MCOimg first, then any incoming MCOimg with the same data field, among rows whose
+  /// `timestamp` is within `MCOImageTransport.datagramMatchWindowSeconds` of this push.
   /// A group-text row is not a hit. An MCOimg that cannot rebuild a data field is not a hit.
   private func existingDatagramPicture(
     _ message: MessageDTO,
@@ -217,7 +219,8 @@ extension SyncCoordinator {
     do {
       let rows = try await dependencies.dataStore.fetchChannelMessages(
         radioID: message.radioID,
-        channelIndex: channelIndex
+        channelIndex: channelIndex,
+        timestampWindow: MCOImageTransport.datagramMatchWindow(around: message.timestamp)
       )
       if let outgoing = rows.first(where: { $0.isOutgoing && $0.datagramDataField == blob }) {
         return outgoing
@@ -412,10 +415,14 @@ extension SyncCoordinator {
     case .direct:
       !selfNodeName.isEmpty &&
         MentionUtilities.containsSelfMention(in: text, selfName: selfNodeName)
-    case .channel, .mcoImage:
+    case .channel:
+      // Base91 includes `@`, `[`, and `]`, so a group-text picture is never a mention.
       !selfNodeName.isEmpty &&
         senderNodeName != selfNodeName &&
+        !MCOImageCodec.isMCOImageText(text) &&
         MentionUtilities.containsSelfMention(in: text, selfName: selfNodeName)
+    case .mcoImage:
+      false
     }
 
     // Clamp an unknown wire textType to .plain. MessageDTO decodes textType
@@ -507,7 +514,9 @@ extension SyncCoordinator {
     ) {
       return
     }
-    if await recordChannelArrivalAndSkipDuplicate(
+    // The `mcoimg` key has no clock, so a datagram picture's identity is only the windowed
+    // data-field match above; the key would merge a later identical drawing into an old row.
+    if message.datagramDataField == nil, await recordChannelArrivalAndSkipDuplicate(
       deduplicationKey: deduplicationKey,
       radioID: message.radioID,
       rxResult: rxResult,

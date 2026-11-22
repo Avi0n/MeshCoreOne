@@ -1070,8 +1070,8 @@
 /* Placeholder when an MCOimg payload cannot be decoded */
 "chats.mcoimg.damaged" = "Image endommagée";
 
-/* VoiceOver name for a rendered MCOimg */
-"chats.mcoimg.image" = "Image MCOimg";
+/* Name for an MCOimg in VoiceOver, notifications, and the chat list */
+"chats.mcoimg.image" = "Dessin pixel";
 
 /* Erases every pixel in the editor */
 "chats.mcoimg.clear" = "Effacer le dessin";
@@ -1079,8 +1079,29 @@
 /* Sends the open pixel drawing */
 "chats.mcoimg.send" = "Envoyer";
 
-/* VoiceOver name for a palette swatch; the argument is 1-based */
-"chats.mcoimg.color" = "Couleur %d";
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.white" = "Blanc";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.gray" = "Gris";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.black" = "Noir";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.red" = "Rouge";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.yellow" = "Jaune";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.green" = "Vert";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.blue" = "Bleu";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.purple" = "Violet";
 
 /* VoiceOver name for the pixel drawing canvas */
 "chats.mcoimg.canvas" = "Canevas de pixels";
@@ -1093,6 +1114,9 @@
 
 /* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
 "chats.mcoimg.tooLarge" = "Le dessin fait %d octets ; cette conversation en autorise %d. Simplifiez le dessin et réessayez.";
+
+/* Error when a channel pixel drawing exceeds the limit; the size counts the sender node name; arguments are size then limit */
+"chats.mcoimg.tooLargeChannel" = "Le dessin fait %d octets, nom du nœud compris ; ce canal autorise %d. Simplifiez le dessin et réessayez.";
 
 /* Alert title when a pixel drawing cannot be encoded */
 "chats.mcoimg.encodingFailedTitle" = "Encodage impossible";

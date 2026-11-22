@@ -1080,8 +1080,8 @@
 /* Placeholder when an MCOimg payload cannot be decoded */
 "chats.mcoimg.damaged" = "Damaged image";
 
-/* VoiceOver name for a rendered MCOimg */
-"chats.mcoimg.image" = "MCOimg image";
+/* Name for an MCOimg in VoiceOver, notifications, and the chat list */
+"chats.mcoimg.image" = "Pixel drawing";
 
 /* Erases every pixel in the editor */
 "chats.mcoimg.clear" = "Clear Drawing";
@@ -1089,8 +1089,29 @@
 /* Sends the open pixel drawing */
 "chats.mcoimg.send" = "Send";
 
-/* VoiceOver name for a palette swatch; the argument is 1-based */
-"chats.mcoimg.color" = "Color %d";
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.white" = "White";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.gray" = "Gray";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.black" = "Black";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.red" = "Red";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.yellow" = "Yellow";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.green" = "Green";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.blue" = "Blue";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.purple" = "Purple";
 
 /* VoiceOver name for the pixel drawing canvas */
 "chats.mcoimg.canvas" = "Pixel canvas";
@@ -1104,6 +1125,9 @@
 /* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
 "chats.mcoimg.tooLarge" = "Drawing is %d bytes; this conversation allows %d. Simplify the drawing and try again.";
 
+/* Error when a channel pixel drawing exceeds the limit; the size counts the sender node name; arguments are size then limit */
+"chats.mcoimg.tooLargeChannel" = "Drawing is %d bytes, including your node name; this channel allows %d. Simplify the drawing and try again.";
+
 /* Alert title when a pixel drawing cannot be encoded */
 "chats.mcoimg.encodingFailedTitle" = "Unable to Encode";
 
@@ -1111,7 +1135,7 @@
 "chats.mcoimg.encodingFailed" = "Unable to encode the drawing.";
 
 /* Progress label while a pixel drawing is encoded */
-"chats.mcoimg.encoding" = "Encoding Drawing";
+"chats.mcoimg.encoding" = "Encoding drawing";
 
 /* Progress label once a pixel drawing has been handed to the conversation */
 "chats.mcoimg.sending" = "Sending drawing";

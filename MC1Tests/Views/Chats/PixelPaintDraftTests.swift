@@ -177,7 +177,7 @@ private final class AdmissionProbe {
     let task = Task {
       await draft.run(
         attempt,
-        isChannel: false,
+        transport: .direct,
         senderName: { "Radio" },
         isReady: { self.ready },
         onSend: { text in
@@ -187,14 +187,14 @@ private final class AdmissionProbe {
         },
         onWillSend: {},
         onAdmitted: { self.admitted += 1 },
-        encode: { image, isChannel in
+        encode: { image, transport in
           await MainActor.run { self.captured.append(image) }
           if pauseOnEncode { await pause.pause() }
           if failEncode { throw PixelEncodeFailure() }
           if oversized {
             return String(repeating: "a", count: ProtocolLimits.maxDirectMessageLength + 1)
           }
-          return try await encodePixelDrawing(image, channel: isChannel)
+          return try await encodePixelDrawing(image, transport: transport)
         }
       )
     }
@@ -232,5 +232,28 @@ final class SubmissionPause {
   func resume() {
     release?.resume()
     release = nil
+  }
+}
+
+@Suite("Pixel paint transport")
+@MainActor
+struct PixelPaintTransportTests {
+  @Test(arguments: [
+    (isChannel: true, supportsChannelData: false, sendsGroupData: false),
+    (isChannel: true, supportsChannelData: true, sendsGroupData: true),
+    (isChannel: false, supportsChannelData: true, sendsGroupData: false),
+  ])
+  func `only a channel on a radio with group data encodes im4`(
+    isChannel: Bool, supportsChannelData: Bool, sendsGroupData: Bool
+  ) async throws {
+    let side = PixelPaintDraft.side
+    let image = MCOImageRaster(
+      width: side, height: side, profile: PixelPaintDraft.profile,
+      pixels: Array(repeating: PixelPaintDraft.background, count: side * side)
+    )
+    let transport = PixelPaintTransport(isChannel: isChannel, supportsChannelData: supportsChannelData)
+    let text = try await encodePixelDrawing(image, transport: transport)
+    #expect(MCOImageCodec.isChannelDataText(text) == sendsGroupData)
+    #expect(MCOImageCodec.content(from: text) != nil)
   }
 }

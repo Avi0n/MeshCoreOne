@@ -286,7 +286,9 @@ public final class ChatSendQueueService {
     defer { finishAdmission() }
     let text: String
     if let indexed = target.mcoImageReactionTarget() {
-      text = "@[\(indexed.senderName)]\(emoji)\n\(indexed.messageHash)"
+      text = reactionService.buildReactionText(
+        emoji: emoji, targetSender: indexed.senderName, messageHash: indexed.messageHash
+      )
     } else if target.isChannelMCOImage {
       return nil
     } else if target.channelIndex != nil {

@@ -28,7 +28,7 @@ SHA-256( 0x01 + bytes )
 - **Room post.** `bytes` are the post text after the 4-byte sender pubkey prefix (`txt_type` `0x02`).
 - **Group datagram.** `bytes` are the `data` field.
 
-Two copies with the same hash and sender: attach to the newest copy stored at or before the reaction.
+Two copies with the same hash and sender: attach to the newest stored copy. A reaction that arrives before any copy attaches to the first copy that arrives; later copies don't take it.
 
 ### Why Crockford Base32?
 

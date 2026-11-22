@@ -42,11 +42,12 @@ public protocol RxLogPersisting: Actor {
     senderTimestamp: UInt32
   ) async throws -> [RxLogEntryDTO]
 
-  /// Group-datagram rows for one radio and channel. No sender timestamp.
+  /// Group-datagram rows for one radio and channel received inside `receivedWithin`. No sender timestamp.
   func fetchRxLogEntries(
     radioID: UUID,
     channelIndex: UInt8,
-    payloadType: PayloadType
+    payloadType: PayloadType,
+    receivedWithin: ClosedRange<Date>
   ) async throws -> [RxLogEntryDTO]
 
   /// Find a DM RxLogEntry by matching the sender prefix byte in the packet payload.
@@ -123,7 +124,8 @@ extension RxLogPersisting {
   func fetchRxLogEntries(
     radioID: UUID,
     channelIndex: UInt8,
-    payloadType: PayloadType
+    payloadType: PayloadType,
+    receivedWithin: ClosedRange<Date>
   ) async throws -> [RxLogEntryDTO] {
     []
   }

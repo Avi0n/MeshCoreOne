@@ -42,15 +42,46 @@ struct MCOImageRenderer: View {
                  blue: Double(rgb & 0xFF) / maximumComponent, opacity: 1)
   }
 
+  private static let bitsPerComponent = 8
+  private static let bytesPerPixel = 4
+  private static let opaqueAlpha: UInt8 = 0xFF
+
+  /// Draws the raster as one bitmap without interpolation, so pixels stay sharp at any scale.
   static func raster(_ image: MCOImageRaster, origin: CGPoint, context: inout GraphicsContext) {
-    for row in 0..<image.height {
-      for column in 0..<image.width {
-        let ref = image.pixels[row * image.width + column]
-        guard ref != image.transparentColor else { continue }
-        context.fill(Path(CGRect(x: origin.x + CGFloat(column), y: origin.y + CGFloat(row), width: 1, height: 1)),
-                     with: .color(color(ref, profile: image.profile)), style: FillStyle(antialiased: false))
-      }
+    guard let bitmap = bitmap(image) else { return }
+    context.draw(
+      Image(decorative: bitmap, scale: 1).interpolation(.none),
+      in: CGRect(x: origin.x, y: origin.y, width: CGFloat(image.width), height: CGFloat(image.height))
+    )
+  }
+
+  /// Premultiplied RGBA; a transparent reference stays all zero.
+  static func bitmap(_ image: MCOImageRaster) -> CGImage? {
+    guard image.width > 0, image.height > 0, image.pixels.count == image.width * image.height else { return nil }
+    var bytes = [UInt8](repeating: 0, count: image.pixels.count * bytesPerPixel)
+    for (index, reference) in image.pixels.enumerated() where reference != image.transparentColor {
+      let rgb = MCOImagePalette.color(reference, profile: image.profile)
+      let offset = index * bytesPerPixel
+      bytes[offset] = UInt8((rgb >> 16) & 0xFF)
+      bytes[offset + 1] = UInt8((rgb >> 8) & 0xFF)
+      bytes[offset + 2] = UInt8(rgb & 0xFF)
+      bytes[offset + 3] = opaqueAlpha
     }
+    guard let provider = CGDataProvider(data: Data(bytes) as CFData),
+          let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
+    return CGImage(
+      width: image.width,
+      height: image.height,
+      bitsPerComponent: bitsPerComponent,
+      bitsPerPixel: bitsPerComponent * bytesPerPixel,
+      bytesPerRow: image.width * bytesPerPixel,
+      space: colorSpace,
+      bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+      provider: provider,
+      decode: nil,
+      shouldInterpolate: false,
+      intent: .defaultIntent
+    )
   }
 
   static func figure(_ figure: MCOImageFigure, profile: Int, canvasWidth: Int, context: inout GraphicsContext) {

@@ -448,10 +448,16 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
   }
 
   private static let autoAddConfigMinimumFirmwareVersion: UInt8 = 9
+  private static let channelDataMinimumFirmwareVersion: UInt8 = 11
   private static let autoAddMaxHopsMinimumFirmwareVersion: UInt8 = 10
 
   /// Whether the device supports auto-add configuration beyond the manualAddContacts toggle.
   /// Code 8 covers 1.10 through 1.12, so a 1.12 version string still counts before code 9.
+  /// `CMD_SEND_CHANNEL_DATA` (MeshCore 1.15.0). Older radios send a channel MCOimg as group text.
+  public var supportsChannelData: Bool {
+    firmwareVersion >= Self.channelDataMinimumFirmwareVersion
+  }
+
   public var supportsAutoAddConfig: Bool {
     firmwareVersion >= Self.autoAddConfigMinimumFirmwareVersion
       || firmwareVersionString.isAtLeast(major: 1, minor: 12)

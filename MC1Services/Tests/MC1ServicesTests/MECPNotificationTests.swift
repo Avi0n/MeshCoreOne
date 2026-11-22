@@ -21,6 +21,13 @@ struct MECPNotificationTests {
   }
 
   @Test
+  func `MCOimg arrival body names the drawing instead of showing Base91`() throws {
+    let text = try MCOImageCodec.text(fromAppPayload: #require(Data(base64Encoded: "E3oBjQBCvgE=")))
+    let body = NotificationService.arrivalBody(messageText: text, senderName: "Ada", bundle: .module)
+    #expect(body == "Ada: Pixel drawing")
+  }
+
+  @Test
   func `reaction quote truncates the space-joined reading`() {
     let reading = MECPCatalog.displayText(canonical, bundle: .module, preferredLocalizations: ["en"])
     let quote = NotificationActionHandler.reactionPreview(for: reading)

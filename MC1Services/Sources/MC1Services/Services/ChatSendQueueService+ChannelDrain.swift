@@ -44,7 +44,7 @@ extension ChatSendQueueService {
       try cancelSendIfRetired(dependencies.sendsRetired)
 
       let capturedText = envelope.messageText
-      let sentDatagram = MCOImageCodec.isMCOImageText(capturedText)
+      let sentDatagram = MCOImageCodec.isChannelDataText(capturedText)
       switch try await transmitQueuedChannel(envelope: envelope, dependencies: dependencies) {
       case .dropped:
         return

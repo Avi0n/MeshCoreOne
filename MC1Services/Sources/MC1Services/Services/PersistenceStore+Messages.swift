@@ -850,9 +850,21 @@ public extension PersistenceStore {
 
   // MARK: - Heard Repeats
 
-  /// Every channel message for one radio, with no fetch limit, so path matching sees the whole channel.
-  func fetchChannelMessages(radioID: UUID, channelIndex: UInt8) async throws -> [MessageDTO] {
-    try storedChannelMessages(radioID: radioID, channelIndex: channelIndex)
+  /// Channel messages in a `timestamp` window, with no fetch limit, so every copy in the window is seen.
+  func fetchChannelMessages(
+    radioID: UUID,
+    channelIndex: UInt8,
+    timestampWindow: ClosedRange<UInt32>
+  ) async throws -> [MessageDTO] {
+    let targetRadioID = radioID
+    let targetChannelIndex: UInt8? = channelIndex
+    let lower = timestampWindow.lowerBound
+    let upper = timestampWindow.upperBound
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID && message.channelIndex == targetChannelIndex &&
+        message.timestamp >= lower && message.timestamp <= upper
+    }
+    return try modelContext.fetch(FetchDescriptor(predicate: predicate)).map { MessageDTO(from: $0) }
   }
 
   func storedChannelMessages(radioID: UUID, channelIndex: UInt8) throws -> [MessageDTO] {

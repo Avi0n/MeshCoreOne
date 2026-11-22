@@ -67,6 +67,10 @@ struct ChatConversationInputBar: View {
 
   private func sendDrawing() {
     let isChannel = if case .channel = conversationType { true } else { false }
+    let transport = PixelPaintTransport(
+      isChannel: isChannel,
+      supportsChannelData: appState.connectedDevice?.supportsChannelData == true
+    )
     let radioID = conversationType.radioID
     let ready = {
       appState.connectionState == .ready && appState.connectedDevice?.radioID == radioID
@@ -75,7 +79,7 @@ struct ChatConversationInputBar: View {
     let task = Task {
       await drawing.run(
         attempt,
-        isChannel: isChannel,
+        transport: transport,
         senderName: { appState.connectedDevice?.nodeName ?? "" },
         isReady: ready,
         onSend: onSend,

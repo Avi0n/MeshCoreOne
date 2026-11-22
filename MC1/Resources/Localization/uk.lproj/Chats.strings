@@ -1061,8 +1061,8 @@
 /* Placeholder when an MCOimg payload cannot be decoded */
 "chats.mcoimg.damaged" = "Пошкоджене зображення";
 
-/* VoiceOver name for a rendered MCOimg */
-"chats.mcoimg.image" = "Зображення MCOimg";
+/* Name for an MCOimg in VoiceOver, notifications, and the chat list */
+"chats.mcoimg.image" = "Піксельний малюнок";
 
 /* Erases every pixel in the editor */
 "chats.mcoimg.clear" = "Очистити малюнок";
@@ -1070,8 +1070,29 @@
 /* Sends the open pixel drawing */
 "chats.mcoimg.send" = "Надіслати";
 
-/* VoiceOver name for a palette swatch; the argument is 1-based */
-"chats.mcoimg.color" = "Колір %d";
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.white" = "Білий";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.gray" = "Сірий";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.black" = "Чорний";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.red" = "Червоний";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.yellow" = "Жовтий";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.green" = "Зелений";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.blue" = "Синій";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.purple" = "Фіолетовий";
 
 /* VoiceOver name for the pixel drawing canvas */
 "chats.mcoimg.canvas" = "Піксельне полотно";
@@ -1084,6 +1105,9 @@
 
 /* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
 "chats.mcoimg.tooLarge" = "Малюнок займає %d байт; ця розмова дозволяє %d. Спрости малюнок і спробуй ще раз.";
+
+/* Error when a channel pixel drawing exceeds the limit; the size counts the sender node name; arguments are size then limit */
+"chats.mcoimg.tooLargeChannel" = "Малюнок має %d байтів разом з назвою вузла; цей канал дозволяє %d. Спростіть малюнок і спробуйте ще раз.";
 
 /* Alert title when a pixel drawing cannot be encoded */
 "chats.mcoimg.encodingFailedTitle" = "Не вдалося закодувати";

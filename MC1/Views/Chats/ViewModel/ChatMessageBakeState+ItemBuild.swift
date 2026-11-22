@@ -112,10 +112,12 @@ extension ChatMessageBakeState {
     envInputs: EnvInputs,
     senderTables: ChatSenderTables
   ) -> MessageBuildInputs {
-    if message.mcoImage == nil {
+    // A prefix check, not a decode: the fragment builder decodes the picture once.
+    let isMCOImage = MCOImageCodec.isMCOImageText(message.text)
+    if !isMCOImage {
       seedPreviewStateIfNeeded(for: message, envInputs: envInputs)
     }
-    if envInputs.translationOffersEnabled, message.mcoImage == nil {
+    if envInputs.translationOffersEnabled, !isMCOImage {
       seedDetectedLanguageIfNeeded(for: message)
     }
     let flags = Self.computeDisplayFlags(for: message, previous: previous, next: next)

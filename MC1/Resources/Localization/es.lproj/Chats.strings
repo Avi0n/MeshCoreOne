@@ -1070,8 +1070,8 @@
 /* Placeholder when an MCOimg payload cannot be decoded */
 "chats.mcoimg.damaged" = "Imagen dañada";
 
-/* VoiceOver name for a rendered MCOimg */
-"chats.mcoimg.image" = "Imagen MCOimg";
+/* Name for an MCOimg in VoiceOver, notifications, and the chat list */
+"chats.mcoimg.image" = "Dibujo de píxeles";
 
 /* Erases every pixel in the editor */
 "chats.mcoimg.clear" = "Borrar dibujo";
@@ -1079,8 +1079,29 @@
 /* Sends the open pixel drawing */
 "chats.mcoimg.send" = "Enviar";
 
-/* VoiceOver name for a palette swatch; the argument is 1-based */
-"chats.mcoimg.color" = "Color %d";
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.white" = "Blanco";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.gray" = "Gris";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.black" = "Negro";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.red" = "Rojo";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.yellow" = "Amarillo";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.green" = "Verde";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.blue" = "Azul";
+
+/* VoiceOver name for a Pixel Paint palette color */
+"chats.mcoimg.colorName.purple" = "Morado";
 
 /* VoiceOver name for the pixel drawing canvas */
 "chats.mcoimg.canvas" = "Lienzo de píxeles";
@@ -1093,6 +1114,9 @@
 
 /* Error when a pixel drawing exceeds the conversation limit; arguments are size then limit */
 "chats.mcoimg.tooLarge" = "El dibujo es de %d bytes; esta conversación permite %d. Simplifica el dibujo e inténtalo de nuevo.";
+
+/* Error when a channel pixel drawing exceeds the limit; the size counts the sender node name; arguments are size then limit */
+"chats.mcoimg.tooLargeChannel" = "El dibujo ocupa %d bytes, incluido el nombre de tu nodo; este canal permite %d. Simplifica el dibujo e inténtalo de nuevo.";
 
 /* Alert title when a pixel drawing cannot be encoded */
 "chats.mcoimg.encodingFailedTitle" = "No se puede codificar";

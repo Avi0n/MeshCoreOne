@@ -88,18 +88,18 @@ final class PixelPaintDraft {
   /// Encodes `attempt` and admits it only while that generation is still current.
   func run(
     _ attempt: Attempt,
-    isChannel: Bool,
+    transport: PixelPaintTransport,
     senderName: @escaping () -> String,
     isReady: @escaping () -> Bool,
     onSend: @escaping (String) async -> Bool,
     onWillSend: @escaping () -> Void,
     onAdmitted: @escaping () -> Void,
-    encode: @escaping @Sendable (MCOImageRaster, Bool) async throws -> String = encodePixelDrawing
+    encode: @escaping @Sendable (MCOImageRaster, PixelPaintTransport) async throws -> String = encodePixelDrawing
   ) async {
     guard isCurrent(attempt.generation) else { return }
     let result = await outcome(
       snapshot: attempt.snapshot,
-      isChannel: isChannel,
+      transport: transport,
       generation: attempt.generation,
       senderName: senderName,
       isReady: isReady,
@@ -117,17 +117,17 @@ final class PixelPaintDraft {
 
   private func outcome(
     snapshot: MCOImageRaster,
-    isChannel: Bool,
+    transport: PixelPaintTransport,
     generation: UInt,
     senderName: @escaping () -> String,
     isReady: @escaping () -> Bool,
     onSend: @escaping (String) async -> Bool,
     onWillSend: @escaping () -> Void,
-    encode: @escaping @Sendable (MCOImageRaster, Bool) async throws -> String
+    encode: @escaping @Sendable (MCOImageRaster, PixelPaintTransport) async throws -> String
   ) async -> SubmissionResult {
     let text: String
     do {
-      text = try await encode(snapshot, isChannel)
+      text = try await encode(snapshot, transport)
     } catch is CancellationError {
       return .retired
     } catch {
@@ -141,17 +141,19 @@ final class PixelPaintDraft {
     }
     let bytes: Int
     do {
-      bytes = try Self.encodedByteCount(text: text, isChannel: isChannel, senderName: senderName())
+      bytes = try transport.encodedByteCount(text: text, senderName: senderName())
     } catch {
       guard isCurrent(generation) else { return .retired }
       return Self.encodeFailed
     }
     guard isCurrent(generation) else { return .retired }
-    let limit = Self.byteLimit(isChannel: isChannel)
+    let limit = transport.byteLimit
     guard bytes <= limit else {
       return .failed(
         title: L10n.Chats.Chats.Mcoimg.tooLargeTitle,
-        message: L10n.Chats.Chats.Mcoimg.tooLarge(bytes, limit)
+        message: transport.isChannel
+          ? L10n.Chats.Chats.Mcoimg.tooLargeChannel(bytes, limit)
+          : L10n.Chats.Chats.Mcoimg.tooLarge(bytes, limit)
       )
     }
     guard isCurrent(generation) else { return .retired }
@@ -191,18 +193,6 @@ final class PixelPaintDraft {
     submissionGeneration == generation && !Task.isCancelled
   }
 
-  private static func encodedByteCount(text: String, isChannel: Bool, senderName: String) throws -> Int {
-    if isChannel {
-      try MCOImageTransport.encode(text: text, senderName: senderName).count
-    } else {
-      text.utf8.count
-    }
-  }
-
-  private static func byteLimit(isChannel: Bool) -> Int {
-    isChannel ? MCOImageWireBudget.maximumChannelDataBytes : ProtocolLimits.maxDirectMessageLength
-  }
-
   private static var unableToSend: SubmissionResult {
     .failed(
       title: L10n.Chats.Chats.Alert.UnableToSend.title,
@@ -226,9 +216,9 @@ final class PixelPaintDraft {
 }
 
 @concurrent
-func encodePixelDrawing(_ image: MCOImageRaster, channel: Bool) async throws -> String {
+func encodePixelDrawing(_ image: MCOImageRaster, transport: PixelPaintTransport) async throws -> String {
   let body = try MCOImageV3Codec.encode(image, nonce: UInt8.random(in: .min ... .max))
-  let payload = channel
+  let payload = transport == .channelData
     ? try Data([MCOImageCodec.v4Subtype]) + MCOImageV4Codec.wrappingV3Body(body)
     : Data([MCOImageCodec.v3Subtype]) + body
   return try MCOImageCodec.text(fromAppPayload: payload)

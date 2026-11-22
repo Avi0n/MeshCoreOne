@@ -301,7 +301,8 @@ extension PersistenceStore {
     !secret.isEmpty && !secret.allSatisfy { $0 == 0 }
   }
 
-  /// Incoming MCOimg on this radio and local slot with the same data field, including one accepted earlier in this pass.
+  /// Incoming MCOimg on this radio and local slot with the same data field and a `timestamp` within
+  /// `MCOImageTransport.datagramMatchWindowSeconds`, including one accepted earlier in this pass.
   /// Outgoing rows stay on message id. An MCOimg that cannot rebuild a data field matches by dedup string only.
   private func matchingImportedIncomingPicture(
     _ dto: MessageDTO,
@@ -319,7 +320,8 @@ extension PersistenceStore {
     }
     let stored = storedCache[cacheKey] ?? []
     let acceptedHere = accepted.filter { $0.radioID == dto.radioID && $0.channelIndex == channelIndex }
-    return (stored + acceptedHere).first { $0.datagramDataField == blob }
+    let window = MCOImageTransport.datagramMatchWindow(around: dto.timestamp)
+    return (stored + acceptedHere).first { window.contains($0.timestamp) && $0.datagramDataField == blob }
   }
 
   @discardableResult
@@ -350,7 +352,9 @@ extension PersistenceStore {
     // so reply chains survive imports where the parent already exists locally.
     for dto in dtos {
       let key = messageBackupKey(for: dto)
-      if knownKeys.contains(key) {
+      // An incoming picture's `mcoimg` key has no clock; its identity is the windowed data-field match below.
+      let isIncomingPicture = dto.direction == .incoming && dto.datagramDataField != nil
+      if !isIncomingPicture, knownKeys.contains(key) {
         // Deterministic tiebreak when multiple locals share a key.
         let winning = idsByKey[key]?.min(by: { $0.uuidString < $1.uuidString })
         if let winning, winning != dto.id {
@@ -387,7 +391,7 @@ extension PersistenceStore {
       knownKeys.insert(key)
       idsByKey[key, default: []].append(dto.id)
       toInsert.append(dto)
-      if dto.direction == .incoming, dto.datagramDataField != nil {
+      if isIncomingPicture {
         acceptedIncomingPictures.append(dto)
       }
     }

@@ -11,18 +11,23 @@ public extension MessageDTO {
 
   /// A channel MCOimg with no packet sender timestamp.
   /// Incoming `senderTimestamp` nil is an accepted packet time. Zero is the datagram tuple.
-  /// Every outgoing channel MCOimg has no packet sender timestamp.
+  /// An outgoing `im4:` row went out as group data; an outgoing `im3:` row went out as group text.
   var isDatagramMCOImage: Bool {
     guard isChannelMCOImage else { return false }
-    if isOutgoing { return true }
+    if isOutgoing { return MCOImageCodec.isChannelDataText(text) }
     return senderTimestamp == 0
+  }
+
+  /// False for an incoming datagram MCOimg: the packet carries no send time, so only receipt is known.
+  var hasWireSendTime: Bool {
+    isOutgoing || !isDatagramMCOImage
   }
 
   /// Path join for a channel MCOimg. Group text keeps the content key, including wire time 0.
   /// Reactions use `isDatagramMCOImage`, which still includes that group-text row.
   var isDatagramPathMCOImage: Bool {
     guard isChannelMCOImage, let channelIndex else { return false }
-    if isOutgoing { return true }
+    if isOutgoing { return MCOImageCodec.isChannelDataText(text) }
     guard senderTimestamp == 0 else { return false }
     let contentKey = DeduplicationKey.contentBased(
       contactID: nil,

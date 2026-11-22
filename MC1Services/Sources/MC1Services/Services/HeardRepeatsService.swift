@@ -250,7 +250,11 @@ public actor HeardRepeatsService {
     guard let earliest = sameField.min(by: { $0.receivedAt < $1.receivedAt }),
           earliest.id == entry.id else { return }
     do {
-      let messages = try await dataStore.fetchChannelMessages(radioID: entry.radioID, channelIndex: channelIndex)
+      let messages = try await dataStore.fetchChannelMessages(
+        radioID: entry.radioID,
+        channelIndex: channelIndex,
+        timestampWindow: MCOImageTransport.datagramMatchWindow(around: earliest.receivedAt)
+      )
       for message in messages where message.datagramDataField == blob {
         try await dataStore.updateMessageRegion(
           id: message.id,
@@ -313,7 +317,11 @@ public actor HeardRepeatsService {
           entry.radioID == radioID else { return nil }
     if await isDuplicateRepeat(entry.id) { return nil }
     do {
-      let messages = try await dataStore.fetchChannelMessages(radioID: radioID, channelIndex: channelIndex)
+      let messages = try await dataStore.fetchChannelMessages(
+        radioID: radioID,
+        channelIndex: channelIndex,
+        timestampWindow: MCOImageTransport.datagramMatchWindow(around: entry.receivedAt)
+      )
       let matches = messages.filter { $0.datagramDataField == blob }
       var lastCount: Int?
       for message in matches where message.isOutgoing {

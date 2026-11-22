@@ -8,6 +8,11 @@ public enum MCOImageBase91 {
   private static let longMask = 16383
   private static let shortThreshold = 88
 
+  /// True when `text` is non-empty and every byte is in the alphabet.
+  static func isEncodedText(_ text: Substring) -> Bool {
+    !text.isEmpty && text.utf8.allSatisfy { decodeTable[$0] != nil }
+  }
+
   public static func encode(_ data: Data) -> String {
     var output: [UInt8] = []
     var queue = 0

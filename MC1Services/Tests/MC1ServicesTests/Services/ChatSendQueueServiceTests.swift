@@ -1004,7 +1004,7 @@ struct ChatSendQueueServiceTests {
   func `enqueueReaction returns a row for a channel MCOimg and nil when the sender name is empty`() async throws {
     let store = try Self.makeStore()
     let radioID = UUID()
-    try await store.saveDevice(.testDevice(id: radioID, radioID: radioID, nodeName: "Painter"))
+    try await store.saveDevice(.testDevice(id: radioID, radioID: radioID, nodeName: "Painter", firmwareVersion: 11))
     try await store.saveChannel(.testChannel(radioID: radioID, index: 0))
     let text = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
     let image = MessageDTO.testChannelMessage(

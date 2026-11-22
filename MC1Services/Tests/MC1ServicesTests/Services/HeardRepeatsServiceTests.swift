@@ -662,7 +662,10 @@ struct HeardRepeatsServiceTests {
 
   // MARK: - Datagram paths
 
-  private let imageText = "im3:g/5WjAL`NA"
+  /// Canonical `im4:` text: what a channel datagram row stores in both directions.
+  private let imageText = (try? MCOImageCodec.text(
+    fromAppPayload: MCOImageCodec.channelAppPayload(fromText: "im3:g/5WjAL`NA")
+  )) ?? ""
   private let imageSender = "Ada"
 
   private func imageBlob() throws -> Data {
@@ -678,7 +681,8 @@ struct HeardRepeatsServiceTests {
     deduplicationKey: String?,
     pathLength: UInt8 = 4,
     snr: Double? = 9,
-    timestamp: UInt32 = 1_700_000_000
+    // Near now: RX echoes are logged at the current time and must fall in the datagram match window.
+    timestamp: UInt32 = UInt32(Date().timeIntervalSince1970)
   ) -> MessageDTO {
     var message = MessageDTO.testChannelMessage(
       id: id,

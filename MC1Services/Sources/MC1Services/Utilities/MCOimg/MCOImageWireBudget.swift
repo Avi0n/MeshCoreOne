@@ -1,3 +1,3 @@
 public enum MCOImageWireBudget {
-  public static let maximumChannelDataBytes = 165
+  public static let maximumChannelDataBytes = PacketBuilder.channelDataMaxPayloadBytes
 }

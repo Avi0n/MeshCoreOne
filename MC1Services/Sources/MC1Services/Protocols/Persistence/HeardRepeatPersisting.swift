@@ -11,7 +11,8 @@ public protocol HeardRepeatPersisting: Actor {
   func fetchMessage(deduplicationKey: String, radioID: UUID) async throws -> MessageDTO?
 
   /// Every message on one radio and channel. Datagram path matching filters this set in memory.
-  func fetchChannelMessages(radioID: UUID, channelIndex: UInt8) async throws -> [MessageDTO]
+  /// Channel rows whose `timestamp` falls in `timestampWindow`, for datagram identity matching.
+  func fetchChannelMessages(radioID: UUID, channelIndex: UInt8, timestampWindow: ClosedRange<UInt32>) async throws -> [MessageDTO]
 
   /// Save a message repeat entry
   func saveMessageRepeat(_ dto: MessageRepeatDTO) async throws
@@ -78,7 +79,7 @@ public protocol HeardRepeatPersisting: Actor {
 }
 
 extension HeardRepeatPersisting {
-  func fetchChannelMessages(radioID: UUID, channelIndex: UInt8) async throws -> [MessageDTO] {
+  func fetchChannelMessages(radioID: UUID, channelIndex: UInt8, timestampWindow: ClosedRange<UInt32>) async throws -> [MessageDTO] {
     []
   }
 

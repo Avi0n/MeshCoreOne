@@ -223,7 +223,8 @@ public final class ServiceContainer {
         let raw = await (try? store.fetchRxLogEntries(
           radioID: message.radioID,
           channelIndex: channelIndex,
-          payloadType: .groupData
+          payloadType: .groupData,
+          receivedWithin: MCOImageTransport.datagramReceiveWindow(around: message.timestamp)
         )) ?? []
         let decoded = await rxLog.decodedEntries(raw)
         await repeats.harvestDatagramPaths(for: message, decodedCandidates: decoded)

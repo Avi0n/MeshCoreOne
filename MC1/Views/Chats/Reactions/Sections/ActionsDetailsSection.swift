@@ -111,16 +111,18 @@ private struct ActionsIncomingDetailsRows: View {
       ActionInfoRow(text: regionText, icon: "globe")
     }
 
-    let sentText = L10n.Chats.Chats.Message.Info.sent(
-      message.senderDate.formatted(date: .abbreviated, time: .standard)
-    )
-    let adjusted = message.timestampCorrected ? " " + L10n.Chats.Chats.Message.Info.adjusted : ""
-    ActionInfoRow(text: sentText + adjusted)
+    if message.hasWireSendTime {
+      let sentText = L10n.Chats.Chats.Message.Info.sent(
+        message.senderDate.formatted(date: .abbreviated, time: .standard)
+      )
+      let adjusted = message.timestampCorrected ? " " + L10n.Chats.Chats.Message.Info.adjusted : ""
+      ActionInfoRow(text: sentText + adjusted)
 
-    if message.timestampCorrected {
-      ActionInfoRow(text: L10n.Chats.Chats.Message.Info.originalSendTime(
-        message.wireSentDate.formatted(date: .abbreviated, time: .standard)
-      ))
+      if message.timestampCorrected {
+        ActionInfoRow(text: L10n.Chats.Chats.Message.Info.originalSendTime(
+          message.wireSentDate.formatted(date: .abbreviated, time: .standard)
+        ))
+      }
     }
 
     ActionInfoRow(text: L10n.Chats.Chats.Message.Info.received(

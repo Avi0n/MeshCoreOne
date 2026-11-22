@@ -18,8 +18,10 @@ struct MCOImageBinarySendTests {
     try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "救援隊", firmwareVersion: 12))
     let channel = ChannelDTO.testChannel(radioID: radioID, floodScope: .region("Alpha"))
     try await store.saveChannel(channel)
+    // A stored outgoing row is already canonical `im4:`; `im3:` would mean group text.
+    let stored = try MCOImageCodec.text(fromAppPayload: MCOImageCodec.channelAppPayload(fromText: fixture))
     let legacy = MessageDTO.testChannelMessage(
-      radioID: radioID, channelIndex: channel.index, text: fixture, senderNodeName: "救援隊"
+      radioID: radioID, channelIndex: channel.index, text: stored, senderNodeName: "救援隊"
     )
     try await store.saveMessage(legacy)
     switch path {
@@ -54,7 +56,7 @@ struct MCOImageBinarySendTests {
     let store = MockPersistenceStore()
     let session = MockMeshCoreSession()
     let service = MessageService(session: session, dataStore: store, contactService: nil)
-    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "Radio"))
+    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "Radio", firmwareVersion: 11))
     let message = try await service.createPendingChannelMessage(text: fixture, channelIndex: 0, radioID: radioID)
     try await service.sendPendingChannelMessage(messageID: message.id)
     try await service.sendPendingChannelMessage(messageID: message.id)
@@ -80,7 +82,7 @@ struct MCOImageBinarySendTests {
     let session = MockMeshCoreSession()
     let service = MessageService(session: session, dataStore: store, contactService: nil)
     let name = "救援隊"
-    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: name))
+    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: name, firmwareVersion: 11))
     let exact = try textWithPayloadSize(165, senderName: name)
     #expect(exact.utf8.count > ProtocolLimits.maxChannelMessageLength(nodeNameByteCount: name.utf8.count))
     let message = try await service.createPendingChannelMessage(text: exact, channelIndex: 0, radioID: radioID)
@@ -91,7 +93,7 @@ struct MCOImageBinarySendTests {
       try await service.createPendingChannelMessage(text: oversized, channelIndex: 0, radioID: radioID)
     }
     #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 0, limit: 10, offset: 0).count == 1)
-    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: name + "A"))
+    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: name + "A", firmwareVersion: 11))
     try await service.sendPendingChannelMessage(messageID: message.id)
     let calls = await session.sendChannelDataInvocations
     #expect(calls.count == 2)
@@ -107,7 +109,7 @@ struct MCOImageBinarySendTests {
     let store = MockPersistenceStore()
     let session = MockMeshCoreSession()
     let service = MessageService(session: session, dataStore: store, contactService: nil)
-    try await store.saveDevice(.testDevice(radioID: radioID))
+    try await store.saveDevice(.testDevice(radioID: radioID, firmwareVersion: 11))
     await #expect(throws: (any Error).self) {
       try await service.sendChannelMessage(text: text, channelIndex: 0, radioID: radioID)
     }
@@ -116,12 +118,58 @@ struct MCOImageBinarySendTests {
   }
 
   @Test
+  func `a radio without group data sends the drawing as im3 group text`() async throws {
+    let radioID = UUID()
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let service = MessageService(session: session, dataStore: store, contactService: nil)
+    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "Radio", firmwareVersion: 10))
+    let message = try await service.createPendingChannelMessage(text: fixture, channelIndex: 0, radioID: radioID)
+    #expect(message.text == fixture)
+    #expect(message.senderNodeName == "Radio")
+    #expect(!message.isDatagramMCOImage)
+    #expect(message.mcoImageReactionTarget() != nil)
+    try await service.sendPendingChannelMessage(messageID: message.id)
+    #expect(await session.sendChannelDataInvocations.isEmpty)
+    let call = try #require(await session.sendChannelMessageInvocations.first)
+    #expect(call.text == fixture)
+  }
+
+  @Test
+  func `a radio without group data rejects im4 text`() async throws {
+    let radioID = UUID()
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let service = MessageService(session: session, dataStore: store, contactService: nil)
+    try await store.saveDevice(.testDevice(radioID: radioID, firmwareVersion: 10))
+    let im4 = try MCOImageCodec.text(fromAppPayload: MCOImageCodec.channelAppPayload(fromText: fixture))
+    await #expect(throws: MessageServiceError.self) {
+      try await service.sendChannelMessage(text: im4, channelIndex: 0, radioID: radioID)
+    }
+    #expect(await session.sendChannelDataInvocations.isEmpty)
+    #expect(await session.sendChannelMessageInvocations.isEmpty)
+  }
+
+  @Test(arguments: ["im2: on my way", "im4:", "im3:ok then"])
+  func `prose with an MCOimg-like prefix sends as channel text`(text: String) async throws {
+    let radioID = UUID()
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let service = MessageService(session: session, dataStore: store, contactService: nil)
+    try await store.saveDevice(.testDevice(radioID: radioID, firmwareVersion: 11))
+    #expect(MCOImageCodec.content(from: text) == nil)
+    try await service.sendChannelMessage(text: text, channelIndex: 0, radioID: radioID)
+    #expect(await session.sendChannelDataInvocations.isEmpty)
+    #expect(await session.sendChannelMessageInvocations.count == 1)
+  }
+
+  @Test
   func `firmware rejection marks failed without a text fallback`() async throws {
     let radioID = UUID()
     let store = MockPersistenceStore()
     let session = MockMeshCoreSession()
     let service = MessageService(session: session, dataStore: store, contactService: nil)
-    try await store.saveDevice(.testDevice(radioID: radioID))
+    try await store.saveDevice(.testDevice(radioID: radioID, firmwareVersion: 11))
     let message = try await service.createPendingChannelMessage(text: fixture, channelIndex: 0, radioID: radioID)
     await session.setSendChannelDataError(MeshCoreError.deviceError(code: 1))
     await #expect(throws: MessageServiceError.self) {
@@ -146,9 +194,10 @@ struct MCOImageBinarySendTests {
   func `persisted legacy MCOimg replays as identical binary after disconnect`(failure: MeshCoreError) async throws {
     let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
     let radioID = UUID()
-    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "Radio"))
+    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "Radio", firmwareVersion: 11))
     try await store.saveChannel(ChannelDTO.testChannel(radioID: radioID, index: 0))
-    let message = MessageDTO.testChannelMessage(radioID: radioID, text: fixture, status: .pending)
+    let stored = try MCOImageCodec.text(fromAppPayload: MCOImageCodec.channelAppPayload(fromText: fixture))
+    let message = MessageDTO.testChannelMessage(radioID: radioID, text: stored, status: .pending)
     try await store.saveMessage(message)
     let envelope = ChannelMessageEnvelope(messageID: message.id, channelIndex: 0, isResend: false,
                                           messageText: message.text, messageTimestamp: message.timestamp, localNodeName: "Radio")
@@ -189,7 +238,7 @@ struct MCOImageBinarySendTests {
     let radioID = UUID()
     let store = MockPersistenceStore()
     let session = MockMeshCoreSession()
-    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "Radio"))
+    try await store.saveDevice(.testDevice(radioID: radioID, nodeName: "Radio", firmwareVersion: 11))
     let service = MessageService(session: session, dataStore: store, contactService: nil,
                                  config: .init(poolBackoff: .init(baseDelay: 0, jitterRange: 1...1)))
     await session.setSendChannelDataErrors([.deviceError(code: 3), nil])

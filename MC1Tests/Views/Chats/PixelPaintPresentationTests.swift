@@ -157,7 +157,7 @@ struct PixelPaintPresentationTests {
     let task = Task {
       await draft.run(
         attempt,
-        isChannel: false,
+        transport: .direct,
         senderName: { "" },
         isReady: { appState.connectionState == .ready },
         onSend: { _ in
@@ -166,9 +166,9 @@ struct PixelPaintPresentationTests {
         },
         onWillSend: {},
         onAdmitted: {},
-        encode: { image, isChannel in
+        encode: { image, transport in
           await pause.pause()
-          return try await encodePixelDrawing(image, channel: isChannel)
+          return try await encodePixelDrawing(image, transport: transport)
         }
       )
     }
@@ -245,7 +245,7 @@ struct PixelPaintPresentationTests {
             let task = Task {
               await draft.run(
                 attempt,
-                isChannel: false,
+                transport: .direct,
                 senderName: { "" },
                 isReady: { model.ready },
                 onSend: { text in

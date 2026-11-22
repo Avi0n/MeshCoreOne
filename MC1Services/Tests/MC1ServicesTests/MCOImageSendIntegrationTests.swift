@@ -24,10 +24,10 @@ struct MCOImageSendIntegrationTests {
     let store = MockPersistenceStore()
     let session = MockMeshCoreSession()
     let service = MessageService(session: session, dataStore: store, contactService: nil)
-    try await store.saveDevice(.testDevice(id: radioID, nodeName: "A"))
+    try await store.saveDevice(.testDevice(id: radioID, nodeName: "A", firmwareVersion: 11))
     let text = String(repeating: "a", count: ProtocolLimits.maxChannelMessageLength(nodeNameByteCount: 1))
     let message = try await service.createPendingChannelMessage(text: text, channelIndex: 0, radioID: radioID)
-    try await store.saveDevice(.testDevice(id: radioID, nodeName: "Longer"))
+    try await store.saveDevice(.testDevice(id: radioID, nodeName: "Longer", firmwareVersion: 11))
     await #expect {
       try await service.sendPendingChannelMessage(messageID: message.id)
     } throws: { error in

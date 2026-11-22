@@ -165,6 +165,11 @@ public extension MessageService {
           senderNodeName: message.senderNodeName,
           radioID: radioID
         )
+        if case .mcoImage = transmission {
+          // Group data carries no clock, so echo matching anchors on this row's `timestamp`.
+          // Stamp air time, not enqueue time, so a send parked while disconnected still matches.
+          try await dataStore.updateMessageTimestamp(id: messageID, timestamp: UInt32(Date().timeIntervalSince1970))
+        }
         try await withPoolBackoff(transientCode: channelPoolErrorCode(transmission), config: config.poolBackoff, logger: logger) {
           try await sendChannelMessageWithScope(
             transmission,
@@ -247,6 +252,10 @@ public extension MessageService {
           senderNodeName: message.senderNodeName,
           radioID: message.radioID
         )
+        if preserveTimestamp, case .mcoImage = transmission {
+          // Group data has no wire clock to preserve; anchor echo matching on air time.
+          try await dataStore.updateMessageTimestamp(id: messageID, timestamp: UInt32(Date().timeIntervalSince1970))
+        }
         try await withPoolBackoff(transientCode: channelPoolErrorCode(transmission), config: config.poolBackoff, logger: logger) {
           try await sendChannelMessageWithScope(
             transmission,

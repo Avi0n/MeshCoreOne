@@ -303,15 +303,19 @@ public extension PersistenceStore {
   func fetchRxLogEntries(
     radioID: UUID,
     channelIndex: UInt8,
-    payloadType: PayloadType
+    payloadType: PayloadType,
+    receivedWithin: ClosedRange<Date>
   ) async throws -> [RxLogEntryDTO] {
     let targetRadioID = radioID
     let targetChannelIndex = Int(channelIndex)
     let targetPayloadType = Int(payloadType.rawValue)
+    let earliest = receivedWithin.lowerBound
+    let latest = receivedWithin.upperBound
     let predicate = #Predicate<RxLogEntry> { entry in
       entry.radioID == targetRadioID &&
         entry.channelIndex == targetChannelIndex &&
-        entry.payloadType == targetPayloadType
+        entry.payloadType == targetPayloadType &&
+        entry.receivedAt >= earliest && entry.receivedAt <= latest
     }
     let descriptor = FetchDescriptor<RxLogEntry>(
       predicate: predicate,

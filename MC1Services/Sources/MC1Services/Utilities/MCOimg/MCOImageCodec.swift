@@ -16,6 +16,11 @@ public enum MCOImageCodec {
     version(in: text.trimmingCharacters(in: .whitespacesAndNewlines)) != nil
   }
 
+  /// `im4:` text, which a channel sends as group data. `im3:` goes out as group text.
+  public static func isChannelDataText(_ text: String) -> Bool {
+    version(in: text.trimmingCharacters(in: .whitespacesAndNewlines)) == v4Version
+  }
+
   /// A channel row whose text is MCOimg. Group data and a channel text packet
   /// with an `im3:` or `im4:` body are the same stored shape.
   public static func isChannelMCOImage(channelIndex: UInt8?, text: String) -> Bool {
@@ -67,7 +72,10 @@ public enum MCOImageCodec {
   public static func refreshNonce(in text: String) throws -> String {
     var payload = try appPayload(fromText: text)
     guard payload.count > 1 else { throw MCOImageCodecError.damaged }
+    let previous = payload[1]
     payload[1] = UInt8.random(in: .min ... .max)
+    // A repeated nonce would rebuild the replaced row's data field and merge into it.
+    if payload[1] == previous { payload[1] &+= 1 }
     return try self.text(fromAppPayload: payload)
   }
 
@@ -83,8 +91,10 @@ public enum MCOImageCodec {
     }
   }
 
+  /// Nil unless the body after the colon is Base91, so prose like "im2: on my way" stays text.
   private static func version(in text: String) -> Int? {
-    guard text.hasPrefix("im"), let colon = text.firstIndex(of: ":") else { return nil }
+    guard text.hasPrefix("im"), let colon = text.firstIndex(of: ":"),
+          MCOImageBase91.isEncodedText(text[text.index(after: colon)...]) else { return nil }
     let digits = text[text.index(text.startIndex, offsetBy: textPrefixLength)..<colon]
     guard !digits.isEmpty, digits.count <= maximumVersionDigits, digits.allSatisfy(\.isNumber),
           let version = Int(digits), (0...Int(versionMask)).contains(version) else { return nil }
