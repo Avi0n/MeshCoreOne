@@ -286,6 +286,9 @@ struct MECPDecodeTests {
   @Test
   func `an out-of-range timestamp is skipped for the next one`() {
     #expect(MECPDecode.decode("MECP/3/L06 @2460 @1400 @1530")?.timestampHHMM == "1400")
+    for tail in ["@1460", "@9:60", "@24:00"] {
+      #expect(MECPDecode.decode("MECP/3/L06 \(tail)")?.timestampHHMM == nil, "\(tail)")
+    }
   }
 
   @Test
