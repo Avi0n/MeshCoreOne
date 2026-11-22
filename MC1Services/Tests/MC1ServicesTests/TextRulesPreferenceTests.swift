@@ -51,6 +51,21 @@ struct TextRulesPreferenceTests {
   }
 
   @Test
+  func `an MCOimg body never matches a message rule but its sender still does`() throws {
+    var preference = TextRulesPreference()
+    let picture = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
+    let phrase = String(picture.dropFirst("im4:".count).prefix(3))
+    let bodyRule = TextRulesPreference.Rule(phrase: phrase, lookIn: .messageOrSender, match: .contains)
+    preference.append(bodyRule)
+    #expect(preference.firstMatch(body: "text \(phrase) text", sender: nil)?.rule == bodyRule)
+    #expect(preference.firstMatch(body: picture, sender: nil) == nil)
+
+    let senderRule = TextRulesPreference.Rule(phrase: "Peer", lookIn: .sender, match: .wholeField)
+    preference.append(senderRule)
+    #expect(preference.firstMatch(body: picture, sender: "Peer")?.rule == senderRule)
+  }
+
+  @Test
   func `whole field keeps significant spaces and substring highlights expand to characters`() throws {
     var preference = TextRulesPreference()
     let whole = TextRulesPreference.Rule(phrase: " ALERT", lookIn: .messageOrSender, match: .wholeField)
