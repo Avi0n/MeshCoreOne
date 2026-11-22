@@ -49,3 +49,25 @@ function_parameter_count:
 large_tuple:
   warning: 4
   error: 6
+
+# Project conventions from AGENTS.md that hold without exception.
+custom_rules:
+  no_print:
+    name: "No print"
+    regex: '(?<![\w.])(Swift\.)?print\s*\('
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field, string]
+    excluded: '(Tests|UITests)/'
+    message: "Log with Logger, not print()."
+    severity: error
+  no_environment_appstate_type:
+    name: "AppState environment key"
+    regex: '@Environment\(\s*AppState\.self\s*\)'
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field, string]
+    message: "Use @Environment(\\.appState); this project injects AppState through AppStateKey."
+    severity: error
+  observable_mainactor_order:
+    name: "@Observable then @MainActor"
+    regex: '@MainActor\s+@Observable\b|@Observable[ \t]+@MainActor|@Observable[ \t]*\n(?![ \t]*@MainActor\b)'
+    excluded_match_kinds: [comment, comment.mark, comment.url, doccomment, doccomment.field, string]
+    message: "@Observable classes are @MainActor: @Observable on one line, @MainActor on the next."
+    severity: error

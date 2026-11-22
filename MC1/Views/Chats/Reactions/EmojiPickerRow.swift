@@ -58,8 +58,8 @@ private struct EmojiButtonRow: View {
 #Preview {
   EmojiPickerRow(
     emojis: ["👍", "👎", "❤️", "😂", "😮", "😢"],
-    onSelect: { print("Selected: \($0)") },
-    onOpenKeyboard: { print("Open keyboard") }
+    onSelect: { _ in },
+    onOpenKeyboard: {}
   )
   .padding()
   .background(.gray.opacity(0.3))

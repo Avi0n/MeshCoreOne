@@ -67,7 +67,5 @@ struct EmojiPickerSheet: View {
 }
 
 #Preview {
-  EmojiPickerSheet { emoji in
-    print("Selected: \(emoji)")
-  }
+  EmojiPickerSheet { _ in }
 }
