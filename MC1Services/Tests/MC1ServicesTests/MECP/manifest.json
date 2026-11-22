@@ -1,0 +1,7 @@
+{
+  "protocolVersion": "1.4.1",
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-20T01:39:42.805Z",
+  "tests": "tests.json",
+  "patterns": "patterns.json"
+}

@@ -72,7 +72,7 @@ XCSIFT_WITH_HEARTBEAT = { \
 	}
 
 .DEFAULT_GOAL := help
-.PHONY: help generate test test-packages test-meshcore test-services test-app test-store
+.PHONY: help generate test test-packages test-meshcore test-services test-app test-store mecp-sync
 # Package suites run on the host. The app and StoreKit passes use separate simulator OSes.
 # .NOTPARALLEL keeps `make -j` from colliding on shared builds and simulators.
 .NOTPARALLEL:
@@ -94,6 +94,10 @@ dev.yml:
 
 generate: dev.yml ## Regenerate MC1.xcodeproj from project.yml (xcodegen)
 	xcodegen generate
+
+mecp-sync: ## Vendor MECP language packs and conformance vectors for VER=vX.Y.Z
+	@test -n "$(VER)" || { echo "usage: make mecp-sync VER=vX.Y.Z" >&2; exit 2; }
+	scripts/mecp-sync.sh $(VER)
 
 test: test-packages test-app test-store ## Run package suites, app tests (iOS 27), and StoreKit tests (iOS 18)
 

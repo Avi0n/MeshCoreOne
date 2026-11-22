@@ -69,7 +69,12 @@ public enum MECPDecode {
     var removed = RangeSet<String.Index>()
     var extraction = Extraction()
 
-    // Claim timestamp, then person count, then duration. A later match skips characters an earlier one claimed.
+    // Claim the app designator, timestamp, person count, then duration. A later match skips characters an
+    // earlier one claimed. The designator stays in the tail.
+    if let designator = appDesignator(in: freetext, codes: codes) {
+      claimed.insert(contentsOf: designator)
+    }
+
     if let match = firstTimestamp(in: freetext, excluding: claimed) {
       extraction.timestampHHMM = match.digits
       claimed.insert(contentsOf: match.range)
@@ -82,8 +87,8 @@ public enum MECPDecode {
       removed.insert(contentsOf: pax.range)
     }
 
-    if codes.contains(etaCode), let match = leadingEta(in: freetext, excluding: claimed) {
-      extraction.eta = match.minutes
+    if codes.contains(etaCode), let match = duration(in: freetext, excluding: claimed) {
+      extraction.eta = match.value
       claimed.insert(contentsOf: match.range)
       removed.insert(contentsOf: match.range)
     }
@@ -92,12 +97,11 @@ public enum MECPDecode {
     return extraction
   }
 
-  static let etaCode = "R03"
   private static let wirePrefix = "MECP/"
   private static let maxHour = 23
-  private static let clockPartDigits = 2
-  private static let asciiZero: UInt32 = 0x30
-  private static let asciiFive: UInt32 = 0x35
+  static let clockPartDigits = 2
+  static let asciiZero: UInt32 = 0x30
+  static let asciiFive: UInt32 = 0x35
   private static let asciiNine: UInt32 = 0x39
 
   /// MECP 1.4.0 §6.1 person count decoding pattern, without the boundaries `isBounded` checks.
@@ -111,11 +115,7 @@ public enum MECPDecode {
     #/@(2[0-3]|[01][0-9]|[0-9]):?([0-5][0-9])/#.matchingSemantics(.unicodeScalar)
   }
 
-  private static var leadingEtaPattern: Regex<(Substring, Substring)> {
-    #/^([0-9]+)(?= |$)/#.matchingSemantics(.unicodeScalar)
-  }
-
-  private static func overlaps(_ claimed: RangeSet<String.Index>, _ range: Range<String.Index>) -> Bool {
+  static func overlaps(_ claimed: RangeSet<String.Index>, _ range: Range<String.Index>) -> Bool {
     claimed.ranges.contains { $0.overlaps(range) }
   }
 
@@ -139,7 +139,7 @@ public enum MECPDecode {
     return nil
   }
 
-  private static func isASCIIDigit(_ scalar: Unicode.Scalar) -> Bool {
+  static func isASCIIDigit(_ scalar: Unicode.Scalar) -> Bool {
     scalar.value >= asciiZero && scalar.value <= asciiNine
   }
 
@@ -149,7 +149,7 @@ public enum MECPDecode {
   }
 
   /// A digit, then `.` or `,`, marks a fraction or a coordinate rather than a person count.
-  private static func isDecimalFraction(before start: String.Index, in text: String) -> Bool {
+  static func isDecimalFraction(before start: String.Index, in text: String) -> Bool {
     let scalars = text.unicodeScalars
     guard start > scalars.startIndex else { return false }
     let sepIndex = scalars.index(before: start)
@@ -160,7 +160,7 @@ public enum MECPDecode {
 
   /// Minutes of an `H:MM` or `HH:MM` clock, with or without `@`, are not a person count when the
   /// hour is 0...23 and is not part of a longer digit run.
-  private static func isColonClockMinutes(
+  static func isColonClockMinutes(
     digits: Substring,
     before start: String.Index,
     in text: String
@@ -217,7 +217,7 @@ public enum MECPDecode {
 
   /// MECP 1.4.0 §6.1 rule 4: a decoding match needs the start of the free text or one B scalar before
   /// it, and one B scalar or the end of the free text after it.
-  private static func isBounded(_ range: Range<String.Index>, in text: String) -> Bool {
+  static func isBounded(_ range: Range<String.Index>, in text: String) -> Bool {
     let scalars = text.unicodeScalars
     let before = range.lowerBound == scalars.startIndex || isBoundary(scalars[scalars.index(before: range.lowerBound)])
     let after = range.upperBound == scalars.endIndex || isBoundary(scalars[range.upperBound])
@@ -240,18 +240,6 @@ public enum MECPDecode {
       cursor = match.range.upperBound
     }
     return nil
-  }
-
-  private static func leadingEta(
-    in text: String,
-    excluding claimed: RangeSet<String.Index>
-  ) -> (minutes: Int, range: Range<String.Index>)? {
-    guard let match = text.firstMatch(of: leadingEtaPattern),
-          !overlaps(claimed, match.range),
-          let minutes = Int(match.1) else {
-      return nil
-    }
-    return (minutes, match.range)
   }
 
   private static func removing(_ subranges: RangeSet<String.Index>, from text: String) -> String? {

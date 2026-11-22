@@ -11,7 +11,7 @@ struct MECPCatalogTests {
     "Unconscious person",
     "Flooding",
     "3 people",
-    "14:30 UTC",
+    "14:30",
     "48.8566,2.3522 @en",
   ].joined(separator: "\n")
 
@@ -34,30 +34,26 @@ struct MECPCatalogTests {
   }
 
   @Test
-  func `an R03 eta replaces the bracket slot and leaves the unit word`() {
+  func `an R03 eta fills the bracket slot with a localized duration`() {
     #expect(display("MECP/1/R03 15", localization: "en") == "URGENT ETA 15 minutes")
-    #expect(display("MECP/1/R03 15", localization: "de") == "DRINGEND Ankunft in 15 Minuten")
-    #expect(display("MECP/1/R03 15", localization: "zh-Hans") == "紧急 预计到达 15 分钟")
+    #expect(display("MECP/1/R03 2h", localization: "en") == "URGENT ETA 2 hours")
+    #expect(display("MECP/1/R03 1h30min", localization: "en") == "URGENT ETA 1 hour, 30 minutes")
 
-    let slots = [
-      "es": "Llegada est. 15 minutos",
-      "fr": "Arrivée dans 15 minutes",
-      "it": "Arrivo stimato 15 minuti",
-      "nl": "Aankomst over 15 minuten",
-      "pl": "Czas przybycia 15 minuty",
-      "pt": "Chegada em 15 minutos",
-      "ru": "Время прибытия 15 минут",
-      "uk": "Час прибуття 15 хвилин",
-    ]
-    for (localization, phrase) in slots {
+    for localization in ["de", "es", "fr", "it", "nl", "pl", "pt", "ru", "uk", "zh-Hans"] {
       let text = display("MECP/1/R03 15", localization: localization)
-      #expect(text.contains(phrase))
-      #expect(!text.contains("["))
-      #expect(text.filter { $0 == "1" }.count == 1)
+      #expect(!text.contains("["), "\(localization)")
+      #expect(text.contains("15"), "\(localization)")
     }
 
-    let unset = display("MECP/1/R03 near 15", localization: "en")
-    #expect(unset.contains("[minutes]"))
+    let unset = display("MECP/1/R03 near", localization: "en")
+    #expect(unset.contains("[time]"))
+  }
+
+  @Test
+  func `a timestamp shows as sent with no time zone`() {
+    let text = display("MECP/2/T01 @630", localization: "en")
+    #expect(text.hasSuffix("06:30"))
+    #expect(!text.contains("UTC"))
   }
 
   @Test
@@ -107,7 +103,7 @@ struct MECPCatalogTests {
     let pack = try #require(MECPCatalog.LanguagePack(data: data))
     let english = MECPCatalog.LanguagePack(severityLocal: [:], codes: [:], unknownCode: nil)
     let message = try #require(MECPDecode.decode("MECP/0/Z99"))
-    #expect(MECPCatalog.phrase(for: "Z99", message: message, pack: pack, english: english) == "Z99: Unknown code")
+    #expect(MECPCatalog.phrase(for: "Z99", message: message, pack: pack, english: english, locale: Locale(identifier: "en")) == "Z99: Unknown code")
   }
 
   @Test

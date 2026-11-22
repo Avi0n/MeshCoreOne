@@ -103,6 +103,32 @@ struct MECPDecodeTests {
   }
 
   @Test
+  func `an R03 duration with a unit is read in minutes and wins over a bare number`() throws {
+    let cases: [(tail: String, minutes: Int)] = [
+      ("45min", 45), ("2h", 120), ("1h30min", 90), ("1h 30min", 90), ("2d", 2880),
+      ("2 h", 120), ("45 2h", 120), ("ETA45min", 45), ("on way, eta 1h", 60),
+    ]
+    for (tail, minutes) in cases {
+      let message = try #require(MECPDecode.decode("MECP/2/R03 \(tail)"), "\(tail)")
+      #expect(message.eta == minutes, "\(tail)")
+    }
+  }
+
+  @Test
+  func `an R03 duration needs boundaries, a positive value, and a whole number`() throws {
+    for tail in ["0min", "0", "1.5h", "47.3769,12.1048", "2hours", "beta"] {
+      let message = try #require(MECPDecode.decode("MECP/2/R03 \(tail)"), "\(tail)")
+      #expect(message.eta == nil, "\(tail)")
+    }
+    let retried = try #require(MECPDecode.decode("MECP/2/R03 xeta 45min"))
+    #expect(retried.eta == 45)
+    #expect(retried.displayTail == "xeta")
+
+    let unscoped = try #require(MECPDecode.decode("MECP/2/C01 45min"))
+    #expect(unscoped.eta == nil)
+  }
+
+  @Test
   func `an R03 bare hour before a colon clock is not an eta`() throws {
     for tail in ["14:30", "14:300"] {
       let message = try #require(MECPDecode.decode("MECP/2/R03 \(tail)"), "\(tail)")
