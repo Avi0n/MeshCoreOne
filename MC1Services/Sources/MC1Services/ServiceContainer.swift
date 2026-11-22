@@ -354,7 +354,10 @@ public final class ServiceContainer {
     enableAdvertisementMonitoring: Bool
   ) async {
     guard eventMonitoringState == .starting else { return }
-    await heardRepeatsService.configure(radioID: radioID)
+    await heardRepeatsService.configure(
+      radioID: radioID,
+      selfPublicKey: await session.currentSelfInfo?.publicKey
+    )
     #if DEBUG
       await testEventMonitoringStartHandler?()
     #endif

@@ -76,6 +76,87 @@ struct HeardRepeatsServiceTests {
 
   private static let testNodeName = "TestNode"
 
+  // MARK: - DM echoes
+
+  @Test
+  func `DM echo from our key to an in-flight recipient is recorded`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let contactID = UUID()
+    let messageID = UUID()
+    let selfKey = Data(repeating: 0x11, count: 32)
+    try await store.saveContact(.testContact(
+      id: contactID,
+      radioID: radioID,
+      publicKey: Data(repeating: 0x22, count: 32)
+    ))
+    try await store.saveMessage(.testDirectMessage(
+      id: messageID,
+      radioID: radioID,
+      contactID: contactID,
+      status: .retrying
+    ))
+    await service.configure(radioID: radioID, selfPublicKey: selfKey)
+
+    let echo = makeDMEcho(radioID: radioID, recipientHash: 0x22, senderHash: 0x11)
+    let count = await service.processForRepeats(echo)
+
+    #expect(count == 1)
+    let repeats = try await store.fetchMessageRepeats(messageID: messageID)
+    #expect(repeats.count == 1)
+  }
+
+  @Test
+  func `DM echo is ignored when the sender hash is not ours or no send is active`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let contactID = UUID()
+    let selfKey = Data(repeating: 0x11, count: 32)
+    try await store.saveContact(.testContact(
+      id: contactID,
+      radioID: radioID,
+      publicKey: Data(repeating: 0x22, count: 32)
+    ))
+    let delivered = UUID()
+    try await store.saveMessage(.testDirectMessage(
+      id: delivered,
+      radioID: radioID,
+      contactID: contactID,
+      status: .delivered
+    ))
+    await service.configure(radioID: radioID, selfPublicKey: selfKey)
+
+    // Someone else's DM to the same contact.
+    let foreign = await service.processForRepeats(
+      makeDMEcho(radioID: radioID, recipientHash: 0x22, senderHash: 0x99)
+    )
+    // Ours, but the only message already delivered.
+    let settled = await service.processForRepeats(
+      makeDMEcho(radioID: radioID, recipientHash: 0x22, senderHash: 0x11)
+    )
+
+    #expect(foreign == nil)
+    #expect(settled == nil)
+    #expect(try await store.fetchMessageRepeats(messageID: delivered).isEmpty)
+  }
+
+  private func makeDMEcho(radioID: UUID, recipientHash: UInt8, senderHash: UInt8) -> RxLogEntryDTO {
+    let parsed = ParsedRxLogData(
+      snr: 6.0,
+      rssi: -80,
+      rawPayload: Data([0x01]),
+      routeType: .flood,
+      payloadType: .textMessage,
+      payloadVersion: 0,
+      payloadTypeBits: 2,
+      transportCode: nil,
+      pathLength: 1,
+      pathNodes: [0x42],
+      packetPayload: Data([recipientHash, senderHash, 0xAA, 0xBB, 0xCC])
+    )
+    return RxLogEntryDTO(id: UUID(), radioID: radioID, receivedAt: Date(), from: parsed)
+  }
+
   private func makeStoreAndService() throws -> (PersistenceStore, HeardRepeatsService) {
     let container = try PersistenceStore.createContainer(inMemory: true)
     let store = PersistenceStore(modelContainer: container)

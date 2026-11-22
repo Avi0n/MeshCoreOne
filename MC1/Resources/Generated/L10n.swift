@@ -902,6 +902,8 @@ public enum L10n {
           public static let delivered = L10n.tr("Chats", "chats.message.status.delivered", fallback: "Delivered")
           /// Location: UnifiedMessageBubble.swift - Message status failed
           public static let failed = L10n.tr("Chats", "chats.message.status.failed", fallback: "Failed")
+          /// Location: BubbleFooterRow.swift - Failed DM chip when a repeater was heard forwarding it but no ACK arrived
+          public static let noAck = L10n.tr("Chats", "chats.message.status.noAck", fallback: "No ACK")
           /// Location: UnifiedMessageBubble.swift - Status row retry button
           public static let retry = L10n.tr("Chats", "chats.message.status.retry", fallback: "Retry")
           /// Location: UnifiedMessageBubble.swift - Message status retrying
