@@ -189,7 +189,7 @@ struct MECPDecodeTests {
 
   @Test
   func `colon clock minutes are not person counts`() throws {
-    for tail in ["@6:30 pax", "14:30pax"] {
+    for tail in ["@6:30pax", "14:30pax"] {
       let message = try #require(MECPDecode.decode("MECP/1/S01 \(tail)"), "\(tail)")
       #expect(message.personCount == nil, "\(tail)")
       #expect(message.displayTail == tail, "\(tail)")
@@ -199,9 +199,15 @@ struct MECPDecodeTests {
     #expect(longerHour.personCount == 30)
     #expect(longerHour.displayTail == "006:")
 
+    let claimed = try #require(MECPDecode.decode("MECP/1/S01 @6:30 pax"))
+    #expect(claimed.timestampHHMM == "0630")
+    #expect(claimed.personCount == nil)
+    #expect(claimed.displayTail == "pax")
+
     let resumed = try #require(MECPDecode.decode("MECP/1/S01 @6:30 pax 2 pax"))
+    #expect(resumed.timestampHHMM == "0630")
     #expect(resumed.personCount == 2)
-    #expect(resumed.displayTail == "@6:30 pax")
+    #expect(resumed.displayTail == "pax")
 
     let invalidHour = try #require(MECPDecode.decode("MECP/1/S01 @24:30pax"))
     #expect(invalidHour.personCount == 30)
@@ -210,6 +216,23 @@ struct MECPDecodeTests {
     let nonTimestamp = try #require(MECPDecode.decode("MECP/1/S01 id:30pax"))
     #expect(nonTimestamp.personCount == 30)
     #expect(nonTimestamp.displayTail == "id:")
+  }
+
+  /// MECP §6.1 rule 5: a later convention fails where it overlaps text an earlier one claimed.
+  @Test
+  func `a match overlapping an earlier claim is not decoded`() throws {
+    let durationInTimestamp = try #require(MECPDecode.decode("MECP/2/R03 @14:30 min"))
+    #expect(durationInTimestamp.timestampHHMM == "1430")
+    #expect(durationInTimestamp.eta == nil)
+    #expect(durationInTimestamp.displayTail == "min")
+
+    let paxInCoordinates = try #require(MECPDecode.decode("MECP/0/S01 47.3769,8.5417 pax"))
+    #expect(paxInCoordinates.personCount == nil)
+    #expect(paxInCoordinates.displayTail == "47.3769,8.5417 pax")
+
+    let etaInDesignator = try #require(MECPDecode.decode("MECP/2/U04 R03 eta 45"))
+    #expect(etaInDesignator.eta == nil)
+    #expect(etaInDesignator.displayTail == "eta 45")
   }
 
   @Test
@@ -227,16 +250,45 @@ struct MECPDecodeTests {
   @Test
   func `a timestamp must be four digits at a token boundary and in range`() throws {
     let punctuated = try #require(MECPDecode.decode("MECP/1/M01 arrived @1430."))
-    #expect(punctuated.timestampHHMM == nil)
-    #expect(punctuated.displayTail == "arrived @1430.")
+    #expect(punctuated.timestampHHMM == "1430")
+    #expect(punctuated.displayTail == "arrived .")
 
     let invalid = try #require(MECPDecode.decode("MECP/3/R01 @2400 @1430"))
-    #expect(invalid.timestampHHMM == nil)
-    #expect(invalid.displayTail == "@2400 @1430")
+    #expect(invalid.timestampHHMM == "1430")
+    #expect(invalid.displayTail == "@2400")
 
     let accepted = try #require(MECPDecode.decode("MECP/0/M01 @1430 @en"))
     #expect(accepted.timestampHHMM == "1430")
     #expect(accepted.displayTail == "@en")
+  }
+
+  @Test
+  func `a timestamp is removed from the tail`() throws {
+    let message = try #require(MECPDecode.decode("MECP/0/M01 @1430 @en"))
+    #expect(message.timestampHHMM == "1430")
+    #expect(message.displayTail == "@en")
+  }
+
+  @Test
+  func `a timestamp may have a one-digit hour and a colon`() {
+    #expect(MECPDecode.decode("MECP/3/L01 @123")?.timestampHHMM == "0123")
+    #expect(MECPDecode.decode("MECP/2/T01 @6:30")?.timestampHHMM == "0630")
+    #expect(MECPDecode.decode("MECP/3/L01 @2300")?.timestampHHMM == "2300")
+  }
+
+  @Test
+  func `a timestamp needs a boundary on each side`() {
+    #expect(MECPDecode.decode("MECP/2/T05 @1430,")?.timestampHHMM == "1430")
+    #expect(MECPDecode.decode("MECP/2/T05 meet@1430")?.timestampHHMM == nil)
+    #expect(MECPDecode.decode("MECP/3/L06 @14300")?.timestampHHMM == nil)
+  }
+
+  @Test
+  func `an out-of-range timestamp is skipped for the next one`() {
+    #expect(MECPDecode.decode("MECP/3/L06 @2460 @1400 @1530")?.timestampHHMM == "1400")
+    for tail in ["@1460", "@9:60", "@24:00"] {
+      #expect(MECPDecode.decode("MECP/3/L06 \(tail)")?.timestampHHMM == nil, "\(tail)")
+    }
   }
 
   @Test
