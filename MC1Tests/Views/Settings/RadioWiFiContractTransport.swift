@@ -53,18 +53,16 @@ actor RadioWiFiContractTransport: MeshTransport {
     let firmwareCommand = String(decoding: command.utf8.prefix(while: { $0 != 0 }), as: UTF8.self)
     let effective = Self.effective(firmwareCommand)
     if droppedBeforeApply.remove(effective) != nil { return }
+    // An unreflected command never answers, so the session owns a real timeout.
+    if !reflectsPrefixes { return }
     let reply: Data
     if rejected.remove(effective) != nil {
       let text = RadioWiFiFirmware.reflectedReply("Error: rejected", to: firmwareCommand)
       reply = Data([ResponseCode.cliReply.rawValue]) + Data(text.utf8)
     } else {
-      var text = unsupported.contains(effective)
+      let text = unsupported.contains(effective)
         ? RadioWiFiFirmware.reflectedReply("Unknown command", to: firmwareCommand)
         : firmware.reply(to: firmwareCommand) ?? "Unknown command"
-      if !reflectsPrefixes {
-        let prefix = RadioWiFiFirmware.reflectedReply("", to: firmwareCommand)
-        text = String(text.dropFirst(prefix.count))
-      }
       reply = Data([ResponseCode.cliReply.rawValue]) + Data(text.utf8)
     }
     if holds[effective, default: 0] > 0 {

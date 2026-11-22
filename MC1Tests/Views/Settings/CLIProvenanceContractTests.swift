@@ -17,7 +17,8 @@ struct CLIProvenanceContractTests {
         await harness.transport.heldCount("set wifi.enabled 0") == 1
       }
 
-      await harness.transport.injectCLIReply("Error: rejected")
+      let unrelatedPrefix = try await unrelatedReservedPrefix(on: harness)
+      await harness.transport.injectCLIReply(unrelatedPrefix + "Error: rejected")
       await harness.transport.release("set wifi.enabled 0")
       await write.value
 
@@ -106,5 +107,20 @@ struct CLIProvenanceContractTests {
       let settings = try #require(harness.settings)
       #expect(try await settings.getRadioCLIValue("wifi.enabled") == "0")
     }
+  }
+
+  /// A prefix reserved by an earlier command. An unprefixed rejection is the in-flight
+  /// command's reply while attribution is clean.
+  private func unrelatedReservedPrefix(on harness: RadioWiFiContractHarness) async throws -> String {
+    let commands = await harness.transport.commands
+    let mutation = try #require(commands.last {
+      RadioWiFiContractTransport.effective($0) == "set wifi.enabled 0"
+    })
+    let mutationPrefix = String(mutation.prefix(3))
+    let unrelated = try #require(commands.first { command in
+      let prefix = String(command.prefix(3))
+      return prefix.utf8.last == UInt8(ascii: "|") && prefix != mutationPrefix
+    })
+    return String(unrelated.prefix(3))
   }
 }

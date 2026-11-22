@@ -150,7 +150,7 @@ final class StoreServiceTests {
     }
   }
 
-  @Test
+  @Test(.enabled(if: StoreKitTestAvailability.surfacesUnfinishedTransactions))
   func `load drains unfinished transactions and applies their entitlement`() async throws {
     // Simulate a purchase committed while no StoreService was running: buy directly and leave
     // the transaction unfinished. product.purchase() is synchronously consistent (unlike the

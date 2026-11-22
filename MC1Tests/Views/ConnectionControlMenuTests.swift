@@ -34,7 +34,7 @@ struct ConnectionControlMenuTests {
       try await waitUntil("production toolbar must export target and status: \(mounted.describe())") {
         mounted.nodes(in: [mounted.window]).contains { $0.label == title && $0.traits.contains(.button) }
       }
-      let controls = mounted.nodes(in: [mounted.window]).filter { $0.label == title && $0.traits.contains(.button) }
+      let controls = mounted.primaryButtons(labeled: title, in: [mounted.window])
       #expect(controls.count == 1, "\(mounted.describe())")
       let control = try #require(controls.first)
       #expect(control.hasWindowContainedAXFrame)
@@ -148,6 +148,17 @@ struct ConnectionControlMenuTests {
     private func controls(in view: UIView) -> [UIControl] {
       guard !view.isHidden, view.alpha > 0 else { return [] }
       return ((view as? UIControl).map { [$0] } ?? []) + view.subviews.flatMap { controls(in: $0) }
+    }
+
+    /// UIKit exposes the toolbar control and the button hosted inside it. Keep the outer control.
+    func primaryButtons(labeled title: String, in windows: [UIWindow]) -> [AccessNode] {
+      let matches = nodes(in: windows).filter { $0.label == title && $0.traits.contains(.button) }
+      return matches.filter { candidate in
+        let interior = candidate.frame.insetBy(dx: 1, dy: 1)
+        return !matches.contains { other in
+          other.object !== candidate.object && other.frame.contains(interior)
+        }
+      }
     }
 
     func nodes(in windows: [UIWindow]) -> [AccessNode] {

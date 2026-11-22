@@ -8,7 +8,7 @@ import Testing
 @MainActor
 struct ChatViewModelReactionSendTests {
   @Test
-  func `reaction stays queued after an earlier request times out`() async throws {
+  func `reaction still sends after an earlier request times out`() async throws {
     let radio = ConnectionTestRadioTransport()
     let clock = TestClock()
     let session = MeshCoreSession(transport: radio, clock: clock)
@@ -48,23 +48,17 @@ struct ChatViewModelReactionSendTests {
       }
 
       await viewModel.sendReaction(emoji: "👀", to: environment.target)
-      try await waitUntil("reaction should park for connection recovery") {
-        await queue.parkedDrainCountForTesting > 0
+      try await waitUntil("reaction should send on the session that survived the battery timeout") {
+        let sent = await radio.sentData.contains { $0.first == CommandCode.sendChannelMessage.rawValue }
+        let pending = try? await environment.store.fetchPendingSends(radioID: channel.radioID)
+        return sent && pending?.isEmpty == true
       }
-      await viewModel.sendReaction(emoji: "👀", to: environment.target)
-      let pending = try await environment.store.fetchPendingSends(radioID: channel.radioID)
-      let queued = try #require(pending.first)
-      #expect(pending.count == 1)
-      #expect(try await environment.store.fetchMessage(id: queued.messageID)?.status == .pending)
-      #expect(try await environment.store.fetchReactions(for: environment.target.id).isEmpty)
-      #expect(await radio.sentData.contains { $0.first == CommandCode.sendChannelMessage.rawValue } == false)
       #expect(viewModel.errorMessage == nil)
       #expect(viewModel.sendErrorMessage == nil)
 
       viewModel.releaseTimelineWriter()
       await queue.shutdown()
       await queue.awaitDrainCompletion()
-      #expect(try await environment.store.hasPendingSend(messageID: queued.messageID))
       await session.stop()
       await radio.releaseAllGates()
     } catch {
