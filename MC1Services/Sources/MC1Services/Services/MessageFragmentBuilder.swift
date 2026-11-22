@@ -252,7 +252,7 @@ public enum MessageFragmentBuilder {
       regionToShow: regionToShow,
       regionMatchNames: regionMatchNames,
       sendTimeToShow: sendTimeToShow,
-      sendTimeWasCorrected: message.timestampCorrected,
+      sendTimeWasCorrected: message.timestampCorrected && message.hasWireSendTime,
       showStatusRow: message.isOutgoing,
       status: message.status,
       isChannelMessage: message.isChannelMessage,

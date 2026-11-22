@@ -461,6 +461,19 @@ struct MessageFragmentBuilderTests {
     #expect(item.footer.sendTimeWasCorrected == true)
   }
 
+  @Test
+  func `footer does not flag correction on an incoming datagram MCOimg`() {
+    var message = makeIncomingMessage(
+      timestamp: 1_700_000_000, senderTimestamp: 0, timestampCorrected: true
+    )
+    message.channelIndex = 0
+    message.text = "im4:pixel"
+    let item = MessageFragmentBuilder.makeItem(
+      for: message, inputs: makeInputs(messageID: message.id), envInputs: makeEnvInputs()
+    )
+    #expect(item.footer.sendTimeWasCorrected == false)
+  }
+
   // MARK: - Hash propagation regression
 
   @Test
