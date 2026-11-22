@@ -44,6 +44,8 @@ public actor MessageService {
   /// Read once at the start of each DM retry loop.
   let dmSendBudgetProvider: @Sendable () -> DMSendBudget
   let plainTextSendGate: PlainTextSendGate?
+  /// Runs after an outgoing channel MCOimg is stored. Nil when path harvest is not installed.
+  let datagramPathHarvest: (@Sendable (MessageDTO) async -> Void)?
 
   /// Contact service for path management (optional - retry with reset requires this).
   /// Injected by `ServiceContainer` at construction.
@@ -136,7 +138,8 @@ public actor MessageService {
     config: MessageServiceConfig = .default,
     ackEvents: AsyncStream<MeshEvent>? = nil,
     dmSendBudget: @escaping @Sendable () -> DMSendBudget = { .default },
-    plainTextSendGate: PlainTextSendGate? = nil
+    plainTextSendGate: PlainTextSendGate? = nil,
+    datagramPathHarvest: (@Sendable (MessageDTO) async -> Void)? = nil
   ) {
     self.session = session
     self.dataStore = dataStore
@@ -145,6 +148,7 @@ public actor MessageService {
     dmSendBudgetProvider = dmSendBudget
     self.plainTextSendGate = plainTextSendGate
     bufferedAckEvents = ackEvents
+    self.datagramPathHarvest = datagramPathHarvest
   }
 
   /// Whether a contact service was injected at construction.

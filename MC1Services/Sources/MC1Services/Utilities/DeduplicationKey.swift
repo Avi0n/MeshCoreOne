@@ -10,6 +10,15 @@ enum DeduplicationKey {
   static let outgoingIdentityPrefix = "out-"
   static let unknownContactPlaceholder = "unknown"
 
+  /// Not a decimal timestamp, so an MCOimg key cannot collide with a group-text key.
+  static let channelMCOImageMarker = "mcoimg"
+
+  /// Incoming channel MCOimg identity: slot, marker, and data field. No clock.
+  static func channelMCOImage(channelIndex: UInt8, dataField: Data) -> String {
+    let encoded = dataField.map { String(format: "%02x", $0) }.joined()
+    return "\(channelPrefix)\(channelIndex)-\(channelMCOImageMarker)-\(encoded)"
+  }
+
   static func contentBased(
     contactID: UUID?,
     channelIndex: UInt8?,

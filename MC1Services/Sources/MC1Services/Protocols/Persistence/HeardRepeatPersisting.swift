@@ -1,4 +1,5 @@
 import Foundation
+import MeshCore
 
 /// Store operations for correlating RX observations with a known message.
 public protocol HeardRepeatPersisting: Actor {
@@ -8,6 +9,9 @@ public protocol HeardRepeatPersisting: Actor {
   /// Same radio scope as `MessagePersisting.fetchMessage(deduplicationKey:radioID:)`.
   /// Incoming extras join on the content-based key, not `Message.timestamp`.
   func fetchMessage(deduplicationKey: String, radioID: UUID) async throws -> MessageDTO?
+
+  /// Every message on one radio and channel. Datagram path matching filters this set in memory.
+  func fetchChannelMessages(radioID: UUID, channelIndex: UInt8) async throws -> [MessageDTO]
 
   /// Save a message repeat entry
   func saveMessageRepeat(_ dto: MessageRepeatDTO) async throws
@@ -46,6 +50,21 @@ public protocol HeardRepeatPersisting: Actor {
     rxLogEntryID: UUID?
   ) async throws -> Int?
 
+  /// Route and region copied from the earliest matching datagram RX row when its path is adopted.
+  func applyDatagramCanonicalContext(
+    messageID: UUID,
+    routeType: RouteType?,
+    regionScope: String?,
+    regionScopeMatches: [String]
+  ) async throws
+
+  /// Region written onto a datagram message from the canonical RX row, including a later rewrite.
+  func updateMessageRegion(
+    id: UUID,
+    regionScope: String?,
+    regionScopeMatches: [String]
+  ) async throws
+
   /// Writes path columns only when they are still nil. Fetch by id; `#Predicate` cannot match `Data`.
   /// Leaves snr and heardRepeats unchanged.
   func adoptIncomingPathIfUnknown(
@@ -56,4 +75,23 @@ public protocol HeardRepeatPersisting: Actor {
 
   /// Increment send count and return new count
   func incrementMessageSendCount(id: UUID) async throws -> Int
+}
+
+extension HeardRepeatPersisting {
+  func fetchChannelMessages(radioID: UUID, channelIndex: UInt8) async throws -> [MessageDTO] {
+    []
+  }
+
+  func applyDatagramCanonicalContext(
+    messageID: UUID,
+    routeType: RouteType?,
+    regionScope: String?,
+    regionScopeMatches: [String]
+  ) async throws {}
+
+  func updateMessageRegion(
+    id: UUID,
+    regionScope: String?,
+    regionScopeMatches: [String]
+  ) async throws {}
 }

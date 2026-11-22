@@ -58,6 +58,7 @@ public extension MessageService {
       mcoImageSenderName: prepared.mcoImageSenderName
     )
     try await dataStore.saveMessage(messageDTO)
+    await harvestOutgoingDatagramPathsIfNeeded(messageDTO)
 
     do {
       let transmission = try await channelTransmission(
@@ -118,8 +119,16 @@ public extension MessageService {
       mcoImageSenderName: prepared.mcoImageSenderName
     )
     try await dataStore.saveMessage(messageDTO)
+    await harvestOutgoingDatagramPathsIfNeeded(messageDTO)
 
     return messageDTO
+  }
+
+  /// An RX row saved before the message is attached here. A later row is attached by `processForRepeats`.
+  /// The harvest writes only while `HeardRepeatsService` still owns this radio.
+  private func harvestOutgoingDatagramPathsIfNeeded(_ message: MessageDTO) async {
+    guard message.isOutgoing, message.isDatagramPathMCOImage else { return }
+    await datagramPathHarvest?(message)
   }
 
   /// Sends an already-created pending channel message.

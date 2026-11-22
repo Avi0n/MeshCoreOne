@@ -356,4 +356,49 @@ struct ChannelCryptoTests {
       Issue.record("Expected success for 32-byte secret")
     }
   }
+
+  @Test
+  func `group datagram plaintext returns the data type and data field`() {
+    let blob = Data([0x13, 0x01, 0xAA, 0x02])
+    guard let payload = createEncryptedDatagram(dataType: 0x0120, data: blob, secret: testSecret) else {
+      Issue.record("Failed to create datagram payload")
+      return
+    }
+
+    guard case let .success(plaintext) = ChannelCrypto.decryptPlaintext(payload: payload, secret: testSecret) else {
+      Issue.record("Expected plaintext")
+      return
+    }
+    let datagram = ChannelCrypto.readGroupDatagram(plaintext)
+    #expect(datagram?.dataType == 0x0120)
+    #expect(datagram?.data == blob)
+  }
+
+  @Test
+  func `group datagram reader rejects a short plaintext`() {
+    #expect(ChannelCrypto.readGroupDatagram(Data([0x20, 0x01])) == nil)
+  }
+
+  @Test
+  func `group datagram reader rejects a length past the plaintext`() {
+    var plaintext = Data(count: 16)
+    plaintext[0] = 0x20
+    plaintext[1] = 0x01
+    plaintext[2] = 14
+    #expect(ChannelCrypto.readGroupDatagram(plaintext) == nil)
+  }
+
+  private func createEncryptedDatagram(dataType: UInt16, data: Data, secret: Data) -> Data? {
+    var plaintext = Data()
+    var type = dataType.littleEndian
+    plaintext.append(Data(bytes: &type, count: 2))
+    plaintext.append(UInt8(data.count))
+    plaintext.append(data)
+    return createEncryptedRawPlaintext(plaintext, secret: secret)
+  }
+
+  private func createEncryptedRawPlaintext(_ plaintext: Data, secret: Data) -> Data? {
+    guard let ciphertext = encryptAES128ECB(plaintext: plaintext, key: secret) else { return nil }
+    return computeMAC(data: ciphertext, key: secret) + ciphertext
+  }
 }

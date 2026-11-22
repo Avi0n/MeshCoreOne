@@ -1,4 +1,5 @@
 import Foundation
+import MeshCore
 
 /// Retention bounds for the RX log radio partition.
 ///
@@ -39,6 +40,13 @@ public protocol RxLogPersisting: Actor {
     radioID: UUID,
     channelIndex: UInt8,
     senderTimestamp: UInt32
+  ) async throws -> [RxLogEntryDTO]
+
+  /// Group-datagram rows for one radio and channel. No sender timestamp.
+  func fetchRxLogEntries(
+    radioID: UUID,
+    channelIndex: UInt8,
+    payloadType: PayloadType
   ) async throws -> [RxLogEntryDTO]
 
   /// Find a DM RxLogEntry by matching the sender prefix byte in the packet payload.
@@ -112,6 +120,14 @@ public protocol RxLogPersisting: Actor {
 // MARK: - Default Parameter Values
 
 extension RxLogPersisting {
+  func fetchRxLogEntries(
+    radioID: UUID,
+    channelIndex: UInt8,
+    payloadType: PayloadType
+  ) async throws -> [RxLogEntryDTO] {
+    []
+  }
+
   func flushPendingRxLogEntries() async throws {}
 
   /// Fetch RX log entries with the default limit of 500

@@ -158,6 +158,12 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
   /// Transient - set by UI layer after decryption
   public var decodedText: String?
 
+  /// Group-datagram data type. Filled by decryption and not stored.
+  public var datagramDataType: UInt16?
+
+  /// Group-datagram data field. Filled by decryption and not stored.
+  public var datagramData: Data?
+
   /// Initialize from SwiftData model.
   init(from model: RxLogEntry) {
     id = model.id
@@ -186,6 +192,8 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     regionScopeMatches = model.regionScopeMatches
     payloadTypeBits = UInt8(model.payloadTypeBits & 0x0F)
     decodedText = model.decodedText
+    datagramDataType = nil
+    datagramData = nil
   }
 
   /// Initialize from ParsedRxLogData (for new entries).
@@ -202,7 +210,9 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     senderTimestamp: UInt32? = nil,
     regionScope: String? = nil,
     regionScopeMatches: [String] = [],
-    decodedText: String? = nil
+    decodedText: String? = nil,
+    datagramDataType: UInt16? = nil,
+    datagramData: Data? = nil
   ) {
     self.id = id
     self.radioID = radioID
@@ -228,6 +238,8 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     self.regionScopeMatches = regionScopeMatches
     payloadTypeBits = parsed.payloadTypeBits
     self.decodedText = decodedText
+    self.datagramDataType = datagramDataType
+    self.datagramData = datagramData
   }
 
   // MARK: - Computed Properties

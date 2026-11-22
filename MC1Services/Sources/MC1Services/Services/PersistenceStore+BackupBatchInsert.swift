@@ -301,6 +301,27 @@ extension PersistenceStore {
     !secret.isEmpty && !secret.allSatisfy { $0 == 0 }
   }
 
+  /// Incoming MCOimg on this radio and local slot with the same data field, including one accepted earlier in this pass.
+  /// Outgoing rows stay on message id. An MCOimg that cannot rebuild a data field matches by dedup string only.
+  private func matchingImportedIncomingPicture(
+    _ dto: MessageDTO,
+    accepted: [MessageDTO],
+    storedCache: inout [String: [MessageDTO]]
+  ) throws -> MessageDTO? {
+    guard dto.direction == .incoming,
+          let channelIndex = dto.channelIndex,
+          let blob = dto.datagramDataField else { return nil }
+    let cacheKey = "\(dto.radioID.uuidString)-\(channelIndex)"
+    if storedCache[cacheKey] == nil {
+      storedCache[cacheKey] = try storedChannelMessages(radioID: dto.radioID, channelIndex: channelIndex).filter {
+        !$0.isOutgoing && $0.datagramDataField != nil
+      }
+    }
+    let stored = storedCache[cacheKey] ?? []
+    let acceptedHere = accepted.filter { $0.radioID == dto.radioID && $0.channelIndex == channelIndex }
+    return (stored + acceptedHere).first { $0.datagramDataField == blob }
+  }
+
   @discardableResult
   func batchInsertMessages(
     _ dtos: [MessageDTO],
@@ -321,6 +342,8 @@ extension PersistenceStore {
     toInsert.reserveCapacity(dtos.count)
     var skipped = 0
     var merged = 0
+    var acceptedIncomingPictures: [MessageDTO] = []
+    var storedIncomingPictures: [String: [MessageDTO]] = [:]
 
     // Pass 1: resolve duplicates and build the backup→local ID remap. Doing this
     // before any insert lets pass 2 rewrite replyToID onto winning local UUIDs,
@@ -341,6 +364,20 @@ extension PersistenceStore {
         skipped += 1
         continue
       }
+      if let match = try matchingImportedIncomingPicture(
+        dto,
+        accepted: acceptedIncomingPictures,
+        storedCache: &storedIncomingPictures
+      ) {
+        if match.id != dto.id {
+          messageIDByBackupID[dto.id] = match.id
+        }
+        skippedIncomingParents.append((localMessageID: match.id, dto: dto))
+        knownKeys.insert(key)
+        idsByKey[key, default: []].append(match.id)
+        skipped += 1
+        continue
+      }
       // Message.id is unique; skip so this unsaved context does not hold two
       // objects for one identity.
       if !knownIDs.insert(dto.id).inserted {
@@ -350,6 +387,9 @@ extension PersistenceStore {
       knownKeys.insert(key)
       idsByKey[key, default: []].append(dto.id)
       toInsert.append(dto)
+      if dto.direction == .incoming, dto.datagramDataField != nil {
+        acceptedIncomingPictures.append(dto)
+      }
     }
 
     // Pass 2: insert, rewriting replyToID through the remap so retained messages

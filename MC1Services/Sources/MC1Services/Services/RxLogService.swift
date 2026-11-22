@@ -37,7 +37,7 @@ public actor RxLogService {
 
   /// Heard repeats processing.
   /// Injected by `ServiceContainer` at construction.
-  private let heardRepeatsService: HeardRepeatsService?
+  let heardRepeatsService: HeardRepeatsService?
 
   // Reentrancy guards for reprocessing (separate to avoid mutual blocking)
   private var isReprocessingChannels = false
@@ -240,13 +240,19 @@ public actor RxLogService {
         guard !Task.isCancelled else { break }
 
         let decrypted = decryptEntry(entry)
-        guard decrypted.decodedText != nil else { continue }
+        // A group datagram has no text. A nil decodedText must not drop the channel update.
+        let isGroupDatagram = entry.payloadType == .groupData
+        if isGroupDatagram {
+          guard decrypted.datagramDataType != nil else { continue }
+        } else {
+          guard decrypted.decodedText != nil else { continue }
+        }
 
         updates.append((
           id: entry.id,
           channelIndex: decrypted.channelIndex,
           channelName: decrypted.channelName,
-          senderTimestamp: decrypted.senderTimestamp
+          senderTimestamp: isGroupDatagram ? nil : decrypted.senderTimestamp
         ))
         decryptedEntries.append(decrypted)
       }
@@ -381,6 +387,8 @@ public actor RxLogService {
     var decryptStatus = DecryptStatus.notApplicable
     var decodedText: String?
     var senderTimestamp: UInt32?
+    var datagramDataType: UInt16?
+    var datagramData: Data?
     var fromContactName: String?
 
     if parsed.payloadType == .groupText || parsed.payloadType == .groupData {
@@ -394,15 +402,19 @@ public actor RxLogService {
         let encryptedPayload = Data(rawPayload.dropFirst(1))
 
         for (index, secret) in channelSecrets {
-          let result = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
-          if case let .success(timestamp, _, text) = result {
-            channelIndex = index
-            channelName = channelNames[index] ?? "Channel \(index)"
-            decryptStatus = .success
-            senderTimestamp = timestamp
-            decodedText = text
-            break
-          }
+          guard let decoded = decodeChannelPayload(
+            payloadType: parsed.payloadType,
+            encryptedPayload: encryptedPayload,
+            secret: secret
+          ) else { continue }
+          channelIndex = index
+          channelName = channelNames[index] ?? "Channel \(index)"
+          decryptStatus = .success
+          senderTimestamp = decoded.senderTimestamp
+          decodedText = decoded.decodedText
+          datagramDataType = decoded.datagramDataType
+          datagramData = decoded.datagramData
+          break
         }
 
         if decryptStatus == .notApplicable {
@@ -479,7 +491,9 @@ public actor RxLogService {
       senderTimestamp: senderTimestamp,
       regionScope: regionFields.regionScope,
       regionScopeMatches: regionFields.regionScopeMatches,
-      decodedText: decodedText
+      decodedText: decodedText,
+      datagramDataType: datagramDataType,
+      datagramData: datagramData
     )
 
     // Persist
@@ -557,29 +571,76 @@ public actor RxLogService {
 
     // Fast path: use stored channel index if previously decrypted successfully
     if entry.decryptStatus == .success, let channelIndex = entry.channelIndex,
-       let secret = channelSecrets[channelIndex] {
-      let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
-      if case let .success(timestamp, _, text) = decryptResult {
-        result.senderTimestamp = timestamp
-        result.decodedText = text
-        return result
-      }
+       let secret = channelSecrets[channelIndex],
+       let decoded = decodeChannelPayload(
+         payloadType: entry.payloadType,
+         encryptedPayload: encryptedPayload,
+         secret: secret
+       ) {
+      applyDecoded(decoded, to: &result)
+      return result
     }
 
     // Slow path: try all secrets (for .noMatchingKey entries or if fast path failed)
     // and record which channel's secret matched so the entry is attributed correctly.
     for (index, secret) in channelSecrets {
-      let decryptResult = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret)
-      if case let .success(timestamp, _, text) = decryptResult {
-        result.channelIndex = index
-        result.channelName = channelNames[index] ?? "Channel \(index)"
-        result.senderTimestamp = timestamp
-        result.decodedText = text
-        break
-      }
+      guard let decoded = decodeChannelPayload(
+        payloadType: entry.payloadType,
+        encryptedPayload: encryptedPayload,
+        secret: secret
+      ) else { continue }
+      result.channelIndex = index
+      result.channelName = channelNames[index] ?? "Channel \(index)"
+      applyDecoded(decoded, to: &result)
+      break
     }
 
     return result
+  }
+
+  private struct DecodedChannelPayload {
+    var senderTimestamp: UInt32?
+    var decodedText: String?
+    var datagramDataType: UInt16?
+    var datagramData: Data?
+  }
+
+  /// Group text parses a timestamp and UTF-8. A group datagram parses a data type and blob.
+  /// The datagram has no clock, so the sender timestamp stays empty.
+  private func decodeChannelPayload(
+    payloadType: PayloadType,
+    encryptedPayload: Data,
+    secret: Data
+  ) -> DecodedChannelPayload? {
+    if payloadType == .groupData {
+      guard case let .success(plaintext) = ChannelCrypto.decryptPlaintext(payload: encryptedPayload, secret: secret),
+            let datagram = ChannelCrypto.readGroupDatagram(plaintext) else {
+        return nil
+      }
+      return DecodedChannelPayload(
+        senderTimestamp: nil,
+        decodedText: nil,
+        datagramDataType: datagram.dataType,
+        datagramData: datagram.data
+      )
+    }
+
+    guard case let .success(timestamp, _, text) = ChannelCrypto.decrypt(payload: encryptedPayload, secret: secret) else {
+      return nil
+    }
+    return DecodedChannelPayload(
+      senderTimestamp: timestamp,
+      decodedText: text,
+      datagramDataType: nil,
+      datagramData: nil
+    )
+  }
+
+  private func applyDecoded(_ decoded: DecodedChannelPayload, to result: inout RxLogEntryDTO) {
+    result.senderTimestamp = decoded.senderTimestamp
+    result.decodedText = decoded.decodedText
+    result.datagramDataType = decoded.datagramDataType
+    result.datagramData = decoded.datagramData
   }
 
   /// Try decrypting a DM payload by iterating candidate keys for the sender prefix byte.

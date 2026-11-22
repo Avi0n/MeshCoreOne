@@ -126,6 +126,7 @@ extension RxLogService {
       let cacheSnapshot = scopeKeyCache
 
       var rxUpdates: [(id: UUID, regionScope: String?, regionScopeMatches: [String])] = []
+      var datagramRegionUpdates: [(channelIndex: UInt8, id: UUID, regionScope: String?, regionScopeMatches: [String])] = []
       var channelMessageUpdates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])] = []
       var dmMessageUpdates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])] = []
 
@@ -154,6 +155,15 @@ extension RxLogService {
           regionScopeMatches: resolved.regionScopeMatches
         ))
 
+        if entry.senderTimestamp == nil, entry.payloadType == .groupData, let channelIndex = entry.channelIndex {
+          datagramRegionUpdates.append((
+            channelIndex: channelIndex,
+            id: entry.id,
+            regionScope: resolved.regionScope,
+            regionScopeMatches: resolved.regionScopeMatches
+          ))
+        }
+
         guard let senderTimestamp = entry.senderTimestamp else { continue }
         if let channelIndex = entry.channelIndex {
           channelMessageUpdates.append((
@@ -175,6 +185,26 @@ extension RxLogService {
 
       if !rxUpdates.isEmpty {
         try await dataStore.batchUpdateRxLogRegion(updates: rxUpdates)
+      }
+      if let heardRepeatsService, !datagramRegionUpdates.isEmpty {
+        let byChannel = Dictionary(grouping: datagramRegionUpdates, by: \.channelIndex)
+        for (channelIndex, updates) in byChannel {
+          let raw = try await dataStore.fetchRxLogEntries(
+            radioID: radioID,
+            channelIndex: channelIndex,
+            payloadType: .groupData
+          )
+          let decoded = decodedEntries(raw)
+          for update in updates {
+            guard let entry = decoded.first(where: { $0.id == update.id }) else { continue }
+            await heardRepeatsService.copyDatagramRegionIfCanonical(
+              entry: entry,
+              regionScope: update.regionScope,
+              regionScopeMatches: update.regionScopeMatches,
+              channelEntries: decoded
+            )
+          }
+        }
       }
 
       var touchedMessageIDs = Set<UUID>()

@@ -156,6 +156,79 @@ extension SyncCoordinator {
     return messageDTO
   }
 
+  /// RX rows for a channel MCOimg join on the data field. The push has no RX id, so it is not admitted.
+  private func harvestDatagramAndRefresh(
+    messageDTO: MessageDTO,
+    dependencies: SyncDependencies,
+    scope: ReceiveScope
+  ) async throws -> MessageDTO {
+    guard scope.isCurrent, let channelIndex = messageDTO.channelIndex else { return messageDTO }
+    do {
+      let raw = try await dependencies.dataStore.fetchRxLogEntries(
+        radioID: messageDTO.radioID,
+        channelIndex: channelIndex,
+        payloadType: .groupData
+      )
+      let decoded = await dependencies.rxLogService.decodedEntries(raw)
+      guard scope.isCurrent else { return messageDTO }
+      await dependencies.heardRepeatsService.harvestDatagramPaths(
+        for: messageDTO,
+        decodedCandidates: decoded
+      )
+    } catch {
+      logger.error("Failed to harvest datagram paths: \(error)")
+    }
+    if let refreshed = try await dependencies.dataStore.fetchMessage(id: messageDTO.id) {
+      return refreshed
+    }
+    return messageDTO
+  }
+
+  /// True when this data field already has an MCOimg row. The push is not admitted.
+  /// An incoming hit harvests stored RX rows onto that row.
+  private func skipExistingDatagramPicture(
+    _ message: MessageDTO,
+    dependencies: SyncDependencies,
+    scope: ReceiveScope
+  ) async -> Bool {
+    guard let existing = await existingDatagramPicture(message, dependencies: dependencies) else {
+      return false
+    }
+    guard scope.isCurrent else { return true }
+    if !existing.isOutgoing {
+      _ = try? await harvestDatagramAndRefresh(
+        messageDTO: existing,
+        dependencies: dependencies,
+        scope: scope
+      )
+    }
+    return true
+  }
+
+  /// Outgoing MCOimg first, then any incoming MCOimg with the same data field.
+  /// A group-text row is not a hit. An MCOimg that cannot rebuild a data field is not a hit.
+  private func existingDatagramPicture(
+    _ message: MessageDTO,
+    dependencies: SyncDependencies
+  ) async -> MessageDTO? {
+    guard let blob = message.datagramDataField, let channelIndex = message.channelIndex else {
+      return nil
+    }
+    do {
+      let rows = try await dependencies.dataStore.fetchChannelMessages(
+        radioID: message.radioID,
+        channelIndex: channelIndex
+      )
+      if let outgoing = rows.first(where: { $0.isOutgoing && $0.datagramDataField == blob }) {
+        return outgoing
+      }
+      return rows.first { !$0.isOutgoing && $0.datagramDataField == blob }
+    } catch {
+      logger.warning("Datagram MCOimg lookup failed, proceeding with save: \(error)")
+      return nil
+    }
+  }
+
   /// True when a row already owns this content key. A known distinct channel path
   /// is recorded as an extra; a nil path is unknown and is not written as one.
   private func recordChannelArrivalAndSkipDuplicate(
@@ -298,8 +371,8 @@ extension SyncCoordinator {
         logger.debug("Corrected invalid \(resolvedKind.logLabel) message timestamp from \(Date(timeIntervalSince1970: TimeInterval(wireTimestamp))) to \(receiveTime)")
       }
     } else {
-      // An MCOimg has no wire time. The receive second sorts and dedups the row.
-      // senderTimestamp 0 is that absence, and it is not a packet clock.
+      // An MCOimg has no wire time. senderTimestamp 0 is that absence.
+      // A rebuilt data field dedups the row. Otherwise the receive second does.
       finalTimestamp = UInt32(receiveTime.timeIntervalSince1970)
       timestampCorrected = true
       storedSenderTimestamp = 0
@@ -312,8 +385,10 @@ extension SyncCoordinator {
     // Use content-based key for dedup (stable across retry attempts).
     // The RX log packetHash is per-encrypted-packet and differs between
     // retries with different attempt counters, so it must not drive dedup.
-    let deduplicationKey = Self.fallbackDeduplicationKey(
-      contactID: contactID, channelIndex: channelIndex,
+    let deduplicationKey = Self.channelDeduplicationKey(
+      kind: resolvedKind,
+      contactID: contactID,
+      channelIndex: channelIndex,
       senderNodeName: senderNodeName,
       timestamp: dedupTimestamp,
       content: text
@@ -427,6 +502,11 @@ extension SyncCoordinator {
     preference: TextRulesPreference?,
     dependencies: SyncDependencies
   ) async {
+    if await skipExistingDatagramPicture(
+      message, dependencies: dependencies, scope: scope
+    ) {
+      return
+    }
     if await recordChannelArrivalAndSkipDuplicate(
       deduplicationKey: deduplicationKey,
       radioID: message.radioID,
@@ -472,6 +552,12 @@ extension SyncCoordinator {
         try await harvestAndRefreshChannelMessage(
           messageDTO: message,
           radioID: message.radioID,
+          dependencies: dependencies,
+          scope: scope
+        )
+      } else if message.isDatagramPathMCOImage {
+        try await harvestDatagramAndRefresh(
+          messageDTO: message,
           dependencies: dependencies,
           scope: scope
         )
@@ -836,6 +922,32 @@ extension SyncCoordinator {
     content: String
   ) -> String {
     DeduplicationKey.contentBased(
+      contactID: contactID,
+      channelIndex: channelIndex,
+      senderNodeName: senderNodeName,
+      timestamp: timestamp,
+      content: content
+    )
+  }
+
+  /// A channel MCOimg that can rebuild its data field keys on that field.
+  /// Group text, and an MCOimg that cannot rebuild, keep the content key.
+  private nonisolated static func channelDeduplicationKey(
+    kind: IncomingMessageKind,
+    contactID: UUID?,
+    channelIndex: UInt8?,
+    senderNodeName: String?,
+    timestamp: UInt32,
+    content: String
+  ) -> String {
+    if case .mcoImage = kind,
+       let channelIndex,
+       let senderNodeName,
+       !senderNodeName.isEmpty,
+       let field = try? MCOImageTransport.dataField(text: content, senderName: senderNodeName) {
+      return DeduplicationKey.channelMCOImage(channelIndex: channelIndex, dataField: field)
+    }
+    return fallbackDeduplicationKey(
       contactID: contactID,
       channelIndex: channelIndex,
       senderNodeName: senderNodeName,

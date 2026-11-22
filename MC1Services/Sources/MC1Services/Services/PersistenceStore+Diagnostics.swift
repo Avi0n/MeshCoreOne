@@ -300,6 +300,26 @@ public extension PersistenceStore {
     return try modelContext.fetch(descriptor).map { RxLogEntryDTO(from: $0) }
   }
 
+  func fetchRxLogEntries(
+    radioID: UUID,
+    channelIndex: UInt8,
+    payloadType: PayloadType
+  ) async throws -> [RxLogEntryDTO] {
+    let targetRadioID = radioID
+    let targetChannelIndex = Int(channelIndex)
+    let targetPayloadType = Int(payloadType.rawValue)
+    let predicate = #Predicate<RxLogEntry> { entry in
+      entry.radioID == targetRadioID &&
+        entry.channelIndex == targetChannelIndex &&
+        entry.payloadType == targetPayloadType
+    }
+    let descriptor = FetchDescriptor<RxLogEntry>(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\.receivedAt, order: .forward)]
+    )
+    return try modelContext.fetch(descriptor).map { RxLogEntryDTO(from: $0) }
+  }
+
   /// Find a DM RxLogEntry by matching the sender prefix byte in the packet payload.
   ///
   /// Fallback for when the primary `findRxLogEntry(senderTimestamp:)` fails because
@@ -439,6 +459,8 @@ public extension PersistenceStore {
         }
       )
       for message in try modelContext.fetch(descriptor) {
+        // senderTimestamp 0 on an MCOimg is a missing clock, so a wire-time region write must not land here.
+        if MessageDTO(from: message).isDatagramPathMCOImage { continue }
         message.regionScope = update.regionScope
         message.regionScopeMatches = update.regionScopeMatches
         touchedIDs.append(message.id)

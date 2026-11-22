@@ -659,4 +659,272 @@ struct HeardRepeatsServiceTests {
     #expect(repeats.count == 1)
     #expect(repeats.first?.pathNodes == Data([0xBB]))
   }
+
+  // MARK: - Datagram paths
+
+  private let imageText = "im3:g/5WjAL`NA"
+  private let imageSender = "Ada"
+
+  private func imageBlob() throws -> Data {
+    try MCOImageTransport.dataField(text: imageText, senderName: imageSender)
+  }
+
+  private func channelMCOImage(
+    id: UUID = UUID(),
+    radioID: UUID,
+    channelIndex: UInt8,
+    direction: MessageDirection,
+    senderTimestamp: UInt32?,
+    deduplicationKey: String?,
+    pathLength: UInt8 = 4,
+    snr: Double? = 9,
+    timestamp: UInt32 = 1_700_000_000
+  ) -> MessageDTO {
+    var message = MessageDTO.testChannelMessage(
+      id: id,
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: imageText,
+      timestamp: timestamp,
+      direction: direction,
+      pathLength: pathLength,
+      snr: snr,
+      senderNodeName: imageSender
+    )
+    message.senderTimestamp = senderTimestamp
+    message.deduplicationKey = deduplicationKey
+    message.pathNodes = nil
+    return message
+  }
+
+  private func makeDatagramEcho(
+    radioID: UUID,
+    channelIndex: UInt8,
+    blob: Data,
+    id: UUID = UUID(),
+    pathNodes: [UInt8] = [0x42],
+    pathLength: UInt8 = 1,
+    receivedAt: Date = Date(),
+    routeType: RouteType = .flood,
+    regionScope: String? = nil,
+    dataType: UInt16 = MCOImageTransport.applicationDataType
+  ) -> RxLogEntryDTO {
+    let parsed = ParsedRxLogData(
+      snr: 1.0,
+      rssi: -80,
+      rawPayload: Data([0x01]),
+      routeType: routeType,
+      payloadType: .groupData,
+      payloadVersion: 0,
+      payloadTypeBits: 6,
+      transportCode: nil,
+      pathLength: pathLength,
+      pathNodes: pathNodes,
+      packetPayload: Data([0x01])
+    )
+    return RxLogEntryDTO(
+      id: id,
+      radioID: radioID,
+      receivedAt: receivedAt,
+      from: parsed,
+      channelIndex: channelIndex,
+      decryptStatus: .success,
+      regionScope: regionScope,
+      datagramDataType: dataType,
+      datagramData: blob
+    )
+  }
+
+  @Test
+  func `one outgoing channel MCOimg and one RX row count a single echo`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 1
+    let blob = try imageBlob()
+    let message = channelMCOImage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      direction: .outgoing,
+      senderTimestamp: nil,
+      deduplicationKey: nil
+    )
+    try await store.saveMessage(message)
+    await service.configure(radioID: radioID)
+
+    let echo = makeDatagramEcho(radioID: radioID, channelIndex: channelIndex, blob: blob)
+    let count = await service.processForRepeats(echo)
+    let again = await service.processForRepeats(echo)
+    let other = await service.processForRepeats(makeDatagramEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      blob: Data([0x00])
+    ))
+
+    #expect(count == 1)
+    #expect(again == nil)
+    #expect(other == nil)
+    let updated = try #require(await store.fetchMessage(id: message.id))
+    #expect(updated.heardRepeats == 1)
+    #expect(updated.snr == 9)
+    let repeats = try await store.fetchMessageRepeats(messageID: message.id)
+    #expect(repeats.count == 1)
+    #expect(repeats.first?.rxLogEntryID == echo.id)
+  }
+
+  @Test
+  func `an incoming extra path increments and an empty path is one arrival`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 2
+    let blob = try imageBlob()
+    let message = channelMCOImage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      direction: .incoming,
+      senderTimestamp: 0,
+      deduplicationKey: "ch-2-mcoimg"
+    )
+    try await store.saveMessage(message)
+    await service.configure(radioID: radioID)
+
+    let empty = makeDatagramEcho(
+      radioID: radioID, channelIndex: channelIndex, blob: blob, pathNodes: [], pathLength: 0
+    )
+    _ = await service.processForRepeats(empty)
+    _ = await service.processForRepeats(makeDatagramEcho(
+      radioID: radioID, channelIndex: channelIndex, blob: blob, pathNodes: [], pathLength: 0
+    ))
+    var afterEmpty = try #require(await store.fetchMessage(id: message.id))
+    #expect(afterEmpty.pathNodes == Data())
+    #expect(afterEmpty.pathLength == 0)
+    #expect(afterEmpty.heardRepeats == 0)
+    #expect(afterEmpty.senderTimestamp == 0)
+    #expect(afterEmpty.snr == 9)
+
+    _ = await service.processForRepeats(makeDatagramEcho(
+      radioID: radioID, channelIndex: channelIndex, blob: blob, pathNodes: [0x21], pathLength: 1
+    ))
+    afterEmpty = try #require(await store.fetchMessage(id: message.id))
+    #expect(afterEmpty.heardRepeats == 1)
+    let repeats = try await store.fetchMessageRepeats(messageID: message.id)
+    #expect(repeats.count == 1)
+    #expect(repeats.first?.pathNodes == Data([0x21]))
+  }
+
+  @Test
+  func `the earliest datagram RX row becomes the canonical path`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let blob = try imageBlob()
+    let message = channelMCOImage(
+      radioID: radioID, channelIndex: 3, direction: .incoming,
+      senderTimestamp: 0, deduplicationKey: "ch-3-mcoimg"
+    )
+    try await store.saveMessage(message)
+    await service.configure(radioID: radioID)
+    let earlier = Date(timeIntervalSince1970: 1_700_000_100)
+    let later = earlier.addingTimeInterval(2)
+    let first = makeDatagramEcho(
+      radioID: radioID, channelIndex: 3, blob: blob,
+      pathNodes: [0xAA], pathLength: 1, receivedAt: earlier, routeType: .flood, regionScope: "Ridge"
+    )
+    let second = makeDatagramEcho(
+      radioID: radioID, channelIndex: 3, blob: blob,
+      pathNodes: [0xBB], pathLength: 2, receivedAt: later
+    )
+    await service.harvestDatagramPaths(for: message, decodedCandidates: [second, first])
+
+    let updated = try #require(await store.fetchMessage(id: message.id))
+    #expect(updated.pathNodes == Data([0xAA]))
+    #expect(updated.pathLength == 1)
+    #expect(updated.routeType == .flood)
+    #expect(updated.regionScope == "Ridge")
+    #expect(updated.heardRepeats == 1)
+    #expect(updated.senderTimestamp == 0)
+    #expect(updated.snr == 9)
+    let repeats = try await store.fetchMessageRepeats(messageID: message.id)
+    #expect(repeats.map(\.rxLogEntryID) == [second.id])
+  }
+
+  @Test
+  func `group text with wire time 0 does not take the datagram path`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 4
+    let blob = try imageBlob()
+    let key = DeduplicationKey.contentBased(
+      contactID: nil,
+      channelIndex: channelIndex,
+      senderNodeName: imageSender,
+      timestamp: 0,
+      content: imageText
+    )
+    var message = channelMCOImage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      direction: .incoming,
+      senderTimestamp: 0,
+      deduplicationKey: key,
+      pathLength: 7
+    )
+    message.pathNodes = Data([0x99])
+    try await store.saveMessage(message)
+    await service.configure(radioID: radioID)
+
+    let count = await service.processForRepeats(makeDatagramEcho(
+      radioID: radioID, channelIndex: channelIndex, blob: blob, pathNodes: [0x11]
+    ))
+    #expect(count == nil)
+    let updated = try #require(await store.fetchMessage(id: message.id))
+    #expect(updated.pathNodes == Data([0x99]))
+    #expect(updated.pathLength == 7)
+    #expect(updated.heardRepeats == 0)
+    let repeats = try await store.fetchMessageRepeats(messageID: message.id)
+    #expect(repeats.isEmpty)
+  }
+
+  @Test
+  func `a later datagram region updates the MCOimg and a timestamp 0 write does not`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 5
+    let blob = try imageBlob()
+    let message = channelMCOImage(
+      radioID: radioID, channelIndex: channelIndex, direction: .incoming,
+      senderTimestamp: 0, deduplicationKey: "ch-5-mcoimg"
+    )
+    try await store.saveMessage(message)
+    var text = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "plain",
+      timestamp: 50,
+      direction: .incoming,
+      senderNodeName: "Ada"
+    )
+    text.senderTimestamp = 0
+    text.deduplicationKey = DeduplicationKey.contentBased(
+      contactID: nil, channelIndex: channelIndex, senderNodeName: "Ada", timestamp: 0, content: "plain"
+    )
+    try await store.saveMessage(text)
+
+    let echo = makeDatagramEcho(radioID: radioID, channelIndex: channelIndex, blob: blob, pathNodes: [0x01])
+    await service.copyDatagramRegionIfCanonical(
+      entry: echo,
+      regionScope: "Ridge",
+      regionScopeMatches: ["Ridge"],
+      channelEntries: [echo]
+    )
+    var updated = try #require(await store.fetchMessage(id: message.id))
+    #expect(updated.regionScope == "Ridge")
+
+    _ = try await store.batchUpdateChannelMessageRegion(
+      radioID: radioID,
+      updates: [(channelIndex: channelIndex, senderTimestamp: 0, regionScope: "South", regionScopeMatches: ["South"])]
+    )
+    updated = try #require(await store.fetchMessage(id: message.id))
+    let textRow = try #require(await store.fetchMessage(id: text.id))
+    #expect(updated.regionScope == "Ridge")
+    #expect(textRow.regionScope == "South")
+  }
 }

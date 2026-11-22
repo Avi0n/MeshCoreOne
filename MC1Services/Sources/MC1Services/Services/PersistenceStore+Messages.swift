@@ -1,4 +1,5 @@
 import Foundation
+import MeshCore
 import os
 import SwiftData
 
@@ -848,6 +849,46 @@ public extension PersistenceStore {
   }
 
   // MARK: - Heard Repeats
+
+  /// Every channel message for one radio, with no fetch limit, so path matching sees the whole channel.
+  func fetchChannelMessages(radioID: UUID, channelIndex: UInt8) async throws -> [MessageDTO] {
+    try storedChannelMessages(radioID: radioID, channelIndex: channelIndex)
+  }
+
+  func storedChannelMessages(radioID: UUID, channelIndex: UInt8) throws -> [MessageDTO] {
+    let targetRadioID = radioID
+    let targetChannelIndex: UInt8? = channelIndex
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
+    }
+    return try modelContext.fetch(FetchDescriptor(predicate: predicate)).map { MessageDTO(from: $0) }
+  }
+
+  func applyDatagramCanonicalContext(
+    messageID: UUID,
+    routeType: RouteType?,
+    regionScope: String?,
+    regionScopeMatches: [String]
+  ) async throws {
+    guard let message = try fetchMessageModel(id: messageID) else { return }
+    if let routeType {
+      message.routeTypeRawValue = Int(routeType.rawValue)
+    }
+    message.regionScope = regionScope
+    message.regionScopeMatches = regionScopeMatches
+    try modelContext.save()
+  }
+
+  func updateMessageRegion(
+    id: UUID,
+    regionScope: String?,
+    regionScopeMatches: [String]
+  ) async throws {
+    guard let message = try fetchMessageModel(id: id) else { return }
+    message.regionScope = regionScope
+    message.regionScopeMatches = regionScopeMatches
+    try modelContext.save()
+  }
 
   /// Finds the outgoing channel message a heard repeat echoes back. The sender
   /// embeds a timestamp the channel payload authenticates and every mesh hop

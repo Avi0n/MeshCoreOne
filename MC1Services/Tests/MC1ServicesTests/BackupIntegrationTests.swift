@@ -5608,6 +5608,286 @@ struct BackupIntegrationTests {
     #expect(object["isPinned"] as? Bool == true)
     #expect(object["isFavorite"] == nil)
   }
+
+  @Test
+  func `import remaps an MCOimg from slot 2 onto the local slot 5 row and merges the path`() async throws {
+    let radioID = UUID()
+    let secret = Data(repeating: 0x42, count: 16)
+    let backupSlot: UInt8 = 2
+    let localSlot: UInt8 = 5
+    let fixture = try adaMCOImage()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    try await destStore.saveChannel(ChannelDTO.testChannel(
+      radioID: radioID, index: localSlot, name: "#north", secret: secret
+    ))
+    let local = incomingMCOImage(
+      radioID: radioID,
+      channelIndex: localSlot,
+      text: fixture.text,
+      deduplicationKey: receiveSecondKey(channelIndex: localSlot, text: fixture.text, timestamp: 1_700_000_100),
+      pathNodes: Data([0x11]),
+      pathLength: 1
+    )
+    try await destStore.saveMessage(local)
+
+    let backup = incomingMCOImage(
+      radioID: radioID,
+      channelIndex: backupSlot,
+      text: fixture.text,
+      deduplicationKey: DeduplicationKey.channelMCOImage(channelIndex: backupSlot, dataField: fixture.field),
+      pathNodes: Data([0x22]),
+      pathLength: 1
+    )
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        channels: [ChannelDTO.testChannel(
+          id: UUID(), radioID: radioID, index: backupSlot, name: "#north", secret: secret
+        )],
+        messages: [backup]
+      ),
+      into: destStore
+    )
+
+    #expect(result.messagesInserted == 0)
+    #expect(result.messagesSkipped == 1)
+    let messages = try await destStore.fetchAllMessages(radioID: radioID)
+    let message = try #require(messages.first)
+    #expect(messages.count == 1)
+    #expect(message.id == local.id)
+    #expect(message.channelIndex == localSlot)
+    #expect(message.senderTimestamp == 0)
+    #expect(message.pathNodes == Data([0x11]))
+    #expect(message.heardRepeats == 1)
+    let repeats = try await destStore.fetchMessageRepeats(messageID: local.id)
+    #expect(repeats.map(\.pathNodes) == [Data([0x22])])
+  }
+
+  @Test
+  func `import of a data-field MCOimg key merges onto a receive-second key on the same slot`() async throws {
+    let radioID = UUID()
+    let secret = Data(repeating: 0x42, count: 16)
+    let slot: UInt8 = 2
+    let fixture = try adaMCOImage()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    try await destStore.saveChannel(ChannelDTO.testChannel(
+      radioID: radioID, index: slot, name: "#north", secret: secret
+    ))
+    let local = incomingMCOImage(
+      radioID: radioID,
+      channelIndex: slot,
+      text: fixture.text,
+      deduplicationKey: receiveSecondKey(channelIndex: slot, text: fixture.text, timestamp: 1_700_000_100),
+      pathNodes: Data([0x11]),
+      pathLength: 1
+    )
+    try await destStore.saveMessage(local)
+
+    let backup = incomingMCOImage(
+      radioID: radioID,
+      channelIndex: slot,
+      text: fixture.text,
+      deduplicationKey: DeduplicationKey.channelMCOImage(channelIndex: slot, dataField: fixture.field),
+      pathNodes: Data([0x22]),
+      pathLength: 1
+    )
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        channels: [ChannelDTO.testChannel(
+          id: UUID(), radioID: radioID, index: slot, name: "#north", secret: secret
+        )],
+        messages: [backup]
+      ),
+      into: destStore
+    )
+
+    #expect(result.messagesInserted == 0)
+    #expect(result.messagesSkipped == 1)
+    let messages = try await destStore.fetchAllMessages(radioID: radioID)
+    let message = try #require(messages.first)
+    #expect(messages.count == 1)
+    #expect(message.id == local.id)
+    #expect(message.channelIndex == slot)
+    #expect(message.senderTimestamp == 0)
+    #expect(message.pathNodes == Data([0x11]))
+    #expect(message.heardRepeats == 1)
+    #expect(try await destStore.fetchMessageRepeats(messageID: local.id).map(\.pathNodes) == [Data([0x22])])
+  }
+
+  @Test
+  func `import of two receive-second MCOimg keys for one data field keeps one row and the second reaction`() async throws {
+    let radioID = UUID()
+    let secret = Data(repeating: 0x42, count: 16)
+    let slot: UInt8 = 2
+    let fixture = try adaMCOImage()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let firstID = UUID()
+    let secondID = UUID()
+    let first = incomingMCOImage(
+      id: firstID,
+      radioID: radioID,
+      channelIndex: slot,
+      text: fixture.text,
+      deduplicationKey: receiveSecondKey(channelIndex: slot, text: fixture.text, timestamp: 1_700_000_100),
+      pathNodes: Data([0x11]),
+      pathLength: 1
+    )
+    let second = incomingMCOImage(
+      id: secondID,
+      radioID: radioID,
+      channelIndex: slot,
+      text: fixture.text,
+      deduplicationKey: receiveSecondKey(channelIndex: slot, text: fixture.text, timestamp: 1_700_000_200),
+      pathNodes: Data([0x22]),
+      pathLength: 1
+    )
+    let reaction = ReactionDTO(
+      messageID: secondID,
+      emoji: "👍",
+      senderName: "Bea",
+      messageHash: "ABCD2345",
+      rawText: "@[Ada]👍ABCD2345",
+      channelIndex: slot,
+      radioID: radioID
+    )
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        channels: [ChannelDTO.testChannel(
+          id: UUID(), radioID: radioID, index: slot, name: "#north", secret: secret
+        )],
+        messages: [first, second],
+        reactions: [reaction]
+      ),
+      into: destStore
+    )
+
+    #expect(result.messagesInserted == 1)
+    #expect(result.messagesSkipped == 1)
+    #expect(result.reactionsInserted == 1)
+    let messages = try await destStore.fetchAllMessages(radioID: radioID)
+    let message = try #require(messages.first)
+    #expect(messages.count == 1)
+    #expect(message.id == firstID)
+    #expect(message.senderTimestamp == 0)
+    #expect(message.pathNodes == Data([0x11]))
+    #expect(message.heardRepeats == 1)
+    #expect(try await destStore.fetchMessageRepeats(messageID: firstID).map(\.pathNodes) == [Data([0x22])])
+    let reactions = try await destStore.fetchReactions(for: firstID)
+    #expect(reactions.count == 1)
+    #expect(reactions.first?.senderName == "Bea")
+  }
+
+  @Test
+  func `import keeps an MCOimg on channel 2 and channel 3 and the second reaction`() async throws {
+    let radioID = UUID()
+    let fixture = try adaMCOImage()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let slot2: UInt8 = 2
+    let slot3: UInt8 = 3
+    let secret2 = Data(repeating: 0x42, count: 16)
+    let secret3 = Data(repeating: 0x43, count: 16)
+    try await destStore.saveChannel(ChannelDTO.testChannel(
+      radioID: radioID, index: slot2, name: "#north", secret: secret2
+    ))
+    try await destStore.saveChannel(ChannelDTO.testChannel(
+      radioID: radioID, index: slot3, name: "#south", secret: secret3
+    ))
+    let firstID = UUID()
+    let secondID = UUID()
+    let first = incomingMCOImage(
+      id: firstID,
+      radioID: radioID,
+      channelIndex: slot2,
+      text: fixture.text,
+      deduplicationKey: DeduplicationKey.channelMCOImage(channelIndex: slot2, dataField: fixture.field),
+      pathNodes: Data([0x11]),
+      pathLength: 1
+    )
+    let second = incomingMCOImage(
+      id: secondID,
+      radioID: radioID,
+      channelIndex: slot3,
+      text: fixture.text,
+      deduplicationKey: DeduplicationKey.channelMCOImage(channelIndex: slot3, dataField: fixture.field),
+      pathNodes: Data([0x22]),
+      pathLength: 1
+    )
+    let reaction = ReactionDTO(
+      messageID: secondID,
+      emoji: "👍",
+      senderName: "Bea",
+      messageHash: "ABCD2345",
+      rawText: "@[Ada]👍ABCD2345",
+      channelIndex: slot3,
+      radioID: radioID
+    )
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        channels: [
+          ChannelDTO.testChannel(id: UUID(), radioID: radioID, index: slot2, name: "#north", secret: secret2),
+          ChannelDTO.testChannel(id: UUID(), radioID: radioID, index: slot3, name: "#south", secret: secret3)
+        ],
+        messages: [first, second],
+        reactions: [reaction]
+      ),
+      into: destStore
+    )
+
+    #expect(result.messagesInserted == 2)
+    #expect(result.messagesSkipped == 0)
+    let messages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(messages.count == 2)
+    #expect(Set(messages.map(\.id)) == Set([firstID, secondID]))
+    let reactions = try await destStore.fetchReactions(for: secondID)
+    #expect(reactions.count == 1)
+    #expect(reactions.first?.senderName == "Bea")
+    #expect(try await destStore.fetchReactions(for: firstID).isEmpty)
+  }
+
+  private func adaMCOImage() throws -> (text: String, field: Data) {
+    let payload = try #require(Data(base64Encoded: "E3oBjQBCvgE="))
+    let text = try MCOImageCodec.text(fromAppPayload: payload)
+    let field = try MCOImageTransport.dataField(text: text, senderName: "Ada")
+    return (text, field)
+  }
+
+  private func receiveSecondKey(channelIndex: UInt8, text: String, timestamp: UInt32) -> String {
+    DeduplicationKey.contentBased(
+      contactID: nil,
+      channelIndex: channelIndex,
+      senderNodeName: "Ada",
+      timestamp: timestamp,
+      content: text
+    )
+  }
+
+  private func incomingMCOImage(
+    id: UUID = UUID(),
+    radioID: UUID,
+    channelIndex: UInt8,
+    text: String,
+    deduplicationKey: String,
+    pathNodes: Data?,
+    pathLength: UInt8
+  ) -> MessageDTO {
+    var message = MessageDTO.testChannelMessage(
+      id: id,
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: text,
+      timestamp: 1_700_000_000,
+      direction: .incoming,
+      pathLength: pathLength,
+      senderNodeName: "Ada"
+    )
+    message.senderTimestamp = 0
+    message.deduplicationKey = deduplicationKey
+    message.pathNodes = pathNodes
+    return message
+  }
 }
 
 private enum InjectedImportFailure: Error {

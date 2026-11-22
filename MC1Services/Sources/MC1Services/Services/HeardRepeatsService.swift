@@ -69,6 +69,9 @@ public actor HeardRepeatsService {
   /// - Returns: The updated heardRepeats count if a match was found, nil otherwise
   @discardableResult
   public func processForRepeats(_ entry: RxLogEntryDTO) async -> Int? {
+    if entry.payloadType == .groupData {
+      return await processDatagramRepeat(entry)
+    }
     // Only process successfully decrypted channel messages
     guard entry.payloadType == .groupText, entry.decryptStatus == .success, let decodedText = entry.decodedText, let channelIndex = entry.channelIndex, let senderTimestamp = entry.senderTimestamp, let radioID else { return nil }
 
@@ -153,7 +156,11 @@ public actor HeardRepeatsService {
     snr: Double?,
     rssi: Int?,
     receivedAt: Date,
-    rxLogEntryID: UUID?
+    rxLogEntryID: UUID?,
+    canonicalRoute: RouteType? = nil,
+    canonicalRegion: String? = nil,
+    canonicalRegionMatches: [String] = [],
+    applyCanonicalContext: Bool = false
   ) async -> Int? {
     #if DEBUG
       if let hold = admissionHoldForTesting {
@@ -170,6 +177,14 @@ public actor HeardRepeatsService {
         receivedAt: receivedAt,
         rxLogEntryID: rxLogEntryID
       )
+      if case .adoptedCanonical = admission, applyCanonicalContext {
+        try await dataStore.applyDatagramCanonicalContext(
+          messageID: message.id,
+          routeType: canonicalRoute,
+          regionScope: canonicalRegion,
+          regionScopeMatches: canonicalRegionMatches
+        )
+      }
       guard case let .recordedExtra(count) = admission else { return nil }
       logger.info("Recorded extra path #\(count) for message \(message.id)")
       eventBroadcaster.yield(HeardRepeatEvent(messageID: message.id, count: count))
@@ -177,6 +192,74 @@ public actor HeardRepeatsService {
     } catch {
       logger.error("Failed to record extra path: \(error.localizedDescription)")
       return nil
+    }
+  }
+
+  /// Outgoing rows count echoes. Incoming rows adopt the earliest path, then extras.
+  /// A nil service radio skips an outgoing row.
+  func harvestDatagramPaths(
+    for message: MessageDTO,
+    decodedCandidates: [RxLogEntryDTO]
+  ) async {
+    guard message.isDatagramPathMCOImage else { return }
+    if message.isOutgoing, message.radioID != radioID { return }
+    guard let blob = message.datagramDataField,
+          let channelIndex = message.channelIndex else { return }
+    let matching = ChannelRXCorrelation.matchingDatagrams(
+      decodedCandidates,
+      blob: blob,
+      radioID: message.radioID,
+      channelIndex: channelIndex
+    )
+    for entry in matching {
+      if message.isOutgoing {
+        _ = try? await recordSentEcho(message: message, entry: entry)
+      } else {
+        _ = await recordDistinctPathIfNeeded(
+          message: message,
+          pathNodes: entry.pathNodes,
+          pathLength: entry.pathLength,
+          snr: entry.snr,
+          rssi: entry.rssi,
+          receivedAt: entry.receivedAt,
+          rxLogEntryID: entry.id,
+          canonicalRoute: entry.routeType,
+          canonicalRegion: entry.regionScope,
+          canonicalRegionMatches: entry.regionScopeMatches,
+          applyCanonicalContext: true
+        )
+      }
+    }
+  }
+
+  /// Copies a later region from the earliest matching datagram RX row onto each path MCOimg.
+  func copyDatagramRegionIfCanonical(
+    entry: RxLogEntryDTO,
+    regionScope: String?,
+    regionScopeMatches: [String],
+    channelEntries: [RxLogEntryDTO]
+  ) async {
+    guard entry.datagramDataType == MCOImageTransport.applicationDataType,
+          let blob = entry.datagramData,
+          let channelIndex = entry.channelIndex else { return }
+    let sameField = channelEntries.filter {
+      $0.channelIndex == channelIndex &&
+        $0.datagramDataType == entry.datagramDataType &&
+        $0.datagramData == blob
+    }
+    guard let earliest = sameField.min(by: { $0.receivedAt < $1.receivedAt }),
+          earliest.id == entry.id else { return }
+    do {
+      let messages = try await dataStore.fetchChannelMessages(radioID: entry.radioID, channelIndex: channelIndex)
+      for message in messages where message.datagramDataField == blob {
+        try await dataStore.updateMessageRegion(
+          id: message.id,
+          regionScope: regionScope,
+          regionScopeMatches: regionScopeMatches
+        )
+      }
+    } catch {
+      logger.error("Failed to copy datagram region: \(error.localizedDescription)")
     }
   }
 
@@ -219,6 +302,46 @@ public actor HeardRepeatsService {
     } catch {
       logger.error("Failed to fetch repeats: \(error.localizedDescription)")
       return []
+    }
+  }
+
+  private func processDatagramRepeat(_ entry: RxLogEntryDTO) async -> Int? {
+    guard entry.datagramDataType == MCOImageTransport.applicationDataType,
+          let blob = entry.datagramData,
+          let channelIndex = entry.channelIndex,
+          let radioID,
+          entry.radioID == radioID else { return nil }
+    if await isDuplicateRepeat(entry.id) { return nil }
+    do {
+      let messages = try await dataStore.fetchChannelMessages(radioID: radioID, channelIndex: channelIndex)
+      let matches = messages.filter { $0.datagramDataField == blob }
+      var lastCount: Int?
+      for message in matches where message.isOutgoing {
+        if let count = try await recordSentEcho(message: message, entry: entry) {
+          lastCount = count
+        }
+      }
+      for message in matches where !message.isOutgoing {
+        if let count = await recordDistinctPathIfNeeded(
+          message: message,
+          pathNodes: entry.pathNodes,
+          pathLength: entry.pathLength,
+          snr: entry.snr,
+          rssi: entry.rssi,
+          receivedAt: entry.receivedAt,
+          rxLogEntryID: entry.id,
+          canonicalRoute: entry.routeType,
+          canonicalRegion: entry.regionScope,
+          canonicalRegionMatches: entry.regionScopeMatches,
+          applyCanonicalContext: true
+        ) {
+          lastCount = count
+        }
+      }
+      return lastCount
+    } catch {
+      logger.error("Failed to process datagram repeat: \(error.localizedDescription)")
+      return nil
     }
   }
 }
