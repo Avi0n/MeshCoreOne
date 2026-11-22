@@ -1,5 +1,7 @@
 import Foundation
-import Synchronization
+#if canImport(Synchronization)
+  import Synchronization
+#endif
 
 /// CLI request tags remain reserved until their connection request retires.
 public final class RadioCLICorrelationScope: Sendable {

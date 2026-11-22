@@ -190,7 +190,7 @@ final class CLICompletionEngine {
     let command = parts[0].lowercased()
 
     // Single word - complete command name
-    if parts.count == 1 && !input.hasSuffix(" ") {
+    if parts.count == 1, !input.hasSuffix(" ") {
       return availableCommands(
         isLocal: isLocal,
         remoteTarget: remoteTarget,

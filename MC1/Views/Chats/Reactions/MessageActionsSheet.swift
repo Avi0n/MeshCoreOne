@@ -139,7 +139,7 @@ struct MessageActionsSheet: View {
     message: MessageDTO(from: message),
     senderResolution: NodeNameResolution(displayName: "My Device", matchKind: .exact),
     recentEmojis: RecentEmojisStore.defaultEmojis,
-    onAction: { print("Action: \($0)") }
+    onAction: { _ in }
   )
 }
 
@@ -158,6 +158,6 @@ struct MessageActionsSheet: View {
     message: MessageDTO(from: message),
     senderResolution: NodeNameResolution(displayName: "Alice", matchKind: .exact),
     recentEmojis: RecentEmojisStore.defaultEmojis,
-    onAction: { print("Action: \($0)") }
+    onAction: { _ in }
   )
 }

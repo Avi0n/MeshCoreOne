@@ -1,8 +1,10 @@
 import Foundation
 @testable import MeshCore
 import MeshCoreTestSupport
-import Synchronization
 import Testing
+#if canImport(Synchronization)
+  import Synchronization
+#endif
 
 @Suite("CLI correlation scope lifetime", .timeLimit(.minutes(1)))
 @MainActor

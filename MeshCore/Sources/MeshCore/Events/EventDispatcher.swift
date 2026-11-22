@@ -1,5 +1,7 @@
 import Foundation
-import os
+#if canImport(os)
+  import os
+#endif
 
 private let dispatcherLogger = Logger(subsystem: "MeshCore", category: "EventDispatcher")
 private let dispatcherSignposter = OSSignposter(subsystem: "MeshCore", category: "EventDispatcher")

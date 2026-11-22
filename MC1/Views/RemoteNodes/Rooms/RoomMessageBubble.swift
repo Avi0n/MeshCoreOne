@@ -369,6 +369,6 @@ private struct StatusIndicator: View {
     showTimestamp: true,
     showSenderName: false,
     showAvatar: false,
-    onRetry: { print("Retry tapped") }
+    onRetry: {}
   )
 }

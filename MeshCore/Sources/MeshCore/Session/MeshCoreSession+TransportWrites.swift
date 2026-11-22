@@ -46,13 +46,17 @@ extension MeshCoreSession {
   static func linkRejectedWriteBeforeSubmission(_ error: Error) -> Bool {
     switch error {
     case MeshTransportError.notConnected,
-         WiFiTransportError.notConnected,
          MeshCoreError.notConnected,
          MeshCoreError.bluetoothUnavailable,
          MeshCoreError.bluetoothUnauthorized,
          MeshCoreError.bluetoothPoweredOff,
          MeshCoreError.sessionNotStarted:
       return true
+    // WiFiTransportError is compiled only with Network, so this case is too.
+    #if canImport(Network)
+      case WiFiTransportError.notConnected:
+        return true
+    #endif
     default:
       if case MeshCoreError.connectionLost = error { return true }
       return false

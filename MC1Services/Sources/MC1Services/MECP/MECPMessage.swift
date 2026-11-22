@@ -15,26 +15,32 @@ public struct MECPMessage: Sendable, Equatable {
   public let severity: Severity
   public let codes: [String]
   public let freetext: String?
+  private let extraction: MECPDecode.Extraction
 
   public init(severity: Severity, codes: [String], freetext: String?) {
     self.severity = severity
     self.codes = codes
     self.freetext = freetext
+    extraction = MECPDecode.extracted(from: freetext, codes: codes)
+  }
+
+  public static func == (lhs: Self, rhs: Self) -> Bool {
+    lhs.severity == rhs.severity && lhs.codes == rhs.codes && lhs.freetext == rhs.freetext
   }
 
   public var personCount: Int? {
-    MECPDecode.extracted(from: freetext, codes: codes).personCount
+    extraction.personCount
   }
 
   public var timestampHHMM: String? {
-    MECPDecode.extracted(from: freetext, codes: codes).timestampHHMM
+    extraction.timestampHHMM
   }
 
   public var eta: Int? {
-    MECPDecode.extracted(from: freetext, codes: codes).eta
+    extraction.eta
   }
 
   public var displayTail: String? {
-    MECPDecode.extracted(from: freetext, codes: codes).displayTail
+    extraction.displayTail
   }
 }

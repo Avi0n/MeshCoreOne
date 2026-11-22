@@ -1,4 +1,8 @@
-import CryptoKit
+#if canImport(CryptoKit)
+  import CryptoKit
+#else
+  import Crypto
+#endif
 import Foundation
 
 /// Defines the destination for a message or command in the mesh network.

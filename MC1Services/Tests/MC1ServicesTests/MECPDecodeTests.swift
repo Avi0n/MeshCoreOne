@@ -66,6 +66,7 @@ struct MECPDecodeTests {
   func `free text is kept as sent`() throws {
     let message = try #require(MECPDecode.decode("MECP/3/L01 see  you\tthere"))
     #expect(message.freetext == "see  you\tthere")
+    #expect(message.displayTail == "see  you\tthere")
   }
 
   @Test
@@ -99,6 +100,128 @@ struct MECPDecodeTests {
     let kept = try #require(MECPDecode.decode("MECP/1/R03 15 near"))
     #expect(kept.eta == 15)
     #expect(kept.displayTail == "near")
+  }
+
+  @Test
+  func `an R03 bare hour before a colon clock is not an eta`() throws {
+    for tail in ["14:30", "14:300"] {
+      let message = try #require(MECPDecode.decode("MECP/2/R03 \(tail)"), "\(tail)")
+      #expect(message.eta == nil, "\(tail)")
+      #expect(message.personCount == nil, "\(tail)")
+      #expect(message.displayTail == tail, "\(tail)")
+    }
+  }
+
+  @Test
+  func `a person count must stand between boundaries`() {
+    for tail in ["x4pax", "3paxmore", "#4pax", "*4pax*", "4pax\u{0B}water", "0pax"] {
+      #expect(MECPDecode.decode("MECP/1/S01 \(tail)")?.personCount == nil, "\(tail)")
+    }
+  }
+
+  @Test
+  func `a person count accepts a space, any case, leading zeros, and boundary punctuation`() {
+    for tail in ["4 pax", "4PAX", "4Pax.", "04pax", "(4pax)", "4pax\u{A0}water", "4pax\u{2009}water", "\u{201C}4pax\u{201D}", "need,4pax", "need.4pax"] {
+      #expect(MECPDecode.decode("MECP/1/S01 \(tail)")?.personCount == 4, "\(tail)")
+    }
+  }
+
+  @Test
+  func `a zero person count is skipped for a later one`() throws {
+    let message = try #require(MECPDecode.decode("MECP/1/S01 0pax 2pax"))
+    #expect(message.personCount == 2)
+    #expect(message.displayTail == "0pax")
+  }
+
+  @Test
+  func `a person count without boundaries is skipped for a later one`() throws {
+    let before = try #require(MECPDecode.decode("MECP/1/S01 x4pax 2pax"))
+    #expect(before.personCount == 2)
+    #expect(before.displayTail == "x4pax")
+
+    let after = try #require(MECPDecode.decode("MECP/1/S01 4paxy 2pax"))
+    #expect(after.personCount == 2)
+    #expect(after.displayTail == "4paxy")
+  }
+
+  @Test
+  func `a spaced person count is removed from the tail`() throws {
+    let message = try #require(MECPDecode.decode("MECP/1/S01 4 pax water"))
+    #expect(message.personCount == 4)
+    #expect(message.displayTail == "water")
+  }
+
+  @Test
+  func `a leading spaced person count is not an R03 eta`() throws {
+    let alone = try #require(MECPDecode.decode("MECP/2/R03 4 pax"))
+    #expect(alone.eta == nil)
+    #expect(alone.personCount == 4)
+    #expect(alone.displayTail == nil)
+
+    let followed = try #require(MECPDecode.decode("MECP/2/R03 4 pax water"))
+    #expect(followed.eta == nil)
+    #expect(followed.personCount == 4)
+    #expect(followed.displayTail == "water")
+
+    let padded = try #require(MECPDecode.decode("MECP/2/R03 04 pax water"))
+    #expect(padded.eta == nil)
+    #expect(padded.personCount == 4)
+    #expect(padded.displayTail == "water")
+
+    let separate = try #require(MECPDecode.decode("MECP/2/R03 45 4pax"))
+    #expect(separate.eta == 45)
+    #expect(separate.personCount == 4)
+    #expect(separate.displayTail == nil)
+  }
+
+  @Test
+  func `a decimal fraction is not a person count`() throws {
+    for tail in ["1.5 pax", "2,5 pax"] {
+      let message = try #require(MECPDecode.decode("MECP/1/S01 \(tail)"), "\(tail)")
+      #expect(message.personCount == nil, "\(tail)")
+      #expect(message.displayTail == tail, "\(tail)")
+    }
+
+    let resumed = try #require(MECPDecode.decode("MECP/1/S01 1.5 pax 2 pax"))
+    #expect(resumed.personCount == 2)
+    #expect(resumed.displayTail == "1.5 pax")
+  }
+
+  @Test
+  func `colon clock minutes are not person counts`() throws {
+    for tail in ["@6:30 pax", "14:30pax"] {
+      let message = try #require(MECPDecode.decode("MECP/1/S01 \(tail)"), "\(tail)")
+      #expect(message.personCount == nil, "\(tail)")
+      #expect(message.displayTail == tail, "\(tail)")
+    }
+
+    let longerHour = try #require(MECPDecode.decode("MECP/1/S01 006:30pax"))
+    #expect(longerHour.personCount == 30)
+    #expect(longerHour.displayTail == "006:")
+
+    let resumed = try #require(MECPDecode.decode("MECP/1/S01 @6:30 pax 2 pax"))
+    #expect(resumed.personCount == 2)
+    #expect(resumed.displayTail == "@6:30 pax")
+
+    let invalidHour = try #require(MECPDecode.decode("MECP/1/S01 @24:30pax"))
+    #expect(invalidHour.personCount == 30)
+    #expect(invalidHour.displayTail == "@24:")
+
+    let nonTimestamp = try #require(MECPDecode.decode("MECP/1/S01 id:30pax"))
+    #expect(nonTimestamp.personCount == 30)
+    #expect(nonTimestamp.displayTail == "id:")
+  }
+
+  @Test
+  func `whitespace left after a removal collapses, and a following word stays`() throws {
+    let onlyWhitespace = try #require(MECPDecode.decode("MECP/1/S01 4pax\t@1430"))
+    #expect(onlyWhitespace.personCount == 4)
+    #expect(onlyWhitespace.timestampHHMM == "1430")
+    #expect(onlyWhitespace.displayTail == nil)
+
+    let word = try #require(MECPDecode.decode("MECP/1/S01 4pax\twater"))
+    #expect(word.personCount == 4)
+    #expect(word.displayTail == "water")
   }
 
   @Test
