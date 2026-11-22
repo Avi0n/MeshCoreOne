@@ -218,6 +218,23 @@ struct MECPDecodeTests {
     #expect(nonTimestamp.displayTail == "id:")
   }
 
+  /// MECP §6.1 rule 5: a later convention fails where it overlaps text an earlier one claimed.
+  @Test
+  func `a match overlapping an earlier claim is not decoded`() throws {
+    let durationInTimestamp = try #require(MECPDecode.decode("MECP/2/R03 @14:30 min"))
+    #expect(durationInTimestamp.timestampHHMM == "1430")
+    #expect(durationInTimestamp.eta == nil)
+    #expect(durationInTimestamp.displayTail == "min")
+
+    let paxInCoordinates = try #require(MECPDecode.decode("MECP/0/S01 47.3769,8.5417 pax"))
+    #expect(paxInCoordinates.personCount == nil)
+    #expect(paxInCoordinates.displayTail == "47.3769,8.5417 pax")
+
+    let etaInDesignator = try #require(MECPDecode.decode("MECP/2/U04 R03 eta 45"))
+    #expect(etaInDesignator.eta == nil)
+    #expect(etaInDesignator.displayTail == "eta 45")
+  }
+
   @Test
   func `whitespace left after a removal collapses, and a following word stays`() throws {
     let onlyWhitespace = try #require(MECPDecode.decode("MECP/1/S01 4pax\t@1430"))
