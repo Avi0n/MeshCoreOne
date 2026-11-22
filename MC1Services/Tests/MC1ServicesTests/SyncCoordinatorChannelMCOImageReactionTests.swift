@@ -65,9 +65,7 @@ struct SyncCoordinatorChannelMCOImageReactionTests {
     let matches = await services.reactionService.indexMessage(
       id: UUID(),
       channelIndex: channelIndex,
-      senderName: "Ada",
-      text: "Plain channel text",
-      timestamp: textTimestamp
+      target: ChannelReactionTarget(senderName: "Ada", text: "Plain channel text", timestamp: textTimestamp)
     )
     #expect(matches.count == 1)
     #expect(matches.first?.parsed.emoji == "🔥")
@@ -137,9 +135,7 @@ struct SyncCoordinatorChannelMCOImageReactionTests {
     let matches = await services.reactionService.indexMessage(
       id: UUID(),
       channelIndex: channel.index,
-      senderName: sender,
-      text: "Plain channel text",
-      timestamp: 1_700_000_100
+      target: ChannelReactionTarget(senderName: sender, text: "Plain channel text", timestamp: 1_700_000_100)
     )
     #expect(matches.count == 1)
   }

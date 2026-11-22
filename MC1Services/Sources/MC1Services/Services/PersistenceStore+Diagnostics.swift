@@ -464,7 +464,7 @@ public extension PersistenceStore {
       )
       for message in try modelContext.fetch(descriptor) {
         // senderTimestamp 0 on an MCOimg is a missing clock, so a wire-time region write must not land here.
-        if MessageDTO(from: message).isDatagramPathMCOImage { continue }
+        if MessageDTO(from: message).isDatagramMCOImage { continue }
         message.regionScope = update.regionScope
         message.regionScopeMatches = update.regionScopeMatches
         touchedIDs.append(message.id)

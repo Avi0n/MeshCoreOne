@@ -12,9 +12,7 @@ struct MessageLRUCacheTests {
     await cache.index(
       messageID: messageID,
       channelIndex: 0,
-      senderName: "Node",
-      text: "Hello",
-      timestamp: 1_704_067_200
+      target: ChannelReactionTarget(senderName: "Node", text: "Hello", timestamp: 1_704_067_200)
     )
 
     let hash = ReactionParser.generateMessageHash(text: "Hello", timestamp: 1_704_067_200)
@@ -22,8 +20,6 @@ struct MessageLRUCacheTests {
 
     #expect(candidates.count == 1)
     #expect(candidates.first?.messageID == messageID)
-    #expect(candidates.first?.text == "Hello")
-    #expect(candidates.first?.timestamp == 1_704_067_200)
   }
 
   @Test
@@ -44,9 +40,7 @@ struct MessageLRUCacheTests {
       await cache.index(
         messageID: UUID(),
         channelIndex: 0,
-        senderName: "Node\(i)",
-        text: "Message \(i)",
-        timestamp: UInt32(i)
+        target: ChannelReactionTarget(senderName: "Node\(i)", text: "Message \(i)", timestamp: UInt32(i))
       )
     }
 
@@ -58,9 +52,7 @@ struct MessageLRUCacheTests {
     await cache.index(
       messageID: UUID(),
       channelIndex: 0,
-      senderName: "Node3",
-      text: "Message 3",
-      timestamp: 3
+      target: ChannelReactionTarget(senderName: "Node3", text: "Message 3", timestamp: 3)
     )
 
     let after = await cache.lookup(channelIndex: 0, senderName: "Node0", messageHash: hash0)
@@ -75,9 +67,7 @@ struct MessageLRUCacheTests {
     await cache.index(
       messageID: messageID,
       channelIndex: 0,
-      senderName: "Node",
-      text: "Hello",
-      timestamp: 1_704_067_200
+      target: ChannelReactionTarget(senderName: "Node", text: "Hello", timestamp: 1_704_067_200)
     )
 
     let hash = ReactionParser.generateMessageHash(text: "Hello", timestamp: 1_704_067_200)
@@ -102,17 +92,13 @@ struct MessageLRUCacheTests {
     await cache.index(
       messageID: id1,
       channelIndex: 0,
-      senderName: "Node",
-      text: "Hello",
-      timestamp: 1_704_067_200
+      target: ChannelReactionTarget(senderName: "Node", text: "Hello", timestamp: 1_704_067_200)
     )
 
     await cache.index(
       messageID: id2,
       channelIndex: 0,
-      senderName: "Node",
-      text: "Hello",
-      timestamp: 1_704_067_200
+      target: ChannelReactionTarget(senderName: "Node", text: "Hello", timestamp: 1_704_067_200)
     )
 
     let hash = ReactionParser.generateMessageHash(text: "Hello", timestamp: 1_704_067_200)
@@ -136,9 +122,7 @@ struct MessageLRUCacheTests {
       await cache.index(
         messageID: id,
         channelIndex: 0,
-        senderName: "Node",
-        text: "Hello",
-        timestamp: 1_704_067_200
+        target: ChannelReactionTarget(senderName: "Node", text: "Hello", timestamp: 1_704_067_200)
       )
     }
 
@@ -164,18 +148,14 @@ struct MessageLRUCacheTests {
     await cache.index(
       messageID: messageID,
       channelIndex: 0,
-      senderName: "Node",
-      text: "Hello",
-      timestamp: 1_704_067_200
+      target: ChannelReactionTarget(senderName: "Node", text: "Hello", timestamp: 1_704_067_200)
     )
 
     // Re-index same message
     await cache.index(
       messageID: messageID,
       channelIndex: 0,
-      senderName: "Node",
-      text: "Hello",
-      timestamp: 1_704_067_200
+      target: ChannelReactionTarget(senderName: "Node", text: "Hello", timestamp: 1_704_067_200)
     )
 
     let hash = ReactionParser.generateMessageHash(text: "Hello", timestamp: 1_704_067_200)

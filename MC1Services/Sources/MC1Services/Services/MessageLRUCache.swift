@@ -16,14 +16,10 @@ struct DirectMessageCacheKey: Hashable {
 /// Candidate message for reaction matching
 struct MessageCandidate: Equatable {
   let messageID: UUID
-  let text: String
-  let timestamp: UInt32
   let indexedAt: Date
 
-  init(messageID: UUID, text: String, timestamp: UInt32, indexedAt: Date = Date()) {
+  init(messageID: UUID, indexedAt: Date = Date()) {
     self.messageID = messageID
-    self.text = text
-    self.timestamp = timestamp
     self.indexedAt = indexedAt
   }
 }
@@ -44,18 +40,10 @@ actor MessageLRUCache {
     self.maxCandidatesPerKey = maxCandidatesPerKey
   }
 
-  /// A supplied hash replaces the timed hash.
-  func index(
-    messageID: UUID,
-    channelIndex: UInt8,
-    senderName: String,
-    text: String,
-    timestamp: UInt32,
-    messageHash: String? = nil
-  ) {
-    let hash = messageHash ?? ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
-    let key = MessageCacheKey(channelIndex: channelIndex, senderName: senderName, messageHash: hash)
-    let candidate = MessageCandidate(messageID: messageID, text: text, timestamp: timestamp)
+  /// Indexes a message for later lookup
+  func index(messageID: UUID, channelIndex: UInt8, target: ChannelReactionTarget) {
+    let key = MessageCacheKey(channelIndex: channelIndex, senderName: target.senderName, messageHash: target.messageHash)
+    let candidate = MessageCandidate(messageID: messageID)
 
     // Update LRU order
     if let existingIndex = order.firstIndex(of: key) {
@@ -96,7 +84,7 @@ actor MessageLRUCache {
   func indexDM(messageID: UUID, contactID: UUID, text: String, timestamp: UInt32) {
     let hash = ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
     let key = DirectMessageCacheKey(contactID: contactID, messageHash: hash)
-    let candidate = MessageCandidate(messageID: messageID, text: text, timestamp: timestamp)
+    let candidate = MessageCandidate(messageID: messageID)
 
     // Update LRU order
     if let existingIndex = dmOrder.firstIndex(of: key) {

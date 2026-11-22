@@ -8,10 +8,11 @@ public extension PersistenceStore {
           let details = outgoingReactionDetails(message),
           let target = try outgoingReactionTarget(message) else { return nil }
     let targetDTO = MessageDTO(from: target)
-    let expectedHash = targetDTO.mcoImageReactionTarget()?.messageHash
-      ?? ReactionParser.generateMessageHash(
-        text: target.text, timestamp: target.senderTimestamp ?? target.timestamp
-      )
+    let expectedHash = if targetDTO.channelIndex != nil {
+      targetDTO.channelReactionTarget(localNodeName: senderName)?.messageHash
+    } else {
+      ReactionParser.generateMessageHash(text: target.text, timestamp: targetDTO.reactionTimestamp)
+    }
     guard details.messageHash == expectedHash else { return nil }
     guard try !reactionExists(messageID: target.id, senderName: senderName, emoji: details.emoji) else {
       return nil

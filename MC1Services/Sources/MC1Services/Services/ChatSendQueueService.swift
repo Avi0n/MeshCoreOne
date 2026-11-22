@@ -284,18 +284,11 @@ public final class ChatSendQueueService {
     guard target.radioID == radioID else { throw ChatSendQueueServiceError.notConnected }
     guard beginAdmission() else { throw CancellationError() }
     defer { finishAdmission() }
+
     let text: String
-    if let indexed = target.mcoImageReactionTarget() {
-      text = reactionService.buildReactionText(
-        emoji: emoji, targetSender: indexed.senderName, messageHash: indexed.messageHash
-      )
-    } else if target.isChannelMCOImage {
-      return nil
-    } else if target.channelIndex != nil {
-      guard let targetSender = target.isOutgoing ? senderName : target.senderNodeName else { return nil }
-      text = reactionService.buildReactionText(
-        emoji: emoji, targetSender: targetSender, targetText: target.text, targetTimestamp: target.reactionTimestamp
-      )
+    if target.channelIndex != nil {
+      guard let reactionTarget = target.channelReactionTarget(localNodeName: senderName) else { return nil }
+      text = reactionService.buildReactionText(emoji: emoji, target: reactionTarget)
     } else {
       text = reactionService.buildDMReactionText(
         emoji: emoji, targetText: target.text, targetTimestamp: target.reactionTimestamp

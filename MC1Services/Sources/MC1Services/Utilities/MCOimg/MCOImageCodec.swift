@@ -21,12 +21,6 @@ public enum MCOImageCodec {
     version(in: text.trimmingCharacters(in: .whitespacesAndNewlines)) == v4Version
   }
 
-  /// A channel row whose text is MCOimg. Group data and a channel text packet
-  /// with an `im3:` or `im4:` body are the same stored shape.
-  public static func isChannelMCOImage(channelIndex: UInt8?, text: String) -> Bool {
-    channelIndex != nil && isMCOImageText(text)
-  }
-
   public static func content(from text: String) -> MCOImageContent? {
     let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
     guard let version = version(in: text) else { return nil }

@@ -71,25 +71,15 @@ public actor ReactionService {
   public func indexMessage(
     id: UUID,
     channelIndex: UInt8,
-    senderName: String,
-    text: String,
-    timestamp: UInt32,
-    messageHash: String? = nil
+    target: ChannelReactionTarget
   ) async -> [PendingReaction] {
-    let hash = messageHash ?? ReactionParser.generateMessageHash(text: text, timestamp: timestamp)
+    await messageCache.index(messageID: id, channelIndex: channelIndex, target: target)
+
+    // Check pending queue for matching reactions
     let key = PendingReactionKey(
       channelIndex: channelIndex,
-      targetSender: senderName,
-      messageHash: hash
-    )
-
-    await messageCache.index(
-      messageID: id,
-      channelIndex: channelIndex,
-      senderName: senderName,
-      text: text,
-      timestamp: timestamp,
-      messageHash: hash
+      targetSender: target.senderName,
+      messageHash: target.messageHash
     )
 
     guard let matched = pendingReactions.removeValue(forKey: key) else {
@@ -112,14 +102,13 @@ public actor ReactionService {
   ) -> String {
     buildReactionText(
       emoji: emoji,
-      targetSender: targetSender,
-      messageHash: ReactionParser.generateMessageHash(text: targetText, timestamp: targetTimestamp)
+      target: ChannelReactionTarget(senderName: targetSender, text: targetText, timestamp: targetTimestamp)
     )
   }
 
-  /// Channel reaction wire text for a hash the caller already computed.
-  public nonisolated func buildReactionText(emoji: String, targetSender: String, messageHash: String) -> String {
-    "@[\(targetSender)]\(emoji)\n\(messageHash)"
+  /// Channel reaction wire text that names `target`.
+  public nonisolated func buildReactionText(emoji: String, target: ChannelReactionTarget) -> String {
+    "@[\(target.senderName)]\(emoji)\n\(target.messageHash)"
   }
 
   /// Builds DM reaction wire format (shorter, no sender)

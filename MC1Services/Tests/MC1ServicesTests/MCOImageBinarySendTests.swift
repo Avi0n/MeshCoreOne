@@ -128,7 +128,7 @@ struct MCOImageBinarySendTests {
     #expect(message.text == fixture)
     #expect(message.senderNodeName == "Radio")
     #expect(!message.isDatagramMCOImage)
-    #expect(message.mcoImageReactionTarget() != nil)
+    #expect(message.channelReactionTarget(localNodeName: nil) != nil)
     try await service.sendPendingChannelMessage(messageID: message.id)
     #expect(await session.sendChannelDataInvocations.isEmpty)
     let call = try #require(await session.sendChannelMessageInvocations.first)

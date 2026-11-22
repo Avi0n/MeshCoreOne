@@ -199,7 +199,8 @@ public extension PersistenceStore {
     return (MessageDTO.reorderSameSenderClusters(dtos), hasMore)
   }
 
-  /// Finds a channel message matching a parsed reaction within a timestamp window.
+  /// Finds the channel message a parsed reaction names. Group text matches within `timestampWindow`.
+  /// A group datagram has no sender clock, so its newest copy anywhere in the channel matches.
   func findChannelMessageForReaction(
     radioID: UUID,
     channelIndex: UInt8,
@@ -210,6 +211,8 @@ public extension PersistenceStore {
   ) throws -> MessageDTO? {
     let logger = Logger(subsystem: "com.mc1", category: "PersistenceStore")
     logger.debug("[REACTION-MATCH] Looking for message: targetSender=\(parsedReaction.targetSender), hash=\(parsedReaction.messageHash), localNodeName=\(localNodeName ?? "nil"), window=\(timestampWindow.lowerBound)...\(timestampWindow.upperBound)")
+    let wanted = ChannelReactionTarget(senderName: parsedReaction.targetSender, messageHash: parsedReaction.messageHash)
+    let isWanted = { (candidate: MessageDTO) in candidate.channelReactionTarget(localNodeName: localNodeName) == wanted }
 
     let candidates = try fetchChannelMessageCandidates(
       radioID: radioID,
@@ -218,65 +221,26 @@ public extension PersistenceStore {
       limit: limit
     )
     logger.debug("[REACTION-MATCH] Found \(candidates.count) candidates in window")
-    guard !candidates.isEmpty else { return nil }
-
-    for candidate in candidates {
-      let direction = candidate.direction == .outgoing ? "outgoing" : "incoming"
-      let candidateHash = ReactionParser.generateMessageHash(text: candidate.text, timestamp: candidate.reactionTimestamp)
-      logger.debug("[REACTION-MATCH] Candidate: direction=\(direction), senderNodeName=\(candidate.senderNodeName ?? "nil"), hash=\(candidateHash), text=\(candidate.text.prefix(30))")
-
-      if candidate.direction == .outgoing {
-        guard let localNodeName, parsedReaction.targetSender == localNodeName else {
-          logger.debug("[REACTION-MATCH] Skip outgoing: localNodeName=\(localNodeName ?? "nil"), targetSender=\(parsedReaction.targetSender)")
-          continue
-        }
-      } else {
-        guard candidate.senderNodeName == parsedReaction.targetSender else {
-          logger.debug("[REACTION-MATCH] Skip incoming: senderNodeName=\(candidate.senderNodeName ?? "nil") != targetSender=\(parsedReaction.targetSender)")
-          continue
-        }
-      }
-
-      guard candidateHash == parsedReaction.messageHash else {
-        logger.debug("[REACTION-MATCH] Hash mismatch: \(candidateHash) != \(parsedReaction.messageHash)")
-        continue
-      }
-
-      guard !candidate.isDatagramMCOImage else {
-        logger.debug("[REACTION-MATCH] Skip datagram image")
-        continue
-      }
-
+    if let match = candidates.first(where: isWanted) {
       logger.debug("[REACTION-MATCH] Found match!")
-      return candidate
+      return match
     }
 
-    logger.debug("[REACTION-MATCH] No match found")
-    return nil
-  }
-
-  func findChannelDatagramForReaction(
-    radioID: UUID,
-    channelIndex: UInt8,
-    parsedReaction: ParsedReaction
-  ) async throws -> MessageDTO? {
     let targetRadioID = radioID
     let targetChannelIndex: UInt8? = channelIndex
     let predicate = #Predicate<Message> { message in
       message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
     }
-    let descriptor = FetchDescriptor(
-      predicate: predicate,
-      sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)]
-    )
+    let descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)])
     for message in try modelContext.fetch(descriptor) {
       let candidate = MessageDTO(from: message)
-      guard let target = candidate.mcoImageReactionTarget(),
-            candidate.isDatagramMCOImage,
-            target.senderName == parsedReaction.targetSender,
-            target.messageHash == parsedReaction.messageHash else { continue }
-      return candidate
+      if candidate.isDatagramMCOImage, isWanted(candidate) {
+        logger.debug("[REACTION-MATCH] Found datagram match")
+        return candidate
+      }
     }
+
+    logger.debug("[REACTION-MATCH] No match found")
     return nil
   }
 
@@ -1135,10 +1099,6 @@ public extension PersistenceStore {
     var messageDescriptor = FetchDescriptor(predicate: messagePredicate)
     messageDescriptor.fetchLimit = 1
     guard let message = try modelContext.fetch(messageDescriptor).first else { return nil }
-    let messageDTO = MessageDTO(from: message)
-    if messageDTO.isChannelMCOImage, messageDTO.mcoImageReactionTarget() == nil {
-      return nil
-    }
 
     let senderName = dto.senderName
     let emoji = dto.emoji

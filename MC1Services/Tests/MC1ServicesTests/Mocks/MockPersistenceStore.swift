@@ -226,54 +226,21 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     timestampWindow: ClosedRange<UInt32>,
     limit: Int
   ) async throws -> MessageDTO? {
+    let wanted = ChannelReactionTarget(senderName: parsedReaction.targetSender, messageHash: parsedReaction.messageHash)
+    let isWanted = { (candidate: MessageDTO) in candidate.channelReactionTarget(localNodeName: localNodeName) == wanted }
     let candidates = try await fetchChannelMessageCandidates(
       radioID: radioID,
       channelIndex: channelIndex,
       timestampWindow: timestampWindow,
       limit: limit
     )
-
-    for candidate in candidates {
-      guard !candidate.isDatagramMCOImage else { continue }
-      if candidate.direction == .outgoing {
-        guard let localNodeName, parsedReaction.targetSender == localNodeName else {
-          continue
-        }
-      } else {
-        guard candidate.senderNodeName == parsedReaction.targetSender else {
-          continue
-        }
-      }
-
-      let hash = ReactionParser.generateMessageHash(
-        text: candidate.text,
-        timestamp: candidate.reactionTimestamp
-      )
-      guard hash == parsedReaction.messageHash else { continue }
-
-      return candidate
-    }
-
-    return nil
-  }
-
-  public func findChannelDatagramForReaction(
-    radioID: UUID,
-    channelIndex: UInt8,
-    parsedReaction: ParsedReaction
-  ) async throws -> MessageDTO? {
-    if let error = stubbedFetchMessageError {
-      throw error
+    if let match = candidates.first(where: isWanted) {
+      return match
     }
     return messages.values
-      .filter { $0.radioID == radioID && $0.channelIndex == channelIndex }
+      .filter { $0.radioID == radioID && $0.channelIndex == channelIndex && $0.isDatagramMCOImage }
       .sorted { $0.createdAt > $1.createdAt }
-      .first { candidate in
-        guard candidate.isDatagramMCOImage,
-              let target = candidate.mcoImageReactionTarget() else { return false }
-        return target.senderName == parsedReaction.targetSender
-          && target.messageHash == parsedReaction.messageHash
-      }
+      .first(where: isWanted)
   }
 
   public func fetchChannelMessageCandidates(

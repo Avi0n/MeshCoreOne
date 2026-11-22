@@ -127,7 +127,7 @@ public extension MessageService {
   /// An RX row saved before the message is attached here. A later row is attached by `processForRepeats`.
   /// The harvest writes only while `HeardRepeatsService` still owns this radio.
   private func harvestOutgoingDatagramPathsIfNeeded(_ message: MessageDTO) async {
-    guard message.isOutgoing, message.isDatagramPathMCOImage else { return }
+    guard message.isOutgoing, message.isDatagramMCOImage else { return }
     await datagramPathHarvest?(message)
   }
 

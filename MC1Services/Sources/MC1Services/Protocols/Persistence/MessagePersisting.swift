@@ -97,14 +97,6 @@ public protocol MessagePersisting: Actor {
     limit: Int
   ) async throws -> MessageDTO?
 
-  /// Newest saved channel MCOimg with no packet sender timestamp that matches this reaction.
-  /// No timestamp window and no row cap.
-  func findChannelDatagramForReaction(
-    radioID: UUID,
-    channelIndex: UInt8,
-    parsedReaction: ParsedReaction
-  ) async throws -> MessageDTO?
-
   /// Fetches channel message candidates for meshcore-open reaction matching
   func fetchChannelMessageCandidates(
     radioID: UUID,
@@ -292,14 +284,6 @@ extension MessagePersisting {
 }
 
 public extension MessagePersisting {
-  func findChannelDatagramForReaction(
-    radioID _: UUID,
-    channelIndex _: UInt8,
-    parsedReaction _: ParsedReaction
-  ) async throws -> MessageDTO? {
-    nil
-  }
-
   func admitOutgoingReaction(_ message: MessageDTO) async throws -> MessageDTO? {
     nil
   }

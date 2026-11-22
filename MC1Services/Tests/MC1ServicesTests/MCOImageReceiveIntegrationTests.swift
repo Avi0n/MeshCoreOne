@@ -121,7 +121,7 @@ struct MCOImageReceiveIntegrationTests {
         senderPrefix: nil,
         senderTimestamp: 0,
         textType: MeshTextType.plain.rawValue,
-        wireText: Data(blockedText.utf8)
+        wireText: Data("\(sender): \(blockedText)".utf8)
       ),
       arrivedAt: Date(),
       body: "blocked",
@@ -145,6 +145,25 @@ struct MCOImageReceiveIntegrationTests {
     let messages = try await store.fetchMessages(radioID: radioID, channelIndex: savedChannel.index)
     #expect(messages.map(\.text) == [allowedText])
     #expect(messages.first?.senderNodeName == sender)
+  }
+
+  @Test
+  func `a sender Text Rule blocks a datagram MCOimg from that sender`() async throws {
+    let opened = try await openChannel()
+    defer { Task { await opened.services.tearDown() } }
+    let channel = try #require(try await opened.store.fetchChannel(radioID: opened.radioID, index: opened.channel.index))
+    var preference = TextRulesPreference()
+    preference.setSelection(.all, for: TextRulesPreference.channelKind(isPublic: channel.isPublicChannel, name: channel.name))
+    preference.append(.init(phrase: "Peer", lookIn: .sender, match: .wholeField))
+
+    for sender in ["Peer", "Other"] {
+      let packet = datagram(channel: channel, sender: sender, payload: Data([0x14, 0, 0, 0, 0]))
+      await opened.handler(packet, channel, .live, opened.scope, preference, Date())
+    }
+
+    let messages = try await opened.store.fetchMessages(radioID: opened.radioID, channelIndex: channel.index)
+    #expect(messages.map(\.senderNodeName) == ["Other"])
+    #expect(try await opened.store.recentlyBlockedMessages().map(\.sender) == ["Peer"])
   }
 
   @Test
@@ -288,9 +307,9 @@ struct MCOImageReceiveIntegrationTests {
     let datagram = try #require(messages.first { $0.id != textRow.id })
     #expect(kept.pathNodes == Data([0x31]))
     #expect(kept.pathLength == 1)
-    #expect(kept.isDatagramPathMCOImage == false)
+    #expect(kept.isDatagramMCOImage == false)
     #expect(datagram.senderTimestamp == 0)
-    #expect(datagram.isDatagramPathMCOImage)
+    #expect(datagram.isDatagramMCOImage)
   }
 
   @Test

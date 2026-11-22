@@ -209,119 +209,50 @@ extension SyncCoordinator {
 
     logger.debug("DB lookup: selfNodeName='\(selfNodeName)', targetSender=\(parsed.targetSender), hash=\(parsed.messageHash)")
 
-    func queuePending() async {
-      await dependencies.reactionService.queuePendingReaction(
-        parsed: parsed,
-        channelIndex: channelIndex,
-        senderNodeName: senderName,
+    if let targetMessage = try? await dependencies.dataStore.findChannelMessageForReaction(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      parsedReaction: parsed,
+      localNodeName: selfNodeName.isEmpty ? nil : selfNodeName,
+      timestampWindow: timestampWindow,
+      limit: 200
+    ) {
+      let targetMessageID = targetMessage.id
+      let reactionDTO = ReactionDTO(
+        messageID: targetMessageID,
+        emoji: parsed.emoji,
+        senderName: senderName,
+        messageHash: parsed.messageHash,
         rawText: text,
+        channelIndex: channelIndex,
         radioID: radioID
       )
-    }
+      if await persistReactionIfNew(reactionDTO, dependencies: dependencies) {
+        if let target = targetMessage.channelReactionTarget(localNodeName: selfNodeName.isEmpty ? nil : selfNodeName) {
+          // Index for future reactions (pending matches not needed here since
+          // message exists in DB, so pending reactions would also match via DB fallback)
+          _ = await dependencies.reactionService.indexMessage(
+            id: targetMessageID,
+            channelIndex: channelIndex,
+            target: target
+          )
+        }
 
-    let windowedMatch: MessageDTO?
-    do {
-      windowedMatch = try await dependencies.dataStore.findChannelMessageForReaction(
-        radioID: radioID,
-        channelIndex: channelIndex,
-        parsedReaction: parsed,
-        localNodeName: selfNodeName.isEmpty ? nil : selfNodeName,
-        timestampWindow: timestampWindow,
-        limit: 200
-      )
-    } catch {
-      await queuePending()
-      return true
-    }
-    if let windowedMatch {
-      await attachChannelReaction(
-        to: windowedMatch,
-        parsed: parsed,
-        text: text,
-        channelIndex: channelIndex,
-        senderName: senderName,
-        selfNodeName: selfNodeName,
-        radioID: radioID,
-        dependencies: dependencies
-      )
+        logger.debug("Saved reaction \(parsed.emoji) to message \(targetMessageID) via DB lookup")
+      }
+
       return true
     }
 
-    let datagramMatch: MessageDTO?
-    do {
-      datagramMatch = try await dependencies.dataStore.findChannelDatagramForReaction(
-        radioID: radioID,
-        channelIndex: channelIndex,
-        parsedReaction: parsed
-      )
-    } catch {
-      await queuePending()
-      return true
-    }
-    if let datagramMatch {
-      await attachChannelReaction(
-        to: datagramMatch,
-        parsed: parsed,
-        text: text,
-        channelIndex: channelIndex,
-        senderName: senderName,
-        selfNodeName: selfNodeName,
-        radioID: radioID,
-        dependencies: dependencies
-      )
-      return true
-    }
-
-    await queuePending()
-    return true
-  }
-
-  private func attachChannelReaction(
-    to targetMessage: MessageDTO,
-    parsed: ParsedReaction,
-    text: String,
-    channelIndex: UInt8,
-    senderName: String,
-    selfNodeName: String,
-    radioID: UUID,
-    dependencies: SyncDependencies
-  ) async {
-    let reactionDTO = ReactionDTO(
-      messageID: targetMessage.id,
-      emoji: parsed.emoji,
-      senderName: senderName,
-      messageHash: parsed.messageHash,
-      rawText: text,
+    // Queue reaction for later matching when target message arrives
+    await dependencies.reactionService.queuePendingReaction(
+      parsed: parsed,
       channelIndex: channelIndex,
+      senderNodeName: senderName,
+      rawText: text,
       radioID: radioID
     )
-    guard await persistReactionIfNew(reactionDTO, dependencies: dependencies) else { return }
-    if let target = targetMessage.mcoImageReactionTarget() {
-      _ = await dependencies.reactionService.indexMessage(
-        id: targetMessage.id,
-        channelIndex: channelIndex,
-        senderName: target.senderName,
-        text: targetMessage.text,
-        timestamp: targetMessage.reactionTimestamp,
-        messageHash: target.messageHash
-      )
-    } else {
-      let targetSenderName: String? = if targetMessage.direction == .outgoing {
-        selfNodeName.isEmpty ? nil : selfNodeName
-      } else {
-        targetMessage.senderNodeName
-      }
-      if let targetSenderName {
-        _ = await dependencies.reactionService.indexMessage(
-          id: targetMessage.id,
-          channelIndex: channelIndex,
-          senderName: targetSenderName,
-          text: targetMessage.text,
-          timestamp: targetMessage.reactionTimestamp
-        )
-      }
-    }
-    logger.debug("Saved reaction \(parsed.emoji) to message \(targetMessage.id) via DB lookup")
+    return true
   }
 
   /// Computes a bounded timestamp window around the given time for reaction matching.

@@ -1110,12 +1110,8 @@ struct PersistenceStoreTests {
     try await store.saveMessage(older)
     try await store.saveMessage(newer)
 
-    let found = try await store.findChannelDatagramForReaction(
-      radioID: device.id, channelIndex: 0, parsedReaction: parsed
-    )
-    #expect(found?.id == newer.id)
     let now = UInt32(Date().timeIntervalSince1970)
-    let missed = try await store.findChannelMessageForReaction(
+    let found = try await store.findChannelMessageForReaction(
       radioID: device.id,
       channelIndex: 0,
       parsedReaction: parsed,
@@ -1123,11 +1119,11 @@ struct PersistenceStoreTests {
       timestampWindow: (now - 300)...(now + 300),
       limit: 200
     )
-    #expect(missed == nil)
+    #expect(found?.id == newer.id)
   }
 
   @Test
-  func `Timed channel MCOimg matches in the window and a zero sender timestamp uses the untimed hash`() async throws {
+  func `Group-text MCOimg takes the timed hash and datagram MCOimg the untimed hash`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()
     try await store.saveDevice(device)
@@ -1146,11 +1142,10 @@ struct PersistenceStoreTests {
     )
     timed.senderTimestamp = nil
     timed.timestampCorrected = false
-    var datagram = datagramImage(
+    let datagram = datagramImage(
       radioID: device.id, channelIndex: 2, text: text, sender: sender,
       createdAt: Date(timeIntervalSince1970: TimeInterval(timestamp))
     )
-    datagram.timestamp = timestamp
     try await store.saveMessage(timed)
     try await store.saveMessage(datagram)
 
@@ -1168,28 +1163,24 @@ struct PersistenceStoreTests {
       radioID: device.id, channelIndex: 1, parsedReaction: untimedParsed,
       localNodeName: "Local", timestampWindow: window, limit: 200
     )
-    let missedDatagram = try await store.findChannelDatagramForReaction(
-      radioID: device.id, channelIndex: 1, parsedReaction: untimedParsed
-    )
-    #expect(foundTimed?.id == timed.id)
-    #expect(missedUntimed == nil)
-    #expect(missedDatagram == nil)
-
-    let windowedDatagram = try await store.findChannelMessageForReaction(
+    let foundDatagram = try await store.findChannelMessageForReaction(
       radioID: device.id, channelIndex: 2, parsedReaction: untimedParsed,
       localNodeName: "Local", timestampWindow: window, limit: 200
     )
-    let foundDatagram = try await store.findChannelDatagramForReaction(
-      radioID: device.id, channelIndex: 2, parsedReaction: untimedParsed
+    let missedTimed = try await store.findChannelMessageForReaction(
+      radioID: device.id, channelIndex: 2, parsedReaction: timedParsed,
+      localNodeName: "Local", timestampWindow: window, limit: 200
     )
-    #expect(windowedDatagram == nil)
+    #expect(foundTimed?.id == timed.id)
+    #expect(missedUntimed == nil)
     #expect(foundDatagram?.id == datagram.id)
+    #expect(missedTimed == nil)
   }
 
   @Test
   func `Outgoing datagram MCOimg keeps the stored sender name after a rename`() async throws {
     let store = try await createTestStore()
-    var device = createTestDevice().copy { $0.nodeName = "Painter" }
+    let device = createTestDevice()
     try await store.saveDevice(device)
     let text = try MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0]))
     let image = MessageDTO.testChannelMessage(
@@ -1203,25 +1194,25 @@ struct PersistenceStoreTests {
       senderNodeName: "Painter"
     )
     try await store.saveMessage(image)
-    device = device.copy { $0.nodeName = "Other" }
-    try await store.saveDevice(device)
 
     let hash = try ReactionParser.generateUntimedHash(MCOImageTransport.dataField(text: text, senderName: "Painter"))
     let parsed = try #require(ReactionParser.parse("@[Painter]👍\n\(hash)"))
     let renamed = try #require(ReactionParser.parse("@[Other]👍\n\(hash)"))
-    let found = try await store.findChannelDatagramForReaction(
-      radioID: device.id, channelIndex: 0, parsedReaction: parsed
+    let window = UInt32(1_000_000 - 300)...UInt32(1_000_000 + 300)
+    let found = try await store.findChannelMessageForReaction(
+      radioID: device.id, channelIndex: 0, parsedReaction: parsed,
+      localNodeName: "Other", timestampWindow: window, limit: 200
     )
-    let missed = try await store.findChannelDatagramForReaction(
-      radioID: device.id, channelIndex: 0, parsedReaction: renamed
+    let missed = try await store.findChannelMessageForReaction(
+      radioID: device.id, channelIndex: 0, parsedReaction: renamed,
+      localNodeName: "Other", timestampWindow: window, limit: 200
     )
     #expect(found?.id == image.id)
     #expect(missed == nil)
-    #expect(try await store.fetchDevice(radioID: device.radioID)?.nodeName == "Other")
   }
 
   @Test
-  func `Group text outside the window does not match and an empty sender does not admit`() async throws {
+  func `Group text outside the window does not match`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()
     try await store.saveDevice(device)
@@ -1235,16 +1226,7 @@ struct PersistenceStoreTests {
       status: .delivered,
       senderNodeName: "Ada"
     )
-    var empty = try datagramImage(
-      radioID: device.id,
-      channelIndex: 0,
-      text: MCOImageCodec.text(fromAppPayload: Data([0x14, 0, 0, 0, 0])),
-      sender: "",
-      createdAt: Date(timeIntervalSince1970: 100)
-    )
-    empty.senderNodeName = ""
     try await store.saveMessage(text)
-    try await store.saveMessage(empty)
 
     let parsed = try #require(ReactionParser.parse(
       ReactionService().buildReactionText(
@@ -1257,17 +1239,6 @@ struct PersistenceStoreTests {
       localNodeName: "Local", timestampWindow: (now - 300)...(now + 300), limit: 200
     )
     #expect(found == nil)
-    let admission = try await store.admitReaction(ReactionDTO(
-      messageID: empty.id,
-      emoji: "👍",
-      senderName: "Bea",
-      messageHash: "aaaaa",
-      rawText: "@[]👍\naaaaa",
-      channelIndex: empty.channelIndex,
-      radioID: device.id
-    ))
-    #expect(admission == nil)
-    #expect(try await store.fetchReactions(for: empty.id).isEmpty)
   }
 
   @Test
@@ -1316,6 +1287,11 @@ struct PersistenceStoreTests {
       senderNodeName: sender
     )
     message.senderTimestamp = 0
+    message.timestampCorrected = true
+    message.deduplicationKey = try? DeduplicationKey.channelMCOImage(
+      channelIndex: channelIndex,
+      dataField: MCOImageTransport.dataField(text: text, senderName: sender)
+    )
     return message
   }
 

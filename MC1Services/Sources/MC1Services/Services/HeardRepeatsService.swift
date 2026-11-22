@@ -148,6 +148,7 @@ public actor HeardRepeatsService {
 
   /// Records a distinct extra incoming path. The store reads the current canonical:
   /// nil adopts the path, and a stale nil DTO still records a later distinct path.
+  /// An adopted path also takes the route and region of `contextSource`, when given.
   @discardableResult
   func recordDistinctPathIfNeeded(
     message: MessageDTO,
@@ -157,10 +158,7 @@ public actor HeardRepeatsService {
     rssi: Int?,
     receivedAt: Date,
     rxLogEntryID: UUID?,
-    canonicalRoute: RouteType? = nil,
-    canonicalRegion: String? = nil,
-    canonicalRegionMatches: [String] = [],
-    applyCanonicalContext: Bool = false
+    adoptingContextOf contextSource: RxLogEntryDTO? = nil
   ) async -> Int? {
     #if DEBUG
       if let hold = admissionHoldForTesting {
@@ -177,12 +175,12 @@ public actor HeardRepeatsService {
         receivedAt: receivedAt,
         rxLogEntryID: rxLogEntryID
       )
-      if case .adoptedCanonical = admission, applyCanonicalContext {
+      if case .adoptedCanonical = admission, let contextSource {
         try await dataStore.applyDatagramCanonicalContext(
           messageID: message.id,
-          routeType: canonicalRoute,
-          regionScope: canonicalRegion,
-          regionScopeMatches: canonicalRegionMatches
+          routeType: contextSource.routeType,
+          regionScope: contextSource.regionScope,
+          regionScopeMatches: contextSource.regionScopeMatches
         )
       }
       guard case let .recordedExtra(count) = admission else { return nil }
@@ -195,13 +193,12 @@ public actor HeardRepeatsService {
     }
   }
 
-  /// Outgoing rows count echoes. Incoming rows adopt the earliest path, then extras.
+  /// Attaches stored RX rows with this message's data field, oldest first.
   /// A nil service radio skips an outgoing row.
   func harvestDatagramPaths(
     for message: MessageDTO,
     decodedCandidates: [RxLogEntryDTO]
   ) async {
-    guard message.isDatagramPathMCOImage else { return }
     if message.isOutgoing, message.radioID != radioID { return }
     guard let blob = message.datagramDataField,
           let channelIndex = message.channelIndex else { return }
@@ -212,23 +209,7 @@ public actor HeardRepeatsService {
       channelIndex: channelIndex
     )
     for entry in matching {
-      if message.isOutgoing {
-        _ = try? await recordSentEcho(message: message, entry: entry)
-      } else {
-        _ = await recordDistinctPathIfNeeded(
-          message: message,
-          pathNodes: entry.pathNodes,
-          pathLength: entry.pathLength,
-          snr: entry.snr,
-          rssi: entry.rssi,
-          receivedAt: entry.receivedAt,
-          rxLogEntryID: entry.id,
-          canonicalRoute: entry.routeType,
-          canonicalRegion: entry.regionScope,
-          canonicalRegionMatches: entry.regionScopeMatches,
-          applyCanonicalContext: true
-        )
-      }
+      _ = await recordDatagramObservation(entry, on: message)
     }
   }
 
@@ -322,34 +303,37 @@ public actor HeardRepeatsService {
         channelIndex: channelIndex,
         timestampWindow: MCOImageTransport.datagramMatchWindow(around: entry.receivedAt)
       )
-      let matches = messages.filter { $0.datagramDataField == blob }
       var lastCount: Int?
-      for message in matches where message.isOutgoing {
-        if let count = try await recordSentEcho(message: message, entry: entry) {
-          lastCount = count
-        }
-      }
-      for message in matches where !message.isOutgoing {
-        if let count = await recordDistinctPathIfNeeded(
-          message: message,
-          pathNodes: entry.pathNodes,
-          pathLength: entry.pathLength,
-          snr: entry.snr,
-          rssi: entry.rssi,
-          receivedAt: entry.receivedAt,
-          rxLogEntryID: entry.id,
-          canonicalRoute: entry.routeType,
-          canonicalRegion: entry.regionScope,
-          canonicalRegionMatches: entry.regionScopeMatches,
-          applyCanonicalContext: true
-        ) {
-          lastCount = count
-        }
+      for message in messages where message.datagramDataField == blob {
+        lastCount = await recordDatagramObservation(entry, on: message) ?? lastCount
       }
       return lastCount
     } catch {
       logger.error("Failed to process datagram repeat: \(error.localizedDescription)")
       return nil
     }
+  }
+
+  /// An outgoing row counts the echo. An incoming row records the path, and the path it adopts
+  /// brings the RX row's route and region, which a datagram push does not carry.
+  private func recordDatagramObservation(_ entry: RxLogEntryDTO, on message: MessageDTO) async -> Int? {
+    guard !message.isOutgoing else {
+      do {
+        return try await recordSentEcho(message: message, entry: entry)
+      } catch {
+        logger.error("Failed to record datagram echo: \(error.localizedDescription)")
+        return nil
+      }
+    }
+    return await recordDistinctPathIfNeeded(
+      message: message,
+      pathNodes: entry.pathNodes,
+      pathLength: entry.pathLength,
+      snr: entry.snr,
+      rssi: entry.rssi,
+      receivedAt: entry.receivedAt,
+      rxLogEntryID: entry.id,
+      adoptingContextOf: entry
+    )
   }
 }

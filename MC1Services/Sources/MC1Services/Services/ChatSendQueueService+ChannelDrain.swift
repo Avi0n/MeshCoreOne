@@ -43,8 +43,7 @@ extension ChatSendQueueService {
       ) else { return }
       try cancelSendIfRetired(dependencies.sendsRetired)
 
-      let capturedText = envelope.messageText
-      let sentDatagram = MCOImageCodec.isChannelDataText(capturedText)
+      let sentDatagram = MCOImageCodec.isChannelDataText(envelope.messageText)
       switch try await transmitQueuedChannel(envelope: envelope, dependencies: dependencies) {
       case .dropped:
         return
@@ -62,25 +61,20 @@ extension ChatSendQueueService {
           timeout: dependencies.config.transportWaitTimeout
         )
       case let .sent(indexTimestamp):
-        if sentDatagram {
-          if let saved = try? await dependencies.dataStore.fetchMessage(id: envelope.messageID),
-             let target = saved.mcoImageReactionTarget() {
-            _ = await dependencies.reactionService.indexMessage(
-              id: saved.id,
-              channelIndex: envelope.channelIndex,
-              senderName: target.senderName,
-              text: saved.text,
-              timestamp: saved.reactionTimestamp,
-              messageHash: target.messageHash
-            )
+        // A datagram's hash covers the sender name stored on the row, which a resend keeps.
+        let target: ChannelReactionTarget? = if sentDatagram {
+          try? await dependencies.dataStore.fetchMessage(id: envelope.messageID)?
+            .channelReactionTarget(localNodeName: envelope.localNodeName)
+        } else {
+          envelope.localNodeName.map {
+            ChannelReactionTarget(senderName: $0, text: envelope.messageText, timestamp: indexTimestamp)
           }
-        } else if let nodeName = envelope.localNodeName {
+        }
+        if let target {
           _ = await dependencies.reactionService.indexMessage(
             id: envelope.messageID,
             channelIndex: envelope.channelIndex,
-            senderName: nodeName,
-            text: capturedText,
-            timestamp: indexTimestamp
+            target: target
           )
         }
         try? await dependencies.dataStore.deletePendingSendsForMessage(messageID: envelope.messageID)

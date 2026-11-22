@@ -151,28 +151,12 @@ enum ChatTimelinePopulator {
       // disconnect would otherwise mint a fresh UUID into persisted rows.
       let radioID = channel.radioID
       for message in fetchedMessages {
-        let indexed = message.mcoImageReactionTarget()
-        let reactionSender: String?
-        let messageHash: String?
-        if message.isChannelMCOImage {
-          reactionSender = indexed?.senderName
-          messageHash = indexed?.messageHash
-        } else if message.isOutgoing {
-          reactionSender = localNodeName
-          messageHash = nil
-        } else {
-          reactionSender = message.senderNodeName
-          messageHash = nil
-        }
-        guard let reactionSender else { continue }
+        guard let target = message.channelReactionTarget(localNodeName: localNodeName) else { continue }
 
         let pendingMatches = await reactionService.indexMessage(
           id: message.id,
           channelIndex: channel.index,
-          senderName: reactionSender,
-          text: message.text,
-          timestamp: message.reactionTimestamp,
-          messageHash: messageHash
+          target: target
         )
 
         for pending in pendingMatches {
