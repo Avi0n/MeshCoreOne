@@ -96,6 +96,12 @@ public final class Contact {
   /// User-picked profile picture (compressed JPEG), overrides the generated initials avatar
   public var avatarImageData: Data?
 
+  /// Watchlist membership stored on this phone for this Contact's radio.
+  public var isMyNode: Bool = false
+
+  /// Nil means never checked. Empty means checked with no version.
+  public var myNodeFirmwareVersion: String?
+
   public init(
     id: UUID = UUID(),
     radioID: UUID,
@@ -120,7 +126,9 @@ public final class Contact {
     unreadMentionCount: Int = 0,
     ocvPreset: String? = nil,
     customOCVArrayString: String? = nil,
-    avatarImageData: Data? = nil
+    avatarImageData: Data? = nil,
+    isMyNode: Bool = false,
+    myNodeFirmwareVersion: String? = nil
   ) {
     self.id = id
     self.radioID = radioID
@@ -147,6 +155,8 @@ public final class Contact {
     self.ocvPreset = ocvPreset
     self.customOCVArrayString = customOCVArrayString
     self.avatarImageData = avatarImageData
+    self.isMyNode = isMyNode
+    self.myNodeFirmwareVersion = myNodeFirmwareVersion
   }
 
   /// Builds a model instance directly from a DTO. Shared by `saveContact` and
@@ -176,7 +186,9 @@ public final class Contact {
       unreadMentionCount: dto.unreadMentionCount,
       ocvPreset: dto.ocvPreset,
       customOCVArrayString: dto.customOCVArrayString,
-      avatarImageData: dto.avatarImageData
+      avatarImageData: dto.avatarImageData,
+      isMyNode: dto.isMyNode,
+      myNodeFirmwareVersion: dto.myNodeFirmwareVersion
     )
   }
 
@@ -185,6 +197,8 @@ public final class Contact {
   /// id-matched `saveContact(_:)` upsert, which owns app-side metadata. Key
   /// changes arrive from the radio as `ContactFrame`s keyed by
   /// `(radioID, publicKey)`, where a new key is a new contact row.
+  /// Watchlist membership and firmware stay on the existing row. This upsert is
+  /// not a membership or firmware write, so a stale DTO cannot clear them.
   func apply(_ dto: ContactDTO) {
     name = dto.name
     typeRawValue = dto.typeRawValue
@@ -334,6 +348,9 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
   public let ocvPreset: String?
   public let customOCVArrayString: String?
   public private(set) var avatarImageData: Data?
+  public private(set) var isMyNode: Bool
+  /// Nil means never checked. Empty means checked with no version.
+  public let myNodeFirmwareVersion: String?
 
   /// A missing `isPinned` key decodes as `isFavorite`. An explicit false stays unpinned.
   private enum CodingKeys: String, CodingKey {
@@ -341,6 +358,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     case lastAdvertTimestamp, latitude, longitude, lastModified, lastHeardTimestamp
     case nickname, isBlocked, isMuted, isFavorite, isPinned, lastMessageDate
     case unreadCount, unreadMentionCount, ocvPreset, customOCVArrayString, avatarImageData
+    case isMyNode, myNodeFirmwareVersion
   }
 
   public init(from decoder: Decoder) throws {
@@ -373,6 +391,8 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     ocvPreset = try container.decodeIfPresent(String.self, forKey: .ocvPreset)
     customOCVArrayString = try container.decodeIfPresent(String.self, forKey: .customOCVArrayString)
     avatarImageData = try container.decodeIfPresent(Data.self, forKey: .avatarImageData)
+    isMyNode = try container.decodeIfPresent(Bool.self, forKey: .isMyNode) ?? false
+    myNodeFirmwareVersion = try container.decodeIfPresent(String.self, forKey: .myNodeFirmwareVersion)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -401,6 +421,8 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     try container.encodeIfPresent(ocvPreset, forKey: .ocvPreset)
     try container.encodeIfPresent(customOCVArrayString, forKey: .customOCVArrayString)
     try container.encodeIfPresent(avatarImageData, forKey: .avatarImageData)
+    try container.encode(isMyNode, forKey: .isMyNode)
+    try container.encodeIfPresent(myNodeFirmwareVersion, forKey: .myNodeFirmwareVersion)
   }
 
   public init(from contact: Contact) {
@@ -430,6 +452,8 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     ocvPreset = contact.ocvPreset
     customOCVArrayString = contact.customOCVArrayString
     avatarImageData = contact.avatarImageData
+    isMyNode = contact.isMyNode
+    myNodeFirmwareVersion = contact.myNodeFirmwareVersion
   }
 
   /// Memberwise initializer for creating DTOs directly
@@ -457,7 +481,9 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     unreadMentionCount: Int = 0,
     ocvPreset: String? = nil,
     customOCVArrayString: String? = nil,
-    avatarImageData: Data? = nil
+    avatarImageData: Data? = nil,
+    isMyNode: Bool = false,
+    myNodeFirmwareVersion: String? = nil
   ) {
     self.id = id
     self.radioID = radioID
@@ -483,6 +509,8 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     self.ocvPreset = ocvPreset
     self.customOCVArrayString = customOCVArrayString
     self.avatarImageData = avatarImageData
+    self.isMyNode = isMyNode
+    self.myNodeFirmwareVersion = myNodeFirmwareVersion
   }
 
   public var type: ContactType {
@@ -563,6 +591,12 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
   public func with(isMuted: Bool) -> ContactDTO {
     var copy = self
     copy.isMuted = isMuted
+    return copy
+  }
+
+  public func with(isMyNode: Bool) -> ContactDTO {
+    var copy = self
+    copy.isMyNode = isMyNode
     return copy
   }
 

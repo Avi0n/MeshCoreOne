@@ -125,7 +125,7 @@ extension AppState {
         case .conversationsChanged:
           refreshConversations()
         case let .contactDeletedCleanup(contactIDs):
-          if let selected = navigation.selectedContact, contactIDs.contains(selected.id) {
+          if let selected = navigation.nodesSelection?.contact, contactIDs.contains(selected.id) {
             navigation.clearSelectedContact(matching: selected.id)
           }
           if !contactIDs.isEmpty {

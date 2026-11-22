@@ -35,6 +35,9 @@ struct ContactRowActions: View {
         blockButton
       }
       favoriteButton
+      if contact.type == .repeater {
+        watchlistButton
+      }
       if !isVContact {
         Divider()
         deleteButton
@@ -96,7 +99,30 @@ struct ContactRowActions: View {
         systemImage: contact.isFavorite ? "star.slash" : "star.fill"
       )
     }
-    .disabled(!isConnected || viewModel.togglingFavoriteID == contact.id)
+    .disabled(
+      !isConnected || viewModel.togglingFavoriteID == contact.id || viewModel.togglingWatchlistID == contact.id
+        || WatchlistFavoriteExplanation.locksFavorite(
+          type: contact.type, isMyNode: contact.isMyNode, isFavorite: contact.isFavorite
+        )
+    )
+  }
+
+  private var watchlistButton: some View {
+    Button {
+      Task {
+        await viewModel.setWatchlistMembership(contact, isMember: !contact.isMyNode)
+      }
+    } label: {
+      Label(
+        contact.isMyNode
+          ? L10n.Contacts.Contacts.Action.removeFromWatchlist
+          : L10n.Contacts.Contacts.Action.addToWatchlist,
+        systemImage: contact.isMyNode ? "minus.circle" : "plus.circle"
+      )
+    }
+    .disabled(
+      !isConnected || viewModel.togglingWatchlistID != nil || viewModel.togglingFavoriteID == contact.id
+    )
   }
 }
 

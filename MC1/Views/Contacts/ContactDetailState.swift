@@ -19,6 +19,7 @@ final class ContactDetailState {
   var isClearingMessages = false
   var isSaving = false
   var isSettingFavorite = false
+  var isSettingWatchlistMembership = false
   var isFavorite: Bool {
     get { currentContact.isFavorite }
     set { requestFavorite(newValue) }
@@ -61,7 +62,6 @@ final class ContactDetailState {
   @ObservationIgnored private var activityServicesVersion: Int?
   @ObservationIgnored private var isActive = false
   @ObservationIgnored private var hasLoadedContact = false
-  @ObservationIgnored var favoriteTask: Task<Void, Never>?
   @ObservationIgnored var actionTasks: [Action: Task<Void, Never>] = [:]
   @ObservationIgnored var actionOperationIDs: [Action: UUID] = [:]
   @ObservationIgnored var ownedOperationContext: OperationContext?

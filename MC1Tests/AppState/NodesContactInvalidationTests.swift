@@ -33,7 +33,7 @@ struct NodesContactInvalidationTests {
     case .matching:
       expectedID = nil
     case .reopened:
-      navigation.selectedContact = nil
+      navigation.nodesSelection = nil
       navigation.navigateToContactDetail(contact)
       navigation.selectedTab = AppTab.map.rawValue
       expectedID = nil
@@ -58,15 +58,15 @@ struct NodesContactInvalidationTests {
     fixture.services.advertisementService.finishEvents()
     await listener.value
 
-    #expect(navigation.selectedContact?.id == expectedID)
+    #expect(navigation.nodesSelection?.rootContact?.id == expectedID)
     #expect(navigation.selectedTab == AppTab.map.rawValue)
-    #expect(navigation.nodesShowingDiscovery == (selection == .discovery))
+    #expect((navigation.nodesSelection == .discovery) == (selection == .discovery))
     #expect(routes.sidebarPath == [.blockedContacts])
     if selection == .matching || selection == .reopened {
       #expect(navigation.nodesPresentationRevision > revision)
       #expect(routes.detailPath(in: navigation).isEmpty)
       oldBinding.wrappedValue = oldPath
-      #expect(navigation.selectedContact == nil)
+      #expect(navigation.nodesSelection?.rootContact == nil)
       oldBinding.wrappedValue = []
       #expect(routes.compactPath(in: navigation) == [.blockedContacts])
     } else {
@@ -94,10 +94,10 @@ struct NodesContactInvalidationTests {
     await listener.value
 
     #expect(fixture.appState.contactsVersion == 1)
-    #expect(fixture.appState.navigation.selectedContact == nil)
+    #expect(fixture.appState.navigation.nodesSelection?.rootContact == nil)
     #expect(routes.detailPath(in: fixture.appState.navigation).isEmpty)
     oldBinding.wrappedValue = oldPath
-    #expect(fixture.appState.navigation.selectedContact == nil)
+    #expect(fixture.appState.navigation.nodesSelection?.rootContact == nil)
     oldBinding.wrappedValue = []
     #expect(routes.compactPath(in: fixture.appState.navigation) == [.blockedContacts])
   }
@@ -121,7 +121,7 @@ struct NodesContactInvalidationTests {
     fixture.services.syncCoordinator.notifyContactsChanged()
     fixture.services.syncCoordinator.finishDataEvents()
     await listener.value
-    #expect(fixture.appState.navigation.selectedContact?.id == contact.id)
+    #expect(fixture.appState.navigation.nodesSelection?.rootContact?.id == contact.id)
   }
 
   @Test
@@ -137,7 +137,7 @@ struct NodesContactInvalidationTests {
     fixture.services.syncCoordinator.notifyContactsChanged()
     fixture.services.syncCoordinator.finishDataEvents()
     await listener.value
-    #expect(fixture.appState.navigation.selectedContact?.id == contact.id)
+    #expect(fixture.appState.navigation.nodesSelection?.rootContact?.id == contact.id)
   }
 
   @Test(arguments: LookupReplacement.allCases)
@@ -171,7 +171,7 @@ struct NodesContactInvalidationTests {
       navigation.navigateToContactDetail(other)
       expectedID = other.id
     case .clearAndReopen:
-      navigation.selectedContact = nil
+      navigation.nodesSelection = nil
       navigation.navigateToContactDetail(contact)
     case .radio:
       appState.connectionManager.persistConnection(deviceID: UUID(), radioID: UUID(), deviceName: "Replacement")
@@ -190,7 +190,7 @@ struct NodesContactInvalidationTests {
     await resume.open()
     fixture.services.syncCoordinator.finishDataEvents()
     await listener.value
-    #expect(navigation.selectedContact?.id == expectedID)
+    #expect(navigation.nodesSelection?.rootContact?.id == expectedID)
     if let replacementServices { await replacementServices.tearDown() }
   }
 

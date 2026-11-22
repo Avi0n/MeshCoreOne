@@ -29,7 +29,7 @@ struct ContactsSidebarPresenter: ViewModifier {
       .onChange(of: state.viewModel.hasLoadedOnce) { _, loaded in
         if loaded { state.firstLoadCompleted() }
       }
-      .onChange(of: appState.navigation.selectedContact) { _, _ in
+      .onChange(of: appState.navigation.nodesSelection?.rootContact) { _, _ in
         state.admitSelection(appState: appState)
       }
       .onChange(of: state.viewModel.pendingRemovalIDs) { _, _ in

@@ -73,6 +73,8 @@ final class ContactsViewModel {
   /// Contact ID currently having its favorite status toggled (for loading UI)
   var togglingFavoriteID: UUID?
 
+  var togglingWatchlistID: UUID?
+
   /// Mask of rows hidden after a confirmed delete, held until a reload sees the row gone so a
   /// racing reload can't resurrect it. Observed because `filteredContacts` reads it during body
   /// evaluation. Distinct from `deletingIDs`, the in-flight presentation set.
@@ -137,7 +139,6 @@ final class ContactsViewModel {
     let generation = loadGeneration
 
     isLoading = true
-    errorMessage = nil
 
     do {
       let fetched = try await dataStore.fetchContacts(radioID: radioID)
@@ -300,6 +301,23 @@ final class ContactsViewModel {
       // Reload to get updated state
       if contacts.contains(where: { $0.id == contact.id }) {
         await loadContacts(radioID: contact.radioID)
+      }
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+  }
+
+  func setWatchlistMembership(_ contact: ContactDTO, isMember: Bool) async {
+    guard let contactService, contact.type == .repeater else { return }
+    guard togglingWatchlistID == nil, togglingFavoriteID != contact.id else { return }
+    togglingWatchlistID = contact.id
+    defer { togglingWatchlistID = nil }
+    do {
+      let saved = try await contactService.setWatchlistMembership(
+        contactID: contact.id, radioID: contact.radioID, isMember: isMember
+      )
+      if let index = contacts.firstIndex(where: { $0.id == saved.id }) {
+        contacts[index] = saved
       }
     } catch {
       errorMessage = error.userFacingMessage

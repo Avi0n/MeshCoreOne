@@ -347,7 +347,7 @@ public extension PersistenceStore {
     granted ? (flags | mask) : (flags & ~mask)
   }
 
-  private func requiredContact(id: UUID) throws -> Contact {
+  internal func requiredContact(id: UUID) throws -> Contact {
     let targetID = id
     let predicate = #Predicate<Contact> { contact in
       contact.id == targetID

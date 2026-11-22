@@ -153,6 +153,50 @@ struct ContactServiceSyncTests {
     #expect(Set(stored.map(\.name)) == ["Alice", "Existing"])
   }
 
+  @Test
+  func `full and incremental sync keep Watchlist fields and prune an absent marked contact`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    let retained = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: publicKey(0xAA),
+      name: "Kept",
+      typeRawValue: ContactType.repeater.rawValue,
+      isMyNode: true,
+      myNodeFirmwareVersion: "1.2.3"
+    )
+    let absent = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: publicKey(0xDD),
+      name: "Absent",
+      typeRawValue: ContactType.repeater.rawValue,
+      isMyNode: true,
+      myNodeFirmwareVersion: ""
+    )
+    try await store.saveContact(retained)
+    try await store.saveContact(absent)
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([
+      meshContact(0xAA, name: "Kept", flags: [.favorite])
+    ])
+    let service = ContactService(session: session, dataStore: store, syncCoordinator: nil, cleanupCoordinator: nil)
+
+    _ = try await service.syncContacts(radioID: radioID, since: nil)
+    #expect(try await store.fetchContact(id: absent.id) == nil)
+    var stored = try #require(try await store.fetchContact(id: retained.id))
+    #expect(stored.isFavorite)
+    #expect(stored.isMyNode)
+    #expect(stored.myNodeFirmwareVersion == "1.2.3")
+
+    await session.setStubbedContacts([meshContact(0xAA, name: "Renamed")])
+    _ = try await service.syncContacts(radioID: radioID, since: Date(timeIntervalSince1970: 100))
+    stored = try #require(try await store.fetchContact(id: retained.id))
+    #expect(stored.name == "Renamed")
+    #expect(!stored.isFavorite)
+    #expect(stored.isMyNode)
+    #expect(stored.myNodeFirmwareVersion == "1.2.3")
+  }
+
   @Test(arguments: [true, false])
   func `full and incremental sync apply the radio favourite to an existing row`(
     radioFavorite: Bool

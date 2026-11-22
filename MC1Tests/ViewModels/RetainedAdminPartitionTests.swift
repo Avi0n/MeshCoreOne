@@ -23,7 +23,7 @@ struct RetainedAdminPartitionTests {
       try await harness.importCanonicalIdentity()
       await appState.wireServicesIfConnected()
       let perRadioNavigationCleared = appState.navigation.chatsSelectedRoute == nil
-        && appState.navigation.selectedContact == nil
+        && appState.navigation.nodesSelection?.rootContact == nil
       #expect(perRadioNavigationCleared)
       let previousWorkspaceReset = switch role {
       case .roomServer: appState.remoteAdminWorkspaces.room(for: retained.session).settings.helper !== retained.settings

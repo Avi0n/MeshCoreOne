@@ -36,6 +36,8 @@ extension ContactDetailState {
 
   enum Action: Hashable {
     case block, delete, clearMessages, share, ping, nickname, refresh, discoverPath, editPath, resetPath
+    case favorite(Bool)
+    case watchlistMembership(Bool)
   }
 
   struct OperationContext: Equatable {

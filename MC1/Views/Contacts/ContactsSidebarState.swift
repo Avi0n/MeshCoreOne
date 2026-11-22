@@ -87,13 +87,12 @@ final class ContactsSidebarState {
   }
 
   func admitSelection(appState: AppState) {
-    guard let contact = appState.navigation.selectedContact else { return }
-    appState.navigation.nodesShowingDiscovery = false
+    guard let contact = appState.navigation.nodesSelection?.rootContact else { return }
     viewModel.admitIfAbsent(contact)
   }
 
   func clearRemovedSelection(appState: AppState) {
-    if let selected = appState.navigation.selectedContact,
+    if let selected = appState.navigation.nodesSelection?.rootContact,
        viewModel.pendingRemovalIDs.contains(selected.id) {
       appState.navigation.clearSelectedContact(matching: selected.id)
     }

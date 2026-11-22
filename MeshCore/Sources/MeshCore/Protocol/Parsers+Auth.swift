@@ -26,7 +26,7 @@ extension Parsers {
   ///            This parser uses byte 0 for the admin gate. For non-admin sessions, only byte 11
   ///            = 2 maps to `.readWrite`; every other value (including C++ `1 = read-only`)
   ///            falls back to `.guest` so a non-posting client cannot acquire `canPost`.
-  /// - byte 12: firmware version level (not parsed).
+  /// - byte 12: firmware version level (`FIRMWARE_VER_LEVEL`).
   ///
   /// The byte-0 admin indicator is preferred over re-deriving admin status from the
   /// permissions byte because the latter is encoding-specific and has produced
@@ -60,7 +60,8 @@ extension Parsers {
           permissions: normalizedPermissions,
           isAdmin: isAdmin,
           publicKeyPrefix: pubkeyPrefix,
-          serverTime: serverTime
+          serverTime: serverTime,
+          firmwareLevel: data[12]
         ))
       }
 

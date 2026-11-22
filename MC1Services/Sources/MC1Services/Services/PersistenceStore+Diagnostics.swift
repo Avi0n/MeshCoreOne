@@ -731,7 +731,7 @@ public extension PersistenceStore {
     )
   }
 
-  private func latestSnapshot(
+  internal func latestSnapshot(
     nodePublicKey: Data,
     selfRadioID: UUID?,
     since: Date? = nil
@@ -767,7 +767,8 @@ public extension PersistenceStore {
     return FetchDescriptor(predicate: #Predicate { $0.nodePublicKey == key }, sortBy: sortBy)
   }
 
-  private func insertOrEnrichSnapshot(
+  /// `replacesStatus` lets a newer in-window status win and moves the row to `capturedAt`.
+  internal func insertOrEnrichSnapshot(
     latest: NodeStatusSnapshot?,
     capturedAt: Date,
     nodePublicKey: Data,
@@ -775,10 +776,14 @@ public extension PersistenceStore {
     status: NodeStatusMetrics?,
     telemetry: [TelemetrySnapshotEntry]?,
     neighbors: [NeighborSnapshotEntry]?,
-    location: NodeLocationFix?
+    location: NodeLocationFix?,
+    replacesStatus: Bool = false
   ) throws -> UUID {
     if let latest, latest.timestamp.distance(to: capturedAt) < NodeSnapshotPolicy.minimumInterval {
-      if let status, latest.uptimeSeconds == nil {
+      if let status, replacesStatus {
+        latest.apply(status)
+        latest.timestamp = capturedAt
+      } else if let status, latest.uptimeSeconds == nil {
         latest.apply(status)
       }
       if let telemetry {

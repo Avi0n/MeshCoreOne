@@ -32,6 +32,11 @@ public final class ConnectionManager {
     }
   }
 
+  /// Streams future connection states. The current state is available through `connectionState`.
+  public func subscribeToConnectionState() -> AsyncStream<DeviceConnectionState> {
+    connectionStateEvents.subscribe(bufferingPolicy: .bufferingNewest(8))
+  }
+
   /// Connected device info (nil when disconnected)
   public private(set) var connectedDevice: DeviceDTO?
 

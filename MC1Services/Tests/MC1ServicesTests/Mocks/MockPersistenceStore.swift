@@ -895,6 +895,22 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     return updated
   }
 
+  public func updateWatchlistMembership(
+    contactID: UUID,
+    radioID: UUID,
+    isMember: Bool
+  ) async throws -> ContactDTO {
+    guard let contact = contacts[contactID], contact.radioID == radioID else {
+      throw PersistenceStoreError.contactNotFound
+    }
+    guard contact.type == .repeater else {
+      throw PersistenceStoreError.invalidData
+    }
+    let updated = replacing(contact, isMyNode: isMember)
+    contacts[contactID] = updated
+    return updated
+  }
+
   public func updateContactFavorite(contactID: UUID, isFavorite: Bool) async throws -> ContactDTO {
     if let error = stubbedSaveContactError {
       throw error
@@ -953,7 +969,8 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     unreadCount: Int? = nil,
     ocvPreset: String? = nil,
     customOCVArrayString: String?? = nil,
-    avatarImageData: Data?? = nil
+    avatarImageData: Data?? = nil,
+    isMyNode: Bool? = nil
   ) -> ContactDTO {
     ContactDTO(
       id: contact.id,
@@ -979,7 +996,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       unreadMentionCount: contact.unreadMentionCount,
       ocvPreset: ocvPreset ?? contact.ocvPreset,
       customOCVArrayString: customOCVArrayString ?? contact.customOCVArrayString,
-      avatarImageData: avatarImageData ?? contact.avatarImageData
+      avatarImageData: avatarImageData ?? contact.avatarImageData,
+      isMyNode: isMyNode ?? contact.isMyNode,
+      myNodeFirmwareVersion: contact.myNodeFirmwareVersion
     )
   }
 

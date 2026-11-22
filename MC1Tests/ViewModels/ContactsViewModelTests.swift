@@ -2,6 +2,7 @@ import CoreLocation
 import Foundation
 @testable import MC1
 @testable import MC1Services
+import MeshCore
 import Testing
 
 // MARK: - Test Helpers
@@ -674,5 +675,81 @@ struct ContactsViewModelTests {
 
     await viewModel.loadContacts(radioID: radioA)
     #expect(viewModel.contacts.map(\.id) == [pin.id])
+  }
+
+  @Test
+  func `membership ignores a chat contact and a missing service`() async {
+    let model = ContactsViewModel()
+    let chat = createContact(type: .chat)
+    model.contacts = [chat]
+    await model.setWatchlistMembership(chat, isMember: true)
+    #expect(model.contacts == [chat])
+    #expect(model.errorMessage == nil)
+    #expect(model.togglingWatchlistID == nil)
+
+    let repeater = createContact(type: .repeater)
+    model.contacts = [repeater]
+    model.configure(dataStore: { nil }, contactService: { nil }, advertisementService: { nil })
+    await model.setWatchlistMembership(repeater, isMember: true)
+    #expect(model.contacts == [repeater])
+    #expect(!model.contacts[0].isMyNode)
+    #expect(model.errorMessage == nil)
+    #expect(model.togglingWatchlistID == nil)
+  }
+
+  @Test
+  func `a busy row does not change membership and a remove uses the saved contact`() async throws {
+    let radioID = UUID()
+    let services = try await ServiceContainer.forTesting(
+      session: MeshCoreSession(transport: MockTransport()), radioID: radioID
+    )
+    let store = services.dataStore
+    let saved = try await store.saveContact(radioID: radioID, from: ContactFrame(
+      publicKey: Data(repeating: 0x44, count: ProtocolLimits.publicKeySize),
+      type: .repeater,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      name: "Ridge",
+      lastAdvertTimestamp: 1,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 1
+    ))
+    _ = try await store.updateWatchlistFirmware(contactID: saved.id, radioID: radioID, version: "")
+    let marked = try await store.updateWatchlistMembership(contactID: saved.id, radioID: radioID, isMember: true)
+    let model = ContactsViewModel()
+    model.configure(
+      dataStore: { store },
+      contactService: { services.contactService },
+      advertisementService: { nil }
+    )
+    model.contacts = [marked]
+    model.togglingFavoriteID = marked.id
+    await model.setWatchlistMembership(marked, isMember: false)
+    #expect(model.contacts[0].isMyNode)
+    #expect(model.togglingWatchlistID == nil)
+
+    model.togglingFavoriteID = nil
+    model.togglingWatchlistID = marked.id
+    await model.setWatchlistMembership(marked, isMember: false)
+    #expect(model.contacts[0].isMyNode)
+
+    model.togglingWatchlistID = nil
+    await model.setWatchlistMembership(model.contacts[0], isMember: false)
+    #expect(model.errorMessage == nil)
+    #expect(!model.contacts[0].isMyNode)
+    #expect(model.contacts[0].myNodeFirmwareVersion == "")
+    #expect(model.togglingWatchlistID == nil)
+
+    let missing = createContact(radioID: radioID, type: .repeater)
+    model.contacts = [missing]
+    await model.setWatchlistMembership(missing, isMember: true)
+    let membershipError = try #require(model.errorMessage)
+    #expect(!model.contacts[0].isMyNode)
+    #expect(model.togglingWatchlistID == nil)
+
+    await model.loadContacts(radioID: radioID)
+    #expect(model.errorMessage == membershipError)
   }
 }

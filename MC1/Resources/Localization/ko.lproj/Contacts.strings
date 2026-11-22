@@ -210,6 +210,57 @@
 /* Location: ContactContextMenuModifier - Purpose: Unblock action */
 "contacts.action.unblock" = "차단 해제";
 
+/* Add a repeater to the Watchlist */
+"contacts.action.addToWatchlist" = "워치리스트에 추가";
+
+/* Remove a repeater from the Watchlist */
+"contacts.action.removeFromWatchlist" = "워치리스트에서 제거";
+
+/* Directory button title */
+"contacts.list.watchlist" = "워치리스트";
+
+/* Reading that has not been checked */
+"contacts.watchlist.notChecked" = "확인하지 않음";
+
+/* Refresh button */
+"contacts.watchlist.refresh" = "새로 고침";
+
+/* Row failure after a refresh request */
+"contacts.watchlist.couldNotRefresh" = "새로 고칠 수 없음";
+
+/* Login recovery after the status request times out */
+"contacts.watchlist.logInAndRetry" = "로그인 후 다시 시도";
+
+/* Repeater with no last-heard time */
+"contacts.watchlist.notHeard" = "수신한 적 없음";
+
+/* Empty board */
+"contacts.watchlist.empty" = "워치리스트에 리피터 없음";
+
+/* Empty board guidance */
+"contacts.watchlist.emptyDescription" = "노드를 열고 워치리스트에 추가를 선택하십시오.";
+
+/* Footer explaining that adding to the Watchlist also sets Favorite */
+"contacts.watchlist.addMarksFavorite" = "워치리스트에 추가하면 이 리피터도 즐겨찾기로 표시되어, 노드 목록이 가득 차도 무선 기기가 이 리피터를 유지합니다.";
+
+/* Row note when the repeater did not answer */
+"contacts.watchlist.noReply" = "응답이 없습니다. 로그인이 필요할 수 있습니다.";
+
+/* Refresh progress; first number is the repeater being checked, second is the total */
+"contacts.watchlist.progress" = "새로 고침 중 %d/%d";
+
+/* Card detail segment showing the repeater's firmware version */
+"contacts.watchlist.firmwareVersion" = "펌웨어 %@";
+
+/* Card detail segment; the argument is a relative time such as 3m ago */
+"contacts.watchlist.heard" = "수신 %@";
+
+/* Card footnote for when the battery was last checked; the argument is a relative time */
+"contacts.watchlist.checked" = "확인 %@";
+
+/* Joins two card detail segments, such as firmware and last heard */
+"contacts.watchlist.detailSeparator" = "%@ · %@";
+
 // MARK: - Contact Detail
 
 /* Location: ContactDetailView.swift - Purpose: Favorite status indicator */

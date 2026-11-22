@@ -87,6 +87,14 @@ public protocol ContactPersisting: Actor {
   /// Favorite bit and local favorite mirror on the current row. Other flag bits stay.
   func updateContactFavorite(contactID: UUID, isFavorite: Bool) async throws -> ContactDTO
 
+  /// Watchlist membership on an existing repeater for the captured radio.
+  /// A missing row, or a row for another radio, throws without insertion.
+  func updateWatchlistMembership(
+    contactID: UUID,
+    radioID: UUID,
+    isMember: Bool
+  ) async throws -> ContactDTO
+
   /// Telemetry permission bits (1–3) on the current row. Other flag bits stay.
   func updateContactTelemetryPermissions(contactID: UUID, granted: Bool) async throws -> ContactDTO
 

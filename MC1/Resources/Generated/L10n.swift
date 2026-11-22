@@ -1177,8 +1177,12 @@ public enum L10n {
   public enum Contacts {
     public enum Contacts {
       public enum Action {
+        /// Add a repeater to the Watchlist
+        public static let addToWatchlist = L10n.tr("Contacts", "contacts.action.addToWatchlist", fallback: "Add to Watchlist")
         /// Location: ContactContextMenuModifier - Purpose: Block action
         public static let block = L10n.tr("Contacts", "contacts.action.block", fallback: "Block")
+        /// Remove a repeater from the Watchlist
+        public static let removeFromWatchlist = L10n.tr("Contacts", "contacts.action.removeFromWatchlist", fallback: "Remove from Watchlist")
         /// Location: ContactContextMenuModifier - Purpose: Unblock action
         public static let unblock = L10n.tr("Contacts", "contacts.action.unblock", fallback: "Unblock")
         /// Location: ContactContextMenuModifier - Purpose: Unfavorite action
@@ -1583,6 +1587,8 @@ public enum L10n {
         public static let syncNodes = L10n.tr("Contacts", "contacts.list.syncNodes", fallback: "Sync Nodes")
         /// Location: ContactsListView.swift - Purpose: Navigation title
         public static let title = L10n.tr("Contacts", "contacts.list.title", fallback: "Nodes")
+        /// Directory button title
+        public static let watchlist = L10n.tr("Contacts", "contacts.list.watchlist", fallback: "Watchlist")
         public enum Empty {
           public enum Contacts {
             /// Location: ContactsListView.swift - Purpose: No contacts empty description
@@ -2268,6 +2274,46 @@ public enum L10n {
         /// Location: ContactsViewModel.swift - Purpose: Delete radio command timed out error
         public static let removeTimedOut = L10n.tr("Contacts", "contacts.viewModel.removeTimedOut", fallback: "Deleting the node timed out. Try again.")
       }
+      public enum Watchlist {
+        /// Footer explaining that adding to the Watchlist also sets Favorite
+        public static let addMarksFavorite = L10n.tr("Contacts", "contacts.watchlist.addMarksFavorite", fallback: "Adding to your Watchlist also makes this repeater a Favorite, so your radio keeps it when its node list is full.")
+        /// Card footnote for when the battery was last checked; the argument is a relative time
+        public static func checked(_ p1: Any) -> String {
+          return L10n.tr("Contacts", "contacts.watchlist.checked", String(describing: p1), fallback: "Checked %@")
+        }
+        /// Row failure after a refresh request
+        public static let couldNotRefresh = L10n.tr("Contacts", "contacts.watchlist.couldNotRefresh", fallback: "Couldn't refresh")
+        /// Joins two card detail segments, such as firmware and last heard
+        public static func detailSeparator(_ p1: Any, _ p2: Any) -> String {
+          return L10n.tr("Contacts", "contacts.watchlist.detailSeparator", String(describing: p1), String(describing: p2), fallback: "%@ · %@")
+        }
+        /// Empty board
+        public static let empty = L10n.tr("Contacts", "contacts.watchlist.empty", fallback: "No repeaters on your Watchlist")
+        /// Empty board guidance
+        public static let emptyDescription = L10n.tr("Contacts", "contacts.watchlist.emptyDescription", fallback: "Open a node and choose Add to Watchlist.")
+        /// Card detail segment showing the repeater's firmware version
+        public static func firmwareVersion(_ p1: Any) -> String {
+          return L10n.tr("Contacts", "contacts.watchlist.firmwareVersion", String(describing: p1), fallback: "Firmware %@")
+        }
+        /// Card detail segment; the argument is a relative time such as 3m ago
+        public static func heard(_ p1: Any) -> String {
+          return L10n.tr("Contacts", "contacts.watchlist.heard", String(describing: p1), fallback: "Heard %@")
+        }
+        /// Login recovery after the status request times out
+        public static let logInAndRetry = L10n.tr("Contacts", "contacts.watchlist.logInAndRetry", fallback: "Log In and Retry")
+        /// Row note when the repeater did not answer
+        public static let noReply = L10n.tr("Contacts", "contacts.watchlist.noReply", fallback: "No reply. You may need to log in.")
+        /// Reading that has not been checked
+        public static let notChecked = L10n.tr("Contacts", "contacts.watchlist.notChecked", fallback: "Not checked")
+        /// Repeater with no last-heard time
+        public static let notHeard = L10n.tr("Contacts", "contacts.watchlist.notHeard", fallback: "Not heard")
+        /// Refresh progress; first number is the repeater being checked, second is the total
+        public static func progress(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Contacts", "contacts.watchlist.progress", p1, p2, fallback: "Refreshing %d of %d")
+        }
+        /// Refresh button
+        public static let refresh = L10n.tr("Contacts", "contacts.watchlist.refresh", fallback: "Refresh")
+      }
     }
   }
   public enum Localizable {
@@ -2505,6 +2551,8 @@ public enum L10n {
         public static let invalidResponse = L10n.tr("Localizable", "error.contactService.invalidResponse", fallback: "Invalid response from device")
         /// Location: ContactServiceError+UserFacingMessage.swift - No active connection to the radio
         public static let notConnected = L10n.tr("Localizable", "error.contactService.notConnected", fallback: "Not connected to radio")
+        /// Marked repeater must leave the Watchlist before Favorite is turned off
+        public static let removeFromWatchlistBeforeUnfavorite = L10n.tr("Localizable", "error.contactService.removeFromWatchlistBeforeUnfavorite", fallback: "Remove from your Watchlist before turning off Favorite.")
         /// Location: ContactServiceError+UserFacingMessage.swift - Contact operation message failed to send
         public static let sendFailed = L10n.tr("Localizable", "error.contactService.sendFailed", fallback: "Failed to send message")
         /// Location: ContactServiceError+UserFacingMessage.swift - Node advertisement missing or stale, so the node cannot be shared

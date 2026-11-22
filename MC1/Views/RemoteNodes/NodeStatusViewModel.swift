@@ -340,10 +340,7 @@ final class NodeStatusViewModel {
 
   var batteryDisplay: String {
     guard let mv = status?.batteryMillivolts else { return Self.emDash }
-    let volts = Double(mv) / 1000.0
-    let battery = BatteryInfo(level: Int(mv))
-    let percent = battery.percentage(using: ocvValues)
-    return "\(volts.formatted(.number.precision(.fractionLength(3))))V (\(percent)%)"
+    return BatteryReadingText.string(millivolts: Int(mv), ocvArray: ocvValues)
   }
 
   var lastRSSIDisplay: String {

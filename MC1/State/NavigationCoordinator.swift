@@ -20,22 +20,17 @@ final class NavigationCoordinator {
   /// RoomAuthenticationSheet, mirroring a disconnected-room list tap.
   var pendingRoomAuthentication: RemoteNodeSessionDTO?
 
-  /// The currently selected contact in the Nodes split view detail pane. Kept in memory
-  /// only and never persisted: it carries a public key and `radioID` (identity-bearing
-  /// data) that must not be written outside the encrypted backup envelope.
-  var selectedContact: ContactDTO? {
+  /// Kept in memory because Contact payloads carry radio identity and public keys.
+  var nodesSelection: NodesSelection? {
     didSet {
-      if selectedContact?.id != oldValue?.id {
-        nodesPresentationRevision += 1
-      }
-    }
-  }
-
-  /// Whether the Nodes split view detail pane is showing Discovery rather than a contact.
-  /// Shared so the iPad content and detail columns agree on which detail to render.
-  var nodesShowingDiscovery = false {
-    didSet {
-      if nodesShowingDiscovery != oldValue {
+      switch (oldValue, nodesSelection) {
+      case let (.contact(previous), .contact(current)) where previous.id == current.id:
+        break
+      case (.discovery, .discovery), (nil, nil):
+        break
+      case let (.watchlist(previous, _), .watchlist(current, _)) where previous == current:
+        break
+      default:
         nodesPresentationRevision += 1
       }
     }
@@ -77,8 +72,7 @@ final class NavigationCoordinator {
   /// nested destinations even when the selected root identity is unchanged.
   var chatsRootNavigationGeneration = 0
 
-  /// Bumped by explicit Nodes root navigation (contact or Discovery) so nested
-  /// destinations reset even when the selected contact identity is unchanged.
+  /// Explicit navigation resets descendants even when it reopens the same root.
   var nodesRootNavigationGeneration = 0
 
   /// Bumped by explicit settings-page navigation so nested subpages reset even
@@ -164,8 +158,13 @@ final class NavigationCoordinator {
   }
 
   func navigateToDiscovery() {
-    nodesShowingDiscovery = true
-    selectedContact = nil
+    nodesSelection = .discovery
+    nodesRootNavigationGeneration += 1
+    selectedTab = AppTab.nodes.rawValue
+  }
+
+  func navigateToWatchlist(radioID: UUID) {
+    nodesSelection = .watchlist(radioID: radioID)
     nodesRootNavigationGeneration += 1
     selectedTab = AppTab.nodes.rawValue
   }
@@ -175,8 +174,7 @@ final class NavigationCoordinator {
   }
 
   func navigateToContactDetail(_ contact: ContactDTO) {
-    selectedContact = contact
-    nodesShowingDiscovery = false
+    nodesSelection = .contact(contact)
     nodesRootNavigationGeneration += 1
     selectedTab = AppTab.nodes.rawValue
   }
@@ -214,17 +212,43 @@ final class NavigationCoordinator {
     return target.messageID
   }
 
-  /// Drops the Nodes root when the matching contact was actually removed.
+  func updateSelectedContact(_ contact: ContactDTO) {
+    guard nodesSelection?.contact?.id == contact.id else { return }
+    switch nodesSelection {
+    case .contact:
+      nodesSelection = .contact(contact)
+    case let .watchlist(radioID, _):
+      nodesSelection = .watchlist(radioID: radioID, contact: contact)
+    case .discovery, nil:
+      break
+    }
+  }
+
   func clearSelectedContact(matching id: UUID) {
-    if selectedContact?.id == id {
-      selectedContact = nil
+    guard nodesSelection?.contact?.id == id else { return }
+    switch nodesSelection {
+    case .contact:
+      nodesSelection = nil
+    case let .watchlist(radioID, _):
+      nodesSelection = .watchlist(radioID: radioID)
+    case .discovery, nil:
+      break
     }
   }
 
   func clearNodesRoot(matchingPresentation revision: Int) {
     guard nodesPresentationRevision == revision else { return }
-    selectedContact = nil
-    nodesShowingDiscovery = false
+    nodesSelection = nil
+  }
+
+  func clearWatchlistRoot() {
+    guard case .watchlist = nodesSelection else { return }
+    nodesSelection = nil
+  }
+
+  func clearWatchlistRoot(matching radioID: UUID) {
+    guard nodesSelection?.watchlistRadioID == radioID else { return }
+    nodesSelection = nil
   }
 
   func clearPendingMapFocus() {
@@ -243,22 +267,22 @@ final class NavigationCoordinator {
     pendingHashtag = nil
   }
 
-  /// Clears deep-link confirmation state and every per-radio detail selection so a pending sheet
-  /// cannot re-present, and a selection made on the previous radio cannot drive a detail pane,
-  /// after the connection is torn down and replaced.
+  /// Clears pending links and connection-dependent selections. Watchlist remains
+  /// readable for the remembered radio until that radio is replaced or forgotten.
   func clearPendingLinks() {
     pendingContactLink = nil
     pendingChannelLink = nil
     pendingHashtag = nil
-    clearPerRadioSelection()
+    if nodesSelection?.watchlistRadioID == nil { nodesSelection = nil }
+    setChatsRoute(nil)
+    replaceConversationIntents()
+    clearPerDeviceSelection()
   }
 
-  /// Resets every detail selection scoped to the current radio so a stale selection cannot aim a
-  /// section's detail pane at the wrong radio. Runs on disconnect and on a direct radio-to-radio
-  /// switch. Line of Sight is preserved because it runs offline and is not radio-scoped.
+  /// Clears radio-scoped detail selections before a replacement can display them.
+  /// Radio-independent tools and app-wide settings remain selected.
   func clearPerRadioSelection(preservingConnection: Bool = false) {
-    selectedContact = nil
-    nodesShowingDiscovery = false
+    nodesSelection = nil
     setChatsRoute(nil)
     replaceConversationIntents()
     clearPerDeviceSelection(preservingConnection: preservingConnection)

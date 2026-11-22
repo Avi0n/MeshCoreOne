@@ -19,6 +19,8 @@ extension ContactServiceError {
       L10n.Localizable.Error.ContactService.contactTableFull
     case .shareContactUnavailable:
       L10n.Localizable.Error.ContactService.shareContactUnavailable
+    case .removeFromWatchlistBeforeUnfavorite:
+      L10n.Localizable.Error.ContactService.removeFromWatchlistBeforeUnfavorite
     case let .sessionError(error):
       error.userFacingMessage
     }

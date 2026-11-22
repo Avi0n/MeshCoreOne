@@ -145,6 +145,13 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     func setDeleteContactsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
       deleteContactsFaultInjection = hook
     }
+
+    /// Test-only hook fired after a Watchlist row is mutated and before its save.
+    var watchlistSaveFaultInjection: (@Sendable () throws -> Void)?
+
+    func setWatchlistSaveFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      watchlistSaveFaultInjection = hook
+    }
   #endif
 
   /// Shared schema for MeshCore One models
@@ -199,6 +206,7 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
   ///          stay remote history. Self telemetry rows store the Device's radioID.
   /// - v10→v11: Added PendingSend.nextWireAttempt (UInt8, default 0). Existing rows
   ///          migrate to 0 with no backfill from attemptCount, so one in-flight row can replay attempt 0.
+  /// - v11→v12: Added Contact Watchlist membership and firmware version.
   public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
     if !inMemory {
       let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!

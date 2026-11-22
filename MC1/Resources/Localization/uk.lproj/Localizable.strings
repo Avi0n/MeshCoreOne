@@ -412,6 +412,9 @@
 /* Location: ContactServiceError+UserFacingMessage.swift - Node advertisement missing or stale, so the node cannot be shared */
 "error.contactService.shareContactUnavailable" = "Не вдалося поділитися вузлом. Оголошення вузла відсутнє або застаріле.";
 
+/* Marked repeater must leave the Watchlist before Favorite is turned off */
+"error.contactService.removeFromWatchlistBeforeUnfavorite" = "Прибери зі списку спостереження, перш ніж вимкнути «Обраний».";
+
 /* Location: MessageServiceError+UserFacingMessage.swift - No active connection to the radio */
 "error.messageService.notConnected" = "Немає з'єднання з пристроєм.";
 

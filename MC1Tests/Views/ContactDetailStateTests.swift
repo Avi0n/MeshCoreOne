@@ -163,7 +163,7 @@ struct ContactDetailStateTests {
     #expect(state.cropRequest == nil)
     #expect(state.activeSheet == nil)
     #expect(state.currentContact.nickname == contact.nickname)
-    #expect(appState.navigation.selectedContact?.id == replacement.id)
+    #expect(appState.navigation.nodesSelection?.rootContact?.id == replacement.id)
     #expect(closes == 0)
     state.end()
   }
@@ -180,7 +180,7 @@ struct ContactDetailStateTests {
     let reopened = sameContact ? removed : makeContact()
     appState.navigation.navigateToContactDetail(reopened)
     state.didRemoveContact(removed.id, navigation: appState.navigation, context: context)
-    #expect(appState.navigation.selectedContact?.id == (sameContact ? nil : reopened.id))
+    #expect(appState.navigation.nodesSelection?.rootContact?.id == (sameContact ? nil : reopened.id))
     #expect(closes == 0)
   }
 
@@ -193,7 +193,7 @@ struct ContactDetailStateTests {
     state.configure(appState: appState, onClose: { closes += 1 })
     appState.navigation.navigateToContactDetail(contact)
     state.didRemoveContact(contact.id, navigation: appState.navigation, context: state.operationContext)
-    #expect(appState.navigation.selectedContact == nil)
+    #expect(appState.navigation.nodesSelection?.rootContact == nil)
     #expect(closes == 1)
     state.end()
   }
@@ -280,6 +280,7 @@ struct ContactDetailStateTests {
     case .clearMessages: state.perform(.clearMessages)
     case .avatar: state.removeAvatarPhoto()
     case .favorite: state.isFavorite = !state.isFavorite
+    case .watchlistMembership: state.requestWatchlistMembership(!state.currentContact.isMyNode)
     }
   }
 
@@ -291,6 +292,7 @@ struct ContactDetailStateTests {
     case .clearMessages: state.isClearingMessages
     case .avatar: state.isSavingAvatar
     case .favorite: state.isSettingFavorite
+    case .watchlistMembership: state.isSettingWatchlistMembership
     }
   }
 
@@ -301,7 +303,8 @@ struct ContactDetailStateTests {
     case .ping: state.commandTaskForTesting(.ping)
     case .clearMessages: state.commandTaskForTesting(.clearMessages)
     case .avatar: state.avatarTask
-    case .favorite: state.favoriteTask
+    case .favorite: state.commandTaskForTesting(.favorite(!state.isFavorite))
+    case .watchlistMembership: state.commandTaskForTesting(.watchlistMembership(!state.currentContact.isMyNode))
     }
   }
 

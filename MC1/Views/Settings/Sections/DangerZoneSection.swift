@@ -81,7 +81,11 @@ struct DangerZoneSection: View {
       Button(L10n.Localizable.Common.cancel, role: .cancel) {}
       Button(L10n.Settings.DangerZone.Alert.Reset.confirm, role: .destructive) {
         Task {
+          let radioID = appState.connectedDevice?.radioID
           if await viewModel.factoryReset() {
+            if let radioID {
+              appState.navigation.clearWatchlistRoot(matching: radioID)
+            }
             dismiss()
           }
         }
@@ -113,8 +117,12 @@ struct DangerZoneSection: View {
   }
 
   private func forgetDevice(deleteData: Bool) {
+    let radioID = appState.connectedDevice?.radioID
     Task {
       if await viewModel.forgetDevice(deleteData: deleteData) {
+        if let radioID {
+          appState.navigation.clearWatchlistRoot(matching: radioID)
+        }
         dismiss()
       }
     }

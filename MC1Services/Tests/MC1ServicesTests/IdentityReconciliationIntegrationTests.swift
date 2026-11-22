@@ -34,19 +34,14 @@ struct IdentityReconciliationIntegrationTests {
     try await store.saveDevice(original)
 
     let contactKey = randomKey()
-    let frame = ContactFrame(
+    try await store.saveContact(ContactDTO.testContact(
+      radioID: originalRadioID,
       publicKey: contactKey,
-      type: .chat,
-      flags: 0,
-      outPathLength: 0,
-      outPath: Data(),
       name: "Bob",
-      lastAdvertTimestamp: 0,
-      latitude: 0,
-      longitude: 0,
-      lastModified: 0
-    )
-    try await store.saveContact(radioID: originalRadioID, from: frame)
+      typeRawValue: ContactType.repeater.rawValue,
+      isMyNode: true,
+      myNodeFirmwareVersion: ""
+    ))
 
     // 2. User removes node from MC1 (keep data) — Device row demoted to ghost.
     try await store.demoteDeviceToGhost(id: originalDeviceID)
@@ -91,7 +86,10 @@ struct IdentityReconciliationIntegrationTests {
 
     let linkedContacts = try await store.fetchContacts(radioID: originalRadioID)
     #expect(linkedContacts.count == 1)
-    #expect(linkedContacts.first?.name == "Bob")
+    let linked = try #require(linkedContacts.first)
+    #expect(linked.name == "Bob")
+    #expect(linked.isMyNode)
+    #expect(linked.myNodeFirmwareVersion == "")
   }
 
   @Test
@@ -157,19 +155,13 @@ struct IdentityReconciliationIntegrationTests {
     try await store.saveDevice(postPair)
 
     // Sync writes a contact under the temporary newRadioID
-    let postPairFrame = ContactFrame(
-      publicKey: randomKey(),
-      type: .chat,
-      flags: 0,
-      outPathLength: 0,
-      outPath: Data(),
+    try await store.saveContact(ContactDTO.testContact(
+      radioID: newRadioID,
       name: "PostPair",
-      lastAdvertTimestamp: 0,
-      latitude: 0,
-      longitude: 0,
-      lastModified: 0
-    )
-    try await store.saveContact(radioID: newRadioID, from: postPairFrame)
+      typeRawValue: ContactType.repeater.rawValue,
+      isMyNode: true,
+      myNodeFirmwareVersion: "post"
+    ))
 
     // Reconcile (config import restores the keypair)
     let reconciled = try await store.reconcileGhostIdentity(
@@ -181,7 +173,10 @@ struct IdentityReconciliationIntegrationTests {
     // Post-pair contact stays under newRadioID (documented orphaning)
     let underNew = try await store.fetchContacts(radioID: newRadioID)
     #expect(underNew.count == 1, "Post-pair contact stays under newRadioID")
-    #expect(underNew.first?.name == "PostPair")
+    let orphan = try #require(underNew.first)
+    #expect(orphan.name == "PostPair")
+    #expect(orphan.isMyNode)
+    #expect(orphan.myNodeFirmwareVersion == "post")
 
     let underOld = try await store.fetchContacts(radioID: oldRadioID)
     #expect(underOld.isEmpty, "Old radioID had no orphans pre-populated")

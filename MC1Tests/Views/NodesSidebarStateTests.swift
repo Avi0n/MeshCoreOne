@@ -252,6 +252,45 @@ struct NodesSidebarStateTests {
     #expect(model.hasLoadedOnce)
   }
 
+  @Test
+  func `an ended detail cannot hide a committed mark from the sidebar`() async throws {
+    let fixture = try makeFixture()
+    defer { fixture.cleanUp() }
+    let store = fixture.appState.connectionManager.persistenceStore
+    let saved = try await store.saveContact(radioID: fixture.radioID, from: ContactFrame(
+      publicKey: Data(repeating: 0x44, count: ProtocolLimits.publicKeySize),
+      type: .repeater,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      name: "Ridge",
+      lastAdvertTimestamp: 1,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 1
+    ))
+    let state = ContactsSidebarState()
+    defer { state.end() }
+    state.configure(appState: fixture.appState)
+    state.reloadIfNeeded(appState: fixture.appState)
+    await state.waitForLoadForTesting()
+    let listed = try #require(state.viewModel.contacts.first)
+    let detail = ContactDetailState(contact: listed)
+    detail.configure(appState: fixture.appState) {}
+    detail.end()
+
+    let marked = try await store.updateWatchlistMembership(
+      contactID: saved.id, radioID: fixture.radioID, isMember: true
+    )
+    #expect(marked.isMyNode)
+    #expect(!detail.currentContact.isMyNode)
+    fixture.appState.contactsVersion += 1
+    state.reloadIfNeeded(appState: fixture.appState)
+    await state.waitForLoadForTesting()
+    #expect(state.viewModel.contacts.first?.isMyNode == true)
+    #expect(fixture.appState.navigation.nodesSelection?.watchlistRadioID == nil)
+  }
+
   private struct Fixture {
     let appState: AppState
     let radioID: UUID

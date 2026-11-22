@@ -410,6 +410,9 @@
 /* Location: ContactServiceError+UserFacingMessage.swift - Node advertisement missing or stale, so the node cannot be shared */
 "error.contactService.shareContactUnavailable" = "Nie można udostępnić węzła. Ogłoszenie węzła może być niedostępne lub zbyt stare.";
 
+/* Marked repeater must leave the Watchlist before Favorite is turned off */
+"error.contactService.removeFromWatchlistBeforeUnfavorite" = "Usuń z listy obserwowanych, zanim wyłączysz Ulubiony.";
+
 /* Location: MessageServiceError+UserFacingMessage.swift - No active connection to the radio */
 "error.messageService.notConnected" = "Brak połączenia z urządzeniem.";
 

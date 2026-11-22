@@ -32,7 +32,9 @@ extension ContactDTO {
     lastMessageDate: Date? = nil,
     unreadCount: Int = 0,
     unreadMentionCount: Int = 0,
-    avatarImageData: Data? = nil
+    avatarImageData: Data? = nil,
+    isMyNode: Bool = false,
+    myNodeFirmwareVersion: String? = nil
   ) -> ContactDTO {
     ContactDTO(
       id: id,
@@ -56,7 +58,9 @@ extension ContactDTO {
       lastMessageDate: lastMessageDate,
       unreadCount: unreadCount,
       unreadMentionCount: unreadMentionCount,
-      avatarImageData: avatarImageData
+      avatarImageData: avatarImageData,
+      isMyNode: isMyNode,
+      myNodeFirmwareVersion: myNodeFirmwareVersion
     )
   }
 }

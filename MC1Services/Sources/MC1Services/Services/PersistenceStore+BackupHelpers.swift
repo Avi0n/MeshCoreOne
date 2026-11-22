@@ -247,6 +247,15 @@ extension PersistenceStore {
       contact.avatarImageData = backupAvatar
       changed = true
     }
+    if dto.isMyNode, !contact.isMyNode {
+      contact.isMyNode = true
+      changed = true
+    }
+    // Nil firmware is unchecked. An empty string is a checked reading and stays.
+    if contact.myNodeFirmwareVersion == nil, let backupFirmware = dto.myNodeFirmwareVersion {
+      contact.myNodeFirmwareVersion = backupFirmware
+      changed = true
+    }
     let clampedHeard = clampedBackupLastHeardTimestamp(dto.lastHeardTimestamp)
     if clampedHeard > contact.lastHeardTimestamp {
       contact.lastHeardTimestamp = clampedHeard

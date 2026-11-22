@@ -4,9 +4,9 @@ import MeshCore
 import SwiftData
 
 /// Capture-rate policy for node status snapshots.
-enum NodeSnapshotPolicy {
+public enum NodeSnapshotPolicy {
   /// Window for coalescing captures for the same public key and owner.
-  static let minimumInterval: TimeInterval = 15 * 60
+  public static let minimumInterval: TimeInterval = 15 * 60
 }
 
 /// The radio/room status fields captured in a snapshot, clamped to their

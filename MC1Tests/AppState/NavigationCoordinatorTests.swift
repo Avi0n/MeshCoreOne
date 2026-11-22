@@ -153,8 +153,8 @@ struct NavigationCoordinatorNotificationTests {
 
     await notificationService.onNewContactNotificationTapped?(contact.id)
 
-    #expect(coordinator.nodesShowingDiscovery == true)
-    #expect(coordinator.selectedContact == nil)
+    #expect(coordinator.nodesSelection == .discovery)
+    #expect(coordinator.nodesSelection?.rootContact == nil)
     #expect(coordinator.selectedTab == AppTab.nodes.rawValue)
   }
 
@@ -177,8 +177,8 @@ struct NavigationCoordinatorNotificationTests {
 
     await notificationService.onNewContactNotificationTapped?(contact.id)
 
-    #expect(coordinator.selectedContact?.id == contact.id)
-    #expect(coordinator.nodesShowingDiscovery == false)
+    #expect(coordinator.nodesSelection?.rootContact?.id == contact.id)
+    #expect(coordinator.nodesSelection != .discovery)
     #expect(coordinator.selectedTab == AppTab.nodes.rawValue)
   }
 
@@ -498,22 +498,21 @@ struct NavigationCoordinatorPendingLinkTests {
   @Test
   func `clearPendingLinks clears the hoisted Nodes selected contact`() {
     let coordinator = NavigationCoordinator()
-    coordinator.selectedContact = Self.makeContact()
-    #expect(coordinator.selectedContact != nil)
+    coordinator.nodesSelection = .contact(Self.makeContact())
+    #expect(coordinator.nodesSelection?.rootContact != nil)
 
     coordinator.clearPendingLinks()
 
-    #expect(coordinator.selectedContact == nil)
+    #expect(coordinator.nodesSelection?.rootContact == nil)
   }
 
   @Test
-  func `clearPendingLinks clears the hoisted Nodes discovery flag`() {
+  func `clearPendingLinks clears the Nodes Discovery selection`() {
     let coordinator = NavigationCoordinator()
-    coordinator.nodesShowingDiscovery = true
-
+    coordinator.nodesSelection = .discovery
     coordinator.clearPendingLinks()
 
-    #expect(coordinator.nodesShowingDiscovery == false)
+    #expect(coordinator.nodesSelection != .discovery)
   }
 
   @Test
@@ -529,8 +528,7 @@ struct NavigationCoordinatorPendingLinkTests {
       secret: Data(repeating: 0xCC, count: 16)
     )
     coordinator.pendingHashtag = HashtagJoinRequest(id: "#general")
-    coordinator.selectedContact = Self.makeContact()
-    coordinator.nodesShowingDiscovery = true
+    coordinator.nodesSelection = .discovery
     coordinator.chatsSelectedRoute = .direct(Self.makeContact())
     coordinator.selectedTool = .cli
 
@@ -539,8 +537,8 @@ struct NavigationCoordinatorPendingLinkTests {
     #expect(coordinator.pendingContactLink == nil)
     #expect(coordinator.pendingChannelLink == nil)
     #expect(coordinator.pendingHashtag == nil)
-    #expect(coordinator.selectedContact == nil)
-    #expect(coordinator.nodesShowingDiscovery == false)
+    #expect(coordinator.nodesSelection?.rootContact == nil)
+    #expect(coordinator.nodesSelection != .discovery)
     #expect(coordinator.chatsSelectedRoute == nil)
     #expect(coordinator.selectedTool == nil)
   }
@@ -652,7 +650,7 @@ struct NavigationCoordinatorPendingLinkTests {
     coordinator.navigateToContactDetail(contact)
     let generation = coordinator.nodesRootNavigationGeneration
     coordinator.navigateToContactDetail(contact)
-    #expect(coordinator.selectedContact?.id == contact.id)
+    #expect(coordinator.nodesSelection?.rootContact?.id == contact.id)
     #expect(coordinator.nodesRootNavigationGeneration == generation + 1)
   }
 
@@ -662,8 +660,8 @@ struct NavigationCoordinatorPendingLinkTests {
     coordinator.navigateToContactDetail(Self.makeContact())
     let generation = coordinator.nodesRootNavigationGeneration
     coordinator.navigateToDiscovery()
-    #expect(coordinator.selectedContact == nil)
-    #expect(coordinator.nodesShowingDiscovery == true)
+    #expect(coordinator.nodesSelection?.rootContact == nil)
+    #expect(coordinator.nodesSelection == .discovery)
     #expect(coordinator.nodesRootNavigationGeneration == generation + 1)
   }
 
@@ -671,10 +669,10 @@ struct NavigationCoordinatorPendingLinkTests {
   func `clearSelectedContact only drops the matching root`() {
     let coordinator = NavigationCoordinator()
     let contact = Self.makeContact()
-    coordinator.selectedContact = contact
+    coordinator.nodesSelection = .contact(contact)
     coordinator.clearSelectedContact(matching: UUID())
-    #expect(coordinator.selectedContact?.id == contact.id)
+    #expect(coordinator.nodesSelection?.rootContact?.id == contact.id)
     coordinator.clearSelectedContact(matching: contact.id)
-    #expect(coordinator.selectedContact == nil)
+    #expect(coordinator.nodesSelection?.rootContact == nil)
   }
 }

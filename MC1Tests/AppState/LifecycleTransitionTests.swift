@@ -59,12 +59,11 @@ struct LifecycleTransitionTests {
         try? await Task.sleep(for: .seconds(60))
       }
     }
-    appState.navigation.nodesShowingDiscovery = true
-
+    appState.navigation.nodesSelection = .discovery
     await appState.disconnect()
 
     #expect(appState.settingsEventsTask == nil)
-    #expect(appState.navigation.nodesShowingDiscovery == false)
+    #expect(appState.navigation.nodesSelection != .discovery)
   }
 
   @Test
@@ -124,8 +123,7 @@ struct LifecycleTransitionTests {
     appState.navigation.chatsSelectedRoute = .direct(Self.makeContact(name: secretName))
     appState.navigation.selectedTool = .lineOfSight
     appState.navigation.selectedSetting = .maps
-    appState.navigation.nodesShowingDiscovery = true
-
+    appState.navigation.nodesSelection = .discovery
     let message = appState.toolbarResumeProbeMessage(
       source: "returnToForeground",
       scene: "background->active"

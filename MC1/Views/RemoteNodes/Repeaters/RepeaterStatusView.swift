@@ -72,11 +72,24 @@ struct RepeaterStatusView: View {
       .onChange(of: appState.contactsVersion) {
         Task { await refreshRouteContact() }
       }
+      .onChange(of: viewModel.firmwareVersion, initial: true) { _, version in
+        guard let version else { return }
+        Task { await saveFirmwareForWatchlist(version) }
+      }
     }
     .onDisappear {
       viewModel.pauseDiscoveryPolls()
     }
     .presentationDetents([.large])
+  }
+
+  private func saveFirmwareForWatchlist(_ version: String) async {
+    guard let store = appState.connectionSnapshot(for: session.radioID)?.services.dataStore,
+          let contact = await (try? store.fetchContact(radioID: session.radioID, publicKey: session.publicKey))
+            .flatMap(\.self),
+          contact.myNodeFirmwareVersion != version else { return }
+    let saved = try? await store.updateWatchlistFirmware(contactID: contact.id, radioID: session.radioID, version: version)
+    if saved != nil { appState.contactsVersion += 1 }
   }
 
   private func refreshRouteContact() async {

@@ -51,7 +51,7 @@ struct ContactsContentColumn: View {
       filteredContacts: list.contacts,
       timestampsByID: list.timestampsByID,
       searchPrompt: actions.searchPrompt,
-      selectedContact: appState.navigation.selectedContact,
+      selectedContact: appState.navigation.nodesSelection?.rootContact,
       sortOrder: $sortOrder,
       blockedContactsRoute: blockedContactsRoute,
       rendererRevision: rendererRevision,
@@ -65,8 +65,7 @@ struct ContactsContentColumn: View {
   }
 
   private func selectContact(_ contact: ContactDTO) {
-    appState.navigation.selectedContact = contact
-    appState.navigation.nodesShowingDiscovery = false
+    appState.navigation.nodesSelection = .contact(contact)
   }
 }
 
