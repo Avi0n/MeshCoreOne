@@ -21,7 +21,7 @@ public extension PersistenceStore {
 
     var conversations: [TextRulesPreference.Conversation] = []
     for (radioID, radioName) in namesByRadio {
-      if kind != .directMessage && kind != .room {
+      if kind != .directMessage, kind != .room {
         for channel in try fetchChannels(radioID: radioID) {
           let channelKind = TextRulesPreference.channelKind(isPublic: channel.isPublicChannel, name: channel.name)
           guard kind == nil || channelKind == kind, let localID = channel.textRulesID else { continue }

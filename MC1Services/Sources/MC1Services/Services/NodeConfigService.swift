@@ -676,7 +676,7 @@ public extension NodeConfigService {
   internal static func buildContactConfig(from contact: MeshContact) -> MeshCoreNodeConfig.ContactConfig {
     let outPath: String? = if contact.isFloodPath {
       nil
-    } else if contact.pathByteLength > 0 && !contact.outPath.isEmpty {
+    } else if contact.pathByteLength > 0, !contact.outPath.isEmpty {
       contact.outPath.prefix(contact.pathByteLength).hexString
     } else {
       ""
