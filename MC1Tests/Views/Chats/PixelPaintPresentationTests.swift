@@ -15,7 +15,7 @@ private struct AccessibilityDump: Error, CustomStringConvertible {
 @Suite("Pixel paint presentation", .serialized)
 @MainActor
 struct PixelPaintPresentationTests {
-  @Test func `full screen cover blocks dismissal and cancel discards pixels`() async throws {
+  @Test func `full screen cover blocks dismissal and cancel asks before discarding pixels`() async throws {
     let appState = try AppState(modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
     appState.connectionManager.setTestState(connectionState: .ready)
     let draft = PixelPaintDraft()
@@ -55,12 +55,71 @@ struct PixelPaintPresentationTests {
       isEnabled(L10n.Chats.Chats.Mcoimg.send, in: window) == false
     }
     try #require(await activate(L10n.Localizable.Common.cancel, in: window))
-    try await waitUntil("Cancel should dismiss the editor") { presentedController(in: window) == nil }
+    try await waitUntil("Cancel on a drawing should ask before discarding") {
+      alertTitled(L10n.Chats.Chats.Mcoimg.discardTitle, from: window.rootViewController)
+    }
+    #expect(presentedController(in: window) != nil)
+    #expect(draft.image == pixels)
+    try #require(await activate(L10n.Chats.Chats.Mcoimg.discard, in: window))
+    try await waitUntil("Discard should dismiss the editor") { presentedController(in: window) == nil }
     #expect(draft.image.pixels.allSatisfy { $0 == PixelPaintDraft.background })
 
     presentation.isPresented = true
     try await waitUntil("Editor should reopen") { presentedController(in: window) != nil }
     #expect(draft.image.pixels.allSatisfy { $0 == PixelPaintDraft.background })
+    try #require(await activate(L10n.Localizable.Common.cancel, in: window))
+    try await waitUntil("Cancel on a blank canvas should dismiss directly") { presentedController(in: window) == nil }
+  }
+
+  @Test func `cancel while encoding retires the drawing without asking`() async throws {
+    let appState = try AppState(modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
+    appState.connectionManager.setTestState(connectionState: .ready)
+    let draft = PixelPaintDraft()
+    draft.paint(x: 2, y: 3)
+    draft.endStroke()
+    let model = SendModel()
+    model.pauseOnEncode = true
+    let window = try host(SendHarness(draft: draft, model: model).environment(\.appState, appState))
+    defer { release(window, appState: appState) }
+
+    try await waitUntil("Harness should appear") { model.isReady }
+    model.isPresented = true
+    try await waitUntil("Editor should present") { presentedController(in: window) != nil }
+    try #require(await activate(L10n.Chats.Chats.Mcoimg.send, in: window))
+    await model.pause.untilPaused()
+    #expect(draft.isSubmitting)
+    #expect(!draft.isAdmitting)
+    try #require(await activate(L10n.Localizable.Common.cancel, in: window))
+    try await waitUntil("Cancel should dismiss the editor") { presentedController(in: window) == nil }
+    #expect(!alertTitled(L10n.Chats.Chats.Mcoimg.discardTitle, from: window.rootViewController))
+    model.pause.resume()
+    await model.task?.value
+    #expect(model.payloads.isEmpty)
+    #expect(model.admittedCount == 0)
+    #expect(draft.image.pixels.allSatisfy { $0 == PixelPaintDraft.background })
+  }
+
+  @Test func `a transport change re-measures and re-enables send`() async throws {
+    let appState = try AppState(modelContainer: PersistenceStore.createContainer(inMemory: true), isPlaceholder: true)
+    appState.connectionManager.setTestState(connectionState: .ready)
+    let draft = PixelPaintDraft()
+    draft.pixels = try await drawingOverTextLimitButWithinDataLimit()
+    let model = TransportModel()
+    let window = try host(TransportHarness(draft: draft, model: model).environment(\.appState, appState))
+    defer { release(window, appState: appState) }
+
+    try await waitUntil("Harness should appear") { model.isReady }
+    model.isPresented = true
+    try await waitUntil("Editor should present") { presentedController(in: window) != nil }
+    try await waitUntil("A drawing over the text limit disables Send") {
+      draft.encodedByteCount != nil && isEnabled(L10n.Chats.Chats.Mcoimg.send, in: window) == false
+    }
+    #expect(draft.isOverBudget(for: .channelText))
+    model.transport = .channelData
+    try await waitUntil("The channel data measurement re-enables Send") {
+      isEnabled(L10n.Chats.Chats.Mcoimg.send, in: window) == true
+    }
+    #expect(!draft.isOverBudget(for: .channelData))
   }
 
   @Test func `send admits once without changing the text draft`() async throws {
@@ -228,7 +287,7 @@ struct PixelPaintPresentationTests {
     var body: some View {
       Color.clear
         .fullScreenCover(isPresented: $presentation.isPresented) {
-          PixelPaintEditor(draft: draft, onSend: {})
+          PixelPaintEditor(draft: draft, transport: .direct, senderName: "", onSend: {})
         }
         .onAppear { presentation.isReady = true }
     }
@@ -240,9 +299,11 @@ struct PixelPaintPresentationTests {
     var body: some View {
       Text(model.text)
         .fullScreenCover(isPresented: $model.isPresented) {
-          PixelPaintEditor(draft: draft) {
+          PixelPaintEditor(draft: draft, transport: .direct, senderName: "") {
             guard let attempt = draft.begin(isReady: { model.ready }) else { return }
-            let task = Task {
+            let pause = model.pause
+            let pauseOnEncode = model.pauseOnEncode
+            model.task = Task {
               await draft.run(
                 attempt,
                 transport: .direct,
@@ -254,10 +315,17 @@ struct PixelPaintPresentationTests {
                   return model.accept
                 },
                 onWillSend: {},
-                onAdmitted: { model.isPresented = false }
+                onAdmitted: {
+                  model.admittedCount += 1
+                  model.isPresented = false
+                },
+                encode: { image, transport in
+                  if pauseOnEncode { await pause.pause() }
+                  return try await encodePixelDrawing(image, transport: transport)
+                }
               )
             }
-            draft.track(task)
+            if let task = model.task { draft.track(task) }
           }
         }
         .onAppear { model.isReady = true }
@@ -282,8 +350,61 @@ struct PixelPaintPresentationTests {
     var accept = true
     var payloads: [String] = []
     var sendErrorMessage: String?
+    var pauseOnEncode = false
+    var admittedCount = 0
+    var task: Task<Void, Never>?
     let pause = SubmissionPause()
   }
+
+  private struct TransportHarness: View {
+    let draft: PixelPaintDraft
+    @Bindable var model: TransportModel
+    var body: some View {
+      Color.clear
+        .fullScreenCover(isPresented: $model.isPresented) {
+          PixelPaintEditor(draft: draft, transport: model.transport, senderName: model.senderName, onSend: {})
+        }
+        .onAppear { model.isReady = true }
+    }
+  }
+
+  @Observable
+  @MainActor
+  final class TransportModel {
+    /// A long node name is what pushes a 16×16 drawing past the channel text limit.
+    static let nodeName = String(repeating: "N", count: 32)
+    var transport = PixelPaintTransport.channelText
+    var senderName = nodeName
+    var isPresented = false
+    var isReady = false
+  }
+
+  /// The margin absorbs the encoded size's variance across random nonces.
+  private func drawingOverTextLimitButWithinDataLimit() async throws -> [Int] {
+    let side = PixelPaintDraft.side
+    let margin = 2
+    let colors = MCOImagePalette.count(profile: PixelPaintDraft.profile)
+    var state: UInt32 = 0x2545_F491
+    let sequence = (0..<(side * side)).map { _ in
+      state = state &* 1_664_525 &+ 1_013_904_223
+      return Int(state >> 16) % colors
+    }
+    for count in stride(from: side, through: side * side, by: side) {
+      var pixels = Array(repeating: PixelPaintDraft.background, count: side * side)
+      pixels.replaceSubrange(0..<count, with: sequence.prefix(count))
+      let image = MCOImageRaster(width: side, height: side, profile: PixelPaintDraft.profile, pixels: pixels)
+      let text = try await encodePixelDrawing(image, transport: .channelText)
+      let textBytes = try PixelPaintTransport.channelText.encodedByteCount(text: text, senderName: TransportModel.nodeName)
+      guard textBytes > PixelPaintTransport.channelText.byteLimit + margin else { continue }
+      let data = try await encodePixelDrawing(image, transport: .channelData)
+      let dataBytes = try PixelPaintTransport.channelData.encodedByteCount(text: data, senderName: TransportModel.nodeName)
+      try #require(dataBytes + margin <= PixelPaintTransport.channelData.byteLimit)
+      return pixels
+    }
+    throw NoDrawingOverflowsTextLimit()
+  }
+
+  private struct NoDrawingOverflowsTextLimit: Error {}
 
   @Observable
   @MainActor
@@ -450,6 +571,13 @@ struct PixelPaintPresentationTests {
     }
     if alertTitled(title, message: message, from: controller.presentedViewController) { return true }
     return controller.children.contains { alertTitled(title, message: message, from: $0) }
+  }
+
+  private func alertTitled(_ title: String, from controller: UIViewController?) -> Bool {
+    guard let controller else { return false }
+    if let alert = controller as? UIAlertController, alert.title == title { return true }
+    if alertTitled(title, from: controller.presentedViewController) { return true }
+    return controller.children.contains { alertTitled(title, from: $0) }
   }
 
   private func alertMessage(_ text: String, from controller: UIViewController?) -> Bool {

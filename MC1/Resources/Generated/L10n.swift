@@ -559,12 +559,26 @@ public enum L10n {
         public static let title = L10n.tr("Chats", "chats.malwareWarning.title", fallback: "Link flagged as suspicious")
       }
       public enum Mcoimg {
+        /// VoiceOver label for the drawing size gauge; arguments are the encoded size and the conversation's limit
+        public static func budget(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Chats", "chats.mcoimg.budget", p1, p2, fallback: "Drawing size %1$d of %2$d bytes")
+        }
         /// VoiceOver name for the pixel drawing canvas
         public static let canvas = L10n.tr("Chats", "chats.mcoimg.canvas", fallback: "Pixel canvas")
+        /// VoiceOver hint for the pixel canvas
+        public static let canvasHint = L10n.tr("Chats", "chats.mcoimg.canvasHint", fallback: "Swipe up or down to move. Double-tap to paint.")
         /// Erases every pixel in the editor
         public static let clear = L10n.tr("Chats", "chats.mcoimg.clear", fallback: "Clear Drawing")
+        /// VoiceOver value for the canvas cursor; arguments are 1-based column, 1-based row, and the colour name
+        public static func cursorPosition(_ p1: Int, _ p2: Int, _ p3: Any) -> String {
+          return L10n.tr("Chats", "chats.mcoimg.cursorPosition", p1, p2, String(describing: p3), fallback: "Column %1$d, row %2$d, %3$@")
+        }
         /// Placeholder when an MCOimg payload cannot be decoded
         public static let damaged = L10n.tr("Chats", "chats.mcoimg.damaged", fallback: "Damaged image")
+        /// Destructive button that throws the pixel drawing away
+        public static let discard = L10n.tr("Chats", "chats.mcoimg.discard", fallback: "Discard Drawing")
+        /// Title of the confirmation shown when cancelling a pixel drawing that is not blank
+        public static let discardTitle = L10n.tr("Chats", "chats.mcoimg.discardTitle", fallback: "Discard Drawing?")
         /// Progress label while a pixel drawing is encoded
         public static let encoding = L10n.tr("Chats", "chats.mcoimg.encoding", fallback: "Encoding drawing")
         /// Error when a pixel drawing cannot be encoded
@@ -573,14 +587,22 @@ public enum L10n {
         public static let encodingFailedTitle = L10n.tr("Chats", "chats.mcoimg.encodingFailedTitle", fallback: "Unable to Encode")
         /// Name for an MCOimg in VoiceOver, notifications, and the chat list
         public static let image = L10n.tr("Chats", "chats.mcoimg.image", fallback: "Pixel drawing")
-        /// VoiceOver name for one cell; arguments are 1-based column and row
-        public static func pixel(_ p1: Int, _ p2: Int) -> String {
-          return L10n.tr("Chats", "chats.mcoimg.pixel", p1, p2, fallback: "Pixel %d, %d")
-        }
+        /// VoiceOver action that moves the canvas cursor down one cell
+        public static let moveDown = L10n.tr("Chats", "chats.mcoimg.moveDown", fallback: "Move down")
+        /// VoiceOver action that moves the canvas cursor left one cell
+        public static let moveLeft = L10n.tr("Chats", "chats.mcoimg.moveLeft", fallback: "Move left")
+        /// VoiceOver action that moves the canvas cursor right one cell
+        public static let moveRight = L10n.tr("Chats", "chats.mcoimg.moveRight", fallback: "Move right")
+        /// VoiceOver action that moves the canvas cursor up one cell
+        public static let moveUp = L10n.tr("Chats", "chats.mcoimg.moveUp", fallback: "Move up")
+        /// Reapplies the last undone stroke, fill, or clear
+        public static let redo = L10n.tr("Chats", "chats.mcoimg.redo", fallback: "Redo")
         /// Sends the open pixel drawing
         public static let send = L10n.tr("Chats", "chats.mcoimg.send", fallback: "Send")
         /// Progress label once a pixel drawing has been handed to the conversation
         public static let sending = L10n.tr("Chats", "chats.mcoimg.sending", fallback: "Sending drawing")
+        /// Toggle that shows or hides the pixel grid lines
+        public static let showGrid = L10n.tr("Chats", "chats.mcoimg.showGrid", fallback: "Show Grid")
         /// Editor title and the compose-menu action for a pixel drawing
         public static let title = L10n.tr("Chats", "chats.mcoimg.title", fallback: "Pixel Paint")
         /// Error when a pixel drawing exceeds the conversation limit; arguments are size then limit
@@ -591,8 +613,14 @@ public enum L10n {
         public static func tooLargeChannel(_ p1: Int, _ p2: Int) -> String {
           return L10n.tr("Chats", "chats.mcoimg.tooLargeChannel", p1, p2, fallback: "Drawing is %d bytes, including your node name; this channel allows %d. Simplify the drawing and try again.")
         }
+        /// Shown under the canvas when the encoded drawing exceeds the conversation's limit
+        public static let tooLargeInline = L10n.tr("Chats", "chats.mcoimg.tooLargeInline", fallback: "Too large to send")
         /// Alert title when a pixel drawing exceeds the conversation limit
         public static let tooLargeTitle = L10n.tr("Chats", "chats.mcoimg.tooLargeTitle", fallback: "Drawing Too Large")
+        /// Label for the pixel editor's tool picker
+        public static let toolPicker = L10n.tr("Chats", "chats.mcoimg.toolPicker", fallback: "Tool")
+        /// Restores the pixel drawing to its state before the last stroke, fill, or clear
+        public static let undo = L10n.tr("Chats", "chats.mcoimg.undo", fallback: "Undo")
         /// Placeholder when an MCOimg version cannot be shown
         public static let unsupported = L10n.tr("Chats", "chats.mcoimg.unsupported", fallback: "Unsupported image format")
         public enum ColorName {
@@ -612,6 +640,14 @@ public enum L10n {
           public static let white = L10n.tr("Chats", "chats.mcoimg.colorName.white", fallback: "White")
           /// VoiceOver name for a Pixel Paint palette color
           public static let yellow = L10n.tr("Chats", "chats.mcoimg.colorName.yellow", fallback: "Yellow")
+        }
+        public enum Tool {
+          /// Pixel editor tool that paints with the selected colour
+          public static let brush = L10n.tr("Chats", "chats.mcoimg.tool.brush", fallback: "Brush")
+          /// Pixel editor tool that paints the background colour
+          public static let eraser = L10n.tr("Chats", "chats.mcoimg.tool.eraser", fallback: "Eraser")
+          /// Pixel editor tool that fills a connected area with the selected colour
+          public static let fill = L10n.tr("Chats", "chats.mcoimg.tool.fill", fallback: "Fill")
         }
       }
       public enum Mention {

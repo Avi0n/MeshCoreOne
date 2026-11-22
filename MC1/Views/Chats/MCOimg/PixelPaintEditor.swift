@@ -3,92 +3,78 @@ import SwiftUI
 
 struct PixelPaintEditor: View {
   @Bindable var draft: PixelPaintDraft
+  let transport: PixelPaintTransport
+  let senderName: String
   let onSend: () -> Void
   @Environment(\.dismiss) private var dismiss
   @Environment(\.appState) private var appState
-  private static let swatchSize: CGFloat = 36
+  @AppStorage(AppStorageKey.pixelPaintShowsGrid.rawValue)
+  private var showsGrid = AppStorageKey.defaultPixelPaintShowsGrid
+  @State private var isWide = false
+  @State private var isConfirmingDiscard = false
   private static let maximumCanvasSize: CGFloat = 480
-  private static let gridWidth: CGFloat = 0.5
   private static let contentSpacing: CGFloat = 24
-  private static let paletteColumns = 4
-  private static let swatchPadding: CGFloat = 4
-  /// Spoken names in `PixelPaintDraft.profile` palette order.
-  private static let colorNames = [
-    L10n.Chats.Chats.Mcoimg.ColorName.white, L10n.Chats.Chats.Mcoimg.ColorName.gray,
-    L10n.Chats.Chats.Mcoimg.ColorName.black, L10n.Chats.Chats.Mcoimg.ColorName.red,
-    L10n.Chats.Chats.Mcoimg.ColorName.yellow, L10n.Chats.Chats.Mcoimg.ColorName.green,
-    L10n.Chats.Chats.Mcoimg.ColorName.blue, L10n.Chats.Chats.Mcoimg.ColorName.purple,
-  ]
-
-  private static func colorName(_ index: Int) -> String {
-    colorNames.indices.contains(index) ? colorNames[index] : ""
-  }
 
   var body: some View {
     NavigationStack {
-      ScrollView {
+      // `AnyLayout` keeps the canvas identity, and its VoiceOver cursor, across a rotation.
+      let layout = isWide
+        ? AnyLayout(HStackLayout(spacing: Self.contentSpacing))
+        : AnyLayout(VStackLayout(spacing: Self.contentSpacing))
+      layout {
+        PixelPaintCanvas(draft: draft, showsGrid: showsGrid)
+          .frame(maxWidth: Self.maximumCanvasSize, maxHeight: Self.maximumCanvasSize)
         VStack(spacing: Self.contentSpacing) {
-          coverStatus
-          canvas
-            .aspectRatio(1, contentMode: .fit)
-            .frame(maxWidth: Self.maximumCanvasSize)
-          LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: Self.paletteColumns)) {
-            ForEach(0..<MCOImagePalette.count(profile: PixelPaintDraft.profile), id: \.self) { index in
-              Button {
-                draft.selectedColor = index
-              } label: {
-                Circle()
-                  .fill(MCOImageRenderer.color(index, profile: PixelPaintDraft.profile))
-                  .overlay {
-                    Circle().strokeBorder(index == draft.selectedColor ? Color.accentColor : .gray,
-                                          lineWidth: index == draft.selectedColor ? 4 : 1)
-                  }
-                  .frame(width: Self.swatchSize, height: Self.swatchSize)
-                  .padding(Self.swatchPadding)
-              }
-              .buttonStyle(.plain)
-              .accessibilityLabel(Self.colorName(index))
-              .accessibilityAddTraits(index == draft.selectedColor ? .isSelected : [])
-              .accessibilityIdentifier("pixelColor\(index)")
-            }
-          }
-          Button(L10n.Chats.Chats.Mcoimg.clear, systemImage: "eraser") { draft.clear() }
-            .disabled(draft.isSubmitting)
+          PixelPaintStatusRow(draft: draft, transport: transport, senderName: senderName)
+          PixelPaintControls(draft: draft)
         }
-        .padding()
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: Self.maximumCanvasSize)
       }
+      .padding()
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .onGeometryChange(for: Bool.self) { $0.size.width > $0.size.height } action: { isWide = $0 }
       .navigationTitle(L10n.Chats.Chats.Mcoimg.title)
       .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button(L10n.Localizable.Common.cancel, systemImage: "xmark") {
-            draft.endStroke()
-            draft.remove()
-            dismiss()
-          }
-          .disabled(draft.isAdmitting)
-          .accessibilityHint(draft.isAdmitting ? L10n.Chats.Chats.Mcoimg.sending : "")
-          .accessibilityIdentifier("pixelPaintCancel")
-        }
-        ToolbarItem(placement: .confirmationAction) {
-          Button(L10n.Chats.Chats.Mcoimg.send, systemImage: "arrow.up") {
-            draft.endStroke()
-            onSend()
-          }
-          .disabled(!canSend)
-          .accessibilityHint(sendAccessibilityHint)
-          .accessibilityIdentifier("pixelPaintSend")
-        }
-      }
+      .toolbar { toolbar }
     }
     .interactiveDismissDisabled()
     .errorAlert($draft.errorMessage, title: draft.errorTitle)
     .accessibilityIdentifier("pixelPaintEditor")
   }
 
+  @ToolbarContentBuilder
+  private var toolbar: some ToolbarContent {
+    ToolbarItem(placement: .cancellationAction) {
+      Button(L10n.Localizable.Common.cancel, systemImage: "xmark", action: cancel)
+        .disabled(draft.isAdmitting)
+        .accessibilityHint(draft.isAdmitting ? L10n.Chats.Chats.Mcoimg.sending : "")
+        .accessibilityIdentifier("pixelPaintCancel")
+        .confirmationDialog(
+          L10n.Chats.Chats.Mcoimg.discardTitle,
+          isPresented: $isConfirmingDiscard,
+          titleVisibility: .visible
+        ) {
+          Button(L10n.Chats.Chats.Mcoimg.discard, role: .destructive, action: discard)
+        }
+    }
+    ToolbarItem(placement: .topBarTrailing) {
+      Toggle(L10n.Chats.Chats.Mcoimg.showGrid, systemImage: "grid", isOn: $showsGrid)
+        .toggleStyle(.button)
+        .accessibilityIdentifier("pixelPaintGrid")
+    }
+    ToolbarItem(placement: .confirmationAction) {
+      Button(L10n.Chats.Chats.Mcoimg.send, systemImage: "arrow.up") {
+        draft.endStroke()
+        onSend()
+      }
+      .disabled(!canSend)
+      .accessibilityHint(sendAccessibilityHint)
+      .accessibilityIdentifier("pixelPaintSend")
+    }
+  }
+
   private var canSend: Bool {
-    appState.connectionState == .ready && !draft.isSubmitting
+    appState.connectionState == .ready && !draft.isSubmitting && !draft.isOverBudget(for: transport)
   }
 
   private var sendAccessibilityHint: String {
@@ -98,64 +84,25 @@ struct PixelPaintEditor: View {
     if appState.connectionState != .ready {
       return L10n.Chats.Chats.Input.requiresConnection
     }
+    if draft.isOverBudget(for: transport) {
+      return L10n.Chats.Chats.Mcoimg.tooLargeInline
+    }
     return ""
   }
 
-  @ViewBuilder
-  private var coverStatus: some View {
-    if draft.isSubmitting {
-      ProgressView(draft.isAdmitting ? L10n.Chats.Chats.Mcoimg.sending : L10n.Chats.Chats.Mcoimg.encoding)
-    } else if appState.connectionState != .ready {
-      Text(L10n.Chats.Chats.Input.requiresConnection)
-        .font(.footnote)
-        .foregroundStyle(.secondary)
+  /// A submission that hasn't been admitted is retired at once, so it can't send behind a dialog.
+  private func cancel() {
+    draft.endStroke()
+    if draft.isSubmitting || draft.isBlank {
+      discard()
+    } else {
+      isConfirmingDiscard = true
     }
   }
 
-  private var canvas: some View {
-    Canvas { context, size in
-      let cellSize = size.width / Double(PixelPaintDraft.side)
-      for row in 0..<PixelPaintDraft.side {
-        for column in 0..<PixelPaintDraft.side {
-          let rect = CGRect(x: Double(column) * cellSize, y: Double(row) * cellSize,
-                            width: cellSize, height: cellSize)
-          context.fill(Path(rect), with: .color(MCOImageRenderer.color(
-            draft.pixels[row * PixelPaintDraft.side + column], profile: PixelPaintDraft.profile
-          )))
-          context.stroke(Path(rect), with: .color(.gray), lineWidth: Self.gridWidth)
-        }
-      }
-    }
-    .gesture(DragGesture(minimumDistance: 0).onChanged { value in
-      // Hit testing uses cell edges, matching `MCOImageRenderer` raster origins.
-      let side = min(Self.maximumCanvasSize, canvasWidth)
-      guard side > 0 else { return }
-      draft.paint(x: Int(floor(value.location.x / side * Double(PixelPaintDraft.side))),
-                  y: Int(floor(value.location.y / side * Double(PixelPaintDraft.side))))
-    }.onEnded { _ in draft.endStroke() })
-    .allowsHitTesting(!draft.isSubmitting)
-    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { canvasWidth = $0 }
-    .accessibilityLabel(L10n.Chats.Chats.Mcoimg.canvas)
-    .accessibilityIdentifier("pixelPaintCanvas")
-    .accessibilityRepresentation { accessiblePixels.disabled(draft.isSubmitting) }
-  }
-
-  @State private var canvasWidth: CGFloat = 0
-
-  private var accessiblePixels: some View {
-    VStack {
-      ForEach(0..<PixelPaintDraft.side, id: \.self) { row in
-        HStack {
-          ForEach(0..<PixelPaintDraft.side, id: \.self) { column in
-            Button(L10n.Chats.Chats.Mcoimg.pixel(column + 1, row + 1)) {
-              draft.endStroke()
-              draft.paint(x: column, y: row)
-              draft.endStroke()
-            }
-            .accessibilityValue(Self.colorName(draft.pixels[row * PixelPaintDraft.side + column]))
-          }
-        }
-      }
-    }
+  private func discard() {
+    guard !draft.isAdmitting else { return }
+    draft.remove()
+    dismiss()
   }
 }

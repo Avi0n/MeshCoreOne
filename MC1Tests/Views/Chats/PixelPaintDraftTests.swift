@@ -37,8 +37,12 @@ struct PixelPaintDraftTests {
     let task = probe.submit(draft)
     await probe.pause.untilPaused()
     let second = probe.submit(draft)
+    let couldUndo = draft.canUndo
     draft.paint(x: 3, y: 4)
     draft.clear()
+    draft.fill(x: 10, y: 10)
+    draft.undo()
+    #expect(draft.canUndo == couldUndo)
     #expect(second == nil)
     #expect(probe.payloads.count == 1)
     #expect(probe.captured == [snapshot])
@@ -150,6 +154,132 @@ struct PixelPaintDraftTests {
     draft.paint(x: -1, y: 0)
     draft.paint(x: 0, y: PixelPaintDraft.side)
     #expect(draft.image.pixels.allSatisfy { $0 == PixelPaintDraft.background })
+  }
+
+  @Test func `a stroke that leaves and re-enters the canvas does not join the exit and entry cells`() {
+    let draft = PixelPaintDraft()
+    let side = PixelPaintDraft.side
+    let entryRow = 10
+    draft.paint(x: 0, y: 0)
+    draft.paint(x: -1, y: 0)
+    draft.paint(x: 0, y: entryRow)
+    draft.endStroke()
+    #expect(draft.pixels[0] == PixelPaintDraft.initialBrush)
+    #expect(draft.pixels[entryRow * side] == PixelPaintDraft.initialBrush)
+    for row in 1..<entryRow {
+      #expect(draft.pixels[row * side] == PixelPaintDraft.background)
+    }
+    #expect(draft.undoStack.count == 1)
+  }
+
+  @Test func `one gesture is one undo step and a new stroke clears redo`() {
+    let draft = PixelPaintDraft()
+    draft.paint(x: 0, y: 0)
+    draft.paint(x: 3, y: 0)
+    draft.endStroke()
+    let painted = draft.pixels
+    #expect(draft.undoStack.count == 1)
+    draft.undo()
+    #expect(draft.isBlank)
+    #expect(draft.canRedo)
+    draft.redo()
+    #expect(draft.pixels == painted)
+    draft.undo()
+    draft.paint(x: 5, y: 5)
+    draft.endStroke()
+    #expect(!draft.canRedo)
+  }
+
+  @Test func `clear is one undo step and keeps the tool`() {
+    let draft = PixelPaintDraft()
+    draft.paint(x: 0, y: 0)
+    draft.endStroke()
+    draft.tool = .fill
+    draft.clear()
+    #expect(draft.isBlank)
+    #expect(draft.canUndo)
+    #expect(draft.tool == .fill)
+    draft.undo()
+    #expect(draft.pixels[0] == PixelPaintDraft.initialBrush)
+  }
+
+  @Test func `retiring mid stroke leaves no history behind`() {
+    let draft = PixelPaintDraft()
+    draft.paint(x: 0, y: 0)
+    draft.endStroke()
+    draft.paint(x: 2, y: 2)
+    draft.remove()
+    #expect(draft.isBlank)
+    #expect(!draft.canUndo)
+    draft.endStroke()
+    draft.undo()
+    #expect(draft.isBlank)
+    #expect(!draft.canUndo)
+  }
+
+  @Test func `undo during an open stroke keeps the earlier state reachable`() {
+    let draft = PixelPaintDraft()
+    draft.paint(x: 0, y: 0)
+    draft.endStroke()
+    let afterFirstStroke = draft.pixels
+    draft.paint(x: 5, y: 5)
+    draft.undo()
+    #expect(draft.pixels == afterFirstStroke)
+    draft.endStroke()
+    #expect(draft.canRedo)
+    draft.undo()
+    #expect(draft.isBlank)
+  }
+
+  @Test func `fill stays inside an enclosed shape and is one undo step`() {
+    let draft = PixelPaintDraft()
+    let side = PixelPaintDraft.side
+    let corner = 4
+    let fillColor = PixelPaintDraft.initialBrush + 1
+    for (x, y) in [(0, 0), (corner, 0), (corner, corner), (0, corner), (0, 0)] {
+      draft.paint(x: x, y: y)
+    }
+    draft.endStroke()
+    draft.selectedColor = fillColor
+    draft.fill(x: 2, y: 2)
+    #expect(draft.pixels[2 * side + 2] == fillColor)
+    #expect(draft.pixels[1 * side + 1] == fillColor)
+    #expect(draft.pixels[3 * side + 3] == fillColor)
+    #expect(draft.pixels[0] == PixelPaintDraft.initialBrush)
+    #expect(draft.pixels[(corner + 1) * side + corner + 1] == PixelPaintDraft.background)
+    #expect(draft.undoStack.count == 2)
+    draft.fill(x: 2, y: 2)
+    #expect(draft.undoStack.count == 2)
+  }
+
+  @Test(arguments: [PixelPaintTransport.direct, .channelText, .channelData])
+  func `measure counts bytes the same way as a send`(transport: PixelPaintTransport) async throws {
+    let draft = PixelPaintDraft()
+    draft.paint(x: 0, y: 0)
+    draft.paint(x: PixelPaintDraft.side - 1, y: PixelPaintDraft.side - 1)
+    draft.endStroke()
+    let text = try await encodePixelDrawing(draft.image, transport: transport)
+    await draft.measure(transport: transport, senderName: "Radio", encode: { _, _ in text })
+    #expect(try draft.encodedByteCount == transport.encodedByteCount(text: text, senderName: "Radio"))
+  }
+
+  @Test func `a measurement for pixels that changed during encoding is dropped`() async {
+    let draft = PixelPaintDraft()
+    draft.paint(x: 0, y: 0)
+    draft.endStroke()
+    let pause = SubmissionPause()
+    let task = Task {
+      await draft.measure(transport: .direct, senderName: "Radio", encode: { image, transport in
+        await pause.pause()
+        return try await encodePixelDrawing(image, transport: transport)
+      })
+    }
+    await pause.untilPaused()
+    draft.paint(x: 1, y: 1)
+    draft.endStroke()
+    pause.resume()
+    await task.value
+    #expect(draft.encodedByteCount == nil)
   }
 }
 

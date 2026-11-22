@@ -1097,8 +1097,6 @@
 /* VoiceOver name for the pixel drawing canvas */
 "chats.mcoimg.canvas" = "Піксельне полотно";
 
-/* VoiceOver name for one cell; arguments are 1-based column and row */
-"chats.mcoimg.pixel" = "Піксель %d, %d";
 
 /* Alert title when a pixel drawing exceeds the conversation limit */
 "chats.mcoimg.tooLargeTitle" = "Малюнок занадто великий";
@@ -1120,6 +1118,57 @@
 
 /* Progress label once a pixel drawing has been handed to the conversation */
 "chats.mcoimg.sending" = "Надсилання малюнка";
+
+/* Title of the confirmation shown when cancelling a pixel drawing that is not blank */
+"chats.mcoimg.discardTitle" = "Discard Drawing?";
+
+/* Destructive button that throws the pixel drawing away */
+"chats.mcoimg.discard" = "Discard Drawing";
+
+/* Restores the pixel drawing to its state before the last stroke, fill, or clear */
+"chats.mcoimg.undo" = "Undo";
+
+/* Reapplies the last undone stroke, fill, or clear */
+"chats.mcoimg.redo" = "Redo";
+
+/* Label for the pixel editor's tool picker */
+"chats.mcoimg.toolPicker" = "Tool";
+
+/* Pixel editor tool that paints with the selected colour */
+"chats.mcoimg.tool.brush" = "Brush";
+
+/* Pixel editor tool that paints the background colour */
+"chats.mcoimg.tool.eraser" = "Eraser";
+
+/* Pixel editor tool that fills a connected area with the selected colour */
+"chats.mcoimg.tool.fill" = "Fill";
+
+/* Toggle that shows or hides the pixel grid lines */
+"chats.mcoimg.showGrid" = "Show Grid";
+
+/* VoiceOver label for the drawing size gauge; arguments are the encoded size and the conversation's limit */
+"chats.mcoimg.budget" = "Drawing size %1$d of %2$d bytes";
+
+/* Shown under the canvas when the encoded drawing exceeds the conversation's limit */
+"chats.mcoimg.tooLargeInline" = "Too large to send";
+
+/* VoiceOver value for the canvas cursor; arguments are 1-based column, 1-based row, and the colour name */
+"chats.mcoimg.cursorPosition" = "Column %1$d, row %2$d, %3$@";
+
+/* VoiceOver hint for the pixel canvas */
+"chats.mcoimg.canvasHint" = "Swipe up or down to move. Double-tap to paint.";
+
+/* VoiceOver action that moves the canvas cursor up one cell */
+"chats.mcoimg.moveUp" = "Move up";
+
+/* VoiceOver action that moves the canvas cursor down one cell */
+"chats.mcoimg.moveDown" = "Move down";
+
+/* VoiceOver action that moves the canvas cursor left one cell */
+"chats.mcoimg.moveLeft" = "Move left";
+
+/* VoiceOver action that moves the canvas cursor right one cell */
+"chats.mcoimg.moveRight" = "Move right";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Зображення";

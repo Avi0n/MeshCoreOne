@@ -10,45 +10,39 @@ final class PixelPaintDraft {
   static let profile = 2
   static let background = 0
   static let initialBrush = 2
+  /// Spoken names in `profile` palette order.
+  private static let colorNames = [
+    L10n.Chats.Chats.Mcoimg.ColorName.white, L10n.Chats.Chats.Mcoimg.ColorName.gray,
+    L10n.Chats.Chats.Mcoimg.ColorName.black, L10n.Chats.Chats.Mcoimg.ColorName.red,
+    L10n.Chats.Chats.Mcoimg.ColorName.yellow, L10n.Chats.Chats.Mcoimg.ColorName.green,
+    L10n.Chats.Chats.Mcoimg.ColorName.blue, L10n.Chats.Chats.Mcoimg.ColorName.purple,
+  ]
+
+  static func colorName(_ index: Int) -> String {
+    colorNames.indices.contains(index) ? colorNames[index] : ""
+  }
 
   var pixels = Array(repeating: background, count: side * side)
   var selectedColor = initialBrush
+  var tool = PixelPaintTool.brush
+  var undoStack: [[Int]] = []
+  var redoStack: [[Int]] = []
+  /// Changes only when `paint` changes a cell, so the stroke haptic stays silent on undo, fill, and clear.
+  var paintedCellRevision = 0
+  var encodedByteCount: Int?
   var isSubmitting = false
   /// True once this submission has called `onSend`. Cancel stays enabled until then.
   var isAdmitting = false
   var errorTitle: String?
   var errorMessage: String?
+  /// `strokeStart` becomes one undo entry when `endStroke` runs.
+  var previousCell: (x: Int, y: Int)?
+  var strokeStart: [Int]?
   private var submissionGeneration: UInt = 0
-  private var previousCell: (x: Int, y: Int)?
   private var submissionTask: Task<Void, Never>?
 
   var image: MCOImageRaster {
     MCOImageRaster(width: Self.side, height: Self.side, profile: Self.profile, pixels: pixels)
-  }
-
-  func paint(x: Int, y: Int) {
-    guard !isSubmitting, (0..<Self.side).contains(x), (0..<Self.side).contains(y) else { return }
-    let start = previousCell ?? (x, y)
-    let steps = max(abs(x - start.x), abs(y - start.y))
-    if steps == 0 {
-      pixels[y * Self.side + x] = selectedColor
-    } else {
-      for step in 0...steps {
-        let column = start.x + Int((Double(x - start.x) * Double(step) / Double(steps)).rounded())
-        let row = start.y + Int((Double(y - start.y) * Double(step) / Double(steps)).rounded())
-        pixels[row * Self.side + column] = selectedColor
-      }
-    }
-    previousCell = (x, y)
-  }
-
-  func endStroke() {
-    previousCell = nil
-  }
-
-  func clear() {
-    guard !isSubmitting else { return }
-    resetPixels()
   }
 
   /// Drops the current pixels and retires the in-flight submission.
@@ -108,11 +102,6 @@ final class PixelPaintDraft {
       encode: encode
     )
     settle(result, generation: attempt.generation, onAdmitted: onAdmitted)
-  }
-
-  private func resetPixels() {
-    pixels = Array(repeating: Self.background, count: Self.side * Self.side)
-    endStroke()
   }
 
   private func outcome(

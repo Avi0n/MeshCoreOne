@@ -18,7 +18,7 @@ struct ChatConversationInputBar: View {
   var body: some View {
     inputBar
       .fullScreenCover(isPresented: $isShowingPainter) {
-        PixelPaintEditor(draft: drawing, onSend: sendDrawing)
+        PixelPaintEditor(draft: drawing, transport: drawingTransport, senderName: senderName, onSend: sendDrawing)
       }
       .onChange(of: conversationType.coordinatorID) {
         drawing.remove()
@@ -65,12 +65,20 @@ struct ChatConversationInputBar: View {
     isShowingPainter = true
   }
 
-  private func sendDrawing() {
+  private var drawingTransport: PixelPaintTransport {
     let isChannel = if case .channel = conversationType { true } else { false }
-    let transport = PixelPaintTransport(
+    return PixelPaintTransport(
       isChannel: isChannel,
       supportsChannelData: appState.connectedDevice?.supportsChannelData == true
     )
+  }
+
+  private var senderName: String {
+    appState.connectedDevice?.nodeName ?? ""
+  }
+
+  private func sendDrawing() {
+    let transport = drawingTransport
     let radioID = conversationType.radioID
     let ready = {
       appState.connectionState == .ready && appState.connectedDevice?.radioID == radioID
@@ -80,7 +88,7 @@ struct ChatConversationInputBar: View {
       await drawing.run(
         attempt,
         transport: transport,
-        senderName: { appState.connectedDevice?.nodeName ?? "" },
+        senderName: { senderName },
         isReady: ready,
         onSend: onSend,
         onWillSend: onWillSend,
