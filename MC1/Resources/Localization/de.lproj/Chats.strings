@@ -1129,55 +1129,55 @@
 "chats.mcoimg.sending" = "Zeichnung wird gesendet";
 
 /* Title of the confirmation shown when cancelling a pixel drawing that is not blank */
-"chats.mcoimg.discardTitle" = "Discard Drawing?";
+"chats.mcoimg.discardTitle" = "Zeichnung verwerfen?";
 
 /* Destructive button that throws the pixel drawing away */
-"chats.mcoimg.discard" = "Discard Drawing";
+"chats.mcoimg.discard" = "Zeichnung verwerfen";
 
 /* Restores the pixel drawing to its state before the last stroke, fill, or clear */
-"chats.mcoimg.undo" = "Undo";
+"chats.mcoimg.undo" = "Widerrufen";
 
 /* Reapplies the last undone stroke, fill, or clear */
-"chats.mcoimg.redo" = "Redo";
+"chats.mcoimg.redo" = "Wiederholen";
 
 /* Label for the pixel editor's tool picker */
-"chats.mcoimg.toolPicker" = "Tool";
+"chats.mcoimg.toolPicker" = "Werkzeug";
 
 /* Pixel editor tool that paints with the selected colour */
-"chats.mcoimg.tool.brush" = "Brush";
+"chats.mcoimg.tool.brush" = "Pinsel";
 
 /* Pixel editor tool that paints the background colour */
-"chats.mcoimg.tool.eraser" = "Eraser";
+"chats.mcoimg.tool.eraser" = "Radierer";
 
 /* Pixel editor tool that fills a connected area with the selected colour */
-"chats.mcoimg.tool.fill" = "Fill";
+"chats.mcoimg.tool.fill" = "Füllen";
 
 /* Toggle that shows or hides the pixel grid lines */
-"chats.mcoimg.showGrid" = "Show Grid";
+"chats.mcoimg.showGrid" = "Raster anzeigen";
 
 /* VoiceOver label for the drawing size gauge; arguments are the encoded size and the conversation's limit */
-"chats.mcoimg.budget" = "Drawing size %1$d of %2$d bytes";
+"chats.mcoimg.budget" = "Zeichnungsgröße %1$d von %2$d Bytes";
 
 /* Shown under the canvas when the encoded drawing exceeds the conversation's limit */
-"chats.mcoimg.tooLargeInline" = "Too large to send";
+"chats.mcoimg.tooLargeInline" = "Zu groß zum Senden";
 
 /* VoiceOver value for the canvas cursor; arguments are 1-based column, 1-based row, and the colour name */
-"chats.mcoimg.cursorPosition" = "Column %1$d, row %2$d, %3$@";
+"chats.mcoimg.cursorPosition" = "Spalte %1$d, Zeile %2$d, %3$@";
 
 /* VoiceOver hint for the pixel canvas */
-"chats.mcoimg.canvasHint" = "Swipe up or down to move. Double-tap to paint.";
+"chats.mcoimg.canvasHint" = "Nach oben oder unten wischen, um dich zu bewegen. Doppeltippen zum Malen.";
 
 /* VoiceOver action that moves the canvas cursor up one cell */
-"chats.mcoimg.moveUp" = "Move up";
+"chats.mcoimg.moveUp" = "Nach oben bewegen";
 
 /* VoiceOver action that moves the canvas cursor down one cell */
-"chats.mcoimg.moveDown" = "Move down";
+"chats.mcoimg.moveDown" = "Nach unten bewegen";
 
 /* VoiceOver action that moves the canvas cursor left one cell */
-"chats.mcoimg.moveLeft" = "Move left";
+"chats.mcoimg.moveLeft" = "Nach links bewegen";
 
 /* VoiceOver action that moves the canvas cursor right one cell */
-"chats.mcoimg.moveRight" = "Move right";
+"chats.mcoimg.moveRight" = "Nach rechts bewegen";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "Bild";

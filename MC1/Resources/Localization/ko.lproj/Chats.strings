@@ -1122,55 +1122,55 @@
 "chats.mcoimg.sending" = "그림 보내는 중...";
 
 /* Title of the confirmation shown when cancelling a pixel drawing that is not blank */
-"chats.mcoimg.discardTitle" = "Discard Drawing?";
+"chats.mcoimg.discardTitle" = "그림을 버리겠습니까?";
 
 /* Destructive button that throws the pixel drawing away */
-"chats.mcoimg.discard" = "Discard Drawing";
+"chats.mcoimg.discard" = "그림 버리기";
 
 /* Restores the pixel drawing to its state before the last stroke, fill, or clear */
-"chats.mcoimg.undo" = "Undo";
+"chats.mcoimg.undo" = "실행 취소";
 
 /* Reapplies the last undone stroke, fill, or clear */
-"chats.mcoimg.redo" = "Redo";
+"chats.mcoimg.redo" = "실행 복귀";
 
 /* Label for the pixel editor's tool picker */
-"chats.mcoimg.toolPicker" = "Tool";
+"chats.mcoimg.toolPicker" = "도구";
 
 /* Pixel editor tool that paints with the selected colour */
-"chats.mcoimg.tool.brush" = "Brush";
+"chats.mcoimg.tool.brush" = "브러시";
 
 /* Pixel editor tool that paints the background colour */
-"chats.mcoimg.tool.eraser" = "Eraser";
+"chats.mcoimg.tool.eraser" = "지우개";
 
 /* Pixel editor tool that fills a connected area with the selected colour */
-"chats.mcoimg.tool.fill" = "Fill";
+"chats.mcoimg.tool.fill" = "채우기";
 
 /* Toggle that shows or hides the pixel grid lines */
-"chats.mcoimg.showGrid" = "Show Grid";
+"chats.mcoimg.showGrid" = "격자 표시";
 
 /* VoiceOver label for the drawing size gauge; arguments are the encoded size and the conversation's limit */
-"chats.mcoimg.budget" = "Drawing size %1$d of %2$d bytes";
+"chats.mcoimg.budget" = "그림 크기 %2$d바이트 중 %1$d바이트";
 
 /* Shown under the canvas when the encoded drawing exceeds the conversation's limit */
-"chats.mcoimg.tooLargeInline" = "Too large to send";
+"chats.mcoimg.tooLargeInline" = "보내기에 너무 큼";
 
 /* VoiceOver value for the canvas cursor; arguments are 1-based column, 1-based row, and the colour name */
-"chats.mcoimg.cursorPosition" = "Column %1$d, row %2$d, %3$@";
+"chats.mcoimg.cursorPosition" = "%1$d열, %2$d행, %3$@";
 
 /* VoiceOver hint for the pixel canvas */
-"chats.mcoimg.canvasHint" = "Swipe up or down to move. Double-tap to paint.";
+"chats.mcoimg.canvasHint" = "위아래로 쓸어넘겨 이동하십시오. 그리려면 이중 탭하십시오.";
 
 /* VoiceOver action that moves the canvas cursor up one cell */
-"chats.mcoimg.moveUp" = "Move up";
+"chats.mcoimg.moveUp" = "위로 이동";
 
 /* VoiceOver action that moves the canvas cursor down one cell */
-"chats.mcoimg.moveDown" = "Move down";
+"chats.mcoimg.moveDown" = "아래로 이동";
 
 /* VoiceOver action that moves the canvas cursor left one cell */
-"chats.mcoimg.moveLeft" = "Move left";
+"chats.mcoimg.moveLeft" = "왼쪽으로 이동";
 
 /* VoiceOver action that moves the canvas cursor right one cell */
-"chats.mcoimg.moveRight" = "Move right";
+"chats.mcoimg.moveRight" = "오른쪽으로 이동";
 
 /* Location: InlineImageView.swift - Accessibility label for static image */
 "chats.inlineImage.imageAccessibility" = "이미지";
