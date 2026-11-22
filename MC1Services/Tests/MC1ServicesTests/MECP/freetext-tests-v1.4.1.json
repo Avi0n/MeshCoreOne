@@ -1,0 +1,387 @@
+[
+  {
+    "title": "Timestamp: out-of-range values are skipped and the first valid one is used",
+    "input": "MECP/3/L06 @2460 @1400 @1530",
+    "expect": { "timestamp": "14:00" }
+  },
+  {
+    "title": "Timestamp: an out-of-range value is not decoded",
+    "input": "MECP/3/L06 @9999",
+    "expect": { "timestamp": null }
+  },
+  {
+    "title": "Timestamp: a three-digit value implies a leading zero hour",
+    "input": "MECP/3/L01 @123",
+    "expect": { "timestamp": "01:23" }
+  },
+  {
+    "title": "Timestamp: trailing punctuation is a boundary",
+    "input": "MECP/2/T05 @1430,",
+    "expect": { "timestamp": "14:30" }
+  },
+  {
+    "title": "Timestamp: a sigil inside a word is not decoded",
+    "input": "MECP/2/T05 meet@1430",
+    "expect": { "timestamp": null }
+  },
+  {
+    "title": "Timestamp: an equals sign is not a boundary",
+    "input": "MECP/3/L06 eta=@1430",
+    "expect": { "timestamp": null }
+  },
+  {
+    "title": "Reference: trailing punctuation is a boundary",
+    "input": "MECP/2/C08 #base-camp,",
+    "expect": { "reference": "base-camp" }
+  },
+  {
+    "title": "Reference: parentheses are boundaries",
+    "input": "MECP/2/C08 (#tag)",
+    "expect": { "reference": "tag" }
+  },
+  {
+    "title": "Reference: the full tag is kept, not truncated",
+    "input": "MECP/2/C08 #basecamp",
+    "expect": { "reference": "basecamp" }
+  },
+  {
+    "title": "Reference: an ideographic space (U+3000) is a boundary",
+    "input": "MECP/2/C08 #hut\u3000ok",
+    "expect": { "reference": "hut" }
+  },
+  {
+    "title": "Reference: an Arabic comma (U+060C) is a boundary",
+    "input": "MECP/2/C08 #hut\u060Cok",
+    "expect": { "reference": "hut" }
+  },
+  {
+    "title": "Reference: a right double quotation mark (U+201D) is a boundary",
+    "input": "MECP/2/C08 #hut\u201Dok",
+    "expect": { "reference": "hut" }
+  },
+  {
+    "title": "Reference: an ideographic comma (U+3001) is a boundary",
+    "input": "MECP/2/C08 #hut\u3001ok",
+    "expect": { "reference": "hut" }
+  },
+  {
+    "title": "Reference: a fullwidth comma (U+FF0C) is a boundary",
+    "input": "MECP/2/C08 #hut\uFF0Cok",
+    "expect": { "reference": "hut" }
+  },
+  {
+    "title": "Reference: a slash is not a boundary",
+    "input": "MECP/2/C08 #hut2/basecamp",
+    "expect": { "reference": null }
+  },
+  {
+    "title": "Reference: a fragment inside a URL is not decoded",
+    "input": "MECP/3/L06 see https://example.org/#notes",
+    "expect": { "reference": null }
+  },
+  {
+    "title": "Pax: letters after the unit prevent a match",
+    "input": "MECP/1/S01 3paxmore",
+    "expect": { "pax": null }
+  },
+  {
+    "title": "Pax: zero fails validation and the next value is used",
+    "input": "MECP/1/S01 0pax 2pax",
+    "expect": { "pax": 2 }
+  },
+  {
+    "title": "Pax: leading zeros are ignored",
+    "input": "MECP/1/S01 04pax",
+    "expect": { "pax": 4 }
+  },
+  {
+    "title": "Pax: parentheses are boundaries",
+    "input": "MECP/1/S01 (4pax)",
+    "expect": { "pax": 4 }
+  },
+  {
+    "title": "Pax: the unit is case-insensitive and a trailing period is a boundary",
+    "input": "MECP/1/S01 4Pax.",
+    "expect": { "pax": 4 }
+  },
+  {
+    "title": "Pax: a no-break space (U+00A0) is a boundary",
+    "input": "MECP/1/S01 4pax\u00a0water",
+    "expect": { "pax": 4 }
+  },
+  {
+    "title": "Pax: a vertical tab (U+000B) is not a boundary",
+    "input": "MECP/1/S01 4pax\u000bwater",
+    "expect": { "pax": null }
+  },
+  {
+    "title": "Pax: the first value wins",
+    "input": "MECP/1/S01 2pax 5pax",
+    "expect": { "pax": 2 }
+  },
+  {
+    "title": "Pax: an asterisk is not a boundary",
+    "input": "MECP/1/S01 3pax*",
+    "expect": { "pax": null }
+  },
+  {
+    "title": "GPS: an out-of-range position is skipped and the next valid one is used",
+    "input": "MECP/3/L06 95.0,200.0 47.3,8.5",
+    "expect": { "gps": { "lat": 47.3, "lon": 8.5 } }
+  },
+  {
+    "title": "GPS: integers with a decimal comma are not a position",
+    "input": "MECP/3/L02 2,5 km",
+    "expect": { "gps": null }
+  },
+  {
+    "title": "GPS: a plus sign and a space after the comma are accepted",
+    "input": "MECP/0/M04 +48.8566, 2.3522",
+    "expect": { "gps": { "lat": 48.8566, "lon": 2.3522 } }
+  },
+  {
+    "title": "GPS: a latitude just above 90 is not decoded",
+    "input": "MECP/0/M04 90.0001,0.0",
+    "expect": { "gps": null }
+  },
+  {
+    "title": "GPS: letters before the position prevent a match",
+    "input": "MECP/0/M01 x48.65,20.13",
+    "expect": { "gps": null }
+  },
+  {
+    "title": "Callsign: a prefix separated by a slash is kept",
+    "input": "MECP/3/L20 ~DL/OK1ABC",
+    "expect": { "callsign": "DL/OK1ABC" }
+  },
+  {
+    "title": "Callsign: one longer than 12 characters is skipped and the next valid one is used",
+    "input": "MECP/3/L20 ~ABCDEFGHIJKLM ~OK1ABC",
+    "expect": { "callsign": "OK1ABC" }
+  },
+  {
+    "title": "Callsign: exactly 12 characters is accepted",
+    "input": "MECP/3/L20 ~ABCDEFGHIJKL",
+    "expect": { "callsign": "ABCDEFGHIJKL" }
+  },
+  {
+    "title": "Callsign: an APRS/AX.25 SSID is not decoded, and the message is still valid",
+    "input": "MECP/3/L20 ~W1AW-9",
+    "expect": { "callsign": null }
+  },
+  {
+    "title": "Language: an underscore region tag is normalised to lowercase with a hyphen",
+    "input": "MECP/3/L04 @zh_CN",
+    "expect": { "language": "zh-cn" }
+  },
+  {
+    "title": "Language: an uppercase tag is normalised to lowercase",
+    "input": "MECP/3/L04 @DE",
+    "expect": { "language": "de" }
+  },
+  {
+    "title": "Duration: minutes",
+    "input": "MECP/2/R03 45min",
+    "expect": { "duration": 45 }
+  },
+  {
+    "title": "Duration: days are converted to minutes, with no upper bound",
+    "input": "MECP/2/R03 2d",
+    "expect": { "duration": 2880 }
+  },
+  {
+    "title": "Duration: hours are converted to minutes",
+    "input": "MECP/2/R03 48h",
+    "expect": { "duration": 2880 }
+  },
+  {
+    "title": "Duration: a large minute count is not capped",
+    "input": "MECP/2/R03 2880min",
+    "expect": { "duration": 2880 }
+  },
+  {
+    "title": "Duration: an ETA prefix is accepted",
+    "input": "MECP/2/R03 ETA 45min",
+    "expect": { "duration": 45 }
+  },
+  {
+    "title": "Duration: a bare number as the first freetext token is minutes",
+    "input": "MECP/2/R03 45",
+    "expect": { "duration": 45 }
+  },
+  {
+    "title": "Duration: R03 applies when it is not the first code, alongside a position",
+    "input": "MECP/2/C01 R03 P05 47.3769,12.1048 45min",
+    "expect": { "gps": { "lat": 47.3769, "lon": 12.1048 }, "duration": 45 }
+  },
+  {
+    "title": "Duration: not decoded without R03",
+    "input": "MECP/3/L06 45min",
+    "expect": { "duration": null }
+  },
+  {
+    "title": "Duration: a bare number that is not the first freetext token is not decoded",
+    "input": "MECP/2/C01 R03 1pax 45",
+    "expect": { "pax": 1, "duration": null }
+  },
+  {
+    "title": "Duration: seconds are not a unit",
+    "input": "MECP/2/R03 30s",
+    "expect": { "duration": null }
+  },
+  {
+    "title": "Duration: a value in seconds is skipped and the next value is used",
+    "input": "MECP/2/R03 30s 45min",
+    "expect": { "duration": 45 }
+  },
+  {
+    "title": "Duration: a position as the first freetext token is not a bare number",
+    "input": "MECP/2/R03 47.3769,12.1048",
+    "expect": { "gps": { "lat": 47.3769, "lon": 12.1048 }, "duration": null }
+  },
+  {
+    "title": "Duration: a bare number followed by a period is minutes",
+    "input": "MECP/2/R03 45.",
+    "expect": { "duration": 45 }
+  },
+  {
+    "title": "Duration: a zero value is skipped and the bare number is used",
+    "input": "MECP/2/R03 45 0h",
+    "expect": { "duration": 45 }
+  },
+  {
+    "title": "Duration: a value with a unit is preferred over a bare number",
+    "input": "MECP/2/R03 45 2h",
+    "expect": { "duration": 120 }
+  },
+  {
+    "title": "Duration: the first value by position wins (days before minutes)",
+    "input": "MECP/2/R03 2d 45min",
+    "expect": { "duration": 2880 }
+  },
+  {
+    "title": "Duration: the first value by position wins (minutes before hours)",
+    "input": "MECP/2/R03 45min 2h",
+    "expect": { "duration": 45 }
+  },
+  {
+    "title": "Duration: hours and minutes separated by a space are combined",
+    "input": "MECP/2/R03 1h 30min",
+    "expect": { "duration": 90 }
+  },
+  {
+    "title": "Duration: a space between the number and the unit is accepted",
+    "input": "MECP/2/R03 2 h",
+    "expect": { "duration": 120 }
+  },
+  {
+    "title": "Duration: a decimal hour is not read from its fractional part",
+    "input": "MECP/2/R03 1.5h",
+    "expect": { "duration": null }
+  },
+  {
+    "title": "Duration: a decimal with a comma is not read from its fractional part",
+    "input": "MECP/2/R03 2,5h",
+    "expect": { "duration": null }
+  },
+  {
+    "title": "Duration: a decimal below one is not read from its fractional part",
+    "input": "MECP/2/R03 0.5h",
+    "expect": { "duration": null }
+  },
+  {
+    "title": "Duration: a decimal day is not read from its fractional part",
+    "input": "MECP/2/R03 1.25d",
+    "expect": { "duration": null }
+  },
+  {
+    "title": "Duration: a decimal minute value is not read from its fractional part",
+    "input": "MECP/2/R03 2.5min",
+    "expect": { "duration": null }
+  },
+  {
+    "title": "Duration: a skipped decimal value lets the next value be used",
+    "input": "MECP/2/R03 1.5h 45min",
+    "expect": { "duration": 45 }
+  },
+  {
+    "title": "Duration: a period after a letter still separates a value",
+    "input": "MECP/2/R03 hut.2h",
+    "expect": { "duration": 120 }
+  },
+  {
+    "title": "Message: a trailing space is invalid",
+    "input": "MECP/1/T05 ",
+    "expect": null
+  },
+  {
+    "title": "Message: a lowercase first code is not a code, so the message has no codes and is invalid",
+    "input": "MECP/1/t05 x",
+    "expect": null
+  },
+  {
+    "title": "Message: a repeated code is still valid",
+    "input": "MECP/1/T05 T05 damaged",
+    "expect": {}
+  },
+  {
+    "title": "Message: an unknown but well-formed code is still a valid message",
+    "input": "MECP/3/Z99 hello",
+    "expect": {}
+  },
+  {
+    "title": "Message: a lowercase code ends the code section, so a lowercase r03 does not enable duration",
+    "input": "MECP/2/L01 r03 45min",
+    "expect": { "duration": null }
+  },
+  {
+    "title": "Message: no codes after the severity is invalid",
+    "input": "MECP/0/",
+    "expect": null
+  },
+  {
+    "title": "Message: a missing code section is invalid",
+    "input": "MECP/0",
+    "expect": null
+  },
+  {
+    "title": "Message: severity above 3 is invalid",
+    "input": "MECP/4/M01",
+    "expect": null
+  },
+  {
+    "title": "Message: one trailing LF is removed before matching",
+    "input": "MECP/1/T05 T05 damaged\n",
+    "expect": {}
+  },
+  {
+    "title": "Message: one trailing CRLF is removed before matching",
+    "input": "MECP/1/T05 T05 damaged\r\n",
+    "expect": {}
+  },
+  {
+    "title": "Message: one trailing CR is removed before matching",
+    "input": "MECP/1/T05 T05 damaged\r",
+    "expect": {}
+  },
+  {
+    "title": "Message: an embedded LF is invalid",
+    "input": "MECP/1/T05 foo\nbar",
+    "expect": null
+  },
+  {
+    "title": "Message: an embedded line separator (U+2028) is invalid",
+    "input": "MECP/1/T05 foo\u2028bar",
+    "expect": null
+  },
+  {
+    "title": "Message: an embedded form feed is invalid",
+    "input": "MECP/1/T05 foo\fbar",
+    "expect": null
+  },
+  {
+    "title": "Message: decoders accept a message longer than 200 bytes (202 bytes)",
+    "input": "MECP/0/M01 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "expect": {}
+  }
+]

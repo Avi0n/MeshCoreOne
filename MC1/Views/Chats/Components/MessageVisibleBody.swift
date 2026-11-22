@@ -36,7 +36,7 @@ struct MessageVisibleBody: Equatable {
 
   /// `MECP: <stored text>` when `storedText` decodes. Nil otherwise.
   static func detailLine(storedText: String) -> String? {
-    guard MECPCatalog.reading(storedText) != nil else { return nil }
+    guard MECPCatalog.canRead(storedText) else { return nil }
     return L10n.Chats.Chats.Message.Info.mecp(storedText)
   }
 

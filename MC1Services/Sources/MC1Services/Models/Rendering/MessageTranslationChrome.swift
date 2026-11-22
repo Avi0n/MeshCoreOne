@@ -25,7 +25,7 @@ public struct MessageTranslationChrome: Sendable, Hashable {
     preferredLanguageCode: String,
     text: String
   ) -> MessageTranslationChrome? {
-    guard MECPCatalog.reading(text) == nil else { return nil }
+    guard !MECPCatalog.canRead(text) else { return nil }
     guard case let .identified(languageCode: sourceLanguageCode) = detected else { return nil }
     if let phase {
       switch phase {

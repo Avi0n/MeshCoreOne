@@ -38,6 +38,15 @@ public enum MECPCatalog {
     )?.joined(separator: " ") ?? text
   }
 
+  public static func canRead(_ text: String) -> Bool {
+    canRead(text, resourceBundle: .module)
+  }
+
+  static func canRead(_ text: String, resourceBundle: Bundle) -> Bool {
+    guard MECPDecode.matchesEnvelope(text) else { return false }
+    return languagePacks(in: resourceBundle)[englishStem] != nil
+  }
+
   static func firstPreferredLocalization(_ preferredLocalizations: [String]) -> String {
     preferredLocalizations.first ?? fallbackLocalization
   }
@@ -110,10 +119,9 @@ public enum MECPCatalog {
   static let absentUnknownCode = "Unknown code"
 
   private static let fallbackLocalization = "en"
-  private static let etaCode = "R03"
   private static let shelterCode = "H07"
   private static let unknownCodeKey = "unknown_code"
-  private static let knownLocalizationStems: Set<String> = ["de", "en", "es", "fr", "it", "nl", "pl", "pt", "ru", "uk"]
+  private static let knownLocalizationStems = Set(packStems.filter { $0 != simplifiedChineseStem })
   private static let cachedPacks: [String: LanguagePack] = loadPacks(in: .module)
 
   private static func languagePacks(in bundle: Bundle) -> [String: LanguagePack] {
@@ -146,7 +154,8 @@ public enum MECPCatalog {
   }
 
   static func lprojName(for preferredLocalization: String) -> String {
-    packStem(for: preferredLocalization) == simplifiedChineseStem ? simplifiedChineseLocalization : packStem(for: preferredLocalization)
+    let stem = packStem(for: preferredLocalization)
+    return stem == simplifiedChineseStem ? simplifiedChineseLocalization : stem
   }
 
   private static func lines(
@@ -177,7 +186,7 @@ public enum MECPCatalog {
   }
 
   private static func fillingSlots(in template: String, code: String, message: MECPMessage) -> String {
-    if code == etaCode, let eta = message.eta, let replaced = replacingBracket(in: template, with: { "\(eta) \($0)" }) {
+    if code == MECPDecode.etaCode, let eta = message.eta, let replaced = replacingBracket(in: template, with: { "\(eta) \($0)" }) {
       return replaced
     }
     if code == shelterCode, let count = message.personCount, let replaced = replacingBracket(in: template, with: { _ in String(count) }) {

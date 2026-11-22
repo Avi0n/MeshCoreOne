@@ -138,6 +138,12 @@ struct MECPCatalogTests {
     #expect(MECPCatalog.displayText("hello", bundle: .module, preferredLocalizations: ["en"]) == "hello")
   }
 
+  @Test
+  func `canRead accepts an envelope and rejects other text`() {
+    #expect(MECPCatalog.canRead("MECP/0/M01"))
+    #expect(MECPCatalog.canRead("hello") == false)
+  }
+
   private func display(_ text: String, localization: String) -> String {
     MECPCatalog.displayText(text, bundle: .module, preferredLocalizations: [localization])
   }
