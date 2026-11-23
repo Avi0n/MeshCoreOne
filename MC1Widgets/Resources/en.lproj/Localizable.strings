@@ -15,3 +15,9 @@
 
 /* Control Center button: opens the app */
 "Open MeshCore One" = "Open MeshCore One";
+
+/* Failed DM on the Live Activity: a message went unacknowledged */
+"No ACK" = "No ACK";
+
+/* Accessibility: failed DM on the Live Activity */
+"Message not acknowledged" = "Message not acknowledged";

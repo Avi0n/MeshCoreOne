@@ -24,7 +24,7 @@ struct LockScreenView: View {
 
       VStack(alignment: .trailing, spacing: LiveActivityLayout.rowSpacing) {
         primaryMetric
-        if context.state.showsUnread {
+        if context.state.showsSecondaryRate {
           PacketRateLabel(rate: context.displayedPacketRate, style: .secondary)
         }
       }
@@ -43,7 +43,9 @@ struct LockScreenView: View {
 
   @ViewBuilder
   private var primaryMetric: some View {
-    if context.state.showsUnread {
+    if context.state.showsFailedSend, let failed = context.state.failedSends {
+      FailedSendLabel(summary: failed, style: .lockScreen)
+    } else if context.state.showsUnread {
       UnreadCountLabel(count: context.state.unreadCount, style: .lockScreen)
     } else if context.state.isConnected {
       PacketRateLabel(rate: context.displayedPacketRate, style: .lockScreen)
@@ -153,6 +155,47 @@ struct UnreadCountLabel: View {
   }
 }
 
+enum FailedSendLabelStyle {
+  case lockScreen
+  case expanded
+
+  var font: Font {
+    switch self {
+    case .lockScreen: .body
+    case .expanded: .headline
+    }
+  }
+}
+
+/// A failed DM nobody acknowledged: red envelope, "No ACK", and the repeaters heard
+/// forwarding it (the repeat symbol appears only when at least one was).
+struct FailedSendLabel: View {
+  let summary: FailedSendSummary
+  let style: FailedSendLabelStyle
+
+  var body: some View {
+    HStack(spacing: LiveActivityLayout.symbolSpacing) {
+      Image(systemName: "envelope.fill")
+        .imageScale(.small)
+        .foregroundStyle(.red)
+        .accessibilityHidden(true)
+      Text("No ACK")
+      if summary.repeatsHeard > 0 {
+        Image(systemName: "repeat")
+          .imageScale(.small)
+          .accessibilityHidden(true)
+        Text("\(summary.repeatsHeard)")
+          .monospacedDigit()
+      }
+    }
+    .font(style.font)
+    .fontWeight(.regular)
+    .foregroundStyle(.primary)
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(Text("Message not acknowledged"))
+  }
+}
+
 struct BatteryLabel: View {
   let percent: Int?
 
@@ -188,6 +231,11 @@ extension MeshStatusAttributes.ContentState {
 
   var showsUnread: Bool {
     isConnected && unreadCount > 0
+  }
+
+  /// A failed send or unread count takes the top row, so the packet rate moves beneath it.
+  var showsSecondaryRate: Bool {
+    showsFailedSend || showsUnread
   }
 }
 

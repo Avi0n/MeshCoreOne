@@ -175,6 +175,8 @@ final class MessageEventDispatcher {
           stream.send(.routingChanged(contactID: contactID, isFlood: isFlood))
         case let .failed(messageID):
           stream.send(.messageFailed(messageID: messageID))
+          // The Live Activity shows unseen failed DMs, so a new failure must refresh it.
+          appState.refreshConversations()
         case let .reactionAccepted(messageID, summary):
           stream.send(.reactionReceived(messageID: messageID, summary: summary))
         }

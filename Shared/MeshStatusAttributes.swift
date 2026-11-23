@@ -16,6 +16,14 @@ struct MeshStatusAttributes: ActivityAttributes {
     var packetsPerMinute: Int?
     var unreadCount: Int
     var disconnectedDate: Date?
+    /// Failed DMs the user has not seen yet. Optional so an activity persisted by an
+    /// older build still decodes.
+    var failedSends: FailedSendSummary?
+
+    /// An unseen failed DM is worth a line only while the radio is connected.
+    var showsFailedSend: Bool {
+      isConnected && (failedSends?.count ?? 0) > 0
+    }
 
     var antennaIconName: String {
       isConnected
@@ -23,4 +31,11 @@ struct MeshStatusAttributes: ActivityAttributes {
         : "antenna.radiowaves.left.and.right.slash"
     }
   }
+}
+
+/// Unseen failed DMs, shown on the Live Activity as "No ACK".
+struct FailedSendSummary: Codable, Hashable {
+  var count: Int
+  /// Repeaters heard forwarding the newest failed DM. Zero means nothing was heard.
+  var repeatsHeard: Int
 }

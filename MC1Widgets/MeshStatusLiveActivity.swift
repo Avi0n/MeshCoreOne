@@ -24,7 +24,9 @@ struct MeshStatusLiveActivity: Widget {
           .accessibilityElement(children: .combine)
         }
         DynamicIslandExpandedRegion(.trailing) {
-          if context.state.showsUnread {
+          if context.state.showsFailedSend, let failed = context.state.failedSends {
+            FailedSendLabel(summary: failed, style: .expanded)
+          } else if context.state.showsUnread {
             UnreadCountLabel(count: context.state.unreadCount, style: .expanded)
           } else if context.state.isConnected {
             PacketRateLabel(rate: rate, style: .expanded)
@@ -35,7 +37,7 @@ struct MeshStatusLiveActivity: Widget {
           }
         }
         DynamicIslandExpandedRegion(.bottom) {
-          if context.state.showsBattery || context.state.showsUnread {
+          if context.state.showsBattery || context.state.showsSecondaryRate {
             ExpandedDetailRow(context: context, rate: rate)
           }
         }
@@ -92,7 +94,7 @@ private struct ExpandedDetailRow: View {
         BatteryLabel(percent: context.state.batteryPercent)
       }
       Spacer(minLength: 0)
-      if context.state.showsUnread {
+      if context.state.showsSecondaryRate {
         PacketRateLabel(rate: rate, style: .secondary)
           .layoutPriority(1)
       }

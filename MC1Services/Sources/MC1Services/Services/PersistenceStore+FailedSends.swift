@@ -72,6 +72,25 @@ public extension PersistenceStore {
     )
   }
 
+  /// Unseen outgoing `.failed` DMs for `radioID`: how many, and how many repeaters were
+  /// heard forwarding the newest one. A failed DM that was heard reached the mesh but
+  /// was never acknowledged; one with no repeaters heard probably never left range.
+  func fetchUnseenFailedDMSummary(radioID: UUID) throws -> (count: Int, newestRepeatsHeard: Int) {
+    let targetRadioID = radioID
+    let failedStatus = MessageStatus.failed.rawValue
+    let outgoing = MessageDirection.outgoing.rawValue
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID
+        && message.statusRawValue == failedStatus
+        && message.directionRawValue == outgoing
+        && message.contactID != nil
+        && message.failureSeen == false
+    }
+    let descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)])
+    let failed = try modelContext.fetch(descriptor)
+    return (failed.count, failed.first?.heardRepeats ?? 0)
+  }
+
   /// Marks current outgoing `.failed` DMs in `contactID` as seen by the user.
   func markFailedSendsSeen(contactID: UUID) throws {
     let targetContactID: UUID? = contactID
