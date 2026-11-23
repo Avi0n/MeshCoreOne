@@ -42,7 +42,12 @@ struct SettingsIdentityImportNavigationTests {
     harness.window.layoutIfNeeded()
     try #require(
       try await harness.waitUntil {
-        harness.navigation.selectedSetting == nil && harness.showsNavigationTitle(L10n.Settings.title)
+        harness.navigation.selectedSetting == nil
+          && harness.showsNavigationTitle(L10n.Settings.title)
+          && !harness.showsPage(
+            title: L10n.Settings.ConfigImport.title,
+            markers: [L10n.Settings.ConfigImport.selectFile]
+          )
       },
       "\(harness.describe())"
     )

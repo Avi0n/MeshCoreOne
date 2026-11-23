@@ -12,6 +12,7 @@ public enum ContactServiceError: Error, Sendable, LocalizedError {
   case contactNotFound
   case contactTableFull
   case shareContactUnavailable
+  case removeFromWatchlistBeforeUnfavorite
   case sessionError(MeshCoreError)
 
   public var errorDescription: String? {
@@ -30,6 +31,8 @@ public enum ContactServiceError: Error, Sendable, LocalizedError {
       "Device node list is full"
     case .shareContactUnavailable:
       "Unable to share node. The node's advertisement may be missing or too old."
+    case .removeFromWatchlistBeforeUnfavorite:
+      "Remove from your Watchlist before turning off Favorite."
     case let .sessionError(error):
       error.localizedDescription
     }
@@ -686,6 +689,7 @@ public actor ContactService {
     guard let existing = try await dataStore.fetchContact(id: contactID) else {
       throw ContactServiceError.contactNotFound
     }
+    try rejectMarkedRepeaterUnfavorite(existing, isFavorite: isFavorite)
 
     let nicknameUpdate: ContactNicknameUpdate
     if let nickname {
@@ -783,32 +787,80 @@ public actor ContactService {
       guard let existing = try await dataStore.fetchContact(id: contactID) else {
         throw ContactServiceError.contactNotFound
       }
-      try await writeOwnedRadioFlags(
-        publicKey: existing.publicKey,
-        mask: ContactFlags.favorite.rawValue,
-        granted: isFavorite
-      )
-      do {
-        guard let confirmed = try await session.getContact(publicKey: existing.publicKey) else {
-          throw ContactServiceError.contactNotFound
-        }
-        guard confirmed.flags.contains(.favorite) == isFavorite else {
-          throw ContactServiceError.invalidResponse
-        }
-      } catch let error as ContactServiceError {
-        throw error
-      } catch let error as MeshCoreError {
-        throw ContactServiceError.sessionError(error)
-      }
+      try rejectMarkedRepeaterUnfavorite(existing, isFavorite: isFavorite)
+      let saved = try await setContactFavoriteOwned(existing: existing, isFavorite: isFavorite)
+      await syncCoordinator?.notifyContactsChanged()
+      return saved
+    }
+  }
 
+  /// Add confirms Favorite on the radio before saving membership. Remove changes membership alone.
+  @discardableResult
+  public func setWatchlistMembership(
+    contactID: UUID,
+    radioID: UUID,
+    isMember: Bool
+  ) async throws -> ContactDTO {
+    try await withContactOperation {
+      guard let existing = try await dataStore.fetchContact(id: contactID), existing.radioID == radioID else {
+        throw ContactServiceError.contactNotFound
+      }
+      guard existing.type == .repeater else {
+        throw ContactServiceError.invalidResponse
+      }
+      if isMember {
+        _ = try await setContactFavoriteOwned(existing: existing, isFavorite: true)
+      }
       let saved: ContactDTO
       do {
-        saved = try await dataStore.updateContactFavorite(contactID: contactID, isFavorite: isFavorite)
-      } catch let error as PersistenceStoreError {
-        throw mapStoreError(error)
+        saved = try await dataStore.updateWatchlistMembership(
+          contactID: contactID,
+          radioID: radioID,
+          isMember: isMember
+        )
+      } catch {
+        // Favorite is already committed when the membership save fails during Add.
+        if isMember { await syncCoordinator?.notifyContactsChanged() }
+        if let error = error as? PersistenceStoreError {
+          throw mapStoreError(error)
+        }
+        throw error
       }
       await syncCoordinator?.notifyContactsChanged()
       return saved
+    }
+  }
+
+  private func rejectMarkedRepeaterUnfavorite(_ existing: ContactDTO, isFavorite: Bool?) throws {
+    if isFavorite == false, existing.isMyNode, existing.type == .repeater {
+      throw ContactServiceError.removeFromWatchlistBeforeUnfavorite
+    }
+  }
+
+  /// The caller holds the contact operation gate through the radio readback and local save.
+  private func setContactFavoriteOwned(existing: ContactDTO, isFavorite: Bool) async throws -> ContactDTO {
+    try await writeOwnedRadioFlags(
+      publicKey: existing.publicKey,
+      mask: ContactFlags.favorite.rawValue,
+      granted: isFavorite
+    )
+    do {
+      guard let confirmed = try await session.getContact(publicKey: existing.publicKey) else {
+        throw ContactServiceError.contactNotFound
+      }
+      guard confirmed.flags.contains(.favorite) == isFavorite else {
+        throw ContactServiceError.invalidResponse
+      }
+    } catch let error as ContactServiceError {
+      throw error
+    } catch let error as MeshCoreError {
+      throw ContactServiceError.sessionError(error)
+    }
+
+    do {
+      return try await dataStore.updateContactFavorite(contactID: existing.id, isFavorite: isFavorite)
+    } catch let error as PersistenceStoreError {
+      throw mapStoreError(error)
     }
   }
 

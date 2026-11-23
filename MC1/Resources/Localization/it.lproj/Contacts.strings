@@ -210,6 +210,57 @@
 /* Location: ContactContextMenuModifier - Purpose: Unblock action */
 "contacts.action.unblock" = "Sblocca";
 
+/* Add a repeater to the Watchlist */
+"contacts.action.addToWatchlist" = "Aggiungi a watchlist";
+
+/* Remove a repeater from the Watchlist */
+"contacts.action.removeFromWatchlist" = "Rimuovi da watchlist";
+
+/* Directory button title */
+"contacts.list.watchlist" = "Watchlist";
+
+/* Reading that has not been checked */
+"contacts.watchlist.notChecked" = "Non controllato";
+
+/* Refresh button */
+"contacts.watchlist.refresh" = "Aggiorna";
+
+/* Row failure after a refresh request */
+"contacts.watchlist.couldNotRefresh" = "Aggiornamento non riuscito";
+
+/* Login recovery after the status request times out */
+"contacts.watchlist.logInAndRetry" = "Accedi e riprova";
+
+/* Repeater with no last-heard time */
+"contacts.watchlist.notHeard" = "Non ascoltato";
+
+/* Empty board */
+"contacts.watchlist.empty" = "Nessun ripetitore nella watchlist";
+
+/* Empty board guidance */
+"contacts.watchlist.emptyDescription" = "Apri un nodo e scegli Aggiungi a watchlist.";
+
+/* Footer explaining that adding to the Watchlist also sets Favorite */
+"contacts.watchlist.addMarksFavorite" = "L'aggiunta alla watchlist rende anche questo ripetitore un preferito, così la tua radio lo conserva quando il suo elenco nodi è pieno.";
+
+/* Row note when the repeater did not answer */
+"contacts.watchlist.noReply" = "Nessuna risposta. Potresti dover accedere.";
+
+/* Refresh progress; first number is the repeater being checked, second is the total */
+"contacts.watchlist.progress" = "Aggiornamento %d di %d";
+
+/* Card detail segment showing the repeater's firmware version */
+"contacts.watchlist.firmwareVersion" = "Firmware %@";
+
+/* Card detail segment; the argument is a relative time such as 3m ago */
+"contacts.watchlist.heard" = "Ascoltato %@";
+
+/* Card footnote for when the battery was last checked; the argument is a relative time */
+"contacts.watchlist.checked" = "Controllato %@";
+
+/* Joins two card detail segments, such as firmware and last heard */
+"contacts.watchlist.detailSeparator" = "%@ · %@";
+
 // MARK: - Contact Detail
 
 /* Location: ContactDetailView.swift - Purpose: Favorite status indicator */

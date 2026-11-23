@@ -385,6 +385,42 @@ struct PersistenceStoreBatchSyncTests {
   }
 
   @Test
+  func `single-frame and batch saves keep Watchlist fields`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    let key = publicKey(0x21)
+    let seeded = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: key,
+      name: "Original",
+      typeRawValue: ContactType.repeater.rawValue,
+      lastHeardTimestamp: 50,
+      isMyNode: true,
+      myNodeFirmwareVersion: ""
+    )
+    try await store.saveContact(seeded)
+
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: contactFrame(0x21, name: "Renamed", flags: ContactFlags.favorite.rawValue)
+    )
+    let afterFrame = try #require(try await store.fetchContact(id: seeded.id))
+    #expect(afterFrame.name == "Renamed")
+    #expect(afterFrame.lastHeardTimestamp == 50)
+    #expect(afterFrame.isMyNode)
+    #expect(afterFrame.myNodeFirmwareVersion == "")
+
+    _ = try await store.batchSaveContacts(radioID: radioID, from: [
+      contactFrame(0x21, name: "Batched", flags: ContactFlags.favorite.rawValue)
+    ])
+    let afterBatch = try #require(try await store.fetchContact(id: seeded.id))
+    #expect(afterBatch.name == "Batched")
+    #expect(afterBatch.isFavorite)
+    #expect(afterBatch.isMyNode)
+    #expect(afterBatch.myNodeFirmwareVersion == "")
+  }
+
+  @Test
   func `batchSaveContacts with empty frames returns zero`() async throws {
     let radioID = UUID()
     let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)

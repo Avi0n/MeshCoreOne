@@ -41,6 +41,10 @@ struct ContactDetailContent: View {
           currentContact: state.currentContact,
           isFavorite: $state.isFavorite,
           isSettingFavorite: state.isSettingFavorite,
+          isSettingWatchlistMembership: state.isSettingWatchlistMembership,
+          onWatchlistMembership: {
+            state.requestWatchlistMembership(!state.currentContact.isMyNode)
+          },
           showFromDirectChat: state.showFromDirectChat,
           isPinging: state.isPinging,
           pingResult: state.pingResult,

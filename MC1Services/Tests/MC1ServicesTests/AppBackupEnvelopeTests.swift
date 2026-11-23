@@ -557,6 +557,47 @@ struct AppBackupEnvelopeTests {
   }
 
   @Test
+  func `rxLogFilter round-trips through restore`() throws {
+    let filterJSON =
+      #"{"route":"floodOnly","decrypt":"decrypted","hiddenPayloadTypeRawValues":[3],"groupsArrivals":true}"#
+    var prefs = BackupUserDefaults()
+    prefs.rxLogFilter = filterJSON
+
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.rxLogFilter == filterJSON)
+
+    let suiteName = "test.rxLogFilter.roundTrip.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let key = AppStorageKey.rxLogFilter.rawValue
+    let setKeys = decoded.restore(to: defaults)
+    #expect(setKeys.contains(key))
+    #expect(defaults.string(forKey: key) == filterJSON)
+  }
+
+  @Test
+  func `Legacy envelope without rxLogFilter decodes to nil and restore leaves the local value`() throws {
+    let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+    let data = Data(legacyJSON.utf8)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.rxLogFilter == nil)
+
+    let suiteName = "test.rxLogFilter.legacy.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let key = AppStorageKey.rxLogFilter.rawValue
+    let local = #"{"route":"directOnly"}"#
+    defaults.set(local, forKey: key)
+
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(key))
+    #expect(defaults.string(forKey: key) == local)
+  }
+
+  @Test
   func `dual legacy discovered and mapFilterMainMap both preserve on envelope wire`() throws {
     var prefs = BackupUserDefaults()
     prefs.showDiscoveredNodesOnMap = true

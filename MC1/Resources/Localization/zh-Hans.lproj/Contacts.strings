@@ -210,6 +210,57 @@
 /* Location: ContactContextMenuModifier - Purpose: Unblock action */
 "contacts.action.unblock" = "取消屏蔽";
 
+/* Add a repeater to the Watchlist */
+"contacts.action.addToWatchlist" = "添加到观察列表";
+
+/* Remove a repeater from the Watchlist */
+"contacts.action.removeFromWatchlist" = "从观察列表中移除";
+
+/* Directory button title */
+"contacts.list.watchlist" = "观察列表";
+
+/* Reading that has not been checked */
+"contacts.watchlist.notChecked" = "未检查";
+
+/* Refresh button */
+"contacts.watchlist.refresh" = "刷新";
+
+/* Row failure after a refresh request */
+"contacts.watchlist.couldNotRefresh" = "刷新失败";
+
+/* Login recovery after the status request times out */
+"contacts.watchlist.logInAndRetry" = "登录并重试";
+
+/* Repeater with no last-heard time */
+"contacts.watchlist.notHeard" = "从未收到";
+
+/* Empty board */
+"contacts.watchlist.empty" = "观察列表中无转发节点";
+
+/* Empty board guidance */
+"contacts.watchlist.emptyDescription" = "打开一个节点，然后选择“添加到观察列表”。";
+
+/* Footer explaining that adding to the Watchlist also sets Favorite */
+"contacts.watchlist.addMarksFavorite" = "添加到观察列表也会将此转发节点标记为收藏，这样在节点列表已满时，您的设备仍会保留它。";
+
+/* Row note when the repeater did not answer */
+"contacts.watchlist.noReply" = "没有回复。您可能需要登录。";
+
+/* Refresh progress; first number is the repeater being checked, second is the total */
+"contacts.watchlist.progress" = "正在刷新 %d/%d";
+
+/* Card detail segment showing the repeater's firmware version */
+"contacts.watchlist.firmwareVersion" = "固件 %@";
+
+/* Card detail segment; the argument is a relative time such as 3m ago */
+"contacts.watchlist.heard" = "收到 %@";
+
+/* Card footnote for when the battery was last checked; the argument is a relative time */
+"contacts.watchlist.checked" = "已检查 %@";
+
+/* Joins two card detail segments, such as firmware and last heard */
+"contacts.watchlist.detailSeparator" = "%@ · %@";
+
 // MARK: - Contact Detail
 
 /* Location: ContactDetailView.swift - Purpose: Favorite status indicator */

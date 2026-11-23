@@ -1114,6 +1114,141 @@ struct BackupIntegrationTests {
     #expect(mergedCarol.avatarImageData == Data(repeating: 0x33, count: 8))
   }
 
+  // MARK: - Watchlist backup
+
+  @Test
+  func `Watchlist membership and firmware survive export parse import and a legacy envelope`() async throws {
+    let radioID = UUID()
+    let source = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let unchecked = ContactDTO.testContact(
+      radioID: radioID, publicKey: Data(repeating: 0x31, count: 32), name: "Unchecked",
+      typeRawValue: ContactType.repeater.rawValue
+    )
+    let unknown = ContactDTO.testContact(
+      radioID: radioID, publicKey: Data(repeating: 0x32, count: 32), name: "Unknown",
+      typeRawValue: ContactType.repeater.rawValue, isMyNode: true, myNodeFirmwareVersion: ""
+    )
+    let versioned = ContactDTO.testContact(
+      radioID: radioID, publicKey: Data(repeating: 0x33, count: 32), name: "Firmware",
+      typeRawValue: ContactType.repeater.rawValue, isMyNode: true, myNodeFirmwareVersion: "1.2.3"
+    )
+    for contact in [unchecked, unknown, versioned] {
+      try await source.saveContact(contact)
+    }
+
+    let service = AppBackupService()
+    let exported = try await service.export(persistenceStore: source)
+    let encoded = try exported.data.zlibDecompressed(maxUncompressedBytes: maxBackupUncompressedBytes)
+    let json = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    let rows = try #require(json["contacts"] as? [[String: Any]])
+    let byName = Dictionary(uniqueKeysWithValues: rows.map { row in
+      ((row["name"] as? String) ?? "", row)
+    })
+    #expect(byName["Unchecked"]?["isMyNode"] as? Bool == false)
+    #expect(byName["Unchecked"]?["myNodeFirmwareVersion"] == nil)
+    #expect(byName["Unknown"]?["myNodeFirmwareVersion"] as? String == "")
+    #expect(byName["Firmware"]?["myNodeFirmwareVersion"] as? String == "1.2.3")
+
+    let envelope = try parseBackup(data: exported.data)
+    let destination = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    _ = try await service.importBackup(envelope: envelope, into: destination)
+    let restored = try await destination.fetchContacts(radioID: radioID)
+    let restoredByName = Dictionary(uniqueKeysWithValues: restored.map { ($0.name, $0) })
+    let restoredUnchecked = try #require(restoredByName["Unchecked"])
+    #expect(!restoredUnchecked.isMyNode)
+    #expect(restoredUnchecked.myNodeFirmwareVersion == nil)
+    let restoredUnknown = try #require(restoredByName["Unknown"])
+    #expect(restoredUnknown.isMyNode)
+    #expect(restoredUnknown.myNodeFirmwareVersion == "")
+    let restoredVersioned = try #require(restoredByName["Firmware"])
+    #expect(restoredVersioned.myNodeFirmwareVersion == "1.2.3")
+
+    var legacyRows = rows
+    for index in legacyRows.indices {
+      legacyRows[index].removeValue(forKey: "isMyNode")
+      legacyRows[index].removeValue(forKey: "myNodeFirmwareVersion")
+    }
+    var legacyJSON = json
+    legacyJSON["contacts"] = legacyRows
+    let legacy = try parseBackup(data: JSONSerialization.data(withJSONObject: legacyJSON).zlibCompressed())
+    #expect(legacy.contacts.allSatisfy { !$0.isMyNode && $0.myNodeFirmwareVersion == nil })
+    let legacyStore = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    _ = try await service.importBackup(envelope: legacy, into: legacyStore)
+    let legacyContacts = try await legacyStore.fetchContacts(radioID: radioID)
+    #expect(legacyContacts.count == 3)
+    #expect(legacyContacts.allSatisfy { !$0.isMyNode && $0.myNodeFirmwareVersion == nil })
+  }
+
+  @Test
+  func `an envelope with battery keys from an earlier Watchlist build still decodes`() throws {
+    let encoded = try JSONEncoder().encode(ContactDTO.testContact(
+      typeRawValue: ContactType.repeater.rawValue, isMyNode: true, myNodeFirmwareVersion: "1.0"
+    ))
+    var row = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    row["myNodeBatteryMillivolts"] = 3700
+    row["myNodeBatterySavedAt"] = 700_000_000.0
+    let decoded = try JSONDecoder().decode(ContactDTO.self, from: JSONSerialization.data(withJSONObject: row))
+    #expect(decoded.isMyNode)
+    #expect(decoded.myNodeFirmwareVersion == "1.0")
+  }
+
+  @Test
+  func `Watchlist import keeps each radio separate and adopts only default values`() async throws {
+    let sourceRadioA = UUID()
+    let sourceRadioB = UUID()
+    let keyA = Data(repeating: 0x41, count: 32)
+    let keyB = Data(repeating: 0x42, count: 32)
+    let sharedRepeater = Data(repeating: 0x43, count: 32)
+    let heldKey = Data(repeating: 0x45, count: 32)
+    let source = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    try await source.saveDevice(DeviceDTO.testDevice(id: sourceRadioA, radioID: sourceRadioA, publicKey: keyA))
+    try await source.saveDevice(DeviceDTO.testDevice(id: sourceRadioB, radioID: sourceRadioB, publicKey: keyB))
+    try await source.saveContact(ContactDTO.testContact(
+      radioID: sourceRadioA, publicKey: sharedRepeater, name: "Shared",
+      typeRawValue: ContactType.repeater.rawValue, isMyNode: true, myNodeFirmwareVersion: ""
+    ))
+    try await source.saveContact(ContactDTO.testContact(
+      radioID: sourceRadioB, publicKey: sharedRepeater, name: "Shared",
+      typeRawValue: ContactType.repeater.rawValue, isMyNode: false, myNodeFirmwareVersion: "9.9.9"
+    ))
+    try await source.saveContact(ContactDTO.testContact(
+      radioID: sourceRadioA, publicKey: heldKey, name: "Held",
+      typeRawValue: ContactType.repeater.rawValue, myNodeFirmwareVersion: "new"
+    ))
+    let envelope = try await parseBackup(data: AppBackupService().export(persistenceStore: source).data)
+
+    let localRadioA = UUID()
+    let localRadioB = UUID()
+    let destination = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    try await destination.saveDevice(DeviceDTO.testDevice(id: localRadioA, radioID: localRadioA, publicKey: keyA))
+    try await destination.saveDevice(DeviceDTO.testDevice(id: localRadioB, radioID: localRadioB, publicKey: keyB))
+    try await destination.saveContact(ContactDTO.testContact(
+      radioID: localRadioA, publicKey: sharedRepeater, name: "Shared",
+      typeRawValue: ContactType.repeater.rawValue
+    ))
+    try await destination.saveContact(ContactDTO.testContact(
+      radioID: localRadioB, publicKey: sharedRepeater, name: "Shared",
+      typeRawValue: ContactType.repeater.rawValue, isMyNode: true, myNodeFirmwareVersion: ""
+    ))
+    try await destination.saveContact(ContactDTO.testContact(
+      radioID: localRadioA, publicKey: heldKey, name: "Held",
+      typeRawValue: ContactType.repeater.rawValue, myNodeFirmwareVersion: "kept"
+    ))
+
+    _ = try await AppBackupService().importBackup(envelope: envelope, into: destination)
+
+    let adopted = try #require(try await destination.fetchContact(radioID: localRadioA, publicKey: sharedRepeater))
+    #expect(adopted.isMyNode)
+    #expect(adopted.myNodeFirmwareVersion == "")
+    let preserved = try #require(try await destination.fetchContact(radioID: localRadioB, publicKey: sharedRepeater))
+    #expect(preserved.isMyNode)
+    #expect(preserved.myNodeFirmwareVersion == "")
+    let held = try #require(try await destination.fetchContact(radioID: localRadioA, publicKey: heldKey))
+    #expect(held.myNodeFirmwareVersion == "kept")
+    #expect(try await destination.fetchContacts(radioID: sourceRadioA).isEmpty)
+    #expect(try await destination.fetchContacts(radioID: sourceRadioB).isEmpty)
+  }
+
   // MARK: - Test 11c: lastHeardTimestamp backup round-trip
 
   @Test

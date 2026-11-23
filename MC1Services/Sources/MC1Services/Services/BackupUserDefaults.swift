@@ -17,6 +17,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   public var mapFilterMainMap: String?
   public var mapFilterTracePath: String?
   public var mapFilterNeighborSNR: String?
+  public var rxLogFilter: String?
   public var mapColorSchemePreference: String?
   public var replyWithQuote: Bool?
   public var showInlineImages: Bool?
@@ -156,6 +157,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     (\.mapFilterMainMap, AppStorageKey.mapFilterMainMap.rawValue),
     (\.mapFilterTracePath, AppStorageKey.mapFilterTracePath.rawValue),
     (\.mapFilterNeighborSNR, AppStorageKey.mapFilterNeighborSNR.rawValue),
+    (\.rxLogFilter, AppStorageKey.rxLogFilter.rawValue),
     (\.discoverySortOrder, AppStorageKey.discoverySortOrder.rawValue),
     (\.nodesSortOrder, AppStorageKey.nodesSortOrder.rawValue),
     (\.tracePathViewMode, AppStorageKey.tracePathViewMode.rawValue),

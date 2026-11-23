@@ -48,18 +48,49 @@ extension ContactDetailState {
   func requestFavorite(_ favorite: Bool) {
     reconcileOperationContext()
     guard hasPresentationOwnership, !isSettingFavorite, favorite != isFavorite else { return }
-    let context = operationContext
     isSettingFavorite = true
-    favoriteTask = Task { [weak self] in
-      guard let self else { return }
-      defer {
-        if accepts(context) {
-          isSettingFavorite = false
-          favoriteTask = nil
+    perform(.favorite(favorite))
+  }
+
+  func requestWatchlistMembership(_ isMember: Bool) {
+    reconcileOperationContext()
+    guard hasPresentationOwnership, !isSettingWatchlistMembership, !isSettingFavorite else { return }
+    guard currentContact.type == .repeater, currentContact.isMyNode != isMember else { return }
+    guard appState?.connectionState == .ready,
+          let radioID = connectedDevice?.radioID,
+          radioID == currentContact.radioID,
+          contactService != nil || hasCommandOverrideForTesting else { return }
+    guard operationContext.radioID == radioID else { return }
+    isSettingWatchlistMembership = true
+    perform(.watchlistMembership(isMember))
+  }
+
+  func setWatchlistMembership(_ isMember: Bool) async {
+    let service = contactService
+    guard service != nil || hasCommandOverrideForTesting else {
+      errorMessage = L10n.Contacts.Contacts.Detail.Error.servicesUnavailable
+      return
+    }
+    let context = operationContext
+    errorMessage = nil
+    do {
+      var updated = currentContact.with(isMyNode: isMember)
+      if isMember {
+        updated = updated.with(isFavorite: true)
+      }
+      try await runWriteCommand(.watchlistMembership) {
+        if let service {
+          updated = try await service.setWatchlistMembership(
+            contactID: currentContact.id, radioID: currentContact.radioID, isMember: isMember
+          )
         }
       }
       guard accepts(context) else { return }
-      await setFavorite(favorite)
+      updateContact(updated)
+    } catch {
+      guard accepts(context) else { return }
+      errorMessage = error.userFacingMessage
+      await refreshContact()
     }
   }
 

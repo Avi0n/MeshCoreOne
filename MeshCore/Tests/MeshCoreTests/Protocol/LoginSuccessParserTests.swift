@@ -154,6 +154,14 @@ struct LoginSuccessParserTests {
     #expect(info?.serverTime == nil)
   }
 
+  @Test
+  func `Extended-format byte 12 parses as firmwareLevel and legacy yields nil`() {
+    let extended = Self.extendedPayload(isAdminByte: 0, aclPermissions: 0x00, firmwareVersion: 1)
+    #expect(Self.extractLogin(Parsers.LoginSuccess.parse(extended))?.firmwareLevel == 1)
+    let legacy = Data([0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF])
+    #expect(Self.extractLogin(Parsers.LoginSuccess.parse(legacy))?.firmwareLevel == nil)
+  }
+
   // MARK: - Pubkey prefix propagation
 
   @Test

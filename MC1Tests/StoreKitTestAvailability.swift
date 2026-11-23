@@ -14,4 +14,9 @@ enum StoreKitTestAvailability {
   static var servesProducts: Bool {
     ProcessInfo.processInfo.operatingSystemVersion.majorVersion != brokenMajorVersion
   }
+
+  /// iOS 27 simulators commit `product.purchase()` without listing it on `Transaction.unfinished`.
+  static var surfacesUnfinishedTransactions: Bool {
+    ProcessInfo.processInfo.operatingSystemVersion.majorVersion < 27
+  }
 }

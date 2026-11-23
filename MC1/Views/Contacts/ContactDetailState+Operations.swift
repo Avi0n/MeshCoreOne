@@ -2,7 +2,7 @@ import Foundation
 
 extension ContactDetailState {
   enum BusyOperation: Hashable, Sendable {
-    case nickname, share, ping, clearMessages, avatar, favorite
+    case nickname, share, ping, clearMessages, avatar, favorite, watchlistMembership
   }
 
   func perform(_ action: Action) {
@@ -12,11 +12,12 @@ extension ContactDetailState {
     if action == .discoverPath, pathViewModel.isDiscovering { return }
     actionTasks[action]?.cancel()
     let id = UUID()
+    let context = operationContext
     actionOperationIDs[action] = id
     actionTasks[action] = Task { [weak self] in
       guard let self else { return }
       defer { finishCommand(action, id: id) }
-      guard hasPresentationOwnership, !Task.isCancelled else { return }
+      guard accepts(context) else { return }
       switch action {
       case .block: await toggleBlocked()
       case .delete: await deleteContact()
@@ -24,10 +25,11 @@ extension ContactDetailState {
       case .share: await shareContact()
       case .ping: await pingRepeater()
       case .nickname: await saveNickname()
+      case let .favorite(favorite): await setFavorite(favorite)
+      case let .watchlistMembership(isMember): await setWatchlistMembership(isMember)
       case .refresh: await refreshContact()
       case .discoverPath: await pathViewModel.discoverPath(for: currentContact)
       case .editPath:
-        let context = operationContext
         await pathViewModel.loadContacts(radioID: currentContact.radioID)
         guard accepts(context) else { return }
         pathViewModel.initializeEditablePath(from: currentContact)
@@ -59,9 +61,8 @@ extension ContactDetailState {
   }
 
   func retireOperations() {
-    favoriteTask?.cancel()
-    favoriteTask = nil
     isSettingFavorite = false
+    isSettingWatchlistMembership = false
     for task in actionTasks.values {
       task.cancel()
     }
@@ -91,6 +92,8 @@ extension ContactDetailState {
       showShareSuccess = false
     case .ping: isPinging = false
     case .clearMessages: isClearingMessages = false
+    case .favorite: isSettingFavorite = false
+    case .watchlistMembership: isSettingWatchlistMembership = false
     default: break
     }
   }

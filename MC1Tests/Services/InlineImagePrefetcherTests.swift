@@ -378,6 +378,14 @@ private actor StubDataStore: PersistenceStoreProtocol {
     throw PersistenceStoreError.contactNotFound
   }
 
+  func updateWatchlistMembership(
+    contactID: UUID,
+    radioID: UUID,
+    isMember: Bool
+  ) async throws -> ContactDTO {
+    throw PersistenceStoreError.contactNotFound
+  }
+
   func updateContactTelemetryPermissions(contactID: UUID, granted: Bool) async throws -> ContactDTO {
     throw PersistenceStoreError.contactNotFound
   }

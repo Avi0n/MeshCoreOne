@@ -1,5 +1,6 @@
 import MC1Services
 import SwiftUI
+import UIKit
 
 /// SF Symbol shown beside the send time when the sender's clock was invalid and the
 /// app substituted a corrected value, signalling that the displayed time was adjusted.
@@ -330,8 +331,96 @@ private struct BubbleStatusFooter: View {
   }
 
   private var spinner: some View {
-    ProgressView()
-      .controlSize(.mini)
+    InFlightStatusSpinner()
+  }
+}
+
+/// In-flight delivery mark beside the caption2 status line. The bubble label already
+/// includes this status, so the indicator is not its own accessibility element.
+private struct InFlightStatusSpinner: UIViewRepresentable {
+  private static let side: CGFloat = 16
+
+  func makeUIView(context: Context) -> Host {
+    let host = Host()
+    host.indicator.startAnimating()
+    return host
+  }
+
+  func updateUIView(_ uiView: Host, context: Context) {
+    uiView.indicator.color = uiView.tintColor
+    if !uiView.indicator.isAnimating {
+      uiView.indicator.startAnimating()
+    }
+  }
+
+  func sizeThatFits(_ proposal: ProposedViewSize, uiView: Host, context: Context) -> CGSize? {
+    CGSize(width: Self.side, height: Self.side)
+  }
+
+  final class Host: UIView {
+    let indicator = Indicator()
+
+    override init(frame: CGRect) {
+      super.init(frame: frame)
+      isUserInteractionEnabled = false
+      clipsToBounds = false
+      indicator.translatesAutoresizingMaskIntoConstraints = true
+      addSubview(indicator)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+      nil
+    }
+
+    override var intrinsicContentSize: CGSize {
+      CGSize(width: InFlightStatusSpinner.side, height: InFlightStatusSpinner.side)
+    }
+
+    override func layoutSubviews() {
+      super.layoutSubviews()
+      let medium = indicator.intrinsicContentSize
+      guard medium.width > 0, bounds.width > 0 else { return }
+      indicator.transform = .identity
+      indicator.bounds.size = medium
+      indicator.center = CGPoint(x: bounds.midX, y: bounds.midY)
+      let scale = bounds.width / medium.width
+      indicator.transform = CGAffineTransform(scaleX: scale, y: scale)
+    }
+
+    override var isAccessibilityElement: Bool {
+      get { false }
+      set {}
+    }
+
+    override var accessibilityElementsHidden: Bool {
+      get { true }
+      set {}
+    }
+  }
+
+  final class Indicator: UIActivityIndicatorView {
+    init() {
+      super.init(style: .medium)
+      hidesWhenStopped = false
+      isUserInteractionEnabled = false
+    }
+
+    required init(coder: NSCoder) {
+      super.init(coder: coder)
+      hidesWhenStopped = false
+      isUserInteractionEnabled = false
+    }
+
+    override var isAccessibilityElement: Bool {
+      get { false }
+      set {}
+    }
+
+    override var accessibilityElementsHidden: Bool {
+      get { true }
+      set {}
+    }
   }
 }
 

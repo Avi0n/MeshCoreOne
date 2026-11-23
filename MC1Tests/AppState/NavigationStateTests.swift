@@ -100,7 +100,7 @@ struct NavigationStateTests {
     #expect(appState.navigation.chatsRootNavigationGeneration == 0)
     #expect(appState.navigation.nodesRootNavigationGeneration == 0)
     #expect(appState.navigation.settingsRootNavigationGeneration == 0)
-    #expect(appState.navigation.selectedContact == nil)
+    #expect(appState.navigation.nodesSelection?.rootContact == nil)
     #expect(appState.navigation.selectedSetting == nil)
   }
 
@@ -194,7 +194,7 @@ struct NavigationStateTests {
 
     appState.navigation.navigateToDiscovery()
 
-    #expect(appState.navigation.nodesShowingDiscovery == true)
+    #expect(appState.navigation.nodesSelection == .discovery)
     #expect(appState.navigation.selectedTab == AppTab.nodes.rawValue)
   }
 
@@ -228,8 +228,8 @@ struct NavigationStateTests {
 
     appState.navigation.navigateToContactDetail(contact)
 
-    #expect(appState.navigation.selectedContact == contact)
-    #expect(appState.navigation.nodesShowingDiscovery == false)
+    #expect(appState.navigation.nodesSelection?.rootContact == contact)
+    #expect(appState.navigation.nodesSelection != .discovery)
     #expect(appState.navigation.selectedTab == AppTab.nodes.rawValue)
   }
 
@@ -570,8 +570,8 @@ struct NavigationStateTests {
 
     appState.navigation.navigateToDiscovery()
 
-    #expect(appState.navigation.nodesShowingDiscovery == true)
-    #expect(appState.navigation.selectedContact == nil)
+    #expect(appState.navigation.nodesSelection == .discovery)
+    #expect(appState.navigation.nodesSelection?.rootContact == nil)
   }
 
   @Test
@@ -582,8 +582,8 @@ struct NavigationStateTests {
 
     appState.navigation.navigateToContactDetail(contact)
 
-    #expect(appState.navigation.nodesShowingDiscovery == false)
-    #expect(appState.navigation.selectedContact == contact)
+    #expect(appState.navigation.nodesSelection != .discovery)
+    #expect(appState.navigation.nodesSelection?.rootContact == contact)
   }
 
   // MARK: - Invalidation
@@ -593,14 +593,14 @@ struct NavigationStateTests {
     let appState = AppState()
     let contact = Self.makeContact()
     appState.navigation.chatsSelectedRoute = .direct(contact)
-    appState.navigation.selectedContact = contact
+    appState.navigation.nodesSelection = .contact(contact)
     appState.navigation.selectedTool = .lineOfSight
     appState.navigation.selectedSetting = .notifications
 
     appState.navigation.clearPerDeviceSelection()
 
     #expect(appState.navigation.chatsSelectedRoute == .direct(contact))
-    #expect(appState.navigation.selectedContact == contact)
+    #expect(appState.navigation.nodesSelection?.rootContact == contact)
     #expect(appState.navigation.selectedTool == .lineOfSight)
     #expect(appState.navigation.selectedSetting == .notifications)
   }
@@ -626,8 +626,7 @@ struct NavigationStateTests {
     let session = Self.makeRoomSession(isConnected: false)
     appState.navigation.navigateToChat(with: contact, scrollToMessageID: UUID())
     appState.navigation.pendingRoomAuthentication = session
-    appState.navigation.selectedContact = contact
-    appState.navigation.nodesShowingDiscovery = true
+    appState.navigation.nodesSelection = .discovery
     appState.navigation.selectedTool = .tracePath
     appState.navigation.selectedSetting = .radio
     appState.navigation.pendingContactLink = MeshCoreURLParser.ContactResult(
@@ -641,8 +640,8 @@ struct NavigationStateTests {
     #expect(appState.navigation.chatsSelectedRoute == nil)
     #expect(appState.navigation.pendingScrollTarget == nil)
     #expect(appState.navigation.pendingRoomAuthentication == nil)
-    #expect(appState.navigation.selectedContact == nil)
-    #expect(appState.navigation.nodesShowingDiscovery == false)
+    #expect(appState.navigation.nodesSelection?.rootContact == nil)
+    #expect(appState.navigation.nodesSelection != .discovery)
     #expect(appState.navigation.selectedTool == nil)
     #expect(appState.navigation.selectedSetting == nil)
     #expect(appState.navigation.pendingContactLink != nil)

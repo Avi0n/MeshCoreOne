@@ -7,6 +7,8 @@ struct ContactActionsSection: View {
   let currentContact: ContactDTO
   @Binding var isFavorite: Bool
   let isSettingFavorite: Bool
+  let isSettingWatchlistMembership: Bool
+  let onWatchlistMembership: () -> Void
   let showFromDirectChat: Bool
   let isPinging: Bool
   let pingResult: PingResult?
@@ -21,6 +23,12 @@ struct ContactActionsSection: View {
   let showShareSuccess: Bool
   let historyRoute: ((ContactRoute.TelemetryHistory) -> NodesRoute)?
   let onRowPosition: (ContactDetailRowPosition.Measurement) -> Void
+
+  private var favoriteLocked: Bool {
+    WatchlistFavoriteExplanation.locksFavorite(
+      type: currentContact.type, isMyNode: currentContact.isMyNode, isFavorite: currentContact.isFavorite
+    )
+  }
 
   var body: some View {
     let isRadioReady = appState.connectionState == .ready
@@ -115,11 +123,33 @@ struct ContactActionsSection: View {
         Label(L10n.Contacts.Contacts.Detail.favorite, systemImage: "star")
           .foregroundStyle(isRadioReady ? .primary : .secondary)
       }
-      .disabled(!isRadioReady || isSettingFavorite)
+      .disabled(!isRadioReady || isSettingFavorite || isSettingWatchlistMembership || favoriteLocked)
       .accessibilityHint(
         L10n.Localizable.Accessibility.requiresRadioConnection,
         isEnabled: !isRadioReady
       )
+
+      if currentContact.type == .repeater {
+        Button(action: onWatchlistMembership) {
+          Label(
+            currentContact.isMyNode
+              ? L10n.Contacts.Contacts.Action.removeFromWatchlist
+              : L10n.Contacts.Contacts.Action.addToWatchlist,
+            systemImage: currentContact.isMyNode ? "minus.circle" : "plus.circle"
+          )
+        }
+        .disabled(!isRadioReady || isSettingFavorite || isSettingWatchlistMembership)
+        .accessibilityHint(
+          L10n.Localizable.Accessibility.requiresRadioConnection,
+          isEnabled: !isRadioReady
+        )
+      }
+    } footer: {
+      if let explanation = WatchlistFavoriteExplanation.actionsFooter(
+        type: currentContact.type, isMyNode: currentContact.isMyNode, isFavorite: currentContact.isFavorite
+      ) {
+        Text(explanation)
+      }
     }
   }
 }

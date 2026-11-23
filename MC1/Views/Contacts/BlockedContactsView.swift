@@ -57,7 +57,7 @@ struct BlockedContactsView: View {
     ScrollView {
       LazyVStack(spacing: 0) {
         ForEach(Array(state.contacts.enumerated()), id: \.element.id) { index, contact in
-          let isSelected = appState.navigation.selectedContact?.id == contact.id
+          let isSelected = appState.navigation.nodesSelection?.rootContact?.id == contact.id
           VStack(spacing: 0) {
             Button {
               appState.navigation.navigateToContactDetail(contact)

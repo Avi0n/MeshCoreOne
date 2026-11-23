@@ -407,6 +407,9 @@
 /* Location: ContactServiceError+UserFacingMessage.swift - Node advertisement missing or stale, so the node cannot be shared */
 "error.contactService.shareContactUnavailable" = "노드를 공유할 수 없습니다. 노드의 애드버트가 없거나 너무 오래되었을 수 있습니다.";
 
+/* Marked repeater must leave the Watchlist before Favorite is turned off */
+"error.contactService.removeFromWatchlistBeforeUnfavorite" = "즐겨찾기를 해제하기 전에 워치리스트에서 제거하십시오.";
+
 /* Location: MessageServiceError+UserFacingMessage.swift - No active connection to the radio */
 "error.messageService.notConnected" = "기기에 연결되어 있지 않습니다.";
 

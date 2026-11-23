@@ -239,6 +239,9 @@ final class AppState {
   /// Incremented when contacts data changes. Views observe this to reload contact lists.
   var contactsVersion: Int = 0
 
+  /// App ownership lets Refresh finish after the board closes.
+  let watchlistRefreshCoordinator = WatchlistRefreshCoordinator()
+
   /// Incremented when conversations data changes. Views observe this to reload chat lists.
   private(set) var conversationsVersion: Int = 0
 
@@ -520,6 +523,7 @@ final class AppState {
 
     connectionManager.onLastConnectedDeviceCleared = { [weak self] in
       guard let self else { return }
+      navigation.clearWatchlistRoot()
       chatCoordinatorRegistry?.clear()
       refreshConversations()
       bumpServicesVersion()
@@ -557,6 +561,30 @@ final class AppState {
 
     loadPersistedRegionSelection()
 
+    watchlistRefreshCoordinator.configure(
+      store: connectionManager.persistenceStore,
+      now: { Date() },
+      onContactsChanged: { [weak self] in
+        self?.contactsVersion += 1
+      },
+      dependencies: WatchlistRefreshCoordinator.Dependencies(
+        operations: { [weak self] in
+          self?.services.map(WatchlistRefreshCoordinator.Operations.init(services:))
+        },
+        radioID: { [weak self] in self?.connectedDevice?.radioID },
+        connectionState: { [weak self] in self?.connectionState ?? .disconnected },
+        sessionIdentity: { [weak self] in
+          self?.services.map { ObjectIdentifier($0.session) }
+        },
+        connectionStates: { [weak self] in
+          guard let self else {
+            return AsyncStream { $0.finish() }
+          }
+          return self.connectionManager.subscribeToConnectionState()
+        }
+      )
+    )
+
     // The path suggestion drives real navigation; the placeholder has no scene to navigate,
     // so skip the work and the strong self-capture it would keep alive.
     if !isPlaceholder {
@@ -577,6 +605,7 @@ final class AppState {
   /// listener, which otherwise leaks across a before-first-unlock `AppState` swap.
   /// Connection teardown stays on `ConnectionManager`.
   func shutdown() {
+    watchlistRefreshCoordinator.shutdown()
     cancelFreshPairingOperation()
     cancelStaleNodeCleanup()
     flushChatDrafts()

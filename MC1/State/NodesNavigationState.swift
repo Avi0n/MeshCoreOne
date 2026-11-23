@@ -1,13 +1,9 @@
+import MC1Services
 import SwiftUI
 
 @Observable
 @MainActor
 final class NodesNavigationState {
-  private enum Depth {
-    static let history = 1
-    static let map = 2
-  }
-
   enum Presentation {
     case compact
     case regular
@@ -31,11 +27,15 @@ final class NodesNavigationState {
   }
 
   static func root(in navigation: NavigationCoordinator) -> NodesRoute? {
-    if navigation.nodesShowingDiscovery {
-      return .discovery(presentationRevision: navigation.nodesPresentationRevision)
-    }
-    return navigation.selectedContact.map {
-      .contact(id: $0.id, presentationRevision: navigation.nodesPresentationRevision)
+    switch navigation.nodesSelection {
+    case .discovery:
+      .discovery(presentationRevision: navigation.nodesPresentationRevision)
+    case let .contact(contact):
+      .contact(id: contact.id, presentationRevision: navigation.nodesPresentationRevision)
+    case let .watchlist(radioID, _):
+      .watchlist(radioID: radioID, presentationRevision: navigation.nodesPresentationRevision)
+    case nil:
+      nil
     }
   }
 
@@ -56,14 +56,14 @@ final class NodesNavigationState {
 
   func synchronize(with navigation: NavigationCoordinator) {
     let stamp = Self.stamp(in: navigation)
-    if descendantStamp != stamp {
+    if descendantStamp != stamp || !isDetailPath(descendants, in: navigation) {
       descendants = []
       descendantStamp = stamp
     }
   }
 
   func detailPath(in navigation: NavigationCoordinator) -> [NodesRoute] {
-    descendantStamp == Self.stamp(in: navigation) ? descendants : []
+    descendantStamp == Self.stamp(in: navigation) && isDetailPath(descendants, in: navigation) ? descendants : []
   }
 
   func compactPath(in navigation: NavigationCoordinator) -> [NodesRoute] {
@@ -92,7 +92,7 @@ final class NodesNavigationState {
         guard self.presentation == .regular, self.layoutRevision == layout,
               Self.stamp(in: navigation) == stamp,
               self.isDetailPath(path, in: navigation) else { return }
-        withTransaction(transaction) { self.setDetailPath(path, stamp: stamp) }
+        withTransaction(transaction) { self.setDetailPath(path, stamp: stamp, in: navigation) }
       }
     )
   }
@@ -113,8 +113,27 @@ final class NodesNavigationState {
 
   func openMap(presentationID: UUID, in navigation: NavigationCoordinator) {
     let path = detailPath(in: navigation)
-    guard path.count == Depth.history, case .savedHistory = path.first else { return }
-    setDetailPath(path + [.locationMap(presentationID: presentationID)], stamp: Self.stamp(in: navigation))
+    guard case .savedHistory = path.last else { return }
+    setDetailPath(
+      path + [.locationMap(presentationID: presentationID)],
+      stamp: Self.stamp(in: navigation),
+      in: navigation
+    )
+  }
+
+  func openContact(_ contact: ContactDTO, in navigation: NavigationCoordinator) {
+    guard case let .watchlist(radioID, nil) = navigation.nodesSelection, radioID == contact.radioID else { return }
+    navigation.nodesSelection = .watchlist(radioID: radioID, contact: contact)
+    setDetailPath(
+      [.contact(id: contact.id, presentationRevision: navigation.nodesPresentationRevision)],
+      stamp: Self.stamp(in: navigation),
+      in: navigation
+    )
+  }
+
+  func closeContact(matching id: UUID, in navigation: NavigationCoordinator) {
+    navigation.clearSelectedContact(matching: id)
+    synchronize(with: navigation)
   }
 
   private func setCompactPath(
@@ -130,7 +149,7 @@ final class NodesNavigationState {
     if remaining.first == root {
       let suffix = Array(remaining.dropFirst())
       guard prefix == sidebarPath, isDetailPath(suffix, in: navigation) else { return }
-      setDetailPath(suffix, stamp: stamp)
+      setDetailPath(suffix, stamp: stamp, in: navigation)
     } else if remaining.isEmpty, prefix.isEmpty || prefix == sidebarPath {
       setSidebarPath(prefix)
       navigation.clearNodesRoot(matchingPresentation: stamp.revision)
@@ -144,9 +163,14 @@ final class NodesNavigationState {
     sidebarPath = path
   }
 
-  private func setDetailPath(_ path: [NodesRoute], stamp: RootStamp) {
+  private func setDetailPath(_ path: [NodesRoute], stamp: RootStamp, in navigation: NavigationCoordinator) {
     descendantStamp = stamp
     descendants = path
+    guard case let .watchlist(radioID, contact?) = navigation.nodesSelection else { return }
+    let contactRoute = NodesRoute.contact(id: contact.id, presentationRevision: stamp.revision)
+    if path.first != contactRoute {
+      navigation.nodesSelection = .watchlist(radioID: radioID)
+    }
   }
 
   private func isSidebarPath(_ path: [NodesRoute]) -> Bool {
@@ -155,13 +179,20 @@ final class NodesNavigationState {
 
   private func isDetailPath(_ path: [NodesRoute], in navigation: NavigationCoordinator) -> Bool {
     if path.isEmpty { return true }
-    guard !navigation.nodesShowingDiscovery, let contact = navigation.selectedContact,
-          case let .savedHistory(history) = path.first,
+    guard let contact = navigation.nodesSelection?.contact else { return false }
+    var suffix = path[...]
+    if case .watchlist = navigation.nodesSelection {
+      guard suffix.first == .contact(id: contact.id, presentationRevision: navigation.nodesPresentationRevision) else {
+        return false
+      }
+      suffix = suffix.dropFirst()
+    }
+    if suffix.isEmpty { return true }
+    guard case let .savedHistory(history) = suffix.first,
           history.publicKey == contact.publicKey, history.radioID == contact.radioID else { return false }
-    if path.count == Depth.history { return true }
-    return path.count == Depth.map && {
-      if case .locationMap = path.last { return true }
-      return false
-    }()
+    suffix = suffix.dropFirst()
+    if suffix.isEmpty { return true }
+    guard suffix.count == 1, case .locationMap = suffix.first else { return false }
+    return true
   }
 }

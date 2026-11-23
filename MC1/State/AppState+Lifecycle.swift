@@ -130,12 +130,11 @@ extension AppState {
     let tab = AppTab(rawValue: navigation.selectedTab).map { String(describing: $0) }
       ?? "unknown(\(navigation.selectedTab))"
     let chatRoute = navigation.chatsSelectedRoute.map { String(describing: $0.kind) } ?? "none"
-    let nodesDetail = if navigation.nodesShowingDiscovery {
-      "discovery"
-    } else if navigation.selectedContact != nil {
-      "contact"
-    } else {
-      "none"
+    let nodesDetail = switch navigation.nodesSelection {
+    case .discovery: "discovery"
+    case .contact: "contact"
+    case .watchlist: "watchlist"
+    case nil: "none"
     }
     var parts = [
       ToolbarResumeProbe.tag,

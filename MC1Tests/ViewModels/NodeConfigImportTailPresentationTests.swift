@@ -88,15 +88,11 @@ struct NodeConfigImportTailPresentationTests {
       #expect(hasPublicServices == false)
       #expect(hasPublicDevice == false)
       #expect(hasPublicSession == false)
-      if !hasPublicDevice {
-        try await waitUntil(timeout: .seconds(35), "MainTabView should clear the device route during the private interval") {
-          env.appState.navigation.selectedSetting == nil
-        }
-      }
-      let routeWasCleared = env.appState.navigation.selectedSetting == nil
-      #expect(routeWasCleared)
+      // MainTabView keeps the device route while the rebuild is unpublished.
+      #expect(env.manager.identityRebuildUnpublished)
+      #expect(env.appState.navigation.selectedSetting == .advanced)
       settingsHost.selectTab(.chats)
-      // The real host clears navigation; the separately retained importer uses Settings' provider lifetime.
+      // The importer is retained by Settings, so dismissal does not publish the tail.
       model.handleDismissal()
       let applyingInputSurvivedDismissal = model.isApplying && model.importedConfig == Self.config
         && model.inputID == inputID && model.recovery == nil && !model.importComplete

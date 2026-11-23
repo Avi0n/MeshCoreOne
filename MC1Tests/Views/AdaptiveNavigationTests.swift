@@ -445,7 +445,7 @@ struct AdaptiveNavigationTests {
         && viewIsVisible(source, in: host.window)
     })
     try #require(state.rendererID == nil)
-    try #require(appState.navigation.selectedContact == nil)
+    try #require(appState.navigation.nodesSelection?.rootContact == nil)
     appState.navigation.navigateToContactDetail(contact)
 
     let actionsRow = IndexPath(item: 0, section: Layout.savedHistoryIndexPath.section)
@@ -539,10 +539,10 @@ struct AdaptiveNavigationTests {
       )
       try #require(await waitFor { visibleHistoryNavigationController(in: host.window) != nil })
       #expect(visibleTabItemCount(in: host.window) == 5)
-      #expect(appState.navigation.selectedContact?.id == contact.id)
+      #expect(appState.navigation.nodesSelection?.rootContact?.id == contact.id)
     }
     try #require(performNativeBack(in: host.window))
-    #expect(appState.navigation.selectedContact?.id == contact.id)
+    #expect(appState.navigation.nodesSelection?.rootContact?.id == contact.id)
     try #require(await waitFor { visibleHistoryNavigationController(in: host.window) == nil },
                  "\(describe(host, appState: appState))")
     try #require(await waitFor { contactDetailIsVisible(in: host, contact: contact) },
@@ -590,14 +590,14 @@ struct AdaptiveNavigationTests {
       || historyNavigation.topViewController?.navigationItem.largeTitleDisplayMode == .never)
     historyNavigation.popViewController(animated: false)
     settle(host.window)
-    #expect(appState.navigation.selectedContact?.id == contact.id, "\(describe(host, appState: appState))")
+    #expect(appState.navigation.nodesSelection?.rootContact?.id == contact.id, "\(describe(host, appState: appState))")
     #expect(visibleHistoryNavigationController(in: host.window) == nil)
     #expect(contactDetailIsVisible(in: host, contact: contact))
     #expect(visibleTabItemCount(in: host.window) == 5)
 
     let beforeBack = describe(host, appState: appState)
     try #require(performNativeBack(in: host.window))
-    try #require(waitUntil { appState.navigation.selectedContact == nil },
+    try #require(waitUntil { appState.navigation.nodesSelection?.rootContact == nil },
                  "Before: \(beforeBack) After: \(describe(host, appState: appState))")
     #expect(visibleTabItemCount(in: host.window) == 5)
   }
@@ -622,7 +622,7 @@ struct AdaptiveNavigationTests {
     }
     settle(host.window)
     #expect(visibleHistoryNavigationController(in: host.window) == nil)
-    #expect(appState.navigation.selectedContact?.id == (invalidate ? nil : replacement.id))
+    #expect(appState.navigation.nodesSelection?.rootContact?.id == (invalidate ? nil : replacement.id))
     #expect(visibleTabItemCount(in: host.window) == 5)
     if !invalidate { #expect(contactDetailIsVisible(in: host, contact: replacement)) }
   }
@@ -689,21 +689,21 @@ struct AdaptiveNavigationTests {
   func `hosted nodes split back from collapsed contact clears the selection`() throws {
     let appState = AppState()
     let contact = makeContact()
-    appState.navigation.selectedContact = contact
+    appState.navigation.nodesSelection = .contact(contact)
     appState.navigation.selectedTab = AppTab.nodes.rawValue
 
     let host = try mountNodes(appState: appState, size: Layout.compactSize, regularWidth: false)
     defer { dismount(host) }
 
     try #require(
-      waitUntil { appState.navigation.selectedContact?.id == contact.id },
+      waitUntil { appState.navigation.nodesSelection?.rootContact?.id == contact.id },
       "\(describe(host, appState: appState))"
     )
 
     let didBack = performNativeBack(in: host.window)
     #expect(didBack, "\(describe(host, appState: appState))")
     try #require(
-      waitUntil { appState.navigation.selectedContact == nil },
+      waitUntil { appState.navigation.nodesSelection?.rootContact == nil },
       "\(describe(host, appState: appState))"
     )
   }
@@ -711,21 +711,21 @@ struct AdaptiveNavigationTests {
   @Test
   func `hosted nodes split back from collapsed discovery clears discovery`() throws {
     let appState = AppState()
-    appState.navigation.nodesShowingDiscovery = true
+    appState.navigation.nodesSelection = .discovery
     appState.navigation.selectedTab = AppTab.nodes.rawValue
 
     let host = try mountNodes(appState: appState, size: Layout.compactSize, regularWidth: false)
     defer { dismount(host) }
 
     try #require(
-      waitUntil { appState.navigation.nodesShowingDiscovery },
+      waitUntil { appState.navigation.nodesSelection == .discovery },
       "\(describe(host, appState: appState))"
     )
 
     let didBack = performNativeBack(in: host.window)
     #expect(didBack, "\(describe(host, appState: appState))")
     try #require(
-      waitUntil { !appState.navigation.nodesShowingDiscovery },
+      waitUntil { appState.navigation.nodesSelection != .discovery },
       "\(describe(host, appState: appState))"
     )
   }
@@ -734,27 +734,27 @@ struct AdaptiveNavigationTests {
   func `hosted nodes split keeps the contact across compact and regular`() throws {
     let appState = AppState()
     let contact = makeContact()
-    appState.navigation.selectedContact = contact
+    appState.navigation.nodesSelection = .contact(contact)
     appState.navigation.selectedTab = AppTab.nodes.rawValue
 
     let host = try mountNodes(appState: appState, size: Layout.compactSize, regularWidth: false)
     defer { dismount(host) }
 
     resize(host, to: Layout.regularSize, regularWidth: true)
-    #expect(appState.navigation.selectedContact?.id == contact.id)
+    #expect(appState.navigation.nodesSelection?.rootContact?.id == contact.id)
 
     resize(host, to: Layout.compactSize, regularWidth: false)
-    #expect(appState.navigation.selectedContact?.id == contact.id)
+    #expect(appState.navigation.nodesSelection?.rootContact?.id == contact.id)
 
     let didBack = performNativeBack(in: host.window)
     #expect(didBack, "\(describe(host, appState: appState))")
     try #require(
-      waitUntil { appState.navigation.selectedContact == nil },
+      waitUntil { appState.navigation.nodesSelection?.rootContact == nil },
       "\(describe(host, appState: appState))"
     )
 
     resize(host, to: Layout.regularSize, regularWidth: true)
-    #expect(appState.navigation.selectedContact == nil)
+    #expect(appState.navigation.nodesSelection?.rootContact == nil)
   }
 
   @Test
@@ -762,7 +762,7 @@ struct AdaptiveNavigationTests {
     let appState = AppState()
     let contact = makeContact()
     let other = makeContact(name: "Sam")
-    appState.navigation.selectedContact = contact
+    appState.navigation.nodesSelection = .contact(contact)
     let viewModel = ContactsViewModel()
     viewModel.contacts = [contact, other]
 
@@ -771,7 +771,7 @@ struct AdaptiveNavigationTests {
 
     viewModel.pendingRemovalIDs.insert(contact.id)
     try #require(
-      waitUntil { appState.navigation.selectedContact == nil },
+      waitUntil { appState.navigation.nodesSelection?.rootContact == nil },
       "\(describe(host, appState: appState))"
     )
   }
@@ -780,7 +780,7 @@ struct AdaptiveNavigationTests {
   func `hiding a contact with a filter does not clear the selection`() throws {
     let appState = AppState()
     let contact = makeContact()
-    appState.navigation.selectedContact = contact
+    appState.navigation.nodesSelection = .contact(contact)
     let viewModel = ContactsViewModel()
     viewModel.contacts = [contact]
 
@@ -789,7 +789,7 @@ struct AdaptiveNavigationTests {
 
     viewModel.contacts = []
     settle(host.window)
-    #expect(appState.navigation.selectedContact?.id == contact.id)
+    #expect(appState.navigation.nodesSelection?.rootContact?.id == contact.id)
   }
 
   @Test
@@ -805,15 +805,15 @@ struct AdaptiveNavigationTests {
     settle(host.window)
 
     #expect(appState.navigation.selectedTab == AppTab.nodes.rawValue)
-    #expect(appState.navigation.selectedContact?.id == contact.id)
-    #expect(appState.navigation.nodesShowingDiscovery == false)
+    #expect(appState.navigation.nodesSelection?.rootContact?.id == contact.id)
+    #expect(appState.navigation.nodesSelection != .discovery)
   }
 
   @Test
   func `full radio invalidation while nodes is inactive does not restore the contact`() throws {
     let appState = AppState()
     let contact = makeContact()
-    appState.navigation.selectedContact = contact
+    appState.navigation.nodesSelection = .contact(contact)
     appState.navigation.selectedTab = AppTab.nodes.rawValue
 
     let host = try mountNodes(appState: appState, size: Layout.compactSize, regularWidth: false)
@@ -825,8 +825,8 @@ struct AdaptiveNavigationTests {
     appState.navigation.selectedTab = AppTab.nodes.rawValue
     settle(host.window)
 
-    #expect(appState.navigation.selectedContact == nil)
-    #expect(appState.navigation.nodesShowingDiscovery == false)
+    #expect(appState.navigation.nodesSelection?.rootContact == nil)
+    #expect(appState.navigation.nodesSelection != .discovery)
   }
 
   // MARK: - Hosted Settings
@@ -970,7 +970,7 @@ struct AdaptiveNavigationTests {
     let appState = AppState()
     let contact = makeContact()
     appState.navigation.chatsSelectedRoute = .direct(contact)
-    appState.navigation.selectedContact = contact
+    appState.navigation.nodesSelection = .contact(contact)
     appState.navigation.selectedTool = .tracePath
     appState.navigation.selectedSetting = .radio
     appState.connectionManager.setTestState(connectedDevice: makeDevice())
@@ -992,7 +992,7 @@ struct AdaptiveNavigationTests {
       "\(describe(host, appState: appState))"
     )
     #expect(appState.navigation.chatsSelectedRoute == .direct(contact))
-    #expect(appState.navigation.selectedContact?.id == contact.id)
+    #expect(appState.navigation.nodesSelection?.rootContact?.id == contact.id)
   }
 
   @Test
@@ -1411,8 +1411,8 @@ struct AdaptiveNavigationTests {
     }
     return """
     route=\(String(describing: appState.navigation.chatsSelectedRoute?.kind)) \
-    contact=\(String(describing: appState.navigation.selectedContact?.id)) \
-    discovery=\(appState.navigation.nodesShowingDiscovery) \
+    contact=\(String(describing: appState.navigation.nodesSelection?.rootContact?.id)) \
+    discovery=\(appState.navigation.nodesSelection == .discovery) \
     setting=\(String(describing: appState.navigation.selectedSetting)) \
     tab=\(appState.navigation.selectedTab) \
     navs=\(titles) renderedContact=\(String(describing: host.renderedContact.id)) window=\(host.window.bounds)

@@ -51,6 +51,9 @@ struct ContactsListContent: View {
     refreshableScroll {
       LazyVStack(spacing: 0) {
         Section {
+          if showsWatchlistButton {
+            watchlistButton
+          }
           if filteredContacts.isEmpty {
             emptyState
           } else {
@@ -86,6 +89,37 @@ struct ContactsListContent: View {
         }
       }
     }
+  }
+
+  private var showsWatchlistButton: Bool {
+    WatchlistDirectory.showsButton(
+      searchText: searchText,
+      contacts: viewModel.contacts,
+      radioID: appState.currentRadioID,
+      pendingRemovalIDs: viewModel.pendingRemovalIDs
+    )
+  }
+
+  private var watchlistButton: some View {
+    Button {
+      guard let radioID = appState.currentRadioID else { return }
+      appState.navigation.navigateToWatchlist(radioID: radioID)
+    } label: {
+      HStack {
+        Label(L10n.Contacts.Contacts.List.watchlist, systemImage: "server.rack")
+        Spacer()
+        Image(systemName: "chevron.right")
+          .font(.footnote.weight(.semibold))
+          .foregroundStyle(.tertiary)
+      }
+      .padding(.horizontal, ContactRowLayout.horizontalPadding)
+      .padding(.vertical, ContactRowLayout.verticalPadding)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .contentShape(.rect)
+    }
+    .buttonStyle(.plain)
+    .selectedRowHighlight(isSelected: appState.navigation.nodesSelection?.watchlistRadioID == appState.currentRadioID)
+    .accessibilityAddTraits(appState.navigation.nodesSelection?.watchlistRadioID == appState.currentRadioID ? .isSelected : [])
   }
 
   private var segmentHeader: some View {

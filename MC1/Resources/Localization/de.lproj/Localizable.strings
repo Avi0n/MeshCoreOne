@@ -401,6 +401,9 @@
 /* Location: ContactServiceError+UserFacingMessage.swift - Node advertisement missing or stale, so the node cannot be shared */
 "error.contactService.shareContactUnavailable" = "Knoten kann nicht geteilt werden. Die Ankündigung des Knotens fehlt möglicherweise oder ist zu alt.";
 
+/* Marked repeater must leave the Watchlist before Favorite is turned off */
+"error.contactService.removeFromWatchlistBeforeUnfavorite" = "Entferne den Repeater aus der Watchlist, bevor du Favorit deaktivierst.";
+
 /* Location: MessageServiceError+UserFacingMessage.swift - No active connection to the radio */
 "error.messageService.notConnected" = "Nicht mit dem Gerät verbunden.";
 

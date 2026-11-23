@@ -20,11 +20,11 @@ struct NodesNavigationStateTests {
     #expect(state.compactPath(in: navigation) == [root, history, .locationMap(presentationID: mapID)])
 
     state.compactBinding(in: navigation).wrappedValue = [root, history]
-    #expect(navigation.selectedContact?.id == contact.id)
+    #expect(navigation.nodesSelection?.rootContact?.id == contact.id)
     state.compactBinding(in: navigation).wrappedValue = [root]
-    #expect(navigation.selectedContact?.id == contact.id)
+    #expect(navigation.nodesSelection?.rootContact?.id == contact.id)
     state.compactBinding(in: navigation).wrappedValue = []
-    #expect(navigation.selectedContact == nil)
+    #expect(navigation.nodesSelection?.rootContact == nil)
     #expect(state.compactPath(in: navigation).isEmpty)
   }
 
@@ -40,7 +40,7 @@ struct NodesNavigationStateTests {
 
     let remaining: [NodesRoute] = jumpToNodes ? [] : [.blockedContacts]
     state.compactBinding(in: navigation).wrappedValue = remaining
-    #expect(navigation.selectedContact == nil)
+    #expect(navigation.nodesSelection?.rootContact == nil)
     #expect(state.compactPath(in: navigation) == remaining)
   }
 
@@ -57,7 +57,7 @@ struct NodesNavigationStateTests {
     sidebarBack.wrappedValue = []
 
     #expect(state.sidebarPath.isEmpty)
-    #expect(navigation.selectedContact?.id == requested.id)
+    #expect(navigation.nodesSelection?.rootContact?.id == requested.id)
     state.changePresentation(to: .compact)
     #expect(!state.compactPath(in: navigation).contains(.blockedContacts))
   }
@@ -83,7 +83,7 @@ struct NodesNavigationStateTests {
     state.changePresentation(to: .regular)
     state.changePresentation(to: .compact)
     oldBack.wrappedValue = []
-    #expect(navigation.selectedContact?.id == contact.id)
+    #expect(navigation.nodesSelection?.rootContact?.id == contact.id)
   }
 
   @Test
@@ -96,7 +96,7 @@ struct NodesNavigationStateTests {
     state.changePresentation(to: .compact)
     #expect(state.layoutRevision == revision)
     back.wrappedValue = []
-    #expect(!navigation.nodesShowingDiscovery)
+    #expect(navigation.nodesSelection != .discovery)
     state.changePresentation(to: .regular) { nextRevision in
       #expect(state.presentation == .compact)
       #expect(state.layoutRevision == nextRevision)
@@ -108,41 +108,52 @@ struct NodesNavigationStateTests {
     let navigation = NavigationCoordinator()
     let state = NodesNavigationState(presentation: .compact)
     let contact = makeContact()
-    navigation.selectedContact = contact
+    navigation.nodesSelection = .contact(contact)
     let root = try #require(NodesNavigationState.root(in: navigation))
     state.compactBinding(in: navigation).wrappedValue = [root, historyRoute(contact)]
     let oldBack = state.compactBinding(in: navigation)
-    if clearReopen { navigation.selectedContact = nil }
-    navigation.selectedContact = clearReopen ? contact : makeContact()
+    if clearReopen { navigation.nodesSelection = nil }
+    navigation.nodesSelection = .contact(clearReopen ? contact : makeContact())
     #expect(state.detailPath(in: navigation).isEmpty)
     oldBack.wrappedValue = []
-    #expect(navigation.selectedContact != nil)
+    #expect(navigation.nodesSelection?.rootContact != nil)
     oldBack.wrappedValue = [root, historyRoute(contact)]
     #expect(state.detailPath(in: navigation).isEmpty)
   }
 
-  @Test
-  func `payload refresh keeps history and explicit same root resets it`() throws {
+  @Test(arguments: [false, true])
+  func `payload refresh keeps history and explicit same root resets it`(fromWatchlist: Bool) throws {
     let navigation = NavigationCoordinator()
     let state = NodesNavigationState(presentation: .compact)
-    let original = makeContact()
-    let model = Contact(dto: original)
-    var contact = original
-    navigation.selectedContact = contact
+    let original = fromWatchlist ? makeRepeater(radioID: UUID(), name: "Ridge") : makeContact()
+    if fromWatchlist {
+      navigation.navigateToWatchlist(radioID: original.radioID)
+      state.openContact(original, in: navigation)
+    } else {
+      navigation.navigateToContactDetail(original)
+    }
     let revision = navigation.nodesPresentationRevision
     let root = try #require(NodesNavigationState.root(in: navigation))
-    let history = historyRoute(contact)
-    state.compactBinding(in: navigation).wrappedValue = [root, history]
+    let prefix = state.detailPath(in: navigation)
+    let history = historyRoute(original)
+    state.compactBinding(in: navigation).wrappedValue = [root] + prefix + [history]
+    let model = Contact(dto: original)
     model.nickname = "Edited"
-    contact = ContactDTO(from: model)
-    navigation.selectedContact = contact
+    let updated = ContactDTO(from: model)
+    navigation.updateSelectedContact(updated)
+    #expect(navigation.nodesSelection?.contact?.nickname == "Edited")
     #expect(navigation.nodesPresentationRevision == revision)
-    #expect(state.detailPath(in: navigation) == [history])
+    #expect(state.detailPath(in: navigation) == prefix + [history])
     let oldBack = state.compactBinding(in: navigation)
-    navigation.navigateToContactDetail(contact)
+    if fromWatchlist {
+      navigation.navigateToWatchlist(radioID: original.radioID)
+      #expect(navigation.nodesSelection?.contact == nil)
+    } else {
+      navigation.navigateToContactDetail(updated)
+    }
     #expect(state.detailPath(in: navigation).isEmpty)
     oldBack.wrappedValue = []
-    #expect(navigation.selectedContact?.id == contact.id)
+    #expect(NodesNavigationState.root(in: navigation) == root)
   }
 
   @Test
@@ -158,7 +169,7 @@ struct NodesNavigationStateTests {
     navigation.clearPerRadioSelection()
     #expect(state.compactPath(in: navigation).isEmpty)
     oldBinding.wrappedValue = [root, historyRoute(contact)]
-    #expect(navigation.selectedContact == nil)
+    #expect(navigation.nodesSelection?.rootContact == nil)
     #expect(state.detailPath(in: navigation).isEmpty)
   }
 
@@ -171,7 +182,7 @@ struct NodesNavigationStateTests {
     navigation.navigateToContactDetail(contact)
     state.detailBinding(in: navigation).wrappedValue = [historyRoute(contact)]
     state.detailBinding(in: navigation).wrappedValue = []
-    #expect(navigation.selectedContact?.id == contact.id)
+    #expect(navigation.nodesSelection?.rootContact?.id == contact.id)
     #expect(state.sidebarPath == [.blockedContacts])
   }
 
@@ -186,11 +197,109 @@ struct NodesNavigationStateTests {
     state.compactBinding(in: navigation).wrappedValue = [root, historyRoute(other)]
     #expect(state.detailPath(in: navigation).isEmpty)
     state.compactBinding(in: navigation).wrappedValue = [.contact(id: other.id, presentationRevision: 0)]
-    #expect(navigation.selectedContact?.id == contact.id)
+    #expect(navigation.nodesSelection?.rootContact?.id == contact.id)
+  }
+
+  @Test
+  func `watchlist back restores the board before root back clears it`() throws {
+    let navigation = NavigationCoordinator()
+    let state = NodesNavigationState(presentation: .compact)
+    let radioID = UUID()
+    let repeater = makeRepeater(radioID: radioID, name: "Ridge")
+    navigation.navigateToWatchlist(radioID: radioID)
+    let root = try #require(NodesNavigationState.root(in: navigation))
+    let child = NodesRoute.contact(id: repeater.id, presentationRevision: navigation.nodesPresentationRevision)
+    state.openContact(repeater, in: navigation)
+    state.compactBinding(in: navigation).wrappedValue = [root, child, historyRoute(repeater)]
+    let mapID = UUID()
+    state.openMap(presentationID: mapID, in: navigation)
+    #expect(state.detailPath(in: navigation) == [
+      child, historyRoute(repeater), .locationMap(presentationID: mapID),
+    ])
+
+    state.compactBinding(in: navigation).wrappedValue = [root, child, historyRoute(repeater)]
+    state.compactBinding(in: navigation).wrappedValue = [root, child]
+    #expect(navigation.nodesSelection?.watchlistRadioID == radioID)
+    #expect(navigation.nodesSelection?.contact?.id == repeater.id)
+    state.compactBinding(in: navigation).wrappedValue = [root]
+    #expect(navigation.nodesSelection?.watchlistRadioID == radioID)
+    #expect(navigation.nodesSelection?.contact == nil)
+    state.compactBinding(in: navigation).wrappedValue = []
+    #expect(navigation.nodesSelection?.watchlistRadioID == nil)
+    #expect(state.compactPath(in: navigation).isEmpty)
+  }
+
+  @Test
+  func `regular watchlist stays selected while a child pops and a sidebar contact replaces it`() {
+    let navigation = NavigationCoordinator()
+    let state = NodesNavigationState(presentation: .regular)
+    let radioID = UUID()
+    let repeater = makeRepeater(radioID: radioID, name: "Ridge")
+    navigation.navigateToWatchlist(radioID: radioID)
+    let child = NodesRoute.contact(id: repeater.id, presentationRevision: navigation.nodesPresentationRevision)
+    state.openContact(repeater, in: navigation)
+    state.detailBinding(in: navigation).wrappedValue = [child, historyRoute(repeater)]
+    state.detailBinding(in: navigation).wrappedValue = []
+    #expect(navigation.nodesSelection?.watchlistRadioID == radioID)
+    #expect(state.detailPath(in: navigation).isEmpty)
+
+    let contact = makeContact()
+    navigation.nodesSelection = .contact(contact)
+    #expect(navigation.nodesSelection?.watchlistRadioID == nil)
+    #expect(NodesNavigationState.root(in: navigation) == .contact(
+      id: contact.id, presentationRevision: navigation.nodesPresentationRevision
+    ))
+  }
+
+  @Test
+  func `same radio disconnect keeps the board and replacement clears it`() throws {
+    let navigation = NavigationCoordinator()
+    let state = NodesNavigationState(presentation: .compact)
+    let radioID = UUID()
+    let repeater = makeRepeater(radioID: radioID, name: "Ridge")
+    navigation.navigateToWatchlist(radioID: radioID)
+    let root = try #require(NodesNavigationState.root(in: navigation))
+    state.openContact(repeater, in: navigation)
+    let child = NodesRoute.contact(id: repeater.id, presentationRevision: navigation.nodesPresentationRevision)
+    state.compactBinding(in: navigation).wrappedValue = [root, child, historyRoute(repeater)]
+
+    navigation.clearPendingLinks()
+    #expect(navigation.nodesSelection?.watchlistRadioID == radioID)
+    #expect(navigation.nodesSelection?.contact?.id == repeater.id)
+    #expect(state.detailPath(in: navigation) == [child, historyRoute(repeater)])
+
+    state.changePresentation(to: .regular)
+    #expect(navigation.nodesSelection?.watchlistRadioID == radioID)
+    #expect(state.detailPath(in: navigation) == [child, historyRoute(repeater)])
+    state.changePresentation(to: .compact)
+    #expect(state.compactPath(in: navigation) == [root, child, historyRoute(repeater)])
+
+    navigation.clearPerRadioSelection()
+    #expect(navigation.nodesSelection?.watchlistRadioID == nil)
+    #expect(navigation.nodesSelection?.contact == nil)
+    #expect(state.detailPath(in: navigation).isEmpty)
+  }
+
+  @Test
+  func `forgetting the board radio clears only that board`() {
+    let navigation = NavigationCoordinator()
+    let radioID = UUID()
+    navigation.navigateToWatchlist(radioID: radioID)
+    navigation.clearWatchlistRoot(matching: UUID())
+    #expect(navigation.nodesSelection?.watchlistRadioID == radioID)
+    navigation.clearWatchlistRoot(matching: radioID)
+    #expect(navigation.nodesSelection?.watchlistRadioID == nil)
   }
 
   private func historyRoute(_ contact: ContactDTO) -> NodesRoute {
     .savedHistory(.init(publicKey: contact.publicKey, radioID: contact.radioID, showNeighbors: false))
+  }
+
+  private func makeRepeater(radioID: UUID, name: String) -> ContactDTO {
+    ContactDTO(from: Contact(
+      radioID: radioID, publicKey: Data(repeating: 0x44, count: ProtocolLimits.publicKeySize),
+      name: name, typeRawValue: ContactType.repeater.rawValue, lastHeardTimestamp: 0, isMyNode: true
+    ))
   }
 
   private func makeContact() -> ContactDTO {

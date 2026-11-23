@@ -61,9 +61,9 @@ struct NodesContactRefreshTests {
       services.syncCoordinator.notifyContactsChanged()
 
       try await waitUntil("Open detail kept the favourite from before the list reload") {
-        appState.navigation.selectedContact?.isFavorite == favorite
+        appState.navigation.nodesSelection?.rootContact?.isFavorite == favorite
       }
-      #expect(appState.navigation.selectedContact?.id == contact.id)
+      #expect(appState.navigation.nodesSelection?.rootContact?.id == contact.id)
       #expect(appState.navigation.nodesPresentationRevision == revision)
     }
 

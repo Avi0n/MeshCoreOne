@@ -407,6 +407,9 @@
 /* Location: ContactServiceError+UserFacingMessage.swift - Node advertisement missing or stale, so the node cannot be shared */
 "error.contactService.shareContactUnavailable" = "Impossibile condividere il nodo. L'annuncio del nodo potrebbe mancare o essere troppo vecchio.";
 
+/* Marked repeater must leave the Watchlist before Favorite is turned off */
+"error.contactService.removeFromWatchlistBeforeUnfavorite" = "Rimuovi dalla watchlist prima di rimuoverlo dai preferiti.";
+
 /* Location: MessageServiceError+UserFacingMessage.swift - No active connection to the radio */
 "error.messageService.notConnected" = "Non connesso al dispositivo.";
 

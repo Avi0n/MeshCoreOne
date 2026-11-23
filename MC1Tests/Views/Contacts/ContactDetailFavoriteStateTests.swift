@@ -14,7 +14,7 @@ struct ContactDetailFavoriteStateTests {
     defer { state.end() }
 
     state.isFavorite = !initialFavorite
-    await state.favoriteTask?.value
+    await state.commandTaskForTesting(.favorite(!initialFavorite))?.value
 
     #expect(state.isFavorite == initialFavorite)
     #expect(state.errorMessage != nil)
@@ -39,7 +39,7 @@ struct ContactDetailFavoriteStateTests {
     }
 
     state.isFavorite = !initialFavorite
-    let task = try #require(state.favoriteTask)
+    let task = try #require(state.commandTaskForTesting(.favorite(!initialFavorite)))
     #expect(state.isSettingFavorite)
     try await waitUntil { response != nil }
     #expect(state.isFavorite == initialFavorite)
@@ -57,7 +57,7 @@ struct ContactDetailFavoriteStateTests {
     #expect(state.isFavorite == (succeeds ? !initialFavorite : initialFavorite))
     #expect((state.errorMessage != nil) == !succeeds)
     #expect(!state.isSettingFavorite)
-    #expect(state.favoriteTask == nil)
+    #expect(state.commandTaskForTesting(.favorite(!initialFavorite)) == nil)
   }
 
   private func makeContact(isFavorite: Bool) -> ContactDTO {

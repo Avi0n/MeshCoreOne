@@ -142,6 +142,72 @@
 /* Location: RxLogView.swift - Bytes suffix for size display */
 "tools.rxLog.bytes" = "byte";
 
+/* Location: RxLogStatusBar.swift - Paused status indicator */
+"tools.rxLog.paused" = "In pausa";
+
+/* Location: RxLogStatusBar.swift - Count of packets held while paused, %lld is count */
+"tools.rxLog.newPackets" = "%lld nuovi";
+
+/* Location: RxLogStatusBar.swift - Packet count when filters hide some packets, %1$lld is shown, %2$lld is total */
+"tools.rxLog.packetsFilteredCount" = "%1$lld di %2$lld pacchetti";
+
+/* Location: RxLogStatusBar.swift - Button that resets all filters */
+"tools.rxLog.clearFilters" = "Reimposta filtri";
+
+/* Location: RxLogStatusBar.swift - Accessibility hint when live */
+"tools.rxLog.pauseHint" = "Mette in pausa gli aggiornamenti in diretta";
+
+/* Location: RxLogStatusBar.swift - Accessibility hint when paused */
+"tools.rxLog.resumeHint" = "Mostra i nuovi pacchetti e scorre fino in cima";
+
+/* Location: RxLogView.swift - Filter menu section header for packet types */
+"tools.rxLog.packetType" = "Tipo di pacchetto";
+
+/* Location: RxLogView.swift - Search field prompt */
+"tools.rxLog.searchPrompt" = "Testo, canale, nodo o hash";
+
+/* Location: RxLogView.swift - Empty state title when filters hide every packet */
+"tools.rxLog.noMatchingPackets" = "Nessun pacchetto corrispondente";
+
+/* Location: RxLogView.swift - Empty state description when filters hide every packet */
+"tools.rxLog.noMatchingPacketsDescription" = "Nessun pacchetto corrisponde ai filtri attuali.";
+
+/* Location: RxLogRowView.swift - Context menu action to copy the raw payload hex */
+"tools.rxLog.copyRawPayload" = "Copia payload grezzo";
+
+/* Location: RxLogRowView.swift - Context menu action to copy the packet hash */
+"tools.rxLog.copyHash" = "Copia hash";
+
+/* Location: RxLogRowView.swift - Context menu action to hide a packet type, %@ is the type name */
+"tools.rxLog.hideType" = "Nascondi %@";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail title */
+"tools.rxLog.packetDetails" = "Dettagli del pacchetto";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail section header */
+"tools.rxLog.signalSection" = "Segnale";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail section header */
+"tools.rxLog.packetSection" = "Pacchetto";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail section header */
+"tools.rxLog.pathSection" = "Percorso";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail section header */
+"tools.rxLog.messageSection" = "Messaggio";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail section for every reception of one packet */
+"tools.rxLog.arrivalsSection" = "Arrivi";
+
+/* Location: RxLogEntryDetailView.swift - Received time label */
+"tools.rxLog.receivedLabel" = "Ricevuto:";
+
+/* Location: RxLogEntryDetailView.swift - Route label */
+"tools.rxLog.routeLabel" = "Tipo di rotta:";
+
+/* Location: RxLogEntryDetailView.swift - Payload version label */
+"tools.rxLog.versionLabel" = "Versione:";
+
 // MARK: - RX Log Filters
 
 /* Location: RxLogViewModel.swift - Route filter: all */

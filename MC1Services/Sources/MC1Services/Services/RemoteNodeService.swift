@@ -180,7 +180,8 @@ public actor RemoteNodeService {
         isAdmin: info.isAdmin,
         aclPermissions: info.permissions,
         publicKeyPrefix: info.publicKeyPrefix,
-        serverTime: info.serverTime
+        serverTime: info.serverTime,
+        firmwareLevel: info.firmwareLevel
       )
       await handleLoginResult(result, fromPublicKeyPrefix: info.publicKeyPrefix)
 

@@ -15,6 +15,7 @@ struct ContactDetailSheet: View {
     self.onMessage = onMessage
     self.onDelete = onDelete
     _isFavorite = State(initialValue: contact.isFavorite)
+    _isMyNode = State(initialValue: contact.isMyNode)
   }
 
   /// Sheet types for repeater flows
@@ -45,6 +46,7 @@ struct ContactDetailSheet: View {
   @State private var showingDeleteAlert = false
   @State private var isDeleting = false
   @State private var isFavorite: Bool
+  @State private var isMyNode: Bool
   @State private var isTogglingFavorite = false
   @State private var errorMessage: String?
 
@@ -186,8 +188,17 @@ struct ContactDetailSheet: View {
               }
             }
           }
-          .disabled(isTogglingFavorite)
+          .disabled(
+            isTogglingFavorite
+              || WatchlistFavoriteExplanation.locksFavorite(type: contact.type, isMyNode: isMyNode, isFavorite: isFavorite)
+          )
           .radioDisabled(for: appState.connectionState)
+        } footer: {
+          if let explanation = WatchlistFavoriteExplanation.text(
+            type: contact.type, isMyNode: isMyNode, isFavorite: isFavorite
+          ) {
+            Text(explanation)
+          }
         }
 
         // Delete section, hidden for the ZephCore V-contact whose remove is disabled.
@@ -300,6 +311,10 @@ struct ContactDetailSheet: View {
         Text(L10n.Contacts.Contacts.Detail.Alert.Delete.message(contact.displayName))
       }
       .onAppear { hasPresentationOwnership = true }
+      .task { await reloadMembership() }
+      .onChange(of: appState.contactsVersion) { _, _ in
+        Task { await reloadMembership() }
+      }
       .onDisappear { hasPresentationOwnership = false; pendingSheet = nil; pendingSheetContext = nil }
       .onChange(of: appState.servicesVersion) { _, _ in
         activeSheet = nil
@@ -322,11 +337,23 @@ struct ContactDetailSheet: View {
     defer { isTogglingFavorite = false }
     let newValue = !isFavorite
     do {
-      try await service.setContactFavorite(contact.id, isFavorite: newValue)
-      isFavorite = newValue
+      let saved = try await service.setContactFavorite(contact.id, isFavorite: newValue)
+      guard hasPresentationOwnership else { return }
+      isFavorite = saved.isFavorite
+      isMyNode = saved.isMyNode
     } catch {
+      guard hasPresentationOwnership else { return }
       errorMessage = error.userFacingMessage
+      await reloadMembership()
     }
+  }
+
+  private func reloadMembership() async {
+    guard hasPresentationOwnership, let store = appState.offlineDataStore else { return }
+    guard let fresh = try? await store.fetchContact(id: contact.id) else { return }
+    guard hasPresentationOwnership else { return }
+    isFavorite = fresh.isFavorite
+    isMyNode = fresh.isMyNode
   }
 
   // MARK: - Delete

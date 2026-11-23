@@ -13,6 +13,7 @@ struct ContactsListView: View {
   @State private var discovery: DiscoveryState?
   @State private var history: TelemetryHistoryOverviewState?
   @State private var map: NodeLocationMapState?
+  @State private var watchlistLogin: ContactDTO?
   @State private var rootRevision: Int?
   @State private var blockedRevision: Int?
   @State private var historyRoute: ContactRoute.TelemetryHistory?
@@ -37,6 +38,20 @@ struct ContactsListView: View {
       .modifier(BlockedContactsPresenter(state: blocked))
       .modifier(DiscoveryPresenter(state: discovery))
       .modifier(ContactDetailPresenter(state: contact))
+      .sheet(item: $watchlistLogin) { target in
+        NodeAuthenticationSheet(
+          contact: target,
+          role: .repeater,
+          requireAdmin: false,
+          customTitle: target.displayName
+        ) { _ in
+          guard navigation.selectedTab == AppTab.nodes.rawValue,
+                navigation.nodesSelection == .watchlist(radioID: target.radioID) else { return }
+          watchlistLogin = nil
+          appState.watchlistRefreshCoordinator.refresh([target])
+        }
+        .presentationSizing(.page)
+      }
       .onChange(of: sizeClass, initial: true) { _, value in
         routes.changePresentation(to: value == .regular ? .regular : .compact) { revision in
           sidebar.prepareRenderer(revision: revision)
@@ -51,14 +66,16 @@ struct ContactsListView: View {
       .onChange(of: NodesNavigationState.stamp(in: navigation), initial: true) { _, _ in
         reconcileScreens()
       }
-      .onChange(of: navigation.selectedContact) { _, value in
-        if let value { contact?.updateContact(value) }
+      .onChange(of: navigation.nodesSelection?.contact) { _, _ in
+        reconcileScreens()
       }
-      // The open detail reads selectedContact. A list reload does not replace that copy.
       .onChange(of: sidebar.viewModel.contacts) { _, contacts in
-        guard let selectedID = navigation.selectedContact?.id,
+        if let watchlistLogin, !contacts.contains(where: { $0.id == watchlistLogin.id && $0.isMyNode && $0.type == .repeater }) {
+          self.watchlistLogin = nil
+        }
+        guard let selectedID = navigation.nodesSelection?.contact?.id,
               let updated = contacts.first(where: { $0.id == selectedID }) else { return }
-        navigation.selectedContact = updated
+        navigation.updateSelectedContact(updated)
       }
       .onChange(of: routes.sidebarRevision, initial: true) { _, _ in
         reconcileScreens()
@@ -71,7 +88,11 @@ struct ContactsListView: View {
         history?.configure(appState: appState)
         updateContactActivity()
       }
-      .onChange(of: navigation.selectedTab) { _, _ in updateContactActivity() }
+      .onChange(of: appState.connectionManager.currentConnection?.generation) { _, _ in watchlistLogin = nil }
+      .onChange(of: navigation.selectedTab) { _, _ in
+        watchlistLogin = nil
+        updateContactActivity()
+      }
       .onAppear { updateContactActivity() }
       .onDisappear { contact?.setActive(false, appState: appState) }
   }
@@ -128,14 +149,26 @@ struct ContactsListView: View {
       case .blockedContacts:
         if let blocked { BlockedContactsView(state: blocked, rendererRevision: routes.layoutRevision) }
       case let .contact(id, revision):
-        if navigation.selectedContact?.id == id, navigation.nodesPresentationRevision == revision,
+        if navigation.nodesSelection?.contact?.id == id, navigation.nodesPresentationRevision == revision,
            rootRevision == revision, let contact, contact.currentContact.id == id {
           ContactDetailContent(
             state: contact, historyRoute: NodesRoute.savedHistory, rendererRevision: routes.layoutRevision
           )
         }
+      case let .watchlist(radioID, revision):
+        if navigation.nodesSelection?.watchlistRadioID == radioID, navigation.nodesPresentationRevision == revision,
+           rootRevision == revision {
+          WatchlistView(
+            radioID: radioID,
+            contacts: sidebar.viewModel.contacts,
+            pendingRemovalIDs: sidebar.viewModel.pendingRemovalIDs,
+            coordinator: appState.watchlistRefreshCoordinator,
+            onSelect: { routes.openContact($0, in: navigation) },
+            onLogIn: { watchlistLogin = $0 }
+          )
+        }
       case let .discovery(revision):
-        if navigation.nodesShowingDiscovery, navigation.nodesPresentationRevision == revision,
+        if navigation.nodesSelection == .discovery, navigation.nodesPresentationRevision == revision,
            rootRevision == revision, let discovery {
           DiscoveryView(state: discovery, rendererRevision: routes.layoutRevision)
         }
@@ -159,6 +192,9 @@ struct ContactsListView: View {
 
   private func reconcileScreens() {
     routes.synchronize(with: navigation)
+    if let watchlistLogin, navigation.nodesSelection != .watchlist(radioID: watchlistLogin.radioID) {
+      self.watchlistLogin = nil
+    }
     if rootRevision != navigation.nodesPresentationRevision {
       contact?.end()
       discovery?.end()
@@ -170,15 +206,12 @@ struct ContactsListView: View {
       historyRoute = nil
       map = nil
       rootRevision = navigation.nodesPresentationRevision
-      if navigation.nodesShowingDiscovery {
+      if navigation.nodesSelection == .discovery {
         discovery = DiscoveryState()
         discovery?.prepareRenderer(revision: routes.layoutRevision)
-      } else if let selected = navigation.selectedContact {
-        contact = ContactDetailState(contact: selected)
-        contact?.prepareRenderer(revision: routes.layoutRevision)
-        configureContact()
       }
     }
+    reconcileContact()
     if routes.sidebarPath.isEmpty || blockedRevision != routes.sidebarRevision {
       blocked?.end()
       blocked = nil
@@ -188,10 +221,10 @@ struct ContactsListView: View {
       blocked = BlockedContactsState()
       blocked?.prepareRenderer(revision: routes.layoutRevision)
     }
-    let nextHistory: ContactRoute.TelemetryHistory? = detailPath.first.flatMap {
-      if case let .savedHistory(value) = $0 { return value }
+    let nextHistory: ContactRoute.TelemetryHistory? = detailPath.compactMap { route in
+      if case let .savedHistory(value) = route { return value }
       return nil
-    }
+    }.first
     if nextHistory != historyRoute {
       history?.end()
       map?.end()
@@ -211,19 +244,36 @@ struct ContactsListView: View {
     updateContactActivity()
   }
 
+  private func reconcileContact() {
+    let selected = navigation.nodesSelection?.contact
+    if contact?.currentContact.id != selected?.id {
+      contact?.end()
+      contact = selected.map(ContactDetailState.init(contact:))
+      contact?.prepareRenderer(revision: routes.layoutRevision)
+      configureContact()
+    } else if let selected {
+      contact?.updateContact(selected)
+    }
+  }
+
   private func configureContact() {
     guard let contact else { return }
     let revision = navigation.nodesPresentationRevision
+    let contactID = contact.currentContact.id
     contact.configure(appState: appState, isCurrentPresentation: {
       navigation.nodesPresentationRevision == revision
+        && navigation.nodesSelection?.contact?.id == contactID
     }) {
-      navigation.clearNodesRoot(matchingPresentation: revision)
+      guard navigation.nodesPresentationRevision == revision else { return }
+      routes.closeContact(matching: contactID, in: navigation)
     }
   }
 
   private func updateContactActivity() {
+    let front = detailPath.last ?? NodesNavigationState.root(in: navigation)
+    let contactIsFront = if case .contact = front { true } else { false }
     contact?.setActive(
-      navigation.selectedTab == AppTab.nodes.rawValue && detailPath.isEmpty,
+      navigation.selectedTab == AppTab.nodes.rawValue && contactIsFront,
       appState: appState
     )
   }
@@ -232,7 +282,7 @@ struct ContactsListView: View {
     snapshots: [NodeStatusSnapshotDTO], selectedID: UUID?, from source: TelemetryHistoryOverviewState
   ) {
     guard history === source, rootRevision == navigation.nodesPresentationRevision,
-          detailPath == [.savedHistory(source.history)] else { return }
+          detailPath.last == .savedHistory(source.history) else { return }
     map?.end()
     let entry = NodeLocationMapState(snapshots: snapshots, initialSelectedReportID: selectedID)
     entry.prepareRenderer(revision: routes.layoutRevision)

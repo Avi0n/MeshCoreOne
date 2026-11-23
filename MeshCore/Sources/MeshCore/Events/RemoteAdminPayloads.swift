@@ -12,6 +12,8 @@ public struct LoginInfo: Sendable, Equatable {
   /// Comparing it against local time exposes clock drift that silently breaks
   /// the node's timestamp-based replay protection.
   public let serverTime: Date?
+  /// The remote node's `FIRMWARE_VER_LEVEL`, or nil for the legacy response format.
+  public let firmwareLevel: UInt8?
 
   /// Initializes a new login information object.
   ///
@@ -20,11 +22,19 @@ public struct LoginInfo: Sendable, Equatable {
   ///   - isAdmin: Admin status.
   ///   - publicKeyPrefix: The node's public key prefix.
   ///   - serverTime: The remote node's clock at login, if the response carried it.
-  public init(permissions: UInt8, isAdmin: Bool, publicKeyPrefix: Data, serverTime: Date? = nil) {
+  ///   - firmwareLevel: The remote node's firmware level, if the response carried it.
+  public init(
+    permissions: UInt8,
+    isAdmin: Bool,
+    publicKeyPrefix: Data,
+    serverTime: Date? = nil,
+    firmwareLevel: UInt8? = nil
+  ) {
     self.permissions = permissions
     self.isAdmin = isAdmin
     self.publicKeyPrefix = publicKeyPrefix
     self.serverTime = serverTime
+    self.firmwareLevel = firmwareLevel
   }
 }
 

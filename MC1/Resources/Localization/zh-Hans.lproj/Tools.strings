@@ -142,6 +142,72 @@
 /* Location: RxLogView.swift - Bytes suffix for size display */
 "tools.rxLog.bytes" = "字节";
 
+/* Location: RxLogStatusBar.swift - Paused status indicator */
+"tools.rxLog.paused" = "暂停";
+
+/* Location: RxLogStatusBar.swift - Count of packets held while paused, %lld is count */
+"tools.rxLog.newPackets" = "%lld 个新";
+
+/* Location: RxLogStatusBar.swift - Packet count when filters hide some packets, %1$lld is shown, %2$lld is total */
+"tools.rxLog.packetsFilteredCount" = "%1$lld / %2$lld 个数据包";
+
+/* Location: RxLogStatusBar.swift - Button that resets all filters */
+"tools.rxLog.clearFilters" = "清除筛选";
+
+/* Location: RxLogStatusBar.swift - Accessibility hint when live */
+"tools.rxLog.pauseHint" = "暂停实时更新";
+
+/* Location: RxLogStatusBar.swift - Accessibility hint when paused */
+"tools.rxLog.resumeHint" = "显示新数据包并滚动到顶部";
+
+/* Location: RxLogView.swift - Filter menu section header for packet types */
+"tools.rxLog.packetType" = "数据包类型";
+
+/* Location: RxLogView.swift - Search field prompt */
+"tools.rxLog.searchPrompt" = "文本、频道、节点或哈希";
+
+/* Location: RxLogView.swift - Empty state title when filters hide every packet */
+"tools.rxLog.noMatchingPackets" = "没有匹配的数据包";
+
+/* Location: RxLogView.swift - Empty state description when filters hide every packet */
+"tools.rxLog.noMatchingPacketsDescription" = "没有数据包匹配当前筛选。";
+
+/* Location: RxLogRowView.swift - Context menu action to copy the raw payload hex */
+"tools.rxLog.copyRawPayload" = "复制原始负载";
+
+/* Location: RxLogRowView.swift - Context menu action to copy the packet hash */
+"tools.rxLog.copyHash" = "复制哈希";
+
+/* Location: RxLogRowView.swift - Context menu action to hide a packet type, %@ is the type name */
+"tools.rxLog.hideType" = "隐藏 %@";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail title */
+"tools.rxLog.packetDetails" = "数据包详情";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail section header */
+"tools.rxLog.signalSection" = "信号";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail section header */
+"tools.rxLog.packetSection" = "数据包";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail section header */
+"tools.rxLog.pathSection" = "路径";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail section header */
+"tools.rxLog.messageSection" = "消息";
+
+/* Location: RxLogEntryDetailView.swift - Packet detail section for every reception of one packet */
+"tools.rxLog.arrivalsSection" = "到达";
+
+/* Location: RxLogEntryDetailView.swift - Received time label */
+"tools.rxLog.receivedLabel" = "接收：";
+
+/* Location: RxLogEntryDetailView.swift - Route label */
+"tools.rxLog.routeLabel" = "路由类型：";
+
+/* Location: RxLogEntryDetailView.swift - Payload version label */
+"tools.rxLog.versionLabel" = "版本：";
+
 // MARK: - RX Log Filters
 
 /* Location: RxLogViewModel.swift - Route filter: all */

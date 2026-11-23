@@ -103,10 +103,11 @@ public enum MECPCatalog {
     for code: String,
     message: MECPMessage,
     pack: LanguagePack,
-    english: LanguagePack
+    english: LanguagePack,
+    locale: Locale
   ) -> String {
     if let template = pack.codes[code] ?? english.codes[code] {
-      return fillingSlots(in: template, code: code, message: message)
+      return fillingSlots(in: template, code: code, message: message, locale: locale)
     }
     let unknown = pack.unknownCode ?? absentUnknownCode
     return "\(code): \(unknown)"
@@ -166,12 +167,13 @@ public enum MECPCatalog {
     bundle: Bundle
   ) -> [String]? {
     var parts: [String] = []
+    let locale = Locale(identifier: lprojName(for: preferredLocalization))
     let severityKey = String(message.severity.rawValue)
     if let label = pack.severityLocal[severityKey] ?? english.severityLocal[severityKey], !label.isEmpty {
       parts.append(label)
     }
     for code in message.codes {
-      parts.append(phrase(for: code, message: message, pack: pack, english: english))
+      parts.append(phrase(for: code, message: message, pack: pack, english: english, locale: locale))
     }
     if let count = message.personCount {
       parts.append(quantityLine(count: count, preferredLocalization: preferredLocalization, bundle: bundle))
@@ -185,11 +187,14 @@ public enum MECPCatalog {
     return parts.isEmpty ? nil : parts
   }
 
-  private static func fillingSlots(in template: String, code: String, message: MECPMessage) -> String {
-    if code == MECPDecode.etaCode, let eta = message.eta, let replaced = replacingBracket(in: template, with: { "\(eta) \($0)" }) {
+  /// Pack slot names are translated (`[time]`, `[Zeit]`), so a slot is found by position, not by name.
+  private static func fillingSlots(in template: String, code: String, message: MECPMessage, locale: Locale) -> String {
+    if code == MECPDecode.etaCode, let eta = message.eta,
+       let replaced = replacingBracket(in: template, with: { _ in etaText(minutes: eta, locale: locale) }) {
       return replaced
     }
-    if code == shelterCode, let count = message.personCount, let replaced = replacingBracket(in: template, with: { _ in String(count) }) {
+    if code == shelterCode, let count = message.personCount,
+       let replaced = replacingBracket(in: template, with: { _ in String(count) }) {
       return replaced
     }
     return template
@@ -207,7 +212,18 @@ public enum MECPCatalog {
     return result
   }
 
+  /// MECP timestamps are the sender's local time with no zone, so the clock is shown as sent.
   private static func clockLine(_ hhmm: String) -> String {
-    "\(hhmm.prefix(2)):\(hhmm.suffix(2)) UTC"
+    "\(hhmm.prefix(2)):\(hhmm.suffix(2))"
+  }
+
+  private static let secondsPerMinute: Int64 = 60
+
+  /// The decoder has no upper bound, so a value too large for `Duration` shows as a plain minute count.
+  private static func etaText(minutes: Int, locale: Locale) -> String {
+    let (seconds, overflow) = Int64(minutes).multipliedReportingOverflow(by: secondsPerMinute)
+    guard !overflow else { return String(minutes) }
+    return Duration.seconds(seconds)
+      .formatted(.units(allowed: [.days, .hours, .minutes], width: .wide).locale(locale))
   }
 }
