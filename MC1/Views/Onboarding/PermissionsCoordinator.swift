@@ -13,10 +13,9 @@ final class PermissionsCoordinator: NSObject, CLLocationManagerDelegate {
 
   override init() {
     super.init()
-    // Create location manager early to check current authorization
+    // Setting the delegate delivers initial authorization asynchronously without synchronous `locationd` XPC.
     locationManager = CLLocationManager()
     locationManager?.delegate = self
-    locationAuthorization = locationManager?.authorizationStatus ?? .notDetermined
 
     // Check notification authorization
     Task {
@@ -42,9 +41,6 @@ final class PermissionsCoordinator: NSObject, CLLocationManagerDelegate {
   }
 
   func checkPermissions() {
-    if let lm = locationManager {
-      locationAuthorization = lm.authorizationStatus
-    }
     Task {
       await checkNotificationAuthorization()
     }

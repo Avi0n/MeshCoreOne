@@ -22,7 +22,7 @@ final class AppState {
   // MARK: - Location
 
   /// App-wide location service for permission management
-  let locationService = LocationService()
+  let locationService: LocationService
 
   // MARK: - Offline Maps
 
@@ -462,6 +462,7 @@ final class AppState {
   ) {
     self.defaults = defaults
     self.conversationUnreadOperations = conversationUnreadOperations
+    locationService = LocationService(isInert: isPlaceholder)
     onboarding = OnboardingState(defaults: defaults)
     draftStore = DraftStore(defaults: defaults)
 
@@ -585,13 +586,16 @@ final class AppState {
       )
     )
 
-    // The path suggestion drives real navigation; the placeholder has no scene to navigate,
-    // so skip the work and the strong self-capture it would keep alive.
-    if !isPlaceholder {
+    // The placeholder has no scene to navigate and completed onboarding never resumes,
+    // so skipping both keeps background launches from touching CoreLocation.
+    if !isPlaceholder, !onboarding.hasCompletedOnboarding {
       Task { [regionAlreadySet = regionSelection != nil] in
+        guard connectionManager.pairedAccessoriesCount > 0
+          || connectionManager.lastConnectedDeviceID != nil else { return }
+        let locationStatus = await locationService.resolveAuthorizationStatus()
         let suggested = await onboarding.suggestedStartingPath(
           connectionManager: connectionManager,
-          locationAuthorizationStatus: locationService.authorizationStatus,
+          locationAuthorizationStatus: locationStatus,
           regionAlreadySet: regionAlreadySet
         )
         if !suggested.isEmpty {

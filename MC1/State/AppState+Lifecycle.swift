@@ -76,6 +76,7 @@ extension AppState {
 
   /// Called when app returns to foreground
   func handleReturnToForeground() async {
+    locationService.activateIfNeeded()
     logToolbarResumeProbe(source: "returnToForeground")
     await Task.yield()
     await DebugLogBuffer.shared?.flush()

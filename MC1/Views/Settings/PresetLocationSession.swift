@@ -69,8 +69,9 @@ final class PresetLocationSession {
     case .appear:
       await runResolve(kind: .appear, appState: appState)
     case .userInitiated:
+      let status = await appState.locationService.resolveAuthorizationStatus()
       switch PresetLocationPolicy.useMyLocationAction(
-        status: appState.locationService.authorizationStatus
+        status: status
       ) {
       case .openSettings:
         showOpenSettingsAlert = true

@@ -109,6 +109,11 @@ struct LocationPickerView: View {
       .onAppear {
         loadCurrentLocation()
       }
+      .onChange(of: appState.locationService.isAuthorized) { _, authorized in
+        if authorized, cameraRegion == nil {
+          loadCurrentLocation()
+        }
+      }
       .onChange(of: appState.locationService.currentLocation) { _, newLocation in
         // Only react if we haven't set a camera region yet (no saved location case)
         guard let newLocation,

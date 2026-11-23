@@ -36,7 +36,7 @@ struct ContactsSidebarPresenter: ViewModifier {
         state.clearRemovedSelection(appState: appState)
       }
       .onChange(of: appState.locationService.authorizationStatus) { _, _ in
-        state.updateLocation(for: sortOrder, appState: appState)
+        state.handleLocationAuthorizationChange(for: sortOrder, appState: appState)
       }
       .sheet(isPresented: $state.showShareMyContact) {
         if let device = appState.connectedDevice {

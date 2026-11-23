@@ -36,10 +36,19 @@ enum LocationServiceError: Error, LocalizedError {
 @Observable
 @MainActor
 final class LocationService: NSObject, CLLocationManagerDelegate {
+  // MARK: - Constants
+
+  private static let initialAuthorizationTimeout: Duration = .seconds(5)
+  private static let defaultLocationTimeout: Duration = .seconds(10)
+  private static let permissionDecisionTimeout: Duration = .seconds(30)
+
   // MARK: - Properties
 
   private let logger = Logger(subsystem: "com.mc1", category: "LocationService")
-  private let locationManager: CLLocationManager
+  private let isInert: Bool
+  private let initialAuthorizationTimeout: Duration
+  private let managerFactory: @MainActor () -> any LocationManagerControlling
+  private var locationManager: (any LocationManagerControlling)?
 
   private var requestContinuation: CheckedContinuation<CLLocation, Error>?
   private var locationTimeoutTask: Task<Void, Never>?
@@ -47,8 +56,24 @@ final class LocationService: NSObject, CLLocationManagerDelegate {
   private var authorizationContinuation: CheckedContinuation<CLAuthorizationStatus, Error>?
   private var permissionTimeoutTask: Task<Void, Never>?
 
-  /// Current authorization status
-  private(set) var authorizationStatus: CLAuthorizationStatus
+  private var pendingPermissionRequest = false
+  private var pendingLocationRequest = false
+  private var initialAuthorizationWaiters: [UUID: (
+    continuation: CheckedContinuation<CLAuthorizationStatus, Never>,
+    timeoutTask: Task<Void, Never>
+  )] = [:]
+
+  /// Nil until CoreLocation delivers its first delegate callback.
+  private(set) var resolvedAuthorizationStatus: CLAuthorizationStatus?
+
+  /// Current authorization status (`.notDetermined` until CoreLocation reports otherwise).
+  var authorizationStatus: CLAuthorizationStatus {
+    resolvedAuthorizationStatus ?? .notDetermined
+  }
+
+  var hasInitializedLocationManager: Bool {
+    locationManager != nil
+  }
 
   /// Current device location (nil if unavailable or not yet determined)
   private(set) var currentLocation: CLLocation?
@@ -58,47 +83,113 @@ final class LocationService: NSObject, CLLocationManagerDelegate {
 
   /// Whether location services are authorized for use
   var isAuthorized: Bool {
-    authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways
+    resolvedAuthorizationStatus == .authorizedWhenInUse || resolvedAuthorizationStatus == .authorizedAlways
   }
 
-  /// Whether permission has been determined (not .notDetermined)
+  /// False while status is unknown or `.notDetermined`.
   var hasRequestedPermission: Bool {
-    authorizationStatus != .notDetermined
+    guard let status = resolvedAuthorizationStatus else { return false }
+    return status != .notDetermined
   }
 
   /// Whether location is denied or restricted
   var isLocationDenied: Bool {
-    authorizationStatus == .denied || authorizationStatus == .restricted
+    resolvedAuthorizationStatus == .denied || resolvedAuthorizationStatus == .restricted
   }
 
   // MARK: - Initialization
 
-  override init() {
-    locationManager = CLLocationManager()
-    authorizationStatus = locationManager.authorizationStatus
+  init(
+    isInert: Bool = false,
+    initialAuthorizationTimeout: Duration = LocationService.initialAuthorizationTimeout,
+    managerFactory: @escaping @MainActor () -> any LocationManagerControlling = { CLLocationManager() }
+  ) {
+    self.isInert = isInert
+    self.initialAuthorizationTimeout = initialAuthorizationTimeout
+    self.managerFactory = managerFactory
     super.init()
-    locationManager.delegate = self
-    locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
   }
 
   // MARK: - Public Methods
 
+  /// Wires `CLLocationManager` lazily; skips reading `authorizationStatus` to avoid synchronous `locationd` XPC.
+  func activateIfNeeded() {
+    guard !isInert, locationManager == nil else { return }
+    let manager = managerFactory()
+    manager.delegate = self
+    manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+    locationManager = manager
+  }
+
+  /// Awaits the first authorization callback when status is unknown; falls back to `.notDetermined` on timeout.
+  func resolveAuthorizationStatus(timeout: Duration? = nil) async -> CLAuthorizationStatus {
+    if let status = resolvedAuthorizationStatus {
+      return status
+    }
+    guard !isInert else { return .notDetermined }
+    activateIfNeeded()
+
+    let waitDuration = timeout ?? initialAuthorizationTimeout
+    let waiterID = UUID()
+    return await withTaskCancellationHandler {
+      await withCheckedContinuation { continuation in
+        if let status = resolvedAuthorizationStatus {
+          continuation.resume(returning: status)
+          return
+        }
+        let timeoutTask = Task { @MainActor [weak self] in
+          do {
+            try await Task.sleep(for: waitDuration)
+          } catch {
+            return
+          }
+          guard let self, let waiter = self.initialAuthorizationWaiters.removeValue(forKey: waiterID) else {
+            return
+          }
+          waiter.continuation.resume(returning: .notDetermined)
+        }
+        initialAuthorizationWaiters[waiterID] = (continuation, timeoutTask)
+      }
+    } onCancel: {
+      Task { @MainActor [weak self] in
+        guard let self, let waiter = self.initialAuthorizationWaiters.removeValue(forKey: waiterID) else {
+          return
+        }
+        waiter.timeoutTask.cancel()
+        waiter.continuation.resume(returning: self.resolvedAuthorizationStatus ?? .notDetermined)
+      }
+    }
+  }
+
   /// Request location permission if not already determined.
   /// Call this when a location-dependent feature is accessed.
   func requestPermissionIfNeeded() {
+    guard !isInert else { return }
+    guard resolvedAuthorizationStatus != nil else {
+      pendingPermissionRequest = true
+      activateIfNeeded()
+      return
+    }
     guard authorizationStatus == .notDetermined else {
       let raw = authorizationStatus.rawValue
       logger.debug("Location permission already determined: \(String(describing: raw))")
       return
     }
 
+    activateIfNeeded()
     logger.info("Requesting location permission")
-    locationManager.requestWhenInUseAuthorization()
+    locationManager?.requestWhenInUseAuthorization()
   }
 
   /// Request a one-shot location update.
   /// Call this when you need the current location (e.g., for distance sorting).
   func requestLocation() {
+    guard !isInert else { return }
+    guard resolvedAuthorizationStatus != nil else {
+      pendingLocationRequest = true
+      activateIfNeeded()
+      return
+    }
     guard isAuthorized else {
       logger.debug("Cannot request location: not authorized")
       requestPermissionIfNeeded()
@@ -110,22 +201,36 @@ final class LocationService: NSObject, CLLocationManagerDelegate {
       return
     }
 
+    activateIfNeeded()
     logger.info("Requesting one-shot location update")
     isRequestingLocation = true
-    locationManager.requestLocation()
+    locationManager?.requestLocation()
   }
 
   /// Request current location asynchronously with timeout.
   /// Handles permission prompting if needed.
-  func requestCurrentLocation(timeout: Duration = .seconds(10)) async throws -> CLLocation {
+  func requestCurrentLocation(timeout: Duration = LocationService.defaultLocationTimeout) async throws -> CLLocation {
     guard requestContinuation == nil, authorizationContinuation == nil else {
       throw LocationServiceError.requestInProgress
+    }
+    guard !isInert else {
+      throw LocationServiceError.notAuthorized(.notDetermined)
+    }
+
+    if resolvedAuthorizationStatus == nil {
+      _ = await resolveAuthorizationStatus()
+      guard requestContinuation == nil, authorizationContinuation == nil else {
+        throw LocationServiceError.requestInProgress
+      }
+      if resolvedAuthorizationStatus == nil {
+        throw LocationServiceError.permissionTimeout
+      }
     }
 
     if !isAuthorized {
       if authorizationStatus == .notDetermined {
         requestPermissionIfNeeded()
-        _ = try await waitForAuthorizationDecision(timeout: .seconds(30))
+        _ = try await waitForAuthorizationDecision(timeout: Self.permissionDecisionTimeout)
       }
 
       guard isAuthorized else {
@@ -133,11 +238,12 @@ final class LocationService: NSObject, CLLocationManagerDelegate {
       }
     }
 
+    activateIfNeeded()
     isRequestingLocation = true
 
     return try await withCheckedThrowingContinuation { continuation in
       requestContinuation = continuation
-      locationManager.requestLocation()
+      locationManager?.requestLocation()
 
       locationTimeoutTask?.cancel()
       locationTimeoutTask = Task { @MainActor [weak self] in
@@ -156,6 +262,48 @@ final class LocationService: NSObject, CLLocationManagerDelegate {
   }
 
   // MARK: - Private Methods
+
+  func handleAuthorizationChange(_ status: CLAuthorizationStatus) {
+    resolvedAuthorizationStatus = status
+    logger.info("Location authorization changed: \(String(describing: status.rawValue))")
+
+    let waiters = initialAuthorizationWaiters
+    initialAuthorizationWaiters.removeAll()
+    for waiter in waiters.values {
+      waiter.timeoutTask.cancel()
+      waiter.continuation.resume(returning: status)
+    }
+
+    if status != .notDetermined, let authorizationContinuation {
+      self.authorizationContinuation = nil
+      permissionTimeoutTask?.cancel()
+      permissionTimeoutTask = nil
+      authorizationContinuation.resume(returning: status)
+    }
+
+    if status == .denied || status == .restricted, let continuation = requestContinuation {
+      requestContinuation = nil
+      locationTimeoutTask?.cancel()
+      locationTimeoutTask = nil
+      isRequestingLocation = false
+      continuation.resume(throwing: LocationServiceError.notAuthorized(status))
+    }
+
+    let shouldRequestLocation = pendingLocationRequest
+    let shouldRequestPermission = pendingPermissionRequest
+    pendingLocationRequest = false
+    pendingPermissionRequest = false
+
+    if shouldRequestLocation {
+      if isAuthorized {
+        requestLocation()
+      } else if status == .notDetermined {
+        requestPermissionIfNeeded()
+      }
+    } else if shouldRequestPermission, status == .notDetermined {
+      requestPermissionIfNeeded()
+    }
+  }
 
   private func waitForAuthorizationDecision(timeout: Duration) async throws -> CLAuthorizationStatus {
     guard authorizationStatus == .notDetermined else { return authorizationStatus }
@@ -186,23 +334,7 @@ final class LocationService: NSObject, CLLocationManagerDelegate {
   nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
     let status = manager.authorizationStatus
     Task { @MainActor in
-      self.authorizationStatus = status
-      self.logger.info("Location authorization changed: \(String(describing: status.rawValue))")
-
-      if status != .notDetermined, let authorizationContinuation = self.authorizationContinuation {
-        self.authorizationContinuation = nil
-        self.permissionTimeoutTask?.cancel()
-        self.permissionTimeoutTask = nil
-        authorizationContinuation.resume(returning: status)
-      }
-
-      if status == .denied || status == .restricted, let continuation = self.requestContinuation {
-        self.requestContinuation = nil
-        self.locationTimeoutTask?.cancel()
-        self.locationTimeoutTask = nil
-        self.isRequestingLocation = false
-        continuation.resume(throwing: LocationServiceError.notAuthorized(status))
-      }
+      self.handleAuthorizationChange(status)
     }
   }
 
