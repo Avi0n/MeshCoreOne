@@ -4,47 +4,56 @@ import MC1Services
 @Observable
 @MainActor
 final class RxLogViewModel {
-  enum RouteFilter: String, CaseIterable {
-    case all
-    case floodOnly
-    case directOnly
-
-    var displayName: String {
-      switch self {
-      case .all: L10n.Tools.Tools.RxLog.Filter.all
-      case .floodOnly: L10n.Tools.Tools.RxLog.Filter.floodOnly
-      case .directOnly: L10n.Tools.Tools.RxLog.Filter.directOnly
-      }
-    }
-  }
-
-  enum DecryptFilter: String, CaseIterable {
-    case all
-    case decrypted
-    case failed
-
-    var displayName: String {
-      switch self {
-      case .all: L10n.Tools.Tools.RxLog.Filter.all
-      case .decrypted: L10n.Tools.Tools.RxLog.Filter.decrypted
-      case .failed: L10n.Tools.Tools.RxLog.Filter.failed
-      }
-    }
-  }
+  /// In-memory cap for both the displayed list and the paused buffer.
+  static let maxEntries = 1000
 
   private(set) var entries: [RxLogEntryDTO] = []
   private(set) var groupCounts: [String: Int] = [:]
-  private(set) var routeFilter: RouteFilter = .all
-  private(set) var decryptFilter: DecryptFilter = .all
+
+  /// Arrivals held while the list is paused, oldest first.
+  private(set) var pendingEntries: [RxLogEntryDTO] = []
+  private(set) var isUserPaused = false
+  private(set) var isScrolledAway = false
+
+  var isPaused: Bool {
+    isUserPaused || isScrolledAway
+  }
+
+  /// Snapshot of the packet shown in the sheet, so pruning cannot remove it.
+  var selectedEntry: RxLogEntryDTO?
+
+  var filter: RxLogFilter {
+    didSet {
+      guard filter != oldValue else { return }
+      defaults.set(filter.storageString, forKey: AppStorageKey.rxLogFilter.rawValue)
+    }
+  }
+
+  var searchText = "" {
+    didSet { rebuildMatchingNodePrefixes() }
+  }
 
   /// Maps path hash bytes (1, 2, or 3 byte prefixes) to contact display names.
   /// Only populated for prefixes that uniquely identify a single contact.
-  private(set) var nodeNames: [Data: String] = [:]
+  private(set) var nodeNames: [Data: String] = [:] {
+    didSet { rebuildMatchingNodePrefixes() }
+  }
 
+  /// `nodeNames` keys whose name matches `searchText`, so search tests hops by
+  /// set membership instead of resolving every hop of every entry.
+  private var matchingNodePrefixes: Set<Data> = []
+
+  private let defaults: UserDefaults
   private var streamTask: Task<Void, Never>?
   /// Bumped by every subscribe and unsubscribe so a load that resumes after
   /// hide cannot install a stream for a subscription that already ended.
   private var subscribeGeneration: UInt = 0
+
+  init(defaults: UserDefaults = .standard) {
+    self.defaults = defaults
+    filter = defaults.string(forKey: AppStorageKey.rxLogFilter.rawValue)
+      .flatMap(RxLogFilter.init(storageString:)) ?? RxLogFilter()
+  }
 
   // MARK: - Dependencies
 
@@ -81,41 +90,94 @@ final class RxLogViewModel {
     radioIDProvider = radioID
   }
 
-  func setRouteFilter(_ filter: RouteFilter) {
-    routeFilter = filter
+  // MARK: - Filtering and Search
+
+  var hasActiveFilters: Bool {
+    filter.hidesPackets || !searchText.isEmpty
   }
 
-  func setDecryptFilter(_ filter: DecryptFilter) {
-    decryptFilter = filter
+  /// Grouping is a display mode, not a filter, so it survives.
+  func clearFilters() {
+    filter = RxLogFilter(groupsArrivals: filter.groupsArrivals)
+    searchText = ""
   }
 
-  /// Entries filtered by current filter settings.
-  var filteredEntries: [RxLogEntryDTO] {
-    entries.filter { entry in
-      // Route filter
-      switch routeFilter {
-      case .all: break
-      case .floodOnly:
-        guard entry.isFlood else { return false }
-      case .directOnly:
-        guard !entry.isFlood else { return false }
-      }
+  var visibleEntries: [RxLogEntryDTO] {
+    let matching = entries.filter(isVisible)
+    guard filter.groupsArrivals else { return matching }
+    var seen = Set<String>()
+    return matching.filter { seen.insert($0.packetHash).inserted }
+  }
 
-      // Decrypt filter
-      switch decryptFilter {
-      case .all: break
-      case .decrypted:
-        guard entry.decryptStatus == .success else { return false }
-      case .failed:
-        guard entry.decryptStatus == .hmacFailed
-          || entry.decryptStatus == .decryptFailed
-          || entry.decryptStatus == .noMatchingKey
-          || entry.decryptStatus == .dmNoMatchingKey else { return false }
-      }
+  var pendingVisibleCount: Int {
+    pendingEntries.count(where: isVisible)
+  }
 
+  /// Every arrival of the entry's packet, newest first. Empty when it arrived once.
+  func arrivals(of entry: RxLogEntryDTO) -> [RxLogEntryDTO] {
+    guard groupCounts[entry.packetHash, default: 0] > 1 else { return [] }
+    return entries.filter { $0.packetHash == entry.packetHash }
+  }
+
+  private func isVisible(_ entry: RxLogEntryDTO) -> Bool {
+    filter.matches(entry) && matchesSearch(entry)
+  }
+
+  private func matchesSearch(_ entry: RxLogEntryDTO) -> Bool {
+    let query = searchText.trimmingCharacters(in: .whitespaces)
+    guard !query.isEmpty else { return true }
+
+    if entry.packetHash.range(of: query, options: [.caseInsensitive, .anchored]) != nil {
       return true
     }
+    let textFields = [entry.decodedText, entry.channelName, entry.fromContactName, entry.payloadType.displayName]
+    if textFields.contains(where: { $0?.localizedStandardContains(query) == true }) {
+      return true
+    }
+    guard !matchingNodePrefixes.isEmpty else { return false }
+    let nodeHashes = entry.pathHopHashes + [entry.senderPrefix, entry.recipientPrefix].compactMap(\.self)
+    return nodeHashes.contains(where: matchingNodePrefixes.contains)
   }
+
+  private func rebuildMatchingNodePrefixes() {
+    let query = searchText.trimmingCharacters(in: .whitespaces)
+    guard !query.isEmpty else {
+      matchingNodePrefixes = []
+      return
+    }
+    matchingNodePrefixes = Set(nodeNames.filter { $0.value.localizedStandardContains(query) }.keys)
+  }
+
+  // MARK: - Live / Paused
+
+  func setScrolledAway(_ scrolledAway: Bool) {
+    guard scrolledAway != isScrolledAway else { return }
+    isScrolledAway = scrolledAway
+    flushPendingIfLive()
+  }
+
+  func toggleUserPause() {
+    isUserPaused.toggle()
+    flushPendingIfLive()
+  }
+
+  private func flushPendingIfLive() {
+    guard !isPaused, !pendingEntries.isEmpty else { return }
+    entries = Array((pendingEntries.reversed() + entries).prefix(Self.maxEntries))
+    pendingEntries.removeAll()
+    rebuildGroupCounts()
+  }
+
+  /// Drops held arrivals, pause, and the selected packet. `clearLog` and a new
+  /// service have no list left to resume.
+  private func resetLiveState() {
+    pendingEntries.removeAll()
+    isScrolledAway = false
+    isUserPaused = false
+    selectedEntry = nil
+  }
+
+  // MARK: - Subscription
 
   /// Listens while the view is visible. The task is stored before `loadEntries`
   /// returns, so a hide during that load cannot install a stream afterward.
@@ -127,6 +189,7 @@ final class RxLogViewModel {
     if subscribedService !== service {
       entries.removeAll()
       groupCounts.removeAll()
+      resetLiveState()
     }
     subscribedService = service
 
@@ -148,8 +211,7 @@ final class RxLogViewModel {
           resumeOnce()
           return
         }
-        self.entries = loaded
-        self.rebuildGroupCounts()
+        self.installLoadedEntries(loaded)
         let stream = service.entryStream()
         resumeOnce()
         for await entry in stream {
@@ -168,6 +230,21 @@ final class RxLogViewModel {
     streamTask = nil
   }
 
+  /// While paused, the reader's list stays put and rows persisted since it was
+  /// built join the held arrivals instead.
+  private func installLoadedEntries(_ loaded: [RxLogEntryDTO]) {
+    guard isPaused else {
+      entries = loaded
+      pendingEntries.removeAll()
+      rebuildGroupCounts()
+      return
+    }
+    let knownIDs = Set(entries.map(\.id)).union(pendingEntries.map(\.id))
+    for entry in loaded.reversed() where !knownIDs.contains(entry.id) {
+      appendPending(entry)
+    }
+  }
+
   private func loadEntries(from service: RxLogService) async -> [RxLogEntryDTO] {
     #if DEBUG
       if let loadExistingEntriesForTesting {
@@ -182,22 +259,35 @@ final class RxLogViewModel {
     await rxLogService?.clearEntries()
     entries.removeAll()
     groupCounts.removeAll()
+    resetLiveState()
   }
 
   // MARK: - Incremental Updates
 
   private func appendEntry(_ entry: RxLogEntryDTO) {
+    guard !isPaused else {
+      appendPending(entry)
+      return
+    }
+
     // Insert at front to maintain newest-first order (matching DB fetch sort)
     entries.insert(entry, at: 0)
     groupCounts[entry.packetHash, default: 0] += 1
 
     // Prune oldest (now at end) if over cap
-    if entries.count > 1000 {
+    if entries.count > Self.maxEntries {
       let removed = entries.removeLast()
       groupCounts[removed.packetHash, default: 1] -= 1
       if groupCounts[removed.packetHash] == 0 {
         groupCounts.removeValue(forKey: removed.packetHash)
       }
+    }
+  }
+
+  private func appendPending(_ entry: RxLogEntryDTO) {
+    pendingEntries.append(entry)
+    if pendingEntries.count > Self.maxEntries {
+      pendingEntries.removeFirst()
     }
   }
 

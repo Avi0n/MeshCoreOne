@@ -42,6 +42,9 @@ public enum AppStorageKey: String {
   case mapFilterMainMap
   case mapFilterTracePath
   case mapFilterNeighborSNR
+  /// RX Log filter JSON (`RxLogFilter.storageString`). Raw value matches the
+  /// `BackupUserDefaults` property name.
+  case rxLogFilter
   case mapColorSchemePreference
   case hasSeenRepeaterDragHint
   /// In-bubble Translate target. `"app"` follows the app locale; `"overlay"` is
