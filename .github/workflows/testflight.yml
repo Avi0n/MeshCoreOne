@@ -86,3 +86,12 @@ jobs:
         run: |
           cd fastlane
           fastlane build_only
+
+      - name: Upload dSYM artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: MC1-dSYM-${{ github.run_number }}-${{ github.run_id }}
+          path: fastlane/build/*.dSYM.zip
+          retention-days: 90
+          if-no-files-found: warn
