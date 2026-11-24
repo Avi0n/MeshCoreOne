@@ -40,8 +40,7 @@ extension BLEStateMachine {
         handleRestoredPeripheral(peripheral)
       }
 
-      // Fulfill pending scan request
-      if pendingScanRequest {
+      if scanState == .waitingForPower {
         startScanning()
       }
 
@@ -49,10 +48,8 @@ extension BLEStateMachine {
       onBluetoothPoweredOn?()
 
     case .poweredOff:
-      let wasScanning = isCurrentlyScanning
-      isCurrentlyScanning = false
-      if wasScanning {
-        pendingScanRequest = true
+      if scanState == .scanning {
+        scanState = .waitingForPower
       }
 
       if case .waitingForBluetooth = phase {
@@ -108,9 +105,7 @@ extension BLEStateMachine {
 
   /// Handles Bluetooth becoming permanently unavailable (unauthorized or unsupported).
   private func handleBluetoothBecomingUnavailable(error: BLEError) {
-    isCurrentlyScanning = false
-    pendingScanRequest = false
-    isScanPausedForBackground = false
+    scanState = .idle
     if case let .waitingForBluetooth(continuation) = phase {
       transition(to: .idle)
       continuation.resume(throwing: error)
@@ -747,13 +742,14 @@ extension BLEStateMachine {
   func refreshBondVerificationIfLive(now: Date = Date()) {
     guard case .connected = phase,
           let deviceID = connectedDeviceID,
-          deviceID == appSessionLiveDeviceID,
-          reconnectPolicy.bondVerificationDates[deviceID] != nil
+          deviceID == appSessionLiveDeviceID
     else { return }
 
-    if reconnectPolicy.refreshBondVerification(deviceID: deviceID, at: now),
-       shouldEmitBondRefreshPersist(for: deviceID, at: now) {
-      markBondRefreshPersisted(for: deviceID, at: now)
+    if reconnectPolicy.refreshBondVerification(
+      deviceID: deviceID,
+      at: now,
+      persistInterval: bondRefreshPersistInterval
+    ) == .refreshedAndPersistDue {
       onBondRefreshed?(deviceID)
     }
   }

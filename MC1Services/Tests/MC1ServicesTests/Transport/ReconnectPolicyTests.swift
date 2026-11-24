@@ -400,21 +400,37 @@ struct ReconnectPolicyConnectFailureTests {
     let deviceID = UUID()
     let other = UUID()
 
-    #expect(policy.refreshBondVerification(deviceID: deviceID, at: Date()) == false)
-    #expect(policy.bondVerificationDates[deviceID] == nil)
+    #expect(policy.refreshBondVerification(deviceID: deviceID, at: Date()) == .noExistingVerification)
+    #expect(policy.bondVerificationDate(for: deviceID) == nil)
 
     let original = Date().addingTimeInterval(-3600)
     policy.recordBondVerification(deviceID: deviceID, at: original)
     let refreshed = Date()
-    #expect(policy.refreshBondVerification(deviceID: deviceID, at: refreshed) == true)
-    #expect(policy.bondVerificationDates[deviceID] == refreshed)
+    #expect(policy.refreshBondVerification(deviceID: deviceID, at: refreshed) == .refreshedAndPersistDue)
+    #expect(policy.bondVerificationDate(for: deviceID) == refreshed)
 
-    #expect(policy.refreshBondVerification(deviceID: other, at: Date()) == false)
-    #expect(policy.bondVerificationDates[other] == nil)
+    #expect(policy.refreshBondVerification(deviceID: other, at: Date()) == .noExistingVerification)
+    #expect(policy.bondVerificationDate(for: other) == nil)
 
     policy.clearBondVerification(deviceID: deviceID)
-    #expect(policy.refreshBondVerification(deviceID: deviceID, at: Date()) == false)
-    #expect(policy.bondVerificationDates[deviceID] == nil)
+    #expect(policy.refreshBondVerification(deviceID: deviceID, at: Date()) == .noExistingVerification)
+    #expect(policy.bondVerificationDate(for: deviceID) == nil)
+  }
+
+  @Test
+  func `refreshBondVerification throttles persistence within persistInterval and resets on backward clock jump`() {
+    var policy = ReconnectPolicy()
+    let deviceID = UUID()
+    let t0 = Date(timeIntervalSinceReferenceDate: 100_000)
+
+    policy.recordBondVerification(deviceID: deviceID, at: t0)
+    #expect(policy.refreshBondVerification(deviceID: deviceID, at: t0.addingTimeInterval(60), persistInterval: 900) == .refreshedInMemory)
+    #expect(policy.bondVerificationDate(for: deviceID) == t0.addingTimeInterval(60))
+
+    #expect(policy.refreshBondVerification(deviceID: deviceID, at: t0.addingTimeInterval(900), persistInterval: 900) == .refreshedAndPersistDue)
+    #expect(policy.refreshBondVerification(deviceID: deviceID, at: t0.addingTimeInterval(950), persistInterval: 900) == .refreshedInMemory)
+
+    #expect(policy.refreshBondVerification(deviceID: deviceID, at: t0.addingTimeInterval(800), persistInterval: 900) == .refreshedAndPersistDue)
   }
 
   @Test

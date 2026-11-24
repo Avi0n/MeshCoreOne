@@ -10,18 +10,25 @@ struct BLEStateMachinePeripheralEventAdmissionTests {
     let harness = BLETransportHarness()
     let replaced = BLETransportHarness(deviceID: harness.deviceID)
     let machine = BLEStateMachine(centralManager: harness.central)
-    _ = try await harness.connect(machine)
+    let stream = try await harness.connect(machine)
     let stamp = Date().addingTimeInterval(-60)
     await machine.recordBondVerification(deviceID: harness.deviceID, at: stamp)
     await machine.setAppSessionLive(deviceID: harness.deviceID)
     let bridge = await machine.delegateHandler
-    if let rejected = bridge.triggerInboundTrafficBondRefresh(from: replaced.peripheral) {
-      await rejected.value
-    }
+
+    replaced.rx.value = Data([0x01])
+    bridge.peripheral(replaced.peripheral, didUpdateValueFor: replaced.rx, error: nil)
+    try await Task.sleep(for: .milliseconds(30))
     #expect(await machine.bondVerificationDate(for: harness.deviceID) == stamp)
-    let accepted = try #require(bridge.triggerInboundTrafficBondRefresh(from: harness.peripheral))
-    await accepted.value
-    #expect(try #require(await machine.bondVerificationDate(for: harness.deviceID)) > stamp)
+
+    harness.rx.value = Data([0x02])
+    bridge.peripheral(harness.peripheral, didUpdateValueFor: harness.rx, error: nil)
+    let refreshed = await harness.awaitCondition {
+      guard let current = await machine.bondVerificationDate(for: harness.deviceID) else { return false }
+      return current > stamp
+    }
+    #expect(refreshed)
+    _ = stream
     await machine.shutdown()
   }
 

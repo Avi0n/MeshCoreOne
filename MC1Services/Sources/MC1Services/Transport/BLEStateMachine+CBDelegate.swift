@@ -19,12 +19,12 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
     let peripheral: ObjectIdentifier
     let characteristic: ObjectIdentifier
     var diagnostics: BLEIngressDiagnostics
-    var lastBondRefreshAttempt: Date?
+    var lastBondRefreshAttempt: ContinuousClock.Instant?
   }
 
   private let dataContinuationLock = OSAllocatedUnfairLock<Ingress?>(initialState: nil)
   private static let ingressReportInterval = 64
-  private static let inboundBondRefreshInterval: TimeInterval = 60
+  private static let inboundBondRefreshInterval: Duration = .seconds(60)
 
   private struct IssuedWrite: Sendable {
     let sequence: UInt64
@@ -180,7 +180,7 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
     }
     let origin = ObjectIdentifier(peripheral)
     let characteristicOrigin = ObjectIdentifier(characteristic)
-    let now = Date()
+    let now = ContinuousClock.now
     let (report, refreshGeneration) = dataContinuationLock.withLock { current -> (String?, UInt64?) in
       guard var ingress = current else { return (nil, nil) }
       defer { current = ingress }
@@ -194,7 +194,7 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
       case .enqueued:
         ingress.diagnostics.acceptedFrames += 1
         let shouldRefresh = ingress.lastBondRefreshAttempt.map {
-          now < $0 || now.timeIntervalSince($0) >= Self.inboundBondRefreshInterval
+          $0.duration(to: now) >= Self.inboundBondRefreshInterval
         } ?? true
         if shouldRefresh {
           ingress.lastBondRefreshAttempt = now
@@ -219,11 +219,6 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
     if let refreshGeneration, let sm = stateMachine {
       Task { await sm.handleLiveTrafficBondRefresh(peripheral, generation: refreshGeneration) }
     }
-  }
-
-  func triggerInboundTrafficBondRefresh(from peripheral: CBPeripheral) -> Task<Void, Never>? {
-    guard let sm = stateMachine, let generation = generation(for: peripheral) else { return nil }
-    return Task { await sm.handleLiveTrafficBondRefresh(peripheral, generation: generation) }
   }
 
   func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {

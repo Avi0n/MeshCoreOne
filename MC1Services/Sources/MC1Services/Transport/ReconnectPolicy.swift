@@ -43,11 +43,24 @@ struct ReconnectPolicy {
   /// Reset by `generationAdvanced()`.
   var discoveryTimeoutExtensions = 0
 
-  /// When each device's bond last completed a verified encrypted session.
-  /// Seeded from persistence at wiring time so a verification from a previous
-  /// launch still shields, refreshed on every verified session, and cleared
-  /// when the device's pairing is forgotten.
-  var bondVerificationDates: [UUID: Date] = [:]
+  struct BondVerification: Equatable {
+    var verifiedAt: Date
+    var lastPersistedAt: Date
+  }
+
+  enum BondRefreshOutcome: Equatable {
+    case noExistingVerification
+    case refreshedInMemory
+    case refreshedAndPersistDue
+  }
+
+  /// Per-device bond verification and persistence timestamps. Seeded on launch,
+  /// refreshed on live traffic, and cleared when pairing is forgotten.
+  var bondVerifications: [UUID: BondVerification] = [:]
+
+  func bondVerificationDate(for deviceID: UUID) -> Date? {
+    bondVerifications[deviceID]?.verifiedAt
+  }
 
   // MARK: - Bookkeeping
 
@@ -68,24 +81,31 @@ struct ReconnectPolicy {
 
   /// The device's bond completed a verified encrypted session at `date`.
   mutating func recordBondVerification(deviceID: UUID, at date: Date) {
-    bondVerificationDates[deviceID] = date
+    bondVerifications[deviceID] = BondVerification(verifiedAt: date, lastPersistedAt: date)
   }
 
-  /// Refreshes an existing verification's timestamp; never creates one. Only a
-  /// completed app-layer handshake is evidence that a bond verified, so a
-  /// forgotten pairing has no entry and a keepalive tick cannot re-shield it,
-  /// whichever order the clear and the tick reach the actor in.
-  /// - Returns: `true` when an existing stamp was updated.
+  /// Refreshes an existing verification without creating one, so live traffic
+  /// cannot re-shield a forgotten pairing regardless of clear/refresh ordering.
   @discardableResult
-  mutating func refreshBondVerification(deviceID: UUID, at date: Date) -> Bool {
-    guard bondVerificationDates[deviceID] != nil else { return false }
-    bondVerificationDates[deviceID] = date
-    return true
+  mutating func refreshBondVerification(
+    deviceID: UUID,
+    at date: Date,
+    persistInterval: TimeInterval = 0
+  ) -> BondRefreshOutcome {
+    guard var entry = bondVerifications[deviceID] else { return .noExistingVerification }
+    entry.verifiedAt = date
+    let persistDue = date < entry.lastPersistedAt
+      || date.timeIntervalSince(entry.lastPersistedAt) >= persistInterval
+    if persistDue {
+      entry.lastPersistedAt = date
+    }
+    bondVerifications[deviceID] = entry
+    return persistDue ? .refreshedAndPersistDue : .refreshedInMemory
   }
 
   /// The device's pairing was forgotten; its verification must stop shielding.
   mutating func clearBondVerification(deviceID: UUID) {
-    bondVerificationDates[deviceID] = nil
+    bondVerifications[deviceID] = nil
   }
 
   // MARK: - Connect-failure classification
@@ -150,7 +170,7 @@ struct ReconnectPolicy {
     let majorityEncryptionTimeouts = encryptionTimedOutConnectFailures * 2 > autoReconnectConnectFailures
     resetFailureTallies()
 
-    let lastVerified = bondVerificationDates[deviceID]
+    let lastVerified = bondVerifications[deviceID]?.verifiedAt
     let verifiedAge = lastVerified.map { now.timeIntervalSince($0) }
 
     if majorityEncryptionTimeouts, Self.isBondRecentlyVerified(lastVerified: lastVerified, now: now) {
