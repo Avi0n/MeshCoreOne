@@ -137,9 +137,6 @@ struct MC1App: App {
             } else {
               await appState.initialize()
             }
-            if DiscoveryChurnInjector.isRequested {
-              Task { await DiscoveryChurnInjector.run(appState: appState) }
-            }
           #else
             await appState.initialize()
           #endif
