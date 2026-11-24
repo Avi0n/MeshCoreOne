@@ -208,13 +208,6 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Tracks the auto-reconnect discovery timeout task so it can be cancelled on success
   var autoReconnectDiscoveryTimeoutTask: Task<Void, Never>?
 
-  /// Periodic RSSI read task that keeps the BLE connection alive in background.
-  /// Without periodic BLE activity, iOS may drop idle connections.
-  private var rssiKeepaliveTask: Task<Void, Never>?
-
-  /// Consecutive RSSI read failures. Reset on success. Logged for diagnostics.
-  var consecutiveRSSIFailures = 0
-
   /// Confirmed foreground. Starts false: a BLE process relaunch is already
   /// background, and scene `.onChange` does not fire for the initial phase.
   private(set) var isAppActive = false
@@ -716,7 +709,6 @@ actor BLEStateMachine: BLEStateMachineProtocol {
       rx: rx,
       dataContinuation: continuation
     ))
-    startRSSIKeepalive(for: peripheral)
 
     logger.info("Connection complete for device: \(deviceID)")
     return stream
@@ -744,12 +736,6 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// awaiting peripheral readiness. Reflects existing state; does not alter behavior.
   var isAwaitingWriteWithoutResponseReady: Bool {
     writeWithoutResponseReadyContinuation != nil
-  }
-
-  /// Test observability: whether the RSSI keepalive task is currently running.
-  /// Reflects existing state; does not alter behavior.
-  var isRSSIKeepaliveActive: Bool {
-    rssiKeepaliveTask != nil
   }
 
   /// Sends data as an unacknowledged ATT Write Command (no `didWriteValue` ACK), which is
@@ -1019,10 +1005,6 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     autoReconnectDiscoveryTimeoutTask = nil
     serviceDiscoveryTimeoutTask?.cancel()
     serviceDiscoveryTimeoutTask = nil
-    // The direct phase write below bypasses cleanupPhaseResources, so the
-    // RSSI keepalive must be cancelled here or it outlives the shutdown.
-    rssiKeepaliveTask?.cancel()
-    rssiKeepaliveTask = nil
 
     cancelPendingWriteOperations(error: CancellationError())
 
@@ -1071,7 +1053,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
       pendingScanRequest = false
       isScanPausedForBackground = true
     }
-    logger.info("[BLE] App entered background: cancelled auto-reconnect timeout (keepalive persists)")
+    logger.info("[BLE] App entered background: cancelled auto-reconnect timeout")
   }
 
   func appDidBecomeActive() {
@@ -1082,12 +1064,6 @@ actor BLEStateMachine: BLEStateMachineProtocol {
       isScanPausedForBackground = false
       logger.info("[BLE] App became active: resuming paused BLE scan")
       startScanning()
-    }
-
-    // Defensive restart: only if connected but keepalive task died unexpectedly
-    if case let .connected(peripheral, _, _, _) = phase, rssiKeepaliveTask == nil {
-      logger.warning("[BLE] Keepalive task died while connected - restarting defensively")
-      startRSSIKeepalive(for: peripheral)
     }
 
     // Re-arm auto-reconnect timeout if in auto-reconnecting phase
@@ -1293,22 +1269,6 @@ extension BLEStateMachine {
     return oldPhase
   }
 
-  /// Starts a periodic RSSI read to keep the BLE connection alive.
-  /// In foreground, fires every 15s. In background, the task freezes during
-  /// iOS suspension; when a BLE event wakes the app, the expired sleep resumes
-  /// and fires an opportunistic RSSI read within the ~10s wake window.
-  func startRSSIKeepalive(for peripheral: CBPeripheral) {
-    rssiKeepaliveTask?.cancel()
-    consecutiveRSSIFailures = 0
-    rssiKeepaliveTask = Task {
-      while !Task.isCancelled {
-        try? await Task.sleep(for: .seconds(15))
-        guard !Task.isCancelled else { break }
-        peripheral.readRSSI()
-      }
-    }
-  }
-
   func installDataContinuation(_ continuation: AsyncStream<Data>.Continuation, peripheral: CBPeripheral, rx: CBCharacteristic) {
     dataStreamSequence &+= 1
     let binding = activeSessionBinding.map { String(describing: ObjectIdentifier($0)) }
@@ -1326,13 +1286,8 @@ extension BLEStateMachine {
   /// immediately; a session rebuild over the still-live link must consume a
   /// renewed stream or its handshake times out.
   ///
-  /// The direct phase write below bypasses cleanupPhaseResources, the same
-  /// convention as shutdown(), but unlike shutdown() it deliberately
-  /// replicates none of the skipped cleanup: the phase stays `.connected`, so
-  /// the RSSI keepalive must keep running (cancelling it would silently kill
-  /// background keepalive on every rebuild), and the outgoing continuation is
-  /// dropped without finish() because its consumer is already cancelled and
-  /// continuation deinit terminates the dead storage.
+  /// Bypasses `cleanupPhaseResources` so the phase stays `.connected`; the
+  /// outgoing continuation drops without `finish()` because deinit terminates it.
   func renewDataStream(sessionBinding: SessionTransportBinding? = nil) -> AsyncStream<Data>? {
     if let sessionBinding {
       guard activeSessionBinding === sessionBinding, sessionBinding.isActive else { return nil }
@@ -1390,13 +1345,8 @@ extension BLEStateMachine {
       timeoutTask.cancel()
 
     case let .connected(_, _, _, dataContinuation):
-      rssiKeepaliveTask?.cancel()
-      rssiKeepaliveTask = nil
-      consecutiveRSSIFailures = 0
-      // Phase exit from `.connected` must drop the session-live signal so a
-      // same-device reconnect's pre-handshake keepalive window cannot refresh
-      // a stale stamp. Preserve-path stack teardown clears explicitly too
-      // because that path keeps the phase `.connected`.
+      // Drop session-live on `.connected` exit so pre-handshake GATT traffic cannot
+      // refresh a stale bond stamp; preserve-path teardown clears it explicitly.
       appSessionLiveDeviceID = nil
       // Clear delegate handler's continuation first to stop data flow
       delegateHandler.clearDataContinuation()

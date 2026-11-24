@@ -85,7 +85,6 @@ struct BLERetirementTests {
       throw error
     }
     await harness.machine.shutdown()
-    #expect(await !harness.machine.isRSSIKeepaliveActive)
   }
 
   @Test(arguments: [false, true])
@@ -161,6 +160,5 @@ struct BLERetirementTests {
       throw error
     }
     await harness.machine.shutdown()
-    #expect(await !harness.machine.isRSSIKeepaliveActive)
   }
 }

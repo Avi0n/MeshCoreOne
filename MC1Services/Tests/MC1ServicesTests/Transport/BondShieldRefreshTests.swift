@@ -4,17 +4,17 @@ import Foundation
 import ObjectiveC
 import Testing
 
-/// RSSI-driven bond verification refresh is session-live gated, refresh-only
+/// GATT-traffic-driven bond verification refresh is session-live gated, refresh-only
 /// (never creates), and cannot extend a shield over a preserved dead stack.
 @Suite("Bond shield refresh while connected", .serialized)
 @MainActor
 struct BondShieldRefreshTests {
   private static let deviceID = BondRefreshTestPeripheral.uuid
 
-  // MARK: - RSSI refresh with live session
+  // MARK: - Live-traffic refresh with live session
 
   @Test
-  func `successful RSSI with live session refreshes an existing verification`() async {
+  func `live traffic refresh with live session updates an existing verification`() async {
     let (sm, _) = await makeConnectedMachine(
       bondVerified: Date().addingTimeInterval(-3600),
       sessionLive: true
@@ -22,7 +22,7 @@ struct BondShieldRefreshTests {
     let before = await sm.bondVerificationDate(for: Self.deviceID)
     #expect(before != nil)
 
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
 
     let after = await sm.bondVerificationDate(for: Self.deviceID)
     #expect(after != nil)
@@ -32,17 +32,70 @@ struct BondShieldRefreshTests {
   }
 
   @Test
-  func `failed RSSI does not refresh verification`() async {
+  func `successful write ACK refreshes verification and failed write ACK does not`() async {
     let stamped = Date().addingTimeInterval(-3600)
-    let (sm, _) = await makeConnectedMachine(bondVerified: stamped, sessionLive: true)
+    let (sm, peripheral) = await makeConnectedMachine(bondVerified: stamped, sessionLive: true)
 
-    await sm.handleDidReadRSSI(
-      RSSI: -50,
-      error: NSError(domain: CBErrorDomain, code: CBError.connectionFailed.rawValue)
-    )
+    let failedWrite = Task {
+      try await withCheckedThrowingContinuation { continuation in
+        Task {
+          await sm.primePendingWriteForBondTests(continuation: continuation, sequence: 1)
+          await sm.simulateDidWriteValueForBondTests(
+            peripheral: peripheral,
+            error: NSError(domain: CBErrorDomain, code: CBError.connectionFailed.rawValue),
+            writeSequence: 1
+          )
+        }
+      }
+    }
+    _ = await failedWrite.result
+    #expect(await sm.bondVerificationDate(for: Self.deviceID) == stamped)
 
+    let succeededWrite = Task {
+      try await withCheckedThrowingContinuation { continuation in
+        Task {
+          await sm.primePendingWriteForBondTests(continuation: continuation, sequence: 2)
+          await sm.simulateDidWriteValueForBondTests(peripheral: peripheral, error: nil, writeSequence: 2)
+        }
+      }
+    }
+    _ = await succeededWrite.result
     let after = await sm.bondVerificationDate(for: Self.deviceID)
-    #expect(after == stamped)
+    #expect(after != nil)
+    if let after {
+      #expect(after > stamped)
+    }
+  }
+
+  @Test
+  func `inbound GATT notifications rate-limit bond refresh to once per 60s`() async throws {
+    let harness = BLETransportHarness()
+    let sm = BLEStateMachine(centralManager: harness.central, bondRefreshPersistInterval: 0)
+    let stream = try await harness.connect(sm)
+    let stamped = Date().addingTimeInterval(-3600)
+    await sm.recordBondVerification(deviceID: harness.deviceID, at: stamped)
+    await sm.setAppSessionLive(deviceID: harness.deviceID)
+
+    let refreshCount = BondRefreshCounter()
+    await sm.setBondRefreshedHandler { _ in refreshCount.increment() }
+
+    let bridge = await sm.delegateHandler
+    harness.rx.value = Data([0x01])
+    bridge.peripheral(harness.peripheral, didUpdateValueFor: harness.rx, error: nil)
+    let deadline = Date().addingTimeInterval(2)
+    while refreshCount.count == 0, Date() < deadline {
+      try await Task.sleep(for: .milliseconds(10))
+    }
+    #expect(refreshCount.count == 1)
+
+    // Immediate second inbound frame is rate-limited inside Ingress without hopping to the actor.
+    harness.rx.value = Data([0x02])
+    bridge.peripheral(harness.peripheral, didUpdateValueFor: harness.rx, error: nil)
+    try await Task.sleep(for: .milliseconds(30))
+    #expect(refreshCount.count == 1)
+
+    _ = stream
+    await sm.shutdown()
   }
 
   @Test
@@ -50,7 +103,7 @@ struct BondShieldRefreshTests {
     let stamped = Date().addingTimeInterval(-3600)
     let (sm, _) = await makeConnectedMachine(bondVerified: stamped, sessionLive: false)
 
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
 
     #expect(await sm.bondVerificationDate(for: Self.deviceID) == stamped)
   }
@@ -67,8 +120,8 @@ struct BondShieldRefreshTests {
     #expect(await sm.currentPhase.name == "idle")
 
     // Re-enter `.connected` without a completed handshake (no setAppSessionLive).
-    await sm.primeConnectedWithKeepaliveForBondTests(peripheral: peripheral)
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.primeConnectedForBondTests(peripheral: peripheral)
+    await sm.refreshBondVerificationIfLive()
 
     #expect(await sm.bondVerificationDate(for: Self.deviceID) == stamped)
   }
@@ -80,7 +133,7 @@ struct BondShieldRefreshTests {
 
     // Preserve path: phase stays `.connected`, session-live cleared explicitly.
     await sm.setAppSessionLive(deviceID: nil)
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
 
     #expect(await sm.bondVerificationDate(for: Self.deviceID) == stamped)
   }
@@ -90,7 +143,7 @@ struct BondShieldRefreshTests {
     let (sm, _) = await makeConnectedMachine(bondVerified: Date(), sessionLive: true)
     await sm.clearBondVerification(deviceID: Self.deviceID)
 
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
 
     #expect(await sm.bondVerificationDate(for: Self.deviceID) == nil)
   }
@@ -100,26 +153,25 @@ struct BondShieldRefreshTests {
     let (sm, _) = await makeConnectedMachine(bondVerified: Date(), sessionLive: true)
 
     await sm.clearBondVerification(deviceID: Self.deviceID)
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
     #expect(await sm.bondVerificationDate(for: Self.deviceID) == nil)
 
     await sm.recordBondVerification(deviceID: Self.deviceID, at: Date())
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
     #expect(await sm.bondVerificationDate(for: Self.deviceID) != nil)
     await sm.clearBondVerification(deviceID: Self.deviceID)
     #expect(await sm.bondVerificationDate(for: Self.deviceID) == nil)
   }
 
   @Test
-  func `stale bond still escalates to bondSuspect despite live-session RSSI ticks`() async {
-    // Refresh with live session (stamp becomes recent), then disconnect clears live,
-    // re-stamp outside grace, classify → bondSuspect. Live ticks must not defeat
-    // guided re-pair once the stamp is stale again.
+  func `stale bond still escalates to bondSuspect despite prior live-session refreshes`() async {
+    // Live-session refreshes must not defeat guided re-pair once the bond stamp
+    // becomes stale again.
     let (sm, peripheral) = await makeConnectedMachine(
       bondVerified: Date().addingTimeInterval(-60),
       sessionLive: true
     )
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
     #expect(await sm.bondVerificationDate(for: Self.deviceID) != nil)
 
     await sm.setAppSessionLive(deviceID: nil)
@@ -150,7 +202,7 @@ struct BondShieldRefreshTests {
   }
 
   @Test
-  func `cross-launch seed after RSSI refresh is recent not handshake-aged`() async throws {
+  func `cross-launch seed after bond refresh is recent not handshake-aged`() async throws {
     let suiteName = "test.\(UUID().uuidString)"
     let defaults = try #require(UserDefaults(suiteName: suiteName))
     defer { defaults.removePersistentDomain(forName: suiteName) }
@@ -165,7 +217,7 @@ struct BondShieldRefreshTests {
     await sm.setBondRefreshedHandler { deviceID in
       store.persistBondVerification(deviceID: deviceID)
     }
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
 
     let refreshedStoreDate = try #require(store.bondVerificationDate(for: Self.deviceID))
     #expect(Date().timeIntervalSince(refreshedStoreDate) < 5)
@@ -182,15 +234,14 @@ struct BondShieldRefreshTests {
 
   @Test
   func `joint zombie shield does not force fringe grace after preserve failures`() async {
-    // Seed verification, clear session-live (preserve/dead stack), fire RSSI,
-    // then exhaust encryption-timeout budget — must still escalate if stamp is
-    // outside grace, not silently force fringe grace from dead-stack ticks.
+    // Dead-stack refreshes with session-live cleared must not extend fringe grace
+    // past the encryption-timeout budget.
     let stale = Date().addingTimeInterval(-ReconnectPolicy.bondVerificationGraceInterval - 60)
     let (sm, peripheral) = await makeConnectedMachine(bondVerified: stale, sessionLive: true)
     await sm.setAppSessionLive(deviceID: nil)
 
     for _ in 0..<3 {
-      await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+      await sm.refreshBondVerificationIfLive()
     }
     #expect(await sm.bondVerificationDate(for: Self.deviceID) == stale)
 
@@ -226,11 +277,11 @@ struct BondShieldRefreshTests {
       box.record(deviceID)
     }
 
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
     #expect(box.deviceIDs == [Self.deviceID])
 
     await sm.clearBondVerification(deviceID: Self.deviceID)
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
     #expect(box.deviceIDs == [Self.deviceID])
   }
 
@@ -241,7 +292,7 @@ struct BondShieldRefreshTests {
     let peripheral = makeLeakedBondRefreshPeripheral()
     let initial = Date()
     await sm.recordBondVerification(deviceID: Self.deviceID, at: initial)
-    await sm.primeConnectedWithKeepaliveForBondTests(peripheral: peripheral)
+    await sm.primeConnectedForBondTests(peripheral: peripheral)
     await sm.setAppSessionLive(deviceID: Self.deviceID)
 
     let box = BondRefreshCallbackBox()
@@ -249,7 +300,7 @@ struct BondShieldRefreshTests {
       box.record(deviceID)
     }
 
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
     let refreshedInMemory = await sm.bondVerificationDate(for: Self.deviceID)
     #expect(refreshedInMemory != nil)
     if let refreshedInMemory {
@@ -258,26 +309,25 @@ struct BondShieldRefreshTests {
     #expect(box.deviceIDs.isEmpty)
 
     try await Task.sleep(for: .milliseconds(70))
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
+    await sm.refreshBondVerificationIfLive()
     #expect(box.deviceIDs == [Self.deviceID])
 
     await sm.recordBondVerification(deviceID: Self.deviceID, at: Date().addingTimeInterval(3600))
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
     #expect(box.deviceIDs == [Self.deviceID, Self.deviceID])
 
     await sm.clearBondVerification(deviceID: Self.deviceID)
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
     #expect(box.deviceIDs.count == 2)
   }
 
   // MARK: - Persist re-validation (CM path)
 
   @Test
-  func `forget after RSSI hop does not resurrect bond keys`() async throws {
-    // Production CM wireTransportHandlers installs onBondRefreshed with
-    // epoch-gated persistBondRefreshIfStillValid. Fire real RSSI, then await
-    // clearPersistedConnection, drain MainActor — both bond keys stay nil.
+  func `forget after bond refresh hop does not resurrect bond keys`() async throws {
+    // A queued refresh hop must not re-persist bond keys after
+    // `clearPersistedConnection` runs.
     let suiteName = "test.\(UUID().uuidString)"
     let defaults = try #require(UserDefaults(suiteName: suiteName))
     defer { defaults.removePersistentDomain(forName: suiteName) }
@@ -288,7 +338,7 @@ struct BondShieldRefreshTests {
     let peripheral = makeLeakedBondRefreshPeripheral()
     let deviceID = Self.deviceID
     await sm.recordBondVerification(deviceID: deviceID, at: Date())
-    await sm.primeConnectedWithKeepaliveForBondTests(peripheral: peripheral)
+    await sm.primeConnectedForBondTests(peripheral: peripheral)
     await sm.setAppSessionLive(deviceID: deviceID)
 
     let container = try PersistenceStore.createContainer(inMemory: true)
@@ -300,10 +350,10 @@ struct BondShieldRefreshTests {
     LastConnectionStore(defaults: defaults).persistBondVerification(deviceID: deviceID)
     await manager.wireTransportHandlers()
     // wireTransportHandlers reseeds from store and overwrites session-live via
-    // only bond seed — re-assert live for RSSI refresh.
+    // only bond seed — re-assert live for refresh.
     await sm.setAppSessionLive(deviceID: deviceID)
 
-    await sm.handleDidReadRSSI(RSSI: -50, error: nil)
+    await sm.refreshBondVerificationIfLive()
     // No artificial sleep that forces clear to win — natural race with queued hop.
     await manager.clearPersistedConnection(for: deviceID)
 
@@ -366,7 +416,7 @@ struct BondShieldRefreshTests {
     if let bondVerified {
       await sm.recordBondVerification(deviceID: Self.deviceID, at: bondVerified)
     }
-    await sm.primeConnectedWithKeepaliveForBondTests(peripheral: peripheral)
+    await sm.primeConnectedForBondTests(peripheral: peripheral)
     if sessionLive {
       await sm.setAppSessionLive(deviceID: Self.deviceID)
     }
@@ -375,6 +425,19 @@ struct BondShieldRefreshTests {
 }
 
 // MARK: - Test doubles
+
+private final class BondRefreshCounter: @unchecked Sendable {
+  private let lock = NSLock()
+  private var value = 0
+
+  var count: Int {
+    lock.withLock { value }
+  }
+
+  func increment() {
+    lock.withLock { value += 1 }
+  }
+}
 
 private final class BondRefreshCallbackBox: @unchecked Sendable {
   private(set) var deviceIDs: [UUID] = []
@@ -428,7 +491,6 @@ private final class BondRefreshTestPeripheral: CBPeripheral, @unchecked Sendable
   }
 
   override func discoverServices(_ serviceUUIDs: [CBUUID]?) {}
-  override func readRSSI() {}
 }
 
 private final class BondRefreshTestCentralManager: CBCentralManager, @unchecked Sendable {
@@ -457,7 +519,7 @@ private extension BLEStateMachine {
     centralManager = manager
   }
 
-  func primeConnectedWithKeepaliveForBondTests(peripheral: CBPeripheral) {
+  func primeConnectedForBondTests(peripheral: CBPeripheral) {
     let tx = CBMutableCharacteristic(
       type: CBUUID(string: BLEServiceUUID.txCharacteristic),
       properties: [.write],
@@ -473,7 +535,21 @@ private extension BLEStateMachine {
     let (_, continuation) = AsyncStream.makeStream(of: Data.self)
     phase = .connected(peripheral: peripheral, tx: tx, rx: rx, dataContinuation: continuation)
     phaseStartTime = Date()
-    startRSSIKeepalive(for: peripheral)
+  }
+
+  func primePendingWriteForBondTests(continuation: CheckedContinuation<Void, Error>, sequence: UInt64) {
+    pendingWriteContinuation = continuation
+    pendingWriteSequence = sequence
+  }
+
+  func simulateDidWriteValueForBondTests(peripheral: CBPeripheral, error: (any Error)?, writeSequence: UInt64) {
+    let tx = CBMutableCharacteristic(
+      type: CBUUID(string: BLEServiceUUID.txCharacteristic),
+      properties: [.write],
+      value: nil,
+      permissions: [.writeable]
+    )
+    handleDidWriteValue(peripheral, characteristic: tx, error: error, writeSequence: writeSequence)
   }
 
   func primeFringeAutoReconnectingForBondTests(peripheral: CBPeripheral) {

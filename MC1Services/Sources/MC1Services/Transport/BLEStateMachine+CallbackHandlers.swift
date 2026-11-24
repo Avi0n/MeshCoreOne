@@ -690,7 +690,6 @@ extension BLEStateMachine {
       rx: rx,
       dataContinuation: continuation
     ))
-    startRSSIKeepalive(for: peripheral)
 
     logger.info("[BLE] iOS auto-reconnect complete: \(peripheral.identifier.uuidString.prefix(8))")
     notifyReconnection(peripheral.identifier, stream)
@@ -731,44 +730,27 @@ extension BLEStateMachine {
     } else {
       logger.debug("[BLE] Write complete: seq=\(writeSequence)")
       continuation.resume()
+      refreshBondVerificationIfLive()
     }
 
     earliestNextWrite = operationClock.now().advanced(by: .seconds(writePacingDelay))
     resumeNextWriteWaiter()
   }
 
-  func handleDidReadRSSI(_ peripheral: CBPeripheral, RSSI: NSNumber, error: Error?, generation: UInt64) {
+  func handleLiveTrafficBondRefresh(_ peripheral: CBPeripheral, generation: UInt64) {
     guard case let .connected(expected, _, _, _) = phase,
           expected === peripheral, connectionGeneration == generation else { return }
-    handleDidReadRSSI(RSSI: RSSI, error: error)
+    refreshBondVerificationIfLive()
   }
 
-  func handleDidReadRSSI(RSSI: NSNumber, error: Error?) {
-    if let error {
-      consecutiveRSSIFailures += 1
-      if consecutiveRSSIFailures == 3 || consecutiveRSSIFailures % 10 == 0 {
-        logger.warning(
-          "[BLE] RSSI read failed (\(consecutiveRSSIFailures) consecutive): \(error.localizedDescription)"
-        )
-      }
-      return
-    }
-
-    if consecutiveRSSIFailures > 0 {
-      logger.info("[BLE] RSSI read recovered after \(consecutiveRSSIFailures) failures, RSSI: \(RSSI)")
-    }
-    consecutiveRSSIFailures = 0
-
-    // Refresh an existing bond stamp only while `.connected` with a live
-    // app-layer session. GATT liveness alone is not bond proof — combined with
-    // a preserved dead stack, ticks would otherwise suppress `.bondSuspect`.
+  /// Refreshes an existing bond stamp only while `.connected` with a live app session so a preserved dead stack cannot extend `.bondSuspect` grace.
+  func refreshBondVerificationIfLive(now: Date = Date()) {
     guard case .connected = phase,
           let deviceID = connectedDeviceID,
           deviceID == appSessionLiveDeviceID,
           reconnectPolicy.bondVerificationDates[deviceID] != nil
     else { return }
 
-    let now = Date()
     if reconnectPolicy.refreshBondVerification(deviceID: deviceID, at: now),
        shouldEmitBondRefreshPersist(for: deviceID, at: now) {
       markBondRefreshPersisted(for: deviceID, at: now)

@@ -78,6 +78,5 @@ struct ConnectionManagerSystemAdoptionTests {
       throw error
     }
     await harness.close()
-    #expect(await !harness.ble.machine.isRSSIKeepaliveActive)
   }
 }

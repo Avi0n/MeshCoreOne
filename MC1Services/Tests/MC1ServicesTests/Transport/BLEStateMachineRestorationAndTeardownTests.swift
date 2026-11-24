@@ -148,21 +148,6 @@ struct BLEStateMachineRestorationAndTeardownTests {
     #expect(await sm.discoveryCompleteTeardownError == nil)
   }
 
-  // MARK: - shutdown() keepalive
-
-  @Test
-  func `shutdown cancels the RSSI keepalive that its direct phase write bypasses`() async {
-    let sm = BLEStateMachine()
-    let peripheral = makeLeakedPeripheral(RestorationConnectedPeripheral.self)
-    await sm.primeConnectedWithKeepalive(peripheral: peripheral)
-    #expect(await sm.isRSSIKeepaliveActive)
-
-    await sm.shutdown()
-
-    #expect(await sm.isRSSIKeepaliveActive == false)
-    #expect(await sm.currentPhase.name == "idle")
-  }
-
   // MARK: - Write-ACK sequence fencing and classification
 
   @Test
@@ -316,25 +301,6 @@ private extension BLEStateMachine {
     )
     phase = .discoveryComplete(peripheral: peripheral, tx: tx, rx: rx)
     phaseStartTime = Date()
-  }
-
-  func primeConnectedWithKeepalive(peripheral: CBPeripheral) {
-    let tx = CBMutableCharacteristic(
-      type: CBUUID(string: BLEServiceUUID.txCharacteristic),
-      properties: [.write],
-      value: nil,
-      permissions: [.writeable]
-    )
-    let rx = CBMutableCharacteristic(
-      type: CBUUID(string: BLEServiceUUID.rxCharacteristic),
-      properties: [.notify],
-      value: nil,
-      permissions: [.readable]
-    )
-    let (_, continuation) = AsyncStream.makeStream(of: Data.self)
-    phase = .connected(peripheral: peripheral, tx: tx, rx: rx, dataContinuation: continuation)
-    phaseStartTime = Date()
-    startRSSIKeepalive(for: peripheral)
   }
 
   func primePendingWrite(box: ContinuationBox, sequence: UInt64) {

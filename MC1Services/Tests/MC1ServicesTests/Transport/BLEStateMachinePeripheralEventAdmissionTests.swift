@@ -6,7 +6,7 @@ import Testing
 @Suite("BLE peripheral native object admission")
 struct BLEStateMachinePeripheralEventAdmissionTests {
   @Test
-  func `RSSI rejects replaced native objects with the same Device ID`() async throws {
+  func `inbound traffic bond refresh rejects replaced native objects with the same Device ID`() async throws {
     let harness = BLETransportHarness()
     let replaced = BLETransportHarness(deviceID: harness.deviceID)
     let machine = BLEStateMachine(centralManager: harness.central)
@@ -15,21 +15,12 @@ struct BLEStateMachinePeripheralEventAdmissionTests {
     await machine.recordBondVerification(deviceID: harness.deviceID, at: stamp)
     await machine.setAppSessionLive(deviceID: harness.deviceID)
     let bridge = await machine.delegateHandler
-    let failure = NSError(domain: CBErrorDomain, code: CBError.connectionFailed.rawValue)
-    if let rejected = bridge.readRSSI(from: replaced.peripheral, RSSI: -50, error: failure) {
-      await rejected.value
-    }
-    #expect(await machine.consecutiveRSSIFailures == 0)
-    if let rejected = bridge.readRSSI(from: replaced.peripheral, RSSI: -50, error: nil) {
+    if let rejected = bridge.triggerInboundTrafficBondRefresh(from: replaced.peripheral) {
       await rejected.value
     }
     #expect(await machine.bondVerificationDate(for: harness.deviceID) == stamp)
-    let failed = try #require(bridge.readRSSI(from: harness.peripheral, RSSI: -50, error: failure))
-    await failed.value
-    #expect(await machine.consecutiveRSSIFailures == 1)
-    let succeeded = try #require(bridge.readRSSI(from: harness.peripheral, RSSI: -50, error: nil))
-    await succeeded.value
-    #expect(await machine.consecutiveRSSIFailures == 0)
+    let accepted = try #require(bridge.triggerInboundTrafficBondRefresh(from: harness.peripheral))
+    await accepted.value
     #expect(try #require(await machine.bondVerificationDate(for: harness.deviceID)) > stamp)
     await machine.shutdown()
   }
@@ -57,7 +48,7 @@ struct BLEStateMachinePeripheralEventAdmissionTests {
   }
 
   @Test
-  func `RSSI rejects an admitted callback from a prior physical generation`() async throws {
+  func `inbound traffic bond refresh rejects an admitted callback from a prior physical generation`() async throws {
     let harness = BLETransportHarness()
     let machine = BLEStateMachine(centralManager: harness.central)
     _ = try await harness.connect(machine)
@@ -66,10 +57,7 @@ struct BLEStateMachinePeripheralEventAdmissionTests {
     let stamp = Date().addingTimeInterval(-60)
     await machine.recordBondVerification(deviceID: harness.deviceID, at: stamp)
     await machine.setAppSessionLive(deviceID: harness.deviceID)
-    let failure = NSError(domain: CBErrorDomain, code: CBError.connectionFailed.rawValue)
-    await machine.handleDidReadRSSI(harness.peripheral, RSSI: -50, error: nil, generation: oldGeneration)
-    await machine.handleDidReadRSSI(harness.peripheral, RSSI: -50, error: failure, generation: oldGeneration)
-    #expect(await machine.consecutiveRSSIFailures == 0)
+    await machine.handleLiveTrafficBondRefresh(harness.peripheral, generation: oldGeneration)
     #expect(await machine.bondVerificationDate(for: harness.deviceID) == stamp)
     await machine.shutdown()
   }

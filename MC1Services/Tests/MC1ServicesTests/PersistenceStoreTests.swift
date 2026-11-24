@@ -2921,6 +2921,28 @@ struct PersistenceStoreTests {
     #expect(entries.count == 1)
   }
 
+  @Test
+  func `batch commit prunes excess RX log entries in the single batch save`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let totalInserts = RxLogRetention.keepCount + RxLogRetention.pruneThreshold + 1
+    let expectedSaves = totalInserts / RxLogRetention.batchSize
+    for index in 0..<totalInserts {
+      try await store.saveRxLogEntry(
+        createTestRxLogEntryDTO(radioID: device.id, senderTimestamp: UInt32(index))
+      )
+    }
+    try await store.flushPendingRxLogEntries()
+
+    let entries = try await store.fetchRxLogEntries(radioID: device.id, limit: totalInserts)
+    #expect(entries.count == RxLogRetention.keepCount)
+    #expect(entries.first?.senderTimestamp == UInt32(totalInserts - 1))
+    #expect(entries.last?.senderTimestamp == UInt32(RxLogRetention.pruneThreshold + 1))
+    #expect(await store.rxLogInitiatedSaveCount == expectedSaves + 1)
+  }
+
   // MARK: - Region Scope Tests
 
   @Test

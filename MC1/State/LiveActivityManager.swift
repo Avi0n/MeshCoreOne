@@ -49,8 +49,28 @@ final class LiveActivityManager {
   /// because `handleEnterBackground` stops the decay timer.
   static let connectedStaleInterval: TimeInterval = packetWindowSeconds
   static let staleRefreshLeadTime: TimeInterval = connectedStaleInterval / 2
+  static let backgroundUpdateInterval: TimeInterval = 60
+  static let backgroundUpdateTolerance: TimeInterval = 5
+  static let backgroundConnectedStaleInterval: TimeInterval = 120
+  static let backgroundStaleRefreshLeadTime: TimeInterval = 30
   static let disconnectGracePeriod: TimeInterval = 300
   static let updateInterval: TimeInterval = 15
+
+  private var isInForeground: Bool {
+    isInForegroundProvider?() ?? false
+  }
+
+  private var activeUpdateInterval: TimeInterval {
+    isInForeground ? Self.updateInterval : Self.backgroundUpdateInterval
+  }
+
+  private var activeConnectedStaleInterval: TimeInterval {
+    isInForeground ? Self.connectedStaleInterval : Self.backgroundConnectedStaleInterval
+  }
+
+  private var activeStaleRefreshLeadTime: TimeInterval {
+    isInForeground ? Self.staleRefreshLeadTime : Self.backgroundStaleRefreshLeadTime
+  }
 
   /// Packets in the trailing `packetWindowSeconds` as a per-minute rate. A
   /// full-minute window makes this the true count for that minute, so the
@@ -531,20 +551,40 @@ final class LiveActivityManager {
     if let disconnectedDate { pending.disconnectedDate = disconnectedDate }
     pendingUpdate = pending
 
-    // Leading edge: flush immediately if enough time has passed
-    if Date.now.timeIntervalSince(lastFlushDate) >= Self.updateInterval {
+    // Leading edge: flush immediately when the cadence window or stale lead time has elapsed
+    let delay = Self.nextUpdateDelay(
+      lastFlushDate: lastFlushDate,
+      now: .now,
+      updateInterval: activeUpdateInterval,
+      staleDate: currentActivity?.content.staleDate,
+      staleRefreshLeadTime: activeStaleRefreshLeadTime
+    )
+    if delay == 0 {
       await flushPendingUpdate()
       return
     }
 
     // Trailing edge: schedule flush if not already scheduled
     guard throttleTask == nil else { return }
-    let delay = Self.updateInterval - Date.now.timeIntervalSince(lastFlushDate)
+    let tolerance: Duration? = isInForeground ? nil : .seconds(Self.backgroundUpdateTolerance)
     throttleTask = Task { [weak self] in
-      try? await Task.sleep(for: .seconds(delay))
+      try? await Task.sleep(for: .seconds(delay), tolerance: tolerance)
       guard !Task.isCancelled, let self else { return }
       await flushPendingUpdate()
     }
+  }
+
+  static func nextUpdateDelay(
+    lastFlushDate: Date,
+    now: Date,
+    updateInterval: TimeInterval,
+    staleDate: Date?,
+    staleRefreshLeadTime: TimeInterval
+  ) -> TimeInterval {
+    let intervalRemaining = max(0, updateInterval - now.timeIntervalSince(lastFlushDate))
+    guard let staleDate else { return intervalRemaining }
+    let staleRemaining = max(0, staleDate.timeIntervalSince(now) - staleRefreshLeadTime)
+    return min(intervalRemaining, staleRemaining)
   }
 
   private func flushPendingUpdate() async {
@@ -587,7 +627,7 @@ final class LiveActivityManager {
     )
     let now = Date.now
     let staleDate: Date? = if state.isConnected, state.packetsPerMinute > 0 {
-      now.addingTimeInterval(Self.connectedStaleInterval)
+      now.addingTimeInterval(activeConnectedStaleInterval)
     } else {
       Calendar.current.date(byAdding: .minute, value: 5, to: now)
     }
@@ -597,7 +637,7 @@ final class LiveActivityManager {
       proposed: state,
       currentStaleDate: activity.content.staleDate,
       now: now,
-      refreshLeadTime: Self.staleRefreshLeadTime
+      refreshLeadTime: activeStaleRefreshLeadTime
     ) else { return }
     let content = ActivityContent(state: state, staleDate: staleDate)
     await activity.update(content)

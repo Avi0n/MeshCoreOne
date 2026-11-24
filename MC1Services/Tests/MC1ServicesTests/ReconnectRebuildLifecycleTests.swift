@@ -109,26 +109,6 @@ struct ReconnectRebuildLifecycleTests {
     #expect(await sm.currentPhase.name == "idle")
   }
 
-  /// Renewal keeps the phase `.connected` and must not tear down the RSSI
-  /// keepalive the phase owns: a `transition(to:)`-based renewal would cancel
-  /// it, since `cleanupPhaseResources` cancels the keepalive whenever it
-  /// leaves `.connected`.
-  @Test
-  func `RSSI keepalive survives a data stream renewal`() async {
-    let sm = BLEStateMachine()
-    let peripheral = makeRebuildLeakedPeripheral()
-    await sm.primeConnectedForRebuild(peripheral: peripheral)
-    #expect(await sm.isRSSIKeepaliveActive)
-
-    let renewed = await sm.renewDataStream()
-
-    #expect(renewed != nil)
-    #expect(await sm.isRSSIKeepaliveActive)
-    #expect(await sm.currentPhase.name == "connected")
-
-    await sm.shutdown()
-  }
-
   /// The renewed stream is the one the `.connected` phase's continuation
   /// feeds, and data yielded after the swap arrives in yield order.
   @Test
@@ -205,6 +185,5 @@ private extension BLEStateMachine {
     let (_, continuation) = AsyncStream.makeStream(of: Data.self)
     phase = .connected(peripheral: peripheral, tx: tx, rx: rx, dataContinuation: continuation)
     phaseStartTime = Date()
-    startRSSIKeepalive(for: peripheral)
   }
 }

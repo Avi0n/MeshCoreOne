@@ -14,8 +14,10 @@ public struct PersistentLogger: Sendable {
     self.category = category
   }
 
-  public func debug(_ message: String) {
-    logger.debug("\(message)")
+  public func debug(_ message: @autoclosure () -> String) {
+    guard logger.isEnabled(type: .debug) else { return }
+    let text = message()
+    logger.debug("\(text)")
   }
 
   public func info(_ message: String) {
@@ -44,6 +46,7 @@ public struct PersistentLogger: Sendable {
   }
 
   private func persist(level: DebugLogLevel, message: String) {
+    guard DebugLogBuffer.isCollectionEnabled else { return }
     DebugLogBuffer.record(DebugLogEntryDTO(
       level: level,
       subsystem: subsystem,

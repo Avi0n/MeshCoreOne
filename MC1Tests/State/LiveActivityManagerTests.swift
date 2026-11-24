@@ -63,6 +63,45 @@ struct LiveActivityManagerTests {
   }
 
   @Test
+  func `nextUpdateDelay respects cadence interval and clamps against earlier staleDate`() {
+    let foreground = LiveActivityManager.nextUpdateDelay(
+      lastFlushDate: now.addingTimeInterval(-5),
+      now: now,
+      updateInterval: LiveActivityManager.updateInterval,
+      staleDate: now.addingTimeInterval(55),
+      staleRefreshLeadTime: LiveActivityManager.staleRefreshLeadTime
+    )
+    #expect(foreground == 10)
+
+    let background = LiveActivityManager.nextUpdateDelay(
+      lastFlushDate: now.addingTimeInterval(-10),
+      now: now,
+      updateInterval: LiveActivityManager.backgroundUpdateInterval,
+      staleDate: now.addingTimeInterval(110),
+      staleRefreshLeadTime: LiveActivityManager.backgroundStaleRefreshLeadTime
+    )
+    #expect(background == 50)
+
+    let handoff = LiveActivityManager.nextUpdateDelay(
+      lastFlushDate: now.addingTimeInterval(-15),
+      now: now,
+      updateInterval: LiveActivityManager.backgroundUpdateInterval,
+      staleDate: now.addingTimeInterval(45),
+      staleRefreshLeadTime: LiveActivityManager.backgroundStaleRefreshLeadTime
+    )
+    #expect(handoff == 15)
+
+    let insideLeadWindow = LiveActivityManager.nextUpdateDelay(
+      lastFlushDate: now.addingTimeInterval(-35),
+      now: now,
+      updateInterval: LiveActivityManager.backgroundUpdateInterval,
+      staleDate: now.addingTimeInterval(25),
+      staleRefreshLeadTime: LiveActivityManager.backgroundStaleRefreshLeadTime
+    )
+    #expect(insideLeadWindow == 0)
+  }
+
+  @Test
   func `decay timer does not start without active activity or in background`() async {
     let manager = LiveActivityManager()
     var isForeground = false

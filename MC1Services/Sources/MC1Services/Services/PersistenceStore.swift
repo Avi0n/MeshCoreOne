@@ -89,6 +89,14 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     rxLogFlushTask = nil
     let hadRxLogInserts = unsavedRxLogInsertCount > 0
     guard hadRxLogInserts || hasPendingDeferredStoreChanges else { return }
+    var prunedRadioIDs: [UUID] = []
+    if hadRxLogInserts {
+      for radioID in Array(rxLogEntryCountsByDevice.keys) {
+        if try stageRxLogPrune(radioID: radioID) {
+          prunedRadioIDs.append(radioID)
+        }
+      }
+    }
     if modelContext.hasChanges {
       try modelContext.save()
       #if DEBUG
@@ -97,13 +105,11 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
         }
       #endif
     }
+    for radioID in prunedRadioIDs {
+      rxLogEntryCountsByDevice[radioID] = RxLogRetention.keepCount
+    }
     unsavedRxLogInsertCount = 0
     hasPendingDeferredStoreChanges = false
-    if hadRxLogInserts {
-      for radioID in Array(rxLogEntryCountsByDevice.keys) {
-        try pruneRxLogEntries(radioID: radioID)
-      }
-    }
   }
 
   #if DEBUG
