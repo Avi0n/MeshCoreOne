@@ -27,13 +27,6 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      # The xcode-27 image defaults to Xcode 27.0. iPhone Duo needs the 27.1 SDK.
-      - name: Select Xcode 27.1
-        run: |
-          sudo xcode-select -s /Applications/Xcode_27.1.app
-          xcode-select -p
-          xcodebuild -version
-
       - name: Install dependencies
         run: |
           brew tap FelixHerrmann/tap
