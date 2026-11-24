@@ -117,6 +117,15 @@ final class ContactsSidebarState {
     }
   }
 
+  func handleLocationAuthorizationChange(for sortOrder: NodeSortOrder, appState: AppState) {
+    updateLocation(for: sortOrder, appState: appState)
+    if sortOrder != .distance,
+       appState.locationService.isAuthorized,
+       appState.locationService.currentLocation == nil {
+      appState.locationService.requestLocation()
+    }
+  }
+
   func prepareRenderer(revision: Int) {
     rendererRevision = revision
   }

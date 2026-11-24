@@ -254,6 +254,7 @@ struct AdvertisementServiceTests {
     advertSyncDebounce: Duration = .zero,
     advertSyncMinInterval: Duration = .zero,
     advertSyncBusyBackoff: Duration = .zero,
+    backgroundNewAdvertCoalesceInterval: Duration = .seconds(5),
     appStateProvider: AppStateProvider? = nil
   ) -> AdvertisementService {
     let contactService = ContactService(
@@ -269,6 +270,7 @@ struct AdvertisementServiceTests {
       advertSyncDebounce: advertSyncDebounce,
       advertSyncMinInterval: advertSyncMinInterval,
       advertSyncBusyBackoff: advertSyncBusyBackoff,
+      backgroundNewAdvertCoalesceInterval: backgroundNewAdvertCoalesceInterval,
       appStateProvider: appStateProvider
     )
   }
@@ -3534,6 +3536,181 @@ struct AdvertisementServiceTests {
     #expect(await service.pendingDeletedKeys.contains(key) == false)
     #expect(try await store.fetchContact(radioID: radioID, publicKey: key) != nil)
     await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `background 0x8A coalesces into batchUpsert, notifies in background, and defers contactUpdated until foreground`() async {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(
+      session: session,
+      store: store,
+      backgroundNewAdvertCoalesceInterval: .milliseconds(30),
+      appStateProvider: scene
+    )
+
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
+    let key1 = makePublicKey(seed: 0xC1)
+    let key2 = makePublicKey(seed: 0xC2)
+    await startMonitoring(service, session: session)
+
+    await session.yieldEvent(.newContact(makeMeshContact(publicKey: key1, name: "Node1")))
+    await session.yieldEvent(.newContact(makeMeshContact(publicKey: key2, name: "Node2")))
+    await session.yieldEvent(.newContact(makeMeshContact(publicKey: key1, name: "Node1-Updated")))
+
+    let persisted = await waitUntil {
+      let nodes = await store.discoveredNodes
+      return nodes.count == 2
+        && nodes.values.first { $0.publicKey == key1 }?.name == "Node1-Updated"
+    }
+    #expect(persisted)
+    #expect(await store.batchUpsertCallCount == 1)
+
+    let notifiedInBackground = await waitUntil {
+      await counter.newContactCount == 2
+    }
+    #expect(notifiedInBackground)
+    #expect(await counter.contactUpdatedCount == 0)
+
+    await scene.setIsInForeground(true)
+    await service.handleReturnToForeground()
+
+    let emitted = await waitUntil {
+      let newCount = await counter.newContactCount
+      let updatedCount = await counter.contactUpdatedCount
+      return newCount == 2 && updatedCount == 1
+    }
+    #expect(emitted)
+
+    await service.stopEventMonitoring()
+    service.finishEvents()
+    _ = await listener.result
+
+    #expect(await counter.newContactCount == 2)
+    #expect(await counter.contactUpdatedCount == 1)
+  }
+
+  @Test
+  func `handleReturnToForeground emits contactUpdated once when both background flush and pending 0x8A ran`() async {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(
+      session: session,
+      store: store,
+      backgroundNewAdvertCoalesceInterval: .seconds(10),
+      appStateProvider: scene
+    )
+
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
+    let key1 = makePublicKey(seed: 0xC5)
+    let key2 = makePublicKey(seed: 0xC6)
+    await startMonitoring(service, session: session)
+
+    await session.yieldEvent(.newContact(makeMeshContact(publicKey: key1, name: "BG1")))
+    let queued1 = await waitUntil { await service.pendingNewAdverts[key1] != nil }
+    #expect(queued1)
+
+    await service.flushPendingNewAdverts(deferContactUpdate: true)
+    let bgNotified = await waitUntil { await counter.newContactCount == 1 }
+    #expect(bgNotified)
+    #expect(await counter.contactUpdatedCount == 0)
+
+    await session.yieldEvent(.newContact(makeMeshContact(publicKey: key2, name: "BG2")))
+    let queued2 = await waitUntil { await service.pendingNewAdverts[key2] != nil }
+    #expect(queued2)
+
+    await scene.setIsInForeground(true)
+    await service.handleReturnToForeground()
+
+    let fgSettled = await waitUntil {
+      let newCount = await counter.newContactCount
+      let updatedCount = await counter.contactUpdatedCount
+      return newCount == 2 && updatedCount == 1
+    }
+    #expect(fgSettled)
+
+    await service.stopEventMonitoring()
+    service.finishEvents()
+    _ = await listener.result
+
+    #expect(await counter.newContactCount == 2)
+    #expect(await counter.contactUpdatedCount == 1)
+  }
+
+  @Test
+  func `foreground 0x8A preserves newer timestamp over older background-queued frame`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(
+      session: session,
+      store: store,
+      backgroundNewAdvertCoalesceInterval: .seconds(10),
+      appStateProvider: scene
+    )
+
+    let key = makePublicKey(seed: 0xC3)
+    await startMonitoring(service, session: session)
+
+    await session.yieldEvent(.newContact(makeMeshContact(publicKey: key, name: "OlderBG")))
+    let queued = await waitUntil { await service.pendingNewAdverts[key] != nil }
+    #expect(queued)
+
+    try await Task.sleep(for: .milliseconds(20))
+    await scene.setIsInForeground(true)
+    await session.yieldEvent(.newContact(makeMeshContact(publicKey: key, name: "NewerFG")))
+
+    let fgWritten = await waitUntil {
+      let nodes = await (try? store.fetchDiscoveredNodes(radioID: radioID)) ?? []
+      return nodes.first { $0.publicKey == key }?.name == "NewerFG"
+    }
+    #expect(fgWritten)
+
+    await service.handleReturnToForeground()
+    let nodes = try await store.fetchDiscoveredNodes(radioID: radioID)
+    let node = try #require(nodes.first { $0.publicKey == key })
+    #expect(node.name == "NewerFG")
+
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `stopEventMonitoring joins pending background 0x8A flush before returning`() async {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(
+      session: session,
+      store: store,
+      backgroundNewAdvertCoalesceInterval: .seconds(10),
+      appStateProvider: scene
+    )
+
+    let key = makePublicKey(seed: 0xC4)
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.newContact(makeMeshContact(publicKey: key, name: "StopFlush")))
+    let queued = await waitUntil { await service.pendingNewAdverts[key] != nil }
+    #expect(queued)
+
+    await service.stopEventMonitoring()
+    #expect(await service.pendingNewAdverts.isEmpty)
+    #expect(await store.discoveredNodes.values.contains { $0.publicKey == key })
   }
 }
 

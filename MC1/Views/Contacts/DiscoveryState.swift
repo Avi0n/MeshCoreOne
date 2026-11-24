@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 final class DiscoveryState {
   let id = UUID()
-  let viewModel = DiscoveryViewModel()
+  let viewModel: DiscoveryViewModel
   var searchText = "" {
     didSet {
       guard !isEnded else { return }
@@ -40,6 +40,15 @@ final class DiscoveryState {
   @ObservationIgnored private var clearTask: Task<Void, Never>?
   @ObservationIgnored private var deleteTasks: [UUID: Task<Void, Never>] = [:]
   @ObservationIgnored private var isEnded = false
+  @ObservationIgnored private var isScrolling = false
+  @ObservationIgnored private var hasPendingDeferredReload = false
+
+  init(viewModel: DiscoveryViewModel = DiscoveryViewModel()) {
+    self.viewModel = viewModel
+    viewModel.onVisibleNodesChanged = { [weak self] in
+      self?.reconcileScrollPosition()
+    }
+  }
 
   var consumesLocation: Bool {
     sortOrder == .distance || sortOrder == .hops
@@ -67,13 +76,20 @@ final class DiscoveryState {
       || loadID?.servicesVersion != nextID.servicesVersion
     loadID = nextID
     if isInitial {
+      hasPendingDeferredReload = false
       initialLoadTask = Task { [weak self] in
         guard let self else { return }
-        await viewModel.loadDiscoveredNodes()
+        await viewModel.loadDiscoveredNodes(publishImmediately: true)
       }
+    } else if contextChanged {
+      hasPendingDeferredReload = false
+      initialLoadTask?.cancel()
+      viewModel.cancelReloads()
+      viewModel.scheduleCoalescedReload()
+    } else if isScrolling {
+      hasPendingDeferredReload = true
     } else {
       initialLoadTask?.cancel()
-      if contextChanged { viewModel.cancelReloads() }
       viewModel.scheduleCoalescedReload()
     }
   }
@@ -107,7 +123,7 @@ final class DiscoveryState {
       do {
         try await contactService.addOrUpdateContact(radioID: node.radioID, contact: node.makeContactFrame())
         guard isCurrent(radioID: node.radioID) else { return }
-        await viewModel.loadDiscoveredNodes()
+        await viewModel.loadDiscoveredNodes(publishImmediately: true)
       } catch ContactServiceError.contactTableFull {
         guard isCurrent(radioID: node.radioID) else { return }
         if let maxContacts = appState.connectedDevice?.maxContacts {
@@ -149,6 +165,12 @@ final class DiscoveryState {
 
   func prepareRenderer(revision: Int) {
     rendererRevision = revision
+    isScrolling = false
+    viewModel.setDeferringPublication(false)
+    if hasPendingDeferredReload {
+      hasPendingDeferredReload = false
+      viewModel.scheduleCoalescedReload()
+    }
   }
 
   func updateSearchFocus(_ focused: Bool, rendererRevision: Int) {
@@ -166,8 +188,34 @@ final class DiscoveryState {
     scrollPositionID = id
   }
 
+  func clearScrollPosition(rendererRevision: Int) {
+    guard !isEnded, self.rendererRevision == rendererRevision else { return }
+    scrollPositionID = nil
+  }
+
+  func updateScrollPhase(_ phase: ScrollPhase, rendererRevision: Int) {
+    guard !isEnded, self.rendererRevision == rendererRevision else { return }
+    let scrolling = phase != .idle
+    guard scrolling != isScrolling else { return }
+    isScrolling = scrolling
+    viewModel.setDeferringPublication(scrolling)
+    if !scrolling, hasPendingDeferredReload {
+      hasPendingDeferredReload = false
+      viewModel.scheduleCoalescedReload()
+    }
+  }
+
+  private func reconcileScrollPosition() {
+    guard let scrollPositionID else { return }
+    if !viewModel.visibleNodes.contains(where: { $0.id == scrollPositionID }) {
+      self.scrollPositionID = nil
+    }
+  }
+
   func end() {
     isEnded = true
+    isScrolling = false
+    hasPendingDeferredReload = false
     initialLoadTask?.cancel()
     addTask?.cancel()
     clearTask?.cancel()

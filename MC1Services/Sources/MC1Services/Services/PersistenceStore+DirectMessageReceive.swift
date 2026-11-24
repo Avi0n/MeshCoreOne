@@ -80,7 +80,7 @@ public extension PersistenceStore {
 
     let result = try insertContactIfAbsent(radioID: scope.radioID, from: frame)
     _ = try touchContactHeard(radioID: scope.radioID, publicKey: frame.publicKey, at: receivedAt)
-    _ = try upsertDiscoveredNode(radioID: scope.radioID, from: frame)
+    _ = try upsertDiscoveredNode(radioID: scope.radioID, from: frame, receivedAt: receivedAt)
     return try fetchContact(id: result.id)
   }
 

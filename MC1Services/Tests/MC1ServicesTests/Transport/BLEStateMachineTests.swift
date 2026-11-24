@@ -426,3 +426,102 @@ struct BLEStateMachineDiscoveryWatchdogTests {
     #expect(isConnectionTimeout(box.outcome))
   }
 }
+
+// MARK: - Background scan pause and resume
+
+@Suite("BLEStateMachine background scan lifecycle")
+struct BLEStateMachineBackgroundScanTests {
+  @Test
+  func `active scan pauses on background entry and resumes on foreground return`() async {
+    let central = ScanTrackingCentralManager()
+    let sm = BLEStateMachine(centralManager: central)
+
+    await sm.startScanning()
+    #expect(await sm.isCurrentlyScanning == true)
+    #expect(central.scanCallCount == 1)
+    #expect(central.stopScanCallCount == 0)
+
+    await sm.appDidEnterBackground()
+    #expect(await sm.isCurrentlyScanning == false)
+    #expect(await sm.isScanPausedForBackground == true)
+    #expect(central.stopScanCallCount == 1)
+
+    await sm.appDidBecomeActive()
+    #expect(await sm.isScanPausedForBackground == false)
+    #expect(await sm.isCurrentlyScanning == true)
+    #expect(central.scanCallCount == 2)
+  }
+
+  @Test
+  func `paused scan stays paused across background poweredOff to poweredOn`() async {
+    let central = ScanTrackingCentralManager()
+    let sm = BLEStateMachine(centralManager: central)
+
+    await sm.startScanning()
+    await sm.appDidEnterBackground()
+    #expect(await sm.isScanPausedForBackground == true)
+    #expect(central.scanCallCount == 1)
+
+    central.forcedState = .poweredOff
+    await sm.handleCentralManagerDidUpdateState(.poweredOff)
+    central.forcedState = .poweredOn
+    await sm.handleCentralManagerDidUpdateState(.poweredOn)
+
+    #expect(await sm.isCurrentlyScanning == false)
+    #expect(await sm.isScanPausedForBackground == true)
+    #expect(central.scanCallCount == 1)
+
+    await sm.appDidBecomeActive()
+    #expect(await sm.isCurrentlyScanning == true)
+    #expect(central.scanCallCount == 2)
+  }
+
+  @Test
+  func `stopScanning while backgrounded prevents resume on foreground return`() async {
+    let central = ScanTrackingCentralManager()
+    let sm = BLEStateMachine(centralManager: central)
+
+    await sm.startScanning()
+    await sm.appDidEnterBackground()
+    #expect(await sm.isScanPausedForBackground == true)
+
+    await sm.stopScanning()
+    #expect(await sm.isScanPausedForBackground == false)
+
+    await sm.appDidBecomeActive()
+    #expect(await sm.isCurrentlyScanning == false)
+    #expect(central.scanCallCount == 1)
+  }
+
+  @Test
+  func `appDidEnterBackground skips stopScan when Bluetooth is not powered on`() async {
+    let central = ScanTrackingCentralManager()
+    let sm = BLEStateMachine(centralManager: central)
+
+    await sm.startScanning()
+    central.forcedState = .poweredOff
+    await sm.appDidEnterBackground()
+
+    #expect(await sm.isCurrentlyScanning == false)
+    #expect(await sm.isScanPausedForBackground == true)
+    #expect(central.stopScanCallCount == 0)
+  }
+}
+
+private final class ScanTrackingCentralManager: CBCentralManager, @unchecked Sendable {
+  var forcedState: CBManagerState = .poweredOn
+  private(set) var scanCallCount = 0
+  private(set) var stopScanCallCount = 0
+
+  override var state: CBManagerState {
+    forcedState
+  }
+
+  override func scanForPeripherals(withServices serviceUUIDs: [CBUUID]?, options: [String: Any]? = nil) {
+    scanCallCount += 1
+  }
+
+  override func stopScan() {
+    stopScanCallCount += 1
+  }
+}

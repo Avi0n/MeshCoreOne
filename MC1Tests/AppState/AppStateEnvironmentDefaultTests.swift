@@ -24,10 +24,12 @@ struct AppStateEnvironmentDefaultTests {
   }
 
   @Test
-  func `placeholder is inert with no services or live transaction listener`() {
+  func `placeholder is inert with no services, transaction listener, or location manager`() {
     let placeholder = AppState.placeholder
     #expect(placeholder.services == nil)
     #expect(placeholder.storeState.service.transactionListenerTask == nil)
+    placeholder.locationService.activateIfNeeded()
+    #expect(!placeholder.locationService.hasInitializedLocationManager)
   }
 
   @Test
@@ -42,5 +44,19 @@ struct AppStateEnvironmentDefaultTests {
     let live = try AppState(modelContainer: Self.inMemoryContainer(), isPlaceholder: false)
     #expect(DebugLogBuffer.shared != nil)
     live.shutdown()
+  }
+
+  @Test
+  func `onboarded AppState init does not initialize location manager`() async throws {
+    let suiteName = "test.appstate.location.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    defaults.set(true, forKey: AppStorageKey.hasCompletedOnboarding.rawValue)
+    let state = try AppState(modelContainer: Self.inMemoryContainer(), defaults: defaults)
+    defer { state.shutdown() }
+
+    await Task.yield()
+    #expect(!state.locationService.hasInitializedLocationManager)
   }
 }

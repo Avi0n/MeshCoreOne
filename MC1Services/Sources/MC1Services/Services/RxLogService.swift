@@ -509,7 +509,7 @@ public actor RxLogService {
     // Process for heard repeats (inline await provides natural backpressure,
     // preventing unbounded Task accumulation under high RX volume)
     if let heardRepeatsService {
-      await heardRepeatsService.processForRepeats(dto)
+      await heardRepeatsService.processForRepeats(dto, isNewEntry: true)
     }
   }
 

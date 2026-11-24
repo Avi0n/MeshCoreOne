@@ -46,6 +46,9 @@ final class ChatPrewarmRefresher {
     /// appends arrivals in place; re-priming under it would race its
     /// optimistic rows.
     var isConversationActive: @MainActor (ConversationKind) -> Bool
+    /// Whether the app is currently in the foreground. Background arrivals evict
+    /// closed warm coordinators instead of priming them.
+    var isInForeground: @MainActor () -> Bool
     /// Resolves the channel DTO for a channel event's radio + slot index.
     var channel: @MainActor (UUID, UInt8) async -> ChannelDTO?
     /// Resolves the contact DTO for a DM event's radio + contact id. Re-fetched
@@ -67,6 +70,7 @@ final class ChatPrewarmRefresher {
   /// One scheduled refresh per conversation; an arrival during the window
   /// rides the refresh already scheduled.
   private(set) var inFlight: [ChatConversationID: Task<Void, Never>] = [:]
+  private var inFlightTokens: [ChatConversationID: UUID] = [:]
 
   init(hooks: Hooks, debounce: Duration = .milliseconds(250)) {
     self.hooks = hooks
@@ -81,19 +85,61 @@ final class ChatPrewarmRefresher {
     schedule(.channel(radioID: radioID, channelIndex: channelIndex))
   }
 
+  func handleEnterBackground() {
+    let entries = inFlight
+    inFlight.removeAll()
+    inFlightTokens.removeAll()
+    let registry = hooks.registry()
+    for (id, task) in entries {
+      task.cancel()
+      registry?.remove(for: id)
+    }
+  }
+
+  func cancelAll() {
+    for task in inFlight.values {
+      task.cancel()
+    }
+    inFlight.removeAll()
+    inFlightTokens.removeAll()
+  }
+
+  func cancel(for id: ChatConversationID) {
+    inFlight.removeValue(forKey: id)?.cancel()
+    inFlightTokens.removeValue(forKey: id)
+  }
+
   private func schedule(_ kind: ConversationKind) {
     let id = kind.coordinatorID
+    guard !hooks.isConversationActive(kind),
+          let registry = hooks.registry() else { return }
+
+    if !hooks.isInForeground() {
+      let wasTracked = inFlight[id] != nil
+        || registry.existingCoordinator(for: id)?.renderState.phase == .loaded
+      guard wasTracked else { return }
+      inFlight.removeValue(forKey: id)?.cancel()
+      inFlightTokens.removeValue(forKey: id)
+      registry.remove(for: id)
+      return
+    }
+
     guard inFlight[id] == nil,
-          !hooks.isConversationActive(kind),
-          let registry = hooks.registry(),
           registry.existingCoordinator(for: id)?.renderState.phase == .loaded
     else { return }
 
     let debounce = debounce
+    let token = UUID()
+    inFlightTokens[id] = token
     inFlight[id] = Task { [weak self] in
+      defer {
+        if let self, self.inFlightTokens[id] == token {
+          self.inFlight[id] = nil
+          self.inFlightTokens[id] = nil
+        }
+      }
       try? await Task.sleep(for: debounce)
-      guard let self else { return }
-      defer { self.inFlight[id] = nil }
+      guard let self, !Task.isCancelled else { return }
       await self.refresh(kind, id: id)
     }
   }
@@ -102,10 +148,16 @@ final class ChatPrewarmRefresher {
     // Re-validate after the debounce: the user may have opened the chat, the
     // registry may have torn down on disconnect, or the LRU may have evicted
     // the entry. A cold entry needs no refresh; the next open fetches fresh.
-    guard !hooks.isConversationActive(kind),
+    guard !Task.isCancelled,
+          !hooks.isConversationActive(kind),
           let registry = hooks.registry(),
           registry.existingCoordinator(for: id)?.renderState.phase == .loaded
     else { return }
+
+    if !hooks.isInForeground() {
+      registry.remove(for: id)
+      return
+    }
 
     // Re-fetch the DM contact so the divider bakes from the current unread count
     // (which also sizes the first page from that count); fall back to the
@@ -115,6 +167,16 @@ final class ChatPrewarmRefresher {
       await hooks.contact(contact.radioID, contact.id).map(ChatConversationType.dm) ?? .dm(contact)
     case let .channel(radioID, channelIndex):
       await hooks.channel(radioID, channelIndex).map(ChatConversationType.channel)
+    }
+    guard !Task.isCancelled,
+          !hooks.isConversationActive(kind),
+          let postAwaitRegistry = hooks.registry(),
+          postAwaitRegistry.existingCoordinator(for: id)?.renderState.phase == .loaded else {
+      return
+    }
+    guard hooks.isInForeground() else {
+      postAwaitRegistry.remove(for: id)
+      return
     }
     guard let conversation,
           let dependencies = hooks.dependencies(),

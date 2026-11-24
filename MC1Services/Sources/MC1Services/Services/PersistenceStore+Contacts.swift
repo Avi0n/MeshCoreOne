@@ -625,7 +625,7 @@ public extension PersistenceStore {
     if try modelContext.fetch(nodeDescriptor).first == nil {
       // A known contact can lack a Discover row (paired before the row existed,
       // or restored from a backup). Hearing it on air makes it discoverable.
-      _ = try upsertDiscoveredNode(radioID: radioID, from: contact.toContactFrame())
+      _ = try upsertDiscoveredNode(radioID: radioID, from: contact.toContactFrame(), receivedAt: date)
     }
     if let node = try modelContext.fetch(nodeDescriptor).first {
       node.lastHeard = date

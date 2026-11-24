@@ -56,7 +56,14 @@ public actor MessageService {
   /// One entry per message. Each entry carries the full set of expected-ACK
   /// CRCs accumulated across retry attempts, so a late ACK from any attempt
   /// can still mark the message delivered.
-  var pendingAcks: [UUID: PendingAck] = [:]
+  var pendingAcks: [UUID: PendingAck] = [:] {
+    didSet {
+      if !pendingAcks.isEmpty {
+        ensureAckCheckTaskIfNeeded()
+      }
+    }
+  }
+
   /// Keeps teardown waiting for store writes even if their trackers disappear.
   var acknowledgementSavesInFlight: Set<UUID> = []
   var inlineSendsInFlight = 0
@@ -109,6 +116,8 @@ public actor MessageService {
 
   /// Task for periodic ACK expiry checking
   var ackCheckTask: Task<Void, Never>?
+  var ackCheckGeneration: UInt64 = 0
+  public internal(set) var isAckExpiryCheckingActive = false
 
   /// Task for listening to session events
   private var eventListenerTask: Task<Void, Never>?

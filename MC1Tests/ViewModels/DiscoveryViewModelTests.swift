@@ -342,4 +342,108 @@ struct DiscoveryViewModelTests {
     #expect(viewModel.discoveredNodes.map(\.name) == ["Keep"])
     #expect(viewModel.visibleNodes.map(\.name) == ["Keep"])
   }
+
+  @Test
+  func `unchanged refetch short-circuits visibleNodes notification`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    _ = try await store.upsertDiscoveredNode(radioID: radioID, from: ContactFrame(
+      publicKey: makePublicKey(byte: 0x31),
+      type: .chat,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      name: "Alpha",
+      lastAdvertTimestamp: 1_700_000_000,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 1_700_000_000
+    ))
+
+    let viewModel = DiscoveryViewModel()
+    var visibleChangeCount = 0
+    viewModel.onVisibleNodesChanged = { visibleChangeCount += 1 }
+    viewModel.configure(dataStore: { store }, radioID: { radioID })
+
+    await viewModel.loadDiscoveredNodes()
+    #expect(visibleChangeCount == 1)
+
+    await viewModel.loadDiscoveredNodes(publishImmediately: false)
+    #expect(visibleChangeCount == 1)
+  }
+
+  @Test
+  func `deferred publication buffers background reload until scrolling ends`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    _ = try await store.upsertDiscoveredNode(radioID: radioID, from: ContactFrame(
+      publicKey: makePublicKey(byte: 0x41),
+      type: .chat,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      name: "First",
+      lastAdvertTimestamp: 1_700_000_000,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 1_700_000_000
+    ))
+
+    let viewModel = DiscoveryViewModel()
+    viewModel.configure(dataStore: { store }, radioID: { radioID })
+    await viewModel.loadDiscoveredNodes()
+    #expect(viewModel.visibleNodes.map(\.name) == ["First"])
+
+    viewModel.setDeferringPublication(true)
+    _ = try await store.upsertDiscoveredNode(radioID: radioID, from: ContactFrame(
+      publicKey: makePublicKey(byte: 0x42),
+      type: .chat,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      name: "Second",
+      lastAdvertTimestamp: 1_700_000_100,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 1_700_000_100
+    ))
+    await viewModel.loadDiscoveredNodes(publishImmediately: false)
+    #expect(viewModel.visibleNodes.map(\.name) == ["First"])
+
+    viewModel.setDeferringPublication(false)
+    #expect(Set(viewModel.visibleNodes.map(\.name)) == ["First", "Second"])
+  }
+
+  @Test
+  func `deleteDiscoveredNode discards buffered snapshot so deleted row stays gone`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    let (node, _) = try await store.upsertDiscoveredNode(radioID: radioID, from: ContactFrame(
+      publicKey: makePublicKey(byte: 0x51),
+      type: .chat,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      name: "Transient",
+      lastAdvertTimestamp: 1_700_000_000,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 1_700_000_000
+    ))
+
+    let viewModel = DiscoveryViewModel()
+    viewModel.configure(dataStore: { store }, radioID: { radioID })
+    await viewModel.loadDiscoveredNodes()
+
+    viewModel.setDeferringPublication(true)
+    await viewModel.loadDiscoveredNodes(publishImmediately: false)
+    await viewModel.deleteDiscoveredNode(node)
+    viewModel.setDeferringPublication(false)
+
+    #expect(viewModel.discoveredNodes.isEmpty)
+    #expect(viewModel.visibleNodes.isEmpty)
+  }
 }

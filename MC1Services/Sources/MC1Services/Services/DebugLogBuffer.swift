@@ -109,6 +109,7 @@ public actor DebugLogBuffer {
   private var flushTask: Task<Void, Never>?
   private var isFlushScheduled = false
   private let flushInterval: Duration = .seconds(5)
+  private static let flushTolerance: Duration = .seconds(1)
   static let maxBufferSize = 50
   /// Seeded to now so the first successful flush after connect does not
   /// repeat the connect-time `pruneDebugLogEntries` on this store.
@@ -202,7 +203,7 @@ public actor DebugLogBuffer {
     isFlushScheduled = true
 
     flushTask = Task {
-      try? await Task.sleep(for: flushInterval)
+      try? await Task.sleep(for: flushInterval, tolerance: Self.flushTolerance)
       guard !Task.isCancelled else { return }
       isFlushScheduled = false
       await flushBuffer()

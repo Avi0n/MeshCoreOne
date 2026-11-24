@@ -68,9 +68,9 @@ public actor HeardRepeatsService {
   /// - Parameter entry: The RX log entry to process
   /// - Returns: The updated heardRepeats count if a match was found, nil otherwise
   @discardableResult
-  public func processForRepeats(_ entry: RxLogEntryDTO) async -> Int? {
+  public func processForRepeats(_ entry: RxLogEntryDTO, isNewEntry: Bool = false) async -> Int? {
     if entry.payloadType == .groupData {
-      return await processDatagramRepeat(entry)
+      return await processDatagramRepeat(entry, isNewEntry: isNewEntry)
     }
     // Only process successfully decrypted channel messages
     guard entry.payloadType == .groupText, entry.decryptStatus == .success, let decodedText = entry.decodedText, let channelIndex = entry.channelIndex, let senderTimestamp = entry.senderTimestamp, let radioID else { return nil }
@@ -82,8 +82,8 @@ public actor HeardRepeatsService {
       return nil
     }
 
-    // Check for duplicate (already processed this RX entry)
-    if await isDuplicateRepeat(entry.id) {
+    // Live RX entries arrive with a freshly minted UUID, so only reprocessed entries need duplicate lookup.
+    if !isNewEntry, await isDuplicateRepeat(entry.id) {
       logger.info("Repeat already recorded for RX entry: \(entry.id)")
       return nil
     }
@@ -290,13 +290,13 @@ public actor HeardRepeatsService {
     }
   }
 
-  private func processDatagramRepeat(_ entry: RxLogEntryDTO) async -> Int? {
+  private func processDatagramRepeat(_ entry: RxLogEntryDTO, isNewEntry: Bool) async -> Int? {
     guard entry.datagramDataType == MCOImageTransport.applicationDataType,
           let blob = entry.datagramData,
           let channelIndex = entry.channelIndex,
           let radioID,
           entry.radioID == radioID else { return nil }
-    if await isDuplicateRepeat(entry.id) { return nil }
+    if !isNewEntry, await isDuplicateRepeat(entry.id) { return nil }
     do {
       let messages = try await dataStore.fetchChannelMessages(
         radioID: radioID,

@@ -75,7 +75,6 @@ struct BLEPendingEstablishmentRetirementTests {
       throw error
     }
     await harness.machine.shutdown()
-    #expect(await !harness.machine.isRSSIKeepaliveActive)
     #expect(await session.subscriberCountForTest == 0)
   }
 
@@ -207,6 +206,5 @@ struct BLEPendingEstablishmentRetirementTests {
       throw error
     }
     await harness.machine.shutdown()
-    #expect(await !harness.machine.isRSSIKeepaliveActive)
   }
 }

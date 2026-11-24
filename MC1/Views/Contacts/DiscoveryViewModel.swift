@@ -68,10 +68,14 @@ final class DiscoveryViewModel {
   /// Discover reload trace (Logger category `discover-trace`).
   private let discoverTrace = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
 
-  private static let reloadDebounce: Duration = .milliseconds(50)
+  private static let defaultReloadDebounce: Duration = .milliseconds(500)
+  private let reloadDebounce: Duration
   private var reloadTask: Task<Void, Never>?
   private var loadGeneration = 0
   private var entryGeneration = 0
+  @ObservationIgnored private var isDeferringPublication = false
+  @ObservationIgnored private var pendingSnapshot: (nodes: [DiscoveredNodeDTO], addedKeys: Set<Data>)?
+  @ObservationIgnored var onVisibleNodesChanged: (@MainActor () -> Void)?
 
   #if DEBUG
     var loadDiscoveredNodesBeforeFetchForTesting: (@MainActor () async -> Void)?
@@ -82,7 +86,9 @@ final class DiscoveryViewModel {
 
   // MARK: - Initialization
 
-  init() {}
+  init(reloadDebounce: Duration = DiscoveryViewModel.defaultReloadDebounce) {
+    self.reloadDebounce = reloadDebounce
+  }
 
   /// Configure with the data store and connected radio this view model uses;
   /// providers returning nil mirror a disconnected state.
@@ -94,9 +100,17 @@ final class DiscoveryViewModel {
     radioIDProvider = radioID
   }
 
+  /// Defers live reload publication while scrolling so rows do not shift under a touch.
+  func setDeferringPublication(_ deferring: Bool) {
+    isDeferringPublication = deferring
+    if !deferring, let snapshot = pendingSnapshot {
+      publishSnapshot(nodes: snapshot.nodes, addedKeys: snapshot.addedKeys)
+    }
+  }
+
   // MARK: - Load Nodes
 
-  func loadDiscoveredNodes() async {
+  func loadDiscoveredNodes(publishImmediately: Bool = true) async {
     guard !Task.isCancelled, let dataStore, let radioID else { return }
     loadGeneration += 1
     let generation = loadGeneration
@@ -123,9 +137,13 @@ final class DiscoveryViewModel {
       try Task.checkCancellation()
       guard generation == loadGeneration, entry == entryGeneration, self.radioID == radioID else { return }
 
-      discoveredNodes = nodes
-      addedPublicKeys = addedKeys
       discoverTrace.debug("B4 view reload loaded=\(nodes.count) addedKeys=\(addedKeys.count) radio=\(radioID)")
+      if !publishImmediately, isDeferringPublication {
+        pendingSnapshot = (nodes, addedKeys)
+        return
+      }
+      publishSnapshot(nodes: nodes, addedKeys: addedKeys)
+      return
     } catch is CancellationError {
       return
     } catch {
@@ -138,26 +156,39 @@ final class DiscoveryViewModel {
     applyFilter()
   }
 
+  private func publishSnapshot(nodes: [DiscoveredNodeDTO], addedKeys: Set<Data>) {
+    pendingSnapshot = nil
+    if hasLoadedOnce, nodes == discoveredNodes, addedKeys == addedPublicKeys {
+      return
+    }
+    discoveredNodes = nodes
+    addedPublicKeys = addedKeys
+    hasLoadedOnce = true
+    applyFilter()
+  }
+
   /// Schedules a debounced reload so bursts of contactsVersion bumps trigger
   /// one load instead of one per event. No-ops if a reload is already pending.
   func scheduleCoalescedReload() {
     guard reloadTask == nil else { return }
     reloadTask = Task { @MainActor [weak self] in
+      guard let self else { return }
       do {
-        try await Task.sleep(for: Self.reloadDebounce)
+        try await Task.sleep(for: reloadDebounce)
       } catch {
         return
       }
       guard !Task.isCancelled else { return }
-      guard let self else { return }
       reloadTask = nil
-      await loadDiscoveredNodes()
+      await loadDiscoveredNodes(publishImmediately: false)
     }
   }
 
   func cancelReloads() {
     reloadTask?.cancel()
     reloadTask = nil
+    pendingSnapshot = nil
+    isDeferringPublication = false
     loadGeneration += 1
     entryGeneration += 1
     isLoading = false
@@ -177,6 +208,7 @@ final class DiscoveryViewModel {
     let entry = entryGeneration
     let radioID = self.radioID
 
+    pendingSnapshot = nil
     discoveredNodes.removeAll { $0.id == node.id }
     applyFilter()
 
@@ -196,6 +228,7 @@ final class DiscoveryViewModel {
       try await dataStore.clearDiscoveredNodes(radioID: radioID)
       try Task.checkCancellation()
       guard entry == entryGeneration, self.radioID == radioID else { return }
+      pendingSnapshot = nil
       discoveredNodes = []
       applyFilter()
     } catch is CancellationError {
@@ -223,12 +256,16 @@ final class DiscoveryViewModel {
   }
 
   private func applyFilter() {
-    visibleNodes = filteredNodes(
+    let next = filteredNodes(
       searchText: lastSearchText,
       segment: lastSegment,
       sortOrder: lastSortOrder,
       userLocation: lastUserLocation
     )
+    if next != visibleNodes {
+      visibleNodes = next
+      onVisibleNodesChanged?()
+    }
   }
 
   func filteredNodes(

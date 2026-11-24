@@ -111,4 +111,34 @@ struct EventFilterFactoryTests {
     #expect(!filter.matches(.loginSuccess(info)))
     #expect(!filter.matches(.ok(value: nil)))
   }
+
+  // MARK: - discoverResponse
+
+  @Test
+  func `discoverResponse matches exact tag and rejects other tags or events`() {
+    let targetTag = Data([0x01, 0x02, 0x03, 0x04])
+    let filter = EventFilter.discoverResponse(tag: targetTag)
+    let matching = DiscoverResponse(
+      nodeType: 2,
+      snrIn: 5.0,
+      snr: 6.5,
+      rssi: -80,
+      pathLength: 1,
+      tag: targetTag,
+      publicKey: Data(repeating: 0xAA, count: 32)
+    )
+    let otherTag = DiscoverResponse(
+      nodeType: 2,
+      snrIn: 5.0,
+      snr: 6.5,
+      rssi: -80,
+      pathLength: 1,
+      tag: Data([0x09, 0x09, 0x09, 0x09]),
+      publicKey: Data(repeating: 0xBB, count: 32)
+    )
+
+    #expect(filter.matches(.discoverResponse(matching)))
+    #expect(!filter.matches(.discoverResponse(otherTag)))
+    #expect(!filter.matches(.messagesWaiting))
+  }
 }

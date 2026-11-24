@@ -4,6 +4,7 @@ import SwiftUI
 
 /// Shows contacts heard in adverts that have not been added to the radio.
 struct DiscoveryView: View {
+  @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @State private var ownedState: DiscoveryState
   private let suppliedState: DiscoveryState?
@@ -50,7 +51,9 @@ struct DiscoveryView: View {
       if !viewModel.hasLoadedOnce {
         loadingBody
       } else {
-        loadedBody
+        TimelineView(.everyMinute) { context in
+          loadedBody(referenceDate: context.date)
+        }
       }
     }
     .themedCanvas(theme)
@@ -81,7 +84,10 @@ struct DiscoveryView: View {
       isMounted = true
       isSearchFocused = state.isSearchFocused
     }
-    .onDisappear { isMounted = false }
+    .onDisappear {
+      isMounted = false
+      state.updateScrollPhase(.idle, rendererRevision: rendererRevision)
+    }
     .onChange(of: isSearchFocused) { _, focused in
       guard isMounted else { return }
       state.updateSearchFocus(focused, rendererRevision: rendererRevision)
@@ -121,24 +127,21 @@ struct DiscoveryView: View {
   private var loadingBody: some View {
     ScrollView {
       LazyVStack(spacing: 0) {
-        Section {} header: { filterHeader }
+        filterHeader
       }
       .scrollTargetLayout()
     }
     .overlay { ProgressView() }
   }
 
-  private var loadedBody: some View {
+  private func loadedBody(referenceDate: Date) -> some View {
     ScrollView {
       LazyVStack(spacing: 0) {
-        Section {
-          if viewModel.visibleNodes.isEmpty {
-            emptyState
-          } else {
-            rows
-          }
-        } header: {
-          filterHeader
+        filterHeader
+        if viewModel.visibleNodes.isEmpty {
+          emptyState
+        } else {
+          rows(referenceDate: referenceDate)
         }
       }
       .scrollTargetLayout()
@@ -147,25 +150,36 @@ struct DiscoveryView: View {
       get: { state.scrollPositionID },
       set: { state.updateScrollPosition($0, rendererRevision: rendererRevision) }
     ), anchor: .top)
+    .onScrollPhaseChange { _, newPhase in
+      state.updateScrollPhase(newPhase, rendererRevision: rendererRevision)
+    }
+    .onScrollGeometryChange(for: Bool.self) { geometry in
+      geometry.contentOffset.y <= -geometry.contentInsets.top
+    } action: { wasAtTop, isAtTop in
+      guard !wasAtTop, isAtTop, isMounted else { return }
+      state.clearScrollPosition(rendererRevision: rendererRevision)
+    }
   }
 
-  private var rows: some View {
+  private func rows(referenceDate: Date) -> some View {
     let nodes = viewModel.visibleNodes
-    return ForEach(Array(nodes.enumerated()), id: \.element.id) { index, node in
+    let lastNodeID = nodes.last?.id
+    let userLocation = appState.bestAvailableLocation
+    return ForEach(nodes) { node in
       VStack(spacing: 0) {
         DiscoveryNodeRow(
           node: node,
+          userLocation: userLocation,
+          referenceDate: referenceDate,
           isAdded: viewModel.isAdded(node),
           isAdding: state.addingNodeID == node.id,
           onAdd: { state.add(node) },
           onDelete: { state.delete(node) }
         )
-        if index < nodes.count - 1 {
+        if node.id != lastNodeID {
           Divider().padding(.leading, Self.rowSeparatorLeadingInset)
         }
       }
-      .id(node.id)
-      .transition(.opacity)
     }
   }
 }
@@ -206,8 +220,9 @@ private enum DiscoveryListLayout {
 
 private struct DiscoveryNodeRow: View {
   private static let avatarSize: CGFloat = 44
-  @Environment(\.appState) private var appState
   let node: DiscoveredNodeDTO
+  let userLocation: CLLocation?
+  let referenceDate: Date
   let isAdded: Bool
   let isAdding: Bool
   let onAdd: () -> Void
@@ -269,7 +284,7 @@ private struct DiscoveryNodeRow: View {
 
       Spacer()
 
-      RelativeTimestampText(date: node.lastHeard)
+      RelativeTimestampText(date: node.lastHeard, referenceDate: referenceDate)
 
       if isAdded {
         Button(L10n.Contacts.Contacts.Discovery.added) {}
@@ -330,7 +345,7 @@ private struct DiscoveryNodeRow: View {
   }
 
   private var distanceToNode: String? {
-    guard let userLocation = appState.bestAvailableLocation,
+    guard let userLocation,
           node.hasLocation else { return nil }
 
     let nodeLocation = CLLocation(

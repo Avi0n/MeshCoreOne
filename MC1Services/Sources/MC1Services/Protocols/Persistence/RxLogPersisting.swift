@@ -18,6 +18,12 @@ public enum RxLogRetention {
 
   /// Debounce for a partial batch. Must not be awaited inside `saveRxLogEntry`.
   public static let flushInterval: Duration = .seconds(1)
+
+  /// Coalesced debounce while the app is in the background.
+  public static let backgroundFlushInterval: Duration = .seconds(15)
+
+  /// Timer coalescing tolerance for background RX Log flushes.
+  public static let backgroundFlushTolerance: Duration = .seconds(3)
 }
 
 /// Store operations for RX log entries: persistence, lookup, and batch enrichment.

@@ -20,25 +20,49 @@ public extension MessageService {
   /// **not** stop this task.
   func startAckExpiryChecking(interval: TimeInterval = 5.0) {
     checkInterval = interval
-    ackCheckTask?.cancel()
+    isAckExpiryCheckingActive = true
+    ackCheckGeneration &+= 1
+    let existing = ackCheckTask
+    ackCheckTask = nil
+    existing?.cancel()
+    ensureAckCheckTaskIfNeeded()
+  }
 
+  func ensureAckCheckTaskIfNeeded() {
+    guard isAckExpiryCheckingActive, !pendingAcks.isEmpty, ackCheckTask == nil else { return }
+    let generation = ackCheckGeneration
     ackCheckTask = Task { [weak self] in
-      guard let self else { return }
+      await self?.runAckCheckLoop(generation: generation)
+    }
+  }
 
-      while !Task.isCancelled {
-        do {
-          try await Task.sleep(for: .seconds(checkInterval))
-        } catch {
-          break
+  private func runAckCheckLoop(generation: UInt64) async {
+    defer {
+      if ackCheckGeneration == generation {
+        ackCheckTask = nil
+        if isAckExpiryCheckingActive, !pendingAcks.isEmpty, !Task.isCancelled {
+          ensureAckCheckTaskIfNeeded()
         }
+      }
+    }
 
-        guard !Task.isCancelled else { break }
+    while !Task.isCancelled, isAckExpiryCheckingActive, ackCheckGeneration == generation, !pendingAcks.isEmpty {
+      let interval = checkInterval
+      let tolerance: Duration? = interval >= 1.0 ? .seconds(1) : nil
+      do {
+        try await Task.sleep(for: .seconds(interval), tolerance: tolerance)
+      } catch {
+        break
+      }
 
-        do {
-          try await checkExpiredAcks()
-        } catch {
-          logger.error("ACK expiry check failed: \(error.localizedDescription)")
-        }
+      guard !Task.isCancelled, isAckExpiryCheckingActive, ackCheckGeneration == generation, !pendingAcks.isEmpty else {
+        break
+      }
+
+      do {
+        try await checkExpiredAcks()
+      } catch {
+        logger.error("ACK expiry check failed: \(error.localizedDescription)")
       }
     }
   }
@@ -51,6 +75,8 @@ public extension MessageService {
   /// a routine disconnect: in-flight DMs stay `.sent` so a reconnect within
   /// the same session can still receive the ACK.
   func stopAckExpiryChecking() async {
+    isAckExpiryCheckingActive = false
+    ackCheckGeneration &+= 1
     let worker = ackCheckTask
     ackCheckTask = nil
     worker?.cancel()
@@ -142,10 +168,11 @@ public extension MessageService {
     pendingAcks.count
   }
 
-  /// Whether ACK expiry checking is currently active.
-  var isAckExpiryCheckingActive: Bool {
-    ackCheckTask != nil
-  }
+  #if DEBUG
+    var hasRunningAckCheckTaskForTesting: Bool {
+      ackCheckTask != nil
+    }
+  #endif
 
   func commitLiveAcknowledgement(code: Data, tripTime: UInt32?) async -> Bool {
     guard let (messageID, tracking) = pendingAcks.first(where: {

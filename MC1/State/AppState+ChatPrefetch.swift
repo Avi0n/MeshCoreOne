@@ -185,6 +185,9 @@ extension AppState {
             && notificationService.activeChannelRadioID == radioID
         }
       },
+      isInForeground: { [weak self] in
+        self?.isInForeground ?? false
+      },
       channel: { [weak self] radioID, channelIndex in
         guard let store = self?.offlineDataStore else { return nil }
         return await (try? store.fetchChannel(radioID: radioID, index: channelIndex)) ?? nil

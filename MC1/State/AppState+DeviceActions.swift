@@ -45,6 +45,7 @@ extension AppState {
 
   /// Called by View when scenePhase becomes active.
   func handleBecameActive() {
+    locationService.activateIfNeeded()
     logToolbarResumeProbe(source: "becameActive")
     if storeState.service.loadState == .loaded {
       // Re-walk currentEntitlements: a refund may never arrive on Transaction.updates.

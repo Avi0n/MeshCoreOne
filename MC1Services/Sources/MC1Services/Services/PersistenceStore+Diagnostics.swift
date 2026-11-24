@@ -141,10 +141,18 @@ public extension PersistenceStore {
     try commitPendingRxLogEntries()
   }
 
-  private func scheduleRxLogFlush() {
+  func scheduleRxLogFlush() {
     guard rxLogFlushTask == nil else { return }
+    let useBackgroundDebounce = isRxLogBackgroundFlushMode
     rxLogFlushTask = Task {
-      try? await Task.sleep(for: RxLogRetention.flushInterval)
+      if useBackgroundDebounce {
+        try? await Task.sleep(
+          for: RxLogRetention.backgroundFlushInterval,
+          tolerance: RxLogRetention.backgroundFlushTolerance
+        )
+      } else {
+        try? await Task.sleep(for: RxLogRetention.flushInterval)
+      }
       guard !Task.isCancelled else { return }
       do {
         try await self.flushPendingRxLogEntries()
@@ -185,8 +193,20 @@ public extension PersistenceStore {
     keepCount: Int = RxLogRetention.keepCount,
     pruneThreshold: Int = RxLogRetention.pruneThreshold
   ) throws {
+    guard try stageRxLogPrune(radioID: radioID, keepCount: keepCount, pruneThreshold: pruneThreshold) else { return }
+    try modelContext.save()
+    // Update cache only after commit succeeds so a thrown save stays consistent with SQLite.
+    rxLogEntryCountsByDevice[radioID] = keepCount
+  }
+
+  /// Stages deletes for excess RX log entries without saving or updating the count cache.
+  internal func stageRxLogPrune(
+    radioID: UUID,
+    keepCount: Int = RxLogRetention.keepCount,
+    pruneThreshold: Int = RxLogRetention.pruneThreshold
+  ) throws -> Bool {
     let count = try cachedRxLogEntryCount(radioID: radioID)
-    guard count > keepCount + pruneThreshold else { return }
+    guard count > keepCount + pruneThreshold else { return false }
 
     let deleteCount = count - keepCount
     let targetRadioID = radioID
@@ -201,8 +221,7 @@ public extension PersistenceStore {
     for entry in toDelete {
       modelContext.delete(entry)
     }
-    try modelContext.save()
-    rxLogEntryCountsByDevice[radioID] = keepCount
+    return true
   }
 
   /// Clear all RX log entries for a device.

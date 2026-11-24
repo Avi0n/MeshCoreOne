@@ -325,8 +325,6 @@ final class BLETransportHarness: @unchecked Sendable {
     override func writeValue(_ data: Data, for characteristic: CBCharacteristic, type: CBCharacteristicWriteType) {
       BLETransportHarness.harness(for: self)?.issueWrite(data, type: type)
     }
-
-    override func readRSSI() {}
   }
 
   private final class NotifyingCharacteristic: CBMutableCharacteristic {

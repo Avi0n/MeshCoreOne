@@ -232,7 +232,7 @@ struct NodesSidebarStateTests {
     let container = try PersistenceStore.createContainer(inMemory: true)
     let store = PersistenceStore(modelContainer: container)
     let radioID = UUID()
-    let model = DiscoveryViewModel()
+    let model = DiscoveryViewModel(reloadDebounce: .milliseconds(20))
     var providerReads = 0
     model.configure(dataStore: {
       providerReads += 1
@@ -250,6 +250,51 @@ struct NodesSidebarStateTests {
     await current.value
     #expect(providerReads == 1)
     #expect(model.hasLoadedOnce)
+  }
+
+  @Test
+  func `Discovery scroll phase defers live reload until idle and clears missing scroll bookmark`() async throws {
+    let fixture = try makeFixture()
+    defer { fixture.cleanUp() }
+    let device = Device(
+      radioID: fixture.radioID,
+      publicKey: Data(repeating: 1, count: ProtocolLimits.publicKeySize),
+      nodeName: "Fixture"
+    )
+    fixture.appState.connectionManager.setTestState(
+      connectionState: .ready,
+      connectedDevice: .some(DeviceDTO(from: device))
+    )
+    let store = fixture.appState.connectionManager.persistenceStore
+    let (initial, _) = try await store.upsertDiscoveredNode(radioID: fixture.radioID, from: frame(name: "Alpha", byte: 0x61))
+
+    let model = DiscoveryViewModel(reloadDebounce: .milliseconds(20))
+    let state = DiscoveryState(viewModel: model)
+    defer { state.end() }
+    state.configure(appState: fixture.appState)
+    state.reloadIfNeeded(appState: fixture.appState)
+    try await waitUntil("initial load") { model.hasLoadedOnce }
+    state.scrollPositionID = initial.id
+
+    state.updateScrollPhase(.interacting, rendererRevision: 0)
+    // Outgoing renderer phase change must not clear active scroll deferral.
+    state.prepareRenderer(revision: 1)
+    state.updateScrollPhase(.interacting, rendererRevision: 1)
+    state.updateScrollPhase(.idle, rendererRevision: 0)
+
+    _ = try await store.upsertDiscoveredNode(radioID: fixture.radioID, from: frame(name: "Beta", byte: 0x62))
+    fixture.appState.contactsVersion += 1
+    state.reloadIfNeeded(appState: fixture.appState)
+    #expect(model.reloadTaskForTesting == nil)
+    #expect(model.visibleNodes.map(\.name) == ["Alpha"])
+
+    state.updateScrollPhase(.idle, rendererRevision: 1)
+    let scheduled = try #require(model.reloadTaskForTesting)
+    await scheduled.value
+    #expect(Set(model.visibleNodes.map(\.name)) == ["Alpha", "Beta"])
+
+    await model.deleteDiscoveredNode(initial)
+    #expect(state.scrollPositionID == nil)
   }
 
   @Test

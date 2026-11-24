@@ -36,12 +36,6 @@ struct DiscoveryPresenter: ViewModifier {
       .onChange(of: locationSample) { _, _ in
         if state?.consumesLocation == true { state?.refreshVisibleNodes() }
       }
-      .onChange(of: state?.viewModel.visibleNodes.map(\.id)) { _, ids in
-        if let state, let scrollPositionID = state.scrollPositionID,
-           let ids, !ids.contains(scrollPositionID) {
-          state.scrollPositionID = ids.first
-        }
-      }
       .errorAlert(Binding(
         get: { state?.viewModel.errorMessage },
         set: { state?.viewModel.errorMessage = $0 }

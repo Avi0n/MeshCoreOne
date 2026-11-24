@@ -55,13 +55,15 @@ struct ChatPrewarmRefresherTests {
   private func makeHooks(
     registry: ChatCoordinatorRegistry,
     dataStore: PersistenceStore,
-    isActive: @escaping @MainActor (ChatPrewarmRefresher.ConversationKind) -> Bool = { _ in false }
+    isActive: @escaping @MainActor (ChatPrewarmRefresher.ConversationKind) -> Bool = { _ in false },
+    isInForeground: @escaping @MainActor () -> Bool = { true }
   ) -> ChatPrewarmRefresher.Hooks {
     ChatPrewarmRefresher.Hooks(
       registry: { registry },
       dependencies: { [self] in makePrimerDependencies(registry: registry, dataStore: dataStore) },
       envInputs: { _ in .default },
       isConversationActive: isActive,
+      isInForeground: isInForeground,
       channel: { radioID, index in
         await (try? dataStore.fetchChannel(radioID: radioID, index: index)) ?? nil
       },
@@ -336,5 +338,157 @@ struct ChatPrewarmRefresherTests {
 
     #expect(refresher.inFlight.isEmpty)
     #expect(registry.existingCoordinator(for: .channel(radioID: radioID, channelIndex: 0)) == nil)
+  }
+
+  @Test
+  func `background arrival evicts warm closed coordinator and ignores cold chats`() async throws {
+    let dataStore = try makeStore()
+    let registry = ChatCoordinatorRegistry(dataStore: dataStore)
+    let radioID = UUID()
+    let warmChannel = makeChannel(radioID: radioID, index: 0)
+    try await dataStore.saveChannel(warmChannel)
+    try await dataStore.saveMessage(makeChannelMessage(radioID: radioID, channelIndex: 0, timestamp: 10, text: "Hello"))
+    await warmCoordinator(registry: registry, dataStore: dataStore, conversation: .channel(warmChannel))
+
+    let id = ChatConversationID.channel(radioID: radioID, channelIndex: 0)
+    let warmed = try #require(registry.existingCoordinator(for: id))
+    #expect(warmed.renderState.phase == .loaded)
+
+    let refresher = ChatPrewarmRefresher(
+      hooks: makeHooks(
+        registry: registry,
+        dataStore: dataStore,
+        isInForeground: { false }
+      ),
+      debounce: .zero
+    )
+
+    refresher.noteChannelMessage(radioID: radioID, channelIndex: 0)
+    #expect(registry.existingCoordinator(for: id) == nil)
+    #expect(refresher.inFlight.isEmpty)
+
+    let coldChannel = makeChannel(radioID: radioID, index: 1)
+    try await dataStore.saveChannel(coldChannel)
+    refresher.noteChannelMessage(radioID: radioID, channelIndex: 1)
+    let coldID = ChatConversationID.channel(radioID: radioID, channelIndex: 1)
+    #expect(registry.existingCoordinator(for: coldID) == nil)
+    #expect(refresher.inFlight.isEmpty)
+  }
+
+  @Test
+  func `background arrival preserves an active open conversation`() async throws {
+    let dataStore = try makeStore()
+    let registry = ChatCoordinatorRegistry(dataStore: dataStore)
+    let radioID = UUID()
+    let channel = makeChannel(radioID: radioID, index: 0)
+    try await dataStore.saveChannel(channel)
+    try await dataStore.saveMessage(makeChannelMessage(radioID: radioID, channelIndex: 0, timestamp: 10, text: "Active"))
+    await warmCoordinator(registry: registry, dataStore: dataStore, conversation: .channel(channel))
+
+    let id = ChatConversationID.channel(radioID: radioID, channelIndex: 0)
+    let original = try #require(registry.existingCoordinator(for: id))
+
+    let refresher = ChatPrewarmRefresher(
+      hooks: makeHooks(
+        registry: registry,
+        dataStore: dataStore,
+        isActive: { _ in true },
+        isInForeground: { false }
+      ),
+      debounce: .zero
+    )
+
+    refresher.noteChannelMessage(radioID: radioID, channelIndex: 0)
+    #expect(registry.existingCoordinator(for: id) === original)
+    #expect(refresher.inFlight.isEmpty)
+  }
+
+  @Test
+  func `handleEnterBackground cancels in-flight debounce without clobbering a later foreground task`() async throws {
+    let dataStore = try makeStore()
+    let registry = ChatCoordinatorRegistry(dataStore: dataStore)
+    let radioID = UUID()
+    let channel = makeChannel(radioID: radioID, index: 0)
+    try await dataStore.saveChannel(channel)
+    try await dataStore.saveMessage(makeChannelMessage(radioID: radioID, channelIndex: 0, timestamp: 10, text: "Old"))
+    await warmCoordinator(registry: registry, dataStore: dataStore, conversation: .channel(channel))
+
+    try await dataStore.saveMessage(makeChannelMessage(radioID: radioID, channelIndex: 0, timestamp: 20, text: "FG"))
+
+    let refresher = ChatPrewarmRefresher(
+      hooks: makeHooks(
+        registry: registry,
+        dataStore: dataStore,
+        isInForeground: { true }
+      ),
+      debounce: .milliseconds(40)
+    )
+
+    let id = ChatConversationID.channel(radioID: radioID, channelIndex: 0)
+    refresher.noteChannelMessage(radioID: radioID, channelIndex: 0)
+    #expect(refresher.inFlight[id] != nil)
+
+    refresher.handleEnterBackground()
+    #expect(refresher.inFlight.isEmpty)
+    #expect(registry.existingCoordinator(for: id) == nil)
+
+    await warmCoordinator(registry: registry, dataStore: dataStore, conversation: .channel(channel))
+    try await dataStore.saveMessage(makeChannelMessage(radioID: radioID, channelIndex: 0, timestamp: 30, text: "FG2"))
+    refresher.noteChannelMessage(radioID: radioID, channelIndex: 0)
+    let task = try #require(refresher.inFlight[id])
+    await task.value
+
+    let coordinator = try #require(registry.existingCoordinator(for: id))
+    #expect(coordinator.messages.count == 3)
+    #expect(refresher.inFlight.isEmpty)
+  }
+
+  @Test
+  func `cancellation during contact fetch does not re-insert coordinator`() async throws {
+    let dataStore = try makeStore()
+    let registry = ChatCoordinatorRegistry(dataStore: dataStore)
+    let radioID = UUID()
+    let contact = makeContact(radioID: radioID)
+    try await dataStore.saveContact(contact)
+    try await dataStore.saveMessage(makeDirectMessage(radioID: radioID, contactID: contact.id, timestamp: 10, text: "Old"))
+    await warmCoordinator(registry: registry, dataStore: dataStore, conversation: .dm(contact))
+
+    let id = ChatConversationID.dm(radioID: radioID, contactID: contact.id)
+    var reachedFetchContinuation: CheckedContinuation<Void, Never>?
+    var resumeFetchContinuation: CheckedContinuation<Void, Never>?
+
+    let hooks = ChatPrewarmRefresher.Hooks(
+      registry: { registry },
+      dependencies: { [self] in makePrimerDependencies(registry: registry, dataStore: dataStore) },
+      envInputs: { _ in .default },
+      isConversationActive: { _ in false },
+      isInForeground: { true },
+      channel: { radioID, index in
+        await (try? dataStore.fetchChannel(radioID: radioID, index: index)) ?? nil
+      },
+      contact: { _, contactID in
+        reachedFetchContinuation?.resume()
+        reachedFetchContinuation = nil
+        await withCheckedContinuation { continuation in
+          resumeFetchContinuation = continuation
+        }
+        return await (try? dataStore.fetchContact(id: contactID)) ?? nil
+      },
+      linkPreviewCache: { nil }
+    )
+
+    let refresher = ChatPrewarmRefresher(hooks: hooks, debounce: .zero)
+    refresher.noteDirectMessage(contact: contact)
+
+    await withCheckedContinuation { continuation in
+      reachedFetchContinuation = continuation
+    }
+    refresher.handleEnterBackground()
+    resumeFetchContinuation?.resume()
+    await Task.yield()
+    try await Task.sleep(for: .milliseconds(20))
+
+    #expect(registry.existingCoordinator(for: id) == nil)
+    #expect(refresher.inFlight.isEmpty)
   }
 }

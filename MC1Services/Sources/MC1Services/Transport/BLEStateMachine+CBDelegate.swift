@@ -19,10 +19,12 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
     let peripheral: ObjectIdentifier
     let characteristic: ObjectIdentifier
     var diagnostics: BLEIngressDiagnostics
+    var lastBondRefreshAttempt: Date?
   }
 
   private let dataContinuationLock = OSAllocatedUnfairLock<Ingress?>(initialState: nil)
   private static let ingressReportInterval = 64
+  private static let inboundBondRefreshInterval: TimeInterval = 60
 
   private struct IssuedWrite: Sendable {
     let sequence: UInt64
@@ -178,43 +180,50 @@ final class BLEDelegateHandler: NSObject, CBCentralManagerDelegate, CBPeripheral
     }
     let origin = ObjectIdentifier(peripheral)
     let characteristicOrigin = ObjectIdentifier(characteristic)
-    let report = dataContinuationLock.withLock { current -> String? in
-      guard var ingress = current else { return nil }
+    let now = Date()
+    let (report, refreshGeneration) = dataContinuationLock.withLock { current -> (String?, UInt64?) in
+      guard var ingress = current else { return (nil, nil) }
       defer { current = ingress }
       guard ingress.peripheral == origin, ingress.characteristic == characteristicOrigin else {
         ingress.diagnostics.rejectedFrames += 1
         let rejected = ingress.diagnostics.rejectedFrames
-        guard rejected == 1 || rejected.isMultiple(of: Self.ingressReportInterval) else { return nil }
-        return "[BLE] Ingress rejected origin \(ingress.diagnostics.context) rejected=\(rejected)"
+        guard rejected == 1 || rejected.isMultiple(of: Self.ingressReportInterval) else { return (nil, nil) }
+        return ("[BLE] Ingress rejected origin \(ingress.diagnostics.context) rejected=\(rejected)", nil)
       }
       switch ingress.continuation.yield(data) {
       case .enqueued:
         ingress.diagnostics.acceptedFrames += 1
-        return nil
+        let shouldRefresh = ingress.lastBondRefreshAttempt.map {
+          now < $0 || now.timeIntervalSince($0) >= Self.inboundBondRefreshInterval
+        } ?? true
+        if shouldRefresh {
+          ingress.lastBondRefreshAttempt = now
+          return (nil, ingress.diagnostics.connectionGeneration)
+        }
+        return (nil, nil)
       case .dropped:
         ingress.diagnostics.droppedFrames += 1
         let dropped = ingress.diagnostics.droppedFrames
-        guard dropped == 1 || dropped.isMultiple(of: Self.ingressReportInterval) else { return nil }
-        return "[BLE] Ingress dropped frame \(ingress.diagnostics.context) reason=buffer-full dropped=\(dropped)"
+        guard dropped == 1 || dropped.isMultiple(of: Self.ingressReportInterval) else { return (nil, nil) }
+        return ("[BLE] Ingress dropped frame \(ingress.diagnostics.context) reason=buffer-full dropped=\(dropped)", nil)
       case .terminated:
         ingress.diagnostics.terminatedFrames += 1
         let terminated = ingress.diagnostics.terminatedFrames
-        guard terminated == 1 || terminated.isMultiple(of: Self.ingressReportInterval) else { return nil }
-        return "[BLE] Ingress terminated frame \(ingress.diagnostics.context) reason=stream-terminated terminated=\(terminated)"
+        guard terminated == 1 || terminated.isMultiple(of: Self.ingressReportInterval) else { return (nil, nil) }
+        return ("[BLE] Ingress terminated frame \(ingress.diagnostics.context) reason=stream-terminated terminated=\(terminated)", nil)
       @unknown default:
-        return nil
+        return (nil, nil)
       }
     }
     if let report { logger.warning(report) }
+    if let refreshGeneration, let sm = stateMachine {
+      Task { await sm.handleLiveTrafficBondRefresh(peripheral, generation: refreshGeneration) }
+    }
   }
 
-  func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
-    _ = readRSSI(from: peripheral, RSSI: RSSI, error: error)
-  }
-
-  func readRSSI(from peripheral: CBPeripheral, RSSI: NSNumber, error: Error?) -> Task<Void, Never>? {
+  func triggerInboundTrafficBondRefresh(from peripheral: CBPeripheral) -> Task<Void, Never>? {
     guard let sm = stateMachine, let generation = generation(for: peripheral) else { return nil }
-    return Task { await sm.handleDidReadRSSI(peripheral, RSSI: RSSI, error: error, generation: generation) }
+    return Task { await sm.handleLiveTrafficBondRefresh(peripheral, generation: generation) }
   }
 
   func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {

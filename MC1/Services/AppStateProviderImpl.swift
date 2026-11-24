@@ -7,12 +7,20 @@ import UIKit
 /// MainActor-isolated with async getter to allow cross-actor access.
 @MainActor
 final class AppStateProviderImpl: AppStateProvider {
-  init() {}
+  private let isInForegroundProvider: @MainActor () -> Bool
+
+  init(
+    isInForeground: @escaping @MainActor () -> Bool = {
+      UIApplication.shared.applicationState != .background
+    }
+  ) {
+    isInForegroundProvider = isInForeground
+  }
 
   nonisolated var isInForeground: Bool {
     get async {
       await MainActor.run {
-        UIApplication.shared.applicationState != .background
+        isInForegroundProvider()
       }
     }
   }
