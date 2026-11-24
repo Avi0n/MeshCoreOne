@@ -16,9 +16,14 @@ final class SettingsTabHarness {
   let window: UIWindow
   let controller: UIViewController
   private var didTearDown = false
+  private var animationsWereEnabled = true
   var note = ""
   var recognitionStamp = 0
-  var recognitionCache: (stamp: Int, key: String, words: [RecognizedWord])?
+  /// Renders taken during the current poll, keyed by view and scroll offset.
+  var renderedPages: (stamp: Int, pages: [String: RenderedPage]) = (0, [:])
+  /// Recognized words keyed by rendered pixels. Identical pixels recognize identically,
+  /// so a page another test already rendered is recognized once per test run.
+  static var recognizedPages: [RecognizedPageKey: [RecognizedWord]] = [:]
 
   private enum Timing {
     static let timeout: Duration = .seconds(6)
@@ -36,6 +41,19 @@ final class SettingsTabHarness {
   struct RecognizedWord {
     let text: String
     let rect: CGRect
+  }
+
+  struct RenderedPage {
+    let image: CGImage
+    let size: CGSize
+    let digest: Int
+  }
+
+  struct RecognizedPageKey: Hashable {
+    let digest: Int
+    let width: CGFloat
+    let height: CGFloat
+    let vocabulary: [String]
   }
 
   private enum Frame {
@@ -83,6 +101,8 @@ final class SettingsTabHarness {
       )
     }
 
+    let animationsWereEnabled = UIView.areAnimationsEnabled
+    UIView.setAnimationsEnabled(false)
     let root = SettingsTabRoot(appState: appState, defaults: defaults)
     let controller = UIHostingController(rootView: root)
     let size = windowSize(regularWidth: regularWidth, compactHeight: compactHeight)
@@ -94,18 +114,21 @@ final class SettingsTabHarness {
     window.makeKeyAndVisible()
     window.layoutIfNeeded()
 
-    return SettingsTabHarness(
+    let harness = SettingsTabHarness(
       appState: appState,
       defaults: defaults,
       suiteName: suiteName,
       window: window,
       controller: controller
     )
+    harness.animationsWereEnabled = animationsWereEnabled
+    return harness
   }
 
   func tearDown() {
     guard !didTearDown else { return }
     didTearDown = true
+    UIView.setAnimationsEnabled(animationsWereEnabled)
     window.rootViewController = nil
     window.isHidden = true
     window.windowScene = nil
