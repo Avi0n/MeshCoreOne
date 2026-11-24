@@ -252,6 +252,70 @@ struct RxLogServiceReprocessTests {
     #expect(await iterationB.value, "finish must end the second subscriber's loop")
   }
 
+  @Test
+  func `process skips decryption when channelHash does not match any channel secret`() async throws {
+    let radioID = UUID()
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let dataStore = PersistenceStore(modelContainer: container)
+    let session = MeshCoreSession(transport: MockTransport())
+    let service = RxLogService(session: session, dataStore: dataStore, heardRepeatsService: nil)
+
+    let secret = Data(repeating: 0x42, count: 16)
+    try await dataStore.saveChannel(ChannelDTO.testChannel(
+      radioID: radioID, index: 1, name: "Ops", secret: secret
+    ))
+    await service.startEventMonitoring(radioID: radioID)
+    defer { Task { await service.stopEventMonitoring() } }
+    await service.updateChannels(secrets: [1: secret], names: [1: "Ops"])
+
+    let validPayload = Self.encryptedChannelPayload(timestamp: 1_700_000_010, text: "Alice: hi", secret: secret)
+    var mismatchedPayload = validPayload
+    mismatchedPayload[0] = validPayload[0] ^ 0xFF
+
+    await service.process(Self.makeParsed(payloadType: .groupText, packetPayload: mismatchedPayload))
+
+    let stored = try await dataStore.fetchRxLogEntries(radioID: radioID)
+    let saved = try #require(stored.first)
+    #expect(saved.decryptStatus == .noMatchingKey)
+    #expect(saved.channelIndex == nil)
+  }
+
+  @Test
+  func `process decrypts when two channels share the same 1-byte channelHash`() async throws {
+    let radioID = UUID()
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let dataStore = PersistenceStore(modelContainer: container)
+    let session = MeshCoreSession(transport: MockTransport())
+    let service = RxLogService(session: session, dataStore: dataStore, heardRepeatsService: nil)
+
+    let secretA = Data(repeating: 0x11, count: 16)
+    let targetHash = ChannelCrypto.channelHash(for: secretA)
+    var candidate = Data(repeating: 0x22, count: 16)
+    var counter: UInt16 = 0
+    while ChannelCrypto.channelHash(for: candidate) != targetHash {
+      counter &+= 1
+      candidate[0] = UInt8(counter & 0xFF)
+      candidate[1] = UInt8((counter >> 8) & 0xFF)
+    }
+    let secretB = candidate
+
+    await service.startEventMonitoring(radioID: radioID)
+    defer { Task { await service.stopEventMonitoring() } }
+    await service.updateChannels(
+      secrets: [0: secretA, 2: secretB],
+      names: [0: "Alpha", 2: "Beta"]
+    )
+
+    let payload = Self.encryptedChannelPayload(timestamp: 1_700_000_020, text: "Bob: ping", secret: secretB)
+    await service.process(Self.makeParsed(payloadType: .groupText, packetPayload: payload))
+
+    let stored = try await dataStore.fetchRxLogEntries(radioID: radioID)
+    let saved = try #require(stored.first)
+    #expect(saved.decryptStatus == .success)
+    #expect(saved.channelIndex == 2)
+    #expect(saved.channelName == "Beta")
+  }
+
   // MARK: - Helpers
 
   private static func makeParsed(payloadType: PayloadType, packetPayload: Data) -> ParsedRxLogData {
@@ -306,7 +370,7 @@ struct RxLogServiceReprocessTests {
       HMAC<SHA256>.authenticationCode(for: ciphertext, using: SymmetricKey(data: secret))
         .prefix(ChannelCrypto.macSize)
     )
-    return Data([0x00]) + mac + ciphertext.prefix(encryptedCount)
+    return Data([ChannelCrypto.channelHash(for: secret)]) + mac + ciphertext.prefix(encryptedCount)
   }
 
   private static func encryptedGroupDatagram(dataType: UInt16, data: Data, secret: Data) -> Data {
@@ -347,6 +411,6 @@ struct RxLogServiceReprocessTests {
       HMAC<SHA256>.authenticationCode(for: ciphertext, using: SymmetricKey(data: secret))
         .prefix(ChannelCrypto.macSize)
     )
-    return Data([0x00]) + mac + ciphertext.prefix(encryptedCount)
+    return Data([ChannelCrypto.channelHash(for: secret)]) + mac + ciphertext.prefix(encryptedCount)
   }
 }

@@ -40,7 +40,7 @@ public extension PersistenceStore {
 
   internal func recordRecentlyBlockedMessage(_ entry: RecentlyBlockedMessageDTO) throws {
     guard try !hasRecentlyBlockedMessage(entry.identity) else { return }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
 
     do {
       let rows = try modelContext.fetch(FetchDescriptor<RecentlyBlockedMessage>())

@@ -53,6 +53,7 @@ extension AppState {
 
   /// Called when app enters background
   func handleEnterBackground() {
+    updateScenePhase(.background)
     flushChatDrafts()
     chatPrewarmRefresher?.handleEnterBackground()
     logToolbarResumeProbe(source: "enterBackground")
@@ -60,10 +61,9 @@ extension AppState {
     activeRecoveryFallbackTask = nil
 
     liveActivityManager.handleEnterBackground()
-
-    // Keep battery polling alive when the live activity is visible on the lock screen
-    if !liveActivityManager.hasActiveActivity {
-      batteryMonitor.stop()
+    batteryMonitor.stop()
+    if connectionState.isConnected {
+      BatteryRefreshScheduler.scheduleIfNeeded()
     }
 
     // Stop room keepalives to save battery/bandwidth
@@ -77,10 +77,12 @@ extension AppState {
 
   /// Called when app returns to foreground
   func handleReturnToForeground() async {
+    updateScenePhase(.active)
     locationService.activateIfNeeded()
     logToolbarResumeProbe(source: "returnToForeground")
     await Task.yield()
     await DebugLogBuffer.shared?.flush()
+    try? await connectionManager.persistenceStore.flushDeferredWrites()
 
     // Update badge count from database
     await services?.notificationService.updateBadgeCount()
@@ -122,6 +124,19 @@ extension AppState {
 
     offlineMapService.resumeAllPacks()
     logToolbarResumeProbe(source: "returnToForegroundDone")
+  }
+
+  func handleBackgroundBatteryRefresh() async {
+    guard connectionState.isConnected,
+          let snapshot = connectionManager.currentConnection,
+          connectionManager.isCurrent(snapshot) else { return }
+    if !isInForeground {
+      BatteryRefreshScheduler.scheduleIfNeeded()
+    }
+    await batteryMonitor.fetchBatteryIfOverdue(
+      services: snapshot.services,
+      device: snapshot.device
+    )
   }
 
   func logToolbarResumeProbe(source: String, scene: String? = nil) {

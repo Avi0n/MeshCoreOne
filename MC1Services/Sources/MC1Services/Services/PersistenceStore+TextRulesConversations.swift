@@ -95,7 +95,7 @@ public extension PersistenceStore {
     guard try !isRadioErasePending(radioID), try fetchDevice(radioID: radioID) != nil else {
       throw PersistenceStoreError.deviceNotFound
     }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       switch kind {
       case .directMessage:
@@ -137,7 +137,7 @@ extension PersistenceStore {
       predicate: #Predicate { $0.radioID == radioID && $0.textRulesID == nil }
     ))
     guard !channels.isEmpty || !contacts.isEmpty || !sessions.isEmpty else { return }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       for channel in channels {
         channel.textRulesID = UUID()

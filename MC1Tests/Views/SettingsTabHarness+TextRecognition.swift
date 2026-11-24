@@ -127,31 +127,39 @@ extension SettingsTabHarness {
   }
 
   private func recognizedWords(in view: UIView, vocabulary: [String]) -> [RecognizedWord] {
-    let key = recognitionKey(for: view, vocabulary: vocabulary)
-    if let cache = recognitionCache, cache.stamp == recognitionStamp, cache.key == key {
-      return cache.words
-    }
-    let words = recognizeText(in: view, vocabulary: vocabulary)
-    recognitionCache = (recognitionStamp, key, words)
+    guard let page = renderedPage(of: view) else { return [] }
+    let key = RecognizedPageKey(
+      digest: page.digest, width: page.size.width, height: page.size.height, vocabulary: vocabulary
+    )
+    if let words = Self.recognizedPages[key] { return words }
+    let words = recognizeText(in: page, vocabulary: vocabulary)
+    Self.recognizedPages[key] = words
     return words
   }
 
-  private func recognitionKey(for view: UIView, vocabulary: [String]) -> String {
-    let offset = if let list = view as? UICollectionView {
-      "\(list.contentOffset.x),\(list.contentOffset.y)"
-    } else {
-      "0"
+  /// Rendering is cheap next to recognition, so each poll re-renders and only new pixels reach Vision.
+  private func renderedPage(of view: UIView) -> RenderedPage? {
+    guard view.bounds.width > 1, view.bounds.height > 1 else { return nil }
+    if renderedPages.stamp != recognitionStamp {
+      renderedPages = (recognitionStamp, [:])
     }
-    return "\(ObjectIdentifier(view))|\(offset)|\(vocabulary.joined(separator: "|"))"
-  }
-
-  private func recognizeText(in view: UIView, vocabulary: [String]) -> [RecognizedWord] {
-    guard view.bounds.width > 1, view.bounds.height > 1 else { return [] }
+    let offset = (view as? UICollectionView)?.contentOffset ?? .zero
+    let key = "\(ObjectIdentifier(view))|\(offset.x),\(offset.y)"
+    if let page = renderedPages.pages[key] { return page }
     let renderer = UIGraphicsImageRenderer(bounds: view.bounds)
     let image = renderer.image { context in
       view.layer.render(in: context.cgContext)
     }
-    guard let cgImage = image.cgImage else { return [] }
+    guard let cgImage = image.cgImage, let pixels = cgImage.dataProvider?.data as Data? else { return nil }
+    var hasher = Hasher()
+    pixels.withUnsafeBytes { hasher.combine(bytes: $0) }
+    let page = RenderedPage(image: cgImage, size: view.bounds.size, digest: hasher.finalize())
+    renderedPages.pages[key] = page
+    return page
+  }
+
+  private func recognizeText(in page: RenderedPage, vocabulary: [String]) -> [RecognizedWord] {
+    let cgImage = page.image
     let request = VNRecognizeTextRequest()
     request.recognitionLevel = .accurate
     request.usesLanguageCorrection = false
@@ -160,8 +168,8 @@ extension SettingsTabHarness {
       request.customWords = vocabulary
     }
     try? VNImageRequestHandler(cgImage: cgImage, options: [:]).perform([request])
-    let width = view.bounds.width
-    let height = view.bounds.height
+    let width = page.size.width
+    let height = page.size.height
     return request.results?.compactMap { observation -> RecognizedWord? in
       guard let text = observation.topCandidates(1).first?.string, !text.isEmpty else { return nil }
       let box = observation.boundingBox

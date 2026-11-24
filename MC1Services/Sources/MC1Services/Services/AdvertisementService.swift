@@ -96,13 +96,18 @@ public actor AdvertisementService {
   /// round-scoped and cleared at drain). Flushed on foreground or `stopEventMonitoring`.
   var pendingDeletedKeys: Set<Data> = []
 
-  /// Coalesced background 0x8A adverts waiting for persistence/flush.
+  enum NewAdvertFlushMode {
+    case background
+    case foreground
+    case teardown
+  }
+
+  /// Coalesced 0x8A adverts waiting for persistence/flush.
   var pendingNewAdverts: [Data: (frame: ContactFrame, receivedAt: Date)] = [:]
   private var backgroundNewAdvertPersistTask: Task<Void, Never>?
-  private var backgroundNewAdvertPersistGeneration: UInt64 = 0
   private var newAdvertFlushTask: Task<Void, Never>?
+  private var activeNewAdvertFlushMode: NewAdvertFlushMode?
   private var hasPendingForegroundContactUpdate = false
-  private var suppressNewAdvertEventsForTeardown = false
 
   /// Keys revived while `flushPendingDeletedKeys` is off-actor in `deleteContacts`.
   /// Read per key so a same-key 0x80 during that hop cannot cascade-delete the row.
@@ -228,7 +233,7 @@ public actor AdvertisementService {
 
   /// Stops event monitoring and clears advert delta-sync state.
   public func stopEventMonitoring() async {
-    suppressNewAdvertEventsForTeardown = true
+    activeNewAdvertFlushMode = .teardown
     cancelBackgroundNewAdvertPersist()
     let monitor = eventMonitorTask
     eventMonitorTask = nil
@@ -244,12 +249,12 @@ public actor AdvertisementService {
     await monitor?.value
     await delta?.value
     await flushPendingDeletedKeys()
-    await flushPendingNewAdverts(deferContactUpdate: true)
+    await flushPendingNewAdverts(mode: .teardown)
     let receiveTimes = pendingAdvertReceiveTimes
     await stampAdvertReceiveTimes(receiveTimes, radioID: currentRadioID)
     hasPendingForegroundContactUpdate = false
+    activeNewAdvertFlushMode = nil
     currentRadioID = nil
-    suppressNewAdvertEventsForTeardown = false
     deltaSyncTask = nil
     pendingAdvertKeys.removeAll()
     pendingPathKeys.removeAll()
@@ -266,8 +271,7 @@ public actor AdvertisementService {
   public func handleReturnToForeground() async {
     cancelBackgroundNewAdvertPersist()
     await flushPendingDeletedKeys()
-    await flushPendingNewAdverts(deferContactUpdate: false)
-    emitPendingForegroundContactUpdate()
+    await flushPendingNewAdverts(mode: .foreground)
     if hasPendingDeltaSyncWork {
       scheduleDeltaSync()
     }
@@ -459,7 +463,7 @@ public actor AdvertisementService {
       await handleAdvertEvent(publicKey: publicKey, radioID: radioID)
 
     case let .newContact(contact):
-      await handleNewAdvertEvent(contact: contact, radioID: radioID)
+      await handleNewAdvertEvent(contact: contact)
 
     case let .pathUpdate(publicKey):
       await handlePathUpdatedEvent(publicKey: publicKey, radioID: radioID)
@@ -586,7 +590,7 @@ public actor AdvertisementService {
   }
 
   /// Handle new advertisement event - New contact discovered (manual add mode)
-  private func handleNewAdvertEvent(contact: MeshContact, radioID _: UUID) async {
+  private func handleNewAdvertEvent(contact: MeshContact) async {
     let contactFrame = contact.toContactFrame()
     let pubKeyHex = contactFrame.publicKey.uppercaseHexString()
     discoverTrace.debug("B1 0x8A NEW_ADVERT received key=\(pubKeyHex)")
@@ -600,7 +604,7 @@ public actor AdvertisementService {
     }
 
     cancelBackgroundNewAdvertPersist()
-    await flushPendingNewAdverts(deferContactUpdate: false)
+    await flushPendingNewAdverts(mode: .foreground)
   }
 
   private func enqueuePendingNewAdvert(frame: ContactFrame, receivedAt: Date) {
@@ -618,8 +622,6 @@ public actor AdvertisementService {
 
   private func scheduleBackgroundNewAdvertPersist() {
     guard backgroundNewAdvertPersistTask == nil, !pendingNewAdverts.isEmpty else { return }
-    backgroundNewAdvertPersistGeneration &+= 1
-    let generation = backgroundNewAdvertPersistGeneration
     let delay = backgroundNewAdvertCoalesceInterval
     let tolerance: Duration? = delay >= .seconds(1) ? .seconds(1) : nil
     backgroundNewAdvertPersistTask = Task { [weak self] in
@@ -628,36 +630,63 @@ public actor AdvertisementService {
       } catch {
         return
       }
-      await self?.runBackgroundNewAdvertPersist(generation: generation)
+      guard !Task.isCancelled else { return }
+      await self?.runBackgroundNewAdvertPersist()
     }
   }
 
   private func cancelBackgroundNewAdvertPersist() {
-    backgroundNewAdvertPersistGeneration &+= 1
     backgroundNewAdvertPersistTask?.cancel()
     backgroundNewAdvertPersistTask = nil
   }
 
-  private func runBackgroundNewAdvertPersist(generation: UInt64) async {
-    guard backgroundNewAdvertPersistGeneration == generation else { return }
+  private func runBackgroundNewAdvertPersist() async {
     backgroundNewAdvertPersistTask = nil
-    guard !suppressNewAdvertEventsForTeardown, !pendingNewAdverts.isEmpty else { return }
-    await flushPendingNewAdverts(deferContactUpdate: true)
+    guard activeNewAdvertFlushMode != .teardown, !pendingNewAdverts.isEmpty else { return }
+    if let appStateProvider {
+      await appStateProvider.runBackgroundTask(named: "FlushBackgroundNewAdverts") {
+        await self.flushPendingNewAdverts(mode: .background)
+      }
+    } else {
+      await flushPendingNewAdverts(mode: .background)
+    }
   }
 
-  func flushPendingNewAdverts(deferContactUpdate: Bool) async {
+  private func mergeNewAdvertFlushMode(
+    _ current: NewAdvertFlushMode?,
+    with incoming: NewAdvertFlushMode
+  ) -> NewAdvertFlushMode {
+    if current == .teardown || incoming == .teardown { return .teardown }
+    if current == .foreground || incoming == .foreground { return .foreground }
+    return .background
+  }
+
+  func flushPendingNewAdverts(mode: NewAdvertFlushMode) async {
     if let newAdvertFlushTask {
+      activeNewAdvertFlushMode = mergeNewAdvertFlushMode(activeNewAdvertFlushMode, with: mode)
       await newAdvertFlushTask.value
     }
-    await startNewAdvertFlush(deferContactUpdate: deferContactUpdate)?.value
+    await startNewAdvertFlush(mode: mode)?.value
+    if activeNewAdvertFlushMode != .teardown, mode == .foreground {
+      emitPendingForegroundContactUpdate()
+    }
   }
 
-  private func startNewAdvertFlush(deferContactUpdate: Bool) -> Task<Void, Never>? {
-    if let newAdvertFlushTask { return newAdvertFlushTask }
+  private func startNewAdvertFlush(mode: NewAdvertFlushMode) -> Task<Void, Never>? {
+    if let newAdvertFlushTask {
+      activeNewAdvertFlushMode = mergeNewAdvertFlushMode(activeNewAdvertFlushMode, with: mode)
+      return newAdvertFlushTask
+    }
     guard !pendingNewAdverts.isEmpty, let radioID = currentRadioID else { return nil }
+    activeNewAdvertFlushMode = mergeNewAdvertFlushMode(activeNewAdvertFlushMode, with: mode)
 
     let task = Task {
-      defer { newAdvertFlushTask = nil }
+      defer {
+        newAdvertFlushTask = nil
+        if activeNewAdvertFlushMode != .teardown {
+          activeNewAdvertFlushMode = nil
+        }
+      }
       while !pendingNewAdverts.isEmpty {
         guard let activeRadioID = currentRadioID else { return }
         let drained = pendingNewAdverts.values.sorted { $0.receivedAt < $1.receivedAt }
@@ -668,14 +697,14 @@ public actor AdvertisementService {
             radioID: activeRadioID,
             entries: entries
           )
-          guard !suppressNewAdvertEventsForTeardown, currentRadioID == radioID else { return }
+          guard activeNewAdvertFlushMode != .teardown, currentRadioID == radioID else { return }
           guard !results.isEmpty else { continue }
           emitNewContactDiscoveries(results)
-          if deferContactUpdate {
-            hasPendingForegroundContactUpdate = true
-          } else {
+          if activeNewAdvertFlushMode == .foreground {
             hasPendingForegroundContactUpdate = false
             eventBroadcaster.yield(.contactUpdated())
+          } else {
+            hasPendingForegroundContactUpdate = true
           }
         } catch {
           logger.error("Error handling new advert batch: \(error.localizedDescription)")
@@ -697,7 +726,7 @@ public actor AdvertisementService {
   }
 
   private func emitPendingForegroundContactUpdate() {
-    guard !suppressNewAdvertEventsForTeardown, hasPendingForegroundContactUpdate else { return }
+    guard activeNewAdvertFlushMode != .teardown, hasPendingForegroundContactUpdate else { return }
     hasPendingForegroundContactUpdate = false
     eventBroadcaster.yield(.contactUpdated())
   }

@@ -129,22 +129,28 @@ public extension PersistenceStore {
     unsavedRxLogInsertCount += 1
 
     if unsavedRxLogInsertCount >= RxLogRetention.batchSize {
-      try commitPendingRxLogEntries()
+      try commitDeferredWrites()
     } else {
-      scheduleRxLogFlush()
+      scheduleDeferredCommit()
     }
   }
 
   /// Exact `async throws` match for `RxLogPersisting` so this implementation is
   /// the protocol witness; a `throws`-only method loses to the default no-op.
   func flushPendingRxLogEntries() async throws {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
   }
 
-  func scheduleRxLogFlush() {
-    guard rxLogFlushTask == nil else { return }
-    let useBackgroundDebounce = isRxLogBackgroundFlushMode
-    rxLogFlushTask = Task {
+  func scheduleDeferredCommit() {
+    guard deferredCommitTask == nil else { return }
+    deferredCommitTask = Task {
+      let provider = currentAppStateProvider()
+      let useBackgroundDebounce = if let provider {
+        await !provider.isInForeground
+      } else {
+        false
+      }
+      guard !Task.isCancelled else { return }
       if useBackgroundDebounce {
         try? await Task.sleep(
           for: RxLogRetention.backgroundFlushInterval,
@@ -154,10 +160,17 @@ public extension PersistenceStore {
         try? await Task.sleep(for: RxLogRetention.flushInterval)
       }
       guard !Task.isCancelled else { return }
-      do {
-        try await self.flushPendingRxLogEntries()
-      } catch {
-        rxLogFlushLogger.error("Failed to flush pending RX log entries: \(error.localizedDescription)")
+      let flush: @Sendable () async -> Void = {
+        do {
+          try await self.flushDeferredWrites()
+        } catch {
+          rxLogFlushLogger.error("Failed to flush deferred store writes: \(error.localizedDescription)")
+        }
+      }
+      if useBackgroundDebounce, let provider = currentAppStateProvider() {
+        await provider.runBackgroundTask(named: "FlushDeferredStoreWrites", operation: flush)
+      } else {
+        await flush()
       }
     }
   }

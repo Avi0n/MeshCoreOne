@@ -23,6 +23,7 @@ struct ConversationRowActions: View {
     switch edge {
     case .all:
       readStateButton
+      mentionsOnlyButton
       muteButton
       pinButton
       Divider()
@@ -59,6 +60,31 @@ struct ConversationRowActions: View {
       Label(L10n.Chats.Chats.Action.delete, systemImage: "trash")
     }
     .disabled(!isConnected || viewModel.isDeletePending(conversation.id))
+  }
+
+  @ViewBuilder
+  private var mentionsOnlyButton: some View {
+    if case .channel = conversation {
+      let current = viewModel.liveConversation(id: conversation.id) ?? conversation
+      let isMentionsOnly = current.notificationLevel == .mentionsOnly
+      let button = Button {
+        Task {
+          await viewModel.toggleMentionsOnly(conversation)
+        }
+      } label: {
+        Label(
+          L10n.Chats.Chats.Row.mentionsOnly,
+          systemImage: isMentionsOnly ? "checkmark" : "at"
+        )
+      }
+      .disabled(!isConnected)
+
+      if isMentionsOnly {
+        button.accessibilityAddTraits(.isSelected)
+      } else {
+        button
+      }
+    }
   }
 
   private var muteButton: some View {

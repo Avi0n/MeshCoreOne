@@ -256,7 +256,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
 
   /// Per-hop public-key prefixes from `pathNodes`, chunked by `pathHashSize`.
   public var pathHopHashes: [Data] {
-    pathNodes.pathHops(hashSize: pathHashSize).map(\.data)
+    pathNodes.pathHopChunks(hashSize: pathHashSize)
   }
 
   /// Target node hashes extracted from TRACE payload.

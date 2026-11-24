@@ -37,6 +37,18 @@ public enum ChannelCrypto {
   /// Bytes before the group-datagram blob: data type (2) + length (1).
   public static let groupDatagramHeaderSize = groupDatagramTypeSize + groupDatagramLengthSize
 
+  /// 1-byte wire channel hash matching firmware `BaseChatMesh::setChannel`:
+  /// hashes the first 16 bytes when a 32-byte secret is zero-padded, else all bytes.
+  public static func channelHash(for secret: Data) -> UInt8 {
+    let keyData: Data = if secret.count == 32, secret.dropFirst(keySize).allSatisfy({ $0 == 0 }) {
+      Data(secret.prefix(keySize))
+    } else {
+      secret
+    }
+    let digest = SHA256.hash(data: keyData)
+    return digest.withUnsafeBytes { $0[0] }
+  }
+
   /// MAC-checked AES plaintext, still including block padding.
   public enum PlaintextResult: Sendable {
     case success(Data)

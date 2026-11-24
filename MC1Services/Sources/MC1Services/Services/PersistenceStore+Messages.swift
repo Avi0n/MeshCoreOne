@@ -404,7 +404,7 @@ public extension PersistenceStore {
 
   /// Update message status
   func updateMessageStatus(id: UUID, status: MessageStatus) throws {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetID = id
     let predicate = #Predicate<Message> { message in
       message.id == targetID
@@ -470,7 +470,7 @@ public extension PersistenceStore {
   /// row, so it can never resurrect a row the expiry checker already failed or
   /// downgrade a delivered row. Returns `true` when the row moved to `.sent`.
   func clearRetryingToSent(id: UUID) throws -> Bool {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetID = id
     let predicate = #Predicate<Message> { message in
       message.id == targetID
@@ -666,7 +666,7 @@ public extension PersistenceStore {
   }
 
   func prepareChannelMessageResend(id: UUID, timestamp: UInt32) throws {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     guard let message = try fetchMessageModel(id: id) else {
       throw PersistenceStoreError.messageNotFound
     }
@@ -864,6 +864,42 @@ public extension PersistenceStore {
     message.regionScope = regionScope
     message.regionScopeMatches = regionScopeMatches
     try modelContext.save()
+  }
+
+  func fetchRecentSentChannelMessageKeys(radioID: UUID, limit: Int) async throws -> [SentChannelMessageKey]? {
+    let targetRadioID = radioID
+    let outgoingDirection = MessageDirection.outgoing.rawValue
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID
+        && message.channelIndex != nil
+        && message.directionRawValue == outgoingDirection
+    }
+    var descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)]
+    )
+    descriptor.fetchLimit = limit
+    let messages = try modelContext.fetch(descriptor)
+    return messages.compactMap { message in
+      message.channelIndex.map { SentChannelMessageKey(channelIndex: $0, timestamp: message.timestamp) }
+    }
+  }
+
+  func fetchRecentIncomingChannelDeduplicationKeys(radioID: UUID, limit: Int) async throws -> [String]? {
+    let targetRadioID = radioID
+    let incomingDirection = MessageDirection.incoming.rawValue
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID
+        && message.channelIndex != nil
+        && message.directionRawValue == incomingDirection
+        && message.deduplicationKey != nil
+    }
+    var descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\Message.createdAt, order: .reverse)]
+    )
+    descriptor.fetchLimit = limit
+    return try modelContext.fetch(descriptor).compactMap(\.deduplicationKey)
   }
 
   /// Finds the outgoing channel message a heard repeat echoes back. The sender
@@ -1082,7 +1118,7 @@ public extension PersistenceStore {
   // MARK: - Reactions
 
   func admitReaction(_ dto: ReactionDTO) throws -> ReactionAdmission? {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       guard let admission = try admitReactionWithoutSaving(dto) else { return nil }
       try modelContext.save()

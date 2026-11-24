@@ -4970,51 +4970,9 @@ struct PersistenceStoreTests {
     try await store.flushPendingRxLogEntries()
     #expect(await store.rxLogInitiatedSaveCount == 0)
 
-    let secondKey = Data((0..<32).map { UInt8($0 + 0x40) })
-    let secondFrame = ContactFrame(
-      publicKey: secondKey,
-      type: firstFrame.type,
-      flags: firstFrame.flags,
-      outPathLength: firstFrame.outPathLength,
-      outPath: firstFrame.outPath,
-      name: "RelayTwo",
-      lastAdvertTimestamp: firstFrame.lastAdvertTimestamp,
-      latitude: firstFrame.latitude,
-      longitude: firstFrame.longitude,
-      lastModified: firstFrame.lastModified
-    )
-    let thirdKey = Data((0..<32).map { UInt8($0 + 0x80) })
-    let thirdFrame = ContactFrame(
-      publicKey: thirdKey,
-      type: firstFrame.type,
-      flags: firstFrame.flags,
-      outPathLength: firstFrame.outPathLength,
-      outPath: firstFrame.outPath,
-      name: "RelayThree",
-      lastAdvertTimestamp: firstFrame.lastAdvertTimestamp,
-      latitude: firstFrame.latitude,
-      longitude: firstFrame.longitude,
-      lastModified: firstFrame.lastModified
-    )
-    _ = try await store.batchUpsertDiscoveredNodes(
-      radioID: device.id,
-      entries: [(frame: secondFrame, receivedAt: Date())]
-    )
-    _ = try await store.batchUpsertDiscoveredNodes(
-      radioID: device.id,
-      entries: [
-        (frame: firstFrame, receivedAt: Date()),
-        (frame: thirdFrame, receivedAt: Date())
-      ]
-    )
-
     let nodes = try await store.fetchDiscoveredNodes(radioID: device.id)
     let firstNode = try #require(nodes.first { $0.publicKey == firstFrame.publicKey })
     #expect(firstNode.inboundHopCount == 2)
-    let secondNode = try #require(nodes.first { $0.publicKey == secondKey })
-    #expect(secondNode.name == "RelayTwo")
-    let thirdNode = try #require(nodes.first { $0.publicKey == thirdKey })
-    #expect(thirdNode.name == "RelayThree")
 
     let rxLog = createTestRxLogEntryDTO(radioID: device.id, senderTimestamp: 55, channelIndex: 0)
     try await store.saveRxLogEntry(rxLog)
@@ -5026,24 +4984,7 @@ struct PersistenceStoreTests {
   }
 
   @Test
-  func `setRxLogBackgroundFlushMode flushes pending writes when returning to foreground`() async throws {
-    let store = try await createTestStore()
-    let device = createTestDevice()
-    try await store.saveDevice(device)
-
-    await store.setRxLogBackgroundFlushMode(true)
-    let dto = createTestRxLogEntryDTO(radioID: device.id, senderTimestamp: 88, channelIndex: 0)
-    try await store.saveRxLogEntry(dto)
-    #expect(await store.rxLogInitiatedSaveCount == 0)
-
-    await store.setRxLogBackgroundFlushMode(false)
-    let found = try await store.findRxLogEntry(radioID: device.id, channelIndex: 0, senderTimestamp: 88)
-    #expect(found?.id == dto.id)
-    #expect(await store.rxLogInitiatedSaveCount == 1)
-  }
-
-  @Test
-  func `upsertDiscoveredNode and batchUpsertDiscoveredNodes ignore older receivedAt frames`() async throws {
+  func `batchUpsertDiscoveredNodes ignores older receivedAt frames`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()
     try await store.saveDevice(device)
@@ -5067,7 +5008,6 @@ struct PersistenceStoreTests {
       longitude: base.longitude,
       lastModified: base.lastModified
     )
-    _ = try await store.upsertDiscoveredNode(radioID: device.id, from: older, receivedAt: t1)
     _ = try await store.batchUpsertDiscoveredNodes(
       radioID: device.id,
       entries: [(frame: older, receivedAt: t1)]

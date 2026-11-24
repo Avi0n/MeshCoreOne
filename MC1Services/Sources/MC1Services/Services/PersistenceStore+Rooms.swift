@@ -199,7 +199,7 @@ public extension PersistenceStore {
 
   /// Delete remote node session and all associated room messages
   func deleteRemoteNodeSession(id: UUID) throws {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       let targetID = id
 

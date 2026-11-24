@@ -285,43 +285,6 @@ struct BondShieldRefreshTests {
     #expect(box.deviceIDs == [Self.deviceID])
   }
 
-  @Test
-  func `onBondRefreshed fires past persist interval, on backward clock jump, and resets on clear`() async throws {
-    let sm = BLEStateMachine(bondRefreshPersistInterval: 0.05)
-    await sm.injectBondTestCentralManager(BondRefreshTestCentralManager(delegate: nil, queue: nil))
-    let peripheral = makeLeakedBondRefreshPeripheral()
-    let initial = Date()
-    await sm.recordBondVerification(deviceID: Self.deviceID, at: initial)
-    await sm.primeConnectedForBondTests(peripheral: peripheral)
-    await sm.setAppSessionLive(deviceID: Self.deviceID)
-
-    let box = BondRefreshCallbackBox()
-    await sm.setBondRefreshedHandler { deviceID in
-      box.record(deviceID)
-    }
-
-    await sm.refreshBondVerificationIfLive()
-    let refreshedInMemory = await sm.bondVerificationDate(for: Self.deviceID)
-    #expect(refreshedInMemory != nil)
-    if let refreshedInMemory {
-      #expect(refreshedInMemory > initial)
-    }
-    #expect(box.deviceIDs.isEmpty)
-
-    try await Task.sleep(for: .milliseconds(70))
-    await sm.refreshBondVerificationIfLive()
-    await sm.refreshBondVerificationIfLive()
-    #expect(box.deviceIDs == [Self.deviceID])
-
-    await sm.recordBondVerification(deviceID: Self.deviceID, at: Date().addingTimeInterval(3600))
-    await sm.refreshBondVerificationIfLive()
-    #expect(box.deviceIDs == [Self.deviceID, Self.deviceID])
-
-    await sm.clearBondVerification(deviceID: Self.deviceID)
-    await sm.refreshBondVerificationIfLive()
-    #expect(box.deviceIDs.count == 2)
-  }
-
   // MARK: - Persist re-validation (CM path)
 
   @Test

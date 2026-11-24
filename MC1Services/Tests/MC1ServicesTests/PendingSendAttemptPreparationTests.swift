@@ -72,7 +72,7 @@ private extension PersistenceStore {
   func bufferRxLogEntryForAttemptPreparation(_ entry: RxLogEntryDTO) throws {
     try saveRxLogEntry(entry)
     // Keep the partial batch uncommitted until preparation owns the save.
-    rxLogFlushTask?.cancel()
-    rxLogFlushTask = nil
+    deferredCommitTask?.cancel()
+    deferredCommitTask = nil
   }
 }

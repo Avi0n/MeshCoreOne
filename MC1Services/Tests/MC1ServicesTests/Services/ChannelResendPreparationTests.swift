@@ -96,7 +96,7 @@ extension PersistenceStore {
 private extension PersistenceStore {
   func bufferRxLogEntryForResendPreparation(_ entry: RxLogEntryDTO) throws {
     try saveRxLogEntry(entry)
-    rxLogFlushTask?.cancel()
-    rxLogFlushTask = nil
+    deferredCommitTask?.cancel()
+    deferredCommitTask = nil
   }
 }

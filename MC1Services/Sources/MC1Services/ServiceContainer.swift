@@ -218,6 +218,7 @@ public final class ServiceContainer {
       ackEvents: ackEvents,
       dmSendBudget: { DMSendBudget.current() },
       plainTextSendGate: plainTextSendGate,
+      heardRepeatsService: heardRepeatsService,
       datagramPathHarvest: { message in
         guard let channelIndex = message.channelIndex else { return }
         let raw = await (try? store.fetchRxLogEntries(

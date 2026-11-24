@@ -212,7 +212,8 @@ struct SettingsRefreshPropagationTests {
 
   @Test
   func `a failed refresh after key import keeps the existing error and public key`() async throws {
-    let fixture = try await RefreshFixture.make(device: savedDevice(catalogID: nil), state: .init())
+    let clock = TestClock()
+    let fixture = try await RefreshFixture.make(device: savedDevice(catalogID: nil), state: .init(), clock: clock)
     defer { fixture.stop() }
     await fixture.radio.armFailSecondAppStartAfterImport()
     let viewModel = ImportKeyViewModel()
@@ -221,7 +222,15 @@ struct SettingsRefreshPropagationTests {
     viewModel.hexInput = generated.expandedPrivateKey.map { String(format: "%02X", $0) }.joined()
     viewModel.validateAndConfirm()
 
-    #expect(await viewModel.importKey() == false)
+    let importing = Task { await viewModel.importKey() }
+    // Only the refresh's appStart goes unanswered; advancing earlier would fail the import itself.
+    try await waitUntil("the refresh after import should wait on its unanswered appStart") {
+      let imported = await fixture.radio.importCount == 1
+      let refreshing = await fixture.radio.appStartsSinceImport == 2
+      return imported && refreshing && clock.sleeperCount > 0
+    }
+    clock.advanceToNextSleep()
+    #expect(await importing.value == false)
     #expect(viewModel.errorMessage != nil)
     #expect(viewModel.successTrigger == 0)
     #expect(fixture.appState.connectedDevice?.publicKey == fixture.device.publicKey)
@@ -530,7 +539,9 @@ private struct RefreshFixture {
   let services: ServiceContainer
   let device: DeviceDTO
 
-  static func make(device: DeviceDTO, state: PropagationRadio.State) async throws -> RefreshFixture {
+  static func make(
+    device: DeviceDTO, state: PropagationRadio.State, clock: TestClock? = nil
+  ) async throws -> RefreshFixture {
     let preferences = IsolatedUserDefaults()
     let appState = try AppState(
       modelContainer: PersistenceStore.createContainer(inMemory: true),
@@ -540,7 +551,7 @@ private struct RefreshFixture {
     let store = appState.connectionManager.persistenceStore
     try await store.saveDevice(device)
     let radio = PropagationRadio(state: state)
-    let session = MeshCoreSession(transport: radio)
+    let session = MeshCoreSession(transport: radio, clock: clock)
     try await session.start()
     let services = ServiceContainer(session: session, dataStore: store, radioID: device.radioID)
     appState.connectionManager.setTestState(
@@ -637,7 +648,8 @@ private actor PropagationRadio: MeshTransport {
   private var holdContinuation: CheckedContinuation<Void, Never>?
   private var failSecondAppStartAfterImport = false
   private var failNextOtherParams = false
-  private var appStartsSinceImport = 0
+  private(set) var appStartsSinceImport = 0
+  private(set) var importCount = 0
   private(set) var isHoldingAppStart = false
   private(set) var otherParamsTelemetry: [UInt8] = []
 
@@ -725,6 +737,7 @@ private actor PropagationRadio: MeshTransport {
       await inner.simulateOK()
     case .importPrivateKey:
       appStartsSinceImport = 0
+      importCount += 1
       state.publicKey = state.publicKeyAfterImport
       await inner.simulateOK()
     case .setPathHashMode:

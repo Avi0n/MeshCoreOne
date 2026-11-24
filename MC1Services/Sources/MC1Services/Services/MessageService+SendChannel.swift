@@ -59,6 +59,7 @@ public extension MessageService {
     )
     try await dataStore.saveMessage(messageDTO)
     await harvestOutgoingDatagramPathsIfNeeded(messageDTO)
+    await heardRepeatsService?.noteSentChannelMessage(channelIndex: channelIndex, timestamp: timestamp)
 
     do {
       let transmission = try await channelTransmission(
@@ -120,6 +121,7 @@ public extension MessageService {
     )
     try await dataStore.saveMessage(messageDTO)
     await harvestOutgoingDatagramPathsIfNeeded(messageDTO)
+    await heardRepeatsService?.noteSentChannelMessage(channelIndex: channelIndex, timestamp: timestamp)
 
     return messageDTO
   }
@@ -242,6 +244,7 @@ public extension MessageService {
       if !preserveTimestamp {
         try await dataStore.prepareChannelMessageResend(id: messageID, timestamp: wireTimestamp)
       }
+      await heardRepeatsService?.noteSentChannelMessage(channelIndex: channelIndex, timestamp: wireTimestamp)
       let isReaction = message.reactionTargetMessageID != nil
       let alreadyAccepted = isReaction && (
         acceptedChannelReactions.contains(messageID) || (preserveTimestamp && message.status == .sent)

@@ -10,7 +10,6 @@ public extension ConnectionManager {
 
   /// Called when the app enters background. Pauses foreground-only BLE operations.
   func appDidEnterBackground() async {
-    await persistenceStore.setRxLogBackgroundFlushMode(true)
     let transportName = switch currentTransportType {
     case .bluetooth: "bluetooth"
     case .wifi: "wifi"
@@ -37,7 +36,6 @@ public extension ConnectionManager {
   /// Called when the app becomes active. Reconciles BLE state and restarts
   /// foreground operations.
   func appDidBecomeActive() async {
-    await persistenceStore.setRxLogBackgroundFlushMode(false)
     let transportName = switch currentTransportType {
     case .bluetooth: "bluetooth"
     case .wifi: "wifi"

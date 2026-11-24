@@ -437,18 +437,16 @@ struct BLEStateMachineBackgroundScanTests {
     let sm = BLEStateMachine(centralManager: central)
 
     await sm.startScanning()
-    #expect(await sm.isCurrentlyScanning == true)
+    #expect(await sm.scanState == .scanning)
     #expect(central.scanCallCount == 1)
     #expect(central.stopScanCallCount == 0)
 
     await sm.appDidEnterBackground()
-    #expect(await sm.isCurrentlyScanning == false)
-    #expect(await sm.isScanPausedForBackground == true)
+    #expect(await sm.scanState == .pausedInBackground)
     #expect(central.stopScanCallCount == 1)
 
     await sm.appDidBecomeActive()
-    #expect(await sm.isScanPausedForBackground == false)
-    #expect(await sm.isCurrentlyScanning == true)
+    #expect(await sm.scanState == .scanning)
     #expect(central.scanCallCount == 2)
   }
 
@@ -459,7 +457,7 @@ struct BLEStateMachineBackgroundScanTests {
 
     await sm.startScanning()
     await sm.appDidEnterBackground()
-    #expect(await sm.isScanPausedForBackground == true)
+    #expect(await sm.scanState == .pausedInBackground)
     #expect(central.scanCallCount == 1)
 
     central.forcedState = .poweredOff
@@ -467,12 +465,11 @@ struct BLEStateMachineBackgroundScanTests {
     central.forcedState = .poweredOn
     await sm.handleCentralManagerDidUpdateState(.poweredOn)
 
-    #expect(await sm.isCurrentlyScanning == false)
-    #expect(await sm.isScanPausedForBackground == true)
+    #expect(await sm.scanState == .pausedInBackground)
     #expect(central.scanCallCount == 1)
 
     await sm.appDidBecomeActive()
-    #expect(await sm.isCurrentlyScanning == true)
+    #expect(await sm.scanState == .scanning)
     #expect(central.scanCallCount == 2)
   }
 
@@ -483,13 +480,13 @@ struct BLEStateMachineBackgroundScanTests {
 
     await sm.startScanning()
     await sm.appDidEnterBackground()
-    #expect(await sm.isScanPausedForBackground == true)
+    #expect(await sm.scanState == .pausedInBackground)
 
     await sm.stopScanning()
-    #expect(await sm.isScanPausedForBackground == false)
+    #expect(await sm.scanState == .idle)
 
     await sm.appDidBecomeActive()
-    #expect(await sm.isCurrentlyScanning == false)
+    #expect(await sm.scanState == .idle)
     #expect(central.scanCallCount == 1)
   }
 
@@ -502,8 +499,7 @@ struct BLEStateMachineBackgroundScanTests {
     central.forcedState = .poweredOff
     await sm.appDidEnterBackground()
 
-    #expect(await sm.isCurrentlyScanning == false)
-    #expect(await sm.isScanPausedForBackground == true)
+    #expect(await sm.scanState == .pausedInBackground)
     #expect(central.stopScanCallCount == 0)
   }
 }

@@ -1,8 +1,24 @@
 import Foundation
 import MeshCore
 
+public struct SentChannelMessageKey: Hashable, Sendable {
+  public let channelIndex: UInt8
+  public let timestamp: UInt32
+
+  public init(channelIndex: UInt8, timestamp: UInt32) {
+    self.channelIndex = channelIndex
+    self.timestamp = timestamp
+  }
+}
+
 /// Store operations for correlating RX observations with a known message.
 public protocol HeardRepeatPersisting: Actor {
+  /// Recent sent channel keys for echo filtering, or `nil` to fail open to store lookups.
+  func fetchRecentSentChannelMessageKeys(radioID: UUID, limit: Int) async throws -> [SentChannelMessageKey]?
+
+  /// Recent incoming channel deduplication keys for arrival filtering, or `nil` to fail open.
+  func fetchRecentIncomingChannelDeduplicationKeys(radioID: UUID, limit: Int) async throws -> [String]?
+
   /// Find a sent channel message by exact channel, sender timestamp, and text on the sending radio
   func findSentChannelMessage(radioID: UUID, channelIndex: UInt8, timestamp: UInt32, text: String) async throws -> MessageDTO?
 
@@ -19,9 +35,6 @@ public protocol HeardRepeatPersisting: Actor {
 
   /// Fetch all repeats for a message
   func fetchMessageRepeats(messageID: UUID) async throws -> [MessageRepeatDTO]
-
-  /// Check if a repeat exists for the given RX log entry
-  func messageRepeatExists(rxLogEntryID: UUID) async throws -> Bool
 
   /// Increment heard repeats count and return new count
   func incrementMessageHeardRepeats(id: UUID) async throws -> Int
@@ -78,21 +91,29 @@ public protocol HeardRepeatPersisting: Actor {
   func incrementMessageSendCount(id: UUID) async throws -> Int
 }
 
-extension HeardRepeatPersisting {
-  func fetchChannelMessages(radioID: UUID, channelIndex: UInt8, timestampWindow: ClosedRange<UInt32>) async throws -> [MessageDTO] {
+public extension HeardRepeatPersisting {
+  func fetchChannelMessages(radioID _: UUID, channelIndex _: UInt8, timestampWindow _: ClosedRange<UInt32>) async throws -> [MessageDTO] {
     []
   }
 
   func applyDatagramCanonicalContext(
-    messageID: UUID,
-    routeType: RouteType?,
-    regionScope: String?,
-    regionScopeMatches: [String]
+    messageID _: UUID,
+    routeType _: RouteType?,
+    regionScope _: String?,
+    regionScopeMatches _: [String]
   ) async throws {}
 
   func updateMessageRegion(
-    id: UUID,
-    regionScope: String?,
-    regionScopeMatches: [String]
+    id _: UUID,
+    regionScope _: String?,
+    regionScopeMatches _: [String]
   ) async throws {}
+
+  func fetchRecentSentChannelMessageKeys(radioID _: UUID, limit _: Int) async throws -> [SentChannelMessageKey]? {
+    nil
+  }
+
+  func fetchRecentIncomingChannelDeduplicationKeys(radioID _: UUID, limit _: Int) async throws -> [String]? {
+    nil
+  }
 }

@@ -245,6 +245,10 @@ final class AppState {
   /// Incremented when conversations data changes. Views observe this to reload chat lists.
   private(set) var conversationsVersion: Int = 0
 
+  @ObservationIgnored private var pendingConversationsRefresh = false
+  @ObservationIgnored private var pendingContactsRefresh = false
+  @ObservationIgnored private var unreadRefreshGeneration: UInt64 = 0
+
   /// Incremented when a remote-node session changes connection state.
   /// `RoomConversationView` observes this counter via `.onChange` to refresh
   /// its session DTO when re-authentication completes.
@@ -258,23 +262,48 @@ final class AppState {
     sessionStateChangeCount += 1
   }
 
-  /// Bumps `conversationsVersion` and publishes unread totals to Live Activity
-  /// only while the captured radio, services, and version remain current.
+  /// Bumps `conversationsVersion` when foregrounded (deferring while backgrounded)
+  /// and publishes unread totals to Live Activity while the generation stays current.
   @discardableResult
   func refreshConversations() -> Task<Void, Never> {
-    conversationsVersion += 1
+    unreadRefreshGeneration &+= 1
+    let generation = unreadRefreshGeneration
+    if isInForeground {
+      conversationsVersion += 1
+    } else {
+      pendingConversationsRefresh = true
+    }
     guard conversationUnreadOperations.shouldPublish(liveActivityManager) else {
       return Task {}
     }
-    let version = conversationsVersion
     let capturedServices = services
     let radioID = currentRadioID
     return Task { @MainActor [weak self] in
       guard let self, let capturedServices, let radioID else { return }
       let total = await conversationUnreadOperations.read(capturedServices.dataStore, radioID)
       guard !Task.isCancelled, services === capturedServices,
-            currentRadioID == radioID, conversationsVersion == version else { return }
+            currentRadioID == radioID, unreadRefreshGeneration == generation else { return }
       await conversationUnreadOperations.publish(liveActivityManager, total)
+    }
+  }
+
+  func noteContactsChanged() {
+    if isInForeground {
+      contactsVersion += 1
+    } else {
+      pendingContactsRefresh = true
+    }
+  }
+
+  func flushDeferredViewRefreshes() {
+    guard isInForeground else { return }
+    if pendingConversationsRefresh {
+      pendingConversationsRefresh = false
+      conversationsVersion += 1
+    }
+    if pendingContactsRefresh {
+      pendingContactsRefresh = false
+      contactsVersion += 1
     }
   }
 
@@ -299,6 +328,9 @@ final class AppState {
   /// Bumps `servicesVersion` so observing views re-run `performInitialLoad`.
   func bumpServicesVersion() {
     servicesVersion += 1
+    if !isInForeground {
+      pendingConversationsRefresh = true
+    }
   }
 
   // MARK: - Connection UI State
@@ -362,29 +394,36 @@ final class AppState {
   @ObservationIgnored var rxLogEventsSubscriptionGeneration: UUID?
   @ObservationIgnored private var reportedScenePhase: ScenePhase?
 
-  var isInForeground: Bool {
+  var effectiveScenePhase: ScenePhase {
     #if DEBUG
-      if let isInForegroundOverride { return isInForegroundOverride }
+      if let scenePhaseOverride { return scenePhaseOverride }
     #endif
-    let sceneNotBackground = reportedScenePhase.map { $0 != .background } ?? true
-    return sceneNotBackground && UIApplication.shared.applicationState != .background
+    let appPhase: ScenePhase = switch UIApplication.shared.applicationState {
+    case .background: .background
+    case .inactive: .inactive
+    case .active: .active
+    @unknown default: .active
+    }
+    guard let reportedScenePhase else { return appPhase }
+    if reportedScenePhase == .background || appPhase == .background { return .background }
+    if reportedScenePhase == .inactive || appPhase == .inactive { return .inactive }
+    return .active
   }
 
-  var isForegroundActive: Bool {
-    #if DEBUG
-      if let isInForegroundOverride { return isInForegroundOverride }
-    #endif
-    let sceneActive = reportedScenePhase.map { $0 == .active } ?? true
-    return sceneActive && UIApplication.shared.applicationState == .active
+  var isInForeground: Bool {
+    effectiveScenePhase != .background
   }
 
   func updateScenePhase(_ phase: ScenePhase) {
     reportedScenePhase = phase
+    if phase != .background {
+      flushDeferredViewRefreshes()
+    }
   }
 
   #if DEBUG
     /// Optional test-only hooks for deterministic lifecycle ordering tests.
-    var isInForegroundOverride: Bool?
+    var scenePhaseOverride: ScenePhase?
     var bleEnterBackgroundOverride: (@MainActor () async -> Void)?
     var bleBecomeActiveOverride: (@MainActor () async -> Void)?
     /// Parks power-off cleanup at the Live Activity await. Nil uses the real activity end.
@@ -530,29 +569,14 @@ final class AppState {
       guard let self, self.connectionState.isConnected else { return nil }
       return self.connectedDevice?.radioID
     }
-    liveActivityManager.isInForegroundProvider = { [weak self] in
-      self?.isInForeground ?? false
+    liveActivityManager.scenePhaseProvider = { [weak self] in
+      self?.effectiveScenePhase ?? .background
     }
-    liveActivityManager.isForegroundActiveProvider = { [weak self] in
-      self?.isForegroundActive ?? false
-    }
-    liveActivityManager.onActivityStateChanged = { [weak self] isActive in
-      guard let self else { return }
-      if isActive {
-        if let snapshot = connectionManager.currentConnection,
-           connectionManager.isCurrent(snapshot) {
-          syncRxLogLiveActivitySubscription(for: snapshot)
-        }
-      } else {
-        cancelRxLogLiveActivitySubscription()
-        if !isInForeground {
-          batteryMonitor.stop()
-        }
-      }
+    liveActivityManager.onActivityStateChanged = { [weak self] _ in
+      self?.reconcileLiveActivityMonitoring()
     }
     batteryMonitor.shouldRunRefreshLoopProvider = { [weak self] in
-      guard let self else { return false }
-      return isInForeground || liveActivityManager.hasActiveActivity
+      self?.isInForeground ?? false
     }
 
     // Wire app state provider for incremental sync support
@@ -620,7 +644,7 @@ final class AppState {
       store: connectionManager.persistenceStore,
       now: { Date() },
       onContactsChanged: { [weak self] in
-        self?.contactsVersion += 1
+        self?.noteContactsChanged()
       },
       dependencies: WatchlistRefreshCoordinator.Dependencies(
         operations: { [weak self] in
@@ -810,6 +834,7 @@ final class AppState {
     )
     batteryMonitor.stop()
     batteryMonitor.clearThresholds()
+    BatteryRefreshScheduler.cancelPending()
     lastBumpedServicesID = nil
     // Refresh the active timeline from storage to pick up status changes made during retirement.
     bumpServicesVersion()
@@ -891,6 +916,7 @@ final class AppState {
     wireMessageEvents(snapshot: snapshot)
     await wireLiveActivityCallbacks(snapshot: snapshot)
     guard !Task.isCancelled, context.isCurrent(connectionManager) else { return }
+    wireRxLogMonitor(snapshot: snapshot)
     await services.channelService.setSlotOccupantChangedHandler { [weak self] radioID, indices in
       await MainActor.run {
         guard let self else { return }
@@ -902,7 +928,7 @@ final class AppState {
     let servicesID = ObjectIdentifier(services)
     if lastBumpedServicesID != servicesID {
       lastBumpedServicesID = servicesID
-      servicesVersion += 1
+      bumpServicesVersion()
     }
     UNUserNotificationCenter.current().delegate = services.notificationService
     services.notificationService.setStringProvider(NotificationStringProviderImpl())

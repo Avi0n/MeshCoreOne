@@ -116,7 +116,7 @@ public extension PersistenceStore {
   /// Save or update a contact from a ContactFrame.
   /// Returns the contact id and whether the row was newly inserted (`isNew`).
   func saveContact(radioID: UUID, from frame: ContactFrame) throws -> (id: UUID, isNew: Bool) {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetRadioID = radioID
     let targetKey = frame.publicKey
     let predicate = #Predicate<Contact> { contact in
@@ -146,7 +146,7 @@ public extension PersistenceStore {
   @discardableResult
   func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) async throws -> Int {
     guard !frames.isEmpty else { return 0 }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
 
     let referenceDate = Date()
     let targetRadioID = radioID
@@ -190,7 +190,7 @@ public extension PersistenceStore {
 
   /// Save or update a contact from DTO
   func saveContact(_ dto: ContactDTO) throws {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetID = dto.id
     let predicate = #Predicate<Contact> { contact in
       contact.id == targetID
@@ -209,7 +209,7 @@ public extension PersistenceStore {
 
   @discardableResult
   func insertContactIfAbsent(radioID: UUID, from frame: ContactFrame) throws -> (id: UUID, isNew: Bool) {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetRadioID = radioID
     let targetKey = frame.publicKey
     let predicate = #Predicate<Contact> { contact in
@@ -379,7 +379,7 @@ public extension PersistenceStore {
   /// save. The cascade is keyed by the contact ID value, not the Contact row,
   /// so orphaned local data is removed even when the row is already gone.
   func deleteContact(id: UUID) throws {
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     do {
       try _stageOverwriteOldestCascade(contactID: id)
       try stageRecentlyBlockedContactDeletion(contactID: id)
@@ -427,7 +427,7 @@ public extension PersistenceStore {
     skippingPublicKeys: @Sendable () -> Set<Data>
   ) throws -> [UUID] {
     guard !publicKeys.isEmpty else { return [] }
-    try commitPendingRxLogEntries()
+    try commitDeferredWrites()
     let targetRadioID = radioID
     var candidates: [(contact: Contact, publicKey: Data)] = []
     for publicKey in publicKeys {
@@ -622,16 +622,15 @@ public extension PersistenceStore {
     }
     var nodeDescriptor = FetchDescriptor(predicate: nodePredicate)
     nodeDescriptor.fetchLimit = 1
-    if try modelContext.fetch(nodeDescriptor).first == nil {
+    if let node = try modelContext.fetch(nodeDescriptor).first {
+      node.lastHeard = date
+      try modelContext.save()
+    } else {
       // A known contact can lack a Discover row (paired before the row existed,
       // or restored from a backup). Hearing it on air makes it discoverable.
       _ = try upsertDiscoveredNode(radioID: radioID, from: contact.toContactFrame(), receivedAt: date)
     }
-    if let node = try modelContext.fetch(nodeDescriptor).first {
-      node.lastHeard = date
-    }
 
-    try modelContext.save()
     return true
   }
 

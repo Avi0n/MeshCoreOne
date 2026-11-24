@@ -151,6 +151,9 @@ struct MC1App: App {
           handleScenePhaseChange(from: oldPhase, to: newPhase)
         }
     }
+    .backgroundTask(.appRefresh(BatteryRefreshScheduler.taskIdentifier)) {
+      await appState.handleBackgroundBatteryRefresh()
+    }
   }
 
   #if DEBUG && targetEnvironment(simulator)
@@ -218,7 +221,7 @@ struct MC1App: App {
       Task {
         await BackgroundTaskRunner.live.run(named: "FlushBackgroundStores") {
           await DebugLogBuffer.shared?.flush()
-          try? await appState.connectionManager.persistenceStore.flushPendingRxLogEntries()
+          try? await appState.connectionManager.persistenceStore.flushDeferredWrites()
         }
       }
     case .inactive:

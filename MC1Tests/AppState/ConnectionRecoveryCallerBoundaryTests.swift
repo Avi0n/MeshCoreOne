@@ -19,6 +19,9 @@ struct ConnectionRecoveryCallerBoundaryTests {
         _ = try await env.manager.connectViaWiFi(host: "radio.local", port: 4242)
       }
       let previousTimeReads = await env.ble.timeReads
+      // Only the session this caller publishes runs on the test clock, so its retirement drain can elapse at once.
+      let sessionClock = TestClock()
+      env.manager.sessionClockForTesting = sessionClock
       await env.ble.holdReplies(for: .getTime)
       if pairing {
         env.app.startDeviceScan()
@@ -28,12 +31,17 @@ struct ConnectionRecoveryCallerBoundaryTests {
       try await waitUntil("the app caller must publish BLE and reach its real clock tail") {
         await env.ble.timeReads == previousTimeReads + 1
       }
+      env.manager.sessionClockForTesting = nil
       let first = try #require(env.manager.currentConnection)
       if !pairing { #expect(env.app.connectionLinkSwitch?.target == .bluetooth) }
       await env.ble.simulateAutoReconnecting(deviceID: env.deviceID)
       try await waitUntil("post-publication physical loss must retire the Link") { env.manager.currentConnection == nil }
       await env.ble.releaseReplies(for: .getTime)
-      try await waitUntil("the retired setup must release its barrier") { env.manager.connectionTeardownCount == 0 }
+      try await waitUntil("the retired setup must release its barrier") {
+        // The released reply reaches no waiter once the binding is revoked, so the drain ends on its timeout.
+        if sessionClock.sleeperCount > 0 { sessionClock.advanceToNextSleep() }
+        return env.manager.connectionTeardownCount == 0
+      }
       await env.ble.simulateReconnected()
       try await waitUntil("OS recovery must rebuild the same request") {
         env.manager.connectionState == .ready && env.manager.currentConnection?.generation != first.generation

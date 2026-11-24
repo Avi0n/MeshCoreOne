@@ -310,6 +310,7 @@ actor ConnectionTestRadioTransport: iOSMeshTransport, WiFiMeshTransport {
     heldReplyCodes.remove(command.rawValue)
     for reply in heldReplies.removeValue(forKey: command.rawValue) ?? [] {
       continuation.yield(reply)
+      lastYieldedByCommand[command.rawValue] = reply
     }
   }
 
@@ -435,7 +436,7 @@ actor ConnectionTestRadioTransport: iOSMeshTransport, WiFiMeshTransport {
       }
       if let delivered {
         self.lastYieldedByCommand[code] = delivered
-      } else if !self.heldReplyCodes.contains(code) {
+      } else {
         self.lastYieldedByCommand.removeValue(forKey: code)
       }
     }
@@ -575,6 +576,8 @@ actor ConnectionTestRadioTransport: iOSMeshTransport, WiFiMeshTransport {
       return [Data([ResponseCode.ok.rawValue])]
     case .getMessage: return [Data([ResponseCode.noMoreMessages.rawValue])]
     case .getAutoAddConfig: return [Data([ResponseCode.autoAddConfig.rawValue, 0])]
+    // Firmware answers with the bare response code when no default scope is configured.
+    case .getDefaultFloodScope: return [Data([ResponseCode.defaultFloodScope.rawValue])]
     case .getBattery: return [Data([ResponseCode.battery.rawValue, 0x74, 0x0E])]
     case .exportPrivateKey: return [Data([ResponseCode.disabled.rawValue])]
     case .getTime:

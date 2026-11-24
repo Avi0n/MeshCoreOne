@@ -523,6 +523,9 @@ extension SyncCoordinator {
               message, scope: scope, conversationID: channel?.textRulesID
             ),
             scope.isCurrent else { return }
+      await dependencies.heardRepeatsService.noteIncomingChannelMessage(
+        deduplicationKey: message.deduplicationKey
+      )
       let savedDTO = if message.isDatagramMCOImage {
         try await harvestDatagramAndRefresh(
           messageDTO: message,

@@ -2,6 +2,7 @@ import Foundation
 @testable import MC1
 @testable import MC1Services
 @testable import MeshCore
+import os
 import Testing
 
 @Suite("AppState power off")
@@ -47,15 +48,17 @@ struct AppStatePowerOffTests {
   @Test
   func `silence disconnects as a user power off`() async throws {
     let transport = MockTransport()
+    let clock = TestClock()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst"),
+      clock: clock
     )
     let appState = try await makeAppState(session: session)
     defer { appState.shutdown() }
     try await startSession(session, transport: transport)
 
-    try await appState.powerOffRadio()
+    try await advancingPowerOffWindow(clock) { try await appState.powerOffRadio() }
 
     #expect(appState.connectionManager.connectionIntent.isUserDisconnected)
     #expect(appState.connectionState == .disconnected)
@@ -100,9 +103,11 @@ struct AppStatePowerOffTests {
   @Test
   func `replacement during activity teardown leaves the new connection's session state`() async throws {
     let transport = MockTransport()
+    let clock = TestClock()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst"),
+      clock: clock
     )
     let appState = try await makeAppState(session: session)
     defer { appState.shutdown() }
@@ -122,7 +127,10 @@ struct AppStatePowerOffTests {
       }
     }
 
-    try await waitUntil("power-off should reach activity teardown") { probe.endActivityStarted }
+    try await waitUntil("power-off should reach activity teardown") {
+      advancePowerOffWindowIfParked(clock)
+      return probe.endActivityStarted
+    }
     let replacement = try await installReplacementConnection(on: appState)
     defer {
       replacement.eventTask.cancel()
@@ -141,9 +149,11 @@ struct AppStatePowerOffTests {
   @Test
   func `a same-session installation during teardown revokes cleanup before the guard`() async throws {
     let transport = MockTransport()
+    let clock = TestClock()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst"),
+      clock: clock
     )
     let appState = try await makeAppState(session: session)
     let teardownGate = Gate()
@@ -176,7 +186,10 @@ struct AppStatePowerOffTests {
       }
     }
 
-    try await waitUntil("owned disconnect should park") { teardownStarted }
+    try await waitUntil("owned disconnect should park") {
+      advancePowerOffWindowIfParked(clock)
+      return teardownStarted
+    }
     let services = try await ServiceContainer.forTesting(session: session, radioID: device.radioID)
     let eventTask = makeOpenEventTask()
     let node = makeRemoteSession(radioID: device.radioID)
@@ -213,9 +226,11 @@ struct AppStatePowerOffTests {
   @Test
   func `owned cleanup still clears session resources`() async throws {
     let transport = MockTransport()
+    let clock = TestClock()
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst"),
+      clock: clock
     )
     let appState = try await makeAppState(session: session)
     defer { appState.shutdown() }
@@ -228,7 +243,7 @@ struct AppStatePowerOffTests {
     appState.settingsEventsTask = eventTask
     appState.powerOffEndActivityOverride = {}
 
-    try await appState.powerOffRadio()
+    try await advancingPowerOffWindow(clock) { try await appState.powerOffRadio() }
 
     #expect(appState.settingsEventsTask == nil)
     #expect(eventTask.isCancelled)
@@ -404,4 +419,35 @@ private actor Gate {
     waiter?.resume()
     waiter = nil
   }
+}
+
+/// Lets a parked power-off reply window elapse. The mock never answers the power-off frame,
+/// so the exchange reaches silence only when that window ends.
+private func advancePowerOffWindowIfParked(_ clock: TestClock) {
+  guard let parked = clock.nextSleepDuration else { return }
+  let window = Duration.seconds(MeshCoreSession.powerOffReplyWindow)
+  let tolerance = Duration.milliseconds(50)
+  if parked >= window - tolerance, parked <= window + tolerance {
+    clock.advanceToNextSleep()
+  }
+}
+
+/// Runs `work` while letting its parked power-off reply window elapse.
+@MainActor
+private func advancingPowerOffWindow(
+  _ clock: TestClock,
+  _ work: @escaping @MainActor @Sendable () async throws -> Void
+) async throws {
+  let outcome = OSAllocatedUnfairLock<Result<Void, any Error>?>(initialState: nil)
+  let task = Task { @MainActor in
+    let result: Result<Void, any Error>
+    do { result = try await .success(work()) } catch { result = .failure(error) }
+    outcome.withLock { $0 = result }
+  }
+  try await waitUntil("power off should finish once its reply window elapses") {
+    advancePowerOffWindowIfParked(clock)
+    return outcome.withLock { $0 != nil }
+  }
+  await task.value
+  try outcome.withLock { $0 }?.get()
 }

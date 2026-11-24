@@ -69,8 +69,7 @@ public enum RegionDiscoveryService {
       let listenTask = Task { () -> Set<Data> in
         var keys = Set<Data>()
         for await event in events {
-          if case let .discoverResponse(response) = event,
-             response.tag == tagData {
+          if case let .discoverResponse(response) = event {
             keys.insert(response.publicKey)
           }
         }

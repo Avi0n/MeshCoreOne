@@ -50,6 +50,7 @@ public actor MessageService {
   /// Contact service for path management (optional - retry with reset requires this).
   /// Injected by `ServiceContainer` at construction.
   let contactService: ContactService?
+  let heardRepeatsService: HeardRepeatsService?
 
   /// In-flight messages awaiting ACK, keyed by messageID.
   ///
@@ -58,9 +59,7 @@ public actor MessageService {
   /// can still mark the message delivered.
   var pendingAcks: [UUID: PendingAck] = [:] {
     didSet {
-      if !pendingAcks.isEmpty {
-        ensureAckCheckTaskIfNeeded()
-      }
+      syncAckCheckTask()
     }
   }
 
@@ -148,6 +147,7 @@ public actor MessageService {
     ackEvents: AsyncStream<MeshEvent>? = nil,
     dmSendBudget: @escaping @Sendable () -> DMSendBudget = { .default },
     plainTextSendGate: PlainTextSendGate? = nil,
+    heardRepeatsService: HeardRepeatsService? = nil,
     datagramPathHarvest: (@Sendable (MessageDTO) async -> Void)? = nil
   ) {
     self.session = session
@@ -156,6 +156,7 @@ public actor MessageService {
     self.config = config
     dmSendBudgetProvider = dmSendBudget
     self.plainTextSendGate = plainTextSendGate
+    self.heardRepeatsService = heardRepeatsService
     bufferedAckEvents = ackEvents
     self.datagramPathHarvest = datagramPathHarvest
   }

@@ -12,8 +12,11 @@ final class ConnectionLinkSwitchHarness {
   let pairing: MockAccessorySetupKitService
   let initialBluetoothAttempts: Int
   let initialWiFiAttempts: Int
+  /// Drives every session this harness's manager creates. `nil` keeps sessions on the real clock.
+  let sessionClock: TestClock?
   private let defaults: UserDefaults
   private let suite: String
+  private let radios: RadioObserver
   private var workers: [Task<Void, Never>] = []
 
   var manager: ConnectionManager {
@@ -23,8 +26,8 @@ final class ConnectionLinkSwitchHarness {
   private init(
     appState: AppState, device: DeviceDTO, bluetooth: ConnectionTestRadioTransport,
     wifi: ConnectionTestRadioTransport, pairing: MockAccessorySetupKitService,
-    initialBluetoothAttempts: Int, initialWiFiAttempts: Int,
-    defaults: UserDefaults, suite: String
+    initialBluetoothAttempts: Int, initialWiFiAttempts: Int, sessionClock: TestClock?,
+    radios: RadioObserver, defaults: UserDefaults, suite: String
   ) {
     self.appState = appState
     self.device = device
@@ -33,6 +36,8 @@ final class ConnectionLinkSwitchHarness {
     self.pairing = pairing
     self.initialBluetoothAttempts = initialBluetoothAttempts
     self.initialWiFiAttempts = initialWiFiAttempts
+    self.sessionClock = sessionClock
+    self.radios = radios
     self.defaults = defaults
     self.suite = suite
   }
@@ -42,7 +47,8 @@ final class ConnectionLinkSwitchHarness {
     peripheralID: UUID? = UUID(),
     wifiHost: String? = nil,
     wifiPort: UInt16 = ConnectionMethod.defaultWiFiPort,
-    foreignWiFiRadio: Bool = false
+    foreignWiFiRadio: Bool = false,
+    sessionClock: TestClock? = nil
   ) async throws -> ConnectionLinkSwitchHarness {
     let suite = "test.linkswitch.\(UUID().uuidString)"
     let defaults = try #require(UserDefaults(suiteName: suite))
@@ -67,13 +73,17 @@ final class ConnectionLinkSwitchHarness {
     let appState = AppState(
       modelContainer: container, isPlaceholder: true, defaults: defaults, injectedConnectionManager: manager
     )
+    manager.sessionClockForTesting = sessionClock
+    let radios = RadioObserver(manager: manager, bluetooth: bluetooth, wifi: wifi, live: live)
     do {
-      switch live {
-      case .bluetooth:
-        let id = try #require(peripheralID)
-        _ = try await manager.connect(to: id)
-      case .wifi:
-        _ = try await manager.connectViaWiFi(host: wifiHost ?? "10.0.0.4", port: wifiPort)
+      try await advancing(sessionClock, radios: radios) {
+        switch live {
+        case .bluetooth:
+          let id = try #require(peripheralID)
+          _ = try await manager.connect(to: id)
+        case .wifi:
+          _ = try await manager.connectViaWiFi(host: wifiHost ?? "10.0.0.4", port: wifiPort)
+        }
       }
       let device = try #require(manager.connectedDevice)
       #expect(manager.connectionState == .ready)
@@ -83,12 +93,13 @@ final class ConnectionLinkSwitchHarness {
       return await ConnectionLinkSwitchHarness(
         appState: appState, device: device, bluetooth: bluetooth, wifi: wifi, pairing: pairing,
         initialBluetoothAttempts: bluetooth.connectCount,
-        initialWiFiAttempts: wifi.connectCount, defaults: defaults, suite: suite
+        initialWiFiAttempts: wifi.connectCount, sessionClock: sessionClock, radios: radios,
+        defaults: defaults, suite: suite
       )
     } catch {
       await bluetooth.releaseAllGates()
       await wifi.releaseAllGates()
-      await manager.disconnect(reason: .userInitiated)
+      _ = try? await advancing(sessionClock, radios: radios) { await manager.disconnect(reason: .userInitiated) }
       appState.shutdown()
       defaults.removePersistentDomain(forName: suite)
       throw error
@@ -114,7 +125,12 @@ final class ConnectionLinkSwitchHarness {
       await worker.value
     }
     workers.removeAll()
-    await appState.disconnect(reason: .userInitiated)
+    // Retirement drains in-flight exchanges, and an unanswered one ends only on its session-clock timeout.
+    do {
+      try await advancingClock { await self.appState.disconnect(reason: .userInitiated) }
+    } catch {
+      Issue.record("Clocked disconnect did not finish: \(error)")
+    }
     appState.shutdown()
     defaults.removePersistentDomain(forName: suite)
     #expect(manager.services == nil)
@@ -155,6 +171,75 @@ final class ConnectionLinkSwitchHarness {
     } catch {
       await harness.close()
       throw error
+    }
+  }
+
+  /// Runs `work`, letting parked session timeouts elapse once their replies can no longer arrive.
+  /// Connects, imports, and disconnects in a clocked test go through here so sync and drain sleeps cannot park forever.
+  func advancingClock<T: Sendable>(_ work: @escaping @MainActor @Sendable () async throws -> T) async throws -> T {
+    try await Self.advancing(sessionClock, radios: radios, work)
+  }
+
+  /// Polls `condition` while letting parked session timeouts elapse once their replies can no longer arrive.
+  func waitAdvancingClock(
+    _ message: String = "clocked session work should finish",
+    until condition: @escaping @MainActor () async -> Bool
+  ) async throws {
+    guard let sessionClock else {
+      try await waitUntil(timeout: Timing.realClockWait, message, condition: condition)
+      return
+    }
+    try await advanceParkedMatchedSessionClock(sessionClock, message, observation: { [radios] in
+      await radios.observation()
+    }, until: condition)
+  }
+
+  private static func advancing<T: Sendable>(
+    _ clock: TestClock?,
+    radios: RadioObserver,
+    _ work: @escaping @MainActor @Sendable () async throws -> T
+  ) async throws -> T {
+    guard let clock else { return try await work() }
+    return try await resultAdvancingMatchedSessionClock(clock, observation: { await radios.observation() }, work)
+  }
+
+  private enum Timing {
+    static let realClockWait: Duration = .seconds(35)
+  }
+
+  /// Observes the radio that sent most recently, since that is where the newest session waiter is parked.
+  @MainActor
+  private final class RadioObserver {
+    private let manager: ConnectionManager
+    private let bluetooth: ConnectionTestRadioTransport
+    private let wifi: ConnectionTestRadioTransport
+    private var current: TransportType
+    private var sentCounts: (bluetooth: Int, wifi: Int) = (0, 0)
+
+    init(
+      manager: ConnectionManager,
+      bluetooth: ConnectionTestRadioTransport,
+      wifi: ConnectionTestRadioTransport,
+      live: TransportType
+    ) {
+      self.manager = manager
+      self.bluetooth = bluetooth
+      self.wifi = wifi
+      current = live
+    }
+
+    func observation() async -> SessionClockObservation {
+      let counts = await (bluetooth: bluetooth.sentData.count, wifi: wifi.sentData.count)
+      let bluetoothSent = counts.bluetooth > sentCounts.bluetooth
+      let wifiSent = counts.wifi > sentCounts.wifi
+      sentCounts = counts
+      if bluetoothSent != wifiSent {
+        current = bluetoothSent ? .bluetooth : .wifi
+      } else if bluetoothSent, let live = manager.currentTransportType {
+        current = live
+      }
+      let radio = current == .wifi ? wifi : bluetooth
+      return await sessionClockObservation(radio: radio, session: manager.session)
     }
   }
 

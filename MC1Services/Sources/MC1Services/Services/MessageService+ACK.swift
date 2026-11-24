@@ -25,11 +25,18 @@ public extension MessageService {
     let existing = ackCheckTask
     ackCheckTask = nil
     existing?.cancel()
-    ensureAckCheckTaskIfNeeded()
+    syncAckCheckTask()
   }
 
-  func ensureAckCheckTaskIfNeeded() {
-    guard isAckExpiryCheckingActive, !pendingAcks.isEmpty, ackCheckTask == nil else { return }
+  func syncAckCheckTask() {
+    guard isAckExpiryCheckingActive, !pendingAcks.isEmpty else {
+      ackCheckGeneration &+= 1
+      let existing = ackCheckTask
+      ackCheckTask = nil
+      existing?.cancel()
+      return
+    }
+    guard ackCheckTask == nil else { return }
     let generation = ackCheckGeneration
     ackCheckTask = Task { [weak self] in
       await self?.runAckCheckLoop(generation: generation)
@@ -40,9 +47,6 @@ public extension MessageService {
     defer {
       if ackCheckGeneration == generation {
         ackCheckTask = nil
-        if isAckExpiryCheckingActive, !pendingAcks.isEmpty, !Task.isCancelled {
-          ensureAckCheckTaskIfNeeded()
-        }
       }
     }
 

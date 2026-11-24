@@ -283,6 +283,7 @@ extension AdvertisementService {
   func reconcile(_ drained: Set<Data>, insertedKeys: Set<Data>) async {
     guard let radioID = currentRadioID else { return }
 
+    var pendingEntries: [(contact: ContactDTO, frame: ContactFrame, receivedAt: Date)] = []
     for publicKey in drained {
       guard !isRadioDeleted(publicKey) else { continue }
       let pubKeyHex = publicKey.uppercaseHexString()
@@ -311,32 +312,46 @@ extension AdvertisementService {
           longitude: contact.longitude,
           lastModified: contact.lastModified
         )
-
-        do {
-          let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
-          discoverTrace.debug("B2 reconcile upsert key=\(pubKeyHex) isNew=\(isNew)")
-        } catch {
-          discoverTrace.error("B2 reconcile upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
-        }
-        guard !isRadioDeleted(publicKey) else { continue }
-
-        // Prefer losing a notification over inventing one: only keys absent from
-        // the pre-round snapshot and present after the exchange are announced.
-        if insertedKeys.contains(publicKey) {
-          eventBroadcaster.yield(.newContactDiscovered(
-            name: contact.name,
-            contactID: contact.id,
-            contactType: contact.type
-          ))
-          logOverwriteReplacementIfRecent(
-            newContactName: contact.name,
-            newContactType: contact.type
-          )
-        }
+        pendingEntries.append((contact: contact, frame: frame, receivedAt: Date()))
       } catch {
         logger.error("Reconcile failed for \(pubKeyHex): \(error.localizedDescription)")
       }
     }
+
+    guard !pendingEntries.isEmpty else { return }
+    let batchInputs = pendingEntries.map { (frame: $0.frame, receivedAt: $0.receivedAt) }
+    do {
+      let results = try await dataStore.batchUpsertDiscoveredNodes(
+        radioID: radioID,
+        entries: batchInputs
+      )
+      for (entry, result) in zip(pendingEntries, results) {
+        let pubKeyHex = entry.contact.publicKey.uppercaseHexString()
+        discoverTrace.debug("B2 reconcile upsert key=\(pubKeyHex) isNew=\(result.isNew)")
+        guard !isRadioDeleted(entry.contact.publicKey) else { continue }
+        emitInsertedContactIfNeeded(entry.contact, insertedKeys: insertedKeys)
+      }
+    } catch {
+      discoverTrace.error("B2 reconcile batch upsert FAILED count=\(batchInputs.count): \(error.localizedDescription)")
+      for entry in pendingEntries where !isRadioDeleted(entry.contact.publicKey) {
+        emitInsertedContactIfNeeded(entry.contact, insertedKeys: insertedKeys)
+      }
+    }
+  }
+
+  private func emitInsertedContactIfNeeded(_ contact: ContactDTO, insertedKeys: Set<Data>) {
+    // Prefer losing a notification over inventing one: only keys absent from
+    // the pre-round snapshot and present after the exchange are announced.
+    guard insertedKeys.contains(contact.publicKey) else { return }
+    eventBroadcaster.yield(.newContactDiscovered(
+      name: contact.name,
+      contactID: contact.id,
+      contactType: contact.type
+    ))
+    logOverwriteReplacementIfRecent(
+      newContactName: contact.name,
+      newContactType: contact.type
+    )
   }
 
   /// Links orphaned DMs whose sender prefix matches contacts among `keys`.

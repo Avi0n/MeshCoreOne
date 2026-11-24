@@ -494,6 +494,6 @@ struct MCOImageReceiveIntegrationTests {
       HMAC<SHA256>.authenticationCode(for: ciphertext, using: SymmetricKey(data: secret))
         .prefix(ChannelCrypto.macSize)
     )
-    return Data([0x00]) + mac + ciphertext.prefix(encryptedCount)
+    return Data([ChannelCrypto.channelHash(for: secret)]) + mac + ciphertext.prefix(encryptedCount)
   }
 }

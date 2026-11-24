@@ -1,14 +1,21 @@
 import Foundation
 import MC1Services
 import MeshCore
+import os
 import OSLog
 
 /// Manages device battery polling, threshold checks, and low-battery notifications.
 @Observable
 @MainActor
 final class BatteryMonitor {
+  private struct BackgroundFetchGate: Sendable {
+    var nextAllowedDate: Date = .distantPast
+    var isFetching = false
+  }
+
   private let logger = Logger(subsystem: "com.mc1", category: "BatteryMonitor")
   private weak var connectionManager: ConnectionManager?
+  private nonisolated let backgroundFetchGate = OSAllocatedUnfairLock(initialState: BackgroundFetchGate())
 
   func configure(connectionManager: ConnectionManager) {
     self.connectionManager = connectionManager
@@ -34,6 +41,9 @@ final class BatteryMonitor {
   /// Task for periodic battery refresh (cancelled on disconnect/background)
   private var batteryRefreshTask: Task<Void, Never>?
 
+  /// Deduplicates overlapping battery fetches across foreground loop, RX wake, and BGTask.
+  private var inFlightFetchTask: Task<Void, Never>?
+
   /// Thresholds that have already triggered a notification this session
   private var notifiedBatteryThresholds: Set<Int> = []
 
@@ -56,6 +66,8 @@ final class BatteryMonitor {
 
   private static let refreshIntervalSeconds: TimeInterval = 120
   private static let refreshToleranceSeconds: TimeInterval = 5
+  static let backgroundBatteryInterval: TimeInterval = 900
+  static let backgroundFailureBackoffSeconds: TimeInterval = 120
 
   /// The active OCV array for the connected device
   func activeBatteryOCVArray(for device: DeviceDTO?) -> [Int] {
@@ -66,32 +78,85 @@ final class BatteryMonitor {
 
   /// Fetch device battery level on demand
   func fetchDeviceBattery(services: ServiceContainer?, device: DeviceDTO?) async {
-    guard let services, let context = context(for: services) else { return }
+    if let existingTask = inFlightFetchTask {
+      await existingTask.value
+      backgroundFetchGate.withLock { $0.isFetching = false }
+      return
+    }
+    guard let services, let context = context(for: services) else {
+      backgroundFetchGate.withLock { $0.isFetching = false }
+      return
+    }
     let settingsService = services.settingsService
-
-    do {
-      let battery = try await settingsService.getBattery()
-      guard isCurrent(context) else { return }
-      deviceBattery = battery
-      lastSuccessfulFetchDate = .now
-      if let battery = deviceBattery {
-        onBatteryChanged?(battery)
+    let task = Task { @MainActor [weak self] in
+      guard let self else { return }
+      defer {
+        self.inFlightFetchTask = nil
+        self.backgroundFetchGate.withLock { $0.isFetching = false }
       }
-      await checkBatteryThresholds(device: device, services: services)
-    } catch {
-      guard isCurrent(context) else { return }
-      deviceBattery = nil
+      do {
+        let battery = try await settingsService.getBattery()
+        guard self.isCurrent(context) else { return }
+        self.applyFetchedBattery(battery, device: device)
+        await self.checkBatteryThresholds(device: device, services: services)
+      } catch {
+        guard self.isCurrent(context) else { return }
+        let nextAllowed = Date.now.addingTimeInterval(Self.backgroundFailureBackoffSeconds)
+        self.backgroundFetchGate.withLock { $0.nextAllowedDate = nextAllowed }
+        if self.deviceBattery != nil {
+          self.deviceBattery = nil
+        }
+      }
+    }
+    inFlightFetchTask = task
+    await task.value
+  }
+
+  /// Fetches battery only when both the background interval and failure backoff have elapsed.
+  func fetchBatteryIfOverdue(services: ServiceContainer?, device: DeviceDTO?, now: Date = .now) async {
+    if let last = lastSuccessfulFetchDate,
+       now.timeIntervalSince(last) < Self.backgroundBatteryInterval { return }
+    let canProceed = backgroundFetchGate.withLock { state in
+      guard !state.isFetching, now >= state.nextAllowedDate else { return false }
+      state.isFetching = true
+      return true
+    }
+    guard canProceed else { return }
+    await fetchDeviceBattery(services: services, device: device)
+  }
+
+  /// Checks overdue and backoff state off the main actor so high-rate RX wakes
+  /// never hop to `@MainActor` or stall the RX stream.
+  nonisolated func requestOverdueBackgroundFetch(
+    now: Date = .now,
+    perform: @escaping @MainActor @Sendable () async -> Void
+  ) {
+    let shouldStart = backgroundFetchGate.withLock { state -> Bool in
+      guard !state.isFetching, now >= state.nextAllowedDate else { return false }
+      state.isFetching = true
+      return true
+    }
+    guard shouldStart else { return }
+    Task(priority: .utility) { @MainActor [weak self] in
+      await perform()
+      self?.backgroundFetchGate.withLock { $0.isFetching = false }
     }
   }
 
-  private static let backgroundBatteryInterval: TimeInterval = 900
-
-  /// Fetch battery only if enough time has passed since last successful fetch.
-  /// Called from packet reception handler to piggyback on active BLE wake-ups.
-  func fetchBatteryIfOverdue(services: ServiceContainer?, device: DeviceDTO?) async {
-    if let last = lastSuccessfulFetchDate,
-       Date.now.timeIntervalSince(last) < Self.backgroundBatteryInterval { return }
-    await fetchDeviceBattery(services: services, device: device)
+  private func applyFetchedBattery(_ battery: BatteryInfo, device: DeviceDTO?) {
+    let ocv = activeBatteryOCVArray(for: device)
+    let previousPercent = deviceBattery?.percentage(using: ocv)
+    let newPercent = battery.percentage(using: ocv)
+    if deviceBattery != battery {
+      deviceBattery = battery
+    }
+    let now = Date.now
+    lastSuccessfulFetchDate = now
+    let nextAllowed = now.addingTimeInterval(Self.backgroundBatteryInterval)
+    backgroundFetchGate.withLock { $0.nextAllowedDate = nextAllowed }
+    if previousPercent != newPercent {
+      onBatteryChanged?(battery)
+    }
   }
 
   /// Start battery monitoring for a newly connected device.
@@ -105,15 +170,15 @@ final class BatteryMonitor {
       do {
         let battery = try await services.settingsService.getBattery()
         guard isCurrent(context) else { return }
-        deviceBattery = battery
-        lastSuccessfulFetchDate = .now
-        if let battery = deviceBattery {
-          onBatteryChanged?(battery)
-        }
+        applyFetchedBattery(battery, device: device)
       } catch {
         guard isCurrent(context) else { return }
         logger.debug("Deferred battery bootstrap failed: \(error.localizedDescription, privacy: .public)")
-        deviceBattery = nil
+        let nextAllowed = Date.now.addingTimeInterval(Self.backgroundFailureBackoffSeconds)
+        backgroundFetchGate.withLock { $0.nextAllowedDate = nextAllowed }
+        if deviceBattery != nil {
+          deviceBattery = nil
+        }
       }
 
       guard isCurrent(context) else { return }
@@ -129,11 +194,19 @@ final class BatteryMonitor {
     bootstrapTask = nil
     batteryRefreshTask?.cancel()
     batteryRefreshTask = nil
+    inFlightFetchTask?.cancel()
+    inFlightFetchTask = nil
+    backgroundFetchGate.withLock { $0.isFetching = false }
   }
 
   /// Clear notification thresholds for a fresh connection
   func clearThresholds() {
     notifiedBatteryThresholds = []
+    lastSuccessfulFetchDate = nil
+    backgroundFetchGate.withLock {
+      $0.nextAllowedDate = .distantPast
+      $0.isFetching = false
+    }
   }
 
   /// Check for battery thresholds crossed while app was backgrounded.
@@ -145,11 +218,10 @@ final class BatteryMonitor {
     do {
       let battery = try await settingsService.getBattery()
       guard isCurrent(context) else { return }
-      deviceBattery = battery
-      if let battery = deviceBattery {
-        onBatteryChanged?(battery)
-      }
+      applyFetchedBattery(battery, device: device)
     } catch {
+      let nextAllowed = Date.now.addingTimeInterval(Self.backgroundFailureBackoffSeconds)
+      backgroundFetchGate.withLock { $0.nextAllowedDate = nextAllowed }
       return
     }
 
